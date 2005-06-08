@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<response xmlns="http://digir.net/schema/protocol/2003/1.0">
+ <header>
+  <version>$Revision: 1.14 $</version> 
+  <sendTime>2004-07-20T09:56:03-03:00</sendTime> 
+  <source resource="MYRES">http://some_provider.org:80/provider/DiGIR.php</source> 
+  <destination>127.0.0.1</destination>
+  <type>search</type> 
+ </header>
+ <content xmlns:darwin="http://digir.net/schema/conceptual/darwin/2003/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <record>
+   <darwin:InstitutionCode>MYINS</darwin:InstitutionCode> 
+   <darwin:CollectionCode>MYCOL</darwin:CollectionCode> 
+   <darwin:CatalogNumber>T27694</darwin:CatalogNumber> 
+   <darwin:ScientificName>rubus brasiliensis</darwin:ScientificName> 
+   <coordinates>
+    <darwin:Latitude>-23.6625</darwin:Latitude> 
+    <darwin:Longitude>-46.7738</darwin:Longitude> 
+   </coordinates>
+  </record>
+  <record>
+   <darwin:InstitutionCode>MYINS</darwin:InstitutionCode> 
+   <darwin:CollectionCode>MYCOL</darwin:CollectionCode> 
+   <darwin:CatalogNumber>T27907</darwin:CatalogNumber> 
+   <darwin:ScientificName>rubus brasiliensis</darwin:ScientificName> 
+   <coordinates>
+    <darwin:Latitude>-23.412</darwin:Latitude> 
+    <darwin:Longitude>-46.7899</darwin:Longitude> 
+   </coordinates>
+  </record>
+  <record>
+   <darwin:InstitutionCode>MYINS</darwin:InstitutionCode> 
+   <darwin:CollectionCode>MYCOL</darwin:CollectionCode> 
+   <darwin:CatalogNumber>T27908</darwin:CatalogNumber> 
+   <darwin:ScientificName>rubus urticaefolius</darwin:ScientificName> 
+   <coordinates>
+    <darwin:Latitude>-23.412</darwin:Latitude> 
+    <darwin:Longitude>-46.7899</darwin:Longitude> 
+   </coordinates>
+  </record>
+ </content>
+ <diagnostics>
+  <diagnostic code="STATUS_INTERVAL" severity="info">3600</diagnostic> 
+  <diagnostic code="STATUS_DATA" severity="info">3,37,0</diagnostic> 
+  <diagnostic code="MATCH_COUNT" severity="info">26</diagnostic> 
+  <diagnostic code="RECORD_COUNT" severity="info">3</diagnostic> 
+  <diagnostic code="END_OF_RECORDS" severity="info">false</diagnostic> 
+ </diagnostics>
+</response>

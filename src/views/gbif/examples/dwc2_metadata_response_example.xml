@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?> 
+<response xmlns="http://digir.net/schema/protocol/2003/1.0">
+<header>
+ <version>$Revision: 1.14 $</version> 
+ <sendTime>2004-07-20T06:56:35-03:00</sendTime> 
+ <source>http://some_provider.org:80/provider/DiGIR.php</source> 
+ <destination>127.0.0.1</destination> 
+ <type>metadata</type> 
+</header>
+<content>
+ <metadata>
+ <provider>
+  <name>Provider name</name> 
+  <accessPoint>http://some_provider.org:80/provider/DiGIR.php</accessPoint> 
+  <implementation>$Revision: 1.14 $</implementation> 
+  <host>
+   <name>Host name</name> 
+   <code>Host code</code> 
+   <relatedInformation>http://www.some_host.org/</relatedInformation> 
+   <contact type="technical">
+    <name>Someone</name> 
+    <title>Informatics Director</title> 
+    <emailAddress>someone@some_host.org</emailAddress> 
+    <phone>some number</phone> 
+   </contact>
+   <abstract>Some description about the host.</abstract> 
+  </host>
+  <resource>
+   <name>Resource name</name> 
+   <code>Resource code</code> 
+   <relatedInformation>http://some_resource.org</relatedInformation> 
+   <contact type="technical">
+    <name>Someone</name> 
+    <title>Systems Analyst</title> 
+    <emailAddress>someone@some_resource.org</emailAddress> 
+    <phone>some number</phone> 
+   </contact>
+   <contact type="administrative">
+    <name>Someone</name> 
+    <title>Curator</title> 
+    <emailAddress>someone@some_resource.org</emailAddress> 
+    <phone>some number</phone> 
+   </contact>
+   <abstract>Resource description</abstract> 
+   <keywords />
+   <citation /> 
+   <useRestrictions /> 
+   <conceptualSchema schemaLocation="http://digir.net/schema/conceptual/darwin/2003/1.0/darwin2.xsd">http://digir.net/schema/conceptual/darwin/2003/1.0</conceptualSchema> 
+   <recordIdentifier>COL_CODE</recordIdentifier> 
+   <recordBasis>voucher</recordBasis> 
+   <numberOfRecords>7887</numberOfRecords> 
+   <dateLastUpdated>2004-05-06T13:56:00</dateLastUpdated> 
+   <minQueryTermLength>3</minQueryTermLength> 
+   <maxSearchResponseRecords>1000000</maxSearchResponseRecords> 
+   <maxInventoryResponseRecords>1000000</maxInventoryResponseRecords> 
+  </resource>
+ </provider>
+ </metadata>
+</content>
+ <diagnostics>
+  <diagnostic code="STATUS_INTERVAL" severity="info">3600</diagnostic> 
+  <diagnostic code="STATUS_DATA" severity="info">5,0,0</diagnostic> 
+ </diagnostics>
+</response>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<request xmlns="http://digir.net/schema/protocol/2003/1.0">
+  <header>
+    <version>1.0.0</version>
+    <sendTime>2004-07-20T06:51:45-03:00</sendTime>
+    <source>127.0.0.1</source>
+    <destination>http://some_provider.org/provider/DiGIR.php</destination>
+    <type>metadata</type>
+  </header>
+</request>

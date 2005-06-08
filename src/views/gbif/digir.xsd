@@ -1,0 +1,709 @@
+<?xml version="1.0"?>
+<!-- edited with XML Spy v4.1 U (http://www.xmlspy.com) by Stanley D Blum (California Academy of Sciences) -->
+<!-- $Id: digir.xsd,v 1.8 2004/06/14 20:24:07 rdg Exp $ -->
+<xsd:schema targetNamespace="http://digir.net/schema/protocol/2003/1.0" xmlns="http://digir.net/schema/protocol/2003/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" elementFormDefault="qualified">
+	<xsd:annotation>
+		<xsd:documentation>$Id: digir.xsd,v 1.8 2004/06/14 20:24:07 rdg Exp $</xsd:documentation>
+		<xsd:documentation>XML Schema specifying the DiGIR (http://digir.sourceforge.net) protocol.  In specific, request and response message formats are defined, as well as some base datatypes to be used when defining a federation (or content schema) that defines the data to be exchanged.</xsd:documentation>
+	</xsd:annotation>
+	<!--  <xsd:import namespace="http://www.w3.org/2001/XMLSchema" />  -->
+	<xsd:simpleType name="urlType">
+		<xsd:annotation>
+			<xsd:documentation>A simpleType to represent a URL that does a pattern match to verify a full URL without whitespace.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="http://[^ ]*[^., \n\t&gt;&lt;&quot;]"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:simpleType name="emailType">
+		<xsd:annotation>
+			<xsd:documentation>A simpleType to represent an email address.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:restriction base="xsd:string">
+			<xsd:pattern value="([a-zA-Z0-9_\-\.\+]+)@([a-zA-Z0-9\-\.]+)"/>
+		</xsd:restriction>
+	</xsd:simpleType>
+	<xsd:complexType name="header">
+		<xsd:annotation>
+			<xsd:documentation>Inline request header used in request and response documents.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="version" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>Version of the software running, as in beta3 or release 1.0.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="sendTime" type="xsd:dateTime">
+				<xsd:annotation>
+					<xsd:documentation>The time the request is being sent.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="source">
+				<xsd:annotation>
+					<xsd:documentation>The source of the request or response.  For search requests, it is the IP of the original requestor.  For all other requests and for responses, its the accessPoint of the host machine.  The optional resource attibute should be set to the provider's resource code, in necessary.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:simpleContent>
+						<xsd:extension base="xsd:string">
+							<xsd:attribute name="resource" type="xsd:string" use="optional"/>
+						</xsd:extension>
+					</xsd:simpleContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="destination" maxOccurs="unbounded">
+				<xsd:annotation>
+					<xsd:documentation>The destination of the request or response.  This will be the provider accesspoint for requests and the portal for responses.  The optional resource attibute should be set to the provider's resource code, in necessary.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:simpleContent>
+						<xsd:extension base="xsd:string">
+							<xsd:attribute name="resource" type="xsd:string" use="optional"/>
+						</xsd:extension>
+					</xsd:simpleContent>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="type">
+				<xsd:annotation>
+					<xsd:documentation>Type of operation being requested or being responded to.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:simpleType>
+					<xsd:restriction base="xsd:string">
+						<xsd:enumeration value="search"/>
+						<xsd:enumeration value="metadata"/>
+						<xsd:enumeration value="inventory"/>
+						<xsd:enumeration value="status"/>
+					</xsd:restriction>
+				</xsd:simpleType>
+			</xsd:element>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:element name="request">
+		<xsd:annotation>
+			<xsd:documentation>Request message format.  Must always contain and header and may or maynot contain a payload, based on the type of request being made.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="header" type="header"/>
+				<xsd:choice minOccurs="0">
+					<xsd:element name="search" type="searchOperation"/>
+					<xsd:element name="inventory" type="inventoryOperation"/>
+				</xsd:choice>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="searchOperation">
+		<xsd:annotation>
+			<xsd:documentation>A search operation, specifying query conditions and result details.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="filter" type="filter">
+				<xsd:annotation>
+					<xsd:documentation>Essentially, a representation of the "where" clause.  An empty filter is prohibited in a search request.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="records" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Specifies the columns and rows of the results to be returned.  The element is optional because some requests may simply be for the count, which is specified by setting the count element to true.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:complexType>
+					<xsd:sequence>
+						<xsd:element name="structure">
+							<xsd:complexType mixed="true">
+								<xsd:sequence minOccurs="0">
+									<xsd:any processContents="lax"/>
+								</xsd:sequence>
+								<xsd:attribute name="schemaLocation" type="urlType" use="optional"/>
+							</xsd:complexType>
+						</xsd:element>
+					</xsd:sequence>
+					<xsd:attribute name="start" type="xsd:nonNegativeInteger" default="0"/>
+					<xsd:attribute name="limit" type="xsd:nonNegativeInteger" default="10"/>
+				</xsd:complexType>
+			</xsd:element>
+			<xsd:element name="count" type="xsd:boolean" default="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="inventoryOperation">
+		<xsd:annotation>
+			<xsd:documentation>An inventory operation, which is to seek a count of all unique occurrences of a single concept.  Query conditions can optionally be applied.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="filter" type="filter" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Essentially, a representation of the "where" clause.  The element is optional in an inventory request.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:choice>
+				<xsd:annotation>
+					<xsd:documentation>The concept on which inventory information
+will be returned.  For example, &lt;darwin:Genus/&gt;.  The concept should always be left empty in the request.</xsd:documentation>
+				</xsd:annotation>
+				<xsd:element ref="returnableData"/>
+				<xsd:element ref="searchableReturnableData"/>
+			</xsd:choice>
+			<xsd:element name="count" type="xsd:boolean" default="false"/>
+		</xsd:sequence>
+	</xsd:complexType>
+	<xsd:complexType name="filter">
+		<xsd:annotation>
+			<xsd:documentation>Essentially, a representation of the "where" clause as a tree.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice>
+			<xsd:element ref="COP"/>
+			<xsd:element ref="LOP"/>
+		</xsd:choice>
+	</xsd:complexType>
+	<xsd:element name="data" abstract="true">
+		<xsd:annotation>
+			<xsd:documentation>An abstract element provided as a base to group all types of data.  It is not expected that a concrete element of this level will ever be made.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="searchableData" abstract="true" substitutionGroup="data">
+		<xsd:annotation>
+			<xsd:documentation>An abstract element provided as a base to group all types of searchableData.  The element is to be substituted by concrete elements that are searchable (but not also returnable), in federation/conceptual schema documents.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="returnableData" abstract="true" substitutionGroup="data">
+		<xsd:annotation>
+			<xsd:documentation>An abstract element provided as a base to group all types of returnableData.  The element is to be substituted by concrete elements that are returnable (but not also searchable), in federation/conceptual schema documents.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="searchableReturnableData" abstract="true" substitutionGroup="data">
+		<xsd:annotation>
+			<xsd:documentation>An abstract element provided as a base to group all types of searchableReturnableData.  The element is to be substituted by concrete elements that are both searchable and returnable, in federation/conceptual schema documents.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="COP" type="COP" abstract="true">
+		<xsd:annotation>
+			<xsd:documentation>An abstract element provided as a base to group all comparitive operator elements.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="COP" abstract="true">
+		<xsd:annotation>
+			<xsd:documentation>An abstract type provided as a base from which to derive all comparitive operator types.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice>
+			<xsd:element ref="searchableData"/>
+			<xsd:element ref="searchableReturnableData"/>
+		</xsd:choice>
+		<xsd:attribute name="symbol" type="xsd:string"/>
+	</xsd:complexType>
+	<xsd:element name="equals" type="equals" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The equals (=) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="equals">
+		<xsd:annotation>
+			<xsd:documentation>The equals (=) comparator type.  Can take any type of searchableData for an exact match.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="="/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="notEquals" type="notEquals" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The not equals (!=) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="notEquals">
+		<xsd:annotation>
+			<xsd:documentation>The not equals (!=) comparator type.  Can take any type of searchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="!="/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="lessThan" type="lessThan" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The less than (&lt;) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="lessThan">
+		<xsd:annotation>
+			<xsd:documentation>The less than (&lt;) comparator type.  Can take any numericSearchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="&lt;"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="lessThanOrEquals" type="lessThanOrEquals" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The less than or equals (&lt;=) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="lessThanOrEquals">
+		<xsd:annotation>
+			<xsd:documentation>The less than or equals (&lt;=) comparator type.  Can take any numericSearchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="&lt;="/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="greaterThan" type="greaterThan" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The greater than (>) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="greaterThan">
+		<xsd:annotation>
+			<xsd:documentation>The greater than (>) comparator type.  Can take any numericSearchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed=">"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="greaterThanOrEquals" type="greaterThanOrEquals" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The greater than or equals (>=) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="greaterThanOrEquals">
+		<xsd:annotation>
+			<xsd:documentation>The greater than or equals (>=) comparator type.  Can take any numericSearchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed=">="/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="like" type="like" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The like (LIKE) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="like">
+		<xsd:annotation>
+			<xsd:documentation>The like (LIKE) comparator type.  Can take any alphaSearchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:choice>
+					<xsd:element ref="searchableData"/>
+					<xsd:element ref="searchableReturnableData"/>
+				</xsd:choice>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="like"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="listType" abstract="true"/>
+	<xsd:element name="requiredList" abstract="true"/>
+	<xsd:complexType name="MultiCOP" abstract="true">
+		<xsd:annotation>
+			<xsd:documentation>An abstract type provided as a base from which to derive all multi-element comparitive operator types.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="COP">
+				<xsd:sequence>
+					<xsd:element name="list" type="listType"/>
+				</xsd:sequence>
+				<xsd:attribute name="symbol" type="xsd:string"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="in" type="in" substitutionGroup="COP">
+		<xsd:annotation>
+			<xsd:documentation>The in (IN) comparator element.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="in">
+		<xsd:annotation>
+			<xsd:documentation>The in (IN) comparator type.  Can take list, as defined within a federation schema as a choice of concrete searchableData.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="MultiCOP">
+				<xsd:sequence>
+					<xsd:element name="list" type="listType"/>
+				</xsd:sequence>
+				<xsd:attribute name="symbol" type="xsd:string" fixed="IN"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="LOP" type="LOP" abstract="true">
+		<xsd:annotation>
+			<xsd:documentation>A logical operator clause.  This is an abstract element to be substituted by concrete logical operator elements.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="LOP">
+		<xsd:annotation>
+			<xsd:documentation>The logical operator defined type.  An LOP can contain 2 of either COPs or LOPs (i.e. LOPs can be nested).</xsd:documentation>
+		</xsd:annotation>
+		<xsd:choice minOccurs="2" maxOccurs="2">
+			<xsd:element ref="COP"/>
+			<xsd:element ref="LOP"/>
+		</xsd:choice>
+		<xsd:attribute name="syntax" type="xsd:string"/>
+	</xsd:complexType>
+	<xsd:element name="and" type="and" substitutionGroup="LOP">
+		<xsd:annotation>
+			<xsd:documentation>The and logical operator.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="and">
+		<xsd:annotation>
+			<xsd:documentation>The and logical operator type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="LOP">
+				<xsd:choice minOccurs="2" maxOccurs="2">
+					<xsd:element ref="COP"/>
+					<xsd:element ref="LOP"/>
+				</xsd:choice>
+				<xsd:attribute name="syntax" type="xsd:string" fixed="and"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="andNot" type="andNot" substitutionGroup="LOP">
+		<xsd:annotation>
+			<xsd:documentation>The and not logical operator.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="andNot">
+		<xsd:annotation>
+			<xsd:documentation>The and not logical operator type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="LOP">
+				<xsd:choice minOccurs="2" maxOccurs="2">
+					<xsd:element ref="COP"/>
+					<xsd:element ref="LOP"/>
+				</xsd:choice>
+				<xsd:attribute name="syntax" type="xsd:string" fixed="and not"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="or" type="or" substitutionGroup="LOP">
+		<xsd:annotation>
+			<xsd:documentation>The or logical operator.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="or">
+		<xsd:annotation>
+			<xsd:documentation>The or logical operator type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="LOP">
+				<xsd:choice minOccurs="2" maxOccurs="2">
+					<xsd:element ref="COP"/>
+					<xsd:element ref="LOP"/>
+				</xsd:choice>
+				<xsd:attribute name="syntax" type="xsd:string" fixed="or"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="orNot" type="orNot" substitutionGroup="LOP">
+		<xsd:annotation>
+			<xsd:documentation>The or not logical operator.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="orNot">
+		<xsd:annotation>
+			<xsd:documentation>The or not logical operator type.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:restriction base="LOP">
+				<xsd:choice minOccurs="2" maxOccurs="2">
+					<xsd:element ref="COP"/>
+					<xsd:element ref="LOP"/>
+				</xsd:choice>
+				<xsd:attribute name="syntax" type="xsd:string" fixed="or not"/>
+			</xsd:restriction>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:complexType name="contact">
+		<xsd:annotation>
+			<xsd:documentation>A type to be used to denote a contact, as in a administrative or technical contact for a provider or a resource.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:sequence>
+			<xsd:element name="name" type="xsd:string">
+				<xsd:annotation>
+					<xsd:documentation>Full preferred name of the contact.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="title" type="xsd:string" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Optional title of the contact.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="emailAddress" type="emailType">
+				<xsd:annotation>
+					<xsd:documentation>Valid email address of the contact.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+			<xsd:element name="phone" type="xsd:string" minOccurs="0">
+				<xsd:annotation>
+					<xsd:documentation>Full international phone number of the contact.</xsd:documentation>
+				</xsd:annotation>
+			</xsd:element>
+		</xsd:sequence>
+		<xsd:attribute name="type" use="required">
+			<xsd:annotation>
+					<xsd:documentation>A type to be used to denote a contact person.  Contacts may be administative, technical, or other.  Administrative contacts are those to whom questions and feedback about data, or restrictions on use of the data should be directed.  Technical contacts are those to whom questions about accessibility of a provider or resource should be directed.</xsd:documentation>
+			</xsd:annotation>
+			<xsd:simpleType>
+				<xsd:restriction base="xsd:string">
+					<xsd:enumeration value="administrative"/>
+					<xsd:enumeration value="technical"/>
+					<xsd:enumeration value="other"/>
+				</xsd:restriction>
+			</xsd:simpleType>
+		</xsd:attribute>
+	</xsd:complexType>
+	<xsd:element name="metadata">
+		<xsd:annotation>
+			<xsd:documentation>A container for provider metadata used in a response element.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="provider">
+					<xsd:annotation>
+						<xsd:documentation>A DiGIR provider.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="name" type="xsd:string">
+								<xsd:annotation>
+									<xsd:documentation>The common name of the provider.</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element name="accessPoint" type="urlType">
+								<xsd:annotation>
+									<xsd:documentation>The URL at which the provider can be accessed.  If the provider is registered in the central registy, this value corresponds to the value in the registry.</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element name="implementation" type="xsd:string" minOccurs="0">
+								<xsd:annotation>
+									<xsd:documentation>The implementation, as in Java 2 SDK 1.4.0 or PHP 0.3.1.</xsd:documentation>
+								</xsd:annotation>
+							</xsd:element>
+							<xsd:element name="host">
+								<xsd:annotation>
+									<xsd:documentation>Location where the software is run.</xsd:documentation>
+								</xsd:annotation>
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="name" type="xsd:string">
+											<xsd:annotation>
+												<xsd:documentation>Common name of the host.  For example, Museum of Vertabrate Zoology.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="code" type="xsd:string">
+											<xsd:annotation>
+												<xsd:documentation>Known code/abbreviation for the host.  For example, MVZ.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="relatedInformation" type="urlType" minOccurs="0" maxOccurs="unbounded">
+											<xsd:annotation>
+												<xsd:documentation>Location of information about the host.  Should be a full URL.  For example, http://www.mip.berkeley.edu/mvz/.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="contact" type="contact" maxOccurs="unbounded">
+											<xsd:annotation>
+												<xsd:documentation>Contact(s) for the host.  This information may be made publically available by the portal.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="abstract" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>A description of the host.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+							<xsd:element name="resource" maxOccurs="unbounded">
+								<xsd:annotation>
+									<xsd:documentation>An individual resource (collection) hosted by the provider.</xsd:documentation>
+									<xsd:documentation>Two highly desired elements under resource that have not been included are taxonomicScope and geographicScope.  They should be added once a systematic way to generate and index their values is discovered.</xsd:documentation>
+								</xsd:annotation>
+								<xsd:complexType>
+									<xsd:sequence>
+										<xsd:element name="name" type="xsd:string">
+											<xsd:annotation>
+												<xsd:documentation>The common name of the resource.  For example, "Mammal Specimen Collection".</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="code" type="xsd:string">
+											<xsd:annotation>
+												<xsd:documentation>Identifier/abbreviation for the resource.  For example, Mammals</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="relatedInformation" type="urlType" minOccurs="0" maxOccurs="unbounded">
+											<xsd:annotation>
+												<xsd:documentation>Location of information about the resource.  Should be full URL.  For example, http://www.mip.berkeley.edu/mvz/collections/SpecialCollections.htm.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="contact" type="contact" maxOccurs="unbounded">
+											<xsd:annotation>
+												<xsd:documentation>Contact(s) for the resource.  This information may be made publically available by the portal.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="abstract" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>A description of the resource.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="keywords" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>Keywords for the resource.  For example, "vertebrates, photographs, field notebooks, correspondence".</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="citation" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>How to cite information retrieved from the resource.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="useRestrictions" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>Any restrictions regarding the use of information retrieved from the resource.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="conceptualSchema" maxOccurs="unbounded">
+											<xsd:annotation>
+												<xsd:documentation>The namespace, and corresponding schemaLocation the resource understands/supports.  A resource can support N schemas, including multiple versions of the same schema.  In any case, the host of the resource must be able to understand them as well.</xsd:documentation>
+											</xsd:annotation>
+											<xsd:complexType>
+												<xsd:simpleContent>
+													<xsd:extension base="xsd:string">
+														<xsd:attribute name="schemaLocation" type="urlType"/>
+													</xsd:extension>
+												</xsd:simpleContent>
+											</xsd:complexType>
+										</xsd:element>
+										<xsd:element name="recordIdentifier" type="xsd:string">
+											<xsd:annotation>
+												<xsd:documentation>An identifying code that can be recognized in the records of the resource.  Often this is the combination of the hostCode and resourceCode.  For example, "MVZ Hild".</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="recordBasis" type="xsd:string" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>The type of records available.  For example, voucher or observation.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="numberOfRecords" type="xsd:nonNegativeInteger">
+											<xsd:annotation>
+												<xsd:documentation>The number of records available.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="dateLastUpdated" type="xsd:dateTime">
+											<xsd:annotation>
+												<xsd:documentation>The dateTime the resource was last updated.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="minQueryTermLength" type="xsd:nonNegativeInteger" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>The minimum number of characters that can appear in a query term.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="maxSearchResponseRecords" type="xsd:nonNegativeInteger" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>The maximum number of records that can be returned in a search response.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+										<xsd:element name="maxInventoryResponseRecords" type="xsd:nonNegativeInteger" minOccurs="0">
+											<xsd:annotation>
+												<xsd:documentation>The maximum number of records that can be returned in an inventory (scan) response.</xsd:documentation>
+											</xsd:annotation>
+										</xsd:element>
+									</xsd:sequence>
+								</xsd:complexType>
+							</xsd:element>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:complexType name="diagnostic">
+		<xsd:simpleContent>
+			<xsd:extension base="xsd:string">
+				<xsd:attribute name="code" type="xsd:string"/>
+				<xsd:attribute name="severity" default="info">
+					<xsd:simpleType>
+						<xsd:restriction base="xsd:string">
+							<xsd:enumeration value="debug"/>
+							<xsd:enumeration value="info"/>
+							<xsd:enumeration value="warn"/>
+							<xsd:enumeration value="error"/>
+							<xsd:enumeration value="fatal"/>
+						</xsd:restriction>
+					</xsd:simpleType>
+				</xsd:attribute>
+			</xsd:extension>
+		</xsd:simpleContent>
+	</xsd:complexType>
+	<xsd:element name="response">
+		<xsd:annotation>
+			<xsd:documentation>Response message format.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element name="header" type="header"/>
+				<xsd:element name="content" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>The content of the response, as in the search results or status information.  We use xsd:any because the content will be some XML that we do not know yet or that we will not know.  The element is optional because certain types of request deliver all their response by way of the diagnostics.</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:any maxOccurs="unbounded"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+				<xsd:element name="diagnostics" minOccurs="0">
+					<xsd:annotation>
+						<xsd:documentation>The diagnostics element can contain many diagnostic pieces of information.  Should the possible diagnostic codes/messages be defined more granularly in a seperate XML Schema?</xsd:documentation>
+					</xsd:annotation>
+					<xsd:complexType>
+						<xsd:sequence>
+							<xsd:element name="diagnostic" type="diagnostic" maxOccurs="unbounded"/>
+						</xsd:sequence>
+					</xsd:complexType>
+				</xsd:element>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+	<xsd:element name="responseWrapper">
+		<xsd:annotation>
+			<xsd:documentation>Holds N response elements.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="response" maxOccurs="unbounded"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>

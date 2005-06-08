@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<request xmlns="http://www.namespaceTBD.org/digir" 
+         xmlns:xsd="http://www.w3.org/2001/XMLSchema" 
+         xmlns:darwin="http://digir.net/schema/conceptual/darwin/2003/1.0">
+  <header>
+    <version>1.0.0</version>
+    <sendTime>2003-06-05T11:57:00-03:00</sendTime>
+    <source>127.0.0.1</source>
+    <destination resource="MYRES">http://some_provider.org/provider/DiGIR.php</destination>
+    <type>inventory</type>
+  </header>
+  <inventory>
+    <filter>
+     <equals>
+      <darwin:Genus>Agrobacterium</darwin:Genus> 
+     </equals>
+    </filter>
+    <darwin:ScientificName />
+    <count>true</count>
+  </inventory>
+</request>

@@ -1,0 +1,365 @@
+<?xml version="1.0"?>
+<!-- edited with XML Spy v4.1 U (http://www.xmlspy.com) by Stanley D Blum (California Academy of Sciences) -->
+<!-- $Id: darwin2.xsd,v 1.2 2003/06/13 02:10:04 peejinator Exp $ -->
+<xsd:schema targetNamespace="http://digir.net/schema/conceptual/darwin/2003/1.0" xmlns="http://digir.net/schema/conceptual/darwin/2003/1.0" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:digir="http://digir.net/schema/protocol/2003/1.0" elementFormDefault="qualified">
+	<xsd:annotation>
+		<xsd:documentation>$Id: darwin2.xsd,v 1.2 2003/06/13 02:10:04 peejinator Exp $</xsd:documentation>
+		<xsd:documentation/>
+		<xsd:documentation>XML Schema describing the Darwin Core V2 (http://tsadev.speciesanalyst.net/documentation/ow.asp?DarwinCoreV2) content model.  Uses and extends data elements from the DiGIR (http://digir.sourceforge.net) protocol.</xsd:documentation>
+	</xsd:annotation>
+	<xsd:import namespace="http://digir.net/schema/protocol/2003/1.0" schemaLocation="http://digir.sourceforge.net/schema/protocol/2003/1.0/digir.xsd"/>
+	<xsd:element name="DateLastModified" type="xsd:dateTime" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>ISO 8601 compliant stamp indicating the date and time in UTC(GMT) when the record was last modified. Example: the instant "November 5, 1994, 8:15:30 am, US Eastern Standard Time" would be represented as "1994-11-05T13:15:30Z" (see <a href="http://www.w3.org/TR/NOTE-datetime">W3C Note on Date and Time Formats</a>). (What to do when this date-time is unknown? Use Date-Time first "published"?)</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="InstitutionCode" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>A "standard" code identifier that identifies the institution to which the collection belongs. No global registry exists for assigning institutional codes. Use the code that is "standard" in your discipline.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="CollectionCode" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>A unique alphanumeric value which identifies the collection within the institution</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="CatalogNumber" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>A unique alphanumeric value which identifies an individual record within the collection. It is recommended that this value provides a key by which the actual specimen can be identified. If the specimen has several items such as various types of preparation, this value should identify the individual component of the specimen</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="ScientificName" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The full name of lowest level taxon the Cataloged Item can be identified as a member of; includes genus name, specific epithet, and subspecific epithet (zool.) or infraspecific rank abbreviation, and infraspecific epithet (bot.) Use name of suprageneric taxon (e.g., family name) if Cataloged Item cannot be identified to genus, species, or infraspecific taxon.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="BasisOfRecord" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>An abbreviation indicating whether the record represents an observation (O), living organism (L), specimen (S), germplasm/seed (G), etc.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Kingdom" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The kingdom to which the organism belongs</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Phylum" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The phylum (or division) to which the organism belongs</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Class" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The class name of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Order" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The order name of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Family" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The family name of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Genus" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The genus name of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Species" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The specific epithet of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Subspecies" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The sub-specific epithet of the organism</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="ScientificNameAuthor" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The author of a scientific name. Author string as applied to the accepted name. Can be more than one author (concatenated string). Should be formatted according to the conventions of the applicable taxonomic discipline.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="IdentifiedBy" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The name(s) of the person(s) who applied the currently accepted Scientific Name to the Cataloged Item.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="YearIdentified" type="xsd:gYear" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The year portion of the date when the Collection Item was identified; as four digits [-9999..9999], e.g., 1906, 2002.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MonthIdentified" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The month portion of the date when the Collection Item was identified; as two digits [01..12].</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:nonNegativeInteger">
+				<xsd:minInclusive value="1"/>
+				<xsd:maxInclusive value="12"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="DayIdentified" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The day portion of the date when the Collection Item was identified; as two digits [01..31].</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:nonNegativeInteger">
+				<xsd:minInclusive value="1"/>
+				<xsd:maxInclusive value="31"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="TypeStatus" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>Indicates the kind of nomenclatural type that a specimen represents. (This is incomplete because type status actually describes the relationship between a name and a specimen [or ternary relatiohnship between a specimen, name, and publication].) In particular, the type status may not apply to the name listed in the scientific name, i.e., current identification. In rare cases, a single specimen may be the type of more than one name.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="CollectorNumber" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>An identifying "number" (really a string) applied to specimens (in some disciplines) at the time of collection. Establishes a links different parts/preparations of a single specimen and between field notes and the specimen.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="FieldNumber" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>A "number" (really a string) created at collection time to identify all material that resulted from a collecting event.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Collector" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The name(s) of the collector(s) responsible for collection the specimen or taking the observation</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="YearCollected" type="xsd:gYear" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The year (expressed as an integer) in which the specimen was collected. The full year should be expressed (e.g. 1972 must be expressed as "1972" not "72"). Must always be a four digit integer [-9999..9999]</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MonthCollected" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The month of year the specimen was collected from the field. Possible values range from 01...12 inclusive</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:nonNegativeInteger">
+				<xsd:minInclusive value="1"/>
+				<xsd:maxInclusive value="12"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="DayCollected" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The day of the month the specimen was collected from the field. Possible value ranges from 01..31 inclusive</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:nonNegativeInteger">
+				<xsd:minInclusive value="1"/>
+				<xsd:maxInclusive value="31"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="JulianDay" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The ordinal day of the year; i.e., the number of days since January 1 of the same year. (January 1 is Julian Day 1.)</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="TimeOfDay" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The time of day a specimen was collected expressed as decimal hours from midnight local time (e.g. 12.0 = mid day, 13.5 = 1:30pm)</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:decimal">
+				<xsd:minInclusive value="0"/>
+				<xsd:maxExclusive value="24.0"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="ContinentOcean" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The continent or ocean from which a specimen was collected.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Country" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The country or major political unit from which the specimen was collected. <a href="http://www.din.de/gremien/nas/nabd/iso3166ma/codlstp1/db_en.html">ISO 3166-1</a> values should be used. Full country names are currently in use. A future recommendation is to use ISO3166-1 two letter codes or the full name when searching</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="StateProvince" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The state, province or region (i.e. next political region smaller than Country) from which the specimen was collected. There is some suggestion to use the values described in <a href="http://www.iso.ch/cate/d8349.html">ISO 3166-2</a>, however these values are in a continual state of flux and it appears unlikely that an appropriate mechanism (by ISO) will be in place to manage these changes. Hence it is recommended that where possible, the full, unabbreviated name should be used for storing information. The server should optionally handle abbreviations as an access point. Note: this is a recurring theme (country and state) abbreviations. Check the existence of an attribute type to deal with abbreviations from the bib-1 profile</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="County" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The county (or shire, or next political region smaller than State / Province) from which the specimen was collected</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Locality" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The locality description (place name plus optionally a displacement from the place name) from which the specimen was collected. Where a displacement from a location is provided, it should be in un-projected units of measurement</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Longitude" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The longitude of the location from which the specimen was collected. This value should be expressed in decimal degrees with a datum such as WGS-84</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:decimal">
+				<xsd:minInclusive value="-180.0"/>
+				<xsd:maxInclusive value="180.0"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="Latitude" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The latitude of the location from which the specimen was collected. This value should be expressed in decimal degrees with a datum such as WGS-84</xsd:documentation>
+		</xsd:annotation>
+		<xsd:simpleType>
+			<xsd:restriction base="xsd:decimal">
+				<xsd:minInclusive value="-90.0"/>
+				<xsd:maxInclusive value="90.0"/>
+			</xsd:restriction>
+		</xsd:simpleType>
+	</xsd:element>
+	<xsd:element name="CoordinatePrecision" type="xsd:decimal" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>An estimate of how tightly the collecting locality was specified; expressed as a distance, in meters, that corresponds to a radius around the latitude-longitude coordinates. Use NULL where precision is unknown, cannot be estimated, or is not applicable.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="BoundingBox" type="xsd:string" substitutionGroup="digir:searchableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>This access point provides a mechanism for performing searches using a bounding box. A Bounding Box element is not typically present in the database, but rather is derived from the Latitude and Longitude columns by the data provider</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MinimumElevation" type="xsd:decimal" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The minimum distance in meters above (positive) or below sea level of the collecting locality.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MaximumElevation" type="xsd:decimal" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The maximum distance in meters above (positive) or below sea level of the collecting locality.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MinimumDepth" type="xsd:decimal" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The minimum distance in meters below the surface of the water at which the collection was made; all material collected was at least this deep. Positive below the surface, negative above (e.g. collecting above sea level in tidal areas).</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="MaximumDepth" type="xsd:decimal" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The maximum distance in meters below the surface of the water at which the collection was made; all material collected was at most this deep. Positive below the surface, negative above (e.g. collecting above sea level in tidal areas).</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Sex" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The sex of a specimen. The domain should be a controlled set of terms (codes) based on community consensus. Proposed values: M=Male; F=Female; H=Hermaphrodite; I=Indeterminate (examined but could not be determined; U=Unkown (not examined); T=Transitional (between sexes; useful for sequential hermaphrodites)</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="PreparationType" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The type of preparation (skin. slide, etc). Probably best to add this as a record element rather than access point. Should be a list of preparations for a single collection record.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="IndividualCount" type="xsd:nonNegativeInteger" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The number of individuals present in the lot or container. Not an estimate of abundance or density at the collecting locality.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="PreviousCatalogNumber" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The previous (fully qualified) catalog number of the Cataloged Item if the item earlier identified by another Catalog Number, either in the current catalog or another Institution / catalog. A fully qualified Catalog Number is preceded by Institution Code and Collection Code, with a space separating the each subelement. Referencing a previous Catalog Number does not imply that a record for the referenced item is or is not present in the corresponding catalog, or even that the referenced catalog still exists. This access point is intended to provide a way to retrieve this record by previously used identifier, which may used in the literature. In future versions of this schema this attribute should be set-valued.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="RelationshipType" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>A named or coded valued that identifies the kind relationship between this Collection Item and the referenced Collection Item. Named values include: "parasite of", "epiphyte on", "progeny of", etc. In future versions of this schema this attribute should be set-valued.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="RelatedCatalogItem" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>The fully qualified identifier of a related Catalog Item (a reference to another specimen); Institution Code, Collection Code, and Catalog Number of the related Cataloged Item, where a space separates the three subelements.</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:element name="Notes" type="xsd:string" substitutionGroup="digir:searchableReturnableData" nillable="true">
+		<xsd:annotation>
+			<xsd:documentation>Free text notes attached to the specimen record</xsd:documentation>
+		</xsd:annotation>
+	</xsd:element>
+	<xsd:complexType name="list">
+		<xsd:annotation>
+			<xsd:documentation>A concrete digir:listType specifying all elements available for multiCOP operations.</xsd:documentation>
+		</xsd:annotation>
+		<xsd:complexContent>
+			<xsd:extension base="digir:listType">
+				<xsd:sequence>
+					<xsd:choice>
+						<xsd:element ref="DateLastModified" maxOccurs="unbounded"/>
+						<xsd:element ref="InstitutionCode" maxOccurs="unbounded"/>
+						<xsd:element ref="CollectionCode" maxOccurs="unbounded"/>
+						<xsd:element ref="CatalogNumber" maxOccurs="unbounded"/>
+						<xsd:element ref="ScientificName" maxOccurs="unbounded"/>
+						<xsd:element ref="BasisOfRecord" maxOccurs="unbounded"/>
+						<xsd:element ref="Kingdom" maxOccurs="unbounded"/>
+						<xsd:element ref="Phylum" maxOccurs="unbounded"/>
+						<xsd:element ref="Class" maxOccurs="unbounded"/>
+						<xsd:element ref="Order" maxOccurs="unbounded"/>
+						<xsd:element ref="Family" maxOccurs="unbounded"/>
+						<xsd:element ref="Genus" maxOccurs="unbounded"/>
+						<xsd:element ref="Species" maxOccurs="unbounded"/>
+						<xsd:element ref="Subspecies" maxOccurs="unbounded"/>
+						<xsd:element ref="ScientificNameAuthor" maxOccurs="unbounded"/>
+						<xsd:element ref="IdentifiedBy" maxOccurs="unbounded"/>
+						<xsd:element ref="YearIdentified" maxOccurs="unbounded"/>
+						<xsd:element ref="MonthIdentified" maxOccurs="unbounded"/>
+						<xsd:element ref="DayIdentified" maxOccurs="unbounded"/>
+						<xsd:element ref="TypeStatus" maxOccurs="unbounded"/>
+						<xsd:element ref="CollectorNumber" maxOccurs="unbounded"/>
+						<xsd:element ref="FieldNumber" maxOccurs="unbounded"/>
+						<xsd:element ref="Collector" maxOccurs="unbounded"/>
+						<xsd:element ref="YearCollected" maxOccurs="unbounded"/>
+						<xsd:element ref="MonthCollected" maxOccurs="unbounded"/>
+						<xsd:element ref="DayCollected" maxOccurs="unbounded"/>
+						<xsd:element ref="JulianDay" maxOccurs="unbounded"/>
+						<xsd:element ref="TimeOfDay" maxOccurs="unbounded"/>
+						<xsd:element ref="ContinentOcean" maxOccurs="unbounded"/>
+						<xsd:element ref="Country" maxOccurs="unbounded"/>
+						<xsd:element ref="StateProvince" maxOccurs="unbounded"/>
+						<xsd:element ref="County" maxOccurs="unbounded"/>
+						<xsd:element ref="Locality" maxOccurs="unbounded"/>
+						<xsd:element ref="Longitude" maxOccurs="unbounded"/>
+						<xsd:element ref="Latitude" maxOccurs="unbounded"/>
+						<xsd:element ref="CoordinatePrecision" maxOccurs="unbounded"/>
+						<xsd:element ref="BoundingBox" maxOccurs="unbounded"/>
+						<xsd:element ref="MinimumElevation" maxOccurs="unbounded"/>
+						<xsd:element ref="MaximumElevation" maxOccurs="unbounded"/>
+						<xsd:element ref="MinimumDepth" maxOccurs="unbounded"/>
+						<xsd:element ref="MaximumDepth" maxOccurs="unbounded"/>
+						<xsd:element ref="Sex" maxOccurs="unbounded"/>
+						<xsd:element ref="PreparationType" maxOccurs="unbounded"/>
+						<xsd:element ref="IndividualCount" maxOccurs="unbounded"/>
+						<xsd:element ref="PreviousCatalogNumber" maxOccurs="unbounded"/>
+						<xsd:element ref="RelationshipType" maxOccurs="unbounded"/>
+						<xsd:element ref="RelatedCatalogItem" maxOccurs="unbounded"/>
+						<xsd:element ref="Notes" maxOccurs="unbounded"/>
+					</xsd:choice>
+				</xsd:sequence>
+			</xsd:extension>
+		</xsd:complexContent>
+	</xsd:complexType>
+	<xsd:element name="requiredList" abstract="true" substitutionGroup="digir:requiredList">
+		<xsd:complexType>
+			<xsd:sequence>
+				<xsd:element ref="DateLastModified"/>
+				<xsd:element ref="InstitutionCode"/>
+				<xsd:element ref="CollectionCode"/>
+				<xsd:element ref="CatalogNumber"/>
+				<xsd:element ref="ScientificName"/>
+			</xsd:sequence>
+		</xsd:complexType>
+	</xsd:element>
+</xsd:schema>
