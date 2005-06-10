@@ -14,7 +14,7 @@ class PlantnamesEditor(editors.TableEditorDialog):
     visible_columns_pref = "editor.plantnames.columns"
 
     
-    def __init__(self, parent=None, select=None):
+    def __init__(self, parent=None, select=None, defaults={}):
 
         self.sqlobj = tables.Plantnames
 
@@ -29,7 +29,8 @@ class PlantnamesEditor(editors.TableEditorDialog):
         # set visible from stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
                         
-        editors.TableEditorDialog.__init__(self, "Plantnames Editor", select=select)
+        editors.TableEditorDialog.__init__(self, "Plantnames Editor",
+                                           select=select, defaults=defaults)
 
         
     def foreign_does_not_exist(self, name, value):

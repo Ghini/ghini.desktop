@@ -3,11 +3,10 @@
 #
 
 import re
-
 import pygtk
 pygtk.require("2.0")
 import gtk
-
+import sqlobject
 import views
 from tables import tables
 from editors import editors
@@ -294,8 +293,8 @@ class SearchView(views.View):
             self.execute_button.emit("clicked")
             
             
-    def on_activate_editor(self, item, editor):
-        e = editor()
+    def on_activate_editor(self, item, editor, select=None, defaults={}):
+        e = editor(select=select, defaults=defaults)
         e.show()
 
         
@@ -308,34 +307,44 @@ class SearchView(views.View):
         model, i = sel.get_selected()
         value = model.get_value(i, 0)
         
-        # TODO: instead of checking for the type of each row we should be able
-        # to check for all foreign keys in any table and have some way
-        # to specify a default editor for a tables as a Preference
-        # TODO: should be able to pass the default value for the genus to the 
-        # editor
         menu = gtk.Menu()
-        if type(value) == tables.Genera:
-            item = gtk.MenuItem("Add Taxon...")
-            item.connect("activate", self.on_activate_editor, 
-                         editors.Plantnames)
-            menu.add(item)
-            item = gtk.MenuItem("Edit")
-        if type(value) == tables.Plantnames:
-            item = gtk.MenuItem("Add Accession...")
-            item.connect("activate", self.on_activate_editor, 
-                         editors.Accessions)
-            menu.add(item)
-            item = gtk.MenuItem("Edit")
-            menu.add(item)
-        if type(value) == tables.Accessions:
-            item = gtk.MenuItem("Add Plant...")
-            item.connect("activate", self.on_activate_editor, 
-                         editors.Plants)
-            menu.add(item)
-            item = gtk.MenuItem("Edit")
-            menu.add(item)
+        
+        
+        edit_item = gtk.MenuItem("Edit")
+        edit_item.connect("activate", self.on_activate_editor,
+                          eval("editors.%s" % value.name), [value], None)
+        menu.add(edit_item)
+         
+        # TODO: add a separator
+        menu.add(gtk.SeparatorMenuItem())
+        
+        
+        for join in value._joins:
+            # for each join in the selected row then add an item on the context
+            # menu for adding rows to the database of the same type the join
+            # points to
+            # TODO: this is a pretty wretched hack looking up from the kw 
+            # attribute of the join columns, but it works
+            defaults = {}
+            name = join._joinMethodName 
+            join_column = join.kw["joinColumn"]
+            # if join column not in the format "column_id" then don't do anything
+            if join_column[-3:] == "_id": 
+                defaults[join_column[:-3]] = value
+            
+            other_class = join.kw["otherClass"]
+            add_item = gtk.MenuItem("Add " + name)
+            add_item.connect("activate", self.on_activate_editor, 
+                         eval("editors.%s" % other_class), None, 
+                         defaults)
+            menu.add(add_item)
+        
+        
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
+        return
+        
+        
         
 
     def on_view_row_activated(self, view, path, column, data=None):
@@ -388,7 +397,7 @@ class SearchView(views.View):
         # pane to split the results view and info_box
         self.pane = gtk.HPaned()
         self.pane.pack1(sw, True, True)
-        self.pane.pack2(self.info_box, True, True)
+        self.pane.pack2(self.info_box, True, False)
         pane_box = gtk.HBox(False)
         pane_box.pack_start(self.pane, True, True)
         #self.content_box.pack_start(self.pane, True, True)
@@ -402,20 +411,13 @@ class SearchView(views.View):
         self.gbif_expand.connect("activate", self.on_activate_gbif_expand)
         # if starting expanded then we have to create the gbif view b/c 
         # the activate signal is not throws
-        gbif = views.views.GBIFView(self.bauble)
-        self.gbif_expand.add(gbif)
-        self.gbif_expand.set_expanded(True)
-        
-        
-        
+        #gbif = views.views.GBIFView(self.bauble)
+        #self.gbif_expand.add(gbif)
+        self.gbif_expand.set_expanded(False)
         vpane = gtk.VPaned()
-        #vpane.pack1(self.pane)
-        vpane.pack1(pane_box)
-        vpane.pack2(self.gbif_expand)
-        self.content_box.pack_end(vpane, True, True)
-        #self.content_box.pack_end(self.gbif_expand, False, False)
-        
-        
+        vpane.pack1(pane_box, True, True)
+        vpane.pack2(self.gbif_expand, True, True)
+        self.content_box.pack_start(vpane, True, True)
         
         self.add(self.content_box)
         self.show_all()

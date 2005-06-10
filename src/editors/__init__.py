@@ -4,6 +4,7 @@
 #
 
 import sys, os, os.path
+import copy
 
 import pygtk
 pygtk.require("2.0")
@@ -87,29 +88,31 @@ class MetaViewColumn(dict):
 class ModelDict(dict):
     """
     each row of the model will contain a ModelDict though each row may
-    not have the same keys
+    not have the same keys in  the dict
     """        
-    def __init__(self, table=None):
+    def __init__(self, table_row=None, default=None):
         """
         if table is not None then build a dict from the table
         """
-        if table is not None:
-            self["id"] = table.id
-            self.table = table            
-            for c in table.sqlmeta._columns:
+        if table_row is not None:
+            self["id"] = table_row.id
+            self.table_row = table_row            
+            for c in table_row.sqlmeta._columns:
                 eval_str = None                    
                 if c.foreignKey:
-                    id = eval("self.table.%s" % c.name)
+                    id = eval("self.table_row.%s" % c.name)
                     eval_str = "tables.%s.get(id)" % c.foreignKey
                     name = c.origName                        
                 else:                        
-                    eval_str = ("self.table.%s") % c.name
+                    eval_str = ("self.table_row.%s") % c.name
                     name = c.name
                 v = eval(eval_str)
-                #print "%s: %s" % (name, v)
                 self[name] = v
+        elif default is not None:
+            for key, value in default.iteritems():
+                self[key] = value
 
-                
+        
     def __getitem__(self, item):
         """
         allows us to use the dict syntax to dynamically create keys
@@ -143,7 +146,7 @@ class TableEditorDialog(gtk.Dialog):
     number    
     """    
     
-    def __init__(self, title="Table Editor", parent=None, select=None):
+    def __init__(self, title="Table Editor", parent=None, select=None, defaults={}):
         gtk.Dialog.__init__(self, title, parent, 
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
@@ -151,6 +154,7 @@ class TableEditorDialog(gtk.Dialog):
         self.view = None        
         self.columns = {} # self.columns[name] = gtkcolumn
         self.dirty = False
+        self.defaults = copy.copy(defaults)
         self.create_gui(select)
                 
 
@@ -214,11 +218,11 @@ class TableEditorDialog(gtk.Dialog):
         # i think this may a bit of a bastardization of path but works for now
         if new_text != "" and int(path) == len(model)-1:
             model = self.view.get_model()
-            model.append([ModelDict()])            
+            self.add_new_row()
+            #model.append([ModelDict()])            
 
     def validate(self, colname, value):
-        type
-        
+        #type
         return value
 
     
@@ -583,7 +587,12 @@ class TableEditorDialog(gtk.Dialog):
         column.name = name # .name is my own data, not part of gtk
         return column
         
-
+    def add_new_row(self, row=None):
+        model = self.view.get_model()
+        if model is None: raise Exception("no model in the row")
+        model.append([ModelDict(row, self.defaults)])
+            
+            
     def create_tree_view(self, select=None):
         """
         create the main tree view
@@ -592,19 +601,23 @@ class TableEditorDialog(gtk.Dialog):
         for name, meta in self.column_data.iteritems():            
             self.columns[name] = self.create_view_column(name, meta)
         
-            
+        #model = gtk.ListStore(object) # object will be type ModelDict
+        self.view = gtk.TreeView(gtk.ListStore(object))
+        self.view.connect("columns-changed", self.on_column_changed)
+        self.view.set_headers_clickable(False)
 
         # create the model from the tree view and add rows if a
         # selectresult is passed
-        model = gtk.ListStore(object) # object will be type ModelDict
+        
         if select is not None:
-            for row in select:                
-                model.append([ModelDict(row)])                
+            for row in select:
+                self.add_new_row(row)
+                #model.append([ModelDict(row)])                
         else:
-            model.append([ModelDict()])
-        self.view = gtk.TreeView(model)
-        self.view.connect("columns-changed", self.on_column_changed)
-        self.view.set_headers_clickable(False)
+            self.add_new_row()
+            #model.append([ModelDict()])
+            
+        
 
         # append the visible columns first
         # TODO: why isn't sorted keys in order with all the -1 index
@@ -642,7 +655,7 @@ class TableEditorDialog(gtk.Dialog):
         i=1
         for name in visible_columns:            
             self.column_data[name].index = i
-            debug("%s: %d" % (name, i))
+            #debug("%s: %d" % (name, i))
             i += 1
             
         # reset all visibility

@@ -10,6 +10,8 @@ import gtk
 
 import views
 from tables import tables
+
+# TODO: remove gtasklet stuff
 import gtasklet
 
 class SQLListStore(gtk.ListStore):
@@ -22,7 +24,7 @@ class SQLListStore(gtk.ListStore):
     def __init__(self, select):
         gtk.ListStore.__init__(self, object)
         for row in select:
-            self.append([row])
+            self.append([row])     
 
 
 #
@@ -64,7 +66,8 @@ class BrowseView(views.View):
     __name__ = "BrowseView"
     
     def __init__(self, bauble):
-        gtk.Frame.__init__(self,label="")
+        #gtk.Frame.__init__(self,label="")
+        views.View.__init__(self)
         self.bauble = bauble
         self.plants_box = None
         self.acc_view = None # add this dynamically
@@ -165,6 +168,7 @@ class BrowseView(views.View):
         hbox.pack_start(self.plants_box)
         self.add(hbox)
         dialog.destroy()
+        self.show_all()
 
         
     def create_gui(self):

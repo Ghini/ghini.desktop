@@ -47,7 +47,12 @@ class Bauble:
         self.conn = None
         num_tries = 0
         while self.conn is None:
-            params = Preferences[self.conn_default_pref]
+            #params = Preferences[self.conn_default_pref]
+            # should we just store the name of the connection with the value
+            # or only leave it as a key?
+            conn_name = Preferences[self.conn_default_pref]
+            params = Preferences[self.conn_list_pref][conn_name]
+            params["name"] = conn_name
             if params is None or num_tries >= 2:
                 cm = ConnectionManagerGUI()
                 params = cm.get_connection_parameters(before_main=True)
@@ -129,8 +134,8 @@ class Bauble:
         return template % params
                
        
-    def get_passwd(self, before_main=False):
-        d = gtk.Dialog("Enter your password", None,
+    def get_passwd(self, title="Enter your password", before_main=False):
+        d = gtk.Dialog(title, None,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
@@ -157,10 +162,15 @@ class Bauble:
         TODO: would probably be less annoying if we tried to connect first
         without a passwd and only asked for a passwd if the first try failed
         """
+        print params
         passwd = None
         if not params.has_key("passwd"):
+            title = ""
+            if params.has_key("name"): # use the connection name
+                title = "Enter your passwd for " + params["name"]
+            else: title = "Enter your passwd for " # use the connection string
             while passwd == None:
-                passwd = self.get_passwd(before_main)            
+                passwd = self.get_passwd(title, before_main)
      
         params["passwd"] = passwd
         params["type"] = params["type"].lower() # lowercase the database type
@@ -170,7 +180,9 @@ class Bauble:
             del params["passwd"] # so it doesn't get stored in prefs
             self.conn = sqlhub.threadConnection.getConnection() # i think this does the connecting
             self.conn.autoCommit = False
-            Preferences[self.conn_default_pref] = params
+            
+            # TODO: if not has name then clear the conn default
+            Preferences[self.conn_default_pref] = params["name"]
         except Exception, e:
             d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_ERROR,

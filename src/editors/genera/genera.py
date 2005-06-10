@@ -19,7 +19,7 @@ class GeneraEditor(editors.TableEditorDialog):
 
     visible_columns_pref = "editor.genera.columns"
     
-    def __init__(self, parent=None, select=None):
+    def __init__(self, parent=None, select=None, defaults={}):
 
         self.sqlobj = tables.Genera
 
@@ -41,7 +41,7 @@ class GeneraEditor(editors.TableEditorDialog):
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
 
         editors.TableEditorDialog.__init__(self, "Genera Editor", parent,
-                                           select=select)
+                                           select=select, defaults=defaults)
         
 
 

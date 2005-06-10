@@ -20,7 +20,7 @@ class AccessionsEditor(editors.TableEditorDialog):
 
     visible_columns_pref = "editor.accessions.columns"
 
-    def __init__(self, parent=None, select=None):
+    def __init__(self, parent=None, select=None, defaults={}):
 
         self.sqlobj = tables.Accessions
         
@@ -44,7 +44,8 @@ class AccessionsEditor(editors.TableEditorDialog):
         # set visible according to stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
             
-        editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select)
+        editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select,
+                                           defaults=defaults)
         
 
     def get_completions(self, text, colname):
@@ -77,6 +78,8 @@ class AccessionsEditor(editors.TableEditorDialog):
     
     def commit_changes(self):
         editors.TableEditorDialog.commit_changes(self)
+        msg  = "No Plants/Clones exist for this accession. Would you like \
+        to add them now?"
         # TODO: if this accession didn't exist then ask the user if they want
         # to add clones
         #d = gtk.MessageDialog(None,

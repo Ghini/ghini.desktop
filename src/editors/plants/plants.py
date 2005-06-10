@@ -14,7 +14,7 @@ class PlantsEditor(editors.TableEditorDialog):
 
     visible_columns_pref = "editor.plants.columns"
 
-    def __init__(self, parent=None, select=None):
+    def __init__(self, parent=None, select=None, defaults={}):
 
         self.sqlobj = tables.Plants
 
@@ -35,7 +35,8 @@ class PlantsEditor(editors.TableEditorDialog):
         Preferences.load()
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
 
-        editors.TableEditorDialog.__init__(self, "Plants/Clones Editor", select=select)
+        editors.TableEditorDialog.__init__(self, "Plants/Clones Editor",
+                                           select=select, defaults=defaults)
 
     # extending this so we can have different value that show for the completions
     # than what is stored in the model on selection

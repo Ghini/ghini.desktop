@@ -34,12 +34,8 @@ class GUI:
         # load the last view open from the prefs
         v = Preferences[self.current_view_pref]
         if v is not None:
-            #self.set_current_view(eval(v + "(self.bauble)"))
             self.set_current_view(eval(v))
-            #v = v[1:-1] # remove quotes
-            #self.current_view = eval(v + "(self.bauble)")
-            #self.content_hbox.add(gtk.Frame(self.current_view)
-            #self.content_hbox.show_all()
+            
     
     def create_gui(self):            
         # create main window
@@ -143,18 +139,20 @@ class GUI:
         return toolbar
     
     
-    def set_current_view(self, view):
+    def set_current_view(self, view_class):
         """
-        set the current view
+        set the current view, view is a class and will be instantiated
+        here, that way the same view won't be created again if the current
+        view os of the same type
         """
         current_view = self.content_frame.get_child()
-        if type(current_view) == view: return
+        if type(current_view) == view_class: return
         elif current_view != None:
             self.content_frame.remove(current_view)
             current_view.destroy()
             current_view = None
-        new_view = view(self.bauble)    
-        self.content_frame.set_label(view.__name__)
+        new_view = view_class(self.bauble)    
+        self.content_frame.set_label(view_class.__name__)
         self.content_frame.add(new_view)
         
     
@@ -404,7 +402,7 @@ class ConnectionManagerGUI:
         conn_dict = Preferences["conn.list"]
         
         for key in conn_dict.keys():
-                model.append([key])
+            model.append([key])
 
         view = gtk.TreeView(model)
         renderer = gtk.CellRendererText()
@@ -421,7 +419,6 @@ class ConnectionManagerGUI:
         return view
 
 
-    
     def on_cursor_changed(self, widget):
         """
         get the currently selected item and use it as the connection name
@@ -449,9 +446,15 @@ class ConnectionManagerGUI:
         if before_main:
             gtk.threads_leave()
         dialog.destroy()
+        
+        sel = self.conn_list.get_selection()
+        model, it = sel.get_selected()
+        name = model.get(it, 0)[0]
+        print "get_conn: " + name
         if r == gtk.RESPONSE_OK:                    
             return {"type": self.type_combo.get_active_text().lower(), 
                     "db"  : self.db_entry.get_text(), 
                     "host": self.host_entry.get_text(), 
-                    "user": self.user_entry.get_text() }
+                    "user": self.user_entry.get_text(),
+                    "name": name}
         return None
