@@ -81,7 +81,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.info_image = gtk.image_new_from_stock(gtk.STOCK_DIALOG_INFO,
                                                    gtk.ICON_SIZE_BUTTON)#gtk.ICON_SIZE_SMALL_TOOLBAR)
         hbox.pack_start(self.info_image, False, False)
-        #self.info_label = gtk.Label("Create a connection")
         self.info_label = gtk.Label()
         self.set_info_label()
         self.info_label.set_padding(10, 10)
@@ -93,14 +92,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         event_box.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
         self.vbox.pack_start(event_box, False, False)
         
-        
         hbox = gtk.HBox(False)
         hbox.set_spacing(5)
         name_label = gtk.Label("Connection Name")
         hbox.pack_start(name_label)
         name_label.set_alignment(0.0, 0.5)
         
-        #self.name_combo = gtk.combo_box_entry_new_text()
         self.name_combo = gtk.combo_box_new_text()
         hbox.pack_start(self.name_combo)
         
@@ -122,9 +119,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         type_label.set_alignment(0.0, .5)
         self.type_combo = gtk.combo_box_new_text()
         
-        # test for different supported database types, bauble
-        # doesn't actually support these but if someone tries one and it
-        # doesn't work then maybe someone will let us know
+        # test for different supported database types, these have never been
+        # test but if someone tries one and it
+        # doesn't work then maybe someone they will let us know
         for type, index in self.supported_dbtypes.iteritems():
             self.type_combo.insert_text(index, type)
         
@@ -279,11 +276,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         the type changed so change the params_box
         """
-        type = combo.get_active_text()
+        dbtype = combo.get_active_text()
         if self.params_box is not None:
             self.vbox.remove(self.params_box)
         # get the selected type
-        self.params_box = CMParamsBoxFactory.createParamsBox(type)
+        self.params_box = CMParamsBoxFactory.createParamsBox(dbtype)
+        print type(self.params_box)
         self.vbox.pack_start(self.params_box, False, False)
         self.show_all()
 
@@ -308,8 +306,9 @@ class ConnectionManagerDialog(gtk.Dialog):
     def get_connection_uri(self):
         type = self.type_combo.get_active_text()
         params = copy.copy(self.params_box.get_parameters())
-        if type == "sqlite":
-            uri = "sqlite:///" + params[file]
+        print type
+        if type.lower() == "sqlite":
+            uri = "sqlite:///" + params["file"]
             return uri
         
         params["type"] = type.lower()
@@ -326,6 +325,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         check that all of the information in the current connection
         is valid and return true or false
+        NOTE: this was meant to be used to implement an eclipse style 
+        information box at the top of the dialog but it's not really
+        used right now
         """
         if self.name_combo.get_active_text() == "":
             return False, "Please choose a name for this connection"
@@ -335,10 +337,42 @@ class ConnectionManagerDialog(gtk.Dialog):
             
 
 class CMParamsBox(gtk.Table):
+
+
     def __init__(self, rows=4, columns=2):
         gtk.Table.__init__(self, rows, columns)
         self.set_row_spacings(10)
+        self.create_gui()
         
+
+    def create_gui(self):
+        label_alignment = (0.0, 0.5)
+        label = gtk.Label("Database: ")
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 0, 1)
+        self.db_entry = gtk.Entry()
+        self.attach(self.db_entry, 1, 2, 0, 1)
+
+        label = gtk.Label("Host: ")
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 1, 2)
+        self.host_entry = gtk.Entry()
+        self.host_entry.set_text("localhost")
+        self.attach(self.host_entry, 1, 2, 1, 2)
+
+        label = gtk.Label("User: ")
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 2, 3)
+        self.user_entry = gtk.Entry()
+        self.attach(self.user_entry, 1, 2, 2, 3)
+            
+        label = gtk.Label("Password: ")
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 3, 4)
+        self.passwd_check = gtk.CheckButton()
+        self.attach(self.passwd_check, 1, 2, 3, 4)
+    
+    
     def get_parameters(self):
         d = {}
         d["db"] = self.db_entry.get_text()
@@ -356,62 +390,55 @@ class CMParamsBox(gtk.Table):
 
 class SQLiteParamsBox(CMParamsBox):
 
+
     def __init__(self, rows=1, columns=2):
         CMParamsBox.__init__(self, rows, columns)
     
-    def get_paramaters(self):
+
+    def create_gui(self):
+        label_alignment = (0.0, 0.5)
+        label = gtk.Label("Filename")
+        label.set_alignment(*label_alignment)
+        self.attach(label, 0, 1, 0, 1)
+        hbox = gtk.HBox(False)
+        self.file_entry = gtk.Entry()
+        hbox.pack_start(self.file_entry)
+        file_button = gtk.Button("Browse...")
+        file_button.connect("clicked", self.on_activate_browse_button)
+        hbox.pack_start(file_button)
+        self.attach(hbox, 1, 2, 0, 1)        
+    
+    
+    def get_parameters(self):
         d = {}
         d["file"] = self.file_entry.get_text()
         return d
+    
+
+    def set_parameters(self, params):
+        self.file_entry.set_text(params["file"])
+
+
+    def on_activate_browse_button(self, widget, data=None):
+        d = gtk.FileChooserDialog("Choose a file...", None,
+                                  action=gtk.FILE_CHOOSER_ACTION_SAVE,
+                                  buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        r = d.run()
+        self.file_entry.set_text(d.get_filename())
+        d.destroy()
         
 
+#
+# is this factory really necessary??
+#
 class CMParamsBoxFactory:
     
     def __init__(self):
         pass
         
     def createParamsBox(db_type):
-        params_box = None
         if db_type.lower() == "sqlite":
-            params_box= SQLiteParamsBox()
-            params.box.attach(label, 0, 1, 0, 1)
-            #location # filename uri
-            #user #
-            hbox = gtk.HBox(False)
-            label = gtk.Label("Filename")
-            hbox.pack_start(label)
-            entry = gtk.Entry()
-            hbox.pack_start(entry)
-            params_box.pack_start(hbox, False, False)
-        else:
-            params_box = CMParamsBox()
-            label = gtk.Label("Database: ")
-            label.set_alignment(0.0, .5)
-            params_box.attach(label, 0, 1, 0, 1)
-            params_box.db_entry = gtk.Entry()
-            params_box.attach(params_box.db_entry, 1, 2, 0, 1)
-
-            label = gtk.Label("Host: ")
-            label.set_alignment(0.0, .5)
-            params_box.attach(label, 0, 1, 1, 2)
-            params_box.host_entry = gtk.Entry()
-            params_box.host_entry.set_text("localhost")
-            params_box.attach(params_box.host_entry, 1, 2, 1, 2)
-
-            label = gtk.Label("User: ")
-            label.set_alignment(0.0, .5)
-            params_box.attach(label, 0, 1, 2, 3)
-            params_box.user_entry = gtk.Entry()
-            params_box.attach(params_box.user_entry, 1, 2, 2, 3)
-            
-            label = gtk.Label("Password: ")
-            label.set_alignment(0.0, .5)
-            params_box.attach(label, 0, 1, 3, 4)
-            params_box.passwd_check = gtk.CheckButton()
-            params_box.attach(params_box.passwd_check, 1, 2, 3, 4)
-    
-        #    return params_box
-        #params_box.check_resize()
-        return params_box
-        
+            return SQLiteParamsBox()
+        return CMParamsBox()
     createParamsBox = staticmethod(createParamsBox)
