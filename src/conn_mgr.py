@@ -30,6 +30,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.show_all()
         self.connect("response", self.on_response)
         
+        # set the focus on the OK button
+        self.set_focus(self.action_area.get_children()[1])
+        
 
     def _get_supported_dbtypes(self):
         """
@@ -281,7 +284,6 @@ class ConnectionManagerDialog(gtk.Dialog):
             self.vbox.remove(self.params_box)
         # get the selected type
         self.params_box = CMParamsBoxFactory.createParamsBox(dbtype)
-        print type(self.params_box)
         self.vbox.pack_start(self.params_box, False, False)
         self.show_all()
 
@@ -306,7 +308,6 @@ class ConnectionManagerDialog(gtk.Dialog):
     def get_connection_uri(self):
         type = self.type_combo.get_active_text()
         params = copy.copy(self.params_box.get_parameters())
-        print type
         if type.lower() == "sqlite":
             uri = "sqlite:///" + params["file"]
             return uri
