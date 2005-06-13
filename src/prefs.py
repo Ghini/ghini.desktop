@@ -6,6 +6,9 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 
+conn_default_pref = "conn.default"
+conn_list_pref = "conn.list"
+
 class PreferencesMgr(gtk.Dialog):
     def __init__(self):
         gtk.Dialog.__init__(self, "Preferences", None,
@@ -17,17 +20,13 @@ class PreferencesMgr(gtk.Dialog):
 
 
     def create_gui(self):
-        #button_box = gtk.VButtonBox(False, 4)
-        #button = gtk.
         model = gtk.ListStore(str, gtk.gdk.Pixbuf)
-
-        image = gtk.Image()
-        image.set_from_file("images/prefs_general.png")
-        model.append(["General", image.get_pixbuf()])
         
-        image = gtk.Image()        
-        image.set_from_file("images/prefs_security.png")
-        model.append(["Security", image.get_pixbuf()])
+        pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_general.png")        
+        model.append(["General", pixbuf])
+        
+        pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_security.png")
+        model.append(["Security", pixbuf])
         
         self.icon_view = gtk.IconView(model)
         self.icon_view.set_text_column(0)
@@ -40,10 +39,7 @@ class PreferencesMgr(gtk.Dialog):
         self.icon_view.set_size_request(72, -1)
         
         self.content_box = gtk.HBox(False)
-        #box = gtk.VBox(False, 1)
-        #box.pack_start(self.icon_view)
         self.content_box.pack_start(self.icon_view, fill=True, expand=False)
-        #self.content_box.pack_start(box, False, True)
         self.icon_view.select_path((0,)) # select a category, will create frame
         self.show_all()
         self.vbox.pack_start(self.content_box)        

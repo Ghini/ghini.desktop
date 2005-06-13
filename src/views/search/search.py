@@ -477,7 +477,8 @@ class TableExpander(InfoExpander):
         self.labels = {}
         for column, name in columns.iteritems():
             label = gtk.Label()
-            label.set_justify(gtk.JUSTIFY_LEFT)
+            #label.set_justify(gtk.JUSTIFY_LEFT)
+            label.set_alignment(0.0, 0.5)
             self.vbox.pack_start(label, False, False)
             self.labels[column] = (name, label)
         

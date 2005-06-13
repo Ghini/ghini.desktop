@@ -27,7 +27,9 @@ import gtk
 from sqlobject import *
 
 from gui import *
+from conn_mgr import *
 import tables
+import prefs
 from prefs import Preferences
 
 
@@ -36,8 +38,6 @@ from prefs import Preferences
 #                    
 class Bauble:
     
-    conn_default_pref = "conn.default"
-    conn_list_pref = "conn.list"
     
     def __init__(self):
         # keep the directory where this resides for loading local files
@@ -47,18 +47,14 @@ class Bauble:
         self.conn = None
         num_tries = 0
         while self.conn is None:
-            #params = Preferences[self.conn_default_pref]
-            # should we just store the name of the connection with the value
-            # or only leave it as a key?
-            conn_name = Preferences[self.conn_default_pref]
-            params = Preferences[self.conn_list_pref][conn_name]
-            params["name"] = conn_name
-            if params is None or num_tries >= 2:
-                cm = ConnectionManagerGUI()
-                params = cm.get_connection_parameters(before_main=True)
-            if params is None: self.quit()
-            self.open_database(params, True)
-            num_tries += 1
+            cm = ConnectionManagerDialog()
+            r = cm.run()
+            if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
+               r == gtk.RESPONSE_NONE or r == gtk.RESPONSE_DELETE_EVENT:
+                self.quit()
+            uri = cm.get_connection_uri()
+            cm.destroy()
+            self.open_database(uri, True)
                 
         # now that we have a connection build and show the gui
         self.gui = GUI(self)
@@ -75,7 +71,7 @@ class Bauble:
         else: return self.conn.cursor()
 
 
-    def create_database(self, params):
+    def create_database(self, uri):
         # TODO: first we should connect with a uri that doesn't use the db
         # parameter and check if the database exists, if it doesn't we should
         # ask the user if they would like to create it or if so then should we
@@ -84,7 +80,7 @@ class Bauble:
         # i'm not sure how cross platform CREATE DATABASE, DROP DATABASE,
         # and USE statements are so this may bork on some platforms
 
-        self.open_database(params)
+        self.open_database(uri)
         #uri = self.build_connection_uri(params)
         #self.conn = dbmgr.connect(uri)
         # i don't know if this is allowed on all databases
@@ -132,67 +128,26 @@ class Bauble:
     def build_connection_uri(self, params):
         template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
         return template % params
-               
-       
-    def get_passwd(self, title="Enter your password", before_main=False):
-        d = gtk.Dialog(title, None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-        d.set_default_response(gtk.RESPONSE_ACCEPT)
-        d.set_default_size(250,-1)
-        entry = gtk.Entry()
-        entry.set_visibility(False)
-        entry.connect("activate", lambda entry: d.response(gtk.RESPONSE_ACCEPT))
-        d.vbox.pack_start(entry)
-        d.show_all()
-        if before_main:
-            gtk.threads_enter()
-        d.run()
-        if before_main:
-            gtk.threads_leave()
-        passwd = entry.get_text()
-        d.destroy()
-        return passwd
-            
+                          
         
-    def open_database(self, params, before_main=False):        
+    def open_database(self, uri, before_main=False):        
         """
         open a database connection, will call get_passwd to popup a 
         dialog to enter the passwd
         TODO: would probably be less annoying if we tried to connect first
         without a passwd and only asked for a passwd if the first try failed
         """
-        print params
-        passwd = None
-        if not params.has_key("passwd"):
-            title = ""
-            if params.has_key("name"): # use the connection name
-                title = "Enter your passwd for " + params["name"]
-            else: title = "Enter your passwd for " # use the connection string
-            while passwd == None:
-                passwd = self.get_passwd(title, before_main)
-     
-        params["passwd"] = passwd
-        params["type"] = params["type"].lower() # lowercase the database type
-        uri = self.build_connection_uri(params)
         sqlhub.threadConnection = connectionForURI(uri)
         try:
-            del params["passwd"] # so it doesn't get stored in prefs
             self.conn = sqlhub.threadConnection.getConnection() # i think this does the connecting
             self.conn.autoCommit = False
-            
-            # TODO: if not has name then clear the conn default
-            Preferences[self.conn_default_pref] = params["name"]
         except Exception, e:
+            print e
             d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                   type=gtk.MESSAGE_ERROR,
                                   buttons = gtk.BUTTONS_OK, 
                                   message_format="Could not open connection")
-            if before_main:
-                gtk.threads_enter()
             d.run()
-            if before_main:
-                gtk.threads_leave()
             d.destroy()
         
     
@@ -216,9 +171,11 @@ class Bauble:
             
     
     def main(self):
-        gtk.threads_enter()
+        # the docs say i should have these but they seem to lock up
+        # everything
+        #gtk.threads_enter()
         gtk.main()
-        gtk.threads_leave()
+        #gtk.threads_leave()
 
 
 #

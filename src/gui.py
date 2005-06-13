@@ -15,7 +15,11 @@ import gobject
 
 from views import views
 from editors import editors
-from prefs import Preferences, PreferencesMgr
+
+from prefs import *
+#from prefs import Preferences, PreferencesMgr
+
+import sqlobject
 
 #
 # GUI
@@ -27,8 +31,6 @@ class GUI:
     def __init__(self, bauble):
         print views.View
         self.bauble = bauble
-        # load preference
-        #Preferences.load() # this should be automatically when used
         self.create_gui()
 
         # load the last view open from the prefs
@@ -183,6 +185,9 @@ class GUI:
         self.accel_group = ui_manager.get_accel_group()
         self.window.add_accel_group(self.accel_group)
 
+        # TODO: get rid of new, open, and just have a connection
+        # menu item
+        
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, "_File"), 
@@ -322,139 +327,4 @@ class GUI:
         self.bauble.quit()
         
         
-#
-# ConnectionManagerGUI
-#
-class ConnectionManagerGUI:
-    def __init__(self):
-        self.current_name = None
 
-    COMBO_ITEMS = {"MySQL": 0, "Postgres": 1, "SQLite": 2}
-            
-    def create_dialog(self):
-        """
-        build the dialog to manage the connections
-        """
-        dialog = gtk.Dialog(title="Connection", parent=None, 
-                            flags=gtk.DIALOG_MODAL, 
-                            buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-
-        hbox = gtk.HBox(False, 3)
-        table = gtk.Table(rows=4, columns=2)
-        hbox.pack_start(table)
-                
-        label = gtk.Label("Database Type: ")
-        table.attach(label, 0, 1, 0, 1)
-        
-        self.type_combo = gtk.combo_box_new_text()
-        self.type_combo.append_text("MySQL")
-        self.type_combo.append_text("Postgres")
-        self.type_combo.append_text("SQLite")        
-        self.type_combo.set_active(0)
-        table.attach(self.type_combo, 1, 2, 0, 1)        
-
-        label = gtk.Label("Database: ")
-        table.attach(label, 0, 1, 1, 2)
-        
-        self.db_entry = gtk.Entry()
-        self.db_entry.set_text("bbg_new2")
-        table.attach(self.db_entry, 1, 2, 1, 2)
-
-        label = gtk.Label("Host: ")
-        table.attach(label, 0, 1, 2, 3)
-        
-        self.host_entry = gtk.Entry()
-        self.host_entry.set_text("localhost")
-        table.attach(self.host_entry, 1, 2, 2, 3)
-
-        label = gtk.Label("User: ")
-        table.attach(label, 0, 1, 3, 4)
-        
-        self.user_entry = gtk.Entry()
-        self.user_entry.set_text("brett")
-        table.attach(self.user_entry, 1, 2, 3, 4)
-
-        self.conn_list = self.create_connection_list()
-        hbox.pack_start(self.conn_list)
-        
-        dialog.vbox.pack_start(hbox)
-
-        dialog.show_all()
-        return dialog
-
-
-    def set_parameter_entries(self, params):
-        """
-        set the entry widgets with the paramater value passed
-        """
-        self.db_entry.set_text(params["db"])
-        self.host_entry.set_text(params["host"])
-        self.user_entry.set_text(params["user"])
-        self.type_combo.set_active(self.COMBO_ITEMS[params["type"]])
-
-
-    def create_connection_list(self):
-        """
-        return a gtk.TreeView of the stored connections from the preferences
-        """
-        model = gtk.ListStore(str)
-        conn_dict = Preferences["conn.list"]
-        
-        for key in conn_dict.keys():
-            model.append([key])
-
-        view = gtk.TreeView(model)
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn("Connections", renderer, text=0)
-        view.append_column(column)
-        view.set_headers_visible(False)
-
-        # the text recommends a different signal, see pygtk FAQ
-        view.connect("cursor-changed", self.on_cursor_changed)
-        
-        view.set_cursor("0", column, False)
-        
-        view.show()
-        return view
-
-
-    def on_cursor_changed(self, widget):
-        """
-        get the currently selected item and use it as the connection name
-        for the list of connection parameters
-        """      
-        conn_dict = Preferences["conn.list"]
-        sel = widget.get_selection()
-        model, it = sel.get_selected()
-        v = model.get(it, 0)[0]
-        self.current_name = v
-        params = conn_dict[v]    
-        self.set_parameter_entries(params)
-        
-
-    def get_connection_parameters(self, before_main=False):
-        # popup dialog asking user for parameters for
-        # database connection
-        # TODO: should also allow some way to save connection with a user
-        # chosen name, check that this isn't being done already
-        dialog = self.create_dialog()
-        dialog.show_all()
-        if before_main:
-            gtk.threads_enter()
-        r = dialog.run()
-        if before_main:
-            gtk.threads_leave()
-        dialog.destroy()
-        
-        sel = self.conn_list.get_selection()
-        model, it = sel.get_selected()
-        name = model.get(it, 0)[0]
-        print "get_conn: " + name
-        if r == gtk.RESPONSE_OK:                    
-            return {"type": self.type_combo.get_active_text().lower(), 
-                    "db"  : self.db_entry.get_text(), 
-                    "host": self.host_entry.get_text(), 
-                    "user": self.user_entry.get_text(),
-                    "name": name}
-        return None
