@@ -57,16 +57,16 @@ class SearchView(views.View):
         if type(value) == tables.Plants:
             self.info_box = PlantsInfoBox()
             self.info_box.get_expander("Locations").set_values(value.location)
-            self.pane.pack2(self.info_box, True, True)
+            self.pane.pack2(self.info_box, True, False)
 
-        self.info_box = None
-        #self.pane.show_all()
+        #self.info_box = None
+        self.pane.show_all()
         
         # check that the gbif view is expanded
         # if it is then pass the selected row to gbif
-        if self.gbif_expand.get_expanded():
-            gbif = self.gbif_expand.get_child()
-            gbif.search(value)
+        #if self.gbif_expand.get_expanded():
+        #    gbif = self.gbif_expand.get_child()
+        #    gbif.search(value)
         
 
     def on_pb_cancel(self, response, data=None):
@@ -396,7 +396,7 @@ class SearchView(views.View):
         
         # pane to split the results view and info_box
         self.pane = gtk.HPaned()
-        self.pane.pack1(sw, True, True)
+        self.pane.pack1(sw, True, False)
         self.pane.pack2(self.info_box, True, False)
         pane_box = gtk.HBox(False)
         pane_box.pack_start(self.pane, True, True)
@@ -407,17 +407,16 @@ class SearchView(views.View):
         # it's expanded, should later remove the view or at least disable
         # it if the expander is collapsed
         
-        self.gbif_expand = gtk.Expander("Online Search")
-        self.gbif_expand.connect("activate", self.on_activate_gbif_expand)
-        # if starting expanded then we have to create the gbif view b/c 
-        # the activate signal is not throws
-        #gbif = views.views.GBIFView(self.bauble)
-        #self.gbif_expand.add(gbif)
-        self.gbif_expand.set_expanded(False)
-        vpane = gtk.VPaned()
-        vpane.pack1(pane_box, True, True)
-        vpane.pack2(self.gbif_expand, True, True)
-        self.content_box.pack_start(vpane, True, True)
+        # ** temporarily remove the gbif expander
+        #self.gbif_expand = gtk.Expander("Online Search")
+        #self.gbif_expand.connect("activate", self.on_activate_gbif_expand)
+        #self.gbif_expand.set_expanded(False)
+        #vpane = gtk.VPaned()
+        #vpane.pack1(pane_box, True, True)
+        #vpane.pack2(self.gbif_expand, True, True)
+        #self.content_box.pack_start(vpane, True, True)
+        
+        self.content_box.pack_start(pane_box)
         
         self.add(self.content_box)
         self.show_all()
@@ -477,7 +476,6 @@ class TableExpander(InfoExpander):
         self.labels = {}
         for column, name in columns.iteritems():
             label = gtk.Label()
-            #label.set_justify(gtk.JUSTIFY_LEFT)
             label.set_alignment(0.0, 0.5)
             self.vbox.pack_start(label, False, False)
             self.labels[column] = (name, label)
@@ -503,6 +501,11 @@ class LocationsExpander(TableExpander):
         TableExpander.__init__(self, label, columns)
 
 
+class InfoBoxFactory:
+    def createInfoBox(type):
+        pass
+
+        
 class InfoBox(gtk.VBox):
     """
     a VBox with a bunch of InfoExpanders

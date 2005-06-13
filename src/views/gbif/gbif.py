@@ -23,6 +23,19 @@ import darwincore2 as dwc2
 from tables import tables
 import digir
 
+
+#
+# i think the best interface for the gbif view is a list of expanders
+# the expanders would be created as the search results were returned and
+# each would have as the label the name of the institutio and in parenthesis
+# the number of records returned, when clicking on the expanders
+# a table would come up that holds the list of records and other available 
+# information, the table columns could be created dynamically depending on 
+# the protocal, i guess the available columns would just be whatever
+# darwin or biocase define
+#
+
+
 digir_search_lock = threading.Lock()
 
 class DigirSearchThread(threading.Thread):

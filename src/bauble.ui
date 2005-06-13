@@ -17,7 +17,7 @@
       <separator/>
     </menu>    
     <menu action="tools">
-      <menuitem action="test"/>
+      <menuitem action="export"/>
     </menu>
   </menubar>
 </ui>

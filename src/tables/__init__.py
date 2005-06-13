@@ -9,8 +9,9 @@
 # also be a good idea to automatically load any changes to the meta from the
 # the Preferences
 # 
-
-
+# TODO: other tables to consider
+# Collections
+# Horticulture
 import os, os.path
 
 from sqlobject import *

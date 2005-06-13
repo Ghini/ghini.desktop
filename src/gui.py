@@ -12,14 +12,11 @@ import pygtk
 pygtk.require("2.0")
 import gtk
 import gobject
-
+import sqlobject
 from views import views
 from editors import editors
-
+import tools.export
 from prefs import *
-#from prefs import Preferences, PreferencesMgr
-
-import sqlobject
 
 #
 # GUI
@@ -157,7 +154,6 @@ class GUI:
         self.content_frame.set_label(view_class.__name__)
         self.content_frame.add(new_view)
         
-    
         
     def on_activate_view(self, menuitem, view):
         """
@@ -208,7 +204,9 @@ class GUI:
                                    None, None, self.on_edit_menu_paste), 
                                   ("edit_preferences", None , "_Preferences", 
                                    "<control>P", None, self.on_edit_menu_prefs), 
-                                  ("tools", None, "_Tools")
+                                  ("tools", None, "_Tools"),
+                                   ("export", None, "_Export", None, 
+                                   None, self.on_tools_menu_export), 
                                   ])
         ui_manager.insert_action_group(menu_actions, 0)
 
@@ -219,6 +217,11 @@ class GUI:
         mb = ui_manager.get_widget("/MenuBar")
         return mb
     
+
+    def on_tools_menu_export(self, widget, data=None):
+        d = tools.export.ExportDialog()
+        d.run()
+        d.destroy()
 
     def on_edit_menu_prefs(self, widget, data=None):
         print "on_edit_menu_prefs"
