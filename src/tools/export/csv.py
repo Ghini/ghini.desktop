@@ -5,6 +5,16 @@
 from tools.export import *
 
 
+
+from threading import Thread
+
+class CSVWorker(Thread):
+    def __init__(self):
+        pass
+        
+    def run(self):
+        pass
+
 class CSVExporter(Exporter):
     def __init__(self, dialog):
         Exporter.__init__(self, dialog)
@@ -34,7 +44,7 @@ class CSVExporter(Exporter):
             button.set_label(filename)
         d.destroy()
     
-
+    
     def export(self):        
         path = self.chooser_button.get_label()
         filename_template = path + os.sep +"%s.txt"
@@ -45,20 +55,22 @@ class CSVExporter(Exporter):
                 return
         
         path = self.chooser_button.get_label()
-        meta_file = file(path + os.sep + "tables.txt", "w")
+        progress = utils.ProgressDialog()
+        progress.show_all()
         for table_name, table in tables.iteritems():
-            meta = table_name + "=" + str(table.sqlmeta._columnDict.keys()) + "\n"
-            meta_file.write(meta)
+            progress.pulse()
             filename = filename_template % table_name
             f = file(filename, "w")
+            col_dict = table.sqlmeta._columnDict
+            names = ["id"] + col_dict.keys()[:] # id not in the dict
+            f.write(str(names) + "\n")
             for row in table.select():
                 values = []
-                values.append(row.id)
-                for col in table._columns:
+                values.append(row.id) # id not in dict
+                for name, col in col_dict.iteritems():
                     if type(col) == ForeignKey:
-                        name = col.name + "ID"
-                    else: name = col.name
+                        name = name + "ID"
                     values.append(getattr(row, name))
                 f.write(str(values)[1:-1]+"\n")
             f.close()
-        meta_file.close()
+        progress.destroy()

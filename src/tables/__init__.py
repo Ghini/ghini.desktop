@@ -11,7 +11,11 @@
 # 
 # TODO: other tables to consider
 # Collections
-# Horticulture
+# Cultivation
+# Images
+#  - uri
+#  - plantname_id
+# a table that can hold uri to keys, i.e. Stephen Brewers Palm Key
 import os, os.path
 
 from sqlobject import *

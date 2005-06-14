@@ -15,6 +15,7 @@ import gobject
 import sqlobject
 from views import views
 from editors import editors
+from tables import tables
 import tools.export
 from prefs import *
 
@@ -241,8 +242,55 @@ class GUI:
     def on_edit_menu_paste(self, widget, data=None):
         pass
 
-
+    
     def on_file_menu_import(self, widget, data=None):
+        """
+        choose a directory to import 
+        """
+        def on_selection_changed(filechooser, data=None):
+            """
+            only make the ok button sensitive if the selection is a file
+            """
+            f = filechooser.get_preview_filename()
+            if f is None: return
+            ok = filechooser.action_area.get_children()[1]
+            ok.set_sensitive(os.path.isfile(f))
+        fc = gtk.FileChooserDialog("Choose file(s) to import...",
+                                  self.window,
+                                  gtk.FILE_CHOOSER_ACTION_OPEN,
+                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+        fc.set_select_multiple(True)
+        fc.connect("selection-changed", on_selection_changed)
+        r = fc.run()
+        filenames = fc.get_filenames()
+        fc.destroy()
+        for filename in filenames:
+            print filename
+            path, base = os.path.split(filename)
+            table_name, ext = os.path.splitext(base)
+            print "table: " + table_name
+            f = file(filename, "r")
+            # first line is columns
+            line = f.readline()
+            cols = eval(line)
+            print cols
+            ncols = len(cols)
+            for line in f:
+                line = line.strip()
+                values = line.split(', ')
+                value_str = cols[0] +"="+values[0]
+                for i in xrange(1, ncols):
+                    value_str += ", " + cols[i] + "=" + values[i]
+                eval_str = "tables.%s(%s)" % (table_name, value_str)
+                #print eval_str
+                eval(eval_str)
+                #eval("tables.%s(%s)" % table_name)
+                #print values
+            
+
+
+    def on_file_menu_import2(self, widget, data=None):
         """
         choose a file to import, the filename should be table_name.txt
         to import to table table_name

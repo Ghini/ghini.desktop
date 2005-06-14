@@ -13,7 +13,10 @@ import utils
 
 # TODO: load a list of all exporters, or require the exporters to register
 # themselves with us, right now just hard code them in
-# TODO: make the exporters threaded with progress dialogs
+#
+# TODO: convert this to use threading, could just include the threading
+# in the exporter class and have the Exporter subclasses be the workers,
+# then the progress dialog could be done one time
 
 class ExportDialog(gtk.Dialog):
     def __init__(self, title="Export", parent=None,

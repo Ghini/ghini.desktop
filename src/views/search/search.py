@@ -315,9 +315,7 @@ class SearchView(views.View):
                           eval("editors.%s" % value.name), [value], None)
         menu.add(edit_item)
          
-        # TODO: add a separator
         menu.add(gtk.SeparatorMenuItem())
-        
         
         for join in value._joins:
             # for each join in the selected row then add an item on the context
@@ -339,6 +337,11 @@ class SearchView(views.View):
                          defaults)
             menu.add(add_item)
         
+        menu.add(gtk.SeparatorMenuItem())
+        
+        remove_item = gtk.MenuItem("Remove")
+        remove_item.connect("activate", self.on_activate_remove_item, value)
+        menu.add(remove_item)
         
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
@@ -346,7 +349,12 @@ class SearchView(views.View):
         
         
         
+    def on_activate_remove_item(self, item, row):
+        print "removing " + str(row)
+        # TODO: this will leave stray joins
+        row.destroySelf()
 
+        
     def on_view_row_activated(self, view, path, column, data=None):
         """
         expand the row on activation
