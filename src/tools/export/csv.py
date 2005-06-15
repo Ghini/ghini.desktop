@@ -65,12 +65,15 @@ class CSVExporter(Exporter):
             names = ["id"] + col_dict.keys()[:] # id not in the dict
             f.write(str(names) + "\n")
             for row in table.select():
-                values = []
-                values.append(row.id) # id not in dict
+                values_str = '%s' % row.id
                 for name, col in col_dict.iteritems():
+                    values_str += "|" # delimeter
                     if type(col) == ForeignKey:
                         name = name + "ID"
-                    values.append(getattr(row, name))
-                f.write(str(values)[1:-1]+"\n")
+                    v = getattr(row, name)
+                    if type(v) == str:
+                        values_str += '"%s"' % v
+                    elif v is not None: values_str += '%s' % v
+                f.write(values_str + "\n")
             f.close()
         progress.destroy()

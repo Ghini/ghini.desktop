@@ -31,6 +31,7 @@ from conn_mgr import *
 import tables
 import prefs
 from prefs import Preferences
+import utils
 
 
 #
@@ -71,7 +72,21 @@ class Bauble:
         else: return self.conn.cursor()
 
 
-    def create_database(self, uri):
+    def create_database(self):
+        msg = "Creating a new database on this connection could overwrite an "\
+        "existing database. Are you sure you want to create a new database?"
+        #msg = "You are about to create a new database at this connection. Are"\
+        #"you sure you want to do this, you might be destroying years of hard work
+        if not utils.are_you_sure(msg):
+            return
+        for t in tables.tables.values():
+            t.dropTable()
+            t.createTable()
+            
+            
+        
+
+    def create_database2(self, uri):
         # TODO: first we should connect with a uri that doesn't use the db
         # parameter and check if the database exists, if it doesn't we should
         # ask the user if they would like to create it or if so then should we

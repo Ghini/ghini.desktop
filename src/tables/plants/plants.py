@@ -52,7 +52,9 @@ class Plants(SQLObject):
     #accid1 = StringCol(length=50)
     # this is not the "accession id" but an
     # id into the accessions table
-    accession = ForeignKey('Accessions', notNull=True)
+    accession = ForeignKey('Accessions', notNull=True, cascade=True)
+    
+    # TODO: is this is what a SINGLE JOIN is for
     location = ForeignKey("Locations", notNull=True)
     #location = MultipleJoin("Locations", joinColumn="locations_id")
     #mta_out = MultipleJoin("MaterialTransfers", joinColumn="genus_id")

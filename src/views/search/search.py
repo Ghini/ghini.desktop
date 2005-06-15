@@ -352,6 +352,7 @@ class SearchView(views.View):
     def on_activate_remove_item(self, item, row):
         print "removing " + str(row)
         # TODO: this will leave stray joins
+        # see col.cascade
         row.destroySelf()
 
         

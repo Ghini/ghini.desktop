@@ -7,6 +7,7 @@
 import os
 import time
 import thread
+import re
 
 import pygtk
 pygtk.require("2.0")
@@ -242,11 +243,17 @@ class GUI:
     def on_edit_menu_paste(self, widget, data=None):
         pass
 
-    
     def on_file_menu_import(self, widget, data=None):
+        self.on_file_menu_import_csv(widget, data)
+        #self.on_file_menu_import_mysql(widget, data)
+        
+
+    def on_file_menu_import_csv(self, widget, data=None):
         """
         choose a directory to import 
         """
+        # TODO: import should use transactions so the entire table is
+        # commited or nothing
         def on_selection_changed(filechooser, data=None):
             """
             only make the ok button sensitive if the selection is a file
@@ -256,7 +263,7 @@ class GUI:
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
         fc = gtk.FileChooserDialog("Choose file(s) to import...",
-                                  self.window,
+                                  self.window,    
                                   gtk.FILE_CHOOSER_ACTION_OPEN,
                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                    gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
@@ -276,21 +283,21 @@ class GUI:
             cols = eval(line)
             print cols
             ncols = len(cols)
+            splitter = re.compile('\|')
+            value_template = ", %s=%s"
+            eval_template = "tables.%s(%s)"
             for line in f:
                 line = line.strip()
-                values = line.split(', ')
-                value_str = cols[0] +"="+values[0]
+                values = splitter.split(line)
+                value_str = cols[0] +"="+values[0] # the id                
                 for i in xrange(1, ncols):
-                    value_str += ", " + cols[i] + "=" + values[i]
-                eval_str = "tables.%s(%s)" % (table_name, value_str)
-                #print eval_str
-                eval(eval_str)
-                #eval("tables.%s(%s)" % table_name)
-                #print values
+                    if values[i] != "":
+                        value_str += value_template % (cols[i], values[i])
+                eval(eval_template % (table_name, value_str))
             
 
 
-    def on_file_menu_import2(self, widget, data=None):
+    def on_file_menu_import_mysql(self, widget, data=None):
         """
         choose a file to import, the filename should be table_name.txt
         to import to table table_name
@@ -343,14 +350,8 @@ class GUI:
         # TODO: popup a message dialog that says "Success." or something
         # to indicate everything was imported without problems
         
-    def on_file_menu_new(self, widget, date=None):
-        cm = ConnectionManagerGUI()
-        print "calling get params"
-        params = cm.get_connection_parameters()
-        print "returned"
-        if params is not None:
-            print "create"
-            self.bauble.create_database(params)
+    def on_file_menu_new(self, widget, date=None):        
+        self.bauble.create_database()
             
         
     def on_file_menu_open(self, widget, data=None):        
