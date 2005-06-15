@@ -8,6 +8,7 @@ import gtk
 
 import editors
 from tables import tables
+import utils
 
 #
 # TODO: rather than having an accessions editor and a clones editor
@@ -77,9 +78,41 @@ class AccessionsEditor(editors.TableEditorDialog):
         #    get completions 
     
     def commit_changes(self):
-        editors.TableEditorDialog.commit_changes(self)
-        msg  = "No Plants/Clones exist for this accession. Would you like \
-        to add them now?"
+        if not editors.TableEditorDialog.commit_changes(self):
+            return
+            
+        # need to ask if you want to 
+        msg  = "No Plants/Clones exist for this accession %s. Would you like " \
+        "to add them now?"
+        print msg
+        #values = self.get_table_values(not self.dummy_row)
+        values = self.get_table_values()
+        print values
+        for v in values:
+            
+            
+            acc_id = v["acc_id"]
+            sel = tables.Accessions.selectBy(acc_id=acc_id)
+            accession = sel[0]
+            print accession.plants
+            if sel.count() > 1:
+                raise Exception("AccessionEditor.commit_changes():  "\
+                                "more than one accession exists with id: " + acc_id)
+            
+            
+            if not utils.yes_no_dialog(msg % acc_id):
+                continue
+            e = editors.editors.Plants(defaults={"accession":sel[0]})    
+            e.show()
+        return True
+
+            
+        #e = editors.editors.PlantsEditor(defaults={"plants_id":1})    
+        #e = editors.editors.Plants(defaults={"accession":1})    
+        #e.show()
+        #e.run()
+        #e.destroy()
+        return True
         # TODO: if this accession didn't exist then ask the user if they want
         # to add clones
         #d = gtk.MessageDialog(None,

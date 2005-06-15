@@ -7,16 +7,15 @@ pygtk.require("2.0")
 import gtk
 import re
 
-rx = re.compile(" {2,}")
-def plantname2str(plantname, authors=False):    
-    # should return the fully qualified name based on the plantname
-    # row, there probably a more efficient way
-    p = "%s %s %s %s" % (plantname.genus, plantname.sp, plantname.isp_rank,
-                      plantname.isp)
-    # replace two or more space with one space    
-    p2 =  rx.sub(" ", p)    
-    p2 = p2.strip()
-    return p2
+
+def plantname2str(p, authors=False):    
+    #TODO: this needs alot of work to be complete
+    name = str(p.genus) + " " + p.sp
+    if p.isp_rank is not None:
+        name += " %s" % p.isp_rank
+    if p.isp is not None:
+        name += " %s" % p.isp
+    return name
 
 
 def get_combo_text(combo, column=0):
@@ -27,7 +26,7 @@ def get_combo_text(combo, column=0):
     return model[active][column]    
 
 
-def are_you_sure(msg):
+def yes_no_dialog(msg):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_QUESTION,
                           buttons = gtk.BUTTONS_YES_NO,

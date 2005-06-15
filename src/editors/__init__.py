@@ -15,7 +15,6 @@ from sqlobject import *
 
 from tables import tables
 from utils import *
-#from bbl_utils import *
 from prefs import Preferences
 
 from utils.debug import debug
@@ -88,8 +87,11 @@ class MetaViewColumn(dict):
 class ModelDict(dict):
     """
     each row of the model will contain a ModelDict though each row may
-    not have the same keys in  the dict
+    not have the same keys in  the dict,
+    
     """        
+    # TODO this "create item on access" is bad programming style, we 
+    # should fix it 
     def __init__(self, table_row=None, default=None):
         """
         if table is not None then build a dict from the table
@@ -116,8 +118,8 @@ class ModelDict(dict):
     def __getitem__(self, item):
         """
         allows us to use the dict syntax to dynamically create keys
-        for the model though you have to be careful b/c 'if d[key] is None'
-        can create the key
+        for the model though you have to be careful b/c 
+        'if d[key] is None' can create the key
         """
         if not self.has_key(item):
             self[item] = None
@@ -161,20 +163,26 @@ class TableEditorDialog(gtk.Dialog):
     def get_table_values(self):
         """
         used by commit_changes to get the values from a table so they
-        can be commited to the database
+        can be commited to the database, this version of the function
+        removes the values with None as the value from the row, i thought
+        this was necessary but now i don't, in fact it may be better to 
+        explicitly set things null
         """
         model = self.view.get_model()
         values = []
-        from copy import copy
-        for row in model:
-            row = copy(row[0]) # copy it so we dont change the data in the model
-            for c in row:
-                if type(row[c]) == list: # convert foreign keys to ids
-                    #print "get_table_values(): " + str(row[c])
-                    row[c] = int(row[c][0])
-            values.append(row)
-        del values[len(model)-1] # the last one should always be empty
-        return values                    
+        for item in model:
+            temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
+            for name, value in item[0].iteritems():                
+                # del the value is they are none
+#                if value is None:
+#                    del temp_row[name]
+                if type(value) == list:
+                    temp_row[name] = value[0]
+            values.append(temp_row)
+            
+        if self.dummy_row:
+            del values[len(model)-1] # the last one should always be empty
+        return values                                   
     
 
     def foreign_does_not_exist(self, name, value):
@@ -189,7 +197,11 @@ class TableEditorDialog(gtk.Dialog):
         d.run()
         d.destroy()
         
-        
+    # this is used to indicate that the last row is a valid row
+    # or it is one that was added automatically but never used
+    dummy_row = False
+    
+    
     def on_edited(self, renderer, path, new_text, colname):
         """
         """
@@ -219,6 +231,7 @@ class TableEditorDialog(gtk.Dialog):
         if new_text != "" and int(path) == len(model)-1:
             model = self.view.get_model()
             self.add_new_row()
+            self.dummy_row = True
             #model.append([ModelDict()])            
 
     def validate(self, colname, value):
@@ -467,6 +480,7 @@ class TableEditorDialog(gtk.Dialog):
         values = self.get_table_values()
         trans = sqlhub.threadConnection.transaction()
         for v in values:
+            print v
             try:
                 if v.has_key("id"):
                     print "TableEditorDialog.commit_changes(): updating"

@@ -9,7 +9,9 @@ class Plants(SQLObject):
     _cacheValue = False
     
     # add to end of accession id, e.g. 04-0002.05
-    plant_id = IntCol(notNull=True, alternateID=True)
+    #plant_id = IntCol(notNull=True, alternateID=True)
+    # these are only unique when combined with an accession_id
+    plant_id = IntCol(notNull=True) 
     plantQual = IntCol(default=None)    # ?
     plantHeld = StringCol(length=50, default=None) 
     acct = StringCol(length=4, default=None)

@@ -51,7 +51,7 @@ class CSVExporter(Exporter):
         for name in tables.keys():
             filename = filename_template % name
             if os.path.exists(filename) and not \
-               utils.are_you_sure("%s exists, do you want to continue?" % filename):
+               utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
                 return
         
         path = self.chooser_button.get_label()

@@ -20,7 +20,8 @@ from prefs import *
 
 
 class ConnectionManagerDialog(gtk.Dialog):
-    def __init__(self, title="Connection Manager", parent=None,
+    def __init__(self, current_name=None, 
+                 title="Connection Manager", parent=None,
                  flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                  buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
                           gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)):
@@ -32,6 +33,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         # set the focus on the OK button
         self.set_focus(self.action_area.get_children()[1])
+        self.set_active_connection_by_name(current_name)
         
 
     def _get_supported_dbtypes(self):
@@ -102,6 +104,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         name_label.set_alignment(0.0, 0.5)
         
         self.name_combo = gtk.combo_box_new_text()
+        self.name_combo.connect("changed", self.on_changed_name_combo)
         hbox.pack_start(self.name_combo)
         
         button = gtk.Button("New")
@@ -134,22 +137,30 @@ class ConnectionManagerDialog(gtk.Dialog):
         hbox.pack_start(type_label)
         hbox.pack_start(self.type_combo)
         self.vbox.pack_start(hbox, False, False)
-        
-    
+            
         # populate with connection names
-        self.name_combo.connect("changed", self.on_changed_name_combo)
-        conn_list = Preferences[conn_list_pref]
+        
+        
+        
+        
+        #default_conn = Preferences[conn_default_pref]
+        #set
+    
+
+    def set_active_connection_by_name(self, name):
+        if not hasattr(self, "name_combo"):
+            return
         i = 0
         active = 0
-        default_conn = Preferences[conn_default_pref]
+        conn_list = Preferences[conn_list_pref]
         for conn in conn_list:
             self.name_combo.insert_text(i, conn)
-            if conn == default_conn: 
+            if conn == name: 
                 active = i
             i += 1
         self.name_combo.set_active(active)
-    
 
+        
     def remove_connection(self, name):
         """
         if we restrict the user to only removing the current connection
@@ -234,6 +245,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         params["type"] = self.type_combo.get_active_text()
         conn_list = Preferences[conn_list_pref]
         conn_list[self.current_name] = params
+        Preferences.save()
         
 
     def compare_params_to_prefs(self, name):
@@ -245,6 +257,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
+        print params
+        print stored_params
         return params == stored_params
 
         
@@ -321,7 +335,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         uri = template % params
         return uri
             
-            
+
+    def get_connection_name(self):
+        return self.current_name
+
+
     def check_parameters_valid(self):
         """
         check that all of the information in the current connection

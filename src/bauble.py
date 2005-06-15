@@ -33,6 +33,7 @@ import prefs
 from prefs import Preferences
 import utils
 
+DEBUG_SQL = False
 
 #
 # Bauble
@@ -47,15 +48,17 @@ class Bauble:
         # open default database on startup
         self.conn = None
         num_tries = 0
+        default_conn = Preferences[prefs.conn_default_pref]
         while self.conn is None:
-            cm = ConnectionManagerDialog()
+            cm = ConnectionManagerDialog(default_conn)
             r = cm.run()
             if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
                r == gtk.RESPONSE_NONE or r == gtk.RESPONSE_DELETE_EVENT:
                 self.quit()
             uri = cm.get_connection_uri()
+            name = cm.get_connection_name()
             cm.destroy()
-            self.open_database(uri, True)
+            self.open_database(uri, name, True)
                 
         # now that we have a connection build and show the gui
         self.gui = GUI(self)
@@ -75,60 +78,13 @@ class Bauble:
     def create_database(self):
         msg = "Creating a new database on this connection could overwrite an "\
         "existing database. Are you sure you want to create a new database?"
-        #msg = "You are about to create a new database at this connection. Are"\
-        #"you sure you want to do this, you might be destroying years of hard work
-        if not utils.are_you_sure(msg):
+        if not utils.yes_no_dialog(msg):
             return
         for t in tables.tables.values():
-            t.dropTable()
+            try:
+                t.dropTable()
+            except Exception: pass
             t.createTable()
-            
-            
-        
-
-    def create_database2(self, uri):
-        # TODO: first we should connect with a uri that doesn't use the db
-        # parameter and check if the database exists, if it doesn't we should
-        # ask the user if they would like to create it or if so then should we
-        # overwrite
-        #
-        # i'm not sure how cross platform CREATE DATABASE, DROP DATABASE,
-        # and USE statements are so this may bork on some platforms
-
-        self.open_database(uri)
-        #uri = self.build_connection_uri(params)
-        #self.conn = dbmgr.connect(uri)
-        # i don't know if this is allowed on all databases
-        #self.conn.query("USE bbg_new2;")        
-        # TODO: should check here if the database already exists
-        # and aks the user if they would like to delete the database
-        try:
-            self.conn.query("CREATE DATABASE " + params["db"])
-        except: # ProgrammingError, e:
-            msg = "** Error -- Could not create database. " + \
-                  "Check connection parameters are correct, that " + \
-                  "you have the correct permissions and that the database " +\
-                  "does not already exists. Would you still like to " + \
-                  "create the database?"
-            d = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_QUESTION,
-                                  gtk.BUTTONS_YES_NO, msg)
-            r = d.run()
-            d.destroy()
-            if r == gtk.RESPONSE_NO:
-                return
-            
-        try:
-            self.conn.query("DROP DATABASE " + params["db"])
-            self.conn.query("CREATE DATABASE " + params["db"])
-            self.conn.query("USE " + params["db"])
-            tables.create_tables()
-        except Exception, e:
-            msg = "** Error -- Could not create database."
-            d = gtk.MessageDialog(None, gtk.DIALOG_MODAL, gtk.MESSAGE_ERROR,
-                                  gtk.BUTTONS_YES_NO, msg)
-            r = d.run()            
-            d.destroy()
-        return
             
         
     #
@@ -145,14 +101,16 @@ class Bauble:
         return template % params
                           
         
-    def open_database(self, uri, before_main=False):        
+    def open_database(self, uri, name=None, before_main=False):        
         """
         open a database connection, will call get_passwd to popup a 
         dialog to enter the passwd
         TODO: would probably be less annoying if we tried to connect first
         without a passwd and only asked for a passwd if the first try failed
         """
-        sqlhub.threadConnection = connectionForURI(uri)
+
+        #sqlhub.threadConnection = connectionForURI(uri, debug=DEBUG_SQL, debugOutput=DEBUG_SQL)    
+        sqlhub.threadConnection = connectionForURI(uri)    
         try:
             self.conn = sqlhub.threadConnection.getConnection() # i think this does the connecting
             self.conn.autoCommit = False
@@ -165,6 +123,10 @@ class Bauble:
             d.run()
             d.destroy()
         
+        if name is not None:
+            print "save preferences"
+            Preferences[prefs.conn_default_pref] = name
+            Preferences.save()
     
     def destroy(self, widget, data=None):
         gtk.main_quit()

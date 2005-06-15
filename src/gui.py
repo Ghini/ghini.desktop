@@ -225,6 +225,7 @@ class GUI:
         d.run()
         d.destroy()
 
+
     def on_edit_menu_prefs(self, widget, data=None):
         print "on_edit_menu_prefs"
         p = PreferencesMgr()
@@ -243,6 +244,10 @@ class GUI:
     def on_edit_menu_paste(self, widget, data=None):
         pass
 
+
+    # FIXME: on either import using the mysql import or export 
+    # using CSV export, alot of blank string are being created for things
+    # like Plantnames.isp, isp_rank, etc....
     def on_file_menu_import(self, widget, data=None):
         self.on_file_menu_import_csv(widget, data)
         #self.on_file_menu_import_mysql(widget, data)

@@ -354,6 +354,9 @@ class SearchView(views.View):
         # TODO: this will leave stray joins
         # see col.cascade
         row.destroySelf()
+        # TODO: this should immediately remove the model from the value
+        # and refresh the tree, we might have to save the path to
+        # remember where we were in the view
 
         
     def on_view_row_activated(self, view, path, column, data=None):
