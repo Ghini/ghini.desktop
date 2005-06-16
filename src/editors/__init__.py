@@ -14,7 +14,7 @@ from sqlobject.sqlbuilder import *
 from sqlobject import *
 
 from tables import tables
-from utils import *
+import utils
 from prefs import Preferences
 
 from utils.debug import debug
@@ -190,12 +190,8 @@ class TableEditorDialog(gtk.Dialog):
         this is intended to be overridden in a subclass to do something
         interesting if the foreign key doesn't exist
         """
-        d = gtk.MessageDialog(None, 
-                              gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-                              gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, 
-                              "%s does not exit in %s" % (value, name))
-        d.run()
-        d.destroy()
+        msg = "%s does not exist in %s" % (value, name)
+        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
     # this is used to indicate that the last row is a valid row
     # or it is one that was added automatically but never used
@@ -461,12 +457,7 @@ class TableEditorDialog(gtk.Dialog):
                 self.destroy() # successfully commited
         elif response == gtk.RESPONSE_CANCEL and self.dirty:            
             msg = "Are you sure? You will lose your changes."
-            d = gtk.MessageDialog(self, gtk.DIALOG_MODAL |
-                                  gtk.DIALOG_DESTROY_WITH_PARENT, 
-                                  gtk.MESSAGE_ERROR, gtk.BUTTONS_YES_NO, msg)
-            r = d.run()
-            d.destroy()
-            if r == gtk.RESPONSE_YES:
+            if utils.yes_now_dialog(msg):
                 self.destroy()
         else: # cancel, not dirty
             self.destroy()
@@ -493,11 +484,7 @@ class TableEditorDialog(gtk.Dialog):
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)
                 trans.rollback()
-                d = gtk.MessageDialog(None, 
-                                      gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                      gtk.MESSAGE_ERROR, gtk.BUTTONS_OK, msg)
-                d.run()
-                d.destroy()
+                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return False
         trans.commit()
         return True

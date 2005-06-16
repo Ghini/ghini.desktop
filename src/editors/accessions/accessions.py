@@ -99,25 +99,9 @@ class AccessionsEditor(editors.TableEditorDialog):
                 raise Exception("AccessionEditor.commit_changes():  "\
                                 "more than one accession exists with id: " + acc_id)
             
-            
             if not utils.yes_no_dialog(msg % acc_id):
                 continue
             e = editors.editors.Plants(defaults={"accession":sel[0]})    
             e.show()
         return True
-
-            
-        #e = editors.editors.PlantsEditor(defaults={"plants_id":1})    
-        #e = editors.editors.Plants(defaults={"accession":1})    
-        #e.show()
-        #e.run()
-        #e.destroy()
-        return True
-        # TODO: if this accession didn't exist then ask the user if they want
-        # to add clones
-        #d = gtk.MessageDialog(None,
-        #                      gtk.DIALOG_MODAL| gtk.DIALOG_DESTROY_WITH_PARENT,
-        #                      gtk.MESSAGE_ERROR, gtk.BUTTONS_OK,
-        #                      "%s does not exit in %s" % (value, name))
-        #d.run()
-        #d.destroy()
+    

@@ -39,12 +39,7 @@ class PlantnamesEditor(editors.TableEditorDialog):
 
     def add_genus(self, name):
         msg = "The Genus %s does not exist. Would you like to add it?" % name
-        d = gtk.MessageDialog(None, 
-                              gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-                              gtk.MESSAGE_ERROR, gtk.BUTTONS_YES_NO, msg)
-        r = d.run()
-        d.destroy()
-        if r == gtk.RESPONSE_YES:
+        if utils.yes_no_dialog(msg):
             print "add genus"
 
     def get_completions(self, text, colname):

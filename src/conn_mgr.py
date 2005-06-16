@@ -184,13 +184,7 @@ class ConnectionManagerDialog(gtk.Dialog):
     def on_clicked_remove_button(self, button, data=None):
         # TODO: do you want to delete all data associated with this connection?
         msg = "Are you sure you want to remove " + self.current_name + " ?"
-        d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_QUESTION,
-                                  buttons = gtk.BUTTONS_YES_NO,
-                                  message_format=msg)
-        r = d.run()
-        d.destroy()
-        if r != gtk.RESPONSE_YES: 
+        if not utils.yes_no_dialog(msg):
             return
         self.current_name = None
         self.remove_connection(self.name_combo.get_active_text())
@@ -213,25 +207,14 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.name_combo.prepend_text(name)
         self.name_combo.set_active(0)
         
-
-    def ask_to_save(self, msg="Do you want to save your changes?"):
-        d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_QUESTION,
-                                  buttons = gtk.BUTTONS_YES_NO,
-                                  message_format=msg)
-        r = d.run()
-        d.destroy()
-        if r == gtk.RESPONSE_YES:
-            return True
-        else: return False
-        
             
     def on_response(self, dialog, response, data=None):
         if response == gtk.RESPONSE_OK:
             self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_params_to_prefs(self.current_name):
-                if self.ask_to_save():
+                msg="Do you want to save your changes?"
+                if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()              
         return response
 
@@ -271,13 +254,15 @@ class ConnectionManagerDialog(gtk.Dialog):
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:
             if self.current_name not in conn_list: # do you want to save your changes,
-                if self.ask_to_save("Do you want the save %s?" % self.current_name):
+                msg = "Do you want the save %s?" % self.current_name
+                if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else: 
                     self.remove_connection(self.current_name)
                     self.current_name == None
             elif not self.compare_params_to_prefs(self.current_name):
-                if self.ask_to_save("Do you want to save your changes to %s ?" % self.current_name):
+                msg = "Do you want to save your changes to %s ?" % self.current_name                
+                if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
         if conn_list.has_key(name):
             conn = conn_list[name]

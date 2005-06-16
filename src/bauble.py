@@ -15,23 +15,30 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import os, os.path, sys
+import utils
 
 # is this the best way to add lib to the load path???
 path, name = os.path.split(__file__)
 sys.path.append(path + os.sep + "lib")
 
-
+# i guess we would need to use the builtin tk library to print an
+# error if gtk is not available
 import pygtk
 pygtk.require("2.0")
 import gtk
-from sqlobject import *
+
+try:
+    from sqlobject import *
+except ImportError:
+    msg = "SQLObject not installed. Please install SQLObject from http://www.sqlobject.org"
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
 from gui import *
 from conn_mgr import *
 import tables
 import prefs
 from prefs import Preferences
-import utils
+
 
 DEBUG_SQL = False
 
@@ -116,12 +123,8 @@ class Bauble:
             self.conn.autoCommit = False
         except Exception, e:
             print e
-            d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                  type=gtk.MESSAGE_ERROR,
-                                  buttons = gtk.BUTTONS_OK, 
-                                  message_format="Could not open connection")
-            d.run()
-            d.destroy()
+            msg = "Could not open connection"
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
         if name is not None:
             print "save preferences"

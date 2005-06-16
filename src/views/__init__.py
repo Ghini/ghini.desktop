@@ -37,7 +37,8 @@ class _views(dict):
             full = path + os.sep + d 
             if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
                 m = __import__("views." + d, globals(), locals(), ['views'])
-                self[m.view.__name__] = m.view
+                if hasattr(m, "view"): # in case the module doesn't provide a view
+                    self[m.view.__name__] = m.view
                 
         
     def __getattr__(self, attr):
