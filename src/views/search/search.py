@@ -10,7 +10,7 @@ import sqlobject
 import views
 from tables import tables
 from editors import editors
-#import gtasklet
+import gtasklet
 
 from utils.debug import debug
 debug.enable = True

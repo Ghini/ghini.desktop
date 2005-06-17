@@ -457,7 +457,7 @@ class TableEditorDialog(gtk.Dialog):
                 self.destroy() # successfully commited
         elif response == gtk.RESPONSE_CANCEL and self.dirty:            
             msg = "Are you sure? You will lose your changes."
-            if utils.yes_now_dialog(msg):
+            if utils.yes_no_dialog(msg):
                 self.destroy()
         else: # cancel, not dirty
             self.destroy()

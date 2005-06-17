@@ -299,7 +299,19 @@ class GUI:
                 for i in xrange(1, ncols):
                     if values[i] != "":
                         value_str += value_template % (cols[i], values[i])
-                eval(eval_template % (table_name, value_str))
+                try:
+                    eval(eval_template % (table_name, value_str))
+                except Exception, e:
+                    import traceback
+                    print eval_template % (table_name, value_str)
+                    print value_str
+                    traceback.print_exc()
+                    raise Exception
+                    #    print Exception.
+#                    print value_str
+#                    print e
+#                except:
+                    
             
 
 

@@ -22,7 +22,8 @@ class Plantnames(SQLObject):
                          ("s. str.", "sensu stricto")]
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
-    sp_author = StringCol(length=255, default=None)  # species author
+    #sp_author = StringCol(length=255, default=None)  # species author
+    sp_author = UnicodeCol(dbEncoding='latin-1', default=None)  # species author
         
     cv_group = StringCol(length=50, default=None)    # cultivar group
     cv = StringCol(length=30, default=None)          # cultivar epithet
@@ -43,7 +44,8 @@ class Plantnames(SQLObject):
                              
 
     isp = StringCol(length=30, default=None)         # intraspecific epithet
-    isp_author = StringCol(length=254, default=None) # intraspecific author
+    #isp_author = StringCol(length=254, default=None) # intraspecific author
+    isp_author = UnicodeCol(length=255, dbEncoding="latin-1", default=None) # intraspecific author
     isp_rank = StringCol(length=10, default=None)    # intraspecific rank
     values["isp_rank"] = [("subsp.", "Subspecies"),
                           ("var.", "Variety"),
