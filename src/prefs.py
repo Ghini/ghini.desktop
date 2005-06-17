@@ -88,6 +88,12 @@ class _Preferences(dict):
     def __init__(self):        
         #self = self._shared
         self.update(self._shared)
+        if not os.path.exists(self._filename):
+            path, file = os.path.split(self._filename)
+            if not os.path.exists(path):
+                os.mkdir(path)
+            f = open(self._filename, "w") # touch
+            f.close() 
         #self.load()
         
 

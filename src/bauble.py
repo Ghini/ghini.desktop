@@ -19,8 +19,14 @@ import utils
 
 # is this the best way to add lib to the load path???
 path, name = os.path.split(__file__)
-sys.path.append(path + os.sep + "lib")
-
+print __file__
+print path
+print path + os.sep + "lib"
+#sys.path.append(path + os.sep + "lib")
+sys.path.append("lib")
+print sys.exec_prefix
+os.environ["PATH"] += ";.\lib"
+    
 # i guess we would need to use the builtin tk library to print an
 # error if gtk is not available
 import pygtk
@@ -110,17 +116,15 @@ class Bauble:
         
     def open_database(self, uri, name=None, before_main=False):        
         """
-        open a database connection, will call get_passwd to popup a 
-        dialog to enter the passwd
-        TODO: would probably be less annoying if we tried to connect first
-        without a passwd and only asked for a passwd if the first try failed
+        open a database connection
         """
-
+        print "Bauble.open_database: " + uri
         #sqlhub.threadConnection = connectionForURI(uri, debug=DEBUG_SQL, debugOutput=DEBUG_SQL)    
         sqlhub.threadConnection = connectionForURI(uri)    
         try:
             self.conn = sqlhub.threadConnection.getConnection() # i think this does the connecting
-            self.conn.autoCommit = False
+            if hasattr(self.conn, "autoCommit"): # sqlite doesn't have i guess
+                self.conn.autoCommit = False
         except Exception, e:
             print e
             msg = "Could not open connection"
@@ -162,5 +166,5 @@ class Bauble:
 # main
 #
 if __name__ == "__main__":
-    gtk.threads_init() # initialize threading
+    #gtk.threads_init() # initialize threading
     Bauble().main()

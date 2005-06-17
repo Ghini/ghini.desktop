@@ -213,7 +213,8 @@ class GUI:
         ui_manager.insert_action_group(menu_actions, 0)
 
         # load ui
-        ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
+        #ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
+        ui_manager.add_ui_from_file("bauble.ui")
 
         # get menu bar from ui manager
         mb = ui_manager.get_widget("/MenuBar")

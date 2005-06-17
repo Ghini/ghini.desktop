@@ -12,7 +12,7 @@ import views
 from tables import tables
 
 # TODO: remove gtasklet stuff
-import gtasklet
+#import gtasklet
 
 class SQLListStore(gtk.ListStore):
     """

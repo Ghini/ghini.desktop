@@ -11,6 +11,7 @@ import gtk
 import sqlobject
 
 from prefs import *
+import utils
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -153,6 +154,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         i = 0
         active = 0
         conn_list = Preferences[conn_list_pref]
+        if conn_list is None: return
         for conn in conn_list:
             self.name_combo.insert_text(i, conn)
             if conn == name: 
@@ -205,7 +207,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         name = entry.get_text()
         d.destroy()
         self.name_combo.prepend_text(name)
+        self.type_combo.set_active(0)
         self.name_combo.set_active(0)
+        
         
             
     def on_response(self, dialog, response, data=None):
@@ -224,6 +228,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         
     def save_current_to_prefs(self):
+        if not Preferences.has_key(conn_list_pref):
+            Preferences[conn_list_pref] = {}
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
         conn_list = Preferences[conn_list_pref]
@@ -236,7 +242,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         name is the name of the connection in the prefs
         """
         conn_list = Preferences[conn_list_pref]
-        if not conn_list.has_key(name): return False
+        if conn_list is None or not conn_list.has_key(name):
+            return False
+        #if not conn_list.has_key(name): return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
@@ -264,7 +272,7 @@ class ConnectionManagerDialog(gtk.Dialog):
                 msg = "Do you want to save your changes to %s ?" % self.current_name                
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
-        if conn_list.has_key(name):
+        if conn_list is not None and conn_list.has_key(name):
             conn = conn_list[name]
             self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
             self.params_box.set_parameters(conn_list[name])
@@ -308,7 +316,10 @@ class ConnectionManagerDialog(gtk.Dialog):
         type = self.type_combo.get_active_text()
         params = copy.copy(self.params_box.get_parameters())
         if type.lower() == "sqlite":
-            uri = "sqlite:///" + params["file"]
+            #uri = "sqlite:///" + params["file"]
+            filename = params["file"].replace(":", "|")
+            filename = filename.replace("\\", "/")
+            uri = "sqlite:///" + filename
             return uri
         
         params["type"] = type.lower()
