@@ -2,8 +2,16 @@
 # this is just a dummy file so i can import on this directory
 #
 
+import imp, os, sys
+
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+           
 import pygtk
-pygtk.require("2.0")
+if not main_is_frozen():
+    pygtk.require("2.0")
 import gtk
 import re
 
@@ -34,6 +42,7 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO):
     r = d.run()
     d.destroy()
     
+
 def yes_no_dialog(msg):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_QUESTION,
@@ -44,25 +53,7 @@ def yes_no_dialog(msg):
     return r == gtk.RESPONSE_YES
 
 
-class ProgressDialog(gtk.Dialog):
-    def __init__(self, title=""):
-        gtk.Dialog.__init__(self, title, None, gtk.DIALOG_NO_SEPARATOR,
-#                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                            (gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-    
-        self.create_gui()
-
-    def create_gui(self):
-        self.pb = gtk.ProgressBar()
-        self.vbox.pack_start(self.pb)
-        
-
-    def run(self):
-        self.show_all()
-        gtk.Dialog.run(self)        
-        #while True:
-        #self.pb.pulse()
-        
-    
-    def pulse(self):
-        self.pb.pulse()
+def get_main_dir():
+   if main_is_frozen():
+       return os.path.dirname(sys.executable)
+   return os.path.dirname(sys.argv[0])

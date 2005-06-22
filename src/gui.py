@@ -9,8 +9,6 @@ import time
 import thread
 import re
 
-import pygtk
-pygtk.require("2.0")
 import gtk
 import gobject
 import sqlobject
@@ -19,6 +17,7 @@ from editors import editors
 from tables import tables
 import tools.export
 from prefs import *
+import utils
 
 #
 # GUI
@@ -34,7 +33,7 @@ class GUI:
 
         # load the last view open from the prefs
         v = Preferences[self.current_view_pref]
-        if v is not None:
+        if v is not None and eval(v) is not None:
             self.set_current_view(eval(v))
             
     
@@ -214,7 +213,8 @@ class GUI:
 
         # load ui
         #ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
-        ui_manager.add_ui_from_file("bauble.ui")
+        ui_filename = utils.get_main_dir() + os.sep + "bauble.ui"
+        ui_manager.add_ui_from_file(ui_filename)
 
         # get menu bar from ui manager
         mb = ui_manager.get_widget("/MenuBar")

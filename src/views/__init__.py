@@ -5,9 +5,7 @@
 # TODO: on first start no view will be visible unless a default is selected
 
 import os, os.path
-
-import pygtk
-pygtk.require("2.0")
+import re
 import gtk
 import gobject
 
@@ -33,13 +31,28 @@ class _views(dict):
     """
     def __init__(self):
         path, name = os.path.split(__file__)
-        for d in os.listdir(path):
-            full = path + os.sep + d 
-            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                m = __import__("views." + d, globals(), locals(), ['views'])
-                if hasattr(m, "view"): # in case the module doesn't provide a view
-                    self[m.view.__name__] = m.view
-                
+        modules = []
+        if path.find("library.zip") != -1: # using py2exe
+            pkg = "views"
+            zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
+            x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
+            s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
+            rx = re.compile(s.encode('string_escape'))
+            for filename in x:
+                m = rx.match(filename)
+                if m is not None:
+                    modules.append('%s.%s' % (pkg, m.group(1)))
+        else:                
+            for d in os.listdir(path):
+                full = path + os.sep + d                
+                if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
+                    modules.append("views." + d)
+
+        for m in modules:
+            print "importing " + m
+            m = __import__(m, globals(), locals(), ['views'])
+            if hasattr(m, "view"): 
+                self[m.view.__name__] = m.view
         
     def __getattr__(self, attr):
         if not self.has_key(attr):

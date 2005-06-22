@@ -14,23 +14,23 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-import os, os.path, sys
+
+import os, sys
+
+sys.path.append("lib")
+os.environ["PATH"] += os.pathsep + "lib"
+
 import utils
 
 # is this the best way to add lib to the load path???
-path, name = os.path.split(__file__)
-print __file__
-print path
-print path + os.sep + "lib"
-#sys.path.append(path + os.sep + "lib")
-sys.path.append("lib")
-print sys.exec_prefix
-os.environ["PATH"] += ";.\lib"
+#path, name = os.path.split(__file__)
     
-# i guess we would need to use the builtin tk library to print an
-# error if gtk is not available
+# i guess we would need to use the builtin tk library to show an
+# error if gtk is not available, but that adds extra dependencies
+# for py2exe
 import pygtk
-pygtk.require("2.0")
+if not utils.main_is_frozen():
+    pygtk.require("2.0")
 import gtk
 
 try:
@@ -56,7 +56,7 @@ class Bauble:
     
     def __init__(self):
         # keep the directory where this resides for loading local files
-        self.path, dummy = os.path.split(__file__)
+        #self.path, dummy = os.path.split(__file__)
 
         # open default database on startup
         self.conn = None

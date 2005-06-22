@@ -4,10 +4,9 @@
 #
 
 import sys, os, os.path
+import re
 import copy
 
-import pygtk
-pygtk.require("2.0")
 import gtk
 
 from sqlobject.sqlbuilder import *
@@ -679,12 +678,29 @@ class TableEditorDialog(gtk.Dialog):
                     
 class _editors(dict):
     def __init__(self):
+        modules = []
         path, name = os.path.split(__file__)
-        for d in os.listdir(path):
-            full = path + os.sep + d 
-            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                m = __import__("editors." + d, globals(), locals(), ['editors'])
-                self[m.name] = m.editor
+        if path.find("library.zip") != -1: # using py2exe
+            pkg = "editors"
+            zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
+            x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
+            s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
+            rx = re.compile(s.encode('string_escape'))
+            for filename in x:
+                m = rx.match(filename)
+                if m is not None:
+                    modules.append('%s.%s' % (pkg, m.group(1)))                        
+        else:        
+            for d in os.listdir(path):
+                full = path + os.sep + d 
+                if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
+                    modules.append("editors." + d)
+    
+        for m in modules:
+            print "importing " + m
+            m = __import__(m, globals(), locals(), ['editors'])
+            if hasattr(m, "editor"): 
+                self[m.editor.__name__] = m.editor
     
     def __getattr__(self, attr):
         if not self.has_key(attr):

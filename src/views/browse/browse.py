@@ -3,11 +3,7 @@
 #
 
 import re
-
-import pygtk
-pygtk.require("2.0")
 import gtk
-
 import views
 from tables import tables
 

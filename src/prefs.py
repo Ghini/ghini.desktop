@@ -2,13 +2,23 @@
 import sys
 import os
 
-import pygtk
-pygtk.require("2.0")
 import gtk
 
 conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
+if sys.platform == "win32":
+    if os.environ.has_key("APPDATA"):
+        default_prefs_file = os.environ["APPDATA"] + os.sep + "Bauble" + os.sep + "user.py"
+    else:
+        raise Exception("Could not path to store preferences")
+elif sys.platform == "linux1":
+    if os.environ.has_key("HOME"):
+        default_prefs_file = os.environ["HOME"] + os.sep + ".bauble" + os.sep + "user.py"
+    else:
+        raise Exception("Could not path to store preferences")
+
+        
 class PreferencesMgr(gtk.Dialog):
     def __init__(self):
         gtk.Dialog.__init__(self, "Preferences", None,
@@ -84,7 +94,7 @@ class _Preferences(dict):
     """
     _shared = {}
     _loaded = False
-    _filename = os.environ["HOME"] + os.sep + ".bauble" + os.sep + "user.py"
+    _filename = default_prefs_file
     def __init__(self):        
         #self = self._shared
         self.update(self._shared)
