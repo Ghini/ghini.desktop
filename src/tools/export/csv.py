@@ -2,18 +2,19 @@
 # CSV Exporter
 #
 
+import csv
+from threading import Thread
+
 from tools.export import *
 
 
+#class CSVWorker(Thread):
+#    def __init__(self):
+#        pass
+#        
+#    def run(self):
+#        pass
 
-from threading import Thread
-
-class CSVWorker(Thread):
-    def __init__(self):
-        pass
-        
-    def run(self):
-        pass
 
 class CSVExporter(Exporter):
     def __init__(self, dialog):
@@ -45,7 +46,45 @@ class CSVExporter(Exporter):
         d.destroy()
     
     
-    def export(self):        
+    def export(self):
+        path = self.chooser_button.get_label()
+        filename_template = path + os.sep +"%s.txt"
+        for name in tables.keys():
+            filename = filename_template % name
+            if os.path.exists(filename) and not \
+               utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
+                return
+                
+        path = self.chooser_button.get_label()
+        #progress = utils.ProgressDialog()
+        #progress.show_all()
+    
+        for table_name, table in tables.iteritems():
+            #progress.pulse()
+            
+            col_dict = table.sqlmeta._columnDict
+            names = ["id"] + col_dict.keys()[:] # id not in the dict
+            #cols = ["id"] + table.sqlmeta._columnDict.keys()[:]
+            rows = []
+            rows.append(names)
+            for row in table.select():
+                values = []
+                values.append(row.id)
+                #values[0] = row.id
+                for name, col in col_dict.iteritems():
+                    if type(col) == ForeignKey:
+                        name = name+"ID"
+                    v = getattr(row, name)
+                    values.append(v)
+                rows.append(values)
+            f = file(filename_template % table_name, "wb")
+            writer = csv.writer(f)
+            writer.writerows(rows)
+        f.close()
+        #progress.destroy()
+            
+        
+    def exportOLD(self):        
         path = self.chooser_button.get_label()
         filename_template = path + os.sep +"%s.txt"
         for name in tables.keys():
