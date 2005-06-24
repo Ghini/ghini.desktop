@@ -2,9 +2,8 @@
 # Genera editor module
 #
 
-name = 'Genera'
+label = 'Genera'
 description = 'Genera'
-
 
 import genera
 editor = genera.GeneraEditor

@@ -45,6 +45,8 @@ class _tables(dict):
             m = __import__(m, globals(), locals(), ['tables'])
             if hasattr(m, 'table'):
                 self[m.table.__name__] = m.table   
+
+
     def __getattr__(self, attr):
         if not self.has_key(attr):
             return None

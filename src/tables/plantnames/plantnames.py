@@ -30,7 +30,7 @@ class Plantnames(SQLObject):
     trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
 
     # full name shouldn't be necessary
-    full_name = StringCol(length=50, default=None)
+    #full_name = StringCol(length=50, default=None)
     
     supfam = StringCol(length=30, default=None)  
         
@@ -127,14 +127,15 @@ class Plantnames(SQLObject):
     poison_animals = BoolCol(default=None)
     food_plant = StringCol(length=50, default=None)
 
-    # foreign key
+    # foreign keys and joins
     genus = ForeignKey('Genera', notNull=True)
-    accessions = MultipleJoin('Accessions', joinColumn="plantname_id")
+    accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
+    images = MultipleJoin('Images', joinColumn='images_id')
     
     ######## the rest? ##############    
     #Lifeform = StringCol(length=10)
-    tuses = StringCol(default=None) # taxon uses?
-    trange = StringCol(default=None)# taxon range?
+#    tuses = StringCol(default=None) # taxon uses?
+#    trange = StringCol(default=None)# taxon range?
     #pcomments = StringCol()
     #Source1 = IntCol()
     #Source2 = IntCol()

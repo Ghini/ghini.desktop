@@ -82,6 +82,9 @@ class MetaViewColumn(dict):
         dict.__setitem__(self, item, 
                          MetaViewColumn.Meta(value[0], value[1], value[2]))
 
+    def set_headers(self, headers):
+        for col, header in headers.iteritems():
+            self[col].header = header
         
 class ModelDict(dict):
     """
@@ -196,19 +199,33 @@ class TableEditorDialog(gtk.Dialog):
     # or it is one that was added automatically but never used
     dummy_row = False
     
-    
-    def on_edited(self, renderer, path, new_text, colname):
+    def on_renderer_toggled(self, renderer, path, colname):
+        print "on_renderer_toggled"
+        model = self.view.get_model()
+        i = model.get_iter(path)
+        row = model.get_value(i, 0)
+        active = not renderer.get_active() # because we toggled it dummy
+        row[colname] = active
+        renderer.set_active(active)
+        
+        
+    def on_renderer_edited(self, renderer, path, new_text, colname):
         """
+        signal called when editing is finished on a cell
+        retrieves the value in the cell, validates it and sets the value
+        in the model
         """
         #print "on_edited: " + new_text
-        new_text = new_text.strip()
-        if new_text == None or new_text == "":
-            return        
+        new_text = new_text.strip() # crash on None? is new_text ever None?
+#        if new_text == None or new_text == "":
+#            return        
         model = self.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
         if not self.column_data[colname].foreign:
-            v = self.column_data[colname].validate(new_text)
+            v = None
+            if not new_text == "": # set v and validate if not empty
+                v = self.column_data[colname].validate(new_text)
             row[colname] = v
         else:
             # need to somehow get the id from the text value, is it possible?
@@ -219,7 +236,7 @@ class TableEditorDialog(gtk.Dialog):
             # in one place
             pass
         self.dirty = True # something has changed
-        self.view.check_resize()
+#        self.view.check_resize() # ???????
 
         # edited the last row so add a new one,
         # i think this may a bit of a bastardization of path but works for now
@@ -351,8 +368,6 @@ class TableEditorDialog(gtk.Dialog):
         """
         not editing anymore, set current entry to None
         """
-        print "TableEditorDialog.on_editing_done()"
-        #self current entry to false
         self.current_entry = None
         
     def on_validate_date(self, entry, text, length, position):
@@ -496,10 +511,28 @@ class TableEditorDialog(gtk.Dialog):
         """
         v = model.get_value(iter, 0)
         row = v[column_name]
+        #print "get_model_value: " +str(row)
+        if type(cell) == gtk.CellRendererToggle:
+            if row is None:
+                # this should really get the default value from the table
+                cell.set_property('inconsistent', False) 
+            else:
+                cell.set_property('active', row)
+        else: # cell renderer text or combo
+            if row is None: # no value in model
+                cell.set_property('text', None)
+            elif type(row) == list: # if a list then row[1] is the id
+                cell.set_property('text', row[1])
+            else: # just plain text in model column
+                cell.set_property('text', str(row))                    
+        return
+        print type(cell)
         if row is None: # no value in model
             cell.set_property('text', None)
         elif type(row) == list: # if a list then row[1] is the id
             cell.set_property('text', row[1])
+        elif type(row) == boolean:
+            cell.set_property('active', row)
         else: # just plain text in model column
             cell.set_property('text', str(row))                    
 
@@ -556,7 +589,15 @@ class TableEditorDialog(gtk.Dialog):
         r = None
         # create a CellRendererCombo if the tables has predefined values
         # for the column
-        if hasattr(self.sqlobj, "values") and self.sqlobj.values.has_key(name):
+        #    print type(self.sqlobj.sqlmeta._columnDict[name]) == 
+        #print name + ": " + str(getattr(self.sqlobj, name))
+#        if getattr(self.sqlobj, name).__class__
+        coldict = self.sqlobj.sqlmeta._columnDict
+        if name not in coldict: # probably an id, might not be a valid column name
+            r = gtk.CellRendererText()
+        elif type(self.sqlobj.sqlmeta._columnDict[name]) == SOBoolCol:
+            r = gtk.CellRendererToggle()
+        elif hasattr(self.sqlobj, "values") and self.sqlobj.values.has_key(name):
             r = gtk.CellRendererCombo()
             #r.set_property("has-entry", False)
             r.set_property("text-column", 0)
@@ -567,16 +608,9 @@ class TableEditorDialog(gtk.Dialog):
         else:
             r = gtk.CellRendererText()            
             
-        # setup the renderer
-        r.set_property("editable", True)
-        r.set_property("editable-set", True)
-        r.connect("edited", self.on_edited, name)
-        r.connect("editing_started", self.on_editing_started, name)
-        
-        # setup the column
+        # create the column and generic configurations
         # replace so the '_' so its not interpreted as a mnemonic
         column = gtk.TreeViewColumn(column_meta.header.replace("_", "__"), r)
-        column.set_cell_data_func(r, self.get_model_value, name)
         column.set_min_width(120)
         column.set_clickable(True)
         column.connect("clicked", self.on_column_clicked)
@@ -585,7 +619,21 @@ class TableEditorDialog(gtk.Dialog):
         column.set_reorderable(True)
         column.set_visible(column_meta.visible)
         column.name = name # .name is my own data, not part of gtk
+        
+        
+        # now set configure the renderer and column according to type
+        if type(r) == gtk.CellRendererToggle:
+            r.connect("toggled", self.on_renderer_toggled, name)
+            pass
+        else:
+            r.set_property("editable", True)
+            r.set_property("editable-set", True)
+            r.connect("edited", self.on_renderer_edited, name)
+            r.connect("editing_started", self.on_editing_started, name)
+        column.set_cell_data_func(r, self.get_model_value, name)
+
         return column
+
         
     def add_new_row(self, row=None):
         model = self.view.get_model()
@@ -700,7 +748,7 @@ class _editors(dict):
             print "importing " + m
             m = __import__(m, globals(), locals(), ['editors'])
             if hasattr(m, "editor"): 
-                self[m.editor.__name__] = m.editor
+                self[m.label] = m.editor
     
     def __getattr__(self, attr):
         if not self.has_key(attr):

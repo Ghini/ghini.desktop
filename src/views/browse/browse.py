@@ -59,8 +59,6 @@ class InfoExpander(gtk.Expander):
 #
 class BrowseView(views.View):
     
-    __name__ = "BrowseView"
-    
     def __init__(self, bauble):
         #gtk.Frame.__init__(self,label="")
         views.View.__init__(self)

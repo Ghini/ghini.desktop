@@ -61,12 +61,11 @@ class CSVExporter(Exporter):
     
         for table_name, table in tables.iteritems():
             #progress.pulse()
-            
             col_dict = table.sqlmeta._columnDict
-            names = ["id"] + col_dict.keys()[:] # id not in the dict
-            #cols = ["id"] + table.sqlmeta._columnDict.keys()[:]
             rows = []
-            rows.append(names)
+            # TODO: probably don't need to write out column names or even
+            # create the file if it contains no data, could be an option
+            rows.append(["id"] + col_dict.keys()[:]) # write col names
             for row in table.select():
                 values = []
                 values.append(row.id)
@@ -78,7 +77,7 @@ class CSVExporter(Exporter):
                     values.append(v)
                 rows.append(values)
             f = file(filename_template % table_name, "wb")
-            writer = csv.writer(f)
+            writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(rows)
         f.close()
         #progress.destroy()

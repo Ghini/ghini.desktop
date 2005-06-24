@@ -136,14 +136,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         hbox.pack_start(type_label)
         hbox.pack_start(self.type_combo)
         self.vbox.pack_start(hbox, False, False)
-            
-        # populate with connection names
-        
-        
-        
-        
-        #default_conn = Preferences[conn_default_pref]
-        #set
     
 
     def set_active_connection_by_name(self, name):

@@ -2,6 +2,7 @@
 # GBIF view
 #
 
+label = "GBIF"
 description = 'GBIF'
 
 try:

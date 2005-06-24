@@ -59,8 +59,8 @@ class ExporterFactory:
     
     def createExporter(exporter_type, dialog):
         if exporter_type == "Comma Separated Values":
-            import csv
-            return csv.CSVExporter(dialog)
+            import csvexporter
+            return csvexporter.CSVExporter(dialog)
     createExporter = staticmethod(createExporter)
         
 

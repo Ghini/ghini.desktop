@@ -26,15 +26,17 @@ class AccessionsEditor(editors.TableEditorDialog):
         self.column_data = editors.createColumnMetaFromTable(self.sqlobj) #returns None?
 
         # set headers
-        self.column_data["acc_id"].header = "Acc ID" 
-        self.column_data["plantname"].header = "Name"
-        self.column_data["prov_type"].header = "Provenance Type"
-        self.column_data["wild_prov_status"].header = "Wild Provenance Status"
-        self.column_data["ver_level"].header = "Verification Level"
-        self.column_data["ver_name"].header = "Verifier's Name"
-        self.column_data["ver_date"].header = "Verification Date"
-        self.column_data["ver_lit"].header = "Verification Literature"
-        
+        headers = {"acc_id": "Acc ID",
+                   "plantname": "Name",
+                   "prov_type": "Provenance Type",
+                   "wild_prov_status": "Wild Provenance Status",
+                   "ver_level": "Verification Level",           
+                   "ver_name": "Verifier's Name",
+                   "ver_date": "Verification Date",
+                   "ver_lit": "Verification Literature"#,
+#                   "wgs": "World Geographical Scheme"
+                   }
+        self.column_data.set_headers(headers)
 
         # set default visible
         self.column_data["acc_id"].visible = True 

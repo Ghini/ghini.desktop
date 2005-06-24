@@ -29,9 +29,10 @@ class _views(dict):
     this is populated dynamically by search for all modules in the 
     this subdirectory
     """
+    modules = {}
     def __init__(self):
-        path, name = os.path.split(__file__)
         modules = []
+        path, name = os.path.split(__file__)
         if path.find("library.zip") != -1: # using py2exe
             pkg = "views"
             zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
@@ -50,10 +51,12 @@ class _views(dict):
 
         for m in modules:
             print "importing " + m
-            m = __import__(m, globals(), locals(), ['views'])
-            if hasattr(m, "view"): 
-                self[m.view.__name__] = m.view
-        
+            mod = __import__(m, globals(), locals(), ['views'])
+            if hasattr(mod, "view"): 
+                self[mod.label] = mod.view
+                self.modules[mod.view] = m
+                
+    
     def __getattr__(self, attr):
         if not self.has_key(attr):
             return None

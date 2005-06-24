@@ -12,6 +12,7 @@ import re
 import gtk
 import gobject
 import sqlobject
+import views
 from views import views
 from editors import editors
 from tables import tables
@@ -27,14 +28,15 @@ class GUI:
     current_view_pref = "gui.current_view"
     
     def __init__(self, bauble):
-        print views.View
         self.bauble = bauble
         self.create_gui()
 
         # load the last view open from the prefs
         v = Preferences[self.current_view_pref]
-        if v is not None and eval(v) is not None:
-            self.set_current_view(eval(v))
+        if v is not None: 
+            for view, module in views.modules.iteritems():
+                if module == v:
+                    self.set_current_view(view)
             
     
     def create_gui(self):            
@@ -114,7 +116,7 @@ class GUI:
         button = gtk.MenuToolButton(gtk.STOCK_FIND_AND_REPLACE)
         button.set_label("View")
         menu = gtk.Menu()
-        for name, view in views.iteritems():
+        for name, view in sorted(views.iteritems()):
             item = gtk.MenuItem(name)
             item.connect("activate", self.on_activate_view, view)
             menu.append(item)
@@ -128,7 +130,7 @@ class GUI:
         button.add_accelerator("show_menu", self.accel_group, ord("a"), 
                                gtk.gdk.CONTROL_MASK, gobject.SIGNAL_ACTION)
         menu = gtk.Menu()
-        for name, editor in editors.iteritems():
+        for name, editor in sorted(editors.iteritems()):
             item = gtk.MenuItem(name)
             item.connect("activate", self.on_activate_editor, editor)
             menu.append(item)
@@ -390,7 +392,10 @@ class GUI:
         """
         current_view = self.content_frame.get_child()
         if current_view is not None:
-            Preferences[self.current_view_pref] = "views." + current_view.__name__
+            # get label of view
+            for label, view in views.iteritems(): 
+                if view == current_view.__class__:
+                    Preferences[self.current_view_pref] = views.modules[view]
         Preferences.save()
         
     def on_quit(self, widget, data=None):

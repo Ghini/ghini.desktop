@@ -29,8 +29,6 @@ class SearchView(views.View):
                    "Plantnames": [tables.Plantnames, ("sp","isp")]
                    }
 
-    __name__ = "SearchView"
-
 
     def __init__(self, bauble):
         views.View.__init__(self)

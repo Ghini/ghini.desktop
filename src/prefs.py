@@ -12,11 +12,13 @@ if sys.platform == "win32":
         default_prefs_file = os.environ["APPDATA"] + os.sep + "Bauble" + os.sep + "user.py"
     else:
         raise Exception("Could not path to store preferences")
-elif sys.platform == "linux1":
+elif sys.platform == "linux2":
     if os.environ.has_key("HOME"):
         default_prefs_file = os.environ["HOME"] + os.sep + ".bauble" + os.sep + "user.py"
     else:
         raise Exception("Could not path to store preferences")
+else:
+    raise Exception("Could not path to store preferences: unsupported platform")
 
         
 class PreferencesMgr(gtk.Dialog):
@@ -75,12 +77,18 @@ class PreferencesMgr(gtk.Dialog):
         
         
     def create_general_frame(self):
-        frame = gtk.Frame("General")        
+        frame = gtk.Frame("General")
+        box = gtk.VBox(False)
+        box.pack_start(gtk.Label("Nothing to see here. Move on."))
+        frame.add(box)
         return frame        
 
 
     def create_security_frame(self):
         frame = gtk.Frame("Security")        
+        box = gtk.VBox(False)
+        box.pack_start(gtk.Label("Nothing to see here. Move on."))
+        frame.add(box)
         return frame        
 
     

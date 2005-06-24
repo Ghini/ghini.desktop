@@ -2,9 +2,8 @@
 # Plantnames editor module
 #
 
-name = 'Plantnames'
+label = 'Plantnames'
 description = 'Plantnames'
-
 
 import plantnames
 editor = plantnames.PlantnamesEditor

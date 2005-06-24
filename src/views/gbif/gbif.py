@@ -78,10 +78,6 @@ class DigirSearchThread(threading.Thread):
 
 class GBIFView(views.View):
     
-    # TODO: __name__ shouldn't really be here, meta information should be 
-    # module level
-    __name__ = "GBIFView" 
-    
     pURL = "http://registry.gbif.net/uddi/inquiry"
     iURL = "http://registry.gbif.net/uddi/inquiry"
     

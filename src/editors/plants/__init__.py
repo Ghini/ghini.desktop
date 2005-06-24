@@ -2,7 +2,7 @@
 # Plantnames editor module
 #
 
-name = 'Plants'
+label = 'Plants'
 description = 'Plants'
 
 import plants
