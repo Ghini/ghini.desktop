@@ -4,8 +4,6 @@
       <menuitem action="file_new"/>
       <menuitem action="file_open"/>
       <separator/>
-      <menuitem action="file_import"/>
-      <separator/>
       <menuitem action="file_quit"/>
     </menu>
     <menu action="edit">
@@ -17,7 +15,8 @@
       <separator/>
     </menu>    
     <menu action="tools">
-      <menuitem action="export"/>
+		<menuitem action="import"/>
+    	<menuitem action="export"/>
     </menu>
   </menubar>
 </ui>

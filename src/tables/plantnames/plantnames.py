@@ -120,9 +120,10 @@ class Plantnames(SQLObject):
     
     vernac_name = StringCol(default=None)          # vernacular name
 
-    synonym = StringCol(default=None)  # should really be an id into table \
-                                       # or there should be a syn table
-    #SynonynID = IntCol(, default=None) # ********* did i add this?
+#    synonym = StringCol(default=None)  # should really be an id into table \
+#                                       # or there should be a syn table
+    
+
     poison_humans = BoolCol(default=None)
     poison_animals = BoolCol(default=None)
     food_plant = StringCol(length=50, default=None)

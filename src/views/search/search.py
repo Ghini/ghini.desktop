@@ -26,7 +26,8 @@ class SearchView(views.View):
     """
     search_map = { "Families": [tables.Families, ("family",)],
                    "Genera":   [tables.Genera, ("genus",)],
-                   "Plantnames": [tables.Plantnames, ("sp","isp")]
+                   "Plantnames": [tables.Plantnames, ("sp","isp")],
+                   'Accessions': [tables.Accessions, ("acc_id",)]
                    }
 
 
@@ -72,10 +73,17 @@ class SearchView(views.View):
             
     def on_execute_clicked(self, widget):
         text = self.entry.get_text()
-        search = self.parse_text(text)
-                
         # clear the old model
         self.results_view.set_model(None)
+        
+        try:
+            search = self.parse_text(text)
+        except Exception, (msg, domain):
+            model = gtk.ListStore(str)
+            model.append(["Unknown search domain: " + domain])
+            self.results_view.set_model(model)
+            return
+                
         self.populate_results(search)
 
         
@@ -207,6 +215,8 @@ class SearchView(views.View):
             else:                
                 g = m.groups()                
                 domain = self.resolve_domain(g[0])
+                if domain not in self.search_map:
+                    raise Exception("views.search: unknown search domain: " + g[0], g[0])
                 if domain not in searches: searches[domain] = []
                 searches[domain].append(g[1])
         return searches

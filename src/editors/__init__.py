@@ -19,6 +19,10 @@ from prefs import Preferences
 from utils.debug import debug
 debug.enable = False
 
+# TODO: create columns for SingleJoin that hold a button, clicking the button
+# can create the for the current row, i.e. and Accession can have a Collection
+# Single Join so the accession editor could have a button for that column to
+# create the collection record for the accession
 
 def createColumnMetaFromTable(sqlobj):
     """
@@ -86,6 +90,7 @@ class MetaViewColumn(dict):
         for col, header in headers.iteritems():
             self[col].header = header
         
+
 class ModelDict(dict):
     """
     each row of the model will contain a ModelDict though each row may

@@ -16,11 +16,10 @@
 
 
 import os, sys
-
-sys.path.append("lib")
-os.environ["PATH"] += os.pathsep + "lib"
-
 import utils
+
+sys.path.append(utils.get_main_dir() + os.sep + "lib")
+os.environ["PATH"] += utils.get_main_dir() + os.pathsep + "lib"
 
 # is this the best way to add lib to the load path???
 #path, name = os.path.split(__file__)

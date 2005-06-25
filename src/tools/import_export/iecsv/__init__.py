@@ -1,21 +1,74 @@
-#
-# CSV Exporter
-#
 
+from tools.import_export import *
 import csv
-from threading import Thread
+import sqlobject
+from tables import tables
 
-from tools.export import *
+#importer = CSVImporter
+#exporter = CSVExporter
 
+csv_format_params = {}
 
-#class CSVWorker(Thread):
-#    def __init__(self):
-#        pass
-#        
-#    def run(self):
-#        pass
+class CSVImporter(Importer):
+    def __init__(self, dialog):
+        Importer.__init__(self, dialog)
+        self.create_gui()
+    
+    def create_gui(self):
+        # create checkboxes for format paramater options used by csv modules
+        pass
+        
+    def run(self):
+        # TODO: import should use transactions so the entire table is
+        # commited or nothing
+        def on_selection_changed(filechooser, data=None):
+            """
+            only make the ok button sensitive if the selection is a file
+            """
+            f = filechooser.get_preview_filename()
+            if f is None: return
+            ok = filechooser.action_area.get_children()[1]
+            ok.set_sensitive(os.path.isfile(f))
+        fc = gtk.FileChooserDialog("Choose file(s) to import...",
+                                  None,    
+                                  gtk.FILE_CHOOSER_ACTION_OPEN,
+                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+        fc.set_select_multiple(True)
+        fc.connect("selection-changed", on_selection_changed)
+        r = fc.run()
+        filenames = fc.get_filenames()
+        fc.destroy()
+        for filename in filenames:
+            #print filename
+            path, base = os.path.split(filename)
+            table_name, ext = os.path.splitext(base)
+            table = tables[table_name]
+            print "importing table: " + table_name + "..."
+            f = file(filename, "rb")
+            reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+            trans = sqlobject.sqlhub.threadConnection.transaction()
+            try:
+                for line in reader:
+                    # convert int columns to integer types
+                    for col in table.sqlmeta._columns:
+                        if col.__class__ == sqlobject.SOIntCol:
+                            line[col.name] = int(line[col.name])
+                    # add row to table
+                    table(connection=trans, **line)
+            except Exception, e:
+                # TODO: should ask the user if they would like to import the 
+                # rest of the tables or bail, should probably do all commits in 
+                # one transaction so all data gets imported from all files 
+                # successfully or nothing at all
+                msg = "Error importing values from %s into table %s" % (filename, table_name)
+                print line
+                print e
+                utils.message_dialog(msg)
+                trans.rollback()
+            trans.commit()
 
-
+    
 class CSVExporter(Exporter):
     def __init__(self, dialog):
         Exporter.__init__(self, dialog)
@@ -46,7 +99,7 @@ class CSVExporter(Exporter):
         d.destroy()
     
     
-    def export(self):
+    def run(self):
         path = self.chooser_button.get_label()
         filename_template = path + os.sep +"%s.txt"
         for name in tables.keys():

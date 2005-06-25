@@ -18,8 +18,9 @@ class FamiliesEditor(editors.TableEditorDialog):
         self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
-        self.column_data["family"].header = "Family"
-        self.column_data["comments"].header = "Comments"
+        headers = {'family': 'Family',
+                   'comments': 'Comments'}
+        self.column_data.set_headers(headers)
 
         # set default visible
         self.column_data["family"].visible = True

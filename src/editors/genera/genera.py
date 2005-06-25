@@ -24,10 +24,11 @@ class GeneraEditor(editors.TableEditorDialog):
         self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
-        self.column_data["genus"].header = "Genus"
-        self.column_data["author"].header = "Author"
-        self.column_data["hybrid"].header = "Hybrid"
-        self.column_data["family"].header = "Family"
+        headers = {'genus': 'Genus',
+                   'author': 'Author',
+                   'hybrid': 'Hybrid',
+                   'family': 'Family'}
+        self.column_data.set_headers(headers)
 
         # TODO: maybe a function would be better then we could pass
         # a list which would define both the order and the visibility

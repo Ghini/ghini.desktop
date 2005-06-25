@@ -16,7 +16,7 @@ import views
 from views import views
 from editors import editors
 from tables import tables
-import tools.export
+#import tools.export
 from prefs import *
 import utils
 
@@ -194,8 +194,6 @@ class GUI:
                                    None, self.on_file_menu_new), 
                                   ("file_open", gtk.STOCK_OPEN, "_Open", None, 
                                    None, self.on_file_menu_open), 
-                                  ("file_import", None, "_Import", None, 
-                                   None, self.on_file_menu_import), 
                                   ("file_quit", gtk.STOCK_QUIT, "_Quit", None, 
                                    None, self.on_quit), 
                                   ("edit", None, "_Edit"), 
@@ -210,6 +208,8 @@ class GUI:
                                   ("tools", None, "_Tools"),
                                    ("export", None, "_Export", None, 
                                    None, self.on_tools_menu_export), 
+                                   ("import", None, "_Import", None, 
+                                   None, self.on_tools_menu_import), 
                                   ])
         ui_manager.insert_action_group(menu_actions, 0)
 
@@ -224,11 +224,19 @@ class GUI:
     
 
     def on_tools_menu_export(self, widget, data=None):
-        d = tools.export.ExportDialog()
+        import tools.import_export
+        d = tools.import_export.ExportDialog()
         d.run()
         d.destroy()
 
 
+    def on_tools_menu_import(self, widget, data=None):
+        import tools.import_export
+        d = tools.import_export.ImportDialog()
+        d.run()
+        d.destroy()
+
+        
     def on_edit_menu_prefs(self, widget, data=None):
         print "on_edit_menu_prefs"
         p = PreferencesMgr()
@@ -247,128 +255,6 @@ class GUI:
     def on_edit_menu_paste(self, widget, data=None):
         pass
 
-
-    # FIXME: on either import using the mysql import or export 
-    # using CSV export, alot of blank string are being created for things
-    # like Plantnames.isp, isp_rank, etc....
-    def on_file_menu_import(self, widget, data=None):
-        self.on_file_menu_import_csv(widget, data)
-        #self.on_file_menu_import_mysql(widget, data)
-        
-
-    def on_file_menu_import_csv(self, widget, data=None):
-        """
-        choose a directory to import 
-        """
-        # TODO: import should use transactions so the entire table is
-        # commited or nothing
-        def on_selection_changed(filechooser, data=None):
-            """
-            only make the ok button sensitive if the selection is a file
-            """
-            f = filechooser.get_preview_filename()
-            if f is None: return
-            ok = filechooser.action_area.get_children()[1]
-            ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog("Choose file(s) to import...",
-                                  self.window,    
-                                  gtk.FILE_CHOOSER_ACTION_OPEN,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-        fc.set_select_multiple(True)
-        fc.connect("selection-changed", on_selection_changed)
-        r = fc.run()
-        filenames = fc.get_filenames()
-        fc.destroy()
-        for filename in filenames:
-            print filename
-            path, base = os.path.split(filename)
-            table_name, ext = os.path.splitext(base)
-            print "table: " + table_name
-            f = file(filename, "r")
-            # first line is columns
-            line = f.readline()
-            cols = eval(line)
-            print cols
-            ncols = len(cols)
-            splitter = re.compile('\|')
-            value_template = ", %s=%s"
-            eval_template = "tables.%s(%s)"
-            for line in f:
-                line = line.strip()
-                values = splitter.split(line)
-                value_str = cols[0] +"="+values[0] # the id                
-                for i in xrange(1, ncols):
-                    if values[i] != "":
-                        value_str += value_template % (cols[i], values[i])
-                try:
-                    eval(eval_template % (table_name, value_str))
-                except Exception, e:
-                    import traceback
-                    print eval_template % (table_name, value_str)
-                    print value_str
-                    traceback.print_exc()
-                    raise Exception
-                    #    print Exception.
-#                    print value_str
-#                    print e
-#                except:
-                    
-            
-
-
-    def on_file_menu_import_mysql(self, widget, data=None):
-        """
-        choose a file to import, the filename should be table_name.txt
-        to import to table table_name
-        """
-        
-        def on_selection_changed(filechooser, data=None):
-            """
-            only make the ok button sensitive if the selection is a file
-            """
-            f = filechooser.get_preview_filename()
-            if f is None: return
-            ok = filechooser.action_area.get_children()[1]
-            ok.set_sensitive(os.path.isfile(f))
-            
-        fc = gtk.FileChooserDialog("Choose file to import...",
-                                  self.window,
-                                  gtk.FILE_CHOOSER_ACTION_OPEN,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-        fc.connect("selection-changed", on_selection_changed)
-        fc.set_select_multiple(False)
-        r = fc.run()
-        filename = fc.get_filename()
-        fc.destroy()
-        if r == gtk.RESPONSE_CANCEL: 
-            return
-            
-        # TODO: should probably check first that there is a table with 
-        # the same name as the file in the database
-            
-        # read the first row of the file as the column names
-        head, tail = os.path.split(filename)
-        table, ext = os.path.splitext(tail)
-        columns = file(filename).readline().strip()
-        
-        sql = "LOAD DATA LOCAL INFILE '%(file)s' " + \
-            "INTO TABLE %(table)s " + \
-            "FIELDS " + \
-            "TERMINATED BY ',' "  + \
-            "OPTIONALLY ENCLOSED BY '\"' "  + \
-            'IGNORE 1 LINES '  + \
-            '(%(columns)s);'
-
-        print sql % {"file": filename, "table": table, "columns": columns}
-        
-        self.bauble.conn.query(sql % {"file": filename, 
-                                      "table": table, 
-                                      "columns": columns})
-                                      
-        # TODO: popup a message dialog that says "Success." or something
-        # to indicate everything was imported without problems
         
     def on_file_menu_new(self, widget, date=None):        
         self.bauble.create_database()

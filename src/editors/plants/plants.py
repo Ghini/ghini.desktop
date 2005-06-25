@@ -19,9 +19,10 @@ class PlantsEditor(editors.TableEditorDialog):
         self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
-        self.column_data["plant_id"].header = "Plant ID"
-        self.column_data["accession"].header = "Accession ID"
-        self.column_data["location"].header = "Location"
+        headers = {'plant_id': 'Plant ID',
+                   'accession': 'Accession ID',
+                   'location': 'Location'}
+        self.column_data.set_headers(headers)
         
         # validators
         self.column_data["plant_id"].validate = editors.validate_int

@@ -18,9 +18,9 @@ class LocationsEditor(editors.TableEditorDialog):
         self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
-        print self.column_data    
-        self.column_data["site"].header = "Site"
-        self.column_data["description"].header = "Description"
+        headers={"site": "Site",
+                 "description": "Description"}
+        self.column_data.set_headers(headers)
 
         # set default visible
         self.column_data["site"].visible = True    
