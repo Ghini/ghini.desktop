@@ -41,7 +41,6 @@ class Collections(SQLObject):
     country_sp_unit = StringCol(length=50, default=None) 
     locality = StringCol(default=None)            # full text of where collected
     
-    accession = ForeignKey('Accession', notNull=True)
- 
+    accession = ForeignKey('Accessions', notNull=True, cascade=True)
     
     def __str__(self): return self.label

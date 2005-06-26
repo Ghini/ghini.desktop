@@ -488,7 +488,10 @@ class TableEditorDialog(gtk.Dialog):
         commit any change made in the table editor
         """        
         values = self.get_table_values()
-        trans = sqlhub.threadConnection.transaction()
+        old_conn = sqlhub.getConnection()
+        trans = old_conn.transaction()
+        sqlhub.threadConnection = trans
+        #trans = sqlhub.threadConnection.transaction()
         for v in values:
             print v
             try:
@@ -506,6 +509,7 @@ class TableEditorDialog(gtk.Dialog):
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return False
         trans.commit()
+        sqlhub.threadConnection = old_conn
         return True
 
 
@@ -592,11 +596,6 @@ class TableEditorDialog(gtk.Dialog):
         #    raise Exception("** Error -- %s not a column in %s table" %
         #                    (name, self.sqlobj.sqlmeta.table))
         r = None
-        # create a CellRendererCombo if the tables has predefined values
-        # for the column
-        #    print type(self.sqlobj.sqlmeta._columnDict[name]) == 
-        #print name + ": " + str(getattr(self.sqlobj, name))
-#        if getattr(self.sqlobj, name).__class__
         coldict = self.sqlobj.sqlmeta._columnDict
         if name not in coldict: # probably an id, might not be a valid column name
             r = gtk.CellRendererText()
@@ -624,7 +623,6 @@ class TableEditorDialog(gtk.Dialog):
         column.set_reorderable(True)
         column.set_visible(column_meta.visible)
         column.name = name # .name is my own data, not part of gtk
-        
         
         # now set configure the renderer and column according to type
         if type(r) == gtk.CellRendererToggle:
@@ -665,13 +663,9 @@ class TableEditorDialog(gtk.Dialog):
         if select is not None:
             for row in select:
                 self.add_new_row(row)
-                #model.append([ModelDict(row)])                
         else:
             self.add_new_row()
-            #model.append([ModelDict()])
             
-        
-
         # append the visible columns first
         # TODO: why isn't sorted keys in order with all the -1 index
         # at the beginning

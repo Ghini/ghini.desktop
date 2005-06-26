@@ -3,11 +3,8 @@
 #
 
 import copy
-
 import gtk
-
 import sqlobject
-
 from prefs import *
 import utils
 

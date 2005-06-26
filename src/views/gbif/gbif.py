@@ -81,9 +81,8 @@ class GBIFView(views.View):
     pURL = "http://registry.gbif.net/uddi/inquiry"
     iURL = "http://registry.gbif.net/uddi/inquiry"
     
-    def __init__(self, bauble):
+    def __init__(self):
         views.View.__init__(self)
-        self.bauble = bauble
         self.create_gui()
         self.uddi_con = uddi_client.UDDIProxy(self.iURL,self.pURL)
         #self.test_tmodel()

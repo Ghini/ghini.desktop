@@ -2,12 +2,13 @@
 # exporter module
 #
 
-import gtk
 import sys, os
-from sqlobject import *
+import threading
+import gtk
+import sqlobject
 from tables import tables
 import utils
-import sqlobject
+from bauble import bauble
 
 # TODO: load a list of all exporters, or require the exporters to register
 # themselves with us, right now just hard code them in
@@ -57,7 +58,7 @@ class IEDialog(gtk.Dialog):
         
     def on_response(self, dialog, response, data=None):
         if response == gtk.RESPONSE_OK:
-            self.current_ie.run()
+            self.current_ie.start()
 
 
 class ImportDialog(IEDialog):
@@ -75,9 +76,9 @@ class ImportDialog(IEDialog):
 
     def create_gui(self):
         self.type_combo.append_text("Comma Separated Values")
-        conn = sqlobject.sqlhub.threadConnection.getConnection()
-        # this is a bit of a hack but it means we don't have to import MySQLdb
-        if str(type(conn)) == "<class 'MySQLdb.connections.Connection'>":
+        #conn = sqlobject.sqlhub.threadConnection.getConnection()
+        conn = sqlobject.sqlhub.getConnection()
+        if conn.__class__.__name__ == "MySQLConnection":
             self.type_combo.append_text("MySQL Import")
         self.type_combo.set_active(0)
 
@@ -114,10 +115,11 @@ class ExporterFactory(IEFactory):
     create = staticmethod(create)
         
 
-class Exporter(gtk.VBox):
+class Exporter(gtk.VBox, threading.Thread):
     
     def __init__(self, dialog):
         gtk.VBox.__init__(self)
+        threading.Thread.__init__(self)
         self.dialog = dialog
     
     def run(self):
@@ -136,9 +138,10 @@ class ImporterFactory(IEFactory):
     create = staticmethod(create)
 
     
-class Importer(gtk.VBox):
+class Importer(gtk.VBox, threading.Thread):
     def __init__(self, dialog):
         gtk.VBox.__init__(self)
+        threading.Thread.__init__(self)
         self.dialog = dialog
     
     def run(self):

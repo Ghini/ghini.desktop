@@ -6,6 +6,7 @@ import re
 import gtk
 import views
 from tables import tables
+from bauble import bauble
 
 # TODO: remove gtasklet stuff
 #import gtasklet
@@ -59,10 +60,8 @@ class InfoExpander(gtk.Expander):
 #
 class BrowseView(views.View):
     
-    def __init__(self, bauble):
-        #gtk.Frame.__init__(self,label="")
+    def __init__(self):
         views.View.__init__(self)
-        self.bauble = bauble
         self.plants_box = None
         self.acc_view = None # add this dynamically
         self.create_gui()

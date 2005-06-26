@@ -9,9 +9,10 @@ import views
 from tables import tables
 from editors import editors
 import gtasklet
-
 from utils.debug import debug
 debug.enable = True
+
+from bauble import bauble
 
 class SearchView(views.View):
     """
@@ -31,9 +32,8 @@ class SearchView(views.View):
                    }
 
 
-    def __init__(self, bauble):
+    def __init__(self):
         views.View.__init__(self)
-        self.bauble = bauble
         self.create_gui()
         self.entry.grab_focus()
 
@@ -108,14 +108,14 @@ class SearchView(views.View):
         if not added:
             self.append_result("Couldn't find anything")
 
-        self.bauble.gui.stop_progressbar()
+        bauble.gui.stop_progressbar()
 
 
     def populate_results(self, search):        
         #import pdb
         self.CANCEL = False
         
-        self.bauble.gui.pulse_progressbar()
+        bauble.gui.pulse_progressbar()
         gtasklet.Tasklet(self.populate_task, search)
         #pb = self.bauble.gui.progressbar
         #
@@ -127,7 +127,7 @@ class SearchView(views.View):
         debug("enter populate")
         self.CANCEL = False
         #pb = self.bauble.gui.progressbar
-        self.bauble.gui.pulse_progressbar()
+        bauble.gui.pulse_progressbar()
         
         results = []
         for domain, values in search.iteritems():            
@@ -143,7 +143,7 @@ class SearchView(views.View):
         if self.CANCEL: 
             self.results_view.set_model(None) # incomplete, clear model
             
-        self.bauble.gui.stop_progressbar()            
+        bauble.gui.stop_progressbar()            
         #pb.destroy()
         
 
@@ -253,7 +253,7 @@ class SearchView(views.View):
         """
         if iter is None:
             raise Exception("need a parent")
-        self.bauble.gui.pulse_progressbar()
+        bauble.gui.pulse_progressbar()
         gtasklet.Tasklet(self.append_children_task, kids, iter, have_kids)
         
         
@@ -266,7 +266,7 @@ class SearchView(views.View):
                 self.append_result("_dummy", i)
             # TODO: if i yield in this loop then i get invalid iters
             # yield timeout 
-        self.bauble.gui.stop_progressbar()
+        bauble.gui.stop_progressbar()
         #gtk.gdk.flush()
         
         
@@ -451,7 +451,7 @@ class SearchView(views.View):
         # activate and is currently expanded we should assume it us being
         # collapsed
         if not expanded and gbif is None:
-            gbif = views.views.GBIFView(self.bauble)
+            gbif = views.views.GBIFView(bauble)
             expander.add(gbif)
         elif gbif is not None:
             expander.remove(gbif)

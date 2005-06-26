@@ -1,8 +1,7 @@
 
-import sys
-import os
-
+import sys, os
 import gtk
+import utils
 
 conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
@@ -20,7 +19,10 @@ elif sys.platform == "linux2":
 else:
     raise Exception("Could not path to store preferences: unsupported platform")
 
-        
+prefs_icon_dir = utils.get_main_dir() + os.sep + "images" + os.sep
+general_prefs_icon = prefs_icon_dir + "prefs_general.png"
+security_prefs_icon = prefs_icon_dir + "prefs_security.png"
+
 class PreferencesMgr(gtk.Dialog):
     def __init__(self):
         gtk.Dialog.__init__(self, "Preferences", None,
@@ -34,10 +36,12 @@ class PreferencesMgr(gtk.Dialog):
     def create_gui(self):
         model = gtk.ListStore(str, gtk.gdk.Pixbuf)
         
-        pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_general.png")        
+        #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_general.png")
+        pixbuf = gtk.gdk.pixbuf_new_from_file(general_prefs_icon)
         model.append(["General", pixbuf])
         
-        pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_security.png")
+        #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_security.png")
+        pixbuf = gtk.gdk.pixbuf_new_from_file(security_prefs_icon)
         model.append(["Security", pixbuf])
         
         self.icon_view = gtk.IconView(model)

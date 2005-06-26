@@ -17,7 +17,7 @@ import gobject
 # views open at a time
 class View(gtk.Frame):
     """
-    all Bauble views should be a subclass of this
+    all Bauble views should be a subclass of this class
     """
     def __init__(self):
         gtk.Frame.__init__(self)

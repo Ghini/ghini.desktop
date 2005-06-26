@@ -1,9 +1,15 @@
 
+
+
 from tools.import_export import *
 import csv
 import sqlobject
 from tables import tables
+import gtk.gdk
 
+from bauble import *
+
+#import bauble
 #importer = CSVImporter
 #exporter = CSVExporter
 
@@ -19,8 +25,7 @@ class CSVImporter(Importer):
         pass
         
     def run(self):
-        # TODO: import should use transactions so the entire table is
-        # commited or nothing
+        gtk.gdk.threads_enter()
         def on_selection_changed(filechooser, data=None):
             """
             only make the ok button sensitive if the selection is a file
@@ -37,8 +42,17 @@ class CSVImporter(Importer):
         fc.set_select_multiple(True)
         fc.connect("selection-changed", on_selection_changed)
         r = fc.run()
+        if r != gtk.RESPONSE_ACCEPT:
+            fc.destroy()
+            gtk.gdk.threads_leave()
+            return
+        bauble.gui.window.set_sensitive(False)
+        bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         filenames = fc.get_filenames()
         fc.destroy()
+        gtk.gdk.threads_leave()
+        # save the original connection
+        old_conn = sqlobject.sqlhub.getConnection()
         for filename in filenames:
             #print filename
             path, base = os.path.split(filename)
@@ -47,7 +61,9 @@ class CSVImporter(Importer):
             print "importing table: " + table_name + "..."
             f = file(filename, "rb")
             reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-            trans = sqlobject.sqlhub.threadConnection.transaction()
+            # create a new transaction/connection for each table
+            conn = old_conn.transaction()
+            sqlobject.sqlhub.threadConnection = conn
             try:
                 for line in reader:
                     # convert int columns to integer types
@@ -55,7 +71,7 @@ class CSVImporter(Importer):
                         if col.__class__ == sqlobject.SOIntCol:
                             line[col.name] = int(line[col.name])
                     # add row to table
-                    table(connection=trans, **line)
+                    table(connection=conn, **line)
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
@@ -65,8 +81,16 @@ class CSVImporter(Importer):
                 print line
                 print e
                 utils.message_dialog(msg)
-                trans.rollback()
-            trans.commit()
+                conn.rollback()
+            else:
+                # everything ok for this table, commit
+                conn.commit()
+        sqlobject.sqlhub.threadConnection = old_conn
+        gtk.gdk.threads_enter()
+        bauble.gui.window.set_sensitive(True)
+        bauble.gui.window.window.set_cursor(None)
+        gtk.gdk.threads_leave()
+        
 
     
 class CSVExporter(Exporter):
@@ -96,12 +120,16 @@ class CSVExporter(Exporter):
             ok_button = self.dialog.action_area.get_children()[1]
             ok_button.set_sensitive(True)
             button.set_label(filename)
+            self.path = filename # set it so it's available in run
         d.destroy()
     
     
     def run(self):
-        path = self.chooser_button.get_label()
-        filename_template = path + os.sep +"%s.txt"
+        if self.path == None:
+            return
+            
+        gtk.gdk.threads_enter()
+        filename_template = self.path + os.sep +"%s.txt"
         for name in tables.keys():
             filename = filename_template % name
             if os.path.exists(filename) and not \
@@ -109,6 +137,7 @@ class CSVExporter(Exporter):
                 return
                 
         path = self.chooser_button.get_label()
+        gtk.gdk.threads_leave()
         #progress = utils.ProgressDialog()
         #progress.show_all()
     
@@ -135,36 +164,3 @@ class CSVExporter(Exporter):
         f.close()
         #progress.destroy()
             
-        
-    def exportOLD(self):        
-        path = self.chooser_button.get_label()
-        filename_template = path + os.sep +"%s.txt"
-        for name in tables.keys():
-            filename = filename_template % name
-            if os.path.exists(filename) and not \
-               utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
-                return
-        
-        path = self.chooser_button.get_label()
-        progress = utils.ProgressDialog()
-        progress.show_all()
-        for table_name, table in tables.iteritems():
-            progress.pulse()
-            filename = filename_template % table_name
-            f = file(filename, "w")
-            col_dict = table.sqlmeta._columnDict
-            names = ["id"] + col_dict.keys()[:] # id not in the dict
-            f.write(str(names) + "\n")
-            for row in table.select():
-                values_str = '%s' % row.id
-                for name, col in col_dict.iteritems():
-                    values_str += "|" # delimeter
-                    if type(col) == ForeignKey:
-                        name = name + "ID"
-                    v = getattr(row, name)
-                    if type(v) == str:
-                        values_str += '"%s"' % v
-                    elif v is not None: values_str += '%s' % v
-                f.write(values_str + "\n")
-            f.close()
-        progress.destroy()

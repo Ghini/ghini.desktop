@@ -73,7 +73,7 @@ class Accessions(SQLObject):
     # foreign keys and joins
     plantname = ForeignKey('Plantnames', notNull=True)
     plants = MultipleJoin("Plants", joinColumn='accession_id')
-    collection = SingleJoin('Collections')
+    collection = SingleJoin('Collections', joinColumn='accession_id')
 
     # these probably belong in 
     cultv_info = StringCol(default=None)      # cultivation information
@@ -96,3 +96,4 @@ class Accessions(SQLObject):
     #_InitialsC = StringCol(length=50)
     #_Source1 = IntCol()
     #_Source2 = IntCol()
+    

@@ -4,11 +4,7 @@
 # Description: TODO: finish the descriptions and check the other files have
 #
 
-import os
-import time
-import thread
-import re
-
+import os, time, thread, re
 import gtk
 import gobject
 import sqlobject
@@ -16,9 +12,9 @@ import views
 from views import views
 from editors import editors
 from tables import tables
-#import tools.export
 from prefs import *
 import utils
+
 
 #
 # GUI
@@ -153,7 +149,7 @@ class GUI:
             self.content_frame.remove(current_view)
             current_view.destroy()
             current_view = None
-        new_view = view_class(self.bauble)    
+        new_view = view_class()#self.bauble)    
         self.content_frame.set_label(view_class.__name__)
         self.content_frame.add(new_view)
         
