@@ -5,8 +5,8 @@
 import copy
 import gtk
 import sqlobject
-from prefs import *
 import utils
+import bauble
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -140,7 +140,8 @@ class ConnectionManagerDialog(gtk.Dialog):
             return
         i = 0
         active = 0
-        conn_list = Preferences[conn_list_pref]
+        #conn_list = Preferences[conn_list_pref]
+        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
         if conn_list is None: return
         for conn in conn_list:
             self.name_combo.insert_text(i, conn)
@@ -155,7 +156,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn_list = Preferences[conn_list_pref]
+        #conn_list = Preferences[conn_list_pref]
+        conn = bauble.prefs[bauble.prefs.conn_list_pref]
         if conn_list.has_key(name):
             del conn_list[name]
             
@@ -215,13 +217,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         
     def save_current_to_prefs(self):
-        if not Preferences.has_key(conn_list_pref):
-            Preferences[conn_list_pref] = {}
+        if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
+            bauble.prefs[bauble.prefs.conn_list_pref] = {}
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
-        conn_list = Preferences[conn_list_pref]
+        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
         conn_list[self.current_name] = params
-        Preferences.save()
         
 
     def compare_params_to_prefs(self, name):
@@ -245,7 +246,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         the name changed so fill in everything else
         """
         name = combo.get_active_text()
-        conn_list = Preferences[conn_list_pref]
+        #conn_list = Preferences[conn_list_pref]
+        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:
             if self.current_name not in conn_list: # do you want to save your changes,
@@ -444,3 +447,4 @@ class CMParamsBoxFactory:
             return SQLiteParamsBox()
         return CMParamsBox()
     createParamsBox = staticmethod(createParamsBox)
+    

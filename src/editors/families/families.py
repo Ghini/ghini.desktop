@@ -7,7 +7,7 @@ import gtk
 import editors
 from tables import tables
 
-class FamiliesEditor(editors.TableEditorDialog):
+class FamiliesEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.families.columns"
 
@@ -29,5 +29,5 @@ class FamiliesEditor(editors.TableEditorDialog):
         # set visible from stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
         
-        editors.TableEditorDialog.__init__(self, "Families Editor",
-                                           select=select, defaults=defaults)
+        editors.TreeViewEditorDialog.__init__(self, "Families Editor",
+                                              select=select, defaults=defaults)

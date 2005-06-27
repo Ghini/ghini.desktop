@@ -6,9 +6,9 @@ import gtk
 
 import editors
 from tables import tables
-from prefs import Preferences
+#from prefs import Preferences
 
-class PlantsEditor(editors.TableEditorDialog):
+class PlantsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.plants.columns"
 
@@ -31,11 +31,11 @@ class PlantsEditor(editors.TableEditorDialog):
         self.column_data["accession"].visible = True
         self.column_data["plant_id"].visible = True
         
-        Preferences.load()
+        #Preferences.load()
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
 
-        editors.TableEditorDialog.__init__(self, "Plants/Clones Editor",
-                                           select=select, defaults=defaults)
+        editors.TreeViewEditorDialog.__init__(self, "Plants/Clones Editor",
+                                              select=select, defaults=defaults)
 
     # extending this so we can have different value that show for the completions
     # than what is stored in the model on selection

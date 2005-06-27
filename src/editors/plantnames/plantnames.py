@@ -7,7 +7,7 @@ import gtk
 import editors
 from tables import tables
 
-class PlantnamesEditor(editors.TableEditorDialog):
+class PlantnamesEditor(editors.TreeViewEditorDialog):
     
     visible_columns_pref = "editor.plantnames.columns"
 
@@ -59,8 +59,8 @@ class PlantnamesEditor(editors.TableEditorDialog):
         # set visible from stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
                         
-        editors.TableEditorDialog.__init__(self, "Plantnames Editor",
-                                           select=select, defaults=defaults)
+        editors.TreeViewEditorDialog.__init__(self, "Plantnames Editor",
+                                              select=select, defaults=defaults)
 
         
     def foreign_does_not_exist(self, name, value):

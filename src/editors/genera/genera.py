@@ -13,7 +13,7 @@ from tables import tables
 # or restricting the user only to those values in possible_values,
 # if restricted the column should be a combobox, if you can add other
 # values then a comboboxentry would be better
-class GeneraEditor(editors.TableEditorDialog):
+class GeneraEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.genera.columns"
     
@@ -39,8 +39,8 @@ class GeneraEditor(editors.TableEditorDialog):
         # set visible according to stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
 
-        editors.TableEditorDialog.__init__(self, "Genera Editor", parent,
-                                           select=select, defaults=defaults)
+        editors.TreeViewEditorDialog.__init__(self, "Genera Editor", parent,
+                                              select=select, defaults=defaults)
         
 
 

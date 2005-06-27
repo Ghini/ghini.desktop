@@ -1,6 +1,6 @@
-include src/lib/win32
+include src/lib/win32/*.*
 include src/lib/fpconst.py
 include src/*.ui
-recursive-include src/*.py
+recursive-include src *.py
 recursive-include debian *.*
 recursive-include src/images *.*

@@ -18,6 +18,9 @@
 import os, sys
 import utils
 
+if sys.platform == "win32":
+    sys.path.append(utils.get_main_dir() + os.sep + "lib" + os.sep + "win32")
+    os.environ["PATH"] += utils.get_main_dir() + os.pathsep + "lib" + os.sep + "win32"
 sys.path.append(utils.get_main_dir() + os.sep + "lib")
 os.environ["PATH"] += utils.get_main_dir() + os.pathsep + "lib"
     
@@ -38,7 +41,9 @@ except ImportError:
 
 
 import app
+import prefs
 bauble = app.baubleApp
+prefs = prefs.Preferences
 
 if __name__ == "__main__":
     gtk.threads_init() # initialize threading

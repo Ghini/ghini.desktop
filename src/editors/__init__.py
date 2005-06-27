@@ -7,6 +7,7 @@ import sys, os, os.path
 import re
 import copy
 
+import bauble
 import gtk
 
 from sqlobject.sqlbuilder import *
@@ -14,7 +15,6 @@ from sqlobject import *
 
 from tables import tables
 import utils
-from prefs import Preferences
 
 from utils.debug import debug
 debug.enable = False
@@ -139,7 +139,43 @@ class ModelDict(dict):
 
 
 #
-# TableEditor
+# editor interface
+#
+class TableEditor:
+    
+    def __init__(self, select=None, defaults={}):
+        self.defaults = copy.copy(defaults)
+        self.select = select
+        
+        
+    def commit_changes(self):
+        raise NotImplementedError, "TableEditor.commit_changes not implemented"
+
+#
+# editor interface that opens a dialog
+#
+class TableEditorDialog(TableEditor, gtk.Dialog):
+    
+    def __init__(self, title="Table Editor", parent=None, select=None, defaults={}):
+        TableEditor.__init__(self, select, defaults)
+        gtk.Dialog.__init__(self, title, parent, 
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        self.connect("response", self.on_response)
+
+                              
+    def commit_changes(self):
+        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
+
+
+    def on_response(self, widget, response, data=None):
+        raise NotImplementedError, "TableEditorDialog.on_response not implemented"
+
+     
+#
+# TreeViewEditorDialog
+# a spreadsheet style editor
 #
 # TODO:
 # (1) make this a proper abstract class
@@ -152,7 +188,7 @@ class ModelDict(dict):
 # and can go to the next row having with out editing them
 # (4) should have a label at the top which give information about what's
 # being edited and what could be wrong ala eclipse
-class TableEditorDialog(gtk.Dialog):
+class TreeViewEditorDialog(TableEditorDialog):
     """the model for the view in this class only has a single column which
     is a Table class which is really just a dict. each value in the dict
     relates to a column in the tree but
@@ -161,14 +197,15 @@ class TableEditorDialog(gtk.Dialog):
     """    
     
     def __init__(self, title="Table Editor", parent=None, select=None, defaults={}):
-        gtk.Dialog.__init__(self, title, parent, 
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        #gtk.Dialog.__init__(self, title, parent, 
+        #                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+        #                    (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+        #                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        TableEditorDialog.__init__(self, title, parent, select, defaults)
         self.view = None        
         self.columns = {} # self.columns[name] = gtkcolumn
         self.dirty = False
-        self.defaults = copy.copy(defaults)
+        #self.defaults = copy.copy(defaults)
         self.create_gui(select)
                 
 
@@ -472,9 +509,10 @@ class TableEditorDialog(gtk.Dialog):
         an old function i don't need anymore
         """
         pass
-        
-
-    def on_response(self, widget, response):
+    
+    
+    def on_response(self, widget, response, data=None):
+        print "TreeViewEditorDialog.on_response()"
         self.store_visible_columns() # save preferences before we do anything
         if response == gtk.RESPONSE_OK:
             if self.commit_changes():
@@ -486,7 +524,9 @@ class TableEditorDialog(gtk.Dialog):
         else: # cancel, not dirty
             self.destroy()
         return False
-                                
+        #super(TreeViewEditorDialog, self).on_response(widget, response, data)
+        #TreeViewEditorDialog.on_response(self, widget, response, data)
+        
 
     def commit_changes(self):
         """
@@ -516,7 +556,8 @@ class TableEditorDialog(gtk.Dialog):
         trans.commit()
         sqlhub.threadConnection = old_conn
         return True
-
+    
+    
 
     def get_model_value(self, col, cell, model, iter, column_name):
         """
@@ -583,7 +624,7 @@ class TableEditorDialog(gtk.Dialog):
         
         self.vbox.pack_start(vbox)
         
-        self.connect("response", self.on_response)
+        
         
         self.show_all()
 
@@ -700,7 +741,7 @@ class TableEditorDialog(gtk.Dialog):
         this doesn't change the visibility in the tree view so the
         method name may be misleading
         """        
-        visible_columns = Preferences[prefs_key]
+        visible_columns = bauble.prefs[prefs_key]
         if visible_columns is None: return
 
         # set the index
@@ -724,8 +765,9 @@ class TableEditorDialog(gtk.Dialog):
         for c in self.view.get_columns():
             if c.get_visible():
                 visible.append(c.name)
-        Preferences[self.visible_columns_pref] = tuple(visible)
-        Preferences.save() # this save all prefs not just visible columns
+        #Preferences[self.visible_columns_pref] = tuple(visible)
+        bauble.prefs[self.visible_columns_pref] = tuple(visible)
+        #Preferences.save() # this save all prefs not just visible columns
                 
                     
 class _editors(dict):

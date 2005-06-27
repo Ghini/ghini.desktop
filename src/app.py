@@ -8,16 +8,19 @@ import os, sys
 import utils
 import gtk
 from sqlobject import *
-from conn_mgr import *
+#from conn_mgr import *
+
 import tables
-import prefs
-from prefs import Preferences
+#import prefs
+#from prefs import Preferences
+
 
 DEBUG_SQL = False
 
 class BaubleApp:
     
     def __init__(self):
+        print "BaubleApp.__init__"
         pass
     
         
@@ -79,8 +82,10 @@ class BaubleApp:
         
         if name is not None:
             #print "save preferences"
-            Preferences[prefs.conn_default_pref] = name
-            Preferences.save()
+            #Preferences[prefs.conn_default_pref] = name
+            #Preferences.save()
+            #import bauble
+            bauble.prefs[bauble.prefs.conn_default_pref] = name
     
     def destroy(self, widget, data=None):
         gtk.main_quit()
@@ -90,7 +95,8 @@ class BaubleApp:
         # in case we quit before the gui is created
         if hasattr(self, "gui") and self.gui is not None:
             self.gui.save_state()
-        Preferences.save()
+        bauble.prefs.save()
+        #Preferences.save()
         
         
     def quit(self):
@@ -104,10 +110,13 @@ class BaubleApp:
     def main(self):
         # the docs say i should have these but they seem to lock up
         # everything
-         # open default database on startup
+        # open default database on startup
+        # import these here to avoid recursive import hell
         import gui
+        from conn_mgr import ConnectionManagerDialog
         self.conn = None
-        default_conn = Preferences[prefs.conn_default_pref]
+        #default_conn = Preferences[prefs.conn_default_pref]
+        default_conn = bauble.prefs[bauble.prefs.conn_default_pref]
         while self.conn is None:
             cm = ConnectionManagerDialog(default_conn)
             r = cm.run()
@@ -127,4 +136,4 @@ class BaubleApp:
 
 
 baubleApp = BaubleApp()
-
+import bauble

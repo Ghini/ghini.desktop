@@ -2,22 +2,9 @@
 # prefs.py
 #
 
-# TODO: the problem with this module is that everytime it is imported then
-# the Preferences get reinstantiated, should be that if one module loads the
-# prefs and changes them and then another module saves them then the changes
-# from the first module should be saves as well, i.e. there should only be one
-# copy of the preferences dist
-# what we could do is create a variable in bauble.py that points to the
-# instance of preferences created here, then other modules shouldn't import
-# this module but should use the instance in bauble then we could access it
-# like bauble.prefs[]
-
 import sys, os
 import gtk
 import utils
-
-conn_default_pref = "conn.default"
-conn_list_pref = "conn.list"
 
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
@@ -117,10 +104,15 @@ class _Preferences(dict):
     NOTE: if you expect a list with one item then the list should be written
     like (item,) witha trailing comma or it will get interpreted as string
     """
+    
+    # preference keys
+    conn_default_pref = "conn.default"
+    conn_list_pref = "conn.list"
+
     _shared = {}
     _loaded = False
     _filename = default_prefs_file
-    def __init__(self):        
+    def __init__(self):
         #self = self._shared
         self.update(self._shared)
         if not os.path.exists(self._filename):

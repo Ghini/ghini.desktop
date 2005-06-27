@@ -57,9 +57,10 @@ opts = {
     }
 }
 
-setup(name="Bauble",
+setup(name="bauble",
       version="0.1",
       url="http://bauble.belizebotanic.org",
+      author_email='brett@belizebotanic.org',
       options=opts,      
       package_dir = {'': 'src',
                      'sqlobject': 'src/lib/sqlobject',

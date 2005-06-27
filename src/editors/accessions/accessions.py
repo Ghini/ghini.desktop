@@ -15,7 +15,8 @@ import utils
 # editor to any editor based on the clones name and just specify which editor
 # would be the child and pop it up
 #
-class AccessionsEditor(editors.TableEditorDialog):
+#class AccessionsEditor(editors.TableEditorDialog):
+class AccessionsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accessions.columns"
 
@@ -45,8 +46,10 @@ class AccessionsEditor(editors.TableEditorDialog):
         # set visible according to stored prefs
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
             
-        editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select,
-                                           defaults=defaults)
+        #editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select,
+        #                                   defaults=defaults)
+        editors.TreeViewEditorDialog.__init__(self, "Accessions Editor", select=select,
+                                              defaults=defaults)
         
 
     def get_completions(self, text, colname):
