@@ -123,8 +123,8 @@ class GUI:
         
         # add all editors modules
         button = gtk.MenuToolButton(gtk.STOCK_ADD)
-        button.add_accelerator("show_menu", self.accel_group, ord("a"), 
-                               gtk.gdk.CONTROL_MASK, gobject.SIGNAL_ACTION)
+        #button.add_accelerator("show_menu", self.accel_group, ord("a"), 
+        #                       gtk.gdk.CONTROL_MASK, gobject.SIGNAL_ACTION)
         menu = gtk.Menu()
         for name, editor in sorted(editors.iteritems()):
             item = gtk.MenuItem(name)

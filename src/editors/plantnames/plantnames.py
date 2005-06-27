@@ -70,6 +70,7 @@ class PlantnamesEditor(editors.TableEditorDialog):
     def add_genus(self, name):
         msg = "The Genus %s does not exist. Would you like to add it?" % name
         if utils.yes_no_dialog(msg):
+
             print "add genus"
 
     def get_completions(self, text, colname):

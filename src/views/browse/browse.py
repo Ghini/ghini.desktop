@@ -82,10 +82,7 @@ class BrowseView(views.View):
 
     def get_name(self, col, cell, model, iter):
         row = model.get_value(iter, 0)
-        import plant
-        p = plant.Plant(row.genus.genus, species=row.sp, isp_rank=row.isp_rank,
-                        isp=row.isp)
-        cell.set_property('text', str(p))
+        cell.set_property('text', str(row))
 
 
     def get_acc(self, col, cell, model, iter):

@@ -84,17 +84,12 @@ class AccessionsEditor(editors.TableEditorDialog):
         # need to ask if you want to 
         msg  = "No Plants/Clones exist for this accession %s. Would you like " \
         "to add them now?"
-        print msg
         #values = self.get_table_values(not self.dummy_row)
         values = self.get_table_values()
-        print values
         for v in values:
-            
-            
             acc_id = v["acc_id"]
             sel = tables.Accessions.selectBy(acc_id=acc_id)
             accession = sel[0]
-            print accession.plants
             if sel.count() > 1:
                 raise Exception("AccessionEditor.commit_changes():  "\
                                 "more than one accession exists with id: " + acc_id)

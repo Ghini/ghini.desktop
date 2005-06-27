@@ -28,7 +28,7 @@ tables_pkgs = ['tables.%s' % p for p in tables]
 views = ['browse', 'gbif', 'search']                
 views_pkgs = ['views.%s' % p for p in views]
   
-tools_pkgs = ['tools.%s' % p for p in ['export']]
+tools_pkgs = ['tools.%s' % p for p in ['import_export']]
 
 lib     = ['sqlobject']#, 'pysqlite2']
 

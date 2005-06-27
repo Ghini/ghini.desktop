@@ -1,3 +1,16 @@
+#
+# prefs.py
+#
+
+# TODO: the problem with this module is that everytime it is imported then
+# the Preferences get reinstantiated, should be that if one module loads the
+# prefs and changes them and then another module saves them then the changes
+# from the first module should be saves as well, i.e. there should only be one
+# copy of the preferences dist
+# what we could do is create a variable in bauble.py that points to the
+# instance of preferences created here, then other modules shouldn't import
+# this module but should use the instance in bauble then we could access it
+# like bauble.prefs[]
 
 import sys, os
 import gtk

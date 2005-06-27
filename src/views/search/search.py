@@ -10,6 +10,7 @@ from tables import tables
 from editors import editors
 import gtasklet
 from utils.debug import debug
+import utils
 debug.enable = True
 
 from bauble import bauble
@@ -24,6 +25,11 @@ from bauble import bauble
 # a list of expanded paths and then search again on the same criteria and then
 # reexpand the paths that were saved and the path of the item that was the editor
 # was called on
+
+# TODO: things todo when a result is selected
+# - GBIF search results, probably have to look up specific institutions
+# - search Lifemapper for distributions maps
+# - give list of references and images and make then clickable if they are uris
 
 class SearchView(views.View):
     """
@@ -222,8 +228,6 @@ class SearchView(views.View):
             q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
-        print table
-        print q
         return table.select(q)
                 
 
@@ -261,7 +265,6 @@ class SearchView(views.View):
                 return key
         return None
 
-        
 
     def append_children(self, iter, kids, have_kids):
         """
@@ -372,12 +375,17 @@ class SearchView(views.View):
         return
         
         
-        
     def on_activate_remove_item(self, item, row):
         print "removing " + str(row)
-        # TODO: this will leave stray joins
+        # TODO: this will leave stray joins unless cascade is set to true
         # see col.cascade
-        row.destroySelf()
+        # TODO: should give a row specific message to the user, e.g if they
+        # are removing an accession the accession number should be included
+        # in the message as well as a list of all the clones associated 
+        # with this accession
+        msg = "Are you sure you want to remove this?"
+        if utils.yes_no_dialog(msg):
+            row.destroySelf()
         # TODO: this should immediately remove the model from the value
         # and refresh the tree, we might have to save the path to
         # remember where we were in the view

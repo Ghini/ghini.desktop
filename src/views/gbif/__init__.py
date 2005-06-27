@@ -2,6 +2,12 @@
 # GBIF view
 #
 
+# **********
+# i don't really think this should be provided as a standalone view but
+# rather a tool to query the GBIF database, unless we wanted to make a 
+# standalone client for GBIF but then you could just go the gbif.net
+# *********
+
 label = "GBIF"
 description = 'GBIF'
 
@@ -13,4 +19,5 @@ except ImportError, e:
     print e
     print "Could not load GBIFView."
 else:
-    view = gbif.GBIFView
+    pass
+    #view = gbif.GBIFView

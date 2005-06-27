@@ -24,6 +24,11 @@ debug.enable = False
 # Single Join so the accession editor could have a button for that column to
 # create the collection record for the accession
 
+# TODO: split TableEditorDialog into an interface, a generic implementation
+# and possibly a TreeViewEditorDialog which would give you an spreadsheet
+# like editor like there is now, this would make it easier to build editors
+# that don't want to be spreadsheets
+
 def createColumnMetaFromTable(sqlobj):
     """
     return a MetaViewColumn class built from an sqlobj
@@ -493,15 +498,15 @@ class TableEditorDialog(gtk.Dialog):
         sqlhub.threadConnection = trans
         #trans = sqlhub.threadConnection.transaction()
         for v in values:
-            print v
+            #print v
             try:
                 if v.has_key("id"):
-                    print "TableEditorDialog.commit_changes(): updating"
+                    #print "TableEditorDialog.commit_changes(): updating"
                     p = self.sqlobj.get(v["id"])
                     del v["id"]
                     p.set(**v)
                 else:
-                    print "TableEditorDialog.commit_changes(): adding"
+                    #print "TableEditorDialog.commit_changes(): adding"
                     self.sqlobj(**v)
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)

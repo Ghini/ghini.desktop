@@ -62,7 +62,7 @@ class BaubleApp:
         """
         open a database connection
         """
-        print "Bauble.open_database: " + uri
+        #print "Bauble.open_database: " + uri
         #sqlhub.threadConnection = connectionForURI(uri, debug=DEBUG_SQL, debugOutput=DEBUG_SQL)    
         #sqlhub.threadConnection = connectionForURI(uri)    
         sqlhub.processConnection = connectionForURI(uri)    
@@ -78,7 +78,7 @@ class BaubleApp:
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
         if name is not None:
-            print "save preferences"
+            #print "save preferences"
             Preferences[prefs.conn_default_pref] = name
             Preferences.save()
     
