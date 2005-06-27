@@ -13,6 +13,8 @@ if sys.platform == "win32":
 # doesn't get included so somehow i guess we need to get this
 # inside library.zip or at least somewhere where pysqlite2 can find it
 
+# TODO: need someway to include specific modules in src/lib like fpconst.py
+
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
 
 subpackages = ['editors', 'tables', 'tools', 'utils', 'views']

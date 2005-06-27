@@ -234,7 +234,6 @@ class GUI:
 
         
     def on_edit_menu_prefs(self, widget, data=None):
-        print "on_edit_menu_prefs"
         p = PreferencesMgr()
         p.run()
         p.destroy()
