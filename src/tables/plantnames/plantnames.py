@@ -54,7 +54,7 @@ class Plantnames(SQLObject):
                           ("subf.", "Subform")]
 
     isp2 = StringCol(length=30, default=None)
-    isp2_author = StringCol(length=254, default=None)
+    isp2_author = UnicodeCol(length=254, default=None)
     isp2_rank = StringCol(length=10, default=None)
     values["isp2_rank"] = [("subsp.", "Subspecies"),
                            ("var.", "Variety"),
@@ -64,7 +64,7 @@ class Plantnames(SQLObject):
 
 
     isp3 = StringCol(length=30, default=None)
-    isp3_author = StringCol(length=254, default=None)
+    isp3_author = UnicodeCol(length=254, default=None)
     isp3_rank = StringCol(length=10, default=None)
     values["isp3_rank"] = [( "subsp.", "Subspecies"),
                            ("var.", "Variety"),
@@ -73,7 +73,7 @@ class Plantnames(SQLObject):
                            ("subf.", "Subform")]
 
     isp4 = StringCol(length=30, default=None)
-    isp4_author = StringCol(length=254, default=None)
+    isp4_author = UnicodeCol(length=254, default=None)
     isp4_rank = StringCol(length=10, default=None)
     values["isp4_rank"] = [( "subsp.", "Subspecies"),
                            ("var.", "Variety"),

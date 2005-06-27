@@ -30,7 +30,7 @@ class PlantnamesEditor(editors.TableEditorDialog):
                    "supfam": 'Super family',
                    'subgen': 'Subgenus',
                    'subgen_rank': 'Subgeneric rank',
-                   'isp': 'Intraspecific epithet',
+                   'isp': 'Intraspecific\nepithet',
                    'isp_rank': 'Isp. rank',
                    'isp_author': 'Isp. author',
                    'isp2': 'Isp. 2',
@@ -42,12 +42,13 @@ class PlantnamesEditor(editors.TableEditorDialog):
                    'isp4': 'Isp. 4',
                    'isp4_rank': 'Isp. 4 rank',
                    'isp4_author': 'Isp. 4 author',
-                   'iucn23': 'IUCN 2.3 Category',
-                   'iucn31': 'IUCN 3.1 Category',
+                   'iucn23': 'IUCN 2.3\nCategory',
+                   'iucn31': 'IUCN 3.1\nCategory',
                    'id_qual': 'ID qualifier',
                    'vernac_name': 'Common Name',
-                   'poison_humans': 'Poisonious to humans',
-                   'poison_animals': 'Poisonious to animals'
+                   'poison_humans': 'Poisonious\nto humans',
+                   'poison_animals': 'Poisonious\nto animals',
+                   'food_plant': 'Food plant'
                    }
         self.column_data.set_headers(headers)
         #self.column_data["genus"].header = "Genus"

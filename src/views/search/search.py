@@ -14,6 +14,17 @@ debug.enable = True
 
 from bauble import bauble
 
+# NOTE: to add a new search domain do:
+# 1. add table to search map with columns to search
+# 2. add domain keys to domain map
+# 3. if you want a result to expand on one of its children then
+#    add the table and the default child to child_expand_map
+
+# TODO: whenever an editor is called and changes are commited we should get 
+# a list of expanded paths and then search again on the same criteria and then
+# reexpand the paths that were saved and the path of the item that was the editor
+# was called on
+
 class SearchView(views.View):
     """
     1. all search parameters are by default ANDed together unless two of the
@@ -28,8 +39,26 @@ class SearchView(views.View):
     search_map = { "Families": [tables.Families, ("family",)],
                    "Genera":   [tables.Genera, ("genus",)],
                    "Plantnames": [tables.Plantnames, ("sp","isp")],
-                   'Accessions': [tables.Accessions, ("acc_id",)]
-                   }
+                   'Accessions': [tables.Accessions, ("acc_id",)],
+                   'Locations': [tables.Locations, ("site",)]}
+                   
+    # other domain to implement  
+    # name, sp, species (shouldn't use "name", implies full name)
+    # native, origin
+    # loc, location
+    # edible,
+    # medicine
+    # redlist, conservation
+    domain_map = {'Families': ('family', 'fam'),
+                      'Genera': ('genus', 'gen'),
+                      'Plantnames': ('species', 'sp'),
+                      'Accessions': ('accession', 'acc'),
+                      'Locations': ('location', 'loc')}
+    child_expand_map = {tables.Families: 'genus',
+                        tables.Genera: 'plantnames',
+                        tables.Plantnames: 'accessions',
+                        tables.Accessions: 'plants',
+                        tables.Locations: 'plants'}
 
 
     def __init__(self):
@@ -160,6 +189,8 @@ class SearchView(views.View):
 
     def on_test_expand_row(self, view, iter, path, data=None):
         """
+        look up the table type of the selected row and if it has
+        any children then add them to the row
         """
         expand = False
         model = view.get_model()
@@ -167,17 +198,13 @@ class SearchView(views.View):
         view.collapse_row(path)
         self.remove_children(model, iter)
         t = type(row)
-        # TODO: should be able to set in the meta of the table
-        if t == tables.Families and len(row.genus) > 0:
-            self.append_children(iter, row.genus, True)
-        elif t == tables.Genera and len(row.plantnames) > 0:
-            self.append_children(iter, row.plantnames, True)
-        elif t == tables.Plantnames and len(row.accessions) > 0:
-            self.append_children(iter, row.accessions, True)
-        elif t == tables.Accessions and len(row.plants) > 0:
-            self.append_children(iter, row.plants, True)
-        else: expand = True
-        return expand
+        for table, child in self.child_expand_map.iteritems():
+            if t == table:
+                kids = getattr(row, child)
+                if len(kids):
+                    self.append_children(iter, kids, True)
+                    return False
+        return True
 
         
     def query(self, domain, values):
@@ -192,9 +219,11 @@ class SearchView(views.View):
         table = self.search_map[domain][0]
         fields = self.search_map[domain][1]
         for v in values:
-            q = "%s  LIKE '%%%s%%'" % (fields[0], v)
+            q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
+        print table
+        print q
         return table.select(q)
                 
 
@@ -223,27 +252,15 @@ class SearchView(views.View):
 
 
     def resolve_domain(self, domain):
-        #
-        # TODO: could put each of these matches in a dictionary and if it
-        # matches the dict value then the key becomes the domain
-        #
-        if re.match("(family)|(fam)", domain, re.I) is not None:
-            return "Families"
-        elif re.match("(genus)|(gen)", domain, re.I) is not None:
-            return "Genera"
-        elif re.match("(species)|(sp)", domain, re.I) is not None:
-            return "Plantnames"
-        elif re.match("(accession)|(acc)", domain, re.I) is not None:
-            return "Accessions"        
-        # if fam, family
-        # if gen, genus
-        # name, sp, species (shouldn't use "name", implies full name)
-        # if acc, accession
-        # native, origin
-        # loc, location
-        # edible,
-        # medicine
-        # redlist, conservation
+        """
+        given some string this method returns a table name or None if the
+        string doesn't match a table
+        """
+        for key, values in self.domain_map.iteritems():
+            if domain.lower() in values:
+                return key
+        return None
+
         
 
     def append_children(self, iter, kids, have_kids):
@@ -311,11 +328,12 @@ class SearchView(views.View):
         if event.button != 3: return # if not right click then leave
         sel = view.get_selection()
         model, i = sel.get_selected()
-        value = model.get_value(i, 0)
+        value = model.get_value(i, 0) 
         
         menu = gtk.Menu()
-        
-        
+        # value is a row in the table and .name is the name of the table
+        # so find an editor with the same name as the table, this is a bit
+        # basic and requires editors and tables to have the same name
         edit_item = gtk.MenuItem("Edit")
         edit_item.connect("activate", self.on_activate_editor,
                           eval("editors.%s" % value.name), [value], None)

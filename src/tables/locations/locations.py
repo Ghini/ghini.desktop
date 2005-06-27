@@ -16,7 +16,7 @@ class Locations(SQLObject):
     site = StringCol(length=60, unique=True)
     description = StringCol()
 
-    plant = MultipleJoin("Plants", joinColumn="location_id")
+    plants = MultipleJoin("Plants", joinColumn="location_id")
     #plant = ForeignKey('Plants', notNull=True)
     
     def __str__(self): return self.site

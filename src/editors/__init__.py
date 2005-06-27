@@ -615,7 +615,7 @@ class TableEditorDialog(gtk.Dialog):
         # create the column and generic configurations
         # replace so the '_' so its not interpreted as a mnemonic
         column = gtk.TreeViewColumn(column_meta.header.replace("_", "__"), r)
-        column.set_min_width(120)
+        column.set_min_width(50)
         column.set_clickable(True)
         column.connect("clicked", self.on_column_clicked)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)

@@ -11,7 +11,7 @@ class Genera(SQLObject):
     genus = StringCol(length=30, notNull=True, alternateID=True)    
     hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
     comments = StringCol(default=None)
-    author = StringCol(length=50, default=None)
+    author = UnicodeCol(length=255, default=None)
     synonym_id = IntCol(default=None) # an id into this table
     
     # foreign key    
