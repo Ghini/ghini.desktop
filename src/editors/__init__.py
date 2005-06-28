@@ -511,9 +511,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         pass
     
     
+
+
     def on_response(self, widget, response, data=None):
-        print "TreeViewEditorDialog.on_response()"
         self.store_visible_columns() # save preferences before we do anything
+        self.store_column_widths()
         if response == gtk.RESPONSE_OK:
             if self.commit_changes():
                 self.destroy() # successfully commited
@@ -620,7 +622,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
         self.create_tree_view(select)
-        vbox.pack_start(self.view)
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw.add(self.view)
+        
+        vbox.pack_start(sw)
+        #vbox.pack_start(self.view)
         
         self.vbox.pack_start(vbox)
         
@@ -664,10 +671,15 @@ class TreeViewEditorDialog(TableEditorDialog):
         column.set_min_width(50)
         column.set_clickable(True)
         column.connect("clicked", self.on_column_clicked)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_resizable(True)
         column.set_reorderable(True)
         column.set_visible(column_meta.visible)
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        width_dict = bauble.prefs[self.column_width_pref]
+        if width_dict is not None and width_dict.has_key(name):
+            print "width: " + str(width_dict[name])
+            column.set_fixed_width(width_dict[name])
         column.name = name # .name is my own data, not part of gtk
         
         # now set configure the renderer and column according to type
@@ -722,6 +734,9 @@ class TreeViewEditorDialog(TableEditorDialog):
             #if index != -1:
             col = self.columns[name]
             self.view.insert_column(col, index)
+            
+        # request a resize
+        self.view.queue_resize()
 
 
     def get_completions(self, text, colname):
@@ -757,6 +772,20 @@ class TreeViewEditorDialog(TableEditorDialog):
                 meta.visible = True                    
             else: meta.visible = False
 
+    
+    def store_column_widths(self):
+        width_dict = {}
+        for col in self.view.get_columns():            
+            if col.get_visible():
+                width_dict[col.name] = col.get_width()                
+        pref_dict = bauble.prefs[self.column_width_pref]
+        if pref_dict is None:
+            bauble.prefs[self.column_width_pref] = width_dict
+        else: 
+            pref_dict.update(width_dict)
+            bauble.prefs[self.column_width_pref] = pref_dict
+
+
     def store_visible_columns(self):
         """
         get the currently visible columns and store them to the preferences
@@ -765,9 +794,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         for c in self.view.get_columns():
             if c.get_visible():
                 visible.append(c.name)
-        #Preferences[self.visible_columns_pref] = tuple(visible)
         bauble.prefs[self.visible_columns_pref] = tuple(visible)
-        #Preferences.save() # this save all prefs not just visible columns
                 
                     
 class _editors(dict):

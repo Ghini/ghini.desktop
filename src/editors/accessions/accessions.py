@@ -19,6 +19,8 @@ import utils
 class AccessionsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accessions.columns"
+    column_width_pref = "editor.accessions.column_width"
+    
 
     def __init__(self, parent=None, select=None, defaults={}):
 

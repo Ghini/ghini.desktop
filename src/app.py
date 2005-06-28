@@ -20,12 +20,12 @@ DEBUG_SQL = False
 class BaubleApp:
     
     def __init__(self):
-        print "BaubleApp.__init__"
         pass
     
         
     def delete_event(self, widget, event, data=None):
-        print "delete_event"
+        # when is this ever called? why is it here
+        print "BaubleApp.delete_event"
         return gtk.FALSE
 
 

@@ -13,6 +13,9 @@ class Images(SQLObject):
     uri = StringCol()
     label = StringCol(length=50)
     
+    # copyright ?
+    # owner ?
+    
     # should accessions also have a images in case an accession
     # differs from a plant slightly or should it just have a different
     # plantname
