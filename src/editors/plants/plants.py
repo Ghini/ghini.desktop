@@ -11,6 +11,7 @@ from tables import tables
 class PlantsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.plants.columns"
+    column_width_pref = "editor.plants.column_width"
 
     def __init__(self, parent=None, select=None, defaults={}):
 

@@ -140,7 +140,6 @@ class ConnectionManagerDialog(gtk.Dialog):
             return
         i = 0
         active = 0
-        #conn_list = Preferences[conn_list_pref]
         conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
         if conn_list is None: return
         for conn in conn_list:
@@ -156,7 +155,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        #conn_list = Preferences[conn_list_pref]
         conn = bauble.prefs[bauble.prefs.conn_list_pref]
         if conn_list.has_key(name):
             del conn_list[name]
@@ -229,15 +227,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         name is the name of the connection in the prefs
         """
-        conn_list = Preferences[conn_list_pref]
+        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
         if conn_list is None or not conn_list.has_key(name):
             return False
-        #if not conn_list.has_key(name): return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
-        print params
-        print stored_params
         return params == stored_params
 
         
@@ -246,7 +241,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         the name changed so fill in everything else
         """
         name = combo.get_active_text()
-        #conn_list = Preferences[conn_list_pref]
         conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
         
         #if self.params_box is not None and self.current_name is not None:

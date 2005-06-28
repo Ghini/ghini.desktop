@@ -16,6 +16,7 @@ from tables import tables
 class GeneraEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.genera.columns"
+    column_width_pref = "editor.genera.column_width"
     
     def __init__(self, parent=None, select=None, defaults={}):
 

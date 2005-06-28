@@ -10,7 +10,7 @@ from tables import tables
 class PlantnamesEditor(editors.TreeViewEditorDialog):
     
     visible_columns_pref = "editor.plantnames.columns"
-
+    column_width_pref = "editor.plantnames.column_width"
     
     def __init__(self, parent=None, select=None, defaults={}):
 

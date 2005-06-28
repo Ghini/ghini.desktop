@@ -10,6 +10,7 @@ from tables import tables
 class LocationsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.locations.columns"
+    column_width_pref = "editor.locations.column_width"
 
     def __init__(self, parent=None, select=None, defaults={}):
 

@@ -10,6 +10,7 @@ from tables import tables
 class ImagesEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.images.columns"
+    column_width_pref = "editor.images.column_width"
 
     def __init__(self, parent=None, select=None, defaults={}):
 

@@ -10,6 +10,7 @@ from tables import tables
 class FamiliesEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.families.columns"
+    column_width_pref = "editor.families.column_width"
 
     def __init__(self, parent=None, select=None, defaults={}):
 

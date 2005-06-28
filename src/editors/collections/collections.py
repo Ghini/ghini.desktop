@@ -10,6 +10,7 @@ from tables import tables
 class CollectionsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.collections.columns"
+    column_width_pref = "editor.collections.column_width"
 
     def __init__(self, parent=None, select=None, defaults={}):
 
