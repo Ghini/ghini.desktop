@@ -76,20 +76,23 @@ class GUI:
         self.window.show_all()
 
 
-    def pb_pulse_worker(self):
+    def pb_pulse_worker(self, from_thread):
         self.pb_lock.acquire() # ********** critical
         while not self.stop_pulse:
-            print "pulse"
-            gtk.gdk.threads_enter()
+            #print "pulse"
+            if not from_thread: gtk.gdk.threads_enter()
             self.progressbar.pulse()
-            gtk.gdk.threads_leave()
+            if not from_thread: gtk.gdk.threads_leave()
             time.sleep(.1)
+#        self.progressbar.set_fraction(1.0
+        if not from_thread: gtk.gdk.threads_enter()
         self.progressbar.set_fraction(1.0)
+        if not from_thread: gtk.gdk.threads_leave()
         self.pb_lock.release()
         
 
   
-    def pulse_progressbar(self):
+    def pulse_progressbar(self, from_thread=False):
         """
         create a seperate thread the run the progress bar
         """
@@ -98,7 +101,7 @@ class GUI:
         self.stop_pulse = False
         self.progressbar.set_pulse_step(.1)
         self.progressbar.set_fraction(1.0)
-        id = thread.start_new_thread(self.pb_pulse_worker, ())
+        id = thread.start_new_thread(self.pb_pulse_worker, (from_thread,))
         
 
     def stop_progressbar(self):
@@ -106,9 +109,9 @@ class GUI:
         stop a progress bar
         """
         self.stop_pulse = True
-        self.pb_lock.acquire()
-        self.progressbar.set_fraction(1.0)
-        self.pb_lock.release()
+        #self.pb_lock.acquire()
+        #self.progressbar.set_fraction(1.0)
+        #self.pb_lock.release()
 
     
     def create_toolbar(self):

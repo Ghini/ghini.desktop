@@ -145,15 +145,15 @@ class SearchView(views.View):
         view.collapse_row(path)
         self.remove_children(model, iter)
         t = type(row)
-        #bauble.gui.pulse_progressbar()
+        bauble.gui.pulse_progressbar()
         for table, child in self.child_expand_map.iteritems():
             if t == table:
                 kids = getattr(row, child)
                 if len(kids):
                     self.append_children(model, iter, kids, True)
-                    #bauble.gui.stop_progressbar()
+                    bauble.gui.stop_progressbar()
                     return False
-        #bauble.gui.stop_progressbar()
+        bauble.gui.stop_progressbar()
         return True
 
         
@@ -169,6 +169,7 @@ class SearchView(views.View):
         table = self.search_map[domain][0]
         fields = self.search_map[domain][1]
         for v in values:
+            if v == "*" or v =="all": return table.select()
             q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
@@ -225,7 +226,7 @@ class SearchView(views.View):
                 p = model.append(None, [r])
                 model.append(p, ["_dummy"])
         if not added:
-            model.append(p, ["Couldn't find anything"])
+            model.append(None, ["Couldn't find anything"])
         self.results_view.set_model(model)
         self.set_sensitive(True)
         gtk.gdk.threads_leave()
