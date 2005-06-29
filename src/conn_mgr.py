@@ -275,6 +275,15 @@ class ConnectionManagerDialog(gtk.Dialog):
             self.vbox.remove(self.params_box)
         # get the selected type
         self.params_box = CMParamsBoxFactory.createParamsBox(dbtype)
+        
+        # if the type changed but is the same type of the connection
+        # in the name entry then set the prefs
+        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        if conn_list is not None:
+            name = self.name_combo.get_active_text()
+            if conn_list.has_key(name) and conn_list[name]["type"]==dbtype:
+                self.params_box.set_parameters(conn_list[name])
+                
         self.vbox.pack_start(self.params_box, False, False)
         self.show_all()
 
@@ -379,6 +388,7 @@ class CMParamsBox(gtk.Table):
         d["user"] = self.user_entry.get_text()
         d["passwd"] = self.passwd_check.get_active()
         return d
+
 
     def set_parameters(self, params):
         self.db_entry.set_text(params["db"])

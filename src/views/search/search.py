@@ -2,15 +2,15 @@
 # search.py
 #
 
-import re
+import re, threading
 import gtk
 import sqlobject
 import views
 from tables import tables
 from editors import editors
-import gtasklet
 from utils.debug import debug
 import utils
+
 debug.enable = True
 
 from bauble import bauble
@@ -83,8 +83,9 @@ class SearchView(views.View):
         value = model.get_value(i, 0)
         
         if self.info_box is not None:
-            self.pane.remove(self.info_box) # remove the old info
-            self.info_box.destroy() # does this cause it to be garbage collected
+            if self.info_box.parent == self.pane:
+                self.pane.remove(self.info_box) # remove the old info
+            self.info_box.destroy() # does thi s cause it to be garbage collected
             
         if type(value) == tables.Plants:
             self.info_box = PlantsInfoBox()
@@ -121,66 +122,6 @@ class SearchView(views.View):
                 
         self.populate_results(search)
 
-        
-    def populate_task(self, tasklet, search):
-        results = []
-        timeout = gtasklet.WaitForTimeout(10)
-        added = False
-        for domain, values in search.iteritems():
-            yield timeout
-            results += self.query(domain, values)
-            if self.CANCEL: break
-            for r in results:
-                added = True
-                p = self.append_result(r)
-                self.append_result("_dummy", p)
-                if self.CANCEL: break
-            if self.CANCEL: break
-
-        if self.CANCEL: 
-            self.results_view.set_model(None) # incomplete, clear model
-
-        if not added:
-            self.append_result("Couldn't find anything")
-
-        bauble.gui.stop_progressbar()
-
-
-    def populate_results(self, search):        
-        #import pdb
-        self.CANCEL = False
-        
-        bauble.gui.pulse_progressbar()
-        gtasklet.Tasklet(self.populate_task, search)
-        #pb = self.bauble.gui.progressbar
-        #
-        #thread.start_new_thread(self.populate_worker, (search,))
-        #pdb.set_trace()
-        
-
-    def populate_results1(self, search):
-        debug("enter populate")
-        self.CANCEL = False
-        #pb = self.bauble.gui.progressbar
-        bauble.gui.pulse_progressbar()
-        
-        results = []
-        for domain, values in search.iteritems():            
-            results += self.query(domain, values)
-            if self.CANCEL: break
-            for r in results:
-                #pb.pulse()
-                p = self.append_result(r)
-                self.append_result("_dummy", p)
-                if self.CANCEL: break
-            if self.CANCEL: break
-
-        if self.CANCEL: 
-            self.results_view.set_model(None) # incomplete, clear model
-            
-        bauble.gui.stop_progressbar()            
-        #pb.destroy()
-        
 
     def remove_children(self, model, parent):
         """
@@ -204,12 +145,15 @@ class SearchView(views.View):
         view.collapse_row(path)
         self.remove_children(model, iter)
         t = type(row)
+        #bauble.gui.pulse_progressbar()
         for table, child in self.child_expand_map.iteritems():
             if t == table:
                 kids = getattr(row, child)
                 if len(kids):
-                    self.append_children(iter, kids, True)
+                    self.append_children(model, iter, kids, True)
+                    #bauble.gui.stop_progressbar()
                     return False
+        #bauble.gui.stop_progressbar()
         return True
 
         
@@ -265,43 +209,53 @@ class SearchView(views.View):
                 return key
         return None
 
-
-    def append_children(self, iter, kids, have_kids):
-        """
-        add children to row pointed to by iter
-        have_hids = if the kids have kids
-        """
-        if iter is None:
-            raise Exception("need a parent")
-        bauble.gui.pulse_progressbar()
-        gtasklet.Tasklet(self.append_children_task, kids, iter, have_kids)
-        
-        
-    def append_children_task(self, task, kids, iter, have_kids):
-        timeout = gtasklet.WaitForTimeout(1)
-        for k in kids:
-            #
-            i = self.append_result(k, iter)            
-            if have_kids:                
-                self.append_result("_dummy", i)
-            # TODO: if i yield in this loop then i get invalid iters
-            # yield timeout 
-        bauble.gui.stop_progressbar()
-        #gtk.gdk.flush()
-        
-        
-    def append_result(self, row, parent=None):
-        """
-        returns TreeIter pointing to row added,
-        i don't think this function is really necessary, could
-        probably put the same thing in on_execute_clicked
-        """
-        model = self.results_view.get_model()        
-        if model is None:
+    
+    def populate_worker(self, search):
+        gtk.gdk.threads_enter()
+        results = []
+        added = False
+        model = self.results_view.get_model()
+        self.results_view.set_model(None) # temporary
+        if model is None: 
             model = gtk.TreeStore(object)
-            self.results_view.set_model(model)            
-        return model.append(parent, [row])
-                                        
+        for domain, values in search.iteritems():
+            results += self.query(domain, values)
+            for r in results:
+                added = True
+                p = model.append(None, [r])
+                model.append(p, ["_dummy"])
+        if not added:
+            model.append(p, ["Couldn't find anything"])
+        self.results_view.set_model(model)
+        self.set_sensitive(True)
+        gtk.gdk.threads_leave()
+        bauble.gui.stop_progressbar()
+
+
+    def populate_results(self, search):        
+        #import pdb
+        self.CANCEL = False
+        self.set_sensitive(False)
+        bauble.gui.pulse_progressbar()
+        thread = threading.Thread(target=self.populate_worker, args=(search,))
+        thread.start()
+        
+    
+    def append_children(self, model, parent, kids, have_kids):
+        """
+        append the elements of list <kids> to the model with parent <parent>
+        if have_kids is true the string "_dummy" is appending to each
+        of the kids kids
+        @return the model with the kids appended
+        """
+        if parent is None:
+            raise Exception("need a parent")
+        for k in kids:
+            i = model.append(parent, [k])
+            if have_kids:
+                model.append(i, ["_dummy"])
+        return model
+       
         
     def get_rowname(self, col, cell, model, iter):
         """
@@ -436,12 +390,13 @@ class SearchView(views.View):
         sw.add(self.results_view)
 
         # the info box
-        self.info_box = InfoBox() # empty InfoBox
+        #self.info_box = InfoBox() # empty InfoBox
+        self.info_box = None
         
         # pane to split the results view and info_box
         self.pane = gtk.HPaned()
         self.pane.pack1(sw, True, False)
-        self.pane.pack2(self.info_box, True, False)
+        #self.pane.pack2(self.info_box, True, False)
         pane_box = gtk.HBox(False)
         pane_box.pack_start(self.pane, True, True)
         #self.content_box.pack_start(self.pane, True, True)

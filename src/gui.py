@@ -26,7 +26,7 @@ class GUI:
     def __init__(self, bauble):
         self.bauble = bauble
         self.create_gui()
-
+        
         # load the last view open from the prefs
         v = Preferences[self.current_view_pref]
         if v is not None: 
@@ -66,6 +66,7 @@ class GUI:
         # create the progress bar and add it to the status pane
         self.progressbar = gtk.ProgressBar()
         self.progressbar.set_size_request(100, -1)
+        self.progressbar.set_fraction(1.0)
         status_box.pack_start(self.progressbar, expand=False, fill=False)
         
         #main_vbox.pack_start(self.statusbar, expand=False, fill=False)
@@ -77,15 +78,15 @@ class GUI:
 
     def pb_pulse_worker(self):
         self.pb_lock.acquire() # ********** critical
-        self.progressbar.set_pulse_step(.1)
-        self.progressbar.set_fraction(1.0)
         while not self.stop_pulse:
-            gtk.threads_enter()
+            print "pulse"
+            gtk.gdk.threads_enter()
             self.progressbar.pulse()
-            gtk.threads_leave()
+            gtk.gdk.threads_leave()
             time.sleep(.1)
         self.progressbar.set_fraction(1.0)
         self.pb_lock.release()
+        
 
   
     def pulse_progressbar(self):
@@ -95,6 +96,8 @@ class GUI:
         if not hasattr(self, "pb_lock"):
             self.pb_lock = thread.allocate_lock()
         self.stop_pulse = False
+        self.progressbar.set_pulse_step(.1)
+        self.progressbar.set_fraction(1.0)
         id = thread.start_new_thread(self.pb_pulse_worker, ())
         
 
@@ -103,6 +106,9 @@ class GUI:
         stop a progress bar
         """
         self.stop_pulse = True
+        self.pb_lock.acquire()
+        self.progressbar.set_fraction(1.0)
+        self.pb_lock.release()
 
     
     def create_toolbar(self):

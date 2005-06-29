@@ -22,7 +22,7 @@ class BaubleApp:
     def __init__(self):
         pass
     
-        
+
     def delete_event(self, widget, event, data=None):
         # when is this ever called? why is it here
         print "BaubleApp.delete_event"

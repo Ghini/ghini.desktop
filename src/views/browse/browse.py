@@ -8,8 +8,6 @@ import views
 from tables import tables
 from bauble import bauble
 
-# TODO: remove gtasklet stuff
-#import gtasklet
 
 class SQLListStore(gtk.ListStore):
     """

@@ -29,6 +29,15 @@ debug.enable = False
 # like editor like there is now, this would make it easier to build editors
 # that don't want to be spreadsheets
 
+# TODO: if the last column is made smaller from draggin the rightmost part
+# of the header then automagically reduce the size of  the dialog so that the 
+# there isn't the extra junk past the, and i guess do the same to the leftmost
+# side of the the first column
+
+# TODO: need some type of smart dialog resizing like when columns are added
+# change the size of the dialog to fit unless you get bigger than the screen
+# then turn on the scroll bar, and something similar for adding rows 
+
 def createColumnMetaFromTable(sqlobj):
     """
     return a MetaViewColumn class built from an sqlobj
@@ -473,6 +482,7 @@ class TreeViewEditorDialog(TableEditorDialog):
           return True
         return False
     
+
     def on_column_clicked(self, column, data=None):
         """
         TODO: could view on column
@@ -508,11 +518,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         NOTE: i'm not sure what i'm talking about here, i think this may be
         an old function i don't need anymore
         """
+        #print "on_column_changed"
         pass
     
     
-
-
     def on_response(self, widget, response, data=None):
         self.store_visible_columns() # save preferences before we do anything
         self.store_column_widths()
@@ -560,7 +569,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-
     def get_model_value(self, col, cell, model, iter, column_name):
         """
         used by the tree view columns to get the value to be display
@@ -622,19 +630,29 @@ class TreeViewEditorDialog(TableEditorDialog):
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
         self.create_tree_view(select)
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw = gtk.ScrolledWindow()        
+        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
-        
         vbox.pack_start(sw)
         #vbox.pack_start(self.view)
         
         self.vbox.pack_start(vbox)
         
-        
+        # get the size of all children widgets
+        width, height = self.size_request()
+        #print str(width) + " " + 
+
+        col_widths = bauble.prefs[self.column_width_pref]
+        if col_widths is not None:
+            total = sum(col_widths.values())
+        #self.set_geometry_hints(min_width=total)
+        self.set_default_size(-1, 300) # 10 is a guestimate at border width
         
         self.show_all()
-
+        #self.resize_children()
+        #print self.size_request()
+        #print tuple(self.allocation)
+        
 
     def create_view_column(self, name, column_meta):
         """
@@ -693,9 +711,16 @@ class TreeViewEditorDialog(TableEditorDialog):
             r.connect("editing_started", self.on_editing_started, name)
         column.set_cell_data_func(r, self.get_model_value, name)
 
+        # notify when the column width property is changed
+#        column.connect("notify::width", self.on_column_width_notify)
         return column
 
+
+    def on_column_width_notify(self, widget, property, data=None):
+        print widget.name + ": " + str(widget.get_property('width'))
+        #str(property.name)
         
+
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: raise Exception("no model in the row")
@@ -734,11 +759,13 @@ class TreeViewEditorDialog(TableEditorDialog):
             #if index != -1:
             col = self.columns[name]
             self.view.insert_column(col, index)
-            
+
         # request a resize
-        self.view.queue_resize()
+        #self.view.queue_resize()
+        #self.view.resize_children()
 
-
+    
+        
     def get_completions(self, text, colname):
         """
         return a list of completions relative to the current input and
@@ -823,6 +850,7 @@ class _editors(dict):
             if hasattr(m, "editor"): 
                 self[m.label] = m.editor
     
+   
     def __getattr__(self, attr):
         if not self.has_key(attr):
             return None
