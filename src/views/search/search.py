@@ -56,10 +56,10 @@ class SearchView(views.View):
     # medicine
     # redlist, conservation
     domain_map = {'Families': ('family', 'fam'),
-                      'Genera': ('genus', 'gen'),
-                      'Plantnames': ('species', 'sp'),
-                      'Accessions': ('accession', 'acc'),
-                      'Locations': ('location', 'loc')}
+                  'Genera': ('genus', 'gen'),
+                  'Plantnames': ('species', 'sp'),
+                  'Accessions': ('accession', 'acc'),
+                  'Locations': ('location', 'loc')}
     child_expand_map = {tables.Families: 'genus',
                         tables.Genera: 'plantnames',
                         tables.Plantnames: 'accessions',
@@ -145,15 +145,15 @@ class SearchView(views.View):
         view.collapse_row(path)
         self.remove_children(model, iter)
         t = type(row)
-        bauble.gui.pulse_progressbar()
+        #bauble.gui.pulse_progressbar()
         for table, child in self.child_expand_map.iteritems():
             if t == table:
                 kids = getattr(row, child)
                 if len(kids):
                     self.append_children(model, iter, kids, True)
-                    bauble.gui.stop_progressbar()
+                    #bauble.gui.stop_progressbar()
                     return False
-        bauble.gui.stop_progressbar()
+        #bauble.gui.stop_progressbar()
         return True
 
         
@@ -169,11 +169,14 @@ class SearchView(views.View):
         table = self.search_map[domain][0]
         fields = self.search_map[domain][1]
         for v in values:
-            if v == "*" or v =="all": return table.select()
+            if v == "*" or v =="all": 
+                #return table.select()
+                return table.select(connection=bauble.conn)
             q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
-        return table.select(q)
+        return table.select(q, connection=bauble.conn)
+        #return table.select(q)
                 
 
     def parse_text(self, text):
@@ -230,17 +233,39 @@ class SearchView(views.View):
         self.results_view.set_model(model)
         self.set_sensitive(True)
         gtk.gdk.threads_leave()
-        bauble.gui.stop_progressbar()
+        #bauble.gui.stop_progressbar()
 
 
     def populate_results(self, search):        
-        #import pdb
         self.CANCEL = False
         self.set_sensitive(False)
-        bauble.gui.pulse_progressbar()
-        thread = threading.Thread(target=self.populate_worker, args=(search,))
-        thread.start()
+        #bauble.gui.pulse_progressbar()
+        #thread = threading.Thread(target=self.populate_worker, args=(search,))
+        #thread.start()
+        self.populate_results_no_threading(search)
         
+    def populate_results_no_threading(self, search):
+        self.set_sensitive(False)
+        results = []
+        added = False
+        model = self.results_view.get_model()
+        self.results_view.set_model(None) # temporary
+        if model is None: 
+            model = gtk.TreeStore(object)
+        
+        for domain, values in search.iteritems():
+            results += self.query(domain, values)
+        
+        if len(results) > 0: 
+            for r in results:
+                p = model.append(None, [r])
+                model.append(p, ["_dummy"])
+        else: 
+            model.append(None, ["Couldn't find anything"])
+        
+        self.results_view.set_model(model)
+        self.set_sensitive(True)
+    
     
     def append_children(self, model, parent, kids, have_kids):
         """

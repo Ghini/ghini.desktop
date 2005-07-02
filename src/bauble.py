@@ -15,15 +15,16 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
+
 import os, sys
 import utils
 
 if sys.platform == "win32":
     sys.path.append(utils.get_main_dir() + os.sep + "lib" + os.sep + "win32")
-    os.environ["PATH"] += utils.get_main_dir() + os.pathsep + "lib" + os.sep + "win32"
+    os.environ["PATH"] += utils.get_main_dir() + os.pathsep +  "lib" + os.sep + "win32"
 sys.path.append(utils.get_main_dir() + os.sep + "lib")
 os.environ["PATH"] += utils.get_main_dir() + os.pathsep + "lib"
-    
+
 # i guess we would need to use the builtin tk library to show an
 # error if gtk is not available, but that adds extra dependencies
 # for py2exe
@@ -33,12 +34,14 @@ if not utils.main_is_frozen():
     pygtk.require("2.0")
 import gtk
 
+gtk.gdk.threads_init() # initialize threading
+gtk.gdk.threads_enter()
+
 try:
     from sqlobject import *
 except ImportError:
     msg = "SQLObject not installed. Please install SQLObject from http://www.sqlobject.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-
 
 import app
 import prefs
@@ -46,5 +49,5 @@ bauble = app.baubleApp
 prefs = prefs.Preferences
 
 if __name__ == "__main__":
-    gtk.threads_init() # initialize threading
     bauble.main()
+    gtk.gdk.threads_leave()

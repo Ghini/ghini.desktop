@@ -55,5 +55,11 @@ def yes_no_dialog(msg):
 
 def get_main_dir():
    if main_is_frozen():
-       return os.path.dirname(sys.executable)
-   return os.path.dirname(sys.argv[0])
+       dir = os.path.dirname(sys.executable)
+   else: dir = os.path.dirname(sys.argv[0])
+   if dir == "": 
+       dir = os.curdir
+   return dir
+   
+   
+   

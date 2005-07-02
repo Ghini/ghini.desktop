@@ -65,28 +65,27 @@ class BaubleApp:
         """
         open a database connection
         """
-        #print "Bauble.open_database: " + uri
-        #sqlhub.threadConnection = connectionForURI(uri, debug=DEBUG_SQL, debugOutput=DEBUG_SQL)    
-        #sqlhub.threadConnection = connectionForURI(uri)    
+        if uri.startswith('sqlite:'):
+            uri += "?check_same_thread=0"
+#            uri += "&autoCommit=0"
         sqlhub.processConnection = connectionForURI(uri)    
         try:
-            # make the connection
-            #self.conn = sqlhub.threadConnection.getConnection() 
-            self.conn = sqlhub.processConnection.getConnection() 
-            if hasattr(self.conn, "autoCommit"): # sqlite doesn't have i guess
-                self.conn.autoCommit = False
+            # make the connection, we don't really need the connection,
+            # we just want to make sure we can connect
+            self.conn = sqlhub.getConnection() 
+            # if not autocommit then mysql import won't work unless we 
+            # temporary store autocommit and restore it to the original
+            # values, either way why would we want autocommit false
+            #self.conn.autoCommit = False 
         except Exception, e:
             print e
             msg = "Could not open connection"
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
         if name is not None:
-            #print "save preferences"
-            #Preferences[prefs.conn_default_pref] = name
-            #Preferences.save()
-            #import bauble
             bauble.prefs[bauble.prefs.conn_default_pref] = name
-    
+            
+        
     def destroy(self, widget, data=None):
         gtk.main_quit()
 
@@ -96,10 +95,12 @@ class BaubleApp:
         if hasattr(self, "gui") and self.gui is not None:
             self.gui.save_state()
         bauble.prefs.save()
-        #Preferences.save()
         
         
     def quit(self):
+        # TODO: need to sync tables
+        #for t in tables.tables.values():
+        #    t.sync()
         self.save_state()
         try:
             gtk.main_quit()
@@ -115,9 +116,9 @@ class BaubleApp:
         import gui
         from conn_mgr import ConnectionManagerDialog
         self.conn = None
-        #default_conn = Preferences[prefs.conn_default_pref]
         default_conn = bauble.prefs[bauble.prefs.conn_default_pref]
         while self.conn is None:
+            #gtk.gdk.threads_enter()
             cm = ConnectionManagerDialog(default_conn)
             r = cm.run()
             if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
@@ -126,13 +127,14 @@ class BaubleApp:
             uri = cm.get_connection_uri()
             name = cm.get_connection_name()
             cm.destroy()
+            #gtk.gdk.threads_leave()
             self.open_database(uri, name, True)
                 
         # now that we have a connection build and show the gui
         self.gui = gui.GUI(self)
-        #gtk.threads_enter()
+#        gtk.threads_enter()
         gtk.main()
-        #gtk.threads_leave()
+#        gtk.threads_leave()
 
 
 baubleApp = BaubleApp()

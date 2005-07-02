@@ -150,15 +150,15 @@ class ModelDict(dict):
 #
 # editor interface
 #
-class TableEditor:
+class TableEditor(object):
     
     def __init__(self, select=None, defaults={}):
         self.defaults = copy.copy(defaults)
         self.select = select
         
         
-    def commit_changes(self):
-        raise NotImplementedError, "TableEditor.commit_changes not implemented"
+#    def commit_changes(self):
+#        raise NotImplementedError, "TableEditor.commit_changes not implemented"
 
 #
 # editor interface that opens a dialog
@@ -174,8 +174,8 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
         self.connect("response", self.on_response)
 
                               
-    def commit_changes(self):
-        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
+#    def commit_changes(self):
+#        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
 
 
     def on_response(self, widget, response, data=None):
@@ -523,10 +523,15 @@ class TreeViewEditorDialog(TableEditorDialog):
     
     
     def on_response(self, widget, response, data=None):
+        print self
+        print hasattr(self, 'commit_changes')
         self.store_visible_columns() # save preferences before we do anything
         self.store_column_widths()
         if response == gtk.RESPONSE_OK:
-            if self.commit_changes():
+            #if self.commit_changes():
+            # NOTE: i don't understand why we can't call commit_changes 
+            # on self
+            if TreeViewEditorDialog.commit_changes(self):
                 self.destroy() # successfully commited
         elif response == gtk.RESPONSE_CANCEL and self.dirty:            
             msg = "Are you sure? You will lose your changes."

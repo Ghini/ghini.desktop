@@ -59,6 +59,7 @@ class IEDialog(gtk.Dialog):
     def on_response(self, dialog, response, data=None):
         if response == gtk.RESPONSE_OK:
             self.current_ie.start()
+            #self.current_ie.run()
 
 
 class ImportDialog(IEDialog):
@@ -115,15 +116,14 @@ class ExporterFactory(IEFactory):
     create = staticmethod(create)
         
 
-class Exporter(gtk.VBox, threading.Thread):
+class Exporter(gtk.VBox):
     
     def __init__(self, dialog):
         gtk.VBox.__init__(self)
-        threading.Thread.__init__(self)
         self.dialog = dialog
     
-    def run(self):
-        raise NotImplentedError
+    def start(self):
+        raise NotImplemtedError
     
                     
 class ImporterFactory(IEFactory):
@@ -137,14 +137,14 @@ class ImporterFactory(IEFactory):
             return iemysql.MySQLImporter(dialog)
     create = staticmethod(create)
 
-    
-class Importer(gtk.VBox, threading.Thread):
+
+class Importer(gtk.VBox):    
+
     def __init__(self, dialog):
         gtk.VBox.__init__(self)
-        threading.Thread.__init__(self)
         self.dialog = dialog
-    
-    def run(self):
+        
+    def start(self):
         raise NotImplementedError
 
     

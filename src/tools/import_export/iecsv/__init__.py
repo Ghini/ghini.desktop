@@ -16,16 +16,18 @@ from bauble import *
 csv_format_params = {}
 
 class CSVImporter(Importer):
+    
     def __init__(self, dialog):
         Importer.__init__(self, dialog)
         self.create_gui()
     
+    
     def create_gui(self):
         # create checkboxes for format paramater options used by csv modules
         pass
-        
-    def run(self):
-        gtk.gdk.threads_enter()
+    
+    
+    def start(self):
         def on_selection_changed(filechooser, data=None):
             """
             only make the ok button sensitive if the selection is a file
@@ -44,26 +46,29 @@ class CSVImporter(Importer):
         r = fc.run()
         if r != gtk.RESPONSE_ACCEPT:
             fc.destroy()
-            gtk.gdk.threads_leave()
             return
         bauble.gui.window.set_sensitive(False)
         bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         filenames = fc.get_filenames()
         fc.destroy()
-        gtk.gdk.threads_leave()
+        t = threading.Thread(target=self.run, args=(filenames,))
+        t.start()
+    
+    
+    def run(self, filenames):
+        print "CSVImporter.run()"
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()
         for filename in filenames:
-            #print filename
+            # create a new transaction/connection for each table
+            trans = old_conn.transaction()
+            sqlobject.sqlhub.threadConnection = trans
             path, base = os.path.split(filename)
             table_name, ext = os.path.splitext(base)
             table = tables[table_name]
             print "importing table: " + table_name + "..."
             f = file(filename, "rb")
             reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-            # create a new transaction/connection for each table
-            conn = old_conn.transaction()
-            sqlobject.sqlhub.threadConnection = conn
             try:
                 for line in reader:
                     # convert int columns to integer types
@@ -71,7 +76,7 @@ class CSVImporter(Importer):
                         if col.__class__ == sqlobject.SOIntCol:
                             line[col.name] = int(line[col.name])
                     # add row to table
-                    table(connection=conn, **line)
+                    table(connection=trans, **line)
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
@@ -81,19 +86,19 @@ class CSVImporter(Importer):
                 print line
                 print e
                 utils.message_dialog(msg)
-                conn.rollback()
+                trans.rollback()
             else:
                 # everything ok for this table, commit
-                conn.commit()
+                trans.commit()
         sqlobject.sqlhub.threadConnection = old_conn
         gtk.gdk.threads_enter()
         bauble.gui.window.set_sensitive(True)
         bauble.gui.window.window.set_cursor(None)
         gtk.gdk.threads_leave()
         
-
-    
+        
 class CSVExporter(Exporter):
+    
     def __init__(self, dialog):
         Exporter.__init__(self, dialog)
         self.create_gui()
@@ -127,7 +132,7 @@ class CSVExporter(Exporter):
     def run(self):
         if self.path == None:
             return
-            
+        
         gtk.gdk.threads_enter()
         filename_template = self.path + os.sep +"%s.txt"
         for name in tables.keys():
