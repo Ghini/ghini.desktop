@@ -50,7 +50,6 @@ def createColumnMetaFromTable(sqlobj):
         if c.name[0] == "_": continue
         foreign = False
         visible = False 
-        index = -1
         if type(c) == ForeignKey:
             foreign = True
         meta[c.name] = (c.name, visible, foreign)
@@ -79,7 +78,6 @@ class MetaViewColumn(dict):
             self.header = header
             self.visible = visible
             self.foreign = foreign
-            self.index = -1
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -567,6 +565,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)
                 trans.rollback()
+                sqlhub.threadConnection = old_conn
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return False
         trans.commit()
@@ -742,7 +741,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         #model = gtk.ListStore(object) # object will be type ModelDict
         self.view = gtk.TreeView(gtk.ListStore(object))
-        self.view.connect("columns-changed", self.on_column_changed)
         self.view.set_headers_clickable(False)
 
         # create the model from the tree view and add rows if a
@@ -754,20 +752,19 @@ class TreeViewEditorDialog(TableEditorDialog):
         else:
             self.add_new_row()
             
-        # append the visible columns first
-        # TODO: why isn't sorted keys in order with all the -1 index
-        # at the beginning
-        from operator import attrgetter
-        sorted_keys = sorted(self.column_data.keys(), key=attrgetter("index"))
-        for name in sorted_keys:
-            index = self.column_data[name].index
-            #if index != -1:
-            col = self.columns[name]
-            self.view.insert_column(col, index)
+            
+        # insert everything at 0 in reverse order of the visible list in prefs
+        visible_list = list(bauble.prefs[self.visible_columns_pref][:])
+        visible_list.reverse()
+        for name in visible_list:
+            self.view.insert_column(self.columns[name], 0)
 
         # request a resize
         #self.view.queue_resize()
         #self.view.resize_children()
+        # now that all the columns are here, let us know if anything 
+        # changes
+        self.view.connect("columns-changed", self.on_column_changed)
 
     
         
@@ -792,11 +789,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         if visible_columns is None: return
 
         # set the index
-        i=1
-        for name in visible_columns:            
-            self.column_data[name].index = i
+        #i=1
+        #for name in visible_columns:            
+        #    self.column_data[name].index = i
             #debug("%s: %d" % (name, i))
-            i += 1
+        #    i += 1
             
         # reset all visibility
         for name, meta in self.column_data.iteritems():
@@ -826,7 +823,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         for c in self.view.get_columns():
             if c.get_visible():
                 visible.append(c.name)
-        bauble.prefs[self.visible_columns_pref] = tuple(visible)
+                print "visible: " + c.name
+        bauble.prefs[self.visible_columns_pref] = visible
+        #bauble.prefs[self.visible_columns_pref] = tuple(visible)
+        print bauble.prefs[self.visible_columns_pref]
                 
                     
 class _editors(dict):

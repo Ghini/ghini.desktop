@@ -79,3 +79,5 @@ class PlantsEditor(editors.TreeViewEditorDialog):
             for row in sr:
                 model.append([str(row), row.id])
         return model, maxlen
+
+        

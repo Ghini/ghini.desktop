@@ -143,6 +143,7 @@ class _Preferences(dict):
             if type(value) == str: 
                 value = '"%s"' % value
             p = template % (key, value)
+            #print p
             f.write(p)
     
 

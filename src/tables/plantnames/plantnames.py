@@ -131,8 +131,8 @@ class Plantnames(SQLObject):
     # foreign keys and joins
     genus = ForeignKey('Genera', notNull=True)
     accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
-    images = MultipleJoin('Images', joinColumn='images_id')
-    
+    images = MultipleJoin('Images', joinColumn='plantname_id')
+    references = MultipleJoin('References', joinColumn='plantname_id')
     ######## the rest? ##############    
     #Lifeform = StringCol(length=10)
 #    tuses = StringCol(default=None) # taxon uses?
