@@ -2,11 +2,9 @@
 # Locations table definition
 #
 
-from sqlobject import *    
+from tables import *
 
-class Locations(SQLObject):
-    name = "Locations"
-    _cacheValue = False
+class Locations(BaubleTable):
 
     # should only need either loc_id or site as long as whichever one is 
     # unique, probably site, there is already and internal id

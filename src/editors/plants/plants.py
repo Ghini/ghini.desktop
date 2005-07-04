@@ -6,6 +6,7 @@ import gtk
 
 import editors
 from tables import tables
+import bauble
 #from prefs import Preferences
 
 class PlantsEditor(editors.TreeViewEditorDialog):
@@ -17,22 +18,25 @@ class PlantsEditor(editors.TreeViewEditorDialog):
 
         self.sqlobj = tables.Plants
 
-        self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
+        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
         headers = {'plant_id': 'Plant ID',
                    'accession': 'Accession ID',
-                   'location': 'Location'}
-        self.column_data.set_headers(headers)
+                   'location': 'Location',
+                   'acc_type': 'Accession Type',
+                   'acc_status': 'Accession Status'}
+        self.column_meta.set_headers(headers)
         
         # validators
-        self.column_data["plant_id"].validate = editors.validate_int
+        self.column_meta["plant_id"].validate = editors.validate_int
 
         # set default visible
-        self.column_data["accession"].visible = True
-        self.column_data["plant_id"].visible = True
+        default_visible_list = ['accession', 'plant_id'] 
         
-        #Preferences.load()
+        # set visible from stored prefs
+        if not bauble.prefs.has_key(self.visible_columns_pref):
+            bauble.prefs[self.visible_columns_pref] = default_visible_list
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
 
         editors.TreeViewEditorDialog.__init__(self, "Plants/Clones Editor",

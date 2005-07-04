@@ -3,4 +3,4 @@
 #
 
 import images
-table = images.Images
+tables = [images.Images]

@@ -2,10 +2,10 @@
 # Genera table module
 #
 
-from sqlobject import *
+from tables import *
 
-class Genera(SQLObject):
-    name = "Genera"
+class Genera(BaubleTable):
+    #name = "Genera"
     _cacheValue = False
     
     genus = StringCol(length=30, notNull=True, alternateID=True)    

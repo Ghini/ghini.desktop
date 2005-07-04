@@ -65,7 +65,8 @@ class BaubleApp:
         """
         open a database connection
         """
-        if uri.startswith('sqlite:'):
+        import sqlobject.sqlite.sqliteconnection as sqlite
+        if uri.startswith('sqlite:') and sqlite.using_sqlite2:
             uri += "?check_same_thread=0"
 #            uri += "&autoCommit=0"
         sqlhub.processConnection = connectionForURI(uri)    
@@ -84,6 +85,7 @@ class BaubleApp:
         
         if name is not None:
             bauble.prefs[bauble.prefs.conn_default_pref] = name
+            bauble.prefs.save()
             
         
     def destroy(self, widget, data=None):

@@ -2,11 +2,9 @@
 # Images table definition
 #
 
-from sqlobject import *    
+from tables import *
 
-class Images(SQLObject):
-    name = "Images"
-    _cacheValue = False
+class Images(BaubleTable):
 
     # not unique but if a duplicate uri is entered the user
     # should be asked if this is what they want

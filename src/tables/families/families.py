@@ -2,11 +2,10 @@
 # Families table definition
 #
 
-from sqlobject import *
+from tables import *
 
-class Families(SQLObject):
-    name = "Families"
-    _cacheValue = False
+class Families(BaubleTable):
+
     family = StringCol(length=45, notNull=True, alternateID="True")
     comments = StringCol(default=None)
 

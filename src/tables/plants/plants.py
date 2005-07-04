@@ -3,14 +3,13 @@
 #
 
 from sqlobject import *
+from tables import *
 
-class Plants(SQLObject):
-    name = "Plants"
-    _cacheValue = False
-    values = {}
+class Plants(BaubleTable):
     
     # add to end of accession id, e.g. 04-0002.05
     # these are only unique when combined with an accession_id
+    values = {}
     plant_id = IntCol(notNull=True) 
 
     # accession type
@@ -20,7 +19,7 @@ class Plants(SQLObject):
                           ('V', 'Vegetative Part'),
                           ('T', 'Tissue culture'),
                           ('O', 'Other')]
-    
+                          
     # accession status
     acc_status = StringCol(length=6, default=None)
     values['acc_status'] = [('C', 'Current accession in living collection'),

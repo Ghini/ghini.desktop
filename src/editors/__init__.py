@@ -1,4 +1,3 @@
-
 #
 # editors module
 #
@@ -38,6 +37,9 @@ debug.enable = False
 # change the size of the dialog to fit unless you get bigger than the screen
 # then turn on the scroll bar, and something similar for adding rows 
 
+# TODO: check if column is required then you can uncheck it with some
+# sort of visual cue that is is required or at least not uncheckable
+
 def createColumnMetaFromTable(sqlobj):
     """
     return a MetaViewColumn class built from an sqlobj
@@ -45,14 +47,21 @@ def createColumnMetaFromTable(sqlobj):
     # TODO: visible should probably be a sequence instead of a flag
     # so it implies some order, it might be difficult though to keep the 
     # column order and the meta data synchronized
-    meta = MetaViewColumn()
-    for c in sqlobj._columns:
-        if c.name[0] == "_": continue
-        foreign = False
-        visible = False 
-        if type(c) == ForeignKey:
-            foreign = True
-        meta[c.name] = (c.name, visible, foreign)
+    meta = ViewColumnMeta()
+    for name, col in sqlobj.sqlmeta._columnDict.iteritems():
+        if name[0] == "_": continue # _means private
+        col_meta =  ViewColumnMeta.Meta()
+        if name.endswith("ID"):
+            col_meta.foreign = True
+            name = name[:-2]
+        col_meta.header = name
+        col_meta.foreign = False
+        col_meta.visible = False 
+        if col._default == NoDefault:
+            print str(col._default)
+            col_meta.default = col._default # the default value from the table
+            col_meta.visible = True
+        meta[name] = col_meta
     return meta
 
 
@@ -66,7 +75,7 @@ def validate_accession(value):
     return value
 
 
-class MetaViewColumn(dict):
+class ViewColumnMeta(dict):
     """
     contains a dictionary of Meta classes which store information
     about the different columns in the view
@@ -74,10 +83,12 @@ class MetaViewColumn(dict):
     
     class Meta:
         def __init__(self, header = None, visible = False, foreign = False, 
-                     values = None):
+                     values = None, width=50, default=None):
             self.header = header
             self.visible = visible
             self.foreign = foreign
+            self.width = width # the default width for all columns
+            self.default = default
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -95,8 +106,18 @@ class MetaViewColumn(dict):
 
     # set column meta, value[0] = name, value[1] = visible, value[2] = foreign
     def __setitem__(self, item, value):
-        dict.__setitem__(self, item, 
-                         MetaViewColumn.Meta(value[0], value[1], value[2]))
+        print type(value)
+        print value.default
+        if type(value) == dict:
+            dict.__setitem__(self, item, ViewColumnMeta.Meta(**value))
+        else: dict.__setitem__(self, item, value)
+        return
+        #if type(value) == MetaViewColumn.Meta:
+        #    dict.__setitem__(self, value)
+        #elif type(value) == dict:
+        #    dict.__setitem__(self, item, **value)
+        #else: raise Exception("MetaViewColumn.Meta.__setitem__: unknown arg type")
+        #                 #MetaViewColumn.Meta(value[0], value[1], value[2]))
 
     def set_headers(self, headers):
         for col, header in headers.iteritems():
@@ -276,10 +297,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         model = self.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
-        if not self.column_data[colname].foreign:
+        if not self.column_meta[colname].foreign:
             v = None
             if not new_text == "": # set v and validate if not empty
-                v = self.column_data[colname].validate(new_text)
+                v = self.column_meta[colname].validate(new_text)
             row[colname] = v
         else:
             # need to somehow get the id from the text value, is it possible?
@@ -415,8 +436,8 @@ class TreeViewEditorDialog(TableEditorDialog):
             # if not a foreign key then validate, foreign keys can only
             # be entered from existing values and so don't need to
             # be validated
-            #if not self.column_data[colname].foreign:
-            #    if self.column_data[colname].                
+            #if not self.column_meta[colname].foreign:
+            #    if self.column_meta[colname].                
 
     def on_editing_done(self, editable, data=None):
         """
@@ -446,7 +467,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         # in the entry before typeing starts and fills in the gap
         # as the user types
         try:
-            self.column_data[colname].validate(text)
+            self.column_meta[colname].validate(text)
         except ValueError:
             entry.stop_emission("insert_text")
         
@@ -465,7 +486,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                 #entry_completion.set_match_func(self.match_func, None)
                 entry.set_completion(entry_completion)
 
-            if entry_completion is None and self.column_data[colname].foreign:
+            if entry_completion is None and self.column_meta[colname].foreign:
                 raise Exception("No completion defined for column %s" % colname)
             
             if entry_completion is not None:
@@ -504,8 +525,14 @@ class TreeViewEditorDialog(TableEditorDialog):
     def on_column_menu_toggle(self, item, colname=None):
         visible = item.get_active()
         self.columns[colname].set_visible(visible)
-        self.column_data[colname].visible = visible
+        
+        # could do this with a property notify signal
+        self.column_meta[colname].visible = visible
+        
+        #widget.get_property('width')
+        #self.column_meta[colname].width
         #self.view.check_resize()
+        #self.view.show_all()
         self.view.resize_children()
 
 
@@ -616,10 +643,18 @@ class TreeViewEditorDialog(TableEditorDialog):
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
         # TODO: would rather sort case insensitive
-        for key in sorted(self.column_data.keys()):        
-            item = gtk.CheckMenuItem(self.column_data[key].header.
+        col_dict = self.sqlobj.sqlmeta._columnDict
+        for key in sorted(self.column_meta.keys()):        
+            item = gtk.CheckMenuItem(self.column_meta[key].header.
                                      replace('_', '__')) # no mnemonics
-            item.set_active(self.column_data[key].visible)
+            if self.column_meta[key].default == NoDefault:
+                item.set_sensitive(False)
+                
+            #if key in col_dict:# and hasattr(col_dict[key], '_default'):
+                #print col_dict[key]._default
+            #    if col_dict[key]._default == NoDefault:
+            #        item.set_sensitive(False)
+            item.set_active(self.column_meta[key].visible)
             item.connect("toggled", self.on_column_menu_toggle, key)
             menu.append(item)
         menu.show_all()
@@ -700,7 +735,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         width_dict = bauble.prefs[self.column_width_pref]
         if width_dict is not None and width_dict.has_key(name):
-            print "width: " + str(width_dict[name])
             column.set_fixed_width(width_dict[name])
         column.name = name # .name is my own data, not part of gtk
         
@@ -716,27 +750,21 @@ class TreeViewEditorDialog(TableEditorDialog):
         column.set_cell_data_func(r, self.get_model_value, name)
 
         # notify when the column width property is changed
-#        column.connect("notify::width", self.on_column_width_notify)
+        column.connect("notify::width", self.on_column_width_notify, name)
         return column
 
 
-    def on_column_width_notify(self, widget, property, data=None):
-        print widget.name + ": " + str(widget.get_property('width'))
-        #str(property.name)
+    def on_column_width_notify(self, widget, property, name):
+        width = widget.get_property('width')
+        self.column_meta[name].width = width
         
 
-    def add_new_row(self, row=None):
-        model = self.view.get_model()
-        if model is None: raise Exception("no model in the row")
-        model.append([ModelDict(row, self.defaults)])
-            
-            
     def create_tree_view(self, select=None):
         """
         create the main tree view
         """
         # create the columns from the meta data
-        for name, meta in self.column_data.iteritems():            
+        for name, meta in self.column_meta.iteritems():            
             self.columns[name] = self.create_view_column(name, meta)
         
         #model = gtk.ListStore(object) # object will be type ModelDict
@@ -752,12 +780,21 @@ class TreeViewEditorDialog(TableEditorDialog):
         else:
             self.add_new_row()
             
-            
-        # insert everything at 0 in reverse order of the visible list in prefs
-        visible_list = list(bauble.prefs[self.visible_columns_pref][:])
-        visible_list.reverse()
-        for name in visible_list:
-            self.view.insert_column(self.columns[name], 0)
+        
+        print self.columns.keys()
+        # enter the columns from the visible list
+        visible_list = ()
+        if bauble.prefs.has_key(self.visible_columns_pref):
+            visible_list = list(bauble.prefs[self.visible_columns_pref][:])
+            visible_list.reverse()
+            for name in visible_list:
+                self.view.insert_column(self.columns[name], 0)
+        
+        # append the rest of the column to the end
+        for name in self.columns:
+            if name not in visible_list:
+                self.view.append_column(self.columns[name])
+
 
         # request a resize
         #self.view.queue_resize()
@@ -766,7 +803,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         # changes
         self.view.connect("columns-changed", self.on_column_changed)
 
-    
+
+    def add_new_row(self, row=None):
+        model = self.view.get_model()
+        if model is None: raise Exception("no model in the row")
+        model.append([ModelDict(row, self.defaults)])
+
         
     def get_completions(self, text, colname):
         """
@@ -791,22 +833,29 @@ class TreeViewEditorDialog(TableEditorDialog):
         # set the index
         #i=1
         #for name in visible_columns:            
-        #    self.column_data[name].index = i
+        #    self.column_meta[name].index = i
             #debug("%s: %d" % (name, i))
         #    i += 1
             
         # reset all visibility
-        for name, meta in self.column_data.iteritems():
+        for name, meta in self.column_meta.iteritems():
             if name in visible_columns:
                 meta.visible = True                    
             else: meta.visible = False
 
     
     def store_column_widths(self):
+        """
+        store the column widths as a dict in the preferences
+        """
         width_dict = {}
-        for col in self.view.get_columns():            
-            if col.get_visible():
-                width_dict[col.name] = col.get_width()                
+        for name, meta in self.column_meta.iteritems():
+            width_dict[name] = meta.width
+        
+        
+        #for col in self.view.get_columns():            
+        #    if col.get_visible():
+        #        width_dict[col.name] = col.get_width()                
         pref_dict = bauble.prefs[self.column_width_pref]
         if pref_dict is None:
             bauble.prefs[self.column_width_pref] = width_dict
@@ -823,10 +872,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         for c in self.view.get_columns():
             if c.get_visible():
                 visible.append(c.name)
-                print "visible: " + c.name
         bauble.prefs[self.visible_columns_pref] = visible
-        #bauble.prefs[self.visible_columns_pref] = tuple(visible)
-        print bauble.prefs[self.visible_columns_pref]
                 
                     
 class _editors(dict):

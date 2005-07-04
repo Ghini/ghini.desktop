@@ -7,6 +7,7 @@ import gtk
 import editors
 from tables import tables
 import utils
+import bauble
 
 #
 # TODO: rather than having an accessions editor and a clones editor
@@ -15,6 +16,15 @@ import utils
 # editor to any editor based on the clones name and just specify which editor
 # would be the child and pop it up
 #
+
+# TODO: should have a source_id and a source_type or table that says
+# that the id is an index into the some table then the source could
+# be either a donor, a collection, etc...this could screw things
+# up if the source_type was changed but the source_id wasn't then the 
+# id would point to a row in the wrong table, could we restrict it
+# somehow that if source_table is edited then source_id is reset, could
+# do it through some sort of attribute access
+
 #class AccessionsEditor(editors.TableEditorDialog):
 class AccessionsEditor(editors.TreeViewEditorDialog):
 
@@ -26,7 +36,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
 
         self.sqlobj = tables.Accessions
         
-        self.column_data = editors.createColumnMetaFromTable(self.sqlobj) #returns None?
+        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj) #returns None?
 
         # set headers
         headers = {"acc_id": "Acc ID",
@@ -36,16 +46,21 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    "ver_level": "Verification Level",           
                    "ver_name": "Verifier's Name",
                    "ver_date": "Verification Date",
-                   "ver_lit": "Verification Literature"#,
+                   "ver_lit": "Verification Literature",
+                   'donor_type': 'Donor Type',
+                   'donor': 'Donor Name',
+                   'donor_acc': 'Donor\'s Accession'
+                   #,
 #                   "wgs": "World Geographical Scheme"
                    }
-        self.column_data.set_headers(headers)
+        self.column_meta.set_headers(headers)
 
         # set default visible
-        self.column_data["acc_id"].visible = True 
-        self.column_data["plantname"].visible = True
+        default_visible_list = ['acc_id', 'plantname']
     
-        # set visible according to stored prefs
+        # set visible from stored prefs
+        if not bauble.prefs.has_key(self.visible_columns_pref):
+            bauble.prefs[self.visible_columns_pref] = default_visible_list
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
             
         #editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select,

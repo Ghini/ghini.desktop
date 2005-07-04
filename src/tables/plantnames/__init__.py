@@ -3,4 +3,4 @@
 #
 
 import plantnames
-table = plantnames.Plantnames
+tables = [plantnames.Plantnames]

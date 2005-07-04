@@ -3,4 +3,4 @@
 #
 
 import families
-table = families.Families
+tables = [families.Families]

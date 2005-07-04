@@ -2,11 +2,12 @@
 # Accessions table definition
 #
 
+import tables
 from sqlobject import *
 
-class Accessions(SQLObject):
+class Accessions(tables.BaubleTable):
     _cacheValue = False
-    name = "Accessions"
+    #name = "Accessions"
     values = {} # dictionary of values to restrict to columns
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
     
@@ -29,9 +30,18 @@ class Accessions(SQLObject):
     #prop_history = StringCol(length=11, default=None)
 
     # accession lineage, parent garden code and acc id ???
-    acc_lineage = StringCol(length=50, default=None)    
-    acctxt = StringCol(default=None) # ???
+    #acc_lineage = StringCol(length=50, default=None)    
+    #acctxt = StringCol(default=None) # ???
 
+    # the source type is the name of the table and determines which
+    # one of donor or collection is valid, if the source type changes,
+    # which really it should never do, then it should remove the row 
+    # from the table that the type was before it was changed
+    #source_type = StrinCol(length=32)
+    #donor = SingleJoin('Donor', joinColumn='accession')
+    #collection = SingleJoin('Collection', joinColumn='accession')
+    
+    
     # donor type flag, a character, see ITF2, it would probably
     # be better to have a donor table since multiple accessions can have
     # the same donor and only the donor's id, data
@@ -75,7 +85,7 @@ class Accessions(SQLObject):
     plants = MultipleJoin("Plants", joinColumn='accession_id')
     collection = SingleJoin('Collections', joinColumn='accession_id')
 
-    # these probably belong in 
+    # these probably belong in separate tables with a single join
     cultv_info = StringCol(default=None)      # cultivation information
     prop_info = StringCol(default=None)       # propogation information
     acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?

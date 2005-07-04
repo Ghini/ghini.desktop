@@ -3,4 +3,4 @@
 #
 
 import locations
-table = locations.Locations
+tables = [locations.Locations]

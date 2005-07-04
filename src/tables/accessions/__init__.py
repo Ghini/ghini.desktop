@@ -3,4 +3,4 @@
 #
 
 import accessions
-table = accessions.Accessions
+tables = [accessions.Accessions]

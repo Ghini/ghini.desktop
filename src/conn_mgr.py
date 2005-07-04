@@ -121,9 +121,9 @@ class ConnectionManagerDialog(gtk.Dialog):
         type_label.set_alignment(0.0, .5)
         self.type_combo = gtk.combo_box_new_text()
         
-        # test for different supported database types, these have never been
-        # test but if someone tries one and it
-        # doesn't work then maybe someone they will let us know
+        # test for different supported database types, this doesn't necessarily mean
+        # these have been tested but if someone tries one and it
+        # doesn't work then maybe they will let us know
         for type, index in self.supported_dbtypes.iteritems():
             self.type_combo.insert_text(index, type)
         
@@ -194,8 +194,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         name = entry.get_text()
         d.destroy()
         self.name_combo.prepend_text(name)
-        self.type_combo.set_active(0)
+        
         self.name_combo.set_active(0)
+        
+        # TODO: 
+        # if sqlite.is_supported then sqlite, else set_active(0)
+        self.type_combo.set_active(0)
         
         
             

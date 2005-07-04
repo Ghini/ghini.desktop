@@ -32,8 +32,6 @@ from bauble import bauble
 # - search Lifemapper for distributions maps
 # - give list of references and images and make then clickable if they are uris
 
-# TODO: an info box map for the name of the info box to show for the 
-# selected type
 
 class SearchView(views.View):
     """
@@ -76,35 +74,37 @@ class SearchView(views.View):
     def __init__(self):
         views.View.__init__(self)
         self.create_gui()
-        self.entry.grab_focus()
+        self.entry.grab_focus() # this doesn't seem to work
 
+    
+    def set_infobox_from_row(self, row):
+        if not hasattr(self, 'infobox'):
+            self.infobox = None
+            
+        if self.infobox is not None:
+            if self.infobox.parent == self.pane:
+                self.pane.remove(self.infobox)
+            self.infobox.destroy()
+            
+        t = type(row)
+        if self.infobox_map.has_key(t):
+            self.infobox = self.infobox_map[t]()
+            if row is not None:
+                self.infobox.set_values_from_row(row)
+            self.pane.pack2(self.infobox, True, False)
+        self.pane.show_all() # reset the pane
 
+        
     def on_results_view_select_row(self, view):
         """
-        add and removes the info_box which should change depending on
+        add and removes the infobox which should change depending on
         the type of the row selected
         """        
         sel = view.get_selection() # get the selected row
         model, i = sel.get_selected()
         value = model.get_value(i, 0)
         
-        if self.info_box is not None:
-            if self.info_box.parent == self.pane:
-                self.pane.remove(self.info_box) # remove the old info
-            self.info_box.destroy() # does thi s cause it to be garbage collected
-            
-        t = type(value)
-        if self.infobox_map.has_key(t):
-            self.info_box = self.infobox_map[t]()
-            self.info_box.set_values_from_row(value)
-            self.pane.pack2(self.info_box, True, False)
-        #if type(value) == tables.Plants:
-        #    self.info_box = PlantsInfoBox()
-        #    self.info_box.get_expander("Locations").set_values(value.location)
-        #    self.pane.pack2(self.info_box, True, False)
-
-        #self.info_box = None
-        self.pane.show_all()
+        self.set_infobox_from_row(value)
         
         # check that the gbif view is expanded
         # if it is then pass the selected row to gbif
@@ -425,15 +425,11 @@ class SearchView(views.View):
         # scrolled window for the results view
         sw = gtk.ScrolledWindow()
         sw.add(self.results_view)
-
-        # the info box
-        #self.info_box = InfoBox() # empty InfoBox
-        self.info_box = None
         
-        # pane to split the results view and info_box
+        # pane to split the results view and the infobox, the infobox
+        # is created when a row in the results is selected
         self.pane = gtk.HPaned()
         self.pane.pack1(sw, True, False)
-        #self.pane.pack2(self.info_box, True, False)
         pane_box = gtk.HBox(False)
         pane_box.pack_start(self.pane, True, True)
         #self.content_box.pack_start(self.pane, True, True)

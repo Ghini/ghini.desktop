@@ -57,6 +57,14 @@ class LocationsExpander(TableExpander):
     def __init__(self, label="Locations", columns={"site": "Site"}):
         TableExpander.__init__(self, label, columns)
 
+
+# TODO: references expander should also show references to any
+# foreign key defined in the table, e.g. if a plantname is being
+# display it should also show the references associated with
+# the family and genera
+
+# TODO: it would be uber-cool to look up book references on amazon, 
+# is there a python api for amazon or should it just defer to the browser
 class ReferencesExpander(TableExpander):
     def __init__(self, label="References", columns={'label': 'Label',
                                                     'reference': 'References'}):
@@ -114,10 +122,10 @@ class PlantnamesInfoBox(InfoBox):
         
         
     def set_values_from_row(self, row):
+        pass
         #ref = self.get_expander("References")
         #ref.set_values(row.references)
         
-
 
 class PlantsInfoBox(InfoBox):
     """

@@ -6,6 +6,7 @@ import gtk
 
 import editors
 from tables import tables
+import bauble
 
 class PlantnamesEditor(editors.TreeViewEditorDialog):
     
@@ -16,7 +17,7 @@ class PlantnamesEditor(editors.TreeViewEditorDialog):
 
         self.sqlobj = tables.Plantnames
 
-        self.column_data = editors.createColumnMetaFromTable(self.sqlobj)
+        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj)
 
         # set headers
         headers = {"genus": "Genus",
@@ -50,13 +51,15 @@ class PlantnamesEditor(editors.TreeViewEditorDialog):
                    'poison_animals': 'Poisonious\nto animals',
                    'food_plant': 'Food plant'
                    }
-        self.column_data.set_headers(headers)
-        #self.column_data["genus"].header = "Genus"
+        self.column_meta.set_headers(headers)
+        #self.column_meta["genus"].header = "Genus"
 
         # set default visible
-        self.column_data["genus"].visible = True
+        default_visible_list = ['genus', 'sp']
 
         # set visible from stored prefs
+        if not bauble.prefs.has_key(self.visible_columns_pref):
+            bauble.prefs[self.visible_columns_pref] = default_visible_list
         self.set_visible_columns_from_prefs(self.visible_columns_pref)
                         
         editors.TreeViewEditorDialog.__init__(self, "Plantnames Editor",

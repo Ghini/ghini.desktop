@@ -2,10 +2,11 @@
 # Collections table definition
 #
 
+from tables import *
 from sqlobject import *    
 
-class Collections(SQLObject):
-    name = "Collections"
+class Collections(tables.BaubleTable):
+    #name = "Collections"
     _cacheValue = False
     
     coll_name = StringCol(length=50, default=None)  # primary collector's name

@@ -3,4 +3,4 @@
 #
 
 import genera
-table = genera.Genera
+tables = [genera.Genera]
