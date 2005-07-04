@@ -58,7 +58,6 @@ def createColumnMetaFromTable(sqlobj):
         col_meta.foreign = False
         col_meta.visible = False 
         if col._default == NoDefault:
-            print str(col._default)
             col_meta.default = col._default # the default value from the table
             col_meta.visible = True
         meta[name] = col_meta
@@ -106,22 +105,15 @@ class ViewColumnMeta(dict):
 
     # set column meta, value[0] = name, value[1] = visible, value[2] = foreign
     def __setitem__(self, item, value):
-        print type(value)
-        print value.default
         if type(value) == dict:
             dict.__setitem__(self, item, ViewColumnMeta.Meta(**value))
         else: dict.__setitem__(self, item, value)
-        return
-        #if type(value) == MetaViewColumn.Meta:
-        #    dict.__setitem__(self, value)
-        #elif type(value) == dict:
-        #    dict.__setitem__(self, item, **value)
-        #else: raise Exception("MetaViewColumn.Meta.__setitem__: unknown arg type")
-        #                 #MetaViewColumn.Meta(value[0], value[1], value[2]))
-
-    def set_headers(self, headers):
+        
+    
+    def _set_headers(self, headers):
         for col, header in headers.iteritems():
             self[col].header = header
+    headers = property(fset=_set_headers)
         
 
 class ModelDict(dict):
@@ -171,9 +163,14 @@ class ModelDict(dict):
 #
 class TableEditor(object):
     
-    def __init__(self, select=None, defaults={}):
+    def __init__(self, table, select=None, defaults={}):
         self.defaults = copy.copy(defaults)
+        self.table = table
         self.select = select
+        
+        
+    def start(self): pass
+        #raise NotImplementedError, 'TableEditor.start() not implemented'
         
         
 #    def commit_changes(self):
@@ -184,8 +181,9 @@ class TableEditor(object):
 #
 class TableEditorDialog(TableEditor, gtk.Dialog):
     
-    def __init__(self, title="Table Editor", parent=None, select=None, defaults={}):
-        TableEditor.__init__(self, select, defaults)
+
+    def __init__(self, table, title="Table Editor", parent=None, select=None, defaults={}):
+        TableEditor.__init__(self, table, select, defaults)
         gtk.Dialog.__init__(self, title, parent, 
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
@@ -196,9 +194,12 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
 #    def commit_changes(self):
 #        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
 
-
+    def start(self):
+        super(TableEditorDialog, self).start()
+        self.show()
+        
     def on_response(self, widget, response, data=None):
-        raise NotImplementedError, "TableEditorDialog.on_response not implemented"
+        super(TableEditorDialog, self).on_response()
 
      
 #
@@ -223,20 +224,30 @@ class TreeViewEditorDialog(TableEditorDialog):
     this allows us to refer to the columns by name rather than by column
     number    
     """    
+    visible_columns_pref = None
+    column_width_pref = None
+    default_visible_list = []
+
     
-    def __init__(self, title="Table Editor", parent=None, select=None, defaults={}):
-        #gtk.Dialog.__init__(self, title, parent, 
-        #                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-        #                    (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-        #                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        TableEditorDialog.__init__(self, title, parent, select, defaults)
+    def __init__(self, table, title="Table Editor", parent=None, select=None, defaults={}):
+        TableEditorDialog.__init__(self, table, title=title, parent=parent, select=select,
+                                   defaults=defaults)      
         self.view = None        
         self.columns = {} # self.columns[name] = gtkcolumn
         self.dirty = False
-        #self.defaults = copy.copy(defaults)
-        self.create_gui(select)
-                
+        self.column_meta = createColumnMetaFromTable(table)
 
+        
+    def start(self):
+        self.create_gui()
+        print self.default_visible_list
+        if self.visible_columns_pref is not None:
+            if not bauble.prefs.has_key(self.visible_columns_pref):
+                bauble.prefs[self.visible_columns_pref] = self.default_visible_list
+            self.set_visible_columns_from_prefs(self.visible_columns_pref)
+        super(TreeViewEditorDialog, self).start()
+        
+        
     def get_table_values(self):
         """
         used by commit_changes to get the values from a table so they
@@ -273,6 +284,7 @@ class TreeViewEditorDialog(TableEditorDialog):
     # this is used to indicate that the last row is a valid row
     # or it is one that was added automatically but never used
     dummy_row = False
+    
     
     def on_renderer_toggled(self, renderer, path, colname):
         print "on_renderer_toggled"
@@ -320,6 +332,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.add_new_row()
             self.dummy_row = True
             #model.append([ModelDict()])            
+
 
     def validate(self, colname, value):
         #type
@@ -548,8 +561,6 @@ class TreeViewEditorDialog(TableEditorDialog):
     
     
     def on_response(self, widget, response, data=None):
-        print self
-        print hasattr(self, 'commit_changes')
         self.store_visible_columns() # save preferences before we do anything
         self.store_column_widths()
         if response == gtk.RESPONSE_OK:
@@ -583,12 +594,12 @@ class TreeViewEditorDialog(TableEditorDialog):
             try:
                 if v.has_key("id"):
                     #print "TableEditorDialog.commit_changes(): updating"
-                    p = self.sqlobj.get(v["id"])
+                    p = self.table.get(v["id"])
                     del v["id"]
                     p.set(**v)
                 else:
                     #print "TableEditorDialog.commit_changes(): adding"
-                    self.sqlobj(**v)
+                    self.table(**v)
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)
                 trans.rollback()
@@ -643,7 +654,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
         # TODO: would rather sort case insensitive
-        col_dict = self.sqlobj.sqlmeta._columnDict
+        col_dict = self.table.sqlmeta._columnDict
         for key in sorted(self.column_meta.keys()):        
             item = gtk.CheckMenuItem(self.column_meta[key].header.
                                      replace('_', '__')) # no mnemonics
@@ -702,21 +713,21 @@ class TreeViewEditorDialog(TableEditorDialog):
         # the names differently so i can use this anymore to check
         # that the column exists
         #
-        #if name not in self.sqlobj.sqlmeta._columnDict:
+        #if name not in self.table.sqlmeta._columnDict:
         #    raise Exception("** Error -- %s not a column in %s table" %
-        #                    (name, self.sqlobj.sqlmeta.table))
+        #                    (name, self.table.sqlmeta.table))
         r = None
-        coldict = self.sqlobj.sqlmeta._columnDict
+        coldict = self.table.sqlmeta._columnDict
         if name not in coldict: # probably an id, might not be a valid column name
             r = gtk.CellRendererText()
-        elif type(self.sqlobj.sqlmeta._columnDict[name]) == SOBoolCol:
+        elif type(self.table.sqlmeta._columnDict[name]) == SOBoolCol:
             r = gtk.CellRendererToggle()
-        elif hasattr(self.sqlobj, "values") and self.sqlobj.values.has_key(name):
+        elif hasattr(self.table, "values") and self.table.values.has_key(name):
             r = gtk.CellRendererCombo()
             #r.set_property("has-entry", False)
             r.set_property("text-column", 0)
             model = gtk.ListStore(str, str)            
-            for v in self.sqlobj.values[name]:
+            for v in self.table.values[name]:
                 model.append(v)
             r.set_property("model", model)
         else:
@@ -781,7 +792,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.add_new_row()
             
         
-        print self.columns.keys()
         # enter the columns from the visible list
         visible_list = ()
         if bauble.prefs.has_key(self.visible_columns_pref):
@@ -848,6 +858,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         store the column widths as a dict in the preferences
         """
+        if self.column_width_pref is None:
+            raise Exception("TreeViewEditorDialog.store_column_widths: " \
+                            "column_width_pref not set")
         width_dict = {}
         for name, meta in self.column_meta.iteritems():
             width_dict[name] = meta.width

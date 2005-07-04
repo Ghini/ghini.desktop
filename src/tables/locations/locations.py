@@ -12,7 +12,7 @@ class Locations(BaubleTable):
     # and the sublocation is the block number
     #loc_id = StringCol(length=20) 
     site = StringCol(length=60, unique=True)
-    description = StringCol()
+    description = StringCol(default=None)
 
     plants = MultipleJoin("Plants", joinColumn="location_id")
     #plant = ForeignKey('Plants', notNull=True)

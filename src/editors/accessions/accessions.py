@@ -30,15 +30,13 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accessions.columns"
     column_width_pref = "editor.accessions.column_width"
-    
+    default_visible_list = ['acc_id', 'plantname']
 
     def __init__(self, parent=None, select=None, defaults={}):
-
-        self.sqlobj = tables.Accessions
         
-        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj) #returns None?
-
-        # set headers
+        editors.TreeViewEditorDialog.__init__(self, tables.Accessions,
+                                              "Accessions Editor", parent, 
+                                              select=select, defaults=defaults)
         headers = {"acc_id": "Acc ID",
                    "plantname": "Name",
                    "prov_type": "Provenance Type",
@@ -53,22 +51,9 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    #,
 #                   "wgs": "World Geographical Scheme"
                    }
-        self.column_meta.set_headers(headers)
-
-        # set default visible
-        default_visible_list = ['acc_id', 'plantname']
-    
-        # set visible from stored prefs
-        if not bauble.prefs.has_key(self.visible_columns_pref):
-            bauble.prefs[self.visible_columns_pref] = default_visible_list
-        self.set_visible_columns_from_prefs(self.visible_columns_pref)
+        self.column_meta.headers = headers
             
-        #editors.TableEditorDialog.__init__(self, "Accessions Editor", select=select,
-        #                                   defaults=defaults)
-        editors.TreeViewEditorDialog.__init__(self, "Accessions Editor", select=select,
-                                              defaults=defaults)
         
-
     def get_completions(self, text, colname):
         # get entry and determine from what has been input which
         # field is currently being edited and give completion

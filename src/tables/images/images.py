@@ -9,7 +9,7 @@ class Images(BaubleTable):
     # not unique but if a duplicate uri is entered the user
     # should be asked if this is what they want
     uri = StringCol()
-    label = StringCol(length=50)
+    label = StringCol(length=50, default=None)
     
     # copyright ?
     # owner ?

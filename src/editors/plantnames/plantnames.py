@@ -12,14 +12,13 @@ class PlantnamesEditor(editors.TreeViewEditorDialog):
     
     visible_columns_pref = "editor.plantnames.columns"
     column_width_pref = "editor.plantnames.column_width"
+    default_visible_list = ['genus', 'sp']
     
     def __init__(self, parent=None, select=None, defaults={}):
-
-        self.sqlobj = tables.Plantnames
-
-        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj)
-
-        # set headers
+        
+        editors.TreeViewEditorDialog.__init__(self, tables.Plantnames,
+                                              "Plantnames Editor", parent,
+                                              select=select, defaults=defaults)
         headers = {"genus": "Genus",
                    "sp": "Species",
                    "sp_hybrid": "Sp. hybrid",
@@ -51,19 +50,7 @@ class PlantnamesEditor(editors.TreeViewEditorDialog):
                    'poison_animals': 'Poisonious\nto animals',
                    'food_plant': 'Food plant'
                    }
-        self.column_meta.set_headers(headers)
-        #self.column_meta["genus"].header = "Genus"
-
-        # set default visible
-        default_visible_list = ['genus', 'sp']
-
-        # set visible from stored prefs
-        if not bauble.prefs.has_key(self.visible_columns_pref):
-            bauble.prefs[self.visible_columns_pref] = default_visible_list
-        self.set_visible_columns_from_prefs(self.visible_columns_pref)
-                        
-        editors.TreeViewEditorDialog.__init__(self, "Plantnames Editor",
-                                              select=select, defaults=defaults)
+        self.column_meta.headers = headers        
 
         
     def foreign_does_not_exist(self, name, value):

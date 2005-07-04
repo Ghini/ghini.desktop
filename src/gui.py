@@ -175,7 +175,8 @@ class GUI:
         show the dialog of the selected editor
         """
         e = editor()
-        e.show()
+        e.start()
+        #e.show()
         
         
     def create_main_menu(self):

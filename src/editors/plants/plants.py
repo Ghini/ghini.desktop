@@ -13,34 +13,21 @@ class PlantsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.plants.columns"
     column_width_pref = "editor.plants.column_width"
+    default_visible_list = ['accession', 'plant_id'] 
 
     def __init__(self, parent=None, select=None, defaults={}):
-
-        self.sqlobj = tables.Plants
-
-        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj)
-
+        
+        editors.TreeViewEditorDialog.__init__(self, tables.Plants,
+                                              "Plants/Clones Editor", parent, 
+                                              select=select, defaults=defaults)
         # set headers
         headers = {'plant_id': 'Plant ID',
                    'accession': 'Accession ID',
                    'location': 'Location',
                    'acc_type': 'Accession Type',
                    'acc_status': 'Accession Status'}
-        self.column_meta.set_headers(headers)
+        self.column_meta.headers = headers
         
-        # validators
-        self.column_meta["plant_id"].validate = editors.validate_int
-
-        # set default visible
-        default_visible_list = ['accession', 'plant_id'] 
-        
-        # set visible from stored prefs
-        if not bauble.prefs.has_key(self.visible_columns_pref):
-            bauble.prefs[self.visible_columns_pref] = default_visible_list
-        self.set_visible_columns_from_prefs(self.visible_columns_pref)
-
-        editors.TreeViewEditorDialog.__init__(self, "Plants/Clones Editor",
-                                              select=select, defaults=defaults)
 
     # extending this so we can have different value that show for the completions
     # than what is stored in the model on selection

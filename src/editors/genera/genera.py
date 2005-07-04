@@ -18,30 +18,17 @@ class GeneraEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.genera.columns"
     column_width_pref = "editor.genera.column_width"
+    default_visible_list = ['family', 'genus']
     
     def __init__(self, parent=None, select=None, defaults={}):
-
-        self.sqlobj = tables.Genera
-
-        self.column_meta = editors.createColumnMetaFromTable(self.sqlobj)
-
-        # set headers
+        editors.TreeViewEditorDialog.__init__(self, tables.Genera,
+                                              "Genera Editor", parent,
+                                              select=select, defaults=defaults)        
         headers = {'genus': 'Genus',
                    'author': 'Author',
                    'hybrid': 'Hybrid',
                    'family': 'Family'}
-        self.column_meta.set_headers(headers)
-
-        default_visible_list = ['family', 'genus']
-
-        # set visible from stored prefs
-        if not bauble.prefs.has_key(self.visible_columns_pref):
-            bauble.prefs[self.visible_columns_pref] = default_visible_list
-        self.set_visible_columns_from_prefs(self.visible_columns_pref)
-        
-        editors.TreeViewEditorDialog.__init__(self, "Genera Editor", parent,
-                                              select=select, defaults=defaults)
-        
+        self.column_meta.headers = headers
 
 
     def get_completions(self, text, colname):
