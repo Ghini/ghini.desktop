@@ -41,13 +41,13 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    "plantname": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
-                   "ver_level": "Verification Level",           
-                   "ver_name": "Verifier's Name",
-                   "ver_date": "Verification Date",
-                   "ver_lit": "Verification Literature",
-                   'donor_type': 'Donor Type',
-                   'donor': 'Donor Name',
-                   'donor_acc': 'Donor\'s Accession'
+#                   "ver_level": "Verification Level",           
+#                   "ver_name": "Verifier's Name",
+#                   "ver_date": "Verification Date",
+#                   "ver_lit": "Verification Literature",
+#                   'donor_type': 'Donor Type',
+#                   'donor': 'Donor Name',
+#                   'donor_acc': 'Donor\'s Accession'
                    #,
 #                   "wgs": "World Geographical Scheme"
                    }
