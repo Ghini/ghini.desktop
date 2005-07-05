@@ -176,7 +176,6 @@ class GUI:
         """
         e = editor()
         e.start()
-        #e.show()
         
         
     def create_main_menu(self):
@@ -261,20 +260,31 @@ class GUI:
         pass
 
         
-    def on_file_menu_new(self, widget, date=None):        
+    def on_file_menu_new(self, widget, date=None):
         self.bauble.create_database()
+        # TODO: reset the view
             
         
     def on_file_menu_open(self, widget, data=None):        
         """
-        open the selected database
+        open the connection manager
         """
-        # TODO: how do we check if the user needs a password, do we wait until
-        # the connection fails and then ask for the password
-        cm = ConnectionManagerGUI()
-        params = cm.get_connection_parameters()
-        if params is not None:
-            self.bauble.open_database(params)
+        from bauble import bauble
+        from conn_mgr import ConnectionManagerDialog
+        cm = ConnectionManagerDialog()
+        r = cm.run()
+        if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
+           r == gtk.RESPONSE_NONE or r == gtk.RESPONSE_DELETE_EVENT:
+            #if r != gtk.RESPONSE_ACCEPT:
+            cm.destroy()
+            return
+        uri = cm.get_connection_uri()
+        name = cm.get_connection_name()
+        cm.destroy()
+            #gtk.gdk.threads_leave()
+        bauble.open_database(uri, name, True)
+        
+        # TODO reset the view
             
 
     def save_state(self):

@@ -40,7 +40,7 @@ debug.enable = False
 # TODO: check if column is required then you can uncheck it with some
 # sort of visual cue that is is required or at least not uncheckable
 
-def createColumnMetaFromTable(sqlobj):
+def createColumnMetaFromTable(table):
     """
     return a MetaViewColumn class built from an sqlobj
     """
@@ -48,7 +48,7 @@ def createColumnMetaFromTable(sqlobj):
     # so it implies some order, it might be difficult though to keep the 
     # column order and the meta data synchronized
     meta = ViewColumnMeta()
-    for name, col in sqlobj.sqlmeta._columnDict.iteritems():
+    for name, col in table.sqlmeta._columnDict.iteritems():
         if name[0] == "_": continue # _means private
         col_meta =  ViewColumnMeta.Meta()
         if name.endswith("ID"):
@@ -61,6 +61,14 @@ def createColumnMetaFromTable(sqlobj):
             col_meta.default = col._default # the default value from the table
             col_meta.visible = True
         meta[name] = col_meta
+    
+    for join in table._joins:
+        if type(join) == SingleJoin:
+            name = join.joinMethodName
+            col_meta =  ViewColumnMeta.Meta()
+            col_meta.join = True
+            meta[name] = col_meta
+            
     return meta
 
 
@@ -81,13 +89,14 @@ class ViewColumnMeta(dict):
     """
     
     class Meta:
-        def __init__(self, header = None, visible = False, foreign = False, 
-                     values = None, width=50, default=None):
+        def __init__(self, header="", visible=False, foreign=False, 
+                     values=None, width=50, default=None):
             self.header = header
             self.visible = visible
             self.foreign = foreign
             self.width = width # the default width for all columns
             self.default = default
+            self.join = False
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -202,6 +211,38 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
         super(TableEditorDialog, self).on_response()
 
      
+class CellRendererButton(gtk.GenericCellRenderer):
+    
+    def __init__(self):
+        gtk.GenericCellRenderer.__init__(self)
+        self.button = gtk.Button()
+        
+        
+    def on_get_size(self, widget, cell_area):
+        #width, height = self.button.size_request()
+        #return 0,0, width, height
+        #print widget
+        #print cell_area
+        pass
+        
+        
+    def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
+        print self.button.window
+        #window.draw_drawable(self.button.window)
+        #print "on_render"
+        #self.button.window = window
+        pass
+        
+        
+    def on_activate(self, event, widget, path, background_area, cell_area, flags):
+        #self.button.clicked()
+        pass
+
+        
+    def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
+        #self.button.clicked()
+        pass
+
 #
 # TreeViewEditorDialog
 # a spreadsheet style editor
@@ -433,8 +474,13 @@ class TreeViewEditorDialog(TableEditorDialog):
 
     
     def on_editing_started(self, cell, editable, path, colname):
-        #print "on_editing_started"
-
+        if self.column_meta[colname].join:
+            # activate the editor for the column
+            if hasattr(self.column_meta[colname], 'editor'):
+                e = self.column_meta[colname].editor()
+                e.start()
+            
+            
         # TODO: should disconnect this everytime "edited" is fired, or
         # should i???
         if isinstance(editable, gtk.Entry):            
@@ -703,7 +749,34 @@ class TreeViewEditorDialog(TableEditorDialog):
         #print self.size_request()
         #print tuple(self.allocation)
         
-
+    def create_join_columns(self):
+        
+        columns = []
+        for join in self.table._joins:
+            if type(join) == SingleJoin:
+                name = join.joinMethodName
+                r = gtk.CellRendererCombo()
+                r.set_property('has_entry', False)
+                c = gtk.TreeViewColumn(name, r)
+                r.set_property("text-column", 0)
+                model = gtk.ListStore(str)    
+                model.append(['Edit'])
+                #model.append(['Collection'])
+                r.set_property("model", model)
+                c.name = name
+                r.set_property("editable", True)
+                r.set_property("editable-set", True)
+                r.connect("edited", self.on_renderer_edited, name)
+                r.connect("editing_started", self.on_editing_started, name)
+                c.set_cell_data_func(r, self.get_model_value, name)
+                #print c.children
+                #c.connect('changed', self.on_join_combo_changed, name)
+                columns.append(c)
+        return columns
+        
+    def on_join_combo_changed(self, combo, name):
+        print 'on_join_combo_changed: ' + name
+        
     def create_view_column(self, name, column_meta):
         """
         return a gtk.TreeViewColumn from column_data
@@ -778,6 +851,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         for name, meta in self.column_meta.iteritems():            
             self.columns[name] = self.create_view_column(name, meta)
         
+        for c in self.create_join_columns():
+            self.columns[c.name] = c
+        
         #model = gtk.ListStore(object) # object will be type ModelDict
         self.view = gtk.TreeView(gtk.ListStore(object))
         self.view.set_headers_clickable(False)
@@ -798,7 +874,8 @@ class TreeViewEditorDialog(TableEditorDialog):
             visible_list = list(bauble.prefs[self.visible_columns_pref][:])
             visible_list.reverse()
             for name in visible_list:
-                self.view.insert_column(self.columns[name], 0)
+                if name in self.columns:
+                    self.view.insert_column(self.columns[name], 0)
         
         # append the rest of the column to the end
         for name in self.columns:

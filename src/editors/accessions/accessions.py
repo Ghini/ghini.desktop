@@ -52,7 +52,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
 #                   "wgs": "World Geographical Scheme"
                    }
         self.column_meta.headers = headers
-            
+        self.column_meta['source'].editor = editors.source.editor
         
     def get_completions(self, text, colname):
         # get entry and determine from what has been input which

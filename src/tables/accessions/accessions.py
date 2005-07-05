@@ -54,7 +54,7 @@ class Accessions(BaubleTable):
 
     # i don't think this is the red list status but rather the status
     # of this accession in some sort of conservation program
-    consv_status = StringCol(default=None) # conservation status, free text
+    #consv_status = StringCol(default=None) # conservation status, free text
     
     # foreign keys and joins
     plantname = ForeignKey('Plantnames', notNull=True)
@@ -63,13 +63,14 @@ class Accessions(BaubleTable):
     # these should probably be hidden then we can do some trickery
     # in the accession editor to choose where a collection or donation
     # source
+    source = SingleJoin('Source', joinColumn='accession_id')
     #collection = SingleJoin('Collections', joinColumn='accession_id')
     #donation = SingleJoin('Donation', joinColumn='accession_id')
 
     # these probably belong in separate tables with a single join
-    cultv_info = StringCol(default=None)      # cultivation information
-    prop_info = StringCol(default=None)       # propogation information
-    acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
+    #cultv_info = StringCol(default=None)      # cultivation information
+    #prop_info = StringCol(default=None)       # propogation information
+    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
 
 
     # these are the unknowns

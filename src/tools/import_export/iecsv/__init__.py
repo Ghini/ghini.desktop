@@ -128,12 +128,14 @@ class CSVExporter(Exporter):
             self.path = filename # set it so it's available in run
         d.destroy()
     
+    def start(self):
+        self.run()
+        
     
     def run(self):
         if self.path == None:
             return
-        
-        gtk.gdk.threads_enter()
+        #gtk.gdk.threads_enter()
         filename_template = self.path + os.sep +"%s.txt"
         for name in tables.keys():
             filename = filename_template % name
@@ -142,11 +144,12 @@ class CSVExporter(Exporter):
                 return
                 
         path = self.chooser_button.get_label()
-        gtk.gdk.threads_leave()
+        #gtk.gdk.threads_leave()
         #progress = utils.ProgressDialog()
         #progress.show_all()
     
         for table_name, table in tables.iteritems():
+            print "exporting " + table_name
             #progress.pulse()
             col_dict = table.sqlmeta._columnDict
             rows = []
@@ -167,5 +170,6 @@ class CSVExporter(Exporter):
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(rows)
         f.close()
+        print 'exporting completed.'
         #progress.destroy()
             

@@ -66,9 +66,10 @@ class BaubleApp:
         open a database connection
         """
         import sqlobject.sqlite.sqliteconnection as sqlite
-        if uri.startswith('sqlite:') and sqlite.using_sqlite2:
+        if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
             uri += "?check_same_thread=0"
 #            uri += "&autoCommit=0"
+        print uri
         sqlhub.processConnection = connectionForURI(uri)    
         try:
             # make the connection, we don't really need the connection,
@@ -111,8 +112,6 @@ class BaubleApp:
             
     
     def main(self):
-        # the docs say i should have these but they seem to lock up
-        # everything
         # open default database on startup
         # import these here to avoid recursive import hell
         import gui

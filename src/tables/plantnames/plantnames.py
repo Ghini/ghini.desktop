@@ -140,7 +140,7 @@ class Plantnames(BaubleTable):
     genus = ForeignKey('Genera', notNull=True)
     accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
     images = MultipleJoin('Images', joinColumn='plantname_id')
-    references = MultipleJoin('References', joinColumn='plantname_id')
+    #references = MultipleJoin('References', joinColumn='plantname_id')
     ######## the rest? ##############    
     #Lifeform = StringCol(length=10)
 #    tuses = StringCol(default=None) # taxon uses?

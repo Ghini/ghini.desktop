@@ -312,7 +312,8 @@ class SearchView(views.View):
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
         e = editor(select=select, defaults=defaults)
-        e.show()
+        e.start()
+        #e.show()
 
         
     def on_view_button_release(self, view, event, data=None):
@@ -330,7 +331,7 @@ class SearchView(views.View):
         # basic and requires editors and tables to have the same name
         edit_item = gtk.MenuItem("Edit")
         edit_item.connect("activate", self.on_activate_editor,
-                          eval("editors.%s" % value.name), [value], None)
+                          eval("editors.%s" % value.__class__.__name__), [value], None)
         menu.add(edit_item)
          
         menu.add(gtk.SeparatorMenuItem())

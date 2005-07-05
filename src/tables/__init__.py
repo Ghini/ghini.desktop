@@ -33,11 +33,11 @@
 import os, os.path
 import re
 from sqlobject import *
-
+from sqlobject.inheritance import *
 
 # all tables should inherit from BaubleTable
-class BaubleTable(SQLObject):
-    
+#class BaubleTable(InheritableSQLObject):
+class BaubleTable(SQLObject):    
     sqlmeta.cacheValues = False
     
     def __init__(self, **kw):
