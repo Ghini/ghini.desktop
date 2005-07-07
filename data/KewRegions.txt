@@ -1,0 +1,40 @@
+"subdiv","region","code","id"
+"","",,32
+"B","New Caledonia",9,31
+"E","S.E. Polynesia",9,24
+"D","East Tropical Africa",10,37
+"F","Micronesia",9,27
+"B","Cameroons and Congo",10,14
+"C","North East Tropical Africa",10,23
+"C","Fiji Islands",9,35
+"A","West Tropical Africa",10,13
+"F","St Helena and Ascension",10,7
+"D","Samoan Islands",9,4
+"G","Hawai'ian Islands",9,34
+"E","South Tropical Africa",10,5
+"","Europe",1,1
+"","",0,38
+"","Northern Asia",3,26
+"","India",5,11
+"","Eastern Asia",4,16
+"","Australia",7,8
+"","New Zealand",8,33
+"B","Indo-China",6,22
+"C","Malay Islands",6,18
+"F","South China Sea Islands",6,29
+"A","Orient",2,0
+"B","North Africa",2,3
+"C","Atlantic Islands",2,10
+"D","Philippines",6,30
+"E","New Guinea",6,25
+"","Madagascar and Mascarenes",11,21
+"A","Malay Peninsula",6,36
+"","North America",13,2
+"","South Africa",12,17
+"","West Indies",15,6
+"","Central America",14,12
+"","West Tropical South America",17,15
+"","East Tropical South America",16,20
+"","Antarctica and Subantarctic Islands",19,9
+"","Temperate South America",18,28
+"A","Melanesia",9,19

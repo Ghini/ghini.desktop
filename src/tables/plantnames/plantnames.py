@@ -136,6 +136,13 @@ class Plantnames(BaubleTable):
     poison_animals = BoolCol(default=None)
     food_plant = StringCol(length=50, default=None)
 
+    # origin, should be value from one of the country
+    # tables, i think the values of the country tables can be combined
+    # into a string to give more specific information, either that or
+    # maybe an index into one of the tables with the value being chosen
+    # from a combo
+    origin = StringCol(default=None)
+
     # foreign keys and joins
     genus = ForeignKey('Genera', notNull=True)
     accessions = MultipleJoin('Accessions', joinColumn='plantname_id')

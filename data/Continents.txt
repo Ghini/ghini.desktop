@@ -1,0 +1,10 @@
+"code","continent","id"
+1,"Europe",0
+3,"Asia-Temperate",2
+2,"Africa",1
+5,"Australasia",4
+4,"Asia-Tropical",3
+7,"Northern America",6
+6,"Pacific",5
+9,"Antarctic",8
+8,"Southern America",7

@@ -44,11 +44,18 @@ class SearchView(views.View):
     garden location, country/region or origin, conservation status, edible
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
     """
-    search_map = { "Families": [tables.Families, ("family",)],
-                   "Genera":   [tables.Genera, ("genus",)],
-                   "Plantnames": [tables.Plantnames, ("sp","isp")],
-                   'Accessions': [tables.Accessions, ("acc_id",)],
-                   'Locations': [tables.Locations, ("site",)]}
+    search_map = {"Families": [tables.Families, ("family",)],
+                  "Genera":   [tables.Genera, ("genus",)],
+                  "Plantnames": [tables.Plantnames, ("sp","isp")],
+                  'Accessions': [tables.Accessions, ("acc_id",)],
+                  'Locations': [tables.Locations, ("site",)],
+                  'Continents': [tables.Continents, ('continent',)],
+                  'Regions': [tables.Regions, ('region',)],
+                  'Areas': [tables.Areas, ("area",)],
+                  'Countries': [tables.Countries, ('country',)],
+                  'Places': [tables.Places, ('name',)],
+                  'KewRegions': [tables.KewRegions, ('region',)]
+                  }
                    
     # other domain to implement  
     # name, sp, species (shouldn't use "name", implies full name)
@@ -57,16 +64,27 @@ class SearchView(views.View):
     # edible,
     # medicine
     # redlist, conservation
+    # the keys here point to the esarch map, not a necessarily a table
     domain_map = {'Families': ('family', 'fam'),
                   'Genera': ('genus', 'gen'),
                   'Plantnames': ('species', 'sp'),
                   'Accessions': ('accession', 'acc'),
-                  'Locations': ('location', 'loc')}
+                  'Locations': ('location', 'loc'),
+                  'Continents': ('continent',),
+                  'Regions': ('region',),
+                  'Areas': ('area',),
+                  'Countries': ('country',),
+                  'Places': ('place',),
+                  'KewRegions': ('kewregion',),
+                  }
+                  
+    # TODO: check child expand map before adding _dummy
     child_expand_map = {tables.Families: 'genus',
                         tables.Genera: 'plantnames',
                         tables.Plantnames: 'accessions',
                         tables.Accessions: 'plants',
                         tables.Locations: 'plants'}
+                        
     infobox_map = {tables.Plantnames: infobox.PlantnamesInfoBox,
                    tables.Plants: infobox.PlantsInfoBox}
                  

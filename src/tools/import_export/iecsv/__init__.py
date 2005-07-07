@@ -56,7 +56,6 @@ class CSVImporter(Importer):
     
     
     def run(self, filenames):
-        print "CSVImporter.run()"
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()
         for filename in filenames:
@@ -65,6 +64,18 @@ class CSVImporter(Importer):
             sqlobject.sqlhub.threadConnection = trans
             path, base = os.path.split(filename)
             table_name, ext = os.path.splitext(base)
+            
+            # the name of the file has the match the name of the 
+            # tables class
+            if not tables.has_key(table_name):
+                msg = "%s table does not exist. Would you like to continue " \
+                      "importing the rest of the tables?" % table_name
+                gtk.threads_enter()
+                keep_on = utils.yes_no_dialog(msg)
+                gtk.threads_leave()
+                if keep_on: continue
+                else: break
+                
             table = tables[table_name]
             print "importing table: " + table_name + "..."
             f = file(filename, "rb")
@@ -74,7 +85,9 @@ class CSVImporter(Importer):
                     # convert int columns to integer types
                     for col in table.sqlmeta._columns:
                         if col.__class__ == sqlobject.SOIntCol:
-                            line[col.name] = int(line[col.name])
+                            if line[col.name] == '': del line[col.name]
+                            else: line[col.name] = int(line[col.name])
+                            
                     # add row to table
                     table(connection=trans, **line)
             except Exception, e:
@@ -85,7 +98,9 @@ class CSVImporter(Importer):
                 msg = "Error importing values from %s into table %s" % (filename, table_name)
                 print line
                 print e
+                gtk.gdk.threads_enter()
                 utils.message_dialog(msg)
+                gtk.gdk.threads_leave()
                 trans.rollback()
             else:
                 # everything ok for this table, commit

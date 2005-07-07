@@ -30,6 +30,11 @@
 # do global changes from one place, though i don't know if this
 # would screw up the metaclass thing
 
+# TODO: the values dict for a column should be able to contain
+# a table column and the values looked up from the table, although
+# really if the values are coming from a table then maybe sticking
+# with a join is better database design
+
 import os, os.path
 import re
 from sqlobject import *
@@ -64,13 +69,14 @@ class _tables(dict):
             for d in os.listdir(path):
                 full = path + os.sep + d 
                 if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                    modules.append("tables." + d)                    
+                    modules.append("tables." + d)
+                    
         for m in modules:
             print "importing " + m
             m = __import__(m, globals(), locals(), ['tables'])
             if hasattr(m, 'tables'):
                 for t in m.tables:
-                    self[t.__name__] = t
+                    self[t.__name__] = t    
 
 
     def __getattr__(self, attr):

@@ -1,0 +1,2177 @@
+"areaID","synonym","name","notes","regionID","countryID","id","kew_regionID"
+122,"Abu Zabi;  United Arab Emirates","Abu Dhabi","",20,233,0,0
+1,"","Afghanistan","",19,1,1,0
+122,"United Arab Emirates","Ajman","",20,233,2,0
+105,"","�land Is.","self-governing I. province of Finland",0,209,3,1
+6,"","Albania","",3,27,4,1
+10,"","Aleutian Is.","territory of U.S.A.",34,31,5,2
+8,"","Algeria","",5,29,6,3
+280,"","American Samoa","unincorporated territory of U.S.A.",30,480,7,4
+300,"","Andorra","principality under Franco-Spanish sovereignty",2,503,8,1
+13,"","Angola","excluding Cabinda",11,35,9,5
+170,"","Anguilla","U.K. dependent territory",45,316,10,6
+170,"","Antigua-Barbuda","",45,315,11,6
+316,"","Armeniya","",18,526,12,0
+17,"","Aruba","self-governing I. of Netherlands Antilles",45,39,13,6
+18,"","Ascension","I. Dependency of St.Helena",13,40,14,7
+350,"","Ashmore and Cartier Is.","External Territory of Australia",28,570,15,8
+"","Region 50 Australia","Australia","",28,"",16,8
+14,"","Australian Antarctic Territory","",51,36,17,9
+23,"","Austria","",1,50,18,1
+316,"Azerbaydzhan","Azerbaijan","",18,527,19,0
+24,"","Azores","self-governing I. Region of Portugal",6,52,20,10
+25,"","Bahamas","",45,53,21,6
+122,"","Bahrain","",20,231,22,0
+27,"","Bangladesh","",24,55,23,11
+353,"","Barbados","",45,576,24,6
+307,"Bjornoya","Bear I.","I. of Svalbard (to Norway)",0,513,25,1
+30,"","Belgium","",1,58,26,1
+35,"","Belize","",44,67,27,12
+33,"Belarus","Belorussiya","",4,62,28,1
+28,"","Benin","",7,56,29,13
+29,"","Bermuda","self-governing U.K. Crown Colony",45,57,30,6
+98,"","Bhutan","",24,200,31,11
+115,"","Bioko","I. of Equatorial Guinea",8,222,32,14
+36,"","Bolivia","",47,68,33,15
+228,"","Bonaire","self-governing I. of Netherlands Antilles",45,423,34,6
+247,"Ogasawara-Shoto","Bonin Is.","Is. of Japan",23,445,35,16
+"","","Bophutatswana","Transvaal or Cape Province",12,"",36,17
+37,"","Borneo","comprises Brunei, Kalimantan, Sabah, Sarawak",26,"",37,18
+362,"Bosnia-Herzegovina","Bosnia","",3,591,38,1
+38,"","Botswana","",12,73,39,5
+298,"","Bougainville","part of Papua New Guinea",30,500,40,19
+"","Region 84 Brazil","Brazil","",48,"",41,20
+14,"","British Antarctic Territory","U.K. dependent territory",51,36,42,9
+367,"","British Indian Ocean Territory","U.K. dependent territory comprising Chagos Archipelago",24,113,43,21
+37,"","Brunei","",26,69,44,18
+42,"","Bulgaria","",3,77,45,1
+32,"","Burkina","",7,61,46,13
+211,"Myanmar","Burma","",25,399,47,11
+43,"","Burundi","",8,78,48,14
+53,"","Cambodia","",25,112,49,22
+297,"","","",9,499,50,23
+117,"","Abemama","",30,226,51,4
+316,"","","",18,524,52,0
+102,"Ethiopia","Abyssinia","",9,206,53,23
+25,"","Acklins I.","",45,53,54,6
+24,"","A��res","",6,52,55,10
+47,"","Acre","",48,98,56,20
+326,"","Actaeon Group","",31,542,57,24
+185,"","Addu Atoll","",24,342,58,11
+361,"","Aden","",20,590,59,0
+31,"","Admiralty Is.","",26,60,60,25
+217,"","Adygeysk","",18,408,61,0
+316,"","Adzhariya","",18,525,62,0
+7,"African Is.","African Banks","part of Amirante group",14,28,63,21
+180,"","Agalega","",14,337,64,21
+83,"","Aginsky Buryat","",15,183,65,26
+197,"","Agrihan","",32,357,66,27
+205,"","Aguascalientes","",43,369,67,12
+105,"Aland Is.","Ahvenanmaa","",0,209,68,1
+68,"","Ais�n","",49,160,69,28
+75,"","Aitutaki","",31,170,70,24
+122,"","Al Fujayrah","",20,233,71,0
+122,"","Al Manamah","",20,231,72,0
+5,"","Alabama","",42,26,73,2
+45,"","Alagoas","",48,83,74,20
+197,"","Alamagan","",32,357,75,27
+19,"","Alaska","",34,41,76,2
+0,"","Alberta","",35,0,77,2
+300,"","Alboran","",2,505,78,1
+308,"","Albuquerque Cay","",45,514,79,12
+7,"","Aldabra I.","",14,28,80,21
+108,"","Alderney","",2,212,81,1
+71,"","Alegranza","",6,165,82,10
+147,"","Alejandro Selkirk I.","",49,290,83,28
+19,"","Alexander Archipelago","",34,41,84,2
+14,"","Alexander I.","part of British Antarctic Territory",51,36,85,9
+348,"","Alofi","",30,568,86,4
+174,"","Alor Is.","",26,331,87,18
+7,"","Alphonse I.","part of Amirante group",14,28,88,21
+9,"Altay","Altai","",15,30,89,26
+9,"","Altay","",15,30,90,26
+9,"","Altayskiy Kray","",15,30,91,26
+229,"","Amami O-shima","part of Amami-shoto",23,425,92,16
+47,"","Amap�","",48,100,93,20
+47,"","Amazonas","",48,99,94,20
+315,"","Ambergris Cays","",45,523,95,6
+298,"","Ambitle I.","one of Feni Is.",30,500,96,19
+192,"","Ambon","",26,350,97,18
+286,"","Amboyna Cay","",25,487,98,29
+340,"","Ambrym","",30,560,99,19
+"","U.S.A.","America, United States of","","","",100,2
+169,"","Amindivi Is.","",24,314,101,11
+7,"","Amirante group","",14,28,102,21
+121,"","Amorgos","one of Kikladhes",3,230,103,1
+20,"","Amsterdam I.","",50,42,104,9
+20,"","Amsterdam-St.Paul Is.","",50,42,105,9
+11,"","Amur","",16,32,106,26
+11,"Amur","Amurskaya oblast","",16,32,107,26
+121,"","Anafi","one of Kikladhes",3,230,108,1
+37,"","Anambas Is.","",26,70,109,18
+197,"","Anatahan","",32,357,110,27
+340,"","Anatom","",30,560,111,19
+323,"Suvorov I.","Anchorage I.","",30,537,112,24
+12,"","Andaman Is.","",25,33,113,11
+135,"","Andhra Pradesh","",24,249,114,11
+121,"","Andikithira","",3,230,115,1
+94,"","Andipsara","",19,195,116,0
+25,"","Andros","",45,53,117,6
+121,"","Andros","[Kikladhes] one of Kikladhes",3,230,118,1
+170,"","Anegada","",45,318,119,6
+340,"Anatom","Aneityum","",30,560,120,19
+326,"Fangatau","Angatau","",31,542,121,24
+61,"","Anhui","",21,133,122,16
+61,"Anhui","Anhwei","",21,133,123,16
+344,"","Annam","",25,564,124,22
+115,"","Annob�n","",8,221,125,14
+14,"","Antarctica","",51,36,126,9
+170,"","Antigua","",45,315,127,6
+22,"","Antipodean Is.","",29,49,128,9
+22,"","Antipodes Is.","",29,49,129,9
+67,"","Antofagasta","",49,157,130,28
+340,"","Aoba","",30,560,131,19
+145,"","Aoga-shima","",23,286,132,16
+122,"","Arab Emirates","",20,233,133,0
+"","Region 35 Arabian Peninsula","Arabia","",20,"",134,0
+117,"","Aranuka","",30,226,135,4
+2,"","Argentina Northeast","",49,"",136,28
+4,"","Argentina Northwest","",49,"",137,28
+3,"","Argentina South","",49,"",138,28
+291,"","Aride I.","",14,492,139,21
+15,"","Arizona","",40,37,140,2
+16,"","Arkansas","",42,38,141,2
+275,"","Arkhangelsk","",4,475,142,1
+158,"","Armathia","",3,302,143,1
+316,"Armeniya","Armenia","",18,526,144,0
+117,"","Arorae","",30,226,145,4
+238,"","Aru Is.","",26,435,146,25
+98,"","Arunachal Pradesh","",24,199,147,11
+122,"","Ash Shariquah","",20,233,148,0
+350,"","Ashmore Reef","",28,570,149,8
+238,"","Asia Is.","",26,435,150,25
+21,"","Assam","",24,43,151,11
+7,"","Assumption I.","",14,28,152,21
+121,"","Astakidha","",3,230,153,1
+121,"","Astipalaia","one of Kikladhes",3,230,154,1
+7,"","Astove I.","",14,28,155,21
+276,"","Astrakhan","",4,476,156,1
+197,"","Asuncion","",32,357,157,27
+324,"","Ata","",30,540,158,4
+67,"","Atacama","",49,158,159,28
+323,"","Atafu","",30,539,160,4
+75,"","Atiu","",31,170,161,24
+45,"","Atol das Rocas","",48,86,162,20
+22,"","Auckland I.","",29,49,163,9
+280,"","Aunuu","",30,480,164,4
+327,"Tubuai Is.","Austral Is.","",31,543,165,24
+233,"","Australian Capital Territory","",28,429,166,8
+75,"","Avarau","",31,170,167,24
+170,"","Aves I.","[West Indies]",45,317,168,6
+345,"","Aves, Islas Las","[off Venezuela]",45,565,169,15
+121,"","Avgo","[off Kithira]",3,230,170,1
+158,"","Avgo","[off Kriti]",3,302,171,1
+121,"","Ayios Evstratios","",3,230,172,1
+238,"","Ayu Is.","",26,435,173,25
+361,"","Az Zuqur I.","",20,590,174,0
+316,"","Azerbaydzhan","excluding Nagorno Karabakh and Nakhichevan",18,527,175,0
+174,"","Babar Is.","",26,331,176,18
+298,"","Babase I.","one of Feni Is.",30,500,177,19
+81,"","Babelthaup","part of Belau Is.",32,181,178,27
+267,"","Badu I.","",28,467,179,8
+242,"","Baffin I.","",34,440,180,2
+253,"","Bahawalpur","",24,451,181,11
+45,"","Bahia","",48,84,182,20
+308,"","Bahia Is.","[Honduras]",45,515,183,12
+111,"","Bahia Isabel","",47,217,184,15
+181,"Bassas da India","Baiko Dajudia","",14,338,185,21
+208,"","Baja California","",43,384,186,12
+208,"","Baja California Sur","",43,385,187,12
+308,"","Baja Nuevo","",45,514,188,6
+128,"","Baker I.","",30,242,189,4
+260,"","Balabac","",26,459,190,30
+26,"","Baleares","I. Province of Spain",2,54,191,1
+174,"","Bali","",26,329,192,18
+223,"","Ball's Pyramid","",28,416,193,8
+14,"","Balleny Is.","part of Ross Dependency",51,36,194,9
+34,"","Baltic States","",4,"",195,1
+352,"","Baltistan","",24,574,196,11
+253,"","Baluchistan","",24,451,197,0
+117,"","Banaba","",30,226,198,4
+192,"","Banda Is.","",26,350,199,18
+305,"","Banggai Is.","",26,510,200,18
+306,"","Bangka","",26,511,201,18
+267,"","Banks I.","in Torres Strait",28,467,202,8
+340,"","Banks Is.","",30,560,203,19
+174,"","Barat Daya Is.","",26,331,204,18
+170,"","Barbuda","",45,315,205,6
+365,"","Barotseland","",11,600,206,5
+12,"","Barren I.","",25,33,207,11
+274,"","Bashkiriya","",4,474,208,1
+327,"Marotiri","Bass Islets","",31,543,209,24
+181,"","Bassas da India","",14,338,210,21
+170,"","Basse Terre","",45,319,211,6
+171,"Lesotho","Basutoland","",12,325,212,17
+260,"","Batan Is.","",26,459,213,30
+234,"","Bathurst I.","",28,431,214,8
+146,"","Bawean","",26,289,215,18
+308,"","Becerro Cays","",45,515,216,12
+38,"Botswana","Bechuanaland Protectorate","",12,73,217,5
+79,"","Bechuanaland, British","",12,177,218,17
+59,"","Beijing","",21,127,219,16
+81,"","Belau Is.","",32,181,220,27
+237,"","Belep I.","",30,434,221,31
+364,"Zaire","Belgian Congo","",8,599,222,14
+30,"Belgium","Belgique","",1,58,223,1
+273,"","Belgorod","",4,473,224,1
+306,"","Belitung","",26,511,225,18
+298,"","Bellona","",30,501,226,19
+33,"","Belarus","",4,62,227,1
+225,"Bendel Province","Benin Province, Nigeria","",7,420,228,13
+353,"","Bequia","part of Grenadines of St.Vincent",45,581,229,6
+235,"","Beveridge Reef","",30,432,230,4
+98,"Bhutan and  Sikkim","Bhutan-Sikkim","",24,"",231,11
+238,"","Biak","",26,435,232,25
+135,"","Bihar","",24,250,233,11
+199,"","Bikini","part of Ralik I. chain",32,359,234,27
+25,"","Bimini Is.","",45,53,235,6
+68,"","Biob�o","",49,149,236,28
+291,"","Bird I.","[Indian Ocean]",14,492,237,21
+170,"","Bird I.","[West Indies]",45,317,238,6
+345,"Islas Las Aves","Bird I.","[off Venezuela]",45,565,239,15
+261,"","Birnie I.","",30,460,240,4
+178,"","Bishop and Clerk Is.","",50,335,241,9
+31,"","Bismark Archipelago","",26,60,242,25
+307,"","Bj�rn�ya","",0,513,243,1
+345,"","Blanquilla Is.","",45,565,244,15
+260,"","Bohol","",26,459,245,30
+267,"","Boigu I.","",28,467,246,8
+115,"","Bombom I.","",8,223,247,14
+115,"Caroco Is.","Bone de Joquei","",8,223,248,14
+305,"","Bonerate Is.","",26,510,249,18
+285,"","Bora-Bora","one of Iles sous le Vent",31,485,250,24
+90,"","Bornholm","",0,191,251,1
+229,"Daito Is.","Borodino Is.","",23,425,252,16
+362,"Bosnia","Bosna","",3,591,253,1
+22,"","Bounty I.","",29,49,254,9
+39,"","Bouvet I.","",50,74,255,9
+330,"Bozcaada","Bozca","",19,546,256,0
+330,"","Bozcaada","",19,546,257,0
+47,"","Brazil North","",48,"",258,20
+45,"","Brazil Northeast","",48,"",259,20
+48,"","Brazil South","",48,"",260,20
+46,"","Brazil Southeast","",48,"",261,20
+44,"","Brazil West-Central","",48,"",262,20
+44,"","Brazilia Distrito Federal","",48,79,263,20
+238,"","Bristow I.","",26,436,264,25
+225,"","British Cameroons North","",7,420,265,13
+69,"","British Cameroons South","",8,163,266,14
+40,"","British Columbia","",35,75,267,2
+125,"Guyana","British Guiana","",46,236,268,20
+35,"Belize","British Honduras","",44,67,269,12
+"","Great Britain and Ireland","British Isles","",0,"",270,1
+299,"","British Somaliland","",9,502,271,23
+170,"","British Virgin Is.","",45,318,272,6
+37,"Brunei","Brunei Darussalem","",26,69,273,18
+273,"","Bryansk","",4,473,274,1
+2,"","Buenos Aires","",49,2,275,28
+298,"Santa Isabel","Bughotu","",30,501,276,19
+184,"","Bugio","",6,341,277,10
+298,"","Buka","",30,500,278,19
+37,"","Bunguran Is.","",26,70,279,18
+37,"","Bunguran Selatan Is.","",26,70,280,18
+32,"Burkina","Burkina Faso","",7,61,281,13
+192,"","Buru","",26,350,282,18
+41,"","Buryatiya","",15,76,283,26
+41,"Buryatiya","Buryatskaya A.S.S.R.","",15,76,284,26
+33,"","Byelorussiya","",4,62,285,1
+49,"","Cabinda","",8,108,286,14
+86,"Cape Verde","Cabo Verde, Ilhas do","",6,186,287,13
+115,"","Cabras Is.","",8,224,288,14
+26,"","Cabrera","",2,54,289,1
+260,"","Cagayan Is.","",26,459,290,30
+315,"","Caicos Is.","",45,523,291,6
+308,"","Cajones Cays","",45,515,292,12
+260,"","Calamian Is.","",26,459,293,30
+51,"","California","",40,110,294,2
+53,"","Cambodge","",25,112,295,22
+69,"","Cameroon","",8,163,296,14
+69,"Cameroon","Cameroun","",8,163,297,14
+22,"","Campbell I.","",29,49,298,9
+210,"","Campeche","",43,394,299,12
+"","Regions 70 Subarctic America, 71 Western Canada and 72 Eastern Canada","Canada","excluding St.Pierre-Miquelon","","",300,2
+71,"","Canary Is.","I. Province of Spain",6,165,301,10
+353,"","Canouan","part of Grenadines of St.Vincent",45,581,302,6
+61,"Guangzhou","Canton","",21,135,303,16
+261,"Kanton I.","Canton I.","",30,460,304,4
+79,"","Cape Province","",12,"",305,17
+86,"","Cape Verde","",6,186,306,13
+80,"","Caprivi Strip","",12,179,307,17
+308,"","Caratasca Cays","",45,515,308,12
+180,"","Cargados Carajos","",14,337,309,21
+115,"","Caroco Is.","",8,223,310,14
+172,"","Caroline I.","[Central Pacific]",31,326,311,24
+81,"","Caroline Is.","part of Trust Territory of Pacific Is. (United Nations Trust Territory administered by U.S.A.)",32,"",312,27
+158,"Karpathos","Carpathos","",3,302,313,1
+353,"","Carriacao","one of Grenadines of Grenada",45,578,314,6
+350,"","Cartier Is.","",28,570,315,8
+25,"","Cat I.","",45,53,316,6
+4,"","Catamarca","",49,17,317,28
+267,"","Cato","",28,466,318,8
+"","Region 33 Caucasus","Caucasus","",18,"",319,0
+217,"","Caucasus, North","",18,"",320,0
+25,"","Cay Sal Bank","",45,53,321,6
+109,"","Cayenne","",46,215,322,20
+52,"","Cayman Brac","",45,111,323,6
+52,"","Cayman Is.","U.K. Dependent Territory",45,111,324,6
+45,"","Cear�","",48,85,325,20
+260,"","Cebu","",26,459,326,30
+208,"","Cedros I.","",43,384,327,12
+305,"Sulawesi","Celebes","",26,510,328,18
+50,"Central African Republic","Central African Empire","",8,109,329,14
+50,"","Central African Republic","",8,109,330,14
+78,"","Central American Pacific Is.","split between areas 14 Central America and 17 West Tropical South America of Kew system",44,"",331,32
+121,"Kefallinia","Cephalonia","",3,230,332,1
+192,"Seram","Ceram","",26,350,333,18
+194,"","Ceuta","",5,353,334,3
+301,"Sri Lanka","Ceylon","",24,506,335,11
+2,"","Chaco","",49,3,336,28
+54,"","Chad","",9,114,337,14
+367,"","Chagos Archipelago","",24,113,338,21
+135,"","Chandigarh","",24,251,339,11
+108,"","Channel Is.","British Crown Dependencies",2,212,340,1
+51,"","Channel Is.","[off California]",40,110,341,2
+14,"","Charcot I.","part of British Antactic Territory",51,36,342,9
+50,"","Chari","",8,109,343,14
+84,"","Chatham Is.","",29,184,344,33
+217,"See Chechnya and Ingushetiya","Checheno-Ingushetiya","",18,"",345,0
+156,"","Cheju Do","",23,300,346,16
+61,"Zhejiang","Chekiang","",21,146,347,16
+356,"","Chelyabinsk","",15,584,348,26
+287,"","Cherry I.","",30,488,349,19
+237,"","Chesterfield Is.","",30,434,350,31
+210,"","Chiapas","",43,395,351,12
+247,"","Chichijima","",23,445,352,16
+205,"","Chihuahua","",43,371,353,12
+267,"","Chilcott I.","one of Coringa Is.",28,466,354,8
+67,"","Chile North","",49,"",355,28
+68,"","Chile South","",49,"",356,28
+"","Region 36 China","China","",21,"",357,16
+59,"","China North-central","",21,"",358,16
+55,"","China South-central","",21,"",359,16
+61,"","China South-east","",21,"",360,16
+94,"Khios","Chios","",19,195,361,0
+83,"","Chita","",15,183,362,26
+83,"Chita","Chitinskaya Oblast","",15,183,363,26
+253,"","Chitral","",24,451,364,11
+27,"","Chittagong","",24,55,365,11
+298,"","Choiseul","",30,501,366,19
+55,"","Chongqing","",21,117,367,16
+359,"","Christmas I.","[Indian Ocean] External Territory of Australia",26,587,368,18
+172,"","Christmas I.","[Pacific Ocean]",31,326,369,24
+3,"","Chubut","",49,11,370,28
+175,"","Chukota","",16,332,371,26
+55,"Chongqing","Chungking","",21,117,372,16
+273,"","Chuvashiya","",4,473,373,1
+79,"","Ciskei","",12,176,374,17
+142,"Vatican City","Citt� del Vaticano","",3,282,375,1
+14,"","Clarence I.","one of South Shetland Is., a part of British Antarctic Territory",51,36,376,9
+78,"","Clipperton I.","",44,173,377,12
+205,"","Coahuila","",43,370,378,12
+236,"","Coats I.","",34,433,379,2
+345,"","Coche I.","",45,565,380,15
+344,"","Cochin Chine","",25,564,381,22
+344,"Cochin Chine","Cochinchina","",25,564,382,22
+82,"","Cochons, Isle aux","",50,182,383,9
+12,"","Coco I., Great","",25,34,384,11
+12,"","Coco Is.","",25,34,385,11
+64,"","Cocos (Keeling) Is.","External Territory of Australia",26,148,386,18
+78,"","Cocos I.","[Pacific Ocean]",44,174,387,15
+7,"","C�etivy","",14,28,388,21
+209,"","Colima","",43,388,389,12
+66,"","Colombia","",47,156,390,15
+308,"","Colombian Caribbean Is.","split between areas 14 Central America and 15 West Indies of Kew system",45,514,391,32
+255,"","Col�n I.","",44,454,392,15
+111,"","Col�n Archipelago","",47,217,393,15
+72,"","Colorado","",37,166,394,2
+148,"Komandor Is.","Comandor Is.","",16,291,395,26
+73,"","Comoros","including Mayotte",14,"",396,21
+73,"","Comoros","",14,167,397,21
+344,"","Con Son","",25,564,398,22
+344,"","Condore Is.","part of Con Son",25,564,399,22
+74,"","Congo","",8,169,400,14
+74,"Congo","Congo-Brazzaville","",8,169,401,14
+364,"Zaire","Congo-Kinshasa","",8,599,402,14
+70,"","Connecticut","",39,164,403,2
+135,"Koch Bihar","Cooch Behar","",24,271,404,11
+75,"","Cook Is.","excluding Manihiki Is.; self-governing Territory Overseas in Free Association with New Zealand",31,170,405,24
+67,"","Coquimbo","",49,150,406,28
+267,"","Coral Sea Is. Territory","External Territory of Australia",28,466,407,8
+2,"","C�rdoba","",49,5,408,28
+156,"Korea","Corea","",23,"",409,16
+121,"Kerkira","Corfu","",3,230,410,1
+267,"","Coringa Is.","",28,466,411,8
+100,"","Corisco I.","",8,204,412,14
+308,"Maiz Is.","Corn Is.","",45,516,413,12
+14,"","Coronation I.","one of South Orkney Is.",51,36,414,9
+2,"","Corrientes","",49,4,415,28
+76,"","Corse","I. Region of France",2,171,416,1
+76,"Corse","Corsica","",2,171,417,1
+24,"","Corvo","",6,52,418,10
+94,"Kos","Cos","one of Dhodekanisos",19,195,419,0
+7,"","Cosmoledo","",14,28,420,21
+77,"","Costa Rica","",44,172,421,12
+143,"Ivory Coast","Cote d'Ivoire","",7,283,422,13
+308,"Cayos del E.S.E.","Courtown Cays","",45,514,423,12
+210,"","Cozumel I.","",43,396,424,12
+266,"","Crab I.","",45,465,425,6
+158,"Kriti","Crete","I. Province of Greece",3,302,426,1
+159,"Krym","Crimea","",4,303,427,1
+362,"Montenegro","Crna Gora","",3,595,428,1
+362,"","Croatia","",3,592,429,1
+25,"","Crooked I.","",45,53,430,6
+82,"","Crozet Is.","",50,182,431,9
+85,"","Cuba","",45,185,432,6
+345,"","Cubagua","",45,565,433,15
+266,"","Culebra I.","",45,465,434,6
+111,"","Culpepper I.","",47,217,435,15
+228,"","Cura�ao","self-governing I. of Netherlands Antilles",45,424,436,6
+153,"","Curtis I.","",29,296,437,33
+121,"Kikladhes","Cyclades","",3,230,438,1
+87,"","Cyprus","",19,187,439,0
+88,"","Czechoslovakia","",1,"",440,1
+7,"","D'Arros I.","one of Amirante group",14,28,441,21
+238,"","D'Entrecastaux Is.","",26,436,442,25
+135,"","Dadra","",24,252,443,11
+135,"","Dadra-Nagar-Haveli","",24,252,444,11
+217,"","Dagestan","",18,405,445,0
+217,"Dagestan","Daghestan","",18,405,446,0
+101,"","Dahlak Is.","",9,205,447,23
+28,"Benin","Dahomey","",7,56,448,13
+229,"","Daito Is.","",23,425,449,16
+135,"","Daman","",24,255,450,11
+323,"Pukapuka","Danger I.","",30,537,451,24
+90,"Denmark","Danmark","",0,191,452,1
+135,"Darjiling","Darjeeling","",24,201,453,11
+135,"","Darjiling","",24,201,454,11
+297,"","Darsa I.","",9,499,455,23
+238,"","Daru I.","",26,436,456,25
+267,"","Dauan I.","",28,467,457,8
+89,"","Delaware","",42,190,458,2
+135,"","Delhi","",24,253,459,11
+121,"Dhilos","Delos","one of Kikladhes",3,230,460,1
+291,"","Denis I.","",14,492,461,21
+90,"","Denmark","excluding Foroyar and Greenland",0,191,462,1
+184,"","Deserta Grande","",6,341,463,10
+170,"","Desirade, La","",45,319,464,6
+7,"","Desroches I.","part of Amirante group",14,28,465,21
+93,"","Desventurados Is.","",49,194,466,28
+121,"","Dhilos","one of Kikladhes",3,230,467,1
+94,"","Dhodekanisos","",19,195,468,0
+250,"Zufar","Dhofar","",20,448,469,0
+158,"","Dia","",3,302,470,1
+267,"","Diamond Islets","",28,466,471,8
+367,"","Diego Garcia","",24,113,472,21
+127,"","Disappearing I.","",33,239,473,34
+326,"","Disappointment Is.","",31,542,474,24
+351,"","District of Columbia","",42,572,475,2
+135,"","Diu","",24,254,476,11
+91,"","Djibouti","",9,192,477,23
+170,"","Dog I.","",45,316,478,6
+157,"Taymyr","Dolgano-Nenets","",15,301,479,26
+353,"","Dominica","",45,577,480,6
+92,"","Dominican Republic","",45,193,481,6
+61,"","Dongsha Qundao","",21,135,482,16
+14,"Norwegian Antarctic Territory","Dronning Maud Land","",51,36,483,9
+122,"Dubavy","Dubai","",20,233,484,0
+122,"","Dubayy","",20,233,485,0
+262,"","Ducie I.","",31,461,486,24
+287,"","Duff Is.","",30,488,487,19
+326,"","Duke of Gloucester Is.","",31,542,488,24
+31,"","Duke of York Is.","off New Britain",26,60,489,25
+205,"","Durango","",43,372,490,12
+228,"Netherlands Antilles","Dutch Antilles","",45,"",491,6
+368,"Surinam","Dutch Guiana","",46,512,492,20
+63,"","Dzungaria","",21,147,493,16
+308,"","E.S.E., Cayos del","",45,514,494,12
+348,"","Eaglestone Reef","",30,568,495,4
+94,"","East Aegean Is.","",19,195,496,0
+114,"","East Germany","",1,220,497,1
+27,"Bangladesh","East Pakistan","",24,55,498,11
+174,"","East Timor","",26,330,499,18
+95,"","Easter I.","",31,196,500,24
+95,"","Easter Is.","",31,196,501,24
+127,"","Eastern I.","",33,241,502,34
+96,"","Ecuador","excluding Galapagos",47,197,503,15
+340,"","Efate","",30,560,504,19
+293,"","Egadi Is.","",3,495,505,1
+97,"","Egypt","excluding Sinai",5,198,506,0
+198,"","Eiao","",31,358,507,24
+138,"Ireland","Eire","",0,275,508,1
+99,"","El Salvador","",44,203,509,12
+142,"","Elba","",3,280,510,1
+14,"","Elephant I.","one of South Shetland Is., part of British Antarctic Territory",51,36,511,9
+25,"","Eleuthera","",45,53,512,6
+223,"","Elizabeth Reef","",28,416,513,8
+242,"","Ellesmere I.","",34,440,514,2
+331,"Tuvalu","Ellice Is.","",30,547,515,4
+14,"","Ellsworth I.","",51,36,516,9
+100,"","Elobey Grande","",8,204,517,14
+340,"","Emae","",30,560,518,19
+261,"","Enderbury I.","",30,460,519,4
+14,"","Enderby Land","part of Australian Antarctic Territory",51,36,520,9
+199,"","Enewetak","part of Ralik chain",32,359,521,27
+306,"","Enggano","",26,511,522,18
+120,"","England","",0,229,523,1
+199,"Enewetak","Eniwetok","part of Ralik chain",32,359,524,27
+2,"","Entre R�os","",49,7,525,28
+340,"Lopevi","Epi","",30,560,526,19
+100,"","Equatorial Guinea","excluding Annobon and Pagalu",8,204,527,14
+101,"Eritrea","Eritraea","",9,205,528,23
+340,"Erromango","Eromanga","",30,560,529,19
+340,"","Erromango","",30,560,530,19
+101,"Eritraea","Erta","",9,205,531,23
+111,"","Espanola I.","",47,217,532,15
+46,"","Esp�rito Santo","",48,93,533,20
+340,"","Espiritu Santo","",30,560,534,19
+34,"","Estonia","",4,63,535,1
+34,"Estonia","Estoniya","",4,63,536,1
+102,"","Ethiopia","",9,206,537,23
+324,"","Eua","",30,540,538,4
+121,"Evvoia","Euboea","",3,230,539,1
+181,"","Europa I.","",14,338,540,21
+157,"","Evenki","",15,301,541,26
+121,"","Evvoia","",3,230,542,1
+107,"Foroyar","Faeroe Is.","self-governing I. Territory of Denmark",0,211,543,1
+107,"Foroyar","Faeroerne","",0,211,544,1
+24,"","Faial","",6,52,545,10
+81,"","Fais","",32,180,546,27
+323,"","Fakaofo","",30,539,547,4
+326,"","Fakarava","",31,542,548,24
+103,"","Falkland Is.","excluding South Georgia and South Sandwich Is.; U.K. Crown Colony",50,207,549,28
+326,"","Fangatau","",31,542,550,24
+326,"Fangatau","Fangataufa","",31,542,551,24
+172,"Tabuaeran","Fanning I.","",31,326,552,24
+197,"","Farallon de Medinilla","",32,357,553,27
+283,"","Farasan Is.","",20,483,554,0
+81,"","Faraulep","",32,180,555,27
+7,"","Farquhar I.","part of Providence group",14,28,556,21
+198,"","Fatu Hiva","",31,358,557,24
+298,"","Fauro","one of Shortland Is.",30,501,558,19
+24,"Faial","Fayal","",6,52,559,10
+298,"","Feni Is.","",30,500,560,19
+45,"","Fernando de Noronha","",48,86,561,20
+115,"Bioko","Fernando Po","",8,222,562,14
+104,"","Fiji","",30,208,563,35
+105,"","Finland","",0,209,564,1
+180,"","Flat I.","",14,337,565,21
+172,"","Flint I.","",31,326,566,24
+24,"","Flores","[Azores]",6,52,567,10
+174,"","Flores","[Indonesia]",26,331,568,18
+106,"","Florida","",42,210,569,2
+298,"","Florida Is.","",30,501,570,19
+26,"","Formentera","",2,54,571,1
+2,"","Formosa","[Argentina]",49,8,572,28
+312,"","Formosa","[Asia]",23,520,573,16
+107,"","F�royar","self-governing I. Territory of Denmark",0,211,574,1
+348,"Futuna","Fotuna","",30,568,575,4
+108,"","France","excluding Corse",2,213,576,1
+108,"","France","including Channel Is.",2,"",577,1
+242,"","Franklin","",34,440,578,2
+356,"Zemlya Frantsa-Iosifa","Franz Josef Land","",15,584,579,26
+69,"","French Cameroons","",8,163,580,14
+74,"Congo","French Congo","",8,169,581,14
+109,"","French Guiana","",46,215,582,20
+124,"Guinea","French Guinea","",7,235,583,13
+194,"","French Morocco","",5,352,584,3
+91,"Djibouti","French Somaliland","",9,192,585,23
+324,"Tonga","Friendly Is.","",30,540,586,4
+291,"","Frigate I.","",14,492,587,21
+71,"","Fuerteventura","",6,165,588,10
+122,"Al Fajayrah","Fujairah","",20,233,589,0
+122,"Al Fajayrah","Fujeira","",20,233,590,0
+61,"","Fujian","",21,134,591,16
+61,"Fujian","Fukien","",21,134,592,16
+331,"","Funafuti","",30,547,593,4
+348,"","Futuna","",30,568,594,4
+340,"","Futuna","[Vanuatu]",30,560,595,19
+110,"","Gabon","",8,216,596,14
+110,"Gabon","Gaboon","",8,216,597,14
+110,"Gabon","Gabun","",8,216,598,14
+115,"Rolas Is.","Gago Coutinho Is.","",8,224,599,14
+158,"","Gaidhouronisi","",3,302,600,1
+111,"","Gal�pagos","",47,217,601,15
+112,"","Gambia, The","",7,218,602,13
+326,"","Gambier Is.","",31,542,603,24
+185,"","Gan","",24,342,604,11
+59,"","Gansu","",21,126,605,16
+261,"Nikumaroro","Gardner I.","[Phoenix Is.]",30,460,606,4
+127,"","Gardner Pinnacles","",33,239,607,34
+158,"","Gavdhopoula","",3,302,608,1
+158,"","Gavdhos","",3,302,609,1
+254,"","Gaza Strip","",19,452,610,0
+111,"","Genovesa I.","",47,217,611,15
+316,"Gruziya","Georgia","[Caucasus]",18,528,612,0
+113,"","Georgia","[U.S.A.]",42,219,613,2
+114,"","Germany","",1,220,614,1
+116,"","Ghana","",7,225,615,13
+300,"","Gibraltar","U.K. Crown Colony",2,504,616,1
+117,"","Gilbert Is.","",30,226,617,4
+352,"","Gilgit","",24,574,618,11
+181,"","Glorieuses Is.","",14,338,619,21
+181,"Glorieuses Is.","Glorioso Is.","",14,338,620,21
+135,"","Goa","",24,256,621,11
+44,"","Goi�s","",48,80,622,20
+328,"","Gok�eada","",3,544,623,1
+116,"Ghana","Gold Coast","",7,225,624,13
+71,"","Gomera","",6,165,625,10
+126,"","Gonave I.","",45,237,626,6
+93,"","Gonzalez I.","",49,194,627,28
+273,"Nizhny Novgorod","Gorkiy","",4,473,628,1
+334,"","Gorno-Badakhshan","",17,553,629,26
+309,"","Gotland","",0,517,630,1
+317,"","Gough I.","",50,531,631,9
+293,"","Gozo","",3,494,632,1
+24,"","Graciosa","[Azores]",6,52,633,10
+71,"","Graciosa","[Canary Is.]",6,165,634,10
+14,"","Graham Land","part of British Antarctic Territory",51,36,635,9
+71,"","Gran Canaria","",6,165,636,10
+25,"","Grand Bahama","",45,53,637,6
+52,"","Grand Cayman","",45,111,638,6
+170,"","Grande Terre","",45,319,639,6
+25,"","Great Abaco","",45,53,640,6
+120,"","Great Britain","excluding Northern Ireland and Channel Is.",0,229,641,1
+170,"","Great Camanoe","",45,318,642,6
+12,"","Great Coco I.","",25,34,643,11
+25,"","Great Exuma","",45,53,644,6
+25,"","Great Inagua","",45,53,645,6
+121,"","Greece","excluding Kriti (with Karpathos) and East Aegean Is. (including Rhodos).",3,230,646,1
+298,"","Green Is.","",30,500,647,19
+119,"","Greenland","self-governing I. Territory of Denmark",34,228,648,2
+81,"Kapingamarangi","Greenwich I.","",32,180,649,27
+353,"","Grenada","",45,578,650,6
+353,"","Grenadines of Grenada","",45,578,651,6
+353,"","Grenadines of St.Vincent","",45,581,652,6
+316,"","Gruziya","excluding Abkhasiya and Adzhariya",18,528,653,0
+298,"","Guadalcanal","",30,501,654,19
+170,"","Guadeloupe","[Caribbean] Overseas Departement of France",45,319,655,6
+207,"","Guadelupe I.","[Pacific]",43,381,656,12
+197,"","Guam","unincorporated territory of U.S.A.",32,356,657,27
+170,"","Guana I.","",45,318,658,6
+308,"","Guanaja","one of Bahia Is.",45,515,659,12
+205,"","Guanajuato","",43,373,660,12
+61,"","Guangdong","",21,135,661,16
+61,"","Guangxi","",21,136,662,16
+61,"","Guangzhou","",21,135,663,16
+123,"","Guatemala","",44,234,664,12
+108,"","Guernsey","",2,212,665,1
+209,"","Guerrero","",43,389,666,12
+124,"","Guinea","",7,235,667,13
+118,"","Guinea-Bissau","",7,227,668,13
+55,"","Guizhou","",21,115,669,16
+135,"","Gujarat","",24,257,670,11
+115,"","Gulf of Guinea Is.","",8,"",671,14
+122,"","Gulf States","",20,"",672,0
+180,"","Gunners Quoin","",14,337,673,21
+192,"","Gunungapi","",26,350,674,18
+125,"","Guyana","",46,236,675,20
+109,"French Guiana","Guyane Francais","",46,215,676,20
+324,"","Ha'apai Is.","",30,540,677,4
+161,"","Habomai-shoto","",16,305,678,26
+145,"","Hachijo-jima","",23,286,679,16
+247,"","Hahajima","",23,445,680,16
+56,"","Hainan","",21,119,681,16
+126,"","Haiti","excluding Navassa I.",45,237,682,6
+126,"","Haiti","including Navassa I.",45,"",683,6
+308,"Media Luna, Arrecife","Half Moon Reefs","",45,515,684,12
+81,"","Hall I.","",32,180,685,27
+192,"","Halmahera","",26,350,686,18
+361,"","Hanish al Kabir","",20,590,687,0
+361,"Hanish al Kabir","Hanish Is.","",20,590,688,0
+326,"","Hao","",31,542,689,24
+135,"","Haryana","",24,258,690,11
+32,"Burkina","Haute Volta","",7,61,691,13
+127,"","Hawai'i","",33,"",692,34
+127,"","Hawai'i","one of Hawai'ian Is.",33,239,693,34
+127,"","Hawai'ian Is.","",33,239,694,34
+129,"","Heard I.","",50,243,695,9
+129,"","Heard-McDonald Is.","External Territory of Australia",50,243,696,9
+59,"","Hebei","",21,127,697,16
+58,"","Heilongjiang","",21,122,698,16
+58,"Heilongjiang","Heilungkiang","",21,122,699,16
+81,"","Helen Reef","",32,181,700,27
+61,"","Henan","",21,137,701,16
+262,"","Henderson I.","",31,461,702,24
+362,"","Herzegovina","part of Bosnia-Herzegovina",3,591,703,1
+326,"","Hereheretue","",31,542,704,24
+108,"","Herm","",2,212,705,1
+345,"","Hermanos, Los","",45,565,706,15
+31,"","Hermit Is.","",26,60,707,25
+75,"","Hervey I.","",31,170,708,24
+205,"","Hidalgo","",43,374,709,12
+71,"","Hierro","",6,165,710,10
+352,"","Himachal Pradesh","",24,573,711,11
+61,"Hong Kong","Hisiangkang","",21,138,712,16
+"","Dominican Republic and Haiti","Hispaniola","",45,"",713,6
+198,"","Hiva Oa","",31,358,714,24
+145,"","Hokkaido","",23,285,715,16
+221,"Netherlands","Holland","",1,414,716,1
+344,"","Hon Panjang","",25,564,717,22
+61,"Henan","Honan","",21,137,718,16
+308,"","Honduran Caribbean Is.","",45,515,719,12
+130,"","Honduras","",44,244,720,12
+61,"","Hong Kong","U.K. Dependent Territory",21,138,721,16
+145,"","Honshu","",23,286,722,16
+348,"","Hoorn Is.","",30,568,723,4
+59,"Hebei","Hopei","",21,127,724,16
+348,"Hoorn Is.","Horne Is.","",30,568,725,4
+128,"","Howland I.","",30,242,726,4
+128,"","Howland-Baker Is.","",30,242,727,4
+362,"Croatia","Hrvatska","",3,592,728,1
+285,"","Huahine","one of Iles sous le Vent",31,485,729,24
+55,"","Hubei","",21,116,730,16
+261,"Orona","Hull I.","",30,460,731,4
+323,"Manihiki","Humphrey I.","",30,537,732,24
+61,"","Hunan","",21,139,733,16
+131,"","Hungary","",1,245,734,1
+237,"","Hunter Is.","",30,434,735,31
+237,"","Huon I.","",30,434,736,31
+55,"Hubei","Hupeh","",21,116,737,16
+26,"","Ibiza","",2,54,738,1
+132,"","Iceland","",0,246,739,1
+133,"","Idaho","",37,247,740,2
+194,"","Ifni","",5,352,741,3
+94,"","Ikaria","one of Dhodekanisos",19,195,742,0
+180,"Mauritius","Ile de France","",14,337,743,21
+285,"","Iles du Vent","",31,485,744,24
+285,"","Iles sous le Vent","",31,485,745,24
+121,"","Iliodhromia","one of Voriai Sporadhes",3,230,746,1
+134,"","Illinois","",38,248,747,2
+328,"Gokceada","Imbroz","",3,544,748,1
+328,"Gokceada","Imroz","",3,544,749,1
+317,"","Inaccessible I.","",50,531,750,9
+25,"","Inagua Is.","",45,53,751,6
+145,"","Inamba-jima","",23,286,752,16
+135,"","India","excluding Andaman Is., Assam, Jammu-Kashmir, Laccadive Is. and Sikkim",24,"",753,11
+136,"","Indiana","",39,273,754,2
+"","Irian Jaya, Jawa, Kalimantan, Lesser Sunda Is., Moluccas, Sulawesi and Sumatera","Indonesia","split between areas 6 C Malay Is. and 6 E New Guinea of Kew system",26,"",755,32
+195,"","Inhaca I.","",11,354,756,5
+57,"","Inner Mongolia","",21,"",757,16
+121,"","Ioinianisia","",3,230,758,1
+121,"Ionioi Nisoi","Ionian Is.","",3,230,759,1
+121,"","Ionioi Nisoi","",3,230,760,1
+121,"","Voriai","one of Kikladhes",3,230,761,1
+137,"","Iowa","",38,274,762,2
+140,"","Iran","",19,278,763,0
+141,"","Iraq","",19,279,764,0
+138,"","Ireland","excluding Northern Ireland",0,275,765,1
+138,"","Ireland","including Northern Ireland",0,"",766,1
+138,"Northern Ireland","Ireland, Northern","",0,276,767,1
+238,"","Irian Jaya","",26,435,768,25
+229,"","Iriomote","part of Sakishima-gunto",23,425,769,16
+139,"","Irkutsk","",15,277,770,26
+139,"Irkutsk","Irkutskaya Oblast","",15,277,771,26
+111,"","Isabela I.","",47,217,772,15
+229,"","Ishigaki","part of Sakishima-gunto",23,425,773,16
+120,"","Isle of Man","",0,229,774,1
+237,"","Isle of Pines","",30,434,775,31
+254,"","Israel","",19,452,776,0
+142,"Italy","Italia","",3,280,777,1
+299,"","Italian Somaliland","",9,502,778,23
+142,"","Italy","excluding Sardena and Sicilia; including SAN MArino and Vatican City",3,"",779,1
+142,"","Italy","excluding Sardena and Sicilia",3,280,780,1
+273,"","Ivanovo","",4,473,781,1
+26,"Ibiza","Iviza","",2,54,782,1
+143,"","Ivory Coast","",7,283,783,13
+163,"","Iwo Jima","",23,307,784,16
+209,"","Jalisco","",43,390,785,12
+135,"","Jalpaiguri","",24,271,786,11
+199,"","Jaluit","part of Ralik chain",32,359,787,27
+144,"","Jamaica","",45,284,788,6
+352,"","Jammu-Kashmir","",24,574,789,11
+307,"","Jan Mayen I.","I. Territory of Norway",0,513,790,1
+145,"","Japan","",23,"",791,16
+172,"","Jarvis I.","",31,327,792,24
+146,"Jawa","Java","",26,289,793,18
+146,"","Jawa","excluding Bali",26,289,794,18
+108,"","Jersey","",2,212,795,1
+155,"Yevreysk","Jewish Autonomous Region","",16,298,796,26
+61,"","Jiangsu","",21,140,797,16
+61,"","Jiangxi","",21,141,798,16
+91,"Djibouti","Jibouti","",9,192,799,23
+58,"","Jilin","",21,123,800,16
+127,"","Johnston I.","",33,240,801,34
+190,"Johor","Johore","",26,347,802,36
+254,"","Jordan","",19,453,803,0
+170,"","Jost van Dyke","",45,318,804,6
+147,"","Juan Fern�ndez Is.","",49,290,805,28
+181,"","Juan de Nova","",14,338,806,21
+178,"","Judge and Clerk Is.","",50,335,807,9
+362,"Yugoslavia","Jugoslavia","",3,"",808,1
+4,"","Jujuy","",49,18,809,28
+85,"","Juventud, Isla de la","",45,185,810,6
+104,"","Kabara","",30,208,811,35
+217,"","Kabardino-Balkariya","",18,406,812,0
+104,"","Kadavu","",30,208,813,35
+127,"","Kahoolawe","",33,239,814,34
+192,"","Kai Is.","",26,350,815,18
+305,"","Kalaotoa","",26,510,816,18
+37,"","Kalimantan","",26,70,817,18
+94,"","Kalimnos","one of Dhodekanisos",19,195,818,0
+273,"Tver","Kalinin","",4,473,819,1
+34,"","Kaliningrad","",4,64,820,1
+276,"Kalmykyia","Kalmytskaya A.S.S.R.","",4,476,821,1
+273,"","Kaluga","",4,473,822,1
+361,"","Kamaran Is.","",20,590,823,0
+104,"Kabara","Kambara","",30,208,824,35
+148,"","Kamchatka","",16,291,825,26
+174,"","Kamodo","",26,331,826,18
+53,"Cambodia","Kampuchea","",25,112,827,22
+104,"Kadavu","Kandavu","",30,208,828,35
+296,"","Kangaroo I.","",28,498,829,8
+146,"","Kangean Is.","",26,289,830,18
+31,"","Kaniet Is.","",26,60,831,25
+149,"","Kansas","",38,292,832,2
+59,"Gansu","Kansu","",21,126,833,16
+261,"","Kanton I.","",30,460,834,4
+81,"","Kapingamaringi","",32,180,835,27
+80,"Caprivi Strip","Kaprivi Zipfel","",12,179,836,17
+339,"","Kara-Kalpakiya","",17,559,837,26
+217,"","Karacheyevo-Cherkessiya","",18,407,838,0
+135,"","Karaikal","",24,260,839,11
+275,"","Karelia","",4,475,840,1
+305,"","Karkaralong Is.","",26,510,841,18
+135,"","Karnataka","",24,261,842,11
+158,"","K�rpathos","",3,302,843,1
+158,"","Kasos","",3,302,844,1
+127,"","Kauai","",33,239,845,34
+150,"","Kazakhstan","excluding West Kazakhstan",17,293,846,26
+163,"","Kazan-retto","",23,307,847,16
+190,"","Kedah","",26,347,848,36
+64,"Cocos (Keeling) I.","Keeling I.","",26,148,849,18
+236,"","Keewatin","",34,433,850,2
+190,"","Kelantan","",26,347,851,36
+356,"","Kemerovo","",15,584,852,26
+160,"","Kentucky","",42,304,853,2
+152,"","Kenya","",10,295,854,37
+121,"Kefallinia","Kephalinia","",3,230,855,1
+135,"","Kerala","",24,259,856,11
+151,"","Kerguelen","part of French Southern and Antarctic Territories",50,294,857,9
+121,"","K�rkira","",3,230,858,1
+153,"","Kermadec Is.","",29,296,859,33
+155,"","Khabarovsk","",16,298,860,26
+157,"","Khakassiya","",15,301,861,26
+94,"","Khalki","one of Dhodekanisos",19,195,862,0
+121,"","Khamili","",3,230,863,1
+356,"","Khanty-Mansi","",15,584,864,26
+94,"","Khios","",19,195,865,0
+53,"Cambodia","Khmer Republic","",25,112,866,22
+121,"","Khristiana","one of Kikladhes",3,230,867,1
+61,"Jiangxi","Kiangsi","",21,141,868,16
+61,"Jiangsu","Kiangsu","",21,140,869,16
+229,"","Kikai-shima","part of Amami-shoto",23,425,870,16
+121,"","Kikladhes","",3,230,871,1
+298,"","Kilinailau","",30,500,872,19
+61,"","Kin-Men","",21,142,873,16
+326,"","King George Is.","",31,542,874,24
+14,"","King George V Land","part of Australian Antarctic Territory",51,36,875,9
+172,"","Kingman Reef","",31,327,876,24
+117,"","Kingsmill Is.","",30,226,877,4
+154,"Kirgizistan","Kirgiziya","",17,297,878,26
+154,"","Kirgizistan","",17,297,879,26
+"","Gilbert Is., Phoenix Is. and Kiribati Line Is.","Kiribati","split between areas 9 D Samoan Is. and 9 E S.E. Polynesia of Kew system","","",880,32
+172,"","Kiribati Line Is.","",31,326,881,24
+58,"Jilin","Kirin","",21,123,882,16
+172,"","Kiritimati","",31,326,883,24
+238,"Trobriand Is.","Kiriwina Is.","",26,436,884,25
+274,"","Kirov","",4,474,885,1
+229,"","Kita Daito","one of Daito Is.",23,425,886,16
+163,"","Kita Iwo","",23,307,887,16
+163,"","Kitalo","",23,307,888,16
+121,"","Kithira","",3,230,889,1
+127,"","Kittery I.","",33,239,890,34
+344,"","Ko Way","",25,564,891,22
+229,"","Kobisho","",23,425,892,16
+135,"","Koch Bihar","",24,271,893,11
+19,"","Kodiak I.","",34,41,894,2
+148,"","Komandor Is.","",16,291,895,26
+174,"","Komba","",26,331,896,18
+275,"","Komi","",4,475,897,1
+34,"Kaliningrad","Konigsberg","",4,64,898,1
+156,"","Korea","",23,"",899,16
+156,"","Korea, People's Democratic Republic of","",23,299,900,16
+156,"","Korea, Republic of","",23,300,901,16
+148,"","Koryanskiy","",16,291,902,26
+94,"","Kos","one of Dhodekanisos",19,195,903,0
+362,"","Kosovo","",3,593,904,1
+81,"","Kosrae","",32,180,905,27
+273,"","Kostroma","",4,473,906,1
+158,"","Koufonisi","",3,302,907,1
+145,"","Kozu-shima","",23,286,908,16
+217,"","Krasnodar","",18,408,909,0
+157,"","Krasnoyarsk","",15,301,910,26
+158,"","Kriti","",3,302,911,1
+159,"","Krym","",4,303,912,1
+229,"","Kuchino-shima","part of Tokara-retto",23,425,913,16
+127,"","Kure I.","",33,241,914,34
+356,"","Kurgan","",15,584,915,26
+117,"","Kuria","",30,226,916,4
+250,"","Kuria Muria Is.","",20,448,917,0
+161,"","Kuril Is.","",16,305,918,26
+273,"","Kursk","",4,473,919,1
+81,"Kosrae","Kusaie","",32,180,920,27
+162,"","Kuwait","",20,306,921,0
+274,"Samara","Kuybyshev","",4,474,922,1
+199,"","Kwajalein","part of Ralik chain",32,359,923,27
+61,"Guangxi","Kwangsi","",21,136,924,16
+61,"Guangdong","Kwantung","",21,135,925,16
+55,"Guizhou","Kweichow","",21,115,926,16
+87,"Cyprus","Kyproz","",19,187,927,0
+145,"","Kyushu","",23,287,928,16
+68,"","La Araucania","",49,151,929,28
+170,"","La Desirade","",45,319,930,6
+291,"","La Digue I.","",14,492,931,21
+71,"","La Palma","",6,165,932,10
+2,"","La Pampa","",49,9,933,28
+4,"","La Rioja","",49,19,934,28
+164,"","Labrador","",36,308,935,2
+37,"","Labuan","",26,71,936,18
+169,"","Laccadive Is.","",24,314,937,11
+352,"","Ladakh","",24,574,938,11
+331,"Tuvalu","Lagoon Is.","",30,547,939,4
+169,"Laccadive Is.","Lakshadweep","",24,314,940,11
+293,"","Lampedusa","",3,495,941,1
+312,"Lan Hsu","Lan Yu","",23,520,942,16
+312,"","Lan Hsu","",23,520,943,16
+127,"","Lanai","",33,239,944,34
+190,"","Langkawi","part of Kedah",26,347,945,36
+305,"","Langkesi Is.","",26,510,946,18
+71,"","Lanzarote","",6,165,947,10
+165,"","Laos","",25,309,948,22
+165,"Laos","Laos, People's Democratic Republic of","",25,309,949,22
+345,"","Las Aves Is.","",45,565,950,15
+34,"","Latvia","",4,65,951,1
+104,"","Lau Is.","",30,208,952,35
+238,"","Laughlan Is.","",26,436,953,25
+14,"","Laurie I.","one of South Orkney Is.",51,36,954,9
+298,"Choiseul","Lauru","",30,501,955,19
+37,"","Laut Kecil Is.","",26,70,956,18
+127,"","Laysan I.","",33,239,957,34
+167,"","Lebanon","",19,311,958,0
+167,"","Lebanon-Syria","",19,"",959,0
+22,"","Leeward I.","[New Zealand] one of Antipodean Is.",29,49,960,9
+170,"","Leeward Is.","[Caribbean]",45,"",961,6
+285,"","Leeward Is.","[Pacific] one of Iles sous le Vent",31,485,962,24
+121,"Limnos","Lemnos","",3,230,963,1
+277,"","Leningrad","",4,477,964,1
+94,"","Leros","one of Dhodekanisos",19,195,965,0
+94,"Lesvos","Lesbos","",19,195,966,0
+171,"","Lesotho","",12,325,967,17
+"","Leeward Is. and Windward Is.","Lesser Antilles","",45,"",968,6
+174,"","Lesser Sunda Is.","excluding East Timor",26,331,969,18
+94,"","Lesvos","",19,195,970,0
+174,"","Leti Is.","",26,331,971,18
+121,"","Levitha","one of Kikladhes",3,230,972,1
+145,"Tok-to","Liancourt Rock","",23,286,973,16
+58,"","Liaoning","",21,124,974,16
+166,"","Liberia","",7,310,975,13
+168,"","Libya","",5,313,976,3
+23,"","Liechtenstein","",1,51,977,1
+31,"","Lihir Is.","",26,60,978,25
+189,"","Likhoma Is.","",11,346,979,5
+121,"","Limnos","",3,230,980,1
+172,"","Line Is.","",31,"",981,24
+306,"","Lingga Is.","",26,511,982,18
+293,"","Linosa","",3,495,983,1
+293,"","Lipari Is.","",3,495,984,1
+273,"","Lipetsk","",4,473,985,1
+94,"","Lipsoi","one of Dhodekanisos",19,195,986,0
+127,"","Lisianski I.","",33,239,987,34
+34,"","Lithuania","",4,66,988,1
+34,"Lithuania","Litva","",4,66,989,1
+52,"","Little Cayman","",45,111,990,6
+12,"","Little Coco I.","",25,34,991,11
+25,"","Little Inagua","",45,53,992,6
+104,"","Loma-i-Viti Is.","",30,208,993,35
+174,"","Lombok","",26,331,994,18
+238,"","Long I.","[Bismarck Sea]",26,436,995,25
+25,"","Long I.","[Caribbean]",45,53,996,6
+340,"","Lopevi","",30,560,997,19
+223,"","Lord Howe I.","[off Australia]",28,416,998,8
+298,"Ontong Java","Lord Howe I.","[Solomon Is.]",30,501,999,19
+345,"","Los Hermanos Is.","",45,565,1000,15
+68,"","Los Lagos","",49,161,1001,28
+345,"","Los Roques Is.","",45,565,1002,15
+345,"","Los Testigos Is.","",45,565,1003,15
+145,"Sofu-gan","Lot's Wife","",23,286,1004,16
+286,"","Louisa Reef","politically and geographically disputed - region 6 F is a compromise solution",25,487,1005,29
+238,"","Louisiade Archipelago","",26,436,1006,25
+173,"","Louisiana","",42,328,1007,2
+326,"","Low Archipelago","",31,542,1008,24
+237,"Loyaute Is.","Loyalty Is.","",30,434,1009,31
+237,"","Loyaut� Is.","",30,434,1010,31
+192,"","Lucipara Is.","",26,350,1011,18
+238,"","Lusancay Is.","",26,436,1012,25
+30,"","Luxembourg","",1,59,1013,1
+260,"","Luzon","",26,459,1014,30
+61,"","Ma-tsu-Pai-ch�an","",21,144,1015,16
+61,"","Macau","",21,143,1016,16
+61,"Macau","Macao","",21,143,1017,16
+153,"","Macauley I.","",29,296,1018,33
+121,"Makedhonia","Macedonia","[Greece]",3,230,1019,1
+362,"","Macedonia","[of former Yugoslavia]",3,594,1020,1
+115,"Bioko","Macias Nguema Biyoga","",8,222,1021,14
+242,"","Mackenzie","",34,440,1022,2
+178,"","Macquarie Is.","",50,335,1023,9
+14,"","MacRobertson Land","part of Australian Antarctic Territory",51,36,1024,9
+183,"","Madagascar","",14,340,1025,21
+184,"","Madeira","self-governing I. Region of Portugal",6,341,1026,10
+135,"","Madhya Pradesh","",24,263,1027,11
+146,"","Madura","",26,289,1028,18
+340,"","Maewo","",30,560,1029,19
+313,"","Mafia I.","",10,521,1030,37
+175,"","Magadan","",16,332,1031,26
+68,"","Magellanes","",49,162,1032,28
+135,"","Maharashtra","",24,264,1033,11
+135,"","Mah�","[India]",24,262,1034,11
+291,"","Mah�","[Seychelles]",14,492,1035,21
+117,"","Maiana","",30,226,1036,4
+176,"","Maine","",39,333,1037,2
+285,"","Maio","one of Iles du Vent",31,485,1038,24
+308,"","Maiz Is.","",45,516,1039,12
+26,"Mallorca","Majorca","",2,54,1040,1
+199,"","Majuro","part of Ratak chain",32,359,1041,27
+326,"","Makatea","",31,542,1042,24
+121,"","Makedhonia","",3,230,1043,1
+362,"Macedonia","Makedonija","",3,594,1044,1
+326,"","Makemo","",31,542,1045,24
+117,"Butaritari","Makin I.","",30,226,1046,4
+298,"San Cristobal","Makira","",30,501,1047,19
+298,"Malaita","Mala","",30,501,1048,19
+190,"Melaka","Malacca","",26,347,1049,36
+183,"Madagascar","Malagasy Republic","",14,340,1050,21
+298,"","Malaita","",30,501,1051,19
+340,"","Malakula","",30,560,1052,19
+189,"","Malawi","",11,346,1053,5
+190,"","Malaya","",26,"",1054,36
+"","Peninsular Malaysia, Sabah and Sarawak","Malaysia","split between areas 6 A Malay Peninsula and 6 C Malay Is. of Kew system",26,"",1055,32
+172,"","Malden I.","",31,326,1056,24
+185,"","Maldives","",24,342,1057,11
+188,"","Mali","",7,345,1058,13
+340,"Malakula","Mallicollo","",30,560,1059,19
+26,"","Mallorca","",2,54,1060,1
+199,"","Maloelap","part of Ratak chain",32,359,1061,27
+78,"","Malpelo I.","",44,175,1062,15
+293,"","Malta","",3,494,1063,1
+192,"","Maluku","",26,350,1064,18
+103,"Falkland Is.","Malvinas","",50,207,1065,28
+104,"Mamanuca Is.","Mamanutha Is.","",30,208,1066,35
+120,"","Man, Isle of","British Crown Dependency",0,229,1067,1
+122,"Al Manamah","Manamah","",20,231,1068,0
+58,"","Manchuria","",21,"",1069,16
+75,"","Mangaia","",31,170,1070,24
+326,"","Mangareva","one of Gambier Is.",31,542,1071,24
+323,"","Manihiki","",30,537,1072,24
+323,"","Manihiki Is.","",30,537,1073,24
+21,"","Manipur","",24,44,1074,11
+177,"","Manitoba","",35,334,1075,2
+261,"","Manra","",30,460,1076,4
+236,"","Mansel I.","",34,433,1077,2
+280,"","Manu'a","",30,480,1078,4
+31,"","Manus Is.","one of Admiralty Is.",26,60,1079,25
+238,"","Mapia I.","",26,435,1080,25
+45,"","Maranh�o","",48,87,1081,20
+111,"","Marchena I.","",47,217,1082,15
+182,"","Marcus I.","",32,339,1083,27
+345,"","Margarita I.","",45,565,1084,15
+274,"","Mari","",4,474,1085,1
+197,"","Marianas","part of Trust Territory of Pacific Is. (United Nations Trust Territory administered by U.S.A.)",32,"",1086,27
+209,"","Marias Is.","",43,392,1087,12
+14,"","Marie Byrd Land","",51,36,1088,9
+170,"","Marie Galante","",45,319,1089,6
+7,"","Marie Louise I.","one of Amirante group",14,28,1090,21
+196,"","Marion I.","",50,355,1091,9
+196,"","Marion-Prince Edward Is.","",50,355,1092,9
+274,"Mari","Mariyskaya A.S.S.R.","",4,474,1093,1
+127,"","Maro Reef","",33,239,1094,34
+194,"Morocco","Maroc","",5,352,1095,3
+327,"","Marotiri","",31,543,1096,24
+198,"","Marquesas","",31,358,1097,24
+199,"","Marshall Is.","part of Trust Territory of Pacific Is. (United Nations Trust Territory administered by U.S.A.)",32,359,1098,27
+46,"","Martin Vas Is.","",48,97,1099,20
+353,"","Martinique","Overseas Departement of France",45,579,1100,6
+200,"","Maryland","",42,360,1101,2
+147,"Robinson Crusoe I.","Mas a Tierra","",49,290,1102,28
+147,"Alejandro Selkirk I.","Mas Afuera","",49,290,1103,28
+146,"","Masalembu Besar","",26,289,1104,18
+179,"","Masachusettes","",39,336,1105,2
+44,"","Mato Grosso","",48,82,1106,20
+44,"","Mato Grosso do Sul","",48,81,1107,20
+237,"","Matthew Is.","",30,434,1108,31
+197,"","Maug Is.","",32,357,1109,27
+127,"","Maui","",33,239,1110,34
+75,"","Mauke","",31,170,1111,24
+67,"","Maule","",49,152,1112,28
+285,"","Maupiti","one of Iles sous le Vent",31,485,1113,24
+203,"","Mauritania","",7,363,1114,13
+180,"","Mauritius","",14,337,1115,21
+25,"","Mayaguana","",45,53,1116,6
+73,"","Mayotte","",14,168,1117,21
+353,"","Mayreau","one of Grenadines of St.Vincent",45,581,1118,6
+104,"","Mbengga","",30,208,1119,35
+129,"","McDonald I.","",50,243,1120,9
+261,"","McKean I.","",30,460,1121,4
+308,"","Media Luna Reefs","",45,515,1122,12
+21,"","Meghalaya","",24,45,1123,11
+285,"","Mehetia","one of Iles du Vent",31,485,1124,24
+190,"","Melaka","",26,347,1125,36
+194,"","Melilla","",5,353,1126,3
+234,"","Melville I.","",28,431,1127,8
+4,"","Mendoza","",49,20,1128,28
+26,"","Menorca","",2,54,1129,1
+306,"","Mentawai Is.","",26,511,1130,18
+211,"","Mergui Archipelago","",25,399,1131,11
+81,"","Merit I.","",32,181,1132,27
+141,"Iraq","Mesopotamia","",19,279,1133,0
+207,"","Mexican Pacific Is.","",43,"",1134,12
+"","Region 79 Mexico","Mexico","",43,"",1135,12
+204,"","Mexico Central","",43,"",1136,12
+204,"","Mexico Distrito Federal","",43,364,1137,12
+205,"","Mexico Northeast","",43,"",1138,12
+208,"","Mexico Northwest","",43,"",1139,12
+210,"","Mexico Southeast","",43,"",1140,12
+209,"","Mexico Southwest","",43,"",1141,12
+204,"","M�xico State","",43,365,1142,12
+186,"","Michigan","",39,343,1143,2
+209,"","Michoac�n","",43,391,1144,12
+81,"","Micronesia Federated States","",32,180,1145,27
+74,"Congo","Middle Congo","",8,169,1146,14
+317,"","Middle I.","",50,531,1147,9
+223,"","Middleton Reef","",28,416,1148,8
+127,"","Midway Is.","",33,241,1149,34
+145,"","Mikura-jima","",23,286,1150,16
+121,"","Milos","one of Kikladhes",3,230,1151,1
+182,"Marcus I.","Minami Tori-shima","",32,339,1152,27
+46,"","Minas Gerais","",48,94,1153,20
+260,"","Mindanao","",26,459,1154,30
+260,"","Mindoro","",26,459,1155,30
+169,"","Minicoy Is.","",24,314,1156,11
+187,"","Minnesota","",38,344,1157,2
+26,"Menorca","Minorca","",2,54,1158,1
+2,"","Misiones","",49,10,1159,28
+308,"","Miskito Cays","",45,516,1160,12
+238,"","Misool","",26,435,1161,25
+201,"","Mississippi","",42,361,1162,2
+202,"","Missouri","",38,362,1163,2
+287,"","Mitre I.","",30,488,1164,19
+145,"","Miyake-jima","",23,286,1165,16
+229,"","Miyako","part of Sakishima-gunto",23,425,1166,16
+21,"","Mizoram","",24,46,1167,11
+267,"","Moa I.","",28,467,1168,8
+195,"Mozambique","Mo�ambique","",11,354,1169,5
+336,"Moldova","Moldaviya","",4,555,1170,1
+336,"","Moldova","",4,555,1171,1
+127,"","Molokai","",33,239,1172,34
+192,"Maluku","Moluccas","",26,350,1173,18
+266,"","Mona I.","",45,465,1174,6
+108,"","Monaco","",2,214,1175,1
+193,"","Mongolia","",22,351,1176,26
+57,"","Mongolia, Inner","",21,"",1177,16
+57,"Nei Mongol","Mongolian Autonomous Region","",21,120,1178,16
+298,"","Mono I.","",30,501,1179,19
+191,"","Montana","",37,349,1180,2
+362,"","Montenegro","",3,595,1181,1
+170,"","Montserrat","U.K. Crown Colony",45,320,1182,6
+285,"","Moorea","one of Iles du Vent",31,485,1183,24
+144,"","Morant Cays","",45,284,1184,6
+273,"","Mordoviya","",4,473,1185,1
+204,"","Morelos","",43,366,1186,12
+194,"","Morocco","excluding Ceuta and Melilla",5,352,1187,3
+194,"","Morocco","including Ceuta and Melilla",5,"",1188,3
+81,"","Mortlock I.","[Caroline Is]",32,180,1189,27
+298,"Tauu Is.","Mortlock Is.","",30,501,1190,19
+273,"","Moscow","",4,473,1191,1
+195,"","Mozambique","",11,354,1192,5
+181,"","Mozambique Channel Is.","",14,338,1193,21
+298,"Rennell I.","Mu Nggava","",30,501,1194,19
+247,"","Muko-jima","",23,445,1195,16
+267,"Badu I.","Mulgrave I.","",28,467,1196,8
+275,"","Murmansk","",4,475,1197,1
+267,"","Murray I.","",28,467,1198,8
+326,"","Mururoa","",31,542,1199,24
+250,"","Muscat","",20,448,1200,0
+31,"","Mussau","one of St.Matthias Is.",26,60,1201,25
+353,"","Mustique","one of Grenadines of St.Vincent",45,581,1202,6
+211,"","Myanmar","",25,399,1203,11
+145,"","Myojin-jima","",23,286,1204,16
+21,"","Nagaland","",24,47,1205,11
+135,"","Nagar Haveli","",24,252,1206,11
+316,"","Nagorno Karabakh","",18,530,1207,0
+229,"","Nakano-shima","part of Tokara-retto",23,425,1208,16
+316,"","Nakhichevan","",18,529,1209,0
+212,"","Namibia","Excluding Caprivi Strip",12,400,1210,17
+81,"","Namonuito","",32,180,1211,27
+286,"","Nan-sha","",25,487,1212,29
+229,"","Nansei-Shoto","",23,425,1213,16
+331,"","Nanumanga","",30,547,1214,4
+331,"","Nanumea","",30,547,1215,4
+305,"","Nanusa Is.","",26,510,1216,18
+12,"","Narcondom I.","",25,33,1217,11
+323,"","Nassau I.","[Pacific]",30,537,1218,24
+213,"KwaZulu Natal","Natal","",12,401,1219,17
+37,"","Natuna Is.","",26,70,1220,18
+231,"","Nauru","",30,427,1221,4
+126,"","Navassa I.","",45,238,1222,6
+121,"","Naxos","one of Kikladhes",3,230,1223,1
+209,"","Nayarit","",43,392,1224,12
+287,"","Ndeni I.","",30,488,1225,19
+10,"","Near I.","",34,31,1226,2
+219,"","Nebraska","",38,412,1227,2
+127,"","Necker I.","",33,239,1228,34
+190,"","Negeri Sembilan","",26,347,1229,36
+190,"Negeri Sembilan","Negri Sembilan","",26,347,1230,36
+260,"","Negros","",26,459,1231,30
+57,"","Nei Mongol","",21,120,1232,16
+220,"","Nepal","",24,413,1233,11
+221,"","Netherlands","",1,414,1234,1
+228,"","Netherlands Antilles","excluding Netherlands Leeward Is.; self-governing part of Netherlands realm",45,"",1235,6
+368,"Surinam","Netherlands Guiana","",46,512,1236,20
+170,"","Netherlands Leeward Is.","",45,321,1237,6
+3,"","Neuqu�n","",49,12,1238,28
+222,"","Nevada","",40,415,1239,2
+170,"","Nevis","",45,322,1240,6
+214,"","New Brunswick","",36,402,1241,2
+31,"","New Britain","",26,60,1242,25
+237,"","New Caledonia","Overseas Territory of France",30,434,1243,31
+298,"","New Georgia","",30,501,1244,19
+238,"","New Guinea","",26,"",1245,25
+239,"","New Hampshire","",39,437,1246,2
+31,"","New Hanover","",26,60,1247,25
+340,"Vanuatu","New Hebrides","",30,560,1248,19
+31,"","New Ireland","",26,60,1249,25
+240,"","New Jersey","",39,438,1250,2
+241,"","New Mexico","",41,439,1251,2
+25,"","New Providence","",45,53,1252,6
+360,"Novosibirskiye Ostrova","New Siberian Is.","",15,588,1253,26
+233,"","New South Wales","excluding Australian Capital Territory",28,430,1254,8
+233,"","New South Wales","including Australian Capital Territory",28,"",1255,8
+243,"","New York","",39,441,1256,2
+244,"","New Zealand North","",29,442,1257,33
+245,"","New Zealand South","",29,443,1258,33
+224,"","Newfoundland I.","excluding St.Pierre-Miquelon",36,418,1259,2
+224,"","Newfoundland","including St.Pierre-Miquelon",36,"",1260,2
+81,"","Ngatik","",32,180,1261,27
+306,"","Nias","",26,511,1262,18
+227,"","Nicaragua","",44,422,1263,12
+308,"","Nicaraguan Caribbean Is.","",45,516,1264,12
+235,"","Nicholson I.","part of Beveridge Reef",30,432,1265,4
+216,"","Nicobar Is.","",25,404,1266,11
+226,"","Niger","",7,421,1267,13
+225,"","Nigeria","",7,420,1268,13
+317,"","Nightingale I.","",50,531,1269,9
+127,"","Nihoa","",33,239,1270,34
+145,"","Nii-jima","",23,286,1271,16
+127,"","Niihua","",33,239,1272,34
+261,"","Nikumaroro","",30,460,1273,4
+117,"","Nikunau","",30,226,1274,4
+57,"Ningxia","Ningshia Autonomous Region","",21,121,1275,16
+57,"","Ningxia","",21,121,1276,16
+31,"","Ninigo Is.","",26,60,1277,25
+247,"","Nishino-shima","",23,445,1278,16
+298,"","Nissan","one of Green Is.",30,500,1279,19
+324,"","Niuafoou","",30,540,1280,4
+324,"","Niuatoputapu","",30,540,1281,4
+235,"","Niue","self-governing Territory Overseas in free association with New Zealand",30,432,1282,4
+331,"","Niulakita","",30,547,1283,4
+331,"","Niutao","",30,547,1284,4
+273,"","Nizhny Novgorod","",4,473,1285,1
+324,"","Nomuka","",30,540,1286,4
+223,"","Norfolk I.","External Territory of Australia",28,417,1287,8
+230,"Norway","Norge","",0,426,1288,1
+37,"Sabah","North Borneo","",26,71,1289,18
+215,"","North Carolina","",42,403,1290,2
+217,"","North Caucasus","",18,"",1291,0
+218,"","North Dakota","",38,411,1292,2
+156,"","North Korea","",23,299,1293,16
+298,"","North Solomons","",30,500,1294,19
+361,"","North Yemen","",20,589,1295,0
+138,"","Northern Ireland","",0,276,1296,1
+197,"","Northern Marianas","",32,357,1297,27
+365,"Zambia","Northern Rhodesia","",11,600,1298,5
+234,"","Northern Territory","[Australia]",28,431,1299,8
+242,"","Northwest Territories","",34,"",1300,2
+230,"","Norway","",0,426,1301,1
+14,"","Norwegian Antarctic Territory","",51,36,1302,9
+242,"","Nottingham I.","",34,440,1303,2
+232,"","Nova Scotia","",36,428,1304,2
+356,"","Novaya Zemlya","",15,584,1305,26
+277,"","Novgorod","",4,477,1306,1
+356,"","Novosibirsk","",15,584,1307,26
+360,"","Novosibirskiye Ostrova","",15,588,1308,26
+345,"","Nueva Esparta","",45,565,1309,15
+205,"","Nuevo Le�n","",43,375,1310,12
+298,"","Nuguria Is.","",30,500,1311,19
+331,"","Nui","",30,547,1312,4
+198,"","Nuku Hiva","",31,358,1313,24
+331,"","Nukufetau","",30,547,1314,4
+331,"","Nukulaelae","",30,547,1315,4
+298,"","Nukumanu Is.","",30,500,1316,19
+117,"Nikunau","Nukunau","",30,226,1317,4
+323,"","Nukunono","",30,539,1318,4
+81,"","Nukuoro","",32,180,1319,27
+287,"","Nupani I.","",30,488,1320,19
+331,"Niulakita","Nurakita","",30,547,1321,4
+189,"Malawi","Nyasaland","",11,346,1322,5
+127,"","Oahu","",33,239,1323,34
+209,"","Oaxaca","",43,393,1324,12
+192,"","Obi Is.","",26,350,1325,18
+117,"Banaba","Ocean I.","",30,226,1326,4
+174,"East Timor","Ocussi Ambeno","",26,330,1327,18
+262,"","Oeno I.","",31,461,1328,24
+280,"","Ofu","",30,480,1329,4
+247,"","Ogasawara-shoto","",23,445,1330,16
+67,"","O'Higgins","",49,153,1331,28
+248,"","Ohio","",39,446,1332,2
+145,"","Oki","",23,286,1333,16
+229,"","Okina Daito","one of Dainto Is.",23,425,1334,16
+229,"","Okinawa","I. Prefecture of Japan",23,425,1335,16
+229,"","Okinoeraba-shima","part of Amami-shoto",23,425,1336,16
+249,"","Oklahoma","",38,447,1337,2
+280,"","Olosega","",30,480,1338,4
+250,"","Oman","",20,448,1339,0
+356,"","Omsk","",15,584,1340,26
+117,"","Onotoa","",30,226,1341,4
+251,"","Ontario","",36,449,1342,2
+298,"","Ontong Java","",30,501,1343,19
+246,"Free State","Orange Free State","",12,444,1344,17
+345,"","Orchila I.","",45,565,1345,15
+252,"","Oregon","",37,450,1346,2
+273,"","Orel","",4,473,1347,1
+274,"","Orenburg","",4,474,1348,1
+135,"","Orissa","",24,265,1349,11
+120,"","Orkney Is.","part of Scotland",0,229,1350,1
+273,"Orel","Orlov","",4,473,1351,1
+81,"","Oroluk","",32,180,1352,27
+261,"","Orona","",30,460,1353,4
+229,"","O-shima","part of Amami-shoto",23,425,1354,16
+145,"","O-shima","[Izu-shoto]",23,286,1355,16
+23,"Austria","Osterreich","",1,50,1356,1
+145,"","Osumi-shoto","",23,287,1357,16
+285,"Tahiti","O'Tahiti","one of Iles du Vent",31,485,1358,24
+50,"Central African Republic","Oubangui Shari","",8,109,1359,14
+115,"Annobon","Pagalu","",8,221,1360,14
+197,"","Pagan","",32,357,1361,27
+190,"","Pahang","",26,347,1362,36
+253,"","Pakistan","",24,451,1363,11
+27,"","Pakistan East","",24,55,1364,11
+81,"","Palau","",32,181,1365,27
+81,"","Palau Is.","",32,181,1366,27
+260,"","Palawan","",26,459,1367,30
+254,"","Palestine","",19,"",1368,0
+326,"","Palliser Is.","",31,542,1369,24
+75,"Avarau","Palmerston I.","",31,170,1370,24
+172,"","Palmyra I.","",31,327,1371,24
+255,"","Panam�","",44,454,1372,15
+255,"","Panam� Canal Zone","",44,454,1373,15
+260,"","Panay","",26,459,1374,30
+238,"","Pandaidori Is.","",26,435,1375,25
+287,"","Pandora Bank","",30,488,1376,19
+344,"Hon Panjang","Panjang I.","",25,564,1377,22
+293,"","Pantelleria","",3,495,1378,1
+238,"","Papua New Guinea","excluding Bismarck Archipelago and Bougainville Is.",26,436,1379,25
+47,"","Par�","",48,101,1380,20
+286,"","Paracel Is.","",25,486,1381,22
+256,"","Paraguay","",49,455,1382,20
+45,"","Para�ba","",48,88,1383,20
+48,"","Paran�","",48,105,1384,20
+146,"","Parang","",26,289,1385,18
+163,"","Parece Vela","",23,307,1386,16
+121,"","Paros","one of Kikladhes",3,230,1387,1
+242,"","Parry Is.","",34,440,1388,2
+95,"Easter I.","Pascua I.","",31,196,1389,24
+3,"","Patagonia","",49,"",1390,28
+94,"","Patmos","one of Dhodekanisos",19,195,1391,0
+341,"","Patos I.","",46,561,1392,15
+326,"","Paumotu","",31,542,1393,24
+347,"","Peale I.","",32,567,1394,27
+115,"","Pedra da Gale","",8,223,1395,14
+144,"","Pedro Cays","",45,284,1396,6
+59,"Beijing","Peking","",21,127,1397,16
+293,"","Pelagie Is.","",3,495,1398,1
+121,"","Peloponnisos","",3,230,1399,1
+313,"","Pemba I.","",10,521,1400,37
+190,"Pinang","Penang","",26,347,1401,36
+312,"","P'eng-hu Lieh-tao","",23,520,1402,16
+174,"","Penida","",26,329,1403,18
+190,"","Pennisular Malaysia","",26,347,1404,36
+192,"","Penju Is.","",26,350,1405,18
+258,"","Pennsylvania","",39,457,1406,2
+323,"Tongareva","Penrhyn I.","",30,537,1407,24
+340,"","Pentecost I.","",30,560,1408,19
+273,"","Penza","",4,473,1409,1
+190,"","Perak","",26,347,1410,36
+361,"","Perim","",20,590,1411,0
+255,"","Perlas Is.","",44,454,1412,15
+190,"","Perlis","",26,347,1413,36
+274,"","Perm","",4,474,1414,1
+45,"","Pernambuco","",48,89,1415,20
+140,"Iran","Persia","",19,278,1416,0
+259,"","Peru","",47,458,1417,15
+312,"P'eng-hu Lieh-tao","Pescadores","",23,520,1418,16
+14,"","Peter I Oy","part of Ellsworth Land",51,36,1419,9
+170,"","Petite Terre, Isles de la","",45,319,1420,6
+260,"","Philippines","",26,459,1421,30
+223,"","Phillip I.","",28,417,1422,8
+261,"","Phoenix Is.","",30,460,1423,4
+344,"","Phu Quoc","",25,564,1424,22
+45,"","Piau�","",48,90,1425,20
+24,"","Pico","",6,52,1426,10
+190,"","Pinang","",26,347,1427,36
+237,"Ile des Pins","Pines I.","[Pacific]",30,434,1428,31
+81,"","Pingelap","",32,180,1429,27
+298,"","Pinipel I.","one of Green Is.",30,500,1430,19
+85,"Isla de Juventud","Pinos I.","[Caribbean]",45,185,1431,6
+237,"","Pins, Ile des","",30,434,1432,31
+111,"","Pinta I.","",47,217,1433,15
+262,"","Pitcairn","",31,461,1434,24
+262,"","Pitcairn Is.","U.K. Dependent Territory",31,461,1435,24
+84,"","Pitt I.","",29,184,1436,33
+7,"","Platte Is.","",14,28,1437,21
+81,"","Pohnpei","",32,180,1438,27
+7,"","Poivre","part of Amirante group",14,28,1439,21
+263,"","Poland","",1,462,1440,1
+81,"Pohnpei","Ponape","",32,180,1441,27
+135,"","Pondicherry","",24,266,1442,11
+82,"Ile aux Cochons","Porcs I.","",50,182,1443,9
+184,"","Porto Santo","",6,341,1444,10
+264,"","Portugal","excluding Azores and Madeira",2,463,1445,1
+13,"","Portuguese Congo","",11,35,1446,5
+195,"Mozambique","Portuguese East Africa","",11,354,1447,5
+118,"Guinea-Bissau","Portuguese Guinea","",7,227,1448,13
+49,"Cabinda","Portuguese Maiombe","",8,108,1449,14
+174,"East Timor","Portuguese Timor","",26,330,1450,18
+82,"","Possession I.","",50,182,1451,9
+344,"Con Son","Poulo Condore","",25,564,1452,22
+291,"","Praslin I.","",14,492,1453,21
+61,"Dongsha Qundao","Pratas I.","",21,135,1454,16
+61,"Dongsha Qundao","Pratus I.","",21,135,1455,16
+12,"","Preparis I.","",25,34,1456,11
+19,"","Pribilov Is.","",34,41,1457,2
+265,"Primorye","Primorskiy Kray","",16,464,1458,26
+265,"","Primorye","",16,464,1459,26
+257,"","Prince Edward I.","[Canada]",36,456,1460,2
+196,"","Prince Edward I.","",50,355,1461,9
+19,"","Prince of Wales I.","[Alaska]",34,41,1462,2
+242,"","Prince of Wales I.","[Canada]",34,440,1463,2
+190,"Pinang","Prince of Wales I.","[Malaya]",26,347,1464,36
+267,"","Prince of Wales I.","[Torres Strait]",28,467,1465,8
+14,"","Princess Elizabeth Land","part of Australian Antarctic Territory",51,36,1466,9
+115,"","Principe","",8,223,1467,14
+7,"","Providence group","",14,28,1468,21
+7,"","Providence I.","one of Providence group",14,28,1469,21
+308,"","Providencia I.","",45,514,1470,12
+94,"","Psara","",19,195,1471,0
+277,"","Pskov","",4,477,1472,1
+204,"","Puebla","",43,367,1473,12
+266,"","Puerto Rico","excluding Navassa I.; self-governing commonwealth associated with U.S.A.",45,465,1474,6
+323,"","Pukapuka","[Manihiki]",30,537,1475,24
+326,"","Pukapuka","[Tuamotu]",31,542,1476,24
+81,"","Pulo Ana","",32,181,1477,27
+135,"","Punjab","[India]",24,267,1478,11
+253,"","Punjab","[Pakistan]",24,451,1479,11
+31,"","Purdy Is.","",26,60,1480,25
+122,"","Qatar","",20,232,1481,0
+60,"","Qinghai","",21,"",1482,16
+268,"","Qu�bec","",36,468,1483,2
+40,"","Queen Charlotte Is.","",35,75,1484,2
+242,"","Queen Elizabeth Is.","",34,440,1485,2
+14,"","Queen Mary Land","part of Australian Antarctic Territory",51,36,1486,9
+267,"","Queensland","excluding Coral Sea Is. Territory",28,467,1487,8
+267,"","Queensland","including Coral Sea Is. Territory",28,"",1488,8
+156,"Cheju Do","Quelpart I.","",23,300,1489,16
+61,"Kin-Men","Quemoy","",21,142,1490,16
+205,"","Quer�taro","",43,376,1491,12
+210,"","Quintana Roo","",43,396,1492,12
+308,"","Quita Sue�o","",45,514,1493,12
+104,"","Rabi","",30,208,1494,35
+326,"","Raeffsky Is.","",31,542,1495,24
+25,"","Ragged I.","",45,53,1496,6
+285,"","Raiatea","one of Iles sous le Vent",31,485,1497,24
+327,"","Raivavae","",31,543,1498,24
+135,"","Rajasthan","",24,268,1499,11
+7,"","Rajaswaree Reef","",14,28,1500,21
+323,"","Rakahanga","",30,537,1501,24
+199,"","Ralik chain","",32,359,1502,27
+104,"Rabi","Rambi","",30,208,1503,35
+326,"","Rangiroa","",31,542,1504,24
+153,"","Raoul I.","",29,296,1505,33
+327,"Rapa-Iti","Rapa I.","",31,543,1506,24
+95,"Easter I.","Rapa Nui","",31,196,1507,24
+327,"","Rapa-Iti","",31,543,1508,24
+326,"","Raroia","",31,542,1509,24
+75,"","Rarotonga","",31,170,1510,24
+122,"Ra's al Khaymah","Ras Al-Khaimah","",20,233,1511,0
+229,"","Rasa-shima","one of Daito Is.",23,425,1512,16
+199,"","Ratak chain","",32,359,1513,27
+261,"","Rawaki","",30,460,1514,4
+170,"","Redonda","",45,315,1515,6
+323,"Rakahanga","Reirson I.","",30,537,1516,24
+7,"","Remire","part of Amirante group",14,28,1517,21
+298,"","Rennell I.","",30,501,1518,19
+269,"","R�union","Overseas Departement of France",14,469,1519,21
+207,"","Revillagigedo Is.","",43,383,1520,12
+270,"","Rhode I.","",39,470,1521,2
+94,"Rhodos","Rhodes","",19,195,1522,0
+366,"Zimbabwe","Rhodesia","",11,601,1523,5
+365,"Zambia","Rhodesia, Northern","",11,600,1524,5
+366,"Zimbabwe","Rhodesia, Southern","",11,601,1525,5
+306,"","Riau Is.","",26,511,1526,18
+327,"","Rimatara","",31,543,1527,24
+46,"","Rio de Janeiro","",48,95,1528,20
+355,"Western Sahara","Rio de Oro","",5,583,1529,3
+45,"","Rio Grande do Norte","",48,91,1530,20
+48,"","Rio Grande do Sul","",48,106,1531,20
+100,"Equatorial Guinea","Rio Muni","",8,204,1532,14
+3,"","Rio Negro","",49,13,1533,28
+308,"","Roatan","one of Bahia Is.",45,515,1534,12
+147,"","Robinson Crusoe I.","",49,290,1535,28
+93,"","Roca Catedral","",49,194,1536,28
+207,"","Rocas Alijos","",43,382,1537,12
+120,"","Rockall","",0,229,1538,1
+94,"","Rhodos","",19,195,1539,0
+271,"","Rodrigues","",14,471,1540,21
+115,"","Rolas Is.","",8,224,1541,14
+272,"","Romania","",3,472,1542,1
+308,"","Roncador Cay","",45,514,1543,12
+353,"","Ronde","one of Grenadines of Grenada",45,578,1544,6
+47,"","Rond�nia","",48,103,1545,20
+31,"Umboi","Rooke Is.","",26,60,1546,25
+47,"","Roraima","",48,102,1547,20
+280,"","Rose I.","",30,480,1548,4
+14,"","Ross Dependency","Antarctic Territory Overseas of New Zealand",51,36,1549,9
+238,"","Rossel I.","part of Louisiade Archipelago",26,436,1550,25
+276,"","Rostov","",4,476,1551,1
+197,"","Rota","",32,357,1552,27
+104,"","Rotuma","",30,208,1553,35
+180,"","Round I.","",14,337,1554,21
+278,"Rwanda","Ruanda","",8,478,1555,14
+272,"Romania","Rumania","",3,472,1556,1
+327,"","Rurutu","",31,543,1557,24
+298,"","Russell Is.","",30,501,1558,19
+"","Russia North, Russia South, Russia Northwest, Russia Central and Russia East;  also U.S.S.R.","Russia","",4,"",1559,1
+274,"East European Russia","Russia East","",4,474,1560,1
+275,"North European Russia","Russia North","",4,475,1561,1
+276,"South European Russia","Russia South","",4,476,1562,1
+278,"","Rwanda","",8,478,1563,14
+273,"","Ryazan","",4,473,1564,1
+229,"","Ryukyu Is.","",23,425,1565,16
+170,"","Saba","",45,321,1566,6
+37,"","Sabah","",26,71,1567,18
+305,"","Sabalana Is.","",26,510,1568,18
+232,"","Sable I.","[Atlantic]",36,428,1569,2
+237,"","Sable I.","[South Pacific]",30,434,1570,31
+267,"","Saibai I.","",28,467,1571,8
+170,"","Saintes, Iles des","",45,319,1572,6
+197,"","Saipan","",32,357,1573,27
+146,"","Sakala","",26,289,1574,18
+279,"","Sakhalin","",16,479,1575,26
+229,"","Sakishima-gunto","",23,425,1576,16
+95,"","Sala y Gomez","",31,196,1577,24
+4,"","Salta","",49,21,1578,28
+99,"","Salvador, El","",44,203,1579,12
+289,"","Salvage Is.","",6,490,1580,10
+25,"","Samana Cay","",45,53,1581,6
+260,"","Samar","",26,459,1582,30
+274,"","Samara","",4,474,1583,1
+297,"","Samhah I.","",9,499,1584,23
+280,"","Samoa","",30,"",1585,4
+94,"","Samos","one of Dhodekanisos",19,195,1586,0
+121,"Samothraki","Samothrace","",3,230,1587,1
+121,"","Samothraki","",3,230,1588,1
+93,"","San Ambrosio I.","",49,194,1589,28
+308,"","San Andr�s I.","",45,514,1590,12
+51,"","San Clemente I.","",40,110,1591,2
+111,"","San Cristobal","[Gal�pagos]",47,217,1592,15
+298,"","San Cristobal","[SW. Pacific]",30,501,1593,19
+93,"","San Felix I.","",49,194,1594,28
+4,"","San Juan","",49,23,1595,28
+4,"","San Luis","",49,24,1596,28
+205,"","San Luis Potos�","",43,377,1597,12
+142,"","San Marino","",3,281,1598,1
+51,"","San Miguel I.","",40,110,1599,2
+51,"","San Nicolas I.","",40,110,1600,2
+25,"","San Salvador","[Caribbean]",45,53,1601,6
+111,"","San Salvador","[Galapagos]",47,217,1602,15
+10,"","Sanak I.","",34,31,1603,2
+127,"","Sand I.","",33,241,1604,34
+127,"Hawai'ian Is.","Sandwich Is.","",33,239,1605,34
+305,"","Sangir Is.","",26,510,1606,18
+51,"","Santa Catalina I.","",40,110,1607,2
+48,"","Santa Catarina","",48,107,1608,20
+51,"","Santa Cruz I.","[California]",40,110,1609,2
+111,"","Santa Cruz I.","[Gal�pagos]",47,217,1610,15
+287,"","Santa Cruz Is.","[South Pacific]",30,488,1611,19
+3,"","Santa Cruz","[Argentina]",49,14,1612,28
+3,"","Santa F�","",49,15,1613,28
+298,"","Santa Isabel","",30,501,1614,19
+24,"","Santa Maria","",6,52,1615,10
+340,"","Santa Maria I.","[Vanuatu]",30,560,1616,19
+111,"","Santa Maria I.","[Gal�pagos]",47,217,1617,15
+51,"","Santa Rosa I.","",40,110,1618,2
+298,"Santa Isabel","Santa Ysabel","",30,501,1619,19
+67,"","Santiago","",49,154,1620,28
+4,"","Santiago del Estero","",49,22,1621,28
+121,"Thira","Santorini","one of Kikladhes",3,230,1622,1
+24,"","Sao Jorge","",6,52,1623,10
+46,"","S�o Paulo","",48,96,1624,20
+45,"","S�o Pedro e S�o Paulo","",48,86,1625,20
+115,"","S�o Tom�","",8,224,1626,14
+260,"","Sarangani Is.","",26,459,1627,30
+276,"","Saratov","",4,476,1628,1
+37,"","Sarawak","",26,72,1629,18
+281,"","Sardegna","I. region of Italy",2,481,1630,1
+281,"Sardegna","Sardinia","",2,481,1631,1
+158,"","Saria","",3,302,1632,1
+197,"","Sarigan","",32,357,1633,27
+108,"","Sark","",2,212,1634,1
+282,"","Saskatchewan","",35,482,1635,2
+283,"","Saudi Arabia","",20,483,1636,0
+280,"","Savaii","",30,608,1637,4
+174,"","Savu","",26,331,1638,18
+158,"Karpathos","Scarpanto","",3,302,1639,1
+238,"Panaidori Is.","Schouten Is.","",26,435,1640,25
+120,"","Scotland","",0,229,1641,1
+14,"","Scott I.","part of Ross Dependency",51,36,1642,9
+315,"","Seal Cays","",45,523,1643,6
+127,"","Seal I.","",33,239,1644,34
+355,"Western Sahara","Seguia el Hamara","",5,583,1645,3
+190,"","Selangor","",26,347,1646,36
+289,"","Selvagens","",6,490,1647,10
+290,"","Senegal","",7,491,1648,13
+229,"","Senkaku-gunto","",23,425,1649,16
+146,"","Sepanjang","",26,289,1650,18
+192,"","Seram","",26,350,1651,18
+362,"","Serbia","",3,596,1652,1
+157,"","Sergeya Kirova Ostrova","",15,301,1653,26
+45,"","Sergipe","",48,92,1654,20
+174,"","Sermata Is.","",26,331,1655,18
+308,"","Serrana Bank","",45,514,1656,12
+308,"","Serranilla Bank","",45,514,1657,6
+115,"","Sete Pedras Is.","",8,224,1658,14
+157,"","Severnaya Zemlya","",15,301,1659,26
+217,"","Severo-Osetiya","",18,409,1660,0
+291,"","Seychelles","",14,492,1661,21
+59,"","Shaanxi","",21,128,1662,16
+292,"","Shag Rocks","",50,493,1663,9
+59,"","Shandong","",21,129,1664,16
+61,"","Shanghai","",21,140,1665,16
+59,"Shanxi","Shansi","",21,130,1666,16
+155,"","Shantarskiye Ostrova","",16,298,1667,26
+59,"Shandong","Shantung","",21,129,1668,16
+59,"","Shanxi","",21,130,1669,16
+122,"Ash Shariqah","Sharjah","",20,233,1670,0
+59,"Shaanxi","Shensi","",21,128,1671,16
+340,"","Shepherd I.","",30,560,1672,19
+120,"","Shetland Is.","part of Scotland",0,229,1673,1
+145,"","Shikine-jima","",23,286,1674,16
+145,"","Shikoku","I. Prefecture of Japan",23,288,1675,16
+161,"","Shikotan","",16,305,1676,26
+298,"","Shortland Is.","",30,501,1677,19
+6,"Albania","Shqiperi","",3,27,1678,1
+320,"Thailand","Siam","",25,534,1679,22
+55,"","Sichuan","",21,117,1680,16
+293,"","Sicilia","excluding Malta",3,495,1681,1
+293,"","Sicilia","including Malta",3,"",1682,1
+293,"","Sicily","",3,495,1683,1
+294,"","Sierra Leone","",7,496,1684,13
+98,"","Sikkim","",24,202,1685,11
+291,"","Silhouette I.","",14,492,1686,21
+306,"","Simeulue","",26,511,1687,18
+94,"","Simi","one of Dhodekanisos",19,195,1688,0
+295,"","Sinai","",19,497,1689,0
+208,"","Sinaloa","",43,386,1690,12
+253,"","Sind","",24,451,1691,11
+190,"","Singapore","",26,348,1692,36
+305,"Sangir Is.","Singihe Is.","",26,510,1693,18
+63,"Xinjiang","Sinkiang","",21,147,1694,16
+170,"","Sint Eustatius","",45,321,1695,6
+170,"","Sint Maarten","",45,321,1696,6
+121,"","Sirna","",3,230,1697,1
+62,"Tibet","Sitsang","",21,606,1698,16
+121,"","Skiros","",3,230,1699,1
+121,"","Skopelos Kaloyeroi","",3,230,1700,1
+362,"Slovenia","Slovenija","",3,597,1701,1
+273,"","Smolensk","",4,473,1702,1
+170,"","Snake I.","",45,316,1703,6
+245,"","Snares I.","",29,443,1704,33
+285,"","Society Is.","",31,485,1705,24
+297,"","Socotra","",9,499,1706,23
+145,"","Sofu-gan","",23,286,1707,16
+297,"Socotra","Sokotra","",9,499,1708,23
+298,"","Solomon Is.","including North Solomons and South Solomons, excluding Santa Cruz Is.",30,"",1709,19
+174,"","Solor Is.","",26,331,1710,18
+299,"","Somalia","",9,502,1711,23
+299,"British Somaliland","Somaliland Protectorate","",9,502,1712,23
+299,"","Somaliland, British","",9,502,1713,23
+91,"Djibouti","Somaliland, French","",9,192,1714,23
+299,"","Somaliland, Italian","",9,502,1715,23
+170,"","Sombrero","",45,316,1716,6
+208,"","Sonora","",43,387,1717,12
+81,"","Sonsorol","",32,181,1718,27
+63,"Dzungaria","Soongaria","",21,147,1719,16
+"","Cape Province, Natal, Orange Free State, Transvaal, Walvis Bay and Marion-Prince Edward Is.","South Africa","",12,"",1720,17
+296,"","South Australia","",28,498,1721,8
+284,"","South Carolina","",42,484,1722,2
+286,"","South China Sea","split between areas 6 B Indo-China and 6 C Malay Is. of Kew system",25,"",1723,32
+288,"","South Dakota","",38,489,1724,2
+292,"","South Georgia","Dependency of Falkland Is.",50,493,1725,9
+156,"","South Korea","",23,300,1726,16
+14,"","South Orkney Is.","part of British Antarctic Territory",51,36,1727,9
+302,"","South Sandwich Is.","Dependency of Falkland Is.",50,507,1728,9
+14,"","South Shetland Is.","part of British Antarctic Territory",51,36,1729,9
+298,"","South Solomons","",30,501,1730,19
+212,"Namibia","South West Africa","",12,400,1731,17
+361,"","South Yemen","",20,590,1732,0
+236,"","Southampton I.","",34,433,1733,2
+366,"Zimbabwe","Southern Rhodesia","",11,601,1734,5
+308,"","Southwest Caribbean","split between areas 14 Central America and 15 West Indies of Kew system",45,"",1735,32
+300,"","Spain","excluding Baleares, Canary Is., Ceuta and Melilla",2,505,1736,1
+300,"","Spain","excluding Baleares, Canary Is., Ceuta and Melilla; including Andorra and Gibraltar",2,"",1737,1
+100,"Equatorial Guinea","Spanish Guinea","",8,204,1738,14
+194,"Ifni","Spanish Morocco","",5,352,1739,3
+355,"Western Sahara","Spanish Sahara","",5,583,1740,3
+355,"Western Sahara","Spanish West Africa","",5,583,1741,3
+307,"","Spitsbergen","",0,513,1742,1
+94,"Dhodekanisos;  also Voriai Sporadhes [13 Southeastern Europe]","Sporadhes","",19,195,1743,0
+286,"","Spratly Is.","",25,487,1744,29
+362,"Serbia","Srbija","",3,596,1745,1
+301,"","Sri Lanka","",24,506,1746,11
+291,"","St.Anne I.","",14,492,1747,21
+170,"","St.Barth�l�my","",45,323,1748,6
+170,"St.Barthelemy","St.Bartholomew","",45,323,1749,6
+180,"","St.Brandon","",14,337,1750,21
+170,"St.Kitts","St.Christopher","",45,322,1751,6
+170,"","St.Croix","",45,324,1752,6
+170,"Sint Eustatius","St.Eustatius","",45,321,1753,6
+303,"","St.Helena","U.K. Dependent Territory",13,508,1754,7
+170,"","St.John","",45,324,1755,6
+120,"","St.Kilda","part of Scotland",0,229,1756,1
+170,"","St.Kitts-Nevis","",45,322,1757,6
+170,"","St.Kitts","",45,322,1758,6
+19,"","St.Lawrence I.","",34,41,1759,2
+353,"","St.Lucia","",45,580,1760,6
+170,"","St.Martin-St.Barth�l�my","",45,323,1761,6
+170,"","St.Martin","[French]",45,323,1762,6
+170,"Sint Maarten","St.Martin","[Dutch]",45,321,1763,6
+19,"","St.Matthew I.","",34,41,1764,2
+31,"","St.Matthias Is.","",26,60,1765,25
+20,"","St.Paul I.","[S. Indian Ocean]",50,42,1766,9
+45,"Sao Pedro e Sao Paulo","St.Peter and St.Paul Rocks","",48,86,1767,20
+7,"","St.Pierre","[Indian Ocean] part of Providence group",14,28,1768,21
+224,"","St.Pierre-Miquelon","Overseas Departement of France",36,419,1769,2
+170,"","St.Thomas","",45,324,1770,6
+353,"","St.Vincent","",45,581,1771,6
+172,"","Starbuck I.","",31,326,1772,24
+217,"","Stavropol","",18,410,1773,0
+245,"","Stewart I.","[New Zealand]",29,443,1774,33
+298,"","Stewart Is.","[Solomon Is.]",30,501,1775,19
+317,"","Stoltenhoff I.","",50,531,1776,9
+293,"","Stromboli","",3,495,1777,1
+304,"","Sudan","",9,509,1778,23
+192,"","Sula Is.","",26,350,1779,18
+305,"","Sulawesi","",26,510,1780,18
+260,"","Sulu Is.","",26,459,1781,30
+306,"","Sumatera","",26,511,1782,18
+306,"Sumatera","Sumatra","",26,511,1783,18
+174,"","Sumba","",26,331,1784,18
+174,"","Sumbawa","",26,331,1785,18
+145,"","Sumisu-jima","",23,286,1786,16
+174,"","Sunda","",26,331,1787,18
+153,"Raoul I.","Sunday I.","",29,296,1788,33
+368,"","Surinam","",46,512,1789,20
+323,"","Suvorov I.","",30,537,1790,24
+229,"","Suwanose-jima","part of Tokara-retto",23,425,1791,16
+323,"Suvorov I.","Suwarrow I.","",30,537,1792,24
+307,"","Svalbard","",0,513,1793,1
+356,"","Sverdlovsk","",15,584,1794,26
+309,"Sweden","Sverige","",0,517,1795,1
+323,"","Swains I.","",30,538,1796,4
+287,"","Swallow Is.","",30,488,1797,19
+286,"","Swallow Reef","",25,487,1798,29
+308,"","Swan Is.","",45,515,1799,12
+253,"","Swat","",24,451,1800,11
+311,"","Swaziland","",12,519,1801,17
+309,"","Sweden","",0,517,1802,1
+310,"","Switzerland","",1,518,1803,1
+261,"Manra","Sydney I.","",30,460,1804,4
+27,"","Sylhet","",24,55,1805,11
+167,"","Syria","",19,312,1806,0
+167,"Syria","Syrian Arab Republic","",19,312,1807,0
+55,"Sichuan","Szechuan","",21,117,1808,16
+31,"","Tabar Is.","",26,60,1809,25
+210,"","Tabasco","",43,397,1810,12
+117,"","Tabiteuea","",30,226,1811,4
+12,"","Table I.","",25,34,1812,11
+172,"","Tabuaeran","",31,326,1813,24
+334,"","Tadzhikistan","",17,553,1814,26
+324,"","Tafahi","",30,540,1815,4
+285,"","Tahaa","one of Iles sous le Vent",31,485,1816,24
+285,"","Tahiti","one of Iles du Vent",31,485,1817,24
+312,"","Taiwan","",23,520,1818,16
+145,"Tok-to","Takeshima","",23,286,1819,16
+305,"","Talaud Is.","",26,510,1820,18
+117,"","Tamana","",30,226,1821,4
+205,"","Tamaulipas","",43,378,1822,12
+37,"","Tambelan Is.","",26,70,1823,18
+273,"","Tambov","",4,473,1824,1
+135,"","Tamil Nadu","",24,269,1825,11
+340,"Tanna","Tana","",30,560,1826,19
+229,"","Tanega","",23,425,1827,16
+31,"","Tanga Is.","",26,60,1828,25
+313,"Tanzania","Tanganyika","",10,521,1829,37
+194,"Tanger","Tangier","",5,352,1830,3
+174,"","Tanimbar Is.","",26,331,1831,18
+340,"","Tanna","",30,560,1832,19
+313,"","Tanzania","",10,521,1833,37
+67,"","Tarapac�","",49,159,1834,28
+117,"","Tarawa","",30,226,1835,4
+274,"Tartariya","Tartar","",4,474,1836,1
+314,"","Tasmania","",28,522,1837,8
+274,"","Tartariya","",4,474,1838,1
+280,"","Tau","",30,480,1839,4
+298,"","Tauu Is.","",30,500,1840,19
+104,"","Taveuni","",30,208,1841,35
+260,"","Tawitawi","one of Sulu Is.",26,459,1842,30
+157,"","Taymyr","",15,301,1843,26
+54,"Chad","Tchad","",9,114,1844,14
+211,"","Tenasserim","",25,399,1845,11
+330,"Bozcaada","Tenedos","",19,546,1846,0
+71,"","Tenerife","",6,165,1847,10
+305,"","Tengah Is.","",26,510,1848,18
+318,"","Tennessee","",42,532,1849,2
+172,"","Teraina","",31,326,1850,24
+24,"","Terceira","",6,52,1851,10
+190,"","Terengganu","",26,347,1852,36
+14,"","Terra Adelie","",51,36,1853,9
+170,"","Terre de Bas","one of Iles des Saintes",45,319,1854,6
+170,"","Terre de Haut","one of Iles des Saintes",45,319,1855,6
+345,"","Testigos, Los","",45,565,1856,15
+285,"","Tetiaroa","one of Iles du Vent",31,485,1857,24
+319,"","Texas","",41,533,1858,2
+320,"","Thailand","",25,534,1859,22
+121,"","Thasos","",3,230,1860,1
+112,"","The Gambia","",7,218,1861,13
+221,"","The Netherlands","",1,414,1862,1
+121,"","Thira","one of Kikladhes",3,230,1863,1
+286,"","Thitu Is.","",25,487,1864,29
+244,"","Three Kings Is.","",29,442,1865,33
+267,"","Thursday I.","",28,467,1866,8
+59,"","Tianjin","",21,127,1867,16
+62,"Tibet","Tibet","",21,606,1868,16
+62,"","Tibet-Qinghai","see Tibet and see Qinghai",21,"",1869,16
+59,"Tianjin","Tientsin","",21,127,1870,16
+"","Tierra del Fuego (Argentina) and Tierra del Fuego (Chile)","Tierra del Fuego","",49,"",1871,28
+3,"","Tierra del Fuego (Argentina)","",49,16,1872,28
+68,"","Tierra del Fuego (Chile)","",49,162,1873,28
+287,"","Tikopia I.","",30,488,1874,19
+94,"","Tilos","one of Dhodekanisos",19,195,1875,0
+174,"","Timor","",26,331,1876,18
+115,"","Tinhosa I.","",8,223,1877,14
+197,"","Tinian","",32,357,1878,27
+121,"","Tinos","one of Kikladhes",3,230,1879,1
+204,"","Tlaxcala","",43,368,1880,12
+145,"","To-shima","",23,286,1881,16
+325,"","Tobago","",45,541,1882,6
+170,"","Tobago I.","[Virgin Is.]",45,318,1883,6
+81,"","Tobi","",32,181,1884,27
+47,"","Tocantins","",48,104,1885,20
+324,"","Tofua","",30,540,1886,4
+322,"","Togo","",7,536,1887,13
+145,"","Tok-to","",23,286,1888,16
+229,"","Tokara-retto","",23,425,1889,16
+323,"Tokelau","Tokelau Is.","I. Territory Overseas of New Zealand",30,539,1890,4
+229,"","Tokuno-shima","part of Amami-shoto",23,425,1891,16
+31,"","Tolokiwa I.","",26,60,1892,25
+356,"","Tomsk","",15,584,1893,26
+324,"","Tonga","",30,540,1894,4
+323,"","Tongareva","",30,537,1895,24
+324,"","Tongatapu Is.","",30,540,1896,4
+344,"","Tonkin","",25,564,1897,22
+145,"","Tori-shima","",23,286,1898,16
+340,"","Torres Is.","",30,560,1899,19
+170,"","Tortola","",45,318,1900,6
+345,"","Tortuga, La","",45,565,1901,15
+316,"","Transcaucasus","",18,"",1902,0
+254,"Jordan","Transjordan","",19,453,1903,0
+213,"","Transkei","",12,176,1904,17
+333,"Northern Provinces","Transvaal","",12,"",1905,17
+298,"","Treasury Is.","",30,501,1906,19
+267,"","Tregosse Islets","",28,466,1907,8
+209,"Marias Is.","Tres Marias Is.","",43,392,1908,12
+46,"","Trindade","",48,97,1909,20
+325,"","Trinidad","",45,541,1910,6
+325,"","Trinidad-Tobago","",45,541,1911,6
+21,"","Tripura","",24,48,1912,11
+317,"","Tristan da Cunha","Dependency of St. Helena",50,531,1913,9
+238,"","Trobriand Is.","",26,436,1914,25
+269,"","Tromelin I.","",14,469,1915,21
+122,"United Arab Emirates","Trucial States","",20,233,1916,0
+81,"","Truk","",32,180,1917,27
+60,"Qinghai","Tsinghai","",21,"",1918,16
+145,"","Tsushima","",23,287,1919,16
+326,"","Tuamotu","",31,542,1920,24
+327,"","Tubuai I.","",31,543,1921,24
+4,"","Tucum�n","",49,25,1922,28
+305,"","Tukangbesi Is.","",26,510,1923,18
+276,"","Tula","",4,476,1924,1
+329,"","Tunisia","",5,545,1925,3
+330,"","Turkey","excluding Turkey-in-Europe",19,546,1926,0
+328,"","Turkey-in-Europe","",3,544,1927,1
+321,"","Turkmenistan","",17,535,1928,26
+321,"Turkmenistan","Turkmeniya","",17,535,1929,26
+315,"","Turks Is.","",45,523,1930,6
+315,"","Turks-Caicos Is.","U.K. Dependent Territory",45,523,1931,6
+267,"","Turtle I.","[Great Barrier Reef]",28,466,1932,8
+350,"","Turtle I.","[W. Australia]",28,571,1933,8
+280,"","Tutuila","",30,480,1934,4
+332,"","Tuva","",15,548,1935,26
+331,"","Tuvalu","",30,547,1936,4
+332,"","Tuvinskaya A.S.S.R.","",15,548,1937,26
+273,"","Tver","",4,473,1938,1
+356,"","Tyumen","",15,584,1939,26
+172,"","U.S. Line Is.","",31,327,1940,24
+198,"","Ua Huka","",31,358,1941,24
+81,"Yap","Uap","",32,180,1942,27
+50,"","Ubangui","",8,109,1943,14
+50,"Central African Republic","Ubangui Shari","",8,109,1944,14
+274,"","Udmurtiya","",4,474,1945,1
+335,"","Uganda","",10,554,1946,37
+336,"Ukraine","Ukraina","excluding Krym, including Moldova",4,"",1947,1
+336,"Ukraine","Ukraina","excluding Krym and Moldova",4,556,1948,1
+336,"","Ukraine","excluding Krym and Moldova",4,556,1949,1
+156,"","Ullung do","",23,300,1950,16
+273,"","Ulyanovsk","",4,473,1951,1
+31,"","Umboi","",26,60,1952,25
+122,"","Umm Al-Qaywayn","",20,233,1953,0
+10,"","Unimak I.","",34,31,1954,2
+323,"","Union Is.","[Pacific]",30,539,1955,4
+353,"","Union","[Caribbean] one of Grenadines of St.Vincent",45,581,1956,6
+122,"","United Arab Emirates","",20,233,1957,0
+"","Egypt, Sinai and Syria","United Arab Republic","","","",1958,0
+"","Great Britain and Northern Ireland","United Kingdom","",0,"",1959,1
+"","Alaska, Aleutian Is. and Regions 63 North-Central Pacific, 73 Northwestern U.S.A., 74 North-Central U.S.A., 75 Northeastern U.S.A., 76 Southwestern U.S.A., 77 South-Central U.S.A. and 78 Southeastern U.S.A.","United States of America","","","",1960,2
+"","Alaska, Aleutian Is. and Regions 63 North-Central Pacific, 73 Northwestern U.S.A., 74 North-Central U.S.A., 75 Northeastern U.S.A., 76 Southwestern U.S.A., 77 South-Central U.S.A. and 78 Southeastern U.S.A.","U.S.A.","","","",1961,2
+"","Regions 14 Eastern Europe, 30 Siberia, 31 Russian Far East, 32 Middle Asia, 33 Caucasus","U.S.S.R.","split between areas 1 Europe and 3 Northern Asia of Kew system","","",1962,32
+139,"","Ust-Ordinskiy Buryat","",15,277,1963,26
+293,"","Ustica","",3,495,1964,1
+338,"","Utah","",40,558,1965,2
+135,"","Uttar Pradesh","",24,270,1966,11
+287,"","Utupua I.","",30,488,1967,19
+348,"","Uvea","one of Wallis Is.",30,568,1968,4
+339,"","Uzbekistan","",17,559,1969,26
+331,"","Vaitupu","",30,547,1970,4
+65,"","Valpara�so","",49,155,1971,28
+40,"","Vancouver I.","",35,75,1972,2
+287,"","Vanikoro I.","",30,488,1973,19
+340,"","Vanua Lava","",30,560,1974,19
+104,"","Vamua Levu","",30,208,1975,35
+340,"","Vanuatu","",30,560,1976,19
+340,"Efate","Vate","",30,560,1977,19
+142,"","Vatican City","Ecclesiastical State",3,282,1978,1
+104,"","Vatoa Is.","",30,208,1979,35
+104,"","Vatulele","",30,208,1980,35
+324,"","Vavau Is.","",30,540,1981,4
+333,"","Venda","",12,"",1982,17
+341,"","Venezuela","",46,561,1983,15
+345,"","Venezuelan Antilles","",45,565,1984,15
+206,"","Veracruz","",43,380,1985,12
+61,"","Vereker Banks","",21,135,1986,16
+342,"","Vermont","",39,562,1987,2
+343,"","Victoria","",28,563,1988,8
+266,"","Vieques I.","",45,465,1989,6
+344,"","Vietnam","",25,564,1990,22
+344,"","Vietnam, North","",25,564,1991,22
+344,"","Vietnam, South","",25,564,1992,22
+170,"","Virgin Gorda","",45,318,1993,6
+170,"","Virgin Is.","[American]",45,324,1994,6
+170,"","Virgin Is.","[British]",45,318,1995,6
+346,"","Virginia","",42,566,1996,2
+104,"","Viti Levu","",30,208,1997,35
+31,"Witu Is.","Vitu Is.","",26,60,1998,25
+273,"","Vladimir","",4,473,1999,1
+362,"","Vojvodina","",3,596,2000,1
+163,"Kazan-retto","Volcano Is.","",23,307,2001,16
+276,"","Volgograd","",4,476,2002,1
+275,"","Vologda","",4,475,2003,1
+121,"","Voriai Sporadhes","[see also Sporadhes 34 Western Asia]",3,230,2004,1
+273,"","Voronezh","",4,473,2005,1
+172,"","Vostok I.","",31,326,2006,24
+175,"","Vrangelya Ostrova","",16,332,2007,26
+238,"","Waigeo","",26,435,2008,25
+347,"","Wake I.","",32,567,2009,27
+120,"","Wales","",0,229,2010,1
+212,"","Walfish Bay","",12,400,2011,17
+348,"","Wallis Is.","",30,568,2012,4
+348,"","Wallis-Futuna Is.","sel-governing Overseas Territory of France",30,568,2013,4
+237,"","Walpole I.","",30,434,2014,31
+212,"","Walvis Bay","",12,400,2015,17
+351,"","Washington DC","",42,572,2016,2
+172,"","Washington I.","",31,326,2017,24
+349,"","Washington","[state]",37,569,2018,2
+344,"Ko Way","Way I.","",25,564,2019,22
+111,"","Wenman I.","",47,217,2020,15
+135,"","West Bengal","",24,271,2021,11
+114,"","West Berlin","",1,220,2022,1
+"","British Cameroons","West Cameroons","split between areas 10 A West Tropical Africa and 10 B Cameroons and Congo of Kew system","","",2023,32
+114,"","West Germany","",1,220,2024,1
+238,"Irian Jaya","West Irian","",26,435,2025,25
+276,"","West Kazakhstan","[west of Ural River]",4,476,2026,1
+253,"Pakistan (i.e. not East Pakistan [Bangladesh])","West Pakistan","split between areas 2 A Orient ('Baluchistan') and 5 India in Kew system",24,451,2027,32
+356,"","West Siberia","",15,584,2028,26
+357,"","West Virginia","",39,585,2029,2
+350,"","Western Australia","excluding Ashmore-Cartier",28,571,2030,8
+350,"","Western Australia","including Ashmore-Cartier",28,"",2031,8
+355,"","Western Sahara","",5,583,2032,3
+280,"","Western Samoa","",30,608,2033,4
+174,"","Wetar","one of Barat Daya Is.",26,331,2034,18
+84,"Chatham Is.","Wharekauri","",29,184,2035,33
+33,"","White Russia","",4,62,2036,1
+347,"","Wilkes I.","",32,567,2037,27
+14,"","Wilkes Land","part of Australian Antarctic Territory",51,36,2038,9
+267,"","Willis Is.","",28,466,2039,8
+353,"","Windward Is.","[Caribbean]",45,"",2040,6
+22,"","Windward Is.","[New Zealand]",29,49,2041,9
+285,"","Windward Is.","[Pacific] part of Iles du Vent",31,485,2042,24
+261,"","Winslow Reef","",30,460,2043,4
+354,"","Wisconsin","",38,582,2044,2
+31,"","Witu Is.","",26,60,2045,25
+81,"","Woleai","",32,180,2046,27
+238,"","Woodlark I.","",26,436,2047,25
+199,"","Wotje","part of Ratak chain",32,359,2048,27
+175,"Vrangelya Ostrova","Wrangel I.","",16,332,2049,26
+31,"","Wuvulu I.","one of Ninigo Is.",26,60,2050,25
+358,"","Wyoming","",37,586,2051,2
+61,"Hong Kong","Xianggang","",21,138,2052,16
+63,"","Xinjiang","",21,147,2053,16
+286,"Paracel Is.","Xisha Is.","",25,486,2054,22
+60,"","Xizang","",21,132,2055,16
+145,"","Yaku-shima","part of Osumi-shoto",23,287,2056,16
+360,"","Yakutskiya","",15,588,2057,26
+356,"","Yamalo-Nenets","",15,584,2058,26
+135,"","Yanam","",24,272,2059,11
+81,"","Yap","",32,180,2060,27
+238,"","Yapen","",26,435,2061,25
+273,"","Yaroslavl","",4,473,2062,1
+104,"","Yasawa Is.","",30,208,2063,35
+361,"North Yemen","Yemen Arab Republic","",20,589,2064,0
+361,"","Yemen","excluding Socotra",20,"",2065,0
+361,"","Yemen, People's Democratic Republic of","",20,590,2066,0
+155,"","Yevreysk","",16,298,2067,26
+158,"","Yianisadhes","",3,302,2068,1
+229,"","Yonaguni","part of Sakishima-gunto",23,425,2069,16
+14,"","Young I.","part of Ross Dependency",51,36,2070,9
+210,"","Yucat�n","",43,398,2071,12
+316,"","Yugo-Osetiya","",18,528,2072,0
+362,"","Yugoslavia","",3,"",2073,1
+363,"","Yukon","",34,598,2074,2
+55,"","Yunnan","",21,118,2075,16
+205,"","Zacatecas","",43,379,2076,12
+121,"","Zafora","",3,230,2077,1
+364,"","Zaire","",8,599,2078,14
+121,"","Zakinthos","",3,230,2079,1
+365,"","Zambia","",11,600,2080,5
+121,"Zakinthos","Zante","",3,230,2081,1
+313,"","Zanzibar","",10,521,2082,37
+356,"Zemlya Frantsa-Iosifa","Zemlya Franz Josef","",15,584,2083,26
+61,"","Zhejiang","",21,146,2084,16
+366,"","Zimbabwe","",11,601,2085,5
+250,"","Zufar","",20,448,2086,0
+213,"","Zululand","",12,401,2087,17
+122,"United Arab Emirates","Abu Zabi","",20,233,2088,0
+7,"","African Is.","part of Amirante group",14,28,2089,21
+"","","Arabian Peninsula","",20,"",2090,0
+225,"","Bendel Province, Nigeria","",7,420,2091,13
+345,"","Islas las Aves","[off Venezuela]",45,565,2092,15
+121,"","Kefallinia","",3,230,2093,1
+356,"","Zemlya Frantsa-Iosifa","",15,584,2094,26
+190,"","Johor","",26,347,2095,36
+276,"","Kalmykyia","",4,476,2096,1
+104,"","Mamanuca Is.","",30,208,2097,35
+237,"","Ile des Pins","[Pacific]",30,434,2098,31
+85,"","Isla de Juventud","[Caribbean]",45,185,2099,6
+122,"","Ra's al Khaymah","",20,233,2100,0
+194,"","Tanger","",5,352,2101,3
+337,"","Uruguay","",49,557,2102,28
+298,"","Lindsay Is.","part of Brummitt Federation",30,501,2103,19
+88,"","Czech Republic","",1,188,2104,1
+88,"","Slovakia","",1,189,2105,1
+362,"","Slovenia","",3,597,2106,1
+194,"","Islas Chafarinas","",5,353,2107,3
+194,"Islas Chafarinas","Chafarinas Is.","",5,353,2108,3
+194,"","Penon de Velez de la Gomera","",5,353,2109,3
+194,"","Penon de Alhucemas","",5,353,2110,3
+79,"","Northern Cape Province","",12,177,2111,17
+79,"","Eastern Cape Province","",12,176,2112,17
+79,"","Western Cape Province","",12,178,2113,17
+333,"","Northern Province","",12,551,2114,17
+333,"","North West Province","",12,552,2115,17
+333,"","Gauteng","",12,549,2116,17
+333,"","Mpumalanga","",12,550,2117,17
+333,"","Northern Provinces","",12,"",2118,17
+246,"","Free State","",12,444,2119,17
+213,"","KwaZulu Natal","",12,401,2120,17
+352,"","Garhwal","",24,575,2121,11
+352,"","Kumaon","",24,575,2122,11
+352,"Uttaranchal","Utrakhand","",24,575,2123,11
+352,"","West Himalaya","",24,"",2124,11
+98,"","East Himalaya","",24,"",2125,11
+323,"","Tokelau","",30,539,2126,4
+323,"","Tokelau-Manihiki","",30,"",2127,4
+65,"","Chile Central","",49,"",2128,28
+145,"","Sado I.","",23,286,2129,16
+145,"","Awaji-shoto","",23,286,2130,16
+145,"","Shodo-shoto","",23,288,2131,16
+145,"","Ie-shima","",23,286,2132,16
+145,"","Te-shima","",23,288,2133,16
+145,"","Yashiro-jima","",23,286,2134,16
+145,"","Nako-jima","",23,288,2135,16
+145,"","Kurahashi-jima","",23,286,2136,16
+145,"","Uoshima","",23,288,2137,16
+145,"","Omi-shoto","",23,288,2138,16
+145,"","Inno-shima","",23,286,2139,16
+145,"","Hakata-shima","",23,288,2140,16
+145,"","Heigun-to","",23,286,2141,16
+145,"","Ya-shima","",23,286,2142,16
+145,"","Hime-shima","",23,287,2143,16
+145,"","Naga-shima","",23,286,2144,16
+145,"","Koshiki-jima","",23,287,2145,16
+145,"","Goto-retto","",23,287,2146,16
+145,"","Iki","",23,287,2147,16
+145,"","Rebun-to","",23,285,2148,16
+145,"","Rishiri-to","",23,285,2149,16
+145,"","Izu Is.","",23,286,2150,16
+145,"","Oki Is.","",23,286,2151,16
+145,"","Dozen","",23,286,2152,16
+145,"","Dogo","",23,286,2153,16
+229,"","Gaja-jima","",23,425,2154,16
+163,"","Io-jima","",23,307,2155,16
+163,"","Kita-io-jima","",23,307,2156,16
+163,"","Minami-io-jima","",23,307,2157,16
+247,"","Yome-jima","",23,445,2158,16
+229,"","Yonakuni","part of Sakishima-gunto",23,425,2159,16
+145,"","Fukue","",23,287,2160,16
+145,"","Okushiri-to","",23,285,2161,16
+34,"Latvia","Latviya","",4,65,2162,1
+33,"Belarus","Belorussia","",4,62,2163,1
+336,"","Ukraine","excluding Krym, including Moldova",4,"",2164,1
+101,"","Eritrea","",9,205,2165,23
+273,"","Central European Russia","",4,"",2166,1
+274,"","East European Russia","",4,474,2167,1
+275,"","North European Russia","",4,475,2168,38
+273,"Central European Russia","Russia Central","",4,473,2169,1
+277,"","Northwest European Russia","",4,477,2170,1
+277,"Northwest European Russia","Russia Northwest","",4,477,2171,1
+32,"Burkina","Upper Volta","",7,61,2172,13
+135,"","Jharkhand","",24,602,2173,11
+135,"","Chattisgarh","",24,603,2174,11
+352,"","Uttaranchal","",24,575,2175,11
