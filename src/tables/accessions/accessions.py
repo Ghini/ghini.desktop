@@ -62,12 +62,26 @@ class Accessions(BaubleTable):
     
     # these should probably be hidden then we can do some trickery
     # in the accession editor to choose where a collection or donation
-    # source
-    source = SingleJoin('Source', joinColumn='accession_id')
+    # source, the source will contain one of collection or donation
+    # tables
+    # 
+    # the it's currently set up this is a dummy but the _collection
+    # or _donation get
+    #source = SingleJoin('Source', joinColumn='accession_id', makeDefault=None)
+    source_type = StringCol(length=16, default=None)    
+    def _set_source_type(self, value):
+        t = type(value)
+        if t is not tables.Collection or t is not tables.Donation:
+            raise ValueError('Accessions._set_source_type: are should be '\
+                             'a table')
+        print 'source_type: ' + value.name
+        self.source_type = value.name
+        
     # the source type says whether we should be looking at the 
     # collection or _donation join
-    _collection = SingleJoin('Collections', joinColumn='accession_id')
-    _donation = SingleJoin('Donation', joinColumn='accession_id')
+    _collection = SingleJoin('Collections', makeDefault=None)
+    _donation = SingleJoin('Donation', makeDefault=None)
+    
 
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information

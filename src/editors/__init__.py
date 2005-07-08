@@ -97,7 +97,7 @@ class ViewColumnMeta(dict):
             self.foreign = foreign
             self.width = width # the default width for all columns
             self.default = default
-            self.join = False
+            self.editor = None
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -262,9 +262,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         used by commit_changes to get the values from a table so they
         can be commited to the database, this version of the function
         removes the values with None as the value from the row, i thought
-        this was necessary but now i don't, in fact it may be better to 
-        explicitly set things null
+        this was necessary but now i don't, in fact it may be better in
+        case you want to explicitly set things null
         """
+        # TODO: this method needs some love, there should be a more obvious
+        # way or at least simpler way of return lists of values
         model = self.view.get_model()
         values = []
         for item in model:
@@ -273,8 +275,16 @@ class TreeViewEditorDialog(TableEditorDialog):
                 # del the value is they are none
 #                if value is None:
 #                    del temp_row[name]
-                if type(value) == list:
-                    temp_row[name] = value[0]
+                print value
+                if type(value) == list and type(value[0]) == int:
+                    temp_row[name] = value[0] # is an id, name pair
+                    #else: # it is a list but we assume the [0] is 
+                    # a table and [1] is a dict of value to commit, 
+                    # we assume this is here because we need to set the 
+                    # foreign key in the subtable to the id of the current
+                    # row after it is commited and then commit the subtable
+                    # there has to be a better way than this
+                        
             values.append(temp_row)
             
         if self.dummy_row:
@@ -295,58 +305,16 @@ class TreeViewEditorDialog(TableEditorDialog):
     dummy_row = False
     
     
-    def on_renderer_toggled(self, renderer, path, colname):
-        print "on_renderer_toggled"
+    def set_view_model_value(self, path, colname, value):
         model = self.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
-        active = not renderer.get_active() # because we toggled it dummy
-        row[colname] = active
-        renderer.set_active(active)
-        
-        
-    def on_renderer_edited(self, renderer, path, new_text, colname):
-        """
-        signal called when editing is finished on a cell
-        retrieves the value in the cell, validates it and sets the value
-        in the model
-        """
-        #print "on_edited: " + new_text
-        new_text = new_text.strip() # crash on None? is new_text ever None?
-#        if new_text == None or new_text == "":
-#            return        
-        model = self.view.get_model()
-        i = model.get_iter(path)
-        row = model.get_value(i, 0)
-        if not self.column_meta[colname].foreign:
-            v = None
-            if not new_text == "": # set v and validate if not empty
-                v = self.column_meta[colname].validate(new_text)
-            row[colname] = v
-        else:
-            # need to somehow get the id from the text value, is it possible?
-            # if it is a foreign key then the row in the model should be
-            # set when a match is selected in the EntryCompletion,
-            # see on_completion_match_selected
-            # *** i don't really like this, i would prefer to set the model
-            # in one place
-            pass
-        self.dirty = True # something has changed
-#        self.view.check_resize() # ???????
-
-        # edited the last row so add a new one,
-        # i think this may a bit of a bastardization of path but works for now
-        if new_text != "" and int(path) == len(model)-1:
-            model = self.view.get_model()
-            self.add_new_row()
-            self.dummy_row = True
-            #model.append([ModelDict()])            
+        row[colname] = value
 
 
     def validate(self, colname, value):
         #type
         return value
-
     
     def on_completion_match_selected(self, completion, model, iter, 
                                      path, colname):
@@ -356,12 +324,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         i don't like it the view.model.row is set here for foreign key columns
         and in self.on_edited for other column types                
         """        
-        name = model.get_value(iter, 0)
         id = model.get_value(iter, 1)
+        name = model.get_value(iter, 0)
+        
         model = self.view.get_model()
-        i = model.get_iter(path)
-        row = model.get_value(i, 0)
-        row[colname] = [id, name]
+        self.set_view_model_value(path, colname, [id, name])
     
 
     def on_cell_key_press(self, widget, event, path, colname):
@@ -369,8 +336,18 @@ class TreeViewEditorDialog(TableEditorDialog):
         handled TreeView navigation
         """
         keyname = gtk.gdk.keyval_name(event.keyval)
-        path, col = self.view.get_cursor()        
-        if keyname == "Up" and path[0] != 0:            
+        path, col = self.view.get_cursor()
+        if keyname == 'Return':
+            # start the editor for the cell if there is one
+            meta = self.column_meta[colname]
+            if hasattr(meta, 'editor') and meta.editor is not None:
+                v = meta.editor().start() # this blocks
+                model = self.view.get_model()
+                it = model.get_iter(path)
+                row = model.get_value(it, 0)
+                row[colname] = v
+                self.set_view_model_value(path, colname, v)
+        elif keyname == "Up" and path[0] != 0:            
             self.move_cursor_up(path, col)
         elif keyname == "Down" and path[0] != len(self.view.get_model()):
             # TODO: check if the entry completion is open and if so then
@@ -440,44 +417,55 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.view.set_cursor_on_cell(newpath, col, None, True)
         #renderer.stop_emit_by_name("key-press-event")
 
-    
-    def on_join_combo_changed(self, combo, colname):
-        # TODO: if the of the join is set then show the value
-        # with an edit menu when you click on it, else just a new
-        # label which does just that
-        text = combo.get_active_text()
-        print text
-        if text == 'Edit':
-            if hasattr(self.column_meta[colname], 'editor'):
-                e = self.column_meta[colname].editor()
-                e.start()
-            else:
-                # TODO: dialog that says no editor bound for this column
-                pass
-        if text == 'Remove':
-            # TODO: are you sure you want to remove the source record
-            # for this <table name>
+
+    def on_renderer_toggled(self, renderer, path, colname):
+        active = not renderer.get_active()
+        self.set_view_model_value(path, colname, active)
+        
+        
+    def on_renderer_edited(self, renderer, path, new_text, colname):
+        """
+        signal called when editing is finished on a cell
+        retrieves the value in the cell, validates it and sets the value
+        in the model
+        """
+         
+        print 'TreeViewEditor.on_renderer_edited: ' + new_text
+        #print "on_edited: " + new_text
+        new_text = new_text.strip() # crash on None? is new_text ever None?
+#        if new_text == None or new_text == "":
+#            return        
+        if not self.column_meta[colname].foreign:
+            v = None
+            if not new_text == "": # set v and validate if not empty
+                v = self.column_meta[colname].validate(new_text)
+            self.set_view_model_value(path, colname, v)
+        else:
+            # need to somehow get the id from the text value, is it possible?
+            # if it is a foreign key then the row in the model should be
+            # set when a match is selected in the EntryCompletion,
+            # see on_completion_match_selected
+            # *** i don't really like this, i would prefer to set the model
+            # in one place
             pass
-        
-        
-    def on_editing_started(self, cell, editable, path, colname):
-        
-        if self.column_meta[colname].join:
-            print type(editable)
-            if type(editable) == gtk.ComboBox:
-                editable.connect('changed', self.on_join_combo_changed, colname)
-            # activate the editor for the column
-        #    if hasattr(self.column_meta[colname], 'editor'):
-        #        e = self.column_meta[colname].editor()
-        #        e.start()
+        self.dirty = True # something has changed
+#        self.view.check_resize() # ???????
+
+        # edited the last row so add a new one,
+        # i think this may a bit of a bastardization of path but works for now
+        model = self.view.get_model()
+        if new_text != "" and int(path) == len(model)-1:
+            self.add_new_row()
+            self.dummy_row = True
             
+    def on_editing_started(self, cell, editable, path, colname):
+        print 'TreeViewEditor.on_editing_started()'
             
         # TODO: should disconnect this everytime "edited" is fired, or
         # should i???
         if isinstance(editable, gtk.Entry):            
             editable.connect("key-press-event", self.on_cell_key_press, 
                              path, colname)
-
             # set up a validator on the col depending on the sqlobj.column type
             editable.connect("insert-text", self.on_insert_text, 
                              path, colname)
@@ -489,11 +477,13 @@ class TreeViewEditorDialog(TableEditorDialog):
             #if not self.column_meta[colname].foreign:
             #    if self.column_meta[colname].                
 
+
     def on_editing_done(self, editable, data=None):
         """
         not editing anymore, set current entry to None
         """
         self.current_entry = None
+        
         
     def on_validate_date(self, entry, text, length, position):
         print "validate date"
@@ -525,6 +515,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         if len(full_text) > 2: # add completions
             entry_completion = entry.get_completion()
             model, maxlen = self.get_completions(full_text, colname)
+            print 'get_completions: ' + str(model)
             if entry_completion is None and model is not None:
                 entry_completion = gtk.EntryCompletion()
                 entry_completion.set_minimum_key_length(2)
@@ -616,11 +607,74 @@ class TreeViewEditorDialog(TableEditorDialog):
         #super(TreeViewEditorDialog, self).on_response(widget, response, data)
         #TreeViewEditorDialog.on_response(self, widget, response, data)
         
-
+    def commit_changes_old(self):
+        """
+        commit any change made in the table editor
+        """        
+        # TODO: do a map through the values returned from get_tables_values
+        # and check if any of them are lists in the (table, values) format
+        # if they are then we need pop the list from the values and commit
+        # the current table, set the foreign key of the sub table and commit 
+        # it
+        values = self.get_table_values()
+        old_conn = sqlhub.getConnection()
+        trans = old_conn.transaction()
+        sqlhub.threadConnection = trans
+        #trans = sqlhub.threadConnection.transaction()
+        
+        
+        def pop_subtables(values):
+            import copy
+            temp = copy.copy(values)
+            subtables = []
+            for name, value in temp.iteritems():
+                if type(value) == tuple:
+                    subtables.append(values.pop(name))
+            return subtables
+            
+        
+        for v in values:
+            #print v
+            print 'commit_changes -- values: ' + str(values)
+            subtables = pop_subtables(v) 
+            print 'commit_changes -- post pop: ' + str(values)
+            
+            try:
+                if v.has_key("id"):
+                    t = self.table.get(v["id"])
+                    del v["id"]
+                    t.set(**v)
+                else:
+                    t = self.table(**v)
+                
+                # commit subtables
+                for sub in subtables:
+                    #print t.name
+                    subtable, subvalues = sub
+                    subvalues[t.name.lower()] == t.id
+                    print subvalues
+                    #subtable(**subvalues)
+                    
+            # set foreign key of subtables and commit them
+            except Exception, e:
+                msg = "Could not commit changes.\n" + str(e)
+                trans.rollback()
+                sqlhub.threadConnection = old_conn
+                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                return False
+        trans.commit()
+        sqlhub.threadConnection = old_conn
+        return True
+        
     def commit_changes(self):
         """
         commit any change made in the table editor
         """        
+        # TODO: do a map through the values returned from get_tables_values
+        # and check if any of them are lists in the (table, values) format
+        # if they are then we need pop the list from the values and commit
+        # the current table, set the foreign key of the sub table and commit 
+        # it
         values = self.get_table_values()
         old_conn = sqlhub.getConnection()
         trans = old_conn.transaction()
@@ -648,36 +702,33 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-    def get_model_value(self, col, cell, model, iter, column_name):
+    def toggle_cell_data_func(self, col, cell, model, iter, column_name):
         """
-        used by the tree view columns to get the value to be display
-        from the model
+        cell data func for toggle cell renderers
         """
         v = model.get_value(iter, 0)
         row = v[column_name]
-        #print "get_model_value: " +str(row)
-        if type(cell) == gtk.CellRendererToggle:
-            if row is None:
-                # this should really get the default value from the table
-                cell.set_property('inconsistent', False) 
-            else:
-                cell.set_property('active', row)
-        else: # cell renderer text or combo
-            if row is None: # no value in model
-                cell.set_property('text', None)
-            elif type(row) == list: # if a list then row[1] is the id
-                cell.set_property('text', row[1])
-            else: # just plain text in model column
-                cell.set_property('text', str(row))                    
-        return
-        print type(cell)
+        if row is None:
+            # this should really get the default value from the table
+            cell.set_property('inconsistent', False) 
+        else:
+            cell.set_property('active', row)
+            
+    
+    def text_cell_data_func(self, col, cell, model, iter, colname):
+        """
+        cell data func for cell renderers other than toggle
+        """
+        v = model.get_value(iter, 0)
+        row = v[colname]
+
         if row is None: # no value in model
             cell.set_property('text', None)
         elif type(row) == list: # if a list then row[1] is the id
             cell.set_property('text', row[1])
-        elif type(row) == boolean:
-            cell.set_property('active', row)
-        else: # just plain text in model column
+        else: 
+            # just plain text in model column or something convertible 
+            # to string like a table row
             cell.set_property('text', str(row))                    
 
 
@@ -754,7 +805,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             r.set_property("model", model)
         elif hasattr(self.table, "values") and  self.table.values.has_key(name):
             r = gtk.CellRendererCombo()
-            #print self.table.values[name]
             r.set_property("text-column", 0)
             model = gtk.ListStore(str, str)            
             for v in self.table.values[name]:
@@ -764,21 +814,21 @@ class TreeViewEditorDialog(TableEditorDialog):
             r = gtk.CellRendererText()
             
         # create the column    
+        # replace so the '_' so its not interpreted as a mnemonic
         column = gtk.TreeViewColumn(meta.header.replace("_", "__"), r)
         
         # specific renderer config and overrides
         if type(r) == gtk.CellRendererToggle:
             r.connect("toggled", self.on_renderer_toggled, name)
-        else: # common to everyone but toggle
+            column.set_cell_data_func(r, self.toggle_cell_data_func, name)
+        else:
             r.set_property("editable", True)
-            r.set_property("editable-set", True)
-            r.connect("edited", self.on_renderer_edited, name)
             r.connect("editing_started", self.on_editing_started, name)
-            column.set_cell_data_func(r, self.get_model_value, name)
-
-        # create the column and generic configurations
-        # replace so the '_' so its not interpreted as a mnemonic
-        
+            column.set_cell_data_func(r, self.text_cell_data_func, name)
+            if meta.editor is None: # the editor will set the value
+                r.connect("edited", self.on_renderer_edited, name)
+                
+        # generic column config
         column.set_min_width(50)
         column.set_clickable(True)
         column.connect("clicked", self.on_column_clicked)
@@ -793,70 +843,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         column.name = name # .name is my own data, not part of gtk
         # notify when the column width property is changed
         
-        column.connect("notify::width", self.on_column_property_notify, name)
-        column.connect("notify::visible", self.on_column_property_notify, name)
-        return column
-        
-        
-    def create_view_column_old(self, name, meta):
-        """
-        return a gtk.TreeViewColumn from column_data
-        """
-        #
-        # sqlobj.sqlmeta._columnDict: and sqlobj._columns store
-        # the names differently so i can use this anymore to check
-        # that the column exists
-        #
-        #if name not in self.table.sqlmeta._columnDict:
-        #    raise Exception("** Error -- %s not a column in %s table" %
-        #                    (name, self.table.sqlmeta.table))
-        r = None
-        coldict = self.table.sqlmeta._columnDict
-        if name not in coldict: # probably an id, might not be a valid column name
-            r = gtk.CellRendererText()
-        elif type(coldict[name]) == SOBoolCol:
-            r = gtk.CellRendererToggle()
-        elif hasattr(self.table, "values") and self.table.values.has_key(name):
-            r = gtk.CellRendererCombo()
-            #r.set_property("has-entry", False)
-            r.set_property("text-column", 0)
-            model = gtk.ListStore(str, str)            
-            for v in self.table.values[name]:
-                model.append(v)
-            r.set_property("model", model)
-        else:
-            r = gtk.CellRendererText()            
-            
-        # create the column and generic configurations
-        # replace so the '_' so its not interpreted as a mnemonic
-        column = gtk.TreeViewColumn(column_meta.header.replace("_", "__"), r)
-        column.set_min_width(50)
-        column.set_clickable(True)
-        column.connect("clicked", self.on_column_clicked)
-        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        column.set_resizable(True)
-        column.set_reorderable(True)
-        column.set_visible(column_meta.visible)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        width_dict = bauble.prefs[self.column_width_pref]
-        if width_dict is not None and width_dict.has_key(name):
-            column.set_fixed_width(width_dict[name])
-        column.name = name # .name is my own data, not part of gtk
-        
-        # now set configure the renderer and column according to type
-        if type(r) == gtk.CellRendererToggle:
-            r.connect("toggled", self.on_renderer_toggled, name)
-            pass
-        else:
-            r.set_property("editable", True)
-            r.set_property("editable-set", True)
-            r.connect("edited", self.on_renderer_edited, name)
-            r.connect("editing_started", self.on_editing_started, name)
-        column.set_cell_data_func(r, self.get_model_value, name)
-
-        # notify when the column width property is changed, 
-        # use these to keep the columns the self.column_meta up to
-        # date
         column.connect("notify::width", self.on_column_property_notify, name)
         column.connect("notify::visible", self.on_column_property_notify, name)
         return column

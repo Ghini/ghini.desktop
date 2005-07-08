@@ -43,6 +43,7 @@ class Source(BaubleTable):
     # or collections or can the type be the value that determines which
     # value we look up in the table and the id's will be the same
     #type_id = 
+    accession = ForeignKey('Accessions')
     
     def __str__(self): return self.label
 
@@ -82,6 +83,9 @@ class Donations(BaubleTable):
     
     donor = ForeignKey('Donor', notNull=True)
     
+    # we'll have to set a default to none here because of the way our editors
+    # are set up have to commit this table and then set the foreign key later,
+    # we have to be careful we don't get dangling tables without an accession
     accession = ForeignKey('Accession')
     
     def __str__(self):
@@ -91,6 +95,7 @@ class Donations(BaubleTable):
         #return self.label
         
     #herb_id = StringCol(length=50, default=None) # herbarium id?
+    
     
 class Collections(BaubleTable):
     name = "Collections"
@@ -102,7 +107,7 @@ class Collections(BaubleTable):
     coll_date = DateTimeCol(default=None)         # collection date
     #coll_notes = StringCol(default=None)          # collection notes
     
-    locale = StringCol(default=None) # text of where collected
+    locale = StringCol() # text of where collected
     
     # this could also just be a float and we could convert back and 
     # forth to deg, min, sec with a utility function
@@ -135,7 +140,11 @@ class Collections(BaubleTable):
     #country_sp_unit = StringCol(length=50, default=None) 
     
     notes = StringCol(default=None)
-    accession = ForeignKey('Accession')
+    
+    # we'll have to set a default to none here because of the way our editors
+    # are set up have to commit this table and then set the foreign key later,
+    # we have to be careful we don't get dangling tables without an accession
+    accession = ForeignKey('Accessions', default=None)
     
     def __str__(self):
         #if self.label == None: 

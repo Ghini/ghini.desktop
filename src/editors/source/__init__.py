@@ -9,6 +9,7 @@ import gtk
 import gtk.glade
 import utils
 from tables import tables
+import sqlobject
 
 label = 'Source'
 description = 'Source'
@@ -117,8 +118,6 @@ class SourceEditor(editors.TableEditor):
                 setComboModelFromSelect(self.state_combo, row.states)
         
         
-        
-        
     def on_state_combo_changed(self, combo, data=None):
         self.place_combo.set_active(-1)
         self.place_combo.child.set_text('')
@@ -139,21 +138,12 @@ class SourceEditor(editors.TableEditor):
     def on_place_combo_changed(self, combo, data=None):
         pass
         
+        
     def save_state(self):
         # save the current width, height of the dialogs
         # so that each source type can have different dialog dimensions
         pass
     
-    
-    def get_values(self, type):
-        if type == 'Donation':
-            values = self.get_donation_values()
-            table = tables.Donations
-        elif type == 'Collection':
-            values = self.get_collection_values()
-            table = tables.Collections
-            #return get_donation_values())
-        return table, values
             
     def get_donation_values(self):
         # donor_combo
@@ -169,7 +159,6 @@ class SourceEditor(editors.TableEditor):
     def set_value_from_widget(self, name, key, dic, validator=lambda x: x):
         w = self.glade_xml.get_widget(name)
         v = None
-        print key
         if type(w) == gtk.Entry:
             v = w.get_text()
             if v == "": v = None
@@ -181,9 +170,10 @@ class SourceEditor(editors.TableEditor):
             if v == "": v = None
         elif type(w) == gtk.ComboBoxEntry:
             v = w.get_active_text()
+            if v == '': v = None
         else:
-            raise Exception("SourceEditor.set_value_from_widget: " \
-                            " ** unknown widget type")
+            raise ValueError("SourceEditor.set_value_from_widget: " \
+                             " ** unknown widget type: " + str(type(w)))
             
         if v is not None: 
             v = validator(v)
@@ -244,8 +234,8 @@ class SourceEditor(editors.TableEditor):
     def get_collection_values(self):
         values = {}
         # collector_entry, should be a combo entry with an id in the model
-        self.set_value_from_widget('collector_entry', 'collector', values)
-        
+        self.set_value_from_widget('collector_entry', 'coll_name', values)
+
         # colldate_entry, dd/mm/yy
         self.set_value_from_widget('colldate_entry', 'coll_date', values)
         # collid_entry
@@ -282,33 +272,62 @@ class SourceEditor(editors.TableEditor):
         # habitat_entry
         self.set_value_from_widget('habitat_entry', 'habitat', values)
         # country_combo
-        self.set_value_from_widget('country_combo', 'country', values)
+        self.set_value_from_widget('region_combo', 'region', values)
         # primary_combo
-        self.set_value_from_widget('primary_combo', 'country_pri_sub', values)
+        self.set_value_from_widget('area_combo', 'area', values)
         # secondary_combo
-        self.set_value_from_widget('secondary_combo', 'country_sec_sub', values)
+        self.set_value_from_widget('state_combo', 'state', values)
         # geounit_combo
-        self.set_value_from_widget('geounit_combo', 'country_sp_unit', values)
+        self.set_value_from_widget('place_combo', 'place', values)
         # notes_entry
         self.set_value_from_widget('notes_entry', 'notes', values)
         return values
-        
+    
+    
+    def get_values(self, type):
+        if type == 'Donation':
+            values = self.get_donation_values()
+            table = tables.Donations
+        elif type == 'Collection':
+            values = self.get_collection_values()
+            table = tables.Collections
+            #return get_donation_values())
+        else: 
+            raise ValueError("SourceEditor.get_values() " \
+                             "-- unknown table type: + " + tyye)
+        return table, values
+    
+    committed = None
     def commit_changes(self):
+        # TODO: since the source is a single join and is only relevant
+        # to its parent(accession) then we should allow a way to get
+        # the values so that wherever the values are returned then the
+        # accession foreign key can be set there and commited
         active = self.type_combo.get_active_text()
         table, values = self.get_values(active)
-        print table
         print values
-        return
         if values is None: 
             return
         conn = sqlobject.sqlhub.getConnection()
-        trans = con.transaction()
+        trans = conn.transaction()        
+        #self.commited = None
         try:
-            table(conn=trans, **values)
-        except:
+            print 'create table'
+            # i guess the connection is inherant
+            t = table(connection=trans, **values)
+        except Exception, e:
+            print 'SourceEditor.commited: could not commit'
+            print e
             trans.rollback()
+            return False
         else:
             trans.commit()
+            print 'self.commited'
+            print t
+            print str(t)
+            self.committed = t
+        return True
+        
         
     def on_type_combo_changed(self, combo, data=None):
         if self.curr_box is not None:
@@ -335,23 +354,34 @@ class SourceEditor(editors.TableEditor):
             
         
     def on_response(self, dialog, response, data=None):
-        print "SourceEditor.on_response"
+        #print "SourceEditor.on_response"
+        
         if response == gtk.RESPONSE_OK:
             print "response ok"
             #if self._dirty:
-            self.commit_changes()
+            if not self.commit_changes():
+                print 'SourceEditor.on_response: could not commited changes'
+                return
         else:
             msg = 'Are you sure? You will lose your changes'
             if self._dirty and utils.yes_no_dialog(msg):
                 return
-            
         self.dialog.destroy()
 
     
     def start(self):
+        """
+        this blocks
+        """
+        # TODO: if commit_on_response is False we could return
+        # from here since it blocks anyways
         editors.TableEditor.start(self)
-        self.dialog.run()
-        #v = 
+        #self.commit_on_response = commit_on_response        
+        self.dialog.run() # blocks
+        #print 'start: get_values'
+        #t, v = self.get_values(self.type_combo.get_active_text())
+        #self.dialog.destroy()
+        return self.committed
 
 
 editor = SourceEditor

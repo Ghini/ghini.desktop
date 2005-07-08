@@ -41,7 +41,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    "plantname": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
-                   'source': 'Source'
+                   'source_type': 'Source'
 #                   "ver_level": "Verification Level",           
 #                   "ver_name": "Verifier's Name",
 #                   "ver_date": "Verification Date",
@@ -53,13 +53,18 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
 #                   "wgs": "World Geographical Scheme"
                    }
         self.column_meta.headers = headers
-        self.column_meta['source'].editor = editors.source.editor
+        #self.column_meta['source'].editor = editors.source.editor
+        self.column_meta['source_type'].editor = editors.source.editor
         
     def get_completions(self, text, colname):
         # get entry and determine from what has been input which
         # field is currently being edited and give completion
         # if this return None then the entry will never search for completions
-        # TODO: finish this
+        # TODO: finish this, it would be good if we could just stick
+        # the table row in the model and tell the renderer how to get the
+        # string to match on, though maybe not as fast, and then to get
+        # the value we would only have to do a row.id instead of storing
+        # these tuples in the model
         parts = text.split(" ")
         genus = parts[0]
         results = []
@@ -74,9 +79,9 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                 for row in sr:
                     for p in row.plantnames:
                         s = str(p)
-                        #print s + ": " + str(p.id)
                         if len(s) > maxlen: maxlen = len(s)
-                        model.append([s, p.id])
+                        model.append((s, p.id))
+                        #model.append(row)
         return model, maxlen
     
         # split the text by spaces
