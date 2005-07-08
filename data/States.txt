@@ -1,4 +1,4 @@
-"areaID","code","country","notes","ed2_status","iso_code","id"
+"areaID","code","state","notes","ed2_status","iso_code","id"
 21,"ASS-NA","Nagaland","","","IN",47
 6,"ALB-OO","Albania","","","AL",27
 16,"ARK-OO","Arkansas","","","US",38

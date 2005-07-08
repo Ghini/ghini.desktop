@@ -49,14 +49,13 @@ def createColumnMetaFromTable(table):
     # column order and the meta data synchronized
     meta = ViewColumnMeta()
     for name, col in table.sqlmeta._columnDict.iteritems():
-        if name[0] == "_": continue # _means private
+        if name[0] == "_":  continue # _means private
         col_meta =  ViewColumnMeta.Meta()
         if name.endswith("ID"):
             col_meta.foreign = True
             name = name[:-2]
-        col_meta.header = name
-        col_meta.foreign = False
-        col_meta.visible = False 
+        col_meta.header = name 
+        col_meta.type = type(col)
         if col._default == NoDefault:
             col_meta.default = col._default # the default value from the table
             col_meta.visible = True
@@ -65,10 +64,12 @@ def createColumnMetaFromTable(table):
     for join in table._joins:
         if type(join) == SingleJoin:
             name = join.joinMethodName
+            if name[0] == "_":  continue # _means private
+            col_meta.header = name
             col_meta =  ViewColumnMeta.Meta()
+            col_meta.type = type(join)
             col_meta.join = True
-            meta[name] = col_meta
-            
+            meta[name] = col_meta    
     return meta
 
 
@@ -105,12 +106,7 @@ class ViewColumnMeta(dict):
             
             # a dummy validate function
             self.validate = lambda x: x
-            
-#        def __cmp__(self, other):
-#            if self.index < other.index: return -1
-#            elif self.index > other.index: return 1
-#            return 0
-            
+
 
     # set column meta, value[0] = name, value[1] = visible, value[2] = foreign
     def __setitem__(self, item, value):
@@ -141,6 +137,8 @@ class ModelDict(dict):
             self["id"] = table_row.id
             self.table_row = table_row            
             for c in table_row.sqlmeta._columns:
+                # '_' means the editor doesn't change it
+                if c.name[0] == '_': continue 
                 eval_str = None                    
                 if c.foreignKey:
                     id = eval("self.table_row.%s" % c.name)
@@ -210,38 +208,6 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
     def on_response(self, widget, response, data=None):
         super(TableEditorDialog, self).on_response()
 
-     
-class CellRendererButton(gtk.GenericCellRenderer):
-    
-    def __init__(self):
-        gtk.GenericCellRenderer.__init__(self)
-        self.button = gtk.Button()
-        
-        
-    def on_get_size(self, widget, cell_area):
-        #width, height = self.button.size_request()
-        #return 0,0, width, height
-        #print widget
-        #print cell_area
-        pass
-        
-        
-    def on_render(self, window, widget, background_area, cell_area, expose_area, flags):
-        print self.button.window
-        #window.draw_drawable(self.button.window)
-        #print "on_render"
-        #self.button.window = window
-        pass
-        
-        
-    def on_activate(self, event, widget, path, background_area, cell_area, flags):
-        #self.button.clicked()
-        pass
-
-        
-    def on_start_editing(self, event, widget, path, background_area, cell_area, flags):
-        #self.button.clicked()
-        pass
 
 #
 # TreeViewEditorDialog
@@ -280,12 +246,14 @@ class TreeViewEditorDialog(TableEditorDialog):
 
         
     def start(self):
-        self.create_gui()
-        print self.default_visible_list
+        # this ensures that the visibility is set properly in the meta before
+        # before everything is created
         if self.visible_columns_pref is not None:
             if not bauble.prefs.has_key(self.visible_columns_pref):
                 bauble.prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
+            
+        self.create_gui()
         super(TreeViewEditorDialog, self).start()
         
         
@@ -473,12 +441,35 @@ class TreeViewEditorDialog(TableEditorDialog):
         #renderer.stop_emit_by_name("key-press-event")
 
     
-    def on_editing_started(self, cell, editable, path, colname):
-        if self.column_meta[colname].join:
-            # activate the editor for the column
+    def on_join_combo_changed(self, combo, colname):
+        # TODO: if the of the join is set then show the value
+        # with an edit menu when you click on it, else just a new
+        # label which does just that
+        text = combo.get_active_text()
+        print text
+        if text == 'Edit':
             if hasattr(self.column_meta[colname], 'editor'):
                 e = self.column_meta[colname].editor()
                 e.start()
+            else:
+                # TODO: dialog that says no editor bound for this column
+                pass
+        if text == 'Remove':
+            # TODO: are you sure you want to remove the source record
+            # for this <table name>
+            pass
+        
+        
+    def on_editing_started(self, cell, editable, path, colname):
+        
+        if self.column_meta[colname].join:
+            print type(editable)
+            if type(editable) == gtk.ComboBox:
+                editable.connect('changed', self.on_join_combo_changed, colname)
+            # activate the editor for the column
+        #    if hasattr(self.column_meta[colname], 'editor'):
+        #        e = self.column_meta[colname].editor()
+        #        e.start()
             
             
         # TODO: should disconnect this everytime "edited" is fired, or
@@ -700,19 +691,13 @@ class TreeViewEditorDialog(TableEditorDialog):
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
         # TODO: would rather sort case insensitive
-        col_dict = self.table.sqlmeta._columnDict
-        for key in sorted(self.column_meta.keys()):        
-            item = gtk.CheckMenuItem(self.column_meta[key].header.
-                                     replace('_', '__')) # no mnemonics
-            if self.column_meta[key].default == NoDefault:
+        for name, meta in sorted(self.column_meta.iteritems()):
+            # no mnemonics
+            item = gtk.CheckMenuItem(meta.header.replace('_', '__')) 
+            if meta.default == NoDefault:
                 item.set_sensitive(False)
-                
-            #if key in col_dict:# and hasattr(col_dict[key], '_default'):
-                #print col_dict[key]._default
-            #    if col_dict[key]._default == NoDefault:
-            #        item.set_sensitive(False)
-            item.set_active(self.column_meta[key].visible)
-            item.connect("toggled", self.on_column_menu_toggle, key)
+            item.set_active(meta.visible)
+            item.connect("toggled", self.on_column_menu_toggle, name)
             menu.append(item)
         menu.show_all()
         col_button.set_menu(menu)
@@ -749,35 +734,71 @@ class TreeViewEditorDialog(TableEditorDialog):
         #print self.size_request()
         #print tuple(self.allocation)
         
-    def create_join_columns(self):
         
-        columns = []
-        for join in self.table._joins:
-            if type(join) == SingleJoin:
-                name = join.joinMethodName
-                r = gtk.CellRendererCombo()
-                r.set_property('has_entry', False)
-                c = gtk.TreeViewColumn(name, r)
-                r.set_property("text-column", 0)
-                model = gtk.ListStore(str)    
-                model.append(['Edit'])
-                #model.append(['Collection'])
-                r.set_property("model", model)
-                c.name = name
-                r.set_property("editable", True)
-                r.set_property("editable-set", True)
-                r.connect("edited", self.on_renderer_edited, name)
-                r.connect("editing_started", self.on_editing_started, name)
-                c.set_cell_data_func(r, self.get_model_value, name)
-                #print c.children
-                #c.connect('changed', self.on_join_combo_changed, name)
-                columns.append(c)
-        return columns
+    def create_view_column(self, name, meta):
+        """
+        create the tree view column from the meta
+        """
+        r = None
+        column = None
+        # create the renderer and model if it needs it
+        if meta.type == SOBoolCol:
+            r = gtk.CellRendererToggle()
+        elif meta.type == SingleJoin:
+            r = gtk.CellRendererCombo()
+            r.set_property('has_entry', False)
+            r.set_property("text-column", 0)
+            data = ['----------', 'Edit', '----------', 'Delete']
+            model = gtk.ListStore(str)
+            for d in data: model.append([d])
+            r.set_property("model", model)
+        elif hasattr(self.table, "values") and  self.table.values.has_key(name):
+            r = gtk.CellRendererCombo()
+            #print self.table.values[name]
+            r.set_property("text-column", 0)
+            model = gtk.ListStore(str, str)            
+            for v in self.table.values[name]:
+                model.append(v)
+            r.set_property("model", model)
+        else: 
+            r = gtk.CellRendererText()
+            
+        # create the column    
+        column = gtk.TreeViewColumn(meta.header.replace("_", "__"), r)
         
-    def on_join_combo_changed(self, combo, name):
-        print 'on_join_combo_changed: ' + name
+        # specific renderer config and overrides
+        if type(r) == gtk.CellRendererToggle:
+            r.connect("toggled", self.on_renderer_toggled, name)
+        else: # common to everyone but toggle
+            r.set_property("editable", True)
+            r.set_property("editable-set", True)
+            r.connect("edited", self.on_renderer_edited, name)
+            r.connect("editing_started", self.on_editing_started, name)
+            column.set_cell_data_func(r, self.get_model_value, name)
+
+        # create the column and generic configurations
+        # replace so the '_' so its not interpreted as a mnemonic
         
-    def create_view_column(self, name, column_meta):
+        column.set_min_width(50)
+        column.set_clickable(True)
+        column.connect("clicked", self.on_column_clicked)
+        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        column.set_resizable(True)
+        column.set_reorderable(True)
+        column.set_visible(meta.visible)
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        width_dict = bauble.prefs[self.column_width_pref]
+        if width_dict is not None and width_dict.has_key(name):
+            column.set_fixed_width(width_dict[name])
+        column.name = name # .name is my own data, not part of gtk
+        # notify when the column width property is changed
+        
+        column.connect("notify::width", self.on_column_property_notify, name)
+        column.connect("notify::visible", self.on_column_property_notify, name)
+        return column
+        
+        
+    def create_view_column_old(self, name, meta):
         """
         return a gtk.TreeViewColumn from column_data
         """
@@ -793,7 +814,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         coldict = self.table.sqlmeta._columnDict
         if name not in coldict: # probably an id, might not be a valid column name
             r = gtk.CellRendererText()
-        elif type(self.table.sqlmeta._columnDict[name]) == SOBoolCol:
+        elif type(coldict[name]) == SOBoolCol:
             r = gtk.CellRendererToggle()
         elif hasattr(self.table, "values") and self.table.values.has_key(name):
             r = gtk.CellRendererCombo()
@@ -833,26 +854,31 @@ class TreeViewEditorDialog(TableEditorDialog):
             r.connect("editing_started", self.on_editing_started, name)
         column.set_cell_data_func(r, self.get_model_value, name)
 
-        # notify when the column width property is changed
-        column.connect("notify::width", self.on_column_width_notify, name)
+        # notify when the column width property is changed, 
+        # use these to keep the columns the self.column_meta up to
+        # date
+        column.connect("notify::width", self.on_column_property_notify, name)
+        column.connect("notify::visible", self.on_column_property_notify, name)
         return column
 
 
-    def on_column_width_notify(self, widget, property, name):
-        width = widget.get_property('width')
-        self.column_meta[name].width = width
-        
+    def on_column_property_notify(self, widget, property, name):
+        """
+        synchronizes property changes with columns and column_meta
+        """
+        value = widget.get_property(property.name)
+        meta = self.column_meta[name]
+        if hasattr(meta, property.name):
+            setattr(meta, property.name, value)
+
 
     def create_tree_view(self, select=None):
         """
         create the main tree view
         """
         # create the columns from the meta data
-        for name, meta in self.column_meta.iteritems():            
+        for name, meta in self.column_meta.iteritems(): 
             self.columns[name] = self.create_view_column(name, meta)
-        
-        for c in self.create_join_columns():
-            self.columns[c.name] = c
         
         #model = gtk.ListStore(object) # object will be type ModelDict
         self.view = gtk.TreeView(gtk.ListStore(object))
@@ -860,15 +886,14 @@ class TreeViewEditorDialog(TableEditorDialog):
 
         # create the model from the tree view and add rows if a
         # selectresult is passed
-        
         if select is not None:
             for row in select:
                 self.add_new_row(row)
         else:
             self.add_new_row()
             
-        
-        # enter the columns from the visible list
+        # enter the columns from the visible list, the visibility
+        # should already have been set before creation from the prefs
         visible_list = ()
         if bauble.prefs.has_key(self.visible_columns_pref):
             visible_list = list(bauble.prefs[self.visible_columns_pref][:])
@@ -882,10 +907,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             if name not in visible_list:
                 self.view.append_column(self.columns[name])
 
-
-        # request a resize
-        #self.view.queue_resize()
-        #self.view.resize_children()
         # now that all the columns are here, let us know if anything 
         # changes
         self.view.connect("columns-changed", self.on_column_changed)

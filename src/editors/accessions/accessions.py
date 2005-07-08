@@ -41,6 +41,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    "plantname": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
+                   'source': 'Source'
 #                   "ver_level": "Verification Level",           
 #                   "ver_name": "Verifier's Name",
 #                   "ver_date": "Verification Date",

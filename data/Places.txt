@@ -1,4 +1,4 @@
-"areaID","synonym","name","notes","regionID","countryID","id","kew_regionID"
+"areaID","synonym","name","notes","regionID","stateID","id","kew_regionID"
 122,"Abu Zabi;  United Arab Emirates","Abu Dhabi","",20,233,0,0
 1,"","Afghanistan","",19,1,1,0
 122,"United Arab Emirates","Ajman","",20,233,2,0

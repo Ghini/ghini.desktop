@@ -64,8 +64,10 @@ class Accessions(BaubleTable):
     # in the accession editor to choose where a collection or donation
     # source
     source = SingleJoin('Source', joinColumn='accession_id')
-    #collection = SingleJoin('Collections', joinColumn='accession_id')
-    #donation = SingleJoin('Donation', joinColumn='accession_id')
+    # the source type says whether we should be looking at the 
+    # collection or _donation join
+    _collection = SingleJoin('Collections', joinColumn='accession_id')
+    _donation = SingleJoin('Donation', joinColumn='accession_id')
 
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information

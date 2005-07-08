@@ -73,7 +73,7 @@ class Donors(BaubleTable):
  # donor type flag, a character, see ITF2, it would probably
     # be better to have a donor table since multiple accessions can have
     # the same donor and only the donor's id, data
-class Donations(Source):
+class Donations(BaubleTable):
     values = {}
                             
     #donor = StringCol(length=50, default=None)     # donor    
@@ -82,14 +82,17 @@ class Donations(Source):
     
     donor = ForeignKey('Donor', notNull=True)
     
+    accession = ForeignKey('Accession')
+    
     def __str__(self):
-        if self.label == None: 
-            return self.donor
-        return self.label
+        return self.donor # the string not the id
+        #if self.label == None: 
+        #    return self.donor
+        #return self.label
         
     #herb_id = StringCol(length=50, default=None) # herbarium id?
     
-class Collections(Source):
+class Collections(BaubleTable):
     name = "Collections"
     _cacheValue = False
     
@@ -116,24 +119,29 @@ class Collections(Source):
     
     habitat = StringCol(default=None) # habitat, free text
  
- 
+    area = ForeignKey('Areas', default=None)
+    region = ForeignKey('Region', default=None)
+    place = ForeignKey('Place', default=None)
+    
     # country where collected or origi, full name
-    country = StringCol(length=50, default=None) 
-    country_iso = StringCol(length=4, default=None)  # ISO code for country
-    wgs = StringCol(length=50, default=None)         # world geographic scheme
+    #country = StringCol(length=50, default=None) 
+    #country_iso = StringCol(length=4, default=None)  # ISO code for country
+    #wgs = StringCol(length=50, default=None)         # world geographic scheme
     # primary subdivision of country
-    country_pri_sub = StringCol(default=None)
+    #country_pri_sub = StringCol(default=None)
     # secondary subdivision of country
-    country_sec_sub = StringCol(length=50, default=None)
+    #country_sec_sub = StringCol(length=50, default=None)
     # specific geographic unit of country
-    country_sp_unit = StringCol(length=50, default=None) 
+    #country_sp_unit = StringCol(length=50, default=None) 
     
     notes = StringCol(default=None)
+    accession = ForeignKey('Accession')
     
     def __str__(self):
-        if self.label == None: 
-            return self.locale
-        return self.label
+        #if self.label == None: 
+        #    return self.locale
+        #return self.label
+        return self.locale 
     
     
 tables = [Donors, Source, Donations, Collections]

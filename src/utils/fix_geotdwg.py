@@ -24,7 +24,7 @@ table_map = {'gaz': 'Places',
              'level1': 'Continents',
              'level2': 'Regions',
              'level3': 'Areas',
-             'level4': 'Countries',
+             'level4': 'States',
              'kew': 'KewRegions'}
 
 def write_file(table, dict):

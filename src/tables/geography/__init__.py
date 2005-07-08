@@ -19,7 +19,7 @@ class Regions(BaubleTable):
     iso_code = StringCol()
     
     continent = ForeignKey('Continents')
-    areas = MultipleJoin('Areas', joinColumn='area_id')
+    areas = MultipleJoin('Areas', joinColumn='region_id')
     
     def __str__(self): return self.region
     
@@ -34,21 +34,23 @@ class Areas(BaubleTable):
     notes = StringCol()
     
     region = ForeignKey('Region')
-    areas = MultipleJoin('Countries', joinColumn='country_id')
+    states = MultipleJoin('States', joinColumn='area_id')
     
     def __str__(self): return self.area
     
     
 # level4
-class Countries(BaubleTable):
-    country = UnicodeCol(length=64)
+class States(BaubleTable):
+    state = UnicodeCol(length=64)
     code = StringCol(length=8)
     iso_code = StringCol(length=8)
     ed2_status = StringCol(length=64)
     notes = UnicodeCol()
-    area = ForeignKey('Area')
     
-    def __str__(self): return self.country
+    area = ForeignKey('Area')
+    places = MultipleJoin('Places', joinColumn='state_id')
+    
+    def __str__(self): return self.state
     
     
 # gazetteer
@@ -60,7 +62,7 @@ class Places(BaubleTable):
     #continent = ForeignKey('Continent')
     region = ForeignKey('Region')
     area = ForeignKey('Area')
-    country = ForeignKey('Countries')
+    state = ForeignKey('States')
     region = ForeignKey('Region')
     kew_region = ForeignKey('KewRegions')
 
@@ -78,4 +80,4 @@ class KewRegions(BaubleTable):
     
     def __str__(self): return self.region
     
-tables = [Continents, Regions, Areas, Countries, Places, KewRegions]
+tables = [Continents, Regions, Areas, States, Places, KewRegions]

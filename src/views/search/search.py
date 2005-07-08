@@ -52,7 +52,7 @@ class SearchView(views.View):
                   'Continents': [tables.Continents, ('continent',)],
                   'Regions': [tables.Regions, ('region',)],
                   'Areas': [tables.Areas, ("area",)],
-                  'Countries': [tables.Countries, ('country',)],
+                  'States': [tables.Countries, ('state',)],
                   'Places': [tables.Places, ('name',)],
                   'KewRegions': [tables.KewRegions, ('region',)]
                   }
@@ -73,7 +73,7 @@ class SearchView(views.View):
                   'Continents': ('continent',),
                   'Regions': ('region',),
                   'Areas': ('area',),
-                  'Countries': ('country',),
+                  'States': ('state',),
                   'Places': ('place',),
                   'KewRegions': ('kewregion',),
                   }

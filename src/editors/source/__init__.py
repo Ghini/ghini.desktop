@@ -13,10 +13,21 @@ from tables import tables
 label = 'Source'
 description = 'Source'
 
-
+def setComboModelFromSelect(combo, select):
+    model = gtk.ListStore(str, object)
+    for value in select:
+        model.append([str(value), value])
+    combo.set_model(model)
+    
+    if combo.get_text_column() == -1:
+        combo.set_text_column(0)
+        
+    if len(model) == 1: # only one to choose from
+        combo.set_active(0)
+    
+    
 class SourceEditor(editors.TableEditor):
     def __init__(self, select=None, defaults={}):
-        print tables
         editors.TableEditor.__init__(self, tables.Source,
                                      select=select, defaults=defaults)
         self._dirty = False
@@ -35,16 +46,97 @@ class SourceEditor(editors.TableEditor):
         handlers = {'on_response': self.on_response,
                     'on_type_combo_changed': self.on_type_combo_changed,
                     'on_lon_entry_changed': self.on_coord_entry_changed,
-                    'on_lat_entry_changed': self.on_coord_entry_changed}
+                    'on_lat_entry_changed': self.on_coord_entry_changed,
+                    'on_region_combo_changed': self.on_region_combo_changed,
+                    'on_area_combo_changed': self.on_area_combo_changed,
+                    'on_state_combo_changed': self.on_state_combo_changed,
+                    'on_place_combo_changed': self.on_place_combo_changed}
         self.glade_xml.signal_autoconnect(handlers)
         
         # set everything to their default states
         self.type_combo = self.glade_xml.get_widget('type_combo')
         self.type_combo.set_active(0)
         
-        self.dialog.show_all()
+        # set combo models
+        self.region_combo = self.glade_xml.get_widget('region_combo')
+        self.region_combo.child.set_property('editable', False)
+        setComboModelFromSelect(self.region_combo, 
+                                tables.Regions.select(orderBy='region'))
+        
+        self.area_combo = self.glade_xml.get_widget('area_combo')
+        self.area_combo.child.set_property('editable', False)
+        
+        self.state_combo = self.glade_xml.get_widget('state_combo')
+        self.state_combo.child.set_property('editable', False)
+            
+        self.place_combo = self.glade_xml.get_widget('place_combo')
+        self.place_combo.child.set_property('editable', False)
+        
+        
         
     def on_coord_entry_changed(self):
+        pass
+        
+        
+    def on_region_combo_changed(self, combo, data=None):
+        # TODO: if we can't catch the clicked signal then we have to
+        # set the models with all possible values
+        # TODO: if this is set to None or the entry is cleared we should
+        # reset all the models
+        
+        self.place_combo.set_active(-1)
+        self.place_combo.child.set_text('')
+        self.place_combo.set_model(None)
+        
+        self.state_combo.set_active(-1)
+        self.state_combo.child.set_text('')
+        self.state_combo.set_model(None)
+        
+        self.area_combo.set_active(-1)
+        self.area_combo.child.set_text('')
+        model = combo.get_model()
+        it = combo.get_active_iter()
+        row = model.get_value(it, 1)
+        setComboModelFromSelect(self.area_combo, row.areas)
+        
+        
+    def on_area_combo_changed(self, combo, data=None):
+        self.place_combo.set_active(-1)
+        self.place_combo.child.set_text('')
+        self.place_combo.set_model(None)
+        
+        self.state_combo.set_active(-1)
+        self.state_combo.child.set_text('')
+        self.state_combo.set_model(None)
+        
+        model = combo.get_model()
+        if model is not None:
+            it = combo.get_active_iter()
+            if it is not None:
+                row = model.get_value(it, 1)
+                setComboModelFromSelect(self.state_combo, row.states)
+        
+        
+        
+        
+    def on_state_combo_changed(self, combo, data=None):
+        self.place_combo.set_active(-1)
+        self.place_combo.child.set_text('')
+        
+        model = combo.get_model()
+        if model is not None:
+            it = combo.get_active_iter()
+            if it is not None:
+                row = model.get_value(it, 1)
+                select = row.places
+                if len(select) == 0:
+                    self.place_combo.set_sensitive(False)
+                else:
+                    setComboModelFromSelect(self.place_combo, select)
+                    self.place_combo.set_sensitive(True)
+        
+        
+    def on_place_combo_changed(self, combo, data=None):
         pass
         
     def save_state(self):
@@ -258,7 +350,8 @@ class SourceEditor(editors.TableEditor):
     
     def start(self):
         editors.TableEditor.start(self)
-    #    pass
+        self.dialog.run()
+        #v = 
 
 
 editor = SourceEditor
