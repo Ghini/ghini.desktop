@@ -342,10 +342,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             meta = self.column_meta[colname]
             if hasattr(meta, 'editor') and meta.editor is not None:
                 v = meta.editor().start() # this blocks
-                model = self.view.get_model()
-                it = model.get_iter(path)
-                row = model.get_value(it, 0)
-                row[colname] = v
                 self.set_view_model_value(path, colname, v)
         elif keyname == "Up" and path[0] != 0:            
             self.move_cursor_up(path, col)
@@ -377,7 +373,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             else: self.move_cursor_right(path, col) # else moveright
                 
 
-        
     def move_cursor_right(self, path, fromcol):
         """
         """
@@ -457,6 +452,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         if new_text != "" and int(path) == len(model)-1:
             self.add_new_row()
             self.dummy_row = True
+            
             
     def on_editing_started(self, cell, editable, path, colname):
         print 'TreeViewEditor.on_editing_started()'
@@ -568,12 +564,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.columns[colname].set_visible(visible)
         
         # could do this with a property notify signal
-        self.column_meta[colname].visible = visible
-        
-        #widget.get_property('width')
-        #self.column_meta[colname].width
-        #self.view.check_resize()
-        #self.view.show_all()
+        #self.column_meta[colname].visible = visible
         self.view.resize_children()
 
 
@@ -607,64 +598,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         #super(TreeViewEditorDialog, self).on_response(widget, response, data)
         #TreeViewEditorDialog.on_response(self, widget, response, data)
         
-    def commit_changes_old(self):
-        """
-        commit any change made in the table editor
-        """        
-        # TODO: do a map through the values returned from get_tables_values
-        # and check if any of them are lists in the (table, values) format
-        # if they are then we need pop the list from the values and commit
-        # the current table, set the foreign key of the sub table and commit 
-        # it
-        values = self.get_table_values()
-        old_conn = sqlhub.getConnection()
-        trans = old_conn.transaction()
-        sqlhub.threadConnection = trans
-        #trans = sqlhub.threadConnection.transaction()
-        
-        
-        def pop_subtables(values):
-            import copy
-            temp = copy.copy(values)
-            subtables = []
-            for name, value in temp.iteritems():
-                if type(value) == tuple:
-                    subtables.append(values.pop(name))
-            return subtables
-            
-        
-        for v in values:
-            #print v
-            print 'commit_changes -- values: ' + str(values)
-            subtables = pop_subtables(v) 
-            print 'commit_changes -- post pop: ' + str(values)
-            
-            try:
-                if v.has_key("id"):
-                    t = self.table.get(v["id"])
-                    del v["id"]
-                    t.set(**v)
-                else:
-                    t = self.table(**v)
-                
-                # commit subtables
-                for sub in subtables:
-                    #print t.name
-                    subtable, subvalues = sub
-                    subvalues[t.name.lower()] == t.id
-                    print subvalues
-                    #subtable(**subvalues)
-                    
-            # set foreign key of subtables and commit them
-            except Exception, e:
-                msg = "Could not commit changes.\n" + str(e)
-                trans.rollback()
-                sqlhub.threadConnection = old_conn
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                return False
-        trans.commit()
-        sqlhub.threadConnection = old_conn
-        return True
+    
         
     def commit_changes(self):
         """
