@@ -21,14 +21,15 @@ class Donors(BaubleTable):
                             ("I", "Individual"),
                             ("O", "Other"),
                             ("U", "Unknown")]
+                            
     name = StringCol(length=72)
     donations = MultipleJoin('Donations', joinColumn='donor_id')
     
     # contact information
-    address = StringCol()
-    email = StringCol()
-    fax = StringCol()
-    tel = StringCol()
+    address = StringCol(default=None)
+    email = StringCol(default=None)
+    fax = StringCol(default=None)
+    tel = StringCol(default=None)
     
     def __str__(self):
         return self.name
@@ -36,22 +37,20 @@ class Donors(BaubleTable):
 
 class Donations(BaubleTable):
     values = {}
-                            
-    donor_acc = StringCol(length=12, default=None) # donor's accession id    
-    donor_txt = StringCol(default=None) # ??? random text, memo
     
-    donor = ForeignKey('Donor', notNull=True)
+    donor = ForeignKey('Donor', notNull=True)                        
+    donor_acc = StringCol(length=12, default=None) # donor's accession id    
+    notes = StringCol(default=None) # ??? random text, memo
     
     # we'll have to set a default to none here because of the way our editors
     # are set up have to commit this table and then set the foreign key later,
     # we have to be careful we don't get dangling tables without an accession
-    accession = ForeignKey('Accession')
+    accession = ForeignKey('Accession', default=None)
     
     def __str__(self):
-        return self.donor # the string not the id
-        #if self.label == None: 
-        #    return self.donor
-        #return self.label
+        # i don't know why this has to be donorID instead of donor
+        return Donors.get(self.donorID).name # 
+
         
     #herb_id = StringCol(length=50, default=None) # herbarium id?
     

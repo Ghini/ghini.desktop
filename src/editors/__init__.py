@@ -47,6 +47,7 @@ def createColumnMetaFromTable(table):
         if col._default == NoDefault:
             col_meta.default = col._default # the default value from the table
             col_meta.visible = True
+            col_meta.required = True
         meta[name] = col_meta
     
     for join in table._joins:
@@ -87,13 +88,14 @@ class ViewColumnMeta(dict):
     
     class Meta:
         def __init__(self, header="", visible=False, foreign=False, 
-                     width=50, default=None, editor=None):
+                     width=50, default=None, editor=None, required=False):
             self.header = header
             self.visible = visible
             self.foreign = foreign
             self.width = width # the default width for all columns
             self.default = default
             self.editor = editor
+            self.required = required
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -166,6 +168,8 @@ class ModelDict(dict):
 #
 class TableEditor(object):
     
+    show_in_toolbar = True
+    
     def __init__(self, table, select=None, defaults={}):
         self.defaults = copy.copy(defaults)
         self.table = table
@@ -197,9 +201,12 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
 #    def commit_changes(self):
 #        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
 
-    def start(self):
+    def start(self, block=False):
         super(TableEditorDialog, self).start()
-        self.show()
+        if block:
+            self.run()
+        else: self.show()
+            
         
     def on_response(self, widget, response, data=None):
         super(TableEditorDialog, self).on_response()
@@ -242,7 +249,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.table_meta = TableMeta()
 
         
-    def start(self):
+    def start(self, block=False):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
@@ -251,7 +258,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
             
         self.create_gui()
-        super(TreeViewEditorDialog, self).start()
+        super(TreeViewEditorDialog, self).start(block)
         
         
     def get_values_from_view(self):
@@ -269,10 +276,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         for item in model:
             temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
             for name, value in item[0].iteritems():                
-                # del the value is they are none
-#                if value is None:
-#                    del temp_row[name]
-                print value
+                # del the value is they are none, have to do this b/c 
+                # we don't want to store None in a row without a default
+                if value is None:
+                    del temp_row[name]
                 if type(value) == list and type(value[0]) == int:
                     temp_row[name] = value[0] # is an id, name pair
                     #else: # it is a list but we assume the [0] is 
@@ -856,7 +863,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         for name, meta in self.column_meta.iteritems():
             if name in visible_columns:
                 meta.visible = True                    
-            else: meta.visible = False
+            elif not meta.required: 
+                meta.visible = False
 
     
     def store_column_widths(self):
@@ -918,7 +926,8 @@ class _editors(dict):
             m = __import__(m, globals(), locals(), ['editors'])
             if hasattr(m, "editors"): 
                 for e in m.editors:
-                    self[e.label] = e
+                    self[e.__name__] = e
+                    #self[e.label] = e
     
    
     def __getattr__(self, attr):

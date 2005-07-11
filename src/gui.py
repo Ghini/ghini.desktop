@@ -137,10 +137,11 @@ class GUI:
         #button.add_accelerator("show_menu", self.accel_group, ord("a"), 
         #                       gtk.gdk.CONTROL_MASK, gobject.SIGNAL_ACTION)
         menu = gtk.Menu()
-        for name, editor in sorted(editors.iteritems()):
-            item = gtk.MenuItem(name)
-            item.connect("activate", self.on_activate_editor, editor)
-            menu.append(item)
+        for editor in sorted(editors.values(), cmp=lambda x, y: cmp(x.label, y.label)):
+            if editor.show_in_toolbar:
+                item = gtk.MenuItem(editor.label)
+                item.connect("activate", self.on_activate_editor, editor)
+                menu.append(item)
         menu.show_all()
         button.set_menu(menu)
         toolbar.insert(button, 1)

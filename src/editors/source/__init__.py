@@ -4,57 +4,105 @@
 
 import os, re
 import editors
+from editors import TableEditor
 import bauble
 import gtk
 import gtk.glade
 import utils
-from tables import tables
+from tables import tables, BaubleTable
 import sqlobject
+import donor
+
+# FIXME: there is a bug that if  you open the source editor window, close
+# it and then open it again then the widgets don't show on the donations
+# box and sometimes the collections
 
 
-def setComboModelFromSelect(combo, select):
-    model = gtk.ListStore(str, object)
-    for value in select:
-        model.append([str(value), value])
-    combo.set_model(model)
+def text_coord_to_decimal(self, dir, text):
+    bits = re.split(':| ', text)
+    print bits
+    if len(bits) == 3:
+        print bits
+        dec = utils.dms_to_decimal(dir, *map(float, bits))
+    else:
+        try:
+            dec = abs(float(text))
+            if dec > 0 and dir == 'W' or dir == 'S':
+                dec = -dec
+        except:
+            raise Exception("get_latitude: float()")
+    return dec
+
+
+def set_dict_value_from_widget(glade_xml, name, key, dic, validator=lambda x: x):
+    w = glade_xml.get_widget(name)
+    v = None
+    if type(w) == gtk.Entry:
+        v = w.get_text()
+        if v == "": v = None
+    elif type(w) == gtk.TextView:
+        buffer = w.get_buffer()
+        start = buffer.get_start_iter()
+        end = buffer.get_end_iter()
+        v = buffer.get_text(start, end)
+        if v == "": v = None
+    elif type(w) == gtk.ComboBoxEntry or type(w) == gtk.ComboBox:
+        it = w.get_active_iter()
+        if it is None: 
+            v = None
+        else: 
+            model = w.get_model()
+            v = model.get_value(it, 0)
+            if isinstance(v, BaubleTable): v = v.id
+            else: v
+    else:
+        raise ValueError("SourceEditor.set_dict_value_from_widget: " \
+                         " ** unknown widget type: " + str(type(w)))
+            
+    if v is not None: 
+        v = validator(v)
+        dic[key] = v
+
+
+def combo_cell_data_func(cell, renderer, model, iter, data):
+    v = model.get_value(iter, 0)
+    renderer.set_property('text', str(v))
     
-    if combo.get_text_column() == -1:
-        combo.set_text_column(0)
-        
+    
+def setComboModelFromSelect(combo, select):
+    model = gtk.ListStore(object)
+    for value in select:
+        model.append([value])
+    combo.set_model(model)
+
     if len(model) == 1: # only one to choose from
         combo.set_active(0)
     
     
-class CollectionsEditorHandlers:
-    pass
+class Singleton(object):
+        _instance = None
+        def __new__(cls, *args, **kwargs):
+            if not cls._instance:
+                cls._instance = super(Singleton, cls).__new__(
+                                   cls, *args, **kwargs)
+            return cls._instance
     
-class DonationsEditorHandlers:
-    pass
+            
+class CollectionsEditor(Singleton):
     
+    table = tables.Collections
     
-class SourceEditor(editors.TableEditor):
+    initialized = False
     
-    label = 'Plant Sources'
-    
-    def __init__(self, select=None, defaults={}):
-        editors.TableEditor.__init__(self, tables.Source,
-                                     select=select, defaults=defaults)
-        self._dirty = False
-        self.create_gui()
- 
+    def __init__(self, glade_xml):
+        if not self.initialized:
+            self.initialize(glade_xml)
+            self.initialized = True
+
         
-    def create_gui(self):
-        self.curr_box = None
-        
-        # TODO: change this, the main_dir and the locaition of the
-        # plugins may not be the same
-        path = utils.get_main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
-        self.glade_xml = gtk.glade.XML(path + 'source_editor.glade')
-        self.dialog = self.glade_xml.get_widget('source_dialog')
-        self.source_box = self.glade_xml.get_widget('source_box')
-        handlers = {'on_response': self.on_response,
-                    'on_type_combo_changed': self.on_type_combo_changed,
-                    'on_lon_entry_changed': self.on_coord_entry_changed,
+    def initialize(self, glade_xml):    
+        self.glade_xml = glade_xml
+        handlers = {'on_lon_entry_changed': self.on_coord_entry_changed,
                     'on_lat_entry_changed': self.on_coord_entry_changed,
                     'on_region_combo_changed': self.on_region_combo_changed,
                     'on_area_combo_changed': self.on_area_combo_changed,
@@ -62,13 +110,14 @@ class SourceEditor(editors.TableEditor):
                     'on_place_combo_changed': self.on_place_combo_changed}
         self.glade_xml.signal_autoconnect(handlers)
         
-        # set everything to their default states
-        self.type_combo = self.glade_xml.get_widget('type_combo')
-        self.type_combo.set_active(0)
+        self.box = self.glade_xml.get_widget('collection_box')
         
         # set combo models
         self.region_combo = self.glade_xml.get_widget('region_combo')
         self.region_combo.child.set_property('editable', False)
+        r = gtk.CellRendererText()
+        self.region_combo.pack_start(r)
+        self.region_combo.set_cell_data_func(r, combo_cell_data_func, None)
         setComboModelFromSelect(self.region_combo, 
                                 tables.Regions.select(orderBy='region'))
         
@@ -80,33 +129,29 @@ class SourceEditor(editors.TableEditor):
             
         self.place_combo = self.glade_xml.get_widget('place_combo')
         self.place_combo.child.set_property('editable', False)
-        
-        
-        
-    def on_coord_entry_changed(self):
-        pass
-        
-        
+        self._collection_box_inited = True
+
+
     def on_region_combo_changed(self, combo, data=None):
-        # TODO: if we can't catch the clicked signal then we have to
-        # set the models with all possible values
-        # TODO: if this is set to None or the entry is cleared we should
-        # reset all the models
-        
-        self.place_combo.set_active(-1)
-        self.place_combo.child.set_text('')
-        self.place_combo.set_model(None)
-        
-        self.state_combo.set_active(-1)
-        self.state_combo.child.set_text('')
-        self.state_combo.set_model(None)
-        
-        self.area_combo.set_active(-1)
-        self.area_combo.child.set_text('')
-        model = combo.get_model()
-        it = combo.get_active_iter()
-        row = model.get_value(it, 1)
-        setComboModelFromSelect(self.area_combo, row.areas)
+         # TODO: if we can't catch the clicked signal then we have to
+         # set the models with all possible values
+         # TODO: if this is set to None or the entry is cleared we should
+         # reset all the models
+            
+         self.place_combo.set_active(-1)
+         self.place_combo.child.set_text('')
+         self.place_combo.set_model(None)
+            
+         self.state_combo.set_active(-1)
+         self.state_combo.child.set_text('')
+         self.state_combo.set_model(None)
+            
+         self.area_combo.set_active(-1)
+         self.area_combo.child.set_text('')
+         model = combo.get_model()
+         it = combo.get_active_iter()
+         row = model.get_value(it, 1)
+         setComboModelFromSelect(self.area_combo, row.areas)
         
         
     def on_area_combo_changed(self, combo, data=None):
@@ -145,63 +190,10 @@ class SourceEditor(editors.TableEditor):
         
     def on_place_combo_changed(self, combo, data=None):
         pass
-        
-        
-    def save_state(self):
-        # save the current width, height of the dialogs
-        # so that each source type can have different dialog dimensions
+    
+    
+    def on_coord_entry_changed(self):
         pass
-    
-            
-    def get_donation_values(self):
-        # donor_combo
-        # get the donor id from the model
-        self.glade_xml.get_widget('donor_combo')
-        # donid_entry
-        self.glade_xml.get_widget('donid_combo')
-        # donnotes_entry
-        self.glade_xml.get_widget('donnotes_combo')
-        return None
-        
-        
-    def set_value_from_widget(self, name, key, dic, validator=lambda x: x):
-        w = self.glade_xml.get_widget(name)
-        v = None
-        if type(w) == gtk.Entry:
-            v = w.get_text()
-            if v == "": v = None
-        elif type(w) == gtk.TextView:
-            buffer = w.get_buffer()
-            start = buffer.get_start_iter()
-            end = buffer.get_end_iter()
-            v = buffer.get_text(start, end)
-            if v == "": v = None
-        elif type(w) == gtk.ComboBoxEntry:
-            v = w.get_active_text()
-            if v == '': v = None
-        else:
-            raise ValueError("SourceEditor.set_value_from_widget: " \
-                             " ** unknown widget type: " + str(type(w)))
-            
-        if v is not None: 
-            v = validator(v)
-            dic[key] = v
-
-    
-    def text_coord_to_decimal(self, dir, text):
-        bits = re.split(':| ', text)
-        print bits
-        if len(bits) == 3:
-            print bits
-            dec = utils.dms_to_decimal(dir, *map(float, bits))
-        else:
-            try:
-                dec = abs(float(text))
-                if dec > 0 and dir == 'W' or dir == 'S':
-                    dec = -dec
-            except:
-                raise Exception("get_latitude: float()")
-        return dec
         
         
     def get_longitude(self):
@@ -239,17 +231,17 @@ class SourceEditor(editors.TableEditor):
         return lon, lat
 
     
-    def get_collection_values(self):
+    def get_values(self):
         values = {}
         # collector_entry, should be a combo entry with an id in the model
-        self.set_value_from_widget('collector_entry', 'collector', values)
+        set_dict_value_from_widget(self.glade_xml, 'collector_entry', 'collector', values)
 
         # colldate_entry, dd/mm/yy
-        self.set_value_from_widget('colldate_entry', 'coll_date', values)
+        set_dict_value_from_widget(self.glade_xml, 'colldate_entry', 'coll_date', values)
         # collid_entry
-        self.set_value_from_widget('collid_entry', 'coll_id', values)
+        set_dict_value_from_widget(self.glade_xml, 'collid_entry', 'coll_id', values)
         # locale_entry
-        self.set_value_from_widget('locale_entry', 'locale', values)
+        set_dict_value_from_widget(self.glade_xml, 'locale_entry', 'locale', values)
         
         # lon_entry
         # parse the entry and turn it into deg, min, sec or 
@@ -261,49 +253,145 @@ class SourceEditor(editors.TableEditor):
             values['latitude'] = lat
 
         # geoacc_entry
-        self.set_value_from_widget('geoacc_entry', 'geo_accy', values)
+        set_dict_value_from_widget(self.glade_xml, 'geoacc_entry', 'geo_accy', values)
         
         # alt_entry
         try:
-            self.set_value_from_widget('alt_entry', 'altitude', values, float)
+            set_dict_value_from_widget(self.glade_xml, 'alt_entry', 'altitude', values, float)
         except TypeError, e:
             msg = 'Error setting the altitude: \nValue must be a number'
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             
         # altacc_entry
         try:
-            self.set_value_from_widget('altacc_entry', 'altitude_accy', values, float)
+            set_dict_value_from_widget(self.glade_xml, 'altacc_entry', 'altitude_accy', values, float)
         except TypeError, e:
             msg = 'Error setting the altitude accuracy: \nValue must be a number'
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
         # habitat_entry
-        self.set_value_from_widget('habitat_entry', 'habitat', values)
+        set_dict_value_from_widget(self.glade_xml, 'habitat_entry', 'habitat', values)
         # country_combo
-        self.set_value_from_widget('region_combo', 'region', values)
+        set_dict_value_from_widget(self.glade_xml, 'region_combo', 'region', values)
         # primary_combo
-        self.set_value_from_widget('area_combo', 'area', values)
+        set_dict_value_from_widget(self.glade_xml, 'area_combo', 'area', values)
         # secondary_combo
-        self.set_value_from_widget('state_combo', 'state', values)
+        set_dict_value_from_widget(self.glade_xml, 'state_combo', 'state', values)
         # geounit_combo
-        self.set_value_from_widget('place_combo', 'place', values)
+        set_dict_value_from_widget(self.glade_xml, 'place_combo', 'place', values)
         # notes_entry
-        self.set_value_from_widget('notes_entry', 'notes', values)
+        set_dict_value_from_widget(self.glade_xml, 'notes_entry', 'notes', values)
+        return values
+        
+        
+class DonationsEditor(Singleton):
+
+    table = tables.Donations
+
+    initialized = False
+    
+    def __init__(self, glade_xml):
+        if not self.initialized:
+            self.initialize(glade_xml)
+            self.initialized = True
+        
+        
+    def initialize(self, glade_xml):    
+        self.glade_xml = glade_xml
+        handlers = {'on_don_new_button_clicked': self.on_don_new_button_clicked,
+                    'on_don_edit_button_clicked': self.on_don_edit_button_clicked,
+                    'on_donor_combo_changed': self.on_donor_combo_changed}
+        self.glade_xml.signal_autoconnect(handlers)
+
+        self.box = self.glade_xml.get_widget('donation_box')
+        
+        self.donor_combo = self.glade_xml.get_widget('donor_combo')
+        sel = tables.Donors.select()
+        print 'init_donations'
+        print sel
+        for s in sel:
+            print s
+        print '---------'
+        r = gtk.CellRendererText()
+        self.donor_combo.pack_start(r)
+        self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
+        setComboModelFromSelect(self.donor_combo, sel)
+
+
+    def get_values(self):
+        # donor_combo
+        # get the donor id from the model
+        values = {}
+        set_dict_value_from_widget(self.glade_xml, 'donor_combo', 'donor', values)
+        set_dict_value_from_widget(self.glade_xml, 'donid_entry', 'donor_acc', values)
+        set_dict_value_from_widget(self.glade_xml, 'donnotes_entry', 'notes', values)
+        print 'get_values: ' + str(values)
         return values
     
     
-    def get_values(self, type):
-        if type == 'Donation':
-            values = self.get_donation_values()
-            table = tables.Donations
-        elif type == 'Collection':
-            values = self.get_collection_values()
-            table = tables.Collections
-            #return get_donation_values())
-        else: 
-            raise ValueError("SourceEditor.get_values() " \
-                             "-- unknown table type: + " + tyye)
-        return table, values
+    def on_don_new_button_clicked(self, button, data=None):
+        #self.dialog.set_sensitive(False)
+        e = donor.DonorsEditor()
+        print 'starting donor editor'
+        e.start(True)
+        print 'done with donor editor'
+        #self.dialog.set_sensitive(True)
+        #model = gtk.ListStore(obj)
+        #self.init_donations()
+        donor_combo = self.glade_xml.get_widget('donor_combo')
+        print 'setting table'
+        setComboModelFromSelect(donor_combo, tables.Donors.select())
+        
+        
+    def on_don_edit_button_clicked(self, button, data=None):
+        # get the current value
+        pass
+        
+        
+    def on_donor_combo_changed(self, combo, data=None):
+        #set the sensitivity of the edit button
+        pass
+    
+    
+class SourceEditor(TableEditor):
+    
+    label = 'Acession Sources'
+    show_in_toolbar = False
+    
+    def __init__(self, select=None, defaults={}):
+        TableEditor.__init__(self, None, #tables.SourceEditor,
+                             select=select, defaults=defaults)
+        self._dirty = False
+        self.source_editor_map = (('Collection', CollectionsEditor),
+                                  ('Donation', DonationsEditor))   
+        self.create_gui()       
+    
+        
+    def create_gui(self):
+        self.curr_editor = None
+        
+        # TODO: change this, the main_dir and the locaition of the
+        # plugins may not be the same
+        path = utils.get_main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
+        self.glade_xml = gtk.glade.XML(path + 'source_editor.glade')
+        self.dialog = self.glade_xml.get_widget('source_dialog')
+        self.source_box = self.glade_xml.get_widget('source_box')
+        handlers = {'on_response': self.on_response,
+                    'on_type_combo_changed': self.on_type_combo_changed,}
+        self.glade_xml.signal_autoconnect(handlers)
+        
+        # set everything to their default states
+        self.type_combo = self.glade_xml.get_widget('type_combo')
+        for t in self.source_editor_map:
+            self.type_combo.append_text(t[0])
+        self.type_combo.set_active(0)
+    
+        
+    def save_state(self):
+        # save the current width, height of the dialogs
+        # so that each source type can have different dialog dimensions
+        pass
+    
     
     committed = None
     def commit_changes(self):
@@ -312,7 +400,11 @@ class SourceEditor(editors.TableEditor):
         # the values so that wherever the values are returned then the
         # accession foreign key can be set there and commited
         active = self.type_combo.get_active_text()
-        table, values = self.get_values(active)
+        #table, values = self.get_values(active)
+        
+        table = self.curr_editor.table
+        values = self.curr_editor.get_values()
+        
         print values
         if values is None: 
             return
@@ -330,46 +422,43 @@ class SourceEditor(editors.TableEditor):
             return False
         else:
             trans.commit()
-            print 'self.commited'
-            print t
-            print str(t)
+            #print 'self.commited'
+            #print t
+            #print str(t)
             self.committed = t
         return True
         
         
     def on_type_combo_changed(self, combo, data=None):
-        if self.curr_box is not None:
-            self.source_box.remove(self.curr_box)
+        if self.curr_editor is not None:
+            self.source_box.remove(self.curr_editor.box)
+            #self.curr_box.destroy()
         
         active = combo.get_active_text()    
-        if active == 'Donation':
-            box_name = 'donation_box'
-        elif active == 'Collection':
-            box_name = 'collection_box'
-        else: 
+        editor = None
+        for label, e in self.source_editor_map:
+            if label == active:
+                print label
+                editor = e(self.glade_xml)
+                continue
+                
+        if editor is None:
             raise Exception('SourceEditor.on_type_combo_changed: unknown source type')
 
-        box = self.glade_xml.get_widget(box_name)
-        if box is None:
-            msg = 'could not get box with name' + box_name
-            raise Exception('SourceEditor.on_type_combo_changed: ' + msg)
+        #box = self.glade_xml.get_widget(box_name)
+        #if box is None:
+        #    msg = 'could not get box with name ' + box_name
+        #    raise Exception('SourceEditor.on_type_combo_changed: ' + msg)
         # to edit the box in glade it needs a parent but we want the change
         # the parent on pack
-        box.unparent() 
-        self.source_box.pack_start(box)
-        self.curr_box = box
-        self.dialog.show_all()
-            
         
-    #**********************************
-    # donations editor signal handlers
-    #**********************************
-    def on_don_new_button_clicked(self, buttaon, data=None):
-        pass
-    def on_don_edit_button_clicked(self, buttaon, data=None):
-        pass
-    def on_donor_combo_changed(self, combo, data=None):
-        pass
+        self.curr_editor = editor
+        editor.box.unparent()
+        
+        self.source_box.pack_start(editor.box)
+        #self.curr_box = box
+        self.dialog.show_all()
+    
         
     def on_response(self, dialog, response, data=None):
         #print "SourceEditor.on_response"
@@ -393,7 +482,7 @@ class SourceEditor(editors.TableEditor):
         """
         # TODO: if commit_on_response is False we could return
         # from here since it blocks anyways
-        editors.TableEditor.start(self)
+        TableEditor.start(self)
         #self.commit_on_response = commit_on_response        
         self.dialog.run() # blocks
         #print 'start: get_values'
@@ -402,6 +491,6 @@ class SourceEditor(editors.TableEditor):
         return self.committed
 
 
-import donor
+
 editors = (SourceEditor, donor.DonorsEditor)
 #editor = SourceEditor

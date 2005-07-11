@@ -55,8 +55,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
 #                   "wgs": "World Geographical Scheme"
                    }
         self.column_meta.headers = headers
-        #self.column_meta['source'].editor = editors.source.editor
-        self.column_meta['source_type'].editor = editors.source.editor
+        self.column_meta['source_type'].editor = editors.editors.SourceEditor
         self.table_meta.foreign_keys = [('_collection', 'accession')]
         self.table_meta.foreign_keys = [('_donation', 'accession')]
         
