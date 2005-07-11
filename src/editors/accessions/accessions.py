@@ -32,6 +32,8 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.accessions.column_width"
     default_visible_list = ['acc_id', 'plantname']
 
+    label = 'Accessions'
+
     def __init__(self, parent=None, select=None, defaults={}):
         
         editors.TreeViewEditorDialog.__init__(self, tables.Accessions,
@@ -55,6 +57,8 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
         self.column_meta.headers = headers
         #self.column_meta['source'].editor = editors.source.editor
         self.column_meta['source_type'].editor = editors.source.editor
+        self.table_meta.foreign_keys = [('_collection', 'accession')]
+        self.table_meta.foreign_keys = [('_donation', 'accession')]
         
     def get_completions(self, text, colname):
         # get entry and determine from what has been input which
@@ -95,8 +99,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
         # need to ask if you want to 
         msg  = "No Plants/Clones exist for this accession %s. Would you like " \
         "to add them now?"
-        #values = self.get_table_values(not self.dummy_row)
-        values = self.get_table_values()
+        values = self.get_values_from_view()
         for v in values:
             acc_id = v["acc_id"]
             sel = tables.Accessions.selectBy(acc_id=acc_id)

@@ -11,8 +11,6 @@ import utils
 from tables import tables
 import sqlobject
 
-label = 'Source'
-description = 'Source'
 
 def setComboModelFromSelect(combo, select):
     model = gtk.ListStore(str, object)
@@ -27,7 +25,17 @@ def setComboModelFromSelect(combo, select):
         combo.set_active(0)
     
     
+class CollectionsEditorHandlers:
+    pass
+    
+class DonationsEditorHandlers:
+    pass
+    
+    
 class SourceEditor(editors.TableEditor):
+    
+    label = 'Plant Sources'
+    
     def __init__(self, select=None, defaults={}):
         editors.TableEditor.__init__(self, tables.Source,
                                      select=select, defaults=defaults)
@@ -234,7 +242,7 @@ class SourceEditor(editors.TableEditor):
     def get_collection_values(self):
         values = {}
         # collector_entry, should be a combo entry with an id in the model
-        self.set_value_from_widget('collector_entry', 'coll_name', values)
+        self.set_value_from_widget('collector_entry', 'collector', values)
 
         # colldate_entry, dd/mm/yy
         self.set_value_from_widget('colldate_entry', 'coll_date', values)
@@ -353,6 +361,16 @@ class SourceEditor(editors.TableEditor):
         self.dialog.show_all()
             
         
+    #**********************************
+    # donations editor signal handlers
+    #**********************************
+    def on_don_new_button_clicked(self, buttaon, data=None):
+        pass
+    def on_don_edit_button_clicked(self, buttaon, data=None):
+        pass
+    def on_donor_combo_changed(self, combo, data=None):
+        pass
+        
     def on_response(self, dialog, response, data=None):
         #print "SourceEditor.on_response"
         
@@ -384,4 +402,6 @@ class SourceEditor(editors.TableEditor):
         return self.committed
 
 
-editor = SourceEditor
+import donor
+editors = (SourceEditor, donor.DonorsEditor)
+#editor = SourceEditor

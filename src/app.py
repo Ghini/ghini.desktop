@@ -46,6 +46,12 @@ class BaubleApp:
             except Exception: pass
             t.createTable()
             
+        # TODO: need to import those tables that are required for basic
+        # functionality, Areas, Regions, States, Places, Families, 
+        # Genera?
+        
+        # TODO: show a progress dialog about what stage in the database 
+        # creation process we're in
         
     #
     # tracing execution 

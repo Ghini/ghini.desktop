@@ -5,10 +5,10 @@
 #import tables
 #from sqlobject import *
 from tables import *
+from tables.source import *
 
 class Accessions(BaubleTable):
-    #_cacheValue = False
-    #name = "Accessions"
+
     values = {} # dictionary of values to restrict to columns
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
     
@@ -67,20 +67,32 @@ class Accessions(BaubleTable):
     # 
     # the it's currently set up this is a dummy but the _collection
     # or _donation get
-    #source = SingleJoin('Source', joinColumn='accession_id', makeDefault=None)
     source_type = StringCol(length=16, default=None)    
+    
     def _set_source_type(self, value):
+        
+        # FIXME: this is an ugle hack to avoid setting this value
+        # recursively
+        # we could fix this by setting the type of the string
+        # as the class name or it would be nice if we could not have this
+        # recursive problem at all 
         t = type(value)
-        if t is not tables.Collection or t is not tables.Donation:
+        if t == str: 
+            return
+        elif isinstance(value, Collections):
+            print 'collection'
+            self.source_type = 'collection'
+        elif isinstance(value, Donations):
+            print 'donation'
+            self.source_type = 'donation'
+        else:
             raise ValueError('Accessions._set_source_type: are should be '\
                              'a table')
-        print 'source_type: ' + value.name
-        self.source_type = value.name
         
     # the source type says whether we should be looking at the 
     # collection or _donation join
-    _collection = SingleJoin('Collections', makeDefault=None)
-    _donation = SingleJoin('Donation', makeDefault=None)
+    _collection = SingleJoin('Collections', joinColumn='accession_id', makeDefault=None)
+    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
     
 
     # these probably belong in separate tables with a single join

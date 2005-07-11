@@ -52,7 +52,7 @@ class SearchView(views.View):
                   'Continents': [tables.Continents, ('continent',)],
                   'Regions': [tables.Regions, ('region',)],
                   'Areas': [tables.Areas, ("area",)],
-                  'States': [tables.Countries, ('state',)],
+                  'States': [tables.States, ('state',)],
                   'Places': [tables.Places, ('name',)],
                   'KewRegions': [tables.KewRegions, ('region',)]
                   }
@@ -195,8 +195,17 @@ class SearchView(views.View):
                 results += self.query(d, values)
             return results
         
+        if domain not in self.search_map or self.search_map[domain] is None:
+            raise ValueError("SearchView.query(): the domain %s is not in "\
+                             "the search map or is None" % d)
+        
+        
         table = self.search_map[domain][0]
+        if table is None:
+            raise ValueError("SearchView.query(): the table registered "\
+                             "for the domain %s is not valid" % domain)
         fields = self.search_map[domain][1]
+        
         for v in values:
             if v == "*" or v =="all": 
                 #return table.select()

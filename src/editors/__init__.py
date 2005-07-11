@@ -12,21 +12,12 @@ import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
 
-from tables import tables
+
+from tables import tables, BaubleTable
 import utils
 
 from utils.debug import debug
 debug.enable = False
-
-# TODO: create columns for SingleJoin that hold a button, clicking the button
-# can create the for the current row, i.e. and Accession can have a Collection
-# Single Join so the accession editor could have a button for that column to
-# create the collection record for the accession
-
-# TODO: split TableEditorDialog into an interface, a generic implementation
-# and possibly a TreeViewEditorDialog which would give you an spreadsheet
-# like editor like there is now, this would make it easier to build editors
-# that don't want to be spreadsheets
 
 # TODO: if the last column is made smaller from draggin the rightmost part
 # of the header then automagically reduce the size of  the dialog so that the 
@@ -36,9 +27,6 @@ debug.enable = False
 # TODO: need some type of smart dialog resizing like when columns are added
 # change the size of the dialog to fit unless you get bigger than the screen
 # then turn on the scroll bar, and something similar for adding rows 
-
-# TODO: check if column is required then you can uncheck it with some
-# sort of visual cue that is is required or at least not uncheckable
 
 def createColumnMetaFromTable(table):
     """
@@ -83,6 +71,14 @@ def validate_accession(value):
     return value
 
 
+class TableMeta:
+    """
+    hold information about the table we will be editing with the table editor
+    """
+    def __init__(self):
+        self.foreign_keys = []
+    
+
 class ViewColumnMeta(dict):
     """
     contains a dictionary of Meta classes which store information
@@ -91,13 +87,13 @@ class ViewColumnMeta(dict):
     
     class Meta:
         def __init__(self, header="", visible=False, foreign=False, 
-                     values=None, width=50, default=None):
+                     width=50, default=None, editor=None):
             self.header = header
             self.visible = visible
             self.foreign = foreign
             self.width = width # the default width for all columns
             self.default = default
-            self.editor = None
+            self.editor = editor
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -137,7 +133,7 @@ class ModelDict(dict):
             self["id"] = table_row.id
             self.table_row = table_row            
             for c in table_row.sqlmeta._columns:
-                # '_' means the editor doesn't change it
+                # '_' means the editor doesn't show it
                 if c.name[0] == '_': continue 
                 eval_str = None                    
                 if c.foreignKey:
@@ -243,6 +239,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.columns = {} # self.columns[name] = gtkcolumn
         self.dirty = False
         self.column_meta = createColumnMetaFromTable(table)
+        self.table_meta = TableMeta()
 
         
     def start(self):
@@ -257,7 +254,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         super(TreeViewEditorDialog, self).start()
         
         
-    def get_table_values(self):
+    def get_values_from_view(self):
         """
         used by commit_changes to get the values from a table so they
         can be commited to the database, this version of the function
@@ -341,8 +338,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             # start the editor for the cell if there is one
             meta = self.column_meta[colname]
             if hasattr(meta, 'editor') and meta.editor is not None:
+                self.set_sensitive(False)
                 v = meta.editor().start() # this blocks
                 self.set_view_model_value(path, colname, v)
+                self.set_sensitive(True)
         elif keyname == "Up" and path[0] != 0:            
             self.move_cursor_up(path, col)
         elif keyname == "Down" and path[0] != len(self.view.get_model()):
@@ -425,8 +424,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         in the model
         """
          
-        print 'TreeViewEditor.on_renderer_edited: ' + new_text
-        #print "on_edited: " + new_text
         new_text = new_text.strip() # crash on None? is new_text ever None?
 #        if new_text == None or new_text == "":
 #            return        
@@ -455,10 +452,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             
             
     def on_editing_started(self, cell, editable, path, colname):
-        print 'TreeViewEditor.on_editing_started()'
-            
-        # TODO: should disconnect this everytime "edited" is fired, or
-        # should i???
+
+        if self.column_meta[colname].editor:
+            editable.set_property('editable', False)
+        
         if isinstance(editable, gtk.Entry):            
             editable.connect("key-press-event", self.on_cell_key_press, 
                              path, colname)
@@ -511,7 +508,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         if len(full_text) > 2: # add completions
             entry_completion = entry.get_completion()
             model, maxlen = self.get_completions(full_text, colname)
-            print 'get_completions: ' + str(model)
             if entry_completion is None and model is not None:
                 entry_completion = gtk.EntryCompletion()
                 entry_completion.set_minimum_key_length(2)
@@ -537,14 +533,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         if text.startswith(key):
           return True
         return False
-    
-
-    def on_column_clicked(self, column, data=None):
-        """
-        TODO: could view on column
-        """
-        print "on_column_clicked"
-
+        
     
     def on_cursor_changed(self, view, data=None):
         path, column = self.view.get_cursor()
@@ -599,7 +588,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         #TreeViewEditorDialog.on_response(self, widget, response, data)
         
     
-        
     def commit_changes(self):
         """
         commit any change made in the table editor
@@ -609,22 +597,32 @@ class TreeViewEditorDialog(TableEditorDialog):
         # if they are then we need pop the list from the values and commit
         # the current table, set the foreign key of the sub table and commit 
         # it
-        values = self.get_table_values()
+        # TODO: if i don't set the connection parameter when i create the
+        # table then is it really using the transaction, it might be if 
+        # sqlhub.threadConnection is set to the transaction
+        values = self.get_values_from_view()
         old_conn = sqlhub.getConnection()
         trans = old_conn.transaction()
         sqlhub.threadConnection = trans
-        #trans = sqlhub.threadConnection.transaction()
         for v in values:
-            #print v
             try:
-                if v.has_key("id"):
-                    #print "TableEditorDialog.commit_changes(): updating"
-                    p = self.table.get(v["id"])
+                if v.has_key("id"): # updating row
+                    t = self.table.get(v["id"])
                     del v["id"]
-                    p.set(**v)
-                else:
-                    #print "TableEditorDialog.commit_changes(): adding"
-                    self.table(**v)
+                    t.set(**v)
+                else: # adding row
+                    t = self.table(**v)
+                
+                # get the foreign keys that need to be set by with the id
+                # of the table row that we just created
+                for col, col_attr in self.table_meta.foreign_keys:
+                    c = getattr(t, col)
+                    # column not set so we don't need to set the foreign 
+                    # key id
+                    if c is not None: 
+                        c.set({coll_attr: t.id})
+                    
+                    
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)
                 trans.rollback()
@@ -765,12 +763,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         # generic column config
         column.set_min_width(50)
         column.set_clickable(True)
-        column.connect("clicked", self.on_column_clicked)
-        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         column.set_resizable(True)
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         column.set_reorderable(True)
         column.set_visible(meta.visible)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         width_dict = bauble.prefs[self.column_width_pref]
         if width_dict is not None and width_dict.has_key(name):
             column.set_fixed_width(width_dict[name])
@@ -800,7 +796,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         for name, meta in self.column_meta.iteritems(): 
             self.columns[name] = self.create_view_column(name, meta)
         
-        #model = gtk.ListStore(object) # object will be type ModelDict
         self.view = gtk.TreeView(gtk.ListStore(object))
         self.view.set_headers_clickable(False)
 
@@ -857,15 +852,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         """        
         visible_columns = bauble.prefs[prefs_key]
         if visible_columns is None: return
-
-        # set the index
-        #i=1
-        #for name in visible_columns:            
-        #    self.column_meta[name].index = i
-            #debug("%s: %d" % (name, i))
-        #    i += 1
-            
-        # reset all visibility
+        # reset all visibility from prefs
         for name, meta in self.column_meta.iteritems():
             if name in visible_columns:
                 meta.visible = True                    
@@ -929,8 +916,9 @@ class _editors(dict):
         for m in modules:
             print "importing " + m
             m = __import__(m, globals(), locals(), ['editors'])
-            if hasattr(m, "editor"): 
-                self[m.label] = m.editor
+            if hasattr(m, "editors"): 
+                for e in m.editors:
+                    self[e.label] = e
     
    
     def __getattr__(self, attr):

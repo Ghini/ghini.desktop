@@ -385,7 +385,7 @@ Donation</property>
 			  <property name="can_focus">True</property>
 			  <property name="editable">True</property>
 			  <property name="overwrite">False</property>
-			  <property name="accepts_tab">True</property>
+			  <property name="accepts_tab">False</property>
 			  <property name="justification">GTK_JUSTIFY_LEFT</property>
 			  <property name="wrap_mode">GTK_WRAP_NONE</property>
 			  <property name="cursor_visible">True</property>
@@ -940,7 +940,7 @@ Donation</property>
 			      <property name="can_focus">True</property>
 			      <property name="editable">True</property>
 			      <property name="overwrite">False</property>
-			      <property name="accepts_tab">True</property>
+			      <property name="accepts_tab">False</property>
 			      <property name="justification">GTK_JUSTIFY_LEFT</property>
 			      <property name="wrap_mode">GTK_WRAP_NONE</property>
 			      <property name="cursor_visible">True</property>
@@ -1246,8 +1246,8 @@ Donation</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
   <property name="modal">False</property>
-  <property name="default_width">640</property>
-  <property name="default_height">480</property>
+  <property name="default_width">320</property>
+  <property name="default_height">230</property>
   <property name="resizable">True</property>
   <property name="destroy_with_parent">False</property>
   <property name="decorated">True</property>
@@ -1259,6 +1259,8 @@ Donation</property>
 
   <child>
     <widget class="GtkVBox" id="donation_box">
+      <property name="width_request">320</property>
+      <property name="height_request">230</property>
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">5</property>
@@ -1300,6 +1302,7 @@ Donation</property>
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
 	      <property name="focus_on_click">True</property>
+	      <signal name="changed" handler="on_donor_combo_changed" last_modification_time="Mon, 11 Jul 2005 15:03:50 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">5</property>
@@ -1316,11 +1319,30 @@ Donation</property>
 	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
 	      <property name="focus_on_click">True</property>
+	      <signal name="clicked" handler="on_don_new_button_clicked" last_modification_time="Mon, 11 Jul 2005 15:03:03 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="padding">5</property>
 	      <property name="expand">False</property>
 	      <property name="fill">True</property>
+	    </packing>
+	  </child>
+
+	  <child>
+	    <widget class="GtkButton" id="don_edit_button">
+	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
+	      <property name="can_focus">True</property>
+	      <property name="label" translatable="yes">Edit</property>
+	      <property name="use_underline">True</property>
+	      <property name="relief">GTK_RELIEF_NORMAL</property>
+	      <property name="focus_on_click">True</property>
+	      <signal name="clicked" handler="on_don_edit_button_clicked" last_modification_time="Mon, 11 Jul 2005 15:02:58 GMT"/>
+	    </widget>
+	    <packing>
+	      <property name="padding">0</property>
+	      <property name="expand">False</property>
+	      <property name="fill">False</property>
 	    </packing>
 	  </child>
 	</widget>

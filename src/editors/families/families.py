@@ -14,6 +14,8 @@ class FamiliesEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.families.column_width"
     default_visible_list = ['family', 'comments']
     
+    label = 'Families'
+    
     def __init__(self, parent=None, select=None, defaults={}):
         
         editors.TreeViewEditorDialog.__init__(self, tables.Families, 

@@ -15,6 +15,8 @@ from bauble import *
 
 csv_format_params = {}
 
+# TODO: it would be easier to create this gui in glade
+
 class CSVImporter(Importer):
     
     def __init__(self, dialog):

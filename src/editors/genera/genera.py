@@ -20,6 +20,8 @@ class GeneraEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.genera.column_width"
     default_visible_list = ['family', 'genus']
     
+    label = 'Genera'
+    
     def __init__(self, parent=None, select=None, defaults={}):
         editors.TreeViewEditorDialog.__init__(self, tables.Genera,
                                               "Genera Editor", parent,

@@ -14,6 +14,7 @@ class ImagesEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.images.column_width"
     default_visible_list = ['label', 'uri', 'plantname'] 
     
+    label = 'Images'
     
     def __init__(self, parent=None, select=None, defaults={}):
         

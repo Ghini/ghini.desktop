@@ -14,6 +14,8 @@ class LocationsEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.locations.column_width"
     default_visible_list = ['site', 'description'] 
 
+    label = 'Locations'
+
     def __init__(self, parent=None, select=None, defaults={}):
         editors.TreeViewEditorDialog.__init__(self, tables.Locations,
                                               "Location Editor", parent,

@@ -15,6 +15,8 @@ class PlantsEditor(editors.TreeViewEditorDialog):
     column_width_pref = "editor.plants.column_width"
     default_visible_list = ['accession', 'plant_id'] 
 
+    label = 'Plants\\Clones'
+
     def __init__(self, parent=None, select=None, defaults={}):
         
         editors.TreeViewEditorDialog.__init__(self, tables.Plants,

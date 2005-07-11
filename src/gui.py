@@ -28,13 +28,15 @@ class GUI:
         self.create_gui()
         
         # load the last view open from the prefs
+        #self.set_current_view(views.search.SearchView)
+        #return
         v = Preferences[self.current_view_pref]
-        if v is not None: 
-            for view, module in views.modules.iteritems():
+        if v is None: 
+            v = 'views.search' # search is the default view
+        for view, module in views.modules.iteritems():
                 if module == v:
                     self.set_current_view(view)
             
-    
     def create_gui(self):            
         # create main window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
