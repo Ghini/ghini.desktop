@@ -112,11 +112,18 @@ class SourceExpander(InfoExpander):
         InfoExpander.__init__(self, 'Source')
         self.create_gui()
     
+    type_prefix = 'Type: '
+    alt_prefix = 'Altitude: '
+    gps_prefix = '' # should just do a 'long lat' string
+    
+    
     def create_gui(self):
         #vbox = gtk.VBox(False)
         self.type_label = gtk.Label('Type: ')
+        self.type_label.set_alignment(0.0, 0.5)
         self.vbox.pack_start(self.type_label)
         self.name_label = gtk.Label('Name:')
+        self.name_label.set_alignment(0.0, 0.5)
         self.vbox.pack_start(self.name_label)
         #self.add(vbox)
         
@@ -133,6 +140,13 @@ class SourceExpander(InfoExpander):
     row = property(fset=_set_row)
     
     
+class AccessionsExpander(InfoExpander):
+    """
+    generic information about an accession like
+    number of clones, provenance type, wild provenance type, plantnames
+    """
+    pass
+    
 class AccessionsInfoBox(InfoBox):
     def __init__(self):
         InfoBox.__init__(self)
@@ -141,20 +155,18 @@ class AccessionsInfoBox(InfoBox):
         self.source.set_expanded(True)
 
     def set_values_from_row(self, row):        
-        print 'AccessionsInfoBox.set_values_from_row'
-        print row
-        print row.source_type
         if row.source_type == 'Collections':
-            print row._collection
             self.source.row = row._collection
         if row.source_type == 'Donations':
-            print row._donation
             self.source.row = row._donation
         
         
         
 class PlantnamesInfoBox(InfoBox):
     def __init__(self):
+        """ 
+        fullname, synonyms, ...
+        """
         InfoBox.__init__(self)
         #ref = ReferenfencesExpander()
         #ref.set_expanded(True)

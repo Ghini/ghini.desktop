@@ -120,17 +120,17 @@ class GUI:
         toolbar = gtk.Toolbar()
 
         # add all views modules
-        button = gtk.MenuToolButton(gtk.STOCK_FIND_AND_REPLACE)
-        button.set_label("View")
-        menu = gtk.Menu()
-        for name, view in sorted(views.iteritems()):
-            item = gtk.MenuItem(name)
-            item.connect("activate", self.on_activate_view, view)
-            menu.append(item)
-        
-        menu.show_all()
-        button.set_menu(menu)
-        toolbar.insert(button, 0)
+#        button = gtk.MenuToolButton(gtk.STOCK_FIND_AND_REPLACE)
+#        button.set_label("View")
+#        menu = gtk.Menu()
+#        for name, view in sorted(views.iteritems()):
+#            item = gtk.MenuItem(name)
+#            item.connect("activate", self.on_activate_view, view)
+#            menu.append(item)
+#        
+#        menu.show_all()
+#        button.set_menu(menu)
+#        toolbar.insert(button, 0)
         
         # add all editors modules
         button = gtk.MenuToolButton(gtk.STOCK_ADD)
@@ -144,7 +144,7 @@ class GUI:
                 menu.append(item)
         menu.show_all()
         button.set_menu(menu)
-        toolbar.insert(button, 1)
+        toolbar.insert(button, 0)
         
         return toolbar
     

@@ -44,6 +44,10 @@ def createColumnMetaFromTable(table):
             name = name[:-2]
         col_meta.header = name 
         col_meta.type = type(col)
+        # TODO: other validators that are easy, like floats
+        # and possibly dates
+        if col_meta.type == SOIntCol:
+            col_meta.validate = lambda x: int(x)
         if col._default == NoDefault:
             col_meta.default = col._default # the default value from the table
             col_meta.visible = True
@@ -294,7 +298,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         all foreign keys should use entry completion so you can't type in
         values that don't already exists in the database, therefore, allthough
         i don't like it the view.model.row is set here for foreign key columns
-        and in self.on_edited for other column types                
+        and in self.on_renderer_edited for other column types                
         """        
         id = model.get_value(iter, 1)
         name = model.get_value(iter, 0)
@@ -576,9 +580,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         values = []
         for item in model:
             temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
+            print '----------------'
             for name, value in item[0].iteritems():                
                 # del the value is they are none, have to do this b/c 
                 # we don't want to store None in a row without a default
+                print '%s: %s (%s)' % (name, value, type(value))
                 if value is None:
                     del temp_row[name]
                 if type(value) == list and type(value[0]) == int:
@@ -621,7 +627,6 @@ class TreeViewEditorDialog(TableEditorDialog):
                 if v.has_key(col):
                     print 'pop ' + col
                     foreigners[col] = v.pop(col)
-            
             try:
                 if v.has_key("id"): # updating row
                     t = self.table.get(v["id"])

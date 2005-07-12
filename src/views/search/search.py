@@ -97,7 +97,7 @@ class SearchView(views.View):
 
     
     def set_infobox_from_row(self, row):
-        print 'set_infobox_from_row'
+
         if not hasattr(self, 'infobox'):
             self.infobox = None
             
@@ -107,11 +107,9 @@ class SearchView(views.View):
             self.infobox.destroy()
             
         t = type(row)
-        print '-- row type: ' + str(t)
         if self.infobox_map.has_key(t):
             self.infobox = self.infobox_map[t]()
             if row is not None:
-                print 'row is not none'
                 self.infobox.set_values_from_row(row)
             self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
@@ -284,7 +282,14 @@ class SearchView(views.View):
         #bauble.gui.pulse_progressbar()
         #thread = threading.Thread(target=self.populate_worker, args=(search,))
         #thread.start()
+        # there's really no point setting the cursor for a long operation
+        # without threading b/c the cursor doesn't get updated, maybe if 
+        # waited for half second or so
+        import gtk.gdk
+        bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.populate_results_no_threading(search)
+        bauble.gui.window.window.set_cursor(None)
+        
         
     def populate_results_no_threading(self, search):
         self.set_sensitive(False)
@@ -364,13 +369,8 @@ class SearchView(views.View):
         # TODO: there should be a better way to get the editor b/c this
         # dictates that all editors are in ClassnameEditor format
         editor_name = value.__class__.__name__ + 'Editor'
-        print editor_name
-        print editors
-        print editors[editor_name]
         edit_item.connect("activate", self.on_activate_editor,
                           editors[editor_name], [value], None)
-        #edit_item.connect("activate", self.on_activate_editor,
-        #                  eval("editors.%s" % value.__class__.__name__), [value], None)
         menu.add(edit_item)
          
         menu.add(gtk.SeparatorMenuItem())
@@ -389,15 +389,13 @@ class SearchView(views.View):
                 defaults[join_column[:-3]] = value
             
             other_class = join.kw["otherClass"]
-            add_item = gtk.MenuItem("Add " + name)
-            add_item.connect("activate", self.on_activate_editor, 
-                              editors[other_class + 'Editor'], None, defaults)
-                         #eval("editors.%s" % other_class), None, 
-                         #defaults)
-            #add_item.connect("activate", self.on_activate_editor, 
-            #             eval("editors.%s" % other_class), None, 
-            #             defaults)
-            menu.add(add_item)
+            editor_name = other_class + 'Editor'
+            if editors.has_key(editor_name):
+                add_item = gtk.MenuItem("Add " + name)
+                
+                add_item.connect("activate", self.on_activate_editor, 
+                                 editors[editor_name], None, defaults)
+                menu.add(add_item)
         
         menu.add(gtk.SeparatorMenuItem())
         
@@ -424,6 +422,8 @@ class SearchView(views.View):
         # TODO: this should immediately remove the model from the value
         # and refresh the tree, we might have to save the path to
         # remember where we were in the view
+        # TODO: we can probably juse accomplish this my collapsing and then
+        # expanding the parent of the item to be removed
 
         
     def on_view_row_activated(self, view, path, column, data=None):
