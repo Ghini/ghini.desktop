@@ -3,9 +3,10 @@
 #
 
 import gtk
+from tables import tables
 
 # TODO: need some way to handle multiple join, maybe display some 
-# number automatically but after that then a scrollbar should appea
+# number automatically but after that then a scrollbar should appear
 
 class InfoExpander(gtk.Expander):
     """
@@ -65,10 +66,10 @@ class LocationsExpander(TableExpander):
 
 # TODO: it would be uber-cool to look up book references on amazon, 
 # is there a python api for amazon or should it just defer to the browser
-class ReferencesExpander(TableExpander):
-    def __init__(self, label="References", columns={'label': 'Label',
-                                                    'reference': 'References'}):
-        TableExpander.__init__(self, label, columns)
+#class ReferencesExpander(TableExpander):
+#    def __init__(self, label="References", columns={'label': 'Label',
+#                                                    'reference': 'References'}):
+#        TableExpander.__init__(self, label, columns)
 
 class ImagesExpander(TableExpander):
     def __init(self, label="Images", columns={'label': 'Label',
@@ -105,10 +106,53 @@ class InfoBox(gtk.VBox):
     def set_values_from_row(self, row):
         raise NotImplementedError
         
-#class AccessionsInfoBox(InfoBox):
-#    def __init__(self):
-#        InfoBox.__init__(self)
-            
+        
+class SourceExpander(InfoExpander):
+    def __init__(self):
+        InfoExpander.__init__(self, 'Source')
+        self.create_gui()
+    
+    def create_gui(self):
+        #vbox = gtk.VBox(False)
+        self.type_label = gtk.Label('Type: ')
+        self.vbox.pack_start(self.type_label)
+        self.name_label = gtk.Label('Name:')
+        self.vbox.pack_start(self.name_label)
+        #self.add(vbox)
+        
+    def _set_row(self, value):
+        #print 'SourceExpander._set_row:' + value
+        #self._row = value
+        if type(value) == tables.Collections:
+            self.type_label.set_text('Collection')
+        elif type(value) == tables.Donations:
+            self.type_label.set_text('Donation')
+        self.name_label.set_text(str(value))
+        #self.type_label.set_text(str(value.__class__.__name)
+        #self.name_label.set_text(str(value))
+    row = property(fset=_set_row)
+    
+    
+class AccessionsInfoBox(InfoBox):
+    def __init__(self):
+        InfoBox.__init__(self)
+        self.source = SourceExpander()
+        self.add_expander(self.source)
+        self.source.set_expanded(True)
+
+    def set_values_from_row(self, row):        
+        print 'AccessionsInfoBox.set_values_from_row'
+        print row
+        print row.source_type
+        if row.source_type == 'Collections':
+            print row._collection
+            self.source.row = row._collection
+        if row.source_type == 'Donations':
+            print row._donation
+            self.source.row = row._donation
+        
+        
+        
 class PlantnamesInfoBox(InfoBox):
     def __init__(self):
         InfoBox.__init__(self)

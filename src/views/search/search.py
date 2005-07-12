@@ -86,7 +86,8 @@ class SearchView(views.View):
                         tables.Locations: 'plants'}
                         
     infobox_map = {tables.Plantnames: infobox.PlantnamesInfoBox,
-                   tables.Plants: infobox.PlantsInfoBox}
+                   tables.Plants: infobox.PlantsInfoBox,
+                   tables.Accessions: infobox.AccessionsInfoBox}
                  
     
     def __init__(self):
@@ -96,6 +97,7 @@ class SearchView(views.View):
 
     
     def set_infobox_from_row(self, row):
+        print 'set_infobox_from_row'
         if not hasattr(self, 'infobox'):
             self.infobox = None
             
@@ -105,11 +107,13 @@ class SearchView(views.View):
             self.infobox.destroy()
             
         t = type(row)
+        print '-- row type: ' + str(t)
         if self.infobox_map.has_key(t):
             self.infobox = self.infobox_map[t]()
             if row is not None:
+                print 'row is not none'
                 self.infobox.set_values_from_row(row)
-            self.pane.pack2(self.infobox, True, False)
+            self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
 
         
@@ -357,8 +361,16 @@ class SearchView(views.View):
         # so find an editor with the same name as the table, this is a bit
         # basic and requires editors and tables to have the same name
         edit_item = gtk.MenuItem("Edit")
+        # TODO: there should be a better way to get the editor b/c this
+        # dictates that all editors are in ClassnameEditor format
+        editor_name = value.__class__.__name__ + 'Editor'
+        print editor_name
+        print editors
+        print editors[editor_name]
         edit_item.connect("activate", self.on_activate_editor,
-                          eval("editors.%s" % value.__class__.__name__), [value], None)
+                          editors[editor_name], [value], None)
+        #edit_item.connect("activate", self.on_activate_editor,
+        #                  eval("editors.%s" % value.__class__.__name__), [value], None)
         menu.add(edit_item)
          
         menu.add(gtk.SeparatorMenuItem())
@@ -379,8 +391,12 @@ class SearchView(views.View):
             other_class = join.kw["otherClass"]
             add_item = gtk.MenuItem("Add " + name)
             add_item.connect("activate", self.on_activate_editor, 
-                         eval("editors.%s" % other_class), None, 
-                         defaults)
+                              editors[other_class + 'Editor'], None, defaults)
+                         #eval("editors.%s" % other_class), None, 
+                         #defaults)
+            #add_item.connect("activate", self.on_activate_editor, 
+            #             eval("editors.%s" % other_class), None, 
+            #             defaults)
             menu.add(add_item)
         
         menu.add(gtk.SeparatorMenuItem())

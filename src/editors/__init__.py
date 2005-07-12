@@ -261,39 +261,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         super(TreeViewEditorDialog, self).start(block)
         
         
-    def get_values_from_view(self):
-        """
-        used by commit_changes to get the values from a table so they
-        can be commited to the database, this version of the function
-        removes the values with None as the value from the row, i thought
-        this was necessary but now i don't, in fact it may be better in
-        case you want to explicitly set things null
-        """
-        # TODO: this method needs some love, there should be a more obvious
-        # way or at least simpler way of return lists of values
-        model = self.view.get_model()
-        values = []
-        for item in model:
-            temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
-            for name, value in item[0].iteritems():                
-                # del the value is they are none, have to do this b/c 
-                # we don't want to store None in a row without a default
-                if value is None:
-                    del temp_row[name]
-                if type(value) == list and type(value[0]) == int:
-                    temp_row[name] = value[0] # is an id, name pair
-                    #else: # it is a list but we assume the [0] is 
-                    # a table and [1] is a dict of value to commit, 
-                    # we assume this is here because we need to set the 
-                    # foreign key in the subtable to the id of the current
-                    # row after it is commited and then commit the subtable
-                    # there has to be a better way than this
-                        
-            values.append(temp_row)
-            
-        if self.dummy_row:
-            del values[len(model)-1] # the last one should always be empty
-        return values                                   
+                                 
     
 
     def foreign_does_not_exist(self, name, value):
@@ -594,7 +562,41 @@ class TreeViewEditorDialog(TableEditorDialog):
         #super(TreeViewEditorDialog, self).on_response(widget, response, data)
         #TreeViewEditorDialog.on_response(self, widget, response, data)
         
-    
+    def get_values_from_view(self):
+        """
+        used by commit_changes to get the values from a table so they
+        can be commited to the database, this version of the function
+        removes the values with None as the value from the row, i thought
+        this was necessary but now i don't, in fact it may be better in
+        case you want to explicitly set things null
+        """
+        # TODO: this method needs some love, there should be a more obvious
+        # way or at least simpler way of return lists of values
+        model = self.view.get_model()
+        values = []
+        for item in model:
+            temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
+            for name, value in item[0].iteritems():                
+                # del the value is they are none, have to do this b/c 
+                # we don't want to store None in a row without a default
+                if value is None:
+                    del temp_row[name]
+                if type(value) == list and type(value[0]) == int:
+                    temp_row[name] = value[0] # is an id, name pair
+                    #else: # it is a list but we assume the [0] is 
+                    # a table and [1] is a dict of value to commit, 
+                    # we assume this is here because we need to set the 
+                    # foreign key in the subtable to the id of the current
+                    # row after it is commited and then commit the subtable
+                    # there has to be a better way than this
+                        
+            values.append(temp_row)
+            
+        if self.dummy_row:
+            del values[len(model)-1] # the last one should always be empty
+        return values      
+        
+        
     def commit_changes(self):
         """
         commit any change made in the table editor
@@ -612,6 +614,14 @@ class TreeViewEditorDialog(TableEditorDialog):
         trans = old_conn.transaction()
         sqlhub.threadConnection = trans
         for v in values:
+            foreigners = {}
+            # first pop out columns in table_meta.foreign_keys so we can
+            # set their foreign key id later
+            for col, col_attr in self.table_meta.foreign_keys:
+                if v.has_key(col):
+                    print 'pop ' + col
+                    foreigners[col] = v.pop(col)
+            
             try:
                 if v.has_key("id"): # updating row
                     t = self.table.get(v["id"])
@@ -619,16 +629,12 @@ class TreeViewEditorDialog(TableEditorDialog):
                     t.set(**v)
                 else: # adding row
                     t = self.table(**v)
-                
-                # get the foreign keys that need to be set by with the id
-                # of the table row that we just created
+               
+                # set the foreign keys id of the foreigners
                 for col, col_attr in self.table_meta.foreign_keys:
-                    c = getattr(t, col)
-                    # column not set so we don't need to set the foreign 
-                    # key id
-                    if c is not None: 
-                        c.set({coll_attr: t.id})
-                    
+                    if foreigners.has_key(col):
+                        c = foreigners[col]
+                        c.set(**{col_attr: t.id})
                     
             except Exception, e:
                 msg = "Could not commit changes.\n" + str(e)

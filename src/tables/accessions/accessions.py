@@ -67,24 +67,28 @@ class Accessions(BaubleTable):
     # 
     # the it's currently set up this is a dummy but the _collection
     # or _donation get
-    source_type = StringCol(length=16, default=None)    
+    source_type = StringCol(length=64, default=None)    
     
-    def _set_source_type(self, value):
+    def old_set_source_type(self, value):
         
         # FIXME: this is an ugle hack to avoid setting this value
         # recursively
         # we could fix this by setting the type of the string
         # as the class name or it would be nice if we could not have this
         # recursive problem at all 
+        # TODO: could store the name of the field in the source_type then
+        # we could use that value to look up the source data
         t = type(value)
         if t == str: 
             return
         elif isinstance(value, Collections):
             print 'collection'
             self.source_type = 'collection'
+            print "source_type = collection"
         elif isinstance(value, Donations):
             print 'donation'
             self.source_type = 'donation'
+            print "source_type = donation"
         else:
             raise ValueError('Accessions._set_source_type: are should be '\
                              'a table')
@@ -92,7 +96,7 @@ class Accessions(BaubleTable):
     # the source type says whether we should be looking at the 
     # collection or _donation join
     _collection = SingleJoin('Collections', joinColumn='accession_id', makeDefault=None)
-    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
+    _donation = SingleJoin('Donations', joinColumn='accession_id', makeDefault=None)
     
 
     # these probably belong in separate tables with a single join

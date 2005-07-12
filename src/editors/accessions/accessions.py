@@ -56,8 +56,14 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    }
         self.column_meta.headers = headers
         self.column_meta['source_type'].editor = editors.editors.SourceEditor
-        self.table_meta.foreign_keys = [('_collection', 'accession')]
-        self.table_meta.foreign_keys = [('_donation', 'accession')]
+        
+        # set the accession column of the table that will be in the 
+        # source_type columns returned from self.get_values_from view
+        # TODO: this is a little hoaky and could use some work, might be able
+        # to do this automatically if the value in the column is a table
+        # the the expected type is a single join
+        self.table_meta.foreign_keys = [('_collection', 'accession'),
+                                        ('_donation', 'accession')]
         
     def get_completions(self, text, colname):
         # get entry and determine from what has been input which
@@ -90,6 +96,30 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
         # split the text by spaces
         # if the last item is longer than say 3 then
         #    get completions 
+    
+    def get_values_from_view(self):
+        print 'AccessionsEditor.get_values_from_view'
+        values = editors.TreeViewEditorDialog.get_values_from_view(self)
+        for v in values:
+            print values
+            if v.has_key('source_type'):
+                print v['source_type'].__class__
+                print v['source_type'].__class__.__name__
+                
+                source_class = v['source_type'].__class__.__name__[:]
+                print 'source_class: ' + source_class
+                if source_class == 'Collections':
+                    v['_collection'] = v.pop('source_type')
+                    print 'source_class2: ' + source_class
+                    v['source_type'] = source_class
+                elif source_class == 'Donations':
+                    v['_donation'] = v.pop('source_type')
+                    v['source_type'] = source_class
+                else:
+                    raise ValueError('AccessionsEditor.get_values_from_view:'\
+                                     'bad value for source type')
+        print values
+        return values
     
     def commit_changes(self):
         if not editors.TableEditorDialog.commit_changes(self):
