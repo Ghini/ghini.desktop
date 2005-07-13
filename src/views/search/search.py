@@ -110,7 +110,7 @@ class SearchView(views.View):
         if self.infobox_map.has_key(t):
             self.infobox = self.infobox_map[t]()
             if row is not None:
-                self.infobox.set_values_from_row(row)
+                self.infobox.update(row)
             self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
 
@@ -372,7 +372,6 @@ class SearchView(views.View):
         edit_item.connect("activate", self.on_activate_editor,
                           editors[editor_name], [value], None)
         menu.add(edit_item)
-         
         menu.add(gtk.SeparatorMenuItem())
         
         for join in value._joins:

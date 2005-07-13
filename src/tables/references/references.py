@@ -23,10 +23,11 @@ class Reference(BaubleTable):
     # unique, probably site, there is already and internal id
     # what about subReferences, like if the References were the grounds
     # and the sublocation is the block number
-    label = StringCol(length=60)
+    label = StringCol(length=64)
     reference = StringCol()
-    #plantname = ForeignKey
-    #plants = MultipleJoin("Plants", joinColumn="location_id")
-    #plant = ForeignKey('Plants', notNull=True)
     
+    plantname = ForeignKey("Plantnames")
+    family = ForeignKey("Families")
+    genus = ForeignKey("Genera")
+
     def __str__(self): return self.label

@@ -131,7 +131,12 @@ class Plantnames(BaubleTable):
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table
     
-
+    # where this name stands in taxonomy, whether it's a synonym or
+    # not basically, would probably be better to just leaves this and
+    # look it up on www.ipni.org www.itis.usda.gov
+    #taxonomic_status = StringCol()
+    synonyms = MultipleJoin('Synonyms', joinColumn='plantname_id')
+    
     poison_humans = BoolCol(default=None)
     poison_animals = BoolCol(default=None)
     food_plant = StringCol(length=50, default=None)
@@ -147,7 +152,7 @@ class Plantnames(BaubleTable):
     genus = ForeignKey('Genera', notNull=True)
     accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
     images = MultipleJoin('Images', joinColumn='plantname_id')
-    #references = MultipleJoin('References', joinColumn='plantname_id')
+    references = MultipleJoin('Reference', joinColumn='plantname_id')
     ######## the rest? ##############    
     #Lifeform = StringCol(length=10)
 #    tuses = StringCol(default=None) # taxon uses?

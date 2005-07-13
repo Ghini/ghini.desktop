@@ -14,12 +14,14 @@ class InfoExpander(gtk.Expander):
     """
     # TODO: we should be able to make this alot more generic
     # and get information from sources other than table columns
-    
     def __init__(self, label):
         gtk.Expander.__init__(self, label)
         self.vbox = gtk.VBox(False)
         self.add(self.vbox)
 
+    def update(self):
+        raise NotImplementedError("InfoExpander.update(): not implemented")
+   
 
 class TableExpander(InfoExpander): 
     """
@@ -32,22 +34,16 @@ class TableExpander(InfoExpander):
         """
         InfoExpander.__init__(self, label)
         self.labels = {}
-        for column, name in columns.iteritems():
-            label = gtk.Label()
-            label.set_alignment(0.0, 0.5)
-            self.vbox.pack_start(label, False, False)
-            self.labels[column] = (name, label)
         
     
-    def set_values(self, values):
-        """
-        populate the labels according to the values in result, should
-        only be a single row
-        """
-        for col in self.labels.keys():
-            value = eval("str(values.%s)" % col)
-            name, label = self.labels[col] 
-            label.set_text("%s: %s" % (name, value))
+        
+    # this is intended to be overidden, this could be a list
+    # or a list of items, the class which extends TableExpander
+    # will know what to do with it
+    def _set_value(self, value):
+        self._value = value
+        self.update()
+    value = property(fset=_set_value)
             
 
 class LocationsExpander(TableExpander):
@@ -76,6 +72,13 @@ class ImagesExpander(TableExpander):
                                               'uri': 'URI'}):
         TableExpander.__init__(self, label, columns)
                                                             
+    def create_gui(self):
+        pass
+        
+    def update(self, values):
+        pass
+        
+        
 class InfoBoxFactory:
     def createInfoBox(type):
         pass
@@ -103,8 +106,21 @@ class InfoBox(gtk.VBox):
         if self.expanders.has_key(label): 
             self.remove(self.expanders[label])
     
-    def set_values_from_row(self, row):
+    def update(self, row):
         raise NotImplementedError
+        
+
+class ReferencesExpander(TableExpander):
+    def __init__(self):
+        InfoExpander.__init__(self, 'References')
+        
+        
+    def update(self, values):
+        if type(values) is not list:
+            raise ValueError('ReferencesExpander.update(): expected a list')
+            
+        for v in values:
+            print v.reference
         
         
 class SourceExpander(InfoExpander):
@@ -127,7 +143,7 @@ class SourceExpander(InfoExpander):
         self.vbox.pack_start(self.name_label)
         #self.add(vbox)
         
-    def _set_row(self, value):
+    def update(self, value):
         #print 'SourceExpander._set_row:' + value
         #self._row = value
         if type(value) == tables.Collections:
@@ -137,7 +153,6 @@ class SourceExpander(InfoExpander):
         self.name_label.set_text(str(value))
         #self.type_label.set_text(str(value.__class__.__name)
         #self.name_label.set_text(str(value))
-    row = property(fset=_set_row)
     
     
 class AccessionsExpander(InfoExpander):
@@ -147,14 +162,38 @@ class AccessionsExpander(InfoExpander):
     """
     pass
     
+    
+class FamiliesInfoBox(InfoBox):
+    """
+    - number of taxon in number of genera
+    - references
+    """
+    def __init__(self):
+        InfoBox.__init__(self)
+        
+        
+class GeneraInfoBox(InfoBox):
+    """
+    - number of taxon in number of accessions
+    - references
+    """
+    def __init__(self):
+        InfoBox.__init__(self)
+        
+            
 class AccessionsInfoBox(InfoBox):
+    """
+    - general info
+    - source
+    """
     def __init__(self):
         InfoBox.__init__(self)
         self.source = SourceExpander()
         self.add_expander(self.source)
         self.source.set_expanded(True)
 
-    def set_values_from_row(self, row):        
+
+    def update(self, row):        
         if row.source_type == 'Collections':
             self.source.row = row._collection
         if row.source_type == 'Donations':
@@ -163,22 +202,33 @@ class AccessionsInfoBox(InfoBox):
         
         
 class PlantnamesInfoBox(InfoBox):
+    """
+    - general info, fullname, common name, num of accessions and clones
+    - reference
+    - images
+    - redlist status
+    - poisonous to humans
+    - poisonous to animals
+    - food plant
+    - origin
+    """
     def __init__(self):
         """ 
         fullname, synonyms, ...
         """
         InfoBox.__init__(self)
-        #ref = ReferenfencesExpander()
-        #ref.set_expanded(True)
-        #self.add_expander(ref)
+        self.ref = ReferencesExpander()
+        self.ref.set_expanded(True)
+        self.add_expander(self.ref)
         
         #img = ImagesExpander()
         #img.set_expanded(True)
         #self.add_expander(img)
         
         
-    def set_values_from_row(self, row):
-        pass
+    def update(self, row):
+        self.ref.update(row.references)
+        #self.ref.value = row.references
         #ref = self.get_expander("References")
         #ref.set_values(row.references)
         
@@ -193,6 +243,6 @@ class PlantsInfoBox(InfoBox):
         loc.set_expanded(True)
         self.add_expander(loc)
     
-    def set_values_from_row(self, row):
+    def update(self, row):
         loc = self.get_expander("Locations")
         loc.set_values(row.location)

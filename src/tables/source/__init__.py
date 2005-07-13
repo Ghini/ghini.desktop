@@ -73,8 +73,8 @@ class Collections(BaubleTable):
     geo_accy = IntCol(default=None) # geo accuracy in meters
     
     # should altitude be a plus or minus and get rid of depth
-    altitude = FloatCol(default=None) # altitude
-    altutude_accy = FloatCol(default=None) # altitude accuracy
+    elevation = FloatCol(default=None) # altitude
+    elevation_accy = FloatCol(default=None) # altitude accuracy
     #altitude_max = IntCol(default=None) # maximum altitude
     #altitude_mac_accy = IntCol(default=None) # maximum altitude accuracy
     

@@ -257,14 +257,14 @@ class CollectionsEditor(Singleton):
         
         # alt_entry
         try:
-            set_dict_value_from_widget(self.glade_xml, 'alt_entry', 'altitude', values, float)
+            set_dict_value_from_widget(self.glade_xml, 'alt_entry', 'elevation', values, float)
         except TypeError, e:
             msg = 'Error setting the altitude: \nValue must be a number'
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             
         # altacc_entry
         try:
-            set_dict_value_from_widget(self.glade_xml, 'altacc_entry', 'altitude_accy', values, float)
+            set_dict_value_from_widget(self.glade_xml, 'altacc_entry', 'elevation_accy', values, float)
         except TypeError, e:
             msg = 'Error setting the altitude accuracy: \nValue must be a number'
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)

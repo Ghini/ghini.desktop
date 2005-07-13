@@ -153,6 +153,7 @@ class ModelDict(dict):
                 self[name] = v
         elif default is not None:
             for key, value in default.iteritems():
+                print "%s: %s" %(str(key), str(value))
                 self[key] = value
 
         
@@ -705,13 +706,13 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.toolbar.insert(col_button, 0)            
             
 
-    def create_gui(self, select=None):
+    def create_gui(self):
         vbox = gtk.VBox(False)
         
         self.create_toolbar()        
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
-        self.create_tree_view(select)
+        self.create_tree_view()
         sw = gtk.ScrolledWindow()        
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
@@ -806,7 +807,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             setattr(meta, property.name, value)
 
 
-    def create_tree_view(self, select=None):
+    def create_tree_view(self):
         """
         create the main tree view
         """
@@ -819,8 +820,8 @@ class TreeViewEditorDialog(TableEditorDialog):
 
         # create the model from the tree view and add rows if a
         # selectresult is passed
-        if select is not None:
-            for row in select:
+        if self.select is not None:
+            for row in self.select:
                 self.add_new_row(row)
         else:
             self.add_new_row()
