@@ -26,6 +26,19 @@ import bauble
 # do it through some sort of attribute access
 
 #class AccessionsEditor(editors.TableEditorDialog):
+    
+def get_source(row):    
+    if row._collection is not None and row._donation is not None:
+        raise Exception('tables.Accessions.get_source(): only one of '\
+                        'donation or _collection should be set but '\
+                        'both seem to be set')
+    if row._collection is not None:
+        return row._collection
+    elif row._donation is not None:
+        return row._donation
+    return None
+    
+    
 class AccessionsEditor(editors.TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accessions.columns"
@@ -56,6 +69,7 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    }
         self.column_meta.headers = headers
         self.column_meta['source_type'].editor = editors.editors.SourceEditor
+        self.column_meta['source_type'].getter = get_source
         
         # set the accession column of the table that will be in the 
         # source_type columns returned from self.get_values_from view
@@ -74,6 +88,9 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
         # string to match on, though maybe not as fast, and then to get
         # the value we would only have to do a row.id instead of storing
         # these tuples in the model
+        # UPDATE: the only problem with sticking the table row in the column
+        # is how many queries would it take to screw in a lightbulb, this
+        # would be easy to test it just needs to be done
         parts = text.split(" ")
         genus = parts[0]
         results = []

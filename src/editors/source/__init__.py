@@ -94,13 +94,13 @@ class CollectionsEditor(Singleton):
     
     initialized = False
     
-    def __init__(self, glade_xml):
+    def __init__(self, glade_xml, row=None):
         if not self.initialized:
-            self.initialize(glade_xml)
+            self.initialize(glade_xml, row)
             self.initialized = True
 
         
-    def initialize(self, glade_xml):    
+    def initialize(self, glade_xml, row=None):    
         self.glade_xml = glade_xml
         handlers = {'on_lon_entry_changed': self.on_coord_entry_changed,
                     'on_lat_entry_changed': self.on_coord_entry_changed,
@@ -230,7 +230,14 @@ class CollectionsEditor(Singleton):
         lat = self.get_latitude()
         return lon, lat
 
-    
+
+    def set_values(self, collection):
+        """
+        set all values from the collection object
+        """
+        pass
+        
+        
     def get_values(self):
         values = {}
         # collector_entry, should be a combo entry with an id in the model
@@ -290,13 +297,13 @@ class DonationsEditor(Singleton):
 
     initialized = False
     
-    def __init__(self, glade_xml):
+    def __init__(self, glade_xml, row=None):
         if not self.initialized:
-            self.initialize(glade_xml)
+            self.initialize(glade_xml, row)
             self.initialized = True
         
         
-    def initialize(self, glade_xml):    
+    def initialize(self, glade_xml, row=None):    
         self.glade_xml = glade_xml
         handlers = {'on_don_new_button_clicked': self.on_don_new_button_clicked,
                     'on_don_edit_button_clicked': self.on_don_edit_button_clicked,
@@ -317,6 +324,10 @@ class DonationsEditor(Singleton):
         self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
         setComboModelFromSelect(self.donor_combo, sel)
 
+
+    def set_values(self, values):
+        pass
+        
 
     def get_values(self):
         # donor_combo
@@ -361,6 +372,7 @@ class SourceEditor(TableEditor):
     def __init__(self, select=None, defaults={}):
         TableEditor.__init__(self, None, #tables.SourceEditor,
                              select=select, defaults=defaults)
+        self.committed = None
         self._dirty = False
         self.source_editor_map = (('Collection', CollectionsEditor),
                                   ('Donation', DonationsEditor))   
@@ -382,9 +394,20 @@ class SourceEditor(TableEditor):
         
         # set everything to their default states
         self.type_combo = self.glade_xml.get_widget('type_combo')
-        for t in self.source_editor_map:
-            self.type_combo.append_text(t[0])
-        self.type_combo.set_active(0)
+        for name, editor in self.source_editor_map:
+            self.type_combo.append_text(name)
+            
+        # TODO: the indexes shouldn't be hardcoded like this
+        if self.select is not None:
+            print type(self.select)
+            if type(self.select) == tables.Collections:
+                self.type_combo.set_active(0)
+            elif type(self.select) == tables.Donations:
+                self.type_combo.set_active(1)
+            else:
+                raise Exception('SourceEditor: unknown row type')
+        else: 
+            self.type_combo.set_active(0)
     
         
     def save_state(self):
@@ -393,7 +416,6 @@ class SourceEditor(TableEditor):
         pass
     
     
-    committed = None
     def commit_changes(self):
         # TODO: since the source is a single join and is only relevant
         # to its parent(accession) then we should allow a way to get
@@ -434,12 +456,16 @@ class SourceEditor(TableEditor):
             self.source_box.remove(self.curr_editor.box)
             #self.curr_box.destroy()
         
+        # TODO: check that nothing has been changed and ask the use if 
+        # they want to save if something has changed, would probably have
+        # to get this from the editors
+        
         active = combo.get_active_text()    
         editor = None
         for label, e in self.source_editor_map:
             if label == active:
                 print label
-                editor = e(self.glade_xml)
+                editor = e(self.glade_xml, self.select)
                 continue
                 
         if editor is None:

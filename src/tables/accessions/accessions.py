@@ -68,7 +68,7 @@ class Accessions(BaubleTable):
     # the it's currently set up this is a dummy but the _collection
     # or _donation get
     source_type = StringCol(length=64, default=None)    
-          
+                            
     # the source type says whether we should be looking at the 
     # collection or _donation join
     _collection = SingleJoin('Collections', joinColumn='accession_id', makeDefault=None)

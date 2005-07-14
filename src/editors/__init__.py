@@ -45,7 +45,8 @@ def createColumnMetaFromTable(table):
         col_meta.header = name 
         col_meta.type = type(col)
         # TODO: other validators that are easy, like floats
-        # and possibly dates
+        # and possibly dates, in fact, i don't think dates work
+        # at all right now
         if col_meta.type == SOIntCol:
             col_meta.validate = lambda x: int(x)
         if col._default == NoDefault:
@@ -76,6 +77,7 @@ def validate_accession(value):
     return value
 
 
+
 class TableMeta:
     """
     hold information about the table we will be editing with the table editor
@@ -83,6 +85,7 @@ class TableMeta:
     def __init__(self):
         self.foreign_keys = []
     
+
 
 class ViewColumnMeta(dict):
     """
@@ -92,7 +95,8 @@ class ViewColumnMeta(dict):
     
     class Meta:
         def __init__(self, header="", visible=False, foreign=False, 
-                     width=50, default=None, editor=None, required=False):
+                     width=50, default=None, editor=None, required=False,
+                     getter=None):
             self.header = header
             self.visible = visible
             self.foreign = foreign
@@ -100,6 +104,7 @@ class ViewColumnMeta(dict):
             self.default = default
             self.editor = editor
             self.required = required
+            self.getter = getter
             
             # TODO: should be able to set a default value for the 
             # renderer of the column which you could pass in when the 
@@ -108,22 +113,67 @@ class ViewColumnMeta(dict):
             
             # a dummy validate function
             self.validate = lambda x: x
-
-
+            
+            
     # set column meta, value[0] = name, value[1] = visible, value[2] = foreign
     def __setitem__(self, item, value):
         if type(value) == dict:
             dict.__setitem__(self, item, ViewColumnMeta.Meta(**value))
         else: dict.__setitem__(self, item, value)
         
-    
+
     def _set_headers(self, headers):
         for col, header in headers.iteritems():
             self[col].header = header
     headers = property(fset=_set_headers)
-        
 
+        
+        
 class ModelDict(dict):
+    """
+    a dictionary representation of an SQLObject used for storing table
+    rows in a gtk.TreeModel
+    dictionary values are only stored in self if row is class and 
+    not an instance, otherwise the values are retrieved from the row
+    """
+    def __init__(self, row=None, meta=None, defaults=None):
+        # if row is an instance of BaubleTable then get the values
+        # from the instance else check that the items are valid table
+        # attributes and don't let the editors set attributes that 
+        # aren't valid
+        self.row = row
+        if isinstance(self.row, BaubleTable):
+            self.isinstance = True
+        else: # a subclass of an BaubleTable(SQLObject)
+            self.isinstance = False
+        self.defaults = defaults
+        self.meta = meta
+        
+        
+    def __getitem__(self, item):
+        
+        if not hasattr(self.row, item):
+            raise KeyError("ModelDict.__getitem__: no such table row %s" % item)
+        
+        v = None
+        if self.isinstance:
+            if self.meta[item].getter is not None:
+                v = self.meta[item].getter(self.row)
+            else: 
+                v = getattr(self.row, item)
+            if v is None and item in self.defaults:
+                v = self.defaults[item]
+        else:
+            if not self.has_key(item) and item in self.defaults:
+                self[item] = self.defaults[item]
+            elif not self.has_key(item):
+                self[item] = None
+            v = self.get(item)
+        return v
+        
+        
+        
+class ModelDictOld(dict):
     """
     each row of the model will contain a ModelDict though each row may
     not have the same keys in  the dict,
@@ -319,7 +369,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             meta = self.column_meta[colname]
             if hasattr(meta, 'editor') and meta.editor is not None:
                 self.set_sensitive(False)
-                v = meta.editor().start() # this blocks
+                model = self.view.get_model()
+                it = model.get_iter(path)
+                row = model.get_value(it,0)
+                v = meta.editor(select=row[colname]).start() # this blocks
                 self.set_view_model_value(path, colname, v)
                 self.set_sensitive(True)
         elif keyname == "Up" and path[0] != 0:            
@@ -849,7 +902,9 @@ class TreeViewEditorDialog(TableEditorDialog):
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: raise Exception("no model in the row")
-        model.append([ModelDict(row, self.defaults)])
+        if row is None:
+            row = self.table
+        model.append([ModelDict(row, self.column_meta, self.defaults)])
 
         
     def get_completions(self, text, colname):
