@@ -10,7 +10,7 @@ import gtk
 import gtk.glade
 import utils
 from tables import tables, BaubleTable
-import sqlobject
+from sqlobject import *
 import donor
 
 # FIXME: there is a bug that if  you open the source editor window, close
@@ -63,6 +63,19 @@ def set_dict_value_from_widget(glade_xml, name, key, dic, validator=lambda x: x)
         v = validator(v)
         dic[key] = v
 
+
+def set_widget_value(glade_xml, widget_name, value):
+    print 'set_widget_value: ' + widget_name
+    if value is None: return
+    w = glade_xml.get_widget(widget_name)
+    if w is None:
+        raise ValueError("set_widget_value: no widget by the name "+\
+                         widget_name)
+    print type(value)
+    if type(value) == ForeignKey:
+        pass
+    elif isinstance(w, gtk.Entry):
+        w.set_text(value)
 
 def combo_cell_data_func(cell, renderer, model, iter, data):
     v = model.get_value(iter, 0)
@@ -131,6 +144,10 @@ class CollectionsEditor(Singleton):
         self.place_combo.child.set_property('editable', False)
         self._collection_box_inited = True
 
+        self.row = row
+        if self.row is not None:
+            print 'CollectionsEditor.initalized - refreshing'
+            self.refresh_widgets_from_row()
 
     def on_region_combo_changed(self, combo, data=None):
          # TODO: if we can't catch the clicked signal then we have to
@@ -231,12 +248,36 @@ class CollectionsEditor(Singleton):
         return lon, lat
 
 
-    def set_values(self, collection):
+    def refresh_widgets_from_row(self):
         """
         set all values from the collection object
         """
-        pass
+        #set_widget_value(self.glade_xml, 'collector_entry', self.row.collector)
+        #set_widget_value(self.glade_xml, 'colldate_entry', self.row.coll_date)
+        #set_widget_value(self.glade_xml, 'collid_entry', self.row.coll_date)
+        #set_widget_value(self.glade_xml, 'collector_entry', self.row.collector)
+        #set_widget_value(self.glade_xml, 'locale_entry', self.row.locale)
+        print 'range'
         
+        print '---------'
+        for widget_name, col_name in self.widget_to_column_name_map.iteritems():
+            set_widget_value(self.glade_xml, widget_name, getattr(self.row, col_name))
+        
+    widget_to_column_name_map = {'collector_entry': 'collector',
+                                 'colldate_entry': 'coll_date',
+                                 'collid_entry': 'coll_id',
+                                 'locale_entry': 'locale',
+                                 'lat_entry': 'latitude',
+                                 'lon_entry': 'longitude',
+                                 'geoacc_entry': 'geo_accy',
+                                 'alt_entry': 'elevation',
+                                 'altacc_entry': 'elevation_accy',
+                                 'habitat_entry': 'habitat',
+                                 'region_combo': 'regionID',
+                                 'area_combo': 'areaID',
+                                 'state_combo': 'state',
+                                 'place_combo': 'placeID',
+                                 'notes_entry': 'notes'}
         
     def get_values(self):
         values = {}
@@ -370,6 +411,9 @@ class SourceEditor(TableEditor):
     show_in_toolbar = False
     
     def __init__(self, select=None, defaults={}):
+        if select is not None and not isinstance(select, BaubleTable):
+            raise ValueError("SourceEditor.__init__: select should be a "\
+                             "single row in the table")
         TableEditor.__init__(self, None, #tables.SourceEditor,
                              select=select, defaults=defaults)
         self.committed = None
@@ -430,13 +474,17 @@ class SourceEditor(TableEditor):
         print values
         if values is None: 
             return
-        conn = sqlobject.sqlhub.getConnection()
+        conn = sqlhub.getConnection()
         trans = conn.transaction()        
         #self.commited = None
         try:
             print 'create table'
             # i guess the connection is inherant
-            t = table(connection=trans, **values)
+            if self.select is None: # create a new table row
+                t = table(connection=trans, **values)
+            else: # update the table row passed in
+                pass
+                
         except Exception, e:
             print 'SourceEditor.commited: could not commit'
             print e
@@ -480,8 +528,8 @@ class SourceEditor(TableEditor):
         
         self.curr_editor = editor
         editor.box.unparent()
-        
         self.source_box.pack_start(editor.box)
+        #editor.se(self.select)
         #self.curr_box = box
         self.dialog.show_all()
     

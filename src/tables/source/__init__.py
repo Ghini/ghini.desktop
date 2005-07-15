@@ -88,8 +88,9 @@ class Collections(BaubleTable):
     # are set up have to commit this table and then set the foreign key later,
     # we have to be careful we don't get dangling tables without an accession
     area = ForeignKey('Areas', default=None)
-    region = ForeignKey('Region', default=None)
-    place = ForeignKey('Place', default=None)
+    region = ForeignKey('Regions', default=None)
+    place = ForeignKey('Places', default=None)
+    state = ForeignKey('States', default=None)
     accession = ForeignKey('Accessions', default=None)
     
     def __str__(self):
