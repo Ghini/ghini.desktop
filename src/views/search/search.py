@@ -111,7 +111,8 @@ class SearchView(views.View):
             self.infobox = self.infobox_map[t]()
             if row is not None:
                 self.infobox.update(row)
-            self.pane.pack2(self.infobox, True, True)
+            self.pane.pack2(self.infobox, False, True)
+            #self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
 
         
@@ -467,14 +468,15 @@ class SearchView(views.View):
                                   self.on_view_row_activated)
         # scrolled window for the results view
         sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         sw.add(self.results_view)
         
         # pane to split the results view and the infobox, the infobox
         # is created when a row in the results is selected
         self.pane = gtk.HPaned()
         self.pane.pack1(sw, True, False)
-        pane_box = gtk.HBox(False)
-        pane_box.pack_start(self.pane, True, True)
+        #pane_box = gtk.HBox(False)
+        #pane_box.pack_start(self.pane, True, True)
         #self.content_box.pack_start(self.pane, True, True)
         
         # add the GBIFView 
@@ -491,7 +493,8 @@ class SearchView(views.View):
         #vpane.pack2(self.gbif_expand, True, True)
         #self.content_box.pack_start(vpane, True, True)
         
-        self.content_box.pack_start(pane_box)
+        #self.content_box.pack_start(pane_box)
+        self.content_box.pack_start(self.pane)
         
         self.add(self.content_box)
         self.show_all()

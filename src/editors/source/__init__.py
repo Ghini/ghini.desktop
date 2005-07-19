@@ -1,4 +1,4 @@
-#
+ #
 # source editor module
 #
 
@@ -77,6 +77,7 @@ def set_widget_value(glade_xml, widget_name, value):
     elif isinstance(w, gtk.Entry):
         w.set_text(value)
 
+
 def combo_cell_data_func(cell, renderer, model, iter, data):
     v = model.get_value(iter, 0)
     renderer.set_property('text', str(v))
@@ -102,6 +103,27 @@ class Singleton(object):
     
             
 class CollectionsEditor(Singleton):
+    
+    # TODO: region combos should start with all possible values so that
+    # you don't have to set them in any particular order, it takes a
+    # while to open the dialog if everthing is added at once so we 
+    # could 1) initialize them on first click or 2) set them insensitive
+    # and setup a thread to populate them and set them sensitive when
+    # the thread exits, this could be a problem when porting to windows
+    # or 3) set up an idle function to do something similar to the thread
+    # solution
+    # 
+    # TODO: somehow figure out how to set the dirty flag if anything has
+    # changed, this is a bit of a pain in the ass and a scalability problem
+    # if we have to add an edit notify on every widget, but maybe not as 
+    # long as we have the widget in a map and can just loop through
+    # them to add the handlers
+    #
+    # TODO: the OK button should start off insensitive until the dirty
+    # flag is set to indicate something has changed, and possible change
+    # the border of the widget when the changed handler is called to
+    # indicate what has changed
+    
     
     table = tables.Collections
     
@@ -148,6 +170,7 @@ class CollectionsEditor(Singleton):
         if self.row is not None:
             print 'CollectionsEditor.initalized - refreshing'
             self.refresh_widgets_from_row()
+
 
     def on_region_combo_changed(self, combo, data=None):
          # TODO: if we can't catch the clicked signal then we have to
@@ -261,6 +284,17 @@ class CollectionsEditor(Singleton):
         
         print '---------'
         for widget_name, col_name in self.widget_to_column_name_map.iteritems():
+            attr = getattr(self.row, col_name)
+            print type(attr)
+            if type(attr) == ForeignKey:
+                # TODO, implement this in a global function since we have 
+                # to do it for at least the four location combos
+                # if type(widget) == combobox
+                #   for each value in combo model
+                #      if row.id == value 
+                #        set active row
+                #        return
+                pass
             set_widget_value(self.glade_xml, widget_name, getattr(self.row, col_name))
         
     widget_to_column_name_map = {'collector_entry': 'collector',

@@ -2,11 +2,16 @@
 # infobox.py
 #
 
+import sys, os
 import gtk
 from tables import tables
+import utils
 
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear
+
+# what to display if the value in the database is None
+DEFAULT_VALUE='--'
 
 class InfoExpander(gtk.Expander):
     """
@@ -14,14 +19,54 @@ class InfoExpander(gtk.Expander):
     """
     # TODO: we should be able to make this alot more generic
     # and get information from sources other than table columns
-    def __init__(self, label):
+    def __init__(self, label, glade_xml):
         gtk.Expander.__init__(self, label)
         self.vbox = gtk.VBox(False)
         self.add(self.vbox)
-
+        self.glade_xml = glade_xml
+        self.set_expanded(True)
+        
+        
     def update(self):
         raise NotImplementedError("InfoExpander.update(): not implemented")
    
+
+class InfoBox(gtk.ScrolledWindow):
+    """
+    a VBox with a bunch of InfoExpanders
+    """
+    
+    def __init__(self):
+        gtk.ScrolledWindow.__init__(self)
+        self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        self.vbox = gtk.VBox()
+        self.vbox.set_spacing(10)
+        viewport = gtk.Viewport()
+        viewport.add(self.vbox)
+        self.add(viewport)
+        
+        self.expanders = {}
+    
+    
+    def add_expander(self, expander):
+        self.vbox.pack_start(expander, False, False)
+        self.expanders[expander.get_property("label")] = expander
+    
+    
+    def get_expander(self, label):
+        if self.expanders.has_key(label): 
+            return self.expanders[label]
+        else: return None
+    
+    
+    def remove_expander(self, label):
+        if self.expanders.has_key(label): 
+            self.vbox.remove(self.expanders[label])
+    
+    
+    def update(self, row):
+        raise NotImplementedError
+
 
 class TableExpander(InfoExpander): 
     """
@@ -35,7 +80,6 @@ class TableExpander(InfoExpander):
         InfoExpander.__init__(self, label)
         self.labels = {}
         
-    
         
     # this is intended to be overidden, this could be a list
     # or a list of items, the class which extends TableExpander
@@ -79,40 +123,9 @@ class ImagesExpander(TableExpander):
         pass
         
         
-class InfoBoxFactory:
-    def createInfoBox(type):
-        pass
-
-        
-class InfoBox(gtk.VBox):
-    """
-    a VBox with a bunch of InfoExpanders
-    """
-    
-    def __init__(self):
-        gtk.VBox.__init__(self, False)
-        self.expanders = {}
-        
-    def add_expander(self, expander):
-        self.pack_start(expander, False, False)
-        self.expanders[expander.get_property("label")] = expander
-    
-    def get_expander(self, label):
-        if self.expanders.has_key(label): 
-            return self.expanders[label]
-        else: return None
-    
-    def remove_expander(self, label):
-        if self.expanders.has_key(label): 
-            self.remove(self.expanders[label])
-    
-    def update(self, row):
-        raise NotImplementedError
-        
-
 class ReferencesExpander(TableExpander):
-    def __init__(self):
-        InfoExpander.__init__(self, 'References')
+    def __init__(self, glade_xml):
+        InfoExpander.__init__(self, 'References', glade_xml)
         
         
     def update(self, values):
@@ -124,43 +137,75 @@ class ReferencesExpander(TableExpander):
         
         
 class SourceExpander(InfoExpander):
-    def __init__(self):
-        InfoExpander.__init__(self, 'Source')
-        self.create_gui()
+    def __init__(self, glade_xml):
+        InfoExpander.__init__(self, 'Source', glade_xml)
+        self.curr_box = None
     
-    type_prefix = 'Type: '
-    alt_prefix = 'Altitude: '
-    gps_prefix = '' # should just do a 'long lat' string
+    def update_collections(self):
+        pass
+    def update_donations(self):
+        pass
     
-    
-    def create_gui(self):
-        #vbox = gtk.VBox(False)
-        self.type_label = gtk.Label('Type: ')
-        self.type_label.set_alignment(0.0, 0.5)
-        self.vbox.pack_start(self.type_label)
-        self.name_label = gtk.Label('Name:')
-        self.name_label.set_alignment(0.0, 0.5)
-        self.vbox.pack_start(self.name_label)
-        #self.add(vbox)
-        
     def update(self, value):
-        #print 'SourceExpander._set_row:' + value
-        #self._row = value
+
+        if self.curr_box is not None:
+            self.vbox.remove(self.curr_box)
+        
         if type(value) == tables.Collections:
-            self.type_label.set_text('Collection')
+            w = self.glade_xml.get_widget('collections_box')
+            w.unparent()
+            self.curr_box = w
+            self.update_collections()
         elif type(value) == tables.Donations:
-            self.type_label.set_text('Donation')
-        self.name_label.set_text(str(value))
-        #self.type_label.set_text(str(value.__class__.__name)
-        #self.name_label.set_text(str(value))
+            w = self.glade_xml.get_widget('donations_box')
+            w.unparent()
+            self.curr_box = w
+            self.update_donations()
+        
+        self.vbox.pack_start(self.curr_box)
+        
     
-    
-class AccessionsExpander(InfoExpander):
+class GeneralAccessionExpander(InfoExpander):
     """
     generic information about an accession like
     number of clones, provenance type, wild provenance type, plantnames
     """
-    pass
+
+    def __init__(self, glade_xml):
+        InfoExpander.__init__(self, "General", glade_xml)
+        w = self.glade_xml.get_widget('general_box')
+        w.unparent()
+        self.vbox.pack_start(w)
+    
+    def update(self, row):
+        pass
+
+
+class AccessionsInfoBox(InfoBox):
+    """
+    - general info
+    - source
+    """
+    def __init__(self):
+        InfoBox.__init__(self)
+        path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+        self.glade_xml = gtk.glade.XML(path + 'acc_infobox.glade')
+        
+        self.general = GeneralAccessionExpander(self.glade_xml)
+        self.add_expander(self.general)
+        
+        self.source = SourceExpander(self.glade_xml)
+        self.add_expander(self.source)
+
+
+    def update(self, row):
+        
+        self.general.update(row)
+        
+        if row.source_type == 'Collections':
+            self.source.update(row._collection)
+        if row.source_type == 'Donations':
+            self.source.update(row._donation)
     
     
 class FamiliesInfoBox(InfoBox):
@@ -180,27 +225,7 @@ class GeneraInfoBox(InfoBox):
     def __init__(self):
         InfoBox.__init__(self)
         
-            
-class AccessionsInfoBox(InfoBox):
-    """
-    - general info
-    - source
-    """
-    def __init__(self):
-        InfoBox.__init__(self)
-        self.source = SourceExpander()
-        self.add_expander(self.source)
-        self.source.set_expanded(True)
 
-
-    def update(self, row):        
-        if row.source_type == 'Collections':
-            self.source.row = row._collection
-        if row.source_type == 'Donations':
-            self.source.row = row._donation
-        
-        
-        
 class PlantnamesInfoBox(InfoBox):
     """
     - general info, fullname, common name, num of accessions and clones
