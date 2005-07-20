@@ -2,8 +2,6 @@
 # Accessions table definition
 #
 
-#import tables
-#from sqlobject import *
 from tables import *
 from tables.source import *
 
@@ -31,14 +29,6 @@ class Accessions(BaubleTable):
     # accession lineage, parent garden code and acc id ???
     #acc_lineage = StringCol(length=50, default=None)    
     #acctxt = StringCol(default=None) # ???
-
-    # the source type is the name of the table and determines which
-    # one of donor or collection is valid, if the source type changes,
-    # which really it should never do, then it should remove the row 
-    # from the table that the type was before it was changed
-    #source_type = StrinCol(length=32)
-    #donor = SingleJoin('Donor', joinColumn='accession')
-    #collection = SingleJoin('Collection', joinColumn='accession')
     
     #
     # verification, a verification table would probably be better and then

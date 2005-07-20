@@ -10,8 +10,21 @@ import utils
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear
 
+# TODO: reset expander data on expand
+
 # what to display if the value in the database is None
 DEFAULT_VALUE='--'
+
+def set_widget_value(glade_xml, widget_name, value):
+    w = glade_xml.get_widget(widget_name)
+    if value is None: 
+        value = DEFAULT_VALUE
+        
+    if isinstance(w, gtk.Label):
+        w.set_text(str(value))
+    if isinstance(w, gtk.TextView):
+        w.get_buffer().set_text(value)
+    
 
 class InfoExpander(gtk.Expander):
     """
@@ -19,7 +32,7 @@ class InfoExpander(gtk.Expander):
     """
     # TODO: we should be able to make this alot more generic
     # and get information from sources other than table columns
-    def __init__(self, label, glade_xml):
+    def __init__(self, label, glade_xml=None):
         gtk.Expander.__init__(self, label)
         self.vbox = gtk.VBox(False)
         self.add(self.vbox)
@@ -27,10 +40,14 @@ class InfoExpander(gtk.Expander):
         self.set_expanded(True)
         
         
-    def update(self):
+    def update(self, value):
         raise NotImplementedError("InfoExpander.update(): not implemented")
    
-
+# should we have a specific expander for those that use glade
+class GladeInfoExpander(gtk.Expander):
+    pass
+    
+    
 class InfoBox(gtk.ScrolledWindow):
     """
     a VBox with a bunch of InfoExpanders
@@ -68,36 +85,38 @@ class InfoBox(gtk.ScrolledWindow):
         raise NotImplementedError
 
 
-class TableExpander(InfoExpander): 
-    """
-    an InfoExpander to represent columns in a table
-    """
-    
-    def __init__(self, label, columns):
-        """
-        columns is a dictionary of {column: name}
-        """
-        InfoExpander.__init__(self, label)
-        self.labels = {}
-        
-        
-    # this is intended to be overidden, this could be a list
-    # or a list of items, the class which extends TableExpander
-    # will know what to do with it
-    def _set_value(self, value):
-        self._value = value
-        self.update()
-    value = property(fset=_set_value)
+#class TableExpander(InfoExpander): 
+#    """
+#    an InfoExpander to represent columns in a table
+#    """
+#    
+#    def __init__(self, label, columns):
+#        """
+#        columns is a dictionary of {column: name}
+#        """
+#        InfoExpander.__init__(self, label)
+#        self.labels = {}
+#        
+#        
+#    # this is intended to be overidden, this could be a list
+#    # or a list of items, the class which extends TableExpander
+#    # will know what to do with it
+#    def _set_value(self, value):
+#        self._value = value
+#        self.update()
+#    value = property(fset=_set_value)
             
 
-class LocationsExpander(TableExpander):
+class LocationsExpander(InfoExpander):
     """
     TableExpander for the Locations table
     """
     
-    def __init__(self, label="Locations", columns={"site": "Site"}):
-        TableExpander.__init__(self, label, columns)
+    def __init__(self, label="Locations"):
+        InfoExpander.__init__(self, label)
 
+    def update(self, value):
+        pass
 
 # TODO: references expander should also show references to any
 # foreign key defined in the table, e.g. if a plantname is being
@@ -111,10 +130,10 @@ class LocationsExpander(TableExpander):
 #                                                    'reference': 'References'}):
 #        TableExpander.__init__(self, label, columns)
 
-class ImagesExpander(TableExpander):
-    def __init(self, label="Images", columns={'label': 'Label',
-                                              'uri': 'URI'}):
-        TableExpander.__init__(self, label, columns)
+class ImagesExpander(InfoExpander):
+    def __init(self, label="Images"):#, columns={'label': 'Label',
+                                    #          'uri': 'URI'}):
+        InfoExpander.__init__(self, label)
                                                             
     def create_gui(self):
         pass
@@ -123,9 +142,9 @@ class ImagesExpander(TableExpander):
         pass
         
         
-class ReferencesExpander(TableExpander):
-    def __init__(self, glade_xml):
-        InfoExpander.__init__(self, 'References', glade_xml)
+class ReferencesExpander(InfoExpander):
+    def __init__(self):
+        InfoExpander.__init__(self, 'References', None)
         
         
     def update(self, values):
@@ -141,13 +160,48 @@ class SourceExpander(InfoExpander):
         InfoExpander.__init__(self, 'Source', glade_xml)
         self.curr_box = None
     
-    def update_collections(self):
-        pass
-    def update_donations(self):
+    def update_collections(self, collection):
+        
+        set_widget_value(self.glade_xml, 'loc_data', collection.locale)
+        
+        geo_accy = collection.geo_accy
+        if geo_accy is None:
+            geo_accy = ''
+        else: geo_accy = '(+/-)' + geo_accy + 'm.'
+        
+        if collection.latitude is not None:
+            set_widget_value(self.glade_xml, 'lat_data', collection.latitude + geo_accy)
+        if collection.longitude is not None:
+            set_widget_value(self.glade_xml, 'lon_data', collection.longitude + geo_accy)
+        
+        v = collection.elevation
+        if collection.elevation_accy is not None:
+            v = '+/- ' + v + 'm.'
+        set_widget_value(self.glade_xml, 'elev_data', v)
+        
+        set_widget_value(self.glade_xml, 'coll_data', collection.collector)
+        set_widget_value(self.glade_xml, 'data_data', collection.coll_date)
+        set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
+        
+        set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
+        
+        # NOTE: if the widget is named notes_data then it doesn't update,
+        # should probably file a bug with glade
+        # UPDATE: i think this may actually have been b/c i had two widgets
+        # with different parent windows but both named notes_data in the 
+        # glade xml
+        set_widget_value(self.glade_xml, 'collnotes_data', collection.notes)
+        
+            
+    def update_donations(self, donation):
+        set_widget_value(self.glade_xml, 'donor_data', tables.Donors.get(donation.donorID).name)
+        set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
+        set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
         pass
     
+    
     def update(self, value):
-
+    
         if self.curr_box is not None:
             self.vbox.remove(self.curr_box)
         
@@ -155,12 +209,12 @@ class SourceExpander(InfoExpander):
             w = self.glade_xml.get_widget('collections_box')
             w.unparent()
             self.curr_box = w
-            self.update_collections()
+            self.update_collections(value)
         elif type(value) == tables.Donations:
             w = self.glade_xml.get_widget('donations_box')
             w.unparent()
             self.curr_box = w
-            self.update_donations()
+            self.update_donations(value)
         
         self.vbox.pack_start(self.curr_box)
         
@@ -178,7 +232,9 @@ class GeneralAccessionExpander(InfoExpander):
         self.vbox.pack_start(w)
     
     def update(self, row):
-        pass
+        set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
+        #w = self.glade_xml.get_widget('nplants_data')
+        #pass
 
 
 class AccessionsInfoBox(InfoBox):
@@ -270,4 +326,4 @@ class PlantsInfoBox(InfoBox):
     
     def update(self, row):
         loc = self.get_expander("Locations")
-        loc.set_values(row.location)
+        loc.update(row.location)

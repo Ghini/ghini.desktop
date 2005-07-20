@@ -19,6 +19,7 @@
 
   <child>
     <widget class="GtkVBox" id="general_box">
+      <property name="border_width">5</property>
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">0</property>
@@ -61,9 +62,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label11">
+	    <widget class="GtkLabel" id="nplants_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">2</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -145,9 +146,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label14">
+	    <widget class="GtkLabel" id="prov_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">wild</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -173,7 +174,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkLabel" id="label15">
+	    <widget class="GtkLabel" id="ver_data">
 	      <property name="visible">True</property>
 	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
@@ -230,7 +231,7 @@
 	</widget>
 	<packing>
 	  <property name="padding">0</property>
-	  <property name="expand">True</property>
+	  <property name="expand">False</property>
 	  <property name="fill">True</property>
 	</packing>
       </child>
@@ -265,6 +266,7 @@
 
   <child>
     <widget class="GtkVBox" id="collections_box">
+      <property name="border_width">5</property>
       <property name="visible">True</property>
       <property name="homogeneous">False</property>
       <property name="spacing">8</property>
@@ -504,7 +506,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="loc_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Mountain Pine Ridge</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -532,7 +534,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="lat_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">89 deg (+/-)</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -560,7 +562,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="lon_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">17 deg (+/-)</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -588,7 +590,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="elev_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">200 m (+/-)</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -616,7 +618,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="coll_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Brett Adams</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -644,7 +646,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="date_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">June 8, 1976</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -708,7 +710,7 @@
 		    <widget class="GtkTextView" id="habitat_data">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="editable">True</property>
+		      <property name="editable">False</property>
 		      <property name="overwrite">False</property>
 		      <property name="accepts_tab">True</property>
 		      <property name="justification">GTK_JUSTIFY_LEFT</property>
@@ -720,7 +722,7 @@
 		      <property name="left_margin">0</property>
 		      <property name="right_margin">0</property>
 		      <property name="indent">0</property>
-		      <property name="text" translatable="yes">This is the habitat data</property>
+		      <property name="text" translatable="yes"></property>
 		    </widget>
 		  </child>
 		</widget>
@@ -787,10 +789,10 @@
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
-		    <widget class="GtkTextView" id="notes_data">
+		    <widget class="GtkTextView" id="collnotes_data">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
-		      <property name="editable">True</property>
+		      <property name="editable">False</property>
 		      <property name="overwrite">False</property>
 		      <property name="accepts_tab">True</property>
 		      <property name="justification">GTK_JUSTIFY_LEFT</property>
@@ -802,7 +804,7 @@
 		      <property name="left_margin">0</property>
 		      <property name="right_margin">0</property>
 		      <property name="indent">0</property>
-		      <property name="text" translatable="yes">This is the notes data</property>
+		      <property name="text" translatable="yes"></property>
 		    </widget>
 		  </child>
 		</widget>
@@ -942,7 +944,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="donor_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Brett Adams (donor type)</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -970,7 +972,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="donid_data">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">(id)</property>
+	      <property name="label" translatable="yes">--</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -1031,7 +1033,7 @@
 		  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 		  <child>
-		    <widget class="GtkTextView" id="notes_data">
+		    <widget class="GtkTextView" id="donnotes_data">
 		      <property name="visible">True</property>
 		      <property name="can_focus">True</property>
 		      <property name="editable">True</property>

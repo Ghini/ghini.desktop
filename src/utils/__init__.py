@@ -23,7 +23,7 @@ def plantname2str(p, authors=False):
         name += " %s" % p.isp_rank
     if p.isp is not None:
         name += " %s" % p.isp
-    return name
+    return name.strip()
 
 
 def get_combo_text(combo, column=0):

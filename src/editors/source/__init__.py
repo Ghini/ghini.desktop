@@ -511,13 +511,23 @@ class SourceEditor(TableEditor):
         conn = sqlhub.getConnection()
         trans = conn.transaction()        
         #self.commited = None
+        t = None
         try:
             print 'create table'
             # i guess the connection is inherant
             if self.select is None: # create a new table row
                 t = table(connection=trans, **values)
             else: # update the table row passed in
-                pass
+                # TODO: if select and table aren't the same we should
+                # ask the user if they want to change the type source
+                if not isinstance(self.select, self.curr_editor.table):
+                    msg = 'SourceEditor.commit_changes: the type has changed'
+                    raise ValueError(msg)
+                self.select.set(**values)
+                t = self.select
+                #raise NotImplementedError("TODO: updating a collection "\
+                #                          "hasn't been implemented")
+                #pass
                 
         except Exception, e:
             print 'SourceEditor.commited: could not commit'
@@ -529,6 +539,8 @@ class SourceEditor(TableEditor):
             #print 'self.commited'
             #print t
             #print str(t)
+            if t is None:
+                raise ValueError("SourceEditor.commit_changes: t is None")
             self.committed = t
         return True
         

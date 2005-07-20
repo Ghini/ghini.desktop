@@ -28,6 +28,9 @@ debug.enable = False
 # change the size of the dialog to fit unless you get bigger than the screen
 # then turn on the scroll bar, and something similar for adding rows 
 
+# FIXME: everytime you open and close a TreeViewEditorDialog the dialog
+# get a little bigger, i think the last column is creeping
+
 def createColumnMetaFromTable(table):
     """
     return a MetaViewColumn class built from an sqlobj
@@ -128,101 +131,126 @@ class ViewColumnMeta(dict):
     headers = property(fset=_set_headers)
 
         
-        
+    
 class ModelDict(dict):
     """
     a dictionary representation of an SQLObject used for storing table
     rows in a gtk.TreeModel
-    dictionary values are only stored in self if row is class and 
-    not an instance, otherwise the values are retrieved from the row
+    dictionary values are only stored in self if they are accessed, this
+    saves on database queries lookups (i think, should test). this also
+    means that when we retrieve the dictionary to commit the values then
+    we only get those values that have been accessed
     """
-    def __init__(self, row=None, meta=None, defaults=None):
+    def __init__(self, row, meta=None, defaults={}):
         # if row is an instance of BaubleTable then get the values
         # from the instance else check that the items are valid table
         # attributes and don't let the editors set attributes that 
         # aren't valid
-        self.row = row
-        if isinstance(self.row, BaubleTable):
+        
+        # if row is not an instance then make sure
+        self.isinstance = False
+        if isinstance(row, BaubleTable):
             self.isinstance = True
-        else: # a subclass of an BaubleTable(SQLObject)
-            self.isinstance = False
-        self.defaults = defaults
+            self['id'] = row.id # always keep the id
+        elif not issubclass(row, BaubleTable):
+            msg = 'row shoud be either an instance or class of BaubleTable'
+            raise ValueError('ModelDict.__init__: ' + msg)
+            
+        #if row is not None and not isinstance(row, BaubleTable):
+        #    raise ValueError('ModelDict.__init__: row is not an instance')
+        
+        self.row = row # either None or an instance of BaubleTable
+        self.defaults = defaults or {}
         self.meta = meta
-        
-        
+
+
+    
+    def __contains__(self, item):
+        """
+        this causes the 'in' operator and has_key to behave differently,
+        e.g. 'in' will tell you if it exists in either the dictionary
+        or the table while has_key will only tell you if it exists in the 
+        dictionary, this is a very important difference
+        """
+        if self.has_key(item):
+            return True
+        elif self.row is not None: 
+            return hasattr(self.row, item)
+        else: 
+            return False
+        #if self.row is not None:
+        #    return hasattr(self.row, item)
+        #else: self.has_key(item)
+
+
     def __getitem__(self, item):
-        
-        if not hasattr(self.row, item):
-            raise KeyError("ModelDict.__getitem__: no such table row %s" % item)
-        
+        """
+        get items from the dict
+        if the item does not exist then we create the item in the dictionary
+        and set its value from the default or to None
+        """
+    
+        if self.has_key(item): # use has_key to avoid __contains__
+            return self.get(item)
+
+        # else if row is an instance then get it from the table
         v = None
         if self.isinstance:
             if self.meta[item].getter is not None:
                 v = self.meta[item].getter(self.row)
-            else: 
+            else: # we want this to fail is item doesn't exist in row
                 v = getattr(self.row, item)
             if v is None and item in self.defaults:
                 v = self.defaults[item]
         else:
-            if not self.has_key(item) and item in self.defaults:
-                self[item] = self.defaults[item]
-            elif not self.has_key(item):
-                self[item] = None
-            v = self.get(item)
+            # else not an instance so at least make sure that the item
+            # is an attribute in the row, should probably validate the type
+            # depending on the type of the attribute in row
+            if not hasattr(self.row, item):
+                msg = '%s has not attribute %s' % (self.row.__class__, item)
+                raise KeyError('ModelDict.__getitem__: ' + msg)
+            if item in self.defaults:
+                v = self.defaults[item]
+            else:
+                v = None
+        self[item] = v
         return v
+       
         
-        
-        
-class ModelDictOld(dict):
-    """
-    each row of the model will contain a ModelDict though each row may
-    not have the same keys in  the dict,
-    
-    """        
-    # TODO this "create item on access" is bad programming style, we 
-    # should fix it 
-    def __init__(self, table_row=None, default=None):
-        """
-        if table is not None then build a dict from the table
-        """
-        if table_row is not None:
-            self["id"] = table_row.id
-            self.table_row = table_row            
-            for c in table_row.sqlmeta._columns:
-                # '_' means the editor doesn't show it
-                if c.name[0] == '_': continue 
-                eval_str = None                    
-                if c.foreignKey:
-                    id = eval("self.table_row.%s" % c.name)
-                    eval_str = "tables.%s.get(id)" % c.foreignKey
-                    name = c.origName                        
-                else:                        
-                    eval_str = ("self.table_row.%s") % c.name
-                    name = c.name
-                v = eval(eval_str)
-                self[name] = v
-        elif default is not None:
-            for key, value in default.iteritems():
-                print "%s: %s" %(str(key), str(value))
-                self[key] = value
-
-        
-    def __getitem__(self, item):
-        """
-        allows us to use the dict syntax to dynamically create keys
-        for the model though you have to be careful b/c 
-        'if d[key] is None' can create the key
-        """
-        if not self.has_key(item):
-            self[item] = None
-        return self.get(item)
+#    def __getitem__old(self, item):
+#        """
+#        get items from the dict
+#        if the item does not exist then we create the item in the dictionary
+#        and set its value from the default or to None
+#        """
+#        #print 'ModelDict.__getitem__(%s)' % item
+#        if not hasattr(self.row, item):
+#            raise KeyError("ModelDict.__getitem__: no such table row %s" % item)
+#
+#        v = None
+#        if self.isinstance: # get value from table instance
+#            if self.meta[item].getter is not None:
+#                v = self.meta[item].getter(self.row)
+#            else: 
+#                v = getattr(self.row, item)
+#            if v is None and item in self.defaults:
+#                v = self.defaults[item]
+#        else: # get value from the dict
+##            if not self.has_key(item) and self.defaults is not None and \
+##              item in self.defaults:
+#            if not self.has_key(item) and item in self.defaults:
+#                self[item] = self.defaults[item]
+#            elif not self.has_key(item):
+#                self[item] = None
+#            v = self.get(item)
+#        return v
 
 
 #
 # editor interface
 #
 class TableEditor(object):
-    
+
     show_in_toolbar = True
     
     def __init__(self, table, select=None, defaults={}):
@@ -308,16 +336,13 @@ class TreeViewEditorDialog(TableEditorDialog):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
-            if not bauble.prefs.has_key(self.visible_columns_pref):
+            if not self.visible_columns_pref in bauble.prefs:
                 bauble.prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
             
         self.create_gui()
         super(TreeViewEditorDialog, self).start(block)
         
-        
-                                 
-    
 
     def foreign_does_not_exist(self, name, value):
         """
@@ -342,6 +367,7 @@ class TreeViewEditorDialog(TableEditorDialog):
     def validate(self, colname, value):
         #type
         return value
+    
     
     def on_completion_match_selected(self, completion, model, iter, 
                                      path, colname):
@@ -450,6 +476,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.set_view_model_value(path, colname, active)
         
         
+    def set_ok_sensitive(self, sensitive):
+        ok_button = self.action_area.get_children()[1]
+        ok_button.set_sensitive(sensitive)
+        
+        
     def on_renderer_edited(self, renderer, path, new_text, colname):
         """
         signal called when editing is finished on a cell
@@ -457,7 +488,24 @@ class TreeViewEditorDialog(TableEditorDialog):
         in the model
         """
          
+        #print 'on_renderer_edited:'
+        #print ' -- new: "%s"' % str(new_text)
         new_text = new_text.strip() # crash on None? is new_text ever None?
+        model = self.view.get_model()
+        it = model.get_iter(path)
+        row = model.get_value(it, 0)
+        #print ' -- %s: "%s"' % (colname, str(row[colname]))
+        
+        # compare everything by string b/c if the value is an object
+        # then the comparison doesn't work
+        # FIXME: this workds for now but we need to make __cmp__ methods 
+        # for anything that might be in the model, possibly only need one
+        # for BaubleTable, this works for 
+        if colname in row and str(row[colname]) == str(new_text):
+            #print 'no change'
+            return
+        
+        #if new_text == None: return
 #        if new_text == None or new_text == "":
 #            return        
         if not self.column_meta[colname].foreign:
@@ -473,7 +521,9 @@ class TreeViewEditorDialog(TableEditorDialog):
             # *** i don't really like this, i would prefer to set the model
             # in one place
             pass
+            
         self.dirty = True # something has changed
+        self.set_ok_sensitive(True)
 #        self.view.check_resize() # ???????
 
         # edited the last row so add a new one,
@@ -482,6 +532,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         if new_text != "" and int(path) == len(model)-1:
             self.add_new_row()
             self.dummy_row = True
+            
             
             
     def on_editing_started(self, cell, editable, path, colname):
@@ -620,6 +671,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         #super(TreeViewEditorDialog, self).on_response(widget, response, data)
         #TreeViewEditorDialog.on_response(self, widget, response, data)
         
+        
     def get_values_from_view(self):
         """
         used by commit_changes to get the values from a table so they
@@ -633,12 +685,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         model = self.view.get_model()
         values = []
         for item in model:
-            temp_row = copy.copy(item[0]) # copy it so we dont change the data in the model
-            print '----------------'
+            # copy it so we dont change the data in the model
+            # TODO: is it really necessary to copy here
+            temp_row = copy.copy(item[0]) 
             for name, value in item[0].iteritems():                
-                # del the value is they are none, have to do this b/c 
+                # del the value if they are none, have to do this b/c 
                 # we don't want to store None in a row without a default
-                print '%s: %s (%s)' % (name, value, type(value))
                 if value is None:
                     del temp_row[name]
                 if type(value) == list and type(value[0]) == int:
@@ -678,11 +730,12 @@ class TreeViewEditorDialog(TableEditorDialog):
             # first pop out columns in table_meta.foreign_keys so we can
             # set their foreign key id later
             for col, col_attr in self.table_meta.foreign_keys:
-                if v.has_key(col):
-                    print 'pop ' + col
+                # use has key to check the dict and not the table, 
+                # see ModelDict.__contains__
+                if v.has_key(col): 
                     foreigners[col] = v.pop(col)
             try:
-                if v.has_key("id"): # updating row
+                if 'id' in v:# updating row
                     t = self.table.get(v["id"])
                     del v["id"]
                     t.set(**v)
@@ -691,7 +744,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                
                 # set the foreign keys id of the foreigners
                 for col, col_attr in self.table_meta.foreign_keys:
-                    if foreigners.has_key(col):
+                    if col in foreigners:
                         c = foreigners[col]
                         c.set(**{col_attr: t.id})
                     
@@ -723,17 +776,18 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         cell data func for cell renderers other than toggle
         """
-        v = model.get_value(iter, 0)
-        row = v[colname]
-
-        if row is None: # no value in model
+        row = model.get_value(iter, 0)
+        #if colname not in row: return # this should never happen
+        value = row[colname]
+        
+        if value is None: # no value in model
             cell.set_property('text', None)
-        elif type(row) == list: # if a list then row[1] is the id
-            cell.set_property('text', row[1])
+        elif type(value) == list: # if a list then row[1] is the id
+            cell.set_property('text', value[1])
         else: 
             # just plain text in model column or something convertible 
             # to string like a table row
-            cell.set_property('text', str(row))                    
+            cell.set_property('text', str(value))                    
 
 
     def create_toolbar(self):
@@ -784,6 +838,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         #self.set_geometry_hints(min_width=total)
         self.set_default_size(-1, 300) # 10 is a guestimate at border width
         
+        # set ok button insensitive
+        ok_button = self.action_area.get_children()[1]
+        ok_button.set_sensitive(False)
+        
         self.show_all()
         #self.resize_children()
         #print self.size_request()
@@ -799,7 +857,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         # create the renderer and model if it needs it
         if meta.type == SOBoolCol:
             r = gtk.CellRendererToggle()
-        elif meta.type == SingleJoin:
+        elif meta.type == SingleJoin: 
+            # TODO: this should be removed, we don't edit any single joins 
+            # directory i don't think, though it might not be a bad idea
+            # to do so
             r = gtk.CellRendererCombo()
             r.set_property('has_entry', False)
             r.set_property("text-column", 0)
@@ -807,7 +868,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             model = gtk.ListStore(str)
             for d in data: model.append([d])
             r.set_property("model", model)
-        elif hasattr(self.table, "values") and  self.table.values.has_key(name):
+        elif hasattr(self.table, "values") and name in self.table.values:
             r = gtk.CellRendererCombo()
             r.set_property("text-column", 0)
             model = gtk.ListStore(str, str)            
@@ -840,7 +901,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         column.set_reorderable(True)
         column.set_visible(meta.visible)
         width_dict = bauble.prefs[self.column_width_pref]
-        if width_dict is not None and width_dict.has_key(name):
+        if width_dict is not None and name in width_dict:
             column.set_fixed_width(width_dict[name])
         column.name = name # .name is my own data, not part of gtk
         # notify when the column width property is changed
@@ -882,7 +943,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         # enter the columns from the visible list, the visibility
         # should already have been set before creation from the prefs
         visible_list = ()
-        if bauble.prefs.has_key(self.visible_columns_pref):
+        if self.visible_columns_pref in bauble.prefs:
             visible_list = list(bauble.prefs[self.visible_columns_pref][:])
             visible_list.reverse()
             for name in visible_list:
