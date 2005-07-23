@@ -71,13 +71,15 @@ class InfoBox(gtk.ScrolledWindow):
     
     
     def get_expander(self, label):
-        if self.expanders.has_key(label): 
+        #if self.expanders.has_key(label): 
+        if label in self.expanders:
             return self.expanders[label]
         else: return None
     
     
     def remove_expander(self, label):
-        if self.expanders.has_key(label): 
+        #if self.expanders.has_key(label): 
+        if label in self.expanders:
             self.vbox.remove(self.expanders[label])
     
     

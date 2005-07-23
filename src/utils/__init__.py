@@ -34,11 +34,9 @@ def get_combo_text(combo, column=0):
     return model[active][column]    
 
 
-def message_dialog(msg, type=gtk.MESSAGE_INFO):
+def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=type,
-                          buttons=gtk.BUTTONS_OK,
-                          message_format=msg)        
+                          type=type, buttons=buttons, message_format=msg)        
     r = d.run()
     d.destroy()
     

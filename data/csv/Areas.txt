@@ -1,370 +1,370 @@
 "code","regionID","area","notes","ed2_status","iso_code","id"
-"CPI",44,"Central American Pacific Is.","","","",78
-"MNT",37,"Montana","","","US",191
-"AGE",49,"Argentina Northeast","","","AR",2
-"SIC",3,"Sicilia","","","",293
-"YUK",34,"Yukon","","","CA",363
-"SIE",7,"Sierra Leone","","","SL",294
-"CPP",12,"Cape Provinces","","","ZA",79
-"AGS",49,"Argentina South","","","AR",3
-"SIN",19,"Sinai","","","EG",295
-"CPV",12,"Caprivi Strip","","","NA",80
-"TAS",28,"Tasmania","","","AU",314
-"SPA",2,"Spain","","","",300
-"TAN",10,"Tanzania","","","TZ",313
-"TAI",23,"Taiwan","","","TW",312
-"VAN",30,"Vanuatu","","","VU",340
-"SCZ",30,"Santa Cruz Is.","","","SB",287
-"DJI",9,"Djibouti","","","DJ",91
-"GIL",30,"Gilbert Is.","","","KI",117
-"FIN",0,"Finland","","","FI",105
-"MAQ",50,"Macquarie Is.","","","AU",178
-"MAS",39,"Masachusettes","","","US",179
-"LAO",25,"Laos","","","LA",165
-"MAU",14,"Mauritius","","","MU",180
-"NWH",39,"New Hampshire","","","US",239
-"LAB",36,"Labrador","","","CA",164
-"JNF",49,"Juan Fern�ndez Is.","","","CL",147
-"MAG",16,"Magadan","","","RU",175
-"ALG",5,"Algeria","","","DZ",8
-"MAI",39,"Maine","","","US",176
-"MAN",35,"Manitoba","","","CA",177
-"CMN",8,"Cameroon","","","CM",69
-"GUA",44,"Guatemala","","","GT",123
-"BEN",7,"Benin","","","BJ",28
-"GUI",7,"Guinea","","","GN",124
-"AGW",49,"Argentina Northwest","","","AR",4
-"BER",45,"Bermuda","","","BM",29
-"GUY",46,"Guyana","","","GY",125
-"HUN",1,"Hungary","","","HU",131
-"LSI",26,"Lesser Sunda Is.","","","",174
-"YUG",3,"Yugoslavia","","","YU",362
-"BLZ",44,"Belize","","","BZ",35
-"DSV",49,"Desventurados Is.","","","CL",93
-"BLT",4,"Baltic States","","","",34
-"NFL",36,"Newfoundland","","","",224
-"NFK",28,"Norfolk Is.","","","",223
-"BLR",4,"Belarus","Belorussiya","N","RU",33
-"GRB",0,"Great Britain","","","UK",120
-"GRC",3,"Greece","","","GR",121
-"RWA",8,"Rwanda","","","RW",278
-"ALU",34,"Aleutian Is.","","","US",10
-"CBD",25,"Cambodia","","","KH",53
-"MXT",43,"Mexico Southeast","","","MX",210
-"MXS",43,"Mexico Southwest","","","MX",209
-"MXN",43,"Mexico Northwest","","","MX",208
-"INI",39,"Indiana","","","US",136
-"MXI",43,"Mexican Pacific Is.","","","MX",207
-"IND",24,"India","","","IN",135
-"MXG",43,"Mexico Gulf","","","MX",206
-"MXE",43,"Mexico Northeast","","","MX",205
-"MXC",43,"Mexico Central","","","MX",204
-"NOR",0,"Norway","","","NO",230
-"BZS",48,"Brazil South","","","BR",48
-"DOM",45,"Dominican Republic","","","DO",92
-"REU",14,"R�union","","","RE",269
-"BZE",48,"Brazil Northeast","","","BR",45
-"BZC",48,"Brazil West-Central","","","BR",44
-"CTA",15,"Chita","","","RU",83
-"CTM",29,"Chatham Is.","","","NZ",84
-"BZL",48,"Brazil Southeast","","","BR",46
-"WHM",24,"West Himalaya","","","",352
-"MDG",14,"Madagascar","","","MG",183
-"MDR",6,"Madeira","","","PT",184
-"GGI",8,"Gulf of Guinea Is.","","","",115
-"VER",39,"Vermont","","","US",342
-"AUT",1,"Austria","","","",23
-"VEN",46,"Venezuela","","","VE",341
-"PUE",45,"Puerto Rico","","","PR",266
-"ALD",14,"Aldabra","","","SC",7
-"ALB",3,"Albania","","","AL",6
-"ALA",42,"Alabama","","","US",5
-"QUE",36,"Qu�bec","","","CA",268
-"NTA",28,"Northern Territory","","","AU",234
-"ALT",15,"Altay","","","RU",9
-"ORE",37,"Oregon","","","US",252
-"CAY",45,"Cayman Is.","","","KY",52
-"LOU",42,"Louisiana","","","US",173
-"UKR",4,"Ukraine","","","",336
-"TOK",30,"Tokelau-Manihiki","","","",323
-"TON",30,"Tonga","","","TO",324
-"CAL",40,"California","","","US",51
-"BAN",24,"Bangladesh","","","BD",27
-"CAB",8,"Cabinda","","","AO",49
-"BAL",2,"Baleares","","","ES",26
-"KOR",23,"Korea","","","",156
-"TOG",7,"Togo","","","TG",322
-"BAH",45,"Bahamas","","","BS",25
-"CAF",8,"Central African Republic","","","CF",50
-"ERI",9,"Eritrea","","","ER",101
-"ONT",36,"Ontario","","","CA",251
-"NZS",29,"New Zealand South","","","NZ",245
-"KTY",42,"Kentucky","","","US",160
-"STH",13,"St.Helena","","","SH",303
-"ABT",35,"Alberta","","","CA",0
-"NZN",29,"New Zealand North","","","NZ",244
-"NCS",18,"North Caucasus","","","RU",217
-"NCA",42,"North Carolina","","","US",215
-"QLD",28,"Queensland","","","AU",267
-"OGA",23,"Ogasawara-shoto","","","JP",247
-"EGY",5,"Egypt","","","EG",97
-"MIN",38,"Minnesota","","","US",187
-"MIC",39,"Michigan","","","US",186
-"FIJ",30,"Fiji","","","FJ",104
-"GHA",7,"Ghana","","","GH",116
-"SAK",16,"Sakhalin","","","RU",279
-"LBS",19,"Lebanon-Syria","","","",167
-"EHM",24,"East Himalaya","","","",98
-"SAM",30,"Samoa","","","",280
-"LBY",5,"Libya","","","LY",168
-"EQG",8,"Equatorial Guinea","","","GQ",100
-"SAS",35,"Saskatchewan","","","CA",282
-"SAR",2,"Sardegna","","","IT",281
-"SAU",20,"Saudi Arabia","","","SA",283
-"CHA",9,"Chad","","","TD",54
-"CHC",21,"China South-Central","","","CN",55
-"MRY",42,"Maryland","","","US",200
-"CHH",21,"Hainan","","","CN",56
-"JAW",26,"Jawa","","","ID",146
-"CHM",21,"Manchuria","","","CN",58
-"CHN",21,"China North-Central","","","CN",59
-"MRS",32,"Marshall Is.","","","MH",199
-"CHQ",21,"Qinghai","","","CN",60
-"MRN",32,"Marianas","","","",197
-"CHS",21,"China Southeast","","","",61
-"CHT",21,"Tibet","","","CN",62
-"CHX",21,"Xinjiang","","","CN",63
-"ZIM",11,"Zimbabwe","","","ZW",366
-"VIC",28,"Victoria","","","AU",343
-"VIE",25,"Vietnam","","","VN",344
-"KAN",38,"Kansas","","","US",149
-"KAM",16,"Kamchatka","","","RU",148
-"RHO",39,"Rhode I.","","","US",270
-"KAZ",17,"Kazakhstan","","","KZ",150
-"NGA",7,"Nigeria","","","NG",225
-"NGR",7,"Niger","","","NE",226
-"UGA",10,"Uganda","","","UG",335
-"TKM",17,"Turkmenistan","","","TM",321
-"NLA",45,"Netherlands Antilles","","","AN",228
-"HMD",50,"Heard-McDonald Is.","","","HM",129
-"RUC",4,"Central European Russia","","","RU",273
-"AFG",19,"Afghanistan","","","AF",1
-"SSA",50,"South Sandwich Is.","","","GS",302
-"CZE",1,"Czechoslovakia","","","CS",88
-"SCA",42,"South Carolina","","","US",284
-"ATP",29,"Antipodean Is.","","","NZ",22
-"WYO",37,"Wyoming","","","US",358
-"ASS",24,"Assam","","","IN",21
-"ASC",13,"Ascension","","","SH",18
-"ASP",50,"Amsterdam-St.Paul Is.","","","TF",20
-"SEY",14,"Seychelles","","","SC",291
-"NUN",34,"Nunavut","","","CA",236
-"ECU",47,"Ecuador","","","EC",96
-"ASK",34,"Alaska","","","US",19
-"SEN",7,"Senegal","","","SN",290
-"SEL",6,"Selvagens","","","PT",289
-"CLM",47,"Colombia","","","CO",66
-"CLN",49,"Chile North","","","CL",67
-"FRG",46,"French Guiana","","","GF",109
-"CLC",49,"Chile Central","","","CL",65
-"YAK",15,"Yakutskiya","","","RU",360
-"CLS",49,"Chile South","","","CL",68
-"KEN",10,"Kenya","","","KE",152
-"OMA",20,"Oman","","","OM",250
-"NUE",30,"Niue","","","NU",235
-"KEG",50,"Kerguelen","","","TF",151
-"TUR",19,"Turkey","","","TR",330
-"TUV",30,"Tuvalu","","","TV",331
-"ITA",3,"Italy","","","",142
-"TUN",5,"Tunisia","","","TN",329
-"TUA",31,"Tuamotu","","","PF",326
-"TUB",31,"Tubuai Is.","","","PF",327
-"TUE",3,"Turkey-in-Europe","","","TR",328
-"SWI",1,"Switzerland","","","CH",310
-"SWC",45,"Southwest Caribbean","","","",308
-"SWE",0,"Sweden","","","SE",309
-"FRA",2,"France","","","",108
-"SWZ",12,"Swaziland","","","SZ",311
-"CYP",19,"Cyprus","","","CY",87
-"POR",2,"Portugal","","","PT",264
-"POL",1,"Poland","","","PL",263
-"BIS",27,"Bismarck Archipelago","","","PG",31
-"MLI",7,"Mali","","","ML",188
-"MLW",11,"Malawi","","","MW",189
-"MLY",26,"Malaya","","","",190
-"NCB",25,"Nicobar Is.","","","IN",216
-"MCI",14,"Mozambique Channel Is.","","","RE",181
-"MCS",32,"Marcus I.","","","JP",182
-"NRU",30,"Nauru","","","NR",231
-"PAR",49,"Paraguay","","","PY",256
-"CKI",26,"Cocos (Keeling) Is.","","","CC",64
-"BGM",1,"Belgium","","","",30
-"PAK",24,"Pakistan","","","PK",253
-"PAL",19,"Palestine","","","",254
-"PAN",44,"Panam�","","","PA",255
-"VNA",45,"Venezuelan Antilles","","","VE",345
-"TZK",17,"Tadzhikistan","","","TJ",334
-"LIN",31,"Line Is.","","","",172
-"HAI",45,"Haiti","","","",126
-"OFS",12,"Free State","","","ZA",246
-"THA",25,"Thailand","","","TH",320
-"HAW",33,"Hawaii","","","",127
-"PHI",26,"Philippines","","","PH",260
-"ZAM",11,"Zambia","","","ZM",365
-"YEM",20,"Yemen","","","YE",361
-"ZAI",8,"Zaire","","","CD",364
-"NIC",44,"Nicaragua","","","NI",227
-"PHX",30,"Phoenix Is.","","","KI",261
-"WIN",45,"Windward Is.","","","",353
-"CRZ",50,"Crozet Is.","","","TF",82
-"CRL",32,"Caroline Is.","","","",81
-"GER",1,"Germany","","","DE",114
-"BUR",8,"Burundi","","","BI",43
-"TCS",18,"Transcaucasus","","","",316
-"LDV",24,"Laccadive Is.","","","IN",169
-"BUL",3,"Bulgaria","","","BG",42
-"TCI",45,"Turks-Caicos Is.","","","TC",315
-"GEO",42,"Georgia","","","US",113
-"FOR",0,"F�royar","","","FO",107
-"LBR",7,"Liberia","","","LR",166
-"AND",25,"Andaman Is.","","","",12
-"MOZ",11,"Mozambique","","","MZ",195
-"ANG",11,"Angola","","","AO",13
-"MOR",5,"Morocco","","","",194
-"KER",29,"Kermadec Is.","","","NZ",153
-"ANT",51,"Antarctica","","","AQ",14
-"PRM",16,"Primorye","","","RU",265
-"MON",22,"Mongolia","","","MN",193
-"MOL",26,"Maluku","","","ID",192
-"COS",44,"Costa Rica","","","CR",77
-"COR",2,"Corse","","","FR",76
-"ILL",38,"Illinois","","","US",134
-"PER",47,"Peru","","","PE",259
-"PEN",39,"Pennsylvania","","","US",258
-"PEI",36,"Prince Edward I.","","","CA",257
-"ETH",9,"Ethiopia","","","ET",102
-"COM",14,"Comoros","","","",73
-"COL",37,"Colorado","","","US",72
-"COO",31,"Cook Is.","","","CK",75
-"CON",8,"Congo","","","CG",74
-"TVL",12,"Northern Provinces","","","ZA",333
-"VRG",42,"Virginia","","","US",346
-"TVA",15,"Tuva","","","RU",332
-"KRY",4,"Krym","","","UA",159
-"WAK",32,"Wake I.","","","UM",347
-"NDA",38,"North Dakota","","","US",218
-"SRL",24,"Sri Lanka","","","LK",301
-"KRI",3,"Kriti","","","GR",158
-"WAU",28,"Western Australia","","","AU",350
-"KRA",15,"Krasnoyarsk","","","RU",157
-"WAS",37,"Washington","","","US",349
-"XMS",26,"Christmas I.","","","CX",359
-"RUN",4,"North European Russia","","","RU",275
-"TDC",50,"Tristan da Cunha","","","SH",317
-"PIT",31,"Pitcairn Is.","","","PN",262
-"RUE",4,"East European Russia","","","RU",274
-"RUS",4,"South European Russia","","","",276
-"RUW",4,"Northwest European Russia","","","RU",277
-"SCS",25,"South China Sea","","","",286
-"WSA",5,"Western Sahara","","","EH",355
-"WSB",15,"West Siberia","","","RU",356
-"GNB",7,"Guinea-Bissau","","","GW",118
-"CVI",6,"Cape Verde","","","CV",86
-"GNL",34,"Greenland","","","GL",119
-"SOA",28,"South Australia","","","AU",296
-"SOC",9,"Socotra","","","YE",297
-"NSC",36,"Nova Scotia","","","CA",232
-"SOM",9,"Somalia","","","SO",299
-"SOL",27,"Solomon Is.","","","",298
-"GAM",7,"Gambia, The","","","GM",112
-"GAL",47,"Gal�pagos","","","EC",111
-"FAL",50,"Falkland Is.","","","FK",103
-"CHI",21,"Inner Mongolia","","","CN",57
-"GAB",8,"Gabon","","","GA",110
-"NSW",28,"New South Wales","","","AU",233
-"UTA",40,"Utah","","","US",338
-"IRQ",19,"Iraq","","","IQ",141
-"MRQ",31,"Marquesas","","","PF",198
-"IRK",15,"Irkutsk","","","RU",139
-"MTN",7,"Mauritania","","","MR",203
-"JAP",23,"Japan","","","JP",145
-"IRN",19,"Iran","","","IR",140
-"IRE",0,"Ireland","","","",138
-"ARU",45,"Aruba","","","AW",17
-"URU",49,"Uruguay","","","UY",337
-"OKL",38,"Oklahoma","","","US",249
-"JAM",45,"Jamaica","","","JM",144
-"SDA",38,"South Dakota","","","US",288
-"ARI",40,"Arizona","","","US",15
-"ARK",42,"Arkansas","","","US",16
-"WDC",42,"District of Columbia","","","US",351
-"HBI",30,"Howland-Baker Is.","","","UM",128
-"GST",20,"Gulf States","","","",122
-"BOR",26,"Borneo","","","",37
-"BOT",12,"Botswana","","","BW",38
-"BOU",50,"Bouvet I.","","","BV",39
-"NAM",12,"Namibia","","","ZA",212
-"BOL",47,"Bolivia","","","BO",36
-"NAT",12,"KwaZulu-Natal","","","ZA",213
-"OHI",39,"Ohio","","","US",248
-"IOW",38,"Iowa","","","US",137
-"MYA",25,"Myanmar","","","MM",211
-"KHA",16,"Khabarovsk","","","RU",155
-"NNS",23,"Nansei-shoto","","","JP",229
-"SVA",0,"Svalbard","","","SJ",307
-"DEL",42,"Delaware","","","US",89
-"DEN",0,"Denmark","","","DK",90
-"BZN",48,"Brazil North","","","BR",47
-"FLA",42,"Florida","","","US",106
-"NWT",34,"Northwest Territories","","","CA",242
-"SCI",31,"Society Is.","","","PF",285
-"ROM",3,"Romania","","","RO",272
-"ROD",14,"Rodrigues","","","MU",271
-"NWY",39,"New York","","","US",243
-"NWG",27,"New Guinea","","","",238
-"NWC",30,"New Caledonia","","","NC",237
-"NWM",41,"New Mexico","","","US",241
-"WVA",39,"West Virginia","","","US",357
-"AMU",16,"Amur","","","RU",11
-"NWJ",39,"New Jersey","","","US",240
-"TRT",45,"Trinidad-Tobago","","","TT",325
-"MPE",50,"Marion-Prince Edward Is.","","","ZA",196
-"IVO",7,"Ivory Coast","","","CI",143
-"SUD",9,"Sudan","","","SD",304
-"KUW",20,"Kuwait","","","KW",162
-"SUM",26,"Sumatera","","","ID",306
-"SUL",26,"Sulawesi","","","ID",305
-"NEB",38,"Nebraska","","","US",219
-"KUR",16,"Kuril Is.","","","RU",161
-"SUR",46,"Suriname","Surinam","N","SR",368
-"NEV",40,"Nevada","","","US",222
-"NET",1,"Netherlands","","","NL",221
-"NEP",24,"Nepal","","","NP",220
-"IDA",37,"Idaho","","","US",133
-"TEN",42,"Tennessee","","","US",318
-"NBR",36,"New Brunswick","","","CA",214
-"BKN",7,"Burkina","","","BF",32
-"TEX",41,"Texas","","","US",319
-"CGS",14,"Chagos Archipelago","L2 code 40","T","IO",367
-"CUB",45,"Cuba","","","CU",85
-"ELS",44,"El Salvador","","","SV",99
-"LEE",45,"Leeward Is.","","","",170
-"BRY",15,"Buryatiya","","","RU",41
-"MDV",24,"Maldives","","","MV",185
-"LES",12,"Lesotho","","","LS",171
-"WIS",38,"Wisconsin","","","US",354
-"KZN",23,"Kazan-retto","","","JP",163
-"AZO",6,"Azores","","","PT",24
-"MSO",38,"Missouri","","","US",202
-"WAL",30,"Wallis-Futuna Is.","","","WF",348
-"MSI",42,"Mississippi","","","US",201
-"EAI",19,"East Aegean Is.","","","GR",94
-"UZB",17,"Uzbekistan","","","UZ",339
-"EAS",31,"Easter Is.","","","CL",95
-"SGE",50,"South Georgia","","","GS",292
-"CNT",39,"Connecticut","","","US",70
-"HON",44,"Honduras","","","HN",130
-"BRC",35,"British Columbia","","","CA",40
-"ICE",0,"Iceland","","","IS",132
-"CNY",6,"Canary Is.","","","ES",71
-"KGZ",17,"Kirgizistan","","","KG",154
+"CPI",45,"Central American Pacific Is.","","","",79
+"MNT",38,"Montana","","","US",192
+"AGE",50,"Argentina Northeast","","","AR",3
+"SIC",4,"Sicilia","","","",294
+"YUK",35,"Yukon","","","CA",364
+"SIE",8,"Sierra Leone","","","SL",295
+"CPP",13,"Cape Provinces","","","ZA",80
+"AGS",50,"Argentina South","","","AR",4
+"SIN",20,"Sinai","","","EG",296
+"CPV",13,"Caprivi Strip","","","NA",81
+"TAS",29,"Tasmania","","","AU",315
+"SPA",3,"Spain","","","",301
+"TAN",11,"Tanzania","","","TZ",314
+"TAI",24,"Taiwan","","","TW",313
+"VAN",31,"Vanuatu","","","VU",341
+"SCZ",31,"Santa Cruz Is.","","","SB",288
+"DJI",10,"Djibouti","","","DJ",92
+"GIL",31,"Gilbert Is.","","","KI",118
+"FIN",1,"Finland","","","FI",106
+"MAQ",51,"Macquarie Is.","","","AU",179
+"MAS",40,"Masachusettes","","","US",180
+"LAO",26,"Laos","","","LA",166
+"MAU",15,"Mauritius","","","MU",181
+"NWH",40,"New Hampshire","","","US",240
+"LAB",37,"Labrador","","","CA",165
+"JNF",50,"Juan Fern�ndez Is.","","","CL",148
+"MAG",17,"Magadan","","","RU",176
+"ALG",6,"Algeria","","","DZ",9
+"MAI",40,"Maine","","","US",177
+"MAN",36,"Manitoba","","","CA",178
+"CMN",9,"Cameroon","","","CM",70
+"GUA",45,"Guatemala","","","GT",124
+"BEN",8,"Benin","","","BJ",29
+"GUI",8,"Guinea","","","GN",125
+"AGW",50,"Argentina Northwest","","","AR",5
+"BER",46,"Bermuda","","","BM",30
+"GUY",47,"Guyana","","","GY",126
+"HUN",2,"Hungary","","","HU",132
+"LSI",27,"Lesser Sunda Is.","","","",175
+"YUG",4,"Yugoslavia","","","YU",363
+"BLZ",45,"Belize","","","BZ",36
+"DSV",50,"Desventurados Is.","","","CL",94
+"BLT",5,"Baltic States","","","",35
+"NFL",37,"Newfoundland","","","",225
+"NFK",29,"Norfolk Is.","","","",224
+"BLR",5,"Belarus","Belorussiya","N","RU",34
+"GRB",1,"Great Britain","","","UK",121
+"GRC",4,"Greece","","","GR",122
+"RWA",9,"Rwanda","","","RW",279
+"ALU",35,"Aleutian Is.","","","US",11
+"CBD",26,"Cambodia","","","KH",54
+"MXT",44,"Mexico Southeast","","","MX",211
+"MXS",44,"Mexico Southwest","","","MX",210
+"MXN",44,"Mexico Northwest","","","MX",209
+"INI",40,"Indiana","","","US",137
+"MXI",44,"Mexican Pacific Is.","","","MX",208
+"IND",25,"India","","","IN",136
+"MXG",44,"Mexico Gulf","","","MX",207
+"MXE",44,"Mexico Northeast","","","MX",206
+"MXC",44,"Mexico Central","","","MX",205
+"NOR",1,"Norway","","","NO",231
+"BZS",49,"Brazil South","","","BR",49
+"DOM",46,"Dominican Republic","","","DO",93
+"REU",15,"R�union","","","RE",270
+"BZE",49,"Brazil Northeast","","","BR",46
+"BZC",49,"Brazil West-Central","","","BR",45
+"CTA",16,"Chita","","","RU",84
+"CTM",30,"Chatham Is.","","","NZ",85
+"BZL",49,"Brazil Southeast","","","BR",47
+"WHM",25,"West Himalaya","","","",353
+"MDG",15,"Madagascar","","","MG",184
+"MDR",7,"Madeira","","","PT",185
+"GGI",9,"Gulf of Guinea Is.","","","",116
+"VER",40,"Vermont","","","US",343
+"AUT",2,"Austria","","","",24
+"VEN",47,"Venezuela","","","VE",342
+"PUE",46,"Puerto Rico","","","PR",267
+"ALD",15,"Aldabra","","","SC",8
+"ALB",4,"Albania","","","AL",7
+"ALA",43,"Alabama","","","US",6
+"QUE",37,"Qu�bec","","","CA",269
+"NTA",29,"Northern Territory","","","AU",235
+"ALT",16,"Altay","","","RU",10
+"ORE",38,"Oregon","","","US",253
+"CAY",46,"Cayman Is.","","","KY",53
+"LOU",43,"Louisiana","","","US",174
+"UKR",5,"Ukraine","","","",337
+"TOK",31,"Tokelau-Manihiki","","","",324
+"TON",31,"Tonga","","","TO",325
+"CAL",41,"California","","","US",52
+"BAN",25,"Bangladesh","","","BD",28
+"CAB",9,"Cabinda","","","AO",50
+"BAL",3,"Baleares","","","ES",27
+"KOR",24,"Korea","","","",157
+"TOG",8,"Togo","","","TG",323
+"BAH",46,"Bahamas","","","BS",26
+"CAF",9,"Central African Republic","","","CF",51
+"ERI",10,"Eritrea","","","ER",102
+"ONT",37,"Ontario","","","CA",252
+"NZS",30,"New Zealand South","","","NZ",246
+"KTY",43,"Kentucky","","","US",161
+"STH",14,"St.Helena","","","SH",304
+"ABT",36,"Alberta","","","CA",1
+"NZN",30,"New Zealand North","","","NZ",245
+"NCS",19,"North Caucasus","","","RU",218
+"NCA",43,"North Carolina","","","US",216
+"QLD",29,"Queensland","","","AU",268
+"OGA",24,"Ogasawara-shoto","","","JP",248
+"EGY",6,"Egypt","","","EG",98
+"MIN",39,"Minnesota","","","US",188
+"MIC",40,"Michigan","","","US",187
+"FIJ",31,"Fiji","","","FJ",105
+"GHA",8,"Ghana","","","GH",117
+"SAK",17,"Sakhalin","","","RU",280
+"LBS",20,"Lebanon-Syria","","","",168
+"EHM",25,"East Himalaya","","","",99
+"SAM",31,"Samoa","","","",281
+"LBY",6,"Libya","","","LY",169
+"EQG",9,"Equatorial Guinea","","","GQ",101
+"SAS",36,"Saskatchewan","","","CA",283
+"SAR",3,"Sardegna","","","IT",282
+"SAU",21,"Saudi Arabia","","","SA",284
+"CHA",10,"Chad","","","TD",55
+"CHC",22,"China South-Central","","","CN",56
+"MRY",43,"Maryland","","","US",201
+"CHH",22,"Hainan","","","CN",57
+"JAW",27,"Jawa","","","ID",147
+"CHM",22,"Manchuria","","","CN",59
+"CHN",22,"China North-Central","","","CN",60
+"MRS",33,"Marshall Is.","","","MH",200
+"CHQ",22,"Qinghai","","","CN",61
+"MRN",33,"Marianas","","","",198
+"CHS",22,"China Southeast","","","",62
+"CHT",22,"Tibet","","","CN",63
+"CHX",22,"Xinjiang","","","CN",64
+"ZIM",12,"Zimbabwe","","","ZW",367
+"VIC",29,"Victoria","","","AU",344
+"VIE",26,"Vietnam","","","VN",345
+"KAN",39,"Kansas","","","US",150
+"KAM",17,"Kamchatka","","","RU",149
+"RHO",40,"Rhode I.","","","US",271
+"KAZ",18,"Kazakhstan","","","KZ",151
+"NGA",8,"Nigeria","","","NG",226
+"NGR",8,"Niger","","","NE",227
+"UGA",11,"Uganda","","","UG",336
+"TKM",18,"Turkmenistan","","","TM",322
+"NLA",46,"Netherlands Antilles","","","AN",229
+"HMD",51,"Heard-McDonald Is.","","","HM",130
+"RUC",5,"Central European Russia","","","RU",274
+"AFG",20,"Afghanistan","","","AF",2
+"SSA",51,"South Sandwich Is.","","","GS",303
+"CZE",2,"Czechoslovakia","","","CS",89
+"SCA",43,"South Carolina","","","US",285
+"ATP",30,"Antipodean Is.","","","NZ",23
+"WYO",38,"Wyoming","","","US",359
+"ASS",25,"Assam","","","IN",22
+"ASC",14,"Ascension","","","SH",19
+"ASP",51,"Amsterdam-St.Paul Is.","","","TF",21
+"SEY",15,"Seychelles","","","SC",292
+"NUN",35,"Nunavut","","","CA",237
+"ECU",48,"Ecuador","","","EC",97
+"ASK",35,"Alaska","","","US",20
+"SEN",8,"Senegal","","","SN",291
+"SEL",7,"Selvagens","","","PT",290
+"CLM",48,"Colombia","","","CO",67
+"CLN",50,"Chile North","","","CL",68
+"FRG",47,"French Guiana","","","GF",110
+"CLC",50,"Chile Central","","","CL",66
+"YAK",16,"Yakutskiya","","","RU",361
+"CLS",50,"Chile South","","","CL",69
+"KEN",11,"Kenya","","","KE",153
+"OMA",21,"Oman","","","OM",251
+"NUE",31,"Niue","","","NU",236
+"KEG",51,"Kerguelen","","","TF",152
+"TUR",20,"Turkey","","","TR",331
+"TUV",31,"Tuvalu","","","TV",332
+"ITA",4,"Italy","","","",143
+"TUN",6,"Tunisia","","","TN",330
+"TUA",32,"Tuamotu","","","PF",327
+"TUB",32,"Tubuai Is.","","","PF",328
+"TUE",4,"Turkey-in-Europe","","","TR",329
+"SWI",2,"Switzerland","","","CH",311
+"SWC",46,"Southwest Caribbean","","","",309
+"SWE",1,"Sweden","","","SE",310
+"FRA",3,"France","","","",109
+"SWZ",13,"Swaziland","","","SZ",312
+"CYP",20,"Cyprus","","","CY",88
+"POR",3,"Portugal","","","PT",265
+"POL",2,"Poland","","","PL",264
+"BIS",28,"Bismarck Archipelago","","","PG",32
+"MLI",8,"Mali","","","ML",189
+"MLW",12,"Malawi","","","MW",190
+"MLY",27,"Malaya","","","",191
+"NCB",26,"Nicobar Is.","","","IN",217
+"MCI",15,"Mozambique Channel Is.","","","RE",182
+"MCS",33,"Marcus I.","","","JP",183
+"NRU",31,"Nauru","","","NR",232
+"PAR",50,"Paraguay","","","PY",257
+"CKI",27,"Cocos (Keeling) Is.","","","CC",65
+"BGM",2,"Belgium","","","",31
+"PAK",25,"Pakistan","","","PK",254
+"PAL",20,"Palestine","","","",255
+"PAN",45,"Panam�","","","PA",256
+"VNA",46,"Venezuelan Antilles","","","VE",346
+"TZK",18,"Tadzhikistan","","","TJ",335
+"LIN",32,"Line Is.","","","",173
+"HAI",46,"Haiti","","","",127
+"OFS",13,"Free State","","","ZA",247
+"THA",26,"Thailand","","","TH",321
+"HAW",34,"Hawaii","","","",128
+"PHI",27,"Philippines","","","PH",261
+"ZAM",12,"Zambia","","","ZM",366
+"YEM",21,"Yemen","","","YE",362
+"ZAI",9,"Zaire","","","CD",365
+"NIC",45,"Nicaragua","","","NI",228
+"PHX",31,"Phoenix Is.","","","KI",262
+"WIN",46,"Windward Is.","","","",354
+"CRZ",51,"Crozet Is.","","","TF",83
+"CRL",33,"Caroline Is.","","","",82
+"GER",2,"Germany","","","DE",115
+"BUR",9,"Burundi","","","BI",44
+"TCS",19,"Transcaucasus","","","",317
+"LDV",25,"Laccadive Is.","","","IN",170
+"BUL",4,"Bulgaria","","","BG",43
+"TCI",46,"Turks-Caicos Is.","","","TC",316
+"GEO",43,"Georgia","","","US",114
+"FOR",1,"F�royar","","","FO",108
+"LBR",8,"Liberia","","","LR",167
+"AND",26,"Andaman Is.","","","",13
+"MOZ",12,"Mozambique","","","MZ",196
+"ANG",12,"Angola","","","AO",14
+"MOR",6,"Morocco","","","",195
+"KER",30,"Kermadec Is.","","","NZ",154
+"ANT",52,"Antarctica","","","AQ",15
+"PRM",17,"Primorye","","","RU",266
+"MON",23,"Mongolia","","","MN",194
+"MOL",27,"Maluku","","","ID",193
+"COS",45,"Costa Rica","","","CR",78
+"COR",3,"Corse","","","FR",77
+"ILL",39,"Illinois","","","US",135
+"PER",48,"Peru","","","PE",260
+"PEN",40,"Pennsylvania","","","US",259
+"PEI",37,"Prince Edward I.","","","CA",258
+"ETH",10,"Ethiopia","","","ET",103
+"COM",15,"Comoros","","","",74
+"COL",38,"Colorado","","","US",73
+"COO",32,"Cook Is.","","","CK",76
+"CON",9,"Congo","","","CG",75
+"TVL",13,"Northern Provinces","","","ZA",334
+"VRG",43,"Virginia","","","US",347
+"TVA",16,"Tuva","","","RU",333
+"KRY",5,"Krym","","","UA",160
+"WAK",33,"Wake I.","","","UM",348
+"NDA",39,"North Dakota","","","US",219
+"SRL",25,"Sri Lanka","","","LK",302
+"KRI",4,"Kriti","","","GR",159
+"WAU",29,"Western Australia","","","AU",351
+"KRA",16,"Krasnoyarsk","","","RU",158
+"WAS",38,"Washington","","","US",350
+"XMS",27,"Christmas I.","","","CX",360
+"RUN",5,"North European Russia","","","RU",276
+"TDC",51,"Tristan da Cunha","","","SH",318
+"PIT",32,"Pitcairn Is.","","","PN",263
+"RUE",5,"East European Russia","","","RU",275
+"RUS",5,"South European Russia","","","",277
+"RUW",5,"Northwest European Russia","","","RU",278
+"SCS",26,"South China Sea","","","",287
+"WSA",6,"Western Sahara","","","EH",356
+"WSB",16,"West Siberia","","","RU",357
+"GNB",8,"Guinea-Bissau","","","GW",119
+"CVI",7,"Cape Verde","","","CV",87
+"GNL",35,"Greenland","","","GL",120
+"SOA",29,"South Australia","","","AU",297
+"SOC",10,"Socotra","","","YE",298
+"NSC",37,"Nova Scotia","","","CA",233
+"SOM",10,"Somalia","","","SO",300
+"SOL",28,"Solomon Is.","","","",299
+"GAM",8,"Gambia, The","","","GM",113
+"GAL",48,"Gal�pagos","","","EC",112
+"FAL",51,"Falkland Is.","","","FK",104
+"CHI",22,"Inner Mongolia","","","CN",58
+"GAB",9,"Gabon","","","GA",111
+"NSW",29,"New South Wales","","","AU",234
+"UTA",41,"Utah","","","US",339
+"IRQ",20,"Iraq","","","IQ",142
+"MRQ",32,"Marquesas","","","PF",199
+"IRK",16,"Irkutsk","","","RU",140
+"MTN",8,"Mauritania","","","MR",204
+"JAP",24,"Japan","","","JP",146
+"IRN",20,"Iran","","","IR",141
+"IRE",1,"Ireland","","","",139
+"ARU",46,"Aruba","","","AW",18
+"URU",50,"Uruguay","","","UY",338
+"OKL",39,"Oklahoma","","","US",250
+"JAM",46,"Jamaica","","","JM",145
+"SDA",39,"South Dakota","","","US",289
+"ARI",41,"Arizona","","","US",16
+"ARK",43,"Arkansas","","","US",17
+"WDC",43,"District of Columbia","","","US",352
+"HBI",31,"Howland-Baker Is.","","","UM",129
+"GST",21,"Gulf States","","","",123
+"BOR",27,"Borneo","","","",38
+"BOT",13,"Botswana","","","BW",39
+"BOU",51,"Bouvet I.","","","BV",40
+"NAM",13,"Namibia","","","ZA",213
+"BOL",48,"Bolivia","","","BO",37
+"NAT",13,"KwaZulu-Natal","","","ZA",214
+"OHI",40,"Ohio","","","US",249
+"IOW",39,"Iowa","","","US",138
+"MYA",26,"Myanmar","","","MM",212
+"KHA",17,"Khabarovsk","","","RU",156
+"NNS",24,"Nansei-shoto","","","JP",230
+"SVA",1,"Svalbard","","","SJ",308
+"DEL",43,"Delaware","","","US",90
+"DEN",1,"Denmark","","","DK",91
+"BZN",49,"Brazil North","","","BR",48
+"FLA",43,"Florida","","","US",107
+"NWT",35,"Northwest Territories","","","CA",243
+"SCI",32,"Society Is.","","","PF",286
+"ROM",4,"Romania","","","RO",273
+"ROD",15,"Rodrigues","","","MU",272
+"NWY",40,"New York","","","US",244
+"NWG",28,"New Guinea","","","",239
+"NWC",31,"New Caledonia","","","NC",238
+"NWM",42,"New Mexico","","","US",242
+"WVA",40,"West Virginia","","","US",358
+"AMU",17,"Amur","","","RU",12
+"NWJ",40,"New Jersey","","","US",241
+"TRT",46,"Trinidad-Tobago","","","TT",326
+"MPE",51,"Marion-Prince Edward Is.","","","ZA",197
+"IVO",8,"Ivory Coast","","","CI",144
+"SUD",10,"Sudan","","","SD",305
+"KUW",21,"Kuwait","","","KW",163
+"SUM",27,"Sumatera","","","ID",307
+"SUL",27,"Sulawesi","","","ID",306
+"NEB",39,"Nebraska","","","US",220
+"KUR",17,"Kuril Is.","","","RU",162
+"SUR",47,"Suriname","Surinam","N","SR",369
+"NEV",41,"Nevada","","","US",223
+"NET",2,"Netherlands","","","NL",222
+"NEP",25,"Nepal","","","NP",221
+"IDA",38,"Idaho","","","US",134
+"TEN",43,"Tennessee","","","US",319
+"NBR",37,"New Brunswick","","","CA",215
+"BKN",8,"Burkina","","","BF",33
+"TEX",42,"Texas","","","US",320
+"CGS",15,"Chagos Archipelago","L2 code 40","T","IO",368
+"CUB",46,"Cuba","","","CU",86
+"ELS",45,"El Salvador","","","SV",100
+"LEE",46,"Leeward Is.","","","",171
+"BRY",16,"Buryatiya","","","RU",42
+"MDV",25,"Maldives","","","MV",186
+"LES",13,"Lesotho","","","LS",172
+"WIS",39,"Wisconsin","","","US",355
+"KZN",24,"Kazan-retto","","","JP",164
+"AZO",7,"Azores","","","PT",25
+"MSO",39,"Missouri","","","US",203
+"WAL",31,"Wallis-Futuna Is.","","","WF",349
+"MSI",43,"Mississippi","","","US",202
+"EAI",20,"East Aegean Is.","","","GR",95
+"UZB",18,"Uzbekistan","","","UZ",340
+"EAS",32,"Easter Is.","","","CL",96
+"SGE",51,"South Georgia","","","GS",293
+"CNT",40,"Connecticut","","","US",71
+"HON",45,"Honduras","","","HN",131
+"BRC",36,"British Columbia","","","CA",41
+"ICE",1,"Iceland","","","IS",133
+"CNY",7,"Canary Is.","","","ES",72
+"KGZ",18,"Kirgizistan","","","KG",155

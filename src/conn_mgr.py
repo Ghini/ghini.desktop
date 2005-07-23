@@ -156,7 +156,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         then it saves us the trouble of having to iter through the model
         """
         conn = bauble.prefs[bauble.prefs.conn_list_pref]
-        if conn_list.has_key(name):
+        if name in conn_list:#conn_list.has_key(name):
             del conn_list[name]
             
         model = self.name_combo.get_model()
@@ -219,7 +219,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         
     def save_current_to_prefs(self):
-        if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
+        #if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
+        if bauble.prefs.conn_list_pref not in bauble.prefs:
             bauble.prefs[bauble.prefs.conn_list_pref] = {}
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
@@ -232,7 +233,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         name is the name of the connection in the prefs
         """
         conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
-        if conn_list is None or not conn_list.has_key(name):
+        #if conn_list is None or not conn_list.has_key(name):
+        if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
@@ -260,7 +262,8 @@ class ConnectionManagerDialog(gtk.Dialog):
                 msg = "Do you want to save your changes to %s ?" % self.current_name                
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
-        if conn_list is not None and conn_list.has_key(name):
+
+        if conn_list is not None and name in conn_list:
             conn = conn_list[name]
             self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
             self.params_box.set_parameters(conn_list[name])
@@ -286,6 +289,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         if conn_list is not None:
             name = self.name_combo.get_active_text()
             if conn_list.has_key(name) and conn_list[name]["type"]==dbtype:
+            #if name in conn_list and conn_list[name]["type"]==dbtype:
                 self.params_box.set_parameters(conn_list[name])
                 
         self.vbox.pack_start(self.params_box, False, False)

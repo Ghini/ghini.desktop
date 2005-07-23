@@ -28,8 +28,13 @@ table_map = {'gaz': 'Places',
              'kew': 'KewRegions'}
 
 def write_file(table, dict):
+    """
+    dict should be a dictionary whose keys are the id's of the table
+    and values are dicts of row values
+    """
     f = open(table_map[table] + '.txt', 'wb')
-    keys = dict.values()[0].keys()
+    #print dict.values()
+    keys = dict.values()[1].keys()
     header = str(keys)[1:-1].replace("'", '"').replace(' ', '') + '\n'
     f.write(header)
     writer = csv.DictWriter(f, keys, quoting=csv.QUOTE_NONNUMERIC)
@@ -42,7 +47,7 @@ def kew_key(line):
 if __name__ == "__main__":
     
     # read in all of level1
-    id = 0
+    id = 1
     reader = csv.DictReader(open(infiles['level1']))
     l1_dict = {}
     for line in reader:
@@ -51,7 +56,7 @@ if __name__ == "__main__":
         id += 1
     
     # read in all of level2 and insert level1 id
-    id = 0
+    id = 1
     reader = csv.DictReader(open(infiles['level2']))
     l2_dict = {}
     for line in reader:
@@ -63,7 +68,7 @@ if __name__ == "__main__":
         #print line
         
     # read level 3 and insert level2 id
-    id = 0
+    id = 1
     reader = csv.DictReader(open(infiles['level3']))
     l3_dict = {}
     for line in reader:
@@ -75,7 +80,7 @@ if __name__ == "__main__":
         #print line
     
     # read level 4 and insert level 3 id
-    id = 0
+    id = 1
     reader = csv.DictReader(open(infiles['level4']))
     l4_dict = {}
     for line in reader:
@@ -87,15 +92,14 @@ if __name__ == "__main__":
         #print line
         
     # read in gazette and replace codes with id's
-    id = 0
+    id = 1
     reader = csv.DictReader(open(infiles['gaz']))
     kew_dict = {}
-    kew_id = 0
+    kew_id = 1
     gaz_dict = {}
     for line in reader:
         
-        #if not kew_dict.has_key(line['kew_region_code'] + line['kew_subdiv']):
-        if not kew_dict.has_key(kew_key(line)) and line[kew_region_code] is not '':
+        if not kew_dict.has_key(line['kew_region_code'] + line['kew_subdiv']):
             kd = {}
             kd['id'] = kew_id
             kd['code'] = line['kew_region_code']
@@ -112,8 +116,8 @@ if __name__ == "__main__":
         
         line['id'] = id
         if line['l4_code'] != '':
-            line['countryID'] = l4_dict[line['l4_code']]['id']
-        else: line['countryID'] = None
+            line['stateID'] = l4_dict[line['l4_code']]['id']
+        else: line['stateID'] = None
         
         if line['l3_code'] != '':
             line['areaID'] = l3_dict[line['l3_code']]['id']

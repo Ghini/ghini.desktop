@@ -1,4 +1,6 @@
-
+#
+# csv import/export
+#
 
 
 from tools.import_export import *
@@ -15,6 +17,10 @@ from bauble import *
 
 csv_format_params = {}
 
+type_validators = {int: lambda x: int(x),
+                   str: lambda x: str(x),
+                   unicode: lambda x: unicode(x, 'utf-8')}
+
 # TODO: it would be easier to create this gui in glade
 
 class CSVImporter(Importer):
@@ -29,47 +35,69 @@ class CSVImporter(Importer):
         pass
     
     
-    def start(self):
-        def on_selection_changed(filechooser, data=None):
-            """
-            only make the ok button sensitive if the selection is a file
-            """
-            f = filechooser.get_preview_filename()
-            if f is None: return
-            ok = filechooser.action_area.get_children()[1]
-            ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog("Choose file(s) to import...",
-                                  None,    
-                                  gtk.FILE_CHOOSER_ACTION_OPEN,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-        fc.set_select_multiple(True)
-        fc.connect("selection-changed", on_selection_changed)
-        r = fc.run()
-        if r != gtk.RESPONSE_ACCEPT:
+    def start(self, filenames=None):
+        """
+        run the importer, if no filenames are are give then it will ask you
+        for the files to import
+        """
+        
+        if filenames is None:
+            def on_selection_changed(filechooser, data=None):
+                """
+                only make the ok button sensitive if the selection is a file
+                """
+                f = filechooser.get_preview_filename()
+                if f is None: return
+                ok = filechooser.action_area.get_children()[1]
+                ok.set_sensitive(os.path.isfile(f))
+            fc = gtk.FileChooserDialog("Choose file(s) to import...",
+                                      None,    
+                                      gtk.FILE_CHOOSER_ACTION_OPEN,
+                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+            fc.set_select_multiple(True)
+            fc.connect("selection-changed", on_selection_changed)
+            r = fc.run()
+            if r != gtk.RESPONSE_ACCEPT:
+                fc.destroy()
+                return
+            filenames = fc.get_filenames()
             fc.destroy()
-            return
+                
         bauble.gui.window.set_sensitive(False)
         bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        filenames = fc.get_filenames()
-        fc.destroy()
         t = threading.Thread(target=self.run, args=(filenames,))
         t.start()
     
     
     def run(self, filenames):
+        """
+        this should not be used directory but is used by start()
+        """
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()
+        
+        gtk.threads_enter()
+        dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
+                          message_format='importing...')
+        dialog.show()
+        gtk.threads_leave()
         for filename in filenames:
-            # create a new transaction/connection for each table
             trans = old_conn.transaction()
+            # create a new transaction/connection for each table
             sqlobject.sqlhub.threadConnection = trans
             path, base = os.path.split(filename)
             table_name, ext = os.path.splitext(base)
-            
-            # the name of the file has the match the name of the 
+            gtk.threads_enter()
+            # TODO: could do something more with this to indicate progress
+            # like a counter on the row number being imported
+            dialog.set_markup('importing ' + table_name+ '...')
+            dialog.queue_resize()
+            gtk.threads_leave()
+            # the name of the file has to match the name of the 
             # tables class
-            if not tables.has_key(table_name):
+            if table_name not in tables:
                 msg = "%s table does not exist. Would you like to continue " \
                       "importing the rest of the tables?" % table_name
                 gtk.threads_enter()
@@ -82,24 +110,36 @@ class CSVImporter(Importer):
             print "importing table: " + table_name + "..."
             f = file(filename, "rb")
             reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+            
             try:
+                # create validator map
+                validators = {}
+                for col in table.sqlmeta._columns:
+                    #print '%s: %s' % (col.name, type(col))
+                    if col.__class__ == sqlobject.SOForeignKey  or \
+                     col.__class__ == sqlobject.SOIntCol:
+                        validators[col.name] = type_validators[int]
+                    elif col.__class__ == sqlobject.SOStringCol:                    
+                        validators[col.name] = type_validators[str]
+                    elif col.__class__ == sqlobject.SOUnicodeCol:
+                        validators[col.name] = type_validators[unicode]
+                validators['id'] = type_validators[int]
+                
+                # for each line in the file
                 for line in reader:
-                    # convert int columns to integer types
-                    for col in table.sqlmeta._columns:
-                        if col.__class__ == sqlobject.SOIntCol:
-                            if line[col.name] == '': del line[col.name]
-                            else: line[col.name] = int(line[col.name])
-                            
-                    # add row to table
-                    table(connection=trans, **line)
+                    for col in reader.fieldnames: # validate columns
+                        if line[col] == '': 
+                            del line[col]
+                        else: line[col] = validators[col](line[col])
+                    table(connection=trans, **line) # add row to table
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
                 # one transaction so all data gets imported from all files 
                 # successfully or nothing at all
-                msg = "Error importing values from %s into table %s" % (filename, table_name)
-                print line
-                print e
+                msg = "Error importing values from %s into table %s\n" % (filename, table_name)
+                sys.stderr.write(msg)
+                sys.stderr.write(e + '\n')                
                 gtk.gdk.threads_enter()
                 utils.message_dialog(msg)
                 gtk.gdk.threads_leave()
@@ -109,6 +149,7 @@ class CSVImporter(Importer):
                 trans.commit()
         sqlobject.sqlhub.threadConnection = old_conn
         gtk.gdk.threads_enter()
+        dialog.destroy()
         bauble.gui.window.set_sensitive(True)
         bauble.gui.window.window.set_cursor(None)
         gtk.gdk.threads_leave()

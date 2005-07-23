@@ -107,7 +107,8 @@ class SearchView(views.View):
             self.infobox.destroy()
             
         t = type(row)
-        if self.infobox_map.has_key(t):
+        #if self.infobox_map.has_key(t):
+        if t in self.infobox_map:
             self.infobox = self.infobox_map[t]()
             if row is not None:
                 self.infobox.update(row)
@@ -390,7 +391,8 @@ class SearchView(views.View):
             
             other_class = join.kw["otherClass"]
             editor_name = other_class + 'Editor'
-            if editors.has_key(editor_name):
+            #if editors.has_key(editor_name):
+            if editor_name in editors:
                 add_item = gtk.MenuItem("Add " + name)
                 
                 add_item.connect("activate", self.on_activate_editor, 
