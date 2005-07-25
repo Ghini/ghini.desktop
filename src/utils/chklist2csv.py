@@ -48,7 +48,7 @@ class Plant:
         self.genus = m.group("genus")
         self.species = m.group("species")
         self.hybrid = m.group("hybrid")
-        self.species_author = unicode(m.group("author"), 'utf-8')
+        self.species_author = m.group("author")
         
         # check for isp_rank
         if plantName.find("subsp.") != -1:
@@ -62,7 +62,7 @@ class Plant:
                 """\A(?P<isp>[\w]*)\s?
                 (?P<isp_author>.*)""", ispPart, re.VERBOSE)            
             self.isp = m.group("isp")
-            self.isp_author = unicode(m.group("isp_author"), 'utf-8')
+            self.isp_author = m.group("isp_author")
 
     # return a dict with key, value pairs for each member that has a value
     # don't return key/values if the string is ""
@@ -126,9 +126,9 @@ class Plant:
 
         try:
             csv += field(self.species) + ft + \
-                   field(self.species_author.encode('utf-8')) + ft + \
+                   field(self.species_author) + ft + \
                    field(self.isp_rank)  + ft + \
-                   field(self.isp) + ft + field(self.isp_author.encode('utf-8'))
+                   field(self.isp) + ft + field(self.isp_author)
         except UnicodeDecodeError, e:
             print sys.stderr.write(e)
             raise

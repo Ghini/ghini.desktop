@@ -18,10 +18,10 @@
 79,"CPI-CO","","","Cocos I.","CR",175
 105,"FIJ-OO","","","Fiji","FJ",209
 177,"MAI-OO","","","Maine","US",334
-4,"AGS-NE","","","Neuqu�n","AR",13
+4,"AGS-NE","","","Neuquén","AR",13
 314,"TAN-OO","","","Tanzania","TZ",522
 226,"NGA-OO","","","Nigeria","NG",421
-112,"GAL-OO","","","Gal�pagos","EC",218
+112,"GAL-OO","","","Galápagos","EC",218
 9,"ALG-OO","","","Algeria","DZ",30
 128,"HAW-JI","","","Johnston I.","UM",241
 289,"SDA-OO","","","South Dakota","US",490
@@ -31,7 +31,7 @@
 337,"UKR-MO","","","Moldova","MD",556
 176,"MAG-OO","","","Magadan","RU",333
 59,"CHM-LN","","","Liaoning","CN",125
-66,"CLC-BI","","","Biob�o","CL",150
+66,"CLC-BI","","","Biobío","CL",150
 353,"WHM-UT","","","Uttaranchal","IN",576
 136,"IND-JK","","","Jharkhand","IN",603
 4,"AGS-RN","","","Rio Negro","AR",14
@@ -43,7 +43,7 @@
 172,"LES-OO","","","Lesotho","LS",326
 76,"COO-OO","","","Cook Is.","CK",171
 206,"MXE-AG","","","Aguascalientes","MX",370
-48,"BZN-PA","","","Par�","BR",102
+48,"BZN-PA","","","Pará","BR",102
 19,"ASC-OO","","","Ascension","SH",41
 49,"BZS-SC","","","Santa Catarina","BR",108
 210,"MXS-NA","","","Nayarit","MX",393
@@ -57,7 +57,7 @@
 292,"SEY-OO","","","Seychelles","SC",493
 136,"IND-KT","","","Karnataka","IN",262
 68,"CLN-TA","","","Tarapaca","CL",160
-206,"MXE-SL","","","San Luis Potos�","MX",378
+206,"MXE-SL","","","San Luis Potosí","MX",378
 5,"AGW-CA","","","Catamarca","AR",18
 70,"CMN-OO","","","Cameroon","CM",164
 367,"ZIM-OO","","","Zimbabwe","ZW",602
@@ -78,14 +78,14 @@
 286,"SCI-OO","","","Society Is.","PF",486
 328,"TUB-OO","","","Tubuai Is.","PF",544
 55,"CHA-OO","","","Chad","TD",115
-69,"CLS-AI","","","Ais�n","CL",161
+69,"CLS-AI","","","Aisén","CL",161
 3,"AGE-DF","","","Argentina Distrito Federal","AR",7
 12,"AMU-OO","","","Amur","RU",33
 96,"EAS-OO","","","Easter Is.","CL",197
 243,"NWT-OO","","","Northwest Territories","CA",441
 123,"GST-QA","","","Qatar","QA",233
 198,"MRN-GU","","","Guam","GU",357
-136,"IND-MH","","","Mah�","IN",263
+136,"IND-MH","","","Mahé","IN",263
 307,"SUM-OO","","","Sumatera","ID",512
 284,"SAU-OO","","","Saudi Arabia","SA",484
 109,"FRA-CI","","","Channel Is.","UK",213
@@ -112,7 +112,7 @@
 287,"SCS-SI","","","Spratly Is.","SI",488
 59,"CHM-HJ","","","Heilongjiang","CN",123
 206,"MXE-ZA","","","Zacatecas","MX",380
-171,"LEE-SM","","","St.Martin-St.Barth�l�my","GP",324
+171,"LEE-SM","","","St.Martin-St.Barthélémy","GP",324
 360,"XMS-OO","","","Christmas I.","CX",588
 171,"LEE-SK","","","St.Kitts-Nevis","KN",323
 81,"CPV-OO","","","Caprivi Strip","NA",180
@@ -152,7 +152,7 @@
 47,"BZL-TR","","","Trindade","BR",98
 197,"MPE-OO","","","Marion-Prince Edward Is.","ZA",356
 26,"BAH-OO","","","Bahamas","BS",54
-48,"BZN-AP","","","Amap�","BR",101
+48,"BZN-AP","","","Amapá","BR",101
 166,"LAO-OO","","","Laos","LA",310
 48,"BZN-AM","","","Amazonas","BR",100
 200,"MRS-OO","","","Marshall Is.","MH",360
@@ -171,19 +171,19 @@
 282,"SAR-OO","","","Sardegna","IT",482
 22,"ASS-TR","","","Tripura","IN",49
 281,"SAM-WS","Western Samoa","N","Samoa","WS",609
-210,"MXS-MI","","","Michoac�n","MX",392
+210,"MXS-MI","","","Michoacán","MX",392
 206,"MXE-DU","","","Durango","MX",373
 338,"URU-OO","","","Uruguay","UY",558
 354,"WIN-DO","","","Dominica","DM",578
 28,"BAN-OO","","","Bangladesh","BD",56
 157,"KOR-SK","","","South Korea","KR",301
-49,"BZS-PR","","","Paran�","BR",106
+49,"BZS-PR","","","Paraná","BR",106
 145,"JAM-OO","","","Jamaica","JM",285
 267,"PUE-OO","","","Puerto Rico","PR",466
 257,"PAR-OO","","","Paraguay","PY",456
 175,"LSI-BA","","","Bali","ID",330
 363,"YUG-BH","","","Bosnia-Herzegovina","YU",592
-269,"QUE-OO","","","Qu�bec","CA",469
+269,"QUE-OO","","","Québec","CA",469
 188,"MIN-OO","","","Minnesota","US",345
 258,"PEI-OO","","","Prince Edward I.","CA",457
 136,"IND-UP","","","Uttar Pradesh","IN",271
@@ -232,13 +232,13 @@
 80,"CPP-WC","","","Western Cape Province","ZA",179
 136,"IND-GO","","","Goa","IN",257
 114,"GEO-OO","","","Georgia","US",220
-45,"BZC-GO","","","Goi�s","BR",81
+45,"BZC-GO","","","Goiás","BR",81
 50,"CAB-OO","","","Cabinda","AO",109
 128,"HAW-MI","","","Midway Is.","UM",242
 60,"CHN-SA","","","Shaanxi","CN",129
 199,"MRQ-OO","","","Marquesas","PF",359
 131,"HON-OO","","","Honduras","HN",245
-4,"AGS-SF","","","Santa F�","AR",16
+4,"AGS-SF","","","Santa Fé","AR",16
 4,"AGS-SC","","","Santa Cruz","AR",15
 80,"CPP-EC","","","Eastern Cape Province","ZA",177
 189,"MLI-OO","","","Mali","ML",346
@@ -274,7 +274,7 @@
 209,"MXN-BS","","","Baja California Sur","MX",386
 281,"SAM-AS","","","American Samoa","AS",481
 87,"CVI-OO","","","Cape Verde","CV",187
-206,"MXE-NL","","","Nuevo Le�n","MX",376
+206,"MXE-NL","","","Nuevo León","MX",376
 252,"ONT-OO","","","Ontario","CA",450
 147,"JAW-OO","","","Jawa","ID",290
 99,"EHM-DJ","","","Darjiling","IN",202
@@ -283,9 +283,9 @@
 46,"BZE-SE","","","Sergipe","BR",93
 242,"NWM-OO","","","New Mexico","US",440
 3,"AGE-LP","","","La Pampa","AR",10
-3,"AGE-ER","","","Entre R�os","AR",8
+3,"AGE-ER","","","Entre Ríos","AR",8
 331,"TUR-OO","","","Turkey","TR",547
-148,"JNF-OO","","","Juan Fern�ndez Is.","CL",291
+148,"JNF-OO","","","Juan Fernández Is.","CL",291
 88,"CYP-OO","","","Cyprus","CY",188
 364,"YUK-OO","","","Yukon","CA",599
 66,"CLC-LA","","","La Araucania","CL",152
@@ -358,11 +358,11 @@
 352,"WDC-OO","","","District of Columbia","US",573
 136,"IND-CT","","","Chattisgarh","IN",604
 109,"FRA-MO","","","Monaco","MC",215
-47,"BZL-SP","","","S�o Paulo","BR",97
+47,"BZL-SP","","","São Paulo","BR",97
 209,"MXN-SO","","","Sonora","MX",388
 75,"CON-OO","","","Congo","CG",170
 128,"HAW-HI","","","Hawaiian Is.","US",240
-63,"CHT-OO","Sube del nivel 4 al nivel 3. El c�digo en el libro es CHT-XI.","","Tibet","CN",607
+63,"CHT-OO","Sube del nivel 4 al nivel 3. El código en el libro es CHT-XI.","","Tibet","CN",607
 4,"AGS-CB","","","Chubut","AR",12
 225,"NFL-NE","","","Newfoundland","CA",419
 136,"IND-DD","","","Dadra-Nagar-Haveli","IN",253
@@ -375,7 +375,7 @@
 163,"KUW-OO","","","Kuwait","KW",307
 264,"POL-OO","","","Poland","PL",463
 4,"AGS-TF","","","Tierra del Fuego (Argentina)","AR",17
-116,"GGI-AN","","","Annob�n","GQ",222
+116,"GGI-AN","","","Annobón","GQ",222
 161,"KTY-OO","","","Kentucky","US",305
 202,"MSI-OO","","","Mississippi","US",362
 334,"TVL-NP","","","Northern Province","ZA",552
@@ -383,11 +383,11 @@
 317,"TCS-AR","","","Armenia","AM",527
 66,"CLC-OH","","","O'Higgins","CL",154
 354,"WIN-BA","","","Barbados","BB",577
-48,"BZN-RO","","","Rond�nia","BR",104
+48,"BZN-RO","","","Rondônia","BR",104
 48,"BZN-RM","","","Roraima","BR",103
 104,"FAL-OO","","","Falkland Is.","FK",208
 143,"ITA-IT","","","Italy","IT",281
-206,"MXE-QU","","","Quer�taro","MX",377
+206,"MXE-QU","","","Querétaro","MX",377
 211,"MXT-CI","","","Chiapas","MX",396
 209,"MXN-SI","","","Sinaloa","MX",387
 363,"YUG-CR","","","Croatia","HR",593
@@ -407,20 +407,20 @@
 78,"COS-OO","","","Costa Rica","CR",173
 231,"NOR-OO","","","Norway","NO",427
 58,"CHI-NM","","","Nei Mongol","CN",121
-46,"BZE-PI","","","Piau�","BR",91
+46,"BZE-PI","","","Piauí","BR",91
 182,"MCI-OO","","","Mozambique Channel Is.","RE",339
 354,"WIN-SL","","","St.Lucia","LC",581
 294,"SIC-MA","","","Malta","MT",495
 32,"BIS-OO","","","Bismarck Archipelago","PG",61
 185,"MDR-OO","","","Madeira","PT",342
-46,"BZE-PB","","","Para�ba","BR",89
+46,"BZE-PB","","","Paraíba","BR",89
 58,"CHI-NX","","","Ningxia","CN",122
 46,"BZE-PE","","","Pernambuco","BR",90
 136,"IND-YA","","","Yanam","IN",273
 220,"NEB-OO","","","Nebraska","US",413
 60,"CHN-HB","","","Hebei","CN",128
 298,"SOC-OO","","","Socotra","YE",500
-256,"PAN-OO","","","Panam�","PA",455
+256,"PAN-OO","","","Panamá","PA",455
 90,"DEL-OO","","","Delaware","US",191
 315,"TAS-OO","","","Tasmania","AU",523
 336,"UGA-OO","","","Uganda","UG",555
@@ -435,14 +435,14 @@
 103,"ETH-OO","","","Ethiopia","ET",207
 309,"SWC-NC","","","Nicaraguan Caribbean Is.","NI",517
 62,"CHS-SH","","","Shanghai","CN",146
-25,"AZO-OO","","","A��res","PT",53
+25,"AZO-OO","","","Açôres","PT",53
 136,"IND-OR","","","Orissa","IN",266
 46,"BZE-BA","","","Bahia","BR",85
 205,"MXC-MO","","","Morelos","MX",367
 154,"KER-OO","","","Kermadec Is.","NZ",297
 234,"NSW-NS","","","New South Wales","AU",431
-205,"MXC-ME","","","M�xico State","MX",366
-66,"CLC-VA","","","Valpara�so","CL",156
+205,"MXC-ME","","","México State","MX",366
+66,"CLC-VA","","","Valparaíso","CL",156
 60,"CHN-SD","","","Shandong","CN",130
 268,"QLD-CS","","","Coral Sea Is. Territory","AU",467
 210,"MXS-CL","","","Colima","MX",389
@@ -454,7 +454,7 @@
 303,"SSA-OO","","","South Sandwich Is.","GS",508
 136,"IND-AP","","","Andhra Pradesh","IN",250
 60,"CHN-SX","","","Shanxi","CN",131
-116,"GGI-ST","","","S�o Tom�","ST",225
+116,"GGI-ST","","","São Tomé","ST",225
 62,"CHS-AH","","","Anhui","CN",134
 255,"PAL-IS","","","Israel","IL",453
 206,"MXE-TA","","","Tamaulipas","MX",379
@@ -487,7 +487,7 @@
 193,"MOL-OO","","","Maluku","ID",351
 246,"NZS-OO","","","New Zealand South","NZ",444
 301,"SPA-GI","","","Gilbraltar","GI",505
-3,"AGE-CO","","","C�rdoba","AR",6
+3,"AGE-CO","","","Córdoba","AR",6
 3,"AGE-CN","","","Corrientes","AR",5
 3,"AGE-CH","","","Chaco","AR",4
 358,"WVA-OO","","","West Virginia","US",586
@@ -523,7 +523,7 @@
 265,"POR-OO","","","Portugal","PT",464
 57,"CHH-OO","","","Hainan","CN",120
 347,"VRG-OO","","","Virginia","US",567
-229,"NLA-CU","","","Cura�ao","AN",425
+229,"NLA-CU","","","Curaçao","AN",425
 122,"GRC-OO","","","Greece","GR",231
 350,"WAS-OO","","","Washington","US",570
 136,"IND-KL","","","Karaikal","IN",261
@@ -545,7 +545,7 @@
 187,"MIC-OO","","","Michigan","US",344
 339,"UTA-OO","","","Utah","US",559
 313,"TAI-OO","","","Taiwan","TW",521
-62,"CHS-MP","","","Ma-tsu-Pai-ch�an","TW",145
+62,"CHS-MP","","","Ma-tsu-Pai-chúan","TW",145
 329,"TUE-OO","","","Turkey-in-Europe","TR",545
 310,"SWE-OO","","","Sweden","SE",518
 175,"LSI-ET","","","East Timor","TP",331
@@ -565,13 +565,13 @@
 1,"ABT-OO","","","Alberta","CA",1
 365,"ZAI-OO","","","Zaire","CD",600
 164,"KZN-OO","","","Kazan-retto","JP",308
-270,"REU-OO","","","R�union","RE",470
+270,"REU-OO","","","Réunion","RE",470
 191,"MLY-PM","","","Peninsular Malaysia","MY",348
 30,"BER-OO","","","Bermuda","BM",58
 52,"CAL-OO","","","California","US",111
 317,"TCS-AZ","","","Azerbaijan","AZ",528
-211,"MXT-YU","","","Yucat�n","MX",399
-46,"BZE-CE","","","Cear�","BR",86
+211,"MXT-YU","","","Yucatán","MX",399
+46,"BZE-CE","","","Ceará","BR",86
 93,"DOM-OO","","","Dominican Republic","DO",194
 136,"IND-HA","","","Haryana","IN",259
 317,"TCS-AB","","","Abkhaziya","GE",525
@@ -603,7 +603,7 @@
 141,"IRN-OO","","","Iran","IR",279
 251,"OMA-OO","","","Oman","OM",449
 175,"LSI-LS","","","Lesser Sunda Is.","ID",332
-108,"FOR-OO","","","F�royar","FO",212
+108,"FOR-OO","","","Føroyar","FO",212
 317,"TCS-NA","","","Nakhichevan","AZ",530
 302,"SRL-OO","","","Sri Lanka","LK",507
 317,"TCS-NK","","","Nagorno Karabakh","AZ",531

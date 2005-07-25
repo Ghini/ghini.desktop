@@ -24,7 +24,7 @@
 "MAU",15,"Mauritius","","","MU",181
 "NWH",40,"New Hampshire","","","US",240
 "LAB",37,"Labrador","","","CA",165
-"JNF",50,"Juan Fern�ndez Is.","","","CL",148
+"JNF",50,"Juan Fernández Is.","","","CL",148
 "MAG",17,"Magadan","","","RU",176
 "ALG",6,"Algeria","","","DZ",9
 "MAI",40,"Maine","","","US",177
@@ -62,7 +62,7 @@
 "NOR",1,"Norway","","","NO",231
 "BZS",49,"Brazil South","","","BR",49
 "DOM",46,"Dominican Republic","","","DO",93
-"REU",15,"R�union","","","RE",270
+"REU",15,"Réunion","","","RE",270
 "BZE",49,"Brazil Northeast","","","BR",46
 "BZC",49,"Brazil West-Central","","","BR",45
 "CTA",16,"Chita","","","RU",84
@@ -79,7 +79,7 @@
 "ALD",15,"Aldabra","","","SC",8
 "ALB",4,"Albania","","","AL",7
 "ALA",43,"Alabama","","","US",6
-"QUE",37,"Qu�bec","","","CA",269
+"QUE",37,"Québec","","","CA",269
 "NTA",29,"Northern Territory","","","AU",235
 "ALT",16,"Altay","","","RU",10
 "ORE",38,"Oregon","","","US",253
@@ -201,7 +201,7 @@
 "BGM",2,"Belgium","","","",31
 "PAK",25,"Pakistan","","","PK",254
 "PAL",20,"Palestine","","","",255
-"PAN",45,"Panam�","","","PA",256
+"PAN",45,"Panamá","","","PA",256
 "VNA",46,"Venezuelan Antilles","","","VE",346
 "TZK",18,"Tadzhikistan","","","TJ",335
 "LIN",32,"Line Is.","","","",173
@@ -225,7 +225,7 @@
 "BUL",4,"Bulgaria","","","BG",43
 "TCI",46,"Turks-Caicos Is.","","","TC",316
 "GEO",43,"Georgia","","","US",114
-"FOR",1,"F�royar","","","FO",108
+"FOR",1,"Føroyar","","","FO",108
 "LBR",8,"Liberia","","","LR",167
 "AND",26,"Andaman Is.","","","",13
 "MOZ",12,"Mozambique","","","MZ",196
@@ -277,7 +277,7 @@
 "SOM",10,"Somalia","","","SO",300
 "SOL",28,"Solomon Is.","","","",299
 "GAM",8,"Gambia, The","","","GM",113
-"GAL",48,"Gal�pagos","","","EC",112
+"GAL",48,"Galápagos","","","EC",112
 "FAL",51,"Falkland Is.","","","FK",104
 "CHI",22,"Inner Mongolia","","","CN",58
 "GAB",9,"Gabon","","","GA",111

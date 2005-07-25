@@ -19,7 +19,9 @@ csv_format_params = {}
 
 type_validators = {int: lambda x: int(x),
                    str: lambda x: str(x),
-                   unicode: lambda x: unicode(x, 'utf-8')}
+                   unicode: lambda x: x}
+                   #unicode: lambda x: unicode(x, 'latin-1')}
+                   #unicode: lambda x: unicode(x, 'utf-8')}
 
 # TODO: it would be easier to create this gui in glade
 
@@ -126,6 +128,7 @@ class CSVImporter(Importer):
                 validators['id'] = type_validators[int]
                 
                 # for each line in the file
+                line = None
                 for line in reader:
                     for col in reader.fieldnames: # validate columns
                         if line[col] == '': 
@@ -139,7 +142,8 @@ class CSVImporter(Importer):
                 # successfully or nothing at all
                 msg = "Error importing values from %s into table %s\n" % (filename, table_name)
                 sys.stderr.write(msg)
-                sys.stderr.write(e + '\n')                
+                sys.stderr.write(str(e) + '\n')                
+                sys.stderr.write(str(line) + '\n')
                 gtk.gdk.threads_enter()
                 utils.message_dialog(msg)
                 gtk.gdk.threads_leave()

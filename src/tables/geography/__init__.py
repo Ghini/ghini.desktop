@@ -22,7 +22,7 @@ class Continents(BaubleTable):
     
 # level2
 class Regions(BaubleTable):
-    region = StringCol(length=64)
+    region = UnicodeCol(length=64)
     code = IntCol()
     
     # i don't think this is used
@@ -69,6 +69,7 @@ class Places(BaubleTable):
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
     name = UnicodeCol(length=64, default=None)
+    #name = UnicodeCol(length=64)
     synonym = UnicodeCol(length=64, default=None)
     notes = UnicodeCol(default=None)
     
@@ -89,8 +90,6 @@ class KewRegions(BaubleTable):
     code = IntCol(default=None)
     region = StringCol(length=64, default=None)
     subdiv = StringCol(length=1, default=None)
-    
-    
     
     places = MultipleJoin('Places', joinColumn='kew_region_id')
     

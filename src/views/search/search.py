@@ -337,9 +337,21 @@ class SearchView(views.View):
         return the string representation of some row inthe mode
         """
         row = model.get_value(iter, 0)
+        #print row
         if row is None:
             cell.set_property('text', "")
-        else: cell.set_property('text', str(row))
+        else:
+            # TODO:
+            # it is possible that the row can be valid but the value returned
+            # from __str__ is none b/c there is nothing in the column, this
+            # really shouldn't b/c the column which we use for __str__ shouldn't
+            # have a default which means that somewhere it is getting set 
+            # explicitly to None, i think this is happening while importing one
+            # of the geography tables with that funny empty row
+            # UPDATE: the problem is with the name column of the Places table
+            # it shouldn't have a default and in the fix_geo.py script we should
+            # set the empty name to (cultivated) or something along those lines
+            cell.set_property('text', str(row))
 
 
     def on_key_press(self, widget, event, data=None):
