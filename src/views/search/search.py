@@ -139,9 +139,19 @@ class SearchView(views.View):
         if response == gtk.RESPONSE_CANCEL:
             self.CANCEL = True
 
-            
+    
     def on_execute_clicked(self, widget):
         text = self.entry.get_text()
+        self.current_search_text = text
+        self.search(text)
+        
+        
+    current_search_text = None
+    
+    def search(self, text):
+        """
+        search the database using text
+        """
         # clear the old model
         self.results_view.set_model(None)
         
@@ -153,6 +163,7 @@ class SearchView(views.View):
             self.results_view.set_model(model)
             return
                 
+        # TODO: sort the results here before we send them to be populated
         self.populate_results(search)
 
 
@@ -172,6 +183,7 @@ class SearchView(views.View):
         look up the table type of the selected row and if it has
         any children then add them to the row
         """
+        print 'entered SearchView.on_text_expand_row()'
         expand = False
         model = view.get_model()
         row = model.get_value(iter, 0)
@@ -185,8 +197,10 @@ class SearchView(views.View):
                 if len(kids):
                     self.append_children(model, iter, kids, True)
                     #bauble.gui.stop_progressbar()
+                    print 'leaving SearchView.on_text_expand_row(): False'
                     return False
         #bauble.gui.stop_progressbar()
+        print 'leaving SearchView.on_text_expand_row(): True'
         return True
 
         
@@ -361,8 +375,10 @@ class SearchView(views.View):
             
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
+        print 'entered SearchView.on_activate_editor()'
         e = editor(select=select, defaults=defaults)
         e.start()
+        print 'SearchView.on_activate_editor: started'
         #e.show()
 
         
@@ -433,10 +449,12 @@ class SearchView(views.View):
         msg = "Are you sure you want to remove this?"
         if utils.yes_no_dialog(msg):
             row.destroySelf()
+        
+        self.search(self.current_search_text)
         # TODO: this should immediately remove the model from the value
         # and refresh the tree, we might have to save the path to
         # remember where we were in the view
-        # TODO: we can probably juse accomplish this my collapsing and then
+        # TODO: we can probably just accomplish this by collapsing and then
         # expanding the parent of the item to be removed
 
         
@@ -466,8 +484,12 @@ class SearchView(views.View):
         
         # create the results view and info box
         self.results_view = gtk.TreeView() # will be a select results row
+        self.results_view.set_headers_visible(False)
+        self.results_view.set_rules_hint(True)
+        
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Name", renderer)
+        
         column.set_cell_data_func(renderer, self.get_rowname)
         self.results_view.append_column(column)
         

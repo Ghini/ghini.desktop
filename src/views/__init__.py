@@ -23,6 +23,7 @@ class View(gtk.Frame):
         gtk.Frame.__init__(self)
         self.set_shadow_type(gtk.SHADOW_NONE)
 
+
 class _views(dict):
     """
     a dictionary of all the registered views

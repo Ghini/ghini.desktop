@@ -285,7 +285,8 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
 #        raise NotImplementedError, "TableEditorDialog.commit_changes not implemented"
 
     def start(self, block=False):
-        super(TableEditorDialog, self).start()
+        #TableEditorDialog.
+        #super(TableEditorDialog, self).start()
         if block:
             self.run()
         else: self.show()
@@ -335,13 +336,16 @@ class TreeViewEditorDialog(TableEditorDialog):
     def start(self, block=False):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
+        print 'entered TreeViewEditorDialog.start()'
         if self.visible_columns_pref is not None:
             if not self.visible_columns_pref in bauble.prefs:
                 bauble.prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
-            
+        print 'TreeViewEditorDialog.start()'
         self.create_gui()
         super(TreeViewEditorDialog, self).start(block)
+        print 'leaving TreeViewEditorDialog.start()'
+    
         
 
     def foreign_does_not_exist(self, name, value):

@@ -51,12 +51,16 @@ class GUI:
         menubar = self.create_main_menu()
         main_vbox.pack_start(menubar, False, True, 0)
         
-        toolbar = self.create_toolbar()
-        main_vbox.pack_start(toolbar, False, True, 0)
+        # TODO: don't use the toolbar for now, the only thing on the
+        # toolbar right now is the add button, we should put all of this on 
+        # the menu
+        # put all of the toolbar 
+        #toolbar = self.create_toolbar()
+        #main_vbox.pack_start(toolbar, False, True, 0)
                 
         self.content_hbox = gtk.HBox(False) # empty for now        
-        self.content_frame = gtk.Frame()
-        self.content_hbox.pack_start(self.content_frame)
+        #self.content_frame = gtk.Frame()
+        #self.content_hbox.pack_start(self.content_frame)
         main_vbox.pack_start(self.content_hbox)
 
         # last part of main_vbox is status bar
@@ -119,6 +123,9 @@ class GUI:
     def create_toolbar(self):
         toolbar = gtk.Toolbar()
 
+    # TODO: for now remove this toolbar and just put everything under a menu
+    # item
+
         # add all views modules
 #        button = gtk.MenuToolButton(gtk.STOCK_FIND_AND_REPLACE)
 #        button.set_label("View")
@@ -155,15 +162,26 @@ class GUI:
         here, that way the same view won't be created again if the current
         view os of the same type
         """
-        current_view = self.content_frame.get_child()
+        #current_view = self.content_frame.get_child()
+        current_view = self.get_current_view()
         if type(current_view) == view_class: return
         elif current_view != None:
-            self.content_frame.remove(current_view)
+            self.content_hbox.remove(current_view)
+            #self.content_frame.remove(current_view)
             current_view.destroy()
             current_view = None
         new_view = view_class()#self.bauble)    
-        self.content_frame.set_label(view_class.__name__)
-        self.content_frame.add(new_view)
+        #self.content_frame.set_label(view_class.__name__)
+        self.content_hbox.pack_start(new_view)
+        #self.content_frame.add(new_view)
+        
+        
+    def get_current_view(self):
+        #return self.content_frame.get_child()
+        kids = self.content_hbox.get_children()
+        if len(kids) == 0:
+            return None
+        else: return kids[0]        
         
         
     def on_activate_view(self, menuitem, view):
@@ -218,6 +236,8 @@ class GUI:
                                    None, self.on_tools_menu_export), 
                                    ("import", None, "_Import", None, 
                                    None, self.on_tools_menu_import), 
+                                   ("label", None, "_Label Maker", None, 
+                                   None, self.on_tools_menu_label_maker), 
                                   ])
         ui_manager.insert_action_group(menu_actions, 0)
 
@@ -230,7 +250,52 @@ class GUI:
         mb = ui_manager.get_widget("/MenuBar")
         return mb
     
-
+    
+    def on_tools_menu_label_maker(self, widget, data=None):
+        import tools.labels
+        
+        # TODO: really the Label Maker tool should only be sensitive if the 
+        # search view is visible but right now since we only have one view 
+        # we won't worry about that
+        
+        # get all of the current plants from the view
+        view = self.get_current_view()
+        if not isinstance(view, views.Search):
+            raise Error("GUI.on_tools_menu_label_maker: can only "\
+                        "make labels from the search vew")
+                        
+        # TODO: this assumes a but too much about SearchView's internal workings
+        model = view.results_view.get_model()
+        if model is None:
+            utils.message_dialog("Search for something first.")
+            return
+        
+        plants = []
+        for row in model:
+            value = row[0]
+            # right now we don't create labels for all plants under
+            # families and genera
+            if isinstance(value, tables.Families):
+                print "family: " + str(value)
+            elif isinstance(value, tables.Genera):
+                print "genera: " + str(value)
+            elif isinstance(value, tables.Plantnames):
+                for acc in value.accessions:
+                    plants += acc.plants
+            elif isinstance(value, tables.Accessions):
+                plants += value.plants
+            elif isinstance(value, tables.Plants):
+                plants.append(value)            
+        print plants
+        d = tools.labels.LabelMaker(plants)
+        response = d.run()
+        if response == gtk.RESPONSE_ACCEPT:
+            pdf_filename = d.create_pdf()
+            print pdf_filename
+            utils.startfile(pdf_filename)        
+        d.destroy()
+        
+        
     def on_tools_menu_export(self, widget, data=None):
         import tools.import_export
         d = tools.import_export.ExportDialog()
@@ -293,8 +358,8 @@ class GUI:
     def save_state(self):
         """
         this is usually called from bauble.py when it shuts down
-        """
-        current_view = self.content_frame.get_child()
+        """        
+        current_view = self.get_current_view()
         if current_view is not None:
             # get label of view
             for label, view in views.iteritems(): 

@@ -52,8 +52,10 @@ class IEDialog(gtk.Dialog):
         if self.current_ie is not None:
             self.vbox.remove(self.current_ie)
         self.current_ie = self.factory.create(combo.get_active_text(), self)
-        self.vbox.pack_start(self.current_ie)
+        self.vbox.pack_start(self.current_ie)        
+        self.queue_resize()
         self.show_all()
+        
 
         
     def on_response(self, dialog, response, data=None):
@@ -63,6 +65,7 @@ class IEDialog(gtk.Dialog):
 
 
 class ImportDialog(IEDialog):
+    
     def __init__(self, title="Import", parent=None,
         flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
         buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
@@ -76,11 +79,17 @@ class ImportDialog(IEDialog):
         
 
     def create_gui(self):
-        self.type_combo.append_text("Comma Separated Values")
+        for name, (importer, exporter) in imexes.iteritems():
+            if importer is not None:
+                self.type_combo.append_text(name)
+        #self.type_combo.append_text("Comma Separated Values")
         #conn = sqlobject.sqlhub.threadConnection.getConnection()
-        conn = sqlobject.sqlhub.getConnection()
-        if conn.__class__.__name__ == "MySQLConnection":
-            self.type_combo.append_text("MySQL Import")
+        
+        # TODO: remove the MySQL importer if the connection type is
+        # not MySQLConnection
+        #conn = sqlobject.sqlhub.getConnection()
+        #if conn.__class__.__name__ == "MySQLConnection":
+        #    self.type_combo.append_text("MySQL Import")
         self.type_combo.set_active(0)
 
 
@@ -96,7 +105,11 @@ class ExportDialog(IEDialog):
         
 
     def create_gui(self):
-        self.type_combo.append_text("Comma Separated Values")
+        for name, (importer, exporter) in imexes.iteritems():
+            if exporter is not None:
+                self.type_combo.append_text(name)
+        #self.type_combo.append_text("Comma Separated Values")
+        #self.type_combo.append_text("Comma Separated Values")
         self.type_combo.set_active(0)
         
         
@@ -110,9 +123,14 @@ class IEFactory:
 class ExporterFactory(IEFactory):
     
     def create(exporter_type, dialog):
-        if exporter_type == "Comma Separated Values":
-            import iecsv
-            return iecsv.CSVExporter(dialog)
+        return imexes[exporter_type][1](dialog)
+#        if exporter_type == "Comma Separated Values":
+#            import iecsv
+#            return iecsv.CSVExporter(dialog)
+#        if exporter_type == "ABCD 2.05":
+#            import abcd
+#            return abcd.ABCDExporter(dialog)
+        
     create = staticmethod(create)
         
 
@@ -129,12 +147,13 @@ class Exporter(gtk.VBox):
 class ImporterFactory(IEFactory):
     
     def create(importer_type, dialog):
-        if importer_type == "Comma Separated Values":
-            import iecsv
-            return iecsv.CSVImporter(dialog)
-        if importer_type == "MySQL Import":
-            import iemysql
-            return iemysql.MySQLImporter(dialog)
+        return imexes[importer_type][0](dialog)
+#        if importer_type == "Comma Separated Values":
+#            import iecsv
+#            return iecsv.CSVImporter(dialog)
+#        if importer_type == "MySQL Import":
+#            import iemysql
+#            return iemysql.MySQLImporter(dialog)
     create = staticmethod(create)
 
 
@@ -146,5 +165,14 @@ class Importer(gtk.VBox):
         
     def start(self):
         raise NotImplementedError
+
+import iecsv
+import abcd
+import iemysql
+
+# importers and exporters
+imexes = {"Comma Separated Values": (iecsv.CSVImporter, iecsv.CSVExporter),
+          "MySQL": (iemysql.MySQLImporter, None),
+          "ABCD (2.05)": (None, abcd.ABCDExporter)}
 
     

@@ -62,6 +62,15 @@ def get_main_dir():
    return dir
 
 
+def startfile(filename):
+    if sys.platform == 'win32':
+        os.startfile(filename)
+    elif sys.platform == 'linux2':
+        # need to determine if gnome or kde
+        os.system("gnome-open " + filename)
+    else:
+        raise Exception("bauble.utils.startfile(): can't open file:" + filename)
+
 def dms_to_decimal(dir, deg, min, sec):
     """
     convert degrees, minutes, seconds to decimal

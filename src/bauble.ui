@@ -17,6 +17,7 @@
     <menu action="tools">
 		<menuitem action="import"/>
     	<menuitem action="export"/>
+    	<menuitem action="label"/>
     </menu>
   </menubar>
 </ui>

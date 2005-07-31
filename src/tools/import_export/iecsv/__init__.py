@@ -42,7 +42,13 @@ class CSVImporter(Importer):
         run the importer, if no filenames are are give then it will ask you
         for the files to import
         """
-        
+        # TODO: this could be part of the gui rather so that the file are choses
+        # before 'OK' is clicked, we could have a table with two columns with
+        # the left side the filenames and the right side the 'guessed' table name
+        # but with a drop down to change the table, each row could also have an
+        # expand arrow that when expanded peeks at the file for the columns and 
+        # shows the column mapping and if there are any errors
+        # mapping 
         if filenames is None:
             def on_selection_changed(filechooser, data=None):
                 """
