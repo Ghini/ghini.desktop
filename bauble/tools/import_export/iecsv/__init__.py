@@ -78,31 +78,57 @@ class CSVImporter(Importer):
         t.start()
     
     
+    def import_file(self, filename, table, connection):
+        f = file(filename, "rb")
+        reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+                
+        # create validator map
+        validators = {}
+        #for col in table.sqlmeta._columns:
+        for col in table.sqlmeta.columnList:
+            if type(col) == sqlobject.SOForeignKey or \
+               type(col) == sqlobject.SOIntCol:
+                validators[col.name] = type_validators[int]
+            elif type(col) == sqlobject.SOStringCol:                    
+                validators[col.name] = type_validators[str]
+            elif type(col) == sqlobject.SOUnicodeCol:
+                validators[col.name] = type_validators[unicode]       
+            else:
+                raise Exception("no validator for col" + col.name + \
+                                " with type " + col.__class__)             
+            validators['id'] = type_validators[int]
+            
+        try:
+            line = None
+            for line in reader:
+                for col in reader.fieldnames: # validate columns
+                    if line[col] == '': 
+                        del line[col]
+                    else: line[col] = validators[col](line[col])
+                table(connection=connection, **line) # add row to table
+        except:
+            raise ImportError(str(line))
+        
+            
     def run(self, filenames):
         """
-        this should not be used directory but is used by start()
-        """
+        this should not be used directly but is used by start()
+        """                
         # save the original connection
-        old_conn = sqlobject.sqlhub.getConnection()
-        
+        old_conn = sqlobject.sqlhub.getConnection()        
         gtk.threads_enter()
         dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
                           message_format='importing...')
         dialog.show()
         gtk.threads_leave()
-        for filename in filenames:
-            trans = old_conn.transaction()
+        
+        for filename in filenames:     
             # create a new transaction/connection for each table
+            trans = old_conn.transaction()       
             sqlobject.sqlhub.threadConnection = trans
             path, base = os.path.split(filename)
             table_name, ext = os.path.splitext(base)
-            gtk.threads_enter()
-            # TODO: could do something more with this to indicate progress
-            # like a counter on the row number being imported
-            dialog.set_markup('importing ' + table_name+ '...')
-            dialog.queue_resize()
-            gtk.threads_leave()
             # the name of the file has to match the name of the 
             # tables class
             if table_name not in tables:
@@ -112,51 +138,30 @@ class CSVImporter(Importer):
                 keep_on = utils.yes_no_dialog(msg)
                 gtk.threads_leave()
                 if keep_on: continue
-                else: break
-                
-            table = tables[table_name]
-            print "importing table: " + table_name + "..."
-            f = file(filename, "rb")
-            reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-            
+                else: break            
+
+            # TODO: could do something more with this to indicate progress
+            # like a counter on the row number being imported
+            gtk.threads_enter()
+            dialog.set_markup('importing ' + table_name+ '...')
+            dialog.queue_resize()
+            gtk.threads_leave()
+                            
             try:
-                # create validator map
-                validators = {}
-                for col in table.sqlmeta._columns:
-                    #print '%s: %s' % (col.name, type(col))
-                    if col.__class__ == sqlobject.SOForeignKey  or \
-                     col.__class__ == sqlobject.SOIntCol:
-                        validators[col.name] = type_validators[int]
-                    elif col.__class__ == sqlobject.SOStringCol:                    
-                        validators[col.name] = type_validators[str]
-                    elif col.__class__ == sqlobject.SOUnicodeCol:
-                        validators[col.name] = type_validators[unicode]
-                validators['id'] = type_validators[int]
-                
-                # for each line in the file
-                line = None
-                for line in reader:
-                    for col in reader.fieldnames: # validate columns
-                        if line[col] == '': 
-                            del line[col]
-                        else: line[col] = validators[col](line[col])
-                    table(connection=trans, **line) # add row to table
+                self.import_file(filename, tables[table_name], trans)
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
                 # one transaction so all data gets imported from all files 
                 # successfully or nothing at all
                 msg = "Error importing values from %s into table %s\n" % (filename, table_name)
+                
                 sys.stderr.write(msg)
-                sys.stderr.write(str(e) + '\n')                
-                sys.stderr.write(str(line) + '\n')
-                gtk.gdk.threads_enter()
-                utils.message_dialog(msg)
-                gtk.gdk.threads_leave()
-                trans.rollback()
+                sys.stderr.write(str(e) + '\n')
+                trans.rollback()            
             else:
-                # everything ok for this table, commit
                 trans.commit()
+                
         sqlobject.sqlhub.threadConnection = old_conn
         gtk.gdk.threads_enter()
         dialog.destroy()
@@ -219,7 +224,7 @@ class CSVExporter(Exporter):
         for table_name, table in tables.iteritems():
             print "exporting " + table_name
             #progress.pulse()
-            col_dict = table.sqlmeta._columnDict
+            col_dict = table.sqlmeta.columns
             rows = []
             # TODO: probably don't need to write out column names or even
             # create the file if it contains no data, could be an option

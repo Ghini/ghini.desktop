@@ -39,7 +39,8 @@ def createColumnMetaFromTable(table):
     # so it implies some order, it might be difficult though to keep the 
     # column order and the meta data synchronized
     meta = ViewColumnMeta()
-    for name, col in table.sqlmeta._columnDict.iteritems():
+    #for name, col in table.sqlmeta._columnDict.iteritems():
+    for name, col in table.sqlmeta.columns.iteritems():
         if name[0] == "_":  continue # _means private
         col_meta =  ViewColumnMeta.Meta()
         if name.endswith("ID"):
@@ -58,7 +59,7 @@ def createColumnMetaFromTable(table):
             col_meta.required = True
         meta[name] = col_meta
     
-    for join in table._joins:
+    for join in table.sqlmeta.joins:
         if type(join) == SingleJoin:
             name = join.joinMethodName
             if name[0] == "_":  continue # _means private

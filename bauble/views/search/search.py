@@ -410,7 +410,7 @@ class SearchView(views.View):
         menu.add(edit_item)
         menu.add(gtk.SeparatorMenuItem())
         
-        for join in value._joins:
+        for join in value.sqlmeta.joins:
             # for each join in the selected row then add an item on the context
             # menu for adding rows to the database of the same type the join
             # points to

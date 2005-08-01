@@ -89,8 +89,11 @@ class BaubleApp:
         if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
             uri += "?check_same_thread=0"
 #            uri += "&autoCommit=0"
+        #uri += '&debug=&debugOutput='
         print uri
-        sqlhub.processConnection = connectionForURI(uri)    
+        sqlhub.processConnection = connectionForURI(uri)
+        sqlhub.processConnection.debug = False
+        sqlhub.processConnection.debugOutput = False
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect
