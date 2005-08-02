@@ -370,6 +370,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                 v = meta.editor(select=row[colname]).start() # this blocks
                 self.set_view_model_value(path, colname, v)
                 self.set_sensitive(True)
+                self.set_dirty(True)
         elif keyname == "Up" and path[0] != 0:            
             self.move_cursor_up(path, col)
         elif keyname == "Down" and path[0] != len(self.view.get_model()):
@@ -490,9 +491,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             # *** i don't really like this, i would prefer to set the model
             # in one place
             pass
-            
-        self.dirty = True # something has changed
-        self.set_ok_sensitive(True)
+
+        self.set_dirty(True)
+        #self.dirty = True # something has changed
+        #self.set_ok_sensitive(True)
 #        self.view.check_resize() # ???????
 
         # edited the last row so add a new one,
@@ -502,6 +504,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.add_new_row()
             self.dummy_row = True
             
+            
+    def set_dirty(self, dirty=True):
+        self.dirty = dirty
+        self.set_ok_sensitive(dirty)
             
             
     def on_editing_started(self, cell, editable, path, colname):
@@ -718,7 +724,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                     t.set(**v)
                 else: # adding row
                     t = self.table(**v)
-               
+                #print 'foreign: ' + str(foriegners)
                 # set the foreign keys id of the foreigners
                 for col, col_attr in self.table_meta.foreign_keys:
                     if col in foreigners:
@@ -837,8 +843,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         elif meta.type == SingleJoin: 
             # TODO: this should be removed, we don't edit any single joins 
             # directory i don't think, though it might not be a bad idea
-            # to do so
-            r = gtk.CellRendererCombo()
+            # to do so            
             r.set_property('has_entry', False)
             r.set_property("text-column", 0)
             data = ['----------', 'Edit', '----------', 'Delete']

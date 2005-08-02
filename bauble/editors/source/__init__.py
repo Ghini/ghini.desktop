@@ -537,12 +537,11 @@ class SourceEditor(TableEditor):
             return False
         else:
             trans.commit()
-            #print 'self.commited'
-            #print t
-            #print str(t)
+            print 'commited'
             if t is None:
                 raise ValueError("SourceEditor.commit_changes: t is None")
             self.committed = t
+        
         return True
         
         

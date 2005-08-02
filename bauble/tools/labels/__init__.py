@@ -17,8 +17,20 @@
 import os
 import gtk
 from tables import tables
-import libxml2
-import libxslt
+
+try:
+    import libxml2
+except ImportError, e:
+    utils.message_box("Could not find libxml2. Please download and install it.")
+    raise
+    
+try:
+    import libxslt
+except ImportError, e:
+    utils.message_box("Could not find libxslt. Please download and install it.")    
+    raise
+    
+import tools.import_export.abcd.abcd as abcd
 
 class LabelMaker(gtk.Dialog):
     def __init__(self, plants, title='Label Maker', parent=None):
@@ -85,8 +97,45 @@ class LabelMaker(gtk.Dialog):
         self.vbox.pack_start(self.plants_view)
         self.show_all()
         
-    
+        
     def create_pdf(self, filename=None):
+     
+        import tempfile
+        if filename is None:
+            # no filename, create a temporary file            
+            dummy, filename = tempfile.mkstemp()                
+        
+        # get all the plants from the model in ABCD format
+        plants = []
+        for yes_no, plant in self.plants_view.get_model():
+            if yes_no:
+                plants.append(plant)
+        abcd_data = abcd.plants_to_abcd(plants)
+        
+                
+        # create xsl fo file
+        dummy, fo_filename = tempfile.mkstemp()
+        xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
+        # how come we don't have to free style_doc???
+        style_doc = libxml2.parseFile(xslt_filename) 
+        style = libxslt.parseStylesheetDoc(style_doc)
+        doc = libxml2.parseDoc(abcd_data)
+        result = style.applyStylesheet(doc, None)
+        style.saveResultToFilename(fo_filename, result, 0)
+        style.freeStylesheet()
+        doc.freeDoc()
+        result.freeDoc()
+        
+        # run the formatter to produce the pdf file, xep has to be on the
+        # path
+        fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
+        os.system(fo_cmd)    
+            
+        # open and return the file hander or filename so we don't have to close it
+        return filename    
+    
+    
+    def create_pdf_old(self, filename=None):
         # TODO: should change this to use libxslt then we can return the abcd
         # file from the exporter, pass that directly to libxslt and then
         # the only os.system call we have to make is to XEP

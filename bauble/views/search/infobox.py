@@ -202,11 +202,10 @@ class SourceExpander(InfoExpander):
         pass
     
     
-    def update(self, value):
-    
+    def update(self, value):        
         if self.curr_box is not None:
             self.vbox.remove(self.curr_box)
-        
+                        
         if type(value) == tables.Collections:
             w = self.glade_xml.get_widget('collections_box')
             w.unparent()
@@ -234,6 +233,7 @@ class GeneralAccessionExpander(InfoExpander):
         self.vbox.pack_start(w)
     
     def update(self, row):
+        set_widget_value(self.glade_xml, 'name_data', row.plantname)
         set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
         #w = self.glade_xml.get_widget('nplants_data')
         #pass
@@ -256,13 +256,18 @@ class AccessionsInfoBox(InfoBox):
         self.add_expander(self.source)
 
 
-    def update(self, row):
-        
+    def update(self, row):        
         self.general.update(row)
-        
-        if row.source_type == 'Collections':
+                        
+        # TODO: should test if the source should be expanded from the prefs
+        if row.source_type == None:
+            self.source.set_expanded(False)
+            self.source.set_sensitive(False)
+        elif row.source_type == 'Collections':
+            self.source.set_expanded(True)
             self.source.update(row._collection)
-        if row.source_type == 'Donations':
+        elif row.source_type == 'Donations':
+            self.source.set_expanded(True)
             self.source.update(row._donation)
     
     

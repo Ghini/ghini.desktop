@@ -55,8 +55,8 @@ class Accessions(BaubleTable):
     # source, the source will contain one of collection or donation
     # tables
     # 
-    # the it's currently set up this is a dummy but the _collection
-    # or _donation get
+    # holds the string 'Collection' or 'Donation' which indicates where
+    # we should get the source information from either of those columns
     source_type = StringCol(length=64, default=None)    
                             
     # the source type says whether we should be looking at the 

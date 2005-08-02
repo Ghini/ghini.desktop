@@ -97,7 +97,7 @@ class SearchView(views.View):
 
     
     def set_infobox_from_row(self, row):
-
+        #return
         if not hasattr(self, 'infobox'):
             self.infobox = None
             
@@ -549,7 +549,6 @@ class SearchView(views.View):
         elif gbif is not None:
             expander.remove(gbif)
             
-        
         
     # TODO: should i or should i not delete everything that is a child
     # of the row when it is collapsed, this would save memory but
