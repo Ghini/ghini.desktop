@@ -126,6 +126,7 @@ class Plantnames(BaubleTable):
 #                         ("near", "Close to"),
 #                         ("?", "Quesionable")]
     
+    # TODO: should be unicode
     vernac_name = StringCol(default=None)          # vernacular name
 
 #    synonym = StringCol(default=None)  # should really be an id into table \
@@ -153,6 +154,8 @@ class Plantnames(BaubleTable):
     accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
     images = MultipleJoin('Images', joinColumn='plantname_id')
     references = MultipleJoin('Reference', joinColumn='plantname_id')
+    
+    
     ######## the rest? ##############    
     #Lifeform = StringCol(length=10)
 #    tuses = StringCol(default=None) # taxon uses?

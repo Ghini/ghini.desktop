@@ -1,7 +1,8 @@
 #
 # abcd.py
 # 
-# modules for read and writing Access to Biological Collection Data (ABCD) files
+# module for read and writing Access to Biological Collection 
+# Data (ABCD) files
 #
 
 from string import Template
@@ -27,6 +28,7 @@ unit_template_str = """
                             <taxonidentified>
                                 $family
                                 $scientific_name
+                                $informal_names
                             </taxonidentified>
                         </result>
                     </identification>
@@ -59,6 +61,30 @@ name_template_str = """
 """
 name_template = Template(name_template_str)
 
+
+# ***********
+# TODO: this is not a standard in ABCD but we need it to create the labels
+# if we could just return this abcd data instead of writing a file then 
+# we could add
+origin_str = """
+<origin>
+</origin
+"""
+origin_template = Template(origin_template_str)
+
+
+#
+# i'm using informal name here for the vernacular name
+#
+informal_name_str = """
+<informalnamestring>
+$informal_name
+</informalnamestring>
+"""
+informal_name_template = Template(informal_name_str)
+
+
+
 def accessions_to_abcd(accessions):
     """
     convert a list of accessions instance to an abcd record
@@ -82,7 +108,12 @@ def plants_to_abcd(plants):
         id = str(acc.acc_id) + '.' + str(p.plant_id)        
         f = family_template.substitute(family=acc.plantname.genus.family)
         n = name_template.substitute(genus=acc.plantname.genus, sp=acc.plantname.sp)
-        units.append(unit_template.substitute(unitid=id, family=f, scientific_name=n))
+        informal_name = informal_name_template.substitute(informal_name=acc.plantnames.vernac_name)
+        o = origin_template.substitue(origin=acc.plantname.origin)
+        units.append(unit_template.substitute(unitid=id, family=f, 
+                                              scientific_name=n, 
+                                              informal_names=informal_name,
+                                              origin=o))
     
     abcd = main_template.substitute(units='\n'.join(units))
     return abcd

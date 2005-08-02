@@ -7,23 +7,24 @@
         <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
         <fo:layout-master-set>
             <fo:simple-page-master master-name="main-page">
-                <fo:region-body margin="1in"/>
+                <fo:region-body margin=".5in"/>
             </fo:simple-page-master>
         </fo:layout-master-set>    
         
         <fo:page-sequence master-reference="main-page">
         <fo:flow flow-name="xsl-region-body">
-        <xsl:for-each select="unit">            
-                <fo:block padding='10mm'>
-                <fo:block-container border="solid black 1px" width='80mm' height='45mm'>
+        <xsl:for-each select="unit">
+            <fo:float float="left">            
+                <fo:block margin='3mm'>
+                <fo:block-container border="solid black 1px" width='78mm' height='45mm'>
                     <fo:block-container absolute-position="absolute" top="5mm" bottom="32mm" border="solid blue 1px">
                         <fo:block margin-left="5mm" margin-right="5mm"  font-size="14pt" text-align="center">
                             <xsl:value-of select='.//highertaxonname'/>
                         </fo:block>
                     </fo:block-container>
                     <fo:block-container absolute-position="absolute" top="14mm" bottom="26mm" border="solid red 1px">                    
-                        <fo:block margin-left="5mm" margin-right="5mm" font-size="16pt" text-align="center">
-                            <fo:inline><xsl:value-of select=".//genusormonomial"/></fo:inline>                                               
+                        <fo:block font-style='italic' margin-left="5mm" margin-right="5mm" font-size="16pt" text-align="center">
+                            <fo:inline margin-right='2mm' ><xsl:value-of select=".//genusormonomial"/></fo:inline>                                               
                             <fo:inline><xsl:value-of select=".//firstepithet"/></fo:inline>
                         </fo:block>
                     </fo:block-container>
@@ -31,7 +32,8 @@
                         <fo:block margin-left="5mm" font-size="12pt" text-align="left"><xsl:value-of select="unitid"/></fo:block>                
                     </fo:block-container>
                 </fo:block-container>
-             </fo:block>
+                </fo:block>
+             </fo:float>            
         </xsl:for-each>
         </fo:flow>
         </fo:page-sequence>

@@ -69,7 +69,12 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
                    }
         self.column_meta.headers = headers
         print editors.editors._by_name
-        print editors.editors
+        print editors.editors[tables.Plants]
+        #print editors.editorForTable(tables.Plants)
+        #print editors
+        #print editorForTable(tables.Plants)
+        
+        
         self.column_meta['source_type'].editor = editors.source.SourceEditor
         self.column_meta['source_type'].getter = get_source
         
@@ -136,12 +141,16 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
     
     
     def commit_changes(self):
-        if not editors.TableEditorDialog.commit_changes(self):
+        print 'entered Accessions.commit_changes()'        
+        if not editors.TreeViewEditorDialog.commit_changes(self):
             return
             
         msg  = "No Plants/Clones exist for this accession %s. Would you like " \
         "to add them now?"
+        
         values = self.get_values_from_view()
+        print 'values: ' 
+        print values
         for v in values:
             acc_id = v["acc_id"]
             sel = tables.Accessions.selectBy(acc_id=acc_id)
@@ -152,7 +161,11 @@ class AccessionsEditor(editors.TreeViewEditorDialog):
             
             if not utils.yes_no_dialog(msg % acc_id):
                 continue
-            e = editors.editors.Plants(defaults={"accession":sel[0]})    
-            e.show()
+            #e = editors.editors.Plants(defaults={"accession":sel[0]})    
+            print editors.editors._by_table
+            #e = editors.editors['Plants'](defaults={"accession":sel[0]})
+            e = editors.editors['Plants'](defaults={"accession":sel[0]})
+            e.start()
+            #e.show_all()
         return True
     

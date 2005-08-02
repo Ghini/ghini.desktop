@@ -10,9 +10,15 @@
 # The other part that sucks is that this all requires Java, it would be ideal
 # if xmlroff supported more of the XSL standard
 
+# TODO: once the label layout is formalized then we can put the xsl stylesheet
+# inside this module as a multiline string to avoid having to find the file on 
+# the disk
+
 import os
 import gtk
 from tables import tables
+import libxml2
+import libxslt
 
 class LabelMaker(gtk.Dialog):
     def __init__(self, plants, title='Label Maker', parent=None):
@@ -30,10 +36,12 @@ class LabelMaker(gtk.Dialog):
         yes_no = model.get_value(iter, 0)
         cell.set_property('active', yes_no)        
         
+        
     def id_cell_data_func(self, column, cell, model, iter, data=None):
         plant = model.get_value(iter, 1)
-        id = str(plant.accession.acc_id) + '.' + str(plant.plant_id)
+        id = str(plant.accession.acc_id) + '.' + str(plant.plant_id)        
         cell.set_property('text', id)
+    
     
     def name_cell_data_func(self, column, cell, model, iter, data=None):
         plant = model.get_value(iter, 1)
@@ -79,6 +87,10 @@ class LabelMaker(gtk.Dialog):
         
     
     def create_pdf(self, filename=None):
+        # TODO: should change this to use libxslt then we can return the abcd
+        # file from the exporter, pass that directly to libxslt and then
+        # the only os.system call we have to make is to XEP
+     
         import tempfile
         if filename is None:
             # create a temporary file            
@@ -96,19 +108,16 @@ class LabelMaker(gtk.Dialog):
         exporter.run(abcd_filename, plants)
         
         dummy, fo_filename = tempfile.mkstemp()
-        xslt_filename  = '/home/brett/devel/bauble/src/tools/labels/label.xsl'
-        # run the command
+        xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
+        # run the xslt command to create the fo file
         xslt_cmd = 'xsltproc %s %s > %s' % (xslt_filename, abcd_filename, fo_filename)
         print xslt_cmd
         os.system(xslt_cmd)
         
+        # run the formatter to produce the pdf file
         fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
         print fo_cmd
-        os.system(fo_cmd)
-        
-        #cmd = "xsltproc label.xsl %s | xep -fo - -pdf %s" % (abcd_filename, filename)
-        #print cmd
-        #os.system(cmd)
+        os.system(fo_cmd)    
             
         # open and return the file hander or filename so we don't have to close it
         return filename

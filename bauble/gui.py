@@ -293,7 +293,7 @@ class GUI:
             elif isinstance(value, tables.Locations):
                 plants += value.plants
             
-        #print plants
+        #print plants        
         d = tools.labels.LabelMaker(plants)
         response = d.run()
         if response == gtk.RESPONSE_ACCEPT:

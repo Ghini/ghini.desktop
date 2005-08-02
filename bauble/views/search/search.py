@@ -398,15 +398,8 @@ class SearchView(views.View):
         edit_item = gtk.MenuItem("Edit")
         # TODO: there should be a better way to get the editor b/c this
         # dictates that all editors are in ClassnameEditor format
-        #editor_name = value.__class__.__name__ + 'Editor'
-        print editors
-        print '__----'
-        print value.__class__
         edit_item.connect("activate", self.on_activate_editor,
                           editors[value.__class__], [value], None)
-        #edit_item.connect("activate", self.on_activate_editor,
-        #                  editors[editor_name], [value], None)
-        print '2222'
         menu.add(edit_item)
         menu.add(gtk.SeparatorMenuItem())
         
@@ -417,21 +410,18 @@ class SearchView(views.View):
             # TODO: this is a pretty wretched hack looking up from the kw 
             # attribute of the join columns, but it works
             defaults = {}
-            name = join._joinMethodName 
-            join_column = join.kw["joinColumn"]
-            # if join column not in the format "column_id" then don't do anything
-            if join_column[-3:] == "_id": 
-                defaults[join_column[:-3]] = value
             
-            other_class = join.kw["otherClass"]
-            #editor_name = other_class + 'Editor'
-            #if editors.has_key(editor_name):
-            #if editor_name in editors:
-            print 'other: ' + str(other_class)
-            if other_class in editors:
-                add_item = gtk.MenuItem("Add " + name)                
+            # if join column not in the format "column_id" then don't do anything
+            # 
+            # *** i don't understand this comment
+            #
+            if join.joinColumn[-3:] == "_id": 
+                defaults[join.joinColumn[:-3]] = value
+            
+            if join.otherClassName in editors:          
+                add_item = gtk.MenuItem("Add " + join.joinMethodName)                
                 add_item.connect("activate", self.on_activate_editor, 
-                                  editors[other_class], None, defaults)
+                                  editors[join.otherClassName], None, defaults)
                                  #editors[editor_name], None, defaults)
                 menu.add(add_item)
         
@@ -443,7 +433,6 @@ class SearchView(views.View):
         
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
-        return
         
         
     def on_activate_remove_item(self, item, row):

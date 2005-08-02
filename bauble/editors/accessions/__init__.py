@@ -3,6 +3,6 @@
 #
 
 from tables import tables
-from editors import editors
+import editors
 import accessions
-editors.register(accessions.AccessionsEditor, tables.Accessions)
+editors.editors.register(accessions.AccessionsEditor, tables.Accessions)

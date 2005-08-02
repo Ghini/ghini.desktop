@@ -17,8 +17,19 @@ from bauble import *
 
 csv_format_params = {}
 
+
+# TODO: how do i validate unicode ???
+column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
+                          sqlobject.SOIntCol: lambda x: int(x),
+                          sqlobject.SOBoolCol: lambda x: bool(x),
+                          sqlobject.SOStringCol: lambda x: str(x),
+                          sqlobject.SOUnicodeCol: lambda x: x
+#                          sqlobject.SOUnicodeCol: lambda x: unicode(x)
+                          }
+                             
 type_validators = {int: lambda x: int(x),
                    str: lambda x: str(x),
+                   bool: lambda x: bool(x),
                    unicode: lambda x: x}
                    #unicode: lambda x: unicode(x, 'latin-1')}
                    #unicode: lambda x: unicode(x, 'utf-8')}
@@ -86,17 +97,23 @@ class CSVImporter(Importer):
         validators = {}
         #for col in table.sqlmeta._columns:
         for col in table.sqlmeta.columnList:
-            if type(col) == sqlobject.SOForeignKey or \
-               type(col) == sqlobject.SOIntCol:
-                validators[col.name] = type_validators[int]
-            elif type(col) == sqlobject.SOStringCol:                    
-                validators[col.name] = type_validators[str]
-            elif type(col) == sqlobject.SOUnicodeCol:
-                validators[col.name] = type_validators[unicode]       
-            else:
+            if type(col) not in column_type_validators:
                 raise Exception("no validator for col" + col.name + \
-                                " with type " + col.__class__)             
-            validators['id'] = type_validators[int]
+                                " with type " + str(col.__class__))                
+            validators[col.name] = column_type_validators[type(col)]
+#            if type(col) == sqlobject.SOForeignKey or \
+#               type(col) == sqlobject.SOIntCol:
+#                validators[col.name] = type_validators[int]
+#            elif type(col) == sqlobject.SOStringCol:                    
+#                validators[col.name] = type_validators[str]
+#            elif type(col) == sqlobject.SOUnicodeCol:
+#                validators[col.name] = type_validators[unicode]       
+#            elif type(col) == sqlobject.SOUnicodeCol:
+#                validators[col.name] = type_validators[unicode]       
+#            else:
+#                raise Exception("no validator for col" + col.name + \
+#                                " with type " + str(col.__class__))
+        validators['id'] = type_validators[int]
             
         try:
             line = None
@@ -106,7 +123,8 @@ class CSVImporter(Importer):
                         del line[col]
                     else: line[col] = validators[col](line[col])
                 table(connection=connection, **line) # add row to table
-        except:
+        except Exception, e:
+            sys.stderr.write("CSVImporter.import_file() -- cold not import table" + table)
             raise ImportError(str(line))
         
             
@@ -117,16 +135,21 @@ class CSVImporter(Importer):
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()        
         gtk.threads_enter()
+        
+        # TODO: connect to this cancel button so the user can stop the import
+        # process and rollback any changes
         dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
                           message_format='importing...')
         dialog.show()
         gtk.threads_leave()
         
+        trans = old_conn.transaction()       
+        sqlobject.sqlhub.threadConnection = trans
+        
         for filename in filenames:     
             # create a new transaction/connection for each table
-            trans = old_conn.transaction()       
-            sqlobject.sqlhub.threadConnection = trans
+            
             path, base = os.path.split(filename)
             table_name, ext = os.path.splitext(base)
             # the name of the file has to match the name of the 
@@ -158,7 +181,7 @@ class CSVImporter(Importer):
                 
                 sys.stderr.write(msg)
                 sys.stderr.write(str(e) + '\n')
-                trans.rollback()            
+                trans.rollback()
             else:
                 trans.commit()
                 

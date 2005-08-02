@@ -35,9 +35,7 @@ def createColumnMetaFromTable(table):
     """
     return a MetaViewColumn class built from an sqlobj
     """
-    # TODO: visible should probably be a sequence instead of a flag
-    # so it implies some order, it might be difficult though to keep the 
-    # column order and the meta data synchronized
+
     meta = ViewColumnMeta()
     #for name, col in table.sqlmeta._columnDict.iteritems():
     for name, col in table.sqlmeta.columns.iteritems():
@@ -81,7 +79,6 @@ def validate_accession(value):
     return value
 
 
-
 class TableMeta:
     """
     hold information about the table we will be editing with the table editor
@@ -89,7 +86,6 @@ class TableMeta:
     def __init__(self):
         self.foreign_keys = []
     
-
 
 class ViewColumnMeta(dict):
     """
@@ -108,12 +104,7 @@ class ViewColumnMeta(dict):
             self.default = default
             self.editor = editor
             self.required = required
-            self.getter = getter
-            
-            # TODO: should be able to set a default value for the 
-            # renderer of the column which you could pass in when the 
-            # editor is created
-            # self.default = None
+            self.getter = getter            
             
             # a dummy validate function
             self.validate = lambda x: x
@@ -218,33 +209,6 @@ class ModelDict(dict):
         return v
        
         
-#    def __getitem__old(self, item):
-#        """
-#        get items from the dict
-#        if the item does not exist then we create the item in the dictionary
-#        and set its value from the default or to None
-#        """
-#        #print 'ModelDict.__getitem__(%s)' % item
-#        if not hasattr(self.row, item):
-#            raise KeyError("ModelDict.__getitem__: no such table row %s" % item)
-#
-#        v = None
-#        if self.isinstance: # get value from table instance
-#            if self.meta[item].getter is not None:
-#                v = self.meta[item].getter(self.row)
-#            else: 
-#                v = getattr(self.row, item)
-#            if v is None and item in self.defaults:
-#                v = self.defaults[item]
-#        else: # get value from the dict
-##            if not self.has_key(item) and self.defaults is not None and \
-##              item in self.defaults:
-#            if not self.has_key(item) and item in self.defaults:
-#                self[item] = self.defaults[item]
-#            elif not self.has_key(item):
-#                self[item] = None
-#            v = self.get(item)
-#        return v
 
 
 #
@@ -658,13 +622,21 @@ class TreeViewEditorDialog(TableEditorDialog):
     
     
     def on_response(self, widget, response, data=None):
+        #super(TreeViewEditorDialog, self).on_response()
         self.store_visible_columns() # save preferences before we do anything
         self.store_column_widths()
         if response == gtk.RESPONSE_OK:
             #if self.commit_changes():
             # NOTE: i don't understand why we can't call commit_changes 
             # on self
-            if TreeViewEditorDialog.commit_changes(self):
+            #if TreeViewEditorDialog.commit_changes(self):                
+            if self.commit_changes():
+                #
+                # TODO: shouldn't destroy self here if on_response is
+                # called before run exits, i think this will cause leaks
+                # or problems b/c the rest of run won't know what's been
+                # destroyed
+                #
                 self.destroy() # successfully commited
         elif response == gtk.RESPONSE_CANCEL and self.dirty:            
             msg = "Are you sure? You will lose your changes."
@@ -1034,10 +1006,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         bauble.prefs[self.visible_columns_pref] = visible
                 
 
-def register(editor, table):
-    _editors._register(editor, table)
-          
-
 class Singleton(dict):
         _instance = None
         def __new__(cls, *args, **kwargs):
@@ -1046,7 +1014,8 @@ class Singleton(dict):
                                    cls, *args, **kwargs)
             return cls._instance              
 
-class editors(Singleton):
+
+class _editors(Singleton):
     
     _all = [] # for other access
     _by_table = {} # for __getitem__
@@ -1108,7 +1077,7 @@ class editors(Singleton):
         """
         check by table, completely different than by editor name
         """
-        return cls._editors_by_table.has_key(item)
+        return cls._by_table.has_key(item)
     __contains__ = classmethod(__contains__)
 
 
@@ -1120,12 +1089,11 @@ class editors(Singleton):
             msg = 'items must be looked up by table class or class name'
             raise ValueError('editors.__getitem__():' + msg)
         return cls._by_table[item.__name__]
-
     __getitem__ = classmethod(__getitem__)
    
        
+editors = _editors()
 editors.init()
-
 
 
 

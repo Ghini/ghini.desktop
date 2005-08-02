@@ -17,8 +17,7 @@ class PlantsEditor(editors.TreeViewEditorDialog):
 
     label = 'Plants\\Clones'
 
-    def __init__(self, parent=None, select=None, defaults={}):
-        
+    def __init__(self, parent=None, select=None, defaults={}):        
         editors.TreeViewEditorDialog.__init__(self, tables.Plants,
                                               "Plants/Clones Editor", parent, 
                                               select=select, defaults=defaults)
