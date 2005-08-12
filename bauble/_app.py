@@ -8,19 +8,21 @@ import os, sys
 import utils
 import gtk
 from sqlobject import *
+#import bauble
 #from conn_mgr import *
 
-import tables
+#import tables
 #import prefs
 #from prefs import Preferences
-
+from bauble.plugins import plugins
+from bauble.prefs_mgr import Preferences as prefs
 
 DEBUG_SQL = False
 
 class BaubleApp:
     
     def __init__(self):
-        pass
+        self.gui = None
     
 
     def delete_event(self, widget, event, data=None):
@@ -40,7 +42,8 @@ class BaubleApp:
         "existing database. Are you sure you want to create a new database?"
         if not utils.yes_no_dialog(msg):
             return
-        for t in tables.tables.values():
+        #for t in tables.tables.values():
+        for t in plugins.tables.values():
             try:
                 t.dropTable()
             except Exception, e: 
@@ -52,16 +55,17 @@ class BaubleApp:
         # TODO: need to import those tables that are required for basic
         # functionality, Areas, Regions, States, Places, Families, 
         # Genera?
-        from tools.import_export.iecsv import *
-        csv = CSVImporter(None)
+        import bauble.tools.import_export.iecsv as iecsv
+        #from tools.import_export.iecsv import *
+        csv = iecsv.CSVImporter(None)
         # TODO: need to fix this path business, should have some sort
         # of install ini file that tells us where to find the data directory
         #path = utils.get_main_dir() + ".." + os.sep + 'data' + os.sep
         path = os.getcwd() + '/../data/csv/'
         #path = '/home/brett/devel/bauble/data/'
         print path
-        files = ['Areas.txt', 'Continents.txt', 'KewRegions.txt', 'Places.txt',
-                 'Regions.txt', 'States.txt', 'Family.txt']
+        #files = ['Areas.txt', 'Continents.txt', 'KewRegions.txt', 'Places.txt',
+        #         'Regions.txt', 'States.txt', 'Family.txt']
         csv.start([path+f for f in files])
         
         # TODO: show a progress dialog about what stage in the database 
@@ -108,8 +112,8 @@ class BaubleApp:
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         
         if name is not None:
-            bauble.prefs[bauble.prefs.conn_default_pref] = name
-            bauble.prefs.save()
+            prefs[prefs.conn_default_pref] = name
+            prefs.save()
             
         
     def destroy(self, widget, data=None):
@@ -120,7 +124,7 @@ class BaubleApp:
         # in case we quit before the gui is created
         if hasattr(self, "gui") and self.gui is not None:
             self.gui.save_state()
-        bauble.prefs.save()
+        prefs.save()
         
         
     def quit(self):
@@ -137,10 +141,10 @@ class BaubleApp:
     def main(self):
         # open default database on startup
         # import these here to avoid recursive import hell
-        import gui
-        from conn_mgr import ConnectionManagerDialog
+        import bauble._gui as gui
+        from bauble.conn_mgr import ConnectionManagerDialog
         self.conn = None
-        default_conn = bauble.prefs[bauble.prefs.conn_default_pref]
+        default_conn = prefs[prefs.conn_default_pref]
         while self.conn is None:
             #gtk.gdk.threads_enter()
             cm = ConnectionManagerDialog(default_conn)
@@ -161,5 +165,5 @@ class BaubleApp:
 #        gtk.threads_leave()
 
 
-baubleApp = BaubleApp()
-import bauble
+#baubleApp = BaubleApp()
+#import bauble

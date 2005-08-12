@@ -5,6 +5,7 @@
 import sys, os
 import gtk
 import utils
+import paths
 
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
@@ -19,7 +20,8 @@ elif sys.platform == "linux2":
 else:
     raise Exception("Could not path to store preferences: unsupported platform")
 
-prefs_icon_dir = utils.get_main_dir() + os.sep + "images" + os.sep
+#prefs_icon_dir = utils.get_main_dir() + os.sep + "images" + os.sep
+prefs_icon_dir = paths.main_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
 security_prefs_icon = prefs_icon_dir + "prefs_security.png"
 

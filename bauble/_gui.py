@@ -8,13 +8,21 @@ import os, time, thread, re
 import gtk
 import gobject
 import sqlobject
-import views
-from views import views
-from editors import editors
-from tables import tables
-from prefs import *
+#import views
+#from views import views
+#from editors import editors
+#from tables import tables
+#from prefs import *
 import utils
-
+import paths
+#import plugins
+#from plugins import plugins
+#import bauble.prefs as Preferences
+#import bauble
+#Preferences = bauble.prefs # TODO: change everything to bauble.prefs
+from bauble.plugins import plugins as plugins
+from bauble.prefs_mgr import Preferences as prefs
+import bauble.plugins.searchview.search
 
 #
 # GUI
@@ -23,19 +31,19 @@ class GUI:
     
     current_view_pref = "gui.current_view"
     
-    def __init__(self, bauble):
-        self.bauble = bauble
+    def __init__(self, bauble_app):
+        self.bauble = bauble_app
         self.create_gui()
         
         # load the last view open from the prefs
-        #self.set_current_view(views.search.SearchView)
-        #return
-        v = Preferences[self.current_view_pref]
-        if v is None: 
-            v = 'views.search' # search is the default view
-        for view, module in views.modules.iteritems():
-            if module == v:
+        v = prefs[self.current_view_pref]
+        if v is None: # default view is the search view
+            v = str(bauble.plugins.searchview.search.SearchView)
+                
+        for view in plugins.views:
+            if str(view) == v:
                 self.set_current_view(view)
+                # TODO: if this view can't be show then default to SearchView
             
     def create_gui(self):            
         # create main window
@@ -55,8 +63,8 @@ class GUI:
         # toolbar right now is the add button, we should put all of this on 
         # the menu
         # put all of the toolbar 
-        toolbar = self.create_toolbar()
-        main_vbox.pack_start(toolbar, False, True, 0)
+        #toolbar = self.create_toolbar()
+        #main_vbox.pack_start(toolbar, False, True, 0)
                 
         self.content_hbox = gtk.HBox(False) # empty for now        
         #self.content_frame = gtk.Frame()
@@ -166,6 +174,7 @@ class GUI:
         here, that way the same view won't be created again if the current
         view os of the same type
         """
+        print 'set_current_view(%s)' % view_class
         #current_view = self.content_frame.get_child()
         current_view = self.get_current_view()
         if type(current_view) == view_class: return
@@ -247,7 +256,8 @@ class GUI:
 
         # load ui
         #ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
-        ui_filename = utils.get_main_dir() + os.sep + "bauble.ui"
+        #ui_filename = utils.get_main_dir() + os.sep + "bauble.ui"
+        ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_manager.add_ui_from_file(ui_filename)
 
         # get menu bar from ui manager
@@ -368,11 +378,12 @@ class GUI:
         """        
         current_view = self.get_current_view()
         if current_view is not None:
+            prefs[self.current_view_pref] = str(current_view.__class__)
             # get label of view
-            for label, view in views.iteritems(): 
-                if view == current_view.__class__:
-                    Preferences[self.current_view_pref] = views.modules[view]
-        Preferences.save()
+            #for label, view in views.iteritems(): 
+            #    if view == current_view.__class__:
+            #        Preferences[self.current_view_pref] = views.modules[view]
+        prefs.save()
         
     def on_quit(self, widget, data=None):
         self.bauble.quit()
