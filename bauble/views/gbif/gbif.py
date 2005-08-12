@@ -122,7 +122,7 @@ class GBIFView(views.View):
         # object, what's the advantage of the threading module?
         thread = DigirSearchThread(url=url, request=request,
                                    model=gtk.ListStore(str),
-                                   view=self.view, gui=self.bauble.gui)
+                                   view=self.view, gui=self.bauble.app.gui)
         thread.start()
         
         

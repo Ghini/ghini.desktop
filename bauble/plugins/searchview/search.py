@@ -5,16 +5,19 @@
 import re, threading
 import gtk
 import sqlobject
-import views
-from tables import tables
-from editors import editors
+#import views
+#from tables import tables
+#from editors import editors
 from utils.debug import debug
 import utils
 import infobox
 
 debug.enable = True
+from bauble.plugins import plugins
+tables = plugins.tables
 
 import bauble
+#from bauble import bauble
 
 # NOTE: to add a new search domain do:
 # 1. add table to search map with columns to search
@@ -39,7 +42,12 @@ import bauble
 # map
 
 
-class SearchView(views.View):
+#class SearchView(views.View):
+    
+from bauble.plugins import BaubleView
+    
+
+class SearchView(BaubleView):
     """
     1. all search parameters are by default ANDed together unless two of the
     same class are give and then they are ORed, e.g. fam=... fam=... will
@@ -49,18 +57,18 @@ class SearchView(views.View):
     4. search specifically by family, genus, sp, isp(x?), author,
     garden location, country/region or origin, conservation status, edible
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
-    """
+    """    
     search_map = {"Family": [tables.Family, ("family",)],
-                  "Genera":   [tables.Genera, ("genus",)],
-                  "Plantnames": [tables.Plantnames, ("sp","isp")],
-                  'Accessions': [tables.Accessions, ("acc_id",)],
-                  'Locations': [tables.Locations, ("site",)],
-                  'Continents': [tables.Continents, ('continent',)],
-                  'Regions': [tables.Regions, ('region',)],
-                  'Areas': [tables.Areas, ("area",)],
-                  'States': [tables.States, ('state',)],
-                  'Places': [tables.Places, ('name',)],
-                  'KewRegions': [tables.KewRegions, ('region',)]
+                  "Genus":   [tables.Genus, ("genus",)],
+                  "Plantname": [tables.Plantname, ("sp","isp")],
+#                  'Accessions': [tables.Accessions, ("acc_id",)],
+#                  'Locations': [tables.Locations, ("site",)],
+#                  'Continents': [tables.Continents, ('continent',)],
+#                  'Regions': [tables.Regions, ('region',)],
+#                  'Areas': [tables.Areas, ("area",)],
+#                  'States': [tables.States, ('state',)],
+#                  'Places': [tables.Places, ('name',)],
+#                  'KewRegions': [tables.KewRegions, ('region',)]
                   }
                    
     # other domain to implement  
@@ -72,32 +80,35 @@ class SearchView(views.View):
     # redlist, conservation
     # the keys here point to the esarch map, not a necessarily a table
     domain_map = {'Family': ('family', 'fam'),
-                  'Genera': ('genus', 'gen'),
-                  'Plantnames': ('species', 'sp'),
-                  'Accessions': ('accession', 'acc'),
-                  'Locations': ('location', 'loc'),
-                  'Continents': ('continent',),
-                  'Regions': ('region',),
-                  'Areas': ('area',),
-                  'States': ('state',),
-                  'Places': ('place',),
-                  'KewRegions': ('kewregion',),
+                  'Genus': ('genus', 'gen'),
+                  'Plantname': ('species', 'sp'),
+#                  'Accessions': ('accession', 'acc'),
+#                  'Locations': ('location', 'loc'),
+#                  'Continents': ('continent',),
+#                  'Regions': ('region',),
+#                  'Areas': ('area',),
+#                  'States': ('state',),
+#                  'Places': ('place',),
+#                  'KewRegions': ('kewregion',),
                   }
                   
     # TODO: check child expand map before adding _dummy
     child_expand_map = {tables.Family: 'genus',
-                        tables.Genera: 'plantnames',
-                        tables.Plantnames: 'accessions',
-                        tables.Accessions: 'plants',
-                        tables.Locations: 'plants'}
+                        tables.Genus: 'plantnames',
+                        tables.Plantname: 'accessions',
+#                        tables.Accessions: 'plants',
+#                        tables.Locations: 'plants'
+                        }
                         
-    infobox_map = {tables.Plantnames: infobox.PlantnamesInfoBox,
-                   tables.Plants: infobox.PlantsInfoBox,
-                   tables.Accessions: infobox.AccessionsInfoBox}
+    infobox_map = {tables.Plantname: infobox.PlantnamesInfoBox,
+#                   tables.Plant: infobox.PlantsInfoBox,
+#                   tables.Accessions: infobox.AccessionsInfoBox
+                   }
                  
     
     def __init__(self):
-        views.View.__init__(self)
+        #views.View.__init__(self)
+        super(SearchView, self).__init__()
         self.create_gui()
         self.entry.grab_focus() # this doesn't seem to work
 
@@ -232,11 +243,11 @@ class SearchView(views.View):
         for v in values:
             if v == "*" or v =="all": 
                 #return table.select()
-                return table.select(connection=bauble.conn)
+                return table.select(connection=bauble.app.conn)
             q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
-        return table.select(q, connection=bauble.conn)
+        return table.select(q, connection=bauble.app.conn)
         #return table.select(q)
                 
 
@@ -307,9 +318,9 @@ class SearchView(views.View):
         # without threading b/c the cursor doesn't get updated, maybe if 
         # waited for half second or so
         import gtk.gdk
-        bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.populate_results_no_threading(search)
-        bauble.gui.window.window.set_cursor(None)
+        bauble.app.gui.window.window.set_cursor(None)
         
         
     def populate_results_no_threading(self, search):

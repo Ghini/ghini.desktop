@@ -14,9 +14,14 @@
 # inside this module as a multiline string to avoid having to find the file on 
 # the disk
 
+# ********
+# TODO: this tool should be included in the search view plugin or at least
+# be a separate plugin that requires search view 
+#***********
+
 import os
 import gtk
-from tables import tables
+#from tables import tables
 
 try:
     import libxml2

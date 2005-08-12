@@ -2,12 +2,15 @@
 # Genera table module
 #
 
-from tables import *
+#from tables import *
+from sqlobject import *
+
+from bauble.plugins import BaubleTable
 
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
-class Genera(BaubleTable):
+class Genus(BaubleTable):
 
     _cacheValue = False
     

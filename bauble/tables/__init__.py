@@ -35,6 +35,32 @@
 # really if the values are coming from a table then maybe sticking
 # with a join is better database design
 
+# TODO: should sanitize the modules a bit, if a table depends directly
+# on another table then it should be in the same module or the one module
+# should depend on another if the table could be shared against multiple 
+# modules
+# for example a "plants" module could hold information about plants
+# while a "botanic gardens" module could hold all information about collection
+# but "botanic gardens" is dependent on plants
+# also provide a geography module which most modules would be dependent
+# on, e.g. if there was an "animal" module
+# these modules could also provide both tables and editors instead
+# of having seperate modules for each while the __init__.py could
+# just provide the list of editors, table and dependents and hints
+# to other modules, e.g. the search map for the view.search module
+# of course this means we would have to abandon the editors/table/views
+# layout and just have a plugins folder and each plugin contains
+# everything it needs or else list another plugins it depends on, the 
+# problem then is that animals and plants shouldn't share the same
+# images table but each should have it's own copy of images table, this 
+# would 
+# things to consider with this approach:
+#    1. would have to be more careful about table name clashes, e.g
+#    if you had the plants module and the animals module then they 
+#    couldn't both provide and images table, unless we set the nameing
+#    to automatically append a prefix to each table
+#    2. 
+
 import os, os.path
 import re
 from sqlobject import *
@@ -42,6 +68,7 @@ from sqlobject.inheritance import *
 
 # all tables should inherit from BaubleTable
 #class BaubleTable(InheritableSQLObject):
+print '********** importing tables'
 class BaubleTable(SQLObject):    
     sqlmeta.cacheValues = False
     

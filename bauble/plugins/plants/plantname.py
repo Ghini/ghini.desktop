@@ -3,9 +3,12 @@
 #
 
 import utils
-from tables import *
+#from tables import *
+from sqlobject import *
 
-class Plantnames(BaubleTable):
+from bauble.plugins import BaubleTable
+
+class Plantname(BaubleTable):
     
     def __init__(self, **kw):
         super(Plantnames, self).__init__(**kw)
@@ -157,9 +160,9 @@ class Plantnames(BaubleTable):
     
     # foreign keys and joins
     genus = ForeignKey('Genera', notNull=True)
-    accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
-    images = MultipleJoin('Images', joinColumn='plantname_id')
-    references = MultipleJoin('Reference', joinColumn='plantname_id')
+    #accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
+    #images = MultipleJoin('Images', joinColumn='plantname_id')
+    #references = MultipleJoin('Reference', joinColumn='plantname_id')
     
     
     ######## the rest? ##############    

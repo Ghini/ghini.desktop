@@ -9,6 +9,7 @@ import bauble
 import gtk
 import gtk.glade
 import utils
+import paths
 from tables import tables, BaubleTable
 from sqlobject import *
 import donor
@@ -463,7 +464,8 @@ class SourceEditor(TableEditor):
         
         # TODO: change this, the main_dir and the locaition of the
         # plugins may not be the same
-        path = utils.get_main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
+        #path = utils.get_main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
+        path = paths.main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
         self.glade_xml = gtk.glade.XML(path + 'source_editor.glade')
         self.dialog = self.glade_xml.get_widget('source_dialog')
         self.source_box = self.glade_xml.get_widget('source_box')

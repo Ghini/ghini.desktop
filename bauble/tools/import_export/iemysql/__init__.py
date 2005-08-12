@@ -2,10 +2,10 @@
 # MySQL Importer/Exporter
 #
 
-from bauble import *
-from tools.import_export import *
+#from bauble import *
+from bauble.tools.import_export import *
 import sqlobject
-from tables import tables
+#from tables import tables
 
 #importer = MySQLImporter
 #exporter = None
@@ -39,8 +39,8 @@ class MySQLImporter(Importer):
         if r != gtk.RESPONSE_ACCEPT:
             fc.destroy()
             return
-        bauble.gui.window.set_sensitive(False)
-        bauble.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.gui.window.set_sensitive(False)
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         filenames = fc.get_filenames()
         fc.destroy()
         t = threading.Thread(target=self.run, args=(filenames,))
@@ -93,6 +93,6 @@ class MySQLImporter(Importer):
         # TODO: popup a message dialog that says "Success." or something
         # to indicate everything was imported without problems
         gtk.gdk.threads_enter()
-        bauble.gui.window.set_sensitive(True)
-        bauble.gui.window.window.set_cursor(None)
+        bauble.app.gui.window.set_sensitive(True)
+        bauble.app.gui.window.window.set_cursor(None)
         gtk.gdk.threads_leave()

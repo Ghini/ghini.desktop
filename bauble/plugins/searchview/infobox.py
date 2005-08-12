@@ -4,9 +4,14 @@
 
 import sys, os
 import gtk
-from tables import tables
+#from tables import tables
 import utils
 import paths
+
+from bauble.plugins import plugins
+tables = plugins.tables
+#import bauble.plugins as plugins
+#tables = plugins.pluginstables
 
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear

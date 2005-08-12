@@ -53,13 +53,6 @@ def yes_no_dialog(msg):
     return r == gtk.RESPONSE_YES
 
 
-def get_main_dir():
-   if main_is_frozen():
-       dir = os.path.dirname(sys.executable)
-   else: dir = os.path.dirname(sys.argv[0])
-   if dir == "": 
-       dir = os.curdir
-   return dir
 
 
 def startfile(filename):

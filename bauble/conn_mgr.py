@@ -6,7 +6,8 @@ import copy
 import gtk
 import sqlobject
 import utils
-import bauble
+#import bauble
+from bauble.prefs_mgr import Preferences as prefs
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -140,7 +141,7 @@ class ConnectionManagerDialog(gtk.Dialog):
             return
         i = 0
         active = 0
-        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         if conn_list is None: return
         for conn in conn_list:
             self.name_combo.insert_text(i, conn)
@@ -155,7 +156,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn = prefs[prefs.conn_list_pref]
         if name in conn_list:#conn_list.has_key(name):
             del conn_list[name]
             
@@ -220,11 +221,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         
     def save_current_to_prefs(self):
         #if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
-        if bauble.prefs.conn_list_pref not in bauble.prefs:
-            bauble.prefs[bauble.prefs.conn_list_pref] = {}
+        if prefs.conn_list_pref not in prefs:
+            prefs[prefs.conn_list_pref] = {}
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
-        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         conn_list[self.current_name] = params
         
 
@@ -232,7 +233,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         name is the name of the connection in the prefs
         """
-        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         #if conn_list is None or not conn_list.has_key(name):
         if conn_list is None or name not in conn_list:
             return False
@@ -247,7 +248,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         the name changed so fill in everything else
         """
         name = combo.get_active_text()
-        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:
@@ -285,7 +286,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         # if the type changed but is the same type of the connection
         # in the name entry then set the prefs
-        conn_list = bauble.prefs[bauble.prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
             if conn_list.has_key(name) and conn_list[name]["type"]==dbtype:

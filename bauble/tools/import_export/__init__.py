@@ -6,9 +6,9 @@ import sys, os
 import threading
 import gtk
 import sqlobject
-from tables import tables
-import utils
-from bauble import bauble
+#from tables import tables
+from bauble import utils
+
 
 # TODO: load a list of all exporters, or require the exporters to register
 # themselves with us, right now just hard code them in

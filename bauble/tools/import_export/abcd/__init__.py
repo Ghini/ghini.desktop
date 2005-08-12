@@ -2,13 +2,13 @@
 # ABCD import/exporter
 #
 
-from tools.import_export import *
+from bauble.tools.import_export import *
 import csv
 import sqlobject
-from tables import tables
+#from tables import tables
 import gtk.gdk
 
-from bauble import *
+#from bauble import *
 
 import abcd
 
