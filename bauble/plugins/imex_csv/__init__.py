@@ -3,7 +3,7 @@
 #
 
 
-from bauble.tools.import_export import *
+from bauble.tools.imex import *
 import csv
 import sqlobject
 #from tables import tables
@@ -12,6 +12,18 @@ import bauble
 from bauble.plugins import plugins
 tables = plugins.tables
 
+class ImportCSVTool(BaubleTool):
+    category = "Import"
+    label = "Comma Separated Value"
+
+class ExportCSVTool(BaubleTool):
+    category = "Export"
+    label = "Comma Separated Value"
+
+class ImexCSVPlugin(BaublePlugin):
+    tools = [ImportCSVTool, ExportCSVTool]
+
+plugin = ImexCSVPlugin
 #importer = CSVImporter
 #exporter = CSVExporter
 

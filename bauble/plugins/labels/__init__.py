@@ -19,9 +19,10 @@
 # be a separate plugin that requires search view 
 #***********
 
+from bauble.plugins import BaublePlugin
+from bauble.plugins import BaubleTool
 import os
 import gtk
-#from tables import tables
 
 try:
     import libxml2
@@ -35,7 +36,11 @@ except ImportError, e:
     utils.message_box("Could not find libxslt. Please download and install it.")    
     raise
     
-import tools.import_export.abcd.abcd as abcd
+    
+class LabelMakerTool(BaubleTool):    
+    label = "Label Maker"
+    pass
+    
 
 class LabelMaker(gtk.Dialog):
     def __init__(self, plants, title='Label Maker', parent=None):
@@ -175,5 +180,13 @@ class LabelMaker(gtk.Dialog):
             
         # open and return the file hander or filename so we don't have to close it
         return filename
+
+#
+# the plugin
+#
+class LabelMakerPlugin(BaublePlugin):
+    tools = [LabelMakerTool]
+    depends = ["ImexABCDPlugin"]
+plugin = LabelMakerPlugin
         
     

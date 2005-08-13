@@ -76,13 +76,9 @@ class BaubleView(gtk.Frame):
         self.set_shadow_type(gtk.SHADOW_NONE)
 
 
-class Singleton(object):
-        _instance = None
-        def __new__(cls, *args, **kwargs):
-            if not cls._instance:
-                cls._instance = super(Singleton, cls).__new__(
-                                   cls, *args, **kwargs)
-            return cls._instance
+class BaubleTool(object):
+    pass
+
 
 class plugins:
     
@@ -91,11 +87,12 @@ class plugins:
         def __getattr__(self, attr):
             return self[attr]
             
-    _plugins = []
+    _plugins = {}
     tables = attrdict()
     editors = attrdict()
     #views = attrdict()
     views = []
+    tools = []
 
     def init(cls):
         print 'Plugins._init'
@@ -133,11 +130,16 @@ class plugins:
             mod = __import__(m, globals(), locals(), ['plugins'])
             if hasattr(mod, "plugin"): 
                 p = mod.plugin()  
-                #print p              
-                cls._plugins.append(p)
-                #cls.append(p)
-                #cls += p
-                #print 't: ' + str(p.tables)
+                #print p.__class__.__name__
+                cls._plugins[p.__class__.__name__] = p
+                #cls._plugins[p.__name__]
+                #cls._plugins.append(p)
+                        
+        for plugin in cls._plugins.value():
+            # TODO: check the plugin dependencies, if the dependencies don't exist
+            # then remove the plugin from the list and show a message, else
+            # add the table, editors, etc to this class
+            
                 for t in p.tables:
                     #print '** adding ' + t.name
                     #print t.__name__
@@ -145,6 +147,10 @@ class plugins:
                 for e in p.editors:
                     cls.editors[e.name] = e
                 cls.views += p.views
+                cls.tools += p.tools
+                
+            # TODO: now that we have all the plugins loaded we need to check their
+            # dependencies and 
                 #for v in p.views:
                 #    cls.tables[v.name] = v
                 #cls.tables += p.tables

@@ -13,11 +13,6 @@
 # TODO: should create the table the first time this plugin is loaded, if a new 
 # database is created there should be a way to recreate everything from scratch
 
-editors = []
-tables = []
-views = []
-depends = []
-
 from bauble.plugins import BaublePlugin
 from family import Family
 from genus import Genus
@@ -43,7 +38,6 @@ class PlantsPlugin(BaublePlugin):
         # of install ini file that tells us where to find the data directory
         #path = utils.get_main_dir() + ".." + os.sep + 'data' + os.sep
         path = os.dirname(__file__ + os.sep + 'default')
-        files = 
         #path = '/home/brett/devel/bauble/data/'
         print path
         files = ['Family.txt']
