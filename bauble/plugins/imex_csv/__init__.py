@@ -3,29 +3,12 @@
 #
 
 
-from bauble.tools.imex import *
 import csv
-import sqlobject
-#from tables import tables
 import gtk.gdk
+import sqlobject
+from bauble.tools.imex import *
 import bauble
-from bauble.plugins import plugins
-tables = plugins.tables
-
-class ImportCSVTool(BaubleTool):
-    category = "Import"
-    label = "Comma Separated Value"
-
-class ExportCSVTool(BaubleTool):
-    category = "Export"
-    label = "Comma Separated Value"
-
-class ImexCSVPlugin(BaublePlugin):
-    tools = [ImportCSVTool, ExportCSVTool]
-
-plugin = ImexCSVPlugin
-#importer = CSVImporter
-#exporter = CSVExporter
+from bauble.plugins import BaubleTool, BaublePlugin, plugins
 
 csv_format_params = {}
 
@@ -48,17 +31,7 @@ type_validators = {int: lambda x: int(x),
 
 # TODO: it would be easier to create this gui in glade
 
-class CSVImporter(Importer):
-    
-    def __init__(self, dialog):
-        Importer.__init__(self, dialog)
-        self.create_gui()
-    
-    
-    def create_gui(self):
-        # create checkboxes for format paramater options used by csv modules
-        pass
-    
+class CSVImporter:
     
     def start(self, filenames=None):
         """
@@ -167,7 +140,8 @@ class CSVImporter(Importer):
             table_name, ext = os.path.splitext(base)
             # the name of the file has to match the name of the 
             # tables class
-            if table_name not in tables:
+            #if table_name not in tables:
+            if table_name not in plugins.tables:
                 msg = "%s table does not exist. Would you like to continue " \
                       "importing the rest of the tables?" % table_name
                 gtk.threads_enter()
@@ -184,7 +158,7 @@ class CSVImporter(Importer):
             gtk.threads_leave()
                             
             try:
-                self.import_file(filename, tables[table_name], trans)
+                self.import_file(filename, plugins.tables[table_name], trans)
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
@@ -282,3 +256,25 @@ class CSVExporter(Exporter):
         print 'exporting completed.'
         #progress.destroy()
             
+#
+# plugin classes
+#
+
+class CSVImportTool(BaubleTool):
+    category = "Import"
+    label = "Comma Separated Value"
+    
+    def start(cls):
+        print "CSVImportTool.start()"
+        c = CSVImporter()
+        c.start()
+    start = classmethod(start)
+
+class CSVExportTool(BaubleTool):
+    category = "Export"
+    label = "Comma Separated Value"
+
+class CSVImexPlugin(BaublePlugin):
+    tools = [CSVImportTool, CSVExportTool]
+
+plugin = CSVImexPlugin

@@ -13,7 +13,7 @@ import utils
 import infobox
 
 debug.enable = True
-from bauble.plugins import plugins
+from bauble.plugins import BaubleView, plugins
 tables = plugins.tables
 
 import bauble
@@ -42,10 +42,37 @@ import bauble
 # map
 
 
-#class SearchView(views.View):
+class SearchMeta:
     
-from bauble.plugins import BaubleView
+    def __init__(self, table_name, column_names):#, domains):
+        """
+        table_name: the name of the table this meta refers to
+        column_names: the names of the table columns that will be search
+        domain: what names we will use to refer to this meta
+        """
+        # the name of the table this meta refers to
+        self.table = plugins.tables[table_name]
+        if type(column_names) is not list:
+            raise ValueError("SearchMeta.__init__: column_names must be a list")
+        #if type(domains) is not list:
+        #    raise ValueError("SearchMeta.__init__: domains must be a list")
+                    
+        # the columns to search when refering to this domain
+        self.columns = column_names
+        # a list of names this table will be refered to as
+        #self.domains = domains
+        
+
+class ResultsMeta:
     
+    def __init__(self, expand_child_name=None, infobox_class=None):        
+        if infobox_class is not None and \
+          not issubclass(infobox_class, infobox.InfoBox):
+            msg = "infobox_class must be a class whose parent class is InfoBox"
+            raise ValueError("ResultsViewMeta.__init__: ", msg)
+        self.expand_child = expand_child_name
+        self.infobox = infobox_class
+
 
 class SearchView(BaubleView):
     """
@@ -58,9 +85,36 @@ class SearchView(BaubleView):
     garden location, country/region or origin, conservation status, edible
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
     """    
-    search_map = {"Family": [tables.Family, ("family",)],
-                  "Genus":   [tables.Genus, ("genus",)],
-                  "Plantname": [tables.Plantname, ("sp","isp")],
+#    search_map = {"Family": [tables["Family"], ("family",)],
+#                  "Genus":   [tables["Genus"], ("genus",)],
+#                  "Plantname": [tables["Plantname"], ("sp","isp")],
+                                                
+    # the search map is keyed by domain, this means that the same search
+    # meta instance can be refered to by more than one key
+    #search_map = {} # dictionary of search metas
+    domain_map = {}
+    search_metas = {}
+    results_meta = {} 
+        
+    def register_search_meta(cls, domain, search_meta):        
+        table_name = search_meta.table.__name__
+        cls.domain_map[domain] = table_name
+        cls.search_metas[table_name] = search_meta
+    register_search_meta = classmethod(register_search_meta)
+            
+    def register_results_meta(cls, table_name, results_meta):
+        cls.results_meta[table_name] = results_meta
+    register_results_meta = classmethod(register_results_meta)
+    
+   
+    #search_map = {} # can be extended by plugins
+    #domain_map = {}
+    #child_expand_map = {}
+    #infobox_map = {}
+#    search_map = {"Family": [plugins.tables["Family"], ("family",)],
+#                  "Genus":   [plugins.tables.Genus, ("genus",)],
+#                  "Plantname": [tables.Plantname, ("sp","isp")],                                                     
+                                                     
 #                  'Accessions': [tables.Accessions, ("acc_id",)],
 #                  'Locations': [tables.Locations, ("site",)],
 #                  'Continents': [tables.Continents, ('continent',)],
@@ -69,7 +123,7 @@ class SearchView(BaubleView):
 #                  'States': [tables.States, ('state',)],
 #                  'Places': [tables.Places, ('name',)],
 #                  'KewRegions': [tables.KewRegions, ('region',)]
-                  }
+#                  }
                    
     # other domain to implement  
     # name, sp, species (shouldn't use "name", implies full name)
@@ -79,9 +133,9 @@ class SearchView(BaubleView):
     # medicine
     # redlist, conservation
     # the keys here point to the esarch map, not a necessarily a table
-    domain_map = {'Family': ('family', 'fam'),
-                  'Genus': ('genus', 'gen'),
-                  'Plantname': ('species', 'sp'),
+#    domain_map = {'Family': ('family', 'fam'),
+#                  'Genus': ('genus', 'gen'),
+#                  'Plantname': ('species', 'sp'),
 #                  'Accessions': ('accession', 'acc'),
 #                  'Locations': ('location', 'loc'),
 #                  'Continents': ('continent',),
@@ -90,20 +144,20 @@ class SearchView(BaubleView):
 #                  'States': ('state',),
 #                  'Places': ('place',),
 #                  'KewRegions': ('kewregion',),
-                  }
+                  #}
                   
     # TODO: check child expand map before adding _dummy
-    child_expand_map = {tables.Family: 'genus',
-                        tables.Genus: 'plantnames',
-                        tables.Plantname: 'accessions',
+#    child_expand_map = {tables.Family: 'genus',
+#                        tables.Genus: 'plantnames',
+#                        tables.Plantname: 'accessions',
 #                        tables.Accessions: 'plants',
 #                        tables.Locations: 'plants'
-                        }
+#                        }
                         
-    infobox_map = {tables.Plantname: infobox.PlantnamesInfoBox,
+#    infobox_map = {tables.Plantname: infobox.PlantnamesInfoBox,
 #                   tables.Plant: infobox.PlantsInfoBox,
 #                   tables.Accessions: infobox.AccessionsInfoBox
-                   }
+#                   }
                  
     
     def __init__(self):
@@ -113,7 +167,33 @@ class SearchView(BaubleView):
         self.entry.grab_focus() # this doesn't seem to work
 
     
-    def set_infobox_from_row(self, row):
+    def set_infobox_from_row(self, row):        
+        if not hasattr(self, 'infobox'):
+            self.infobox = None
+        
+        # TODO: check the class of the current infobox and if it matches
+        # the class of the infobox we want to add then just update the values
+        # instead of removing the infobox 
+        
+        # remove the old infobox
+        if self.infobox is not None:
+            if self.infobox.parent == self.pane:
+                self.pane.remove(self.infobox)
+            self.infobox.destroy()
+
+        # row is an object instance not a class so we have to get the class
+        # and then the name to look it up in self.results_meta
+        table_name = type(row).__name__
+        if table_name in self.results_meta and \
+          self.results_meta[table_name].infobox is not None:
+            self.infobox = self.results_meta[table_name].infobox            
+            if row is not None:
+                self.infobox.update(row)
+            self.pane.pack2(self.infobox, False, True)
+            #self.pane.pack2(self.infobox, True, True)
+        self.pane.show_all() # reset the pane
+
+    def set_infobox_from_row_old(self, row):
         #return
         if not hasattr(self, 'infobox'):
             self.infobox = None
@@ -174,7 +254,8 @@ class SearchView(BaubleView):
         
         try:
             search = self.parse_text(text)
-        except Exception, (msg, domain):
+            print "search: " + str(search)
+        except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
             self.results_view.set_model(model)
@@ -194,7 +275,7 @@ class SearchView(BaubleView):
             model.remove(child)
 
 
-    def on_test_expand_row(self, view, iter, path, data=None):
+    def on_test_expand_row_old(self, view, iter, path, data=None):
         """
         look up the table type of the selected row and if it has
         any children then add them to the row
@@ -218,9 +299,67 @@ class SearchView(BaubleView):
         #bauble.gui.stop_progressbar()
         print 'leaving SearchView.on_text_expand_row(): True'
         return True
-
         
+        
+    def on_test_expand_row(self, view, iter, path, data=None):
+        """
+        look up the table type of the selected row and if it has
+        any children then add them to the row
+        """
+        expand = False
+        model = view.get_model()
+        row = model.get_value(iter, 0)
+        view.collapse_row(path)
+        self.remove_children(model, iter)
+        table_name = type(row).__name__
+        child = self.results_meta[table_name].expand_child
+        if child is None:
+            return True # don't expand
+        kids = getattr(row, child)
+        if len(kids):
+            self.append_children(model, iter, kids, True)
+            #bauble.gui.stop_progressbar()
+            return False
+        #bauble.gui.pulse_progressbar()
+        #for table, child in self.child_expand_map.iteritems():
+        #    if t == table:
+         
+        #bauble.gui.stop_progressbar()
+        return True
+
+    
     def query(self, domain, values):
+        print "SearchView.query()"
+        print domain
+        print values
+        if domain == "default":
+            results = []
+            for table_name in self.search_metas.keys():
+                results += self.query_table(tables_name, values)            
+            return results
+            
+        table = self.domain_map[domain]
+        return self.query_table(table, values)
+        
+                    
+    def query_table(self, table_name, values):
+        if table_name not in self.search_metas:
+            raise ValueError("SearchView.query: no search meta for domain ", 
+                              domain)
+        search_meta = self.search_metas[table_name]
+        table = search_meta.table
+        columns = search_meta.columns
+        for v in values:
+            if v == "*" or v == "all":
+                return table.select(connection=bauble.app.conn)
+            q = "%s LIKE '%%%s%%'" % (columns[0], v)                    
+            for c in columns[1:]:
+                q += " OR %s LIKE '%%%s%%'" % (c, v)
+        print q
+        return table.select(q, connection=bauble.app.conn)
+        
+        
+    def query_old(self, domain, values):
         """
         """
         if domain == "default": # search all field in search_map
@@ -254,6 +393,7 @@ class SearchView(BaubleView):
     def parse_text(self, text):
         """
         """
+        print "SearchView.parse_text()"
         # TODO: should allow plurals like genera=1,2 and parse
         # them apart, also need to account for values in quotations        
         pieces = text.split(' ')
@@ -267,23 +407,40 @@ class SearchView(BaubleView):
                 searches["default"].append(p)
             else:                
                 g = m.groups()                
-                domain = self.resolve_domain(g[0])
-                if domain not in self.search_map:
-                    raise Exception("views.search: unknown search domain: " + g[0], g[0])
-                if domain not in searches: searches[domain] = []
+                print g
+                #domain = self.g[0].lower()
+                domain = g[0].lower()
+                if domain not in self.domain_map:
+                    msg = "unknown domain -- " + domain                    
+                    raise SyntaxError("SearchView.parse_text: ", msg)
+                if domain not in searches:
+                    searches[domain] = []
                 searches[domain].append(g[1])
+                #domain = self.resolve_domain(g[0])
+                #if domain not in self.search_map:
+                #    raise Exception("views.search: unknown search domain: " + g[0], g[0])
+                #if domain not in searches: searches[domain] = []
+                #searches[domain].append(g[1])
+                #printes
         return searches
 
 
-    def resolve_domain(self, domain):
-        """
-        given some string this method returns a table name or None if the
-        string doesn't match a table
-        """
-        for key, values in self.domain_map.iteritems():
-            if domain.lower() in values:
-                return key
-        return None
+#    def resolve_domain(self, domain):
+#        d = domain.lower()
+#        if d in self.domain_map:
+#            return self.domain_map[d]
+#        return None
+#    
+#    def resolve_domain_old(self, domain):
+#        """
+#        given some string this method returns a table name or None if the
+#        string doesn't match a table
+#        """
+#        
+#        for key, values in self.domain_map.iteritems():
+#            if domain.lower() in values:
+#                return key
+#        return None
 
     
     def populate_worker(self, search):

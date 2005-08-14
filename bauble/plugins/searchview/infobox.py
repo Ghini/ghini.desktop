@@ -278,13 +278,7 @@ class AccessionsInfoBox(InfoBox):
             self.source.update(row._donation)
     
     
-class FamiliesInfoBox(InfoBox):
-    """
-    - number of taxon in number of genera
-    - references
-    """
-    def __init__(self):
-        InfoBox.__init__(self)
+
         
         
 class GeneraInfoBox(InfoBox):

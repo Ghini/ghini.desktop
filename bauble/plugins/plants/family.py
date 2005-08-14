@@ -23,3 +23,16 @@ class Family(BaubleTable):
     #_updated = DateTimeCol(default=None, forceDBName=True)
 
     def __str__(self): return self.family
+
+try:
+    from bauble.plugins.searchview.infobox import InfoBox
+except ImportError:
+    pass
+else:
+    class FamiliesInfoBox(InfoBox):
+        """
+        - number of taxon in number of genera
+        - references
+        """
+        def __init__(self):
+            InfoBox.__init__(self)

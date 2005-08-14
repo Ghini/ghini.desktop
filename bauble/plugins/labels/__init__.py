@@ -186,7 +186,7 @@ class LabelMaker(gtk.Dialog):
 #
 class LabelMakerPlugin(BaublePlugin):
     tools = [LabelMakerTool]
-    depends = ["ImexABCDPlugin"]
+    depends = ["ABCDImexPlugin"]
 plugin = LabelMakerPlugin
         
     

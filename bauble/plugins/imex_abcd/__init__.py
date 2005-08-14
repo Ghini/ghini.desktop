@@ -2,15 +2,12 @@
 # ABCD import/exporter
 #
 
-from bauble.tools.import_export import *
+from bauble.plugins import BaublePlugin, BaubleTool, plugins
+from bauble.tools.imex import *
 import csv
 import sqlobject
-#from tables import tables
 import gtk.gdk
-
-#from bauble import *
-
-import abcd
+import bauble.plugins.imex_abcd.abcd
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -31,66 +28,29 @@ import abcd
 # case just for generating labels
 # 
 
-class ABCDImporter(Importer):
-    
-    def __init__(self, dialog):
-        Importer.__init__(self, dialog)
-        self.create_gui()
-    
-    
-    def create_gui(self):
-        # create checkboxes for format paramater options used by csv modules
-        pass
-    
-    
+class ABCDImporter:
+
     def start(self, filenames=None):
         pass
         
     def run(self, filenames):
         pass
         
-        
-class ABCDExporter(Exporter):
     
-    def __init__(self, dialog=None):
-        Exporter.__init__(self, dialog)
-        if dialog is not None:
-            self.create_gui()
-        
-    def create_gui(self):
-        label = gtk.Label("Export to: ")
-        self.pack_start(label)
-        
-        #d = gtk.FileChooserDialog(action=gtk.FILE_CHOOSER_ACTION_SAVE)
-        #self.chooser_button = gtk.FileChooserButton(d)
-        #self.chooser_button = gtk.FileChooserButton('Select a new filename...')
-        self.chooser_button = gtk.Button("Choose a filename...")
-        self.chooser_button.connect("clicked", self.on_clicked_chooser_button)
-        self.pack_start(self.chooser_button)        
-        ok_button = self.dialog.action_area.get_children()[1]
-        ok_button.set_sensitive(False)
-        self.dialog.set_focus(ok_button)
-        pass
+class ABCDExporter:
     
-    
-    def on_clicked_chooser_button(self, button, data=None):
-        d = gtk.FileChooserDialog("Select a directory", None,
-                                   gtk.FILE_CHOOSER_ACTION_SAVE,
-                                  #gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
-        if filename is not None:
-            ok_button = self.dialog.action_area.get_children()[1]
-            ok_button.set_sensitive(True)
-            button.set_label(filename)
-            self.path = filename # set it so it's available in run
-        d.destroy()
-    
-    
-    def start(self):        
-        self.run(self.path)
+    def start(self, filename=None, plants=None):
+        if filename == None: # no filename, ask the user
+            d = gtk.FileChooserDialog("Choose a file to export to...", None,
+                                      gtk.FILE_CHOOSER_ACTION_SAVE,
+                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                       gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            response = d.run()
+            filename = d.get_filename()
+            d.destroy()
+            if response != gtk.RESPONSE_ACCEPT or filename == None:
+                return
+        self.run(filename, plants)
         
     
     def run(self, filename, plants=None):
@@ -101,10 +61,35 @@ class ABCDExporter(Exporter):
         
         # if plants is None then export all plants, this could be huge 
         if plants == None:            
-            plants = tables.Plants.select()
+            plants = plugins.tables["Plant"].select()
         data = abcd.plants_to_abcd(plants)
         f = open(filename, "w")
         f.write(data)
         f.close()
+        
+        
+class ABCDImportTool(BaubleTool):
+    category = "Import"
+    label = "ABCD"
+
+    def start(cls):
+        ABCDImporter().start()
+    start = classmethod(start)
+    
+    
+class ABCDExportTool(BaubleTool):
+    category = "Export"
+    label = "ABCD"
+    
+    def start(cls):
+        ABCDExporter().start()
+    start = classmethod(start)
+    
+
+class ABCDImexPlugin(BaublePlugin):
+    #tools = [ABCDImportTool, ABCDExportTool]
+    tools = [ABCDExportTool]
+    depends = ["PlantsPlugin"]
+plugin = ABCDImexPlugin
             
             

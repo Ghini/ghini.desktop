@@ -1,5 +1,5 @@
 <ui>
-  <menubar name = "MenuBar">
+  <menubar name="MenuBar">
     <menu action="file">
       <menuitem action="file_new"/>
       <menuitem action="file_open"/>
@@ -14,10 +14,8 @@
       <menuitem action="edit_preferences"/>
       <separator/>
     </menu>    
-    <menu action="tools">
-		<menuitem action="import"/>
-    	<menuitem action="export"/>
-    	<menuitem action="label"/>
+    <menu name="Tools" action="tools">
+    <separator/>
     </menu>
   </menubar>
 </ui>

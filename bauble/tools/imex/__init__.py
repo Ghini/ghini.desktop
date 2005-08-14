@@ -166,13 +166,13 @@ class Importer(gtk.VBox):
     def start(self):
         raise NotImplementedError
 
-import iecsv
-import abcd
-import iemysql
+#import iecsv
+#import abcd
+#import iemysql
 
 # importers and exporters
-imexes = {"Comma Separated Values": (iecsv.CSVImporter, iecsv.CSVExporter),
-          "MySQL": (iemysql.MySQLImporter, None),
-          "ABCD (2.05)": (None, abcd.ABCDExporter)}
+#imexes = {"Comma Separated Values": (iecsv.CSVImporter, iecsv.CSVExporter),
+#          "MySQL": (iemysql.MySQLImporter, None),
+#          "ABCD (2.05)": (None, abcd.ABCDExporter)}
 
     

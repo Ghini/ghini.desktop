@@ -3,7 +3,7 @@
 #
 
 #from bauble import *
-from bauble.tools.import_export import *
+from bauble.tools.imex import *
 import sqlobject
 #from tables import tables
 

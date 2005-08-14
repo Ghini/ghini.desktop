@@ -31,7 +31,7 @@ class Genus(BaubleTable):
     
     # foreign key    
     family = ForeignKey('Family', notNull=True)
-    plantnames = MultipleJoin("Plantnames", joinColumn="genus_id")
+    plantnames = MultipleJoin("Plantname", joinColumn="genus_id")
 
     # internal
     #_entered = DateTimeCol(default=None)

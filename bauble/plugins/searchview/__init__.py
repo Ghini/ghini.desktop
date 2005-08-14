@@ -3,12 +3,17 @@
 #
 
 import sys
-import search
-from bauble.plugins import BaublePlugin
+from bauble.plugins import BaublePlugin, plugins
 
 class SearchViewPlugin(BaublePlugin):
     label = 'Search'
-    description = ''
-    views = [search.SearchView]
-
+    description = ''    
+    
+    def init(cls):
+        print "SearchViewPlugin.init()"
+    init = classmethod(init)
+    
+    from search import SearchView
+    views = [SearchView]
+            
 plugin = SearchViewPlugin

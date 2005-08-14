@@ -5,21 +5,10 @@
 #
 
 import os, time, thread, re
-import gtk
-import gobject
+import gtk, gobject
 import sqlobject
-#import views
-#from views import views
-#from editors import editors
-#from tables import tables
-#from prefs import *
-import utils
-import paths
-#import plugins
-#from plugins import plugins
-#import bauble.prefs as Preferences
-#import bauble
-#Preferences = bauble.prefs # TODO: change everything to bauble.prefs
+import bauble.utils as utils
+import bauble.paths as paths
 from bauble.plugins import plugins as plugins
 from bauble.prefs_mgr import Preferences as prefs
 import bauble.plugins.searchview.search
@@ -174,7 +163,7 @@ class GUI:
         here, that way the same view won't be created again if the current
         view os of the same type
         """
-        print 'set_current_view(%s)' % view_class
+        #print 'set_current_view(%s)' % view_class
         #current_view = self.content_frame.get_child()
         current_view = self.get_current_view()
         if type(current_view) == view_class: return
@@ -245,12 +234,12 @@ class GUI:
                                   ("edit_preferences", None , "_Preferences", 
                                    "<control>P", None, self.on_edit_menu_prefs), 
                                   ("tools", None, "_Tools"),
-                                   ("export", None, "_Export", None, 
-                                   None, self.on_tools_menu_export), 
-                                   ("import", None, "_Import", None, 
-                                   None, self.on_tools_menu_import), 
-                                   ("label", None, "_Label Maker", None, 
-                                   None, self.on_tools_menu_label_maker), 
+#                                   ("export", None, "_Export", None, 
+#                                   None, self.on_tools_menu_export), 
+#                                   ("import", None, "_Import", None, 
+#                                   None, self.on_tools_menu_import), 
+#                                   ("label", None, "_Label Maker", None, 
+#                                   None, self.on_tools_menu_label_maker), 
                                   ])
         ui_manager.insert_action_group(menu_actions, 0)
 
@@ -262,9 +251,38 @@ class GUI:
 
         # get menu bar from ui manager
         mb = ui_manager.get_widget("/MenuBar")
+        
+        # TODO: why does't using the tools menu from the ui manager work
+        #tools_menu = ui_manager.get_widget("/MenuBar/Tools")
+        tools_menu = gtk.MenuItem("Tools")        
+        menu = self.build_tools_menu()
+        tools_menu.set_submenu(menu)
+        mb.append(tools_menu)
+
         return mb
     
     
+    def build_tools_menu(self):        
+        menu = gtk.Menu()
+        submenus = {}
+        for tool in plugins.tools:
+            item = gtk.MenuItem(tool.label)
+            item.connect("activate", self.on_tools_menu_item_activate, tool)
+            if tool.category is None: # not category
+                menu.append(item)
+            else:
+                if tool.category not in submenus: # create new category
+                    category_menu_item = gtk.MenuItem(tool.category)                    
+                    category_menu = gtk.Menu()
+                    category_menu_item.set_submenu(category_menu)
+                    menu.prepend(category_menu_item)
+                    submenus[tool.category] = category_menu
+                submenus[tool.category].append(item)
+        return menu
+        
+    def on_tools_menu_item_activate(self, widget, tool):
+        tool.start()
+        
     def on_tools_menu_label_maker(self, widget, data=None):
         import tools.labels
         
@@ -312,20 +330,6 @@ class GUI:
             utils.startfile(pdf_filename)        
         d.destroy()
         
-        
-    def on_tools_menu_export(self, widget, data=None):
-        import tools.import_export
-        d = tools.import_export.ExportDialog()
-        d.run()
-        d.destroy()
-
-
-    def on_tools_menu_import(self, widget, data=None):
-        import tools.import_export
-        d = tools.import_export.ImportDialog()
-        d.run()
-        d.destroy()
-
         
     def on_edit_menu_prefs(self, widget, data=None):
         p = PreferencesMgr()

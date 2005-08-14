@@ -5,15 +5,9 @@
 
 
 import os, sys
-import utils
 import gtk
 from sqlobject import *
-#import bauble
-#from conn_mgr import *
-
-#import tables
-#import prefs
-#from prefs import Preferences
+import bauble.utils as utils
 from bauble.plugins import plugins
 from bauble.prefs_mgr import Preferences as prefs
 
@@ -38,6 +32,17 @@ class BaubleApp:
 
 
     def create_database(self):
+        #msg = "Creating a new database on this connection could overwrite an "\
+        #"existing database. Are you sure you want to create a new database?"
+        msg = "If a database already exists at this connection then creating " \
+              "a new database will delete the old database.\n\nAre you sure " \
+              "this is what you want to do?"
+        if not utils.yes_no_dialog(msg):
+            return
+        for p in plugins.__iter__():
+            p.create_tables()
+            
+    def create_database_old(self):
         msg = "Creating a new database on this connection could overwrite an "\
         "existing database. Are you sure you want to create a new database?"
         if not utils.yes_no_dialog(msg):
@@ -55,19 +60,20 @@ class BaubleApp:
         # TODO: need to import those tables that are required for basic
         # functionality, Areas, Regions, States, Places, Families, 
         # Genera?
-        import bauble.tools.import_export.iecsv as iecsv
+        #import bauble.tools.import_export.iecsv as iecsv
         #from tools.import_export.iecsv import *
-        csv = iecsv.CSVImporter(None)
+        #csv = iecsv.CSVImporter(None)
         # TODO: need to fix this path business, should have some sort
         # of install ini file that tells us where to find the data directory
         #path = utils.get_main_dir() + ".." + os.sep + 'data' + os.sep
-        path = os.getcwd() + '/../data/csv/'
+        #path = os.getcwd() + '/../data/csv/'
         #path = '/home/brett/devel/bauble/data/'
-        print path
+        #print path
         #files = ['Areas.txt', 'Continents.txt', 'KewRegions.txt', 'Places.txt',
         #         'Regions.txt', 'States.txt', 'Family.txt']
-        csv.start([path+f for f in files])
-        
+        #csv.start([path+f for f in files])
+        #from bauble.plugins import plugins
+        #plugins.install()
         # TODO: show a progress dialog about what stage in the database 
         # creation process we're in
         
@@ -139,6 +145,13 @@ class BaubleApp:
             
     
     def main(self):
+        
+        from bauble.plugins import plugins
+        # intialize the plugins        
+        plugins()
+        plugins.load()
+        plugins.init()
+        
         # open default database on startup
         # import these here to avoid recursive import hell
         import bauble._gui as gui
@@ -158,6 +171,9 @@ class BaubleApp:
             #gtk.gdk.threads_leave()
             self.open_database(uri, name, True)
                 
+        
+        
+        
         # now that we have a connection build and show the gui
         self.gui = gui.GUI(self)
 #        gtk.threads_enter()
