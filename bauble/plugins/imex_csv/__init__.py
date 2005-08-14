@@ -3,12 +3,12 @@
 #
 
 
-import csv
+import csv, traceback
 import gtk.gdk
 import sqlobject
 from bauble.tools.imex import *
 import bauble
-from bauble.plugins import BaubleTool, BaublePlugin, plugins
+from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
 
 csv_format_params = {}
 
@@ -110,7 +110,9 @@ class CSVImporter:
                     else: line[col] = validators[col](line[col])
                 table(connection=connection, **line) # add row to table
         except Exception, e:
-            sys.stderr.write("CSVImporter.import_file() -- cold not import table" + table)
+            sys.stderr.write("CSVImporter.import_file() -- cold not import " \
+                             "table " + table.__name__)
+            traceback.print_exc()                 
             raise ImportError(str(line))
         
             
@@ -141,7 +143,7 @@ class CSVImporter:
             # the name of the file has to match the name of the 
             # tables class
             #if table_name not in tables:
-            if table_name not in plugins.tables:
+            if table_name not in tables:
                 msg = "%s table does not exist. Would you like to continue " \
                       "importing the rest of the tables?" % table_name
                 gtk.threads_enter()
@@ -158,15 +160,16 @@ class CSVImporter:
             gtk.threads_leave()
                             
             try:
-                self.import_file(filename, plugins.tables[table_name], trans)
+                self.import_file(filename, tables[table_name], trans)
             except Exception, e:
                 # TODO: should ask the user if they would like to import the 
                 # rest of the tables or bail, should probably do all commits in 
                 # one transaction so all data gets imported from all files 
                 # successfully or nothing at all
                 msg = "Error importing values from %s into table %s\n" % (filename, table_name)
-                
-                sys.stderr.write(msg)
+                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                traceback.print_exc()
+                #sys.stderr.write(msg)
                 sys.stderr.write(str(e) + '\n')
                 trans.rollback()
             else:

@@ -8,8 +8,10 @@ import gtk
 import utils
 import paths
 
-from bauble.plugins import plugins
-tables = plugins.tables
+#import bauble.plugins
+#from bauble.plugins import plugins
+from bauble.plugins import tables
+#tables = bauble.plugins.tables
 #import bauble.plugins as plugins
 #tables = plugins.pluginstables
 

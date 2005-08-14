@@ -19,8 +19,6 @@
 # be a separate plugin that requires search view 
 #***********
 
-from bauble.plugins import BaublePlugin
-from bauble.plugins import BaubleTool
 import os
 import gtk
 
@@ -36,13 +34,13 @@ except ImportError, e:
     utils.message_box("Could not find libxslt. Please download and install it.")    
     raise
     
-    
-class LabelMakerTool(BaubleTool):    
-    label = "Label Maker"
-    pass
+from bauble.plugins import BaublePlugin, BaubleTool, plugins
+import bauble.utils as utils
     
 
 class LabelMaker(gtk.Dialog):
+    
+    
     def __init__(self, plants, title='Label Maker', parent=None):
         """
         plants - the list of Plants to generate the labels from
@@ -184,6 +182,68 @@ class LabelMaker(gtk.Dialog):
 #
 # the plugin
 #
+
+class LabelMakerTool(BaubleTool):    
+    label = "Label Maker"
+    
+    def start(self):
+        #import tools.labels
+        
+        # TODO: really the Label Maker tool should only be sensitive if the 
+        # search view is visible but right now since we only have one view 
+        # we won't worry about that
+        
+        # get all of the current plants from the view
+        import bauble
+        view = bauble.app.gui.get_current_view()        
+        #view = self.get_current_view()
+        #if not isinstance(view, views.Search):
+        #if not instance(view, bauble.plugins.searchview.search.SearchView):
+        
+        # TODO: change plugins.views so we can access it like this
+        # if not isinstance(view, plugins.views["SearchView"]):
+        if not isinstance(view, bauble.plugins.searchview.search.SearchView):
+            raise Error("GUI.on_tools_menu_label_maker: can only "\
+                        "make labels from the search vew")
+                        
+        # TODO: this assumes a but too much about SearchView's internal workings
+        model = view.results_view.get_model()
+        if model is None:
+            utils.message_dialog("Search for something first.")
+            return
+        
+        plants = []
+        for row in model:
+            value = row[0]
+            # right now we don't create labels for all plants under
+            # families and genera
+            tables = plugins.tables
+            if isinstance(value, tables.Family):
+                print "family: " + str(value)
+            elif isinstance(value, tables.Genera):
+                print "genera: " + str(value)
+            elif isinstance(value, tables.Plantnames):
+                for acc in value.accessions:
+                    plants += acc.plants
+            elif isinstance(value, tables.Accessions):
+                plants += value.plants
+            elif isinstance(value, tables.Plants):
+                plants.append(value)            
+            elif isinstance(value, tables.Locations):
+                plants += value.plants
+            
+        #print plants
+        label_maker = LabelMaker(plants)
+        response = label_maker.run()
+        if response == gtk.RESPONSE_ACCEPT:
+            pdf_filename = label_maker.create_pdf()
+            print pdf_filename
+            utils.startfile(pdf_filename)        
+        label_maker.destroy()
+        
+    start = classmethod(start)
+    
+    
 class LabelMakerPlugin(BaublePlugin):
     tools = [LabelMakerTool]
     depends = ["ABCDImexPlugin"]

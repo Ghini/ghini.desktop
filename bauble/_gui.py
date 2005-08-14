@@ -9,7 +9,7 @@ import gtk, gobject
 import sqlobject
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins import plugins as plugins
+from bauble.plugins import plugins, tools, views
 from bauble.prefs_mgr import Preferences as prefs
 import bauble.plugins.searchview.search
 
@@ -26,13 +26,14 @@ class GUI:
         
         # load the last view open from the prefs
         v = prefs[self.current_view_pref]
-        if v is None: # default view is the search view
-            v = str(bauble.plugins.searchview.search.SearchView)
-                
-        for view in plugins.views:
-            if str(view) == v:
+        if v is None: # default view is the search view            
+            v = views["SearchView"]
+
+        for name, view in views.iteritems():
+            if v == str(view):
                 self.set_current_view(view)
-                # TODO: if this view can't be show then default to SearchView
+                # TODO: if this view can't be shown then default to SearchView
+            
             
     def create_gui(self):            
         # create main window
@@ -265,7 +266,7 @@ class GUI:
     def build_tools_menu(self):        
         menu = gtk.Menu()
         submenus = {}
-        for tool in plugins.tools:
+        for tool in tools.values():
             item = gtk.MenuItem(tool.label)
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             if tool.category is None: # not category
@@ -282,54 +283,7 @@ class GUI:
         
     def on_tools_menu_item_activate(self, widget, tool):
         tool.start()
-        
-    def on_tools_menu_label_maker(self, widget, data=None):
-        import tools.labels
-        
-        # TODO: really the Label Maker tool should only be sensitive if the 
-        # search view is visible but right now since we only have one view 
-        # we won't worry about that
-        
-        # get all of the current plants from the view
-        view = self.get_current_view()
-        if not isinstance(view, views.Search):
-            raise Error("GUI.on_tools_menu_label_maker: can only "\
-                        "make labels from the search vew")
-                        
-        # TODO: this assumes a but too much about SearchView's internal workings
-        model = view.results_view.get_model()
-        if model is None:
-            utils.message_dialog("Search for something first.")
-            return
-        
-        plants = []
-        for row in model:
-            value = row[0]
-            # right now we don't create labels for all plants under
-            # families and genera
-            if isinstance(value, tables.Family):
-                print "family: " + str(value)
-            elif isinstance(value, tables.Genera):
-                print "genera: " + str(value)
-            elif isinstance(value, tables.Plantnames):
-                for acc in value.accessions:
-                    plants += acc.plants
-            elif isinstance(value, tables.Accessions):
-                plants += value.plants
-            elif isinstance(value, tables.Plants):
-                plants.append(value)            
-            elif isinstance(value, tables.Locations):
-                plants += value.plants
             
-        #print plants        
-        d = tools.labels.LabelMaker(plants)
-        response = d.run()
-        if response == gtk.RESPONSE_ACCEPT:
-            pdf_filename = d.create_pdf()
-            print pdf_filename
-            utils.startfile(pdf_filename)        
-        d.destroy()
-        
         
     def on_edit_menu_prefs(self, widget, data=None):
         p = PreferencesMgr()

@@ -4,7 +4,8 @@
 
 #from tables import *
 from sqlobject import *
-from bauble.plugins import BaubleTable
+from bauble.plugins import BaubleTable, tables
+from bauble.plugins.editor import TreeViewEditorDialog
 
 class Family(BaubleTable):
 
@@ -24,6 +25,30 @@ class Family(BaubleTable):
 
     def __str__(self): return self.family
 
+
+# 
+# editor
+#
+class FamilyEditor(TreeViewEditorDialog):
+
+    visible_columns_pref = "editor.family.columns"
+    column_width_pref = "editor.family.column_width"
+    default_visible_list = ['family', 'comments']
+    
+    label = 'Families'
+    
+    def __init__(self, parent=None, select=None, defaults={}):
+        
+        TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
+                                      parent, select=select, defaults=defaults)
+        headers = {'family': 'Family',
+                   'comments': 'Comments'}
+        self.column_meta.headers = headers
+
+
+#
+# infobox for SearchView
+# 
 try:
     from bauble.plugins.searchview.infobox import InfoBox
 except ImportError:

@@ -5,18 +5,13 @@
 import re, threading
 import gtk
 import sqlobject
-#import views
-#from tables import tables
-#from editors import editors
-from utils.debug import debug
-import utils
-import infobox
-
-debug.enable = True
-from bauble.plugins import BaubleView, plugins
-tables = plugins.tables
-
 import bauble
+import bauble.utils as utils
+import bauble.plugins.searchview.infobox
+from bauble.plugins import BaubleView, tables, editors
+
+
+
 #from bauble import bauble
 
 # NOTE: to add a new search domain do:
@@ -51,7 +46,7 @@ class SearchMeta:
         domain: what names we will use to refer to this meta
         """
         # the name of the table this meta refers to
-        self.table = plugins.tables[table_name]
+        self.table = tables[table_name]
         if type(column_names) is not list:
             raise ValueError("SearchMeta.__init__: column_names must be a list")
         #if type(domains) is not list:
@@ -65,11 +60,12 @@ class SearchMeta:
 
 class ResultsMeta:
     
-    def __init__(self, expand_child_name=None, infobox_class=None):        
+    def __init__(self, expand_child_name=None, editor=None, infobox_class=None):        
         if infobox_class is not None and \
           not issubclass(infobox_class, infobox.InfoBox):
             msg = "infobox_class must be a class whose parent class is InfoBox"
             raise ValueError("ResultsViewMeta.__init__: ", msg)
+        self.editor = editor
         self.expand_child = expand_child_name
         self.infobox = infobox_class
 
@@ -335,7 +331,7 @@ class SearchView(BaubleView):
         if domain == "default":
             results = []
             for table_name in self.search_metas.keys():
-                results += self.query_table(tables_name, values)            
+                results += self.query_table(table_name, values)            
             return results
             
         table = self.domain_map[domain]
@@ -571,8 +567,10 @@ class SearchView(BaubleView):
         edit_item = gtk.MenuItem("Edit")
         # TODO: there should be a better way to get the editor b/c this
         # dictates that all editors are in ClassnameEditor format
+        print editors
+        editor_name = self.results_meta[value.__class__.__name__].editor
         edit_item.connect("activate", self.on_activate_editor,
-                          editors[value.__class__], [value], None)
+                          editors[editor_name], [value], None)
         menu.add(edit_item)
         menu.add(gtk.SeparatorMenuItem())
         

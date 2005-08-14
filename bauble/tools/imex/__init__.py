@@ -2,12 +2,10 @@
 # exporter module
 #
 
-import sys, os
-import threading
+import sys, os, threading
 import gtk
 import sqlobject
-#from tables import tables
-from bauble import utils
+import bauble.utils as utils
 
 
 # TODO: load a list of all exporters, or require the exporters to register

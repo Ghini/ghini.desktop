@@ -1,23 +1,19 @@
- #
+#
 # MySQL Importer/Exporter
 #
 
-#from bauble import *
-from bauble.tools.imex import *
 import sqlobject
-#from tables import tables
+from bauble.tools.imex import *
+from bauble.plugins import BaublePlugin, BaubleTool, plugins
 
-#importer = MySQLImporter
-#exporter = None
+# TODO: this doesn't work at the moment
 
-class MySQLImporter(Importer):
-    def __init__(self, dialog):
-        Importer.__init__(self, dialog)
-        self.create_gui()
-    
-    def create_gui(self):
-        pass
-    
+# TODO: somehow we should be able to disable this plugin if the 
+# connection type is not a MySQL connection, or maybe we just have
+# to settle for a dialog when the user tries it 
+
+class MySQLImporter:
+ 
     def start(self):
         def on_selection_changed(filechooser, data=None):
             """
@@ -96,3 +92,12 @@ class MySQLImporter(Importer):
         bauble.app.gui.window.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
         gtk.gdk.threads_leave()
+        
+class MySQLImportTool(BaubleTool):
+    category = "Import"
+    label = "MySQL"
+    
+class MySQLImexPlugin(BaublePlugin):
+    tools = [MySQLImportTool]
+
+plugin = MySQLImexPlugin

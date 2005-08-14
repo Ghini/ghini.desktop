@@ -27,7 +27,7 @@ class Genus(BaubleTable):
     comments = StringCol(default=None)
     author = UnicodeCol(length=255, default=None)
     #synonym_id = IntCol(default=None) # an id into this table
-    synonym = ForeignKey('Genera', default=None)#IntCol(default=None) # an id into this table
+    synonym = ForeignKey('Genus', default=None)#IntCol(default=None) # an id into this table
     
     # foreign key    
     family = ForeignKey('Family', notNull=True)

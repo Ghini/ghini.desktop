@@ -45,214 +45,100 @@ import gtk
 from sqlobject import SQLObject, sqlmeta
 import bauble.utils as utils
 
-class plugins(object):
-        
-    class attrdict(dict):
-        def __getattr__(self, attr):
-            return self[attr]
+plugins = {}
+views = {}
+tools = {}
+editors = {}
+tables = {}
+
             
-    _plugins = {}    
-    tables = attrdict()
-    editors = attrdict()
-    views = []
-    tools = []
-
-    def has_plugin(cls, item):
-        return cls._plugins.has_key(item)
-    has_plugin = classmethod(has_plugin)
-        
-        
-    def __contains__(cls, item):
-        return cls._plugins.has_key(item)
-    __contains__ = classmethod(__contains__)
-    
-    # FIXME: why doesn't this work as a standard classmethod, i 
-    # have to explicitly call __iter__()
-    def __iter__(cls):
-        print "plugins.__iter__"
-        return iter(cls._plugins.values())
-    __iter__ = classmethod(__iter__)
-
-
-    def __init__(cls):
-        print "plugins.__init__()"
-        pass
-    __init__ = classmethod(__init__)
+def init_plugins():
+    """
+    initialized all the plugins in plugins
+    """    
+    for p in plugins.values():
+        p.init()
     
     
-    def init(cls):
-        """
-        call __init__() on all the plugins
-        """
-        print "plugins.init()"
-        for p in cls._plugins.values():
-            p.init()
-    init = classmethod(init)
-
+def _register(plugin_class):
         
+    # check dependencies
+    plugin_name = plugin_class.__name__
+    print "registering ", plugin_name
+    for dependency in plugin_class.depends:            
+        #print 'depends: ', dependency
+        if dependency not in plugins:
+            msg = "Can't load plugin %s. This plugin depends on %s but "\
+                  "%s doesn't exist" %(plugin_name, dependency, dependency)
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            return
+    plugins[plugin_name] = plugin_class
     
-    def _register(cls, plugin_class):
-        
-        # check dependencies
-        plugin_name = plugin_class.__name__
-        print "registering ", plugin_name
-        for dependency in plugin_class.depends:            
-            #print 'depends: ', dependency
-            if dependency not in cls._plugins:
-                msg = "Can't load plugin %s. This plugin depends on %s but "\
-                      "%s doesn't exist" %(plugin_name, dependency, dependency)
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                return
-        cls._plugins[plugin_name] = plugin_class
-        
-        # add tables
-        for t in plugin_class.tables:
-            #print 'adding table: ', t.__name__            
-            cls.tables[t.__name__] = t
-        
-        # add editors
-        for e in plugin_class.editors:
-            cls.editors[e.name] = e
-        
-        # add views and tools
-        cls.views += plugin_class.views
-        cls.tools += plugin_class.tools
-        
-    _register = classmethod(_register)
-
-    def load(cls):
-        # accumulate all the plugins in the module, call the register methods
-        # once the plugins have been found
-        plugins = cls._find_plugins()
-        for p in plugins:
-            cls._plugins[p.__name__] = p
-        #print plugins
-        for p in plugins:
-            p.register()        
-    load = classmethod(load)
-
-    def _find_plugins():
-        modules = []
-        path, name = os.path.split(__file__)
-        if path.find("library.zip") != -1: # using py2exe
-            pkg = "views"
-            zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-            x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
-            s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
-            rx = re.compile(s.encode('string_escape'))
-            for filename in x:
-                m = rx.match(filename)
-                if m is not None:
-                    modules.append('%s.%s' % (pkg, m.group(1)))
-        else:                
-            for d in os.listdir(path):
-                full = path + os.sep + d                
-                if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                    #modules.append("plugins." + d)
-                    modules.append(d)
-                    
-        # import the modules and test if they provide a plugin to make sure 
-        # they are plugin modules
-        plugins = []
-        for m in modules:
-            try:
-                mod = __import__(m, globals(), locals(), ['plugins'])
-            except Exception, e:
-                t, v, tb = sys.exc_info()
-                msg = "** Error: could not import module %s\n\n%s" % \
-                    (m, traceback.format_exc())
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                continue
-            if hasattr(mod, "plugin"):                 
-                plugins.append(mod.plugin)
-        return plugins
-        
-    _find_plugins = staticmethod(_find_plugins)
+    # add tables
+    for t in plugin_class.tables:
+        #print 'adding table: ', t.__name__            
+        tables[t.__name__] = t
     
+    # add editors
+    for e in plugin_class.editors:
+        editors[e.__name__] = e
     
-    def init2(cls):
-        print 'Plugins._init'
-        try:
-            if cls._initialized == True:
-                print 'already initialized'
-                return                
-        except AttributeError, e:
-             pass
-        #if cls._initialized: return
-        cls._initialized = True
-        print 'initialized is True'
-        modules = []
-        path, name = os.path.split(__file__)
-        if path.find("library.zip") != -1: # using py2exe
-            pkg = "views"
-            zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-            x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
-            s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
-            rx = re.compile(s.encode('string_escape'))
-            for filename in x:
-                m = rx.match(filename)
-                if m is not None:
-                    modules.append('%s.%s' % (pkg, m.group(1)))
-        else:                
-            for d in os.listdir(path):
-                full = path + os.sep + d                
-                if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                    #modules.append("plugins." + d)
-                    modules.append(d)
+    # add views
+    for v in plugin_class.views:
+        views[v.__name__] = v
+    
+    # add tools
+    for t in plugin_class.tools:    
+        tools[t.__name__] = t
 
-        for m in modules:
-            print "importing " + m
-            #mod = __import__(m, globals(), locals(), ['plugins'])
-            try:
-                mod = __import__(m, globals(), locals(), ['plugins'])
-            except Exception, e:
-                t, v, tb = sys.exc_info()
-                msg = "** Error: could not import module %s\n\n%s" % \
-                    (m, traceback.format_exc())
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                continue
-            if hasattr(mod, "plugin"): 
-                p = mod.plugin()  
-                #print p.__class__.__name__
-                cls._plugins[p.__class__.__name__] = p
-                #cls._plugins[p.__name__]
-                #cls._plugins.append(p)
-                        
-        bad_plugins = []
-        for plugin_name, plugin in cls._plugins.iteritems():
-            # TODO: check the plugin dependencies, if the dependencies don't exist
-            # then remove the plugin from the list and show a message, else
-            # add the table, editors, etc to this class
-            print 'plugin: ' + plugin_name
-            for dependency in plugin.depends:
-                print 'depends: ', dependency
-                if dependency not in cls._plugins:
-                    msg = "Can't load plugin %s. This plugin depends on %s but "\
-                          "%s doesn't exist" %(plugin_name, dependency, dependency)
-                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                    bad_plugins.append(plugin_name)
-                    #cls._plugins.pop(plugin_name)
-            
-        # pop those plugins whose dependencies couldn't be met
-        for p in bad_plugins:
-            cls._plugins.pop(p)
-            
-        # NOTE: views can depend on tables so add tables first
-        for plugin_name, plugin in cls._plugins.iteritems():            
-            for t in plugin.tables:
-                print 'adding table: ', t.__name__            
-                cls.tables[t.__name__] = t
+
+def _find_plugins():
+    modules = []
+    path, name = os.path.split(__file__)
+    if path.find("library.zip") != -1: # using py2exe
+        pkg = "views"
+        zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
+        x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
+        s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
+        rx = re.compile(s.encode('string_escape'))
+        for filename in x:
+            m = rx.match(filename)
+            if m is not None:
+                modules.append('%s.%s' % (pkg, m.group(1)))
+    else:                
+        for d in os.listdir(path):
+            full = path + os.sep + d                
+            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
+                #modules.append("plugins." + d)
+                modules.append(d)
                 
-        #for plugin_name, plugin in cls._plugins.iteritems():                    
-            print 'adding everything else for ', plugin_name
-            for e in plugin.editors:
-                cls.editors[e.name] = e
-            cls.views += plugin.views
-            cls.tools += plugin.tools
-            
-        # now that all the meta is in the plugins registry, let's  
-                        
-    
+    # import the modules and test if they provide a plugin to make sure 
+    # they are plugin modules
+    plugins = []
+    for m in modules:
+        try:
+            mod = __import__(m, globals(), locals(), ['plugins'])
+        except Exception, e:
+            t, v, tb = sys.exc_info()
+            msg = "** Error: could not import module %s\n\n%s" % \
+                (m, traceback.format_exc())
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            continue
+        if hasattr(mod, "plugin"):                 
+            plugins.append(mod.plugin)
+    return plugins
+
+def load():
+    # accumulate all the plugins in the module, call the register methods
+    # once the plugins have been found
+    found = _find_plugins()
+    for p in found:        
+        plugins[p.__name__] = p
+    #print plugins
+    for p in plugins.values():
+        p.register()  
+
+
 # TODO: use this as the metaclass for BaublePlugin to automatically make
 # any methods called init() to be classmethods
 class BaublePluginMeta(object):
@@ -280,16 +166,29 @@ class BaublePlugin(object):
     init = classmethod(init)
 
     def register(cls):
-        plugins._register(cls)
+        _register(cls)
     register = classmethod(register)
     
+    # NOTE: maybe create_tables should be a plugin method or a method
+    # global to this module that way we can create things in order depending
+    # on the plugin dependencies
     def create_tables(cls):
         for t in cls.tables:
             print "creating table ", t.__name__
             t.dropTable(ifExists=True, cascade=True)            
             t.createTable()
     create_tables = classmethod(create_tables)
+    
 
+    def _post_create_tables(cls):
+        """
+        called after all the tables are created for all plugins, useful
+        for doing things like installing joins
+        """
+        pass
+    _post_create_tables = classmethod(_post_create_tables)
+        
+    
 
 class BaubleTable(SQLObject):        
     sqlmeta.cacheValues = False
@@ -319,6 +218,9 @@ class BaubleTool(object):
         pass
     start = classmethod(start)
     
-plugins()
+def init_module():
+    load()
+init_module()
+#plugins()
 #plugins.init()
     

@@ -9,6 +9,7 @@ import gtk
 from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import plugins
+#import bauble.plugins as plugins
 from bauble.prefs_mgr import Preferences as prefs
 
 DEBUG_SQL = False
@@ -39,7 +40,7 @@ class BaubleApp:
               "this is what you want to do?"
         if not utils.yes_no_dialog(msg):
             return
-        for p in plugins.__iter__():
+        for p in plugins.values():
             p.create_tables()
             
     def create_database_old(self):
@@ -146,11 +147,13 @@ class BaubleApp:
     
     def main(self):
         
-        from bauble.plugins import plugins
+        #from bauble.plugins import plugins
+        import bauble.plugins
         # intialize the plugins        
-        plugins()
-        plugins.load()
-        plugins.init()
+        #plugins()
+        #plugins.load()
+        #plugins.init()
+        bauble.plugins.init_plugins()
         
         # open default database on startup
         # import these here to avoid recursive import hell

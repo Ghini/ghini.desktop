@@ -11,7 +11,7 @@ from bauble.plugins import BaubleTable
 class Plantname(BaubleTable):
     
     def __init__(self, **kw):
-        super(Plantnames, self).__init__(**kw)
+        super(Plantname, self).__init__(**kw)
         
         self.values = {"sp_hybrid": [("H", "Hybrid formula"),
                                      ("x", "Nothotaxon hybrid"),
@@ -34,7 +34,8 @@ class Plantname(BaubleTable):
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
     #sp_author = StringCol(length=255, default=None)  # species author
-    sp_author = UnicodeCol(dbEncoding='latin-1', default=None)  # species author
+    #sp_author = UnicodeCol(dbEncoding='latin-1', default=None)  # species author
+    sp_author = UnicodeCol(default=None)  # species author
         
     cv_group = StringCol(length=50, default=None)    # cultivar group
     cv = StringCol(length=30, default=None)          # cultivar epithet
@@ -159,7 +160,7 @@ class Plantname(BaubleTable):
 
     
     # foreign keys and joins
-    genus = ForeignKey('Genera', notNull=True)
+    genus = ForeignKey('Genus', notNull=True)
     #accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
     #images = MultipleJoin('Images', joinColumn='plantname_id')
     #references = MultipleJoin('Reference', joinColumn='plantname_id')

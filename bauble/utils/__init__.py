@@ -13,8 +13,8 @@ import pygtk
 if not main_is_frozen():
     pygtk.require("2.0")
 import gtk
-import re
 
+import re
 
 def plantname2str(p, authors=False):    
     #TODO: this needs alot of work to be complete
@@ -51,8 +51,6 @@ def yes_no_dialog(msg):
     r = d.run()
     d.destroy()
     return r == gtk.RESPONSE_YES
-
-
 
 
 def startfile(filename):
