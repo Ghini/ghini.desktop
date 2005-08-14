@@ -18,13 +18,13 @@ import os
 import bauble.utils as utils
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor
-from genus import Genus
-from plantname import Plantname
+from genus import Genus, GenusEditor
+from plantname import Plantname, PlantnameEditor
 
 
 class PlantsPlugin(BaublePlugin):
     tables = [Family, Genus, Plantname]
-    editors = [FamilyEditor]
+    editors = [FamilyEditor, GenusEditor, PlantnameEditor]
     
     def init(cls):                
         #if plugins.has_plugin("SearchViewPlugin"):
@@ -42,7 +42,7 @@ class PlantsPlugin(BaublePlugin):
             search_meta = SearchMeta("Genus", ["genus"])
             SearchView.register_search_meta("genus", search_meta)
             SearchView.register_search_meta("gen", search_meta)
-            results_meta = ResultsMeta("plantnames", None)
+            results_meta = ResultsMeta("plantnames", "GenusEditor", None)
             SearchView.register_results_meta("Genus", results_meta)
             
             search_meta = SearchMeta("Plantname", ["sp", "isp"])
@@ -51,7 +51,7 @@ class PlantsPlugin(BaublePlugin):
             
             # the garden module should be able to set this up itself
             # but we'll do it here for now
-            results_meta = ResultsMeta("accessions", None)
+            results_meta = ResultsMeta("accessions", "PlantnameEditor")
             SearchView.register_results_meta("Plantname", results_meta)
             
     init = classmethod(init)

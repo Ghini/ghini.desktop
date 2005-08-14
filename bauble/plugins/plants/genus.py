@@ -2,14 +2,16 @@
 # Genera table module
 #
 
-#from tables import *
 from sqlobject import *
-
-from bauble.plugins import BaubleTable
+from bauble.plugins import BaubleTable, tables
+from bauble.plugins.editor import TreeViewEditorDialog
 
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
+#
+# Genus table
+#
 class Genus(BaubleTable):
 
     _cacheValue = False
@@ -44,3 +46,41 @@ class Genus(BaubleTable):
 
     def __str__(self):
         return self.genus # should include the hybrid sign
+        
+        
+#
+# editor
+#
+class GenusEditor(TreeViewEditorDialog):
+
+    visible_columns_pref = "editor.genus.columns"
+    column_width_pref = "editor.genus.column_width"
+    default_visible_list = ['family', 'genus']
+    
+    label = 'Genus'
+    
+    def __init__(self, parent=None, select=None, defaults={}):
+        TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
+                                      parent, select=select, defaults=defaults)        
+        headers = {'genus': 'Genus',
+                   'author': 'Author',
+                   'hybrid': 'Hybrid',
+                   'family': 'Family'}
+        self.column_meta.headers = headers
+
+
+    def get_completions(self, text, colname):
+        maxlen = -1
+        model = None
+        if colname == "family":
+            model = gtk.ListStore(str, int)
+            if len(text) > 2:
+                sr = tables["Family"].select("family LIKE '"+text+"%'")
+                for row in sr:
+                    model.append([str(row), row.id])
+        return model, maxlen # not setting maxlen but maybe we should
+        
+
+#
+# infobox
+#

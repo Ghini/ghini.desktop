@@ -10,7 +10,7 @@ from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import plugins
 #import bauble.plugins as plugins
-from bauble.prefs_mgr import Preferences as prefs
+from bauble.prefs import prefs
 
 DEBUG_SQL = False
 

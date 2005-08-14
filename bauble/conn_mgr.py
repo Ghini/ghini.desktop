@@ -7,7 +7,7 @@ import gtk
 import sqlobject
 import utils
 #import bauble
-from bauble.prefs_mgr import Preferences as prefs
+from bauble.prefs import prefs
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe

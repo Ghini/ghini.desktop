@@ -162,14 +162,15 @@ class _Preferences(dict):
             dict.__setitem__(self, key, value)
             
 
-Preferences = _Preferences()
-
+#Preferences = _Preferences()
+prefs = _Preferences()
 
 # should only be used by the preferences file
 def set_pref(key, value):
-    Preferences[key] = value
+    prefs[key] = value
 
-
-if not Preferences._loaded:
-    Preferences.load()
+if not prefs._loaded:
+    prefs.load()
+#if not Preferences._loaded:
+#    Preferences.load()
 

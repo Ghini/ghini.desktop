@@ -7,12 +7,10 @@ import gtk
 import sqlobject
 import bauble
 import bauble.utils as utils
+from bauble.prefs import prefs
 import bauble.plugins.searchview.infobox
 from bauble.plugins import BaubleView, tables, editors
 
-
-
-#from bauble import bauble
 
 # NOTE: to add a new search domain do:
 # 1. add table to search map with columns to search
@@ -188,6 +186,7 @@ class SearchView(BaubleView):
             self.pane.pack2(self.infobox, False, True)
             #self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
+
 
     def set_infobox_from_row_old(self, row):
         #return
@@ -574,26 +573,23 @@ class SearchView(BaubleView):
         menu.add(edit_item)
         menu.add(gtk.SeparatorMenuItem())
         
-        for join in value.sqlmeta.joins:
+        for join in value.sqlmeta.joins:            
             # for each join in the selected row then add an item on the context
             # menu for adding rows to the database of the same type the join
             # points to
-            # TODO: this is a pretty wretched hack looking up from the kw 
-            # attribute of the join columns, but it works
-            defaults = {}
-            
-            # if join column not in the format "column_id" then don't do anything
-            # 
-            # *** i don't understand this comment
-            #
-            if join.joinColumn[-3:] == "_id": 
-                defaults[join.joinColumn[:-3]] = value
-            
-            if join.otherClassName in editors:          
+            print join
+            print join.joinMethodName            
+            defaults = {}            
+            other_class = join.otherClassName
+            print other_class
+            print self.results_meta
+            if other_class in self.results_meta:                                
+                editor = self.results_meta[other_class].editor # get editor 
+                if join.joinColumn[-3:] == "_id": 
+                    defaults[join.joinColumn[:-3]] = value        
                 add_item = gtk.MenuItem("Add " + join.joinMethodName)                
                 add_item.connect("activate", self.on_activate_editor, 
-                                  editors[join.otherClassName], None, defaults)
-                                 #editors[editor_name], None, defaults)
+                                  editors[editor], None, defaults)
                 menu.add(add_item)
         
         menu.add(gtk.SeparatorMenuItem())

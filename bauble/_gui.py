@@ -9,8 +9,8 @@ import gtk, gobject
 import sqlobject
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins import plugins, tools, views
-from bauble.prefs_mgr import Preferences as prefs
+from bauble.plugins import plugins, tools, views, editors
+from bauble.prefs import prefs
 import bauble.plugins.searchview.search
 
 #
@@ -253,6 +253,11 @@ class GUI:
         # get menu bar from ui manager
         mb = ui_manager.get_widget("/MenuBar")
         
+        insert_menu = gtk.MenuItem("Insert")
+        menu = self.build_insert_menu()
+        insert_menu.set_submenu(menu)
+        mb.append(insert_menu)
+        
         # TODO: why does't using the tools menu from the ui manager work
         #tools_menu = ui_manager.get_widget("/MenuBar/Tools")
         tools_menu = gtk.MenuItem("Tools")        
@@ -261,6 +266,17 @@ class GUI:
         mb.append(tools_menu)
 
         return mb
+    
+    
+    def build_insert_menu(self):
+        menu = gtk.Menu()
+        compare_labels = lambda x, y: cmp(x.label, y.label)
+        for editor in sorted(editors.values(), cmp=compare_labels):
+            if editor.standalone:
+                item = gtk.MenuItem(editor.label)
+                item.connect("activate", self.on_insert_menu_item_activate, editor)
+                menu.append(item)
+        return menu
     
     
     def build_tools_menu(self):        
@@ -283,6 +299,9 @@ class GUI:
         
     def on_tools_menu_item_activate(self, widget, tool):
         tool.start()
+        
+    def on_insert_menu_item_activate(self, widget, editor):
+        editor.start()
             
         
     def on_edit_menu_prefs(self, widget, data=None):
