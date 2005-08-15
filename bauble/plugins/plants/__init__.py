@@ -14,12 +14,11 @@
 # database is created there should be a way to recreate everything from scratch
 
 import os
-#import bauble.plugins
 import bauble.utils as utils
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor
 from genus import Genus, GenusEditor
-from plantname import Plantname, PlantnameEditor
+from plantname import Plantname, PlantnameEditor, PlantnameInfoBox
 
 
 class PlantsPlugin(BaublePlugin):
@@ -49,7 +48,8 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             
-            SearchView.view_meta["Plantname"].set(editor=PlantnameEditor)
+            SearchView.view_meta["Plantname"].set(editor=PlantnameEditor, 
+                                                  infobox=PlantnameInfoBox)
             
     @classmethod
     def create_tables(cls):

@@ -4,16 +4,10 @@
 
 import sys, os
 import gtk
-#from tables import tables
-import utils
-import paths
+import bauble.utils as utils
+import bauble.paths as paths
 
-#import bauble.plugins
-#from bauble.plugins import plugins
 from bauble.plugins import tables
-#tables = bauble.plugins.tables
-#import bauble.plugins as plugins
-#tables = plugins.pluginstables
 
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear
@@ -50,6 +44,7 @@ class InfoExpander(gtk.Expander):
         
     def update(self, value):
         raise NotImplementedError("InfoExpander.update(): not implemented")
+
    
 # should we have a specific expander for those that use glade
 class GladeInfoExpander(gtk.Expander):
@@ -95,39 +90,6 @@ class InfoBox(gtk.ScrolledWindow):
         raise NotImplementedError
 
 
-#class TableExpander(InfoExpander): 
-#    """
-#    an InfoExpander to represent columns in a table
-#    """
-#    
-#    def __init__(self, label, columns):
-#        """
-#        columns is a dictionary of {column: name}
-#        """
-#        InfoExpander.__init__(self, label)
-#        self.labels = {}
-#        
-#        
-#    # this is intended to be overidden, this could be a list
-#    # or a list of items, the class which extends TableExpander
-#    # will know what to do with it
-#    def _set_value(self, value):
-#        self._value = value
-#        self.update()
-#    value = property(fset=_set_value)
-            
-
-class LocationsExpander(InfoExpander):
-    """
-    TableExpander for the Locations table
-    """
-    
-    def __init__(self, label="Locations"):
-        InfoExpander.__init__(self, label)
-
-    def update(self, value):
-        pass
-
 # TODO: references expander should also show references to any
 # foreign key defined in the table, e.g. if a plantname is being
 # display it should also show the references associated with
@@ -155,26 +117,12 @@ class ImagesExpander(InfoExpander):
 class ReferencesExpander(InfoExpander):
     def __init__(self):
         InfoExpander.__init__(self, 'References', None)
-        
-        
+                
     def update(self, values):
         if type(values) is not list:
             raise ValueError('ReferencesExpander.update(): expected a list')
             
         for v in values:
             print v.reference
-        
 
-class PlantsInfoBox(InfoBox):
-    """
-    an InfoBox for a Plants table row
-    """
-    def __init__(self):
-        InfoBox.__init__(self)
-        loc = LocationsExpander()
-        loc.set_expanded(True)
-        self.add_expander(loc)
-    
-    def update(self, row):
-        loc = self.get_expander("Locations")
-        loc.update(row.location)
+        

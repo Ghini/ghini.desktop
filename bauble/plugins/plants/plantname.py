@@ -263,7 +263,7 @@ try:
 except ImportError:
     pass
 else:
-    class PlantnamesInfoBox(InfoBox):
+    class PlantnameInfoBox(InfoBox):
         """
         - general info, fullname, common name, num of accessions and clones
         - reference

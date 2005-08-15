@@ -7,7 +7,7 @@ from accession import *
 from bauble.plugins import BaublePlugin, plugins, tables
 from accession import Accession, AccessionEditor
 from location import Location, LocationEditor
-from plant import Plant, PlantEditor
+from plant import Plant, PlantEditor, PlantInfoBox
 from reference import Reference, ReferenceEditor
 from source import Donation, Collection
 from source_editor import SourceEditor
@@ -44,6 +44,8 @@ class GardenPlugin(BaublePlugin):
             SearchView.register_search_meta("location", search_meta)
             SearchView.register_search_meta("loc", search_meta)            
             SearchView.view_meta["Location"].set("plants", LocationEditor)
+
+            SearchView.view_meta["Plant"].set(None, PlantEditor, PlantInfoBox)
 
             # done here b/c the Plantname table is not part of this plugin
             SearchView.view_meta["Plantname"].child = "accessions"

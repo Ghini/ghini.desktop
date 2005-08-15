@@ -34,8 +34,9 @@ except ImportError, e:
     utils.message_box("Could not find libxslt. Please download and install it.")    
     raise
     
-from bauble.plugins import BaublePlugin, BaubleTool, plugins
+from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
 import bauble.utils as utils
+from bauble.plugins.imex_abcd import abcd
     
 
 class LabelMaker(gtk.Dialog):
@@ -218,19 +219,19 @@ class LabelMakerTool(BaubleTool):
             value = row[0]
             # right now we don't create labels for all plants under
             # families and genera
-            tables = plugins.tables
-            if isinstance(value, tables.Family):
+            #tables = plugins.tables
+            if isinstance(value, tables["Family"]):
                 print "family: " + str(value)
-            elif isinstance(value, tables.Genera):
+            elif isinstance(value, tables["Genus"]):
                 print "genera: " + str(value)
-            elif isinstance(value, tables.Plantnames):
+            elif isinstance(value, tables["Plantname"]):
                 for acc in value.accessions:
                     plants += acc.plants
-            elif isinstance(value, tables.Accessions):
+            elif isinstance(value, tables["Accession"]):
                 plants += value.plants
-            elif isinstance(value, tables.Plants):
+            elif isinstance(value, tables["Plant"]):
                 plants.append(value)            
-            elif isinstance(value, tables.Locations):
+            elif isinstance(value, tables["Location"]):
                 plants += value.plants
             
         #print plants

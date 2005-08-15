@@ -2,6 +2,7 @@
 # Plants table definition
 #
 
+import gtk
 from sqlobject import * 
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TreeViewEditorDialog
@@ -31,8 +32,8 @@ class Plant(BaubleTable):
                             ('O', 'Other')]
 
     # foreign key and joins
-    accession = ForeignKey('Accessions', notNull=True, cascade=True)
-    location = ForeignKey("Locations", notNull=True)
+    accession = ForeignKey('Accession', notNull=True, cascade=True)
+    location = ForeignKey("Location", notNull=True)
     #location = MultipleJoin("Locations", joinColumn="locations_id")
     #mta_out = MultipleJoin("MaterialTransfers", joinColumn="genus_id")
     
@@ -140,3 +141,39 @@ class PlantEditor(TreeViewEditorDialog):
             for row in sr:
                 model.append([str(row), row.id])
         return model, maxlen
+        
+        
+try:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
+        set_widget_value
+except ImportError:
+    pass
+else:
+    
+    class LocationExpander(InfoExpander):
+        """
+        TableExpander for the Locations table
+        """
+        
+        def __init__(self, label="Location"):
+            InfoExpander.__init__(self, label)
+    
+        def update(self, value):
+            pass
+        
+
+    class PlantInfoBox(InfoBox):
+        """
+        an InfoBox for a Plants table row
+        """
+        def __init__(self):
+            InfoBox.__init__(self)
+            loc = LocationExpander()
+            loc.set_expanded(True)
+            self.add_expander(loc)
+        
+        def update(self, row):
+            # TODO: don't really need a location expander, could just
+            # use a label in the general section
+            loc = self.get_expander("Location")
+            loc.update(row.location)

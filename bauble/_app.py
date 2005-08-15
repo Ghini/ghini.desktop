@@ -9,7 +9,6 @@ import gtk
 from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import plugins
-#import bauble.plugins as plugins
 from bauble.prefs import prefs
 
 DEBUG_SQL = False
@@ -42,42 +41,8 @@ class BaubleApp:
             return
         for p in plugins.values():
             p.create_tables()
-            
-    def create_database_old(self):
-        msg = "Creating a new database on this connection could overwrite an "\
-        "existing database. Are you sure you want to create a new database?"
-        if not utils.yes_no_dialog(msg):
-            return
-        #for t in tables.tables.values():
-        for t in plugins.tables.values():
-            try:
-                t.dropTable()
-            except Exception, e: 
-                print 'BaubleApp.create_database(): could not drop table'
-                print e
-                pass
-            t.createTable()
-            
-        # TODO: need to import those tables that are required for basic
-        # functionality, Areas, Regions, States, Places, Families, 
-        # Genera?
-        #import bauble.tools.import_export.iecsv as iecsv
-        #from tools.import_export.iecsv import *
-        #csv = iecsv.CSVImporter(None)
-        # TODO: need to fix this path business, should have some sort
-        # of install ini file that tells us where to find the data directory
-        #path = utils.get_main_dir() + ".." + os.sep + 'data' + os.sep
-        #path = os.getcwd() + '/../data/csv/'
-        #path = '/home/brett/devel/bauble/data/'
-        #print path
-        #files = ['Areas.txt', 'Continents.txt', 'KewRegions.txt', 'Places.txt',
-        #         'Regions.txt', 'States.txt', 'Family.txt']
-        #csv.start([path+f for f in files])
-        #from bauble.plugins import plugins
-        #plugins.install()
-        # TODO: show a progress dialog about what stage in the database 
-        # creation process we're in
-        
+
+
     #
     # tracing execution 
     #

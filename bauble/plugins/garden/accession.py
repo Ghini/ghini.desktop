@@ -245,6 +245,7 @@ else:
     
     
     class SourceExpander(InfoExpander):
+        
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, 'Source', glade_xml)
             self.curr_box = None
@@ -293,12 +294,12 @@ else:
             if self.curr_box is not None:
                 self.vbox.remove(self.curr_box)
                             
-            if type(value) == tables.Collections:
+            if type(value) == tables["Collection"]:
                 w = self.glade_xml.get_widget('collections_box')
                 w.unparent()
                 self.curr_box = w
                 self.update_collections(value)
-            elif type(value) == tables.Donations:
+            elif type(value) == tables["Donation"]:
                 w = self.glade_xml.get_widget('donations_box')
                 w.unparent()
                 self.curr_box = w
@@ -334,9 +335,9 @@ else:
             if row.source_type == None:
                 self.source.set_expanded(False)
                 self.source.set_sensitive(False)
-            elif row.source_type == 'Collections':
+            elif row.source_type == 'Collection':
                 self.source.set_expanded(True)
                 self.source.update(row._collection)
-            elif row.source_type == 'Donations':
+            elif row.source_type == 'Donation':
                 self.source.set_expanded(True)
                 self.source.update(row._donation)

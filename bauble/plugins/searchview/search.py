@@ -262,7 +262,6 @@ class SearchView(BaubleView):
         
         try:
             search = self.parse_text(text)
-            print "search: " + str(search)
         except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
@@ -288,7 +287,6 @@ class SearchView(BaubleView):
         look up the table type of the selected row and if it has
         any children then add them to the row
         """
-        print 'entered SearchView.on_text_expand_row()'
         expand = False
         model = view.get_model()
         row = model.get_value(iter, 0)
@@ -302,10 +300,9 @@ class SearchView(BaubleView):
                 if len(kids):
                     self.append_children(model, iter, kids, True)
                     #bauble.gui.stop_progressbar()
-                    print 'leaving SearchView.on_text_expand_row(): False'
+
                     return False
         #bauble.gui.stop_progressbar()
-        print 'leaving SearchView.on_text_expand_row(): True'
         return True
         
         
@@ -338,9 +335,6 @@ class SearchView(BaubleView):
 
     
     def query(self, domain, values):
-        print "SearchView.query()"
-        print domain
-        print values
         if domain == "default":
             results = []
             for table_name in self.search_metas.keys():
@@ -364,7 +358,6 @@ class SearchView(BaubleView):
             q = "%s LIKE '%%%s%%'" % (columns[0], v)                    
             for c in columns[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (c, v)
-        print q
         return table.select(q, connection=bauble.app.conn)
         
         
@@ -402,7 +395,6 @@ class SearchView(BaubleView):
     def parse_text(self, text):
         """
         """
-        print "SearchView.parse_text()"
         # TODO: should allow plurals like genera=1,2 and parse
         # them apart, also need to account for values in quotations        
         pieces = text.split(' ')
@@ -416,7 +408,6 @@ class SearchView(BaubleView):
                 searches["default"].append(p)
             else:                
                 g = m.groups()                
-                print g
                 #domain = self.g[0].lower()
                 domain = g[0].lower()
                 if domain not in self.domain_map:
@@ -557,11 +548,8 @@ class SearchView(BaubleView):
             
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
-        print 'entered SearchView.on_activate_editor()'
         e = editor(select=select, defaults=defaults)
         e.start()
-        print 'SearchView.on_activate_editor: started'
-        #e.show()
 
         
     def on_view_button_release(self, view, event, data=None):
@@ -612,7 +600,6 @@ class SearchView(BaubleView):
         
         
     def on_activate_remove_item(self, item, row):
-        print "removing " + str(row)
         # TODO: this will leave stray joins unless cascade is set to true
         # see col.cascade
         # TODO: should give a row specific message to the user, e.g if they
@@ -712,7 +699,6 @@ class SearchView(BaubleView):
     def on_activate_gbif_expand(self, expander, data=None):
         """
         """
-        print "SearchView.on_activate_gbif_expand()"
         expanded = expander.get_expanded()
         gbif = expander.get_child()
         # this is fired before the expanded state is set so we should assume
