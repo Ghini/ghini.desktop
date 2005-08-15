@@ -1,8 +1,7 @@
-#
-# Synonyms table definition
-#
 
-from tables import *
+from sqlobject import *
+from bauble.plugins import BaubleTable, tables
+#from bauble.plugins.editor import TreeViewEditorDialog
 
 class Synonyms(BaubleTable):
     """
@@ -12,11 +11,11 @@ class Synonyms(BaubleTable):
     # look up in the botanical nomenclature about the rules for synonyms
     
     # the valid name
-    plantname = ForeignKey('Plantnames', notNull=True)
+    plantname = ForeignKey('Plantname', notNull=True)
     
     # unambiguous synonym, maybe this should be a single join to one plantnames
     #synonym = ForeignKey('Plantnames')
-    synonym = SingleJoin('Plantnames', joinColumn='id')
+    synonym = SingleJoin('Plantname', joinColumn='id')
         
-    #def __str__(self): 
-        
+#    def __str__(self): 
+#        pass

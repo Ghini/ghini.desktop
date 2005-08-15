@@ -2,10 +2,8 @@
 # Plantnames table definition
 #
 
-import utils
-#from tables import *
 from sqlobject import *
-
+import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TreeViewEditorDialog
 
@@ -184,6 +182,7 @@ class Plantname(BaubleTable):
 
     def __str__(self):
         return utils.plantname2str(self)
+
         
 #
 # Plantname editor

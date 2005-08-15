@@ -14,6 +14,10 @@ from source_editor import SourceEditor
 from donor import Donor, DonorEditor
 
 
+# other ideas:
+# - cultivation table
+# - conservation table    
+
 class GardenPlugin(BaublePlugin):
 
     editors = [AccessionEditor, LocationEditor, PlantEditor, DonorEditor, 
