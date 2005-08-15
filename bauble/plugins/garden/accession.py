@@ -2,7 +2,11 @@
 # accessions module
 #
 
+import os
+import gtk
 from sqlobject import * 
+import bauble.paths as paths
+import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 
@@ -49,8 +53,8 @@ class Accession(BaubleTable):
     #consv_status = StringCol(default=None) # conservation status, free text
     
     # foreign keys and joins
-    plantname = ForeignKey('Plantnames', notNull=True)
-    plants = MultipleJoin("Plants", joinColumn='accession_id')
+    plantname = ForeignKey('Plantname', notNull=True)
+    plants = MultipleJoin("Plant", joinColumn='accession_id')
     
     # these should probably be hidden then we can do some trickery
     # in the accession editor to choose where a collection or donation
@@ -63,8 +67,8 @@ class Accession(BaubleTable):
                             
     # the source type says whether we should be looking at the 
     # collection or _donation join
-    _collection = SingleJoin('Collections', joinColumn='accession_id', makeDefault=None)
-    _donation = SingleJoin('Donations', joinColumn='accession_id', makeDefault=None)
+    _collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
+    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
     
 
     # these probably belong in separate tables with a single join
@@ -178,10 +182,10 @@ class AccessionEditor(TreeViewEditorDialog):
         for v in values:
             if v.has_key('source_type'):
                 source_class = v['source_type'].__class__.__name__[:]
-                if source_class == 'Collections':
+                if source_class == 'Collection':
                     v['_collection'] = v.pop('source_type')
                     v['source_type'] = source_class
-                elif source_class == 'Donations':
+                elif source_class == 'Donation':
                     v['_donation'] = v.pop('source_type')
                     v['source_type'] = source_class
                 else:
@@ -216,7 +220,8 @@ class AccessionEditor(TreeViewEditorDialog):
 # infobox for searchview
 #
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
+        set_widget_value
 except ImportError:
     pass
 else:
@@ -310,7 +315,9 @@ else:
         def __init__(self):
             InfoBox.__init__(self)
             #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            path = os.path.dirname(__file__) + os.sep
+            print path
             self.glade_xml = gtk.glade.XML(path + 'acc_infobox.glade')
             
             self.general = GeneralAccessionExpander(self.glade_xml)

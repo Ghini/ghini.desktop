@@ -3,11 +3,12 @@
 #
 
 
-import csv, traceback
+import os, csv, traceback, threading
 import gtk.gdk
 import sqlobject
-from bauble.tools.imex import *
+#from bauble.tools.imex import *
 import bauble
+import bauble.utils as utils
 from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
 
 csv_format_params = {}
@@ -183,53 +184,35 @@ class CSVImporter:
         gtk.gdk.threads_leave()
         
         
-class CSVExporter(Exporter):
-    
-    def __init__(self, dialog):
-        Exporter.__init__(self, dialog)
-        self.create_gui()
+class CSVExporter:
         
-    def create_gui(self):
-        label = gtk.Label("Export to: ")
-        self.pack_start(label)
-        self.chooser_button = gtk.Button("Select a directory...")
-        self.chooser_button.connect("clicked", self.on_clicked_chooser_button)
-        self.pack_start(self.chooser_button)
-        ok_button = self.dialog.action_area.get_children()[1]
-        ok_button.set_sensitive(False)
-        self.dialog.set_focus(ok_button)
+    def start(self, path=None):
+        if path == None:
+            d = gtk.FileChooserDialog("Select a directory", None,
+                                      gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
+                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+            response = d.run()
+            path = d.get_filename()
+            d.destroy()
+            if response != gtk.RESPONSE_ACCEPT:
+                return
+        self.run(path)
+        
     
+    def run(self, path):
+        if not os.path.exists(path):
+            raise ValueError("CSVExporter: path does not exist.\n" + path) 
 
-    def on_clicked_chooser_button(self, button, data=None):
-        d = gtk.FileChooserDialog("Select a directory", None,
-                                  gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
-                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        d.run()
-        filename = d.get_filename()
-        if filename is not None:
-            ok_button = self.dialog.action_area.get_children()[1]
-            ok_button.set_sensitive(True)
-            button.set_label(filename)
-            self.path = filename # set it so it's available in run
-        d.destroy()
-    
-    def start(self):
-        self.run()
-        
-    
-    def run(self):
-        if self.path == None:
-            return
         #gtk.gdk.threads_enter()
-        filename_template = self.path + os.sep +"%s.txt"
+        filename_template = path + os.sep +"%s.txt"
         for name in tables.keys():
             filename = filename_template % name
             if os.path.exists(filename) and not \
                utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
                 return
                 
-        path = self.chooser_button.get_label()
+        #path = self.chooser_button.get_label()
         #gtk.gdk.threads_leave()
         #progress = utils.ProgressDialog()
         #progress.show_all()
@@ -247,7 +230,7 @@ class CSVExporter(Exporter):
                 values.append(row.id)
                 #values[0] = row.id
                 for name, col in col_dict.iteritems():
-                    if type(col) == ForeignKey:
+                    if type(col) == sqlobject.ForeignKey:
                         name = name+"ID"
                     v = getattr(row, name)
                     values.append(v)
@@ -269,7 +252,6 @@ class CSVImportTool(BaubleTool):
     
     @classmethod
     def start(cls):
-        print "CSVImportTool.start()"
         c = CSVImporter()
         c.start()
 
@@ -277,6 +259,11 @@ class CSVImportTool(BaubleTool):
 class CSVExportTool(BaubleTool):
     category = "Export"
     label = "Comma Separated Value"
+    
+    @classmethod
+    def start(cls):
+        c = CSVExporter()
+        c.start()
 
 class CSVImexPlugin(BaublePlugin):
     tools = [CSVImportTool, CSVExportTool]

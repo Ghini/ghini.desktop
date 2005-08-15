@@ -3,7 +3,7 @@
 #
 
 from bauble.plugins import BaublePlugin, BaubleTool, plugins
-from bauble.tools.imex import *
+#from bauble.tools.imex import *
 import csv
 import sqlobject
 import gtk.gdk

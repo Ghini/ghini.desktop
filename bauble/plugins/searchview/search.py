@@ -193,7 +193,7 @@ class SearchView(BaubleView):
         table_name = type(row).__name__
         if table_name in self.view_meta and \
           self.view_meta[table_name].infobox is not None:
-            self.infobox = self.view_meta[table_name].infobox            
+            self.infobox = self.view_meta[table_name].infobox()
             if row is not None:
                 self.infobox.update(row)
             self.pane.pack2(self.infobox, False, True)

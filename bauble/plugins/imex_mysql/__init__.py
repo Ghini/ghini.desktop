@@ -3,7 +3,7 @@
 #
 
 import sqlobject
-from bauble.tools.imex import *
+#from bauble.tools.imex import *
 from bauble.plugins import BaublePlugin, BaubleTool, plugins
 
 # TODO: this doesn't work at the moment

@@ -297,8 +297,10 @@ class GUI:
                 submenus[tool.category].append(item)
         return menu
         
+        
     def on_tools_menu_item_activate(self, widget, tool):
         tool.start()
+        
         
     def on_insert_menu_item_activate(self, widget, editor):
         editor().start()
