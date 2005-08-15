@@ -72,18 +72,18 @@ class ABCDImportTool(BaubleTool):
     category = "Import"
     label = "ABCD"
 
+    @classmethod
     def start(cls):
         ABCDImporter().start()
-    start = classmethod(start)
     
     
 class ABCDExportTool(BaubleTool):
     category = "Export"
     label = "ABCD"
     
+    @classmethod
     def start(cls):
         ABCDExporter().start()
-    start = classmethod(start)
     
 
 class ABCDImexPlugin(BaublePlugin):

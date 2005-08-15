@@ -186,6 +186,7 @@ class LabelMaker(gtk.Dialog):
 class LabelMakerTool(BaubleTool):    
     label = "Label Maker"
     
+    @classmethod
     def start(self):
         #import tools.labels
         
@@ -240,8 +241,6 @@ class LabelMakerTool(BaubleTool):
             print pdf_filename
             utils.startfile(pdf_filename)        
         label_maker.destroy()
-        
-    start = classmethod(start)
     
     
 class LabelMakerPlugin(BaublePlugin):

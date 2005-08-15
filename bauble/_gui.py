@@ -301,7 +301,7 @@ class GUI:
         tool.start()
         
     def on_insert_menu_item_activate(self, widget, editor):
-        editor.start()
+        editor().start()
             
         
     def on_edit_menu_prefs(self, widget, data=None):

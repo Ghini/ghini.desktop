@@ -46,7 +46,7 @@ class DonorEditor(TreeViewEditorDialog):
     label = 'Donors'
 
     def __init__(self, parent=None, select=None, defaults={}):
-        TreeViewEditorDialog.__init__(self, tables.Donors, "Donors Editor", 
+        TreeViewEditorDialog.__init__(self, Donor, "Donors Editor", 
                                       parent, select=select, defaults=defaults)                                          
         # set headers
         headers={"name": "Name",

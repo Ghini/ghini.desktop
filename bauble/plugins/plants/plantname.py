@@ -258,3 +258,38 @@ class PlantnameEditor(TreeViewEditorDialog):
 #
 # Plantname infobox for SearchView
 #
+try:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+except ImportError:
+    pass
+else:
+    class PlantnamesInfoBox(InfoBox):
+        """
+        - general info, fullname, common name, num of accessions and clones
+        - reference
+        - images
+        - redlist status
+        - poisonous to humans
+        - poisonous to animals
+        - food plant
+        - origin
+        """
+        def __init__(self):
+            """ 
+            fullname, synonyms, ...
+            """
+            InfoBox.__init__(self)
+            self.ref = ReferencesExpander()
+            self.ref.set_expanded(True)
+            self.add_expander(self.ref)
+            
+            #img = ImagesExpander()
+            #img.set_expanded(True)
+            #self.add_expander(img)
+            
+            
+        def update(self, row):
+            self.ref.update(row.references)
+            #self.ref.value = row.references
+            #ref = self.get_expander("References")
+            #ref.set_values(row.references)

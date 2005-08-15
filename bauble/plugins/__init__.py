@@ -157,37 +157,27 @@ class BaublePlugin(object):
     tools = []
     depends = []
 
+    @classmethod
     def __init__(cls):
         pass
-    __init__ = classmethod(__init__)
     
+    @classmethod
     def init(cls):
         pass
-    init = classmethod(init)
 
+    @classmethod
     def register(cls):
         _register(cls)
-    register = classmethod(register)
     
     # NOTE: maybe create_tables should be a plugin method or a method
     # global to this module that way we can create things in order depending
     # on the plugin dependencies
+    @classmethod
     def create_tables(cls):
         for t in cls.tables:
             print "creating table ", t.__name__
             t.dropTable(ifExists=True, cascade=True)            
             t.createTable()
-    create_tables = classmethod(create_tables)
-    
-
-    def _post_create_tables(cls):
-        """
-        called after all the tables are created for all plugins, useful
-        for doing things like installing joins
-        """
-        pass
-    _post_create_tables = classmethod(_post_create_tables)
-        
     
 
 class BaubleTable(SQLObject):        
@@ -213,10 +203,11 @@ class BaubleView(gtk.Frame):
 class BaubleTool(object):
     category = None
     label = None
-    
+
+    @classmethod
     def start(cls):
         pass
-    start = classmethod(start)
+
     
 def init_module():
     load()

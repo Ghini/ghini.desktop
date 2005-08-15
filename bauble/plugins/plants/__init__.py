@@ -26,6 +26,7 @@ class PlantsPlugin(BaublePlugin):
     tables = [Family, Genus, Plantname]
     editors = [FamilyEditor, GenusEditor, PlantnameEditor]
     
+    @classmethod
     def init(cls):                
         #if plugins.has_plugin("SearchViewPlugin"):
         if "SearchViewPlugin" in plugins:
@@ -36,27 +37,21 @@ class PlantsPlugin(BaublePlugin):
             search_meta = SearchMeta("Family", ["family"])
             SearchView.register_search_meta("family", search_meta)
             SearchView.register_search_meta("fam", search_meta)            
-            results_meta = ResultsMeta("genera", "FamilyEditor", None)
-            SearchView.register_results_meta("Family", results_meta)
+            SearchView.view_meta["Family"].set("genera", FamilyEditor)
+
             
             search_meta = SearchMeta("Genus", ["genus"])
             SearchView.register_search_meta("genus", search_meta)
             SearchView.register_search_meta("gen", search_meta)
-            results_meta = ResultsMeta("plantnames", "GenusEditor", None)
-            SearchView.register_results_meta("Genus", results_meta)
+            SearchView.view_meta["Genus"].set("plantnames", GenusEditor)
             
             search_meta = SearchMeta("Plantname", ["sp", "isp"])
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             
-            # the garden module should be able to set this up itself
-            # but we'll do it here for now
-            results_meta = ResultsMeta("accessions", "PlantnameEditor")
-            SearchView.register_results_meta("Plantname", results_meta)
+            SearchView.view_meta["Plantname"].set(editor=PlantnameEditor)
             
-    init = classmethod(init)
-        
-    
+    @classmethod
     def create_tables(cls):
         super(PlantsPlugin, cls).create_tables()
         from bauble.plugins.imex_csv import CSVImporter
@@ -70,8 +65,6 @@ class PlantsPlugin(BaublePlugin):
         
         if utils.yes_no_dialog("Would you like to import the Plantnames?"):
             csv.start([path + os.sep + "Plantname.txt"])
-        
-    create_tables = classmethod(create_tables)
     
     
     def install(cls):

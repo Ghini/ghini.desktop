@@ -34,9 +34,8 @@ class LocationEditor(TreeViewEditorDialog):
     label = 'Location'
 
     def __init__(self, parent=None, select=None, defaults={}):
-        TreeViewEditorDialog.__init__(self, tables["Location"], 
-                                      "Location Editor", parent,
-                                      select=select, defaults=defaults)                                          
+        TreeViewEditorDialog.__init__(self, Location, "Location Editor", 
+                                      parent,select=select, defaults=defaults)
         # set headers
         headers={"site": "Site",
                  "description": "Description"}

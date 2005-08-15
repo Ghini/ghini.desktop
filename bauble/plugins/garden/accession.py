@@ -107,9 +107,8 @@ class AccessionEditor(TreeViewEditorDialog):
 
     def __init__(self, parent=None, select=None, defaults={}):
         
-        TreeViewEditorDialog.__init__(self, tables["Accession"], 
-                                      "Accession Editor", parent, 
-                                      select=select, defaults=defaults)
+        TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
+                                      parent, select=select, defaults=defaults)
         headers = {"acc_id": "Acc ID",
                    "plantname": "Name",
                    "prov_type": "Provenance Type",
@@ -201,7 +200,7 @@ class AccessionEditor(TreeViewEditorDialog):
         values = self.get_values_from_view()
         for v in values:
             acc_id = v["acc_id"]
-            sel = tables["Accessions"].selectBy(acc_id=acc_id)
+            sel = tables["Accession"].selectBy(acc_id=acc_id)
             accession = sel[0]
             if sel.count() > 1:
                 raise Exception("AccessionEditor.commit_changes():  "\
@@ -209,6 +208,128 @@ class AccessionEditor(TreeViewEditorDialog):
             
             if not utils.yes_no_dialog(msg % acc_id):
                 continue
-            e = editors['PlantsEditor'](defaults={"accession":sel[0]})
+            e = editors['PlantEditor'](defaults={"accession":sel[0]})
             e.start()
         return True
+        
+#
+# infobox for searchview
+#
+try:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+except ImportError:
+    pass
+else:
+    class GeneralAccessionExpander(InfoExpander):
+        """
+        generic information about an accession like
+        number of clones, provenance type, wild provenance type, plantnames
+        """
+    
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, "General", glade_xml)
+            w = self.glade_xml.get_widget('general_box')
+            w.unparent()
+            self.vbox.pack_start(w)
+        
+        def update(self, row):
+            set_widget_value(self.glade_xml, 'name_data', row.plantname)
+            set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
+            #w = self.glade_xml.get_widget('nplants_data')
+            #pass
+    
+    
+    class SourceExpander(InfoExpander):
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, 'Source', glade_xml)
+            self.curr_box = None
+        
+        def update_collections(self, collection):
+            
+            set_widget_value(self.glade_xml, 'loc_data', collection.locale)
+            
+            geo_accy = collection.geo_accy
+            if geo_accy is None:
+                geo_accy = ''
+            else: geo_accy = '(+/-)' + geo_accy + 'm.'
+            
+            if collection.latitude is not None:
+                set_widget_value(self.glade_xml, 'lat_data', collection.latitude + geo_accy)
+            if collection.longitude is not None:
+                set_widget_value(self.glade_xml, 'lon_data', collection.longitude + geo_accy)
+            
+            v = collection.elevation
+            if collection.elevation_accy is not None:
+                v = '+/- ' + v + 'm.'
+            set_widget_value(self.glade_xml, 'elev_data', v)
+            
+            set_widget_value(self.glade_xml, 'coll_data', collection.collector)
+            set_widget_value(self.glade_xml, 'data_data', collection.coll_date)
+            set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
+            
+            set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
+            
+            # NOTE: if the widget is named notes_data then it doesn't update,
+            # should probably file a bug with glade
+            # UPDATE: i think this may actually have been b/c i had two widgets
+            # with different parent windows but both named notes_data in the 
+            # glade xml
+            set_widget_value(self.glade_xml, 'collnotes_data', collection.notes)
+            
+                
+        def update_donations(self, donation):
+            set_widget_value(self.glade_xml, 'donor_data', tables.Donors.get(donation.donorID).name)
+            set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
+            set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
+            pass
+        
+        
+        def update(self, value):        
+            if self.curr_box is not None:
+                self.vbox.remove(self.curr_box)
+                            
+            if type(value) == tables.Collections:
+                w = self.glade_xml.get_widget('collections_box')
+                w.unparent()
+                self.curr_box = w
+                self.update_collections(value)
+            elif type(value) == tables.Donations:
+                w = self.glade_xml.get_widget('donations_box')
+                w.unparent()
+                self.curr_box = w
+                self.update_donations(value)
+            
+            self.vbox.pack_start(self.curr_box)
+            
+    
+    class AccessionInfoBox(InfoBox):
+        """
+        - general info
+        - source
+        """
+        def __init__(self):
+            InfoBox.__init__(self)
+            #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            self.glade_xml = gtk.glade.XML(path + 'acc_infobox.glade')
+            
+            self.general = GeneralAccessionExpander(self.glade_xml)
+            self.add_expander(self.general)
+            
+            self.source = SourceExpander(self.glade_xml)
+            self.add_expander(self.source)
+    
+    
+        def update(self, row):        
+            self.general.update(row)
+                            
+            # TODO: should test if the source should be expanded from the prefs
+            if row.source_type == None:
+                self.source.set_expanded(False)
+                self.source.set_sensitive(False)
+            elif row.source_type == 'Collections':
+                self.source.set_expanded(True)
+                self.source.update(row._collection)
+            elif row.source_type == 'Donations':
+                self.source.set_expanded(True)
+                self.source.update(row._donation)

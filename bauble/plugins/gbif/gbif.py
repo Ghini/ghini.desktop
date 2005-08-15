@@ -16,9 +16,11 @@ import UDDI4Py.client as uddi_client
 import UDDI4Py.requestDOM as uddi_request
 import UDDI4Py.responseDOM as uddi_response
 
-import views
+#import views
+
+from bauble.plugins import BaubleView, tables
 import darwincore2 as dwc2
-from tables import tables
+#from tables import tables
 import digir
 
 
@@ -76,7 +78,8 @@ class DigirSearchThread(threading.Thread):
         digir_search_lock.release()
         
 
-class GBIFView(views.View):
+#class GBIFView(views.View):
+class GBIFView(BaubleView):    
     
     pURL = "http://registry.gbif.net/uddi/inquiry"
     iURL = "http://registry.gbif.net/uddi/inquiry"
@@ -98,7 +101,7 @@ class GBIFView(views.View):
         url = "http://200.91.91.109/digir/DiGIR.php"
         resource = "atta"
         
-        if type(row) == tables.Genera:
+        if type(row) == tables["Genus"]:
             print "searching genera"
             filter = """<equals>
             <darwin:Genus>
@@ -107,7 +110,7 @@ class GBIFView(views.View):
             </equals>""" % {"genus": str(row)}
             print filter
             
-        if type(row) == tables.Plantnames:
+        if type(row) == tables["Plantname"]:
             print "searching plantnames"
         
         request = dwc2.search_request_template.substitute(filter=filter, 

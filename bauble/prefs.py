@@ -25,6 +25,8 @@ prefs_icon_dir = paths.main_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
 security_prefs_icon = prefs_icon_dir + "prefs_security.png"
 
+
+
 class PreferencesMgr(gtk.Dialog):
     def __init__(self):
         gtk.Dialog.__init__(self, "Preferences", None,
@@ -98,7 +100,10 @@ class PreferencesMgr(gtk.Dialog):
         return frame        
 
     
-
+# TODO: should just make this a static class named prefs though i don't know
+# though i don't know how well this would work access the dict superclass of
+# the class, have a dict in the module and module level functions to manipulate
+# it like we do in plugins
 class _Preferences(dict):
     """
     handles the loading, storing, getting and settings of preferences

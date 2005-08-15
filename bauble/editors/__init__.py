@@ -1026,7 +1026,8 @@ class _editors(Singleton):
     _by_table = {} # for __getitem__
     _by_name = {}  # fir __getattr__
     _initialized = False
-                            
+                   
+    @classmethod
     def _init(cls):
         if cls._initialized: 
             return
@@ -1051,10 +1052,8 @@ class _editors(Singleton):
         for m in modules:
             m = __import__(m, globals(), locals(), ['editors'])
         cls.initialized = True
-        
-    init = classmethod(_init)
-    
-    
+
+    @classmethod
     def register(cls, editor, table=None):        
         """
         editors are registered by the table they edit
@@ -1070,22 +1069,21 @@ class _editors(Singleton):
         cls._by_name[editor.__name__] = editor
         if table is not None: # doesn't work on any particular table
             cls._by_table[table.__name__] = editor     
-    register = classmethod(register)
+    
    
-   
+    @classmethod
     def all(cls):
         return cls._all
-    all = classmethod(all)
         
-
+        
+    @classmethod
     def __contains__(cls, item):
         """
         check by table, completely different than by editor name
         """
         return cls._by_table.has_key(item)
-    __contains__ = classmethod(__contains__)
-
-
+        
+    @classmethod
     def __getitem__(cls, item):
         import tables
         if type(item) == str:
@@ -1094,7 +1092,7 @@ class _editors(Singleton):
             msg = 'items must be looked up by table class or class name'
             raise ValueError('editors.__getitem__():' + msg)
         return cls._by_table[item.__name__]
-    __getitem__ = classmethod(__getitem__)
+
    
        
 editors = _editors()

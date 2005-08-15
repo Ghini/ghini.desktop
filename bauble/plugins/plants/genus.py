@@ -84,3 +84,15 @@ class GenusEditor(TreeViewEditorDialog):
 #
 # infobox
 #
+try:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+except ImportError:
+    pass
+else:
+    class GeneraInfoBox(InfoBox):
+        """
+        - number of taxon in number of accessions
+        - references
+        """
+        def __init__(self):
+            InfoBox.__init__(self)

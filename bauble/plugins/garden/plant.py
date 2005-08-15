@@ -87,9 +87,8 @@ class PlantEditor(TreeViewEditorDialog):
     label = 'Plants\\Clones'
 
     def __init__(self, parent=None, select=None, defaults={}):        
-        TreeViewEditorDialog.__init__(self, tables["Plants"],
-                                      "Plants/Clones Editor", parent, 
-                                      select=select, defaults=defaults)
+        TreeViewEditorDialog.__init__(self, Plant, "Plants/Clones Editor", 
+                                      parent, select=select, defaults=defaults)
         # set headers
         headers = {'plant_id': 'Plant ID',
                    'accession': 'Accession ID',

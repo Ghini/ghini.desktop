@@ -267,11 +267,12 @@ class CSVImportTool(BaubleTool):
     category = "Import"
     label = "Comma Separated Value"
     
+    @classmethod
     def start(cls):
         print "CSVImportTool.start()"
         c = CSVImporter()
         c.start()
-    start = classmethod(start)
+
 
 class CSVExportTool(BaubleTool):
     category = "Export"

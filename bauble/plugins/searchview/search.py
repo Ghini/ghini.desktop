@@ -8,7 +8,7 @@ import sqlobject
 import bauble
 import bauble.utils as utils
 from bauble.prefs import prefs
-import bauble.plugins.searchview.infobox
+from bauble.plugins.searchview.infobox import InfoBox
 from bauble.plugins import BaubleView, tables, editors
 
 
@@ -58,12 +58,12 @@ class SearchMeta:
 
 class ResultsMeta:
     
-    def __init__(self, expand_child_name=None, editor=None, infobox_class=None):        
+    def __init__(self, expand_child_name=None, editor_class=None, infobox_class=None):        
         if infobox_class is not None and \
-          not issubclass(infobox_class, infobox.InfoBox):
+          not issubclass(infobox_class, InfoBox):
             msg = "infobox_class must be a class whose parent class is InfoBox"
             raise ValueError("ResultsViewMeta.__init__: ", msg)
-        self.editor = editor
+        self.editor = editor_class
         self.expand_child = expand_child_name
         self.infobox = infobox_class
 
@@ -88,19 +88,32 @@ class SearchView(BaubleView):
     #search_map = {} # dictionary of search metas
     domain_map = {}
     search_metas = {}
-    results_meta = {} 
-        
+    
+    class ViewMeta(dict):
+
+        class Meta:
+            def __init__(self):
+                self.set()
+                
+            def set(self, child=None, editor=None, infobox=None):
+                self.child = child
+                self.editor = editor
+                self.infobox = infobox
+                
+        def __getitem__(self, item):
+            if item not in self: # create on demand
+                self[item] = self.Meta()
+            return self.get(item)
+            
+    view_meta = ViewMeta()
+    
+    @classmethod
     def register_search_meta(cls, domain, search_meta):        
         table_name = search_meta.table.__name__
         cls.domain_map[domain] = table_name
         cls.search_metas[table_name] = search_meta
-    register_search_meta = classmethod(register_search_meta)
             
-    def register_results_meta(cls, table_name, results_meta):
-        cls.results_meta[table_name] = results_meta
-    register_results_meta = classmethod(register_results_meta)
-    
-   
+            
     #search_map = {} # can be extended by plugins
     #domain_map = {}
     #child_expand_map = {}
@@ -176,11 +189,11 @@ class SearchView(BaubleView):
             self.infobox.destroy()
 
         # row is an object instance not a class so we have to get the class
-        # and then the name to look it up in self.results_meta
+        # and then the name to look it up in self.view_meta
         table_name = type(row).__name__
-        if table_name in self.results_meta and \
-          self.results_meta[table_name].infobox is not None:
-            self.infobox = self.results_meta[table_name].infobox            
+        if table_name in self.view_meta and \
+          self.view_meta[table_name].infobox is not None:
+            self.infobox = self.view_meta[table_name].infobox            
             if row is not None:
                 self.infobox.update(row)
             self.pane.pack2(self.infobox, False, True)
@@ -307,7 +320,8 @@ class SearchView(BaubleView):
         view.collapse_row(path)
         self.remove_children(model, iter)
         table_name = type(row).__name__
-        child = self.results_meta[table_name].expand_child
+        #child = self.results_meta[table_name].expand_child
+        child = self.view_meta[table_name].child
         if child is None:
             return True # don't expand
         kids = getattr(row, child)
@@ -566,10 +580,9 @@ class SearchView(BaubleView):
         edit_item = gtk.MenuItem("Edit")
         # TODO: there should be a better way to get the editor b/c this
         # dictates that all editors are in ClassnameEditor format
-        print editors
-        editor_name = self.results_meta[value.__class__.__name__].editor
+        editor_class = self.view_meta[value.__class__.__name__].editor
         edit_item.connect("activate", self.on_activate_editor,
-                          editors[editor_name], [value], None)
+                          editor_class, [value], None)
         menu.add(edit_item)
         menu.add(gtk.SeparatorMenuItem())
         
@@ -577,19 +590,15 @@ class SearchView(BaubleView):
             # for each join in the selected row then add an item on the context
             # menu for adding rows to the database of the same type the join
             # points to
-            print join
-            print join.joinMethodName            
             defaults = {}            
             other_class = join.otherClassName
-            print other_class
-            print self.results_meta
-            if other_class in self.results_meta:                                
-                editor = self.results_meta[other_class].editor # get editor 
+            if other_class in self.view_meta:
+                editor_class = self.view_meta[other_class].editor # get editor 
                 if join.joinColumn[-3:] == "_id": 
                     defaults[join.joinColumn[:-3]] = value        
                 add_item = gtk.MenuItem("Add " + join.joinMethodName)                
                 add_item.connect("activate", self.on_activate_editor, 
-                                  editors[editor], None, defaults)
+                                  editor_class, None, defaults)
                 menu.add(add_item)
         
         menu.add(gtk.SeparatorMenuItem())

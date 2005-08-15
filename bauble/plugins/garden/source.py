@@ -73,3 +73,5 @@ class Collection(BaubleTable):
         #    return self.locale
         #return self.label
         return self.locale 
+
+
