@@ -298,11 +298,14 @@ class TreeViewEditorDialog(TableEditorDialog):
         # before everything is created
         print 'entered TreeViewEditorDialog.start()'
         if self.visible_columns_pref is not None:
+            print '-- pref not none'
             if not self.visible_columns_pref in prefs:
+                print '-- in prefs'
                 prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
-        print 'TreeViewEditorDialog.start()'
+        print '-- create gui'
         self.create_gui()
+        print '-- super'
         super(TreeViewEditorDialog, self).start(block)
         print 'leaving TreeViewEditorDialog.start()'
     
@@ -792,12 +795,15 @@ class TreeViewEditorDialog(TableEditorDialog):
             
 
     def create_gui(self):
+        print "  entered TreeViewEditorDialog.create_gui()"
         vbox = gtk.VBox(False)
         
         self.create_toolbar()        
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
+        print "  -- create tree view"
         self.create_tree_view()
+        print "  -- created"
         sw = gtk.ScrolledWindow()        
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
@@ -807,6 +813,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.vbox.pack_start(vbox)
         
         # get the size of all children widgets
+        print "  -- size request"
         width, height = self.size_request()
         #print str(width) + " " + 
 
@@ -817,10 +824,13 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.set_default_size(-1, 300) # 10 is a guestimate at border width
         
         # set ok button insensitive
+        print "  -- ok sensitive"
         ok_button = self.action_area.get_children()[1]
         ok_button.set_sensitive(False)
         
+        print "  -- show all"
         self.show_all()
+        print "  leaving TreeViewEditorDialog.create_gui()"
         #self.resize_children()
         #print self.size_request()
         #print tuple(self.allocation)

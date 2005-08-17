@@ -278,9 +278,9 @@ else:
             fullname, synonyms, ...
             """
             InfoBox.__init__(self)
-            self.ref = ReferencesExpander()
-            self.ref.set_expanded(True)
-            self.add_expander(self.ref)
+            #self.ref = ReferenceExpander()
+            #self.ref.set_expanded(True)
+            #self.add_expander(self.ref)
             
             #img = ImagesExpander()
             #img.set_expanded(True)
@@ -288,7 +288,8 @@ else:
             
             
         def update(self, row):
-            self.ref.update(row.references)
+            pass
+            #self.ref.update(row.references)
             #self.ref.value = row.references
             #ref = self.get_expander("References")
             #ref.set_values(row.references)

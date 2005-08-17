@@ -318,7 +318,6 @@ else:
             #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
             #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
             path = os.path.dirname(__file__) + os.sep
-            print path
             self.glade_xml = gtk.glade.XML(path + 'acc_infobox.glade')
             
             self.general = GeneralAccessionExpander(self.glade_xml)

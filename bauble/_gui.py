@@ -102,6 +102,7 @@ class GUI:
         """
         create a seperate thread the run the progress bar
         """
+        return
         if not hasattr(self, "pb_lock"):
             self.pb_lock = thread.allocate_lock()
         self.stop_pulse = False

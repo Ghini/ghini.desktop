@@ -276,6 +276,7 @@ class SearchView(BaubleView):
         remove all children of some parent in the model, reverse
         iterate through them so you don't invalidate the iter
         """
+        print "remove_children"
         while model.iter_has_child(parent):            
             nkids = model.iter_n_children(parent)
             child = model.iter_nth_child(parent, nkids-1)

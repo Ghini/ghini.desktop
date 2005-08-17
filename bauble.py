@@ -19,11 +19,6 @@
 import os, sys
 import bauble.paths as paths
 import bauble.utils as utils
-#import bauble.utils as utils
-
-
-#print paths.main_dir()
-print paths.lib_dir()
 
 if sys.platform == "win32":
     #sys.path.append(paths.main_dir() + os.sep + "lib" + os.sep + "win32")
@@ -52,17 +47,9 @@ except ImportError:
     msg = "SQLObject not installed. Please install SQLObject from http://www.sqlobject.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
-#import bauble.app as app
-#import bauble.prefs as prefs
-#bauble = app.baubleApp
-#prefs = prefs.Preferences
 
 if __name__ == "__main__":    
-    #import bauble.app
-    #app = bauble.app.BaubleApp()
-    #app.main()
     from bauble import app
     app.main()
-    #bauble.main()
     gtk.gdk.threads_leave()
 
