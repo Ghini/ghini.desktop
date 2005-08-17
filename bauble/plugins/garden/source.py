@@ -66,6 +66,7 @@ class Collection(BaubleTable):
     #region = ForeignKey('Regions', default=None)
     #place = ForeignKey('Places', default=None)
     #state = ForeignKey('States', default=None)
+    country = ForiegnKey('Country', default=None) # where collected
     accession = ForeignKey('Accessions', default=None)
     
     def __str__(self):

@@ -149,10 +149,12 @@ class Plantname(BaubleTable):
     # into a string to give more specific information, either that or
     # maybe an index into one of the tables with the value being chosen
     # from a combo
-    origin = StringCol(default=None)
+    #origin = StringCol(default=None)
     # TODO: create distribution table that holds one of each of the 
     # geography tables which will hold the plants distribution, this
     # distribution table could even be part of the geography module
+    # TODO: do this in the garden package since we don't normally
+    # care about plant distribution
     #distribution = SingleJoin('Distribution')
 
 

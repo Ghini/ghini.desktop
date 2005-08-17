@@ -38,13 +38,13 @@ class GardenPlugin(BaublePlugin):
             from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
-            search_meta = SearchMeta("Accession", ["acc_id"])
+            search_meta = SearchMeta("Accession", ["acc_id"], "acc_id")
             SearchView.register_search_meta("accession", search_meta)
             SearchView.register_search_meta("acc", search_meta)      
             SearchView.view_meta["Accession"].set("plants", AccessionEditor, 
                                                    AccessionInfoBox)
             
-            search_meta = SearchMeta("Location", ["site"])
+            search_meta = SearchMeta("Location", ["site"], "site")
             SearchView.register_search_meta("location", search_meta)
             SearchView.register_search_meta("loc", search_meta)            
             SearchView.view_meta["Location"].set("plants", LocationEditor)

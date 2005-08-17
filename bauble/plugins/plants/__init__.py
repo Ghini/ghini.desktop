@@ -33,18 +33,18 @@ class PlantsPlugin(BaublePlugin):
             from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
-            search_meta = SearchMeta("Family", ["family"])
+            search_meta = SearchMeta("Family", ["family"], "family")
             SearchView.register_search_meta("family", search_meta)
             SearchView.register_search_meta("fam", search_meta)            
             SearchView.view_meta["Family"].set("genera", FamilyEditor)
 
             
-            search_meta = SearchMeta("Genus", ["genus"])
+            search_meta = SearchMeta("Genus", ["genus"], "genus")
             SearchView.register_search_meta("genus", search_meta)
             SearchView.register_search_meta("gen", search_meta)
             SearchView.view_meta["Genus"].set("plantnames", GenusEditor)
             
-            search_meta = SearchMeta("Plantname", ["sp", "isp"])
+            search_meta = SearchMeta("Plantname", ["sp", "isp"], "sp")
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             

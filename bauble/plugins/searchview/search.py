@@ -37,23 +37,23 @@ from bauble.plugins import BaubleView, tables, editors
 
 class SearchMeta:
     
-    def __init__(self, table_name, column_names):#, domains):
+    def __init__(self, table_name, column_names, sort_column=None):
         """
         table_name: the name of the table this meta refers to
         column_names: the names of the table columns that will be search
-        domain: what names we will use to refer to this meta
-        """
-        # the name of the table this meta refers to
+        sort: column to sort on, can use -column for descending order, this should
+            also work if you do ["col1", "col2"]
+        """        
         self.table = tables[table_name]
         if type(column_names) is not list:
             raise ValueError("SearchMeta.__init__: column_names must be a list")
-        #if type(domains) is not list:
-        #    raise ValueError("SearchMeta.__init__: domains must be a list")
-                    
-        # the columns to search when refering to this domain
         self.columns = column_names
-        # a list of names this table will be refered to as
-        #self.domains = domains
+        
+        # TODO: if the the column is a join then it will sort by the id of the joined objects rather 
+        # than the values of the objects, we should check if any of the columns passed are joins 
+        # and handle them properly with and AND() or something
+        #
+        self.sort_column = sort_column 
         
 
 class ResultsMeta:
@@ -276,7 +276,6 @@ class SearchView(BaubleView):
         remove all children of some parent in the model, reverse
         iterate through them so you don't invalidate the iter
         """
-        print "remove_children"
         while model.iter_has_child(parent):            
             nkids = model.iter_n_children(parent)
             child = model.iter_nth_child(parent, nkids-1)
@@ -355,7 +354,12 @@ class SearchView(BaubleView):
         columns = search_meta.columns
         for v in values:
             if v == "*" or v == "all":
-                return table.select(connection=bauble.app.conn)
+                print "selecting all from " + table_name
+                print "sort: " + str(search_meta.sort_column)
+                s = table.select(connection=bauble.app.conn, orderBy=search_meta.sort_column)
+                print "selected"
+                return s
+                #return table.select(connection=bauble.app.conn)
             q = "%s LIKE '%%%s%%'" % (columns[0], v)                    
             for c in columns[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (c, v)
@@ -494,12 +498,12 @@ class SearchView(BaubleView):
             results += self.query(domain, values)
         
         if len(results) > 0: 
-            for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
+            #for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
+            for r in results:
                 p = model.append(None, [r])
                 model.append(p, ["_dummy"])
         else: 
             model.append(None, ["Couldn't find anything"])
-        
         self.results_view.set_model(model)
         self.set_sensitive(True)
     
@@ -560,6 +564,8 @@ class SearchView(BaubleView):
         if event.button != 3: return # if not right click then leave
         sel = view.get_selection()
         model, i = sel.get_selected()
+        if model == None:
+            return # nothing to pop up a context menu on
         value = model.get_value(i, 0) 
         
         menu = gtk.Menu()

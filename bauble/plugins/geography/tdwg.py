@@ -12,31 +12,31 @@ from bauble.plugins import BaubleTable, tables
 
 
 # level 1
-class Continents(BaubleTable):
+class Continent(BaubleTable):
     continent = StringCol(length=24)
     code = IntCol()
     
-    regions = MultipleJoin('Regions', joinColumn='continent_id')
+    regions = MultipleJoin('Region', joinColumn='continent_id')
     
     def __str__(self): return self.continent
     
     
 # level2
-class Regions(BaubleTable):
+class Region(BaubleTable):
     region = UnicodeCol(length=64)
     code = IntCol()
     
     # i don't think this is used
     iso_code = StringCol(default=None)
     
-    continent = ForeignKey('Continents')
-    areas = MultipleJoin('Areas', joinColumn='region_id')
+    continent = ForeignKey('Continent')
+    areas = MultipleJoin('Area', joinColumn='region_id')
     
     def __str__(self): return self.region
     
     
 # level3
-class Areas(BaubleTable):
+class Area(BaubleTable):
     code = StringCol(length=5)
     #area = StringCol(length=64)
     area = UnicodeCol(length=64)
@@ -45,13 +45,14 @@ class Areas(BaubleTable):
     notes = StringCol(default=None)
     
     region = ForeignKey('Region')
-    states = MultipleJoin('States', joinColumn='area_id')
+    states = MultipleJoin('State', joinColumn='area_id')
     
-    def __str__(self): return self.area
+    def __str__(self): 
+        return self.area
     
     
 # level4
-class States(BaubleTable):
+class State(BaubleTable):
     state = UnicodeCol(length=64)
     code = StringCol(length=8)
     iso_code = StringCol(length=8)
@@ -59,13 +60,14 @@ class States(BaubleTable):
     notes = UnicodeCol(default=None)
     
     area = ForeignKey('Area')
-    places = MultipleJoin('Places', joinColumn='state_id')
+    places = MultipleJoin('Place', joinColumn='state_id')
     
-    def __str__(self): return self.state
+    def __str__(self): 
+        return self.state
     
     
 # gazetteer
-class Places(BaubleTable):
+class Place(BaubleTable):
     
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
@@ -77,13 +79,13 @@ class Places(BaubleTable):
     #continent = ForeignKey('Continent')
     region = ForeignKey('Region', default=None)
     area = ForeignKey('Area', default=None)
-    state = ForeignKey('States', default=None)
-    kew_region = ForeignKey('KewRegions', default=None)
+    state = ForeignKey('State', default=None)
+    kew_region = ForeignKey('KewRegion', default=None)
 
     def __str__(self): return self.name
 
 
-class KewRegions(BaubleTable):
+class KewRegion(BaubleTable):
     
     # TODO: one column in the data has none, i don't know why, i think it means
     # that its cultivated and its origin is unknown, neother code or region
@@ -92,7 +94,39 @@ class KewRegions(BaubleTable):
     region = StringCol(length=64, default=None)
     subdiv = StringCol(length=1, default=None)
     
-    places = MultipleJoin('Places', joinColumn='kew_region_id')
+    places = MultipleJoin('Place', joinColumn='kew_region_id')
     
     def __str__(self): return self.region
+
+
+class Distribution(BaubleTable):
+    """
+    this class holds a possible plant distribution, a plantname row should
+    have a single to a distribution
+    """
+    continent = ForeignKey("Continent")
+    area = ForeignKey("Area", default=None)
+    region = ForeignKey("Region", default=None)
+    state = ForeignKey("State", default=None)    
+    place = ForeignKey("Place", default=None)
+    kew_region = ForeignKey("KewRegion", default=None)
     
+    # means that the distribution is unknown but is widely
+    # cultivated
+    cultivated = BoolCol(default=False)
+        
+    def __str__(self):
+        # this might not be a good idea to choose the string like this
+        # since unique objects might return the same __str__
+        if self.cultivated: 
+            return self.cultivated
+        elif self.place is not None:
+            return str(self.place)
+        elif self.state is not None:
+            return str(self.state)
+        elif self.region is not None:
+            return str(self.region)
+        elif self.area is not None:
+            return str(self.area)
+        else: 
+            return str(self.continent)
