@@ -58,13 +58,13 @@ class PlantsPlugin(BaublePlugin):
         csv = CSVImporter()    
         path = os.path.dirname(__file__) + os.sep + 'default'
         files = ['Family.txt']
-        csv.start([path+os.sep+f for f in files])
+        csv.start([path+os.sep+f for f in files], True)
         
         if utils.yes_no_dialog("Would you like to import the Genera?"):
-            csv.start([path + os.sep + "Genus.txt"])
+            csv.start([path + os.sep + "Genus.txt"], True)
         
         if utils.yes_no_dialog("Would you like to import the Plantnames?"):
-            csv.start([path + os.sep + "Plantname.txt"])
+            csv.start([path + os.sep + "Plantname.txt"], True)
     
     
     def install(cls):

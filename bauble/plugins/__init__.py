@@ -34,8 +34,9 @@
 # TODO: a plugin cannot change a table but can add joins to a table not
 # in its plugin module  throught the sqlmeta.addJoin method
 
-#accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
-#joins = {'accessions': (table.Plantname, table.Accession, 'plantname_id')}
+# TODO: need a way to add tables to the database base without creating a new
+# database completely, see sqlobject-admin, this also means to we need
+# a way to know whether this is the first time this plugin has been loaded
 
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
@@ -128,6 +129,7 @@ def _find_plugins():
             plugins.append(mod.plugin)
     return plugins
 
+
 def load():
     # accumulate all the plugins in the module, call the register methods
     # once the plugins have been found
@@ -212,6 +214,4 @@ class BaubleTool(object):
 def init_module():
     load()
 init_module()
-#plugins()
-#plugins.init()
     

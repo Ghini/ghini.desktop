@@ -155,8 +155,8 @@ class Plantname(BaubleTable):
     # distribution table could even be part of the geography module
     # TODO: do this in the garden package since we don't normally
     # care about plant distribution
-    #distribution = SingleJoin('Distribution')
-
+    distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
+                               makeDefault=None)
 
     
     # foreign keys and joins

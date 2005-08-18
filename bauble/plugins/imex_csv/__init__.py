@@ -3,7 +3,7 @@
 #
 
 
-import os, csv, traceback, threading
+import os, sys, csv, traceback, threading
 import gtk.gdk
 import sqlobject
 #from bauble.tools.imex import *
@@ -34,7 +34,7 @@ type_validators = {int: lambda x: int(x),
 
 class CSVImporter:
     
-    def start(self, filenames=None):
+    def start(self, filenames=None, block=False):
         """
         run the importer, if no filenames are are give then it will ask you
         for the files to import
@@ -72,8 +72,13 @@ class CSVImporter:
         
         bauble.app.gui.window.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        #if block:
+        #    self.run(filenames)
+        #else:            
         t = threading.Thread(target=self.run, args=(filenames,))
         t.start()
+        if block:
+            t.join
     
     
     def import_file(self, filename, table, connection):

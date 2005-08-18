@@ -59,10 +59,11 @@ class SearchMeta:
 class ResultsMeta:
     
     def __init__(self, expand_child_name=None, editor_class=None, infobox_class=None):        
-        if infobox_class is not None and \
-          not issubclass(infobox_class, InfoBox):
-            msg = "infobox_class must be a class whose parent class is InfoBox"
-            raise ValueError("ResultsViewMeta.__init__: ", msg)
+        # strict typing, we probably don't need this
+#        if infobox_class is not None and \
+#          not issubclass(infobox_class, InfoBox):
+#            msg = "infobox_class must be a class whose parent class is InfoBox"
+#            raise ValueError("ResultsViewMeta.__init__: ", msg)
         self.editor = editor_class
         self.expand_child = expand_child_name
         self.infobox = infobox_class
@@ -460,8 +461,8 @@ class SearchView(BaubleView):
             results += self.query(domain, values)
             for r in results:
                 added = True
-                p = model.append(None, [r])
-                model.append(p, ["_dummy"])
+                p = model.append(None, [r])                
+                model.append(p, ["_dummy"])                
         if not added:
             model.append(None, ["Couldn't find anything"])
         self.results_view.set_model(model)
@@ -501,6 +502,10 @@ class SearchView(BaubleView):
             #for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
             for r in results:
                 p = model.append(None, [r])
+                #print r.__class__.__name__
+#                table_name = r.__class__.__name__
+#                if table_name in self.view_meta and \
+#                    self.view_meta[table_name].expand_child is not None:
                 model.append(p, ["_dummy"])
         else: 
             model.append(None, ["Couldn't find anything"])

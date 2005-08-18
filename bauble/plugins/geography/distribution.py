@@ -1,3 +1,8 @@
+#
+# distribution.py
+# 
+# Description: the TDWG database for plant distributions version 2
+#
 
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables
@@ -114,6 +119,8 @@ class Distribution(BaubleTable):
     # means that the distribution is unknown but is widely
     # cultivated
     cultivated = BoolCol(default=False)
+    
+    plantname = ForeignKey("Plantname")
         
     def __str__(self):
         # this might not be a good idea to choose the string like this
