@@ -3,9 +3,12 @@
 # 
 # Description: the TDWG database for plant distributions version 2
 #
-
+import os
+import gtk
 from sqlobject import *
+import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables
+from bauble.plugins.editor import TableEditor
 
 # FIXME: there are lots of problems with these tables
 # 1. in some tables there is a row with no real values, i think this means
@@ -76,7 +79,7 @@ class Place(BaubleTable):
     
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
-    name = UnicodeCol(length=64, default=None)
+    place = UnicodeCol(length=64, default=None)
     #name = UnicodeCol(length=64)
     synonym = UnicodeCol(length=64, default=None)
     notes = UnicodeCol(default=None)
@@ -87,7 +90,10 @@ class Place(BaubleTable):
     state = ForeignKey('State', default=None)
     kew_region = ForeignKey('KewRegion', default=None)
 
-    def __str__(self): return self.name
+    def __str__(self): 
+        if self.place is None:
+            return ""
+        return self.place
 
 
 class KewRegion(BaubleTable):
@@ -137,3 +143,63 @@ class Distribution(BaubleTable):
             return str(self.area)
         else: 
             return str(self.continent)
+
+#
+# Distribution Editor
+#
+
+class DistributionEditor(TableEditor):
+    
+    label = "Distribution"
+    
+    widget_to_column_name_map = {'cont_combo': 'continentID',
+                                 'area_combo': 'areaID',
+                                 'region_combo': 'regionID',
+                                 'state_combo': 'stateID',
+                                 'place_combo': 'placeID',
+                                 'kew_combo': 'kew_regionID',
+                                 'cult_check': 'cultivated',
+                                 'plantname_label': 'plantnameID'
+                                 }
+
+    
+    def __init__(self):        
+        super(DistributionEditor, self).__init__(Distribution)
+    
+    
+    def start(self):
+        path = os.path.dirname(__file__) + os.sep
+        self.glade_xml = gtk.glade.XML(path + 'distribution_editor.glade')
+        handlers = {'on_cult_check_toggled': self.on_cult_check_toggled,
+                    'on_distribution_dialog_response': self.on_response,
+                    }
+        self.glade_xml.signal_autoconnect(handlers)
+        
+        
+    def on_cult_check_toggled(self, widget, data=None):
+        active = widget.get_active()
+        table = self.glade_xml.get_widget("dist_table")
+        table.set_sensitive(not active)
+        box = self.glade_xml.get_widget("kew_box")
+        box.set_sensitive(not active)
+
+
+    def on_response(self, widget, response):        
+        if response == gtk.RESPONSE_OK:
+            self.commit_changes()
+        widget.destroy()            
+        
+        
+    def get_values_from_widgets(self):
+        values = {}
+        for widget, col in self.widget_to_column_name_map.iteritems():
+            print widget
+            print col
+            utils.set_dict_value_from_widget(self.glade_xml, widget, col, values)
+        return values
+            
+        
+    def commit_changes(self):
+        values = self.get_values_from_widgets()
+        print values
+        

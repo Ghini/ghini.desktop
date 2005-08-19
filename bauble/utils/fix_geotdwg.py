@@ -14,7 +14,7 @@ infiles = {'gaz': base_dir + 'geo_gazetteer.txt',
 
 # right now we copy these by hand to the first row after the tables have been 
 # dumped from the .mdb
-gazetteer_cols='id,name,l1_code,l2_code,l3_code,l4_code,kew_region_code,kew_subdiv,kew_region,synonym,notes'
+gazetteer_cols='id,place,l1_code,l2_code,l3_code,l4_code,kew_region_code,kew_subdiv,kew_region,synonym,notes'
 level1_cols='code,continent'
 level2_cols='code,region,level1_code,iso_code'
 level3_cols='code,area,level2_code,iso_code,ed2_status,notes'
@@ -22,12 +22,12 @@ level4_cols='code,state,level3_code,iso_code,ed2_status,notes'
 
 outdir = 'out'
 
-table_map = {'gaz': 'Places',
-             'level1': 'Continents',
-             'level2': 'Regions',
-             'level3': 'Areas',
-             'level4': 'States',
-             'kew': 'KewRegions'}
+table_map = {'gaz': 'Place',
+             'level1': 'Continent',
+             'level2': 'Region',
+             'level3': 'Area',
+             'level4': 'State',
+             'kew': 'KewRegion'}
 
 
 def write_file(table, dict):

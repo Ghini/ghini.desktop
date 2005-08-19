@@ -582,7 +582,6 @@ class SourceEditor(TableEditor):
         
     def on_response(self, dialog, response, data=None):
         #print "SourceEditor.on_response"
-        
         if response == gtk.RESPONSE_OK:
             print "response ok"
             #if self._dirty:

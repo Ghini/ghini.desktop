@@ -233,7 +233,8 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'food_plant': 'Food plant'
                    }
         self.column_meta.headers = headers        
-
+        self.column_meta['distribution'].editor = editors["DistributionEditor"]
+        
         
     def foreign_does_not_exist(self, name, value):
         self.add_genus(value)    

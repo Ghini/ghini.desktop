@@ -52,6 +52,21 @@ def yes_no_dialog(msg):
     d.destroy()
     return r == gtk.RESPONSE_YES
 
+def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
+                           buttons=gtk.BUTTONS_OK):
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          type=type, buttons=buttons, message_format=msg)        
+    expand = gtk.Expander("Details")
+    text_view = gtk.TextView()
+    tb = gtk.TextBuffer()
+    tb.set_text(details)
+    text_view.set_buffer(tb)
+    expand.add(text_view)
+    d.vbox.pack_start(expand)
+    d.show_all()
+    r = d.run()
+    d.destroy()
+    return r
 
 def startfile(filename):
     if sys.platform == 'win32':
@@ -61,6 +76,55 @@ def startfile(filename):
         os.system("gnome-open " + filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file:" + filename)
+
+
+def set_dict_value_from_widget(glade_xml, widget_name, dict_key, dic, validator=lambda x: x):
+    w = glade_xml.get_widget(widget_name)
+    v = None
+    if isinstance(w, gtk.Entry):
+        v = w.get_text()
+        if v == "": v = None
+    elif isinstance(w, gtk.TextView):
+        buffer = w.get_buffer()
+        start = buffer.get_start_iter()
+        end = buffer.get_end_iter()
+        v = buffer.get_text(start, end)
+        if v == "": v = None
+    elif isinstance(w, gtk.ComboBoxEntry) or isinstance(w, gtk.ComboBox):
+        it = w.get_active_iter()
+        if it is None: 
+            v = None
+        else: 
+            model = w.get_model()
+            v = model.get_value(it, 0)
+            if isinstance(v, BaubleTable): v = v.id
+            else: v
+    elif isinstance(w, gtk.CheckButton):
+        v = w.get_active()
+    elif isinstance(w, gtk.Label):
+        v = w.get_text()
+    else:
+        raise ValueError("SourceEditor.set_dict_value_from_widget: " \
+                         " ** unknown widget type: " + str(type(w)))
+            
+    if v is not None: 
+        v = validator(v)
+        dic[dict_key] = v
+
+
+def set_widget_value(glade_xml, widget_name, value):
+    print 'set_widget_value: ' + widget_name
+    if value is None: return
+    w = glade_xml.get_widget(widget_name)
+    if w is None:
+        raise ValueError("set_widget_value: no widget by the name "+\
+                         widget_name)
+    print type(value)
+    if type(value) == ForeignKey:
+        pass
+    elif isinstance(w, gtk.Entry):
+        w.set_text(value)
+        
 
 def dms_to_decimal(dir, deg, min, sec):
     """

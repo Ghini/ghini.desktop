@@ -72,7 +72,9 @@ def _register(plugin_class):
             msg = "Can't load plugin %s. This plugin depends on %s but "\
                   "%s doesn't exist" %(plugin_name, dependency, dependency)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            plugins.pop(plugin_name)
             return
+                    
     plugins[plugin_name] = plugin_class
     
     # add tables
@@ -120,10 +122,8 @@ def _find_plugins():
         try:
             mod = __import__(m, globals(), locals(), ['plugins'])
         except Exception, e:
-            t, v, tb = sys.exc_info()
-            msg = "** Error: could not import module %s\n\n%s" % \
-                (m, traceback.format_exc())
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            msg = "Could not import the %s module." % m#\n\n%s" % 
+            utils.message_details_dialog(msg, str(traceback.format_exc()), gtk.MESSAGE_ERROR)
             continue
         if hasattr(mod, "plugin"):                 
             plugins.append(mod.plugin)
