@@ -6,6 +6,7 @@ import os, sys, re, copy
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
+from sqlobject.joins import SOSingleJoin
 
 from bauble.plugins import BaubleEditor, BaubleTable
 from bauble.prefs import prefs
@@ -26,13 +27,68 @@ debug.enable = False
 # FIXME: everytime you open and close a TreeViewEditorDialog the dialog
 # get a little bigger, i think the last column is creeping
 
+
+def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name, model_col=0, validator=lambda x: x):
+    w = glade_xml.get_widget(widget_name)
+    v = get_widget_value(glade_xml, widget_name, model_col)
+    
+    if v == "": 
+        v = None
+    elif isinstance(v, BaubleTable):
+        v = v.id
+        
+    if v is not None:
+        v = validator(v)
+        dic[dict_key] = v
+        
+
+def get_widget_value(glade_xml, widget_name, column=0):
+    """
+    column is the column to use if the widget's value is a TreeModel
+    """
+    w = glade_xml.get_widget(widget_name)
+    if isinstance(w, gtk.Entry):
+        return w.get_text()
+    elif isinstance(w, gtk.TextView):
+        buffer = w.get_buffer()
+        start = buffer.get_start_iter()
+        end = buffer.get_end_iter()
+        return buffer.get_text(start, end)
+    elif isinstance(w, gtk.ComboBoxEntry) or isinstance(w, gtk.ComboBox):
+        v = None
+        i = w.get_active_iter()
+        if i is not None:
+            v = w.get_model().get_value(i, column)
+        return v
+    elif isinstance(w, gtk.CheckButton):
+        return w.get_active()
+    elif isinstance(w, gtk.Label):
+        return w.get_text()
+    raise ValueError("SourceEditor.set_dict_value_from_widget: " \
+                     " ** unknown widget type: " + str(type(w)))
+    
+
+def set_widget_value(glade_xml, widget_name, value):
+    print 'set_widget_value: ' + widget_name
+    if value is None: return
+    w = glade_xml.get_widget(widget_name)
+    if w is None:
+        raise ValueError("set_widget_value: no widget by the name "+\
+                         widget_name)
+    print type(value)
+    if type(value) == ForeignKey:
+        pass
+    elif isinstance(w, gtk.Entry):
+        w.set_text(value)
+
+
+#def create_col_meta_from_table(table) # TODO: rename this to be consistent
 def createColumnMetaFromTable(table):
     """
     return a MetaViewColumn class built from an sqlobj
     """
-
+    
     meta = ViewColumnMeta()
-    #for name, col in table.sqlmeta._columnDict.iteritems():
     for name, col in table.sqlmeta.columns.iteritems():
         if name[0] == "_":  continue # _means private
         col_meta =  ViewColumnMeta.Meta()
@@ -52,15 +108,17 @@ def createColumnMetaFromTable(table):
             col_meta.required = True
         meta[name] = col_meta
     
-    for join in table.sqlmeta.joins:
-        if type(join) == SingleJoin:
+
+    for join in table.sqlmeta.joins:        
+        if type(join) == SOSingleJoin:
             name = join.joinMethodName
-            if name[0] == "_":  continue # _means private
-            col_meta.header = name
+            print name
+            if name[0] == "_":  continue # _means private            
             col_meta =  ViewColumnMeta.Meta()
-            col_meta.type = type(join)
+            col_meta.header = name
+            col_meta.type = SOSingleJoin
             col_meta.join = True
-            meta[name] = col_meta    
+            meta[name] = col_meta
     return meta
 
 
@@ -99,7 +157,8 @@ class ViewColumnMeta(dict):
             self.default = default
             self.editor = editor
             self.required = required
-            self.getter = getter            
+            self.getter = getter
+            self.join = False        
             
             # a dummy validate function
             self.validate = lambda x: x
@@ -782,6 +841,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         menu = gtk.Menu()
         # TODO: would rather sort case insensitive
         for name, meta in sorted(self.column_meta.iteritems()):
+            #if meta.join and not meta.type == SOSingleJoin and not meta.editor:
+            #    continue
+
             # no mnemonics
             item = gtk.CheckMenuItem(meta.header.replace('_', '__')) 
             if meta.default == NoDefault:
@@ -914,7 +976,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         # create the columns from the meta data
         for name, meta in self.column_meta.iteritems(): 
-            self.columns[name] = self.create_view_column(name, meta)
+            if meta.join:
+                if meta.type == SOSingleJoin and meta.editor is not None:
+                    self.columns[name] = self.create_view_column(name, meta)
+            else: self.columns[name] = self.create_view_column(name, meta)
+                            
         
         self.view = gtk.TreeView(gtk.ListStore(object))
         self.view.set_headers_clickable(False)

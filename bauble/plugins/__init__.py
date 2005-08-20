@@ -46,6 +46,8 @@ import gtk
 from sqlobject import SQLObject, sqlmeta
 import bauble.utils as utils
 
+
+
 plugins = {}
 views = {}
 tools = {}

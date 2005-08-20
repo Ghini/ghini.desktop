@@ -271,24 +271,29 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="cont_combo">
+	    <widget class="GtkComboBoxEntry" id="cont_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
+	      <signal name="editing_done" handler="on_cont_combo_editing_done" last_modification_time="Fri, 19 Aug 2005 21:58:16 GMT"/>
+	      <signal name="changed" handler="on_cont_combo_changed" last_modification_time="Fri, 19 Aug 2005 21:58:23 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">1</property>
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">0</property>
 	      <property name="bottom_attach">1</property>
+	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="region_combo">
+	    <widget class="GtkComboBoxEntry" id="region_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>
@@ -296,14 +301,16 @@
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">1</property>
 	      <property name="bottom_attach">2</property>
+	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="area_combo">
+	    <widget class="GtkComboBoxEntry" id="area_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>
@@ -311,14 +318,16 @@
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">2</property>
 	      <property name="bottom_attach">3</property>
+	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="state_combo">
+	    <widget class="GtkComboBoxEntry" id="state_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>
@@ -326,14 +335,16 @@
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">3</property>
 	      <property name="bottom_attach">4</property>
+	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="place_combo">
+	    <widget class="GtkComboBoxEntry" id="place_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>
@@ -341,6 +352,7 @@
 	      <property name="right_attach">2</property>
 	      <property name="top_attach">4</property>
 	      <property name="bottom_attach">5</property>
+	      <property name="x_options">fill</property>
 	      <property name="y_options">fill</property>
 	    </packing>
 	  </child>
@@ -395,9 +407,10 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBox" id="kew_combo">
+	    <widget class="GtkComboBoxEntry" id="kew_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
+	      <property name="has_frame">True</property>
 	      <property name="focus_on_click">True</property>
 	    </widget>
 	    <packing>

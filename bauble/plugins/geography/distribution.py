@@ -6,9 +6,11 @@
 import os
 import gtk
 from sqlobject import *
-import bauble.utils as utils
+#import bauble.utils as utils
+from bauble.plugins.editor import set_dict_value_from_widget, get_widget_value
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TableEditor
+
 
 # FIXME: there are lots of problems with these tables
 # 1. in some tables there is a row with no real values, i think this means
@@ -26,7 +28,8 @@ class Continent(BaubleTable):
     
     regions = MultipleJoin('Region', joinColumn='continent_id')
     
-    def __str__(self): return self.continent
+    def __str__(self): 
+        return self.continent
     
     
 # level2
@@ -40,7 +43,8 @@ class Region(BaubleTable):
     continent = ForeignKey('Continent')
     areas = MultipleJoin('Area', joinColumn='region_id')
     
-    def __str__(self): return self.region
+    def __str__(self): 
+        return self.region
     
     
 # level3
@@ -107,7 +111,11 @@ class KewRegion(BaubleTable):
     
     places = MultipleJoin('Place', joinColumn='kew_region_id')
     
-    def __str__(self): return self.region
+    def __str__(self):         
+        if self.region is None: return "" # **** TODO: don't do it
+        if self.subdiv is not None:
+            return "%s - %s" % (self.region, self.subdiv)
+        return self.region
 
 
 class Distribution(BaubleTable):
@@ -160,20 +168,81 @@ class DistributionEditor(TableEditor):
                                  'kew_combo': 'kew_regionID',
                                  'cult_check': 'cultivated',
                                  'plantname_label': 'plantnameID'
-                                 }
+                                }
 
     
-    def __init__(self):        
-        super(DistributionEditor, self).__init__(Distribution)
-    
-    
-    def start(self):
+    def __init__(self, select=None, default={}):
+        super(DistributionEditor, self).__init__(Distribution, select, default)
         path = os.path.dirname(__file__) + os.sep
         self.glade_xml = gtk.glade.XML(path + 'distribution_editor.glade')
         handlers = {'on_cult_check_toggled': self.on_cult_check_toggled,
                     'on_distribution_dialog_response': self.on_response,
+#                    'on_cont_combo_button_press_event': self.on_cont_combo_button_press_event,
+#                    'on_cont_combo_show': self.on_cont_combo_show,
+#                    'on_cont_combo_changed': self.on_cont_combo_changed,
+#                    'on_cont_combo_editing_done': self.on_cont_combo_editing_done
                     }
         self.glade_xml.signal_autoconnect(handlers)
+    
+    
+    def start(self):                
+        self.init_combo("cont_combo", Continent.select(orderBy='continent'))
+        self.init_combo("region_combo", Region.select(orderBy='region'))
+        self.init_combo("area_combo", Area.select(orderBy='area'))
+        self.init_combo("state_combo", State.select(orderBy='state'))
+        self.init_combo("place_combo", Place.select(orderBy='place'))
+        self.init_combo("kew_combo", KewRegion.select(orderBy='region'))
+        
+            
+    def init_combo(self, combo_name, select):        
+        model = gtk.ListStore(str, int)
+        for row in select:
+            model.append([str(row), row.id])
+        combo = self.glade_xml.get_widget(combo_name)
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.set_text_column(0)
+        
+        self.set_completion_on_combo(combo, model)
+        
+    def set_completion_on_combo(self, combo, model):
+        """
+        model = [str, i]
+        """
+        completion = gtk.EntryCompletion()
+        cell = gtk.CellRendererText()        
+        completion.pack_start(cell)
+        completion.set_inline_completion(True)
+        completion.set_text_column(0)
+        combo.child.set_completion(completion)
+        completion.set_model(model)
+        
+
+    def on_cont_combo_editing_done(self, widget, data=None):
+        print 'editing done'
+        pass
+        
+        
+    def on_cont_combo_changed(self, widget, data=None):
+        print "cont changed"
+        print widget.get_active()
+        i = widget.get_active_iter()
+        v = widget.get_model().get_value(i, 0)
+        print v
+        #widget.set_text(str(v))
+        
+        
+    def on_cont_combo_show(self, widget, data=None):
+        print 'cont show'
+        
+        
+    def on_cont_combo_button_press_event(self, widget, data=None):
+        print 'on_cont_combo_button_press_event'
+        model = widget.get_model()
+        for row in Continent.select():
+            print "append " + row
+            model.append(row)
         
         
     def on_cult_check_toggled(self, widget, data=None):
@@ -192,10 +261,23 @@ class DistributionEditor(TableEditor):
         
     def get_values_from_widgets(self):
         values = {}
-        for widget, col in self.widget_to_column_name_map.iteritems():
-            print widget
-            print col
-            utils.set_dict_value_from_widget(self.glade_xml, widget, col, values)
+        plantname = get_widget_value(self.glade_xml, "plantname_label")
+        if isinstance(plantname, BaubleTable):
+            values['plantnameID'] = plantname.id    
+        else: 
+            values['plantnameID'] = plantname
+            #raise ValueError()
+            
+        if get_widget_value(self.glade_xml, "cult_check"):
+            values["cultivated"] = True
+            return values
+            
+        set_dict_value_from_widget(values, "continentID", self.glade_xml, "cont_combo", 1)
+        set_dict_value_from_widget(values, "regionID", self.glade_xml, "region_combo", 1)
+        set_dict_value_from_widget(values, "areaID", self.glade_xml, "area_combo", 1)
+        set_dict_value_from_widget(values, "stateID", self.glade_xml, "state_combo", 1)
+        set_dict_value_from_widget(values, "placeID", self.glade_xml, "place_combo", 1)
+        set_dict_value_from_widget(values, "kew_regionID", self.glade_xml, "kew_combo", 1)        
         return values
             
         

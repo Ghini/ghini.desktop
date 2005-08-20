@@ -4,7 +4,7 @@
 
 from sqlobject import *
 import bauble.utils as utils
-from bauble.plugins import BaubleTable, tables
+from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 
 #
@@ -230,7 +230,8 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'vernac_name': 'Common Name',
                    'poison_humans': 'Poisonious\nto humans',
                    'poison_animals': 'Poisonious\nto animals',
-                   'food_plant': 'Food plant'
+                   'food_plant': 'Food plant',
+                   'distribution': 'Distribution'
                    }
         self.column_meta.headers = headers        
         self.column_meta['distribution'].editor = editors["DistributionEditor"]
