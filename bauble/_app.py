@@ -34,6 +34,10 @@ class BaubleApp:
     def create_database(self):
         #msg = "Creating a new database on this connection could overwrite an "\
         #"existing database. Are you sure you want to create a new database?"
+        # 
+        # TODO: we should drop the entire database or we can get ghost tables
+        # that aren't being using by plugins anymore
+        #
         msg = "If a database already exists at this connection then creating " \
               "a new database will delete the old database.\n\nAre you sure " \
               "this is what you want to do?"

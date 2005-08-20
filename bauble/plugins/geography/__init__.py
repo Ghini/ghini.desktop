@@ -6,11 +6,13 @@ import os
 from bauble.plugins import plugins, BaublePlugin
 from country import Country
 from distribution import Continent, Region, Area, State, Place, KewRegion, \
-    Distribution, DistributionEditor
+    Distribution, DistributionEditor, BotanicalCountry, BasicUnit
 
 class GeographyPlugin(BaublePlugin):
     
-    tables = [Country, Continent, Region, Area, State, Place, KewRegion, \
+#    tables = [Country, Continent, Region, Area, State, Place, KewRegion, \
+#        Distribution]
+    tables = [Country, Continent, Region, BotanicalCountry, BasicUnit, Place, \
         Distribution]
     editors = [DistributionEditor]
     
@@ -27,23 +29,27 @@ class GeographyPlugin(BaublePlugin):
             search_meta = SearchMeta("Continent", ["continent"], "continent")
             SearchView.register_search_meta("continent", search_meta)
             
-            search_meta = SearchMeta("Area", ["area"], "area")
-            SearchView.register_search_meta("area", search_meta)
-            
             search_meta = SearchMeta("Region", ["region"], "region")
             SearchView.register_search_meta("region", search_meta)
             
-            search_meta = SearchMeta("State", ["state"], "state")
-            SearchView.register_search_meta("state", search_meta)
+#            search_meta = SearchMeta("Area", ["area"], "area")
+#            SearchView.register_search_meta("area", search_meta)
+#                                
+#            search_meta = SearchMeta("State", ["state"], "state")
+#            SearchView.register_search_meta("state", search_meta)
+            
+            search_meta = SearchMeta("BotanicalCountry", ["name"], "name")
+            SearchView.register_search_meta("bot_country", search_meta)
+                                
+            search_meta = SearchMeta("BasicUnit", ["name"], "name")
+            SearchView.register_search_meta("basic", search_meta)
             
             search_meta = SearchMeta("Place", ["place"], "place")
             SearchView.register_search_meta("place", search_meta)
             
-            search_meta = SearchMeta("KewRegion", ["region"], "region")
-            SearchView.register_search_meta("kewregion", search_meta)
-            
-            
-            
+#            search_meta = SearchMeta("KewRegion", ["region"], "region")
+#            SearchView.register_search_meta("kewregion", search_meta)
+                        
             
     @classmethod
     def create_tables(cls):
@@ -51,10 +57,14 @@ class GeographyPlugin(BaublePlugin):
         from bauble.plugins.imex_csv import CSVImporter
         csv = CSVImporter()    
         path = os.path.dirname(__file__) + os.sep + 'default'
-        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'Area.txt',
-                  'State.txt', 'Place.txt', 'KewRegion.txt']
+#        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'Area.txt',
+#                  'State.txt', 'Place.txt', 'KewRegion.txt']
+        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'BotanicalCountry.txt',
+                  'BasicUnit.txt', 'Place.txt']
         #files=['Country.txt']
+        print "cvs start"
         csv.start([path+os.sep+f for f in files], True)
+        print "leaving create_tables"
         
     
 

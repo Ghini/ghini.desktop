@@ -1,4 +1,4 @@
-#
+    #
 # distribution.py
 # 
 # Description: the TDWG database for plant distributions version 2
@@ -47,6 +47,21 @@ class Region(BaubleTable):
         return self.region
     
     
+class BotanicalCountry(BaubleTable):
+    code = StringCol(length=5)
+    #area = StringCol(length=64)
+    name = UnicodeCol(length=64)
+    iso_code = StringCol(length=4, default=None)
+    ed2_status = StringCol(length=64, default=None)
+    notes = StringCol(default=None)
+    
+    region = ForeignKey('Region')
+    states = MultipleJoin('State', joinColumn='area_id')
+    
+    def __str__(self): 
+        #return self.area
+        return self.name
+        
 # level3
 class Area(BaubleTable):
     code = StringCol(length=5)
@@ -62,7 +77,19 @@ class Area(BaubleTable):
     def __str__(self): 
         return self.area
     
+class BasicUnit(BaubleTable):
+    name = UnicodeCol(length=64)
+    code = StringCol(length=8)
+    iso_code = StringCol(length=8)
+    ed2_status = StringCol(length=64, default=None)
+    notes = UnicodeCol(default=None)
     
+    botanical_country = ForeignKey('BotanicalCountry')
+    places = MultipleJoin('Place', joinColumn='state_id')
+    
+    def __str__(self): 
+        return self.name
+        
 # level4
 class State(BaubleTable):
     state = UnicodeCol(length=64)
@@ -83,16 +110,25 @@ class Place(BaubleTable):
     
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
+    
+    # NOTE: these two don't have names for some reason
+    # ID*Gazetteer*L1 code*L2 code*L3 code*L4 code*Kew region code*Kew region subdivision*Kew region*Synonym*Notes
+    #331**2,00*24,00*SOC*SOC-OO*10,00*C*North East Tropical Africa**
+    #333**3,00*33,00*TCS*TCS-AB*2,00*A*Orient**
+    code = StringCol(length=4)
     place = UnicodeCol(length=64, default=None)
     #name = UnicodeCol(length=64)
     synonym = UnicodeCol(length=64, default=None)
     notes = UnicodeCol(default=None)
-    
-    #continent = ForeignKey('Continent')
+
+    # NOTE: Mansel I. and Manu'a don't have continents ???
+    continent = ForeignKey('Continent', default=None) 
     region = ForeignKey('Region', default=None)
-    area = ForeignKey('Area', default=None)
-    state = ForeignKey('State', default=None)
-    kew_region = ForeignKey('KewRegion', default=None)
+    #area = ForeignKey('Area', default=None)
+    botanical_country = ForeignKey('BotanicalCountry', default=None)
+    basic_unit = ForeignKey('BasicUnit', default=None)
+    #state = ForeignKey('State', default=None)
+    #kew_region = ForeignKey('KewRegion', default=None)
 
     def __str__(self): 
         if self.place is None:
@@ -128,7 +164,7 @@ class Distribution(BaubleTable):
     region = ForeignKey("Region", default=None)
     state = ForeignKey("State", default=None)    
     place = ForeignKey("Place", default=None)
-    kew_region = ForeignKey("KewRegion", default=None)
+    #kew_region = ForeignKey("KewRegion", default=None)
     
     # means that the distribution is unknown but is widely
     # cultivated
@@ -179,12 +215,41 @@ class DistributionEditor(TableEditor):
                     'on_distribution_dialog_response': self.on_response,
 #                    'on_cont_combo_button_press_event': self.on_cont_combo_button_press_event,
 #                    'on_cont_combo_show': self.on_cont_combo_show,
-#                    'on_cont_combo_changed': self.on_cont_combo_changed,
+                    'on_cont_combo_changed': self.on_cont_combo_changed,
 #                    'on_cont_combo_editing_done': self.on_cont_combo_editing_done
+                    'on_cont_clear_clicked': self.on_cont_clear_clicked,
+                    'on_region_clear_clicked': self.on_region_clear_clicked,
+                    'on_country_clear_clicked': self.on_country_clear_clicked,
+                    'on_unit_clear_clicked': self.on_unit_clear_clicked,
+                    'on_place_clear_clicked': self.on_place_clear_clicked,
                     }
         self.glade_xml.signal_autoconnect(handlers)
     
+    def on_cont_clear_clicked(self, widget, data=None):
+        print "on_cont_clear_clicked"
+        combo = self.glade_xml.get_widget("cont_combo")
+        self.clear_combo(combo)
     
+    def on_region_clear_clicked(self, widget, data=None):
+        self.clear_combo(combo)
+        pass
+        
+    def on_country_clear_clicked(self, widget, data=None):
+        self.clear_combo(combo)
+        pass
+    
+    def on_unit_clear_clicked(self, widget, data=None):
+        self.clear_combo(combo)
+        pass
+        
+    def on_place_clear_clicked(self, widget, data=None):
+        self.clear_combo(combo)
+        pass
+    
+    def clear_combo(self, combo):
+        combo.set_active(-1)
+        pass
+        
     def start(self):                
         self.init_combo("cont_combo", Continent.select(orderBy='continent'))
         self.init_combo("region_combo", Region.select(orderBy='region'))

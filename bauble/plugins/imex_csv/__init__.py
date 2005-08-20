@@ -132,15 +132,19 @@ class CSVImporter:
         dialog = None
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()        
-        if not block: gtk.threads_enter()
-        
+        print "run"
+        if not block: gtk.threads_enter()        
+        print "dialog"
         # TODO: connect to this cancel button so the user can stop the import
         # process and rollback any changes
         dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
                           message_format='importing...')
+        print "show"
         dialog.show()
+        print "showed"
         if not block: gtk.threads_leave()
+        print "left"
         
         trans = old_conn.transaction()       
         sqlobject.sqlhub.threadConnection = trans
@@ -168,12 +172,14 @@ class CSVImporter:
                 if not block: gtk.threads_leave()
                                 
                 self.import_file(filename, tables[table_name], trans)
-        except Exception, e:
+        except Exception, e:            
+            traceback.print_exc()
             # TODO: should ask the user if they would like to import the 
             # rest of the tables or bail, should probably do all commits in 
             # one transaction so all data gets imported from all files 
             # successfully or nothing at all
             msg = "Error importing values from %s into table %s\n" % (filename, table_name)
+            sys.stderr.write(msg)            
             if not block: gtk.threads_enter()
             utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
             if not block: gtk.threads_leave()

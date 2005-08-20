@@ -17,20 +17,24 @@ if sys.platform == "win32":
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
 
-subpackages = ['editors', 'tables', 'tools', 'utils', 'views']
+#subpackages = ['editors', 'tables', 'tools', 'utils', 'views']
+#
+#editors = ['accessions', 'families', 'genera', 'locations',
+#           'plantnames', 'plants']
+#editors_pkgs  = ['editors.%s' % p for p in editors]           
+#
+#tables = ['accessions', 'families', 'genera', 'locations',
+#          'plantnames', 'plants']
+#tables_pkgs = ['tables.%s' % p for p in tables]
+#       
+#views = ['browse', 'gbif', 'search']                
+#views_pkgs = ['views.%s' % p for p in views]
+#  
+#tools_pkgs = ['tools.%s' % p for p in ['import_export']]
 
-editors = ['accessions', 'families', 'genera', 'locations',
-           'plantnames', 'plants']
-editors_pkgs  = ['editors.%s' % p for p in editors]           
-
-tables = ['accessions', 'families', 'genera', 'locations',
-          'plantnames', 'plants']
-tables_pkgs = ['tables.%s' % p for p in tables]
-       
-views = ['browse', 'gbif', 'search']                
-views_pkgs = ['views.%s' % p for p in views]
-  
-tools_pkgs = ['tools.%s' % p for p in ['import_export']]
+plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
+            'labels','plants','searchview']
+plugin_pkgs = ['plugins.%s' % p for p in plugins]
 
 lib     = ['sqlobject']#, 'pysqlite2']
 
@@ -38,8 +42,9 @@ sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres',
                   'sqlite', 'sybase', 'maxdb', 'util', 'manager']
 
 # packaged to be included in the py2exe library.zip
-py2exe_includes = gtk_pkgs + editors_pkgs + tables_pkgs + views_pkgs + \
-                  tools_pkgs + lib + ["encodings"]#, "lib"]
+#py2exe_includes = gtk_pkgs + editors_pkgs + tables_pkgs + views_pkgs + \
+#                  tools_pkgs + lib + ["encodings"]#, "lib"]
+py2exe_includes = gtk_pkgs + plugin_pkgs + lib + ["encodings"]#, "lib"]
 
 opts = {
     "py2exe": {
@@ -66,9 +71,9 @@ setup(name="bauble",
                      'sqlobject': 'src/lib/sqlobject',
                      'pysqlite2': 'src/lib/pysqlite2',
                      'lib': 'src/lib'},
-      packages=[""] + subpackages + editors_pkgs + tables_pkgs + 
-               views_pkgs + tools_pkgs + lib +
-               ["sqlobject.%s" % p for p in sqlobject_pkgs],
+      #packages=[""] + subpackages + editors_pkgs + tables_pkgs + 
+      #         views_pkgs + tools_pkgs + lib +
+      package=[""] + plugins_pkgs + ["sqlobject.%s" % p for p in sqlobject_pkgs],
       package_data={'pysqlite2': glob.glob("src\\lib\\pysqlite2\\*.pyd")},
       console=["src\\bauble.py"],
       data_files=[('', ('src\\bauble.ui',)),
