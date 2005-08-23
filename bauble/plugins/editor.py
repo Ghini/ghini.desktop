@@ -12,8 +12,8 @@ from bauble.plugins import BaubleEditor, BaubleTable
 from bauble.prefs import prefs
 import bauble.utils as utils
 
-from utils.debug import debug
-debug.enable = False
+from bauble.utils.log import log
+
 
 # TODO: if the last column is made smaller from draggin the rightmost part
 # of the header then automagically reduce the size of  the dialog so that the 
@@ -112,7 +112,6 @@ def createColumnMetaFromTable(table):
     for join in table.sqlmeta.joins:        
         if type(join) == SOSingleJoin:
             name = join.joinMethodName
-            print name
             if name[0] == "_":  continue # _means private            
             col_meta =  ViewColumnMeta.Meta()
             col_meta.header = name
@@ -139,6 +138,7 @@ class TableMeta:
     def __init__(self):
         self.foreign_keys = []
     
+    
 
 class ViewColumnMeta(dict):
     """
@@ -147,20 +147,56 @@ class ViewColumnMeta(dict):
     """
     
     class Meta:
+        # TODO: document what all the members mean
         def __init__(self, header="", visible=False, foreign=False, 
                      width=50, default=None, editor=None, required=False,
                      getter=None):
+                         
+            # the string to use as the header for the column
             self.header = header
-            self.visible = visible
-            self.foreign = foreign
-            self.width = width # the default width for all columns
-            self.default = default
-            self.editor = editor
-            self.required = required
-            self.getter = getter
-            self.join = False        
             
-            # a dummy validate function
+            # is this column visible, 
+            # *** does this keep up with property changed *** ????
+            self.visible = visible
+            
+            # does this column refer to a foreign key, this is used b/c we will 
+            # normally store a foreign SQLObject in the model but we need to set 
+            # the column in the table with an integer ID of the object
+            self.foreign = foreign
+            
+            # the default width for the column
+            self.width = width 
+            
+            # the default value for the column
+            self.default = default
+            
+            # the column provides its own editor
+            self.editor = editor
+            
+            # is self.required is True then you can't hide this column
+            # from the view
+            self.required = required
+            
+            # if self.getter is set then use this method to return the values
+            # for the row, e.g. self.meta[colname].getter(row)
+            self.getter = getter 
+            
+            #
+            # does this column refer to a join, 
+            # ***  i don't think we really use this anymore, at least i think
+            # it's broken ***
+            #
+            self.join = False
+            
+            # the method used to create the view column instead of using the
+            # default create_view_column method, this allows a class that 
+            # subclasses TreeViewEditorDialog to provide a custom column creation
+            # method for individual columns
+            self.column_factory = None
+            
+            # 
+            # a method to validate the data in the column before it is set
+            # 
             self.validate = lambda x: x
             
             
@@ -210,7 +246,6 @@ class ModelDict(dict):
         self.meta = meta
 
 
-    
     def __contains__(self, item):
         """
         this causes the 'in' operator and has_key to behave differently,
@@ -262,8 +297,7 @@ class ModelDict(dict):
         self[item] = v
         return v
        
-        
-
+       
 
 #
 # editor interface
@@ -355,20 +389,13 @@ class TreeViewEditorDialog(TableEditorDialog):
     def start(self, block=False):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
-        print 'entered TreeViewEditorDialog.start()'
         if self.visible_columns_pref is not None:
-            print '-- pref not none'
             if not self.visible_columns_pref in prefs:
-                print '-- in prefs'
                 prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
-        print '-- create gui'
         self.create_gui()
-        print '-- super'
         super(TreeViewEditorDialog, self).start(block)
-        print 'leaving TreeViewEditorDialog.start()'
-    
-        
+            
 
     def foreign_does_not_exist(self, name, value):
         """
@@ -457,8 +484,20 @@ class TreeViewEditorDialog(TableEditorDialog):
                 self.view.set_cursor_on_cell(newpath, columns[0], None, True)
             else: self.move_cursor_right(path, col) # else moveright
                 
+                
+    def move_cursor_next(self, path, fromcol, direction):
+        #  TODO: finish this
+        if direction == "Left":
+            self.move_cursor_left(path, fromcol) # unless on the far left
+        elif direction == "Right":
+            self.move_cursor_right(path, fromcol) # unless on the far right
+        elif direction == "Down":
+            self.move_cursor_down(path, fromcol) # unless at the bottom
+        elif direction == "Up":
+            self.move_cursor_up(path, fromcol) # unless at the top
 
-    def move_cursor_right(self, path, fromcol):
+            
+    def move_cursor_right(self, path, fromcol):#, focus, start_editing):
         """
         """
         newcol = fromcol
@@ -469,11 +508,13 @@ class TreeViewEditorDialog(TableEditorDialog):
             if columns[i].get_visible() and i > fromcol_index:
                 newcol = columns[i]
                 break        
-        self.view.set_cursor_on_cell(path, newcol, None, True)
+        self.view.set_cursor_on_cell(path, newcol, None, False)
 
         
     def move_cursor_left(self, path, fromcol):
         """
+        if at the far left then it should move to the last column on the 
+        previous row, or if it's at the first row nothing should happen
         """
         newcol = fromcol
         columns = self.view.get_columns()
@@ -489,13 +530,11 @@ class TreeViewEditorDialog(TableEditorDialog):
     def move_cursor_up(self, path, col):
         newpath = path[0]-1, 
         self.view.set_cursor_on_cell(newpath, col, None, True)
-        #renderer.stop_emit_by_name("key-press-event")
 
     
     def move_cursor_down(self, path, col):
         newpath = path[0]+1, 
         self.view.set_cursor_on_cell(newpath, col, None, True)
-        #renderer.stop_emit_by_name("key-press-event")
 
 
     def on_renderer_toggled(self, renderer, path, colname):
@@ -515,9 +554,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         in the model
         """
          
-        #print 'on_renderer_edited:'
+        print 'entered TreeViewEditorDialog.on_renderer_edited()'
         #print ' -- new: "%s"' % str(new_text)
         new_text = new_text.strip() # crash on None? is new_text ever None?
+        print new_text
         model = self.view.get_model()
         it = model.get_iter(path)
         row = model.get_value(it, 0)
@@ -568,8 +608,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             
             
     def on_editing_started(self, cell, editable, path, colname):
-
-        if self.column_meta[colname].editor:
+        print "entered TreeViewEditorDialog.on_editing_started"
+        
+        # if the cell has it's own editor we should be here
+        if self.column_meta[colname].editor:  
             editable.set_property('editable', False)
         
         if isinstance(editable, gtk.Entry):            
@@ -857,15 +899,15 @@ class TreeViewEditorDialog(TableEditorDialog):
             
 
     def create_gui(self):
-        print "  entered TreeViewEditorDialog.create_gui()"
+        log.debug("  entered TreeViewEditorDialog.create_gui()")
         vbox = gtk.VBox(False)
         
         self.create_toolbar()        
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
-        print "  -- create tree view"
+        log.debug("  -- create tree view")
         self.create_tree_view()
-        print "  -- created"
+        log.debug("  -- created")
         sw = gtk.ScrolledWindow()        
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
@@ -875,7 +917,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.vbox.pack_start(vbox)
         
         # get the size of all children widgets
-        print "  -- size request"
+        log.debug("  -- size request")
         width, height = self.size_request()
         #print str(width) + " " + 
 
@@ -886,13 +928,13 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.set_default_size(-1, 300) # 10 is a guestimate at border width
         
         # set ok button insensitive
-        print "  -- ok sensitive"
+        log.debug("  -- ok sensitive")
         ok_button = self.action_area.get_children()[1]
         ok_button.set_sensitive(False)
         
-        print "  -- show all"
+        log.debug("  -- show all")
         self.show_all()
-        print "  leaving TreeViewEditorDialog.create_gui()"
+        log.debug("  leaving TreeViewEditorDialog.create_gui()")
         #self.resize_children()
         #print self.size_request()
         #print tuple(self.allocation)
@@ -911,6 +953,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             # TODO: this should be removed, we don't edit any single joins 
             # directory i don't think, though it might not be a bad idea
             # to do so            
+            raise Exception("what the hell is going on here")
             r.set_property('has_entry', False)
             r.set_property("text-column", 0)
             data = ['----------', 'Edit', '----------', 'Delete']
@@ -976,10 +1019,16 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         # create the columns from the meta data
         for name, meta in self.column_meta.iteritems(): 
-            if meta.join:
+            if meta.column_factory:
+                self.columns[name] = meta.column_factory() # column provided by meta
+            elif meta.join: 
+                # column has its own editor
+                # TODO: change the border of the column or give a tooltip
+                # to indicate enter has to be pressed to edit this column
                 if meta.type == SOSingleJoin and meta.editor is not None:
                     self.columns[name] = self.create_view_column(name, meta)
-            else: self.columns[name] = self.create_view_column(name, meta)
+            else:  # build a standard column
+                self.columns[name] = self.create_view_column(name, meta)
                             
         
         self.view = gtk.TreeView(gtk.ListStore(object))

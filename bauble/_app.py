@@ -10,6 +10,7 @@ from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import plugins
 from bauble.prefs import prefs
+from bauble.utils.log import debug
 
 DEBUG_SQL = False
 
@@ -69,8 +70,10 @@ class BaubleApp:
         if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
             uri += "?check_same_thread=0"
 #            uri += "&autoCommit=0"
-        #uri += '&debug=&debugOutput='
-        print uri
+        # should do maybe debug_sql=True and debug_sql_output=True
+        #if debug.enabled:
+        #    uri += '&debug=&debugOutput='
+        debug(uri)
         sqlhub.processConnection = connectionForURI(uri)
         sqlhub.processConnection.debug = False
         sqlhub.processConnection.debugOutput = False

@@ -2,10 +2,13 @@
 # Plantnames table definition
 #
 
+import gtk
 from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.utils.log import log, debug
+
 
 #
 # Plantname table
@@ -234,7 +237,101 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'distribution': 'Distribution'
                    }
         self.column_meta.headers = headers        
-        self.column_meta['distribution'].editor = editors["DistributionEditor"]
+        
+        #self.column_meta['distribution'].editor = editors["DistributionEditor"]
+        self.column_meta['distribution'].column_factory = self.create_dist_column
+        #self.column_meta['distribution'].view_column = self.create_dist_column()
+        
+    def dist_cell_data_func(self, layout, cell, model, iter, data=None):
+        v = model.get_value(iter, 0)
+        if v is not None:
+            dist = v['distribution']
+            cell.set_property('text', str(dist))
+        #cell.set_property('text', str(v))
+        
+    
+    def on_dist_cell_key_press(self, widget, event, path, data=None):
+        log.debug('on_dist_cell_key_press')
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        log.debug("print keyname")
+        path, col = self.view.get_cursor()
+        if keyname == "Down":
+            widget.popup()
+        elif keyname in ["Left","Right"]:
+            log.debug("move cursor " + keyname)
+            self.move_cursor_next(path, col, keyname)
+
+    
+    def on_dist_editing_started(self, cell, combo, path, data=None):
+        log.debug('on_dist_editing_started')
+        #print combo.popup()
+        combo.connect("key-press-event", self.on_dist_cell_key_press, path)
+        
+
+        
+    def create_dist_column(self):
+        name = "distribution"
+        renderer = gtk.CellRendererCombo()
+        
+        renderer.connect("editing_started", self.on_editing_started, name)
+        model = gtk.ListStore(str)
+        for d in "1234": 
+            model.append([d])
+        renderer.set_property("model",model)
+        renderer.set_property('text-column', 0)
+        renderer.set_property('editable', True)
+        renderer.set_property('has_entry', False)
+        renderer.connect("edited", self.on_renderer_edited, name)
+        renderer.connect("editing_started", self.on_dist_editing_started, name)
+        
+        #model = gtk.ListStore(str, object)
+        model = gtk.TreeStore(str, object)
+        model.append(None, ["Only found in cultivation","cultivated"])
+        for continent in tables['Continent'].select(orderBy='continent'):
+            p1 = model.append(None, [str(continent), continent])
+            for region in continent.regions:
+                p2 = model.append(p1, [str(region),region])
+                for country in region.botanical_countries:
+                    p3 = model.append(p2, [str(country),country])
+                    for unit in country.units:
+                        model.append(p3, [str(unit),unit])        
+
+        renderer.set_property("model", model)
+        column = gtk.TreeViewColumn(self.column_meta['distribution'].header, renderer)
+        column.name = name
+        return column
+        
+        
+    def create_dist_column2(self):
+        # create the renderer
+        name = "distribution"
+        renderer = gtk.CellRendererCombo()
+        renderer.set_property('has_entry', True)
+        renderer.set_property("editable", True)
+        model = gtk.TreeStore(str)
+        for d in "1234": 
+            model.append(None, [d])
+        renderer.set_property("model", model)
+        
+        renderer.connect("editing_started", self.on_editing_started, name)
+        renderer.connect("edited", self.on_renderer_edited, name)
+        
+        # create the column
+        column = gtk.TreeViewColumn(self.column_meta['distribution'].header, renderer)
+        column.name = name # .name is my own data, not part of gtk
+        column.set_min_width(50)
+        column.set_clickable(True)
+        column.set_resizable(True)
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        column.set_reorderable(True)            
+        column.set_cell_data_func(renderer, self.dist_cell_data_func, name)
+                
+        # TODO: we could probably do this in editor.py, have a method that adds
+        # standard properties to column whether they are used created or not
+        # notify when the column width property is changed        
+        column.connect("notify::width", self.on_column_property_notify, name)
+        column.connect("notify::visible", self.on_column_property_notify, name)        
+        return column
         
         
     def foreign_does_not_exist(self, name, value):
@@ -244,7 +341,6 @@ class PlantnameEditor(TreeViewEditorDialog):
     def add_genus(self, name):
         msg = "The Genus %s does not exist. Would you like to add it?" % name
         if utils.yes_no_dialog(msg):
-
             print "add genus"
 
     def get_completions(self, text, colname):

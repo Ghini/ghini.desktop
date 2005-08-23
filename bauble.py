@@ -20,6 +20,9 @@ import os, sys
 import bauble.paths as paths
 import bauble.utils as utils
 
+#from bauble.utils.debug import debug
+#debug.enable = True
+
 if sys.platform == "win32":
     #sys.path.append(paths.main_dir() + os.sep + "lib" + os.sep + "win32")
     sys.path.append(paths.lib_dir() + os.sep + "lib" + os.sep + "win32")

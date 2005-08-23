@@ -41,12 +41,12 @@ class Region(BaubleTable):
     iso_code = StringCol(default=None)
     
     continent = ForeignKey('Continent')
-    areas = MultipleJoin('Area', joinColumn='region_id')
+    botanical_countries = MultipleJoin('BotanicalCountry', joinColumn='region_id')
     
     def __str__(self): 
         return self.region
     
-    
+# level3
 class BotanicalCountry(BaubleTable):
     code = StringCol(length=5)
     #area = StringCol(length=64)
@@ -56,12 +56,26 @@ class BotanicalCountry(BaubleTable):
     notes = StringCol(default=None)
     
     region = ForeignKey('Region')
-    states = MultipleJoin('State', joinColumn='area_id')
+    units = MultipleJoin('BasicUnit', joinColumn='botanical_country_id')
     
     def __str__(self): 
         #return self.area
         return self.name
-        
+     
+# level 3     
+class BasicUnit(BaubleTable):
+    name = UnicodeCol(length=64)
+    code = StringCol(length=8)
+    iso_code = StringCol(length=8)
+    ed2_status = StringCol(length=64, default=None)
+    notes = UnicodeCol(default=None)
+    
+    botanical_country = ForeignKey('BotanicalCountry')
+    places = MultipleJoin('Place', joinColumn='state_id')
+    
+    def __str__(self): 
+        return self.name
+          
 # level3
 class Area(BaubleTable):
     code = StringCol(length=5)
@@ -77,18 +91,7 @@ class Area(BaubleTable):
     def __str__(self): 
         return self.area
     
-class BasicUnit(BaubleTable):
-    name = UnicodeCol(length=64)
-    code = StringCol(length=8)
-    iso_code = StringCol(length=8)
-    ed2_status = StringCol(length=64, default=None)
-    notes = UnicodeCol(default=None)
-    
-    botanical_country = ForeignKey('BotanicalCountry')
-    places = MultipleJoin('Place', joinColumn='state_id')
-    
-    def __str__(self): 
-        return self.name
+
         
 # level4
 class State(BaubleTable):
@@ -213,7 +216,7 @@ class DistributionEditor(TableEditor):
         self.glade_xml = gtk.glade.XML(path + 'distribution_editor.glade')
         handlers = {'on_cult_check_toggled': self.on_cult_check_toggled,
                     'on_distribution_dialog_response': self.on_response,
-#                    'on_cont_combo_button_press_event': self.on_cont_combo_button_press_event,
+                    'on_cont_combo_button_press_event': self.on_cont_combo_button_press_event,
 #                    'on_cont_combo_show': self.on_cont_combo_show,
                     'on_cont_combo_changed': self.on_cont_combo_changed,
 #                    'on_cont_combo_editing_done': self.on_cont_combo_editing_done
@@ -224,52 +227,107 @@ class DistributionEditor(TableEditor):
                     'on_place_clear_clicked': self.on_place_clear_clicked,
                     }
         self.glade_xml.signal_autoconnect(handlers)
+        
+        #cont_combo = self.glade_xml.get_widget("cont_combo")
+        #cont_combo.connect("focus-in-event", self.on_combo_focus_in)
+        #cont_combo.connect("focus-out-event", self.on_combo_focus_out)
+    
+    def on_combo_focus_in(self, widget, data=None):
+        print "focus in"
+        
+    def on_combo_focus_out(self, widget, data=None):
+        print "focus out"
     
     def on_cont_clear_clicked(self, widget, data=None):
-        print "on_cont_clear_clicked"
-        combo = self.glade_xml.get_widget("cont_combo")
-        self.clear_combo(combo)
+        clear_list = ["cont_combo", "region_combo", "country_combo", 
+                       "unit_combo", "place_combo"]
+        self.clear_combos(clear_list)
+    
     
     def on_region_clear_clicked(self, widget, data=None):
-        self.clear_combo(combo)
-        pass
+        clear_list = ["region_combo", "country_combo", 
+                      "unit_combo", "place_combo"]
+        self.clear_combos(clear_list)
+        
         
     def on_country_clear_clicked(self, widget, data=None):
-        self.clear_combo(combo)
-        pass
+        clear_list = ["country_combo", "unit_combo", "place_combo"]
+        self.clear_combos(clear_list)        
+        
     
     def on_unit_clear_clicked(self, widget, data=None):
-        self.clear_combo(combo)
-        pass
+        clear_list = ["unit_combo", "place_combo"]
+        self.clear_combos(clear_list)                
+
         
     def on_place_clear_clicked(self, widget, data=None):
-        self.clear_combo(combo)
-        pass
+        self.clear_combos(["place_combo"])
+
     
-    def clear_combo(self, combo):
-        combo.set_active(-1)
-        pass
+    def clear_combos(self, combo_names):
+        for name in combo_names:
+            w = self.glade_xml.get_widget(name)
+            self.clear_combo(w)
+            
+            
+    def clear_combo(self, combo_widget):
+        combo_widget.set_active(-1)
+        combo_widget.child.set_text("")
+
         
-    def start(self):                
+    def cell_data_method(self, layout, cell, model, iter, data=None):
+        v = model.get_value(iter, 0)
+        cell.set_property("text", str(v))
+        
+    def start(self):
+        model = gtk.TreeStore(object)
+        for continent in Continent.select(orderBy='continent'):
+            p1 = model.append(None, [continent])
+            for region in continent.regions:
+                p2 = model.append(p1, [region])
+                for country in region.botanical_countries:
+                    p3 = model.append(p2, [country])
+                    for unit in country.units:
+                        model.append(p3, [unit])
+                    
+                    
+        combo = self.glade_xml.get_widget("cont_combo")
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.set_cell_data_func(cell, self.cell_data_method, None)
+        #combo.set_text_column(0)        
+        #self.set_completion_on_combo(combo, model)    
+
+
+    def populate_model(self, model, parent, select):
+        for row in select:
+            model.append(parent, row)
+    
+    def start_old(self):                
         self.init_combo("cont_combo", Continent.select(orderBy='continent'))
         self.init_combo("region_combo", Region.select(orderBy='region'))
-        self.init_combo("area_combo", Area.select(orderBy='area'))
-        self.init_combo("state_combo", State.select(orderBy='state'))
+        self.init_combo("country_combo", BotanicalCountry.select(orderBy='name'))
+        self.init_combo("unit_combo", BasicUnit.select(orderBy='name'))
         self.init_combo("place_combo", Place.select(orderBy='place'))
-        self.init_combo("kew_combo", KewRegion.select(orderBy='region'))
+        #self.init_combo("kew_combo", KewRegion.select(orderBy='region'))
         
-            
+                    
     def init_combo(self, combo_name, select):        
-        model = gtk.ListStore(str, int)
+        #model = gtk.ListStore(str, int)
+        model = gtk.TreeStore(str, int)
         for row in select:
-            model.append([str(row), row.id])
+            #model.append([str(row), row.id])
+            p = model.append(None, [str(row), row.id])
+            model.append(p, ["_dummy", 0])
         combo = self.glade_xml.get_widget(combo_name)
         combo.set_model(model)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
-        combo.set_text_column(0)
-        
+        #combo.set_cell_data_func(cell, self.cell_data_method, None)
+        combo.set_text_column(0)        
         self.set_completion_on_combo(combo, model)
+        
         
     def set_completion_on_combo(self, combo, model):
         """
@@ -286,28 +344,29 @@ class DistributionEditor(TableEditor):
 
     def on_cont_combo_editing_done(self, widget, data=None):
         print 'editing done'
-        pass
+
         
         
     def on_cont_combo_changed(self, widget, data=None):
         print "cont changed"
-        print widget.get_active()
-        i = widget.get_active_iter()
-        v = widget.get_model().get_value(i, 0)
-        print v
-        #widget.set_text(str(v))
-        
-        
-    def on_cont_combo_show(self, widget, data=None):
-        print 'cont show'
-        
+        #print widget.get_active_iterm()
+        #pass
+        #active = widget.get_active()
+        #if active == -1:
+        #    widget.set_text("")                
+        i = widget.get_active_iter()        
+        if i is not None:
+            v = widget.get_model().get_value(i, 0)            
+            print v
+            widget.child.set_text(str(v))
+                
         
     def on_cont_combo_button_press_event(self, widget, data=None):
         print 'on_cont_combo_button_press_event'
-        model = widget.get_model()
-        for row in Continent.select():
-            print "append " + row
-            model.append(row)
+        #model = widget.get_model()
+        #for row in Continent.select():
+        #    print "append " + row
+        #    model.append(row)
         
         
     def on_cult_check_toggled(self, widget, data=None):

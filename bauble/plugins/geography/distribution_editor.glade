@@ -189,7 +189,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label3">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">Area</property>
+	      <property name="label" translatable="yes">Botanical Country</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -217,7 +217,7 @@
 	  <child>
 	    <widget class="GtkLabel" id="label4">
 	      <property name="visible">True</property>
-	      <property name="label" translatable="yes">State</property>
+	      <property name="label" translatable="yes">Basic Unit</property>
 	      <property name="use_underline">False</property>
 	      <property name="use_markup">False</property>
 	      <property name="justify">GTK_JUSTIFY_LEFT</property>
@@ -485,6 +485,7 @@
 	      <property name="focus_on_click">True</property>
 	      <signal name="editing_done" handler="on_cont_combo_editing_done" last_modification_time="Fri, 19 Aug 2005 21:58:16 GMT"/>
 	      <signal name="changed" handler="on_cont_combo_changed" last_modification_time="Fri, 19 Aug 2005 21:58:23 GMT"/>
+	      <signal name="button_press_event" handler="on_cont_combo_button_press_event" last_modification_time="Sun, 21 Aug 2005 19:04:35 GMT"/>
 	    </widget>
 	    <packing>
 	      <property name="left_attach">1</property>
@@ -512,7 +513,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBoxEntry" id="area_combo">
+	    <widget class="GtkComboBoxEntry" id="country_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
 	      <property name="has_frame">True</property>
@@ -528,7 +529,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkComboBoxEntry" id="state_combo">
+	    <widget class="GtkComboBoxEntry" id="unit_combo">
 	      <property name="visible">True</property>
 	      <property name="add_tearoffs">False</property>
 	      <property name="has_frame">True</property>

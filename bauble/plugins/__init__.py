@@ -45,7 +45,8 @@ import os, sys, traceback
 import gtk
 from sqlobject import SQLObject, sqlmeta
 import bauble.utils as utils
-
+#from logging import info
+from bauble.utils.log import log
 
 
 plugins = {}
@@ -67,7 +68,7 @@ def _register(plugin_class):
         
     # check dependencies
     plugin_name = plugin_class.__name__
-    print "registering ", plugin_name
+    log.info("registering " + plugin_name)
     for dependency in plugin_class.depends:            
         #print 'depends: ', dependency
         if dependency not in plugins:
@@ -179,7 +180,7 @@ class BaublePlugin(object):
     @classmethod
     def create_tables(cls):
         for t in cls.tables:
-            print "creating table ", t.__name__
+            log.info("creating table ", t.__name__)
             t.dropTable(ifExists=True, cascade=True)            
             t.createTable()
     
