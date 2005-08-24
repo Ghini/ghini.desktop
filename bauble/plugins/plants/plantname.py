@@ -158,6 +158,12 @@ class Plantname(BaubleTable):
     # distribution table could even be part of the geography module
     # TODO: do this in the garden package since we don't normally
     # care about plant distribution
+    # UPDATE: it might be better to do something like the source_type in the 
+    # the accessions, do we need the distribution table if we're only
+    # going to be holding one of the value from continent/region/etc, the only
+    # exception is that we also need to hold a cultivated value and possible
+    # something like "tropical", we can probably still use the distribution table
+    # as long as setting to and from the distribution is handled silently
     distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
                                makeDefault=None)
 
@@ -238,8 +244,8 @@ class PlantnameEditor(TreeViewEditorDialog):
                    }
         self.column_meta.headers = headers        
         
-        #self.column_meta['distribution'].editor = editors["DistributionEditor"]
-        self.column_meta['distribution'].column_factory = self.create_dist_column
+        self.column_meta['distribution'].editor = editors["DistributionEditor"]
+        #self.column_meta['distribution'].column_factory = self.create_dist_column
         #self.column_meta['distribution'].view_column = self.create_dist_column()
         
     def dist_cell_data_func(self, layout, cell, model, iter, data=None):
@@ -266,9 +272,27 @@ class PlantnameEditor(TreeViewEditorDialog):
         log.debug('on_dist_editing_started')
         #print combo.popup()
         combo.connect("key-press-event", self.on_dist_cell_key_press, path)
+        combo.connect("changed", self.on_dist_combo_changed)
         
-
+    
+    combo_value = None
+    def on_dist_combo_changed(self, combo, data=None):
+        debug('dist_combo_changed')
+        i = combo.get_active_iter()
+        self.combo_value = combo.get_model.get_value(i, 1)
         
+    def on_dist_renderer_edited(self, renderer, path, new_text, colname):
+        debug('on_dist_renderer_edited')
+        model = self.view.get_model()        
+        i = model.get_iter(path)        
+        model_val = model.get_value(i, 0)        
+        debug(model_val)
+        model_row = model_val[colname]
+        debug(model_row)        
+        model_row = self.combo_value
+        debug(model_row)
+        
+                
     def create_dist_column(self):
         name = "distribution"
         renderer = gtk.CellRendererCombo()
@@ -281,7 +305,7 @@ class PlantnameEditor(TreeViewEditorDialog):
         renderer.set_property('text-column', 0)
         renderer.set_property('editable', True)
         renderer.set_property('has_entry', False)
-        renderer.connect("edited", self.on_renderer_edited, name)
+        renderer.connect("edited", self.on_dist_renderer_edited, name)
         renderer.connect("editing_started", self.on_dist_editing_started, name)
         
         #model = gtk.ListStore(str, object)

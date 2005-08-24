@@ -218,66 +218,46 @@ class DistributionEditor(TableEditor):
                     'on_distribution_dialog_response': self.on_response,
                     'on_cont_combo_button_press_event': self.on_cont_combo_button_press_event,
 #                    'on_cont_combo_show': self.on_cont_combo_show,
-                    'on_cont_combo_changed': self.on_cont_combo_changed,
+                    'on_dist_combo_changed': self.on_dist_combo_changed,
 #                    'on_cont_combo_editing_done': self.on_cont_combo_editing_done
-                    'on_cont_clear_clicked': self.on_cont_clear_clicked,
-                    'on_region_clear_clicked': self.on_region_clear_clicked,
-                    'on_country_clear_clicked': self.on_country_clear_clicked,
-                    'on_unit_clear_clicked': self.on_unit_clear_clicked,
-                    'on_place_clear_clicked': self.on_place_clear_clicked,
+#                    'on_cont_clear_clicked': self.on_cont_clear_clicked,
+#                    'on_region_clear_clicked': self.on_region_clear_clicked,
+#                    'on_country_clear_clicked': self.on_country_clear_clicked,
+#                    'on_unit_clear_clicked': self.on_unit_clear_clicked,
+#                    'on_place_clear_clicked': self.on_place_clear_clicked,
                     }
         self.glade_xml.signal_autoconnect(handlers)
         
-        #cont_combo = self.glade_xml.get_widget("cont_combo")
+        self.dist_combo = self.glade_xml.get_widget("dist_combo")
+        #self.cont_combo.connect("changed", self.on_cont_changed)
         #cont_combo.connect("focus-in-event", self.on_combo_focus_in)
         #cont_combo.connect("focus-out-event", self.on_combo_focus_out)
     
-    def on_combo_focus_in(self, widget, data=None):
-        print "focus in"
+    def on_dist_combo_changed(self, widget, data=None):
+        value = self.get_active_dist()
+        self.set_labels(value)
         
-    def on_combo_focus_out(self, widget, data=None):
-        print "focus out"
-    
-    def on_cont_clear_clicked(self, widget, data=None):
-        clear_list = ["cont_combo", "region_combo", "country_combo", 
-                       "unit_combo", "place_combo"]
-        self.clear_combos(clear_list)
-    
-    
-    def on_region_clear_clicked(self, widget, data=None):
-        clear_list = ["region_combo", "country_combo", 
-                      "unit_combo", "place_combo"]
-        self.clear_combos(clear_list)
-        
-        
-    def on_country_clear_clicked(self, widget, data=None):
-        clear_list = ["country_combo", "unit_combo", "place_combo"]
-        self.clear_combos(clear_list)        
-        
-    
-    def on_unit_clear_clicked(self, widget, data=None):
-        clear_list = ["unit_combo", "place_combo"]
-        self.clear_combos(clear_list)                
-
-        
-    def on_place_clear_clicked(self, widget, data=None):
-        self.clear_combos(["place_combo"])
-
-    
-    def clear_combos(self, combo_names):
-        for name in combo_names:
-            w = self.glade_xml.get_widget(name)
-            self.clear_combo(w)
-            
-            
-    def clear_combo(self, combo_widget):
-        combo_widget.set_active(-1)
-        combo_widget.child.set_text("")
-
-        
+               
     def cell_data_method(self, layout, cell, model, iter, data=None):
         v = model.get_value(iter, 0)
         cell.set_property("text", str(v))
+        
+        
+    def set_labels(self, value):
+        #dist_data = self.glade_xml.get_widget('cont_data')
+        cont_data = self.glade_xml.get_widget('cont_data')
+        region_data = self.glade_xml.get_widget('region_data')
+        #region_data.set_label(value.region)
+        country_data = self.glade_xml.get_widget('country_data')
+        unit_data = self.glade_xml.get_widget('unit_data')
+        place_data = self.glade_xml.get_widget('place_data')
+        if isinstance(value, Continent):
+            cont_data.set_text(value.continent)
+        elif isinstance(value, Region):
+            region_data.set_text(value.region)
+        elif isinstance(value, BotanicalCountry):
+            country_data.set_text(value.name)
+        
         
     def start(self):
         model = gtk.TreeStore(object)
@@ -288,10 +268,12 @@ class DistributionEditor(TableEditor):
                 for country in region.botanical_countries:
                     p3 = model.append(p2, [country])
                     for unit in country.units:
-                        model.append(p3, [unit])
+                        if unit.name != country.name: # no reason to have these
+                            model.append(p3, [unit])
                     
                     
-        combo = self.glade_xml.get_widget("cont_combo")
+        #combo = self.glade_xml.get_widget("cont_combo")
+        combo = self.glade_xml.get_widget("dist_combo")
         combo.set_model(model)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
@@ -373,8 +355,6 @@ class DistributionEditor(TableEditor):
         active = widget.get_active()
         table = self.glade_xml.get_widget("dist_table")
         table.set_sensitive(not active)
-        box = self.glade_xml.get_widget("kew_box")
-        box.set_sensitive(not active)
 
 
     def on_response(self, widget, response):        
@@ -382,6 +362,10 @@ class DistributionEditor(TableEditor):
             self.commit_changes()
         widget.destroy()            
         
+    def get_active_dist(self):
+        model = self.dist_combo.get_model()
+        i = self.dist_combo.get_active_iter()
+        return model.get_value(i, 0)
         
     def get_values_from_widgets(self):
         values = {}
@@ -395,14 +379,18 @@ class DistributionEditor(TableEditor):
         if get_widget_value(self.glade_xml, "cult_check"):
             values["cultivated"] = True
             return values
-            
-        set_dict_value_from_widget(values, "continentID", self.glade_xml, "cont_combo", 1)
-        set_dict_value_from_widget(values, "regionID", self.glade_xml, "region_combo", 1)
-        set_dict_value_from_widget(values, "areaID", self.glade_xml, "area_combo", 1)
-        set_dict_value_from_widget(values, "stateID", self.glade_xml, "state_combo", 1)
-        set_dict_value_from_widget(values, "placeID", self.glade_xml, "place_combo", 1)
-        set_dict_value_from_widget(values, "kew_regionID", self.glade_xml, "kew_combo", 1)        
-        return values
+
+        dist = self.get_active_dist()
+        print dist
+        #set_dict_value_from_wdiget(values, )
+        #set_dict_value_from_widget(values, "continentID", self.glade_xml, "cont_combo", 1)
+        #set_dict_value_from_widget(values, "regionID", self.glade_xml, "region_combo", 1)
+        #set_dict_value_from_widget(values, "areaID", self.glade_xml, "area_combo", 1)
+        #set_dict_value_from_widget(values, "stateID", self.glade_xml, "state_combo", 1)
+        #set_dict_value_from_widget(values, "placeID", self.glade_xml, "place_combo", 1)
+        #set_dict_value_from_widget(values, "kew_regionID", self.glade_xml, "kew_combo", 1)        
+        #return values
+        return {}
             
         
     def commit_changes(self):

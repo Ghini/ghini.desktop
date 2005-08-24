@@ -12,7 +12,7 @@ from bauble.plugins import BaubleEditor, BaubleTable
 from bauble.prefs import prefs
 import bauble.utils as utils
 
-from bauble.utils.log import log
+from bauble.utils.log import log, debug
 
 
 # TODO: if the last column is made smaller from draggin the rightmost part
@@ -546,6 +546,31 @@ class TreeViewEditorDialog(TableEditorDialog):
         ok_button = self.action_area.get_children()[1]
         ok_button.set_sensitive(sensitive)
         
+    
+    #
+    # different renderer_edited method for each of the different renderer
+    # type
+    #
+#    def on_text_renderer_edited(self, renderer, path, new_text, colname):
+#        """
+#        finished editing CelLRendererText
+#        """
+#        pass
+#    def on_combo_renderer_edited(self, renderer, path, new_text, colname):
+#        """
+#        finished editing CelLRendererCombo
+#        """
+#        pass
+#    def on_toggle_renderer_edited(self, renderer, path, new_text, colname):
+#        """
+#        finished editing CelLRendererToggle
+#        """
+#        pass
+#    def common_renderer_edited(self):
+#        """
+#        do things common to all renderer types
+#        """
+#        pass
         
     def on_renderer_edited(self, renderer, path, new_text, colname):
         """
@@ -554,13 +579,14 @@ class TreeViewEditorDialog(TableEditorDialog):
         in the model
         """
          
-        print 'entered TreeViewEditorDialog.on_renderer_edited()'
+        debug('entered TreeViewEditorDialog.on_renderer_edited()')
         #print ' -- new: "%s"' % str(new_text)
         new_text = new_text.strip() # crash on None? is new_text ever None?
-        print new_text
+        debug('new_text: ' + new_text)
         model = self.view.get_model()
         it = model.get_iter(path)
         row = model.get_value(it, 0)
+        
         #print ' -- %s: "%s"' % (colname, str(row[colname]))
         
         # compare everything by string b/c if the value is an object
@@ -607,9 +633,23 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.set_ok_sensitive(dirty)
             
             
-    def on_editing_started(self, cell, editable, path, colname):
-        print "entered TreeViewEditorDialog.on_editing_started"
+    def on_cell_combo_changed(self, combo, data=None):
+        print 'on_combo_changed'
+        model = combo.get_model()
+        i = combo.get_active_iter()
+        debug('0: ' + str(model.get_value(i, 0)))
+        debug('1: ' + str(model.get_value(i, 1)))
         
+#    def on_combo_cell_editing_started(self, cell, editable, path, colname):
+#        pass
+#    def on_text_cell_editing_started(self, cell, editable, path, colname):
+#        pass
+#    def on_toggle_cell_editing_started(self, cell, editable, path, colname):
+#        pass
+
+    def on_editing_started(self, cell, editable, path, colname):
+        debug("entered TreeViewEditorDialog.on_editing_started")
+                
         # if the cell has it's own editor we should be here
         if self.column_meta[colname].editor:  
             editable.set_property('editable', False)
@@ -621,13 +661,16 @@ class TreeViewEditorDialog(TableEditorDialog):
             editable.connect("insert-text", self.on_insert_text, 
                              path, colname)
             editable.connect("editing-done", self.on_editing_done)
-            self.current_entry = editable
+            self.current_entry = editable        
             # if not a foreign key then validate, foreign keys can only
             # be entered from existing values and so don't need to
             # be validated
             #if not self.column_meta[colname].foreign:
             #    if self.column_meta[colname].                
-
+        elif isinstance(editable, gtk.ComboBox):
+            editable.popdown()
+            editable.connect("changed", self.on_cell_combo_changed)
+            
 
     def on_editing_done(self, editable, data=None):
         """
@@ -693,19 +736,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         return False
         
     
-    def on_cursor_changed(self, view, data=None):
-        path, column = self.view.get_cursor()
-        print "on_cursor_changed: %s, %s" %(path, column)
-        return
-        print "BLOCK"
-        view.handler_block(self.cursor_changed_id)
-        #if stop
-        view.set_cursor(path, column, True)
-        print "UN block"
-        view.handler_unblock(self.cursor_changed_id)
-        #self.grab_focus(entry)
-
-
     def on_column_menu_toggle(self, item, colname=None):
         visible = item.get_active()
         self.columns[colname].set_visible(visible)
@@ -944,6 +974,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         create the tree view column from the meta
         """
+        # TODO: should we just have a factory where we pass the meta
+        # and a column is returned, it might clean this mess up a but
         r = None
         column = None
         # create the renderer and model if it needs it
@@ -999,8 +1031,25 @@ class TreeViewEditorDialog(TableEditorDialog):
         # notify when the column width property is changed
         
         column.connect("notify::width", self.on_column_property_notify, name)
-        column.connect("notify::visible", self.on_column_property_notify, name)
+        column.connect("notify::visible", self.on_column_property_notify, name)        
         return column
+
+
+    def on_view_move_cursor(self, view, step, count, data=None):
+        print 'move_cursor'
+        
+        
+    def on_cursor_changed(self, view, data=None):
+        path, column = view.get_cursor()
+        print "on_cursor_changed: %s, %s" %(path, column)
+        return
+        print "BLOCK"
+        #view.handler_block(self.cursor_changed_id)
+        #if stop
+        #view.set_cursor(path, column, True)
+        #print "UN block"
+        #view.handler_unblock(self.cursor_changed_id)
+        #self.grab_focus(entry)
 
 
     def on_column_property_notify(self, widget, property, name):
@@ -1060,7 +1109,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         # now that all the columns are here, let us know if anything 
         # changes
         self.view.connect("columns-changed", self.on_column_changed)
-
+        self.view.connect("move-cursor", self.on_view_move_cursor)
+        self.view.connect("cursor-changed", self.on_cursor_changed)
 
     def add_new_row(self, row=None):
         model = self.view.get_model()

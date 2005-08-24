@@ -12,9 +12,9 @@ class GeographyPlugin(BaublePlugin):
     
 #    tables = [Country, Continent, Region, Area, State, Place, KewRegion, \
 #        Distribution]
+    editors = [DistributionEditor]
     tables = [Country, Continent, Region, BotanicalCountry, BasicUnit, Place, \
         Distribution]
-    editors = [DistributionEditor]
     
     @classmethod
     def init(cls):
