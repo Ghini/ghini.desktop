@@ -146,26 +146,25 @@ class Plantname(BaubleTable):
     poison_humans = BoolCol(default=None)
     poison_animals = BoolCol(default=None)
     food_plant = StringCol(length=50, default=None)
-
-    # origin, should be value from one of the country
-    # tables, i think the values of the country tables can be combined
-    # into a string to give more specific information, either that or
-    # maybe an index into one of the tables with the value being chosen
-    # from a combo
-    #origin = StringCol(default=None)
+    
     # TODO: create distribution table that holds one of each of the 
     # geography tables which will hold the plants distribution, this
     # distribution table could even be part of the geography module
-    # TODO: do this in the garden package since we don't normally
-    # care about plant distribution
+
     # UPDATE: it might be better to do something like the source_type in the 
     # the accessions, do we need the distribution table if we're only
     # going to be holding one of the value from continent/region/etc, the only
     # exception is that we also need to hold a cultivated value and possible
     # something like "tropical", we can probably still use the distribution table
     # as long as setting to and from the distribution is handled silently
-    distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
-                               makeDefault=None)
+    #distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
+    #                           makeDefault=None)
+    # right now we'll just include the string from one of the tdwg 
+    # plant distribution tables though in the future it would be good
+    # to have a SingleJoin to a distribution table so we get the extra
+    # benefit of things like iso codes and hierarchial data, e.g. get
+    # all plants from africa
+    distribution = UnicodeCol(default=None)
 
     
     # foreign keys and joins
@@ -244,9 +243,9 @@ class PlantnameEditor(TreeViewEditorDialog):
                    }
         self.column_meta.headers = headers        
         
-        self.column_meta['distribution'].editor = editors["DistributionEditor"]
-        #self.column_meta['distribution'].column_factory = self.create_dist_column
-        #self.column_meta['distribution'].view_column = self.create_dist_column()
+        #self.column_meta['distribution'].editor = editors["DistributionEditor"]
+        self.column_meta['distribution'].column_factory = self.create_dist_column
+                
         
     def dist_cell_data_func(self, layout, cell, model, iter, data=None):
         v = model.get_value(iter, 0)
@@ -271,28 +270,59 @@ class PlantnameEditor(TreeViewEditorDialog):
     def on_dist_editing_started(self, cell, combo, path, data=None):
         log.debug('on_dist_editing_started')
         #print combo.popup()
-        combo.connect("key-press-event", self.on_dist_cell_key_press, path)
-        combo.connect("changed", self.on_dist_combo_changed)
+        #combo.connect("key-press-event", self.on_dist_cell_key_press, path)
+        #combo.connect("changed", self.on_dist_combo_changed)
         
     
     combo_value = None
     def on_dist_combo_changed(self, combo, data=None):
         debug('dist_combo_changed')
         i = combo.get_active_iter()
-        self.combo_value = combo.get_model.get_value(i, 1)
+        self.combo_value = combo.get_model().get_value(i, 1)
         
     def on_dist_renderer_edited(self, renderer, path, new_text, colname):
         debug('on_dist_renderer_edited')
+        debug(new_text)
         model = self.view.get_model()        
         i = model.get_iter(path)        
-        model_val = model.get_value(i, 0)        
-        debug(model_val)
-        model_row = model_val[colname]
-        debug(model_row)        
-        model_row = self.combo_value
-        debug(model_row)
+        v = model.get_value(i, 0)        
+        debug('v1: ' + str(v[colname]))
+        #debug(model_val)
+        #model_row = model_val[colname]
+        #debug(model_row)        
+        #model_row = self.combo_value
+        #debug(model_row)
+        #value = self.column_meta[colname].validate(new_text)
+        self.set_view_model_value(path, colname, new_text)
+        debug('v2: ' + str(v[colname]))
         
-                
+    def make_model2(self):
+        model = gtk.TreeStore(object)
+        model.append(None, ["Cultivated"])
+        for continent in tables['Continent'].select(orderBy='continent'):
+            p1 = model.append(None, [continent])
+            for region in continent.regions:
+                p2 = model.append(p1, [region])
+                for country in region.botanical_countries:
+                    p3 = model.append(p2, [country])
+                    for unit in country.units:
+                        if str(unit) != str(country):
+                            model.append(p3, [unit])    
+                            
+    def make_model(self):
+        model = gtk.TreeStore(str)
+        model.append(None, ["Cultivated"])
+        for continent in tables['Continent'].select(orderBy='continent'):
+            p1 = model.append(None, [str(continent)])
+            for region in continent.regions:
+                p2 = model.append(p1, [str(region)])
+                for country in region.botanical_countries:
+                    p3 = model.append(p2, [str(country)])
+                    for unit in country.units:
+                        if str(unit) != str(country):
+                            model.append(p3, [str(unit)])    
+        return model
+                            
     def create_dist_column(self):
         name = "distribution"
         renderer = gtk.CellRendererCombo()
@@ -306,22 +336,12 @@ class PlantnameEditor(TreeViewEditorDialog):
         renderer.set_property('editable', True)
         renderer.set_property('has_entry', False)
         renderer.connect("edited", self.on_dist_renderer_edited, name)
-        renderer.connect("editing_started", self.on_dist_editing_started, name)
-        
+        #renderer.connect("editing_started", self.on_dist_editing_started, name)        
         #model = gtk.ListStore(str, object)
-        model = gtk.TreeStore(str, object)
-        model.append(None, ["Only found in cultivation","cultivated"])
-        for continent in tables['Continent'].select(orderBy='continent'):
-            p1 = model.append(None, [str(continent), continent])
-            for region in continent.regions:
-                p2 = model.append(p1, [str(region),region])
-                for country in region.botanical_countries:
-                    p3 = model.append(p2, [str(country),country])
-                    for unit in country.units:
-                        model.append(p3, [str(unit),unit])        
-
+        model = self.make_model()            
         renderer.set_property("model", model)
         column = gtk.TreeViewColumn(self.column_meta['distribution'].header, renderer)
+        column.set_cell_data_func(renderer, self.combo_cell_data_func, name)
         column.name = name
         return column
         

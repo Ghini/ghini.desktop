@@ -42,7 +42,7 @@
 	                    </fo:block-container>
 	                    <!--<fo:block-container absolute-position="absolute" top='40mm' bottom="0mm" right="2mm" width="37mm" border="solid orange 1px">-->
 	                    <fo:block-container absolute-position="absolute" top='39mm' bottom="0mm" right="2mm" width="37mm">
-	                        <fo:block font-size="12pt" text-align="right"><xsl:value-of select=".//origin"/></fo:block>
+	                        <fo:block font-size="12pt" text-align="right"><xsl:value-of select=".//distribution"/></fo:block>
 	                    </fo:block-container>
 	                </fo:block-container>
                 </fo:block>

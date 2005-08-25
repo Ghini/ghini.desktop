@@ -28,6 +28,54 @@ from bauble.utils.log import log, debug
 # get a little bigger, i think the last column is creeping
 
 
+#
+# TODO: finish this, its meant to be a column for subclassing that
+# holds common creation code, then we should create ComboColumn, 
+# TextColumn etc. for the column types we want and then we can just
+# a factory where we pass the column_meta to create the columns, this
+# should make it a lot easier to create custom columns
+#
+class ViewColumn(gtk.TreeViewColumn):
+    
+    def __init__(self):
+        self.set_cell_data_func(self.cell_data_func)
+        self.connect("edited", self.on_renderer_edited)
+        self.connect("editing-started", self.on_editing_started)
+        pass
+        
+    def cell_data_func(self):
+        pass
+        
+    def on_renderer_edited(self):
+        pass
+        
+    def on_editing_started(self):
+        pass
+
+
+
+class ComboColumn(ViewColumn):
+    
+    def __init__(self):
+        super(ComboColumn, self).__init__()
+        
+    def cell_data_func(self):
+        """
+        get the value from the combo box
+        """
+        pass
+
+
+
+class ViewColumnFactory:
+    def __init__(self):
+        pass
+        
+    @staticmethod
+    def createViewColumnFromMeta(self, meta):
+        return ViewColumn()
+
+
 def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name, model_col=0, validator=lambda x: x):
     w = glade_xml.get_widget(widget_name)
     v = get_widget_value(glade_xml, widget_name, model_col)
@@ -901,6 +949,14 @@ class TreeViewEditorDialog(TableEditorDialog):
             # to string like a table row
             cell.set_property('text', str(value))                    
 
+
+    def combo_cell_data_func(self, col, cell, model, iter, colname):
+        row = model.get_value(iter, 0)        
+        value = row[colname]
+        if value is None:
+            cell.set_property('text', "")
+        else: 
+            cell.set_property('text', str(value))
 
     def create_toolbar(self):
         """

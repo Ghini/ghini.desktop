@@ -31,7 +31,7 @@ unit_template_str = """
                                 $family
                                 $scientific_name
                                 $informal_names
-                                $origin
+                                $distribution
                             </taxonidentified>
                         </result>
                     </identification>
@@ -69,12 +69,12 @@ name_template = Template(name_template_str)
 # TODO: this is not a standard in ABCD but we need it to create the labels
 # if we could just return this abcd data instead of writing a file then 
 # we could add
-origin_template_str = """
-<origin>
-$origin
-</origin>
+distribution_template_str = """
+<distribution>
+$distribution
+</distribution>
 """
-origin_template = Template(origin_template_str)
+distribution_template = Template(distribution_template_str)
 
 
 #
@@ -113,11 +113,11 @@ def plants_to_abcd(plants):
         f = family_template.substitute(family=acc.plantname.genus.family)
         n = name_template.substitute(genus=acc.plantname.genus, sp=acc.plantname.sp)
         informal_name = informal_name_template.substitute(informal_name=acc.plantname.vernac_name or "")
-        o = origin_template.substitute(origin=acc.plantname.origin or "")
+        d = distribution_template.substitute(distribution=acc.plantname.distribution or "")
         units.append(unit_template.substitute(unitid=id, family=f, 
                                               scientific_name=n, 
                                               informal_names=informal_name,
-                                              origin=o))
+                                              distribution=d))
     
     abcd = main_template.substitute(units='\n'.join(units))
     return abcd
