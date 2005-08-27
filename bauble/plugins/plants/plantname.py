@@ -6,7 +6,8 @@ import gtk
 from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, \
+    create_meta_from_so_col
 from bauble.utils.log import log, debug
 
 
@@ -18,20 +19,32 @@ class Plantname(BaubleTable):
     def __init__(self, **kw):
         super(Plantname, self).__init__(**kw)
         
-        self.values = {"sp_hybrid": [("H", "Hybrid formula"),
-                                     ("x", "Nothotaxon hybrid"),
-                                     ("+", "Graft hybrid/chimaera")],
-                       "sp_qual": [("agg.", "Aggregate"),
-                                   ("s. lat.", "sensu lato"),
-                                   ("s. str.", "sensu stricto")],     
-                      }
+#        self.values = {"sp_hybrid": [("H", "Hybrid formula"),
+#                                     ("x", "Nothotaxon hybrid"),
+#                                     ("+", "Graft hybrid/chimaera")],
+#                       "sp_qual": [("agg.", "Aggregate"),
+#                                   ("s. lat.", "sensu lato"),
+#                                   ("s. str.", "sensu stricto")],     
+#                      }
         
-    sp_hybrid = StringCol(length=1, default=None)  # species hybrid, x, H,...
+    #sp_hybrid = StringCol(length=1, default=None)  # species hybrid, x, H,...
+    # species hybrid, x, H,...
+    sp_hybrid = EnumCol(enumValues=("H", 
+                                    "x", 
+                                    "+",
+                                    None), 
+                        default=None) 
     
-    sp_qual = StringCol(length=10, default=None)  # species qualifier, agg., s. lat, s.str
-#    values["sp_qual"] = [("agg.", "Aggregate"),
-#                         ("s. lat.", "sensu lato"),
-#                         ("s. str.", "sensu stricto")]
+    
+    sp_qual = EnumCol(enumValues=("agg.", 
+                                  "s.lat.", 
+                                  "s. str.",
+                                  None), 
+                      default=None)
+    #sp_qual = StringCol(length=10, default=None)  # species qualifier, agg., s. lat, s.str
+    #values["sp_qual"] = [("agg.", "Aggregate"),
+    #                     ("s. lat.", "sensu lato"),
+    #                     ("s. str.", "sensu stricto")]
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
     #sp_author = StringCol(length=255, default=None)  # species author
@@ -48,7 +61,14 @@ class Plantname(BaubleTable):
     supfam = StringCol(length=30, default=None)  
         
     subgen = StringCol(length=50, default=None)
-    subgen_rank = StringCol(length=12, default=None)
+    #subgen_rank = StringCol(length=12, default=None)
+    subgen_rank = EnumCol(enumValues=("subgenus", 
+                                      "section", 
+                                      "subsection",
+                                      "series", 
+                                      "subseries",
+                                      None),
+                          default=None)
 #    values["subgen_rank"] = [("subgenus", "Subgenus"),
 #                             ("section", "Section"),
 #                             ("subsection", "Subsection"),
@@ -59,7 +79,14 @@ class Plantname(BaubleTable):
     isp = StringCol(length=30, default=None)         # intraspecific epithet
     #isp_author = StringCol(length=254, default=None) # intraspecific author
     isp_author = UnicodeCol(length=255, dbEncoding="latin-1", default=None) # intraspecific author
-    isp_rank = StringCol(length=10, default=None)    # intraspecific rank
+    #isp_rank = StringCol(length=10, default=None)    # intraspecific rank
+    isp_rank = EnumCol(enumValues=("subsp.", 
+                                   "var.", 
+                                   "subvar.", 
+                                   "f.", 
+                                   "subf.",
+                                   None), 
+                       default=None)
 #    values["isp_rank"] = [("subsp.", "Subspecies"),
 #                          ("var.", "Variety"),
 #                          ("subvar.", "Subvariety"),
@@ -97,7 +124,7 @@ class Plantname(BaubleTable):
     # TODO: maybe the IUCN information should be looked up online
     # rather than being entered in the database or maybe there could
     # be an option to lookup the code online
-    iucn23 = StringCol(length=5, default=None)  # iucn category version 2.3
+    #iucn23 = StringCol(length=5, default=None)  # iucn category version 2.3
 #    values["iucn23"] = [("EX", "Extinct"),
 #                        ("EW", "Extinct in the wild"),
 #                        ("CR", "Critically endangered"),
@@ -110,7 +137,7 @@ class Plantname(BaubleTable):
 #                        ("DD", "Data deficient"),
 #                        ("NE", "Not evaluated")]
     
-    iucn31 = StringCol(length=50, default=None) # iucn category_version 3.1
+    #iucn31 = StringCol(length=50, default=None) # iucn category_version 3.1
 #    values["iucn31"] = [("EX", "Extinct"),
 #                        ("EW", "Extinct in the wild"),
 #                        ("CR", "Critically endangered"),
@@ -194,6 +221,9 @@ class Plantname(BaubleTable):
         return utils.plantname2str(self)
 
         
+#class DistributionColumn(ComboColumn):
+#    
+#    def __init__
 #
 # Plantname editor
 #
@@ -209,7 +239,7 @@ class PlantnameEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, tables["Plantname"],
                                       "Plantname Editor", parent,
                                       select=select, defaults=defaults)
-        headers = {"genus": "Genus",
+        titles = {"genusID": "Genus",
                    "sp": "Species",
                    "sp_hybrid": "Sp. hybrid",
                    "sp_qual": "Sp. qualifier",
@@ -232,8 +262,8 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'isp4': 'Isp. 4',
                    'isp4_rank': 'Isp. 4 rank',
                    'isp4_author': 'Isp. 4 author',
-                   'iucn23': 'IUCN 2.3\nCategory',
-                   'iucn31': 'IUCN 3.1\nCategory',
+#                   'iucn23': 'IUCN 2.3\nCategory',
+#                   'iucn31': 'IUCN 3.1\nCategory',
                    'id_qual': 'ID qualifier',
                    'vernac_name': 'Common Name',
                    'poison_humans': 'Poisonious\nto humans',
@@ -241,11 +271,22 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'food_plant': 'Food plant',
                    'distribution': 'Distribution'
                    }
-        self.column_meta.headers = headers        
+        #self.column_meta.headers = headers        
         
         #self.column_meta['distribution'].editor = editors["DistributionEditor"]
-        self.column_meta['distribution'].column_factory = self.create_dist_column
-                
+        #self.columns = editor.create_columns_from_table(table)
+        #self.columns = TreeViewEditorDialog.ColumnDict.create_from_table(self.table)
+
+        self.columns.pop('distribution')        
+        r = gtk.CellRendererCombo()
+        r.set_property('model', self.make_model())
+        dist_column = ComboColumn('Distribution', r,
+                                  Plantname.sqlmeta.columns['distribution'])  
+        self.columns['distribution'] = dist_column            
+        self.columns.titles = titles
+                     
+        # set completions
+        self.columns["genusID"].meta.get_completions = self.get_genus_completions
         
     def dist_cell_data_func(self, layout, cell, model, iter, data=None):
         v = model.get_value(iter, 0)
@@ -387,6 +428,32 @@ class PlantnameEditor(TreeViewEditorDialog):
         if utils.yes_no_dialog(msg):
             print "add genus"
 
+    def get_genus_completions(self, text):
+        model = gtk.ListStore(str, int)
+        sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
+        for row in sr: 
+            model.append([str(row), row])
+#        for row in ("a", "ab", "abc", "abcd"):
+#            model.append([row, 0])
+        return model
+                
+    
+    def on_genus_completion_match_selected(self, completion, model, 
+                                           iter, path):
+        """
+        all foreign keys should use entry completion so you can't type in
+        values that don't already exists in the database, therefore, allthough
+        i don't like it the view.model.row is set here for foreign key columns
+        and in self.on_renderer_edited for other column types                
+        """        
+        #name = model.get_value(iter, 0)
+        #id = model.get_value(iter, 1)
+        genus = model.get_value(iter, 1)
+                
+        #model = self.view.get_model()
+        #self.set_view_model_value(path, colname, [id, name])
+        self.set_view_model_value(path, "genusID", genus)
+        
     def get_completions(self, text, colname):
         maxlen = -1
         model = None

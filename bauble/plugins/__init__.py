@@ -180,18 +180,20 @@ class BaublePlugin(object):
     @classmethod
     def create_tables(cls):
         for t in cls.tables:
-            log.info("creating table ", t.__name__)
+            log.info("creating table " + t.__name__)
             t.dropTable(ifExists=True, cascade=True)            
             t.createTable()
-    
-
+        
+        
 class BaubleTable(SQLObject):        
     sqlmeta.cacheValues = False
     
     def __init__(self, **kw):
         super(BaubleTable, self).__init__(**kw)
         self.values = {}
-
+    #values = {}
+    #@classmethod
+    #def _get_values
     
 class BaubleEditor(object):
     pass

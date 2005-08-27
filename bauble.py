@@ -41,8 +41,8 @@ if not utils.main_is_frozen():
     pygtk.require("2.0")
 import gtk
 
-gtk.gdk.threads_init() # initialize threading
-gtk.gdk.threads_enter()
+gtk.threads_init() # initialize threading
+gtk.threads_enter()
 
 try:
     from sqlobject import *
@@ -54,5 +54,5 @@ except ImportError:
 if __name__ == "__main__":    
     from bauble import app
     app.main()
-    gtk.gdk.threads_leave()
+    gtk.threads_leave()
 

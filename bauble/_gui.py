@@ -27,7 +27,7 @@ class GUI:
         # load the last view open from the prefs
         v = prefs[self.current_view_pref]
         if v is None: # default view is the search view            
-            v = views["SearchView"]
+            v = str(views["SearchView"])
 
         for name, view in views.iteritems():
             if v == str(view):

@@ -10,6 +10,7 @@ import sqlobject
 import bauble
 import bauble.utils as utils
 from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
+from bauble.utils.log import log, debug
 
 csv_format_params = {}
 
@@ -20,23 +21,81 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOIntCol: lambda x: int(x),
                           sqlobject.SOBoolCol: lambda x: bool(x),
                           sqlobject.SOStringCol: lambda x: str(x),
-                          sqlobject.SOUnicodeCol: lambda x: x
-#                          sqlobject.SOUnicodeCol: lambda x: unicode(x)
-                          }
-                             
+                          sqlobject.SOEnumCol: lambda x: x,
+                          sqlobject.SOUnicodeCol: lambda x: x}
+                          #sqlobject.SOUnicodeCol: lambda x: unicode(x)
+                   
+                          
 type_validators = {int: lambda x: int(x),
                    str: lambda x: str(x),
                    bool: lambda x: bool(x),
                    unicode: lambda x: x}
                    #unicode: lambda x: unicode(x, 'latin-1')}
-                   #unicode: lambda x: unicode(x, 'utf-8')}
-
-# TODO: it would be easier to create this gui in glade
-
+                   #unicode: lambda x: unicode(x, 'utf-8')
+                   
 
 class CSVImporter:
     
-    def start(self, filenames=None, block=False):
+    import_lock = threading.Lock()
+    in_thread = True
+    
+    def start(self, filenames):
+        """
+        the simplest way to import, no threads, nothing
+        """        
+        bauble.app.gui.window.set_sensitive(False)
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        
+        if filenames is None:
+            filesnames = self._get_filenames()
+        
+        old_conn = sqlobject.sqlhub.getConnection()
+        trans = old_conn.transaction()       
+        sqlobject.sqlhub.threadConnection = trans
+        
+        try:
+            for filename in filenames:
+                path, base = os.path.split(filename)
+                table_name, ext = os.path.splitext(base)
+                self.import_file(filename, tables[table_name], trans)                                                    
+        except Exception:
+            trans.rollback()
+            msg = "Error importing values from %s into table %s\n" % (filename, table_name)
+            sys.stderr.write(msg)            
+            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
+        else:
+            trans.commit()
+        
+        bauble.app.gui.window.set_sensitive(True)
+        bauble.app.gui.window.window.set_cursor(None)
+        sqlobject.sqlhub.threadConnection = old_conn
+        
+        
+    def _get_filenames(self):
+        def on_selection_changed(filechooser, data=None):
+                """
+                only make the ok button sensitive if the selection is a file
+                """
+                f = filechooser.get_preview_filename()
+                if f is None: return
+                ok = filechooser.action_area.get_children()[1]
+                ok.set_sensitive(os.path.isfile(f))
+        fc = gtk.FileChooserDialog("Choose file(s) to import...",
+                                  None,    
+                                  gtk.FILE_CHOOSER_ACTION_OPEN,
+                                  (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                   gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
+        fc.set_select_multiple(True)
+        fc.connect("selection-changed", on_selection_changed)
+        r = fc.run()
+        if r != gtk.RESPONSE_ACCEPT:
+            fc.destroy()
+            return
+        filenames = fc.get_filenames()
+        fc.destroy()
+            
+            
+    def start_in_thread(self, filenames=None, block=False):
         """
         run the importer, if no filenames are are give then it will ask you
         for the files to import
@@ -51,32 +110,12 @@ class CSVImporter:
         # shows the column mapping and if there are any errors
         # mapping 
         if filenames is None:
-            def on_selection_changed(filechooser, data=None):
-                """
-                only make the ok button sensitive if the selection is a file
-                """
-                f = filechooser.get_preview_filename()
-                if f is None: return
-                ok = filechooser.action_area.get_children()[1]
-                ok.set_sensitive(os.path.isfile(f))
-            fc = gtk.FileChooserDialog("Choose file(s) to import...",
-                                      None,    
-                                      gtk.FILE_CHOOSER_ACTION_OPEN,
-                                      (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
-            fc.set_select_multiple(True)
-            fc.connect("selection-changed", on_selection_changed)
-            r = fc.run()
-            if r != gtk.RESPONSE_ACCEPT:
-                fc.destroy()
-                return
-            filenames = fc.get_filenames()
-            fc.destroy()
-                       
+            filenames = _get_filenames()
+                               
         bauble.app.gui.window.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
 
-        t = threading.Thread(target=self.run, args=(filenames, block))
+        t = threading.Thread(target=self._import_worker, args=(filenames))
         t.start()
         if block:
             t.join()
@@ -91,39 +130,28 @@ class CSVImporter:
         #for col in table.sqlmeta._columns:
         for col in table.sqlmeta.columnList:
             if type(col) not in column_type_validators:
+                debug('no validator')
                 raise Exception("no validator for col" + col.name + \
                                 " with type " + str(col.__class__))                
             validators[col.name] = column_type_validators[type(col)]
-#            if type(col) == sqlobject.SOForeignKey or \
-#               type(col) == sqlobject.SOIntCol:
-#                validators[col.name] = type_validators[int]
-#            elif type(col) == sqlobject.SOStringCol:                    
-#                validators[col.name] = type_validators[str]
-#            elif type(col) == sqlobject.SOUnicodeCol:
-#                validators[col.name] = type_validators[unicode]       
-#            elif type(col) == sqlobject.SOUnicodeCol:
-#                validators[col.name] = type_validators[unicode]       
-#            else:
-#                raise Exception("no validator for col" + col.name + \
-#                                " with type " + str(col.__class__))
         validators['id'] = type_validators[int]
             
-#        try:
         line = None
         for line in reader:
             for col in reader.fieldnames: # validate columns
                 if line[col] == '': 
                     del line[col]
-                else: line[col] = validators[col](line[col])
+                else: 
+                    line[col] = validators[col](line[col])
             table(connection=connection, **line) # add row to table
-#        except Exception, e:
-#            sys.stderr.write("CSVImporter.import_file() -- cold not import " \
-#                             "table " + table.__name__)
-#            traceback.print_exc()                 
-#            raise ImportError(str(line))
         
-
-    def run(self, filenames, block=False):
+        
+    def on_response(self, widget, response, data=None):
+        debug('on_response')
+        debug(response)
+        
+        
+    def _import_worker(self, filenames):
         """
         this should not be used directly but is used by start()
         
@@ -132,19 +160,16 @@ class CSVImporter:
         dialog = None
         # save the original connection
         old_conn = sqlobject.sqlhub.getConnection()        
-        print "run"
-        if not block: gtk.threads_enter()        
-        print "dialog"
+        gtk.threads_enter()        
         # TODO: connect to this cancel button so the user can stop the import
         # process and rollback any changes
         dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
                           message_format='importing...')
-        print "show"
-        dialog.show()
-        print "showed"
-        if not block: gtk.threads_leave()
-        print "left"
+        dialog.connect('response', self.on_response)
+        debug('show_all')
+        dialog.show_all()
+        gtk.threads_leave()
         
         trans = old_conn.transaction()       
         sqlobject.sqlhub.threadConnection = trans
@@ -158,18 +183,18 @@ class CSVImporter:
                 if table_name not in tables:
                     msg = "%s table does not exist. Would you like to continue " \
                           "importing the rest of the tables?" % table_name
-                    if not block: gtk.threads_enter()
+                    gtk.threads_enter()
                     keep_on = utils.yes_no_dialog(msg)
-                    if not block: gtk.threads_leave()
+                    gtk.threads_leave()
                     if keep_on: continue
                     else: break            
     
                 # TODO: could do something more with this to indicate progress
                 # like a counter on the row number being imported
-                if not block: gtk.threads_enter()
+                gtk.threads_enter()
                 dialog.set_markup('importing ' + table_name+ '...')
                 dialog.queue_resize()
-                if not block: gtk.threads_leave()
+                gtk.threads_leave()
                                 
                 self.import_file(filename, tables[table_name], trans)
         except Exception, e:            
@@ -180,20 +205,20 @@ class CSVImporter:
             # successfully or nothing at all
             msg = "Error importing values from %s into table %s\n" % (filename, table_name)
             sys.stderr.write(msg)            
-            if not block: gtk.threads_enter()
+            gtk.threads_enter()
             utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
-            if not block: gtk.threads_leave()
+            gtk.threads_leave()
             trans.rollback()
         else:
             trans.commit()
                 
         sqlobject.sqlhub.threadConnection = old_conn
-        if not block: gtk.threads_enter()
+        gtk.threads_enter()
         if dialog is not None: 
             dialog.destroy()
         bauble.app.gui.window.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
-        if not block: gtk.threads_leave()
+        gtk.threads_leave()
    
         
 class CSVExporter:

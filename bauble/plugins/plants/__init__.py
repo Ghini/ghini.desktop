@@ -57,15 +57,17 @@ class PlantsPlugin(BaublePlugin):
         from bauble.plugins.imex_csv import CSVImporter
         csv = CSVImporter()    
         path = os.path.dirname(__file__) + os.sep + 'default'
-        files = ['Family.txt']
-        csv.start([path+os.sep+f for f in files], True)
+        files = ['Family.txt']#,'Genus.txt', 'Plantname.txt']
+        csv.start([path+os.sep+f for f in files])
         
-        if utils.yes_no_dialog("Would you like to import the Genera?"):
-            csv.start([path + os.sep + "Genus.txt"], True)
-        
+        # genera and plantnames take along time so ask the user if
+        # they want to import them
+        if utils.yes_no_dialog("Would you like to import the Genera?"):            
+            csv.start([path + os.sep + "Genus.txt"])
+
         if utils.yes_no_dialog("Would you like to import the Plantnames?"):
-            csv.start([path + os.sep + "Plantname.txt"], True)
-    
+            csv.start([path + os.sep + "Plantname.txt"])            
+
     
     def install(cls):
         """

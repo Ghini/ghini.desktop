@@ -59,12 +59,12 @@ class GeographyPlugin(BaublePlugin):
         path = os.path.dirname(__file__) + os.sep + 'default'
 #        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'Area.txt',
 #                  'State.txt', 'Place.txt', 'KewRegion.txt']
-        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'BotanicalCountry.txt',
-                  'BasicUnit.txt', 'Place.txt']
-        #files=['Country.txt']
-        print "cvs start"
-        csv.start([path+os.sep+f for f in files], True)
-        print "leaving create_tables"
+        files = ['Country.txt', 'Continent.txt', 'Region.txt', 
+                 'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']
+
+
+        csv.start([path+os.sep+f for f in files])
+
         
     
 

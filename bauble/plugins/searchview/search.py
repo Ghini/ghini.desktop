@@ -10,6 +10,7 @@ import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
 from bauble.plugins import BaubleView, tables, editors
+from bauble.utils.log import debug
 
 
 # NOTE: to add a new search domain do:
@@ -263,6 +264,7 @@ class SearchView(BaubleView):
         
         try:
             search = self.parse_text(text)
+            debug(search)
         except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
@@ -342,6 +344,7 @@ class SearchView(BaubleView):
                 results += self.query_table(table_name, values)            
             return results
             
+        debug(self.domain_map)
         table = self.domain_map[domain]
         return self.query_table(table, values)
         
@@ -379,7 +382,6 @@ class SearchView(BaubleView):
         if domain not in self.search_map or self.search_map[domain] is None:
             raise ValueError("SearchView.query(): the domain %s is not in "\
                              "the search map or is None" % d)
-        
         
         table = self.search_map[domain][0]
         if table is None:
