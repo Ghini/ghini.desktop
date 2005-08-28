@@ -37,6 +37,6 @@ class LocationEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, Location, "Location Editor", 
                                       parent,select=select, defaults=defaults)
         # set headers
-        headers={"site": "Site",
-                 "description": "Description"}
-        self.column_meta.headers = headers
+        titles = {"site": "Site",
+                  "description": "Description"}
+        self.columns.titles = titles

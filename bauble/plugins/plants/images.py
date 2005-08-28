@@ -41,7 +41,7 @@ class ImageEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, tables["Image"], 
                                             "Image Editor", parent,
                                             select=select, defaults=defaults)
-        headers={"uri": "Location (URL)",
+        titles={"uri": "Location (URL)",
                  "label": "Label",
-                 'plantname': 'Plant Name'}
-        self.column_meta.headers = headers
+                 'plantnameID': 'Plant Name'}
+        self.columns.titles = titles

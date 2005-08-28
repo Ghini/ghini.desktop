@@ -33,84 +33,31 @@ from bauble.utils.log import log, debug
 # a factory where we pass the column_meta to create the columns, this
 # should make it a lot easier to create custom columns
 #
-def tmp(self, name, meta):
-        """
-        create the tree view column from the meta
-        """
-        # TODO: should we just have a factory where we pass the meta
-        # and a column is returned, it might clean this mess up a but
-        r = None
-        column = None
-        # create the renderer and model if it needs it
-        if meta.type == SOBoolCol:
-            r = gtk.CellRendererToggle()
-        elif meta.type == SingleJoin: 
-            # TODO: this should be removed, we don't edit any single joins 
-            # directory i don't think, though it might not be a bad idea
-            # to do so            
-            raise Exception("what the hell is going on here")
-            r.set_property('has_entry', False)
-            r.set_property("text-column", 0)
-            data = ['----------', 'Edit', '----------', 'Delete']
-            model = gtk.ListStore(str)
-            for d in data: model.append([d])
-            r.set_property("model", model)
-        elif hasattr(self.table, "values") and name in self.table.values:
-            r = gtk.CellRendererCombo()
-            r.set_property("text-column", 0)
-            model = gtk.ListStore(str, str)            
-            for v in self.table.values[name]:
-                model.append(v)
-            r.set_property("model", model)
-        else: 
-            r = gtk.CellRendererText()
-            
-        # create the column    
-        # replace so the '_' so its not interpreted as a mnemonic
-        column = gtk.TreeViewColumn(meta.header.replace("_", "__"), r)
-        
-        # specific renderer config and overrides
-        if type(r) == gtk.CellRendererToggle:
-            r.connect("toggled", self.on_renderer_toggled, name)
-            column.set_cell_data_func(r, self.toggle_cell_data_func, name)
-        else:
-            r.set_property("editable", True)
-            r.connect("editing_started", self.on_editing_started, name)
-            column.set_cell_data_func(r, self.text_cell_data_func, name)
-            if meta.editor is None: # the editor will set the value
-                r.connect("edited", self.on_renderer_edited, name)
-                
-        # generic column config
-        column.set_min_width(50)
-        column.set_clickable(True)
-        column.set_resizable(True)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        column.set_reorderable(True)
-        column.set_visible(meta.visible)
-        width_dict = prefs[self.column_width_pref]
-        if width_dict is not None and name in width_dict:
-            column.set_fixed_width(width_dict[name])
-        column.name = name # .name is my own data, not part of gtk
-        # notify when the column width property is changed
-        
-        column.connect("notify::width", self.on_column_property_notify, name)
-        column.connect("notify::visible", self.on_column_property_notify, name)        
-        return column
-
     
 class GenericViewColumn(gtk.TreeViewColumn):
     
-    def __init__(self, header, renderer, so_col=None):
-        #self.set_cell_data_func(self.cell_data_func)
+    def __init__(self, view, header, renderer, so_col):
         super(GenericViewColumn, self).__init__(header, renderer)
-        self.set_cell_data_func(renderer, self.cell_data_func)
-        
-        self.meta = None
-        if so_col is not None:
-            self.meta = create_meta_from_so_col(so_col)            
-        else:
-            print 'so_col is none: ' + header
-            self.meta = GenericViewColumn.Meta()
+       
+        if view is None:
+            raise ValueError('view is None')
+            
+        if so_col is None:
+            raise ValueError('so_col is None')        
+            
+        self.view = view        
+        self.renderer = renderer
+        renderer.set_property("editable", True)
+        renderer.connect("editing_started", self.on_editing_started, view)
+        renderer.connect("edited", self.on_edited, view)
+        self.set_cell_data_func(renderer, self.cell_data_func, view)
+                
+        self.meta = GenericViewColumn.Meta()
+        self.meta.so_col = so_col  
+        if so_col._default == NoDefault:
+            self.meta.required = True
+            self.meta.default = so_col._default
+            self.set_visible(True)
             
         self.set_property('visible', self.meta.required)
         self.set_min_width(50)
@@ -118,17 +65,6 @@ class GenericViewColumn(gtk.TreeViewColumn):
         self.set_resizable(True)
         self.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         self.set_reorderable(True)
-        
-        #self.name = None
-        #self.connect("edited", self.on_edited)
-        #self.connect("editing-started", self.on_editing_started)
-        
-        # set up the renderer
-        #self.renderer = renderer        
-        renderer.set_property("editable", True)
-        renderer.connect("editing_started", self.on_editing_started)
-        renderer.connect("edited", self.on_edited)
-                
         
         #column.set_cell_data_func(r, self.toggle_cell_data_func, name)
         #    if meta.editor is None: # the editor will set the value
@@ -144,75 +80,62 @@ class GenericViewColumn(gtk.TreeViewColumn):
     name = property(__get_name)
     
     class Meta:
-           # the string to use as the header for the column
-            #header = None
-            
-            # the SQLObject column this ViewColumn represents
-            so_col = None
-            
-            #
-            # the method to call to get this list of completions for this
-            # column is the column is a text entry, 
-            # method signature: get_completions(complete_for_str)
-            # TODO: how would i add this field to the class Meta 
-            # inside TextColumn so that this field is only relevant 
-            # to TextColumn
-            #
-            get_completions = None
-            
-            # the column provides its own editor
-            editor = None
-            
-            # is self.required is True then you can't hide this column
-            # from the view
-            required = False
-            #self.required = kw.pop('required', False)
-            
-            # if self.getter is set then use this method to return the values
-            # for the row, e.g. self.meta[colname].getter(row)
-            #self.getter = getter 
-            getter = None
-            #self.getter = kw.pop('getter', None)                    
-            
-            # the method used to create the view column instead of using the
-            # default create_view_column method, this allows a class that 
-            # subclasses TreeViewEditorDialog to provide a custom column creation
-            # method for individual columns
-            #self.column_factory = None
-            #self.column_factory = kw.pop('column_factory', None)
-     
-            # a method to validate the data in the column before it is set
-            # 
-            validate = lambda x: x
+
+        # the SQLObject column this ViewColumn represents
+        so_col = None
         
-    def cell_data_func(self, col, cell, model, iter, data=None):
+        #
+        # the method to call to get this list of completions for this
+        # column is the column is a text entry, 
+        # method signature: get_completions(complete_for_str)
+        # TODO: how would i add this field to the class Meta 
+        # inside TextColumn so that this field is only relevant 
+        # to TextColumn
+        #
+        get_completions = None
+        
+        # the column provides its own editor
+        editor = None
+        
+        # is self.required is True then you can't hide this column
+        # from the view
+        required = False
+        
+        # if self.getter is set then use this method to return the values
+        # for the row, e.g. self.meta[colname].getter(row)
+        getter = None
+ 
+        # a method to validate the data in the column before it is set
+        validate = lambda x: x
+        
+        
+    def cell_data_func(self, col, cell, model, iter, view):
         pass
     
     
-    def on_edited(self, renderer, path, new_text, data=None):
+    def on_edited(self, renderer, path, new_text, view):
         pass
         
         
-    def on_editing_started(self, cell, editable, path, colname):
+    def on_editing_started(self, cell, editable, path, view):
         pass
 
 
 
 class ComboColumn(GenericViewColumn):
     
-    def __init__(self, header, renderer=gtk.CellRendererCombo(), 
+    def __init__(self, view, header, renderer=gtk.CellRendererCombo(),
                  so_col=None):
         """
         we allow a renderer to be passed here so the user can attach
         custom models to the combo instead of doing it in 
         on_editing_started
         """
-        super(ComboColumn, self).__init__(header, renderer, so_col)
+        super(ComboColumn, self).__init__(view, header, renderer, so_col)
         
 
     def cell_data_func(self, col, cell, model, iter, data=None):
-        super(ComboColumn, self).cell_data_func(col, cell, model, 
-                                                iter, data)
+        super(ComboColumn, self).cell_data_func(col, cell, model, iter, view)
         # assumes the text column is 0
         row = model.get_value(iter, 0)
         if row is not None:
@@ -221,27 +144,25 @@ class ComboColumn(GenericViewColumn):
                     
         
     def __get_model(self):
-        return self.get_property('model')
-        
+        return self.get_property('model')            
     def __set_model(self, model):
-        self.set_property('model', model)
-        
+        self.set_property('model', model)        
     model = property(__get_model, __set_model)    
     
         
     def on_edited(self, renderer, path, new_text, data=None):
-        super(ComboColumn, self).on_edited(renderer, path, new_text, 
-                                           data)
+        super(ComboColumn, self).on_edited(renderer, path, new_text, view)
                                            
                                            
     def on_editing_started(self, cell, editable, path, data=None):
-        super(ComboColumn, self).on_editing_started(cell, editable, 
-                                                    path, data)
+        super(ComboColumn, self).on_editing_started(cell, editable, path, view)
+
+
 
 class ToggleColumn(GenericViewColumn):
     
-    def __init__(self, header, so_col=None):
-        super(ToggleColumn, self).__init__(header, 
+    def __init__(self, view, header, so_col=None):
+        super(ToggleColumn, self).__init__(view, header, 
                                            gtk.CellRendererToggle(),
                                            so_col)
         
@@ -263,23 +184,42 @@ class ToggleColumn(GenericViewColumn):
 
 class TextColumn(GenericViewColumn):
     
-    def __init__(self, header, so_col=None):
-        super(TextColumn, self).__init__(header, 
-                                         gtk.CellRendererText(),
+    def __init__(self, view, header, so_col=None):
+        super(TextColumn, self).__init__(view, header, gtk.CellRendererText(),
                                          so_col)
     
     def cell_data_func(self, col, cell, model, iter, data=None):
-        pass    
+        row = model.get_value(iter, 0)
+        #if colname not in row: return # this should never happen
+        value = row[self.name]
+        
+        if value is None: # no value in model
+            cell.set_property('text', None)
+        elif type(value) == list: 
+            # if a list then value[0] should be the string displayed while
+            # row[1] is the value we want to put in the model, used mostly
+            # for completions
+            cell.set_property('text', value[1])
+        else: 
+            # just plain text in model column or something convertible 
+            # to string like a table row
+            cell.set_property('text', str(value))                           
 
 
-    def on_edited(self, renderer, path, new_text, data=None):
-        super(TextColumn, self).on_edited(renderer, path, new_text, 
-                                           data)
+    def on_edited(self, renderer, path, new_text, view):
+        super(TextColumn, self).on_edited(renderer, path, new_text, view)
+        debug('TextColumn.on_edited')
+        model = view.get_model()
+        iter = model.get_iter(path)
+        row = model.get_value(iter, 0)
+        row[self.name] = new_text
+        debug(row)
+        
                                            
-                                           
-    def on_editing_started(self, cell, entry, path, data=None):
-        super(TextColumn, self).on_editing_started(cell, entry, 
-                                                    path, data)
+    def on_editing_started(self, cell, entry, path, view):
+        super(TextColumn, self).on_editing_started(cell, entry, path, view)
+        debug('TextColumn.on_editing_started')
+        
         # if the cell has it's own editor we shouldn't be here
         if self.meta.editor is not None: 
             debug('editable = False') 
@@ -297,6 +237,26 @@ class TextColumn(GenericViewColumn):
         #if not self.column_meta[colname].foreign:
         #    if self.column_meta[colname].  
       
+
+    def on_completion_match_selected(self, completion, model, iter, path):
+        """
+        all foreign keys should use entry completion so you can't type in
+        values that don't already exists in the database, therefore, allthough
+        i don't like it the view.model.row is set here for foreign key columns
+        and in self.on_renderer_edited for other column types                
+        """        
+        # we assume on a successfull completion that 0 is the value
+        # that we matched on and 1 is the value we want in the model
+        value = model.get_value(iter, 1)        
+        model = self.view.get_model()
+        view.set_view_model_value(path, self.name, value)
+        #def set_view_model_value(self, path, colname, value):
+        #model = self.view.get_model()
+        #i = model.get_iter(path)
+        #row = model.get_value(i, 0)
+        #row[colname] = value
+        #model.
+        #self.set_view_model_value(path, colname, [id, name])        
         
     def on_insert_text(self, entry, text, length, position, path):
         """
@@ -314,8 +274,10 @@ class TextColumn(GenericViewColumn):
         # there are no completions, disconnect from signal
         # TODO: we should really be disconnecting with the signal with
         # this signal id so we don't stop all insert_text signals
+        debug('on_insert_text: ' + text)        
         if self.meta.get_completions is None:
-            print "no completions"
+            debug("no completions")
+            debug(self.name)
             #debug('stop emmiting insert text')
             #entry.stop_emission("insert_text") 
             return
@@ -327,7 +289,7 @@ class TextColumn(GenericViewColumn):
         full_text = entry_text + text
         #total_length = len(entry_text) + len(text)
         #if total_length > 2: # add completions
-        if len(full_text) > 1:
+        if len(full_text) >= 2:
             entry_completion = entry.get_completion()
             #model, maxlen = self.meta.get_completions(full_text)
             model = self.meta.get_completions(full_text)
@@ -335,56 +297,22 @@ class TextColumn(GenericViewColumn):
                 entry_completion = gtk.EntryCompletion()
                 entry_completion.set_minimum_key_length(2)
                 entry_completion.set_text_column(0)
-#                entry_completion.connect("match-selected", 
-#                                         self.on_completion_match_selected, 
-#                                         path, colname)
+                entry_completion.connect("match-selected", 
+                                         self.on_completion_match_selected, 
+                                         path)
                 #entry_completion.set_inline_completion(True)
                 #entry_completion.set_match_func(self.match_func, None)
                 entry.set_completion(entry_completion)
 
-            if entry_completion is None and self.column_meta[colname].foreign:
-                raise Exception("No completion defined for column %s" % colname)
+            # TODO: raise an error if this column doesn't have a completion
+            # and the column is represents a foreign key
+            #if entry_completion is None and self.
+            #    raise Exception("No completion defined for column %s" % colname)
             
             if entry_completion is not None:
                 entry_completion.set_model(model)    
 
-def create_meta_from_so_col(col):
-    meta = GenericViewColumn.Meta()
-    meta.so_col = col  
-    if col._default == NoDefault:
-        meta.required = True
-        meta.default = col._default
-        #set_visible(True)
-    return meta
-    
-    
-def create_columns_from_table(table):
-    
-    columns = TreeViewEditorDialog.ColumnDict()
-    for name, col in table.sqlmeta.columns.iteritems():
-        title = name.replace('_', '__')
-        if isinstance(col, EnumCol):
-            column = ComboColumn(title, so_col=col)
-            model = gtk.ListStore(str)
-            for v in meta.so_col.enumValues:
-                model.append([v])
-            column.model = model
-        elif isinstance(col, BoolCol):
-            column = ToggleColumn(title, so_col=col)
-        else:
-            column = TextColumn(title, so_col=col)
-        
-        # no default value for column so make sure the user enters the 
-        # data
-        #if col.notNone == False and col._default == NoDefault:
-#        if col._default == NoDefault:
-#            column.meta.required = True
-#            column.meta.default = col._default
-#            column.set_visible(True)        
-#            
-#        column.meta.so_col = col        
-        columns[name] = column
-    return columns
+
 
 class ViewColumnFactory:
     def __init__(self):
@@ -476,8 +404,6 @@ def set_widget_value(glade_xml, widget_name, value):
         w.set_text(value)
 
 
-
-        
 
 def createColumnMetaFromTable(table):
     """
@@ -628,13 +554,32 @@ class ViewColumnMeta(dict):
         
     
 # TODO: finish this and get rid of ModelDict
-class TreeStoreDict(gtk.TreeStore):
+class ListStoreDict(gtk.ListStore):
     """
     can be uses the same as a tree store but the row can be accessed
     by a key other than int
     """
-    def __init__(self, *args):
-        super(TreeStoreDict(), self).__init__(args)
+    # {id: int}
+    def __init__(self, **kwargs):
+        types = []
+        self.name_map = {}
+        i = 0
+        for name, t in kwargs.iteritems():
+            name_map[name] = i
+            types.append(t)
+            i += 1
+        super(ListStoreDict(), self).__init__(*types)
+   
+   
+    def get_value(self, iter, name):
+        return super(ListStoreDict, self).get_value(iter, name_map[name])()
+   
+   
+    def append(self, **kwargs):
+        values = []
+        for name, index in self.name_map.iteritems():
+            values[index] = kwargs[name]
+        super(ListStoreDict, self).append()           
        
        
         
@@ -647,7 +592,7 @@ class ModelDict(dict):
     means that when we retrieve the dictionary to commit the values then
     we only get those values that have been accessed
     """
-    def __init__(self, row, meta=None, defaults={}):
+    def __init__(self, row, columns, defaults={}):
         # if row is an instance of BaubleTable then get the values
         # from the instance else check that the items are valid table
         # attributes and don't let the editors set attributes that 
@@ -659,7 +604,7 @@ class ModelDict(dict):
             self.isinstance = True
             self['id'] = row.id # always keep the id
         elif not issubclass(row, BaubleTable):
-            msg = 'row shoud be either an instance or class of BaubleTable'
+            msg = 'row should be either an instance or class of BaubleTable'
             raise ValueError('ModelDict.__init__: ' + msg)
             
         #if row is not None and not isinstance(row, BaubleTable):
@@ -667,8 +612,16 @@ class ModelDict(dict):
         
         self.row = row # either None or an instance of BaubleTable
         self.defaults = defaults or {}
-        self.meta = meta
-
+        #self.meta = meta
+        
+        # getters are a way that a column can provide a custom function
+        # on what it wants to return from a row, this is pretty much
+        # a bad idea but we need it in some cases
+        self.getters = {}
+        for c in columns.values():
+            if c.meta.getter is not None:
+                self.getter[c.name] = c.meta.getter
+            
 
     def __contains__(self, item):
         """
@@ -701,9 +654,11 @@ class ModelDict(dict):
         # else if row is an instance then get it from the table
         v = None
         if self.isinstance:
-            if self.meta[item].getter is not None:
-                v = self.meta[item].getter(self.row)
-            else: # we want this to fail is item doesn't exist in row
+#            if self.meta[item].getter is not None:
+#                v = self.meta[item].getter(self.row)
+            if item in self.getters:
+                v = self.getters[item](self.row)
+            else: # we want this to fail if item doesn't exist in row
                 v = getattr(self.row, item)
             if v is None and item in self.defaults:
                 v = self.defaults[item]
@@ -812,11 +767,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         titles = property(fset=__set_titles)
         
-        @staticmethod
-        def create_from_table(table):
-            return create_columns_from_table(table)
+#        @staticmethod
+#        def create_from_table(table):
+#            return create_columns_from_table(table)
         
-                    
+   
+        
         
     def __init__(self, table, title="Table Editor", parent=None, select=None, defaults={}):
         TableEditorDialog.__init__(self, table, title=title, parent=parent, select=select,
@@ -824,22 +780,31 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.view = None        
         #self.columns = {} # self.columns[name] = gtkcolumn
         self.dirty = False
-        self.column_meta = createColumnMetaFromTable(table)
+        #self.column_meta = createColumnMetaFromTable(table)
         self.table_meta = TableMeta()
-        self.columns = self.ColumnDict().create_from_table(self.table)
+        
+        self.create_gui()
+        
+        if self.visible_columns_pref is not None:
+            if not self.visible_columns_pref in prefs:
+                prefs[self.visible_columns_pref] = self.default_visible_list
+            self.set_visible_columns_from_prefs(self.visible_columns_pref)
+        
+        #self.create_gui()
+        #self.columns = self.ColumnDict().create_from_table(self.table)
 
         
     def start(self, block=False):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
-        if self.visible_columns_pref is not None:
-            if not self.visible_columns_pref in prefs:
-                prefs[self.visible_columns_pref] = self.default_visible_list
-            self.set_visible_columns_from_prefs(self.visible_columns_pref)
-        self.create_gui()
+#        if self.visible_columns_pref is not None:
+#            if not self.visible_columns_pref in prefs:
+#                prefs[self.visible_columns_pref] = self.default_visible_list
+#            self.set_visible_columns_from_prefs(self.visible_columns_pref)
+#        self.create_gui()
         super(TreeViewEditorDialog, self).start(block)
         
-    def start(self, block=False):
+    def start2(self, block=False):
         self.create_gui()
         if self.visible_columns_pref is not None:
             if not self.visible_columns_pref in prefs:
@@ -1254,17 +1219,21 @@ class TreeViewEditorDialog(TableEditorDialog):
             for name, value in item[0].iteritems():                
                 # del the value if they are none, have to do this b/c 
                 # we don't want to store None in a row without a default
+                debug(value)
                 if value is None:
                     del temp_row[name]
                 if type(value) == list and type(value[0]) == int:
-                    temp_row[name] = value[0] # is an id, name pair
+                    temp_row[name] = value[0] # is an id, name pair                
+                elif isinstance(value, BaubleTable):
+                    debug('is table')
+                    temp_row[name] = value.id                  
                     #else: # it is a list but we assume the [0] is 
                     # a table and [1] is a dict of value to commit, 
                     # we assume this is here because we need to set the 
                     # foreign key in the subtable to the id of the current
                     # row after it is commited and then commit the subtable
                     # there has to be a better way than this
-                        
+            debug(temp_row)
             values.append(temp_row)
             
         if self.dummy_row:
@@ -1422,12 +1391,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         log.debug("  entered TreeViewEditorDialog.create_gui()")
         vbox = gtk.VBox(False)
         
-        self.create_toolbar()        
+        self.create_tree_view()
+                
+        self.create_toolbar()                
         vbox.pack_start(self.toolbar, fill=False, expand=False)
         
-        log.debug("  -- create tree view")
-        self.create_tree_view()
-        log.debug("  -- created")
         sw = gtk.ScrolledWindow()        
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
@@ -1558,9 +1526,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         create the main tree view
         """
+        # have to create the view before the column
+        self.view = gtk.TreeView(gtk.ListStore(object))
+        
         # create the columns from the meta data
-        if self.columns is None:
-            self.columns = createColumnsFromTable(self.table)
+        self.columns = self.create_view_columns()
             
 #        for name, meta in self.column_meta.iteritems(): 
 #            if meta.column_factory:
@@ -1573,9 +1543,7 @@ class TreeViewEditorDialog(TableEditorDialog):
 #                    self.columns[name] = self.create_view_column(name, meta)
 #            else:  # build a standard column
 #                self.columns[name] = self.create_view_column(name, meta)
-                            
-        
-        self.view = gtk.TreeView(gtk.ListStore(object))
+                                        
         self.view.set_headers_clickable(False)
 
         # create the model from the tree view and add rows if a
@@ -1607,22 +1575,46 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.view.connect("move-cursor", self.on_view_move_cursor)
         self.view.connect("cursor-changed", self.on_cursor_changed)
 
+
+    def create_view_columns(self):        
+        columns = TreeViewEditorDialog.ColumnDict()
+        for name, col in self.table.sqlmeta.columns.iteritems():
+            title = name.replace('_', '__')
+            if isinstance(col, EnumCol):
+                column = ComboColumn(self.view, title, so_col=col)
+                model = gtk.ListStore(str)
+                for v in meta.so_col.enumValues:
+                    model.append([v])
+                column.model = model
+            elif isinstance(col, BoolCol):
+                column = ToggleColumn(self.view, title, so_col=col)
+            else:
+                column = TextColumn(self.view, title, so_col=col)
+            columns[name] = column
+            
+            # set handlers for the view
+            column.renderer.connect('edited', self.on_column_edited)
+        return columns
+        
+        
+    def on_column_edited(self, renderer, path, new_text):
+        debug('on_column_edited')        
+        self.set_dirty(True)
+        # edited the last row so add a new one,
+        # i think this may a bit of a bastardization of path but works for now
+        model = self.view.get_model()
+        if new_text != "" and int(path) == len(model)-1:
+            self.add_new_row()
+            self.dummy_row = True
+    
+        
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: raise Exception("no model in the row")
         if row is None:
-            row = self.table
-        model.append([ModelDict(row, self.column_meta, self.defaults)])
+            row = self.table        
+        model.append([ModelDict(row, self.columns, self.defaults)])        
 
-        
-    def get_completions(self, text, colname):
-        """
-        return a list of completions relative to the current input and
-        the length of the longest completion
-        does nothing by default but is intended to be extended by other classes
-        """
-        #raise NotImplementedError
-        return None, 0
 
     def set_visible_columns_from_prefs(self, prefs_key):
         visible_columns = prefs[prefs_key]
@@ -1633,22 +1625,6 @@ class TreeViewEditorDialog(TableEditorDialog):
                 col.set_visible(True)
             elif not col.meta.required: 
                 col.set_visible(False)
-        
-    def set_visible_columns_from_prefs2(self, prefs_key):
-        """
-        load the visible column from the preferences key and reset the visible
-        attribute on each column
-        this doesn't change the visibility in the tree view so the
-        method name may be misleading
-        """
-        visible_columns = prefs[prefs_key]
-        if visible_columns is None: return
-        # reset all visibility from prefs
-        for name, meta in self.column_meta.iteritems():
-            if name in visible_columns:
-                meta.visible = True                    
-            elif not meta.required: 
-                meta.visible = False
 
     
     def store_column_widths(self):
@@ -1659,13 +1635,9 @@ class TreeViewEditorDialog(TableEditorDialog):
             raise Exception("TreeViewEditorDialog.store_column_widths: " \
                             "column_width_pref not set")
         width_dict = {}
-        for name, meta in self.column_meta.iteritems():
-            width_dict[name] = meta.width
-        
-        
-        #for col in self.view.get_columns():            
-        #    if col.get_visible():
-        #        width_dict[col.name] = col.get_width()                
+        for name, col in self.columns.iteritems():
+            width_dict[name] = col.get_property('width')        
+            
         pref_dict = prefs[self.column_width_pref]
         if pref_dict is None:
             prefs[self.column_width_pref] = width_dict
@@ -1673,15 +1645,6 @@ class TreeViewEditorDialog(TableEditorDialog):
             pref_dict.update(width_dict)
             prefs[self.column_width_pref] = pref_dict
 
-    def store_visible_columns(self):
-        """
-        get the currently visible columns and store them to the preferences
-        """
-        visible = []
-        for name, col in self.columns.iteritems():
-            if col.visible:
-                visible.append(name)
-        prefs[self.visible_columns_pref] = visible
         
     def store_visible_columns(self):
         """

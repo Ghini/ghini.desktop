@@ -41,9 +41,10 @@ class FamilyEditor(TreeViewEditorDialog):
         
         TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
                                       parent, select=select, defaults=defaults)
-        headers = {'family': 'Family',
-                   'comments': 'Comments'}
-        self.column_meta.headers = headers
+        titles = {'family': 'Family',
+                  'comments': 'Comments'}               
+        self.columns.titles = titles
+
 
 
 #

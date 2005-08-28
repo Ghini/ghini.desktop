@@ -68,7 +68,8 @@ class BaubleApp:
         """
         import sqlobject.sqlite.sqliteconnection as sqlite
         if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
-            uri += "?check_same_thread=0"
+            pass
+            #uri += "?check_same_thread=0"
 #            uri += "&autoCommit=0"
         # should do maybe debug_sql=True and debug_sql_output=True
         #if debug.enabled:

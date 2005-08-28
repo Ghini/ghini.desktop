@@ -33,7 +33,8 @@ class Reference(BaubleTable):
     family = ForeignKey("Family")
     genus = ForeignKey("Genera")
 
-    def __str__(self): return self.label
+    def __str__(self): 
+        return self.label
     
 
 class ReferenceEditor(TreeViewEditorDialog):
@@ -46,8 +47,7 @@ class ReferenceEditor(TreeViewEditorDialog):
 
     def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, Reference, "Reference Editor", 
-                                      parent, select=select, defaults=defaults)
-        # set headers
-        headers={"label": "Label",
-                 "reference": "Reference"}
-        self.column_meta.headers = headers    
+                                      parent, select=select, defaults=defaults)        
+        titles = {"label": "Label",
+                  "reference": "Reference"}
+        self.columns.titles = titles

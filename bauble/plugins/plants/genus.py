@@ -2,6 +2,7 @@
 # Genera table module
 #
 
+import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TreeViewEditorDialog
@@ -62,23 +63,33 @@ class GenusEditor(TreeViewEditorDialog):
     def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
                                       parent, select=select, defaults=defaults)        
-        headers = {'genus': 'Genus',
+        titles = {'genus': 'Genus',
                    'author': 'Author',
                    'hybrid': 'Hybrid',
-                   'family': 'Family'}
-        self.column_meta.headers = headers
+                   'familyID': 'Family'}
+        self.columns.titles = titles
+        self.columns["familyID"].meta.get_completions = self.get_family_completions
 
 
-    def get_completions(self, text, colname):
-        maxlen = -1
-        model = None
-        if colname == "family":
-            model = gtk.ListStore(str, int)
-            if len(text) > 2:
-                sr = tables["Family"].select("family LIKE '"+text+"%'")
-                for row in sr:
-                    model.append([str(row), row.id])
-        return model, maxlen # not setting maxlen but maybe we should
+    def get_family_completions(self, text):
+        model = gtk.ListStore(str, object)
+        if len(text) > 2:
+            sr = tables["Family"].select("family LIKE '"+text+"%'")
+            for row in sr:
+                model.append([str(row), row])
+        return model
+
+        
+#    def get_completions(self, text, colname):
+#        maxlen = -1
+#        model = None
+#        if colname == "family":
+#            model = gtk.ListStore(str, int)
+#            if len(text) > 2:
+#                sr = tables["Family"].select("family LIKE '"+text+"%'")
+#                for row in sr:
+#                    model.append([str(row), row.id])
+#        return model, maxlen # not setting maxlen but maybe we should
         
 
 #

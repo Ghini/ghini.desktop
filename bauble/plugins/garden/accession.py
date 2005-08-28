@@ -113,8 +113,8 @@ class AccessionEditor(TreeViewEditorDialog):
         
         TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
                                       parent, select=select, defaults=defaults)
-        headers = {"acc_id": "Acc ID",
-                   "plantname": "Name",
+        titles = {"acc_id": "Acc ID",
+                   "plantnameID": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
                    'source_type': 'Source'
@@ -128,9 +128,15 @@ class AccessionEditor(TreeViewEditorDialog):
                    #,
 #                   "wgs": "World Geographical Scheme"
                    }
-        self.column_meta.headers = headers
-        self.column_meta['source_type'].editor = editors["SourceEditor"]
-        self.column_meta['source_type'].getter = get_source
+#        self.column_meta.headers = headers
+#        self.column_meta['source_type'].editor = editors["SourceEditor"]
+#        self.column_meta['source_type'].getter = get_source
+        self.columns.titles = titles
+        self.columns['source_type'].meta.editor = editors["SourceEditor"]
+        self.columns['source_type'].meta.getter = get_source
+        
+        self.columns['plantnameID'].meta.get_completions = \
+            self.get_plantname_completions
         
         # set the accession column of the table that will be in the 
         # source_type columns returned from self.get_values_from view
@@ -140,8 +146,7 @@ class AccessionEditor(TreeViewEditorDialog):
         self.table_meta.foreign_keys = [('_collection', 'accession'),
                                         ('_donation', 'accession')]
         
-        
-    def get_completions(self, text, colname):
+    def get_plantname_completions(self, text):
         # get entry and determine from what has been input which
         # field is currently being edited and give completion
         # if this return None then the entry will never search for completions
@@ -155,26 +160,54 @@ class AccessionEditor(TreeViewEditorDialog):
         # would be easy to test it just needs to be done
         parts = text.split(" ")
         genus = parts[0]
-        results = []
-        model = None
-        maxlen = 0
-        if colname == "plantname": #and len(genus) > 2:            
-            model = gtk.ListStore(str, int)
-            if len(genus) > 2:
-                sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-                # this is a foreign key so store the the string and id
-                model = gtk.ListStore(str, int) 
-                for row in sr:
-                    for p in row.plantnames:
-                        s = str(p)
-                        if len(s) > maxlen: maxlen = len(s)
-                        model.append((s, p.id))
-                        #model.append(row)
-        return model, maxlen
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+        # this is a foreign key so store the the string and id
+        model = gtk.ListStore(str, object) 
+        for row in sr:
+            for plantname in row.plantnames:
+                s = str(plantname)
+                #if len(s) > maxlen: maxlen = len(s)
+                model.append((s, plantname))
+        return model
     
         # split the text by spaces
         # if the last item is longer than say 3 then
         #    get completions 
+        
+#    def get_completions(self, text, colname):
+#        # get entry and determine from what has been input which
+#        # field is currently being edited and give completion
+#        # if this return None then the entry will never search for completions
+#        # TODO: finish this, it would be good if we could just stick
+#        # the table row in the model and tell the renderer how to get the
+#        # string to match on, though maybe not as fast, and then to get
+#        # the value we would only have to do a row.id instead of storing
+#        # these tuples in the model
+#        # UPDATE: the only problem with sticking the table row in the column
+#        # is how many queries would it take to screw in a lightbulb, this
+#        # would be easy to test it just needs to be done
+#        parts = text.split(" ")
+#        genus = parts[0]
+#        results = []
+#        model = None
+#        maxlen = 0
+#        if colname == "plantname": #and len(genus) > 2:            
+#            model = gtk.ListStore(str, int)
+#            if len(genus) > 2:
+#                sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+#                # this is a foreign key so store the the string and id
+#                model = gtk.ListStore(str, int) 
+#                for row in sr:
+#                    for p in row.plantnames:
+#                        s = str(p)
+#                        if len(s) > maxlen: maxlen = len(s)
+#                        model.append((s, p.id))
+#                        #model.append(row)
+#        return model, maxlen
+#    
+#        # split the text by spaces
+#        # if the last item is longer than say 3 then
+#        #    get completions 
     
     
     def get_values_from_view(self):

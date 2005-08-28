@@ -6,8 +6,7 @@ import gtk
 from sqlobject import *
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, \
-    create_meta_from_so_col
+from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn
 from bauble.utils.log import log, debug
 
 
@@ -271,22 +270,43 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'food_plant': 'Food plant',
                    'distribution': 'Distribution'
                    }
-        #self.column_meta.headers = headers        
-        
-        #self.column_meta['distribution'].editor = editors["DistributionEditor"]
-        #self.columns = editor.create_columns_from_table(table)
-        #self.columns = TreeViewEditorDialog.ColumnDict.create_from_table(self.table)
 
         self.columns.pop('distribution')        
         r = gtk.CellRendererCombo()
         r.set_property('model', self.make_model())
-        dist_column = ComboColumn('Distribution', r,
+        dist_column = ComboColumn(self.view, 'Distribution', r,
                                   Plantname.sqlmeta.columns['distribution'])  
         self.columns['distribution'] = dist_column            
         self.columns.titles = titles
                      
         # set completions
         self.columns["genusID"].meta.get_completions = self.get_genus_completions
+        
+        
+    def get_genus_completions(self, text):
+        model = gtk.ListStore(str, object)
+        sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
+        for row in sr: 
+            model.append([str(row), row])
+        return model
+                
+    
+    def on_genus_completion_match_selected(self, completion, model, 
+                                           iter, path):
+        """
+        all foreign keys should use entry completion so you can't type in
+        values that don't already exists in the database, therefore, allthough
+        i don't like it the view.model.row is set here for foreign key columns
+        and in self.on_renderer_edited for other column types                
+        """        
+        #name = model.get_value(iter, 0)
+        #id = model.get_value(iter, 1)
+        genus = model.get_value(iter, 1)
+                
+        #model = self.view.get_model()
+        #self.set_view_model_value(path, colname, [id, name])
+        self.set_view_model_value(path, "genusID", genus)        
+        
         
     def dist_cell_data_func(self, layout, cell, model, iter, data=None):
         v = model.get_value(iter, 0)
@@ -428,31 +448,7 @@ class PlantnameEditor(TreeViewEditorDialog):
         if utils.yes_no_dialog(msg):
             print "add genus"
 
-    def get_genus_completions(self, text):
-        model = gtk.ListStore(str, int)
-        sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
-        for row in sr: 
-            model.append([str(row), row])
-#        for row in ("a", "ab", "abc", "abcd"):
-#            model.append([row, 0])
-        return model
-                
     
-    def on_genus_completion_match_selected(self, completion, model, 
-                                           iter, path):
-        """
-        all foreign keys should use entry completion so you can't type in
-        values that don't already exists in the database, therefore, allthough
-        i don't like it the view.model.row is set here for foreign key columns
-        and in self.on_renderer_edited for other column types                
-        """        
-        #name = model.get_value(iter, 0)
-        #id = model.get_value(iter, 1)
-        genus = model.get_value(iter, 1)
-                
-        #model = self.view.get_model()
-        #self.set_view_model_value(path, colname, [id, name])
-        self.set_view_model_value(path, "genusID", genus)
         
     def get_completions(self, text, colname):
         maxlen = -1

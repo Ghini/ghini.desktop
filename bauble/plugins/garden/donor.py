@@ -44,14 +44,12 @@ class DonorEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.donor.columns"
     column_width_pref = "editor.donor.column_width"
-    #default_visible_list = ['site', 'description'] 
 
     label = 'Donors'
 
     def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, Donor, "Donors Editor", 
                                       parent, select=select, defaults=defaults)                                          
-        # set headers
-        headers={"name": "Name",
-                 "donor_type": "Donor Type"}
-        self.column_meta.headers = headers
+        titles = {"name": "Name",
+                  "donor_type": "Donor Type"}
+        self.columns.titles = titles

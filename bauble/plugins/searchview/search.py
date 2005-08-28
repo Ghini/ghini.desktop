@@ -260,11 +260,9 @@ class SearchView(BaubleView):
         search the database using text
         """
         # clear the old model
-        self.results_view.set_model(None)
-        
+        self.results_view.set_model(None)        
         try:
             search = self.parse_text(text)
-            debug(search)
         except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
@@ -343,8 +341,6 @@ class SearchView(BaubleView):
             for table_name in self.search_metas.keys():
                 results += self.query_table(table_name, values)            
             return results
-            
-        debug(self.domain_map)
         table = self.domain_map[domain]
         return self.query_table(table, values)
         
