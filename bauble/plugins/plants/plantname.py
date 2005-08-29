@@ -270,13 +270,14 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'food_plant': 'Food plant',
                    'distribution': 'Distribution'
                    }
-
-        self.columns.pop('distribution')        
-        r = gtk.CellRendererCombo()
-        r.set_property('model', self.make_model())
-        dist_column = ComboColumn(self.view, 'Distribution', r,
-                                  Plantname.sqlmeta.columns['distribution'])  
+        
+        # make a custom distribution column
+        self.columns.pop('distribution') # this probably isn't necessary     
+        dist_column = ComboColumn(self.view, 'Distribution',
+                           so_col = Plantname.sqlmeta.columns['distribution'])
+        dist_column.model = self.make_model()
         self.columns['distribution'] = dist_column            
+        
         self.columns.titles = titles
                      
         # set completions

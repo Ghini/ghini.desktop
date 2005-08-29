@@ -9,6 +9,7 @@ import bauble.paths as paths
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.utils.log import debug
 
 
 class Accession(BaubleTable):
@@ -89,7 +90,7 @@ class Accession(BaubleTable):
 # Accession editor
 #
     
-def get_source(row):    
+def get_source_old(row):    
     if row._collection is not None and row._donation is not None:
         raise Exception('tables.Accessions.get_source(): only one of '\
                         'donation or _collection should be set but '\
@@ -99,6 +100,17 @@ def get_source(row):
     elif row._donation is not None:
         return row._donation
     return None
+
+def get_source(row):
+    debug('get_source: ' + row.source_type)
+    if row.source_type == None:
+        return None
+    elif row.source_type == Donation.__name__:
+        return row._donation
+    elif row.source_type == Collection.__name__:
+        return row._collection
+    else:
+        raise ValueError('unknown source type: ' + row.source_type)
     
     
 class AccessionEditor(TreeViewEditorDialog):
@@ -128,9 +140,7 @@ class AccessionEditor(TreeViewEditorDialog):
                    #,
 #                   "wgs": "World Geographical Scheme"
                    }
-#        self.column_meta.headers = headers
-#        self.column_meta['source_type'].editor = editors["SourceEditor"]
-#        self.column_meta['source_type'].getter = get_source
+
         self.columns.titles = titles
         self.columns['source_type'].meta.editor = editors["SourceEditor"]
         self.columns['source_type'].meta.getter = get_source
@@ -158,63 +168,76 @@ class AccessionEditor(TreeViewEditorDialog):
         # UPDATE: the only problem with sticking the table row in the column
         # is how many queries would it take to screw in a lightbulb, this
         # would be easy to test it just needs to be done
+        # TODO: there should be a better/faster way to do this 
+        # using a join or something
         parts = text.split(" ")
         genus = parts[0]
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        # this is a foreign key so store the the string and id
         model = gtk.ListStore(str, object) 
         for row in sr:
-            for plantname in row.plantnames:
-                s = str(plantname)
-                #if len(s) > maxlen: maxlen = len(s)
-                model.append((s, plantname))
+            for plantname in row.plantnames:                
+                model.append((str(plantname), plantname))
         return model
     
-        # split the text by spaces
-        # if the last item is longer than say 3 then
-        #    get completions 
-        
-#    def get_completions(self, text, colname):
-#        # get entry and determine from what has been input which
-#        # field is currently being edited and give completion
-#        # if this return None then the entry will never search for completions
-#        # TODO: finish this, it would be good if we could just stick
-#        # the table row in the model and tell the renderer how to get the
-#        # string to match on, though maybe not as fast, and then to get
-#        # the value we would only have to do a row.id instead of storing
-#        # these tuples in the model
-#        # UPDATE: the only problem with sticking the table row in the column
-#        # is how many queries would it take to screw in a lightbulb, this
-#        # would be easy to test it just needs to be done
-#        parts = text.split(" ")
-#        genus = parts[0]
-#        results = []
-#        model = None
-#        maxlen = 0
-#        if colname == "plantname": #and len(genus) > 2:            
-#            model = gtk.ListStore(str, int)
-#            if len(genus) > 2:
-#                sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-#                # this is a foreign key so store the the string and id
-#                model = gtk.ListStore(str, int) 
-#                for row in sr:
-#                    for p in row.plantnames:
-#                        s = str(p)
-#                        if len(s) > maxlen: maxlen = len(s)
-#                        model.append((s, p.id))
-#                        #model.append(row)
-#        return model, maxlen
-#    
-#        # split the text by spaces
-#        # if the last item is longer than say 3 then
-#        #    get completions 
     
-    
+    # TODO:  we should have to reproduce this entire method just for this 
+    # editor, somehow we need a good way to get so that when we get the values
+    # from the editor we know now to change source_type into an id, etc.s
     def get_values_from_view(self):
+        import copy
+        """
+        used by commit_changes to get the values from a table so they
+        can be commited to the database, this version of the function
+        removes the values with None as the value from the row, i thought
+        this was necessary but now i don't, in fact it may be better in
+        case you want to explicitly set things null
+        """
+        # TODO: this method needs some love, there should be a more obvious
+        # way or at least simpler way of return lists of values
+        model = self.view.get_model()
+        values = []
+        for item in model:
+            # copy it so we dont change the data in the model
+            # TODO: is it really necessary to copy here
+            temp_row = copy.copy(item[0]) 
+            for name, value in item[0].iteritems():                
+                # del the value if they are none, have to do this b/c 
+                # we don't want to store None in a row without a default
+                #debug("%s: %s, %s" % (name, value, str(type(value))))
+                
+                if value is None:
+                    del temp_row[name]
+                elif name == 'source_type':
+                    source_class = value.__class__.__name__[:] # copy ??
+                    temp_row['_'+source_class.lower()] = temp_row.pop('source_type')
+                    temp_row['source_type'] = source_class
+                elif type(value) == list and type(value[0]) == int:
+                    debug('id name pair -- i thought we could del this but i guess we cant')
+                    temp_row[name] = value[0] # is an id, name pair                
+                elif isinstance(value, BaubleTable):
+                    debug('is table')
+                    debug("%s: %s" % (value, type(value)))                    
+                    temp_row[name] = value.id                  
+                    #else: # it is a list but we assume the [0] is 
+                    # a table and [1] is a dict of value to commit, 
+                    # we assume this is here because we need to set the 
+                    # foreign key in the subtable to the id of the current
+                    # row after it is commited and then commit the subtable
+                    # there has to be a better way than this
+            debug(temp_row)
+            values.append(temp_row)
+            
+        if self.dummy_row:
+            del values[len(model)-1] # the last one should always be empty
+        return values      
+    
+    
+    def get_values_from_view2(self):
         values = TreeViewEditorDialog.get_values_from_view(self)
         for v in values:
             if v.has_key('source_type'):
-                source_class = v['source_type'].__class__.__name__[:]
+                source_class = v['source_type'].__class__.__name__[:] # copy ??
+                debug('source_class: ' + source_class)
                 if source_class == 'Collection':
                     v['_collection'] = v.pop('source_type')
                     v['source_type'] = source_class
@@ -222,11 +245,14 @@ class AccessionEditor(TreeViewEditorDialog):
                     v['_donation'] = v.pop('source_type')
                     v['source_type'] = source_class
                 else:
-                    raise ValueError('AccessionsEditor.get_values_from_view:'\
+                    raise ValueError('AccessionsEditor.get_values_from_view: '\
                                      'bad value for source type')
         return values
     
     
+    # TODO: if there is a problem on commiting we should delete the source
+    # if a new one was created, this will help prevent random sources with
+    # accessions hanging around
     def commit_changes(self):
         if not TreeViewEditorDialog.commit_changes(self):
             return

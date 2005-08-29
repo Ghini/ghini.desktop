@@ -72,26 +72,16 @@ class GenusEditor(TreeViewEditorDialog):
 
 
     def get_family_completions(self, text):
+        #debug(entered get_family_completions)
         model = gtk.ListStore(str, object)
-        if len(text) > 2:
-            sr = tables["Family"].select("family LIKE '"+text+"%'")
-            for row in sr:
-                model.append([str(row), row])
+        #if len(text) > 2:
+        sr = tables["Family"].select("family LIKE '"+text+"%'")
+        for row in sr:
+            #debug(str(row))
+            model.append([str(row), row])
         return model
 
         
-#    def get_completions(self, text, colname):
-#        maxlen = -1
-#        model = None
-#        if colname == "family":
-#            model = gtk.ListStore(str, int)
-#            if len(text) > 2:
-#                sr = tables["Family"].select("family LIKE '"+text+"%'")
-#                for row in sr:
-#                    model.append([str(row), row.id])
-#        return model, maxlen # not setting maxlen but maybe we should
-        
-
 #
 # infobox
 #

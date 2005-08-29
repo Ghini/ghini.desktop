@@ -11,7 +11,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TableEditor
-#import donor
+from bauble.utils.log import debug
 
 # FIXME: there is a bug that if  you open the source editor window, close
 # it and then open it again then the widgets don't show on the donations
@@ -444,11 +444,12 @@ class SourceEditor(TableEditor):
     show_in_toolbar = False
     
     def __init__(self, select=None, defaults={}):
+        debug('SourceEditor.__init__')
+        super(SourceEditor, self).__init__(None, select, defaults)
         if select is not None and not isinstance(select, BaubleTable):
             raise ValueError("SourceEditor.__init__: select should be a "\
                              "single row in the table")
-        TableEditor.__init__(self, None, #tables.SourceEditor,
-                             select=select, defaults=defaults)
+                             
         self.committed = None
         self._dirty = False
         self.source_editor_map = (('Collection', CollectionEditor),
@@ -546,7 +547,9 @@ class SourceEditor(TableEditor):
         
         
     def on_type_combo_changed(self, combo, data=None):
+        debug('entered on_type_combo_changed')
         if self.curr_editor is not None:
+            debug('curr_editor is not None')
             self.source_box.remove(self.curr_editor.box)
             #self.curr_box.destroy()
         
@@ -558,7 +561,7 @@ class SourceEditor(TableEditor):
         editor = None
         for label, e in self.source_editor_map:
             if label == active:
-                print label
+                debug(label + " editor")
                 editor = e(self.glade_xml, self.select)
                 continue
                 
@@ -577,7 +580,8 @@ class SourceEditor(TableEditor):
         self.source_box.pack_start(editor.box)
         #editor.se(self.select)
         #self.curr_box = box
-        self.dialog.show_all()
+        editor.box.show_all()
+        #self.dialog.show_all()
     
         
     def on_response(self, dialog, response, data=None):
@@ -592,16 +596,24 @@ class SourceEditor(TableEditor):
             msg = 'Are you sure? You will lose your changes'
             if self._dirty and utils.yes_no_dialog(msg):
                 return
-        self.dialog.destroy()
+            
+        # remove the editor before destroying the dialog or if we try and show
+        # it again whatever was the current editor was destroyed when the dialog
+        # was destroyed won't work    
+        if self.curr_editor is not None:            
+            self.source_box.remove(self.curr_editor.box)
+            self.curr_editor = None
+            
+        self.dialog.destroy()    
+        
 
-    
     def start(self):
         """
-        this blocks
+        start the editor and block until finished, 
+        return the value edited
         """
         # TODO: if commit_on_response is False we could return
         # from here since it blocks anyways
-        TableEditor.start(self)
         #self.commit_on_response = commit_on_response        
         self.dialog.run() # blocks
         #print 'start: get_values'
