@@ -1,0 +1,195 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+	<head>
+    	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    	<title>Bauble : biodiversity collection manager</title>
+    	<link rel="stylesheet" type="text/css" href="./style.css" />
+	</head>
+	<body>
+		<div id="header">
+			<a href="./index.html">
+				<img id="logo" src="images/bauble_logo.png" alt="logo"/>
+			</a>
+		</div>
+		
+		<div id="content">
+			<h1>News</h1>
+			Read the <a href="./news.html">news</a> to see what's been 
+			happening lately.
+			
+			<h1>About Bauble</h1>
+			<p>Bauble is a biodiversity collection manager. It is intended 
+			to be used by botanic gardens, herbaria, arboreta, etc. to manage
+			their collection information. It is a 
+			<a href="http://opensource.org">open</a>, 
+			<a href="http://www.fsf.org">free</a>, 
+			cross-platform alternative to BG-Base and similiar software. It 
+			is written in <a href="http://python.org">Python</a> using the 
+			python <a href="http://www.pygtk.org">gtk</a> toolkit.</p>
+			
+			<p>It is currently in the early stages of development but you can <a href="#download">download</a> a working 
+			version.</p> 
+			
+			<div class="screenshot">
+			<a href="./images/bauble_ss1_large.png" style="float: right">
+				<img src="./images/bauble_ss1_small.png" 
+					 alt="bauble screenshot 1"/></a>
+			</div>
+			
+			<h1>Goals</h1>
+			
+			<ul>
+			<li>Intuitive - the interface for Bauble is designed to be simple 
+			and elegant but no less functional.</li>
+			<li>Extensible - developers and institutions should be able to 
+			extend the application to add views, tables, editors or just about 
+			anything.</li>
+			<li>Connected - ideally Bauble will easily access relevant 
+			information online, such as connecting to
+			<a href="http://www.gbif.org">GBIF</a> to look up information 
+			on a species.</li>
+			<li>more, more, more...</li>
+			</ul>
+			
+			<h1>Features</h1>
+			<ul>
+				<li>Bauble is free. Bauble is licensed under the 
+				<a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a> 
+				which means you can download, distribute and change the source 
+				code for Bauble as long as the changes you make are also 
+				licensed under the 
+				<a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a>.</li>
+				<li>Bauble is cross-platform. Bauble supports both Linux and 
+				Windows and could easily be ported to other platforms if 
+				there was interest. </li>
+				<li>Bauble supports a wide variety of database backends including
+				<a href="http://www.sqlite.org">SQLite</a> 
+				<a href="http://www.mysql.com">MySQL</a>, 
+				<a href="http://postgres.org">Postgres</a>, 
+				<a href="http://www.sybase.com">Sybase</a>, 
+				<a href="http://www.firebirdsql.org">Firebird/Interbase</a>, and 
+				<a href="http://www.mysql.com/products/maxdb/">SapDB/MaxDB</a>.
+				</li>
+				 
+				<li>Most actions in Bauble are based on searches. This allows you to quickly and easily access the information you are
+				 looking for.  For example, in the search bar you can enter Maxillaria and Bauble will display all of species of the genus 
+				 Maxillaria in your collection.</li>
+				  
+				  <li>When a plant is selected from the search results a side bar will automatically display links to relevant information
+				  about the selected species as provided by the   
+				  <a href="http://www.gbif.org">Global Biodiversity Information Facility</a>. The information may 
+				  include links to records from other institutions, images, distribution maps, identification keys, and more. (** coming 
+				  soon)</li>
+				  
+				  <li>
+				  Bauble makes it difficult to enter redundant information in the database. <!-->Eventually we would like
+				  to create user definable filters on types so that users are restricted to entering information in a particular format, e.g.
+				  accession number can be restricted to a format specific to the institution.-->
+				  </li>
+				  
+				
+				<li>Did we mention it's free!</li>
+			</ul>
+			
+			
+			<h1>The future</h1>
+			<p>Bauble will continute to become more reliable, secure and stable.  We also plan to implement the following features
+			sometime in the future.</p>
+			<ul>
+			<li>Allow Bauble import and export data in several formation including ABCD, ITF2, others including the ability to easily share
+			information with other online database that support protocols such as DiGIR, BioCASE, etc.</li>
+			<li>Because Bauble is being developed at <a href="http://www.belizebotanic.org">Belize Botanic Gardens</a> 
+			it's primary focus is towards botanical collections. With
+			help from others we would like to extend the scope of Bauble to handle other collection types that might be needed for herbaria,
+			zoos, arboreta, etc.</li>
+			<li>User rights - We plan on making it possible to define user and group permission on a Bauble database so that an 
+			administrator can
+			easily give different permission to individual users. e.g. Some people could change data while others could only view it.</li>
+			<li>Improve the tools - It would be nice to have a good collection of tools bundled with Bauble that can do a variety of things
+			such as create labels and reports, and ....</li>
+			<li>Other languages support - make it possible to translate Bauble into other languages with support for entering non-Latin
+			characters</li>
+			<li>more...</li>
+			</ul>
+			<!--><h1>Screenshots</h1>
+			<a href="./images/bauble_ss1_large.png" style="float: right""><img src="./images/bauble_ss1_small.png" alt="bauble screenshot 1"/></a>
+			<p>screenshots go here</p>-->
+			
+			<h1>Documentation</h1>
+			<ul>
+			<li><a href="./install_linux.html">Installing Bauble on Linux</a></li>
+			<li><a href="./install_windows.html" >Installing Bauble on Windows</a></li>
+			<li>Using Bauble (coming soon)</li>
+			</ul>
+		
+			<h1><a name="download">Download</a></h1>
+			<h3>Requirements</h3>
+			<ul>
+				<li><a href="http://www.python.org">Python 2.4</a></li>
+				<li><a href="http://www.gtk.org">GTK &gt;= 2.6</a></li>
+				<li><a href="http://pygtk.org/downloads.html">PyGTK &gt;= 2.4</a></li>
+				<li><a href="http://www.sqlobject.org">SQLObject &gt;= .7</a>
+				(not yet released, but you can check it out from their subversion repository)
+				</li>
+				<li>Bauble has only been tested with MySQL but in theory it should work on MySQL, Postgres and SQLite or any other 
+				database backend supported by SQLObject. The database backend requires a Python database connector.
+					<ul>
+					<li><a href="http://sourceforge.net/projects/mysql-python">MySQL</a></li>
+					<li><a href="http://initd.org/projects/psycopg1">Postgres</a></li>
+					<li><a href="http://initd.org/tracker/pysqlite">SQLite</a></li>
+					</ul>
+				</li>
+			</ul>
+
+			<h3>Binaries</h3>
+			<p>There are no binaries to download at the moment</p>
+			<h3>Source</h3>
+			<p>You can checkout the source from the <a href="http://subversion.tigris.org">subversion</a> repository at:</p> 
+			<!--><p>svn checkout svn://svn.berlios.de/bauble/trunk</p>-->
+			<p>
+			svn co svn+ssh://anonymous@forgesvn1.novell.com/svn/bauble/trunk<br/>
+			password: <em>anonymous</em> (you will be asked for the password twice)
+			</p>
+			
+			<p>or visit the project pages at <a href="http://forge.novell.com/modules/xfmod/project/?bauble">
+			http://forge.novell.com/modules/xfmod/project/?bauble</a> .</p>
+			<!--><a href="http://developer.berlios.de/projects/bauble">http://developer.berlios/projects/bauble</a>-->
+			
+			<h1>Frequently Asked Questions</h1>
+			<ol>
+			<li><strong>Why another collection manager application?</strong>
+			<br/>
+			At <a href="http://www.belizebotanic.org">Belize Botanic Gardens</a> we felt that the free collection management software 
+			was either too expensive, inadequate or only 
+			supported Windows so we decided to create our own.</li>
+			<li><strong>But why for free?</strong>
+			<br/>
+			We feel that current collection management software is overpriced especially for small institutions in developing countries.  
+			Biodiversity affects our entire world and everything that relies on it to live. To help protect such a fragile system the management 
+			of information related to biodiversity should not be restricted.  
+			</li>
+			<li><strong>Why are there so many prerequisites for installing this software?</strong>
+			<br/>
+			On Linux, the platform where the software is developed and primarily used, the prerequisites tend to come preinstalled. It's 
+			more of a hassle for Windows users (but not much).  We assume that anyone setting up a new collection database is 
+			relatively computer savvy and that installing the prerequisites won't be too much trouble. In the future we may bundle 
+			SQLObject and an SQLite driver and connector  with the software so it works out of the box.</li>
+			</ol>
+			
+			<h2>Contact</h2>
+			<p>For more information about Bauble contact me at &lt;brett at belizebotanic dot org&gt;.</p>
+		</div>
+		
+		<div style="padding: 10px; text-align: center">
+      			<a style="text-decoration: none; border: none" href="http://validator.w3.org/check?uri=referer">
+      				<img style="border: none" src="http://www.w3.org/Icons/valid-xhtml10" alt="Valid XHTML 1.0!" height="31" 
+      				width="88" />
+      			</a>
+ 			<a href="http://jigsaw.w3.org/css-validator/">
+  				<img style="border:0;width:88px;height:31px" src="http://jigsaw.w3.org/css-validator/images/vcss" alt="Valid CSS!" />
+ 			</a>
+    		</div>
+    		
+	</body>
+
+	</html>

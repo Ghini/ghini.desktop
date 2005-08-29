@@ -593,7 +593,8 @@ class SearchView(BaubleView):
             if other_class in self.view_meta:
                 editor_class = self.view_meta[other_class].editor # get editor 
                 if join.joinColumn[-3:] == "_id": 
-                    defaults[join.joinColumn[:-3]] = value        
+                    defaults[join.joinColumn.replace("_id", "ID")] = value
+                    #defaults[join.joinColumn[:-3] + "ID"] = value        
                 add_item = gtk.MenuItem("Add " + join.joinMethodName)                
                 add_item.connect("activate", self.on_activate_editor, 
                                   editor_class, None, defaults)
