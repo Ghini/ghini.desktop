@@ -17,18 +17,31 @@ class Accession(BaubleTable):
     values = {} # dictionary of values to restrict to columns
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
     
-    prov_type = StringCol(length=1, default=None) # provenance type
-    values["prov_type"] = [("W", "Wild"),
-                           ("Z", "Propagule of wild plant in cultivation"),
-                           ("G", "Not of wild source"),
-                           ("U", "Insufficient data")]
+    
+#    prov_type = StringCol(length=1, default=None) # provenance type
+#    values["prov_type"] = [("W", "Wild"),
+#                           ("Z", "Propagule of wild plant in cultivation"),
+#                           ("G", "Not of wild source"),
+#                           ("U", "Insufficient data")]
+    prov_type = EnumCol(enumValues=("W", # Wild,
+                                    "Z", # Propagule of wild plant in cultivation
+                                    "G", # Not of wild source
+                                    "U", # Insufficient data
+                                    None),
+                        default = None)
 
     # wild provenance status, wild native, wild non-native, cultivated native
-    wild_prov_status = StringCol(length=50, default=None)
-    values["wild_prov_status"] = [("Wild native", "Endemic found within it indigineous range"),
-                                  ("Wild non-native", "Propagule of wild plant in cultivation"),
-                                  ("Cultivated native", "Not of wild source"),
-                                  ("U", "Insufficient data")]
+#    wild_prov_status = StringCol(length=50, default=None)
+#    values["wild_prov_status"] = [("Wild native", "Endemic found within it indigineous range"),
+#                                  ("Wild non-native", "Propagule of wild plant in cultivation"),
+#                                  ("Cultivated native", "Not of wild source"),
+#                                  ("U", "Insufficient data")]
+    wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
+                                           "Wild non-native", # Propagule of wild plant in cultivation
+                                           "Cultivated native", # Not of wild source
+                                           "U", # Insufficient data
+                                           None),
+                               default=None)
                                  
     # propagation history ???
     #prop_history = StringCol(length=11, default=None)

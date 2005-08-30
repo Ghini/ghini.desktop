@@ -933,13 +933,12 @@ class TreeViewEditorDialog(TableEditorDialog):
     def create_view_columns(self):        
         columns = TreeViewEditorDialog.ColumnDict()
         for name, col in self.table.sqlmeta.columns.iteritems():
-            #debug("%s: %s", name, col)
+            #debug("create_view_column: %s -- %s", name, col)
             title = name.replace('_', '__')
-            if isinstance(col, EnumCol):
-                #debug('Enum/ComboCol')
+            if isinstance(col, SOEnumCol):
                 column = ComboColumn(self.view, title, so_col=col)
                 model = gtk.ListStore(str)
-                for v in meta.so_col.enumValues:
+                for v in column.meta.so_col.enumValues:
                     model.append([v])
                 column.model = model
             elif isinstance(col, SOBoolCol):

@@ -16,20 +16,36 @@ class Plant(BaubleTable):
     plant_id = IntCol(notNull=True) 
 
     # accession type
-    acc_type = StringCol(length=4, default=None)
-    values['acc_type'] = [('P', 'Whole plant'),
-                          ('S', 'Seed or Sport'),
-                          ('V', 'Vegetative Part'),
-                          ('T', 'Tissue culture'),
-                          ('O', 'Other')]
+#    acc_type = StringCol(length=4, default=None)
+#    values['acc_type'] = [('P', 'Whole plant'),
+#                          ('S', 'Seed or Sport'),
+#                          ('V', 'Vegetative Part'),
+#                          ('T', 'Tissue culture'),
+#                          ('O', 'Other')]
+    acc_type = EnumCol(enumValues=('P', # Whole plant
+                                   'S', # Seed or Sport
+                                   'V', # Vegetative Part
+                                   'T', # Tissue culture
+                                   'O', # Other
+                                   None),
+                       default=None)
+                          
                           
     # accession status
-    acc_status = StringCol(length=6, default=None)
-    values['acc_status'] = [('C', 'Current accession in living collection'),
-                            ('D', 'Noncurrent accession due to Death'),
-                            ('T', 'Noncurrent accession due to Transfer'),
-                            ('S', 'Stored in dormant state'),
-                            ('O', 'Other')]
+#    acc_status = StringCol(length=6, default=None)
+#    values['acc_status'] = [('C', 'Current accession in living collection'),
+#                            ('D', 'Noncurrent accession due to Death'),
+#                            ('T', 'Noncurrent accession due to Transfer'),
+#                            ('S', 'Stored in dormant state'),
+#                            ('O', 'Other')]
+    acc_status = EnumCol(enumValues=('C', # Current accession in living collection
+                                     'D', # Noncurrent accession due to Death
+                                     'T', # Noncurrent accession due to Transfer
+                                     'S', # Stored in dormant state
+                                     'O', # Other
+                                     None),
+                         default=None)
+    
 
     # foreign key and joins
     accession = ForeignKey('Accession', notNull=True, cascade=True)

@@ -13,19 +13,34 @@ class Donor(BaubleTable):
     
     values = {}
     # herbarium, garden, individual, etc...
-    donor_type = StringCol(length=1)
-    values["donor_type"] = [("E", "Expedition"),
-                            ("G", "Gene bank"),
-                            ("B", "Botanic Garden or Arboretum"),
-                            ("R", "Other research, field or experimental station"),
-                            ("S", "Staff of the botanic garden to which record system applies"),
-                            ("U", "University Department"),
-                            ("H", "Horticultural Association or Garden Club"),
-                            ("M", "Municipal department"),
-                            ("N", "Nursery or other commercial establishment"),
-                            ("I", "Individual"),
-                            ("O", "Other"),
-                            ("U", "Unknown")]
+#    donor_type = StringCol(length=1)
+#    values["donor_type"] = [("E", "Expedition"),
+#                            ("G", "Gene bank"),
+#                            ("B", "Botanic Garden or Arboretum"),
+#                            ("R", "Other research, field or experimental station"),
+#                            ("S", "Staff of the botanic garden to which record system applies"),
+#                            ("U", "University Department"),
+#                            ("H", "Horticultural Association or Garden Club"),
+#                            ("M", "Municipal department"),
+#                            ("N", "Nursery or other commercial establishment"),
+#                            ("I", "Individual"),
+#                            ("O", "Other"),
+#                            ("U", "Unknown")]
+    donor_type = EnumCol(enumValues=("E", # Expedition
+                                     "G", # Gene bank
+                                     "B", # Botanic Garden or Arboretum
+                                     "R", # Other research, field or experimental station
+                                     "S", # Staff of the botanic garden to which record system applies
+                                     "U", # University Department
+                                     "H", # Horticultural Association or Garden Club
+                                     "M", # Municipal department
+                                     "N", # Nursery or other commercial establishment
+                                     "I", # Individual
+                                     "O", # Other
+                                     "U", # Unknown
+                                     None),
+                          default=None)
+                         
                             
     name = StringCol(length=72)
     donations = MultipleJoin('Donations', joinColumn='donor_id')

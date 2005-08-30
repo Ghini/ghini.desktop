@@ -7,6 +7,10 @@ import gtk
 import bauble.utils as utils
 import bauble.paths as paths
 
+# TODO: i think it would be a hell of alot simpler and easier to
+# read if we just stuck with a
+# name = value format and remove all that ugly set_pref crap
+
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
         default_prefs_file = os.environ["APPDATA"] + os.sep + "Bauble" + os.sep + "user.py"
