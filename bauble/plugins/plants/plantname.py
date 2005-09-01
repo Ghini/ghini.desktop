@@ -283,7 +283,28 @@ class PlantnameEditor(TreeViewEditorDialog):
         # set completions
         self.columns["genusID"].meta.get_completions = self.get_genus_completions
         
+    
+    class dict_obj(object):
         
+        def __init__(self, d):
+            self.dic = d
+        def __getattr__(self, item):
+            return self.dic[item]
+    
+        
+    def commit_changes(self):
+        # TODO: plantnames are a complex typle where more than one field
+        # make the plant unique, write a custom commit_changes to get the value
+        # from the table as a dictionary, convert this dictionary to 
+        # an object that can be accessed by attributes so it mimic a 
+        # Plantname object, pass the dict to plantname2str and test
+        # that a plantname with the same name doesn't already exist in the 
+        # database, if it does exist then ask the use what they want to do
+        #super(PlantnameEditor, self).commit_changes()
+        values = self.get_values_from_view()
+        
+
+    # 
     def get_genus_completions(self, text):
         model = gtk.ListStore(str, object)
         sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
@@ -300,77 +321,10 @@ class PlantnameEditor(TreeViewEditorDialog):
         i don't like it the view.model.row is set here for foreign key columns
         and in self.on_renderer_edited for other column types                
         """        
-        #name = model.get_value(iter, 0)
-        #id = model.get_value(iter, 1)
         genus = model.get_value(iter, 1)
-                
-        #model = self.view.get_model()
-        #self.set_view_model_value(path, colname, [id, name])
         self.set_view_model_value(path, "genusID", genus)        
         
-        
-    def dist_cell_data_func(self, layout, cell, model, iter, data=None):
-        v = model.get_value(iter, 0)
-        if v is not None:
-            dist = v['distribution']
-            cell.set_property('text', str(dist))
-        #cell.set_property('text', str(v))
-        
-    
-    def on_dist_cell_key_press(self, widget, event, path, data=None):
-        log.debug('on_dist_cell_key_press')
-        keyname = gtk.gdk.keyval_name(event.keyval)
-        log.debug("print keyname")
-        path, col = self.view.get_cursor()
-        if keyname == "Down":
-            widget.popup()
-        elif keyname in ["Left","Right"]:
-            log.debug("move cursor " + keyname)
-            self.move_cursor_next(path, col, keyname)
-
-    
-    def on_dist_editing_started(self, cell, combo, path, data=None):
-        log.debug('on_dist_editing_started')
-        #print combo.popup()
-        #combo.connect("key-press-event", self.on_dist_cell_key_press, path)
-        #combo.connect("changed", self.on_dist_combo_changed)
-        
-    
-    combo_value = None
-    def on_dist_combo_changed(self, combo, data=None):
-        debug('dist_combo_changed')
-        i = combo.get_active_iter()
-        self.combo_value = combo.get_model().get_value(i, 1)
-        
-    def on_dist_renderer_edited(self, renderer, path, new_text, colname):
-        debug('on_dist_renderer_edited')
-        debug(new_text)
-        model = self.view.get_model()        
-        i = model.get_iter(path)        
-        v = model.get_value(i, 0)        
-        debug('v1: ' + str(v[colname]))
-        #debug(model_val)
-        #model_row = model_val[colname]
-        #debug(model_row)        
-        #model_row = self.combo_value
-        #debug(model_row)
-        #value = self.column_meta[colname].validate(new_text)
-        self.set_view_model_value(path, colname, new_text)
-        debug('v2: ' + str(v[colname]))
-        
-    def make_model2(self):
-        model = gtk.TreeStore(object)
-        model.append(None, ["Cultivated"])
-        for continent in tables['Continent'].select(orderBy='continent'):
-            p1 = model.append(None, [continent])
-            for region in continent.regions:
-                p2 = model.append(p1, [region])
-                for country in region.botanical_countries:
-                    p3 = model.append(p2, [country])
-                    for unit in country.units:
-                        if str(unit) != str(country):
-                            model.append(p3, [unit])    
-                            
+                                    
     def make_model(self):
         model = gtk.TreeStore(str)
         model.append(None, ["Cultivated"])
@@ -385,61 +339,7 @@ class PlantnameEditor(TreeViewEditorDialog):
                             model.append(p3, [str(unit)])    
         return model
                             
-    def create_dist_column(self):
-        name = "distribution"
-        renderer = gtk.CellRendererCombo()
-        
-        renderer.connect("editing_started", self.on_editing_started, name)
-        model = gtk.ListStore(str)
-        for d in "1234": 
-            model.append([d])
-        renderer.set_property("model",model)
-        renderer.set_property('text-column', 0)
-        renderer.set_property('editable', True)
-        renderer.set_property('has_entry', False)
-        renderer.connect("edited", self.on_dist_renderer_edited, name)
-        #renderer.connect("editing_started", self.on_dist_editing_started, name)        
-        #model = gtk.ListStore(str, object)
-        model = self.make_model()            
-        renderer.set_property("model", model)
-        column = gtk.TreeViewColumn(self.column_meta['distribution'].header, renderer)
-        column.set_cell_data_func(renderer, self.combo_cell_data_func, name)
-        column.name = name
-        return column
-        
-        
-    def create_dist_column2(self):
-        # create the renderer
-        name = "distribution"
-        renderer = gtk.CellRendererCombo()
-        renderer.set_property('has_entry', True)
-        renderer.set_property("editable", True)
-        model = gtk.TreeStore(str)
-        for d in "1234": 
-            model.append(None, [d])
-        renderer.set_property("model", model)
-        
-        renderer.connect("editing_started", self.on_editing_started, name)
-        renderer.connect("edited", self.on_renderer_edited, name)
-        
-        # create the column
-        column = gtk.TreeViewColumn(self.column_meta['distribution'].header, renderer)
-        column.name = name # .name is my own data, not part of gtk
-        column.set_min_width(50)
-        column.set_clickable(True)
-        column.set_resizable(True)
-        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        column.set_reorderable(True)            
-        column.set_cell_data_func(renderer, self.dist_cell_data_func, name)
-                
-        # TODO: we could probably do this in editor.py, have a method that adds
-        # standard properties to column whether they are used created or not
-        # notify when the column width property is changed        
-        column.connect("notify::width", self.on_column_property_notify, name)
-        column.connect("notify::visible", self.on_column_property_notify, name)        
-        return column
-        
-        
+      
     def foreign_does_not_exist(self, name, value):
         self.add_genus(value)    
 
@@ -449,17 +349,6 @@ class PlantnameEditor(TreeViewEditorDialog):
         if utils.yes_no_dialog(msg):
             print "add genus"
 
-    
-        
-    def get_completions(self, text, colname):
-        maxlen = -1
-        model = None
-        if colname == "genus":
-            model = gtk.ListStore(str, int)
-            if len(text) > 2:
-                sr = tables["Genus"].select("genus LIKE '"+text+"%'")
-                for row in sr: model.append([str(row), row.id])
-        return model, maxlen
         
         
 #

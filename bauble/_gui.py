@@ -10,7 +10,7 @@ import sqlobject
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import plugins, tools, views, editors
-from bauble.prefs import prefs
+from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 
 #
@@ -334,7 +334,7 @@ class GUI:
         """
         open the connection manager
         """
-        from bauble import bauble
+        # TODO: this doesn't properly switch the connection
         from conn_mgr import ConnectionManagerDialog
         cm = ConnectionManagerDialog()
         r = cm.run()

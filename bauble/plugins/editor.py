@@ -667,7 +667,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.vbox.pack_start(vbox)
         
         self.set_default_size(-1, 300) # an arbitrary size
-        
+                
         # set ok button insensitive
         ok_button = self.action_area.get_children()[1]
         ok_button.set_sensitive(False)        
@@ -718,6 +718,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.view.connect("columns-changed", self.on_column_changed)
         self.view.connect("move-cursor", self.on_view_move_cursor)
         self.view.connect("cursor-changed", self.on_cursor_changed)
+        self.view.connect("button-release-event", self.on_view_button_release)
         
     
     def create_toolbar(self):
@@ -766,7 +767,31 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.dirty = dirty
         self.set_ok_sensitive(dirty)
                     
-    
+    # attache to mouse clicks
+    def on_view_button_release(self, view, event, data=None):
+        """
+        popup a context menu on the selected row
+        """
+        if event.button != 3: 
+            return # if not right click then leave
+        sel = view.get_selection()
+        model, i = sel.get_selected()
+        if model == None:
+            return # nothing to pop up a context menu on
+        value = model.get_value(i, 0) 
+        
+        # can't remove the last row
+        if len(model) == 1:
+            return
+            
+        menu = gtk.Menu()
+        remove_item = gtk.MenuItem("Remove") # remove the row from the editor
+        remove_item.connect("activate", lambda x: model.remove(i))
+        menu.add(remove_item)        
+        menu.show_all()
+        menu.popup(None, None, None, event.button, event.time)
+            
+        
     def on_column_menu_toggle(self, item, colname=None):
         debug('on_column_menu_toggle: %s' % colname)
         visible = item.get_active()
@@ -861,6 +886,21 @@ class TreeViewEditorDialog(TableEditorDialog):
         return values      
         
         
+    # TODO: this should replace the commit logic in self.commit_changes to 
+    # allow an editor that extends this class for fine grained control over
+    # commits without having to rewrite all of commit_changes
+    # right now it's not ready
+    def commit(self, values):        
+        try:
+            if 'id' in v:# updating row
+                t = self.table.get(values["id"])
+                del values["id"]
+                t.set(**values)
+            else: # adding row
+                t = self.table(**values)
+        except:
+            raise
+            
     def commit_changes(self):
         """
         commit any change made in the table editor

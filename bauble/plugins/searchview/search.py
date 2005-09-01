@@ -564,7 +564,8 @@ class SearchView(BaubleView):
         """
         popup a context menu on the selected row
         """
-        if event.button != 3: return # if not right click then leave
+        if event.button != 3: 
+            return # if not right click then leave
         sel = view.get_selection()
         model, i = sel.get_selected()
         if model == None:

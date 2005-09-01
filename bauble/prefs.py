@@ -6,6 +6,7 @@ import sys, os
 import gtk
 import bauble.utils as utils
 import bauble.paths as paths
+from bauble.utils.log import debug
 
 # TODO: i think it would be a hell of alot simpler and easier to
 # read if we just stuck with a
@@ -24,11 +25,9 @@ elif sys.platform == "linux2":
 else:
     raise Exception("Could not path to store preferences: unsupported platform")
 
-#prefs_icon_dir = utils.get_main_dir() + os.sep + "images" + os.sep
-prefs_icon_dir = paths.main_dir() + os.sep + "images" + os.sep
+prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
 security_prefs_icon = prefs_icon_dir + "prefs_security.png"
-
 
 
 class PreferencesMgr(gtk.Dialog):
@@ -103,12 +102,56 @@ class PreferencesMgr(gtk.Dialog):
         frame.add(box)
         return frame        
 
-    
+
+#from ConfigParser import ConfigParser
+#
+#class _prefs(dict):
+#    
+#    # preference keys
+#    conn_default_pref = "conn.default"
+#    conn_list_pref = "conn.list"
+#    
+#    def __init__(self, filename):
+#        config = ConfigParser()
+#        config.read(filename)
+#
+#    @staticmethod
+#    def _parse_key(name):
+#        index = name.rfind(".")
+#        return name[:index], name[index+1:]
+#
+#
+#    def __getitem__(self, item):
+#        section, option = _prefs._parse_key(item)
+#        return config.get(section, option)
+#
+#        
+#    def __setitem__(self, item, value):
+#        section, option = _prefs._parse_key(item)
+#        config.set(section, option, value)
+#
+#        
+#    def __contains__(self, item):
+#        section, option = _prefs._parse_key(item)
+#        return False
+#
+#
+#    def __del__(self, item):
+#        """
+#        """
+#        section, option = _prefs._parse_key(item)
+#        #if has section: remove option
+#        # if n_option in section == -
+#        #     remove section
+#        
+#        pass
+
+
 # TODO: should just make this a static class named prefs though i don't know
 # though i don't know how well this would work access the dict superclass of
 # the class, have a dict in the module and module level functions to manipulate
 # it like we do in plugins
-class _Preferences(dict):
+class _prefs(dict):
     """
     handles the loading, storing, getting and settings of preferences
     uses the Borg design patter so that all instances share the same data
@@ -120,28 +163,33 @@ class _Preferences(dict):
     conn_default_pref = "conn.default"
     conn_list_pref = "conn.list"
 
-    _shared = {}
     _loaded = False
-    _filename = default_prefs_file
+    _filename = default_prefs_file    
+    
     def __init__(self):
-        #self = self._shared
-        self.update(self._shared)
         if not os.path.exists(self._filename):
             path, file = os.path.split(self._filename)
             if not os.path.exists(path):
                 os.mkdir(path)
             f = open(self._filename, "w") # touch
             f.close() 
-        #self.load()
         
 
     def load(self, filename=_filename):
+        debug("entered prefs.load")
+        self._loaded=True
         # TODO: if this is loaded after  the user has set some preferences
         # then those preferences could be overwritten, need to set some
         # sort of flag to not overwrite preferences
         # it's a bit early to set this but set_pref won't work otherwise
-        self._loaded=True 
-        execfile(filename)        
+        try:
+            execfile(filename)        
+        except: 
+            msg = "Could not load preferences file: " + filename
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            raise
+        else:
+            self._loaded=True
 
 
     def save(self, filename=_filename):
@@ -154,15 +202,16 @@ class _Preferences(dict):
             if type(value) == str: 
                 value = '"%s"' % value
             p = template % (key, value)
-            #print p
             f.write(p)
     
 
     def __getitem__(self, key):
         if not self._loaded:
             raise Exception("Preference not loaded")
-        if not self.has_key(key): return None
+        if not self.has_key(key): 
+            return None
         return dict.__getitem__(self, key)
+        
         
     def __setitem__(self, key, value):
         if not self._loaded:
@@ -171,15 +220,11 @@ class _Preferences(dict):
             dict.__setitem__(self, key, value)
             
 
-#Preferences = _Preferences()
-prefs = _Preferences()
+prefs = _prefs()
 
 # should only be used by the preferences file
 def set_pref(key, value):
     prefs[key] = value
 
-if not prefs._loaded:
-    prefs.load()
-#if not Preferences._loaded:
-#    Preferences.load()
+prefs.load()
 
