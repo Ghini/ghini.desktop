@@ -175,7 +175,7 @@ class Plantname(BaubleTable):
     #Entered = DateTimeCol()
     #Updated = DateTimeCol()
     #Changed = DateTimeCol()
-
+    
     def __str__(self):
         return utils.plantname2str(self)
 

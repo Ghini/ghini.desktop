@@ -900,7 +900,12 @@ class TreeViewEditorDialog(TableEditorDialog):
                 t = self.table(**values)
         except:
             raise
-            
+
+    # pre commit hook
+    def test_values_before_commit(self, values):
+        return True
+        
+        
     def commit_changes(self):
         """
         commit any change made in the table editor
@@ -919,16 +924,20 @@ class TreeViewEditorDialog(TableEditorDialog):
         trans = old_conn.transaction()
         sqlhub.threadConnection = trans
         for v in values:
-            #debug(v)
-            foreigners = {}
+            # make sure it's ok to commit these values            
+            if not self.test_values_before_commit(v):
+                debug("not committing: %s" % str(v))
+                
+                continue                
             # first pop out columns in table_meta.foreign_keys so we can
-            # set their foreign key id later
+            # set their foreign key id later                
+            foreigners = {}
             for col, col_attr in self.table_meta.foreign_keys:
                 # use has_key to check the dict and not the table, 
                 # see ModelRowDict.__contains__
                 if v.has_key(col): 
                     foreigners[col] = v.pop(col)
-            try:
+            try:                
                 if 'id' in v:# updating row
                     t = self.table.get(v["id"])
                     del v["id"]

@@ -24,12 +24,10 @@ import bauble.utils as utils
 #debug.enable = True
 
 if sys.platform == "win32":
-    #sys.path.append(paths.main_dir() + os.sep + "lib" + os.sep + "win32")
     sys.path.append(paths.lib_dir() + os.sep + "lib" + os.sep + "win32")
-    os.environ["PATH"] += paths.main_dir() + os.pathsep +  "lib" + os.sep + "win32"
-#sys.path.append(paths.main_dir() + os.sep + "lib")
+    os.environ["PATH"] += paths.main_dir() + os.pathsep +  "lib" + os.sep + \
+                          "win32"
 sys.path.append(paths.lib_dir() + os.sep + "lib")
-#os.environ["PATH"] += paths.main_dir() + os.pathsep + "lib"
 os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
 
 # i guess we would need to use the builtin tk library to show an
@@ -47,7 +45,8 @@ gtk.threads_enter()
 try:
     from sqlobject import *
 except ImportError:
-    msg = "SQLObject not installed. Please install SQLObject from http://www.sqlobject.org"
+    msg = "SQLObject not installed. Please install SQLObject from "\
+          "http://www.sqlobject.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
 
