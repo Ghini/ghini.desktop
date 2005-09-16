@@ -18,16 +18,6 @@ class Plantname(BaubleTable):
     def __init__(self, **kw):
         super(Plantname, self).__init__(**kw)
         
-#        self.values = {"sp_hybrid": [("H", "Hybrid formula"),
-#                                     ("x", "Nothotaxon hybrid"),
-#                                     ("+", "Graft hybrid/chimaera")],
-#                       "sp_qual": [("agg.", "Aggregate"),
-#                                   ("s. lat.", "sensu lato"),
-#                                   ("s. str.", "sensu stricto")],     
-#                      }
-        
-    #sp_hybrid = StringCol(length=1, default=None)  # species hybrid, x, H,...
-    # species hybrid, x, H,...
     sp_hybrid = EnumCol(enumValues=("H", 
                                     "x", 
                                     "+",
@@ -40,85 +30,53 @@ class Plantname(BaubleTable):
                                   "s. str.",
                                   None), 
                       default=None)
-    #sp_qual = StringCol(length=10, default=None)  # species qualifier, agg., s. lat, s.str
-    #values["sp_qual"] = [("agg.", "Aggregate"),
-    #                     ("s. lat.", "sensu lato"),
-    #                     ("s. str.", "sensu stricto")]
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
-    #sp_author = StringCol(length=255, default=None)  # species author
-    #sp_author = UnicodeCol(dbEncoding='latin-1', default=None)  # species author
     sp_author = UnicodeCol(default=None)  # species author
         
     cv_group = StringCol(length=50, default=None)    # cultivar group
     cv = StringCol(length=30, default=None)          # cultivar epithet
     trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
 
-    # full name shouldn't be necessary
+    # full name shouldn't be necessary, we can create the name from 
+    # the other entries
     #full_name = StringCol(length=50, default=None)
     
-    supfam = StringCol(length=30, default=None)  
-        
+    supfam = StringCol(length=30, default=None)          
     subgen = StringCol(length=50, default=None)
-    #subgen_rank = StringCol(length=12, default=None)
     subgen_rank = EnumCol(enumValues=("subgenus", 
                                       "section", 
                                       "subsection",
                                       "series", 
                                       "subseries",
                                       None),
-                          default=None)
-#    values["subgen_rank"] = [("subgenus", "Subgenus"),
-#                             ("section", "Section"),
-#                             ("subsection", "Subsection"),
-#                             ("series", "Series"),
-#                             ("subseries", "Subseries")]
-                             
+                          default=None)                             
 
     isp = StringCol(length=30, default=None)         # intraspecific epithet
-    #isp_author = StringCol(length=254, default=None) # intraspecific author
-    isp_author = UnicodeCol(length=255, dbEncoding="latin-1", default=None) # intraspecific author
-    #isp_rank = StringCol(length=10, default=None)    # intraspecific rank
-    isp_rank = EnumCol(enumValues=("subsp.", 
-                                   "var.", 
-                                   "subvar.", 
-                                   "f.", 
-                                   "subf.",
+    isp_author = UnicodeCol(length=255, default=None) # intraspecific author
+    # intraspecific rank
+    isp_rank = EnumCol(enumValues=("subsp.", # subspecies
+                                   "var.",   # variety
+                                   "subvar.", # sub variety
+                                   "f.",     # form
+                                   "subf.",  # subform
                                    None), 
                        default=None)
-#    values["isp_rank"] = [("subsp.", "Subspecies"),
-#                          ("var.", "Variety"),
-#                          ("subvar.", "Subvariety"),
-#                          ("f.", "Forma"),
-#                          ("subf.", "Subform")]
 
-    isp2 = StringCol(length=30, default=None)
-    isp2_author = UnicodeCol(length=254, default=None)
-    isp2_rank = StringCol(length=10, default=None)
-#    values["isp2_rank"] = [("subsp.", "Subspecies"),
-#                           ("var.", "Variety"),
-#                           ("subvar.", "Subvariety"),
-#                           ("f.", "Forma"),
-#                           ("subf.", "Subform")]
-
-
-    isp3 = StringCol(length=30, default=None)
-    isp3_author = UnicodeCol(length=254, default=None)
-    isp3_rank = StringCol(length=10, default=None)
-#    values["isp3_rank"] = [( "subsp.", "Subspecies"),
-#                           ("var.", "Variety"),
-#                           ("subvar.", "Subvariety"),
-#                           ("f.", "Forma"),
-#                           ("subf.", "Subform")]
-
-    isp4 = StringCol(length=30, default=None)
-    isp4_author = UnicodeCol(length=254, default=None)
-    isp4_rank = StringCol(length=10, default=None)
-#    values["isp4_rank"] = [( "subsp.", "Subspecies"),
-#                           ("var.", "Variety"),
-#                           ("subvar.", "Subvariety"),
-#                           ("f.", "Forma"),
-#                           ("subf.", "Subform")]
+#    isp2 = StringCol(length=30, default=None)
+#    isp2_author = UnicodeCol(length=254, default=None)
+#    isp2_rank = StringCol(length=10, default=None)
+#
+#
+#    isp3 = StringCol(length=30, default=None)
+#    isp3_author = UnicodeCol(length=254, default=None)
+#    isp3_rank = StringCol(length=10, default=None)
+#
+#
+#    isp4 = StringCol(length=30, default=None)
+#    isp4_author = UnicodeCol(length=254, default=None)
+#    isp4_rank = StringCol(length=10, default=None)
+    
 
     # TODO: maybe the IUCN information should be looked up online
     # rather than being entered in the database or maybe there could
@@ -147,15 +105,17 @@ class Plantname(BaubleTable):
 #                        ("DD", "Data deficient"),
 #                        ("NE", "Not evaluated")]
     
-    #rank_qual = StringCol(length=1, default=None) # rank qualifier, a single character
+    #rank_qual = StringCol(length=1, default=None) # rank qualifier, a single
+    # character
     
-    id_qual = StringCol(length=10, default=None)#id qualifier, aff., cf., etc...
-#    values["id_qual"] = [("aff.", "Akin to or bordering"),
-#                         ("cf.", "compare with"),
-#                         ("Incorrect", "Incorrect"),
-#                         ("forsan", "Perhaps"),
-#                         ("near", "Close to"),
-#                         ("?", "Quesionable")]
+    id_qual = EnumCol(enumValues=("aff.", # Akin to or bordering
+                                  "cf.", # compare with
+                                  "Incorrect", # Incorrect
+                                  "forsan", # Perhaps
+                                  "near", # Close to
+                                  "?", # Quesionable
+                                  None),
+                      default=None)
     
     # TODO: should be unicode
     vernac_name = StringCol(default=None)          # vernacular name
@@ -181,8 +141,8 @@ class Plantname(BaubleTable):
     # the accessions, do we need the distribution table if we're only
     # going to be holding one of the value from continent/region/etc, the only
     # exception is that we also need to hold a cultivated value and possible
-    # something like "tropical", we can probably still use the distribution table
-    # as long as setting to and from the distribution is handled silently
+    # something like "tropical", we can probably still use the distribution
+    # table as long as setting to and from the distribution is handled silently
     #distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
     #                           makeDefault=None)
     # right now we'll just include the string from one of the tdwg 
@@ -252,15 +212,15 @@ class PlantnameEditor(TreeViewEditorDialog):
                    'isp': 'Intraspecific\nepithet',
                    'isp_rank': 'Isp. rank',
                    'isp_author': 'Isp. author',
-                   'isp2': 'Isp. 2',
-                   'isp2_rank': 'Isp. 2 rank',
-                   'isp2_author': 'Isp. 2 author',
-                   'isp3': 'Isp. 3',
-                   'isp3_rank': 'Isp. 3 rank',
-                   'isp3_author': 'Isp. 3 author',
-                   'isp4': 'Isp. 4',
-                   'isp4_rank': 'Isp. 4 rank',
-                   'isp4_author': 'Isp. 4 author',
+#                    'isp2': 'Isp. 2',
+#                    'isp2_rank': 'Isp. 2 rank',
+#                    'isp2_author': 'Isp. 2 author',
+#                    'isp3': 'Isp. 3',
+#                    'isp3_rank': 'Isp. 3 rank',
+#                    'isp3_author': 'Isp. 3 author',
+#                    'isp4': 'Isp. 4',
+#                    'isp4_rank': 'Isp. 4 rank',
+#                    'isp4_author': 'Isp. 4 author',
 #                   'iucn23': 'IUCN 2.3\nCategory',
 #                   'iucn31': 'IUCN 3.1\nCategory',
                    'id_qual': 'ID qualifier',
@@ -281,7 +241,7 @@ class PlantnameEditor(TreeViewEditorDialog):
         self.columns.titles = titles
                      
         # set completions
-        self.columns["genusID"].meta.get_completions = self.get_genus_completions
+        self.columns["genusID"].meta.get_completions= self.get_genus_completions
         
     
     class dict_obj(object):
@@ -292,7 +252,7 @@ class PlantnameEditor(TreeViewEditorDialog):
             return self.dic[item]
     
         
-    def commit_changes(self):
+    def commit_changes_NO(self):
         # TODO: plantnames are a complex typle where more than one field
         # make the plant unique, write a custom commit_changes to get the value
         # from the table as a dictionary, convert this dictionary to 
@@ -302,7 +262,54 @@ class PlantnameEditor(TreeViewEditorDialog):
         # database, if it does exist then ask the use what they want to do
         #super(PlantnameEditor, self).commit_changes()
         values = self.get_values_from_view()
+    
+    # from http://vsbabu.org/mt/archives/2003/02/13/joy_of_python_classes_and_dictionaries.html
+    def dict2class(d):
+        """Return a class that has same attributes/values and
+           dictionaries key/value
+        """
         
+        #see if it is indeed a dictionary
+        if type(d) != types.DictType:
+            return None
+        
+        #define a dummy class
+        class Dummy:
+            pass
+            
+        c = Dummy
+        for elem in d.keys():
+            c.__dict__[elem] = d[elem]
+        return c
+        
+    def test_values_before_commit(self, values):    
+        #s = utils.plantname2str(dict2class(values)): 
+        #if s == 
+        # need to test each of the values that make up the plantname
+        # against the database, not just the string, i guess we need to
+        # check each of the keys in values, check if they are name components
+        # use each of these values in a query to plantnames
+        debug('entered PlantnameEditor.test_values_before_commit()')
+        exists = False
+        select_values = {}
+        select_values['genusID'] = values['genusID']
+        select_values['sp'] = values['sp']        
+        debug(select_values)
+        sel = Plantname.selectBy(**select_values)
+        names = ""
+        for s in sel:
+            exists = True
+            names += "%d: %s\n" % (s.id, s)
+            #debug(str(s))
+        debug(names)
+        msg  = "The following plant names are similiar to the plant name you "\
+               "are trying to create. Are your sure this is what you want to "\
+               "do?\n\n" + names
+        debug(msg)
+        if exists and not utils.yes_no_dialog(msg):
+            return False
+        return True
+            
 
     # 
     def get_genus_completions(self, text):
