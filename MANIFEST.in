@@ -1,6 +1,6 @@
-include src/lib/win32/*.*
-include src/lib/fpconst.py
-include src/*.ui
-recursive-include src *.py
+include bauble/lib/win32/*.*
+include bauble/lib/fpconst.py
+include bauble/*.ui
+recursive-include bauble *.py
 recursive-include debian *.*
-recursive-include src/images *.*
+recursive-include bauble/images *.*

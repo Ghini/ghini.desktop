@@ -21,14 +21,12 @@ plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
             'labels','plants','searchview']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 
-lib     = ['sqlobject']#, 'pysqlite2']
+lib = ['sqlobject']#, 'pysqlite2']
 
 sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres', 
                   'sqlite', 'sybase', 'maxdb', 'util', 'manager']
 subpackages = ['plugins', 'utils']
 # packaged to be included in the py2exe library.zip
-#py2exe_includes = gtk_pkgs + editors_pkgs + tables_pkgs + views_pkgs + \
-#                  tools_pkgs + lib + ["encodings"]#, "lib"]
 py2exe_includes = gtk_pkgs + plugins_pkgs + lib + ["encodings"]#, "lib"]
 
 opts = {
@@ -60,7 +58,7 @@ for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
               glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
              for p in plugins_pkgs]
 data = [p for p in globs if len(p[1]) != 0]
-print data
+#print data
 #sys.exit(1)
 
 setup(name="bauble",
@@ -78,15 +76,7 @@ setup(name="bauble",
       package_data={'': ["*.ui"],
                     'bauble.plugins.geography': ['default/*.txt']},
                                                   
-      data_files=[('bauble', ('bauble/bauble.ui',))] + data
-#                  ('bauble/plugins/geography', (glob.glob('bauble/plugins/geography/defaults/*.txt'))),
-#                  ]
-#                               ]
-#      data_files=[('', ('bauble\\bauble.ui',)),
-#                  ('images',
-#                   glob.glob('src'+os.sep+'images'+os.sep+'*.png')),
-#                  ('lib',
-#                   glob.glob('src'+os.sep+'lib'+os.sep+'sqlite*.*')),
-#                  ('pysqlite2',
-#                   glob.glob('src'+os.sep+'lib'+os.sep+'pysqlite2'+os.sep+'*.*'))]
-    )            
+      data_files=[('bauble', ('bauble/bauble.ui',)),
+                  ('bauble/images', glob.glob('bauble/images/*.png'))] + 
+                  data
+     )            
