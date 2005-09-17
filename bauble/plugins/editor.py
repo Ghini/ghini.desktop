@@ -910,7 +910,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         commit any change made in the table editor
         """        
-        debug("entered commit_changes")
+#        debug("entered commit_changes")
         # TODO: do a map through the values returned from get_tables_values
         # and check if any of them are lists in the (table, values) format
         # if they are then we need pop the list from the values and commit
@@ -925,9 +925,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         sqlhub.threadConnection = trans
         for v in values:
             # make sure it's ok to commit these values            
-            if not self.test_values_before_commit(v):
-                debug("not committing: %s" % str(v))
-                
+            if not self.test_values_before_commit(v):                
                 continue                
             # first pop out columns in table_meta.foreign_keys so we can
             # set their foreign key id later                

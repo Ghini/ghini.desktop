@@ -122,6 +122,7 @@ class CSVImporter:
     
     
     def import_file(self, filename, table, connection):
+#        debug("entered CSVImporter.import_file(%s)" % filename)
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
                 

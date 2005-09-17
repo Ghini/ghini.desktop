@@ -13,7 +13,11 @@ class Plant(BaubleTable):
     # add to end of accession id, e.g. 04-0002.05
     # these are only unique when combined with an accession_id
     values = {}
-    plant_id = IntCol(notNull=True) 
+    #plant_id = IntCol(notNull=True) 
+    # makes sense that it should be an int but we won't restrict it that way,
+    # if the editor wants to ensure that it is int then it should attach
+    # a formencode.Validator on it
+    plant_id = StringCol(notNull=True)
 
     # accession type
 #    acc_type = StringCol(length=4, default=None)

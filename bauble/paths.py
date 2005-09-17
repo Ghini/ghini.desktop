@@ -15,4 +15,8 @@ def main_dir():
 
 
 def lib_dir():
-    return os.path.dirname(__file__)
+    if utils.main_is_frozen():
+       dir = main_dir() + os.sep + 'bauble'
+    else:
+        dir = os.path.dirname(__file__)
+    return dir

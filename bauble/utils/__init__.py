@@ -52,12 +52,14 @@ def yes_no_dialog(msg):
     d.destroy()
     return r == gtk.RESPONSE_YES
 
+
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=type, buttons=buttons, message_format=msg)        
     expand = gtk.Expander("Details")
     text_view = gtk.TextView()
+    text_view.set_editable(False)
     tb = gtk.TextBuffer()
     tb.set_text(details)
     text_view.set_buffer(tb)

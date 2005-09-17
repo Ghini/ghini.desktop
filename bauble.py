@@ -15,7 +15,6 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 
-
 import os, sys
 import bauble.paths as paths
 import bauble.utils as utils
@@ -41,14 +40,6 @@ import gtk
 
 gtk.threads_init() # initialize threading
 gtk.threads_enter()
-
-try:
-    from sqlobject import *
-except ImportError:
-    msg = "SQLObject not installed. Please install SQLObject from "\
-          "http://www.sqlobject.org"
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-
 
 if __name__ == "__main__":    
     from bauble import app

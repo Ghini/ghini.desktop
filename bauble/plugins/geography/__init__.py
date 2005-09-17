@@ -3,10 +3,13 @@
 #
 
 import os
+import bauble.paths as paths
 from bauble.plugins import plugins, BaublePlugin
 from country import Country
 from distribution import Continent, Region, Area, State, Place, KewRegion, \
     Distribution, DistributionEditor, BotanicalCountry, BasicUnit
+from bauble.utils.log import log, debug
+
 
 class GeographyPlugin(BaublePlugin):
     
@@ -55,13 +58,11 @@ class GeographyPlugin(BaublePlugin):
     def create_tables(cls):
         super(GeographyPlugin, cls).create_tables()
         from bauble.plugins.imex_csv import CSVImporter
-        csv = CSVImporter()    
-        path = os.path.dirname(__file__) + os.sep + 'default'
-#        files = ['Country.txt', 'Continent.txt', 'Region.txt', 'Area.txt',
-#                  'State.txt', 'Place.txt', 'KewRegion.txt']
+        csv = CSVImporter()        
+        #path = os.path.dirname(__file__) + os.sep + 'default'
+        path = os.path.join(paths.lib_dir(), "plugins", "geography", "default")
         files = ['Country.txt', 'Continent.txt', 'Region.txt', 
                  'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']
-
 
         csv.start([path+os.sep+f for f in files])
 

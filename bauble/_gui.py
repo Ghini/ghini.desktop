@@ -12,6 +12,7 @@ import bauble.paths as paths
 from bauble.plugins import plugins, tools, views, editors
 from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
+from bauble.utils.log import log, debug
 
 #
 # GUI
@@ -28,11 +29,16 @@ class GUI:
         v = prefs[self.current_view_pref]
         if v is None: # default view is the search view            
             v = str(views["SearchView"])
-
+    
+        view_set = False
         for name, view in views.iteritems():
             if v == str(view):
                 self.set_current_view(view)
+                view_set = True
                 # TODO: if this view can't be shown then default to SearchView
+                
+        if not view_set:
+            self.set_current_view(views["SearchView"])
             
             
     def create_gui(self):            
@@ -248,7 +254,12 @@ class GUI:
         # load ui
         #ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
         #ui_filename = utils.get_main_dir() + os.sep + "bauble.ui"
+        #if utils.main_is_frozen():
+        #    ui_filename = paths.main_dir() + os.sep + "bauble.ui"
+        #else: ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
+        debug(paths.main_dir())
+        #ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_manager.add_ui_from_file(ui_filename)
 
         # get menu bar from ui manager

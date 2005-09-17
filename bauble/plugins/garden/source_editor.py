@@ -464,7 +464,8 @@ class SourceEditor(TableEditor):
         # plugins may not be the same
         #path = utils.get_main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
         #path = paths.main_dir() + os.sep + 'editors' + os.sep + 'source' + os.sep
-        path = os.path.dirname(__file__)
+        #path = os.path.dirname(__file__)
+        path = os.path.join(paths.lib_dir(), "plugins", "garden")
         self.glade_xml = gtk.glade.XML(path + os.sep + 'source_editor.glade')
         self.dialog = self.glade_xml.get_widget('source_dialog')
         self.source_box = self.glade_xml.get_widget('source_box')

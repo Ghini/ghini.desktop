@@ -41,13 +41,11 @@
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
 
-import os, sys, traceback
+import os, sys, traceback, re
 import gtk
 from sqlobject import SQLObject, sqlmeta
 import bauble.utils as utils
-#from logging import info
-from bauble.utils.log import log
-
+from bauble.utils.log import log, debug
 
 plugins = {}
 views = {}
@@ -101,16 +99,28 @@ def _register(plugin_class):
 def _find_plugins():
     modules = []
     path, name = os.path.split(__file__)
+    debug(path)
     if path.find("library.zip") != -1: # using py2exe
-        pkg = "views"
+        debug("library.zip")
+        pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-        x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
+        #debug(zipfiles)
+        for f in zipfiles.keys():
+            pass
+            #debug(f)
+        #return ()
+        #x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
+        x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
+        debug(x)
         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
-        rx = re.compile(s.encode('string_escape'))
-        for filename in x:
+        rx = re.compile(s.encode('string_escape'))        
+        for filename in x:    
+            debug(filename)
             m = rx.match(filename)
             if m is not None:
+                debug('%s.%s' % (pkg, m.group(1)))
                 modules.append('%s.%s' % (pkg, m.group(1)))
+                
     else:                
         for d in os.listdir(path):
             full = path + os.sep + d                

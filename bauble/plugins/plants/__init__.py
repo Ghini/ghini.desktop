@@ -15,6 +15,7 @@
 
 import os
 import bauble.utils as utils
+import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor
 from genus import Genus, GenusEditor
@@ -56,7 +57,8 @@ class PlantsPlugin(BaublePlugin):
         super(PlantsPlugin, cls).create_tables()
         from bauble.plugins.imex_csv import CSVImporter
         csv = CSVImporter()    
-        path = os.path.dirname(__file__) + os.sep + 'default'
+#        path = os.path.dirname(__file__) + os.sep + 'default'
+        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
         files = ['Family.txt']#,'Genus.txt', 'Plantname.txt']
         csv.start([path+os.sep+f for f in files])
         

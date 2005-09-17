@@ -115,7 +115,7 @@ def get_source_old(row):
     return None
 
 def get_source(row):
-    debug('get_source: ' + row.source_type)
+#    debug('get_source: ' + str(row.source_type))
     if row.source_type == None:
         return None
     elif row.source_type == Donation.__name__:
@@ -123,7 +123,7 @@ def get_source(row):
     elif row.source_type == Collection.__name__:
         return row._collection
     else:
-        raise ValueError('unknown source type: ' + row.source_type)
+        raise ValueError('unknown source type: ' + str(row.source_type))
     
     
 class AccessionEditor(TreeViewEditorDialog):
@@ -389,8 +389,10 @@ else:
             InfoBox.__init__(self)
             #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
             #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            path = os.path.dirname(__file__) + os.sep
-            self.glade_xml = gtk.glade.XML(path + 'acc_infobox.glade')
+            #path = os.path.dirname(__file__) + os.sep
+            #path = paths.lib_dir() + os.sep + 'acc_infobox.glade'            
+            path = os.path.join(paths.lib_dir(), "plugins", "garden")
+            self.glade_xml = gtk.glade.XML(path + os.sep + "acc_infobox.glade")
             
             self.general = GeneralAccessionExpander(self.glade_xml)
             self.add_expander(self.general)

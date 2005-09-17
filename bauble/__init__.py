@@ -18,6 +18,14 @@ if not utils.main_is_frozen():
     pygtk.require("2.0")
 import gtk
 
+try:
+    from sqlobject import *
+except ImportError:
+    msg = "SQLObject not installed. Please install SQLObject from "\
+          "http://www.sqlobject.org"
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+    raise
+
 from bauble._app import BaubleApp
 app = BaubleApp()
 
