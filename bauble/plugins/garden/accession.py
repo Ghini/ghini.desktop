@@ -118,9 +118,10 @@ def get_source(row):
 #    debug('get_source: ' + str(row.source_type))
     if row.source_type == None:
         return None
-    elif row.source_type == Donation.__name__:
+    elif row.source_type == tables['Donation'].__name__:
+        # the __name__ should be 'Donation'
         return row._donation
-    elif row.source_type == Collection.__name__:
+    elif row.source_type == tables['Collection'].__name__:
         return row._collection
     else:
         raise ValueError('unknown source type: ' + str(row.source_type))
@@ -269,22 +270,20 @@ class AccessionEditor(TreeViewEditorDialog):
     def commit_changes(self):
         if not TreeViewEditorDialog.commit_changes(self):
             return
-            
-        msg  = "No Plants/Clones exist for this accession %s. Would you like " \
-        "to add them now?"
-        
+                            
         values = self.get_values_from_view()
         for v in values:
             acc_id = v["acc_id"]
             sel = tables["Accession"].selectBy(acc_id=acc_id)
-            accession = sel[0]
             if sel.count() > 1:
                 raise Exception("AccessionEditor.commit_changes():  "\
-                                "more than one accession exists with id: " + acc_id)
-            
+                                "more than one accession exists with id: " +
+                                acc_id)
+            msg  = "No Plants/Clones exist for this accession %s. Would you "\
+                   "like to add them now?"
             if not utils.yes_no_dialog(msg % acc_id):
                 continue
-            e = editors['PlantEditor'](defaults={"accession":sel[0]})
+            e = editors['PlantEditor'](defaults={"accessionID":sel[0]})
             e.start()
         return True
         
@@ -344,7 +343,6 @@ else:
             set_widget_value(self.glade_xml, 'coll_data', collection.collector)
             set_widget_value(self.glade_xml, 'data_data', collection.coll_date)
             set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
-            
             set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
             
             # NOTE: if the widget is named notes_data then it doesn't update,
