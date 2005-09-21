@@ -29,9 +29,9 @@ class Reference(BaubleTable):
     label = StringCol(length=64)
     reference = StringCol()
     
-    plantname = ForeignKey("Plantnames")
+    plantname = ForeignKey("Plantname")
     family = ForeignKey("Family")
-    genus = ForeignKey("Genera")
+    genus = ForeignKey("Genus")
 
     def __str__(self): 
         return self.label

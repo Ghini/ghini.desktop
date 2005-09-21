@@ -2,7 +2,7 @@
 # search.py
 #
 
-import re, threading
+import re, threading, traceback
 import gtk
 import sqlobject
 import bauble
@@ -260,16 +260,22 @@ class SearchView(BaubleView):
         search the database using text
         """
         # clear the old model
+        self.set_sensitive(False)
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.results_view.set_model(None)        
         try:
             search = self.parse_text(text)
+            self.populate_results(search)
         except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
             self.results_view.set_model(model)
-            return
-                
-        self.populate_results(search)
+        except:
+            msg = "Could not complete search."
+            utils.message_details_dialog(msg, traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+        self.set_sensitive(True)
+        bauble.app.gui.window.window.set_cursor(None)
 
 
     def remove_children(self, model, parent):
@@ -354,13 +360,13 @@ class SearchView(BaubleView):
         columns = search_meta.columns
         for v in values:
             if v == "*" or v == "all":
-                print "selecting all from " + table_name
-                print "sort: " + str(search_meta.sort_column)
+                debug("selecting all from " + table_name)
+                debug("sort: " + str(search_meta.sort_column))
                 s = table.select(connection=bauble.app.conn, orderBy=search_meta.sort_column)
-                print "selected"
+                debug("selected")
                 return s
                 #return table.select(connection=bauble.app.conn)
-            q = "%s LIKE '%%%s%%'" % (columns[0], v)                    
+            q = "%s LIKE '%%%s%%'" % (columns[0], v)
             for c in columns[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (c, v)
         return table.select(q, connection=bauble.app.conn)
@@ -464,14 +470,14 @@ class SearchView(BaubleView):
         if not added:
             model.append(None, ["Couldn't find anything"])
         self.results_view.set_model(model)
-        self.set_sensitive(True)
+        #self.set_sensitive(True)
         gtk.gdk.threads_leave()
         #bauble.gui.stop_progressbar()
 
 
     def populate_results(self, search):        
         self.CANCEL = False
-        self.set_sensitive(False)
+        #self.set_sensitive(False)
         #bauble.gui.pulse_progressbar()
         #thread = threading.Thread(target=self.populate_worker, args=(search,))
         #thread.start()
@@ -485,7 +491,7 @@ class SearchView(BaubleView):
         
         
     def populate_results_no_threading(self, search):
-        self.set_sensitive(False)
+        #self.set_sensitive(False)
         results = []
         added = False
         model = self.results_view.get_model()
@@ -508,7 +514,7 @@ class SearchView(BaubleView):
         else: 
             model.append(None, ["Couldn't find anything"])
         self.results_view.set_model(model)
-        self.set_sensitive(True)
+        #self.set_sensitive(True)
     
     
     def append_children(self, model, parent, kids, have_kids):

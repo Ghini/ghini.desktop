@@ -121,7 +121,7 @@ class Place(BaubleTable):
     code = StringCol(length=4)
     place = UnicodeCol(length=64, default=None)
     #name = UnicodeCol(length=64)
-    synonym = UnicodeCol(length=64, default=None)
+    synonym = UnicodeCol(length=250, default=None)
     notes = UnicodeCol(default=None)
 
     # NOTE: Mansel I. and Manu'a don't have continents ???

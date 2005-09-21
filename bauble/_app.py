@@ -76,8 +76,8 @@ class BaubleApp:
         #    uri += '&debug=&debugOutput='
         debug(uri)
         sqlhub.processConnection = connectionForURI(uri)
-        sqlhub.processConnection.debug = False
-        sqlhub.processConnection.debugOutput = False
+        sqlhub.processConnection.debug = True
+        sqlhub.processConnection.debugOutput = True
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect

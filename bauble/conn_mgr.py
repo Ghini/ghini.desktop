@@ -6,8 +6,8 @@ import copy
 import gtk
 import sqlobject
 import utils
-#import bauble
 from bauble.prefs import prefs
+from bauble.utils.log import log, debug
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -23,7 +23,7 @@ class ConnectionManagerDialog(gtk.Dialog):
                  buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
                           gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)):
         gtk.Dialog.__init__(self, title, parent, flags, buttons)
-        self.current_name = None
+        self.current_name = None # this should get set in on_name_combo_changed
         self.create_gui()
         self.show_all()
         self.connect("response", self.on_response)
@@ -44,11 +44,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         if sqlobject.mysql.isSupported():
             self._supported_dbtypes["MySQL"] = i
             i += 1 
-        if sqlobject.postgres.isSupported():
-            self._supported_dbtypes["Postgres"] = i
-            i += 1 
         if sqlobject.sqlite.isSupported():
             self._supported_dbtypes["SQLite"] = i
+            i += 1
+        if sqlobject.postgres.isSupported():
+            self._supported_dbtypes["Postgres"] = i
             i += 1 
         if sqlobject.firebird.isSupported():
             self._supported_dbtypes["Firebird"] = i
@@ -72,9 +72,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.params_box = None
 
         if self.supported_dbtypes is None:
-            raise Exception("No Python database connectors installed.\n"\
-                            "Please consult the documentation for the "\
-                            "prerequesites for installing Bauble.")
+            msg = "No Python database connectors installed.\n"\
+                  "Please consult the documentation for the "\
+                  "prerequesites for installing Bauble."
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            raise Exception(msg)
         
         # an information label ala eclipse
         hbox = gtk.HBox(False)
@@ -122,11 +124,12 @@ class ConnectionManagerDialog(gtk.Dialog):
         type_label.set_alignment(0.0, .5)
         self.type_combo = gtk.combo_box_new_text()
         
-        # test for different supported database types, this doesn't necessarily mean
-        # these have been tested but if someone tries one and it
-        # doesn't work then maybe they will let us know
-        for type, index in self.supported_dbtypes.iteritems():
-            self.type_combo.insert_text(index, type)
+        # test for different supported database types, this doesn't necessarily
+        # mean these database connections have been tested but if someone
+        # tries one and it doesn't work then hopefully they'll let us know
+        for dbtype, index in self.supported_dbtypes.iteritems():
+            debug(self.supported_dbtypes[dbtype])
+            self.type_combo.insert_text(index, dbtype)
         
         self.type_combo.connect("changed", self.on_changed_type_combo)
         
@@ -137,8 +140,14 @@ class ConnectionManagerDialog(gtk.Dialog):
     
 
     def set_active_connection_by_name(self, name):
-        if not hasattr(self, "name_combo"):
-            return
+        """
+        sets the name of the connection in the name combo, this
+        causes on_changed_name_combo to be fired which changes the param
+        box type and set the connection parameters
+        """
+        assert hasattr(self, "name_combo")
+        #if not hasattr(self, "name_combo"):
+        #    return
         i = 0
         active = 0
         conn_list = prefs[prefs.conn_list_pref]
@@ -202,8 +211,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         # if sqlite.is_supported then sqlite, else set_active(0)
         self.type_combo.set_active(0)
         
-        
-            
+                    
     def on_response(self, dialog, response, data=None):
         if response == gtk.RESPONSE_OK:
             self.save_current_to_prefs()
@@ -251,22 +259,30 @@ class ConnectionManagerDialog(gtk.Dialog):
         conn_list = prefs[prefs.conn_list_pref]
         
         #if self.params_box is not None and self.current_name is not None:
-        if self.current_name is not None:
-            if self.current_name not in conn_list: # do you want to save your changes,
-                msg = "Do you want the save %s?" % self.current_name
+        if self.current_name is not None:            
+            if self.current_name not in conn_list:
+                msg = "Do you want to save %s?" % self.current_name
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else: 
                     self.remove_connection(self.current_name)
-                    self.current_name == None
+                    self.current_name = None
             elif not self.compare_params_to_prefs(self.current_name):
-                msg = "Do you want to save your changes to %s ?" % self.current_name                
+                msg = "Do you want to save your changes to %s ?" \
+                      % self.current_name                
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
 
         if conn_list is not None and name in conn_list:
             conn = conn_list[name]
+            debug(name)
+            debug(conn['type'])
+            debug(self.supported_dbtypes[conn["type"]])
+            debug(self.supported_dbtypes)
+            # TODO: there could be a problem here if the db type is in the
+            # connection list but is not supported any more
             self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
+            #self.type_combo.set_active(conn["type"])
             self.params_box.set_parameters(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
@@ -278,6 +294,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         the type changed so change the params_box
         """
+        debug('on_changed_type_combo')
         dbtype = combo.get_active_text()
         if self.params_box is not None:
             self.vbox.remove(self.params_box)
@@ -399,7 +416,7 @@ class CMParamsBox(gtk.Table):
         return d
 
 
-    def set_parameters(self, params):
+    def set_parameters(self, params):        
         self.db_entry.set_text(params["db"])
         self.host_entry.set_text(params["host"])
         self.user_entry.set_text(params["user"])
@@ -456,6 +473,7 @@ class CMParamsBoxFactory:
         pass
         
     def createParamsBox(db_type):
+        debug("createParamsBox: " + db_type)
         if db_type.lower() == "sqlite":
             return SQLiteParamsBox()
         return CMParamsBox()

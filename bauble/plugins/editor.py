@@ -572,18 +572,18 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        self.connect("response", self.on_response)
+        #self.connect("response", self.on_response)
+        #self.connect("delete-event", self.on_delete)
+        #self.connect("close", self.on_close)
 
                           
-    def start(self, block=False):
-        if block:
-            self.run()
-        else: self.show()
+    def start(self):
+        self.run()
             
-        
-    def on_response(self, widget, response, data=None):
-        raise NotImplementedError, "%s.on_response not implemented" % \
-            self.__class__.__name__
+    
+#    def on_response(self, widget, response, data=None):
+#        raise NotImplementedError, "%s.on_response not implemented" % \
+#            self.__class__.__name__
 
 
 #
@@ -634,7 +634,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.dummy_row = False
         
         
-    def start(self, block=False):
+    def start(self):
+        debug("entered TreeViewEditorDialog.start()")
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
@@ -643,11 +644,20 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
         self.start_gui()
 
-        if block:
-            self.run()
-        else: self.show()
+        while True:
+            msg = 'Are you sure you want to lose your changes?'
+            if self.run() == gtk.RESPONSE_OK:
+                if self.commit_changes():
+                    debug("committed changes")
+                    break
+            elif self.dirty and utils.yes_no_dialog(msg):
+                break      
+            else:
+                break                          
+        debug('leaving run')
+        self.destroy()
 
-
+    
     def init_gui(self):
         self.init_tree_view()
         
@@ -817,30 +827,57 @@ class TreeViewEditorDialog(TableEditorDialog):
 #        self.queue_resize()
         pass
     
+#    def on_delete(self, widget, data=None):
+#        debug('on_delete')
+#        return True
     
-    def on_response(self, widget, response, data=None):
-        self.store_visible_columns() # save preferences before we do anything
-        self.store_column_widths()
-        if response == gtk.RESPONSE_OK:
-            #if self.commit_changes():
-            # NOTE: i don't understand why we can't call commit_changes 
-            # on self
-            #if TreeViewEditorDialog.commit_changes(self):                
-            if self.commit_changes():
-                #
-                # TODO: shouldn't destroy self here if on_response is
-                # called before run exits, i think this will cause leaks
-                # or problems b/c the rest of run won't know what's been
-                # destroyed
-                #
-                self.destroy() # successfully commited
-        elif response == gtk.RESPONSE_CANCEL and self.dirty:            
-            msg = "Are you sure? You will lose your changes."
-            if utils.yes_no_dialog(msg):
-                self.destroy()
-        else: # cancel, not dirty
-            self.destroy()
-        return False
+#    def run(self):
+#        debug("entered run")
+#        return super(TreeViewEditorDialog, self).run()
+        
+#    def on_close(self, widget, data=None):
+#        debug('on_close')
+#        return False
+        
+#    def on_response(self, widget, response, data=None):
+#        debug('on_response')
+#        if response == gtk.RESPONSE_OK:
+#            debug('editor.RESPONSE_OK')
+#            self.commit_changes()
+#        elif self.dirty:
+#            debug('dirty')
+#            #msg == 'Do you want to save your changes?'
+#            msg = 'Are you sure you want to lose your changes?'
+#            if utils.yes_no_dialog(msg):
+#                self.response(gtk.RESPONSE_OK)
+#                self.commit_changes()
+#                #self.set_dirty(False)            
+#        #super(TreeViewEditorDialog, self).run()
+#    
+#        
+#    def on_response_old(self, widget, response, data=None):
+#        self.store_visible_columns() # save preferences before we do anything
+#        self.store_column_widths()
+#        if response == gtk.RESPONSE_OK:
+#            #if self.commit_changes():
+#            # NOTE: i don't understand why we can't call commit_changes 
+#            # on self
+#            #if TreeViewEditorDialog.commit_changes(self):                
+#            if self.commit_changes():
+#                #
+#                # TODO: shouldn't destroy self here if on_response is
+#                # called before run exits, i think this will cause leaks
+#                # or problems b/c the rest of run won't know what's been
+#                # destroyed
+#                #
+#                self.destroy() # successfully commited
+#        elif response == gtk.RESPONSE_CANCEL and self.dirty:            
+#            msg = "Are you sure? You will lose your changes."
+#            if utils.yes_no_dialog(msg):
+#                self.destroy()
+#        else: # cancel, not dirty
+#            self.destroy()
+#        return False
         
         
     def get_values_from_view(self):
@@ -941,6 +978,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                     del v["id"]
                     t.set(**v)
                 else: # adding row
+                    debug('adding row: ' + str(v))
                     t = self.table(**v)
                 #print 'foreign: ' + str(foriegners)
                 # set the foreign keys id of the foreigners

@@ -9,7 +9,7 @@ from sqlobject import *
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins import BaubleTable, tables
+from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TableEditor
 from bauble.utils.log import debug
 
@@ -414,16 +414,14 @@ class DonationEditor(Singleton):
     
     def on_don_new_button_clicked(self, button, data=None):
         #self.dialog.set_sensitive(False)
-        e = editors["DonorEditor"]
-        #e = donor.DonorEditor()
-        print 'starting donor editor'
-        e.start(True)
-        print 'done with donor editor'
+        editor_class = editors["DonorEditor"]
+        editor_class().start()
+        debug('done with donor editor')
         #self.dialog.set_sensitive(True)
         #model = gtk.ListStore(obj)
         #self.init_donations()
         donor_combo = self.glade_xml.get_widget('donor_combo')
-        print 'setting table'
+        debug('setting table')
         setComboModelFromSelect(donor_combo, tables["Donor"].select())
         
         
@@ -591,7 +589,7 @@ class SourceEditor(TableEditor):
             print "response ok"
             #if self._dirty:
             if not self.commit_changes():
-                print 'SourceEditor.on_response: could not commited changes'
+                print 'SourceEditor.on_response: could not commit changes'
                 return
         else:
             msg = 'Are you sure? You will lose your changes'

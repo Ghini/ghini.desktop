@@ -70,6 +70,7 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.destroy()
     return r
 
+
 def startfile(filename):
     if sys.platform == 'win32':
         os.startfile(filename)
