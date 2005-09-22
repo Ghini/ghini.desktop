@@ -258,7 +258,6 @@ class GUI:
         #    ui_filename = paths.main_dir() + os.sep + "bauble.ui"
         #else: ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
-        debug(paths.main_dir())
         #ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_manager.add_ui_from_file(ui_filename)
 

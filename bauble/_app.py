@@ -26,10 +26,10 @@ class BaubleApp:
         return gtk.FALSE
 
 
-    def get_cursor(self):
-        """return a connection to the database"""
-        if self.conn == None: return None
-        else: return self.conn.cursor()
+#    def get_cursor(self):
+#        """return a connection to the database"""
+#        if self.conn == None: return None
+#        else: return self.conn.cursor()
 
 
     def create_database(self):
@@ -68,33 +68,36 @@ class BaubleApp:
         """
         import sqlobject.sqlite.sqliteconnection as sqlite
         if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
+            #uri += "?check_same_thread=0" # incase using multiple threads
+#            uri += "&autoCommit=0"        
             pass
-            #uri += "?check_same_thread=0"
-#            uri += "&autoCommit=0"
-        # should do maybe debug_sql=True and debug_sql_output=True
-        #if debug.enabled:
-        #    uri += '&debug=&debugOutput='
-        debug(uri)
+        #debug(uri) # this can print your passwd
         sqlhub.processConnection = connectionForURI(uri)
-        sqlhub.processConnection.debug = True
-        sqlhub.processConnection.debugOutput = True
+#        if debug.enabled:
+#            # should do something like debug_sql=True and debug_sql_output=True
+#            sqlhub.processConnection.debug = True
+#            sqlhub.processConnection.debugOutput = True
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect
-            self.conn = sqlhub.getConnection() 
+            #self.conn = sqlhub.getConnection().getConnection() 
+            #self.conn = sqlhub.getConnection()
+            #self.conn = sqlhub.processConnection
+            sqlhub.processConnection.getConnection()
             # if not autocommit then mysql import won't work unless we 
             # temporary store autocommit and restore it to the original
             # values, either way why would we want autocommit false
             #self.conn.autoCommit = False 
         except Exception, e:
-            print e
-            msg = "Could not open connection"
+            msg = "Could not open connection.\n\n%s" % str(e)
+            print msg
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        
+            return False
+                    
         if name is not None:
             prefs[prefs.conn_default_pref] = name
             prefs.save()
-            
+        return True
         
     def destroy(self, widget, data=None):
         gtk.main_quit()
@@ -132,9 +135,9 @@ class BaubleApp:
         # import these here to avoid recursive import hell
         import bauble._gui as gui
         from bauble.conn_mgr import ConnectionManagerDialog
-        self.conn = None
+        #self.conn = None
         default_conn = prefs[prefs.conn_default_pref]
-        while self.conn is None:
+        while True:
             #gtk.gdk.threads_enter()
             cm = ConnectionManagerDialog(default_conn)
             r = cm.run()
@@ -145,10 +148,9 @@ class BaubleApp:
             name = cm.get_connection_name()
             cm.destroy()
             #gtk.gdk.threads_leave()
-            self.open_database(uri, name, True)
-                
-        
-        
+            if self.open_database(uri, name, True):
+                break
+                        
         
         # now that we have a connection build and show the gui
         self.gui = gui.GUI(self)

@@ -7,7 +7,7 @@ import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
 from sqlobject.joins import SOSingleJoin
-
+import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
@@ -166,9 +166,8 @@ class TextColumn(GenericViewColumn):
         else: 
             # just plain text in model column or something convertible 
             # to string like a table row
-            renderer.set_property('text', str(value))            
-                   
-
+            renderer.set_property('text', str(value))
+            
 
     def on_edited(self, renderer, path, new_text, view):
         # means that the value is set by the on_match_completed function,
@@ -547,6 +546,7 @@ class TableEditor(BaubleEditor):
         self.table = table
         self.select = select        
         
+        
     def start(self): 
         raise NotImplementedError
 
@@ -572,19 +572,12 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        #self.connect("response", self.on_response)
-        #self.connect("delete-event", self.on_delete)
-        #self.connect("close", self.on_close)
 
                           
     def start(self):
         self.run()
             
     
-#    def on_response(self, widget, response, data=None):
-#        raise NotImplementedError, "%s.on_response not implemented" % \
-#            self.__class__.__name__
-
 
 #
 # TreeViewEditorDialog
@@ -777,6 +770,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.dirty = dirty
         self.set_ok_sensitive(dirty)
                     
+                    
     # attache to mouse clicks
     def on_view_button_release(self, view, event, data=None):
         """
@@ -826,59 +820,7 @@ class TreeViewEditorDialog(TableEditorDialog):
 #        self.view.queue_resize()
 #        self.queue_resize()
         pass
-    
-#    def on_delete(self, widget, data=None):
-#        debug('on_delete')
-#        return True
-    
-#    def run(self):
-#        debug("entered run")
-#        return super(TreeViewEditorDialog, self).run()
-        
-#    def on_close(self, widget, data=None):
-#        debug('on_close')
-#        return False
-        
-#    def on_response(self, widget, response, data=None):
-#        debug('on_response')
-#        if response == gtk.RESPONSE_OK:
-#            debug('editor.RESPONSE_OK')
-#            self.commit_changes()
-#        elif self.dirty:
-#            debug('dirty')
-#            #msg == 'Do you want to save your changes?'
-#            msg = 'Are you sure you want to lose your changes?'
-#            if utils.yes_no_dialog(msg):
-#                self.response(gtk.RESPONSE_OK)
-#                self.commit_changes()
-#                #self.set_dirty(False)            
-#        #super(TreeViewEditorDialog, self).run()
-#    
-#        
-#    def on_response_old(self, widget, response, data=None):
-#        self.store_visible_columns() # save preferences before we do anything
-#        self.store_column_widths()
-#        if response == gtk.RESPONSE_OK:
-#            #if self.commit_changes():
-#            # NOTE: i don't understand why we can't call commit_changes 
-#            # on self
-#            #if TreeViewEditorDialog.commit_changes(self):                
-#            if self.commit_changes():
-#                #
-#                # TODO: shouldn't destroy self here if on_response is
-#                # called before run exits, i think this will cause leaks
-#                # or problems b/c the rest of run won't know what's been
-#                # destroyed
-#                #
-#                self.destroy() # successfully commited
-#        elif response == gtk.RESPONSE_CANCEL and self.dirty:            
-#            msg = "Are you sure? You will lose your changes."
-#            if utils.yes_no_dialog(msg):
-#                self.destroy()
-#        else: # cancel, not dirty
-#            self.destroy()
-#        return False
-        
+         
         
     def get_values_from_view(self):
         """
@@ -1002,9 +944,19 @@ class TreeViewEditorDialog(TableEditorDialog):
         #debug('move_cursor')
         pass
         
-        
+    
     def on_cursor_changed(self, view, data=None):
+        # TODO: this should be reworked to have some sort of information
+        # panel for the editor, similar to eclipse
         path, column = view.get_cursor()
+        editor_status_context_id = 5698
+        if column.meta.editor is not None:
+            bauble.app.gui.statusbar.push(editor_status_context_id,
+                                          'Press enter to edit the %s' \
+                                          % column.get_property('title'))
+        else:
+            bauble.app.gui.statusbar.pop(editor_status_context_id)
+            
         #print "on_cursor_changed: %s, %s" %(path, column)        
         #print "BLOCK"
         #view.handler_block(self.cursor_changed_id)
@@ -1042,8 +994,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         
     def on_column_edited(self, renderer, path, new_text):
-#        debug('on_column_edited')        
-        self.set_dirty(True)
+        if new_text != "": # only set dirty if something has changed
+            self.set_dirty(True)
         # edited the last row so add a new one,
         # i think this may a bit of a bastardization of path but works for now
         model = self.view.get_model()
@@ -1111,104 +1063,3 @@ class TreeViewEditorDialog(TableEditorDialog):
                 visible.append(c.name)
         prefs[self.visible_columns_pref] = visible
         
-# ********************************************************
-# ********************************************************
-# ********************************************************
-#    def on_cell_key_press(self, widget, event):
-#        """
-#        handled TreeView navigation
-#        """
-#        keyname = gtk.gdk.keyval_name(event.keyval)
-#        path, col = self.view.get_cursor()
-##        if keyname == 'Return':
-##            # start the editor for the cell if there is one
-##            meta = self.column_meta[colname]
-##            if hasattr(meta, 'editor') and meta.editor is not None:
-##                self.set_sensitive(False)
-##                model = self.view.get_model()
-##                it = model.get_iter(path)
-##                row = model.get_value(it,0)
-##                v = meta.editor(select=row[colname]).start() # this blocks
-##                self.set_view_model_value(path, colname, v)
-##                self.set_sensitive(True)
-##                self.set_dirty(True)
-#        if keyname == "Up" and path[0] != 0:            
-#            self.move_cursor_up(path, col)
-#        elif keyname == "Down" and path[0] != len(self.view.get_model()):
-#            # TODO: check if the entry completion is open and if so then
-#            # set the focus to the completions, eles move the cursor down
-#            print "%s - %s" % (str(path), str(col))   
-#            # current_entry is set in editing_started and removed in editing_done
-#            if self.current_entry is not None: 
-#                comp = self.current_entry.get_completion()                
-#            else: self.move_cursor_down(path, col)
-#        elif keyname == "Left":
-#            self.move_cursor_left(path, col)
-#            pass
-#        elif keyname == "Right":
-#            self.move_cursor_right(path, col)
-#            pass
-#        elif keyname == "Tab":            
-#            columns = self.view.get_columns()
-#            ncols = len(columns)
-#            # if last column and not last row,
-#            # TODO: this doesn't
-#            # work anymore now that we create all rows instead of just
-#            # the visible ones, we need to get the index of the highest
-#            # visible row
-#            if columns[ncols-1] == col and len(self.view.get_model()) != ncols:
-#                newpath = path[0]+1, 
-#                self.view.set_cursor_on_cell(newpath, columns[0], None, True)
-#            else: self.move_cursor_right(path, col) # else moveright
-#                
-#                
-#    def move_cursor_next(self, path, fromcol, direction):
-#        #  TODO: finish this
-#        if direction == "Left":
-#            self.move_cursor_left(path, fromcol) # unless on the far left
-#        elif direction == "Right":
-#            self.move_cursor_right(path, fromcol) # unless on the far right
-#        elif direction == "Down":
-#            self.move_cursor_down(path, fromcol) # unless at the bottom
-#        elif direction == "Up":
-#            self.move_cursor_up(path, fromcol) # unless at the top
-#
-#            
-#    def move_cursor_right(self, path, fromcol):#, focus, start_editing):
-#        """
-#        """
-#        newcol = fromcol
-#        columns = self.view.get_columns()
-#        fromcol_index = 100 # 100 is an arbitrary max
-#        for i in xrange(0, len(columns)): # find the columns index            
-#            if columns[i] == fromcol: fromcol_index = i
-#            if columns[i].get_visible() and i > fromcol_index:
-#                newcol = columns[i]
-#                break        
-#        self.view.set_cursor_on_cell(path, newcol, None, False)
-#
-#        
-#    def move_cursor_left(self, path, fromcol):
-#        """
-#        if at the far left then it should move to the last column on the 
-#        previous row, or if it's at the first row nothing should happen
-#        """
-#        newcol = fromcol
-#        columns = self.view.get_columns()
-#        fromcol_index = -1
-#        for i in xrange(len(columns)-1, 0, -1): # iterate in reverse
-#            if columns[i] == fromcol: fromcol_index = i
-#            if columns[i].get_visible() and i < fromcol_index:
-#                newcol = columns[i]
-#                break
-#        self.view.set_cursor_on_cell(path, newcol, None, True)
-#
-#    
-#    def move_cursor_up(self, path, col):
-#        newpath = path[0]-1, 
-#        self.view.set_cursor_on_cell(newpath, col, None, True)
-#
-#    
-#    def move_cursor_down(self, path, col):
-#        newpath = path[0]+1, 
-#        self.view.set_cursor_on_cell(newpath, col, None, True)

@@ -358,18 +358,25 @@ class SearchView(BaubleView):
         search_meta = self.search_metas[table_name]
         table = search_meta.table
         columns = search_meta.columns
+        
+        # case insensitive searches
+        # TODO: this should configurable in the preferences
+        if sqlobject.sqlhub.processConnection.dbName == "postgres":
+            like = "ILIKE"
+        else:
+            like = "LIKE"
+            
         for v in values:
             if v == "*" or v == "all":
-                debug("selecting all from " + table_name)
-                debug("sort: " + str(search_meta.sort_column))
-                s = table.select(connection=bauble.app.conn, orderBy=search_meta.sort_column)
-                debug("selected")
+#                debug("selecting all from " + table_name)
+#                debug("sort: " + str(search_meta.sort_column))
+                s = table.select(orderBy=search_meta.sort_column)
+#                debug("selected")
                 return s
-                #return table.select(connection=bauble.app.conn)
-            q = "%s LIKE '%%%s%%'" % (columns[0], v)
+            q = "%s %s '%%%s%%'" % (columns[0], like, v)
             for c in columns[1:]:
-                q += " OR %s LIKE '%%%s%%'" % (c, v)
-        return table.select(q, connection=bauble.app.conn)
+                q += " OR %s %s '%%%s%%'" % (c, like, v)
+        return table.select(q)
         
         
     def query_old(self, domain, values):
@@ -393,13 +400,11 @@ class SearchView(BaubleView):
         
         for v in values:
             if v == "*" or v =="all": 
-                #return table.select()
-                return table.select(connection=bauble.app.conn)
+                return table.select()
             q = "%s LIKE '%%%s%%'" % (fields[0], v)
             for f in fields[1:]:
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
-        return table.select(q, connection=bauble.app.conn)
-        #return table.select(q)
+        return table.select(q)
                 
 
     def parse_text(self, text):

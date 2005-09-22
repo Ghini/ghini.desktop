@@ -128,7 +128,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         # mean these database connections have been tested but if someone
         # tries one and it doesn't work then hopefully they'll let us know
         for dbtype, index in self.supported_dbtypes.iteritems():
-            debug(self.supported_dbtypes[dbtype])
+#            debug(self.supported_dbtypes[dbtype])
             self.type_combo.insert_text(index, dbtype)
         
         self.type_combo.connect("changed", self.on_changed_type_combo)
@@ -275,10 +275,6 @@ class ConnectionManagerDialog(gtk.Dialog):
 
         if conn_list is not None and name in conn_list:
             conn = conn_list[name]
-            debug(name)
-            debug(conn['type'])
-            debug(self.supported_dbtypes[conn["type"]])
-            debug(self.supported_dbtypes)
             # TODO: there could be a problem here if the db type is in the
             # connection list but is not supported any more
             self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
@@ -294,7 +290,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         the type changed so change the params_box
         """
-        debug('on_changed_type_combo')
         dbtype = combo.get_active_text()
         if self.params_box is not None:
             self.vbox.remove(self.params_box)
@@ -473,7 +468,7 @@ class CMParamsBoxFactory:
         pass
         
     def createParamsBox(db_type):
-        debug("createParamsBox: " + db_type)
+#        debug("createParamsBox: " + db_type)
         if db_type.lower() == "sqlite":
             return SQLiteParamsBox()
         return CMParamsBox()
