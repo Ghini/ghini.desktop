@@ -22,20 +22,21 @@
 import os
 import gtk
 
-#try:
-#    import libxml2
-#except ImportError, e:
-#    utils.message_box("Could not find libxml2. Please download and install it.")
-#    raise
-#    
-#try:
-#    import libxslt
-#except ImportError, e:
-#    utils.message_box("Could not find libxslt. Please download and install it.")    
-#    raise
+try:
+    import libxml2
+except ImportError, e:
+    utils.message_box("Could not find libxml2. Please download and install it.")
+    raise
+    
+try:
+    import libxslt
+except ImportError, e:
+    utils.message_box("Could not find libxslt. Please download and install it.")    
+    raise
     
 from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
 import bauble.utils as utils
+from bauble.utils.log import log, debug
 from bauble.plugins.imex_abcd import abcd
     
 
@@ -125,19 +126,21 @@ class LabelMaker(gtk.Dialog):
         # create xsl fo file
         dummy, fo_filename = tempfile.mkstemp()
         xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
+#        debug(xslt_filename)
         # how come we don't have to free style_doc???
-#        style_doc = libxml2.parseFile(xslt_filename) 
-#        style = libxslt.parseStylesheetDoc(style_doc)
-#        doc = libxml2.parseDoc(abcd_data)
-#        result = style.applyStylesheet(doc, None)
-#        style.saveResultToFilename(fo_filename, result, 0)
-#        style.freeStylesheet()
-#        doc.freeDoc()
-#        result.freeDoc()
+        style_doc = libxml2.parseFile(xslt_filename) 
+        style = libxslt.parseStylesheetDoc(style_doc)
+        doc = libxml2.parseDoc(abcd_data)
+        result = style.applyStylesheet(doc, None)
+        style.saveResultToFilename(fo_filename, result, 0)
+        style.freeStylesheet()
+        doc.freeDoc()
+        result.freeDoc()
         
         # run the formatter to produce the pdf file, xep has to be on the
         # path
         fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
+#        debug(fo_cmd)
         os.system(fo_cmd)    
             
         # open and return the file hander or filename so we don't have to close it

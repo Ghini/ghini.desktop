@@ -7,7 +7,7 @@
 
 import string
 from string import Template
-
+from bauble.utils.log import log, debug
 
 main_template_str = """<?xml version="1.0"?>
 <datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
@@ -120,4 +120,5 @@ def plants_to_abcd(plants):
                                               distribution=d))
     
     abcd = main_template.substitute(units='\n'.join(units))
+    #debug(abcd)
     return abcd
