@@ -66,9 +66,8 @@ class PlantsPlugin(BaublePlugin):
         # they want to import them
         if utils.yes_no_dialog("Would you like to import the Genera?"):            
             csv.start([path + os.sep + "Genus.txt"])
-
-        if utils.yes_no_dialog("Would you like to import the Plantnames?"):
-            csv.start([path + os.sep + "Plantname.txt"])            
+            if utils.yes_no_dialog("Would you like to import the Plantnames?"):
+                csv.start([path + os.sep + "Plantname.txt"])            
 
     
     def install(cls):

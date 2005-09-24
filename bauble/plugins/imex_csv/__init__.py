@@ -57,7 +57,7 @@ class CSVImporter:
             for filename in filenames:
                 path, base = os.path.split(filename)
                 table_name, ext = os.path.splitext(base)
-                self.import_file(filename, tables[table_name], trans)                                                    
+                self.import_file(filename, tables[table_name], trans)
         except Exception:
             trans.rollback()
             msg = "Error importing values from %s into table %s\n" % (filename, table_name)
@@ -65,6 +65,12 @@ class CSVImporter:
             utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
         else:
             trans.commit()
+            if sqlobject.sqlhub.processConnection.dbName == "postgres":
+                    sql = "SELECT max(id) FROM %s" % table_name                    
+                    max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]
+                    sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
+                    sqlobject.sqlhub.processConnection.query(sql)    
+        
         
         bauble.app.gui.window.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
