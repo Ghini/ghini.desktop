@@ -176,7 +176,6 @@ class _prefs(dict):
         
 
     def load(self, filename=_filename):
-        debug("entered prefs.load")
         self._loaded=True
         # TODO: if this is loaded after  the user has set some preferences
         # then those preferences could be overwritten, need to set some

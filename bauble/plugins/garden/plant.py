@@ -4,9 +4,9 @@
 
 import gtk
 from sqlobject import * 
-from bauble.plugins import BaubleTable, tables
+from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
-
+import bauble.utils as utils
 
 class Plant(BaubleTable):
     
@@ -107,7 +107,7 @@ class PlantEditor(TreeViewEditorDialog):
 
     label = 'Plants\\Clones'
 
-    def __init__(self, parent=None, select=None, defaults={}):        
+    def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, Plant, "Plants/Clones Editor", 
                                       parent, select=select, defaults=defaults)
         # set headers
@@ -122,6 +122,32 @@ class PlantEditor(TreeViewEditorDialog):
         self.columns['locationID'].meta.get_completions = \
             self.get_location_completions
 
+    def start(self):
+        accessions = tables["Accession"].select()
+        if accessions.count() < 1:
+            msg = "You can't add plants/clones to the database without first " \
+                  "adding accessions.\n" \
+                  "Would you like to add accessions now?"
+            if utils.yes_no_dialog(msg):
+                editors["AccessionEditor"]().start()        
+                    
+        accessions = tables["Accession"].select()
+        if accessions.count() < 1:   # no accessions were added
+            return
+        
+        locations = tables["Location"].select()
+        if locations.count() < 1:
+            msg = "You are trying to add plants to the database but no " \
+                  "locations exists.\n" \
+                  "Would you like to add some locations now?"
+            if utils.yes_no_dialog(msg):
+                editors["LocationEditor"]().start()
+                
+        locations = tables["Location"].select()
+        if locations.count() < 1: # no locations were added
+            return
+            
+        super(PlantEditor, self).start()
 
     def get_accession_completions(self, text):
         model = gtk.ListStore(str, object)
@@ -198,9 +224,15 @@ else:
         
         def __init__(self, label="Location"):
             InfoExpander.__init__(self, label)
+            self.site_label = gtk.Label("--")            
+            self.vbox.pack_start(self.site_label)
     
         def update(self, value):
-            pass
+            """
+            value should be an instance of a Location table
+            """
+            assert isinstance(value, tables['Location'])
+            self.site_label.set_text(value.site)
         
 
     class PlantInfoBox(InfoBox):

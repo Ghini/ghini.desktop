@@ -2,7 +2,7 @@
 # editors module
 #
 
-import os, sys, re, copy
+import os, sys, re, copy, traceback
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
@@ -26,16 +26,21 @@ from bauble.utils.log import log, debug
 # FIXME: everytime you open and close a TreeViewEditorDialog the dialog
 # get a little bigger, i think the last column is creeping
     
+# TODO: if you edit a row that has it's own editor then it doesn't call
+# set_dirty
+    
 class GenericViewColumn(gtk.TreeViewColumn):
     
     def __init__(self, view, header, renderer, so_col):
         super(GenericViewColumn, self).__init__(header, renderer)
        
-        if view is None:
-            raise ValueError('view is None')
-            
-        if so_col is None:
-            raise ValueError('so_col is None')        
+        assert view is not None
+        assert so_col is not None
+#        if view is None:
+#            raise ValueError('view is None')
+#            
+#        if so_col is None:
+#            raise ValueError('so_col is None')        
             
         self.view = view
         self.renderer = renderer
@@ -191,7 +196,7 @@ class TextColumn(GenericViewColumn):
         # if the cell has it's own editor we shouldn't be here
         if self.meta.editor is not None: 
             entry.connect('key-press-event', self.on_key_press, path)
-            debug('editable = False') 
+#            debug('editable = False') 
             entry.set_property('editable', False)
                 
         #entry.connect("key-press-event", self.on_cell_key_press, 
@@ -291,6 +296,7 @@ class TextColumn(GenericViewColumn):
                 debug("%s: %s" % (value, type(value)))
                 if value is not None:
                     self._set_view_model_value(path, value)
+                    #self.set_dirty(True)
                 #self.set_view_model_value(path, colname, v)
                 #self.set_sensitive(True)
                 #self.set_dirty(True)
@@ -328,7 +334,7 @@ class ComboColumn(TextColumn):
                                                
                                            
     def on_editing_started(self, cell, editable, path, view):                
-        debug('Combojon_editing_started')
+        debug('on_editing_started')
 
 
 
@@ -628,7 +634,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         
     def start(self):
-        debug("entered TreeViewEditorDialog.start()")
+#        debug("entered TreeViewEditorDialog.start()")
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
@@ -641,13 +647,12 @@ class TreeViewEditorDialog(TableEditorDialog):
             msg = 'Are you sure you want to lose your changes?'
             if self.run() == gtk.RESPONSE_OK:
                 if self.commit_changes():
-                    debug("committed changes")
+#                    debug("committed changes")
                     break
             elif self.dirty and utils.yes_no_dialog(msg):
                 break      
             else:
                 break                          
-        debug('leaving run')
         self.destroy()
 
     
@@ -885,6 +890,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
         
         
+    def commit_changes_old(self):
+        pass
+        
     def commit_changes(self):
         """
         commit any change made in the table editor
@@ -901,7 +909,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         values = self.get_values_from_view()
         old_conn = sqlhub.getConnection()
         trans = old_conn.transaction()
-        sqlhub.threadConnection = trans
+        #sqlhub.threadConnection = trans
+        sqlhub.processConnection = trans
         for v in values:
             # make sure it's ok to commit these values            
             if not self.test_values_before_commit(v):                
@@ -916,27 +925,56 @@ class TreeViewEditorDialog(TableEditorDialog):
                     foreigners[col] = v.pop(col)
             try:                
                 if 'id' in v:# updating row
-                    t = self.table.get(v["id"])
+                    t = self.table.get(v["id"], connection=trans)
                     del v["id"]
                     t.set(**v)
                 else: # adding row
                     debug('adding row: ' + str(v))
-                    t = self.table(**v)
+                    t = self.table(connection=trans, **v)
                 #print 'foreign: ' + str(foriegners)
                 # set the foreign keys id of the foreigners
+                trans.commit()
                 for col, col_attr in self.table_meta.foreign_keys:
                     if col in foreigners:
                         c = foreigners[col]
-                        c.set(**{col_attr: t.id})
-                    
-            except Exception, e:
-                msg = "Could not commit changes.\n" + str(e)
+                        foreign_table = c.__class__.get(t.id, connection=trans)
+                        foreign_table.set(**{col_attr: t.id})
+                        trans.commit()
+                        #c.set(**{col_attr: t.id})                
+            except Exception, e:                
                 trans.rollback()
-                sqlhub.threadConnection = old_conn
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                return False
-        trans.commit()
-        sqlhub.threadConnection = old_conn
+                #sqlhub.threadConnection = old_conn
+                sqlhub.processConnection = old_conn
+                msg = "Could not commit changes.\n" + str(e)
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                              gtk.MESSAGE_ERROR)
+                return False      
+#            else:      
+#                #trans.commit()
+#                debug("commited: " + str(v))
+#                for col, col_attr in self.table_meta.foreign_keys:
+#                    if col in foreigners:
+#                        c = foreigners[col]
+#                        try:
+#                            # have to do some voodoo here b/c if c was created 
+#                            # from a different connection or a different t
+#                            # transaction then there will be problems
+#                            foreign_table = c.__class__.get(t.id, connection=trans)
+#                            foreign_table.set(**{col_attr: t.id})
+#                            trans.commit()
+#                            #c.set(**{col_attr: t.id})
+#                        except:
+#                            trans.rollback()
+#                            msg = "could not set foreign table: %s.%s" \
+#                                  % (col, col_attr)
+#                            utils.message_details_dialog(msg, 
+#                                                         traceback.format_exc(),
+#                                                         gtk.MESSAGE_ERROR)
+#                            return False
+#                #trans.commit()
+                
+        #sqlhub.threadConnection = old_conn
+        sqlhub.processConnection = old_conn
         return True
     
 
@@ -949,6 +987,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         # TODO: this should be reworked to have some sort of information
         # panel for the editor, similar to eclipse
         path, column = view.get_cursor()
+        if column is None:
+            return
         editor_status_context_id = 5698
         if column.meta.editor is not None:
             bauble.app.gui.statusbar.push(editor_status_context_id,
@@ -994,6 +1034,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         
     def on_column_edited(self, renderer, path, new_text):
+#        debug("on_column_edited: '%s'" % new_text)
         if new_text != "": # only set dirty if something has changed
             self.set_dirty(True)
         # edited the last row so add a new one,

@@ -99,7 +99,6 @@ def _register(plugin_class):
 def _find_plugins():
     modules = []
     path, name = os.path.split(__file__)
-    debug(path)
     if path.find("library.zip") != -1: # using py2exe
         debug("library.zip")
         pkg = "bauble.plugins"

@@ -2,7 +2,7 @@
 # source editor module
 #
 
-import os, re
+import os, re, traceback
 import gtk
 import gtk.glade
 from sqlobject import * 
@@ -102,16 +102,8 @@ class Singleton(object):
             return cls._instance
     
             
-class CollectionEditor(Singleton):
-    
-    # TODO: region combos should start with all possible values so that
-    # you don't have to set them in any particular order, it takes a
-    # while to open the dialog if everthing is added at once so we 
-    # could 1) initialize them on first click or 2) set them insensitive
-    # and setup a thread to populate them and set them sensitive when
-    # the thread exits, this could be a problem when porting to windows
-    # or 3) set up an idle function to do something similar to the thread
-    # solution
+#class CollectionEditor(Singleton):
+class CollectionEditor:    
     # 
     # TODO: somehow figure out how to set the dirty flag if anything has
     # changed, this is a bit of a pain in the ass and a scalability problem
@@ -136,98 +128,16 @@ class CollectionEditor(Singleton):
     def initialize(self, glade_xml, row=None):    
         self.glade_xml = glade_xml
         handlers = {'on_lon_entry_changed': self.on_coord_entry_changed,
-                    'on_lat_entry_changed': self.on_coord_entry_changed,
-                    'on_region_combo_changed': self.on_region_combo_changed,
-                    'on_area_combo_changed': self.on_area_combo_changed,
-                    'on_state_combo_changed': self.on_state_combo_changed,
-                    'on_place_combo_changed': self.on_place_combo_changed}
+                    'on_lat_entry_changed': self.on_coord_entry_changed}
         self.glade_xml.signal_autoconnect(handlers)
         
-        self.box = self.glade_xml.get_widget('collection_box')
-        
-        # set combo models
-#        self.region_combo = self.glade_xml.get_widget('region_combo')
-#        self.region_combo.child.set_property('editable', False)
-#        r = gtk.CellRendererText()
-#        self.region_combo.pack_start(r)
-#        self.region_combo.set_cell_data_func(r, combo_cell_data_func, None)
-#        setComboModelFromSelect(self.region_combo, 
-#                                tables.Regions.select(orderBy='region'))
-#        
-#        self.area_combo = self.glade_xml.get_widget('area_combo')
-#        self.area_combo.child.set_property('editable', False)
-#        
-#        self.state_combo = self.glade_xml.get_widget('state_combo')
-#        self.state_combo.child.set_property('editable', False)
-#            
-#        self.place_combo = self.glade_xml.get_widget('place_combo')
-#        self.place_combo.child.set_property('editable', False)
+        self.box = self.glade_xml.get_widget('collection_box')        
         self._collection_box_inited = True
 
         self.row = row
         if self.row is not None:
             print 'CollectionsEditor.initalized - refreshing'
             self.refresh_widgets_from_row()
-
-
-    def on_region_combo_changed(self, combo, data=None):
-         # TODO: if we can't catch the clicked signal then we have to
-         # set the models with all possible values
-         # TODO: if this is set to None or the entry is cleared we should
-         # reset all the models
-            
-         self.place_combo.set_active(-1)
-         self.place_combo.child.set_text('')
-         self.place_combo.set_model(None)
-            
-         self.state_combo.set_active(-1)
-         self.state_combo.child.set_text('')
-         self.state_combo.set_model(None)
-            
-         self.area_combo.set_active(-1)
-         self.area_combo.child.set_text('')
-         model = combo.get_model()
-         it = combo.get_active_iter()
-         row = model.get_value(it, 1)
-         setComboModelFromSelect(self.area_combo, row.areas)
-        
-        
-    def on_area_combo_changed(self, combo, data=None):
-        self.place_combo.set_active(-1)
-        self.place_combo.child.set_text('')
-        self.place_combo.set_model(None)
-        
-        self.state_combo.set_active(-1)
-        self.state_combo.child.set_text('')
-        self.state_combo.set_model(None)
-        
-        model = combo.get_model()
-        if model is not None:
-            it = combo.get_active_iter()
-            if it is not None:
-                row = model.get_value(it, 1)
-                setComboModelFromSelect(self.state_combo, row.states)
-        
-        
-    def on_state_combo_changed(self, combo, data=None):
-        self.place_combo.set_active(-1)
-        self.place_combo.child.set_text('')
-        
-        model = combo.get_model()
-        if model is not None:
-            it = combo.get_active_iter()
-            if it is not None:
-                row = model.get_value(it, 1)
-                select = row.places
-                if len(select) == 0:
-                    self.place_combo.set_sensitive(False)
-                else:
-                    setComboModelFromSelect(self.place_combo, select)
-                    self.place_combo.set_sensitive(True)
-        
-        
-    def on_place_combo_changed(self, combo, data=None):
-        pass
     
     
     def on_coord_entry_changed(self):
@@ -305,10 +215,6 @@ class CollectionEditor(Singleton):
                                  'alt_entry': 'elevation',
                                  'altacc_entry': 'elevation_accy',
                                  'habitat_entry': 'habitat',
-#                                 'region_combo': 'regionID',
-#                                 'area_combo': 'areaID',
-#                                 'state_combo': 'state',
-#                                 'place_combo': 'placeID',
                                  'notes_entry': 'notes'}
         
     def get_values(self):
@@ -351,20 +257,12 @@ class CollectionEditor(Singleton):
         
         # habitat_entry
         set_dict_value_from_widget(self.glade_xml, 'habitat_entry', 'habitat', values)
-#        # country_combo
-#        set_dict_value_from_widget(self.glade_xml, 'region_combo', 'region', values)
-#        # primary_combo
-#        set_dict_value_from_widget(self.glade_xml, 'area_combo', 'area', values)
-#        # secondary_combo
-#        set_dict_value_from_widget(self.glade_xml, 'state_combo', 'state', values)
-#        # geounit_combo
-#        set_dict_value_from_widget(self.glade_xml, 'place_combo', 'place', values)
-        # notes_entry
         set_dict_value_from_widget(self.glade_xml, 'notes_entry', 'notes', values)
         return values
         
         
-class DonationEditor(Singleton):
+#class DonationEditor(Singleton):
+class DonationEditor:
 
     initialized = False
     
@@ -467,8 +365,9 @@ class SourceEditor(TableEditor):
         self.glade_xml = gtk.glade.XML(path + os.sep + 'source_editor.glade')
         self.dialog = self.glade_xml.get_widget('source_dialog')
         self.source_box = self.glade_xml.get_widget('source_box')
-        handlers = {'on_response': self.on_response,
-                    'on_type_combo_changed': self.on_type_combo_changed,}
+#        handlers = {'on_response': self.on_response,
+#                    'on_type_combo_changed': self.on_type_combo_changed,}
+        handlers = {'on_type_combo_changed': self.on_type_combo_changed,}
         self.glade_xml.signal_autoconnect(handlers)
         
         # set everything to their default states
@@ -495,56 +394,6 @@ class SourceEditor(TableEditor):
         pass
     
     
-    def commit_changes(self):
-        # TODO: since the source is a single join and is only relevant
-        # to its parent(accession) then we should allow a way to get
-        # the values so that wherever the values are returned then the
-        # accession foreign key can be set there and commited
-        active = self.type_combo.get_active_text()
-        #table, values = self.get_values(active)
-        
-        table = self.curr_editor.table
-        values = self.curr_editor.get_values()
-        
-        print values
-        if values is None: 
-            return
-        conn = sqlhub.getConnection()
-        trans = conn.transaction()        
-        #self.commited = None
-        t = None
-        try:
-            print 'create table'
-            # i guess the connection is inherant
-            if self.select is None: # create a new table row
-                t = table(connection=trans, **values)
-            else: # update the table row passed in
-                # TODO: if select and table aren't the same we should
-                # ask the user if they want to change the type source
-                if not isinstance(self.select, self.curr_editor.table):
-                    msg = 'SourceEditor.commit_changes: the type has changed'
-                    raise ValueError(msg)
-                self.select.set(**values)
-                t = self.select
-                #raise NotImplementedError("TODO: updating a collection "\
-                #                          "hasn't been implemented")
-                #pass
-                
-        except Exception, e:
-            print 'SourceEditor.commited: could not commit'
-            print e
-            trans.rollback()
-            return False
-        else:
-            trans.commit()
-            print 'commited'
-            if t is None:
-                raise ValueError("SourceEditor.commit_changes: t is None")
-            self.committed = t
-        
-        return True
-        
-        
     def on_type_combo_changed(self, combo, data=None):
         debug('entered on_type_combo_changed')
         if self.curr_editor is not None:
@@ -581,43 +430,70 @@ class SourceEditor(TableEditor):
         #self.curr_box = box
         editor.box.show_all()
         #self.dialog.show_all()
-    
         
-    def on_response(self, dialog, response, data=None):
-        #print "SourceEditor.on_response"
-        if response == gtk.RESPONSE_OK:
-            print "response ok"
-            #if self._dirty:
-            if not self.commit_changes():
-                print 'SourceEditor.on_response: could not commit changes'
-                return
-        else:
-            msg = 'Are you sure? You will lose your changes'
-            if self._dirty and utils.yes_no_dialog(msg):
-                return
-            
-        # remove the editor before destroying the dialog or if we try and show
-        # it again whatever was the current editor was destroyed when the dialog
-        # was destroyed won't work    
-        if self.curr_editor is not None:            
-            self.source_box.remove(self.curr_editor.box)
-            self.curr_editor = None
-            
-        self.dialog.destroy()    
         
-
+    def commit_changes(self):
+        # TODO: since the source is a single join and is only relevant
+        # to its parent(accession) then we should allow a way to get
+        # the values so that wherever the values are returned then the
+        # accession foreign key can be set there and commited
+        active = self.type_combo.get_active_text()
+        #table, values = self.get_values(active)
+        
+        table = self.curr_editor.table
+        values = self.curr_editor.get_values()
+        
+        print values
+        if values is None: 
+            return
+        #conn = sqlhub.getConnection()
+        #trans = conn.transaction()        
+        trans = sqlhub.processConnection.transaction()
+        #self.commited = None
+        t = None
+        try:
+            print 'create table'
+            # i guess the connection is inherant
+            if self.select is None: # create a new table row
+                t = table(connection=trans, **values)
+            else: # update the table row passed in
+                # TODO: if select and table aren't the same we should
+                # ask the user if they want to change the type source
+                if not isinstance(self.select, self.curr_editor.table):
+                    msg = 'SourceEditor.commit_changes: the type has changed'
+                    raise ValueError(msg)
+                self.select.set(**values)
+                t = self.select
+                #raise NotImplementedError("TODO: updating a collection "\
+                #                          "hasn't been implemented")
+                #pass
+            trans.commit()
+            self.committed = t
+        except Exception, e:
+            msg = "SourcedEditor.commit_changes(): could not commit changes"
+            utils.message_details_dialog(msg, traceback.format_exc(), 
+                                         gtk.MESSAGE_ERROR)
+            trans.rollback()
+            return False
+        
+        return True
+        
+        
     def start(self):
-        """
-        start the editor and block until finished, 
-        return the value edited
-        """
-        # TODO: if commit_on_response is False we could return
-        # from here since it blocks anyways
-        #self.commit_on_response = commit_on_response        
-        self.dialog.run() # blocks
-        #print 'start: get_values'
-        #t, v = self.get_values(self.type_combo.get_active_text())
-        #self.dialog.destroy()
+        debug("entered SourceEditor.start()")
+        # this ensures that the visibility is set properly in the meta before
+        # before everything is created
+
+        while True:
+            msg = 'Are you sure you want to lose your changes?'
+            if self.dialog.run() == gtk.RESPONSE_OK:
+                if self.commit_changes():
+                    debug("committed changes")
+                    break
+            elif self._dirty and utils.yes_no_dialog(msg):
+                break      
+            else:
+                break                          
+        self.dialog.destroy()
         return self.committed
-
-
+    

@@ -80,7 +80,7 @@ class Accession(BaubleTable):
     source_type = StringCol(length=64, default=None)    
                             
     # the source type says whether we should be looking at the 
-    # collection or _donation join
+    # _collection or _donation joins for the source info
     _collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
     _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
     
@@ -363,19 +363,27 @@ else:
         def update(self, value):        
             if self.curr_box is not None:
                 self.vbox.remove(self.curr_box)
-                            
-            if type(value) == tables["Collection"]:
+                    
+            assert value is not None
+            
+            if isinstance(value, tables["Collection"]):
                 w = self.glade_xml.get_widget('collections_box')
                 w.unparent()
                 self.curr_box = w
-                self.update_collections(value)
-            elif type(value) == tables["Donation"]:
+                self.update_collections(value)        
+            elif isinstance(value, tables["Donation"]):
                 w = self.glade_xml.get_widget('donations_box')
                 w.unparent()
                 self.curr_box = w
-                self.update_donations(value)
+                self.update_donations(value)            
+            else:
+                msg = "Unknown type for source: " + str(type(value))
+                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             
+            #if self.curr_box is not None:
             self.vbox.pack_start(self.curr_box)
+            #self.set_expanded(False) # i think the infobox overrides this
+            #self.set_sensitive(False)
             
     
     class AccessionInfoBox(InfoBox):
