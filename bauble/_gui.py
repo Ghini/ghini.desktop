@@ -357,7 +357,7 @@ class GUI:
         name = cm.get_connection_name()
         cm.destroy()
             #gtk.gdk.threads_leave()
-        bauble.open_database(uri, name, True)
+        self.bauble.open_database(uri, name, True)
         
         # TODO reset the view
             

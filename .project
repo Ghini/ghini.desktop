@@ -3,6 +3,8 @@
 	<name>bauble</name>
 	<comment></comment>
 	<projects>
+		<project>FormEncode</project>
+		<project>SQLObject</project>
 	</projects>
 	<buildSpec>
 		<buildCommand>

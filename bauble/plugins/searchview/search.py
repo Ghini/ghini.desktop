@@ -176,7 +176,8 @@ class SearchView(BaubleView):
         self.entry.grab_focus() # this doesn't seem to work
 
     
-    def set_infobox_from_row(self, row):        
+    def set_infobox_from_row(self, row):    
+        return    
         if not hasattr(self, 'infobox'):
             self.infobox = None
         
@@ -329,7 +330,7 @@ class SearchView(BaubleView):
         if child is None:
             return True # don't expand
         kids = getattr(row, child)
-        if len(kids):
+        if len(kids) > 0:
             self.append_children(model, iter, kids, True)
             #bauble.gui.stop_progressbar()
             return False

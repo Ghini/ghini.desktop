@@ -8,6 +8,10 @@ from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 import bauble.utils as utils
 
+# TODO: do a magic attribute on plant_id that checks if a plant id
+# already exists with the accession number, this probably won't work though
+# sense the acc_id may not be set when setting the plant_id
+
 class Plant(BaubleTable):
     
     # add to end of accession id, e.g. 04-0002.05
@@ -27,7 +31,7 @@ class Plant(BaubleTable):
 #                          ('T', 'Tissue culture'),
 #                          ('O', 'Other')]
     acc_type = EnumCol(enumValues=('P', # Whole plant
-                                   'S', # Seed or Sport
+                                   'S', # Seed or Spore
                                    'V', # Vegetative Part
                                    'T', # Tissue culture
                                    'O', # Other

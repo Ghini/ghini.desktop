@@ -44,8 +44,15 @@ class BaubleApp:
               "this is what you want to do?"
         if not utils.yes_no_dialog(msg):
             return
-        for p in plugins.values():
-            p.create_tables()
+        import pysqlite2.dbapi2
+        try:
+            for p in plugins.values():
+                p.create_tables()
+        except pysqlite2.dbapi2.OperationalError:
+            msg = "Error creating the database. This sometimes happens " \
+            "when trying to create a SQLite database on a network drive. " \
+            "Try creating the database in a local drive or folder."
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
 
     #

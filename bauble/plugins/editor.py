@@ -28,6 +28,10 @@ from bauble.utils.log import log, debug
     
 # TODO: if you edit a row that has it's own editor then it doesn't call
 # set_dirty
+
+# TODO: create a contextual helps so that pressing ctrl-space on a cell
+# gives a tooltip or dialog giving you more information about the current
+# cell you are editing
     
 class GenericViewColumn(gtk.TreeViewColumn):
     
@@ -937,7 +941,8 @@ class TreeViewEditorDialog(TableEditorDialog):
                 for col, col_attr in self.table_meta.foreign_keys:
                     if col in foreigners:
                         c = foreigners[col]
-                        foreign_table = c.__class__.get(t.id, connection=trans)
+                        debug(c)
+                        foreign_table = c.__class__.get(c.id, connection=trans)
                         foreign_table.set(**{col_attr: t.id})
                         trans.commit()
                         #c.set(**{col_attr: t.id})                
