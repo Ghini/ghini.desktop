@@ -364,7 +364,9 @@ else:
             if self.curr_box is not None:
                 self.vbox.remove(self.curr_box)
                     
-            assert value is not None
+            #assert value is not None
+            if value is None:
+                return
             
             if isinstance(value, tables["Collection"]):
                 w = self.glade_xml.get_widget('collections_box')

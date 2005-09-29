@@ -636,6 +636,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         # or it is one that was added automatically but never used
         self.dummy_row = False
         
+        self.connect('response', self.on_response)
+        
         
     def start(self):
 #        debug("entered TreeViewEditorDialog.start()")
@@ -658,6 +660,12 @@ class TreeViewEditorDialog(TableEditorDialog):
             else:
                 break                          
         self.destroy()
+
+
+    def on_response(self, widget, response, data=None):
+        debug('on_response')
+        self.store_column_widths()
+        self.store_visible_columns()
 
     
     def init_gui(self):

@@ -177,7 +177,7 @@ class SearchView(BaubleView):
 
     
     def set_infobox_from_row(self, row):    
-        return    
+#        return    
         if not hasattr(self, 'infobox'):
             self.infobox = None
         
@@ -189,7 +189,7 @@ class SearchView(BaubleView):
         if self.infobox is not None:
             if self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
-            self.infobox.destroy()
+            # self.infobox.destroy() # temporary disable, may be causing a crash
 
         # row is an object instance not a class so we have to get the class
         # and then the name to look it up in self.view_meta
@@ -200,7 +200,6 @@ class SearchView(BaubleView):
             if row is not None:
                 self.infobox.update(row)
             self.pane.pack2(self.infobox, False, True)
-            #self.pane.pack2(self.infobox, True, True)
         self.pane.show_all() # reset the pane
 
 
