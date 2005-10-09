@@ -1,7 +1,7 @@
 #
 # bauble module
 #
-
+print "imported bauble"
 import bauble.utils as utils
 import bauble.paths as paths
 
@@ -23,7 +23,7 @@ try:
 except ImportError:
     msg = "SQLObject not installed. Please install SQLObject from "\
           "http://www.sqlobject.org"
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
     raise
 
 from bauble._app import BaubleApp

@@ -41,6 +41,7 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
                           type=type, buttons=buttons, message_format=msg)        
     r = d.run()
     d.destroy()
+    return r
     
 
 def yes_no_dialog(msg):

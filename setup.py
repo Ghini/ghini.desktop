@@ -1,4 +1,9 @@
-from distutils.core import setup
+# try:
+#     from ez_setup import use_setuptool
+#     use_setuptools()
+#     from setuptools import setup
+# except ImportError:
+from distutils.core import setup    
 import os
 import glob
 
@@ -57,26 +62,31 @@ for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
     globs += [(p.replace('.',os.sep) + os.sep + extra_path, 
               glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
              for p in plugins_pkgs]
-data = [p for p in globs if len(p[1]) != 0]
-#print data
-#sys.exit(1)
+data = [p for p in globs if len(p[1]) != 0])
 
-setup(name="bauble",
+setup(name="Bauble",
       version="0.1",      
-      url="http://bauble.belizebotanic.org",
-      author_email='brett@belizebotanic.org',
-      options=opts,      
-      console=["bauble.py"],
-#      package_dir = {'sqlobject': 'src/lib/sqlobject',
-#                     'pysqlite2': 'src/lib/pysqlite2',
-#                     'lib': 'src/lib'},
+#      console=["bauble.py"],
+      options=opts,
       packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + \
-          plugins_pkgs,
-      #package_data={'pysqlite2': glob.glob("src\\lib\\pysqlite2\\*.pyd")},            
-      package_data={'': ["*.ui"],
-                    'bauble.plugins.geography': ['default/*.txt']},
-                                                  
-      data_files=[('bauble', ('bauble/bauble.ui',)),
-                  ('bauble/images', glob.glob('bauble/images/*.png'))] + 
-                  data
+      plugins_pkgs,
+      scripts=["scripts/bauble"], # for setuptools?      
+      package_data={'': ['*.ui','images/*.png'],
+                    'bauble.plugins.geography': ['default/*.txt'],
+                    'bauble.plugins.garden': ['*.glade']},
+#      install_requires=["FormEncode==0.2.2", "SQLObject==0.7",
+#                        "pysqlite==2.0.4"],
+#                        "PyGTK>=2.6"],# pygtk is not supported using distutils
+#      extras_requires=["mysql-python and psycopg"
+
+      # metadata
+      author="Brett",
+      author_email="brett@belizebotanic.org",
+      description="""\
+      Bauble is a biodiversity collection manager software application
+      """,
+      license="GPL",
+      keywords="database biodiversity botanic",
+      url="http://bauble.belizebotanic.org",
+      download_url="http://bauble.belizebotanic.org/bauble-0.1.tar.gz"      
      )            

@@ -203,25 +203,25 @@ class SearchView(BaubleView):
         self.pane.show_all() # reset the pane
 
 
-    def set_infobox_from_row_old(self, row):
-        #return
-        if not hasattr(self, 'infobox'):
-            self.infobox = None
-            
-        if self.infobox is not None:
-            if self.infobox.parent == self.pane:
-                self.pane.remove(self.infobox)
-            self.infobox.destroy()
-            
-        t = type(row)
-        #if self.infobox_map.has_key(t):
-        if t in self.infobox_map:
-            self.infobox = self.infobox_map[t]()
-            if row is not None:
-                self.infobox.update(row)
-            self.pane.pack2(self.infobox, False, True)
-            #self.pane.pack2(self.infobox, True, True)
-        self.pane.show_all() # reset the pane
+#    def set_infobox_from_row_old(self, row):
+#        #return
+#        if not hasattr(self, 'infobox'):
+#            self.infobox = None
+#            
+#        if self.infobox is not None:
+#            if self.infobox.parent == self.pane:
+#                self.pane.remove(self.infobox)
+#            self.infobox.destroy()
+#            
+#        t = type(row)
+#        #if self.infobox_map.has_key(t):
+#        if t in self.infobox_map:
+#            self.infobox = self.infobox_map[t]()
+#            if row is not None:
+#                self.infobox.update(row)
+#            self.pane.pack2(self.infobox, False, True)
+#            #self.pane.pack2(self.infobox, True, True)
+#        self.pane.show_all() # reset the pane
 
         
     def on_results_view_select_row(self, view):
@@ -713,9 +713,14 @@ class SearchView(BaubleView):
         #self.content_box.pack_start(vpane, True, True)
         
         #self.content_box.pack_start(pane_box)
-        self.content_box.pack_start(self.pane)
-        
+        self.content_box.pack_start(self.pane)        
         self.add(self.content_box)
+
+
+        # add accelerators
+        accel_group = gtk.AccelGroup()
+        self.entry.add_accelerator("grab-focus", accel_group, ord('L'),
+                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         self.show_all()
         
 
