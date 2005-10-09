@@ -44,15 +44,22 @@ class BaubleApp:
               "this is what you want to do?"
         if not utils.yes_no_dialog(msg):
             return
-        import pysqlite2.dbapi2
-        try:
-            for p in plugins.values():
-                p.create_tables()
-        except pysqlite2.dbapi2.OperationalError:
-            msg = "Error creating the database. This sometimes happens " \
-            "when trying to create a SQLite database on a network drive. " \
-            "Try creating the database in a local drive or folder."
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            
+        # TODO: this bails is pysqlite2 isn't installed
+#        has_pysqlite2 = True
+#        try:        
+#            import pysqlite2.dbapi2
+#        except ImportError:
+#            has_pysqlite2 = False
+        
+#        try:
+        for p in plugins.values():
+            p.create_tables()
+#        except pysqlite2.dbapi2.OperationalError:
+#            msg = "Error creating the database. This sometimes happens " \
+#            "when trying to create a SQLite database on a network drive. " \
+#            "Try creating the database in a local drive or folder."
+#            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
 
     #

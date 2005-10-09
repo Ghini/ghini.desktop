@@ -66,11 +66,15 @@ data = [p for p in globs if len(p[1]) != 0]
 
 setup(name="Bauble",
       version="0.1",      
-#      console=["bauble.py"],
+      console=["scripts/bauble"],
+      windows=["scripts/bauble"],          
       options=opts,
       packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + \
       plugins_pkgs,
       scripts=["scripts/bauble"], # for setuptools?      
+      data_files=[('bauble', ('bauble/bauble.ui',)),
+                  ('bauble/images', glob.glob('bauble/images/*.png'))] + 
+                  data,
       package_data={'': ['*.ui','images/*.png'],
                     'bauble.plugins.geography': ['default/*.txt'],
                     'bauble.plugins.garden': ['*.glade']},

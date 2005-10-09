@@ -21,21 +21,22 @@
 
 import os
 import gtk
+import bauble.utils as utils
 
 try:
     import libxml2
 except ImportError, e:
-    utils.message_box("Could not find libxml2. Please download and install it.")
+    utils.message_dialog("Could not find libxml2. Please download and install it.")
     raise
     
 try:
     import libxslt
 except ImportError, e:
-    utils.message_box("Could not find libxslt. Please download and install it.")    
+    utils.message_dialog("Could not find libxslt. Please download and install it.")    
     raise
     
 from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
-import bauble.utils as utils
+
 from bauble.utils.log import log, debug
 from bauble.plugins.imex_abcd import abcd
     
