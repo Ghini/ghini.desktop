@@ -640,7 +640,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         
     def start(self):
-#        debug("entered TreeViewEditorDialog.start()")
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
@@ -659,7 +658,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                 break      
             else:
                 break               
-                           
+
         self.store_column_widths()
         self.store_visible_columns()
         self.destroy()
@@ -671,7 +670,6 @@ class TreeViewEditorDialog(TableEditorDialog):
     
     def start_gui(self):
         vbox = gtk.VBox(False)
-                
         self.start_tree_view()
         self.create_toolbar()                
         vbox.pack_start(self.toolbar, fill=False, expand=False)
@@ -688,8 +686,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         # set ok button insensitive
         ok_button = self.action_area.get_children()[1]
         ok_button.set_sensitive(False)        
-        self.show_all()
-                
+        
+        self.show_all()        
                 
     def init_tree_view(self):
         """
@@ -748,22 +746,19 @@ class TreeViewEditorDialog(TableEditorDialog):
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
         # TODO: would rather sort case insensitive
-        #for name, meta in sorted(self.column_meta.iteritems()):
         for name, col in sorted(self.columns.iteritems()):
             #if meta.join and not meta.type == SOSingleJoin and not meta.editor:
             #    continue            
             title = col.get_property('title').replace('_', '__') # no mnemonics
-            item = gtk.CheckMenuItem(title) 
-            
+            item = gtk.CheckMenuItem(title)            
             if col.meta.required:
-                item.set_sensitive(False)
-                
+                item.set_sensitive(False)                
             item.set_active(col.get_visible())
             item.connect("toggled", self.on_column_menu_toggle, name)
             menu.append(item)
-        menu.show_all()
+            item.show()
         col_button.set_menu(menu)
-        self.toolbar.insert(col_button, 0)  
+        self.toolbar.insert(col_button, -1)  
         
             
     def foreign_does_not_exist(self, name, value):
