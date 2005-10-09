@@ -50,10 +50,10 @@ class SearchMeta:
             raise ValueError("SearchMeta.__init__: column_names must be a list")
         self.columns = column_names
         
-        # TODO: if the the column is a join then it will sort by the id of the joined objects rather 
-        # than the values of the objects, we should check if any of the columns passed are joins 
-        # and handle them properly with and AND() or something
-        #
+        # TODO: if the the column is a join then it will sort by the id of the
+        # joined objects rather than the values of the objects, we should check
+        # if any of the columns passed are joins and handle them properly with
+        # and AND() or something
         self.sort_column = sort_column 
         
 
@@ -63,7 +63,7 @@ class ResultsMeta:
         # strict typing, we probably don't need this
 #        if infobox_class is not None and \
 #          not issubclass(infobox_class, InfoBox):
-#            msg = "infobox_class must be a class whose parent class is InfoBox"
+#            msg= "infobox_class must be a class whose parent class is InfoBox"
 #            raise ValueError("ResultsViewMeta.__init__: ", msg)
         self.editor = editor_class
         self.expand_child = expand_child_name
@@ -550,14 +550,27 @@ class SearchView(BaubleView):
             # TODO:
             # it is possible that the row can be valid but the value returned
             # from __str__ is none b/c there is nothing in the column, this
-            # really shouldn't b/c the column which we use for __str__ shouldn't
-            # have a default which means that somewhere it is getting set 
+            # really shouldn't b/c the column which we use for __str__
+            # shouldn't have a default which means that somewhere it is
+            # getting set 
             # explicitly to None, i think this is happening while importing one
             # of the geography tables with that funny empty row
             # UPDATE: the problem is with the name column of the Places table
-            # it shouldn't have a default and in the fix_geo.py script we should
-            # set the empty name to (cultivated) or something along those lines
-            cell.set_property('text', str(row))
+            # it shouldn't have a default and in the fix_geo.py script we
+            # should set the empty name to (cultivated) or something along
+            # those lines
+            # TODO: this is special cased for accession but maybe we could
+            # register a call back to format the string, or we could
+            # just provide a certain function like searchview_row_str()
+            # and here we test if that function exists and if not just call
+            # str
+            if isinstance(row, tables['Accession']):
+                cell.set_property('markup', "%s <i>(%s)</i>" %
+                                  (str(row), str(row.plantname)))
+#                 cell.set_property('text', "%s (%s)" %
+#                                   (str(row), str(row.plantname)))
+
+            else: cell.set_property('text', str(row))
 
 
     def on_key_press(self, widget, event, data=None):

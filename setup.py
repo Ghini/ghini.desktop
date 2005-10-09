@@ -62,7 +62,7 @@ for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
     globs += [(p.replace('.',os.sep) + os.sep + extra_path, 
               glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
              for p in plugins_pkgs]
-data = [p for p in globs if len(p[1]) != 0])
+data = [p for p in globs if len(p[1]) != 0]
 
 setup(name="Bauble",
       version="0.1",      
