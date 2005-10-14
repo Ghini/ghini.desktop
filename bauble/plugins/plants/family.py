@@ -6,6 +6,7 @@
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables
 from bauble.plugins.editor import TreeViewEditorDialog
+from datetime import datetime
 
 class Family(BaubleTable):
 
@@ -14,6 +15,11 @@ class Family(BaubleTable):
 
     genera = MultipleJoin("Genus", joinColumn="family_id")
     
+    
+#    _created = DateTimeCol(default=datetime.now(), dbName='_created')
+#    _updated = DateTimeCol(default=datetime.now(), dbName='_updated')
+#    def _SO_setValue(self, name, value, from_python, to_python):
+#        self.BaubleTable(name, value, from_python, to_python)
     # internal
     #_entered = DateTimeCol(default=None, forceDBName=True)
     #_changed = DateTimeCol(default=None, forceDBName=True)

@@ -43,9 +43,11 @@
 
 import os, sys, traceback, re
 import gtk
-from sqlobject import SQLObject, sqlmeta
 import bauble.utils as utils
 from bauble.utils.log import log, debug
+from sqlobject import SQLObject, sqlmeta, DateTimeCol, StringCol
+#from sqlobject.inheritance import InheritableSQLObject
+from datetime import datetime
 
 plugins = {}
 views = {}
@@ -194,12 +196,27 @@ class BaublePlugin(object):
             t.createTable()
         
         
-class BaubleTable(SQLObject):        
+class BaubleTable(SQLObject):
     sqlmeta.cacheValues = False
     
-    def __init__(self, **kw):
-        super(BaubleTable, self).__init__(**kw)
+    def __init__(self, **kw):        
+        super(BaubleTable, self).__init__(**kw)        
         self.values = {}
+        
+### i can't get this to work, i don't understand
+#    """
+#    This is the part to enable automatic updating of changed objects
+#    """
+#    _created = DateTimeCol(default=datetime.now(), dbName='_created')
+#    _updated = DateTimeCol(default=datetime.now(), dbName='_updated')
+#    def _SO_setValue(self, name, value, from_python, to_python):
+#        debug(name)
+#        if name == '_updated' :
+#            debug('_updating')
+#            SQLObject._SO_setValue(self, name, value, from_python, to_python)            
+#        else :
+#            self.set(**{name: value, '_updated' : datetime.now()})                
+
     #values = {}
     #@classmethod
     #def _get_values

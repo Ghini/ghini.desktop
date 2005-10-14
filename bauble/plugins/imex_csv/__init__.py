@@ -22,7 +22,8 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOBoolCol: lambda x: bool(x),
                           sqlobject.SOStringCol: lambda x: str(x),
                           sqlobject.SOEnumCol: lambda x: x,
-                          sqlobject.SOUnicodeCol: lambda x: x}
+                          sqlobject.SOUnicodeCol: lambda x: x,
+                          sqlobject.SODateTimeCol: lambda x: x}
                           #sqlobject.SOUnicodeCol: lambda x: unicode(x)
                    
                           
@@ -138,7 +139,7 @@ class CSVImporter:
         for col in table.sqlmeta.columnList:
             if type(col) not in column_type_validators:
                 debug('no validator')
-                raise Exception("no validator for col" + col.name + \
+                raise Exception("no validator for col " + col.name + \
                                 " with type " + str(col.__class__))                
             validators[col.name] = column_type_validators[type(col)]
         validators['id'] = type_validators[int]

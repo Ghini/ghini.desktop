@@ -1016,6 +1016,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         columns = TreeViewEditorDialog.ColumnDict()
         for name, col in self.table.sqlmeta.columns.iteritems():
             #debug("create_view_column: %s -- %s", name, col)
+            if name.startswith("_"): # private/not editable
+                continue
             title = name.replace('_', '__')
             if isinstance(col, SOEnumCol):
                 column = ComboColumn(self.view, title, so_col=col)
