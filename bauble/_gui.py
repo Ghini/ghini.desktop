@@ -294,6 +294,7 @@ class GUI:
         menu = gtk.Menu()
         submenus = {}
         for tool in tools.values():
+
             item = gtk.MenuItem(tool.label)
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             if tool.category is None: # not category
@@ -306,6 +307,8 @@ class GUI:
                     menu.prepend(category_menu_item)
                     submenus[tool.category] = category_menu
                 submenus[tool.category].append(item)
+            if not tool.enabled:
+                item.set_sensitive(False)
         return menu
         
         

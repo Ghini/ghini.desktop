@@ -19,31 +19,15 @@
 # be a separate plugin that requires search view 
 #***********
 
-import os
+import os, traceback
 import gtk
 import bauble.utils as utils
-
-try:
-    import libxml2
-except ImportError, e:
-    utils.message_dialog("Could not find libxml2. Please download and install it.")
-    raise
-    
-try:
-    import libxslt
-except ImportError, e:
-    utils.message_dialog("Could not find libxslt. Please download and install it.")    
-    raise
-    
 from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
-
 from bauble.utils.log import log, debug
 from bauble.plugins.imex_abcd import abcd
     
-
 class LabelMaker(gtk.Dialog):
-    
-    
+        
     def __init__(self, plants, title='Label Maker', parent=None):
         """
         plants - the list of Plants to generate the labels from
@@ -110,7 +94,8 @@ class LabelMaker(gtk.Dialog):
         
         
     def create_pdf(self, filename=None):
-     
+        import libxml2
+        import libxslt
         import tempfile
         if filename is None:
             # no filename, create a temporary file            
@@ -251,6 +236,19 @@ class LabelMakerTool(BaubleTool):
 class LabelMakerPlugin(BaublePlugin):
     tools = [LabelMakerTool]
     depends = ["ABCDImexPlugin"]
+        
+    try:
+        import libxml2
+    except ImportError: 
+        LabelMakerTool.enabled = False
+        debug(traceback.format_exc())
+    
+    try:
+        import libxslt
+    except ImportError:
+        LabelMakerTool.enabled = False
+        debug(traceback.format_exc())
+
 plugin = LabelMakerPlugin
         
     

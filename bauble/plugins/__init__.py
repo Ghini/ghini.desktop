@@ -45,8 +45,7 @@ import os, sys, traceback, re
 import gtk
 import bauble.utils as utils
 from bauble.utils.log import log, debug
-from sqlobject import SQLObject, sqlmeta, DateTimeCol, StringCol
-#from sqlobject.inheritance import InheritableSQLObject
+from sqlobject import SQLObject, sqlmeta, DateTimeCol
 from datetime import datetime
 
 plugins = {}
@@ -236,7 +235,7 @@ class BaubleView(gtk.Frame):
 class BaubleTool(object):
     category = None
     label = None
-
+    enabled = True
     @classmethod
     def start(cls):
         pass

@@ -1,7 +1,7 @@
 #
 # bauble module
 #
-print "imported bauble"
+
 import bauble.utils as utils
 import bauble.paths as paths
 
