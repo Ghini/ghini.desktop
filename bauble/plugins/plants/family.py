@@ -11,7 +11,7 @@ from datetime import datetime
 class Family(BaubleTable):
 
     family = StringCol(length=45, notNull=True, alternateID="True")
-    comments = StringCol(default=None)
+    notes = StringCol(default=None)
 
     genera = MultipleJoin("Genus", joinColumn="family_id")
     
@@ -48,7 +48,7 @@ class FamilyEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
                                       parent, select=select, defaults=defaults)
         titles = {'family': 'Family',
-                  'comments': 'Comments'}               
+                  'notes': 'Notes'}
         self.columns.titles = titles
 
 

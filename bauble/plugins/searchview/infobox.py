@@ -23,7 +23,8 @@ def set_widget_value(glade_xml, widget_name, value):
         value = DEFAULT_VALUE
         
     if isinstance(w, gtk.Label):
-        w.set_text(str(value))
+        #w.set_text(str(value))
+        w.set_markup(str(value))
     if isinstance(w, gtk.TextView):
         w.get_buffer().set_text(value)
     

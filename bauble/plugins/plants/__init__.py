@@ -19,11 +19,12 @@ import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor
 from genus import Genus, GenusEditor
-from plantname import Plantname, PlantnameEditor, PlantnameInfoBox
+from plantname import Plantname, PlantMeta, PlantnameEditor, PlantnameInfoBox
+from vernacularname import VernacularName
 
 
 class PlantsPlugin(BaublePlugin):
-    tables = [Family, Genus, Plantname]
+    tables = [Family, Genus, Plantname, PlantMeta, VernacularName]
     editors = [FamilyEditor, GenusEditor, PlantnameEditor]
     
     @classmethod
@@ -65,9 +66,9 @@ class PlantsPlugin(BaublePlugin):
         # genera and plantnames take along time so ask the user if
         # they want to import them
         if utils.yes_no_dialog("Would you like to import the Genera?"):            
-            csv.start([path + os.sep + "Genus.txt"])
-            if utils.yes_no_dialog("Would you like to import the Plantnames?"):
-                csv.start([path + os.sep + "Plantname.txt"])            
+            if csv.start([path + os.sep + "Genus.txt"]):
+                if utils.yes_no_dialog("Would you like to import the Plantnames?"):
+                    csv.start([path + os.sep + "Plantname.txt"])
 
     
     def install(cls):

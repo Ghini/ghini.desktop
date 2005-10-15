@@ -16,15 +16,16 @@ from donor import Donor, DonorEditor
 
 # other ideas:
 # - cultivation table
-# - conservation table    
+# - conservation table
 
 class GardenPlugin(BaublePlugin):
 
     editors = [AccessionEditor, LocationEditor, PlantEditor, DonorEditor, 
-               SourceEditor, ReferenceEditor]
+               SourceEditor]#, ReferenceEditor]
             #ReferenceEditor,DonorEditor, SourceEditor]
 
-    tables = [Accession, Location, Plant, Reference, Donor, Donation, Collection]
+    tables = [Accession, Location, Plant, Donor, Donation, Collection]
+    #tables = [Accession, Location, Plant, Reference, Donor, Donation, Collection]
     
     @classmethod
     def init(cls):

@@ -29,9 +29,9 @@ class Reference(BaubleTable):
     label = StringCol(length=64)
     reference = StringCol()
     
-    plantname = ForeignKey("Plantname")
-    family = ForeignKey("Family")
-    genus = ForeignKey("Genus")
+    plantname = ForeignKey("Plantname", default=None)
+    family = ForeignKey("Family", default=None)
+    genus = ForeignKey("Genus", default=None)
 
     def __str__(self): 
         return self.label
@@ -49,5 +49,8 @@ class ReferenceEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, Reference, "Reference Editor", 
                                       parent, select=select, defaults=defaults)        
         titles = {"label": "Label",
-                  "reference": "Reference"}
+                  "reference": "Reference",
+                  "plantnameID": "Plantname",
+                  "familyID": "Family",
+                  "genusID": "Genus"}
         self.columns.titles = titles

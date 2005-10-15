@@ -202,6 +202,8 @@ class BaubleTable(SQLObject):
         super(BaubleTable, self).__init__(**kw)        
         self.values = {}
         
+    def markup(self):
+        return str(self)
 ### i can't get this to work, i don't understand
 #    """
 #    This is the part to enable automatic updating of changed objects

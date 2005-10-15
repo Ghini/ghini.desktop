@@ -16,16 +16,16 @@ import gtk
 
 import re
 
-def plantname2str(p, authors=False):    
-    #TODO: this needs alot of work to be complete
-    name = str(p.genus) + " " + p.sp
-    if p.sp_author is not None and authors is not False:
-        name += " %s" % p.sp_author
-    if p.isp_rank is not None:
-        name += " %s" % p.isp_rank
-    if p.isp is not None:
-        name += " %s" % p.isp
-    return name.strip()
+#def plantname2str(p, authors=False):    
+#    #TODO: this needs alot of work to be complete
+#    name = str(p.genus) + " " + p.sp
+#    if p.sp_author is not None and authors is not False:
+#        name += " %s" % p.sp_author
+#    if p.isp_rank is not None:
+#        name += " %s" % p.isp_rank
+#    if p.isp is not None:
+#        name += " %s" % p.isp
+#    return name.strip()
 
 
 def get_combo_text(combo, column=0):

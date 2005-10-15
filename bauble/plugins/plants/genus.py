@@ -26,8 +26,14 @@ class Genus(BaubleTable):
     # NOTE: we should at least warn the user that a duplicate is being entered
     genus = StringCol(length=32)#, notNull=True, alternateID=True)    
     
-    hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
-    comments = StringCol(default=None)
+    #hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
+    hybrid = EnumCol(enumValues=("H", 
+                                 "x", 
+                                 "+",
+                                 None), 
+                     default=None) 
+                        
+    notes = StringCol(default=None)
     author = UnicodeCol(length=255, default=None)
     #synonym_id = IntCol(default=None) # an id into this table
     # this causes a problem in postgres if you try to enter a synonym
@@ -50,7 +56,10 @@ class Genus(BaubleTable):
     #_updated = DateTimeCol(default=None)
 
     def __str__(self):
-        return self.genus # should include the hybrid sign
+        if self.hybrid:
+            return self.hybrid + ' ' + self.genus
+        else:
+            return self.genus
         
         
 #
@@ -68,9 +77,10 @@ class GenusEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
                                       parent, select=select, defaults=defaults)        
         titles = {'genus': 'Genus',
-                   'author': 'Author',
-                   'hybrid': 'Hybrid',
-                   'familyID': 'Family'}
+                  'author': 'Author',
+                  'hybrid': 'Hybrid',
+                  'familyID': 'Family',
+                  'notes': 'Notes'}
         self.columns.titles = titles
         self.columns["familyID"].meta.get_completions = self.get_family_completions
 

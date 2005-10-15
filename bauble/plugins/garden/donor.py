@@ -66,5 +66,10 @@ class DonorEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, Donor, "Donors Editor", 
                                       parent, select=select, defaults=defaults)                                          
         titles = {"name": "Name",
-                  "donor_type": "Donor Type"}
+                  "donor_type": "Donor Type",
+                  'address': 'Address',
+                  'email': 'Email',
+                  'fax': 'Fax #',
+                  'tel': 'Tel #'
+                 }
         self.columns.titles = titles

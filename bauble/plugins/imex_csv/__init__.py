@@ -44,6 +44,7 @@ class CSVImporter:
         """
         the simplest way to import, no threads, nothing
         """        
+        error = False # return value
         bauble.app.gui.window.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         
@@ -63,7 +64,8 @@ class CSVImporter:
             trans.rollback()
             msg = "Error importing values from %s into table %s\n" % (filename, table_name)
             sys.stderr.write(msg)            
-            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
+            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)            
+            error = True
         else:
             trans.commit()
             if sqlobject.sqlhub.processConnection.dbName == "postgres":
@@ -76,7 +78,7 @@ class CSVImporter:
         bauble.app.gui.window.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
         sqlobject.sqlhub.threadConnection = old_conn
-        
+        return not error
         
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):

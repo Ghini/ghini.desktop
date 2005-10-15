@@ -1,15 +1,46 @@
 #
 # Plantnames table definition
 #
-
+import os
 import gtk
 from sqlobject import *
 import bauble.utils as utils
+import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn
 from bauble.utils.log import log, debug
 
 
+# TODO create a meta table that holds information about a plantname 
+# like poisonous, etc. that way we don't have to bumble up plantname everytime
+# we want to add more meta information
+# TODO: allow us to search on somthing like meta=poisonous
+class PlantMeta(BaubleTable):
+    poison_humans = BoolCol(default=None)
+    poison_animals = BoolCol(default=None)
+    food_plant = StringCol(length=50, default=None)
+    
+    # TODO: create distribution table that holds one of each of the 
+    # geography tables which will hold the plants distribution, this
+    # distribution table could even be part of the geography module
+
+    # UPDATE: it might be better to do something like the source_type in the 
+    # the accessions, do we need the distribution table if we're only
+    # going to be holding one of the value from continent/region/etc, the only
+    # exception is that we also need to hold a cultivated value and possible
+    # something like "tropical", we can probably still use the distribution
+    # table as long as setting to and from the distribution is handled silently
+    #distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
+    #                           makeDefault=None)
+    # right now we'll just include the string from one of the tdwg 
+    # plant distribution tables though in the future it would be good
+    # to have a SingleJoin to a distribution table so we get the extra
+    # benefit of things like iso codes and hierarchial data, e.g. get
+    # all plants from africa
+    distribution = UnicodeCol(default=None)
+    
+    plantname = ForeignKey('Plantname', notNull=True)
+    
 #
 # Plantname table
 #
@@ -35,12 +66,8 @@ class Plantname(BaubleTable):
     sp_author = UnicodeCol(default=None)  # species author
         
     cv_group = StringCol(length=50, default=None)    # cultivar group
-    cv = StringCol(length=30, default=None)          # cultivar epithet
-    trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
-
-    # full name shouldn't be necessary, we can create the name from 
-    # the other entries
-    #full_name = StringCol(length=50, default=None)
+    #cv = StringCol(length=30, default=None)          # cultivar epithet
+    #trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
     
     supfam = StringCol(length=30, default=None)          
     subgen = StringCol(length=50, default=None)
@@ -60,6 +87,7 @@ class Plantname(BaubleTable):
                                    "subvar.", # sub variety
                                    "f.",     # form
                                    "subf.",  # subform
+                                   "cv.",    # cultivar                                   
                                    None), 
                        default=None)
 
@@ -118,8 +146,14 @@ class Plantname(BaubleTable):
                       default=None)
     
     # TODO: should be unicode
-    vernac_name = StringCol(default=None)          # vernacular name
-
+    #vernac_name = StringCol(default=None)          # vernacular name
+    # it would be best to display the vernacular names in a dropdown list
+    # with a way to add to the list    
+    vernacular_names = MultipleJoin('VernacularName', joinColumn='plantname_id')
+    # this is the default vernacular name we'll use
+    #default_vernacular = ForeignKey('VernacularName')
+    
+    
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table
     
@@ -128,57 +162,79 @@ class Plantname(BaubleTable):
     # look it up on www.ipni.org www.itis.usda.gov
     #taxonomic_status = StringCol()
     synonyms = MultipleJoin('Synonyms', joinColumn='plantname_id')
-    
-    poison_humans = BoolCol(default=None)
-    poison_animals = BoolCol(default=None)
-    food_plant = StringCol(length=50, default=None)
-    
-    # TODO: create distribution table that holds one of each of the 
-    # geography tables which will hold the plants distribution, this
-    # distribution table could even be part of the geography module
-
-    # UPDATE: it might be better to do something like the source_type in the 
-    # the accessions, do we need the distribution table if we're only
-    # going to be holding one of the value from continent/region/etc, the only
-    # exception is that we also need to hold a cultivated value and possible
-    # something like "tropical", we can probably still use the distribution
-    # table as long as setting to and from the distribution is handled silently
-    #distribution = SingleJoin('Distribution', joinColumn='plantname_id', 
-    #                           makeDefault=None)
-    # right now we'll just include the string from one of the tdwg 
-    # plant distribution tables though in the future it would be good
-    # to have a SingleJoin to a distribution table so we get the extra
-    # benefit of things like iso codes and hierarchial data, e.g. get
-    # all plants from africa
-    distribution = UnicodeCol(default=None)
-
-    
+        
     # foreign keys and joins
     genus = ForeignKey('Genus', notNull=True)
     #accessions = MultipleJoin('Accessions', joinColumn='plantname_id')
     #images = MultipleJoin('Images', joinColumn='plantname_id')
     #references = MultipleJoin('Reference', joinColumn='plantname_id')
     
-    
-    ######## the rest? ##############    
-    #Lifeform = StringCol(length=10)
-#    tuses = StringCol(default=None) # taxon uses?
-#    trange = StringCol(default=None)# taxon range?
-    #pcomments = StringCol()
-    #Source1 = IntCol()
-    #Source2 = IntCol()
-    #Initials1st = StringCol(length=50)
-    #InitialsC = StringCol(length=50)
+    # hold meta information about this plant
+    plant_meta = SingleJoin('PlantMeta', joinColumn='plantname_id')        
 
-        
-    # internal
-    #Entered = DateTimeCol()
-    #Updated = DateTimeCol()
-    #Changed = DateTimeCol()
     
     def __str__(self):
-        return utils.plantname2str(self)
-
+          #TODO: this needs alot of work to be complete
+        #name = str(self.genus) + " " + self.sp
+        #if self.isp_rank is not None:
+        #    name = "%s %s %s" % (name, self.isp_rank, self.isp)
+        #return name.strip()
+        return Plantname.str(self)
+    
+    
+    @staticmethod
+    def str(plantname, authors=False, markup=False):
+        """
+        return the full plant name string
+        NOTE: it may be better to create a separate method for the markup
+        since substituting into the italic make slow things down, should do 
+        some benchmarks. also, which is faster, doing substitution this way or
+        by using concatenation
+        """    
+        # TODO: should do a translation table for any entities that might
+        # be in the author strings ans use translate, what else besided 
+        # ampersand could be in the author name
+        if markup:
+            italic = "<i>%s</i>"
+        else:
+            italic = "%s"
+        #name = "%s %s" % (italic % str(plantname.genus), italic % plantname.sp)
+        name = italic % str(plantname.genus)
+        
+        # take care of species hybrid
+        if plantname.sp_hybrid is not None:
+            # we don't have a second sp name for the hyrbid formula right now
+            # so we'll just use the isp for now
+            if plantname.isp is not None:
+                name += " %s %s %s " % (plantname.sp, plantname.sp_hybrid,
+                                       plantname.isp)
+            else:
+                name += ' %s %s' % (plantname.sp_hybrid, plantname.sp)
+        else:
+            name += ' ' + plantname.sp
+            
+        # cultivar groups and cultivars
+        if plantname.cv_group is not None:
+            if plantname.isp_rank == "cv.":
+                name += ' (' + plantname.cv_group + " Group) '" + \
+                plantname.isp + "'"
+            else: 
+                name += ' ' + plantname.cv_group + ' Group'
+            return name
+        
+        if plantname.sp_author is not None and authors is not False:
+            name += ' ' + plantname.sp_author.replace('&', '&amp;')
+        if plantname.isp_rank is not None:
+            if plantname.isp_rank == "cv.":
+                name += " '" + plantname.isp + "'"
+            else:
+                name += ' ' + plantname.isp_rank + ' ' + \
+                              italic % (plantname.isp,)                        
+                if plantname.isp_author is not None and authors is not False:
+                    name += ' ' + plantname.isp_author
+        return name
+    
+    
         
 #class DistributionColumn(ComboColumn):
 #    
@@ -204,8 +260,8 @@ class PlantnameEditor(TreeViewEditorDialog):
                    "sp_qual": "Sp. qualifier",
                    "sp_author": "Sp. author",
                    "cv_group": "Cv. group",
-                   "cv": "Cultivar",
-                   "trades": "Trade name",
+#                   "cv": "Cultivar",
+#                   "trades": "Trade name",
                    "supfam": 'Super family',
                    'subgen': 'Subgenus',
                    'subgen_rank': 'Subgeneric rank',
@@ -224,19 +280,19 @@ class PlantnameEditor(TreeViewEditorDialog):
 #                   'iucn23': 'IUCN 2.3\nCategory',
 #                   'iucn31': 'IUCN 3.1\nCategory',
                    'id_qual': 'ID qualifier',
-                   'vernac_name': 'Common Name',
-                   'poison_humans': 'Poisonious\nto humans',
-                   'poison_animals': 'Poisonious\nto animals',
-                   'food_plant': 'Food plant',
-                   'distribution': 'Distribution'
+#                   'vernac_name': 'Common Name',
+#                   'poison_humans': 'Poisonious\nto humans',
+#                  'poison_animals': 'Poisonious\nto animals',
+#                   'food_plant': 'Food plant',
+#                   'distribution': 'Distribution'
                    }
         
         # make a custom distribution column
-        self.columns.pop('distribution') # this probably isn't necessary     
-        dist_column = ComboColumn(self.view, 'Distribution',
-                           so_col = Plantname.sqlmeta.columns['distribution'])
-        dist_column.model = self.make_model()
-        self.columns['distribution'] = dist_column            
+#        self.columns.pop('distribution') # this probably isn't necessary     
+#        dist_column = ComboColumn(self.view, 'Distribution',
+#                           so_col = Plantname.sqlmeta.columns['distribution'])
+#        dist_column.model = self.make_model()
+#        self.columns['distribution'] = dist_column            
         
         self.columns.titles = titles
                      
@@ -357,15 +413,37 @@ class PlantnameEditor(TreeViewEditorDialog):
             print "add genus"
 
         
-        
-#
-# Plantname infobox for SearchView
-#
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
+        set_widget_value
 except ImportError:
     pass
 else:
+    
+#    
+# Plantname infobox for SearchView
+#
+    class GeneralPlantnameExpander(InfoExpander):
+        """
+        generic information about an accession like
+        number of clones, provenance type, wild provenance type, plantnames
+        """
+    
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, "General", glade_xml)
+            w = self.glade_xml.get_widget('general_box')
+            w.unparent()
+            self.vbox.pack_start(w)
+        
+        def update(self, row):
+            set_widget_value(self.glade_xml, 'name_data', 
+                             Plantname.str(row, True, True))
+            set_widget_value(self.glade_xml, 'nacc_data', len(row.accessions))
+            #w = self.glade_xml.get_widget('nplants_data')
+            #pass
+    
+    
+    
     class PlantnameInfoBox(InfoBox):
         """
         - general info, fullname, common name, num of accessions and clones
@@ -375,13 +453,25 @@ else:
         - poisonous to humans
         - poisonous to animals
         - food plant
-        - origin
+        - origin/distrobution
         """
         def __init__(self):
             """ 
             fullname, synonyms, ...
             """
             InfoBox.__init__(self)
+            #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
+            #path = os.path.dirname(__file__) + os.sep
+            #path = paths.lib_dir() + os.sep + 'acc_infobox.glade'            
+            path = os.path.join(paths.lib_dir(), "plugins", "plants")
+            self.glade_xml = gtk.glade.XML(path + os.sep + "plantname_infobox.glade")
+            
+            self.general = GeneralPlantnameExpander(self.glade_xml)
+            self.add_expander(self.general)
+            
+            #self.source = SourceExpander(self.glade_xml)
+            #self.add_expander(self.source)
             #self.ref = ReferenceExpander()
             #self.ref.set_expanded(True)
             #self.add_expander(self.ref)
@@ -392,8 +482,9 @@ else:
             
             
         def update(self, row):
-            pass
+            self.general.update(row)
             #self.ref.update(row.references)
             #self.ref.value = row.references
             #ref = self.get_expander("References")
             #ref.set_values(row.references)
+        
