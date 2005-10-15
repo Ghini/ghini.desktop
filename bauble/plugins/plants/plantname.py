@@ -69,15 +69,15 @@ class Plantname(BaubleTable):
     #cv = StringCol(length=30, default=None)          # cultivar epithet
     #trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
     
-    supfam = StringCol(length=30, default=None)          
-    subgen = StringCol(length=50, default=None)
-    subgen_rank = EnumCol(enumValues=("subgenus", 
-                                      "section", 
-                                      "subsection",
-                                      "series", 
-                                      "subseries",
-                                      None),
-                          default=None)                             
+#    supfam = StringCol(length=30, default=None)          
+#    subgen = StringCol(length=50, default=None)
+#    subgen_rank = EnumCol(enumValues=("subgenus", 
+#                                      "section", 
+#                                      "subsection",
+#                                      "series", 
+#                                      "subseries",
+#                                      None),
+#                          default=None)                             
 
     isp = StringCol(length=30, default=None)         # intraspecific epithet
     isp_author = UnicodeCol(length=255, default=None) # intraspecific author
@@ -262,9 +262,9 @@ class PlantnameEditor(TreeViewEditorDialog):
                    "cv_group": "Cv. group",
 #                   "cv": "Cultivar",
 #                   "trades": "Trade name",
-                   "supfam": 'Super family',
-                   'subgen': 'Subgenus',
-                   'subgen_rank': 'Subgeneric rank',
+#                   "supfam": 'Super family',
+#                   'subgen': 'Subgenus',
+#                   'subgen_rank': 'Subgeneric rank',
                    'isp': 'Intraspecific\nepithet',
                    'isp_rank': 'Isp. rank',
                    'isp_author': 'Isp. author',

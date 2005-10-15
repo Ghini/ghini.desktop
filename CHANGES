@@ -1,0 +1,5 @@
+2005.10.15
+-------------
+- removed Plantname.supfam,subgen and subgen_rank
+- got the great idea to create a 'CHANGES' files and added to version control
+- see revision 106 for other things for the day

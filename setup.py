@@ -18,6 +18,10 @@ if sys.platform == "win32":
 # doesn't get included so somehow i guess we need to get this
 # inside library.zip or at least somewhere where pysqlite2 can find it
 
+from datetime import date
+today = date.today()
+VERSION = '%s%s%s' % (today.year, today.month, today.day)
+
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
@@ -65,7 +69,7 @@ for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
 data = [p for p in globs if len(p[1]) != 0]
 
 setup(name="Bauble",
-      version="0.1",      
+      version=VERSION,
       console=["scripts/bauble"],
       windows=["scripts/bauble"],          
       options=opts,
