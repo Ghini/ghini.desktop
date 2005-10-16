@@ -1,5 +1,8 @@
 2005.10.15
 -------------
+- fixes in latitude/longitude handling in the CollectionEditor dialog as well
+as in the Collection infobox
+- ** dates still don't work in the CollectionEditor
 - removed Plantname.supfam,subgen and subgen_rank
 - got the great idea to create a 'CHANGES' files and added to version control
 - see revision 106 for other things for the day

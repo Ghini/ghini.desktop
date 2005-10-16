@@ -331,9 +331,11 @@ else:
             else: geo_accy = '(+/-)' + geo_accy + 'm.'
             
             if collection.latitude is not None:
-                set_widget_value(self.glade_xml, 'lat_data', collection.latitude + geo_accy)
+                set_widget_value(self.glade_xml, 'lat_data',
+                                 '%.2f %s' %(collection.latitude, geo_accy))
             if collection.longitude is not None:
-                set_widget_value(self.glade_xml, 'lon_data', collection.longitude + geo_accy)
+                set_widget_value(self.glade_xml, 'lon_data',
+                                '%.2f %s' %(collection.longitude, geo_accy))                                
             
             v = collection.elevation
             if collection.elevation_accy is not None:

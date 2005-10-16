@@ -18,7 +18,7 @@ from bauble.utils.log import debug
 # box and sometimes the collections
 
 
-def text_coord_to_decimal(self, dir, text):
+def text_coord_to_decimal(dir, text):
     bits = re.split(':| ', text)
     print bits
     if len(bits) == 3:
@@ -140,7 +140,7 @@ class CollectionEditor:
             self.refresh_widgets_from_row()
     
     
-    def on_coord_entry_changed(self):
+    def on_coord_entry_changed(self, widget):
         pass
         
         
@@ -156,7 +156,7 @@ class CollectionEditor:
         elif south.get_active(): dir = 'S'
         else: raise Exception('north south radio in inconsistent state')
         
-        return self.text_coord_to_decimal(dir, text)
+        return text_coord_to_decimal(dir, text)
         
         
     def get_latitude(self):
@@ -170,7 +170,7 @@ class CollectionEditor:
         elif west.get_active(): dir = 'W'
         else: raise Exception('east/west radio in inconsistent state')
             
-        return self.text_coord_to_decimal(dir, text)
+        return text_coord_to_decimal(dir, text)
         
         
     def get_coords(self):
