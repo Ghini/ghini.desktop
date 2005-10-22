@@ -2,10 +2,22 @@
 # bauble module
 #
 
+import imp, os, sys
+
+def main_is_frozen():
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") # old py2exe
+           or imp.is_frozen("__main__")) # tools/freeze
+
+import pygtk
+if not main_is_frozen():
+    pygtk.require("2.0")
+import gtk
+
 import bauble.utils as utils
 import bauble.paths as paths
 
-import os, sys
+
 sys.path.append(paths.lib_dir())
 sys.path.append(paths.lib_dir() + os.sep + 'lib')
 
@@ -13,10 +25,7 @@ sys.path.append(paths.lib_dir() + os.sep + 'lib')
 # plugins without bauble.plugins in front of it and so the plugins don't 
 # have to be in the lib dir
 
-import pygtk
-if not utils.main_is_frozen():
-    pygtk.require("2.0")
-import gtk
+
 
 try:
     from sqlobject import *

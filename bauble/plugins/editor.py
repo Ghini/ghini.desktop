@@ -135,6 +135,12 @@ class ToggleColumn(GenericViewColumn):
         self._set_view_model_value(path, active)    
         
         
+    def on_renderer_toggled(self, widget, path, data=None):
+        active = widget.get_active()
+        model = self.plants_view.get_model()
+        it = model.get_iter(path)
+        model.set_value(it, 0, not active)
+        
     def cell_data_func(self, col, cell, model, iter, data=None):
         row = model.get_value(iter, 0)
         value = row[self.name]
@@ -710,10 +716,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         else:
             self.add_new_row()
             
-        # enter the columns from the visible list, the visibility
-        # should already have been set before creation from the prefs
+        # enter the columns from the visible list, the column visibility
+        # should already have been set before creation from the prefs,
+        # here we just have to add them in order
         visible_list = ()
-        if self.visible_columns_pref != None and self.visible_columns_pref in prefs:
+        if self.visible_columns_pref != None and \
+           self.visible_columns_pref in prefs:
             visible_list = list(prefs[self.visible_columns_pref][:])
             visible_list.reverse()
             for name in visible_list:
@@ -1110,4 +1118,5 @@ class TreeViewEditorDialog(TableEditorDialog):
             if c.get_visible():
                 visible.append(c.name)
         prefs[self.visible_columns_pref] = visible
+        #prefs.save()
         

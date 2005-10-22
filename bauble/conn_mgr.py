@@ -15,8 +15,11 @@ from bauble.utils.log import log, debug
 # is in the wrong format, or better just don't the use leave the entry until
 # whatever is there is an the correct format
 
+# TODO: when you start and there are no connections defined then make the user
+# create a connection or at least inform them
 
 class ConnectionManagerDialog(gtk.Dialog):
+    
     def __init__(self, current_name=None, 
                  title="Connection Manager", parent=None,
                  flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -234,8 +237,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
         conn_list = prefs[prefs.conn_list_pref]
+        if conn_list is None:
+            conn_list = {}
         conn_list[self.current_name] = params
-        
+        prefs[prefs.conn_list_pref] = conn_list
+        prefs.save()
 
     def compare_params_to_prefs(self, name):
         """

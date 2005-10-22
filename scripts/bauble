@@ -32,9 +32,9 @@ os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
 # error if gtk is not available, but that adds extra dependencies
 # for py2exe
 
-import pygtk
-if not utils.main_is_frozen():
-    pygtk.require("2.0")
+#import pygtk
+#if not utils.main_is_frozen():
+#    pygtk.require("2.0")
 import gtk
 
 gtk.threads_init() # initialize threading

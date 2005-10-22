@@ -1,11 +1,12 @@
 #
+# provide paths that bauble will need
 #
-#
+
 import os, sys
-import bauble.utils as utils
+import bauble
 
 def main_dir():
-   if utils.main_is_frozen():
+   if bauble.main_is_frozen():
        dir = os.path.dirname(sys.executable)
    else: dir = os.path.dirname(sys.argv[0])
    if dir == "": 
@@ -14,7 +15,7 @@ def main_dir():
 
 
 def lib_dir():
-    if utils.main_is_frozen():
+    if bauble.main_is_frozen():
        dir = main_dir() + os.sep + 'bauble'
     else:
         dir = os.path.dirname(__file__)

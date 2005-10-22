@@ -1,3 +1,11 @@
+2005.10.21
+---------------
+- canged preferences to use python's ConfigParse with a dict interfase, the 
+prefs API should be the same as before but the config file format is no longer 
+compatible, the new format uses an ini type syntax
+- added a generic XSL formatter plugin, though not finished yet
+- moved main_is_frozen to bauble.__init__.py
+
 2005.10.15
 -------------
 - fixes in latitude/longitude handling in the CollectionEditor dialog as well

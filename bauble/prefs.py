@@ -12,18 +12,24 @@ from bauble.utils.log import debug
 # read if we just stuck with a
 # name = value format and remove all that ugly set_pref crap
 
+default_filename = 'user2.py'
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
-        default_prefs_file = os.environ["APPDATA"] + os.sep + "Bauble" + os.sep + "user.py"
+        default_pref_file = os.path.join(os.environ["APPDATA"], "Bauble", 
+                                         default_filename)
     else:
-        raise Exception("Could not path to store preferences")
+        raise Exception("Could not path to store preferences: no APPDATA " \
+                        "variable")
 elif sys.platform == "linux2":
     if os.environ.has_key("HOME"):
-        default_prefs_file = os.environ["HOME"] + os.sep + ".bauble" + os.sep + "user.py"
+        default_prefs_file = os.path.join(os.environ["HOME"], ".bauble", 
+                                          default_filename)
     else:
-        raise Exception("Could not path to store preferences")
+        raise Exception("Could not path to store preferences: "\
+                        "no HOME variable")
 else:
-    raise Exception("Could not path to store preferences: unsupported platform")
+    raise Exception("Could not path to store preferences: " \
+                    "unsupported platform")                    
 
 prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
@@ -31,6 +37,7 @@ security_prefs_icon = prefs_icon_dir + "prefs_security.png"
 
 
 class PreferencesMgr(gtk.Dialog):
+    
     def __init__(self):
         gtk.Dialog.__init__(self, "Preferences", None,
                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -103,39 +110,60 @@ class PreferencesMgr(gtk.Dialog):
         return frame        
 
 
-#from ConfigParser import ConfigParser
-#
-#class _prefs(dict):
-#    
-#    # preference keys
-#    conn_default_pref = "conn.default"
-#    conn_list_pref = "conn.list"
-#    
-#    def __init__(self, filename):
-#        config = ConfigParser()
-#        config.read(filename)
-#
-#    @staticmethod
-#    def _parse_key(name):
-#        index = name.rfind(".")
-#        return name[:index], name[index+1:]
-#
-#
-#    def __getitem__(self, item):
-#        section, option = _prefs._parse_key(item)
-#        return config.get(section, option)
-#
-#        
-#    def __setitem__(self, item, value):
-#        section, option = _prefs._parse_key(item)
-#        config.set(section, option, value)
-#
-#        
-#    def __contains__(self, item):
-#        section, option = _prefs._parse_key(item)
-#        return False
-#
-#
+from ConfigParser import ConfigParser
+
+class _prefs(dict):
+    
+    # global preference keys, these really shouldn't be here
+    conn_default_pref = "conn.default"
+    conn_list_pref = "conn.list"    
+    
+    def __init__(self, filename=default_prefs_file):        
+        self.config = ConfigParser()
+        self.config.read(filename)
+        self._filename = filename
+
+
+    @staticmethod
+    def _parse_key(name):
+        index = name.rfind(".")
+        return name[:index], name[index+1:]
+
+
+    def __getitem__(self, item):
+        section, option = _prefs._parse_key(item)
+        # this doesn't allow None values for preferences
+        if not self.config.has_section(section) or \
+           not self.config.has_option(section, option):
+            return None
+        else:
+            i = self.config.get(section, option)
+            eval_chars = '{[(' 
+            if i[0] in eval_chars: # then the value is a dict, list or tuple
+                return eval(i)
+            return self.config.get(section, option)
+
+        
+    def __setitem__(self, item, value):
+        section, option = _prefs._parse_key(item)
+        if not self.config.has_section(section):
+            self.config.add_section(section)
+        self.config.set(section, option, str(value))
+
+        
+    def __contains__(self, item):
+        section, option = _prefs._parse_key(item)
+        if self.config.has_section(section) and \
+           self.config.has_option(section, option):
+            return True
+        return False
+
+    
+    def save(self):
+        f = open(self._filename, "w+")
+        self.config.write(f)
+                
+
 #    def __del__(self, item):
 #        """
 #        """
@@ -151,79 +179,79 @@ class PreferencesMgr(gtk.Dialog):
 # though i don't know how well this would work access the dict superclass of
 # the class, have a dict in the module and module level functions to manipulate
 # it like we do in plugins
-class _prefs(dict):
-    """
-    handles the loading, storing, getting and settings of preferences
-    uses the Borg design patter so that all instances share the same data
-    NOTE: if you expect a list with one item then the list should be written
-    like (item,) witha trailing comma or it will get interpreted as string
-    """
-    
-    # preference keys
-    conn_default_pref = "conn.default"
-    conn_list_pref = "conn.list"
-
-    _loaded = False
-    _filename = default_prefs_file    
-    
-    def __init__(self):
-        if not os.path.exists(self._filename):
-            path, file = os.path.split(self._filename)
-            if not os.path.exists(path):
-                os.mkdir(path)
-            f = open(self._filename, "w") # touch
-            f.close() 
-        
-
-    def load(self, filename=_filename):
-        self._loaded=True
-        # TODO: if this is loaded after  the user has set some preferences
-        # then those preferences could be overwritten, need to set some
-        # sort of flag to not overwrite preferences
-        # it's a bit early to set this but set_pref won't work otherwise
-        try:
-            execfile(filename)        
-        except: 
-            msg = "Could not load preferences file: " + filename
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            raise
-        else:
-            self._loaded=True
-
-
-    def save(self, filename=_filename):
-        # TODO: open and backup old file in case something goes wrong
-        # then we can restore the preferences instead of losing them
-        f = open(filename, "w") # open, truncate
-        template = 'set_pref("%s", %s)\n'
-        for key in sorted(self.keys()):
-            value = self[key]
-            if type(value) == str: 
-                value = '"%s"' % value
-            p = template % (key, value)
-            f.write(p)
-    
-
-    def __getitem__(self, key):
-        if not self._loaded:
-            raise Exception("Preference not loaded")
-        if not self.has_key(key): 
-            return None
-        return dict.__getitem__(self, key)
-        
-        
-    def __setitem__(self, key, value):
-        if not self._loaded:
-            raise Exception("Preference not loaded")
-        else:
-            dict.__setitem__(self, key, value)
+#class _prefs2(dict):
+#    """
+#    handles the loading, storing, getting and settings of preferences
+#    uses the Borg design patter so that all instances share the same data
+#    NOTE: if you expect a list with one item then the list should be written
+#    like (item,) witha trailing comma or it will get interpreted as string
+#    """
+#    
+#    # preference keys
+#    conn_default_pref = "conn.default"
+#    conn_list_pref = "conn.list"
+#
+#    _loaded = False
+#    _filename = default_prefs_file    
+#    
+#    def __init__(self):
+#        if not os.path.exists(self._filename):
+#            path, file = os.path.split(self._filename)
+#            if not os.path.exists(path):
+#                os.mkdir(path)
+#            f = open(self._filename, "w") # touch
+#            f.close() 
+#        
+#
+#    def load(self, filename=_filename):
+#        self._loaded=True
+#        # TODO: if this is loaded after  the user has set some preferences
+#        # then those preferences could be overwritten, need to set some
+#        # sort of flag to not overwrite preferences
+#        # it's a bit early to set this but set_pref won't work otherwise
+#        try:
+#            execfile(filename)        
+#        except: 
+#            msg = "Could not load preferences file: " + filename
+#            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+#            raise
+#        else:
+#            self._loaded=True
+#
+#
+#    def save(self, filename=_filename):
+#        # TODO: open and backup old file in case something goes wrong
+#        # then we can restore the preferences instead of losing them
+#        f = open(filename, "w") # open, truncate
+#        template = 'set_pref("%s", %s)\n'
+#        for key in sorted(self.keys()):
+#            value = self[key]
+#            if type(value) == str: 
+#                value = '"%s"' % value
+#            p = template % (key, value)
+#            f.write(p)
+#    
+#
+#    def __getitem__(self, key):
+#        if not self._loaded:
+#            raise Exception("Preference not loaded")
+#        if not self.has_key(key): 
+#            return None
+#        return dict.__getitem__(self, key)
+#        
+#        
+#    def __setitem__(self, key, value):
+#        if not self._loaded:
+#            raise Exception("Preference not loaded")
+#        else:
+#            dict.__setitem__(self, key, value)
             
 
 prefs = _prefs()
 
 # should only be used by the preferences file
-def set_pref(key, value):
-    prefs[key] = value
+#def set_pref(key, value):
+#    prefs[key] = value
 
-prefs.load()
+#prefs.load()
 
