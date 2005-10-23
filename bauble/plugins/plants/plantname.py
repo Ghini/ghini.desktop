@@ -151,8 +151,9 @@ class Plantname(BaubleTable):
     # with a way to add to the list    
     vernacular_names = MultipleJoin('VernacularName', joinColumn='plantname_id')
     # this is the default vernacular name we'll use
-    #default_vernacular = ForeignKey('VernacularName')
-    
+    #default_vernacular_name = ForeignKey('VernacularName')
+    default_vernacular_name = SingleJoin('VernacularName', 
+                                         joinColumn='plantname_id')
     
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table

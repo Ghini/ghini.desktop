@@ -66,12 +66,12 @@
 	      <property name="spacing">0</property>
 
 	      <child>
-		<widget class="GtkComboBox" id="formatters_combo">
+		<widget class="GtkComboBox" id="opt_formatters_combo">
 		  <property name="visible">True</property>
 		  <property name="items" translatable="yes">(empty)</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="focus_on_click">True</property>
-		  <signal name="changed" handler="on_formatters_combo_changed"/>
+		  <signal name="changed" handler="on_opt_formatters_combo_changed" last_modification_time="Sun, 23 Oct 2005 18:42:05 GMT"/>
 		</widget>
 		<packing>
 		  <property name="padding">0</property>
@@ -195,10 +195,7 @@
 		  <child>
 		    <widget class="GtkComboBox" id="renderers_combo">
 		      <property name="visible">True</property>
-		      <property name="items" translatable="yes" context="yes">Apache FOP
-xmlroff
-XEP
-</property>
+		      <property name="items" translatable="yes" context="yes">--</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
 		      <signal name="changed" handler="on_renderers_combo_changed"/>
@@ -332,8 +329,9 @@ XEP
 	      </child>
 
 	      <child>
-		<widget class="GtkComboBox" id="combobox3">
+		<widget class="GtkComboBox" id="formatters_combo">
 		  <property name="visible">True</property>
+		  <property name="items" translatable="yes">--</property>
 		  <property name="add_tearoffs">False</property>
 		  <property name="focus_on_click">True</property>
 		</widget>

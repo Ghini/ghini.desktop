@@ -35,8 +35,20 @@ from bauble.utils.log import log, debug
 from bauble.plugins.imex_abcd import abcd
     
 formatters_list_pref = 'formatter.formatters'    
+formatters_default_pref = 'formatter.default'
 
-# this could probably go in bauble.utils, i don't know if this works
+renderers_map = {'Apache FOP': 'fop -fo %(fo_filename)s -pdf %(out_filename)s',
+                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
+                 'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s'
+                }
+
+# TODO: if formatter chosen has any problems, i.e. the stylesheet file doesn't
+# exis,  it would be good to desensitize the ok button and show a message in
+# the status bar or something, then again we could wait until Ok is pressed 
+# until we check for errors since we can't check if the fo renderer doesn't 
+# exist
+
+# this could probably go in bauble.utils
 def combo_set_active_text(combo, text):
     model = combo.get_model()
     for row in model:
@@ -55,21 +67,109 @@ class Formatter:
                    }
         self.glade_xml.signal_autoconnect(handlers)
         
+        self.formatter_dialog = self.glade_xml.get_widget('formatter')        
+        self.formatters_combo = self.glade_xml.get_widget('formatters_combo')
+        self.treeview = self.glade_xml.get_widget('treeview')
+        
         
     def start(self, plants):
-        self.populate_tree(plants)
-        self.formatter_dialog = self.glade_xml.get_widget('formatter')        
-        debug('run')
+        self.populate_tree(plants)        
         # TODO: check if there are formatters defined and if not then ask
         # the user if they would like to create one now, this might be 
         # something we can 
-        self.formatter_dialog.run()
-        self.formatter_dialog.destroy()
+        self.populate_formatters_from_prefs()
+        formatters = prefs[formatters_list_pref]
+        default = prefs[formatters_default_pref]
+        debug(default)
+        if default is not None and default in formatters:
+            debug('setting default')
+            combo_set_active_text(self.formatters_combo, default)
         
+        pdf_filename = None
+        if self.formatter_dialog.run() == gtk.RESPONSE_OK:
+            # refresh formatters in case they change in the options and set
+            # the default
+            formatters = prefs[formatters_list_pref]
+            active = self.formatters_combo.get_active_text()
+            prefs[formatters_default_pref] = active
+            # TODO: should we make sure the stylesheet exists first?
+            stylesheet = formatters[active]['stylesheet'] 
+            fo_cmd = renderers_map[formatters[active]['renderer']]
+            pdf_filename = self.create_pdf(fo_cmd, stylesheet)
+            
+        
+        self.formatter_dialog.destroy()        
+        return pdf_filename
+        
+
+    def create_pdf(self, fo_cmd, stylesheet, filename=None):
+        debug('create_pdf')
+        import libxml2
+        import libxslt
+        import tempfile
+        if filename is None:
+            # no filename, create a temporary file            
+            dummy, filename = tempfile.mkstemp()                
+        
+        # get all the plants from the model in ABCD format
+        plants = []
+        for yes_no, plant in self.treeview.get_model():
+            if yes_no:
+                plants.append(plant)
+            
+        abcd_data = abcd.plants_to_abcd(plants)    
+                
+        # create xsl fo file
+        dummy, fo_filename = tempfile.mkstemp()
+        #xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
+#        debug(xslt_filename)
+        # how come we don't have to free style_doc???
+        style_doc = libxml2.parseFile(stylesheet) 
+        style = libxslt.parseStylesheetDoc(style_doc)
+        doc = libxml2.parseDoc(abcd_data)
+        result = style.applyStylesheet(doc, None)
+        style.saveResultToFilename(fo_filename, result, 0)
+        style.freeStylesheet()
+        doc.freeDoc()
+        result.freeDoc()
+        
+        # run the formatter to produce the pdf file, xep has to be on the
+        # path
+        #fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
+        fo_cmd = fo_cmd % ({'fo_filename': fo_filename, 
+                            'out_filename': filename})
+
+        os.system(fo_cmd)
+        #stdin, stdout_err = os.popen4(fo_cmd, 'r')
+        
+#        d = gtk.Dialog('Output', None, 
+#                       flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+#                       buttons=((gtk.STOCK_CLOSE, gtk.RESPONSE_CLOSE)))
+#
+#        tb = gtk.TextBuffer()
+#        textview = gtk.TextView(tb)
+#        d.vbox.pack_start(textview)
+#        textview.show()
+#        for line in stdout_err.readlines():
+#            tb.insert_at_cursor(line)
+#        d.run()
+#        d.destroy()
+            
+        # open and return the file hander or filename so we don't have to close it
+        return filename    
+
+
+    def populate_formatters_from_prefs(self):
+        model = gtk.ListStore(str)
+        formatters = prefs[formatters_list_pref]
+        for i in sorted(formatters.keys()):
+            model.append([i])
+        self.formatters_combo.set_model(model)
+                
         
     def build_gui(self):
         self.dialog = gtk.Dialog('Formatter', None, 
-                                 flags=gtk.DIALOG_MODAL|gtk.DIALOG.DESTROY_WITH_PARENT,
+                                 flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                  buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                            gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
         hbox = gtk.HBox()
@@ -81,9 +181,12 @@ class Formatter:
         self.dialog.vbox.pack_start(hbox)
         
         
-    def on_edit_button_clicked(self, widget):        
-        fo = FormatterOptions()
+    def on_edit_button_clicked(self, widget):
+        active = self.formatters_combo.get_active_text()
+        fo = FormatterOptions(active)
         fo.start()
+        self.populate_formatters_from_prefs()
+        combo_set_active_text(self.formatters_combo, active)
         
         
     def name_cell_data_method(self, column, cell, model, iter, data=None):
@@ -150,18 +253,19 @@ class FormatterOptions:
         '''
         path = os.path.join(paths.lib_dir(), "plugins", "formatter")
         self.glade_xml = gtk.glade.XML(path + os.sep + 'formatter.glade')
-        self.formatters_combo = self.glade_xml.get_widget('formatters_combo')
+        self.formatters_combo = self.glade_xml.get_widget('opt_formatters_combo')
         
         self.remove_button = self.glade_xml.get_widget('remove_button')
         self.remove_button.set_sensitive(False)
         
         self.renderers_combo = self.glade_xml.get_widget('renderers_combo')
+        model = gtk.ListStore(str)
+        for r in sorted(renderers_map.keys()):
+            model.append([r])
+        self.renderers_combo.set_model(model)
         self.renderers_combo.set_sensitive(False)
-        
-        
-        #self.stylesheet_button = self.glade_xml.get_widget('stylesheet_button')
-        
-        #self.stylesheet_button.set_sensitive(False)
+    
+        # create the stylesheet chooseer button
         fcd = gtk.FileChooserDialog(action=gtk.FILE_CHOOSER_ACTION_OPEN,
                                     buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                         gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
@@ -171,13 +275,10 @@ class FormatterOptions:
         table.attach(self.stylesheet_button, 1, 2, 1, 2, 
                      xoptions=gtk.EXPAND|gtk.FILL, yoptions=0)
         self.stylesheet_button.show()
-        #self.stylesheet_button.set_property('dialog', fcd)
-        #self.stylesheet_button.get_property('dialog').connect('response', 
-        #                               self.on_stylesheet_button_response)
         
         handlers = {'on_new_button_clicked': self.on_new_button_clicked,
                     'on_remove_button_clicked': self.on_remove_button_clicked,
-                    'on_formatters_combo_changed': 
+                    'on_opt_formatters_combo_changed': 
                         self.on_formatters_combo_changed,
                     'on_renderers_combo_changed': 
                         self.on_renderers_combo_changed}
@@ -191,9 +292,11 @@ class FormatterOptions:
             model = gtk.ListStore(str)
             self.formatters_combo.set_model(model)
             for f in sorted(formatters.keys()):
-                debug(f)
                 self.formatters_combo.append_text(f)
             self.formatters_combo.set_active(0)
+    
+        if active_formatter is not None:
+            combo_set_active_text(self.formatters_combo, active_formatter)
     
     
     def start(self):
@@ -214,111 +317,174 @@ class FormatterOptions:
             name = entry.get_text()            
             model = self.formatters_combo.get_model()
             if name != '' and not FormatterOptions.in_model(model, name):
-                debug('adding formatter: %s' % name)
                 self.add_formatter(entry.get_text())
-            else:
-                debug('NOT adding formatter: %s' % name)
         d.destroy()
             
-            
-    @staticmethod
-    def in_model(model, item):  
-        if model == None:
-            return False      
-        debug(model)
-        for i in model:
-            debug(i)
-            if item == i:
-                debug('true')
-                return True
-        debug('false')
-        return False
-        
 
     def on_remove_button_clicked(self, widget):        
-        #if name == None or name == "":
-        #    return
         # should only be ble to click remove if there is a formatter selected
         name = self.formatters_combo.get_active_text()
         msg = 'Are you sure you want to remove the %s formatter?' % name
-        if utils.yes_no_dialog(msg):
-            # remove the formatter from the preferences
-            pass
-        model = self.formatters_combo.get_model()
-        it = self.formatters_combo.get_active_iter()
-        model.remove(it)
+        if utils.yes_no_dialog(msg):            
+            # remove the formatter from the formatters_combo model and set 
+            # current to -1 so that on_formatters_combo_changed will be called
+            model = self.formatters_combo.get_model()
+            it = self.formatters_combo.get_active_iter()
+            model.remove(it)
+            self.formatters_combo.set_active(-1)
         
-        formatters = prefs[formatters_list_pref]
-        del formatters[name]
-        prefs[formatters_list_pref] = formatters
+            # remove the formatter from the prefs
+            formatters = prefs[formatters_list_pref]
+            del formatters[name]
+            prefs[formatters_list_pref] = formatters
+            
+            self.refresh_active_formatter_options()
         
     
     def on_renderers_combo_changed(self, combo):
         renderer = combo.get_active_text()
-        debug('on_renderer_combo_changed: %s' % renderer)
-        formatter_name = self.formatters_combo.get_active_text()        
-        formatters = prefs[formatters_list_pref]
-        formatters[formatter_name]['renderer'] = renderer
-#        formatter = prefs[formatters_list_pref][formatter_name]
-#        formatter['renderer'] = renderer
-        prefs[formatters_list_pref] = formatters
-        combo.set_sensitive(True)
+        if renderer is not None:
+            self.set_active_formatter_renderer_in_prefs(renderer)
+            combo.set_sensitive(True)
         
     
     def on_stylesheet_button_response(self, dialog, response):        
-        debug('stylesheet response')
-        debug(dialog.get_filename())
-    
-    
+        if response != gtk.RESPONSE_ACCEPT:
+            return
+        filename = dialog.get_filename()
+        self.stylesheet_button.set_filename(filename)
+        self.set_active_formatter_stylesheet_in_prefs(filename)
+        
+            
     def on_formatters_combo_changed(self, combo):
-        active_text = combo.get_active_text()
-        # formatters should never be None here
-        formatter = prefs[formatters_list_pref][active_text]
-        try:            
-            debug(formatter['renderer'])
-            combo_set_active_text(self.renderers_combo, formatter['renderer'])
-        except:
-            self.renderers_combo.set_sensitive(True)
-        
-        # don't think i really need this in a try like renderers_combo
-        try:            
-            stylesheet = formatter['stylesheet']
-            debug(stylesheet)
-            #self.stylesheet_button.set_title(stylesheet)
-            self.stylesheet_button.set_filename(stylesheet)
-            self.stylesheet_button.set_sensitive(True)
-        except:
-            self.stylesheet_button.set_sensitive(True)
-        
-            #utils.message_dialog('could not set renderer')
-        self.remove_button.set_sensitive(True)
-        
+        self.refresh_active_formatter_options()
+        self.renderers_combo.set_sensitive(True)
+        self.stylesheet_button.set_sensitive(True)        
+        if combo.get_active() == -1:
+            self.remove_button.set_sensitive(False)
+        else:
+            self.remove_button.set_sensitive(True)
     
             
-    def add_formatter(self, name):        
+    def add_formatter(self, name, renderer=None, stylesheet=None):
+        '''
+        add a formatter with name to formatter in the prefs, the renderer and
+        stylesheet both default to None
+        '''
         formatters = prefs[formatters_list_pref]
         if formatters is None:
-            debug('formatters is None')
             formatters = {}
         if name in formatters:
             utils.message_dialog('a formatter with this name already exists')
         else:
-            formatters[name] = {'renderer': '', 'stylesheet': ''}
-            debug('empty formatter')
+            formatters[name] = {'renderer': renderer, 
+                                'stylesheet': stylesheet}
         prefs[formatters_list_pref] = formatters
         model = self.formatters_combo.get_model()
-        debug('append  %s' % name)
         it = model.append([name])
         self.formatters_combo.set_active_iter(it)
         
     
-    def set_formatter_options(self, renderer, stylesheet):
-        pass
+    def get_active_formatter(self):
+        '''
+        get the formatter prefs for the active formatter
+        '''
+        name = get_active_formatter_name(self)
+        return prefs[formatters_list_pref][name]
+
+
+    def get_active_formatter_name(self):
+        '''
+        get the name of the current formatter
+        '''
+        return self.formatters_combo.get_active_text()
     
     
-    def refresh_stored_formatters(self):
-        pass
+    def set_active_formatter_renderer_in_prefs(self, renderer):
+        '''
+        set the renderer of the currently selected formatter
+        '''
+        name = self.get_active_formatter_name()
+        self.set_formatter_renderer_in_prefs(name, renderer)
+    
+    
+    def set_active_formatter_stylesheet_in_prefs(self, stylesheet):
+        '''
+        set the stylesheet of the currently selected formatter
+        '''
+        name = self.get_active_formatter_name()
+        self.set_formatter_stylesheet_in_prefs(name, stylesheet)
+    
+    
+    def set_formatter_renderer_in_prefs(self, name, renderer):
+        '''
+        set the renderer for the formatter by name
+        '''
+        formatters = prefs[formatters_list_pref]
+        if name not in formatters:
+            raise ValueError('could not get formatter from the prefs called %s'
+                             % name)
+        formatters[name]['renderer'] = renderer
+        prefs[formatters_list_pref] = formatters
+    
+    
+    def set_formatter_stylesheet_in_prefs(self, name, stylesheet):
+        '''
+        set the renderer for the formatter by name
+        '''
+        formatters = prefs[formatters_list_pref]
+        if name not in formatters:
+            raise ValueError('could not get formatter from the prefs called'% \
+                             name)
+        formatters[name]['stylesheet'] = stylesheet        
+        prefs[formatters_list_pref] = formatters
         
+        
+    def set_formatter_options_in_prefs(self, name, renderer, stylesheet):
+        '''
+        set both the renderer and stylesheet on formatter by name
+        '''
+        set_formatter_renderer_in_prefs(name, renderer)
+        set_formatter_stylesheet_in_prefs(name, stylesheet)
+        
+        
+    def refresh_active_formatter_options(self):
+        '''
+        change the status of the options widgets according to the active 
+        formatter
+        '''
+        name = self.get_active_formatter_name()
+        if name is None:
+            self.renderers_combo.set_active(-1)
+            self.renderers_combo.set_sensitive(False)
+            self.stylesheet_button.set_filename('')
+            self.stylesheet_button.set_sensitive(False)
+            return
+            
+        formatter = prefs[formatters_list_pref][name]
+        renderer = formatter['renderer']        
+        if formatter['renderer'] is not None:
+            try:            
+                combo_set_active_text(self.renderers_combo, formatter['renderer'])
+            except:
+                pass
+        else:
+            self.renderers_combo.set_active(-1)
+        
+        stylesheet = formatter['stylesheet']
+        if stylesheet is None:
+            stylesheet = ''        
+        self.stylesheet_button.set_filename(stylesheet)
+        
+        
+    @staticmethod
+    def in_model(model, item):  
+        if model == None:
+            return False      
+        for i in model:
+            if item == i:
+                return True
+        return False
         
 #class Formatter2(gtk.Dialog):
 #        
@@ -524,11 +690,20 @@ class FormatterTool(BaubleTool):
             
         #print plants
         formatter = Formatter()
-        response = formatter.start(plants)
-        if response == gtk.RESPONSE_ACCEPT:
-            pdf_filename = formatter.create_pdf()
-            print pdf_filename
+        try:
+            pdf_filename = formatter.start(plants)
+        except:
+            msg = 'Could not create PDF file.'
+            utils.message_details_dialog(msg, traceback.format_exc(), 
+                                         gtk.MESSAGE_ERROR)
+        else:
+            debug('pdf_filename: %s' % pdf_filename)
             utils.startfile(pdf_filename)        
+        
+        #if response == gtk.RESPONSE_ACCEPT:
+        #    pdf_filename = formatter.create_pdf()
+        #    print pdf_filename
+            
         #formatter.destroy()
     
     

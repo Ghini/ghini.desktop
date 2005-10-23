@@ -1,3 +1,7 @@
+2005.10.23
+--------------
+more work on XSL formatter plugin, should work now
+
 2005.10.21
 ---------------
 - canged preferences to use python's ConfigParse with a dict interfase, the 

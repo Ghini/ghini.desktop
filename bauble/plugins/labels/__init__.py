@@ -174,7 +174,8 @@ class LabelMaker(gtk.Dialog):
 #
 
 class LabelMakerTool(BaubleTool):    
-    label = "Label Maker"
+    enabled  = False
+    label = "Label Maker (obsolete)"
     
     @classmethod
     def start(self):
