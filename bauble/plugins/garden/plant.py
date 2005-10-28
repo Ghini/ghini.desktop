@@ -157,7 +157,7 @@ class PlantEditor(TreeViewEditorDialog):
         model = gtk.ListStore(str, object)
         sr = tables["Accession"].select("acc_id LIKE '"+text+"%'")
         for row in sr:
-            s = str(row) + " - " + str(row.plantname)
+            s = str(row) + " - " + str(row.species)
             model.append([s, row])
         return model
             
@@ -204,7 +204,7 @@ class PlantEditor(TreeViewEditorDialog):
 #            if len(text) > 2:
 #                sr = tables["Accession"].select("acc_id LIKE '"+text+"%'")
 #                for row in sr:
-#                    s = str(row) + " - " + str(row.plantname)
+#                    s = str(row) + " - " + str(row.species)
 #                    model.append([s, str(row), row.id])
 #        elif colname == "location":
 #            model = gtk.ListStore(str, int)

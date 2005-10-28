@@ -11,11 +11,11 @@ class Synonyms(BaubleTable):
     # look up in the botanical nomenclature about the rules for synonyms
     
     # the valid name
-    plantname = ForeignKey('Plantname', notNull=True)
+    species = ForeignKey('Species', notNull=True)
     
-    # unambiguous synonym, maybe this should be a single join to one plantnames
+    # unambiguous synonym, maybe this should be a single join to one speciess
     #synonym = ForeignKey('Plantnames')
-    synonym = SingleJoin('Plantname', joinColumn='id')
+    synonym = SingleJoin('Species', joinColumn='id')
         
 #    def __str__(self): 
 #        pass

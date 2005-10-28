@@ -115,58 +115,7 @@ class SearchView(BaubleView):
         cls.domain_map[domain] = table_name
         cls.search_metas[table_name] = search_meta
             
-            
-    #search_map = {} # can be extended by plugins
-    #domain_map = {}
-    #child_expand_map = {}
-    #infobox_map = {}
-#    search_map = {"Family": [plugins.tables["Family"], ("family",)],
-#                  "Genus":   [plugins.tables.Genus, ("genus",)],
-#                  "Plantname": [tables.Plantname, ("sp","isp")],                                                     
-                                                     
-#                  'Accessions': [tables.Accessions, ("acc_id",)],
-#                  'Locations': [tables.Locations, ("site",)],
-#                  'Continents': [tables.Continents, ('continent',)],
-#                  'Regions': [tables.Regions, ('region',)],
-#                  'Areas': [tables.Areas, ("area",)],
-#                  'States': [tables.States, ('state',)],
-#                  'Places': [tables.Places, ('name',)],
-#                  'KewRegions': [tables.KewRegions, ('region',)]
-#                  }
-                   
-    # other domain to implement  
-    # name, sp, species (shouldn't use "name", implies full name)
-    # native, origin
-    # loc, location
-    # edible,
-    # medicine
-    # redlist, conservation
-    # the keys here point to the esarch map, not a necessarily a table
-#    domain_map = {'Family': ('family', 'fam'),
-#                  'Genus': ('genus', 'gen'),
-#                  'Plantname': ('species', 'sp'),
-#                  'Accessions': ('accession', 'acc'),
-#                  'Locations': ('location', 'loc'),
-#                  'Continents': ('continent',),
-#                  'Regions': ('region',),
-#                  'Areas': ('area',),
-#                  'States': ('state',),
-#                  'Places': ('place',),
-#                  'KewRegions': ('kewregion',),
-                  #}
-                  
-    # TODO: check child expand map before adding _dummy
-#    child_expand_map = {tables.Family: 'genus',
-#                        tables.Genus: 'plantnames',
-#                        tables.Plantname: 'accessions',
-#                        tables.Accessions: 'plants',
-#                        tables.Locations: 'plants'
-#                        }
-                        
-#    infobox_map = {tables.Plantname: infobox.PlantnamesInfoBox,
-#                   tables.Plant: infobox.PlantsInfoBox,
-#                   tables.Accessions: infobox.AccessionsInfoBox
-#                   }
+  
                  
     
     def __init__(self):
@@ -201,27 +150,6 @@ class SearchView(BaubleView):
                 self.infobox.update(row)
             self.pane.pack2(self.infobox, False, True)
         self.pane.show_all() # reset the pane
-
-
-#    def set_infobox_from_row_old(self, row):
-#        #return
-#        if not hasattr(self, 'infobox'):
-#            self.infobox = None
-#            
-#        if self.infobox is not None:
-#            if self.infobox.parent == self.pane:
-#                self.pane.remove(self.infobox)
-#            self.infobox.destroy()
-#            
-#        t = type(row)
-#        #if self.infobox_map.has_key(t):
-#        if t in self.infobox_map:
-#            self.infobox = self.infobox_map[t]()
-#            if row is not None:
-#                self.infobox.update(row)
-#            self.pane.pack2(self.infobox, False, True)
-#            #self.pane.pack2(self.infobox, True, True)
-#        self.pane.show_all() # reset the pane
 
         
     def on_results_view_select_row(self, view):
@@ -566,9 +494,9 @@ class SearchView(BaubleView):
             # str
             if isinstance(row, tables['Accession']):
                 cell.set_property('markup', "%s <i>(%s)</i>" %
-                                  (str(row), str(row.plantname)))
+                                  (str(row), str(row.species)))
 #                 cell.set_property('text', "%s (%s)" %
-#                                   (str(row), str(row.plantname)))
+#                                   (str(row), str(row.species)))
 
             else: cell.set_property('text', str(row))
 

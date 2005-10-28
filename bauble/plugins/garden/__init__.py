@@ -31,8 +31,8 @@ class GardenPlugin(BaublePlugin):
     def init(cls):
         # add joins        
         acc_join = MultipleJoin('Accession', joinMethodName="accessions", 
-                                joinColumn='plantname_id')    
-        tables["Plantname"].sqlmeta.addJoin(acc_join)
+                                joinColumn='species_id')    
+        tables["Species"].sqlmeta.addJoin(acc_join)
         
         if "SearchViewPlugin" in plugins:
             from bauble.plugins.searchview.search import SearchMeta
@@ -52,8 +52,8 @@ class GardenPlugin(BaublePlugin):
 
             SearchView.view_meta["Plant"].set(None, PlantEditor, PlantInfoBox)
 
-            # done here b/c the Plantname table is not part of this plugin
-            SearchView.view_meta["Plantname"].child = "accessions"
+            # done here b/c the Species table is not part of this plugin
+            SearchView.view_meta["Species"].child = "accessions"
     
     
     depends = ("PlantsPlugin","GeographyPlugin")

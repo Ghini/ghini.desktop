@@ -159,9 +159,9 @@ class KewRegion(BaubleTable):
 
 class Distribution(BaubleTable):
     """
-    this class holds a possible plant distribution, a plantname row should
+    this class holds a possible plant distribution, a species row should
     have a SingleJoin to a distribution, there is no DistributionEditor,
-    the distribution are added from the PlantnameEditor
+    the distribution are added from the SpeciesEditor
     """
     continent = ForeignKey("Continent")
     area = ForeignKey("Area", default=None)
@@ -174,7 +174,7 @@ class Distribution(BaubleTable):
     # cultivated
     cultivated = BoolCol(default=False)
     
-    plantname = ForeignKey("Plantname")
+    species = ForeignKey("Species")
         
     def __str__(self):
         # this might not be a good idea to choose the string like this
@@ -207,7 +207,7 @@ class Distribution(BaubleTable):
 #                                 'place_combo': 'placeID',
 #                                 'kew_combo': 'kew_regionID',
 #                                 'cult_check': 'cultivated',
-#                                 'plantname_label': 'plantnameID'
+#                                 'species_label': 'speciesID'
 #                                }
 #
 #    
@@ -370,11 +370,11 @@ class Distribution(BaubleTable):
 #        
 #    def get_values_from_widgets(self):
 #        values = {}
-#        plantname = get_widget_value(self.glade_xml, "plantname_label")
-#        if isinstance(plantname, BaubleTable):
-#            values['plantnameID'] = plantname.id    
+#        species = get_widget_value(self.glade_xml, "species_label")
+#        if isinstance(species, BaubleTable):
+#            values['speciesID'] = species.id    
 #        else: 
-#            values['plantnameID'] = plantname
+#            values['speciesID'] = species
 #            #raise ValueError()
 #            
 #        if get_widget_value(self.glade_xml, "cult_check"):

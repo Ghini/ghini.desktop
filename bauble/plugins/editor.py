@@ -33,26 +33,52 @@ from bauble.utils.log import log, debug
 # gives a tooltip or dialog giving you more information about the current
 # cell you are editing
     
+    
+class CellRendererButton(gtk.GenericCellRenderer):
+    
+    def __init__(self, *args, **kwargs):
+        super(CellRendererButton, self).__init__(*args, **kwargs)
+        
+    def on_get_size(self, widget, cell_area):
+        pass
+    
+    def on_render(self, window, widget, background_area, cell_area, 
+                  expose_area, flags):
+        pass
+    
+    def on_activate(self, event, widget, path, background_area, cell_area, 
+                    flags):
+        pass
+    
+    def on_start_editing(self, event, widget, path, background_area, cell_area, 
+                         flags):
+        pass
+
+
 class GenericViewColumn(gtk.TreeViewColumn):
     
-    def __init__(self, view, header, renderer, so_col):
+    def __init__(self, view, header, renderer, so_col=None, so_join=None):
         super(GenericViewColumn, self).__init__(header, renderer)
        
         assert view is not None
-        assert so_col is not None
+#        assert so_col is not None
 #        if view is None:
 #            raise ValueError('view is None')
 #            
 #        if so_col is None:
 #            raise ValueError('so_col is None')        
-            
+        self.dirty = False
+
+        if so_col is not None and so_join is not None:
+            raise ValueError('cannot specify both so_col and join')
         self.view = view
         self.renderer = renderer
         self.set_cell_data_func(renderer, self.cell_data_func, view)
                 
         self.meta = GenericViewColumn.Meta()
+        self.meta.so_join = so_join
         self.meta.so_col = so_col  
-        if so_col._default == NoDefault:
+        if so_col is not None and so_col._default == NoDefault:
             self.meta.required = True
             self.meta.default = so_col._default
             self.set_visible(True)
@@ -78,9 +104,13 @@ class GenericViewColumn(gtk.TreeViewColumn):
     # name property
     #
     def __get_name(self):
-        if self.meta.so_col is None:
-            raise ValueError("meta.so_col is None")
-        return self.meta.so_col.name
+        if self.meta.so_join is not None:
+            return self.meta.so_join.joinMethodName
+        elif self.meta.so_col is not None:
+            return self.meta.so_col.name
+        
+        raise ValueError("meta.so_col is None")
+        #return self.meta.so_col.name
     name = property(__get_name)
     
     class Meta:
@@ -116,9 +146,31 @@ class GenericViewColumn(gtk.TreeViewColumn):
     def cell_data_func(self, col, cell, model, iter, view):
         raise NotImplementedError, "%s.cell_data_func not implemented" % \
             self.__class__.__name__
-            
+
+
+#class EditableColumn(GenericViewColumn):
+#    
+#    def __init__(self, view, header, so_col=None):
+#        super(EditableColumn, self).__init__(view, header)
+#        
+#        
+
+# TODO: create a seperate column class that doesn't act like a normal text
+# entry column so that there is a consisten way to show the user they
+# need to press Enter or something to open the editor
+class ExternalEditorColumn(GenericViewColumn):
+    
+    def __init__(self, view, header, so_col=None, so_join=None):
+        super(ExternalEditorColumn, self).__init__(view, header, 
+                                                   CellRendererButton,
+                                                   so_col, so_join)
         
         
+    def on_editing_started(self, cell, entry, path, view):
+        # connect to on insert, see TextColumn
+        pass
+
+    
 class ToggleColumn(GenericViewColumn):
     
     def __init__(self, view, header, so_col=None):        
@@ -131,15 +183,16 @@ class ToggleColumn(GenericViewColumn):
             
             
     def on_toggled(self, renderer, path, data=None):
+        self.dirty = True
         active = not renderer.get_active()
         self._set_view_model_value(path, active)    
         
         
-    def on_renderer_toggled(self, widget, path, data=None):
-        active = widget.get_active()
-        model = self.plants_view.get_model()
-        it = model.get_iter(path)
-        model.set_value(it, 0, not active)
+#    def on_renderer_toggled(self, widget, path, data=None):
+#        active = widget.get_active()
+#        model = self.plants_view.get_model()
+#        it = model.get_iter(path)
+#        model.set_value(it, 0, not active)
         
     def cell_data_func(self, col, cell, model, iter, data=None):
         row = model.get_value(iter, 0)
@@ -157,13 +210,14 @@ class ToggleColumn(GenericViewColumn):
 
 class TextColumn(GenericViewColumn):
     
-    def __init__(self, view, header, renderer=None, so_col=None):        
+    def __init__(self, view, header, renderer=None, so_col=None, so_join=None):        
         if renderer is None:
             renderer = gtk.CellRendererText()            
-        super(TextColumn, self).__init__(view, header, renderer, so_col)
+        super(TextColumn, self).__init__(view, header, renderer, so_col, 
+                                         so_join)
         self.renderer.set_property("editable", True)
         self.renderer.connect("editing_started", self.on_editing_started, view)
-        self.renderer.connect("edited", self.on_edited, view)
+        self.renderer.connect('edited', self.on_edited)
     
     
     def cell_data_func(self, column, renderer, model, iter, data=None):
@@ -184,7 +238,12 @@ class TextColumn(GenericViewColumn):
             renderer.set_property('text', str(value))
             
 
-    def on_edited(self, renderer, path, new_text, view):
+    def on_edited(self, renderer, path, new_text, set_in_model=True):
+        debug('on_edited')
+        debug(str(renderer))
+        debug(str(path))
+        debug(new_text)
+        debug(type(new_text))
         # means that the value is set by the on_match_completed function,
         # there should be a way to set either on_edited or on_completion
         # but not both
@@ -195,23 +254,28 @@ class TextColumn(GenericViewColumn):
         #debug('on_edited')        
         # don't allow empty strings in the model, this usually means a null
         # value in the cell
+        debug('new_text: %s' % new_text)
         if new_text == "":
+            debug('new_text')
             return
+        else:
+            debug('not new text')
+        self.dirty = True        
         if self.meta.get_completions is not None:
-            return
-        self._set_view_model_value(path, new_text)
+            return        
+        if set_in_model:
+            self._set_view_model_value(path, new_text)
         
                                            
     def on_editing_started(self, cell, entry, path, view):
         # if the cell has it's own editor we shouldn't be here
         if self.meta.editor is not None: 
             entry.connect('key-press-event', self.on_key_press, path)
-#            debug('editable = False') 
             entry.set_property('editable', False)
                 
         #entry.connect("key-press-event", self.on_cell_key_press, 
 #                         path, colname)
-                    # set up a validator on the col depending on the sqlobj.column type
+# TODO: set up a validator on the col depending on the sqlobj.column type
         
         if isinstance(self.meta.so_col, SOForeignKey) and \
           not self.meta.get_completions:
@@ -241,6 +305,7 @@ class TextColumn(GenericViewColumn):
         # we assume on a successfull completion that 0 is the value
         # that we matched on and 1 is the value we want in the model
         debug("TextColumn.on_completion_match_selected(%s)" % self.name)
+        self.dirty = True
         value = model.get_value(iter, 1)        
         self._set_view_model_value(view_model_path, value)
         
@@ -286,31 +351,27 @@ class TextColumn(GenericViewColumn):
             entry_completion.set_model(model)
 
 
-    def on_key_press(self, widget, event, path, data=None):
+    def on_key_press(self, widget, event, path):
         """
         if the column has an editor, invoke it
         """
         keyname = gtk.gdk.keyval_name(event.keyval)
-        path, col = self.view.get_cursor()
         if keyname == 'Return':
             # start the editor for the cell if there is one
             if self.meta.editor is not None:
-                #self.set_sensitive(False)
                 model = self.view.get_model()
                 it = model.get_iter(path)
                 row = model.get_value(it,0)
-                source = row[self.name]
-                debug("%s: %s" % (source, type(source)))
-                value = self.meta.editor(select=row[self.name]).start() # blocks
-                debug('returned from editor')
-                debug("%s: %s" % (value, type(value)))
-                if value is not None:
-                    self._set_view_model_value(path, value)
-                    #self.set_dirty(True)
-                #self.set_view_model_value(path, colname, v)
-                #self.set_sensitive(True)
-                #self.set_dirty(True)
-
+                e = self.meta.editor(select=row[self.name])
+                values = e.start()
+                if values is not None:                    
+                    self._set_view_model_value(path, values)
+                    debug('set dirty')
+                    self.dirty = True
+                    # fire edited
+                    #def on_edited(self, renderer, path, new_text, view):
+                    debug('emit')
+                    self.renderer.emit('edited', path, values, False)
 
 
 class ComboColumn(TextColumn):
@@ -409,6 +470,7 @@ class TableMeta:
     """
     def __init__(self):
         self.foreign_keys = []
+        self.joins = []
     
 
 ## TODO: finish this and get rid of ModelRowDict, to make this as useful
@@ -490,7 +552,7 @@ class ModelRowDict(dict):
         """
         if self.has_key(item):
             return True
-        elif self.row is not None: 
+        elif self.row is not None:             
             return hasattr(self.row, item)
         else: 
             return False
@@ -522,10 +584,15 @@ class ModelRowDict(dict):
             if v is None and item in self.defaults:
                 v = self.defaults[item]
             
-            column = self.row.sqlmeta.columns[item]            
-            if v is not None and isinstance(column, SOForeignKey):                
-                table_name = column.foreignKey                    
-                v = tables[table_name].get(v)
+            #if item in self.row.sqlmeta.columns: # is a column
+            #    column = self.row.sqlmeta.columns[item]            
+            #else:
+            #    column = self.row.sqlmeta.joins[item]
+            if item in self.row.sqlmeta.columns:
+                column = self.row.sqlmeta.columns[item]            
+                if v is not None and isinstance(column, SOForeignKey):                
+                    table_name = column.foreignKey                    
+                    v = tables[table_name].get(v)                
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
@@ -624,6 +691,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         hold a dictionary of columns by their names
         """
+        def __init__(self):
+            self.joins = [] # populate in start_tree_view
+            
         def __set_titles(self, titles):
             for name, title in titles.iteritems():
                 self[name].set_property('title', title)
@@ -708,6 +778,24 @@ class TreeViewEditorDialog(TableEditorDialog):
 
     
     def start_tree_view(self):
+        
+        # remove join columns if they don't have an editor associated
+        for join in self.table.sqlmeta.joins:
+            # we create columns for the joins here but we remove the column
+            # once the view is created if there isn't an external editor, this
+            # allows classes that extend this editor class to setup the editor
+            # in their constructor like they would do with normal column
+            debug(join)
+            debug(join.joinMethodName)
+            name = join.joinMethodName
+            if name in self.columns and self.columns[name].meta.editor is None:
+                debug('removing %s' % name)
+                self.columns.pop(name)
+            else:
+                self.columns.joins.append(name)
+            
+                
+            
         # create the model from the tree view and add rows if a
         # selectresult is passed
         if self.select is not None:
@@ -902,9 +990,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
         
         
-    def commit_changes_old(self):
-        pass
-        
     def commit_changes(self):
         """
         commit any change made in the table editor
@@ -921,7 +1006,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         values = self.get_values_from_view()
         old_conn = sqlhub.getConnection()
         trans = old_conn.transaction()
-        #sqlhub.threadConnection = trans
         sqlhub.processConnection = trans
         for v in values:
             # make sure it's ok to commit these values            
@@ -930,11 +1014,22 @@ class TreeViewEditorDialog(TableEditorDialog):
             # first pop out columns in table_meta.foreign_keys so we can
             # set their foreign key id later                
             foreigners = {}
+            join_values = {}
             for col, col_attr in self.table_meta.foreign_keys:
                 # use has_key to check the dict and not the table, 
                 # see ModelRowDict.__contains__
                 if v.has_key(col): 
                     foreigners[col] = v.pop(col)
+            
+            # remove the join values from v so we can set them with the 
+            # row id later
+            for name in self.columns.joins:
+                debug('popping join: %s' % name)
+                if name in v:                                        
+                    join_values[name]= v.pop(name)
+                
+            # update or set the row depending on where there is an 'id' key
+            # in the v dict
             try:                
                 if 'id' in v:# updating row
                     t = self.table.get(v["id"], connection=trans)
@@ -944,17 +1039,42 @@ class TreeViewEditorDialog(TableEditorDialog):
                     debug('adding row: ' + str(v))
                     t = self.table(connection=trans, **v)
                 #print 'foreign: ' + str(foriegners)
+                
+                # temporarily disable
+                #trans.commit()
+                
                 # set the foreign keys id of the foreigners
-                trans.commit()
                 for col, col_attr in self.table_meta.foreign_keys:
                     if col in foreigners:
                         c = foreigners[col]
                         debug(c)
                         foreign_table = c.__class__.get(c.id, connection=trans)
                         foreign_table.set(**{col_attr: t.id})
-                        trans.commit()
+                        # temporary disable
+                        #trans.commit()
                         #c.set(**{col_attr: t.id})                
+                debug('committing joins')    
+                for join_name, jv in join_values.iteritems():
+                    join_column = self.columns[join_name].meta.so_join.joinColumn
+                    # remove the _id from the end and set the table id
+                    jv[join_column[:-3]] = t.id
+                    join_table_class = jv.pop('__class__')
+                    
+                    debug(jv)
+                    if 'id' in jv:
+                        debug('updating join')                        
+                        join_table = join_table_class.get(jv.pop('id'), 
+                                                          connection=trans)
+                        join_table.set(**join)
+                    else:
+                        debug('creating join')
+                        join_table = join_table_class(connection=trans, **jv)
+                     
+                    # temporary disable
+                    #trans.commit()
+                        
             except Exception, e:                
+                debug('rolling back changes')
                 trans.rollback()
                 #sqlhub.threadConnection = old_conn
                 sqlhub.processConnection = old_conn
@@ -962,33 +1082,97 @@ class TreeViewEditorDialog(TableEditorDialog):
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                               gtk.MESSAGE_ERROR)
                 return False      
-#            else:      
-#                #trans.commit()
-#                debug("commited: " + str(v))
+            else:
+                trans.commit()
+
+        sqlhub.processConnection = old_conn
+        return True
+        pass
+        
+#    def commit_changes_old(self):
+#        """
+#        commit any change made in the table editor
+#        """        
+##        debug("entered commit_changes")
+#        # TODO: do a map through the values returned from get_tables_values
+#        # and check if any of them are lists in the (table, values) format
+#        # if they are then we need pop the list from the values and commit
+#        # the current table, set the foreign key of the sub table and commit 
+#        # it
+#        # TODO: if i don't set the connection parameter when i create the
+#        # table then is it really using the transaction, it might be if 
+#        # sqlhub.threadConnection is set to the transaction
+#        values = self.get_values_from_view()
+#        old_conn = sqlhub.getConnection()
+#        trans = old_conn.transaction()
+#        #sqlhub.threadConnection = trans
+#        sqlhub.processConnection = trans
+#        for v in values:
+#            # make sure it's ok to commit these values            
+#            if not self.test_values_before_commit(v):                
+#                continue                
+#            # first pop out columns in table_meta.foreign_keys so we can
+#            # set their foreign key id later                
+#            foreigners = {}
+#            for col, col_attr in self.table_meta.foreign_keys:
+#                # use has_key to check the dict and not the table, 
+#                # see ModelRowDict.__contains__
+#                if v.has_key(col): 
+#                    foreigners[col] = v.pop(col)
+#            try:                
+#                if 'id' in v:# updating row
+#                    t = self.table.get(v["id"], connection=trans)
+#                    del v["id"]
+#                    t.set(**v)
+#                else: # adding row
+#                    debug('adding row: ' + str(v))
+#                    t = self.table(connection=trans, **v)
+#                #print 'foreign: ' + str(foriegners)
+#                # set the foreign keys id of the foreigners
+#                trans.commit()
 #                for col, col_attr in self.table_meta.foreign_keys:
 #                    if col in foreigners:
 #                        c = foreigners[col]
-#                        try:
-#                            # have to do some voodoo here b/c if c was created 
-#                            # from a different connection or a different t
-#                            # transaction then there will be problems
-#                            foreign_table = c.__class__.get(t.id, connection=trans)
-#                            foreign_table.set(**{col_attr: t.id})
-#                            trans.commit()
-#                            #c.set(**{col_attr: t.id})
-#                        except:
-#                            trans.rollback()
-#                            msg = "could not set foreign table: %s.%s" \
-#                                  % (col, col_attr)
-#                            utils.message_details_dialog(msg, 
-#                                                         traceback.format_exc(),
-#                                                         gtk.MESSAGE_ERROR)
-#                            return False
-#                #trans.commit()
-                
-        #sqlhub.threadConnection = old_conn
-        sqlhub.processConnection = old_conn
-        return True
+#                        debug(c)
+#                        foreign_table = c.__class__.get(c.id, connection=trans)
+#                        foreign_table.set(**{col_attr: t.id})
+#                        trans.commit()
+#                        #c.set(**{col_attr: t.id})                
+#            except Exception, e:                
+#                trans.rollback()
+#                #sqlhub.threadConnection = old_conn
+#                sqlhub.processConnection = old_conn
+#                msg = "Could not commit changes.\n" + str(e)
+#                utils.message_details_dialog(msg, traceback.format_exc(), 
+#                                              gtk.MESSAGE_ERROR)
+#                return False      
+##            else:      
+##                #trans.commit()
+##                debug("commited: " + str(v))
+##                for col, col_attr in self.table_meta.foreign_keys:
+##                    if col in foreigners:
+##                        c = foreigners[col]
+##                        try:
+##                            # have to do some voodoo here b/c if c was created 
+##                            # from a different connection or a different t
+##                            # transaction then there will be problems
+##                            foreign_table = c.__class__.get(t.id, connection=trans)
+##                            foreign_table.set(**{col_attr: t.id})
+##                            trans.commit()
+##                            #c.set(**{col_attr: t.id})
+##                        except:
+##                            trans.rollback()
+##                            msg = "could not set foreign table: %s.%s" \
+##                                  % (col, col_attr)
+##                            utils.message_details_dialog(msg, 
+##                                                         traceback.format_exc(),
+##                                                         gtk.MESSAGE_ERROR)
+##                            return False
+##                #trans.commit()
+#                
+#        #sqlhub.threadConnection = old_conn
+#        sqlhub.processConnection = old_conn
+#        return True
     
 
     def on_view_move_cursor(self, view, step, count, data=None):
@@ -1009,19 +1193,11 @@ class TreeViewEditorDialog(TableEditorDialog):
                                           % column.get_property('title'))
         else:
             bauble.app.gui.statusbar.pop(editor_status_context_id)
-            
-        #print "on_cursor_changed: %s, %s" %(path, column)        
-        #print "BLOCK"
-        #view.handler_block(self.cursor_changed_id)
-        #if stop
-        #view.set_cursor(path, column, True)
-        #print "UN block"
-        #view.handler_unblock(self.cursor_changed_id)
-        #self.grab_focus(entry)
 
 
-    def create_view_columns(self):        
-        columns = TreeViewEditorDialog.ColumnDict()
+    def create_view_columns(self):                
+        columns = TreeViewEditorDialog.ColumnDict()        
+        # create tree columns for table columns
         for name, col in self.table.sqlmeta.columns.iteritems():
             #debug("create_view_column: %s -- %s", name, col)
             if name.startswith("_"): # private/not editable
@@ -1041,17 +1217,47 @@ class TreeViewEditorDialog(TableEditorDialog):
             
             # set handlers for the view
             if isinstance(column, TextColumn):
-                column.renderer.connect('edited', self.on_column_edited)
+                column.renderer.connect('edited', self.on_column_edited,
+                                        column)
             elif isinstance(column, ToggleColumn):
-                column.renderer.connect('toggled', self.on_column_edited, None)
-                
+                column.renderer.connect('toggled', self.on_column_toggled,
+                                        column)
+        
+        for join in self.table.sqlmeta.joins:
+            # we create columns for the joins here but we remove the column
+            # once the view is created if there isn't an external editor, this
+            # allows classes that extend this editor class to setup the editor
+            # in their constructor like they would do with normal column
+            #debug(join)            
+            name = join.joinMethodName
+            # FIXME: right now we only support editing of single join though 
+            # this could be a problem if the editor returns multiple values
+            if not isinstance(join, SOSingleJoin):                         
+                continue
+            #debug(join.joinColumn)            
+            column = TextColumn(self.view, title, so_join=join)
+            column.renderer.connect('edited', self.on_column_edited, column)
+            columns[name] = column
+            #columns.joins.append(name)
+            
         return columns
         
         
-    def on_column_edited(self, renderer, path, new_text):
-#        debug("on_column_edited: '%s'" % new_text)
-        if new_text != "": # only set dirty if something has changed
+    def on_column_toggled(self, renderer, path, column):
+        if column.dirty:
             self.set_dirty(True)
+    
+    
+    def on_column_edited(self, renderer, path, new_text, column):
+        debug("on_column_edited: '%s'" % new_text)
+        #if new_text != "": # only set dirty if something has changed
+        #    self.set_dirty(True)
+        if column.dirty:
+            debug('set dirty')
+            self.set_dirty(True)
+        else:
+            debug('not dirty')
+        
         # edited the last row so add a new one,
         # i think this may a bit of a bastardization of path but works for now
         model = self.view.get_model()
@@ -1062,7 +1268,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         
     def add_new_row(self, row=None):
         model = self.view.get_model()
-        if model is None: raise Exception("no model in the row")
+        if model is None: raise ception("no model in the row")
         if row is None:
             row = self.table        
         model.append([ModelRowDict(row, self.columns, self.defaults)])        

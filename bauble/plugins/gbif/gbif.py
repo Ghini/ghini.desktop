@@ -110,8 +110,8 @@ class GBIFView(BaubleView):
             </equals>""" % {"genus": str(row)}
             print filter
             
-        if type(row) == tables["Plantname"]:
-            print "searching plantnames"
+        if type(row) == tables["Species"]:
+            print "searching species"
         
         request = dwc2.search_request_template.substitute(filter=filter, 
                                                           sendtime=datetime.utcnow(),

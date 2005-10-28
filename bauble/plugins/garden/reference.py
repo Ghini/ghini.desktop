@@ -8,10 +8,10 @@ from bauble.plugins.editor import TreeViewEditorDialog
 
 
 # TODO: references should be a many-to-many relationship with
-# plantnames since each plantname can have multiple references
-# and each reference can refer to multiple plantnames
+# speciess since each species can have multiple references
+# and each reference can refer to multiple speciess
 
-# TODO: should have references in families, genera, plantnames but
+# TODO: should have references in families, genera, speciess but
 # if this is a multiple join i guess i would need to specify MultipleJoin
 # columns for each
 
@@ -29,7 +29,7 @@ class Reference(BaubleTable):
     label = StringCol(length=64)
     reference = StringCol()
     
-    plantname = ForeignKey("Plantname", default=None)
+    species = ForeignKey("Species", default=None)
     family = ForeignKey("Family", default=None)
     genus = ForeignKey("Genus", default=None)
 
@@ -50,7 +50,7 @@ class ReferenceEditor(TreeViewEditorDialog):
                                       parent, select=select, defaults=defaults)        
         titles = {"label": "Label",
                   "reference": "Reference",
-                  "plantnameID": "Plantname",
+                  "speciesID": "Species",
                   "familyID": "Family",
                   "genusID": "Genus"}
         self.columns.titles = titles

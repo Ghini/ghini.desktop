@@ -92,7 +92,7 @@ class InfoBox(gtk.ScrolledWindow):
 
 
 # TODO: references expander should also show references to any
-# foreign key defined in the table, e.g. if a plantname is being
+# foreign key defined in the table, e.g. if a species is being
 # display it should also show the references associated with
 # the family and genera
 

@@ -3,7 +3,7 @@
 #from cultivation import *
 
 # TODO: there is going to be problem with the accessions MultipleJoin
-# in plantnames, plants should really have to depend on garden unless
+# in Species, plants should really have to depend on garden unless
 # plants is contained within garden, but what about herbaria, they would
 # also need to depend on plants, what we could do is have another class
 # with the same name as the other table that defines new columns/joins
@@ -19,13 +19,14 @@ import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor
 from genus import Genus, GenusEditor
-from plantname import Plantname, PlantMeta, PlantnameEditor, PlantnameInfoBox
+from species import Species, SpeciesEditor, SpeciesInfoBox
+from speciesmeta import SpeciesMeta, SpeciesMetaEditor
 from vernacularname import VernacularName
 
 
 class PlantsPlugin(BaublePlugin):
-    tables = [Family, Genus, Plantname, PlantMeta, VernacularName]
-    editors = [FamilyEditor, GenusEditor, PlantnameEditor]
+    tables = [Family, Genus, Species, SpeciesMeta, VernacularName]
+    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor]
     
     @classmethod
     def init(cls):                
@@ -44,14 +45,14 @@ class PlantsPlugin(BaublePlugin):
             search_meta = SearchMeta("Genus", ["genus"], "genus")
             SearchView.register_search_meta("genus", search_meta)
             SearchView.register_search_meta("gen", search_meta)
-            SearchView.view_meta["Genus"].set("plantnames", GenusEditor)
+            SearchView.view_meta["Genus"].set("species", GenusEditor)
             
-            search_meta = SearchMeta("Plantname", ["sp", "isp"], "sp")
+            search_meta = SearchMeta("Species", ["sp", "isp"], "sp")
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             
-            SearchView.view_meta["Plantname"].set(editor=PlantnameEditor, 
-                                                  infobox=PlantnameInfoBox)
+            SearchView.view_meta["Species"].set(editor=SpeciesEditor, 
+                                                  infobox=SpeciesInfoBox)
             
     @classmethod
     def create_tables(cls):
@@ -60,15 +61,18 @@ class PlantsPlugin(BaublePlugin):
         csv = CSVImporter()    
 #        path = os.path.dirname(__file__) + os.sep + 'default'
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['Family.txt']#,'Genus.txt', 'Plantname.txt']
+        files = ['Family.txt']#,'Genus.txt', 'Species.txt']
         csv.start([path+os.sep+f for f in files])
         
-        # genera and plantnames take along time so ask the user if
+        # genera and species take along time so ask the user if
         # they want to import them
-        if utils.yes_no_dialog("Would you like to import the Genera?"):            
-            if csv.start([path + os.sep + "Genus.txt"]):
-                if utils.yes_no_dialog("Would you like to import the Plantnames?"):
-                    csv.start([path + os.sep + "Plantname.txt"])
+        if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
+                               "take a while)"):            
+            csv.start([path + os.sep + "Genus.txt"])
+            #if csv.start([path + os.sep + "Genus.txt"]):
+                #if utils.yes_no_dialog("Would you like to import the Species?"\
+                #                       "(it may take a while)"):
+                #    csv.start([path + os.sep + "Species.txt"])
 
     
     def install(cls):

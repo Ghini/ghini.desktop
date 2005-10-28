@@ -22,7 +22,7 @@ import bauble.plugins.imex_abcd.abcd
 # TODO: create label make in the tools that show a dialog with an entry
 # the entry is for a search string that then returns a list of all the labels
 # that'll be made with checkboxess next to them to de/select the ones you 
-# don't want to print, could also have a check box to select plantnames or accessions
+# don't want to print, could also have a check box to select species or accessions
 # so we can print labels for plants that don't have accessions, though this could
 # be a problem b/c abcd data expects 'unitid' fields but we could have a special
 # case just for generating labels

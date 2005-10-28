@@ -60,7 +60,7 @@ class Collection(BaubleTable):
     # we have to be careful we don't get dangling tables without an accession
     #
     # these are only for recording plant distribution and should
-    # be put in a distribution table so the plantnames can do a single join
+    # be put in a distribution table so the species can do a single join
     # on them, the only thing we need here is the country name
     #area = ForeignKey('Areas', default=None)
     #region = ForeignKey('Regions', default=None)

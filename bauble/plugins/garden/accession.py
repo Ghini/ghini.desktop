@@ -67,7 +67,7 @@ class Accession(BaubleTable):
     #consv_status = StringCol(default=None) # conservation status, free text
     
     # foreign keys and joins
-    plantname = ForeignKey('Plantname', notNull=True)
+    species = ForeignKey('Species', notNull=True)
     plants = MultipleJoin("Plant", joinColumn='accession_id')
     
     # these should probably be hidden then we can do some trickery
@@ -131,7 +131,7 @@ class AccessionEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accession.columns"
     column_width_pref = "editor.accession.column_width"
-    default_visible_list = ['acc_id', 'plantname']
+    default_visible_list = ['acc_id', 'species']
 
     label = 'Accessions'
 
@@ -140,7 +140,7 @@ class AccessionEditor(TreeViewEditorDialog):
         TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
                                       parent, select=select, defaults=defaults)
         titles = {"acc_id": "Acc ID",
-                   "plantnameID": "Name",
+                   "speciesID": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
                    'source_type': 'Source'
@@ -159,18 +159,20 @@ class AccessionEditor(TreeViewEditorDialog):
         self.columns['source_type'].meta.editor = editors["SourceEditor"]
         self.columns['source_type'].meta.getter = get_source
         
-        self.columns['plantnameID'].meta.get_completions = \
-            self.get_plantname_completions
+        self.columns['speciesID'].meta.get_completions = \
+            self.get_species_completions
         
         # set the accession column of the table that will be in the 
         # source_type columns returned from self.get_values_from view
         # TODO: this is a little hoaky and could use some work, might be able
         # to do this automatically if the value in the column is a table
         # the the expected type is a single join
+        # could do these similar to the way we handle joins in 
+        # create_view_columns
         self.table_meta.foreign_keys = [('_collection', 'accession'),
                                         ('_donation', 'accession')]
         
-    def get_plantname_completions(self, text):
+    def get_species_completions(self, text):
         # get entry and determine from what has been input which
         # field is currently being edited and give completion
         # if this return None then the entry will never search for completions
@@ -189,8 +191,8 @@ class AccessionEditor(TreeViewEditorDialog):
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
         model = gtk.ListStore(str, object) 
         for row in sr:
-            for plantname in row.plantnames:                
-                model.append((str(plantname), plantname))
+            for species in row.species:                
+                model.append((str(species), species))
         return model
     
     
@@ -299,7 +301,7 @@ else:
     class GeneralAccessionExpander(InfoExpander):
         """
         generic information about an accession like
-        number of clones, provenance type, wild provenance type, plantnames
+        number of clones, provenance type, wild provenance type, speciess
         """
     
         def __init__(self, glade_xml):
@@ -309,7 +311,7 @@ else:
             self.vbox.pack_start(w)
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', row.plantname)
+            set_widget_value(self.glade_xml, 'name_data', row.species)
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
             #w = self.glade_xml.get_widget('nplants_data')
             #pass

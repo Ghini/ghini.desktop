@@ -110,18 +110,18 @@ def plants_to_abcd(plants):
     for p in plants:
         acc = p.accession
         id = string.strip(str(acc.acc_id) + '.' + str(p.plant_id))
-        f = family_template.substitute(family=acc.plantname.genus.family)
-        n = name_template.substitute(genus=acc.plantname.genus, sp=acc.plantname.sp)
-        #informal_name = informal_name_template.substitute(informal_name=acc.plantname.vernac_name or "")
+        f = family_template.substitute(family=acc.species.genus.family)
+        n = name_template.substitute(genus=acc.species.genus, sp=acc.species.sp)
+        #informal_name = informal_name_template.substitute(informal_name=acc.species.vernac_name or "")
         informal_name = informal_name_template.substitute(informal_name=
-            acc.plantname.default_vernacular_name or "")
-        #d = distribution_template.substitute(distribution=acc.plantname.distribution or "")
-        if acc.plantname.plant_meta is not None:
-            dist = acc.plantname.plant_meta.distribution or ''
+            acc.species.default_vernacular_name or "")
+        #d = distribution_template.substitute(distribution=acc.species.distribution or "")
+        if acc.species.plant_meta is not None:
+            dist = acc.species.plant_meta.distribution or ''
         else: dist = ''
         d = distribution_template.substitute(distribution=dist)
         #d = distribution_template.substitute(distribution=
-        #    acc.plantname.plant_meta.distribution or "")
+        #    acc.species.plant_meta.distribution or "")
         units.append(unit_template.substitute(unitid=id, family=f, 
                                               scientific_name=n, 
                                               informal_names=informal_name,

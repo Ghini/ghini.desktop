@@ -52,7 +52,7 @@ class LabelMaker(gtk.Dialog):
     
     def name_cell_data_func(self, column, cell, model, iter, data=None):
         plant = model.get_value(iter, 1)
-        cell.set_property('text', plant.accession.plantname)        
+        cell.set_property('text', plant.accession.species)        
         
         
     def on_renderer_toggled(self, widget, path, data=None):
@@ -214,7 +214,7 @@ class LabelMakerTool(BaubleTool):
                 print "family: " + str(value)
             elif isinstance(value, tables["Genus"]):
                 print "genera: " + str(value)
-            elif isinstance(value, tables["Plantname"]):
+            elif isinstance(value, tables["Species"]):
                 for acc in value.accessions:
                     plants += acc.plants
             elif isinstance(value, tables["Accession"]):

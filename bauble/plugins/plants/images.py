@@ -18,9 +18,9 @@ class Image(BaubleTable):
     
     # should accessions also have a images in case an accession
     # differs from a plant slightly or should it just have a different
-    # plantname
+    # species
     #plant = MultipleJoin("Plantnames", joinColumn="image_id")
-    plantname = ForeignKey('Plantnames')
+    species = ForeignKey('Species')
     
     
     def __str__(self): return self.label
@@ -32,7 +32,7 @@ class ImageEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.image.columns"
     column_width_pref = "editor.image.column_width"
-    default_visible_list = ['label', 'uri', 'plantname'] 
+    default_visible_list = ['label', 'uri', 'species'] 
     
     label = 'Images'
     
@@ -43,5 +43,5 @@ class ImageEditor(TreeViewEditorDialog):
                                             select=select, defaults=defaults)
         titles={"uri": "Location (URL)",
                  "label": "Label",
-                 'plantnameID': 'Plant Name'}
+                 'speciesID': 'Plant Name'}
         self.columns.titles = titles

@@ -1,17 +1,34 @@
+2005.10.27
+----------
+- got external editors working for SingleJoins, its far from perfect yet but its 
+a first pass, e.g. right now you can create species_meta for a species table
+but you can't edit it later
+- external editors can now signal that changes were made so the dirty flag can
+be properly set on the editor
+
+2005.10.25
+----------
+- changed Plantnames to Species 
+- added a SpeciesMeta table to hold extra information about a species such
+as distribution and created an SpeciesMetaEditor
+
+
 2005.10.23
---------------
-more work on XSL formatter plugin, should work now
+----------
+- more work on XSL formatter plugin, should work now
+
 
 2005.10.21
----------------
+----------
 - canged preferences to use python's ConfigParse with a dict interfase, the 
 prefs API should be the same as before but the config file format is no longer 
 compatible, the new format uses an ini type syntax
 - added a generic XSL formatter plugin, though not finished yet
 - moved main_is_frozen to bauble.__init__.py
 
+
 2005.10.15
--------------
+----------
 - fixes in latitude/longitude handling in the CollectionEditor dialog as well
 as in the Collection infobox
 - ** dates still don't work in the CollectionEditor

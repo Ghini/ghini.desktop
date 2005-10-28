@@ -6,7 +6,7 @@ data_dir = '/home/brett/devel/bauble/data/'
 families_file = data_dir + 'csv/Family.txt'
 genera_file = data_dir + 'csv/Genera.txt'
 checklist_file = data_dir + 'old/belize_plants.txt'
-plantname_columns='"genusID","sp","sp_author","isp_rank","isp","isp_author","sp_hybrid"'
+species_columns='"genusID","sp","sp_author","isp_rank","isp","isp_author","sp_hybrid"'
 
 # synonyms to use for the checklist genera
 #generic_synonyms = {'Adenocalymna', Adenocalymma Mart. ex Meisn.
@@ -26,8 +26,8 @@ class Plant:
 #        self.is_cv = '' # HACK for this file only
         self.hybrid = ''
 
-    def match(self, plantName):        
-        partsList = re.split("(?:subsp\.)+|(?:var\.)+", plantName)
+    def match(self, species):        
+        partsList = re.split("(?:subsp\.)+|(?:var\.)+", species)
         speciesPart = partsList[0].strip()
 
         # ** match species part
@@ -51,9 +51,9 @@ class Plant:
         self.species_author = m.group("author")
         
         # check for isp_rank
-        if plantName.find("subsp.") != -1:
+        if species.find("subsp.") != -1:
             self.isp_rank = "subsp."
-        elif plantName.find("var.") != -1:
+        elif species.find("var.") != -1:
             self.isp_rank = "var."
             
         if self.isp_rank is not "":

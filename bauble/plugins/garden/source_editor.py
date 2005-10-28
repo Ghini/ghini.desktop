@@ -452,7 +452,7 @@ class SourceEditor(TableEditor):
         #self.commited = None
         t = None
         try:
-            print 'create table'
+            debug('create table')
             # i guess the connection is inherant
             if self.select is None: # create a new table row
                 t = table(connection=trans, **values)
@@ -463,7 +463,7 @@ class SourceEditor(TableEditor):
                     msg = 'SourceEditor.commit_changes: the type has changed'
                     raise ValueError(msg)
                 self.select.set(**values)
-                t = self.select
+                t = self.select # TODO: does this work????
                 #raise NotImplementedError("TODO: updating a collection "\
                 #                          "hasn't been implemented")
                 #pass
