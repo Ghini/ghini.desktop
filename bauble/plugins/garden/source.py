@@ -17,11 +17,10 @@ class Donation(BaubleTable):
     # are set up have to commit this table and then set the foreign key later,
     # we have to be careful we don't get dangling tables without an accession
     accession = ForeignKey('Accession', default=None)
-    
+        
     def __str__(self):
         # i don't know why this has to be donorID instead of donor
-        return Donors.get(self.donorID).name # 
-
+        return Donors.get(self.donorID).name
         
     #herb_id = StringCol(length=50, default=None) # herbarium id?
     

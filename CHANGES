@@ -1,3 +1,7 @@
+2005.10.28
+----------
+- still doing some work on external editors, still broken but closer
+
 2005.10.27
 ----------
 - got external editors working for SingleJoins, its far from perfect yet but its 
@@ -5,6 +9,8 @@ a first pass, e.g. right now you can create species_meta for a species table
 but you can't edit it later
 - external editors can now signal that changes were made so the dirty flag can
 be properly set on the editor
+- commited r111
+- update species_infobox to reflect species meta
 
 2005.10.25
 ----------

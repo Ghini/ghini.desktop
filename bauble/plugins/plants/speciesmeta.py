@@ -50,7 +50,7 @@ class SpeciesMeta(BaubleTable):
     
 class SpeciesMetaEditor(TableEditor):
     
-    #standalone = False
+    standalone = False
     label = 'Species Meta'
     
     def __init__(self, select=None, defaults={}):
@@ -63,15 +63,18 @@ class SpeciesMetaEditor(TableEditor):
         self._dirty=True
         self.committed = False
         self.food_check = self.glade_xml.get_widget('food_check')
-        self.poison_animals_check =self.glade_xml.get_widget('poison_animals_check')            
-        self.poison_humans_check =self.glade_xml.get_widget('poison_humans_check')
+        self.poison_animals_check = \
+            self.glade_xml.get_widget('poison_animals_check')            
+        self.poison_humans_check = \
+            self.glade_xml.get_widget('poison_humans_check')
+        self.__values = None
+    
     
     def start(self):
-        self._populate_distribution_combo()
+        self.__populate_distribution_combo()
         if self.select is not None:
             self._set_widget_values_from_instance(self.select)
             
-        values = None
         response = gtk.RESPONSE_CANCEL
         while True:
             msg = 'Are you sure you want to lose your changes?'            
@@ -86,53 +89,55 @@ class SpeciesMetaEditor(TableEditor):
                 break      
             else:
                 break               
-        values = self.get_values()
+
+        self._set_values_from_widgets()
         self.dialog.destroy()
                 
-        return values
+        return response
         
+    
+    
     #def on_dist_combo_changed(self, combo):
     #    self.dirty = True
     # TODO: should be able to have a common commit_changes for editors
     # and just do custom commits with hooks, since the class provides 
     # get_values there shouldn't really be any custom commits since your just
     # return the values you want to commit and the editor commits them
-    def commit_changes(self):
-        #values = self.get_values()
-        
-        print values
-        if values is None: 
+    def commit_changes(self, transaction=None):
+        '''
+        if you pass in a transaction instance then the have to commit the 
+        transaction yourself, else this method will use 
+        sqlhub.processconnection
+        '''
+        if self.__values is None: 
             return
-        #conn = sqlhub.getConnection()
-        #trans = conn.transaction()        
-        trans = sqlhub.processConnection.transaction()
-        #self.commited = None
-        t = None
+        values = self.__values
+        values.pop('__class__')     
+        commit_transaction = False        
+        if transaction is None:
+            trans = sqlhub.processConnection.transaction()
+            commit_transaction = True
+        else:
+            trans = transaction
+        table_instance = None
         try:
             debug('create table')
-            # i guess the connection is inherant
             if self.select is None: # create a new table row
-                t = self.table(connection=trans, **values)
-            else: # update the table row passed in
-                # TODO: if select and table aren't the same we should
-                # ask the user if they want to change the type source
-                if not isinstance(self.select, self.curr_editor.table):
-                    msg = 'SourceEditor.commit_changes: the type has changed'
-                    raise ValueError(msg)
-                self.select.set(**values)
-                t = self.select
-                #raise NotImplementedError("TODO: updating a collection "\
-                #                          "hasn't been implemented")
-                #pass
-            trans.commit()
-            self.committed = t
+                table_instance = self.table(connection=trans, **values)
+            else: 
+                self.select.set(connection=trans, **values)
+                table_instance = self.select                                
+            if commit_transaction:
+                trans.commit()
         except Exception, e:
             msg = "SourcedEditor.commit_changes(): could not commit changes"
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
-            trans.rollback()
-            return False        
-        return True
+            if commit_transaction:
+                trans.rollback()
+            return None
+        return table_instance
+
 
     def _set_widget_values_from_instance(self, meta):
         #if meta.distribution is not None:
@@ -140,34 +145,56 @@ class SpeciesMetaEditor(TableEditor):
         if meta.food_plant is None:
             self.food_check.set_inconsistent()
         else:
-            self.food_checl.set_active(meta.food_plant)
+            self.food_check.set_active(meta.food_plant)
             
             
-            
-    def get_values(self):
-        values = {}
-        values['__class__'] = self.table
+    def _set_values_from_widgets(self):
+        self.__values = {}
+        self.__values['__class__'] = self.table
         #values['distribution'] = self.dist_combo.get_active_text()
         it = self.dist_combo.get_active_iter()
         model = self.dist_combo.get_model()
         v = model.get_value(it, 0)
-        values['distribution'] = v
-        
+        self.__values['distribution'] = v
         
         if not self.food_check.get_inconsistent():
-            values['food_plant'] = self.food_check.get_active()
+            self.__values['food_plant'] = self.food_check.get_active()
             
-        
         if not self.poison_animals_check.get_inconsistent():
-            values['poison_animals'] = self.poison_animals_check.get_active()
+            self.__values['poison_animals'] = \
+                self.poison_animals_check.get_active()
         
         if not self.poison_humans_check.get_inconsistent():
-            values['poison_humans'] = self.poison_humans_check.get_active()
+            self.__values['poison_humans'] = \
+                self.poison_humans_check.get_active()
         
-        return values
         
+    def get_values(self):
+        return _values
         
-    def _populate_distribution_combo(self):        
+#        values = {}
+#        values['__class__'] = self.table
+#        #values['distribution'] = self.dist_combo.get_active_text()
+#        it = self.dist_combo.get_active_iter()
+#        model = self.dist_combo.get_model()
+#        v = model.get_value(it, 0)
+#        values['distribution'] = v
+#        
+#        
+#        if not self.food_check.get_inconsistent():
+#            values['food_plant'] = self.food_check.get_active()
+#            
+#        
+#        if not self.poison_animals_check.get_inconsistent():
+#            values['poison_animals'] = self.poison_animals_check.get_active()
+#        
+#        if not self.poison_humans_check.get_inconsistent():
+#            values['poison_humans'] = self.poison_humans_check.get_active()
+#        
+#        return values
+#    #values = property(_get_values)
+        
+    def __populate_distribution_combo(self):        
         model = gtk.TreeStore(str)
         model.append(None, ["Cultivated"])
         for continent in tables['Continent'].select(orderBy='continent'):
