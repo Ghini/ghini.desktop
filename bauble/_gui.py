@@ -205,8 +205,15 @@ class GUI:
         """
         show the dialog of the selected editor
         """
+        debug('on_activate_editor')
         e = editor()
-        e.start()
+        response = e.start()
+        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+            debug('committing')
+            e.commit_changes()
+        else:
+            debug('rolling back')
+            e.transaction.rollback()
         
         
     def create_main_menu(self):
@@ -317,7 +324,15 @@ class GUI:
         
         
     def on_insert_menu_item_activate(self, widget, editor):
-        editor().start()
+        e = editor()
+        response = e.start()
+        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+            debug('committing')
+            e.commit_changes()
+        else:
+            debug('rolling back')
+            e.transaction.rollback()
+        #editor().start()
             
         
     def on_edit_menu_prefs(self, widget, data=None):

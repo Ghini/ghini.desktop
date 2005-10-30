@@ -326,7 +326,7 @@ class SpeciesEditor(TreeViewEditorDialog):
         debug('entered SpeciesEditor.test_values_before_commit()')
         exists = False
         select_values = {}
-        select_values['genusID'] = values['genusID']
+        select_values['genusID'] = values['genusID'].id
         select_values['sp'] = values['sp']        
         debug(select_values)
         sel = Species.selectBy(**select_values)

@@ -47,6 +47,18 @@ class SpeciesMeta(BaubleTable):
     # FIXME: this could be dangerous and cause dangling meta information
     species = ForeignKey('Species', default=None)
     
+    def __str__(self):
+        v = []
+        if self.distribution is not None:
+            v.append(self.distribution)
+        if self.food_plant is not None:
+            v.append('Food')
+        if self.poison_humans is not None:
+            v.append('Poisonous')
+        if self.poison_animals is not None:
+            v.append('Poisonous to animals')            
+        return ','.join(v)
+    
     
 class SpeciesMetaEditor(TableEditor):
     
@@ -113,7 +125,7 @@ class SpeciesMetaEditor(TableEditor):
             return
         values = self.__values
         values.pop('__class__')     
-        commit_transaction = False        
+        commit_transaction = False
         if transaction is None:
             trans = sqlhub.processConnection.transaction()
             commit_transaction = True
@@ -153,9 +165,10 @@ class SpeciesMetaEditor(TableEditor):
         self.__values['__class__'] = self.table
         #values['distribution'] = self.dist_combo.get_active_text()
         it = self.dist_combo.get_active_iter()
-        model = self.dist_combo.get_model()
-        v = model.get_value(it, 0)
-        self.__values['distribution'] = v
+        if it is not None:
+            model = self.dist_combo.get_model()
+            v = model.get_value(it, 0)
+            self.__values['distribution'] = v
         
         if not self.food_check.get_inconsistent():
             self.__values['food_plant'] = self.food_check.get_active()
@@ -167,6 +180,11 @@ class SpeciesMetaEditor(TableEditor):
         if not self.poison_humans_check.get_inconsistent():
             self.__values['poison_humans'] = \
                 self.poison_humans_check.get_active()
+        
+        # not values in self__values so set it to None so we don't create
+        # empty objects
+        if len(self.__values.keys()) == 0:
+            self.__values = None
         
         
     def get_values(self):

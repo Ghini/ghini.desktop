@@ -1,3 +1,11 @@
+
+2005.10.29
+----------
+- the editor start method no longer commits your changes, whoever invokes
+the editor is responsible or commiting the changes
+- tried to simplify TreeViewEditorDialog.commit_changes
+- the editing the single joins are broken at the moment
+
 2005.10.28
 ----------
 - still doing some work on external editors, still broken but closer

@@ -242,10 +242,6 @@ class TextColumn(GenericViewColumn):
 
     def on_edited(self, renderer, path, new_text, set_in_model=True):
         debug('on_edited')
-        debug(str(renderer))
-        debug(str(path))
-        debug(new_text)
-        debug(type(new_text))
         # means that the value is set by the on_match_completed function,
         # there should be a way to set either on_edited or on_completion
         # but not both
@@ -256,16 +252,13 @@ class TextColumn(GenericViewColumn):
         #debug('on_edited')        
         # don't allow empty strings in the model, this usually means a null
         # value in the cell
-        debug('new_text: %s' % new_text)
         if new_text == "":
-            debug('new_text')
             return
-        else:
-            debug('not new text')
         self.dirty = True        
         if self.meta.get_completions is not None:
             return        
-        if set_in_model:
+        #if set_in_model:
+        if self.meta.editor is None:
             self._set_view_model_value(path, new_text)
         
                                            
@@ -286,7 +279,7 @@ class TextColumn(GenericViewColumn):
               entry.set_property('editable', False)
               return
 
-        entry.connect("insert-text", self.on_insert_text, path)
+        entry.connect("insert-text", self.on_insert_text, False)
         #entry.connect("editing-done", self.on_editing_done)
         #self.current_entry = editable        
         # if not a foreign key then validate, foreign keys can only
@@ -366,16 +359,13 @@ class TextColumn(GenericViewColumn):
                 row = model.get_value(it,0)
                 e = self.meta.editor(select=row[self.name])
                 response = e.start()
-                debug('response: %s - %s - %s' % (response, 
-                       gtk.RESPONSE_ACCEPT,
-                       gtk.RESPONSE_OK))
                 if response == gtk.RESPONSE_ACCEPT or \
                    response == gtk.RESPONSE_OK:
                     debug('response OK')
                     so_obj = e.commit_changes(transaction=self.table_editor.transaction)
                     self._set_view_model_value(path, so_obj)                    
                     self.dirty = True
-                    self.renderer.emit('edited', path, so_obj, False)
+                    self.renderer.emit('edited', path, so_obj)
 
 
 class ComboColumn(TextColumn):
@@ -663,7 +653,7 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
 
                           
     def start(self):
-        self.run()
+        return self.run()
             
     
 
@@ -698,6 +688,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         def __init__(self):
             self.joins = [] # populate in start_tree_view
+            self.foreign_keys = [] # 
+            
             
         def __set_titles(self, titles):
             for name, title in titles.iteritems():
@@ -716,8 +708,15 @@ class TreeViewEditorDialog(TableEditorDialog):
         # this is used to indicate that the last row is a valid row
         # or it is one that was added automatically but never used
         self.dummy_row = False
-        
+        # __values will hold values of the widgets after start returns
+        # 
+        self.__values = None
         #self.connect('response', self.on_response)
+    
+    
+    def __get_values(self):
+        return self.__values
+    values = property(__get_values)
         
         
     def start(self):
@@ -729,12 +728,14 @@ class TreeViewEditorDialog(TableEditorDialog):
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
         self.start_gui()
 
+        response = None
         while True:
             msg = 'Are you sure you want to lose your changes?'
-            if self.run() == gtk.RESPONSE_OK:
-                if self.commit_changes():
+            response = self.run()
+            if response == gtk.RESPONSE_OK:
+                #if self.commit_changes():
 #                    debug("committed changes")
-                    break
+                break
             elif self.dirty and utils.yes_no_dialog(msg):
                 break      
             else:
@@ -742,7 +743,9 @@ class TreeViewEditorDialog(TableEditorDialog):
 
         self.store_column_widths()
         self.store_visible_columns()
+        self.__set_values_from_widgets()
         self.destroy()
+        return response
 
     
     def init_gui(self):
@@ -941,7 +944,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         pass
          
         
-    def get_values_from_view(self):
+#    def get_values_from_view(self):
+    def __set_values_from_widgets(self):
         """
         used by commit_changes to get the values from a table so they
         can be commited to the database, this version of the function
@@ -952,7 +956,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         # TODO: this method needs some love, there should be a more obvious
         # way or at least simpler way of return lists of values
         model = self.view.get_model()
-        values = []
+        self.__values = []
         for item in model:
             # copy it so we dont change the data in the model
             # TODO: is it really necessary to copy here
@@ -966,22 +970,26 @@ class TreeViewEditorDialog(TableEditorDialog):
                 elif type(value) == list and type(value[0]) == int:
                     debug('id name pair -- i thought we could del this but i guess we cant')
                     temp_row[name] = value[0] # is an id, name pair                
-                elif isinstance(value, BaubleTable):
+                #elif isinstance(value, BaubleTable):                    
 #                    debug('is table')
 #                    debug("%s: %s" % (value, type(value)))                    
-                    temp_row[name] = value.id                  
+                    #temp_row[name] = value.id                  
+                    #temp_row[name] = value.id                  
                     #else: # it is a list but we assume the [0] is 
                     # a table and [1] is a dict of value to commit, 
                     # we assume this is here because we need to set the 
                     # foreign key in the subtable to the id of the current
                     # row after it is commited and then commit the subtable
                     # there has to be a better way than this
+                # else don't transform the value into anything else
+                 
             debug(temp_row)
-            values.append(temp_row)
+            self.__values.append(temp_row)
             
         if self.dummy_row:
-            del values[len(model)-1] # the last one should always be empty
-        return values      
+            # the last one should always be empty
+            del self.__values[len(model)-1] 
+        #return values      
         
         
     # TODO: this should replace the commit logic in self.commit_changes to 
@@ -1017,27 +1025,32 @@ class TreeViewEditorDialog(TableEditorDialog):
         # TODO: if i don't set the connection parameter when i create the
         # table then is it really using the transaction, it might be if 
         # sqlhub.threadConnection is set to the transaction
-        values = self.get_values_from_view()
-        for v in values:
+        #values = self.get_values_from_view()
+        for v in self.values:
             # make sure it's ok to commit these values            
             if not self.test_values_before_commit(v):                
                 continue                
             # first pop out columns in table_meta.foreign_keys so we can
             # set their foreign key id later                
             foreigners = {}
-            join_values = {}
-            for col, col_attr in self.table_meta.foreign_keys:
+            join_values = {}            
+            #for col, col_attr in self.table_meta.foreign_keys:
+            for name in self.columns.foreign_keys:
                 # use has_key to check the dict and not the table, 
                 # see ModelRowDict.__contains__
-                if v.has_key(col): 
-                    foreigners[col] = v.pop(col)
+                debug('foreign: %s' % name)
+                if v.has_key(name): 
+                    debug('popping foreigner: %s' % name)
+                    v[name] = v[name].id
+                    #foreigners[name] = v.pop(name)
             
             # remove the join values from v so we can set them with the 
             # row id later
             for name in self.columns.joins:
-                debug('popping join: %s' % name)
-                if name in v:                                        
-                    join_values[name]= v.pop(name)
+                debug(v)
+                if v.has_key(name):                    
+                    join_values[name] = v.pop(name)                    
+                debug(v)
                 
             # update or set the row depending on where there is an 'id' key
             # in the v dict
@@ -1055,13 +1068,13 @@ class TreeViewEditorDialog(TableEditorDialog):
                 #trans.commit()
                 
                 # set the foreign keys id of the foreigners
-                for col, col_attr in self.table_meta.foreign_keys:
-                    if col in foreigners:
-                        c = foreigners[col]
-                        debug(c)
-                        foreign_table = \
-                            c.__class__.get(c.id, connection=self.transaction)
-                        foreign_table.set(**{col_attr: t.id})
+#                for col, col_attr in self.table_meta.foreign_keys:
+#                    if col in foreigners:
+#                        c = foreigners[col]
+#                        debug(c)
+#                        foreign_table = \
+#                            c.__class__.get(c.id, connection=self.transaction)
+#                        foreign_table.set(**{col_attr: t.id})
                         # temporary disable
                         #trans.commit()
                         #c.set(**{col_attr: t.id})                
@@ -1073,8 +1086,13 @@ class TreeViewEditorDialog(TableEditorDialog):
                     # TODO: i don't think the name of the join is enough
                     # here, i think we need to get the name of the joinColumn
                     # from the join
-                    join_attr = getattr(t, join_name)
-                    jv.set(**{join_attr.joinColumn: t.id})
+                    debug('join_column: %s' % join_column)
+                    #join_attr = getattr(t, join_name)
+                    #debug('join_attr: %s' % join_attr)
+                    #debug('ja.jc: %s' % join_attr.joinColumn)
+                    jc = getattr(jv, join_column)
+                    jc = t.id
+                    #jv.set(**{join_attr.joinColumn: t.id})
                     
                     # temporary disable
                     #trans.commit()
@@ -1085,6 +1103,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                 #sqlhub.threadConnection = old_conn
                 #sqlhub.processConnection = old_conn
                 msg = "Could not commit changes.\n" + str(e)
+                debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                               gtk.MESSAGE_ERROR)
                 return False      
@@ -1315,6 +1334,9 @@ class TreeViewEditorDialog(TableEditorDialog):
             else:
                 column = TextColumn(self, title, so_col=col)
             columns[name] = column
+            
+            if isinstance(col, SOForeignKey):
+                columns.foreign_keys.append(name)
             
             # set handlers for the view
             if isinstance(column, TextColumn):
