@@ -87,10 +87,12 @@ class BaubleApp:
             pass
         #debug(uri) # this can print your passwd
         sqlhub.processConnection = connectionForURI(uri)
+        
 #        if debug.enabled:
-#            # should do something like debug_sql=True and debug_sql_output=True
-#            sqlhub.processConnection.debug = True
-#            sqlhub.processConnection.debugOutput = True
+            # should do something like debug_sql=True and debug_sql_output=True
+#        sqlhub.processConnection.debug = True
+#        sqlhub.processConnection.debugOutput = True
+#        sqlhub.processConnection.autoCommit = False
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect

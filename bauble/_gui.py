@@ -332,6 +332,7 @@ class GUI:
         else:
             debug('rolling back')
             e.transaction.rollback()
+        e.destroy()
         #editor().start()
             
         

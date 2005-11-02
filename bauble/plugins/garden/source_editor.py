@@ -118,11 +118,12 @@ class CollectionEditor:
     
     initialized = False
     
-    def __init__(self, glade_xml, row=None):
+    def __init__(self, glade_xml, row=None, connection=None):
         self.table = tables["Collection"]
         if not self.initialized:
             self.initialize(glade_xml, row)
             self.initialized = True
+        self.connection = connection
 
         
     def initialize(self, glade_xml, row=None):    
@@ -313,7 +314,11 @@ class DonationEditor:
     def on_don_new_button_clicked(self, button, data=None):
         #self.dialog.set_sensitive(False)
         editor_class = editors["DonorEditor"]
-        editor_class().start()
+        e = editor_class()
+        response = e.start()
+        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+            e.commit_changes()
+        #editor_class().start()
         debug('done with donor editor')
         #self.dialog.set_sensitive(True)
         #model = gtk.ListStore(obj)
@@ -339,14 +344,14 @@ class SourceEditor(TableEditor):
     standalone = False
     show_in_toolbar = False
     
-    def __init__(self, select=None, defaults={}):
-        debug('SourceEditor.__init__')
-        super(SourceEditor, self).__init__(None, select, defaults)
+    def __init__(self, select=None, defaults={}, connection=None):
+        super(SourceEditor, self).__init__(None, select, defaults, 
+              connection=connection)
         if select is not None and not isinstance(select, BaubleTable):
             raise ValueError("SourceEditor.__init__: select should be a "\
                              "single row in the table")
                              
-        self.committed = None
+        #self.committed = None
         self._dirty = False
         self.source_editor_map = (('Collection', CollectionEditor),
                                   ('Donation', DonationEditor))   
@@ -432,7 +437,7 @@ class SourceEditor(TableEditor):
         #self.dialog.show_all()
         
         
-    def commit_changes(self):
+    def commit_changes(self, commit_transaction=True):
         # TODO: since the source is a single join and is only relevant
         # to its parent(accession) then we should allow a way to get
         # the values so that wherever the values are returned then the
@@ -443,40 +448,45 @@ class SourceEditor(TableEditor):
         table = self.curr_editor.table
         values = self.curr_editor.get_values()
         
-        print values
+        debug(values)
         if values is None: 
-            return
+            return None
         #conn = sqlhub.getConnection()
         #trans = conn.transaction()        
-        trans = sqlhub.processConnection.transaction()
+        #trans = sqlhub.processConnection.transaction()
         #self.commited = None
-        t = None
+        table_instance = None
         try:
-            debug('create table')
+            
             # i guess the connection is inherant
             if self.select is None: # create a new table row
-                t = table(connection=trans, **values)
+                debug('create table')
+                table_instance = table(connection=self.transaction, **values)
             else: # update the table row passed in
+                debug('update table')
                 # TODO: if select and table aren't the same we should
                 # ask the user if they want to change the type source
                 if not isinstance(self.select, self.curr_editor.table):
                     msg = 'SourceEditor.commit_changes: the type has changed'
                     raise ValueError(msg)
                 self.select.set(**values)
-                t = self.select # TODO: does this work????
+                table_instance = self.select # TODO: does this work????
                 #raise NotImplementedError("TODO: updating a collection "\
                 #                          "hasn't been implemented")
                 #pass
-            trans.commit()
-            self.committed = t
+            #trans.commit()
+            #self.committed = t
         except Exception, e:
             msg = "SourcedEditor.commit_changes(): could not commit changes"
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
-            trans.rollback()
-            return False
-        
-        return True
+            if commit_transaction:
+                trans.rollback()
+            return table_instance
+        else:
+            if commit_transaction:
+                self.transaction.commit()
+        return table_instance
         
         
     def start(self):
@@ -486,14 +496,20 @@ class SourceEditor(TableEditor):
 
         while True:
             msg = 'Are you sure you want to lose your changes?'
-            if self.dialog.run() == gtk.RESPONSE_OK:
-                if self.commit_changes():
-                    debug("committed changes")
+            response = self.dialog.run()
+            if response == gtk.RESPONSE_OK:
+                #if self.commit_changes():
+                #    debug("committed changes")
                     break
             elif self._dirty and utils.yes_no_dialog(msg):
                 break      
             else:
                 break                          
-        self.dialog.destroy()
-        return self.committed
+        #self.dialog.destroy()
+        #return self.committed
+        return response
     
+    
+    def destroy(self):
+        super(SourceEditor, self).destroy()
+        self.dialog.destroy()

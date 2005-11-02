@@ -1,3 +1,19 @@
+2005.11.2
+----------
+- editors should be fixed for the most part but i'm sure they still need some
+polish
+- invoking an editor inside an editor to edit a single join work now
+- editors now set sqlhub.processConnection to the editors transaction so that
+all operations that happend while something is being edited can be rolled 
+backed, this doesn't seem to cause any problems and is the best way to keep 
+from getting straggling data such as collection data not associated with 
+an accession
+- need alot of API cleanup
+
+
+2005.11.1
+----------
+- editors now take keyword argument connection
 
 2005.10.29
 ----------

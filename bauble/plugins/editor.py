@@ -7,12 +7,14 @@ import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
 from sqlobject.joins import SOSingleJoin
+from sqlobject.dbconnection import Transaction
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
 
 from bauble.utils.log import log, debug
+
 
 # TODO: if the last column is made smaller from draggin the rightmost part
 # of the header then automagically reduce the size of  the dialog so that the 
@@ -97,6 +99,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
         #        
     
     def _set_view_model_value(self, path, value):
+        debug('set_view_model_value: %s' % str(value))
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
@@ -162,8 +165,8 @@ class GenericViewColumn(gtk.TreeViewColumn):
 # need to press Enter or something to open the editor
 class ExternalEditorColumn(GenericViewColumn):
     
-    def __init__(self, view, header, so_col=None, so_join=None):
-        super(ExternalEditorColumn, self).__init__(view, header, 
+    def __init__(self, tree_view_editor, header, so_col=None, so_join=None):
+        super(ExternalEditorColumn, self).__init__(tree_view_editor, header, 
                                                    CellRendererButton,
                                                    so_col, so_join)
         
@@ -175,8 +178,8 @@ class ExternalEditorColumn(GenericViewColumn):
     
 class ToggleColumn(GenericViewColumn):
     
-    def __init__(self, view, header, so_col=None):        
-        super(ToggleColumn, self).__init__(view, header, 
+    def __init__(self, tree_view_editor, header, so_col=None):        
+        super(ToggleColumn, self).__init__(tree_view_editor, header, 
                                            gtk.CellRendererToggle(),
                                            so_col)
         self.renderer.connect("toggled", self.on_toggled)
@@ -212,13 +215,15 @@ class ToggleColumn(GenericViewColumn):
 
 class TextColumn(GenericViewColumn):
     
-    def __init__(self, view, header, renderer=None, so_col=None, so_join=None):        
+    def __init__(self, tree_view_editor, header, renderer=None, so_col=None, 
+                 so_join=None):        
         if renderer is None:
             renderer = gtk.CellRendererText()            
-        super(TextColumn, self).__init__(view, header, renderer, so_col, 
-                                         so_join)
+        super(TextColumn, self).__init__(tree_view_editor, header, renderer, 
+                                         so_col, so_join)
         self.renderer.set_property("editable", True)
-        self.renderer.connect("editing_started", self.on_editing_started, view)
+        self.renderer.connect("editing_started", self.on_editing_started, 
+                              tree_view_editor)
         self.renderer.connect('edited', self.on_edited)
     
     
@@ -357,27 +362,30 @@ class TextColumn(GenericViewColumn):
                 model = self.table_editor.view.get_model()
                 it = model.get_iter(path)
                 row = model.get_value(it,0)
-                e = self.meta.editor(select=row[self.name])
+                e = self.meta.editor(select=row[self.name], 
+                                  connection=self.table_editor.transaction)
                 response = e.start()
                 if response == gtk.RESPONSE_ACCEPT or \
                    response == gtk.RESPONSE_OK:
                     debug('response OK')
-                    so_obj = e.commit_changes(transaction=self.table_editor.transaction)
+                    so_obj = e.commit_changes(False)
                     self._set_view_model_value(path, so_obj)                    
                     self.dirty = True
                     self.renderer.emit('edited', path, so_obj)
+                e.destroy()
+            debug('leaving on_key_press')
 
 
 class ComboColumn(TextColumn):
     
-    def __init__(self, view, header, so_col):
+    def __init__(self, tree_view_editor, header, so_col):
         """
         we allow a renderer to be passed here so the user can attach
         custom models to the combo instead of doing it in 
         on_editing_started
         """
-        super(ComboColumn, self).__init__(view, header, gtk.CellRendererCombo(), 
-                                          so_col)
+        super(ComboColumn, self).__init__(tree_view_editor, header, 
+                                          gtk.CellRendererCombo(), so_col)
         # which column from the combo model to display
         self.renderer.set_property("text-column", 0)
 
@@ -511,7 +519,7 @@ class ModelRowDict(dict):
         # from the instance else check that the items are valid table
         # attributes and don't let the editors set attributes that 
         # aren't valid
-        
+        debug('ModelRowDict.__init__')
         # if row is not an instance then make sure
         self.isinstance = False
         if isinstance(row, BaubleTable):
@@ -561,7 +569,7 @@ class ModelRowDict(dict):
         if the item does not exist then we create the item in the dictionary
         and set its value from the default or to None
         """
-        # TODO: this method could use alot of love
+        # TODO: this method could use alot of love        
         if self.has_key(item): # use has_key to avoid __contains__
             return self.get(item)
 
@@ -586,7 +594,7 @@ class ModelRowDict(dict):
                 column = self.row.sqlmeta.columns[item]            
                 if v is not None and isinstance(column, SOForeignKey):                
                     table_name = column.foreignKey                    
-                    v = tables[table_name].get(v)                
+                    v = tables[table_name].get(v)
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
@@ -608,6 +616,10 @@ class ModelRowDict(dict):
         self[item] = v
         return v
        
+    def __setitem__(self, key, value):
+        dict.__setitem__(self, key, value)
+        #self.set(item, value)
+        #ModelRowDict.__setitem__[item] = value
        
 
 #
@@ -617,20 +629,34 @@ class TableEditor(BaubleEditor):
 
     standalone = True
     
-    def __init__(self, table, select=None, defaults={}):
+    def __init__(self, table, select=None, defaults={}, connection=None):
         super(TableEditor, self).__init__()
         self.defaults = copy.copy(defaults)
         self.table = table
         self.select = select        
-        self.transaction = sqlhub.processConnection.transaction()
+        self.__old_connection = sqlhub.processConnection
+        if connection is None:
+            self.transaction = sqlhub.processConnection.transaction()
+        elif isinstance(connection, Transaction):
+            self.transaction = connection
+        else:
+            self.transaction = connection.transaction()
+        sqlhub.processConnection = self.transaction
+        #sqlhub.processConnection = self.__old_connection.transaction()
         
         
     def start(self): 
         raise NotImplementedError
 
         
-    def commit_changes(self):
+    def commit_changes(self, commit_transaction=True):
         raise NotImplementedError
+    
+    
+    def destroy(self):
+        debug('TableEditor.destroy')
+        super(TableEditor, self).__init__()
+        sqlhub.processConnection = self.__old_connection
 
 
 
@@ -640,12 +666,14 @@ class TableEditor(BaubleEditor):
 class TableEditorDialog(TableEditor, gtk.Dialog):
     
 
-    def __init__(self, table, title="Table Editor", parent=None, select=None, defaults={}):
+    def __init__(self, table, title="Table Editor", parent=None, select=None, 
+                 defaults={}, connection=None):
         #
         # how do i use super() with multiple inheritance
         #
         #super(TableEditorDialog, self).__init__()
-        TableEditor.__init__(self, table, select, defaults)
+        TableEditor.__init__(self, table, select, defaults, 
+                             connection=connection)
         gtk.Dialog.__init__(self, title, parent, 
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
@@ -656,6 +684,10 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
         return self.run()
             
     
+    def destroy(self):
+        debug('TableEditorDialog.destroy()')
+        super(TableEditorDialog, self).destroy()
+        gtk.Dialog.destroy(self)
 
 #
 # TreeViewEditorDialog
@@ -671,7 +703,8 @@ class TableEditorDialog(TableEditor, gtk.Dialog):
 # and can go to the next row having with out editing them
 # (4) should have a label at the top which give information about what's
 # being edited and what could be wrong ala eclipse
-class TreeViewEditorDialog(TableEditorDialog):
+#class TreeViewEditorDialog(TableEditorDialog):
+class TreeViewEditorDialog(TableEditor):
     """the model for the view in this class only has a single column which
     is a Table class which is really just a dict. each value in the dict
     relates to a column in the tree but
@@ -698,24 +731,38 @@ class TreeViewEditorDialog(TableEditorDialog):
         titles = property(fset=__set_titles)
         
 
-    def __init__(self, table, title="Table Editor", parent=None, select=None, defaults={}):
-        super(TreeViewEditorDialog, self).__init__(table, title, parent, select, defaults)
+    def __init__(self, table, title="Table Editor", parent=None, select=None, 
+                 defaults={}, connection=None):
+        #super(TreeViewEditorDialog, self).__init__(table, title, parent, 
+        #      select, defaults, connection=connection)
+        super(TreeViewEditorDialog, self).__init__(table, select, defaults, 
+               connection=connection)
         self.__view = None        
         self.dirty = False
         self.table_meta = TableMeta()        
+        self.dialog = gtk.Dialog(title, parent, 
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         self.init_gui()
         
         # this is used to indicate that the last row is a valid row
         # or it is one that was added automatically but never used
         self.dummy_row = False
-        # __values will hold values of the widgets after start returns
+        # _values will hold values of the widgets after start returns
         # 
-        self.__values = None
+        self._values = None
         #self.connect('response', self.on_response)
     
     
+    def destroy(self):
+        debug('TreeViewEditorDialog.destroy()')
+        self.dialog.destroy()
+        super(TreeViewEditorDialog, self).destroy()
+        
+                
     def __get_values(self):
-        return self.__values
+        return self._values
     values = property(__get_values)
         
         
@@ -731,7 +778,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         response = None
         while True:
             msg = 'Are you sure you want to lose your changes?'
-            response = self.run()
+            #response = self.run()
+            response = self.dialog.run()
             if response == gtk.RESPONSE_OK:
                 #if self.commit_changes():
 #                    debug("committed changes")
@@ -743,8 +791,12 @@ class TreeViewEditorDialog(TableEditorDialog):
 
         self.store_column_widths()
         self.store_visible_columns()
-        self.__set_values_from_widgets()
-        self.destroy()
+        debug('about to call __set_values_from_widgets)')
+        debug(self)
+        debug(type(self))
+        #debug(self.__set_values_from_widgets)
+        self._set_values_from_widgets()
+        #self.destroy()
         return response
 
     
@@ -763,15 +815,18 @@ class TreeViewEditorDialog(TableEditorDialog):
         sw.add(self.view)
         vbox.pack_start(sw)
         
-        self.vbox.pack_start(vbox)
+        #self.vbox.pack_start(vbox)
+        self.dialog.vbox.pack_start(vbox)
         
-        self.set_default_size(-1, 300) # an arbitrary size
+        self.dialog.set_default_size(-1, 300) # an arbitrary size
                 
         # set ok button insensitive
-        ok_button = self.action_area.get_children()[1]
+        #ok_button = self.action_area.get_children()[1]
+        ok_button = self.dialog.action_area.get_children()[1]
         ok_button.set_sensitive(False)        
         
-        self.show_all()        
+        self.dialog.show_all()        
+                
                 
     def init_tree_view(self):
         """
@@ -783,6 +838,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         # create the columns from the meta data
         self.columns = self.create_view_columns()                                        
         self.view.set_headers_clickable(False)
+
 
     def __get_view(self):
         return self.__view
@@ -810,8 +866,6 @@ class TreeViewEditorDialog(TableEditorDialog):
                 else:
                     debug('adding %s to self.columns.joins' % name)
                     self.columns.joins.append(name)
-            
-                
             
         # create the model from the tree view and add rows if a
         # selectresult is passed
@@ -884,7 +938,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         
         
     def set_ok_sensitive(self, sensitive):
-        ok_button = self.action_area.get_children()[1]
+        ok_button = self.dialog.action_area.get_children()[1]
         ok_button.set_sensitive(sensitive)
         
     
@@ -944,8 +998,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         pass
          
         
-#    def get_values_from_view(self):
-    def __set_values_from_widgets(self):
+#    def get_values_from_view(self):        
+    def _set_values_from_widgets(self):
         """
         used by commit_changes to get the values from a table so they
         can be commited to the database, this version of the function
@@ -955,8 +1009,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         # TODO: this method needs some love, there should be a more obvious
         # way or at least simpler way of return lists of values
+        debug('__set_values_from_widgets')
         model = self.view.get_model()
-        self.__values = []
+        self._values = []
         for item in model:
             # copy it so we dont change the data in the model
             # TODO: is it really necessary to copy here
@@ -984,11 +1039,11 @@ class TreeViewEditorDialog(TableEditorDialog):
                 # else don't transform the value into anything else
                  
             debug(temp_row)
-            self.__values.append(temp_row)
+            self._values.append(temp_row)
             
         if self.dummy_row:
             # the last one should always be empty
-            del self.__values[len(model)-1] 
+            del self._values[len(model)-1] 
         #return values      
         
         
@@ -1012,7 +1067,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-    def commit_changes(self):
+    def commit_changes(self, commit_transaction=True):
         """
         commit any change made in the table editor
         """        
@@ -1026,6 +1081,10 @@ class TreeViewEditorDialog(TableEditorDialog):
         # table then is it really using the transaction, it might be if 
         # sqlhub.threadConnection is set to the transaction
         #values = self.get_values_from_view()
+        debug('commit_changes')
+        debug(self.values)
+        committed_rows = []
+        table_instance = None
         for v in self.values:
             # make sure it's ok to commit these values            
             if not self.test_values_before_commit(v):                
@@ -1038,65 +1097,41 @@ class TreeViewEditorDialog(TableEditorDialog):
             for name in self.columns.foreign_keys:
                 # use has_key to check the dict and not the table, 
                 # see ModelRowDict.__contains__
-                debug('foreign: %s' % name)
                 if v.has_key(name): 
-                    debug('popping foreigner: %s' % name)
                     v[name] = v[name].id
-                    #foreigners[name] = v.pop(name)
             
             # remove the join values from v so we can set them with the 
             # row id later
             for name in self.columns.joins:
-                debug(v)
                 if v.has_key(name):                    
                     join_values[name] = v.pop(name)                    
-                debug(v)
                 
             # update or set the row depending on where there is an 'id' key
-            # in the v dict
+            # in the v dict            
             try:                
                 if 'id' in v:# updating row
-                    t = self.table.get(v["id"], connection=self.transaction)
+                    table_instance = self.table.get(v["id"], 
+                                                   connection=self.transaction)                    
                     del v["id"]
-                    t.set(**v)
+                    table_instance.set(**v)
                 else: # adding row
                     debug('adding row: ' + str(v))
-                    t = self.table(connection=self.transaction, **v)
-                #print 'foreign: ' + str(foriegners)
-                
-                # temporarily disable
-                #trans.commit()
-                
-                # set the foreign keys id of the foreigners
-#                for col, col_attr in self.table_meta.foreign_keys:
-#                    if col in foreigners:
-#                        c = foreigners[col]
-#                        debug(c)
-#                        foreign_table = \
-#                            c.__class__.get(c.id, connection=self.transaction)
-#                        foreign_table.set(**{col_attr: t.id})
-                        # temporary disable
-                        #trans.commit()
-                        #c.set(**{col_attr: t.id})                
-                debug('committing joins')    
-                for join_name, jv in join_values.iteritems():
-                    debug(jv)
-                    join_column = self.columns[join_name].meta.so_join.joinColumn
-                    # remove the _id from the end and set the table id                
-                    # TODO: i don't think the name of the join is enough
-                    # here, i think we need to get the name of the joinColumn
-                    # from the join
-                    debug('join_column: %s' % join_column)
-                    #join_attr = getattr(t, join_name)
-                    #debug('join_attr: %s' % join_attr)
-                    #debug('ja.jc: %s' % join_attr.joinColumn)
-                    jc = getattr(jv, join_column)
-                    jc = t.id
-                    #jv.set(**{join_attr.joinColumn: t.id})
+                    table_instance = self.table(connection=self.transaction, 
+                                                **v)                    
+                # have to set the join this way since 
+                # table_instance.joinColumnName doesn't seem to work here, 
+                # maybe b/c the table_instance hasn't been committed
+                for join in table_instance.sqlmeta.joins:
+                    if join_values.has_key(join.joinMethodName):
+                        join_table_instance = join_values.pop(join.joinMethodName)
+                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
+                                                
+                if len(join_values) > 0:
+                    debug(join_values)
+                    raise ValueError("join_values isn't empty")                    
                     
-                    # temporary disable
-                    #trans.commit()
-                        
+
+                    committed_rows.append(table_instance)
             except Exception, e:                
                 debug('rolling back changes')
                 self.transaction.rollback()
@@ -1106,9 +1141,11 @@ class TreeViewEditorDialog(TableEditorDialog):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                               gtk.MESSAGE_ERROR)
-                return False      
+                return None
             else:
+                debug(' ************ COMMIT')
                 self.transaction.commit()
+                return committed_rows
         
 #    def commit_changes2(self):
 #        """
@@ -1388,14 +1425,18 @@ class TreeViewEditorDialog(TableEditorDialog):
         if new_text != "" and int(path) == len(model)-1:
             self.add_new_row()
             self.dummy_row = True
+        debug('leaving on_column_edited')
     
         
     def add_new_row(self, row=None):
+        debug('entered add_new_row(%s)' % row)
         model = self.view.get_model()
-        if model is None: raise ception("no model in the row")
+        if model is None: 
+            raise Exception("no model in the row")
         if row is None:
             row = self.table        
         model.append([ModelRowDict(row, self.columns, self.defaults)])        
+        debug('leaving add_new_row(%s)' % row)
 
 
     def set_visible_columns_from_prefs(self, prefs_key):

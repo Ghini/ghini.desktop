@@ -81,7 +81,8 @@ class Accession(BaubleTable):
                             
     # the source type says whether we should be looking at the 
     # _collection or _donation joins for the source info
-    _collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
+    #_collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
+    _collection = SingleJoin('Collection', joinColumn='accession_id')
     _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
     
 
@@ -96,23 +97,25 @@ class Accession(BaubleTable):
 #    acct = StringCol(length=50, default=None) #?
 #    BGnot = StringCol(default=None) # ******** what is this?
 
-    def __str__(self): return self.acc_id
+    def __str__(self): 
+        return self.acc_id
 
 
 #
 # Accession editor
 #
     
-def get_source_old(row):    
-    if row._collection is not None and row._donation is not None:
-        raise Exception('tables.Accessions.get_source(): only one of '\
-                        'donation or _collection should be set but '\
-                        'both seem to be set')
-    if row._collection is not None:
-        return row._collection
-    elif row._donation is not None:
-        return row._donation
-    return None
+#def get_source_old(row):    
+#    if row._collection is not None and row._donation is not None:
+#        raise Exception('tables.Accessions.get_source(): only one of '\
+#                        'donation or _collection should be set but '\
+#                        'both seem to be set')
+#    if row._collection is not None:
+#        return row._collection
+#    elif row._donation is not None:
+#        return row._donation
+#    return None
+
 
 def get_source(row):
 #    debug('get_source: ' + str(row.source_type))
@@ -135,10 +138,11 @@ class AccessionEditor(TreeViewEditorDialog):
 
     label = 'Accessions'
 
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):
         
         TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
-                                      parent, select=select, defaults=defaults)
+                                      parent, select=select, defaults=defaults,
+                                      connection=connection)
         titles = {"acc_id": "Acc ID",
                    "speciesID": "Name",
                    "prov_type": "Provenance Type",
@@ -172,6 +176,7 @@ class AccessionEditor(TreeViewEditorDialog):
         self.table_meta.foreign_keys = [('_collection', 'accession'),
                                         ('_donation', 'accession')]
         
+        
     def get_species_completions(self, text):
         # get entry and determine from what has been input which
         # field is currently being edited and give completion
@@ -188,7 +193,8 @@ class AccessionEditor(TreeViewEditorDialog):
         # using a join or something
         parts = text.split(" ")
         genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
+                                    connection=self.transaction)
         model = gtk.ListStore(str, object) 
         for row in sr:
             for species in row.species:                
@@ -196,85 +202,108 @@ class AccessionEditor(TreeViewEditorDialog):
         return model
     
     
+    
+#    def start(self): 
+#        # have to do this b/c __set_values_from_widgets
+#        r = super(AccessionEditor, self).start()
+#        return r
+        
+        
     # TODO:  we should have to reproduce this entire method just for this 
     # editor, somehow we need a good way to get so that when we get the values
-    # from the editor we know now to change source_type into an id, etc.s
-    def get_values_from_view(self):
-        import copy
-        """
-        used by commit_changes to get the values from a table so they
-        can be commited to the database, this version of the function
-        removes the values with None as the value from the row, i thought
-        this was necessary but now i don't, in fact it may be better in
-        case you want to explicitly set things null
-        """
-        # TODO: this method needs some love, there should be a more obvious
-        # way or at least simpler way of return lists of values
-        model = self.view.get_model()
-        values = []
-        for item in model:
-            # copy it so we dont change the data in the model
-            # TODO: is it really necessary to copy here
-            temp_row = copy.copy(item[0]) 
-            for name, value in item[0].iteritems():                
-                # del the value if they are none, have to do this b/c 
-                # we don't want to store None in a row without a default
-                #debug("%s: %s, %s" % (name, value, str(type(value))))
-                
-                if value is None:
-                    del temp_row[name]
-                elif name == 'source_type':
-                    source_class = value.__class__.__name__[:] # copy ??
-                    temp_row['_'+source_class.lower()] = temp_row.pop('source_type')
-                    temp_row['source_type'] = source_class
-                elif type(value) == list and type(value[0]) == int:
-                    debug('id name pair -- i thought we could del this but i guess we cant')
-                    temp_row[name] = value[0] # is an id, name pair                
-                elif isinstance(value, BaubleTable):
-                    debug('is table')
-                    debug("%s: %s" % (value, type(value)))                    
-                    temp_row[name] = value.id                  
-                    #else: # it is a list but we assume the [0] is 
-                    # a table and [1] is a dict of value to commit, 
-                    # we assume this is here because we need to set the 
-                    # foreign key in the subtable to the id of the current
-                    # row after it is commited and then commit the subtable
-                    # there has to be a better way than this
-            debug(temp_row)
-            values.append(temp_row)
-            
-        if self.dummy_row:
-            del values[len(model)-1] # the last one should always be empty
-        return values      
-    
-    
-    def get_values_from_view2(self):
-        values = TreeViewEditorDialog.get_values_from_view(self)
-        for v in values:
+    # from the editor we know now to change source_type into an id, etc.s        
+    def _set_values_from_widgets(self):
+        debug('__set_values_from_widgets')
+        super(AccessionEditor, self)._set_values_from_widgets()
+        
+        for v in self._values:
             if v.has_key('source_type'):
-                source_class = v['source_type'].__class__.__name__[:] # copy ??
-                debug('source_class: ' + source_class)
-                if source_class == 'Collection':
-                    v['_collection'] = v.pop('source_type')
-                    v['source_type'] = source_class
-                elif source_class == 'Donation':
-                    v['_donation'] = v.pop('source_type')
-                    v['source_type'] = source_class
-                else:
-                    raise ValueError('AccessionsEditor.get_values_from_view: '\
-                                     'bad value for source type')
-        return values
+                debug('source_type: %s' % v['source_type'])                
+                source_class = v['source_type'].__class__.__name__
+                attribute_name = '_' + source_class.lower()
+                self.columns.joins.append(attribute_name)                
+                v[attribute_name] = v.pop('source_type')
+                v['source_type'] = source_class
     
     
-    # TODO: if there is a problem on commiting we should delete the source
-    # if a new one was created, this will help prevent random sources with
-    # accessions hanging around
+#    def get_values_from_view(self):
+#        import copy
+#        """
+#        used by commit_changes to get the values from a table so they
+#        can be commited to the database, this version of the function
+#        removes the values with None as the value from the row, i thought
+#        this was necessary but now i don't, in fact it may be better in
+#        case you want to explicitly set things null
+#        """
+#        # TODO: this method needs some love, there should be a more obvious
+#        # way or at least simpler way of return lists of values
+#        model = self.view.get_model()
+#        values = []
+#        for item in model:
+#            # copy it so we dont change the data in the model
+#            # TODO: is it really necessary to copy here
+#            temp_row = copy.copy(item[0]) 
+#            for name, value in item[0].iteritems():                
+#                # del the value if they are none, have to do this b/c 
+#                # we don't want to store None in a row without a default
+#                #debug("%s: %s, %s" % (name, value, str(type(value))))
+#                
+#                if value is None:
+#                    del temp_row[name]
+#                elif name == 'source_type':
+#                    source_class = value.__class__.__name__[:] # copy ??
+#                    temp_row['_'+source_class.lower()] = temp_row.pop('source_type')
+#                    temp_row['source_type'] = source_class
+#                elif type(value) == list and type(value[0]) == int:
+#                    debug('id name pair -- i thought we could del this but i guess we cant')
+#                    temp_row[name] = value[0] # is an id, name pair                
+#                elif isinstance(value, BaubleTable):
+#                    debug('is table')
+#                    debug("%s: %s" % (value, type(value)))                    
+#                    temp_row[name] = value.id                  
+#                    #else: # it is a list but we assume the [0] is 
+#                    # a table and [1] is a dict of value to commit, 
+#                    # we assume this is here because we need to set the 
+#                    # foreign key in the subtable to the id of the current
+#                    # row after it is commited and then commit the subtable
+#                    # there has to be a better way than this
+#            debug(temp_row)
+#            values.append(temp_row)
+#            
+#        if self.dummy_row:
+#            del values[len(model)-1] # the last one should always be empty
+#        return values      
+#    
+#    
+#    def get_values_from_view2(self):
+#        values = TreeViewEditorDialog.get_values_from_view(self)
+#        for v in values:
+#            if v.has_key('source_type'):
+#                source_class = v['source_type'].__class__.__name__[:] # copy ??
+#                debug('source_class: ' + source_class)
+#                if source_class == 'Collection':
+#                    v['_collection'] = v.pop('source_type')
+#                    v['source_type'] = source_class
+#                elif source_class == 'Donation':
+#                    v['_donation'] = v.pop('source_type')
+#                    v['source_type'] = source_class
+#                else:
+#                    raise ValueError('AccessionsEditor.get_values_from_view: '\
+#                                     'bad value for source type')
+#        return values
+    
+    
     def commit_changes(self):
-        if not TreeViewEditorDialog.commit_changes(self):
-            return
+        response = TreeViewEditorDialog.commit_changes(self)
+        if not response:
+            return response
                             
-        values = self.get_values_from_view()
-        for v in values:
+        # TODO: here should we iterate over the response from 
+        # TreeViewEditorDialog.commit_changes or is the 'values' sufficient
+        
+        
+        #values = self.get_values_from_view()
+        for v in self.values:
             acc_id = v["acc_id"]
             sel = tables["Accession"].selectBy(acc_id=acc_id)
             if sel.count() > 1:
@@ -286,7 +315,10 @@ class AccessionEditor(TreeViewEditorDialog):
             if not utils.yes_no_dialog(msg % acc_id):
                 continue
             e = editors['PlantEditor'](defaults={"accessionID":sel[0]})
-            e.start()
+            response = e.start()
+            if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+                e.commit_changes()
+                e.destroy()
         return True
         
 #

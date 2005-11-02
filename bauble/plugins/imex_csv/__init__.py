@@ -40,21 +40,24 @@ class CSVImporter:
     import_lock = threading.Lock()
     in_thread = True
     
-    def start(self, filenames):
+    def start(self, filenames=None):
         """
         the simplest way to import, no threads, nothing
         """        
         error = False # return value
         bauble.app.gui.window.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        
+                
         if filenames is None:
-            filesnames = self._get_filenames()
-        
+            filenames = self._get_filenames()
+        if filenames is None:
+            return
         old_conn = sqlobject.sqlhub.getConnection()
         trans = old_conn.transaction()       
         sqlobject.sqlhub.threadConnection = trans
         
+        filename = None   # these two are here in case we get an exception
+        table_name = None
         try:
             for filename in filenames:
                 path, base = os.path.split(filename)
@@ -62,8 +65,8 @@ class CSVImporter:
                 self.import_file(filename, tables[table_name], trans)
         except Exception:
             trans.rollback()
-            msg = "Error importing values from %s into table %s\n" % (filename, table_name)
-            sys.stderr.write(msg)            
+            msg = "Error importing values from %s into table %s\n" \
+                   % (filename, table_name)
             utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)            
             error = True
         else:
@@ -79,6 +82,7 @@ class CSVImporter:
         bauble.app.gui.window.window.set_cursor(None)
         sqlobject.sqlhub.threadConnection = old_conn
         return not error
+        
         
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
@@ -99,9 +103,10 @@ class CSVImporter:
         r = fc.run()
         if r != gtk.RESPONSE_ACCEPT:
             fc.destroy()
-            return
+            return None        
         filenames = fc.get_filenames()
         fc.destroy()
+        return filenames
             
             
     def start_in_thread(self, filenames=None, block=False):

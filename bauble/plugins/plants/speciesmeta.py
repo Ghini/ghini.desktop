@@ -65,9 +65,9 @@ class SpeciesMetaEditor(TableEditor):
     standalone = False
     label = 'Species Meta'
     
-    def __init__(self, select=None, defaults={}):
+    def __init__(self, select=None, defaults={}, connection=None):
         super(SpeciesMetaEditor, self).__init__(tables["SpeciesMeta"], 
-                                                select, defaults)
+                                                select, defaults, connection)
         path = os.path.join(paths.lib_dir(), 'plugins', 'plants')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
         self.dialog = self.glade_xml.get_widget('main_dialog')
@@ -115,39 +115,54 @@ class SpeciesMetaEditor(TableEditor):
     # and just do custom commits with hooks, since the class provides 
     # get_values there shouldn't really be any custom commits since your just
     # return the values you want to commit and the editor commits them
-    def commit_changes(self, transaction=None):
+    def commit_changes(self, commit_transaction=True):
         '''
         if you pass in a transaction instance then the have to commit the 
         transaction yourself, else this method will use 
         sqlhub.processconnection
         '''
         if self.__values is None: 
-            return
+            return None
         values = self.__values
-        values.pop('__class__')     
-        commit_transaction = False
-        if transaction is None:
-            trans = sqlhub.processConnection.transaction()
-            commit_transaction = True
-        else:
-            trans = transaction
+        #values.pop('__class__')     
+        #commit_transaction = False
+#        old_conn = sqlhub.processConnection
+#        if commit_transaction == True:            
+#            trans = old_conn.transaction()
+#        else:
+#            trans = old_conn
+#            #sqlhub.processConnection = old_conn.transaction()
+#            #trans = old_conn.transaction()
+#        commit_transaction = False
+#        if transaction is None:
+#            debug('creating my own transaction')
+#            transaction = sqlhub.processConnection.transaction()
+#            commit_transaction = True
+#        else:
+#            debug('using passed transaction')
         table_instance = None
         try:
             debug('create table')
             if self.select is None: # create a new table row
-                table_instance = self.table(connection=trans, **values)
+                table_instance = self.table(connection=self.transaction, 
+                                            **values)
             else: 
-                self.select.set(connection=trans, **values)
+                self.select.set(connection=self.transaction, **values)
                 table_instance = self.select                                
             if commit_transaction:
-                trans.commit()
+                transaction.commit()
+            table_instance._connection = self.transaction
         except Exception, e:
             msg = "SourcedEditor.commit_changes(): could not commit changes"
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
             if commit_transaction:
-                trans.rollback()
-            return None
+                self.transaction.rollback()            
+            table_instance = None
+            #return None
+        #sqlhub.processConnection = old_conn
+        
+        debug(str(table_instance))
         return table_instance
 
 
@@ -162,7 +177,7 @@ class SpeciesMetaEditor(TableEditor):
             
     def _set_values_from_widgets(self):
         self.__values = {}
-        self.__values['__class__'] = self.table
+        #self.__values['__class__'] = self.table
         #values['distribution'] = self.dist_combo.get_active_text()
         it = self.dist_combo.get_active_iter()
         if it is not None:
@@ -217,11 +232,11 @@ class SpeciesMetaEditor(TableEditor):
         model.append(None, ["Cultivated"])
         for continent in tables['Continent'].select(orderBy='continent'):
             p1 = model.append(None, [str(continent)])
-            for region in continent.regions:
-                p2 = model.append(p1, [str(region)])
-                for country in region.botanical_countries:
-                    p3 = model.append(p2, [str(country)])
-                    for unit in country.units:
-                        if str(unit) != str(country):
-                            model.append(p3, [str(unit)])            
+#            for region in continent.regions:
+#                p2 = model.append(p1, [str(region)])
+#                for country in region.botanical_countries:
+#                    p3 = model.append(p2, [str(country)])
+#                    for unit in country.units:
+#                        if str(unit) != str(country):
+#                            model.append(p3, [str(unit)])            
         self.dist_combo.set_model(model)
