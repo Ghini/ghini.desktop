@@ -126,6 +126,7 @@ class PlantEditor(TreeViewEditorDialog):
         self.columns['locationID'].meta.get_completions = \
             self.get_location_completions
 
+
     def start(self):
         accessions = tables["Accession"].select()
         if accessions.count() < 1:
@@ -133,7 +134,11 @@ class PlantEditor(TreeViewEditorDialog):
                   "adding accessions.\n" \
                   "Would you like to add accessions now?"
             if utils.yes_no_dialog(msg):
-                editors["AccessionEditor"]().start()        
+                acc_editor = editors["AccessionEditor"](connection=self._old_connection)
+                response = acc_editor.start()
+                if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
+                    acc_editor.commit_changes()
+                acc_editor.destroy()
                     
         accessions = tables["Accession"].select()
         if accessions.count() < 1:   # no accessions were added
@@ -145,13 +150,18 @@ class PlantEditor(TreeViewEditorDialog):
                   "locations exists.\n" \
                   "Would you like to add some locations now?"
             if utils.yes_no_dialog(msg):
-                editors["LocationEditor"]().start()
+                loc_editor = editors["LocationEditor"](connection=self._old_connection)
+                response = loc_editor.start()
+                if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
+                    loc_editor.commit_changes()
+                loc_editor.destroy()
                 
         locations = tables["Location"].select()
         if locations.count() < 1: # no locations were added
             return
             
-        super(PlantEditor, self).start()
+        return super(PlantEditor, self).start()
+
 
     def get_accession_completions(self, text):
         model = gtk.ListStore(str, object)

@@ -114,10 +114,8 @@ class SearchView(BaubleView):
         table_name = search_meta.table.__name__
         cls.domain_map[domain] = table_name
         cls.search_metas[table_name] = search_meta
-            
   
-                 
-    
+  
     def __init__(self):
         #views.View.__init__(self)
         super(SearchView, self).__init__()
@@ -509,7 +507,10 @@ class SearchView(BaubleView):
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
         e = editor(select=select, defaults=defaults)
-        e.start()
+        response = e.start()
+        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+            e.commit_changes()
+        e.destroy()
 
         
     def on_view_button_release(self, view, event, data=None):

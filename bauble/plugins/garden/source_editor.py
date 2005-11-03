@@ -383,7 +383,7 @@ class SourceEditor(TableEditor):
         # TODO: the indexes shouldn't be hardcoded like this
         if self.select is not None:
             print type(self.select)
-            if type(self.select) == tables["Collections"]:
+            if type(self.select) == tables["Collection"]:
                 self.type_combo.set_active(0)
             elif type(self.select) == tables["Donations"]:
                 self.type_combo.set_active(1)

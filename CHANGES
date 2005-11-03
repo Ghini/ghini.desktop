@@ -9,6 +9,16 @@ backed, this doesn't seem to cause any problems and is the best way to keep
 from getting straggling data such as collection data not associated with 
 an accession
 - need alot of API cleanup
+- commited r114
+- remove TableEditorDialog, i don't think its really a useful abstraction
+- alot of code cleanup and removing debugging code and old irrelevant stuff
+- committed r115
+- just before i committed i noticed that there's a problem with editing
+multiple values in a treevieweditor dialog with completion, it seems that
+only the first row gets set no matter which row is being edited
+- there also seem to be a problem with the accession editor that causes it to
+randomly crash, usually when entering the species name
+
 
 
 2005.11.1

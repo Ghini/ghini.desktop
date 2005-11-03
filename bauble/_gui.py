@@ -327,13 +327,10 @@ class GUI:
         e = editor()
         response = e.start()
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-            debug('committing')
             e.commit_changes()
         else:
-            debug('rolling back')
             e.transaction.rollback()
         e.destroy()
-        #editor().start()
             
         
     def on_edit_menu_prefs(self, widget, data=None):
