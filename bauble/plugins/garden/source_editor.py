@@ -103,7 +103,7 @@ class Singleton(object):
     
             
 #class CollectionEditor(Singleton):
-class CollectionEditor:    
+class CollectionEditor:
     # 
     # TODO: somehow figure out how to set the dirty flag if anything has
     # changed, this is a bit of a pain in the ass and a scalability problem
@@ -267,12 +267,12 @@ class DonationEditor:
 
     initialized = False
     
-    def __init__(self, glade_xml, row=None):
+    def __init__(self, glade_xml, row=None, connection=None):            
         self.table = tables["Donation"]
         if not self.initialized:
             self.initialize(glade_xml, row)
             self.initialized = True
-        
+        self.connection = connection
         
     def initialize(self, glade_xml, row=None):    
         self.glade_xml = glade_xml
@@ -313,7 +313,7 @@ class DonationEditor:
     
     def on_don_new_button_clicked(self, button, data=None):
         #self.dialog.set_sensitive(False)
-        e = editors['DonorEditor']()
+        e = editors['DonorEditor'](connection=self.connection)
         response = e.start()
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
             e.commit_changes()
@@ -415,7 +415,8 @@ class SourceEditor(TableEditor):
         for label, e in self.source_editor_map:
             if label == active:
                 debug(label + " editor")
-                editor = e(self.glade_xml, self.select)
+                editor = e(self.glade_xml, self.select, 
+                           connection=self.transaction)
                 continue
                 
         if editor is None:

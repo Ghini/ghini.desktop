@@ -1,3 +1,8 @@
+2005.11.13
+---------
+fixed adding donors from the donation editor
+
+
 2005.11.12
 ---------
 - searchview parser now uses pyparser and can now handle more complex queries

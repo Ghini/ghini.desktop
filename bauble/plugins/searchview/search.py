@@ -197,6 +197,11 @@ class SearchView(BaubleView):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
             self.results_view.set_model(model)
+        except ParseException, err:
+            msg = 'Error in search string at column %s' % err.column
+            model = gtk.ListStore(str)
+            model.append([msg])
+            self.results_view.set_model(model)
         except:
             msg = "Could not complete search."
             utils.message_details_dialog(msg, traceback.format_exc(),
@@ -274,6 +279,8 @@ class SearchView(BaubleView):
             for table_name in self.search_metas.keys():
                 results += self.query_table(table_name, values)            
             return results
+        if not self.domain_map.has_key(domain):
+            raise KeyError('%s is not a recognized search domain' % domain)
         table = self.domain_map[domain]
         return self.query_table(table, values)
         
@@ -308,32 +315,32 @@ class SearchView(BaubleView):
         return table.select(q)
         
         
-    def query_old(self, domain, values):
-        """
-        """
-        if domain == "default": # search all field in search_map
-            results = []
-            for d in self.search_map.keys():
-                results += self.query(d, values)
-            return results
-        
-        if domain not in self.search_map or self.search_map[domain] is None:
-            raise ValueError("SearchView.query(): the domain %s is not in "\
-                             "the search map or is None" % d)
-        
-        table = self.search_map[domain][0]
-        if table is None:
-            raise ValueError("SearchView.query(): the table registered "\
-                             "for the domain %s is not valid" % domain)
-        fields = self.search_map[domain][1]
-        
-        for v in values:
-            if v == "*" or v =="all": 
-                return table.select()
-            q = "%s LIKE '%%%s%%'" % (fields[0], v)
-            for f in fields[1:]:
-                q += " OR %s LIKE '%%%s%%'" % (f, v)
-        return table.select(q)
+#    def query_old(self, domain, values):
+#        """
+#        """
+#        if domain == "default": # search all field in search_map
+#            results = []
+#            for d in self.search_map.keys():
+#                results += self.query(d, values)
+#            return results
+#        
+#        if domain not in self.search_map or self.search_map[domain] is None:
+#            raise ValueError("SearchView.query(): the domain %s is not in "\
+#                             "the search map or is None" % d)
+#        
+#        table = self.search_map[domain][0]
+#        if table is None:
+#            raise ValueError("SearchView.query(): the table registered "\
+#                             "for the domain %s is not valid" % domain)
+#        fields = self.search_map[domain][1]
+#        
+#        for v in values:
+#            if v == "*" or v =="all": 
+#                return table.select()
+#            q = "%s LIKE '%%%s%%'" % (fields[0], v)
+#            for f in fields[1:]:
+#                q += " OR %s LIKE '%%%s%%'" % (f, v)
+#        return table.select(q)
                 
     # parser grammar definitions
     __domain = Word(alphanums)
@@ -344,15 +351,8 @@ class SearchView(BaubleView):
     parser = OneOrMore(Group(__expression ^ __values))
 
     def parse_text(self, text):        
-        
-        try:
-            parsed_string = self.parser.parseString(text)
-#            debug(parsed_string)
-        except:
-            msg = 'Could not parse string: %s' % text
-            utils.message_details_dialog(msg, traceback.format_exc())
-            raise
-#        debug(parsed_string)
+        parsed_string = self.parser.parseString(text)
+        debug(parsed_string)
         searches = {}
         for group in parsed_string:
             if len(group) == 1:            
