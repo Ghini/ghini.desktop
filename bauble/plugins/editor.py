@@ -258,7 +258,6 @@ class TextColumn(GenericViewColumn):
         self.dirty = True        
         if self.meta.get_completions is not None:
             return        
-        #if set_in_model:
         if self.meta.editor is None:
             self._set_view_model_value(path, new_text)
         
@@ -280,7 +279,7 @@ class TextColumn(GenericViewColumn):
               entry.set_property('editable', False)
               return
 
-        entry.connect("insert-text", self.on_insert_text, False)
+        entry.connect("insert-text", self.on_insert_text, path)
         #entry.connect("editing-done", self.on_editing_done)
         #self.current_entry = editable        
         # if not a foreign key then validate, foreign keys can only
@@ -321,17 +320,14 @@ class TextColumn(GenericViewColumn):
         # there are no completions, disconnect from signal
         # TODO: we should really be disconnecting with the signal with
         # this signal id so we don't stop all insert_text signals
-        #debug('on_insert_text: ' + text)        
+        debug('entered on_insert_text')
         if self.meta.get_completions is None:
-            #debug("no completions")
-            #debug(self.name)
-            #debug('stop emmiting insert text')
-            #entry.stop_emission("insert_text") 
             return
             
         full_text = entry.get_text() + text
         entry_completion = entry.get_completion()
         if entry_completion is None:
+            debug('create completions')
             entry_completion = gtk.EntryCompletion()
             entry_completion.set_minimum_key_length(2)
             entry_completion.set_text_column(0)
@@ -342,8 +338,10 @@ class TextColumn(GenericViewColumn):
             
         if len(full_text) == 2:
             # this could take too long if there are alot of completions
-            model = self.meta.get_completions(full_text)
+            debug('set model' )
+            model = self.meta.get_completions(full_text)            
             entry_completion.set_model(model)
+        debug('leaving on_insert_text')
 
 
     def on_key_press(self, widget, event, path):
@@ -725,6 +723,11 @@ class TreeViewEditorDialog(TableEditor):
                 prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
         self.start_gui()
+
+        # TODO: check that all required columns have been filled in and make
+        # sure that a dialog pops up and asks the user if they are sure
+        # that they want to close the dialog even though the fields aren't 
+        # complete
 
         response = None
         while True:

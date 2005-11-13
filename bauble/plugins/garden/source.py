@@ -20,7 +20,7 @@ class Donation(BaubleTable):
         
     def __str__(self):
         # i don't know why this has to be donorID instead of donor
-        return Donors.get(self.donorID).name
+        return Donor.get(self.donorID).name
         
     #herb_id = StringCol(length=50, default=None) # herbarium id?
     

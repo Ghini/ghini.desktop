@@ -42,8 +42,8 @@ class Donor(BaubleTable):
                           default=None)
                          
                             
-    name = StringCol(length=72)
-    donations = MultipleJoin('Donations', joinColumn='donor_id')
+    name = UnicodeCol(length=72)
+    donations = MultipleJoin('Donation', joinColumn='donor_id')
     
     # contact information
     address = StringCol(default=None)
@@ -63,7 +63,7 @@ class DonorEditor(TreeViewEditorDialog):
     label = 'Donors'
 
     def __init__(self, parent=None, select=None, defaults={}, connection=None):
-        TreeViewEditorDialog.__init__(self, Donor, "Donors Editor", 
+        TreeViewEditorDialog.__init__(self, Donor, "Donor Editor", 
                                       parent, select=select, defaults=defaults,
                                       connection=connection)
         titles = {"name": "Name",

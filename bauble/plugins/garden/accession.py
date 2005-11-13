@@ -159,8 +159,8 @@ class AccessionEditor(TreeViewEditorDialog):
         # the the expected type is a single join
         # could do these similar to the way we handle joins in 
         # create_view_columns
-        self.table_meta.foreign_keys = [('_collection', 'accession'),
-                                        ('_donation', 'accession')]
+        #self.table_meta.foreign_keys = [('_collection', 'accession'),
+        #                                ('_donation', 'accession')]
         
         
     def get_species_completions(self, text):

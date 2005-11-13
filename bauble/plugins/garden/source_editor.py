@@ -313,11 +313,11 @@ class DonationEditor:
     
     def on_don_new_button_clicked(self, button, data=None):
         #self.dialog.set_sensitive(False)
-        editor_class = editors["DonorEditor"]
-        e = editor_class()
+        e = editors['DonorEditor']()
         response = e.start()
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
             e.commit_changes()
+        e.destroy()
         #editor_class().start()
         debug('done with donor editor')
         #self.dialog.set_sensitive(True)
@@ -467,7 +467,8 @@ class SourceEditor(TableEditor):
                 # TODO: if select and table aren't the same we should
                 # ask the user if they want to change the type source
                 if not isinstance(self.select, self.curr_editor.table):
-                    msg = 'SourceEditor.commit_changes: the type has changed'
+                    msg = 'SourceEditor.commit_changes: Bauble does not ' \
+                          'currently support changing the source type'
                     raise ValueError(msg)
                 self.select.set(**values)
                 table_instance = self.select # TODO: does this work????

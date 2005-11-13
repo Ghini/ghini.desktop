@@ -11,6 +11,7 @@ from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
 from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
+from pyparsing import *
 
 
 # NOTE: to add a new search domain do:
@@ -278,6 +279,7 @@ class SearchView(BaubleView):
         
                     
     def query_table(self, table_name, values):
+#        debug(values)
         if table_name not in self.search_metas:
             raise ValueError("SearchView.query: no search meta for domain ", 
                               domain)
@@ -302,6 +304,7 @@ class SearchView(BaubleView):
             q = "%s %s '%%%s%%'" % (columns[0], like, v)
             for c in columns[1:]:
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
+#        debug(q)
         return table.select(q)
         
         
@@ -332,38 +335,75 @@ class SearchView(BaubleView):
                 q += " OR %s LIKE '%%%s%%'" % (f, v)
         return table.select(q)
                 
+    # parser grammar definitions
+    __domain = Word(alphanums)
+    __values = Word('"' + "'").suppress() + Word(alphanums+'*' +' ') + \
+               Word('"' + "'").suppress() ^ Word(alphanums+'*')
+    __expression = __domain + Word('=', max=2).suppress() + __values
+                    
+    parser = OneOrMore(Group(__expression ^ __values))
 
-    def parse_text(self, text):
-        """
-        """
-        # TODO: should allow plurals like genera=1,2 and parse
-        # them apart, also need to account for values in quotations        
-        pieces = text.split(' ')
-        #rx = re.compile("\s*\S+={1,2}\S+\s*")
-        rx = re.compile("(\S+)={1,2}(\S+)")
+    def parse_text(self, text):        
+        
+        try:
+            parsed_string = self.parser.parseString(text)
+#            debug(parsed_string)
+        except:
+            msg = 'Could not parse string: %s' % text
+            utils.message_details_dialog(msg, traceback.format_exc())
+            raise
+#        debug(parsed_string)
         searches = {}
-        for p in pieces:
-            m = rx.match(p)
-            if m is None:
-                if "default" not in searches: searches["default"] = []
-                searches["default"].append(p)
-            else:                
-                g = m.groups()                
-                #domain = self.g[0].lower()
-                domain = g[0].lower()
-                if domain not in self.domain_map:
-                    msg = "unknown domain -- " + domain                    
-                    raise SyntaxError("SearchView.parse_text: ", msg)
+        for group in parsed_string:
+            if len(group) == 1:            
+                if 'default' not in searches:
+                    searches['default'] = []
+                searches['default'].append(group[0])
+            else:
+                domain = group[0]
                 if domain not in searches:
                     searches[domain] = []
-                searches[domain].append(g[1])
-                #domain = self.resolve_domain(g[0])
-                #if domain not in self.search_map:
-                #    raise Exception("views.search: unknown search domain: " + g[0], g[0])
-                #if domain not in searches: searches[domain] = []
-                #searches[domain].append(g[1])
-                #printes
+                searches[domain].append(group[1])
+#        debug(searches)
         return searches
+    
+    
+#    def parse_text_old(self, text):
+#        """
+#        """
+#        # TODO: should allow plurals like genera=1,2 and parse
+#        # them apart, also need to account for values in quotations        
+#        pieces = text.split(' ')
+#        #rx = re.compile("\s*\S+={1,2}\S+\s*")
+#        #rx = re.compile("(\S+)={1,2}[\'\"]?(\S+)[\'\"]?")
+#        rx = re.compile("(\S+)=(\S+)")
+#        searches = {}
+#        debug('parse_text(%s)' % text)
+#        for p in pieces:
+#            debug(p)
+#            m = rx.match(p)
+#            if m is None:
+#                if "default" not in searches: 
+#                    searches["default"] = []
+#                searches["default"].append(p)
+#            else:                
+#                g = m.groups()                
+#                #domain = self.g[0].lower()
+#                domain = g[0].lower()
+#                if domain not in self.domain_map:
+#                    msg = "unknown domain -- " + domain                    
+#                    raise SyntaxError("SearchView.parse_text: ", msg)
+#                if domain not in searches:
+#                    searches[domain] = []
+#                debug(g[1])
+#                searches[domain].append(g[1])
+#                #domain = self.resolve_domain(g[0])
+#                #if domain not in self.search_map:
+#                #    raise Exception("views.search: unknown search domain: " + g[0], g[0])
+#                #if domain not in searches: searches[domain] = []
+#                #searches[domain].append(g[1])
+#                #printes
+#        return searches
 
 
 #    def resolve_domain(self, domain):

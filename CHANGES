@@ -1,3 +1,17 @@
+2005.11.12
+---------
+- searchview parser now uses pyparser and can now handle more complex queries
+though some work still needs to be done
+
+2005.11.5
+----------
+- lots of fixes related to the Donor table and DonorEditor
+
+2005.11.3
+----------
+- fixed completion bug so that the selected value is inserted into the proper 
+row
+
 2005.11.2
 ----------
 - editors should be fixed for the most part but i'm sure they still need some
