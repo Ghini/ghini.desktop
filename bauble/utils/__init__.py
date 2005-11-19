@@ -39,6 +39,7 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
     text_view.set_editable(False)
+    text_view.set_wrap_mode(gtk.WRAP_WORD)
     tb = gtk.TextBuffer()
     tb.set_text(details)
     text_view.set_buffer(tb)

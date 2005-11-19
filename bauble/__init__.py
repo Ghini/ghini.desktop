@@ -25,8 +25,13 @@ sys.path.append(paths.lib_dir() + os.sep + 'lib')
 # plugins without bauble.plugins in front of it and so the plugins don't 
 # have to be in the lib dir
 
-
-
+class BaubleError(Exception):
+     def __init__(self, msg):
+         self.msg = msg
+     def __str__(self):
+         return self.msg
+    
+    
 try:
     from sqlobject import *
 except ImportError:

@@ -25,20 +25,20 @@ class GUI:
         self.bauble = bauble_app
         self.create_gui()
         
-        # load the last view open from the prefs
-        v = prefs[self.current_view_pref]
-        if v is None: # default view is the search view            
-            v = str(views["SearchView"])
-    
-        view_set = False
-        for name, view in views.iteritems():
-            if v == str(view):
-                self.set_current_view(view)
-                view_set = True
-                # TODO: if this view can't be shown then default to SearchView
-                
-        if not view_set:
-            self.set_current_view(views["SearchView"])
+#        # load the last view open from the prefs
+#        v = prefs[self.current_view_pref]
+#        if v is None: # default view is the search view            
+#            v = str(views["SearchView"])
+#    
+#        view_set = False
+#        for name, view in views.iteritems():
+#            if v == str(view):
+#                self.set_current_view(view)
+#                view_set = True
+#                # TODO: if this view can't be shown then default to SearchView
+#                
+#        if not view_set:
+#            self.set_current_view(views["SearchView"])
             
             
     def create_gui(self):            

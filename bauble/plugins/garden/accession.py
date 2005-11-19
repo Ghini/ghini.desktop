@@ -23,12 +23,12 @@ class Accession(BaubleTable):
 #                           ("Z", "Propagule of wild plant in cultivation"),
 #                           ("G", "Not of wild source"),
 #                           ("U", "Insufficient data")]
-    prov_type = EnumCol(enumValues=("W", # Wild,
-                                    "Z", # Propagule of wild plant in cultivation
-                                    "G", # Not of wild source
-                                    "U", # Insufficient data
-                                    None),
-                        default = None)
+    prov_type = EnumCol(enumValues=("Wild", # Wild,
+                                    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
+                                    "Not of wild source", # Not of wild source
+                                    "Insufficient Data", # Insufficient data
+                                    "Unknown"),
+                        default = "Unknown")
 
     # wild provenance status, wild native, wild non-native, cultivated native
 #    wild_prov_status = StringCol(length=50, default=None)
@@ -39,9 +39,9 @@ class Accession(BaubleTable):
     wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
                                            "Wild non-native", # Propagule of wild plant in cultivation
                                            "Cultivated native", # Not of wild source
-                                           "U", # Insufficient data
-                                           None),
-                               default=None)
+                                           "Insufficient Data", # Insufficient data
+                                           "Unknown"),
+                               default="Unknown")
                                  
     # propagation history ???
     #prop_history = StringCol(length=11, default=None)
@@ -182,6 +182,7 @@ class AccessionEditor(TreeViewEditorDialog):
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
                                     connection=self.transaction)
         model = gtk.ListStore(str, object) 
+        debug(sr.count())
         for row in sr:
             for species in row.species:                
                 model.append((str(species), species))
@@ -211,7 +212,8 @@ class AccessionEditor(TreeViewEditorDialog):
         # TODO: here should we iterate over the response from 
         # TreeViewEditorDialog.commit_changes or is the 'values' sufficient
         for row in committed_rows:
-            debug(row)
+            pass
+            #debug(row)
         return committed_rows
         for v in self.values:
             acc_id = v["acc_id"]
@@ -300,7 +302,8 @@ else:
             
                 
         def update_donations(self, donation):
-            set_widget_value(self.glade_xml, 'donor_data', tables.Donors.get(donation.donorID).name)
+            set_widget_value(self.glade_xml, 'donor_data', 
+                             tables['Donor'].get(donation.donorID).name)
             set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
             set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
         

@@ -239,7 +239,7 @@ class SpeciesEditor(TreeViewEditorDialog):
 #                   "supfam": 'Super family',
 #                   'subgen': 'Subgenus',
 #                   'subgen_rank': 'Subgeneric rank',
-                   'isp': 'Intraspecific\nepithet',
+                   'isp': 'Isp. epithet',
                    'isp_rank': 'Isp. rank',
                    'isp_author': 'Isp. author',
 #                    'isp2': 'Isp. 2',
@@ -323,19 +323,15 @@ class SpeciesEditor(TreeViewEditorDialog):
         # against the database, not just the string, i guess we need to
         # check each of the keys in values, check if they are name components
         # use each of these values in a query to speciess
-        debug('entered SpeciesEditor.test_values_before_commit()')
         exists = False
         select_values = {}
         select_values['genusID'] = values['genusID'].id
         select_values['sp'] = values['sp']        
-        debug(select_values)
         sel = Species.selectBy(**select_values)
         names = ""
         for s in sel:
             exists = True
             names += "%d: %s\n" % (s.id, s)
-            #debug(str(s))
-        debug(names)
         msg  = "The following plant names are similiar to the plant name you "\
                "are trying to create. Are your sure this is what you want to "\
                "do?\n\n" + names

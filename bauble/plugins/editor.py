@@ -62,7 +62,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
     
     def __init__(self, tree_view_editor, header, renderer, so_col=None, so_join=None):
         super(GenericViewColumn, self).__init__(header, renderer)
-       
+                
         if not isinstance(tree_view_editor, TreeViewEditorDialog):
             raise ValueError('tree_view_editor must be an isntance of '\
                              'TreeViewEditorDialog')
@@ -85,7 +85,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
             self.meta.default = so_col._default
             self.set_visible(True)
             
-        self.set_property('visible', self.meta.required)
+        self.set_visible(self.meta.required)
         self.set_min_width(50)
         self.set_clickable(True)
         self.set_resizable(True)
@@ -95,7 +95,8 @@ class GenericViewColumn(gtk.TreeViewColumn):
         #column.set_cell_data_func(r, self.toggle_cell_data_func, name)
         #    if meta.editor is None: # the editor will set the value
         #        
-    
+        
+        
     def _set_view_model_value(self, path, value):
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
@@ -181,7 +182,7 @@ class ToggleColumn(GenericViewColumn):
                                            so_col)
         self.renderer.connect("toggled", self.on_toggled)
         self.set_resizable(False)
-        self.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        self.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
             
             
     def on_toggled(self, renderer, path, data=None):
@@ -317,17 +318,16 @@ class TextColumn(GenericViewColumn):
 #        except ValueError:
 #            entry.stop_emission("insert_text")
         
+        
         # there are no completions, disconnect from signal
         # TODO: we should really be disconnecting with the signal with
-        # this signal id so we don't stop all insert_text signals
-        debug('entered on_insert_text')
+        # this signal id so we don't stop all insert_text signals        
         if self.meta.get_completions is None:
             return
             
-        full_text = entry.get_text() + text
+        full_text = entry.get_text() + text        
         entry_completion = entry.get_completion()
         if entry_completion is None:
-            debug('create completions')
             entry_completion = gtk.EntryCompletion()
             entry_completion.set_minimum_key_length(2)
             entry_completion.set_text_column(0)
@@ -338,10 +338,8 @@ class TextColumn(GenericViewColumn):
             
         if len(full_text) == 2:
             # this could take too long if there are alot of completions
-            debug('set model' )
             model = self.meta.get_completions(full_text)            
             entry_completion.set_model(model)
-        debug('leaving on_insert_text')
 
 
     def on_key_press(self, widget, event, path):
@@ -384,11 +382,14 @@ class ComboColumn(TextColumn):
     def cell_data_func(self, col, cell, model, iter, data=None):
         # assumes the text column is 0 but the value we want 
         # to store in the model column 1
-        row = model.get_value(iter, 0)
+        row = model.get_value(iter, 0)        
         if row is not None:
             v = row[self.name]
+            #debug(v)
             cell.set_property('text', v)
-                    
+        else:
+            cell.set_property('text', '')
+                                
         
     def __get_model(self):
         return self.renderer.get_property('model')            
@@ -398,7 +399,8 @@ class ComboColumn(TextColumn):
                                                
                                            
     def on_editing_started(self, cell, editable, path, view):                
-        debug('on_editing_started')
+        #debug('on_editing_started')
+        pass
 
 
 
@@ -722,7 +724,8 @@ class TreeViewEditorDialog(TableEditor):
             if not self.visible_columns_pref in prefs:
                 prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
-        self.start_gui()
+                    
+        self.start_gui()        
 
         # TODO: check that all required columns have been filled in and make
         # sure that a dialog pops up and asks the user if they are sure
@@ -732,17 +735,14 @@ class TreeViewEditorDialog(TableEditor):
         response = None
         while True:
             msg = 'Are you sure you want to lose your changes?'
-            #response = self.run()
             response = self.dialog.run()
             if response == gtk.RESPONSE_OK:
-                #if self.commit_changes():
-#                    debug("committed changes")
                 break
             elif self.dirty and utils.yes_no_dialog(msg):
-                break      
-            else:
-                break               
-
+                break
+            elif not self.dirty:
+                break
+                
         self.store_column_widths()
         self.store_visible_columns()
         self._set_values_from_widgets()
@@ -754,25 +754,22 @@ class TreeViewEditorDialog(TableEditor):
         
     
     def start_gui(self):
-        vbox = gtk.VBox(False)
         self.start_tree_view()
         self.create_toolbar()                
-        vbox.pack_start(self.toolbar, fill=False, expand=False)
+        self.dialog.vbox.pack_start(self.toolbar, fill=False, expand=False)
         
         sw = gtk.ScrolledWindow()        
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
-        vbox.pack_start(sw)
-        
-        self.dialog.vbox.pack_start(vbox)
-        self.dialog.set_default_size(-1, 300) # an arbitrary size
+        self.dialog.vbox.pack_start(sw)
+#        self.dialog.set_default_size(-1, 300) # an arbitrary size
                 
         # set ok button insensitive
         ok_button = self.dialog.action_area.get_children()[1]
         ok_button.set_sensitive(False)        
         
-        self.dialog.show_all()        
-                
+        self.dialog.show_all()                
+           
                 
     def init_tree_view(self):
         """
@@ -812,7 +809,7 @@ class TreeViewEditorDialog(TableEditor):
         if self.select is not None:
             for row in self.select:
                 self.add_new_row(row)
-        else:
+        else:            
             self.add_new_row()
             
         # enter the columns from the visible list, the column visibility
@@ -832,12 +829,11 @@ class TreeViewEditorDialog(TableEditor):
         for name, column in self.columns.iteritems():
             if name not in visible_list:
                 self.view.append_column(self.columns[name])
-            if name in width_dict and width_dict[name] > 0:
-                column.set_fixed_width(width_dict[name])
-
+            if name in width_dict and width_dict[name] > 0:                                
+                column.set_fixed_width(width_dict[name])                
+            
         # now that all the columns are here, let us know if anything 
         # changes
-#        self.view.connect("columns-changed", self.on_column_changed)
 #        self.view.connect("move-cursor", self.on_view_move_cursor)
         self.view.connect("cursor-changed", self.on_cursor_changed)
         self.view.connect("button-release-event", self.on_view_button_release)
@@ -917,22 +913,7 @@ class TreeViewEditorDialog(TableEditor):
         self.columns[colname].set_visible(visible)
         
         # could do this with a property notify signal
-        self.view.resize_children()
-
-
-#    def on_column_changed(self, treeview, data=None):
-#        """
-#        keep up with the order of the columns to make key navigation
-#        easier
-#        NOTE: i'm not sure what i'm talking about here, i think this may be
-#        an old function i don't need anymore
-#        """
-#        #debug("on_column_changed")
-##        self.resize_children()
-##        self.view.resize_children()
-##        self.view.queue_resize()
-##        self.queue_resize()
-#        pass
+#        self.view.resize_children()
          
         
     def _set_values_from_widgets(self):
@@ -1003,7 +984,6 @@ class TreeViewEditorDialog(TableEditor):
         committed_rows = []
         table_instance = None
         for v in self.values:
-            debug(v)
             # make sure it's ok to commit these values            
             if not self.test_values_before_commit(v):                
                 continue                
@@ -1183,14 +1163,14 @@ class TreeViewEditorDialog(TableEditor):
                     
         width_dict = {}
         for name, col in self.columns.iteritems():
-            width_dict[name] = col.get_property('width')        
+            width_dict[name] = col.get_width()
         
         #debug(width_dict)
         pref_dict = prefs[self.column_width_pref]
         if pref_dict is None:
             prefs[self.column_width_pref] = width_dict
         else: 
-            pref_dict.update(width_dict)
+            pref_dict.update(width_dict)            
             prefs[self.column_width_pref] = pref_dict
 
         

@@ -269,6 +269,7 @@ class CSVExporter:
         #progress = utils.ProgressDialog()
         #progress.show_all()
     
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         for table_name, table in tables.iteritems():
             print "exporting " + table_name
             #progress.pulse()
@@ -280,7 +281,6 @@ class CSVExporter:
             for row in table.select():
                 values = []
                 values.append(row.id)
-                #values[0] = row.id
                 for name, col in col_dict.iteritems():
                     if type(col) == sqlobject.ForeignKey:
                         name = name+"ID"
@@ -291,7 +291,7 @@ class CSVExporter:
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(rows)
         f.close()
-        print 'exporting completed.'
+        bauble.app.gui.window.window.set_cursor(None)
         #progress.destroy()
             
 #

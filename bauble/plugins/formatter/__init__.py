@@ -80,9 +80,7 @@ class Formatter:
         self.populate_formatters_from_prefs()
         formatters = prefs[formatters_list_pref]
         default = prefs[formatters_default_pref]
-        debug(default)
         if default is not None and default in formatters:
-            debug('setting default')
             combo_set_active_text(self.formatters_combo, default)
         
         pdf_filename = None
@@ -103,7 +101,6 @@ class Formatter:
         
 
     def create_pdf(self, fo_cmd, stylesheet, filename=None):
-        debug('create_pdf')
         import libxml2
         import libxslt
         import tempfile
@@ -221,7 +218,7 @@ class Formatter:
     def populate_tree(self, plants):
         model = gtk.ListStore(bool, object)
         for p in plants:
-            debug(plants)
+        
             model.append([True, p])
         tree_view = self.glade_xml.get_widget('treeview')
         
@@ -675,9 +672,11 @@ class FormatterTool(BaubleTool):
             # families and genera
             #tables = plugins.tables
             if isinstance(value, tables["Family"]):
-                print "family: " + str(value)
+                #print "family: " + str(value)
+                pass
             elif isinstance(value, tables["Genus"]):
-                print "genera: " + str(value)
+                #print "genera: " + str(value)
+                pass
             elif isinstance(value, tables["Species"]):
                 for acc in value.accessions:
                     plants += acc.plants
@@ -697,7 +696,6 @@ class FormatterTool(BaubleTool):
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
         else:
-            debug('pdf_filename: %s' % pdf_filename)
             utils.startfile(pdf_filename)        
         
         #if response == gtk.RESPONSE_ACCEPT:

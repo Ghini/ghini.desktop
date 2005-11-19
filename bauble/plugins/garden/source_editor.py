@@ -307,7 +307,6 @@ class DonationEditor:
         set_dict_value_from_widget(self.glade_xml, 'donor_combo', 'donor', values)
         set_dict_value_from_widget(self.glade_xml, 'donid_entry', 'donor_acc', values)
         set_dict_value_from_widget(self.glade_xml, 'donnotes_entry', 'notes', values)
-        print 'get_values: ' + str(values)
         return values
     
     
@@ -319,12 +318,10 @@ class DonationEditor:
             e.commit_changes()
         e.destroy()
         #editor_class().start()
-        debug('done with donor editor')
         #self.dialog.set_sensitive(True)
         #model = gtk.ListStore(obj)
         #self.init_donations()
         donor_combo = self.glade_xml.get_widget('donor_combo')
-        debug('setting table')
         setComboModelFromSelect(donor_combo, tables["Donor"].select())
         
         
@@ -400,9 +397,7 @@ class SourceEditor(TableEditor):
     
     
     def on_type_combo_changed(self, combo, data=None):
-        debug('entered on_type_combo_changed')
         if self.curr_editor is not None:
-            debug('curr_editor is not None')
             self.source_box.remove(self.curr_editor.box)
             #self.curr_box.destroy()
         
@@ -414,7 +409,6 @@ class SourceEditor(TableEditor):
         editor = None
         for label, e in self.source_editor_map:
             if label == active:
-                debug(label + " editor")
                 editor = e(self.glade_xml, self.select, 
                            connection=self.transaction)
                 continue
@@ -449,7 +443,6 @@ class SourceEditor(TableEditor):
         table = self.curr_editor.table
         values = self.curr_editor.get_values()
         
-        debug(values)
         if values is None: 
             return None
         #conn = sqlhub.getConnection()
@@ -461,10 +454,8 @@ class SourceEditor(TableEditor):
             
             # i guess the connection is inherant
             if self.select is None: # create a new table row
-                debug('create table')
                 table_instance = table(connection=self.transaction, **values)
             else: # update the table row passed in
-                debug('update table')
                 # TODO: if select and table aren't the same we should
                 # ask the user if they want to change the type source
                 if not isinstance(self.select, self.curr_editor.table):
@@ -492,7 +483,6 @@ class SourceEditor(TableEditor):
         
         
     def start(self):
-        debug("entered SourceEditor.start()")
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
 
@@ -500,15 +490,11 @@ class SourceEditor(TableEditor):
             msg = 'Are you sure you want to lose your changes?'
             response = self.dialog.run()
             if response == gtk.RESPONSE_OK:
-                #if self.commit_changes():
-                #    debug("committed changes")
                     break
             elif self._dirty and utils.yes_no_dialog(msg):
                 break      
-            else:
-                break                          
-        #self.dialog.destroy()
-        #return self.committed
+            elif not dirty:
+                break
         return response
     
     

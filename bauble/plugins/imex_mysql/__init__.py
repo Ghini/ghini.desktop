@@ -98,6 +98,7 @@ class MySQLImportTool(BaubleTool):
     label = "MySQL"
     
 class MySQLImexPlugin(BaublePlugin):
-    tools = [MySQLImportTool]
+    #tools = [MySQLImportTool]
+    tools = [] # disabled
 
 plugin = MySQLImexPlugin

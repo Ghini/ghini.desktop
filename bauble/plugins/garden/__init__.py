@@ -11,7 +11,7 @@ from plant import Plant, PlantEditor, PlantInfoBox
 from reference import Reference, ReferenceEditor
 from source import Donation, Collection
 from source_editor import SourceEditor
-from donor import Donor, DonorEditor
+from donor import Donor, DonorEditor, DonorInfoBox
 
 
 # other ideas:
@@ -51,6 +51,13 @@ class GardenPlugin(BaublePlugin):
             SearchView.view_meta["Location"].set("plants", LocationEditor)
 
             SearchView.view_meta["Plant"].set(None, PlantEditor, PlantInfoBox)
+            
+            search_meta = SearchMeta('Donor', ['name'])
+            SearchView.register_search_meta('donor', search_meta)
+            SearchView.register_search_meta('don', search_meta)
+            SearchView.view_meta["Donor"].set("donations", DonorEditor, 
+                                              DonorInfoBox)
+            
 
             # done here b/c the Species table is not part of this plugin
             SearchView.view_meta["Species"].child = "accessions"

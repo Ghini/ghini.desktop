@@ -99,7 +99,7 @@ class SpeciesMetaEditor(TableEditor):
                 #    break
             elif self._dirty and utils.yes_no_dialog(msg):
                 break      
-            else:
+            elif not dirty:
                 break               
 
         self._set_values_from_widgets()

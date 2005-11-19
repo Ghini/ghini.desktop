@@ -7,6 +7,7 @@
 import os, sys
 import gtk
 from sqlobject import *
+from bauble.plugins import plugins, tools, views, editors
 import bauble.utils as utils
 from bauble.plugins import plugins
 from bauble.prefs import prefs
@@ -24,12 +25,6 @@ class BaubleApp:
         # when is this ever called? why is it here
         print "BaubleApp.delete_event"
         return gtk.FALSE
-
-
-#    def get_cursor(self):
-#        """return a connection to the database"""
-#        if self.conn == None: return None
-#        else: return self.conn.cursor()
 
 
     def create_database(self):
@@ -96,9 +91,6 @@ class BaubleApp:
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect
-            #self.conn = sqlhub.getConnection().getConnection() 
-            #self.conn = sqlhub.getConnection()
-            #self.conn = sqlhub.processConnection
             sqlhub.processConnection.getConnection()
             # if not autocommit then mysql import won't work unless we 
             # temporary store autocommit and restore it to the original
@@ -139,12 +131,8 @@ class BaubleApp:
     
     def main(self):
         
-        #from bauble.plugins import plugins
         import bauble.plugins
         # intialize the plugins        
-        #plugins()
-        #plugins.load()
-        #plugins.init()
         bauble.plugins.init_plugins()
         
         # open default database on startup
@@ -168,12 +156,25 @@ class BaubleApp:
                 break
                         
         
-        # now that we have a connection build and show the gui
+        # now that we have a connection create the gui
         self.gui = gui.GUI(self)
+        
+        # load the last view open from the prefs
+        v = prefs[self.gui.current_view_pref]
+        if v is None: # default view is the search view            
+            v = str(views["SearchView"])
+    
+        view_set = False
+        for name, view in views.iteritems():
+            if v == str(view):
+                self.gui.set_current_view(view)
+                view_set = True
+                # TODO: if this view can't be shown then default to SearchView
+                
+        if not view_set:
+            self.gui.set_current_view(views["SearchView"])
+        
+        
 #        gtk.threads_enter()
         gtk.main()
 #        gtk.threads_leave()
-
-
-#baubleApp = BaubleApp()
-#import bauble

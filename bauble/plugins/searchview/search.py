@@ -121,7 +121,7 @@ class SearchView(BaubleView):
         #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
-        self.entry.grab_focus() # this doesn't seem to work
+        #self.entry.grab_focus() # this doesn't seem to work
 
     
     def set_infobox_from_row(self, row):    
@@ -202,6 +202,10 @@ class SearchView(BaubleView):
             model = gtk.ListStore(str)
             model.append([msg])
             self.results_view.set_model(model)
+        except bauble.BaubleError, e:
+            model = gtk.ListStore(str)
+            model.append(['** Error: %s' % e])
+            self.results_view.set_model(model)
         except:
             msg = "Could not complete search."
             utils.message_details_dialog(msg, traceback.format_exc(),
@@ -279,10 +283,19 @@ class SearchView(BaubleView):
             for table_name in self.search_metas.keys():
                 results += self.query_table(table_name, values)            
             return results
-        if not self.domain_map.has_key(domain):
-            raise KeyError('%s is not a recognized search domain' % domain)
-        table = self.domain_map[domain]
-        return self.query_table(table, values)
+#        elif domain == 'sql':
+#            debug(values[0])
+#            conn = sqlobject.sqlhub.processConnection
+#            sel = conn.queryAll(values[0])        
+#            debug(sel)
+#            return sel or ()
+        elif not self.domain_map.has_key(domain):
+            #raise KeyError('%s is not a recognized search domain' % domain)
+            raise bauble.BaubleError('%s is not a recognized search domain' % \
+                                     domain)
+        else:
+            table = self.domain_map[domain]
+            return self.query_table(table, values)
         
                     
     def query_table(self, table_name, values):
@@ -344,7 +357,7 @@ class SearchView(BaubleView):
                 
     # parser grammar definitions
     __domain = Word(alphanums)
-    __values = Word('"' + "'").suppress() + Word(alphanums+'*' +' ') + \
+    __values = Word('"' + "'").suppress() + Word(alphanums+'*' +' '+';') + \
                Word('"' + "'").suppress() ^ Word(alphanums+'*')
     __expression = __domain + Word('=', max=2).suppress() + __values
                     
@@ -352,7 +365,6 @@ class SearchView(BaubleView):
 
     def parse_text(self, text):        
         parsed_string = self.parser.parseString(text)
-        debug(parsed_string)
         searches = {}
         for group in parsed_string:
             if len(group) == 1:            
@@ -364,7 +376,6 @@ class SearchView(BaubleView):
                 if domain not in searches:
                     searches[domain] = []
                 searches[domain].append(group[1])
-#        debug(searches)
         return searches
     
     
@@ -703,6 +714,7 @@ class SearchView(BaubleView):
         accel_group = gtk.AccelGroup()
         self.entry.add_accelerator("grab-focus", accel_group, ord('L'),
                                    gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        bauble.app.gui.window.add_accel_group(accel_group)
         self.show_all()
         
 

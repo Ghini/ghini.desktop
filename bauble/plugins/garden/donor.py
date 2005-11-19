@@ -26,20 +26,32 @@ class Donor(BaubleTable):
 #                            ("I", "Individual"),
 #                            ("O", "Other"),
 #                            ("U", "Unknown")]
-    donor_type = EnumCol(enumValues=("E", # Expedition
-                                     "G", # Gene bank
-                                     "B", # Botanic Garden or Arboretum
-                                     "R", # Other research, field or experimental station
-                                     "S", # Staff of the botanic garden to which record system applies
-                                     "U", # University Department
-                                     "H", # Horticultural Association or Garden Club
-                                     "M", # Municipal department
-                                     "N", # Nursery or other commercial establishment
-                                     "I", # Individual
-                                     "O", # Other
-                                     "U", # Unknown
-                                     None),
-                          default=None)
+#    donor_type = EnumCol(enumValues=("E", # Expedition
+#                                     "G", # Gene bank
+#                                     "B", # Botanic Garden or Arboretum
+#                                     "R", # Other research, field or experimental station
+#                                     "S", # Staff of the botanic garden to which record system applies
+#                                     "U", # University Department
+#                                     "H", # Horticultural Association or Garden Club
+#                                     "M", # Municipal department
+#                                     "N", # Nursery or other commercial establishment
+#                                     "I", # Individual
+#                                     "O", # Other
+#                                     "U", # Unknown
+#                                     None),
+    donor_type = EnumCol(enumValues=('Expedition', # Expedition
+                                     "Gene bank", # Gene bank
+                                     "Botanic Garden or Arboretum", # Botanic Garden or Arboretum
+                                     "Research/Field Station", # Other research, field or experimental station
+                                     "Staff member", # Staff of the botanic garden to which record system applies
+                                     "University Department", # University Department
+                                     "Horticultural Association/Garden Club", # Horticultural Association or Garden Club
+                                     "Municipal department", # Municipal department
+                                     "Nursery/Commercial", # Nursery or other commercial establishment
+                                     "Individual", # Individual
+                                     "Other", # Other
+                                     "Unknown"), # Unknown
+                          default='Unknown')
                          
                             
     name = UnicodeCol(length=72)
@@ -74,3 +86,18 @@ class DonorEditor(TreeViewEditorDialog):
                   'tel': 'Tel #'
                  }
         self.columns.titles = titles
+        
+try:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
+        set_widget_value
+except ImportError:
+    pass
+else:
+    class GeneralDonorExpander(InfoExpander):
+        # name, number of donations, address, email, fax, tel, type of donor
+        pass
+    
+    class DonorInfoBox(InfoBox):        
+        
+        def update(self, row):
+            pass

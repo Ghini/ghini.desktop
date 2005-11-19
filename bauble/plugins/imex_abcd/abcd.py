@@ -116,8 +116,8 @@ def plants_to_abcd(plants):
         informal_name = informal_name_template.substitute(informal_name=
             acc.species.default_vernacular_name or "")
         #d = distribution_template.substitute(distribution=acc.species.distribution or "")
-        if acc.species.plant_meta is not None:
-            dist = acc.species.plant_meta.distribution or ''
+        if acc.species.species_meta is not None:
+            dist = acc.species.species_meta.distribution or ''
         else: dist = ''
         d = distribution_template.substitute(distribution=dist)
         #d = distribution_template.substitute(distribution=

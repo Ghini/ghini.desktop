@@ -1,6 +1,19 @@
+2005.11.19
+---------
+- fixed some logic in editor.py so that the editor dialog acts as expected
+when you close it
+- fixed the donor editor so it works correctly
+- registered the 'donor' and 'don' keywords for the search view
+- made some dummy classes for DonorInfoBox and its expanders, now it just
+needs to be filled in
+- Ctrl-l now correctly gives focus to the search entry, to do this i had to
+move the part that sets the current_view in the gui into app.main()
+- other small fixes i can't remember
+- disabled the MySQL importer
+
 2005.11.13
 ---------
-fixed adding donors from the donation editor
+- fixed adding donors from the donation editor
 
 
 2005.11.12
