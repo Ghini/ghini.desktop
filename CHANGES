@@ -10,6 +10,13 @@ needs to be filled in
 move the part that sets the current_view in the gui into app.main()
 - other small fixes i can't remember
 - disabled the MySQL importer
+- a new table was added to the database to keep information about the database,
+right now it just hold the version of the database and the datetime it was 
+created
+- will give a warning if trying to connect to a database with different 
+major and minor numbers than the software
+- will not connect to a database that doesn't have a 'bauble' table in the
+database
 
 2005.11.13
 ---------

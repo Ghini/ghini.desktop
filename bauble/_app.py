@@ -3,8 +3,7 @@
 #
 # NOTE: only bauble.py should import this modules
 
-
-import os, sys
+import os, sys, traceback
 import gtk
 from sqlobject import *
 from bauble.plugins import plugins, tools, views, editors
@@ -12,6 +11,8 @@ import bauble.utils as utils
 from bauble.plugins import plugins
 from bauble.prefs import prefs
 from bauble.utils.log import debug
+import datetime
+import bauble
 
 DEBUG_SQL = False
 
@@ -28,6 +29,9 @@ class BaubleApp:
 
 
     def create_database(self):
+        '''
+        create new Bauble database at the current connection
+        '''
         #msg = "Creating a new database on this connection could overwrite an "\
         #"existing database. Are you sure you want to create a new database?"
         # 
@@ -48,6 +52,14 @@ class BaubleApp:
 #            has_pysqlite2 = False
         
 #        try:
+
+        bauble.BaubleMetaTable.dropTable(ifExists=True)
+        bauble.BaubleMetaTable.createTable(ifNotExists=True)  
+        bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
+                        value=str(bauble.version))
+        bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
+                        value=str(datetime.datetime.now()))        
+        
         for p in plugins.values():
             p.create_tables()
 #        except pysqlite2.dbapi2.OperationalError:
@@ -84,7 +96,7 @@ class BaubleApp:
         sqlhub.processConnection = connectionForURI(uri)
         
 #        if debug.enabled:
-            # should do something like debug_sql=True and debug_sql_output=True
+#            should do something like debug_sql=True and debug_sql_output=True
 #        sqlhub.processConnection.debug = True
 #        sqlhub.processConnection.debugOutput = True
 #        sqlhub.processConnection.autoCommit = False
@@ -97,15 +109,39 @@ class BaubleApp:
             # values, either way why would we want autocommit false
             #self.conn.autoCommit = False 
         except Exception, e:
-            msg = "Could not open connection.\n\n%s" % str(e)
-            print msg
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            msg = "Could not open connection.\n\n%s" % str(e)        
+            utils.message_details_dialog(msg, traceback.format_exc(), 
+                                         gtk.MESSAGE_ERROR)
+            return False
+                    
+                    
+        # make sure the version information matches or if the bauble
+        # table doesn't exists then this may not be a bauble created 
+        # database
+        try:
+            sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.version)
+            db_version = eval(sel[0].value)
+            if db_version[0:2] != bauble.version[0:2]: # compare major and minor
+                msg = 'You are using Bauble version %d.%d.%d while the '\
+                      'database you have connected to was created with '\
+                      'version %d.%d.%d\n\nSome things might not work as '\
+                      'or some of your data may become unexpectedly corrupted.' \
+                      % (bauble.version[0], bauble.version[1], \
+                         bauble.version[2], db_version[0], db_version[1], \
+                         db_version[2],)
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING)                    
+        except Exception:
+            msg = 'The database you are trying to connect to does not seem ' \
+                  'to have been created by Bauble. Please check your ' \
+                  'connection parameters.'
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)            
             return False
                     
         if name is not None:
             prefs[prefs.conn_default_pref] = name
             prefs.save()
         return True
+        
         
     def destroy(self, widget, data=None):
         gtk.main_quit()

@@ -2,11 +2,6 @@
 # plugins, tables, editors and views should inherit from
 # the appropriate classes
 
-# TODO: how do we access tables should it be 
-# plugins[plugin_name].tables[table_name], that's pretty long
-# or access all tables like plugins.tables[table_name] and be able 
-# to retrieve the module name from the table
-
 # TODO: need to consider 
 # first initialization so we know whether to add joins to table, this 
 # might mean we have to keep a cache of what has been initialized and what
@@ -16,13 +11,6 @@
 # which could be problematic, a file with a list of initialized plugins 
 # would be best i reckon and then we can just grep the file for the plugin
 # name
-
-# TODO: what about tools, should they be separate or a plugin, i think
-# a plugin should be fine, what differentiates a tool from a plugin
-# other than the tools menu, as long as the plugin defines a tools
-# list for what tools it provides then that should be enough, should
-# also consider a tools_category so we cant create a rational menu
-# layout for tools
 
 # TODO: we could just have a provides=[] list instead of a different
 # list for each of tables, editors, blah, blah, then we could just
@@ -63,8 +51,7 @@ def init_plugins():
         p.init()
     
     
-def _register(plugin_class):
-        
+def _register(plugin_class):        
     # check dependencies
     plugin_name = plugin_class.__name__
     log.info("registering " + plugin_name)
@@ -145,7 +132,8 @@ def _find_plugins():
 
 def load():
     # accumulate all the plugins in the module, call the register methods
-    # once the plugins have been found
+    # once the plugins have been found, this is called at the bottom of 
+    # this file
     found = _find_plugins()
     for p in found:        
         plugins[p.__name__] = p
@@ -243,7 +231,8 @@ class BaubleTool(object):
         pass
 
     
-def init_module():
-    load()
-init_module()
+#def init_module():
+#    load()
+#init_module()
+load()
     

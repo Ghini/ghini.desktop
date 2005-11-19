@@ -4,6 +4,11 @@
 
 import imp, os, sys
 
+
+# major, minor, revision 
+# should be updated for each release of bauble
+version = (0,1,0)
+
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
            hasattr(sys, "importers") # old py2exe
@@ -17,7 +22,6 @@ import gtk
 import bauble.utils as utils
 import bauble.paths as paths
 
-
 sys.path.append(paths.lib_dir())
 sys.path.append(paths.lib_dir() + os.sep + 'lib')
 
@@ -25,13 +29,29 @@ sys.path.append(paths.lib_dir() + os.sep + 'lib')
 # plugins without bauble.plugins in front of it and so the plugins don't 
 # have to be in the lib dir
 
+# meta information about the bauble database
+from sqlobject import SQLObject, StringCol
+    
+class BaubleMetaTable(SQLObject):
+    
+    class sqlmeta:        
+        table = "bauble"
+    
+    name = StringCol(length=64)
+    value = StringCol(length=128)
+    
+    # some keys for the standard information
+    version = 'version' # a string tuple of (major, minor, revision)
+    created = 'created' # a string in datetime.now() format
+
+
 class BaubleError(Exception):
      def __init__(self, msg):
          self.msg = msg
      def __str__(self):
          return self.msg
     
-    
+        
 try:
     from sqlobject import *
 except ImportError:
