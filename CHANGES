@@ -17,6 +17,13 @@ created
 major and minor numbers than the software
 - will not connect to a database that doesn't have a 'bauble' table in the
 database
+- fixed some win32 problems
+- fixed problem with create the first database at a connection
+- message dialog from utils now accept markup
+- fixed a problem in imex_csv when creating a database before the gui
+has been started
+- changed setup.py to use the new formatter module instead of
+the old labels ones
 
 2005.11.13
 ---------

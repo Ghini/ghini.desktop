@@ -15,7 +15,7 @@ from bauble.utils.log import debug
 default_filename = 'user2.py'
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
-        default_pref_file = os.path.join(os.environ["APPDATA"], "Bauble", 
+        default_prefs_file = os.path.join(os.environ["APPDATA"], "Bauble", 
                                          default_filename)
     else:
         raise Exception("Could not path to store preferences: no APPDATA " \
@@ -28,7 +28,7 @@ elif sys.platform == "linux2":
         raise Exception("Could not path to store preferences: "\
                         "no HOME variable")
 else:
-    raise Exception("Could not path to store preferences: " \
+    raise Exception("Could not get path to store preferences: " \
                     "unsupported platform")                    
 
 prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep

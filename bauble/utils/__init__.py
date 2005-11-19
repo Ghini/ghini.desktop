@@ -16,7 +16,8 @@ import re
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=type, buttons=buttons, message_format=msg)        
+                          type=type, buttons=buttons)        
+    d.set_markup(msg)
     r = d.run()
     d.destroy()
     return r
@@ -25,8 +26,8 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
 def yes_no_dialog(msg):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=gtk.MESSAGE_QUESTION,
-                          buttons = gtk.BUTTONS_YES_NO,
-                          message_format=msg)        
+                          buttons = gtk.BUTTONS_YES_NO)        
+    d.set_markup(msg)
     r = d.run()
     d.destroy()
     return r == gtk.RESPONSE_YES
@@ -35,7 +36,8 @@ def yes_no_dialog(msg):
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=type, buttons=buttons, message_format=msg)        
+                          type=type, buttons=buttons)        
+    d.set_markup(msg)
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
     text_view.set_editable(False)

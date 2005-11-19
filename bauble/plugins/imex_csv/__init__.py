@@ -45,8 +45,11 @@ class CSVImporter:
         the simplest way to import, no threads, nothing
         """        
         error = False # return value
-        bauble.app.gui.window.set_sensitive(False)
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        # bauble.app.gui might not exist if we are importing
+        # before the application has full started
+        if bauble.app.gui is not None:
+            bauble.app.gui.window.set_sensitive(False)            
+            bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
                 
         if filenames is None:
             filenames = self._get_filenames()
@@ -76,10 +79,10 @@ class CSVImporter:
                     max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]
                     sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
                     sqlobject.sqlhub.processConnection.query(sql)    
-        
-        
-        bauble.app.gui.window.set_sensitive(True)
-        bauble.app.gui.window.window.set_cursor(None)
+                
+        if bauble.app.gui is not None:
+            bauble.app.gui.window.set_sensitive(True)
+            bauble.app.gui.window.window.set_cursor(None)
         sqlobject.sqlhub.threadConnection = old_conn
         return not error
         

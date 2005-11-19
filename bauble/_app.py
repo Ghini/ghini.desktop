@@ -131,11 +131,20 @@ class BaubleApp:
                          db_version[2],)
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING)                    
         except Exception:
-            msg = 'The database you are trying to connect to does not seem ' \
-                  'to have been created by Bauble. Please check your ' \
-                  'connection parameters.'
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)            
-            return False
+            #msg = 'The database you are trying to connect to does not seem ' \
+            #      'to have been created by Bauble. Please check your ' \
+            #      'connection parameters.'
+            msg = "The database you have connected to is either empty or " \
+                  "wasn't created using Bauble. Would you like to create a " \
+                  "create a database at this connection?\n\n<i>Warning: If " \
+                  "a database does already exists at this connection, " \
+                  "creating a new database could corrupt it.</i>"            
+            #utils.message_dialog(msg, gtk.MESSAGE_ERROR)            
+            if utils.yes_no_dialog(msg):
+                self.create_database()
+                return self.open_database(uri, name, before_main)
+            else:
+                return False
                     
         if name is not None:
             prefs[prefs.conn_default_pref] = name

@@ -20,14 +20,15 @@ if sys.platform == "win32":
 
 from datetime import date
 today = date.today()
-VERSION = '%s%s%s' % (today.year, today.month, today.day)
+#VERSION = '%s%s%s' % (today.year, today.month, today.day)
+VERSION = '0.1.1'
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
 
 plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
-            'labels','plants','searchview']
+            'formatter','plants','searchview']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 
 lib = ['sqlobject']#, 'pysqlite2']
