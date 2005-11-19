@@ -89,6 +89,8 @@ class GenericViewColumn(gtk.TreeViewColumn):
         self.set_min_width(50)
         self.set_clickable(True)
         self.set_resizable(True)
+        # i think AUTOSIZE here was causing a crash when adding using 
+        # completions
         self.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         self.set_reorderable(True)
         
@@ -387,8 +389,6 @@ class ComboColumn(TextColumn):
             v = row[self.name]
             #debug(v)
             cell.set_property('text', v)
-        else:
-            cell.set_property('text', '')
                                 
         
     def __get_model(self):
