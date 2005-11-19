@@ -762,7 +762,7 @@ class TreeViewEditorDialog(TableEditor):
         sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         sw.add(self.view)
         self.dialog.vbox.pack_start(sw)
-#        self.dialog.set_default_size(-1, 300) # an arbitrary size
+        self.dialog.set_default_size(-1, 300) # an arbitrary size
                 
         # set ok button insensitive
         ok_button = self.dialog.action_area.get_children()[1]
