@@ -23,15 +23,15 @@ class Species(BaubleTable):
     sp_hybrid = EnumCol(enumValues=("H", 
                                     "x", 
                                     "+",
-                                    None), 
-                        default=None) 
+                                    ""), 
+                        default="") 
     
     
     sp_qual = EnumCol(enumValues=("agg.", 
                                   "s.lat.", 
                                   "s. str.",
-                                  None), 
-                      default=None)
+                                  ""), 
+                      default="")
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
     sp_author = UnicodeCol(default=None)  # species author
@@ -59,8 +59,8 @@ class Species(BaubleTable):
                                    "f.",     # form
                                    "subf.",  # subform
                                    "cv.",    # cultivar                                   
-                                   None), 
-                       default=None)
+                                   ""), 
+                       default="")
 
 #    isp2 = StringCol(length=30, default=None)
 #    isp2_author = UnicodeCol(length=254, default=None)
@@ -113,8 +113,8 @@ class Species(BaubleTable):
                                   "forsan", # Perhaps
                                   "near", # Close to
                                   "?", # Quesionable
-                                  None),
-                      default=None)
+                                  ""),
+                      default="")
     
     # TODO: should be unicode
     #vernac_name = StringCol(default=None)          # vernacular name
@@ -176,7 +176,7 @@ class Species(BaubleTable):
         name = italic % str(species.genus)
         
         # take care of species hybrid
-        if species.sp_hybrid is not None:
+        if not species.sp_hybrid == "":
             # we don't have a second sp name for the hyrbid formula right now
             # so we'll just use the isp for now
             if species.isp is not None:
@@ -198,7 +198,7 @@ class Species(BaubleTable):
         
         if species.sp_author is not None and authors is not False:
             name += ' ' + species.sp_author.replace('&', '&amp;')
-        if species.isp_rank is not None:
+        if not species.isp_rank == "":
             if species.isp_rank == "cv.":
                 name += " '" + species.isp + "'"
             else:

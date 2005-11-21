@@ -30,8 +30,8 @@ class Genus(BaubleTable):
     hybrid = EnumCol(enumValues=("H", 
                                  "x", 
                                  "+",
-                                 None), 
-                     default=None) 
+                                 ""), 
+                     default="") 
                         
     notes = StringCol(default=None)
     author = UnicodeCol(length=255, default=None)

@@ -11,34 +11,6 @@ from bauble.plugins.editor import TreeViewEditorDialog
 
 class Donor(BaubleTable):
     
-    values = {}
-    # herbarium, garden, individual, etc...
-#    donor_type = StringCol(length=1)
-#    values["donor_type"] = [("E", "Expedition"),
-#                            ("G", "Gene bank"),
-#                            ("B", "Botanic Garden or Arboretum"),
-#                            ("R", "Other research, field or experimental station"),
-#                            ("S", "Staff of the botanic garden to which record system applies"),
-#                            ("U", "University Department"),
-#                            ("H", "Horticultural Association or Garden Club"),
-#                            ("M", "Municipal department"),
-#                            ("N", "Nursery or other commercial establishment"),
-#                            ("I", "Individual"),
-#                            ("O", "Other"),
-#                            ("U", "Unknown")]
-#    donor_type = EnumCol(enumValues=("E", # Expedition
-#                                     "G", # Gene bank
-#                                     "B", # Botanic Garden or Arboretum
-#                                     "R", # Other research, field or experimental station
-#                                     "S", # Staff of the botanic garden to which record system applies
-#                                     "U", # University Department
-#                                     "H", # Horticultural Association or Garden Club
-#                                     "M", # Municipal department
-#                                     "N", # Nursery or other commercial establishment
-#                                     "I", # Individual
-#                                     "O", # Other
-#                                     "U", # Unknown
-#                                     None),
     donor_type = EnumCol(enumValues=('Expedition', # Expedition
                                      "Gene bank", # Gene bank
                                      "Botanic Garden or Arboretum", # Botanic Garden or Arboretum
@@ -50,8 +22,10 @@ class Donor(BaubleTable):
                                      "Nursery/Commercial", # Nursery or other commercial establishment
                                      "Individual", # Individual
                                      "Other", # Other
-                                     "Unknown"), # Unknown
-                          default='Unknown')
+                                     "Unknown",
+                                     "<not set>"),
+                                      # Unknown
+                          default='<not set>')
                          
                             
     name = UnicodeCol(length=72)

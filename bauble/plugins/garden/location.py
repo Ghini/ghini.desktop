@@ -18,9 +18,9 @@ class Location(BaubleTable):
     description = StringCol(default=None)
 
     plants = MultipleJoin("Plant", joinColumn="location_id")
-    #plant = ForeignKey('Plants', notNull=True)
     
-    def __str__(self): return self.site
+    def __str__(self): 
+        return self.site
 
 #
 # Location Editor

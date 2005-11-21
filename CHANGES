@@ -1,3 +1,11 @@
+2005.11.20
+---------
+- fixed bug when trying to cancel importing CSV files
+- the combined plant_id and accession_id of Plant now have to be unique
+- removed most of the None default values from the EnumCols
+- release 0.1.1
+
+
 2005.11.19
 ---------
 - fixed some logic in editor.py so that the editor dialog acts as expected
@@ -24,6 +32,8 @@ database
 has been started
 - changed setup.py to use the new formatter module instead of
 the old labels ones
+- released 0.1.0
+
 
 2005.11.13
 ---------

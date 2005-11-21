@@ -46,7 +46,7 @@ class GUI:
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)        
-        self.window.set_title("Bauble")
+        self.window.set_title("Bauble %s" % bauble.version_str)
     
         # top level vbox for menu, content, status bar
         main_vbox = gtk.VBox(False)

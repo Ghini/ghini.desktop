@@ -23,6 +23,7 @@ class Plant(BaubleTable):
     # a formencode.Validator on it
     plant_id = StringCol(notNull=True)
 
+    id_index = DatabaseIndex('plant_id', 'accession', unique=True)
     # accession type
 #    acc_type = StringCol(length=4, default=None)
 #    values['acc_type'] = [('P', 'Whole plant'),
@@ -30,13 +31,13 @@ class Plant(BaubleTable):
 #                          ('V', 'Vegetative Part'),
 #                          ('T', 'Tissue culture'),
 #                          ('O', 'Other')]
-    acc_type = EnumCol(enumValues=('P', # Whole plant
-                                   'S', # Seed or Spore
-                                   'V', # Vegetative Part
-                                   'T', # Tissue culture
-                                   'O', # Other
-                                   None),
-                       default=None)
+    acc_type = EnumCol(enumValues=('Plant', # Whole plant
+                                   'Seed/Spore', # Seed or Spore
+                                   'Vegetative Part', # Vegetative Part
+                                   'Tissue Culture', # Tissue culture
+                                   'Other', # Other
+                                   '<not set>'),
+                       default='<not set>')
                           
                           
     # accession status
@@ -46,13 +47,13 @@ class Plant(BaubleTable):
 #                            ('T', 'Noncurrent accession due to Transfer'),
 #                            ('S', 'Stored in dormant state'),
 #                            ('O', 'Other')]
-    acc_status = EnumCol(enumValues=('C', # Current accession in living collection
-                                     'D', # Noncurrent accession due to Death
-                                     'T', # Noncurrent accession due to Transfer
-                                     'S', # Stored in dormant state
-                                     'O', # Other
-                                     None),
-                         default=None)
+    acc_status = EnumCol(enumValues=('Living accession', # Current accession in living collection
+                                     'Dead', # Noncurrent accession due to Death
+                                     'Transfered', # Noncurrent accession due to Transfer
+                                     'Stored in dormant state', # Stored in dormant state
+                                     'Other', # Other
+                                     '<not set>'),
+                         default='<not set>')
     
 
     # foreign key and joins
@@ -98,7 +99,8 @@ class Plant(BaubleTable):
     #Source1 = IntCol(default=None)
     #Source2 = IntCol(default=None)
 
-    def __str__(self): return "%s.%s" % (self.accession, self.plant_id)
+    def __str__(self): 
+        return "%s.%s" % (self.accession, self.plant_id)
     
 #
 # Plant editor

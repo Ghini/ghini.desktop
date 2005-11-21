@@ -52,15 +52,15 @@ class Plantname(BaubleTable):
     sp_hybrid = EnumCol(enumValues=("H", 
                                     "x", 
                                     "+",
-                                    None), 
-                        default=None) 
+                                    ""), 
+                        default="") 
     
     
     sp_qual = EnumCol(enumValues=("agg.", 
                                   "s.lat.", 
                                   "s. str.",
-                                  None), 
-                      default=None)
+                                  ""), 
+                      default="")
                                                     
     sp = StringCol(length=40, notNull=True)          # specific epithet
     sp_author = UnicodeCol(default=None)  # species author
@@ -88,8 +88,8 @@ class Plantname(BaubleTable):
                                    "f.",     # form
                                    "subf.",  # subform
                                    "cv.",    # cultivar                                   
-                                   None), 
-                       default=None)
+                                   ""), 
+                       default="")
 
 #    isp2 = StringCol(length=30, default=None)
 #    isp2_author = UnicodeCol(length=254, default=None)
@@ -142,8 +142,8 @@ class Plantname(BaubleTable):
                                   "forsan", # Perhaps
                                   "near", # Close to
                                   "?", # Quesionable
-                                  None),
-                      default=None)
+                                  ""),
+                      default="")
     
     # TODO: should be unicode
     #vernac_name = StringCol(default=None)          # vernacular name

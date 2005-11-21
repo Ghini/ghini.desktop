@@ -27,8 +27,9 @@ class Accession(BaubleTable):
                                     "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
                                     "Not of wild source", # Not of wild source
                                     "Insufficient Data", # Insufficient data
-                                    "Unknown"),
-                        default = "Unknown")
+                                    "Unknown",
+                                    "<not set>"),
+                        default = "<not set>")
 
     # wild provenance status, wild native, wild non-native, cultivated native
 #    wild_prov_status = StringCol(length=50, default=None)
@@ -40,8 +41,9 @@ class Accession(BaubleTable):
                                            "Wild non-native", # Propagule of wild plant in cultivation
                                            "Cultivated native", # Not of wild source
                                            "Insufficient Data", # Insufficient data
-                                           "Unknown"),
-                               default="Unknown")
+                                           "Unknown",
+                                           "<not set>"),
+                               default="<not set>")
                                  
     # propagation history ???
     #prop_history = StringCol(length=11, default=None)

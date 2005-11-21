@@ -6,14 +6,6 @@ import imp, os, sys
 import gtk
 import re
 
-#def get_combo_text(combo, column=0):
-#    model = combo.get_model()
-#    active = combo.get_active()
-#    if active < 0:
-#        return None
-#    return model[active][column]    
-
-
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           type=type, buttons=buttons)        
