@@ -78,6 +78,16 @@ class BaubleApp:
         return True
     
     
+    def set_busy(self, busy):
+        if self.gui is None:
+            return
+        self.gui.window.set_sensitive(not busy)
+        if busy:
+            self.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        else:
+            self.gui.window.window.set_cursor(None)
+            
+            
     def build_connection_uri(self, params):
         template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
         return template % params

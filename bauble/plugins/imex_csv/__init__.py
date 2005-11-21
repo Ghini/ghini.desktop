@@ -44,17 +44,16 @@ class CSVImporter:
         """
         the simplest way to import, no threads, nothing
         """        
+
         error = False # return value
-        # bauble.app.gui might not exist if we are importing
-        # before the application has full started
-        if bauble.app.gui is not None:
-            bauble.app.gui.window.set_sensitive(False)            
-            bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.set_busy(True)
                 
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None:
+            bauble.app.set_busy(False)
             return
+        
         old_conn = sqlobject.sqlhub.getConnection()
         trans = old_conn.transaction()       
         sqlobject.sqlhub.threadConnection = trans
@@ -80,9 +79,7 @@ class CSVImporter:
                     sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
                     sqlobject.sqlhub.processConnection.query(sql)    
                 
-        if bauble.app.gui is not None:
-            bauble.app.gui.window.set_sensitive(True)
-            bauble.app.gui.window.window.set_cursor(None)
+        bauble.app.set_busy(False)
         sqlobject.sqlhub.threadConnection = old_conn
         return not error
         
@@ -128,9 +125,8 @@ class CSVImporter:
         # mapping 
         if filenames is None:
             filenames = _get_filenames()
-                               
-        bauble.app.gui.window.set_sensitive(False)
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+                                                          
+        bauble.app.set_busy(True)
 
         t = threading.Thread(target=self._import_worker, args=(filenames))
         t.start()
@@ -272,7 +268,8 @@ class CSVExporter:
         #progress = utils.ProgressDialog()
         #progress.show_all()
     
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        #bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.set_busy(True)
         for table_name, table in tables.iteritems():
             print "exporting " + table_name
             #progress.pulse()
@@ -294,7 +291,8 @@ class CSVExporter:
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(rows)
         f.close()
-        bauble.app.gui.window.window.set_cursor(None)
+        bauble.app.set_busy(False)
+        #bauble.app.gui.window.window.set_cursor(None)
         #progress.destroy()
             
 #
