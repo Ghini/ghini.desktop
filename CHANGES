@@ -1,3 +1,12 @@
+2005.11.23
+--------
+- remove most of the null values from the EnumCols
+
+2005.11.22
+---------
+- forgot to fix the VernacularName editor
+- made ABCD export and more xml safe
+
 2005.11.20
 ---------
 - fixed bug when trying to cancel importing CSV files
