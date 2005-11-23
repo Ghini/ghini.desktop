@@ -6,6 +6,7 @@ import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.utils.log import log, debug
 
 class VernacularName(BaubleTable):
     
@@ -24,8 +25,10 @@ class VernacularNameEditor(TreeViewEditorDialog):
     label = 'Vernacular Name'
 
     def __init__(self, parent=None, select=None, defaults={}, connection=None):
-        TreeViewEditorDialog.__init__(self, VernacularName, "Vernacular Name Editor", 
-                                      parent,select=select, defaults=defaults,
+        debug(defaults)
+        TreeViewEditorDialog.__init__(self, VernacularName, 
+                                      "Vernacular Name Editor", parent,
+                                      select=select, defaults=defaults,
                                       connection=connection)
         # set headers
         titles = {"name": "Name",

@@ -116,14 +116,14 @@ class Species(BaubleTable):
                       default="")
     
     # TODO: should be unicode
-    #vernac_name = StringCol(default=None)          # vernacular name
+    vernacacular_name = UnicodeCol(default=None) # vernacular name
     # it would be best to display the vernacular names in a dropdown list
     # with a way to add to the list    
-    vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
+    #vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
     #default_vernacular_name = ForeignKey('VernacularName')
-    default_vernacular_name = SingleJoin('VernacularName', 
-                                         joinColumn='species_id')
+    #default_vernacular_name = SingleJoin('VernacularName', 
+    #                                     joinColumn='species_id')
     
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table
@@ -260,7 +260,8 @@ class SpeciesEditor(TreeViewEditorDialog):
 #                   'distribution': 'Distribution'
                     'species_meta': 'Meta Info',
                     'notes': 'Notes',
-                    'default_vernacular_name': 'Vernacular Names'
+                    'vernacular_name': 'Vernacular Name'
+#                    'default_vernacular_name': 'Vernacular Names'
                    }
         
         # make a custom distribution column
@@ -274,9 +275,7 @@ class SpeciesEditor(TreeViewEditorDialog):
         self.columns['default_vernacular_name'].meta.editor = \
             editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
-        self.columns.titles = titles
-        
-        
+        self.columns.titles = titles            
                      
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions

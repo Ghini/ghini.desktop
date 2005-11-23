@@ -1,6 +1,8 @@
 2005.11.23
 --------
 - remove most of the null values from the EnumCols
+- gave up on the VernacularName table and editor at the moment and just
+made a Species.vernacular_name UnicodeCol
 
 2005.11.22
 ---------
