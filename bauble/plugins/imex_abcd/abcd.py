@@ -8,8 +8,9 @@
 import string
 from string import Template
 from bauble.utils.log import log, debug
+import xml.sax.saxutils
 
-main_template_str = """<?xml version="1.0"?>
+main_template_str = """<?xml version="1.0" encoding="utf-8"?>
 <datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="file:/home/brett/devel/ABCD/ABCD.xsd">
     <dataset>
@@ -100,7 +101,10 @@ def accessions_to_abcd(accessions):
             plants.append(p)
     return plants_to_abcd(plants)
     
-    
+def xml_safe(ustr):
+    return xml.sax.saxutils.escape(ustr).encode('utf-8')
+
+
 def plants_to_abcd(plants):
     """
     convert a list of plants/clones instances to an abcd record
@@ -109,16 +113,22 @@ def plants_to_abcd(plants):
     units = []
     for p in plants:
         acc = p.accession
-        id = string.strip(str(acc.acc_id) + '.' + str(p.plant_id))
-        f = family_template.substitute(family=acc.species.genus.family)
-        n = name_template.substitute(genus=acc.species.genus, sp=acc.species.sp)
+        #id = string.strip(unicode(acc.acc_id) + '.' + str(p.plant_id))
+        # TODO: what if someone doesn't want to use '.' to separate 
+        # acc_id and plant_id
+        id = xml_safe(acc.acc_id + '.' + p.plant_id)
+        
+        f = family_template.substitute(family=xml_safe(str(acc.species.genus.family)))
+        n = name_template.substitute(genus=xml_safe(str(acc.species.genus)), 
+                                     sp=xml_safe(str(acc.species.sp)))
         #informal_name = informal_name_template.substitute(informal_name=acc.species.vernac_name or "")
         informal_name = informal_name_template.substitute(informal_name=
-            acc.species.default_vernacular_name or "")
+            xml_safe(str(acc.species.default_vernacular_name)) or "")
         #d = distribution_template.substitute(distribution=acc.species.distribution or "")
         if acc.species.species_meta is not None:
-            dist = acc.species.species_meta.distribution or ''
-        else: dist = ''
+            dist = xml_safe(str(acc.species.species_meta.distribution)) or ''
+        else: 
+            dist = ''
         d = distribution_template.substitute(distribution=dist)
         #d = distribution_template.substitute(distribution=
         #    acc.species.plant_meta.distribution or "")
@@ -127,6 +137,7 @@ def plants_to_abcd(plants):
                                               informal_names=informal_name,
                                               distribution=d))
     
+    #abcd = xml.sax.saxutils.escape(main_template.substitute(units='\n'.join(units))).encode('utf-8')
     abcd = main_template.substitute(units='\n'.join(units))
     #debug(abcd)
     return abcd

@@ -35,6 +35,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.set_focus(self.action_area.get_children()[1])
         self.set_active_connection_by_name(current_name)
         
+        self._dirty = False
+        
 
     def _get_supported_dbtypes(self):
         """
@@ -149,12 +151,11 @@ class ConnectionManagerDialog(gtk.Dialog):
         box type and set the connection parameters
         """
         assert hasattr(self, "name_combo")
-        #if not hasattr(self, "name_combo"):
-        #    return
         i = 0
         active = 0
         conn_list = prefs[prefs.conn_list_pref]
-        if conn_list is None: return
+        if conn_list is None: 
+            return
         for conn in conn_list:
             self.name_combo.insert_text(i, conn)
             if conn == name: 
@@ -218,7 +219,8 @@ class ConnectionManagerDialog(gtk.Dialog):
     def on_response(self, dialog, response, data=None):
         if response == gtk.RESPONSE_OK:
             self.save_current_to_prefs()
-        elif response == gtk.RESPONSE_CANCEL or response == gtk.RESPONSE_DELETE_EVENT:
+        elif response == gtk.RESPONSE_CANCEL or \
+             response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_params_to_prefs(self.current_name):
                 msg="Do you want to save your changes?"
                 if utils.yes_no_dialog(msg):
@@ -243,17 +245,21 @@ class ConnectionManagerDialog(gtk.Dialog):
         prefs[prefs.conn_list_pref] = conn_list
         prefs.save()
 
+
     def compare_params_to_prefs(self, name):
         """
         name is the name of the connection in the prefs
         """
-        conn_list = prefs[prefs.conn_list_pref]
-        #if conn_list is None or not conn_list.has_key(name):
+        if name is None: # in case no name selected, can happen on first run
+            return True
+        conn_list = prefs[prefs.conn_list_pref]        
         if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
+        debug(params)
+        debug(stored_params)
         return params == stored_params
 
         
@@ -334,6 +340,11 @@ class ConnectionManagerDialog(gtk.Dialog):
  
     def get_connection_uri(self):
         type = self.type_combo.get_active_text()
+        
+        # no db has been selected, this can happen on first run
+        if self.params_box is None:
+            return None
+        
         params = copy.copy(self.params_box.get_parameters())
         if type.lower() == "sqlite":
             #uri = "sqlite:///" + params["file"]

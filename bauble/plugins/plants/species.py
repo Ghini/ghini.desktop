@@ -10,7 +10,6 @@ from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.utils.log import log, debug
 #from speciesmeta import SpeciesMeta
-
     
 #
 # Species table
@@ -260,7 +259,8 @@ class SpeciesEditor(TreeViewEditorDialog):
 #                   'food_plant': 'Food plant',
 #                   'distribution': 'Distribution'
                     'species_meta': 'Meta Info',
-                    'notes': 'Notes'
+                    'notes': 'Notes',
+                    'default_vernacular_name': 'Vernacular Names'
                    }
         
         # make a custom distribution column
@@ -271,8 +271,12 @@ class SpeciesEditor(TreeViewEditorDialog):
 #        self.columns['distribution'] = dist_column                    
         #self.columns['species_meta'] = \
         #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
+        self.columns['default_vernacular_name'].meta.editor = \
+            editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
         self.columns.titles = titles
+        
+        
                      
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions

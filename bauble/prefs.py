@@ -12,7 +12,7 @@ from bauble.utils.log import debug
 # read if we just stuck with a
 # name = value format and remove all that ugly set_pref crap
 
-default_filename = 'user2.py'
+default_filename = 'user.py'
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
         default_prefs_file = os.path.join(os.environ["APPDATA"], "Bauble", 
@@ -31,6 +31,11 @@ else:
     raise Exception("Could not get path to store preferences: " \
                     "unsupported platform")                    
 
+# create the directory if it doesn't exist
+head, tail = os.path.split(default_prefs_file)
+if not os.path.exists(head):
+    os.mkdir(head)
+    
 prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
 security_prefs_icon = prefs_icon_dir + "prefs_security.png"

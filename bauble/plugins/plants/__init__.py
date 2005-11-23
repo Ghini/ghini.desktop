@@ -21,12 +21,13 @@ from family import Family, FamilyEditor
 from genus import Genus, GenusEditor
 from species import Species, SpeciesEditor, SpeciesInfoBox
 from speciesmeta import SpeciesMeta, SpeciesMetaEditor
-from vernacularname import VernacularName
+from vernacularname import VernacularName, VernacularNameEditor
 
 
 class PlantsPlugin(BaublePlugin):
     tables = [Family, Genus, Species, SpeciesMeta, VernacularName]
-    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor]
+    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor, 
+               VernacularNameEditor]
     
     @classmethod
     def init(cls):                
