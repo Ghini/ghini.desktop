@@ -45,13 +45,13 @@ class ConnectionManagerDialog(gtk.Dialog):
         if self._supported_dbtypes != None:
             return self._supported_dbtypes
         self._supported_dbtypes = {}
-        i = 0
-        if sqlobject.mysql.isSupported():
-            self._supported_dbtypes["MySQL"] = i
-            i += 1 
+        i = 0        
         if sqlobject.sqlite.isSupported():
             self._supported_dbtypes["SQLite"] = i
             i += 1
+        if sqlobject.mysql.isSupported():
+            self._supported_dbtypes["MySQL"] = i
+            i += 1 
         if sqlobject.postgres.isSupported():
             self._supported_dbtypes["Postgres"] = i
             i += 1 
@@ -169,19 +169,24 @@ class ConnectionManagerDialog(gtk.Dialog):
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn = prefs[prefs.conn_list_pref]
+        conn_list = prefs[prefs.conn_list_pref]
         if name in conn_list:#conn_list.has_key(name):
             del conn_list[name]
+            prefs[prefs.conn_list_pref] = conn_list
             
-        model = self.name_combo.get_model()
-        for i in range(0, len(model)-1):
+        model = self.name_combo.get_model()        
+        for i in range(0, len(model)):
             row = model[i][0]
+            debug(row)
             if row == name:
+                debug(name)
                 self.name_combo.remove_text(i)
                 break
             
-        #self.current_name = None
-        self.name_combo.set_active(0)
+        self.current_name = None
+        #self.set_active_connection_by_name(None)
+        self.type_combo.set_active(-1)
+        self.name_combo.set_active(-1)
         
 
     def on_clicked_remove_button(self, button, data=None):
@@ -258,8 +263,6 @@ class ConnectionManagerDialog(gtk.Dialog):
         stored_params = conn_list[name]
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
-        debug(params)
-        debug(stored_params)
         return params == stored_params
 
         
@@ -284,6 +287,7 @@ class ConnectionManagerDialog(gtk.Dialog):
                       % self.current_name                
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
+            
 
         if conn_list is not None and name in conn_list:
             conn = conn_list[name]
@@ -302,9 +306,14 @@ class ConnectionManagerDialog(gtk.Dialog):
         """
         the type changed so change the params_box
         """
-        dbtype = combo.get_active_text()
         if self.params_box is not None:
             self.vbox.remove(self.params_box)
+            
+        dbtype = combo.get_active_text()        
+        if dbtype == None:
+            self.params_box = None
+            return
+        
         # get the selected type
         self.params_box = CMParamsBoxFactory.createParamsBox(dbtype)
         

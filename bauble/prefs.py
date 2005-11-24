@@ -12,7 +12,7 @@ from bauble.utils.log import debug
 # read if we just stuck with a
 # name = value format and remove all that ugly set_pref crap
 
-default_filename = 'user.py'
+default_filename = 'config'
 if sys.platform == "win32":
     if os.environ.has_key("APPDATA"):
         default_prefs_file = os.path.join(os.environ["APPDATA"], "Bauble", 
