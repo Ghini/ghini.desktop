@@ -1,0 +1,8 @@
+#!/bin/sh
+
+TAG_NAME="$1"
+if [ "$TAG_NAME" == "" ] ; then
+	echo "ERROR: enter a tag name"
+	exit 1
+fi
+svn copy -m "" -rHEAD svn+ssh://batoms@forgesvn1.novell.com/svn/bauble/trunk svn+ssh://batoms@forgesvn1.novell.com/svn/bauble/tag/$BRANCH_NAME
