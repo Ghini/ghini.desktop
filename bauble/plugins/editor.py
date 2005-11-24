@@ -980,7 +980,6 @@ class TreeViewEditorDialog(TableEditor):
         # TODO: if i don't set the connection parameter when i create the
         # table then is it really using the transaction, it might be if 
         # sqlhub.threadConnection is set to the transaction
-        #values = self.get_values_from_view()
         committed_rows = []
         table_instance = None
         for v in self.values:
@@ -1039,7 +1038,9 @@ class TreeViewEditorDialog(TableEditor):
                 return None
             else:
                 self.transaction.commit()
-                return committed_rows
+                committed_rows.append(table_instance)
+                
+        return committed_rows
         
 
 #    def on_view_move_cursor(self, view, step, count, data=None):

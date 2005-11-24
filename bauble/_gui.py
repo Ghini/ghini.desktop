@@ -351,8 +351,12 @@ class GUI:
         pass
 
         
-    def on_file_menu_new(self, widget, date=None):
-        self.bauble.create_database()
+    def on_file_menu_new(self, widget, date=None):        
+        msg = "If a database already exists at this connection then creating "\
+              "a new database could destroy your data.\n\n<i>Are you sure "\
+              "this is what you want to do?</i>"
+        if utils.yes_no_dialog(msg):
+            self.bauble.create_database()
         # TODO: reset the view
             
         

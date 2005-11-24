@@ -224,30 +224,6 @@ class SearchView(BaubleView):
             child = model.iter_nth_child(parent, nkids-1)
             model.remove(child)
 
-
-    def on_test_expand_row_old(self, view, iter, path, data=None):
-        """
-        look up the table type of the selected row and if it has
-        any children then add them to the row
-        """
-        expand = False
-        model = view.get_model()
-        row = model.get_value(iter, 0)
-        view.collapse_row(path)
-        self.remove_children(model, iter)
-        t = type(row)
-        #bauble.gui.pulse_progressbar()
-        for table, child in self.child_expand_map.iteritems():
-            if t == table:
-                kids = getattr(row, child)
-                if len(kids):
-                    self.append_children(model, iter, kids, True)
-                    #bauble.gui.stop_progressbar()
-
-                    return False
-        #bauble.gui.stop_progressbar()
-        return True
-        
         
     def on_test_expand_row(self, view, iter, path, data=None):
         """

@@ -21,7 +21,7 @@ if sys.platform == "win32":
 from datetime import date
 today = date.today()
 #VERSION = '%s%s%s' % (today.year, today.month, today.day)
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 

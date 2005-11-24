@@ -52,8 +52,9 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             
-            SearchView.view_meta["Species"].set(editor=SpeciesEditor, 
-                                                  infobox=SpeciesInfoBox)
+            SearchView.view_meta["Species"].set(child='accessions',
+                                                editor=SpeciesEditor, 
+                                                infobox=SpeciesInfoBox)
             
     @classmethod
     def create_tables(cls):

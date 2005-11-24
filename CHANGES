@@ -1,8 +1,11 @@
 2005.11.23
 ---------
 - added some more safety check that you're not connected to a corrupt
-
-
+- fixed a problem when on committing multiple items in an editor
+- csv export is painfully slow, need to do something about it
+- fixe for expanding a species
+- 0.2.0 and 0.2.1 was tagged but not release
+- released 0.2.2
 
 2005.11.23
 ---------

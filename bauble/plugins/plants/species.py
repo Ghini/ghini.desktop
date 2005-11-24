@@ -116,7 +116,7 @@ class Species(BaubleTable):
                       default="")
     
     # TODO: should be unicode
-    vernacacular_name = UnicodeCol(default=None) # vernacular name
+    vernacular_name = UnicodeCol(default=None) # vernacular name
     # it would be best to display the vernacular names in a dropdown list
     # with a way to add to the list    
     #vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
@@ -272,8 +272,8 @@ class SpeciesEditor(TreeViewEditorDialog):
 #        self.columns['distribution'] = dist_column                    
         #self.columns['species_meta'] = \
         #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
-        self.columns['default_vernacular_name'].meta.editor = \
-            editors['VernacularNameEditor']
+        #self.columns['default_vernacular_name'].meta.editor = \
+        #    editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
         self.columns.titles = titles            
                      
