@@ -1,6 +1,12 @@
 2005.11.23
 ---------
-- changed version to 0.2.0 since we're not using the VernaculeName table
+- added some more safety check that you're not connected to a corrupt
+
+
+
+2005.11.23
+---------
+- changed version to 0.2.0 since we're not using the VernacularName table
 at the moment altough there was never a way to edit it
 - some fixes for the connection manager so it acts the way you would 
 expect it to, could still use some love

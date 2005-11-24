@@ -32,36 +32,23 @@ class BaubleApp:
         '''
         create new Bauble database at the current connection
         '''
-        #msg = "Creating a new database on this connection could overwrite an "\
-        #"existing database. Are you sure you want to create a new database?"
-        # 
-        # TODO: we should drop the entire database or we can get ghost tables
-        # that aren't being using by plugins anymore
-        #
-        msg = "If a database already exists at this connection then creating " \
-              "a new database will delete the old database.\n\nAre you sure " \
-              "this is what you want to do?"
-        if not utils.yes_no_dialog(msg):
-            return
-            
-        # TODO: this bails is pysqlite2 isn't installed
-#        has_pysqlite2 = True
-#        try:        
-#            import pysqlite2.dbapi2
-#        except ImportError:
-#            has_pysqlite2 = False
-        
-#        try:
-
         bauble.BaubleMetaTable.dropTable(ifExists=True)
         bauble.BaubleMetaTable.createTable(ifNotExists=True)  
         bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
-                        value=str(bauble.version))
-        bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
+                               value=str(bauble.version))
+        # TODO: should use a transaction here
+        try:
+            for p in plugins.values():
+                p.create_tables()
+        except:
+            msg = "Error creating tables. Your database may be corrupt."
+            utils.message_details_dialog(msg, traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+        else:
+            # create the created timestamp 
+            bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
                         value=str(datetime.datetime.now()))        
         
-        for p in plugins.values():
-            p.create_tables()
 #        except pysqlite2.dbapi2.OperationalError:
 #            msg = "Error creating the database. This sometimes happens " \
 #            "when trying to create a SQLite database on a network drive. " \
@@ -128,6 +115,8 @@ class BaubleApp:
         # make sure the version information matches or if the bauble
         # table doesn't exists then this may not be a bauble created 
         # database
+        warning = "\n\n<i>Warning: If a database does already exists at this "\
+                  "connection, creating a new database could corrupt it.</i>"
         try:
             sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.version)
             db_version = eval(sel[0].value)
@@ -139,17 +128,26 @@ class BaubleApp:
                       % (bauble.version[0], bauble.version[1], \
                          bauble.version[2], db_version[0], db_version[1], \
                          db_version[2],)
-                utils.message_dialog(msg, gtk.MESSAGE_WARNING)                    
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING)       
+                            
+            sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.created)
+            if sel.count() == 0:
+                msg = 'The database you have connected to does not have a '\
+                      'timestamp for when it was created. This usually means '\
+                      'that there was a problem when you created the '\
+                      'database.  You like to try to create the database '\
+                      'again?' + warning
+                if utils.yes_no_dialog(msg):
+                    self.create_database()
+                    return self.open_database(uri, name, before_main)
+                else:
+                    return False
+                        
         except Exception:
-            #msg = 'The database you are trying to connect to does not seem ' \
-            #      'to have been created by Bauble. Please check your ' \
-            #      'connection parameters.'
+            debug(traceback.format_exc())
             msg = "The database you have connected to is either empty or " \
                   "wasn't created using Bauble. Would you like to create a " \
-                  "create a database at this connection?\n\n<i>Warning: If " \
-                  "a database does already exists at this connection, " \
-                  "creating a new database could corrupt it.</i>"            
-            #utils.message_dialog(msg, gtk.MESSAGE_ERROR)            
+                  "create a database at this connection?" + warning
             if utils.yes_no_dialog(msg):
                 self.create_database()
                 return self.open_database(uri, name, before_main)
