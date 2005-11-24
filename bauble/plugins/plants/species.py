@@ -179,18 +179,19 @@ class Species(BaubleTable):
             # we don't have a second sp name for the hyrbid formula right now
             # so we'll just use the isp for now
             if species.isp is not None:
-                name += " %s %s %s " % (species.sp, species.sp_hybrid,
-                                       species.isp)
+                name += " %s %s %s " % (italic % species.sp, 
+                                        species.sp_hybrid,
+                                        italic % species.isp)
             else:
                 name += ' %s %s' % (species.sp_hybrid, species.sp)
         else:
-            name += ' ' + species.sp
+            name += ' ' + italic % species.sp
             
         # cultivar groups and cultivars
         if species.cv_group is not None:
             if species.isp_rank == "cv.":
                 name += ' (' + species.cv_group + " Group) '" + \
-                species.isp + "'"
+                italic % species.isp + "'"
             else: 
                 name += ' ' + species.cv_group + ' Group'
             return name
@@ -202,7 +203,7 @@ class Species(BaubleTable):
                 name += " '" + species.isp + "'"
             else:
                 name += ' ' + species.isp_rank + ' ' + \
-                              italic % (species.isp,)                        
+                              italic % species.isp
                 if species.isp_author is not None and authors is not False:
                     name += ' ' + species.isp_author
         return name
@@ -326,8 +327,11 @@ class SpeciesEditor(TreeViewEditorDialog):
         # against the database, not just the string, i guess we need to
         # check each of the keys in values, check if they are name components
         # use each of these values in a query to speciess
+        if values.has_key('id'):
+            return True
         exists = False
         select_values = {}
+        debug(values)
         select_values['genusID'] = values['genusID'].id
         select_values['sp'] = values['sp']        
         sel = Species.selectBy(**select_values)

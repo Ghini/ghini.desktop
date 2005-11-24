@@ -18,11 +18,6 @@ class Accession(BaubleTable):
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
     
     
-#    prov_type = StringCol(length=1, default=None) # provenance type
-#    values["prov_type"] = [("W", "Wild"),
-#                           ("Z", "Propagule of wild plant in cultivation"),
-#                           ("G", "Not of wild source"),
-#                           ("U", "Insufficient data")]
     prov_type = EnumCol(enumValues=("Wild", # Wild,
                                     "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
                                     "Not of wild source", # Not of wild source
@@ -32,11 +27,6 @@ class Accession(BaubleTable):
                         default = "<not set>")
 
     # wild provenance status, wild native, wild non-native, cultivated native
-#    wild_prov_status = StringCol(length=50, default=None)
-#    values["wild_prov_status"] = [("Wild native", "Endemic found within it indigineous range"),
-#                                  ("Wild non-native", "Propagule of wild plant in cultivation"),
-#                                  ("Cultivated native", "Not of wild source"),
-#                                  ("U", "Insufficient data")]
     wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
                                            "Wild non-native", # Propagule of wild plant in cultivation
                                            "Cultivated native", # Not of wild source
@@ -86,6 +76,8 @@ class Accession(BaubleTable):
     #_collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
     _collection = SingleJoin('Collection', joinColumn='accession_id')
     _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
+        
+    #notes = UnicodeCol()
     
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information

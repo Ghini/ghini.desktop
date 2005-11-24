@@ -1,3 +1,9 @@
+2005.11.24
+---------
+- fixed editing a species giving a message as if you were adding a new
+one
+- fixed markup tag on species
+
 2005.11.23
 ---------
 - added some more safety check that you're not connected to a corrupt
