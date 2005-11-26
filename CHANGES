@@ -1,8 +1,18 @@
+2005.11.26
+---------
+- hopefully fixes some unstableness by not deleting the dialog of a 
+TreeViewEditorDialog
+- changed the model again to add a notes column to both Plant and 
+Accession
+- bumped revision to 0.3.0 because of change to the model
+
+
 2005.11.24
 ---------
 - fixed editing a species giving a message as if you were adding a new
 one
 - fixed markup tag on species
+
 
 2005.11.23
 ---------
@@ -12,6 +22,7 @@ one
 - fixe for expanding a species
 - 0.2.0 and 0.2.1 was tagged but not release
 - released 0.2.2
+
 
 2005.11.23
 ---------
@@ -27,10 +38,12 @@ expect it to, could still use some love
 - gave up on the VernacularName table and editor at the moment and just
 made a Species.vernacular_name UnicodeCol
 
+
 2005.11.22
 ---------
 - forgot to fix the VernacularName editor
 - made ABCD export and more xml safe
+
 
 2005.11.20
 ---------
@@ -79,6 +92,7 @@ the old labels ones
 - searchview parser now uses pyparser and can now handle more complex queries
 though some work still needs to be done
 
+
 2005.11.5
 ----------
 - lots of fixes related to the Donor table and DonorEditor
@@ -87,6 +101,7 @@ though some work still needs to be done
 ----------
 - fixed completion bug so that the selected value is inserted into the proper 
 row
+
 
 2005.11.2
 ----------
@@ -110,10 +125,10 @@ only the first row gets set no matter which row is being edited
 randomly crash, usually when entering the species name
 
 
-
 2005.11.1
 ----------
 - editors now take keyword argument connection
+
 
 2005.10.29
 ----------
@@ -122,9 +137,11 @@ the editor is responsible or commiting the changes
 - tried to simplify TreeViewEditorDialog.commit_changes
 - the editing the single joins are broken at the moment
 
+
 2005.10.28
 ----------
 - still doing some work on external editors, still broken but closer
+
 
 2005.10.27
 ----------

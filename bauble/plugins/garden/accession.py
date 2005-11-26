@@ -83,7 +83,7 @@ class Accession(BaubleTable):
     #cultv_info = StringCol(default=None)      # cultivation information
     #prop_info = StringCol(default=None)       # propogation information
     #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
-
+    notes = UnicodeCol(default=None)
     # these are the unknowns
 #    acc = DateTimeCol(default=None) # ?
 #    acct = StringCol(length=50, default=None) #?
@@ -176,7 +176,6 @@ class AccessionEditor(TreeViewEditorDialog):
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
                                     connection=self.transaction)
         model = gtk.ListStore(str, object) 
-        debug(sr.count())
         for row in sr:
             for species in row.species:                
                 model.append((str(species), species))

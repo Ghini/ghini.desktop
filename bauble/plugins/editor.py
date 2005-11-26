@@ -89,8 +89,6 @@ class GenericViewColumn(gtk.TreeViewColumn):
         self.set_min_width(50)
         self.set_clickable(True)
         self.set_resizable(True)
-        # i think AUTOSIZE here was causing a crash when adding using 
-        # completions
         self.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         self.set_reorderable(True)
         
@@ -696,6 +694,7 @@ class TreeViewEditorDialog(TableEditor):
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+#        self.dialog.connect('close)
         self.init_gui()
         
         # this is used to indicate that the last row is a valid row
@@ -705,10 +704,29 @@ class TreeViewEditorDialog(TableEditor):
         # 
         self._values = None
         #self.connect('response', self.on_response)
+        
+        self.dialog.connect('response', self.on_dialog_response)
+        self.dialog.connect('close', self.on_dialog_close_or_delete)
+        self.dialog.connect('response', self.on_dialog_close_or_delete)
+    
+    
+    def on_dialog_response(self, dialog, response, *args):
+        # system-defined GtkDialog responses are always negative, in which
+        # case we want to hide it
+        if response < 0:
+            dialog.hide()
+            #dialog.emit_stop_by_name('response')
+        return response
+    
+    
+    def on_dialog_close_or_delete(self, widget, event=None):
+        self.dialog.hide()
+        return gtk.TRUE
     
     
     def destroy(self):
-        self.dialog.destroy()
+        #self.dialog.destroy()
+        #self.dialog.hid
         super(TreeViewEditorDialog, self).destroy()
         
                 
