@@ -19,10 +19,7 @@ if sys.platform == "win32":
 # doesn't get included so somehow i guess we need to get this
 # inside library.zip or at least somewhere where pysqlite2 can find it
 
-from datetime import date
-today = date.today()
-#VERSION = '%s%s%s' % (today.year, today.month, today.day)
-VERSION = '0.3.0'
+from bauble import version_str as version
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
@@ -71,7 +68,7 @@ for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
 data = [p for p in globs if len(p[1]) != 0]
 
 setup(name="Bauble",
-      version=VERSION,
+      version=version,
       console=["scripts/bauble"],
       windows=["scripts/bauble"],          
       options=opts,

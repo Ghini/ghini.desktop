@@ -60,7 +60,7 @@ class Plant(BaubleTable):
     accession = ForeignKey('Accession', notNull=True, cascade=True)
     location = ForeignKey("Location", notNull=True)
     
-    #notes = UnicodeCol(default=None)
+    notes = UnicodeCol(default=None)
     
     #location = MultipleJoin("Locations", joinColumn="locations_id")
     #mta_out = MultipleJoin("MaterialTransfers", joinColumn="genus_id")

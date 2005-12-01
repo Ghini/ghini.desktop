@@ -4,6 +4,11 @@
 - fixes to use vernacular_name instead of default_vernacular_name in abcd.py
 - Accession and Plant now have markup() which give the species name
 - some searchview fixes
+- tagged 0.3.0 and forgot to uncomment the schema changes, tag 0.3.1
+- fixed problem with exporting CSV that was only in 0.3.0 so no worries
+- changed setup.py to use version_str from bauble\__init__.py so we only
+have to set the version in one place
+
 
 2005.11.26
 ---------

@@ -7,7 +7,7 @@ import imp, os, sys
 
 # major, minor, revision 
 # should be updated for each release of bauble
-version = (0,3,0)
+version = (0,3,1)
 version_str = '%s.%s.%s' % (version[0], version[1], version[2])
 
 def main_is_frozen():

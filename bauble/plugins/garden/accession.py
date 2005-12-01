@@ -77,7 +77,7 @@ class Accession(BaubleTable):
     _collection = SingleJoin('Collection', joinColumn='accession_id')
     _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
         
-    #notes = UnicodeCol(default=None)
+    notes = UnicodeCol(default=None)
     
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information

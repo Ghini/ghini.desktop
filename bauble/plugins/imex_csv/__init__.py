@@ -50,13 +50,11 @@ class CSVImporter:
         error = False # return value
         bauble.app.set_busy(True)
                 
-        debug(filenames)
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None:
             bauble.app.set_busy(False)
             return
-        debug(filenames)
         
         old_conn = sqlobject.sqlhub.getConnection()
         trans = old_conn.transaction()       
@@ -66,7 +64,6 @@ class CSVImporter:
         table_name = None
         try:
             for filename in filenames:
-                debug(filename)
                 path, base = os.path.split(filename)
                 table_name, ext = os.path.splitext(base)
                 self.import_file(filename, tables[table_name], trans)
@@ -142,31 +139,40 @@ class CSVImporter:
     
     
     def import_file(self, filename, table, connection):
-        debug("entered CSVImporter.import_file(%s)" % filename)
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-        debug(reader)
         # create validator map
         validators = {} # TODO: look at formencode to do this
         #for col in table.sqlmeta._columns:
         for col in table.sqlmeta.columnList:
             if type(col) not in column_type_validators:
-                debug('no validator')
                 raise Exception("no validator for col " + col.name + \
                                 " with type " + str(col.__class__))                
             validators[col.name] = column_type_validators[type(col)]
         validators['id'] = type_validators[int]
             
         line = None
+        
+        t = table.select()
+        if t.count() > 0:
+            msg = "The %s already contains some data. If two rows have the "\
+                  "same id in the import file and the database then the "\
+                  "file will not import "\
+                  "correctly.\n\n<i>Would you like to drop the table in the "\
+                  "database first. You will lose the data in your database "\
+                  "if you do this?</i>" % table.sqlmeta.table
+            if utils.yes_no_dialog(msg):
+                table.dropTable(True)
+                table.createTable()
+                  
+        
         for line in reader:
-            debug(line)
             for col in reader.fieldnames: # validate columns
                 if line[col] == '': 
                     del line[col]
                 else: 
                     line[col] = validators[col](line[col])
             table(connection=connection, **line) # add row to table
-        debug('leaving import_file')
         
     def on_response(self, widget, response, data=None):
         debug('on_response')
@@ -259,10 +265,7 @@ class CSVExporter:
             d.destroy()
             if response != gtk.RESPONSE_ACCEPT:
                 return
-        import time
-        t1 = time.time()
         self.run(path)  
-        debug(time.time() - t1)      
         
     
     def run(self, path):        
@@ -307,12 +310,13 @@ class CSVExporter:
 #                values = map(get_col, col_dict.iteritems())
 #                values_append(row.id)                
                 #for name, col in col_dict.iteritems():
+                values_append(row.id) # id is always first
                 for name in col_dict:
                     #if type(col) == sqlobject.ForeignKey:
                     #if col.foreignKey:
                     #    name = name+"ID"
                     v = getattr(row, name)
-                    values_append(v)                
+                    values_append(v)
                 rows_append(values)
             f = file(filename_template % table_name, "wb")
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
