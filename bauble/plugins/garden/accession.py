@@ -253,7 +253,7 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', row.species)
+            set_widget_value(self.glade_xml, 'name_data', row.species.markup())
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
     
     
@@ -262,6 +262,7 @@ else:
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, 'Source', glade_xml)
             self.curr_box = None
+        
         
         def update_collections(self, collection):
             

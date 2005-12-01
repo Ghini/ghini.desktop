@@ -155,9 +155,9 @@ class CSVImporter:
         
         t = table.select()
         if t.count() > 0:
-            msg = "The %s already contains some data. If two rows have the "\
-                  "same id in the import file and the database then the "\
-                  "file will not import "\
+            msg = "The %s table already contains some data. If two rows "\
+                  "have the same id in the import file and the database "\
+                  "then the file will not import "\
                   "correctly.\n\n<i>Would you like to drop the table in the "\
                   "database first. You will lose the data in your database "\
                   "if you do this?</i>" % table.sqlmeta.table
@@ -173,6 +173,7 @@ class CSVImporter:
                 else: 
                     line[col] = validators[col](line[col])
             table(connection=connection, **line) # add row to table
+        
         
     def on_response(self, widget, response, data=None):
         debug('on_response')

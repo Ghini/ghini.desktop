@@ -106,9 +106,12 @@ class Plant(BaubleTable):
         return "%s.%s" % (self.accession, self.plant_id)
     
     def markup(self):
-        return "%s.%s" % (self.accession, self.plant_id)
-        #return "%s.%s (%s)" % (self.accession, self.plant_id, 
-        #                       self.accession.species.markup())
+        #return "%s.%s" % (self.accession, self.plant_id)
+        # FIXME: this makes expanding accessions look ugly with too many
+        # plant names around but makes expanding the location essential
+        # or you don't know what plants you are looking at
+        return "%s.%s (%s)" % (self.accession, self.plant_id, 
+                               self.accession.species.markup())
     
 #
 # Plant editor

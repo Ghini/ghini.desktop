@@ -329,8 +329,10 @@ class SearchView(BaubleView):
                 
     # parser grammar definitions
     __domain = Word(alphanums)
-    __values = Word('"' + "'").suppress() + Word(alphanums+'*' +' '+';') + \
-               Word('"' + "'").suppress() ^ Word(alphanums+'*')
+    __quotes = Word('"' + "'")
+    __values_str = Word(alphanums+'*' +' '+';'+'.')
+    __values = __quotes.suppress() + __values_str + __quotes.suppress() \
+               ^ __values_str
     __expression = __domain + Word('=', max=2).suppress() + __values
                     
     parser = OneOrMore(Group(__expression ^ __values))
@@ -350,62 +352,6 @@ class SearchView(BaubleView):
                 searches[domain].append(group[1])
         return searches
     
-    
-#    def parse_text_old(self, text):
-#        """
-#        """
-#        # TODO: should allow plurals like genera=1,2 and parse
-#        # them apart, also need to account for values in quotations        
-#        pieces = text.split(' ')
-#        #rx = re.compile("\s*\S+={1,2}\S+\s*")
-#        #rx = re.compile("(\S+)={1,2}[\'\"]?(\S+)[\'\"]?")
-#        rx = re.compile("(\S+)=(\S+)")
-#        searches = {}
-#        debug('parse_text(%s)' % text)
-#        for p in pieces:
-#            debug(p)
-#            m = rx.match(p)
-#            if m is None:
-#                if "default" not in searches: 
-#                    searches["default"] = []
-#                searches["default"].append(p)
-#            else:                
-#                g = m.groups()                
-#                #domain = self.g[0].lower()
-#                domain = g[0].lower()
-#                if domain not in self.domain_map:
-#                    msg = "unknown domain -- " + domain                    
-#                    raise SyntaxError("SearchView.parse_text: ", msg)
-#                if domain not in searches:
-#                    searches[domain] = []
-#                debug(g[1])
-#                searches[domain].append(g[1])
-#                #domain = self.resolve_domain(g[0])
-#                #if domain not in self.search_map:
-#                #    raise Exception("views.search: unknown search domain: " + g[0], g[0])
-#                #if domain not in searches: searches[domain] = []
-#                #searches[domain].append(g[1])
-#                #printes
-#        return searches
-
-
-#    def resolve_domain(self, domain):
-#        d = domain.lower()
-#        if d in self.domain_map:
-#            return self.domain_map[d]
-#        return None
-#    
-#    def resolve_domain_old(self, domain):
-#        """
-#        given some string this method returns a table name or None if the
-#        string doesn't match a table
-#        """
-#        
-#        for key, values in self.domain_map.iteritems():
-#            if domain.lower() in values:
-#                return key
-#        return None
-
     
     def populate_worker(self, search):
         gtk.gdk.threads_enter()
