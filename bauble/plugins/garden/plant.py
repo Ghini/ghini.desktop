@@ -60,7 +60,7 @@ class Plant(BaubleTable):
     accession = ForeignKey('Accession', notNull=True, cascade=True)
     location = ForeignKey("Location", notNull=True)
     
-    notes = UnicodeCol(default=None)
+    #notes = UnicodeCol(default=None)
     
     #location = MultipleJoin("Locations", joinColumn="locations_id")
     #mta_out = MultipleJoin("MaterialTransfers", joinColumn="genus_id")
@@ -104,6 +104,11 @@ class Plant(BaubleTable):
 
     def __str__(self): 
         return "%s.%s" % (self.accession, self.plant_id)
+    
+    def markup(self):
+        return "%s.%s" % (self.accession, self.plant_id)
+        #return "%s.%s (%s)" % (self.accession, self.plant_id, 
+        #                       self.accession.species.markup())
     
 #
 # Plant editor

@@ -77,13 +77,13 @@ class Accession(BaubleTable):
     _collection = SingleJoin('Collection', joinColumn='accession_id')
     _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
         
-    #notes = UnicodeCol()
+    #notes = UnicodeCol(default=None)
     
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information
     #prop_info = StringCol(default=None)       # propogation information
     #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
-    notes = UnicodeCol(default=None)
+    
     # these are the unknowns
 #    acc = DateTimeCol(default=None) # ?
 #    acct = StringCol(length=50, default=None) #?
@@ -91,6 +91,9 @@ class Accession(BaubleTable):
 
     def __str__(self): 
         return self.acc_id
+    
+    def markup(self):
+        return '%s (%s)' % (self.acc_id, self.species.markup())
 
 
 #

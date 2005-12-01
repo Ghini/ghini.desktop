@@ -55,7 +55,7 @@ def combo_set_active_text(combo, text):
         if row[0] == text:            
             combo.set_active_iter(row.iter)
             return
-    raise ValueError('%s is not a valid valud in combo' % text)
+    raise ValueError('%s is not a valid value in combo' % text)
 
 
 class Formatter:
@@ -79,6 +79,16 @@ class Formatter:
         # something we can 
         self.populate_formatters_from_prefs()
         formatters = prefs[formatters_list_pref]
+        if formatters is None:
+            fo = FormatterOptions()
+            fo.start()
+                
+        # get formatters again in case FormatterOptions changed anything
+        #formatters = prefs[formatters_list_pref]
+        #if formatters is None:
+        #    self.formatters_combo.set_sensitive(False)
+            # TODO: should also set OK button as not sensitive
+            
         default = prefs[formatters_default_pref]
         if default is not None and default in formatters:
             combo_set_active_text(self.formatters_combo, default)
@@ -159,6 +169,11 @@ class Formatter:
     def populate_formatters_from_prefs(self):
         model = gtk.ListStore(str)
         formatters = prefs[formatters_list_pref]
+        if formatters is None:
+            self.formatters_combo.set_sensitive(False)
+            return
+        
+        self.formatters_combo.set_sensitive(True)
         for i in sorted(formatters.keys()):
             model.append([i])
         self.formatters_combo.set_model(model)
@@ -179,7 +194,7 @@ class Formatter:
         
         
     def on_edit_button_clicked(self, widget):
-        active = self.formatters_combo.get_active_text()
+        active = self.formatters_combo.get_active_text()        
         fo = FormatterOptions(active)
         fo.start()
         self.populate_formatters_from_prefs()
@@ -282,10 +297,7 @@ class FormatterOptions:
         self.glade_xml.signal_autoconnect(handlers)
         
         formatters = prefs[formatters_list_pref]
-        if formatters is None:
-            utils.message_dialog("You have to create a formatter before you can " \
-                                 "your anything. Click the Edit button")
-        else:
+        if formatters is not None:        
             model = gtk.ListStore(str)
             self.formatters_combo.set_model(model)
             for f in sorted(formatters.keys()):
@@ -696,7 +708,8 @@ class FormatterTool(BaubleTool):
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
         else:
-            utils.startfile(pdf_filename)        
+            if pdf_filename is not None:            
+                utils.startfile(pdf_filename)        
         
         #if response == gtk.RESPONSE_ACCEPT:
         #    pdf_filename = formatter.create_pdf()

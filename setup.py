@@ -11,6 +11,7 @@ import sys
 if sys.platform == "win32":
     import py2exe
 
+
 # TODO: if on a unix system then create a shell script in the PATH
 # to launch bauble, on windows?
 # TODO: the only thing that's not working is bundling pysqlite2, the 

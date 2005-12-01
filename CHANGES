@@ -1,3 +1,10 @@
+2005.12.01
+---------
+- fixes for formatters
+- fixes to use vernacular_name instead of default_vernacular_name in abcd.py
+- Accession and Plant now have markup() which give the species name
+- some searchview fixes
+
 2005.11.26
 ---------
 - hopefully fixes some unstableness by not deleting the dialog of a 

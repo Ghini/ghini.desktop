@@ -19,6 +19,7 @@ csv_format_params = {}
 # TODO: i think we can do all of this easier using FormEncode
 column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOIntCol: lambda x: int(x),
+                          sqlobject.SOFloatCol: lambda x: float(x),
                           sqlobject.SOBoolCol: lambda x: bool(x),
                           sqlobject.SOStringCol: lambda x: str(x),
                           sqlobject.SOEnumCol: lambda x: x,
@@ -28,8 +29,9 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                    
                           
 type_validators = {int: lambda x: int(x),
+                   float: lambda x: float(x),
                    str: lambda x: str(x),
-                   bool: lambda x: bool(x),
+                   bool: lambda x: bool(x),                   
                    unicode: lambda x: x}
                    #unicode: lambda x: unicode(x, 'latin-1')}
                    #unicode: lambda x: unicode(x, 'utf-8')
@@ -48,11 +50,13 @@ class CSVImporter:
         error = False # return value
         bauble.app.set_busy(True)
                 
+        debug(filenames)
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None:
             bauble.app.set_busy(False)
             return
+        debug(filenames)
         
         old_conn = sqlobject.sqlhub.getConnection()
         trans = old_conn.transaction()       
@@ -62,6 +66,7 @@ class CSVImporter:
         table_name = None
         try:
             for filename in filenames:
+                debug(filename)
                 path, base = os.path.split(filename)
                 table_name, ext = os.path.splitext(base)
                 self.import_file(filename, tables[table_name], trans)
@@ -73,6 +78,8 @@ class CSVImporter:
             error = True
         else:
             trans.commit()
+            # this gets pass some problem when import tables with id's
+            # into postgres but i can't remember exactly what
             if sqlobject.sqlhub.processConnection.dbName == "postgres":
                     sql = "SELECT max(id) FROM %s" % table_name                    
                     max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]
@@ -135,10 +142,10 @@ class CSVImporter:
     
     
     def import_file(self, filename, table, connection):
-#        debug("entered CSVImporter.import_file(%s)" % filename)
+        debug("entered CSVImporter.import_file(%s)" % filename)
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-                
+        debug(reader)
         # create validator map
         validators = {} # TODO: look at formencode to do this
         #for col in table.sqlmeta._columns:
@@ -152,13 +159,14 @@ class CSVImporter:
             
         line = None
         for line in reader:
+            debug(line)
             for col in reader.fieldnames: # validate columns
                 if line[col] == '': 
                     del line[col]
                 else: 
                     line[col] = validators[col](line[col])
             table(connection=connection, **line) # add row to table
-        
+        debug('leaving import_file')
         
     def on_response(self, widget, response, data=None):
         debug('on_response')
@@ -235,6 +243,9 @@ class CSVImporter:
         gtk.threads_leave()
    
         
+# TODO: should use sqlobject.fromDatabase() to create the schema
+# incase  you want to export a database with a different version 
+# than the version of bauble you are using
 class CSVExporter:
         
     def start(self, path=None):
@@ -248,10 +259,13 @@ class CSVExporter:
             d.destroy()
             if response != gtk.RESPONSE_ACCEPT:
                 return
-        self.run(path)
+        import time
+        t1 = time.time()
+        self.run(path)  
+        debug(time.time() - t1)      
         
     
-    def run(self, path):
+    def run(self, path):        
         if not os.path.exists(path):
             raise ValueError("CSVExporter: path does not exist.\n" + path) 
 
@@ -270,6 +284,8 @@ class CSVExporter:
     
         #bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         bauble.app.set_busy(True)
+        #rows = []
+        #rows_append = rows.append
         for table_name, table in tables.iteritems():
             print "exporting " + table_name
             #progress.pulse()
@@ -277,16 +293,27 @@ class CSVExporter:
             rows = []
             # TODO: probably don't need to write out column names or even
             # create the file if it contains no data, could be an option
+            # TODO: this is slow as dirt
             rows.append(["id"] + col_dict.keys()[:]) # write col names
-            for row in table.select():
+            rows_append = rows.append
+            for row in table.select():                                
                 values = []
-                values.append(row.id)
-                for name, col in col_dict.iteritems():
-                    if type(col) == sqlobject.ForeignKey:
-                        name = name+"ID"
+                values_append = values.append
+#                def get_col(name_col):
+#                    name, col = name_col
+#                    if type(col) == sqlobject.ForeignKey:
+#                        name = name+"ID"
+#                    return getattr(row, name)
+#                values = map(get_col, col_dict.iteritems())
+#                values_append(row.id)                
+                #for name, col in col_dict.iteritems():
+                for name in col_dict:
+                    #if type(col) == sqlobject.ForeignKey:
+                    #if col.foreignKey:
+                    #    name = name+"ID"
                     v = getattr(row, name)
-                    values.append(v)
-                rows.append(values)
+                    values_append(v)                
+                rows_append(values)
             f = file(filename_template % table_name, "wb")
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer.writerows(rows)
@@ -322,3 +349,10 @@ class CSVImexPlugin(BaublePlugin):
     tools = [CSVImportTool, CSVExportTool]
 
 plugin = CSVImexPlugin
+
+
+if __name__ == "__main__":
+    # should allow you to export or import from a database from the
+    # command line, you would just have to pass the connection uri
+    # and the name of the directory to export to
+    pass

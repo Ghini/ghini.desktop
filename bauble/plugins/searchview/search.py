@@ -9,7 +9,7 @@ import bauble
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
-from bauble.plugins import BaubleView, tables, editors
+from bauble.plugins import BaubleView, BaubleTable, tables, editors
 from bauble.utils.log import debug
 from pyparsing import *
 
@@ -255,9 +255,9 @@ class SearchView(BaubleView):
     
     def query(self, domain, values):
         if domain == "default":
-            results = []
+            results = []            
             for table_name in self.search_metas.keys():
-                results += self.query_table(table_name, values)            
+                results += self.query_table(table_name, values)[:]
             return results
 #        elif domain == 'sql':
 #            debug(values[0])
@@ -292,15 +292,11 @@ class SearchView(BaubleView):
             
         for v in values:
             if v == "*" or v == "all":
-#                debug("selecting all from " + table_name)
-#                debug("sort: " + str(search_meta.sort_column))
-                s = table.select(orderBy=search_meta.sort_column)
-#                debug("selected")
+                s = table.select(orderBy=search_meta.sort_column)[:]
                 return s
             q = "%s %s '%%%s%%'" % (columns[0], like, v)
             for c in columns[1:]:
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
-#        debug(q)
         return table.select(q)
         
         
@@ -495,36 +491,26 @@ class SearchView(BaubleView):
         """
         return the string representation of some row inthe mode
         """
+        # TODO:
+        # it is possible that the row can be valid but the value returned
+        # from __str__ is none b/c there is nothing in the column, this
+        # really shouldn't b/c the column which we use for __str__
+        # shouldn't have a default which means that somewhere it is
+        # getting set 
+        # explicitly to None, i think this is happening while importing one
+        # of the geography tables with that funny empty row
+        # UPDATE: the problem is with the name column of the Places table
+        # it shouldn't have a default and in the fix_geo.py script we
+        # should set the empty name to (cultivated) or something along
+        # those lines
         row = model.get_value(iter, 0)
-        #print row
         if row is None:
             cell.set_property('text', "")
+        elif isinstance(row, BaubleTable):
+            cell.set_property('markup', row.markup())
         else:
-            # TODO:
-            # it is possible that the row can be valid but the value returned
-            # from __str__ is none b/c there is nothing in the column, this
-            # really shouldn't b/c the column which we use for __str__
-            # shouldn't have a default which means that somewhere it is
-            # getting set 
-            # explicitly to None, i think this is happening while importing one
-            # of the geography tables with that funny empty row
-            # UPDATE: the problem is with the name column of the Places table
-            # it shouldn't have a default and in the fix_geo.py script we
-            # should set the empty name to (cultivated) or something along
-            # those lines
-            # TODO: this is special cased for accession but maybe we could
-            # register a call back to format the string, or we could
-            # just provide a certain function like searchview_row_str()
-            # and here we test if that function exists and if not just call
-            # str
-            if isinstance(row, tables['Accession']):
-                cell.set_property('markup', "%s <i>(%s)</i>" %
-                                  (str(row), str(row.species)))
-#                 cell.set_property('text', "%s (%s)" %
-#                                   (str(row), str(row.species)))
-
-            else: cell.set_property('text', str(row))
-
+            cell.set_property('text', str(row))
+    
 
     def on_key_press(self, widget, event, data=None):
         keyname = gtk.gdk.keyval_name(event.keyval)
@@ -537,6 +523,7 @@ class SearchView(BaubleView):
         response = e.start()
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
             e.commit_changes()
+            # TODO: refresh search
         e.destroy()
 
         

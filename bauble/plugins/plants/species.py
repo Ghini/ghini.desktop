@@ -155,6 +155,10 @@ class Species(BaubleTable):
         return Species.str(self)
     
     
+    def markup(self, authors=False):
+        return Species.str(self, authors, True)
+    
+    
     @staticmethod
     def str(species, authors=False, markup=False):
         """
