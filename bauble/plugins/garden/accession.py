@@ -2,10 +2,9 @@
 # accessions module
 #
 
-import os
+
 import gtk
 from sqlobject import * 
-import bauble.paths as paths
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
@@ -237,6 +236,8 @@ class AccessionEditor(TreeViewEditorDialog):
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
         set_widget_value
+    import bauble.paths as paths
+    import os
 except ImportError:
     pass
 else:
@@ -256,6 +257,23 @@ else:
         def update(self, row):
             set_widget_value(self.glade_xml, 'name_data', row.species.markup())
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
+            set_widget_value(self.glade_xml, 'prov_data', row.prov_type, False)
+            
+            
+    class NotesExpander(InfoExpander):
+        """
+        the accession's notes
+        """
+    
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, "Notes", glade_xml)
+            w = self.glade_xml.get_widget('notes_box')
+            w.unparent()
+            self.vbox.pack_start(w)
+        
+        
+        def update(self, row):
+            set_widget_value(self.glade_xml, 'notes_data', row.notes)            
     
     
     class SourceExpander(InfoExpander):
@@ -341,10 +359,6 @@ else:
         """
         def __init__(self):
             InfoBox.__init__(self)
-            #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            #path = os.path.dirname(__file__) + os.sep
-            #path = paths.lib_dir() + os.sep + 'acc_infobox.glade'            
             path = os.path.join(paths.lib_dir(), "plugins", "garden")
             self.glade_xml = gtk.glade.XML(path + os.sep + "acc_infobox.glade")
             
@@ -353,11 +367,22 @@ else:
             
             self.source = SourceExpander(self.glade_xml)
             self.add_expander(self.source)
+            
+            self.notes = NotesExpander(self.glade_xml)
+            self.add_expander(self.notes)
     
     
         def update(self, row):        
             self.general.update(row)
-                            
+            
+            if row.notes is None:
+                self.notes.set_expanded(False)
+                self.notes.set_sensitive(False)
+            else:
+                self.notes.set_expanded(True)
+                self.notes.set_sensitive(True)
+                self.notes.update(row)
+            
             # TODO: should test if the source should be expanded from the prefs
             if row.source_type == None:
                 self.source.set_expanded(False)

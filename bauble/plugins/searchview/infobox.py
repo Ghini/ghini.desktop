@@ -17,14 +17,17 @@ from bauble.plugins import tables
 # what to display if the value in the database is None
 DEFAULT_VALUE='--'
 
-def set_widget_value(glade_xml, widget_name, value):
+def set_widget_value(glade_xml, widget_name, value, markup=True):
     w = glade_xml.get_widget(widget_name)
     if value is None: 
         value = DEFAULT_VALUE
         
     if isinstance(w, gtk.Label):
         #w.set_text(str(value))
-        w.set_markup(str(value))
+        if markup:
+            w.set_markup(str(value))
+        else:
+            w.set_text(str(value))            
     if isinstance(w, gtk.TextView):
         w.get_buffer().set_text(value)
     
@@ -72,6 +75,9 @@ class InfoBox(gtk.ScrolledWindow):
     def add_expander(self, expander):
         self.vbox.pack_start(expander, False, False)
         self.expanders[expander.get_property("label")] = expander
+        
+        sep = gtk.HSeparator()
+        self.vbox.pack_start(sep, False, False)
     
     
     def get_expander(self, label):

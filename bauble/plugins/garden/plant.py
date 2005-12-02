@@ -242,26 +242,45 @@ class PlantEditor(TreeViewEditorDialog):
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
         set_widget_value
+    import os
+    import bauble.paths as paths
 except ImportError:
     pass
 else:
     
-    class LocationExpander(InfoExpander):
+    class GeneralPlantExpander(InfoExpander):
         """
-        TableExpander for the Locations table
+        general expander for the PlantInfoBox        
         """
         
-        def __init__(self, label="Location"):
-            InfoExpander.__init__(self, label)
-            self.site_label = gtk.Label("--")            
-            self.vbox.pack_start(self.site_label)
-    
-        def update(self, value):
-            """
-            value should be an instance of a Location table
-            """
-            assert isinstance(value, tables['Location'])
-            self.site_label.set_text(value.site)
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, "General", glade_xml)
+            w = self.glade_xml.get_widget('general_box')
+            w.unparent()
+            self.vbox.pack_start(w)
+        
+        
+        def update(self, row):
+            set_widget_value(self.glade_xml, 'location_data',row.location.site)
+            set_widget_value(self.glade_xml, 'status_data',row.acc_status)
+            set_widget_value(self.glade_xml, 'type_data',row.acc_type)
+            set_widget_value(self.glade_xml, 'notes_data',row.notes)
+            
+            
+    class NotesExpander(InfoExpander):
+        """
+        the plants notes
+        """
+            
+        def __init__(self, glade_xml):
+            InfoExpander.__init__(self, "Notes", glade_xml)
+            w = self.glade_xml.get_widget('notes_box')
+            w.unparent()
+            self.vbox.pack_start(w)
+        
+        
+        def update(self, row):
+            set_widget_value(self.glade_xml, 'notes_data', row.notes)                                
         
 
     class PlantInfoBox(InfoBox):
@@ -270,12 +289,28 @@ else:
         """
         def __init__(self):
             InfoBox.__init__(self)
-            loc = LocationExpander()
-            loc.set_expanded(True)
-            self.add_expander(loc)
+            #loc = LocationExpander()
+            #loc.set_expanded(True)
+            path = os.path.join(paths.lib_dir(), "plugins", "garden")
+            self.glade_xml = gtk.glade.XML(path + os.sep + "plant_infobox.glade")            
+            self.general = GeneralPlantExpander(self.glade_xml)
+            self.add_expander(self.general)                    
+            
+            self.notes = NotesExpander(self.glade_xml)
+            self.add_expander(self.notes)
+            
         
         def update(self, row):
             # TODO: don't really need a location expander, could just
             # use a label in the general section
-            loc = self.get_expander("Location")
-            loc.update(row.location)
+            #loc = self.get_expander("Location")
+            #loc.update(row.location)
+            self.general.update(row)
+            
+            if row.notes is None:
+                self.notes.set_expanded(False)
+                self.notes.set_sensitive(False)
+            else:
+                self.notes.set_expanded(True)
+                self.notes.set_sensitive(True)
+                self.notes.update(row)

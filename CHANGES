@@ -1,3 +1,8 @@
+2005.12.02
+---------
+- lots of work on connecting the database to the infoboxes and creating 
+infoboxes for those database types that didn't have
+
 2005.12.01
 ---------
 - fixes for formatters
