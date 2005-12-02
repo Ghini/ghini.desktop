@@ -130,7 +130,8 @@ class AccessionEditor(TreeViewEditorDialog):
                    "speciesID": "Name",
                    "prov_type": "Provenance Type",
                    "wild_prov_status": "Wild Provenance Status",
-                   'source_type': 'Source'
+                   'source_type': 'Source',
+                   'notes': 'Notes'
 #                   "ver_level": "Verification Level",           
 #                   "ver_name": "Verifier's Name",
 #                   "ver_date": "Verification Date",

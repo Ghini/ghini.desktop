@@ -132,7 +132,9 @@ class PlantEditor(TreeViewEditorDialog):
                    'accessionID': 'Accession ID',
                    'locationID': 'Location',
                    'acc_type': 'Accession Type',
-                   'acc_status': 'Accession Status'}
+                   'acc_status': 'Accession Status',
+                   'notes': 'Notes'
+                   }
         self.columns.titles = titles
         self.columns['accessionID'].meta.get_completions = \
             self.get_accession_completions

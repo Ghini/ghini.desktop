@@ -162,7 +162,8 @@ class CSVImporter:
                   "database first. You will lose the data in your database "\
                   "if you do this?</i>" % table.sqlmeta.table
             if utils.yes_no_dialog(msg):
-                table.dropTable(True)
+                table.dropTable(ifExists=True, dropJoinTables=True, 
+                                cascade=True)
                 table.createTable()
                   
         
