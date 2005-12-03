@@ -45,6 +45,7 @@ class Accession(BaubleTable):
     # verification, a verification table would probably be better and then
     # the accession could have a verification history with a previous
     # verification id which could create a chain for the history
+    #
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
     #ver_date = DateTimeCol(default=None) # verification date
@@ -83,11 +84,6 @@ class Accession(BaubleTable):
     #prop_info = StringCol(default=None)       # propogation information
     #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
     
-    # these are the unknowns
-#    acc = DateTimeCol(default=None) # ?
-#    acct = StringCol(length=50, default=None) #?
-#    BGnot = StringCol(default=None) # ******** what is this?
-
     def __str__(self): 
         return self.acc_id
     
@@ -135,11 +131,6 @@ class AccessionEditor(TreeViewEditorDialog):
 #                   "ver_name": "Verifier's Name",
 #                   "ver_date": "Verification Date",
 #                   "ver_lit": "Verification Literature",
-#                   'donor_type': 'Donor Type',
-#                   'donor': 'Donor Name',
-#                   'donor_acc': 'Donor\'s Accession'
-                   #,
-#                   "wgs": "World Geographical Scheme"
                    }
 
         self.columns.titles = titles
@@ -255,7 +246,7 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', row.species.markup())
+            set_widget_value(self.glade_xml, 'name_data', row.species.markup(True))
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
             set_widget_value(self.glade_xml, 'prov_data', row.prov_type, False)
             
@@ -308,12 +299,6 @@ else:
             set_widget_value(self.glade_xml, 'data_data', collection.coll_date)
             set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
             set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
-            
-            # NOTE: if the widget is named notes_data then it doesn't update,
-            # should probably file a bug with glade
-            # UPDATE: i think this may actually have been b/c i had two widgets
-            # with different parent windows but both named notes_data in the 
-            # glade xml
             set_widget_value(self.glade_xml, 'collnotes_data', collection.notes)
             
                 

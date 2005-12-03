@@ -419,13 +419,16 @@ else:
             w.unparent()
             self.vbox.pack_start(w)
         
+        
         def update(self, row):
             set_widget_value(self.glade_xml, 'name_data', 
                              Species.str(row, True, True))
             set_widget_value(self.glade_xml, 'nacc_data', len(row.accessions))
-            #w = self.glade_xml.get_widget('nplants_data')
-            #pass
-    
+            
+            nplants = 0
+            for acc in row.accessions:
+                nplants += len(acc.plants)
+            set_widget_value(self.glade_xml, 'nplants_data', nplants)    
     
     
     class SpeciesInfoBox(InfoBox):
@@ -444,18 +447,12 @@ else:
             fullname, synonyms, ...
             """
             InfoBox.__init__(self)
-            #path = utils.get_main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            #path = paths.main_dir() + os.sep + 'views' + os.sep + 'search' + os.sep
-            #path = os.path.dirname(__file__) + os.sep
-            #path = paths.lib_dir() + os.sep + 'acc_infobox.glade'            
             path = os.path.join(paths.lib_dir(), "plugins", "plants")
             self.glade_xml = gtk.glade.XML(path + os.sep + "species_infobox.glade")
             
             self.general = GeneralSpeciesExpander(self.glade_xml)
             self.add_expander(self.general)
             
-            #self.source = SourceExpander(self.glade_xml)
-            #self.add_expander(self.source)
             #self.ref = ReferenceExpander()
             #self.ref.set_expanded(True)
             #self.add_expander(self.ref)
