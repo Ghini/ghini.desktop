@@ -36,15 +36,14 @@ from pyparsing import *
 # tables, could also do something similar to domain map and child expand
 # map
 
-
 class SearchMeta:
     
     def __init__(self, table_name, column_names, sort_column=None):
         """
         table_name: the name of the table this meta refers to
         column_names: the names of the table columns that will be search
-        sort: column to sort on, can use -column for descending order, this should
-            also work if you do ["col1", "col2"]
+        sort: column to sort on, can use -column for descending order, this
+        should also work if you do ["col1", "col2"]
         """        
         self.table = tables[table_name]
         if type(column_names) is not list:
@@ -58,17 +57,18 @@ class SearchMeta:
         self.sort_column = sort_column 
         
 
-class ResultsMeta:
-    
-    def __init__(self, expand_child_name=None, editor_class=None, infobox_class=None):        
-        # strict typing, we probably don't need this
-#        if infobox_class is not None and \
-#          not issubclass(infobox_class, InfoBox):
-#            msg= "infobox_class must be a class whose parent class is InfoBox"
-#            raise ValueError("ResultsViewMeta.__init__: ", msg)
-        self.editor = editor_class
-        self.expand_child = expand_child_name
-        self.infobox = infobox_class
+#class ResultsMeta:
+#    
+#    def __init__(self, expand_child=None, editor_class=None,
+#                 infobox_class=None):        
+#        # strict typing, we probably don't need this
+##        if infobox_class is not None and \
+##          not issubclass(infobox_class, InfoBox):
+##            msg= "infobox_class must be a class whose parent class is InfoBox"
+##            raise ValueError("ResultsViewMeta.__init__: ", msg)
+#        self.editor = editor_class        
+#        self.expand_child = expand_child
+#        self.infobox = infobox_class
 
 
 class SearchView(BaubleView):
@@ -98,11 +98,21 @@ class SearchView(BaubleView):
             def __init__(self):
                 self.set()
                 
-            def set(self, child=None, editor=None, infobox=None):
-                self.child = child
+            def set(self, children=None, editor=None, infobox=None):
+                self.children = children
                 self.editor = editor
                 self.infobox = infobox
-                
+        
+        
+            def get_children(self, so_instance):
+                if self.children is None:
+                    return []
+                tablename = so_instance.__class__.__name__            
+                if callable(self.children):
+                    return self.children(so_instance)
+                return getattr(so_instance, self.children)
+        
+            
         def __getitem__(self, item):
             if item not in self: # create on demand
                 self[item] = self.Meta()
@@ -150,6 +160,16 @@ class SearchView(BaubleView):
             self.pane.pack2(self.infobox, False, True)
         self.pane.show_all() # reset the pane
 
+
+    def get_selected(self):
+        '''
+        return all the selected rows
+        '''
+        model, rows = self.results_view.get_selection().get_selected_rows()        
+        selected = []
+        for row in rows:
+            selected.append(model[row][0])
+        return selected
         
     def on_results_view_select_row(self, view):
         """
@@ -235,21 +255,21 @@ class SearchView(BaubleView):
         row = model.get_value(iter, 0)
         view.collapse_row(path)
         self.remove_children(model, iter)
+
         table_name = type(row).__name__
-        #child = self.results_meta[table_name].expand_child
-        child = self.view_meta[table_name].child
-        if child is None:
-            return True # don't expand
-        kids = getattr(row, child)
-        if len(kids) > 0:
-            self.append_children(model, iter, kids, True)
-            #bauble.gui.stop_progressbar()
-            return False
-        #bauble.gui.pulse_progressbar()
-        #for table, child in self.child_expand_map.iteritems():
-        #    if t == table:
-         
-        #bauble.gui.stop_progressbar()
+        kids = self.view_meta[table_name].get_children(row)
+        if len(kids) == 0:
+            return True
+        self.append_children(model, iter, kids, True)
+        return False
+#        child = self.view_meta[table_name].child
+#        if child is None:
+#            return True # don't expand
+#        kids = getattr(row, child)
+#        if len(kids) > 0:
+#            self.append_children(model, iter, kids, True)        
+#            return False
+
         return True
 
     
@@ -472,7 +492,14 @@ class SearchView(BaubleView):
             # TODO: refresh search
         e.destroy()
 
-        
+
+    # TODO: provide a way for the plugin to add extra items to the
+    # context menu of a particular type in the search results, this will
+    # allow us to do things like have plugins customize the context menu
+    #context_menu_items = []
+    #def add_context_menu_item(self, obj_type, menu_item):
+    #    pass
+    
     def on_view_button_release(self, view, event, data=None):
         """
         popup a context menu on the selected row

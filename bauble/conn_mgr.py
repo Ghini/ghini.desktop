@@ -2,10 +2,11 @@
 # conn_mgr.py
 #
 
-import copy
+import os, copy
 import gtk
 import sqlobject
 import utils
+import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug
 
@@ -18,26 +19,33 @@ from bauble.utils.log import log, debug
 # TODO: when you start and there are no connections defined then make the user
 # create a connection or at least inform them
 
-class ConnectionManagerDialog(gtk.Dialog):
+
+class ConnectionManager:
     
-    def __init__(self, current_name=None, 
-                 title="Connection Manager", parent=None,
-                 flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
-                 buttons=(gtk.STOCK_OK, gtk.RESPONSE_OK,
-                          gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)):
-        gtk.Dialog.__init__(self, title, parent, flags, buttons)
+    def __init__(self, current_name=None):
         self.current_name = None # this should get set in on_name_combo_changed
         self.create_gui()
-        self.show_all()
-        self.connect("response", self.on_response)
-        
-        # set the focus on the OK button
-        self.set_focus(self.action_area.get_children()[1])
-        self.set_active_connection_by_name(current_name)
-        
+        self.dialog.connect('response', self.on_response)
+        self.set_active_connection_by_name(current_name)        
         self._dirty = False
         
-
+        
+    def start(self):
+        response = self.dialog.run()
+        name = None
+        uri = None
+        if response == gtk.RESPONSE_OK:        
+            name = self._get_connection_name()
+            uri = self._get_connection_uri()                    
+        if name is None and response == gtk.RESPONSE_OK:
+            msg = 'You have to choose or create a new connection before '\
+                  'you can connect to the database.'
+            utils.message_dialog(msg)
+            name, uri = self.start()
+        self.dialog.destroy()
+        return name, uri
+        
+        
     def _get_supported_dbtypes(self):
         """
         get for self.supported_types property
@@ -71,11 +79,21 @@ class ConnectionManagerDialog(gtk.Dialog):
     supported_dbtypes = property(_get_supported_dbtypes)
     _supported_dbtypes = None
     
-
+        
     def create_gui(self):
-        self.vbox.set_spacing(10)
+        path = os.path.join(paths.lib_dir())
+        self.glade_xml = gtk.glade.XML(path + os.sep + "conn_mgr.glade")
+        
+        handlers = {'on_add_button_clicked': self.on_add_button_clicked,
+                    'on_remove_button_clicked': self.on_remove_button_clicked,
+                   }
+        self.glade_xml.signal_autoconnect(handlers)
+        
+        self.dialog = self.glade_xml.get_widget('main_dialog')
+        logo = self.glade_xml.get_widget('logo_image')
+        logo.set_from_file(path + os.sep + 'pixmaps/bauble_logo.png')
+        
         self.params_box = None
-
         if self.supported_dbtypes is None:
             msg = "No Python database connectors installed.\n"\
                   "Please consult the documentation for the "\
@@ -83,65 +101,95 @@ class ConnectionManagerDialog(gtk.Dialog):
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise Exception(msg)
         
-        # an information label ala eclipse
-        hbox = gtk.HBox(False)
-        hbox.set_spacing(5)
-        hbox.set_border_width(10)
-        self.info_image = gtk.image_new_from_stock(gtk.STOCK_DIALOG_INFO,
-                                                   gtk.ICON_SIZE_BUTTON)#gtk.ICON_SIZE_SMALL_TOOLBAR)
-        hbox.pack_start(self.info_image, False, False)
-        self.info_label = gtk.Label()
-        self.set_info_label()
-        self.info_label.set_padding(10, 10)
-        self.info_label.set_alignment(0.0, .5)
-        hbox.pack_start(self.info_label)
+        self.expander_box = self.glade_xml.get_widget('expander_box')
         
-        event_box = gtk.EventBox()
-        event_box.add(hbox)
-        event_box.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
-        self.vbox.pack_start(event_box, False, False)
-        
-        hbox = gtk.HBox(False)
-        hbox.set_spacing(5)
-        name_label = gtk.Label("Connection Name")
-        hbox.pack_start(name_label)
-        name_label.set_alignment(0.0, 0.5)
-        
-        self.name_combo = gtk.combo_box_new_text()
-        self.name_combo.connect("changed", self.on_changed_name_combo)
-        hbox.pack_start(self.name_combo)
-        
-        button = gtk.Button("New")
-        hbox.pack_start(button, False, False)
-        button.connect("clicked", self.on_clicked_new_button)
-        
-        button = gtk.Button("Remove")
-        hbox.pack_start(button, False, False)
-        button.connect("clicked", self.on_clicked_remove_button)
-        
-        self.vbox.pack_start(hbox, False, False)
-        
-        sep = gtk.HSeparator()
-        self.vbox.pack_start(sep, False, False)
-        
-        # the type combo
-        type_label = gtk.Label("Type")
-        type_label.set_alignment(0.0, .5)
-        self.type_combo = gtk.combo_box_new_text()
-        
+        self.type_combo = self.glade_xml.get_widget('type_combo')
         # test for different supported database types, this doesn't necessarily
         # mean these database connections have been tested but if someone
         # tries one and it doesn't work then hopefully they'll let us know
+        #self.type_combo.set_model(gtk.ListStore(str))
+        self.type_combo.remove_text(0) # remove dummy '--'
         for dbtype, index in self.supported_dbtypes.iteritems():
-#            debug(self.supported_dbtypes[dbtype])
-            self.type_combo.insert_text(index, dbtype)
-        
+            self.type_combo.insert_text(index, dbtype)        
         self.type_combo.connect("changed", self.on_changed_type_combo)
+                
         
-        hbox = gtk.HBox(False)
-        hbox.pack_start(type_label)
-        hbox.pack_start(self.type_combo)
-        self.vbox.pack_start(hbox, False, False)
+        self.name_combo = self.glade_xml.get_widget('name_combo')
+        self.name_combo.remove_text(0) # remove dummy '--'
+        self.name_combo.connect("changed", self.on_changed_name_combo)
+        
+        self.dialog.set_focus(self.glade_xml.get_widget('connect_button'))
+        
+#    def create_gui2(self):
+#        self.vbox.set_spacing(10)
+#        self.params_box = None
+#
+#        if self.supported_dbtypes is None:
+#            msg = "No Python database connectors installed.\n"\
+#                  "Please consult the documentation for the "\
+#                  "prerequesites for installing Bauble."
+#            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+#            raise Exception(msg)
+#        
+#        # an information label ala eclipse
+#        hbox = gtk.HBox(False)
+#        hbox.set_spacing(5)
+#        hbox.set_border_width(10)
+#        self.info_image = gtk.image_new_from_stock(gtk.STOCK_DIALOG_INFO,
+#                                                   gtk.ICON_SIZE_BUTTON)#gtk.ICON_SIZE_SMALL_TOOLBAR)
+#        hbox.pack_start(self.info_image, False, False)
+#        self.info_label = gtk.Label()
+#        self.set_info_label()
+#        self.info_label.set_padding(10, 10)
+#        self.info_label.set_alignment(0.0, .5)
+#        hbox.pack_start(self.info_label)
+#        
+#        event_box = gtk.EventBox()
+#        event_box.add(hbox)
+#        event_box.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("white"))
+#        self.vbox.pack_start(event_box, False, False)
+#        
+#        hbox = gtk.HBox(False)
+#        hbox.set_spacing(5)
+#        name_label = gtk.Label("Connection Name")
+#        hbox.pack_start(name_label)
+#        name_label.set_alignment(0.0, 0.5)
+#        
+#        self.name_combo = gtk.combo_box_new_text()
+#        self.name_combo.connect("changed", self.on_changed_name_combo)
+#        hbox.pack_start(self.name_combo)
+#        
+#        button = gtk.Button("New")
+#        hbox.pack_start(button, False, False)
+#        button.connect("clicked", self.on_clicked_new_button)
+#        
+#        button = gtk.Button("Remove")
+#        hbox.pack_start(button, False, False)
+#        button.connect("clicked", self.on_clicked_remove_button)
+#        
+#        self.vbox.pack_start(hbox, False, False)
+#        
+#        sep = gtk.HSeparator()
+#        self.vbox.pack_start(sep, False, False)
+#        
+#        # the type combo
+#        type_label = gtk.Label("Type")
+#        type_label.set_alignment(0.0, .5)
+#        self.type_combo = gtk.combo_box_new_text()
+#        
+#        # test for different supported database types, this doesn't necessarily
+#        # mean these database connections have been tested but if someone
+#        # tries one and it doesn't work then hopefully they'll let us know
+#        for dbtype, index in self.supported_dbtypes.iteritems():
+##            debug(self.supported_dbtypes[dbtype])
+#            self.type_combo.insert_text(index, dbtype)
+#        
+#        self.type_combo.connect("changed", self.on_changed_type_combo)
+#        
+#        hbox = gtk.HBox(False)
+#        hbox.pack_start(type_label)
+#        hbox.pack_start(self.type_combo)
+#        self.vbox.pack_start(hbox, False, False)
     
 
     def set_active_connection_by_name(self, name):
@@ -177,9 +225,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         model = self.name_combo.get_model()        
         for i in range(0, len(model)):
             row = model[i][0]
-            debug(row)
             if row == name:
-                debug(name)
                 self.name_combo.remove_text(i)
                 break
             
@@ -189,9 +235,13 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.name_combo.set_active(-1)
         
 
-    def on_clicked_remove_button(self, button, data=None):
+    def on_remove_button_clicked(self, button, data=None):
         # TODO: do you want to delete all data associated with this connection?
-        msg = "Are you sure you want to remove " + self.current_name + " ?"
+        msg = 'Are you sure you want to remove "%s"?\n\n' \
+              '<i>Note: This only removes the connection to the database '\
+              'and does not affect the database or it\'s data</i>' \
+              % self.current_name
+        
         if not utils.yes_no_dialog(msg):
             return
         self.current_name = None
@@ -199,7 +249,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         self.name_combo.set_active(0)
         
             
-    def on_clicked_new_button(self, button, data=None):
+    def on_add_button_clicked(self, button, data=None):
         d = gtk.Dialog("Enter a connection name", None,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -212,13 +262,14 @@ class ConnectionManagerDialog(gtk.Dialog):
         d.run()
         name = entry.get_text()
         d.destroy()
-        self.name_combo.prepend_text(name)
+        if name is not '':            
+            self.name_combo.prepend_text(name)
+            expander = self.glade_xml.get_widget('expander').set_expanded(True)        
+            self.name_combo.set_active(0)
         
-        self.name_combo.set_active(0)
-        
-        # TODO: 
-        # if sqlite.is_supported then sqlite, else set_active(0)
-        self.type_combo.set_active(0)
+            # TODO: 
+            # if sqlite.is_supported then sqlite, else set_active(0)
+            #self.type_combo.set_active(0)
         
                     
     def on_response(self, dialog, response, data=None):
@@ -238,6 +289,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         
         
     def save_current_to_prefs(self):
+        if self.current_name is None:
+            return
         #if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
         if prefs.conn_list_pref not in prefs:
             prefs[prefs.conn_list_pref] = {}
@@ -307,7 +360,8 @@ class ConnectionManagerDialog(gtk.Dialog):
         the type changed so change the params_box
         """
         if self.params_box is not None:
-            self.vbox.remove(self.params_box)
+            #self.vbox.remove(self.params_box)
+            self.expander_box.remove(self.params_box)
             
         dbtype = combo.get_active_text()        
         if dbtype == None:
@@ -326,8 +380,10 @@ class ConnectionManagerDialog(gtk.Dialog):
             #if name in conn_list and conn_list[name]["type"]==dbtype:
                 self.params_box.set_parameters(conn_list[name])
                 
-        self.vbox.pack_start(self.params_box, False, False)
-        self.show_all()
+        #self.vbox.pack_start(self.params_box, False, False)
+        self.expander_box.pack_start(self.params_box, False, False)
+        #self.show_all()
+        self.dialog.show_all()
 
     
     def get_passwd(self, title="Enter your password", before_main=False):
@@ -347,7 +403,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         return passwd
         
  
-    def get_connection_uri(self):
+    def _get_connection_uri(self):
         type = self.type_combo.get_active_text()
         
         # no db has been selected, this can happen on first run
@@ -372,7 +428,7 @@ class ConnectionManagerDialog(gtk.Dialog):
         return uri
             
 
-    def get_connection_name(self):
+    def _get_connection_name(self):
         return self.current_name
 
 

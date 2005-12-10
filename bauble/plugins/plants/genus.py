@@ -24,7 +24,7 @@ class Genus(BaubleTable):
     # synonym for the same species,
     # this screws us up b/c you can now enter duplicate genera, somehow
     # NOTE: we should at least warn the user that a duplicate is being entered
-    genus = StringCol(length=32)#, notNull=True, alternateID=True)    
+    genus = StringCol(length=32, alternateID=True)    
     
     #hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
     hybrid = EnumCol(enumValues=("H", 

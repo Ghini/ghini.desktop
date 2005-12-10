@@ -36,7 +36,7 @@ class GardenPlugin(BaublePlugin):
         
         if "SearchViewPlugin" in plugins:
             from bauble.plugins.searchview.search import SearchMeta
-            from bauble.plugins.searchview.search import ResultsMeta
+            #from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
             search_meta = SearchMeta("Accession", ["acc_id"], "acc_id")

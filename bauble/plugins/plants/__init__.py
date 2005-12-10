@@ -31,17 +31,14 @@ class PlantsPlugin(BaublePlugin):
     
     @classmethod
     def init(cls):                
-        #if plugins.has_plugin("SearchViewPlugin"):
         if "SearchViewPlugin" in plugins:
             from bauble.plugins.searchview.search import SearchMeta
-            from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
             search_meta = SearchMeta("Family", ["family"], "family")
             SearchView.register_search_meta("family", search_meta)
             SearchView.register_search_meta("fam", search_meta)            
             SearchView.view_meta["Family"].set("genera", FamilyEditor)
-
             
             search_meta = SearchMeta("Genus", ["genus"], "genus")
             SearchView.register_search_meta("genus", search_meta)
@@ -52,7 +49,7 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
             
-            SearchView.view_meta["Species"].set(child='accessions',
+            SearchView.view_meta["Species"].set(children='accessions',
                                                 editor=SpeciesEditor, 
                                                 infobox=SpeciesInfoBox)
             

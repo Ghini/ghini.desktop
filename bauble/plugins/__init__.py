@@ -51,6 +51,14 @@ def init_plugins():
         p.init()
     
     
+def start_plugins():
+    '''
+    start of the plugins
+    '''
+    for p in plugins.values():
+        p.start()
+        
+        
 def _register(plugin_class):        
     # check dependencies
     plugin_name = plugin_class.__name__
@@ -161,12 +169,24 @@ class BaublePlugin(object):
     depends = []
 
     @classmethod
-    def __init__(cls):
+    def __init__(cls):        
         pass
     
     @classmethod
     def init(cls):
+        '''
+        init is run when Bauble is first started
+        '''
         pass
+
+    
+    @classmethod
+    def start(cls):
+        '''
+        start is run after the connection to the database has been made
+        and after the interface is created but before it is shown
+        it is the last think run before gtk.main() starts to loop
+        '''
 
     @classmethod
     def register(cls):

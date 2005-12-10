@@ -120,11 +120,12 @@ class BaubleApp:
         try:
             sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.version)
             db_version = eval(sel[0].value)
-            if db_version[0:2] != bauble.version[0:2]: # compare major and minor
+            if db_version[0:2] != bauble.version[0:2]:# compare major and minor
                 msg = 'You are using Bauble version %d.%d.%d while the '\
                       'database you have connected to was created with '\
                       'version %d.%d.%d\n\nSome things might not work as '\
-                      'or some of your data may become unexpectedly corrupted.' \
+                      'or some of your data may become unexpectedly '\
+                      'corrupted.'\
                       % (bauble.version[0], bauble.version[1], \
                          bauble.version[2], db_version[0], db_version[1], \
                          db_version[2],)
@@ -191,20 +192,14 @@ class BaubleApp:
         # open default database on startup
         # import these here to avoid recursive import hell
         import bauble._gui as gui
-        from bauble.conn_mgr import ConnectionManagerDialog
+        from bauble.conn_mgr import ConnectionManager#Dialog
         #self.conn = None
         default_conn = prefs[prefs.conn_default_pref]
-        while True:
-            #gtk.gdk.threads_enter()
-            cm = ConnectionManagerDialog(default_conn)
-            r = cm.run()
-            if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
-               r == gtk.RESPONSE_NONE or r == gtk.RESPONSE_DELETE_EVENT:
+        while True:            
+            cm = ConnectionManager(default_conn)            
+            name, uri = cm.start()
+            if name is None:
                 self.quit()
-            uri = cm.get_connection_uri()
-            name = cm.get_connection_name()
-            cm.destroy()
-            #gtk.gdk.threads_leave()
             if self.open_database(uri, name, True):
                 break
                         
@@ -227,7 +222,7 @@ class BaubleApp:
         if not view_set:
             self.gui.set_current_view(views["SearchView"])
         
-        
+        bauble.plugins.start_plugins()
 #        gtk.threads_enter()
         gtk.main()
 #        gtk.threads_leave()

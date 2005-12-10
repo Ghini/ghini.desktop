@@ -52,8 +52,8 @@ class GUI:
         main_vbox = gtk.VBox(False)
         self.window.add(main_vbox)
 
-        menubar = self.create_main_menu()
-        main_vbox.pack_start(menubar, False, True, 0)
+        self.create_main_menu() # creates self.menubar
+        main_vbox.pack_start(self.menubar, False, True, 0)
         
         # TODO: don't use the toolbar for now, the only thing on the
         # toolbar right now is the add button, we should put all of this on 
@@ -187,6 +187,11 @@ class GUI:
         
         
     def get_current_view(self):
+        '''
+        right now we on have one view, the SearchView, so this 
+        method should always return a SearchView instance
+        '''
+        
         #return self.content_frame.get_child()
         kids = self.content_hbox.get_children()
         if len(kids) == 0:
@@ -249,43 +254,33 @@ class GUI:
                                   ("edit_preferences", None , "_Preferences", 
                                    "<control>P", None, self.on_edit_menu_prefs), 
                                   ("tools", None, "_Tools"),
-#                                   ("export", None, "_Export", None, 
-#                                   None, self.on_tools_menu_export), 
-#                                   ("import", None, "_Import", None, 
-#                                   None, self.on_tools_menu_import), 
-#                                   ("label", None, "_Label Maker", None, 
-#                                   None, self.on_tools_menu_label_maker), 
                                   ])
         ui_manager.insert_action_group(menu_actions, 0)
 
         # load ui
-        #ui_manager.add_ui_from_file(self.bauble.path + os.sep + "bauble.ui")
-        #ui_filename = utils.get_main_dir() + os.sep + "bauble.ui"
-        #if utils.main_is_frozen():
-        #    ui_filename = paths.main_dir() + os.sep + "bauble.ui"
-        #else: ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
-        #ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
         ui_manager.add_ui_from_file(ui_filename)
 
         # get menu bar from ui manager
-        mb = ui_manager.get_widget("/MenuBar")
-        
-        insert_menu = gtk.MenuItem("Insert")
-        menu = self.build_insert_menu()
-        insert_menu.set_submenu(menu)
-        mb.append(insert_menu)
+        self.menubar = ui_manager.get_widget("/MenuBar")
         
         # TODO: why does't using the tools menu from the ui manager work
-        #tools_menu = ui_manager.get_widget("/MenuBar/Tools")
-        tools_menu = gtk.MenuItem("Tools")        
-        menu = self.build_tools_menu()
-        tools_menu.set_submenu(menu)
-        mb.append(tools_menu)
+        self.add_menu("Insert", self.build_insert_menu())
+        self.add_menu("Tools", self.build_tools_menu())
+        
+        return self.menubar
+    
+    def add_menu(self, name, menu, index=-1):
+        menu_item = gtk.MenuItem(name)
+        menu_item.set_submenu(menu)
+        # we'll just append them for now but really we should
+        # get the number of children in the menubar and insert at len-1
+        # to account for the Help menu
+        self.menubar.append(menu_item)
+        self.menubar.show_all()
+        return menu_item
 
-        return mb
-    
-    
+        
     def build_insert_menu(self):
         menu = gtk.Menu()
         compare_labels = lambda x, y: cmp(x.label, y.label)
@@ -364,19 +359,11 @@ class GUI:
         """
         open the connection manager
         """
-        # TODO: this doesn't properly switch the connection
-        from conn_mgr import ConnectionManagerDialog
-        cm = ConnectionManagerDialog()
-        r = cm.run()
-        if r == gtk.RESPONSE_CANCEL or r == gtk.RESPONSE_CLOSE or \
-           r == gtk.RESPONSE_NONE or r == gtk.RESPONSE_DELETE_EVENT:
-            #if r != gtk.RESPONSE_ACCEPT:
-            cm.destroy()
+        from conn_mgr import ConnectionManager
+        cm = ConnectionManager()
+        name, uri = cm.start()
+        if name is None:
             return
-        uri = cm.get_connection_uri()
-        name = cm.get_connection_name()
-        cm.destroy()
-            #gtk.gdk.threads_leave()
         self.bauble.open_database(uri, name, True)
         
         # TODO reset the view

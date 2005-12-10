@@ -1,7 +1,20 @@
+2005.12.09
+----------
+- major overhaul on the connection manager, now (mostly) uses glade
+
+2005.12.08
+---------
+- started work on tag support in plugins\tag, the db schema seems to be set
+and tagging working, just need to create an interface for it
+- field Genus.genus is now an alternateID, probably more schema changes coming
+soon so we can get everything in a relatively stable state
+
+
 2005.12.02
 ---------
 - lots of work on connecting the database to the infoboxes and creating 
 infoboxes for those database types that didn't have
+
 
 2005.12.01
 ---------

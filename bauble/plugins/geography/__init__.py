@@ -23,7 +23,6 @@ class GeographyPlugin(BaublePlugin):
     def init(cls):
         if "SearchViewPlugin" in plugins:
             from bauble.plugins.searchview.search import SearchMeta
-            from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
             search_meta = SearchMeta("Country", ["country"], "country")

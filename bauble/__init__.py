@@ -7,7 +7,7 @@ import imp, os, sys
 
 # major, minor, revision 
 # should be updated for each release of bauble
-version = (0,3,2)
+version = (0,4,0)
 version_str = '%s.%s.%s' % (version[0], version[1], version[2])
 
 def main_is_frozen():
@@ -44,6 +44,9 @@ class BaubleMetaTable(SQLObject):
     # some keys for the standard information
     version = 'version' # a string tuple of (major, minor, revision)
     created = 'created' # a string in datetime.now() format
+
+    #date_format = 'date'
+    
 
 
 class BaubleError(Exception):
