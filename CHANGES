@@ -8,6 +8,7 @@ good and decent in the world
 - forgot the add conn_mgr.glade to svn
 - had to remove some duplicate genus entries from Genus.txt until we get
 the synonyms better sorted out
+- refresh the search view after adding or removing items from the results
 
 2005.12.09
 ----------

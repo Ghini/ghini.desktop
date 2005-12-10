@@ -363,7 +363,7 @@ class TextColumn(GenericViewColumn):
                     so_obj = e.commit_changes(False)
                     self._set_view_model_value(path, so_obj)                    
                     self.dirty = True
-                    self.renderer.emit('edited', path, so_obj)
+                    self.renderer.emit('edited', path, so_obj)                
                 e.destroy()
 
 
@@ -1154,10 +1154,11 @@ class TreeViewEditorDialog(TableEditor):
             raise Exception("no model in the row")
         if row is None:
             row = self.table        
-        global number_of_adds
-        number_of_adds += 1
-        if number_of_adds > 20:
-            self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+        
+        self.number_of_adds += 1
+        print self.number_of_adds
+        if self.number_of_adds > 8: # this is a hack to avoid the column creep
+            self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         model.append([ModelRowDict(row, self.columns, self.defaults)])        
 
 

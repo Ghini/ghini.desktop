@@ -44,6 +44,10 @@ from pyparsing import *
 # could be multiple menu items in the context menu, could also probably 
 # replicate the context menu in the menu bar as well
 
+# TODO: should check out TreeView.map_expanded_rows to get all the 
+# expanded rows and then maybe we can reexpand them after we've 
+# finished refreshing the view
+
 class SearchMeta:
     
     def __init__(self, table_name, column_names, sort_column=None):
@@ -193,7 +197,7 @@ class SearchView(BaubleView):
         self.search(text)
         
     
-    # what is this for?
+    # should be the search string relevant to the results in the results view
     current_search_text = None
     
     def refresh_search(self):
@@ -459,7 +463,9 @@ class SearchView(BaubleView):
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
             e.commit_changes()
             # TODO: refresh search
+            self.refresh_search()            
         e.destroy()
+        
 
 
     # TODO: provide a way for the plugin to add extra items to the
