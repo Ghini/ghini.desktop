@@ -49,26 +49,17 @@ class GUI:
         self.window.set_title("Bauble %s" % bauble.version_str)
     
         # top level vbox for menu, content, status bar
-        main_vbox = gtk.VBox(False)
-        self.window.add(main_vbox)
-
-        self.create_main_menu() # creates self.menubar
-        main_vbox.pack_start(self.menubar, False, True, 0)
-        
-        # TODO: don't use the toolbar for now, the only thing on the
-        # toolbar right now is the add button, we should put all of this on 
-        # the menu
-        # put all of the toolbar 
-        #toolbar = self.create_toolbar()
-        #main_vbox.pack_start(toolbar, False, True, 0)
+        main_vbox = gtk.VBox()
                 
-        self.content_hbox = gtk.HBox(False) # empty for now        
-        #self.content_frame = gtk.Frame()
-        #self.content_hbox.pack_start(self.content_frame)
-        main_vbox.pack_start(self.content_hbox)
+        self.create_main_menu() # creates self.menubar
+        main_vbox.pack_start(self.menubar, False, True)            
+        
+        # holds the  view
+        self.content_hbox = gtk.HBox() # empty for now
+        main_vbox.pack_start(self.content_hbox, True, True)
 
         # last part of main_vbox is status bar
-        status_box = gtk.HBox(False)        
+        status_box = gtk.HBox()        
         self.statusbar = gtk.Statusbar()
         self.statusbar.set_has_resize_grip(False)     
         status_box.pack_start(self.statusbar, expand=True, fill=True)
@@ -83,6 +74,7 @@ class GUI:
         main_vbox.pack_start(status_box, expand=False, fill=False)
                 
         # show everything
+        self.window.add(main_vbox)
         self.window.show_all()
 
 
@@ -103,7 +95,6 @@ class GUI:
         self.pb_lock.release()
         
 
-  
     def pulse_progressbar(self, from_thread=False):
         """
         create a seperate thread the run the progress bar
@@ -124,45 +115,7 @@ class GUI:
         self.stop_pulse = True
         #self.pb_lock.acquire()
         #self.progressbar.set_fraction(1.0)
-        #self.pb_lock.release()
-
-    
-    def create_toolbar(self):
-        toolbar = gtk.Toolbar()
-
-    # TODO: for now remove this toolbar and just put everything under a menu
-    # item
-
-        # add all views modules
-#        button = gtk.MenuToolButton(gtk.STOCK_FIND_AND_REPLACE)
-#        button.set_label("View")
-#        menu = gtk.Menu()
-#        for name, view in sorted(views.iteritems()):
-#            item = gtk.MenuItem(name)
-#            item.connect("activate", self.on_activate_view, view)
-#            menu.append(item)
-#        
-#        menu.show_all()
-#        button.set_menu(menu)
-#        toolbar.insert(button, 0)
-        
-        # add all editors modules
-        button = gtk.MenuToolButton(gtk.STOCK_ADD)
-        #button.add_accelerator("show_menu", self.accel_group, ord("a"), 
-        #                       gtk.gdk.CONTROL_MASK, gobject.SIGNAL_ACTION)
-        menu = gtk.Menu()
-        #for editor in sorted(editors.values(), \
-        for editor in sorted(editors.all(), \
-            cmp=lambda x, y: cmp(x.label, y.label)):
-            if editor.standalone:
-                item = gtk.MenuItem(editor.label)
-                item.connect("activate", self.on_activate_editor, editor)
-                menu.append(item)
-        menu.show_all()
-        button.set_menu(menu)
-        toolbar.insert(button, 0)
-        
-        return toolbar
+        #self.pb_lock.release()    
     
     
     def set_current_view(self, view_class):
@@ -171,19 +124,15 @@ class GUI:
         here, that way the same view won't be created again if the current
         view os of the same type
         """
-        #print 'set_current_view(%s)' % view_class
-        #current_view = self.content_frame.get_child()
         current_view = self.get_current_view()
-        if type(current_view) == view_class: return
+        if type(current_view) == view_class: 
+            return
         elif current_view != None:
             self.content_hbox.remove(current_view)
-            #self.content_frame.remove(current_view)
             current_view.destroy()
             current_view = None
-        new_view = view_class()#self.bauble)    
-        #self.content_frame.set_label(view_class.__name__)
-        self.content_hbox.pack_start(new_view)
-        #self.content_frame.add(new_view)
+        new_view = view_class()
+        self.content_hbox.pack_start(new_view, True, True)
         
         
     def get_current_view(self):
@@ -191,8 +140,6 @@ class GUI:
         right now we on have one view, the SearchView, so this 
         method should always return a SearchView instance
         '''
-        
-        #return self.content_frame.get_child()
         kids = self.content_hbox.get_children()
         if len(kids) == 0:
             return None
@@ -381,6 +328,7 @@ class GUI:
             #    if view == current_view.__class__:
             #        Preferences[self.current_view_pref] = views.modules[view]
         prefs.save()
+        
         
     def on_quit(self, widget, data=None):
         self.bauble.quit()

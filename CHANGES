@@ -1,3 +1,14 @@
+2005.12.10
+----------
+- some spring cleaning of old, unused code
+- reworked tag schemas, the previous ones were an embarassment to all thats
+good and decent in the world
+- tagging results in the search view should now work
+- some UI love
+- forgot the add conn_mgr.glade to svn
+- had to remove some duplicate genus entries from Genus.txt until we get
+the synonyms better sorted out
+
 2005.12.09
 ----------
 - major overhaul on the connection manager, now (mostly) uses glade

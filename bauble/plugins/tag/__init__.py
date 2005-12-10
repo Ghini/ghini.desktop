@@ -15,7 +15,6 @@ class TagItemGUI:
     interface for tagging individual items in the results of the SearchView
     '''
     # TODO: close on 'escape'
-    
     def __init__(self, item):
         path = os.path.join(paths.lib_dir(), 'plugins', 'tag')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'tag.glade')
@@ -52,6 +51,7 @@ class TagItemGUI:
                 Tag(tag=name)
                 model = self.tag_tree.get_model()
                 model.append([False, name])
+                _reset_tags_menu()
             
 
     def on_toggled(self, renderer, path, data=None):
@@ -82,7 +82,26 @@ class TagItemGUI:
         
         return [toggle_column, tag_column]
 
-        
+
+    def on_key_released(self, widget, event):
+        '''
+        on delete remove the currently select tag
+        '''
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        if keyname != "Delete":
+            return        
+        model, iter = self.tag_tree.get_selection().get_selected()
+        tag = model[iter][1]                
+        msg = 'Are you sure you want to delete the tag "%s"?' % tag
+        if utils.yes_no_dialog(msg):
+            t = Tag.byTag(tag)
+            t.destroySelf()
+            model.remove(iter)
+            _reset_tags_menu()
+            view = bauble.app.gui.get_current_view()
+            view.refresh_search()
+    
+    
     def start(self):        
         # we keep restarting the dialog here since the gui was created with
         # glade then the 'new tag' button emits a response we want to ignore
@@ -109,126 +128,72 @@ class TagItemGUI:
             has_tag = False
         self.tag_tree.set_model(model)
         
+        self.tag_tree.add_events(gtk.gdk.KEY_RELEASE_MASK)
+        self.tag_tree.connect("key-release-event", self.on_key_released)
+        
         response = self.dialog.run()
         while response != gtk.RESPONSE_OK \
           and response != gtk.RESPONSE_DELETE_EVENT:            
             response = self.dialog.run()
         self.dialog.destroy()
     
-
-class TagCategory(BaubleTable):
-    '''
-    TagCategory keeps a list of tags with a category name, we use it
-    to store the class name of the type that the tag refers too
-    '''
-    category = StringCol(alternateID=True)
-    tags = RelatedJoin('Tag', joinColumn='category', otherColumn='tag',
-                       intermediateTable='tag_intermediate')
-
-    def __str__(self):
-        return self.category
-
-
-class TagIntermediate(BaubleTable):
-    '''
-    the intermediate table between TagCategory and Tag, we provide our
-    own intermediate table so we can dump it out later
-    '''
-    tag = IntCol()
-    category= IntCol()
-
-
-
+        
 class Tag(BaubleTable):
-    
     tag = UnicodeCol(alternateID=True)
-    ids = MultipleJoin('TagObjId')
-    categories = RelatedJoin('TagCategory', joinColumn='tag',
-                             otherColumn='category',
-                             intermediateTable='tag_intermediate')
+    objects = MultipleJoin('TaggedObj', joinColumn='tag_id')
     
     def __str__(self):
         return self.tag
-
     def markup(self):
         return '%s Tag' % self.tag
-
-    def addObj(self, category, so_obj):
-        tag_obj_id = TagObjId.selectBy(category=category, obj_id=so_obj.id, 
-                                       tag=self)        
-        if tag_obj_id.count() == 0:
-            TagObjId(obj_id = so_obj.id, category=category, tag=self)
-        
-
-
-class TagObjId(BaubleTable):
     
-    obj_id = IntCol() # and id into a table self.tag.tag_type.tag_type    
-    tag = ForeignKey('Tag')
-    category = ForeignKey('TagCategory')
     
-    #def get(self, *args):
-    #    t = SQLObject.get(*args)
-    #    print t
-    #    return t.toObj()
+class TaggedObj(BaubleTable):
+    obj_id = IntCol()
+    obj_class = StringCol(length=32)
+    tag = ForeignKey('Tag', cascade=True)
     
-    def __str__(self):
-        return str(eval('tables["%s"].get(%d)' % (self.category, self.obj_id)))
-        #eturn str(self.toObj())
+    def __str__():
+        return 'tagged_ibj'
     
-    #def toObj(self):
-    #    return eval('tables["%s"].get(%d)' % (self.category, self.obj_id))
-
-        
+            
 def untag_object(name, so_obj):
-    class_name = so_obj.__class__.__name__
+    # TODO: should we loop through objects in a tag to delete
+    # the TaggedObject or should we delete tags is they match
+    # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
+    tag = None
     try:
-        category = TagCategory.byCategory(class_name)
         tag = Tag.byTag(name)
     except SQLObjectNotFound:
         return
+    for obj in tag.objects:
+        # x = obj
+        # y = so_obj
+        same = lambda x, y:x.obj_class==y.__class__.__name__ and x.obj_id==y.id        
+        if same(obj, so_obj):
+            obj.destroySelf()
             
-    for id in tag.ids:
-        if id.obj_id == so_obj.id:
-            id.destroySelf()
-            
-def tag_object(name, so_obj):
-    '''
-    add a tag with name to the so_obj
-    '''
-    class_name = so_obj.__class__.__name__
-    try:        
-        category = TagCategory.byCategory(class_name)
-    except SQLObjectNotFound:
-        category = TagCategory(category=class_name)
-        
+       
+def tag_object(name, so_obj):     
     try:
         tag = Tag.byTag(name)
     except SQLObjectNotFound:
         tag = Tag(tag=name)
-    
-    category.addTag(tag)    
-    tag.addObj(category, so_obj)
+        
+    classname = so_obj.__class__.__name__
+    sr = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id, tag=tag)
+    if sr.count() == 0:
+        TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
 
 
 def get_tags(so_obj):
-    '''
-    return a list of all the tags assocuated with so_obj
-    '''
-    try:    
-        category = TagCategory.byCategory(so_obj.__class__.__name__)
-    except SQLObjectNotFound:
-        return []
-    
-    class_name = so_obj.__class__.__name__
-    tag_ids = TagObjId.selectBy(category=category, obj_id=so_obj.id)
-    # TODO: we should be able to do this in the database with a LeftJoin or
-    # something
+    classname = so_obj.__class__.__name__
+    tagged_objs = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
     tags = []
-    for ids in tag_ids:
-        if ids.tag not in tags:
-            tags.append(ids.tag)
+    for obj in tagged_objs:
+        tags.append(obj.tag)
     return tags
+    
 
 # this should create a table tag_plant or plant_tag something like that,
 # but what if we want to dump the database and keep these relations
@@ -264,9 +229,48 @@ def _on_add_tag_activated(*args):
         utils.message_dialog(msg)
     
     
-class TagPlugin(BaublePlugin):
-    tables = [TagCategory, Tag, TagObjId, TagIntermediate]
+def _tag_menu_item_activated(widget, tag_name):
+    view = bauble.app.gui.get_current_view()
+    if 'SearchView' in views and isinstance(view, views['SearchView']):
+        view.search('tag=%s' % tag_name)
+    
+    
+_tags_menu_item = None
 
+def _reset_tags_menu():
+    tags_menu = gtk.Menu()
+    add_tag_item = gtk.MenuItem('Tag Selection')
+    add_tag_item.connect('activate', _on_add_tag_activated)
+    accel_group = gtk.AccelGroup()
+    add_tag_item.add_accelerator("activate", accel_group, ord('T'),
+                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+    bauble.app.gui.window.add_accel_group(accel_group)        
+    tags_menu.append(add_tag_item)
+        
+    #manage_tag_item = gtk.MenuItem('Manage Tags')
+    #tags_menu.append(manage_tag_item)
+    tags_menu.append(gtk.SeparatorMenuItem())
+        
+    for tag in Tag.select():
+        item = gtk.MenuItem(tag.tag)            
+        item.connect("activate", _tag_menu_item_activated, tag.tag)
+        tags_menu.append(item)
+
+    global _tags_menu_item
+    if _tags_menu_item is None:
+        _tags_menu_item = bauble.app.gui.add_menu("Tags", tags_menu)
+    else:
+        _tags_menu_item.remove_submenu()
+        _tags_menu_item.set_submenu(tags_menu)
+        _tags_menu_item.show_all()
+        
+
+
+class TagPlugin(BaublePlugin):
+    
+    tables = [Tag, TaggedObj]
+    depends = ('SearchViewPlugin',)
+    
     @classmethod
     def init(cls):
         if "SearchViewPlugin" in plugins:
@@ -276,78 +280,67 @@ class TagPlugin(BaublePlugin):
             search_meta = SearchMeta("Tag", ["tag"], "tag")
             SearchView.register_search_meta("tag", search_meta)
             
-            def get_objects(so_instance):
-                ids = so_instance.ids
+            def get_objects(tag):                
                 kids = []
-                for id in ids:                    
-                    obj = eval('tables["%s"].get(%d)'%(id.category, id.obj_id))
-                    kids.append(obj)
+                for obj in tag.objects:
+                    kids.append(eval('tables["%s"].get(%d)' \
+                                     % (obj.obj_class, obj.obj_id)))
                 return kids
+                                
             SearchView.view_meta["Tag"].set(get_objects, None, None)
-            
+        
             
     @classmethod
-    def start(cls):
-        tags_menu = gtk.Menu()
-        add_tag_item = gtk.MenuItem('Tag Selection')
-        add_tag_item.connect('activate', _on_add_tag_activated)
-        accel_group = gtk.AccelGroup()
-        add_tag_item.add_accelerator("activate", accel_group, ord('T'),
-                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-        bauble.app.gui.window.add_accel_group(accel_group)        
-        tags_menu.append(add_tag_item)
-        manage_tag_item = gtk.MenuItem('Manage Tags')
-        tags_menu.append(manage_tag_item)
-        tags_menu.append(gtk.SeparatorMenuItem())
-        tags_menu
-        for tag in Tag.select():
-            tags_menu.append(gtk.MenuItem(tag.tag))
-        bauble.app.gui.add_menu("Tags", tags_menu)
+    def create_tables(cls):
+        BaublePlugin.create_tables()
+        if bauble.app.gui is not None:
+            _reset_tags_menu() 
         
         
     @classmethod
-    def tag_gui(cls):
-        print 'tag_gui'
+    def start(cls):    
+        _reset_tags_menu() 
+        
         
         
 plugin = TagPlugin
 
 
-if __name__ == '__main__':
-    # for testing
-    sqlhub.processConnection = connectionForURI("sqlite:///tmp/test.sqlite")
-    sqlhub.processConnection.getConnection()
-
-
-    class Person(SQLObject):
-        name = StringCol()
-        def __str__(self):
-            return self.name      	  	
-
-    class Donkey(SQLObject):
-        name = StringCol()    
-        def __str__(self):
-            return self.name
-        
-    tables = [Person, Donkey, TagCategory, Tag, TagObjId, TagIntermediate]
-    def create_tables():
-        for t in tables:
-            t.dropTable(True)
-            t.createTable()
-    create_tables()
-    
-    p = Person(name='Ted')
-    tag_object('human', p)
-    tag_object('hawaiin', p)
-
-    d = Donkey(name='Crapper')
-    tag_object('hawaiin', d)
-
-    for t in get_tags(p):
-        print str(t)
-        print '----------------'
-        for id in t.ids:
-            print '-- ' + str(id)
-        print '\n'
+#if __name__ == '__main__':
+#    # for testing
+#    sqlhub.processConnection = connectionForURI("sqlite:///tmp/test.sqlite")
+#    sqlhub.processConnection.getConnection()
+#
+#
+#    class Person(SQLObject):
+#        name = StringCol()
+#        def __str__(self):
+#            return self.name      	  	
+#
+#    class Donkey(SQLObject):
+#        name = StringCol()    
+#        def __str__(self):
+#            return self.name
+#        
+#    tables = [Person, Donkey, TagCategory, Tag, TagObjId, TagIntermediate]
+#    def create_tables():
+#        for t in tables:
+#            t.dropTable(True)
+#            t.createTable()
+#    create_tables()
+#    
+#    p = Person(name='Ted')
+#    tag_object('human', p)
+#    tag_object('hawaiin', p)
+#
+#    d = Donkey(name='Crapper')
+#    tag_object('hawaiin', d)
+#
+#    for t in get_tags(p):
+#        print str(t)
+#        print '----------------'
+#        for id in t.ids:
+#            print '-- ' + str(id)
+#        print '\n'
 
 

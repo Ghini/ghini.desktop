@@ -234,12 +234,12 @@ class BaubleEditor(object):
     pass
 
         
-class BaubleView(gtk.Frame):
+class BaubleView(gtk.VBox):
     
     def __init__(self, *args, **kwargs):
         super(BaubleView, self).__init__(self, *args, **kwargs)
-        self.set_label('')
-        self.set_shadow_type(gtk.SHADOW_NONE)
+        #self.set_label('')
+        #self.set_shadow_type(gtk.SHADOW_NONE)
 
 
 class BaubleTool(object):

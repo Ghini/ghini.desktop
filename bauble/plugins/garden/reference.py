@@ -26,8 +26,8 @@ class Reference(BaubleTable):
     # unique, probably site, there is already and internal id
     # what about subReferences, like if the References were the grounds
     # and the sublocation is the block number
-    label = StringCol(length=64)
-    reference = StringCol()
+    title = StringCol(length=64)
+    uri = StringCol()
     
     species = ForeignKey("Species", default=None)
     family = ForeignKey("Family", default=None)

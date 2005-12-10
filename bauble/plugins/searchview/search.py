@@ -36,6 +36,14 @@ from pyparsing import *
 # tables, could also do something similar to domain map and child expand
 # map
 
+# TODO: as part of the view meta we should pass some sort table/map
+# to build the context menu for a particular type with 
+# (icon, label, callback(row)) or something of the sort, this would allow
+# plugins to better control their behavior within the search view, in fact
+# we would need a list of these and someway to include separators so there
+# could be multiple menu items in the context menu, could also probably 
+# replicate the context menu in the menu bar as well
+
 class SearchMeta:
     
     def __init__(self, table_name, column_names, sort_column=None):
@@ -57,22 +65,9 @@ class SearchMeta:
         self.sort_column = sort_column 
         
 
-#class ResultsMeta:
-#    
-#    def __init__(self, expand_child=None, editor_class=None,
-#                 infobox_class=None):        
-#        # strict typing, we probably don't need this
-##        if infobox_class is not None and \
-##          not issubclass(infobox_class, InfoBox):
-##            msg= "infobox_class must be a class whose parent class is InfoBox"
-##            raise ValueError("ResultsViewMeta.__init__: ", msg)
-#        self.editor = editor_class        
-#        self.expand_child = expand_child
-#        self.infobox = infobox_class
-
 
 class SearchView(BaubleView):
-    """
+    '''
     1. all search parameters are by default ANDed together unless two of the
     same class are give and then they are ORed, e.g. fam=... fam=... will
     give everything that matches either one\
@@ -81,10 +76,8 @@ class SearchView(BaubleView):
     4. search specifically by family, genus, sp, isp(x?), author,
     garden location, country/region or origin, conservation status, edible
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
-    """    
-#    search_map = {"Family": [tables["Family"], ("family",)],
-#                  "Genus":   [tables["Genus"], ("genus",)],
-#                  "Plantname": [tables["Plantname"], ("sp","isp")],
+    '''
+
                                                 
     # the search map is keyed by domain, this means that the same search
     # meta instance can be refered to by more than one key
@@ -194,18 +187,30 @@ class SearchView(BaubleView):
             self.CANCEL = True
 
     
-    def on_execute_clicked(self, widget):
+    def on_search_button_clicked(self, widget):
         text = self.entry.get_text()
         self.current_search_text = text
         self.search(text)
         
-        
+    
+    # what is this for?
     current_search_text = None
     
+    def refresh_search(self):
+        self.search(self.current_search_text)
+        
+        
     def search(self, text):
         """
         search the database using text
         """
+        # set the text in the entry even though in most cases the entry already
+        # has the same text in it, this is in case this method was called from 
+        # outside the class so the entry and search results match
+        self.entry.set_text(text)
+        self.current_search_text = text
+        
+        
         # clear the old model
         self.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
@@ -262,15 +267,6 @@ class SearchView(BaubleView):
             return True
         self.append_children(model, iter, kids, True)
         return False
-#        child = self.view_meta[table_name].child
-#        if child is None:
-#            return True # don't expand
-#        kids = getattr(row, child)
-#        if len(kids) > 0:
-#            self.append_children(model, iter, kids, True)        
-#            return False
-
-        return True
 
     
     def query(self, domain, values):
@@ -319,33 +315,6 @@ class SearchView(BaubleView):
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
         return table.select(q)
         
-        
-#    def query_old(self, domain, values):
-#        """
-#        """
-#        if domain == "default": # search all field in search_map
-#            results = []
-#            for d in self.search_map.keys():
-#                results += self.query(d, values)
-#            return results
-#        
-#        if domain not in self.search_map or self.search_map[domain] is None:
-#            raise ValueError("SearchView.query(): the domain %s is not in "\
-#                             "the search map or is None" % d)
-#        
-#        table = self.search_map[domain][0]
-#        if table is None:
-#            raise ValueError("SearchView.query(): the table registered "\
-#                             "for the domain %s is not valid" % domain)
-#        fields = self.search_map[domain][1]
-#        
-#        for v in values:
-#            if v == "*" or v =="all": 
-#                return table.select()
-#            q = "%s LIKE '%%%s%%'" % (fields[0], v)
-#            for f in fields[1:]:
-#                q += " OR %s LIKE '%%%s%%'" % (f, v)
-#        return table.select(q)
                 
     # parser grammar definitions
     __domain = Word(alphanums)
@@ -478,10 +447,10 @@ class SearchView(BaubleView):
             cell.set_property('text', str(row))
     
 
-    def on_key_press(self, widget, event, data=None):
+    def on_entry_key_press(self, widget, event, data=None):
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname == "Return":
-            self.execute_button.emit("clicked")
+            self.search_button.emit("clicked")
             
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
@@ -581,19 +550,20 @@ class SearchView(BaubleView):
         """
         create the interface
         """
-        self.content_box = gtk.VBox(False)  
-              
+        self.content_box = gtk.VBox()  
+                  
         # create the entry and search button
         self.entry = gtk.Entry()
-        self.entry.connect("key_press_event", self.on_key_press)
-        self.execute_button = gtk.Button("Search")
-        self.execute_button.connect("clicked", self.on_execute_clicked)
+        self.entry.connect("key_press_event", self.on_entry_key_press)
         
-        entry_box = gtk.HBox(False) # hold the search entry and execute_button
-        entry_box.pack_start(self.entry, True, True)        
-        entry_box.pack_end(self.execute_button, False, False)
-        self.content_box.pack_start(entry_box, False, False)
-        
+        self.search_button = gtk.Button("Search")
+        self.search_button.connect("clicked", self.on_search_button_clicked)
+                
+        entry_box = gtk.HBox() # hold the search entry and search_button
+        entry_box.pack_start(self.entry, True, True, 5)
+        entry_box.pack_end(self.search_button, False, False, 5)
+        self.content_box.pack_start(entry_box, False, False, 5)
+                
         # create the results view and info box
         self.results_view = gtk.TreeView() # will be a select results row
         self.results_view.set_headers_visible(False)
@@ -644,7 +614,6 @@ class SearchView(BaubleView):
         #self.content_box.pack_start(pane_box)
         self.content_box.pack_start(self.pane)        
         self.add(self.content_box)
-
 
         # add accelerators
         accel_group = gtk.AccelGroup()

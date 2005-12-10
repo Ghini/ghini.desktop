@@ -17,14 +17,20 @@ class Genus(BaubleTable):
 
     _cacheValue = False
     
-    #genus = StringCol(length=30, notNull=True, alternateID=True)    
     # it is possible that there can be genera with the same name but 
     # different authors and probably means that at different points in literature
     # this name was used but is now a synonym even though it may not be a
     # synonym for the same species,
     # this screws us up b/c you can now enter duplicate genera, somehow
     # NOTE: we should at least warn the user that a duplicate is being entered
-    genus = StringCol(length=32, alternateID=True)    
+    genus = StringCol(length=32)    
+    
+    #synonyms = MultipleJoin('GenusSynonym', joinColumn='genus')
+    # we can't do this right now unless we do more work on 
+    # the synonyms table, see 
+    # {'author': 'Raf.', 'synonymID': 13361, 'familyID': 214, 'genus': 'Trisiola', 'id': 15845}
+    # in Genus.txt
+    genus_index = DatabaseIndex('genus', 'author', 'family', unique=True)
     
     #hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
     hybrid = EnumCol(enumValues=("H", 
@@ -62,6 +68,11 @@ class Genus(BaubleTable):
             return self.genus
         
         
+        
+class GenusSynonym(BaubleTable):
+    genus = ForeignKey('Genus')
+    synonym = ForeignKey('Genus')
+    
 #
 # editor
 #
@@ -86,12 +97,9 @@ class GenusEditor(TreeViewEditorDialog):
 
 
     def get_family_completions(self, text):
-        #debug(entered get_family_completions)
         model = gtk.ListStore(str, object)
-        #if len(text) > 2:
         sr = tables["Family"].select("family LIKE '"+text+"%'")
         for row in sr:
-            #debug(str(row))
             model.append([str(row), row])
         return model
 

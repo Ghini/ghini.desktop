@@ -23,8 +23,9 @@ from bauble.plugins.editor import TableEditor
 
 # level 1
 class Continent(BaubleTable):
-    continent = StringCol(length=24)
-    code = IntCol()
+    
+    continent = StringCol(length=24, alternateID=True)
+    code = IntCol(alternateID=True)
     
     regions = MultipleJoin('Region', joinColumn='continent_id')
     
@@ -34,8 +35,9 @@ class Continent(BaubleTable):
     
 # level2
 class Region(BaubleTable):
-    region = UnicodeCol(length=64)
-    code = IntCol()
+    
+    region = UnicodeCol(length=64, alternateID=True)
+    code = IntCol(alternateID=True)
     
     # i don't think this is used
     iso_code = StringCol(default=None)
@@ -48,9 +50,11 @@ class Region(BaubleTable):
     
 # level3
 class BotanicalCountry(BaubleTable):
-    code = StringCol(length=5)
+    
+    code = StringCol(length=5, alternateID=True)
     #area = StringCol(length=64)
-    name = UnicodeCol(length=64)
+    name = UnicodeCol(length=64, alternateID=True
+                       )
     iso_code = StringCol(length=4, default=None)
     ed2_status = StringCol(length=64, default=None)
     notes = StringCol(default=None)
@@ -64,8 +68,9 @@ class BotanicalCountry(BaubleTable):
      
 # level 3     
 class BasicUnit(BaubleTable):
+    
     name = UnicodeCol(length=64)
-    code = StringCol(length=8)
+    code = StringCol(length=8, alternateID=True)
     iso_code = StringCol(length=8)
     ed2_status = StringCol(length=64, default=None)
     notes = UnicodeCol(default=None)
@@ -78,9 +83,10 @@ class BasicUnit(BaubleTable):
           
 # level3
 class Area(BaubleTable):
-    code = StringCol(length=5)
-    #area = StringCol(length=64)
-    area = UnicodeCol(length=64)
+    
+    area = UnicodeCol(length=64, alternateID=True)
+    code = StringCol(length=5, alternateID=True)
+    
     iso_code = StringCol(length=4, default=None)
     ed2_status = StringCol(length=64, default=None)
     notes = StringCol(default=None)
@@ -95,8 +101,9 @@ class Area(BaubleTable):
         
 # level4
 class State(BaubleTable):
-    state = UnicodeCol(length=64)
-    code = StringCol(length=8)
+    
+    state = UnicodeCol(length=64, alternateID=True)
+    code = StringCol(length=8, alternateID=True)
     iso_code = StringCol(length=8)
     ed2_status = StringCol(length=64, default=None)
     notes = UnicodeCol(default=None)
@@ -118,7 +125,7 @@ class Place(BaubleTable):
     # ID*Gazetteer*L1 code*L2 code*L3 code*L4 code*Kew region code*Kew region subdivision*Kew region*Synonym*Notes
     #331**2,00*24,00*SOC*SOC-OO*10,00*C*North East Tropical Africa**
     #333**3,00*33,00*TCS*TCS-AB*2,00*A*Orient**
-    code = StringCol(length=4)
+    code = StringCol(length=4, alternateID=True)
     place = UnicodeCol(length=64, default=None)
     #name = UnicodeCol(length=64)
     synonym = UnicodeCol(length=250, default=None)
@@ -144,7 +151,7 @@ class KewRegion(BaubleTable):
     # TODO: one column in the data has none, i don't know why, i think it means
     # that its cultivated and its origin is unknown, neother code or region
     # should really be None
-    code = IntCol(default=None)
+    code = IntCol(default=None, alternateID=True)
     region = StringCol(length=64, default=None)
     subdiv = StringCol(length=1, default=None)
     

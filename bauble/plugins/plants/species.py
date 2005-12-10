@@ -132,7 +132,7 @@ class Species(BaubleTable):
     # not basically, would probably be better to just leaves this and
     # look it up on www.ipni.org www.itis.usda.gov
     #taxonomic_status = StringCol()
-    synonyms = MultipleJoin('Synonyms', joinColumn='species_id')
+    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species')
         
     # foreign keys and joins
     genus = ForeignKey('Genus', notNull=True)
@@ -213,7 +213,10 @@ class Species(BaubleTable):
         return name
     
     
-        
+class SpeciesSynonym(BaubleTable):
+    species = ForeignKey('Species')
+    synonym = ForeignKey('Species')
+    
 #class DistributionColumn(ComboColumn):
 #    
 #    def __init__

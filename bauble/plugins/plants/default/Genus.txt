@@ -11926,7 +11926,6 @@
 14096,"x","Trisetokoeleria","Tzvelev","",214
 13358,"","Trisetum","Pers.","",214
 15846,"","Trisiola","Raf.",12925,214
-15845,"","Trisiola","Raf.",13361,214
 13359,"","Tristachya","Nees","",214
 15847,"","Tristania","Poir.",13296,214
 16070,"","Tristegis","Nees",13094,214
@@ -12362,7 +12361,6 @@
 19392,"","Andropus","Brand",7961,246
 7949,"","Codon","Royen ex L.","",246
 7950,"","Conanthus","S.Watson",7961,246
-19390,"","Decemium","Raf.",7958,246
 16614,"","Decemium","Raf.","",246
 7951,"","Draperia","Torr.","",246
 7952,"","Ellisia","L.","",246
@@ -18307,7 +18305,6 @@
 11263,"","Paraphalaenopsis","A.D.Hawkes","",345
 24903,"","Parapteroceras","Aver.","",345
 11264,"","Parasarcochilus","Dockrill",11391,345
-22830,"","Parasarcochilus","Dockrill",11347,345
 11262,"","Parhabenaria","Gagnep.","",345
 22831,"","Parlatorea","Barb.Rodr.",11389,345
 23915,"x","Parnataara","Hort.","",345

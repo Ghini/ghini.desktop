@@ -28,7 +28,7 @@ class Donor(BaubleTable):
                           default='<not set>')
                          
                             
-    name = UnicodeCol(length=72)
+    name = UnicodeCol(length=72, alternateID=True)
     donations = MultipleJoin('Donation', joinColumn='donor_id')
     
     # contact information

@@ -67,7 +67,10 @@ class CSVImporter:
                 path, base = os.path.split(filename)
                 table_name, ext = os.path.splitext(base)
                 self.import_file(filename, tables[table_name], trans)
-        except Exception:
+        except Exception, e:
+            #print e            
+            #exc, msg = e
+            #print msg
             trans.rollback()
             msg = "Error importing values from %s into table %s\n" \
                    % (filename, table_name)
@@ -88,6 +91,44 @@ class CSVImporter:
         return not error
         
         
+    def import_file(self, filename, table, connection):
+        f = file(filename, "rb")
+        reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+        # create validator map
+        validators = {} # TODO: look at formencode to do this
+        for col in table.sqlmeta.columnList:
+            if type(col) not in column_type_validators:
+                raise Exception("no validator for col " + col.name + \
+                                " with type " + str(col.__class__))                
+            validators[col.name] = column_type_validators[type(col)]
+        validators['id'] = type_validators[int]            
+        
+        t = table.select()
+        if t.count() > 0:
+            msg = "The %s table already contains some data. If two rows "\
+                  "have the same id in the import file and the database "\
+                  "then the file will not import "\
+                  "correctly.\n\n<i>Would you like to drop the table in the "\
+                  "database first. You will lose the data in your database "\
+                  "if you do this?</i>" % table.sqlmeta.table
+            if utils.yes_no_dialog(msg):
+                table.dropTable(ifExists=True, dropJoinTables=True, 
+                                cascade=True)
+                table.createTable()
+                  
+        
+        for line in reader:
+            for col in reader.fieldnames: # validate columns
+                if line[col] == '': 
+                    del line[col]
+                else: 
+                    line[col] = validators[col](line[col])
+            try:
+                table(connection=connection, **line) # add row to table
+            except Exception, e:
+                raise str(line), e
+            
+            
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
                 """
@@ -113,67 +154,32 @@ class CSVImporter:
         return filenames
             
             
-    def start_in_thread(self, filenames=None, block=False):
-        """
-        run the importer, if no filenames are are give then it will ask you
-        for the files to import
-        if there are any problems importing any of the files in filenames then
-        then entire import is rolled back
-        """
-        # TODO: this could be part of the gui rather so that the file are choses
-        # before 'OK' is clicked, we could have a table with two columns with
-        # the left side the filenames and the right side the 'guessed' table name
-        # but with a drop down to change the table, each row could also have an
-        # expand arrow that when expanded peeks at the file for the columns and 
-        # shows the column mapping and if there are any errors
-        # mapping 
-        if filenames is None:
-            filenames = _get_filenames()
-                                                          
-        bauble.app.set_busy(True)
+#    def start_in_thread(self, filenames=None, block=False):
+#        """
+#        run the importer, if no filenames are are give then it will ask you
+#        for the files to import
+#        if there are any problems importing any of the files in filenames then
+#        then entire import is rolled back
+#        """
+#        # TODO: this could be part of the gui rather so that the file are choses
+#        # before 'OK' is clicked, we could have a table with two columns with
+#        # the left side the filenames and the right side the 'guessed' table name
+#        # but with a drop down to change the table, each row could also have an
+#        # expand arrow that when expanded peeks at the file for the columns and 
+#        # shows the column mapping and if there are any errors
+#        # mapping 
+#        if filenames is None:
+#            filenames = _get_filenames()
+#                                                          
+#        bauble.app.set_busy(True)
+#
+#        t = threading.Thread(target=self._import_worker, args=(filenames))
+#        t.start()
+#        if block:
+#            t.join()
+    
+    
 
-        t = threading.Thread(target=self._import_worker, args=(filenames))
-        t.start()
-        if block:
-            t.join()
-    
-    
-    def import_file(self, filename, table, connection):
-        f = file(filename, "rb")
-        reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-        # create validator map
-        validators = {} # TODO: look at formencode to do this
-        #for col in table.sqlmeta._columns:
-        for col in table.sqlmeta.columnList:
-            if type(col) not in column_type_validators:
-                raise Exception("no validator for col " + col.name + \
-                                " with type " + str(col.__class__))                
-            validators[col.name] = column_type_validators[type(col)]
-        validators['id'] = type_validators[int]
-            
-        line = None
-        
-        t = table.select()
-        if t.count() > 0:
-            msg = "The %s table already contains some data. If two rows "\
-                  "have the same id in the import file and the database "\
-                  "then the file will not import "\
-                  "correctly.\n\n<i>Would you like to drop the table in the "\
-                  "database first. You will lose the data in your database "\
-                  "if you do this?</i>" % table.sqlmeta.table
-            if utils.yes_no_dialog(msg):
-                table.dropTable(ifExists=True, dropJoinTables=True, 
-                                cascade=True)
-                table.createTable()
-                  
-        
-        for line in reader:
-            for col in reader.fieldnames: # validate columns
-                if line[col] == '': 
-                    del line[col]
-                else: 
-                    line[col] = validators[col](line[col])
-            table(connection=connection, **line) # add row to table
         
         
     def on_response(self, widget, response, data=None):
@@ -181,74 +187,74 @@ class CSVImporter:
         debug(response)
         
         
-    def _import_worker(self, filenames):
-        """
-        this should not be used directly but is used by start()
-        
-        """
-
-        dialog = None
-        # save the original connection
-        old_conn = sqlobject.sqlhub.getConnection()        
-        gtk.threads_enter()        
-        # TODO: connect to this cancel button so the user can stop the import
-        # process and rollback any changes
-        dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
-                          message_format='importing...')
-        dialog.connect('response', self.on_response)
-        debug('show_all')
-        dialog.show_all()
-        gtk.threads_leave()
-        
-        trans = old_conn.transaction()       
-        sqlobject.sqlhub.threadConnection = trans
-        
-        try:
-            for filename in filenames:                     
-                path, base = os.path.split(filename)
-                table_name, ext = os.path.splitext(base)
-                # the name of the file has to match the name of the 
-                # tables class
-                if table_name not in tables:
-                    msg = "%s table does not exist. Would you like to continue " \
-                          "importing the rest of the tables?" % table_name
-                    gtk.threads_enter()
-                    keep_on = utils.yes_no_dialog(msg)
-                    gtk.threads_leave()
-                    if keep_on: continue
-                    else: break            
-    
-                # TODO: could do something more with this to indicate progress
-                # like a counter on the row number being imported
-                gtk.threads_enter()
-                dialog.set_markup('importing ' + table_name+ '...')
-                dialog.queue_resize()
-                gtk.threads_leave()
-                                
-                self.import_file(filename, tables[table_name], trans)
-        except Exception, e:            
-            traceback.print_exc()
-            # TODO: should ask the user if they would like to import the 
-            # rest of the tables or bail, should probably do all commits in 
-            # one transaction so all data gets imported from all files 
-            # successfully or nothing at all
-            msg = "Error importing values from %s into table %s\n" % (filename, table_name)
-            sys.stderr.write(msg)            
-            gtk.threads_enter()
-            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
-            gtk.threads_leave()
-            trans.rollback()
-        else:
-            trans.commit()
-                
-        sqlobject.sqlhub.threadConnection = old_conn
-        gtk.threads_enter()
-        if dialog is not None: 
-            dialog.destroy()
-        bauble.app.gui.window.set_sensitive(True)
-        bauble.app.gui.window.window.set_cursor(None)
-        gtk.threads_leave()
+#    def _import_worker(self, filenames):
+#        """
+#        this should not be used directly but is used by start()
+#        
+#        """
+#
+#        dialog = None
+#        # save the original connection
+#        old_conn = sqlobject.sqlhub.getConnection()        
+#        gtk.threads_enter()        
+#        # TODO: connect to this cancel button so the user can stop the import
+#        # process and rollback any changes
+#        dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+#                          type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
+#                          message_format='importing...')
+#        dialog.connect('response', self.on_response)
+#        debug('show_all')
+#        dialog.show_all()
+#        gtk.threads_leave()
+#        
+#        trans = old_conn.transaction()       
+#        sqlobject.sqlhub.threadConnection = trans
+#        
+#        try:
+#            for filename in filenames:                     
+#                path, base = os.path.split(filename)
+#                table_name, ext = os.path.splitext(base)
+#                # the name of the file has to match the name of the 
+#                # tables class
+#                if table_name not in tables:
+#                    msg = "%s table does not exist. Would you like to continue " \
+#                          "importing the rest of the tables?" % table_name
+#                    gtk.threads_enter()
+#                    keep_on = utils.yes_no_dialog(msg)
+#                    gtk.threads_leave()
+#                    if keep_on: continue
+#                    else: break            
+#    
+#                # TODO: could do something more with this to indicate progress
+#                # like a counter on the row number being imported
+#                gtk.threads_enter()
+#                dialog.set_markup('importing ' + table_name+ '...')
+#                dialog.queue_resize()
+#                gtk.threads_leave()
+#                                
+#                self.import_file(filename, tables[table_name], trans)
+#        except Exception, e:            
+#            traceback.print_exc()
+#            # TODO: should ask the user if they would like to import the 
+#            # rest of the tables or bail, should probably do all commits in 
+#            # one transaction so all data gets imported from all files 
+#            # successfully or nothing at all
+#            msg = "Error importing values from %s into table %s\n" % (filename, table_name)
+#            sys.stderr.write(msg)            
+#            gtk.threads_enter()
+#            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
+#            gtk.threads_leave()
+#            trans.rollback()
+#        else:
+#            trans.commit()
+#                
+#        sqlobject.sqlhub.threadConnection = old_conn
+#        gtk.threads_enter()
+#        if dialog is not None: 
+#            dialog.destroy()
+#        bauble.app.gui.window.set_sensitive(True)
+#        bauble.app.gui.window.window.set_cursor(None)
+#        gtk.threads_leave()
    
         
 # TODO: should use sqlobject.fromDatabase() to create the schema

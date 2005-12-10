@@ -14,8 +14,8 @@ class Synonyms(BaubleTable):
     species = ForeignKey('Species', notNull=True)
     
     # unambiguous synonym, maybe this should be a single join to one speciess
-    #synonym = ForeignKey('Plantnames')
-    synonym = SingleJoin('Species', joinColumn='id')
+    synonym = ForeignKey('Species')
+    #synonym = SingleJoin('Species', joinColumn='id')
         
 #    def __str__(self): 
 #        pass

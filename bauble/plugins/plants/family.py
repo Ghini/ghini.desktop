@@ -11,11 +11,16 @@ from datetime import datetime
 class Family(BaubleTable):
 
     family = StringCol(length=45, notNull=True, alternateID="True")
+    #synonyms = MultipleJoin('FamilySynonym', joinColumn='family')
     notes = StringCol(default=None)
-
     genera = MultipleJoin("Genus", joinColumn="family_id")
     
+    def __str__(self): 
+        return self.family
     
+class FamilySynonym(BaubleTable):
+    family = ForeignKey('Family')
+    synonym = ForeignKey('Family')
 #    _created = DateTimeCol(default=datetime.now(), dbName='_created')
 #    _updated = DateTimeCol(default=datetime.now(), dbName='_updated')
 #    def _SO_setValue(self, name, value, from_python, to_python):
@@ -29,7 +34,8 @@ class Family(BaubleTable):
     #_source_2 = IntCol(default=None, forceDBName=True)
     #_updated = DateTimeCol(default=None, forceDBName=True)
 
-    def __str__(self): return self.family
+    def __str__(self): 
+        return self.family
 
 
 # 

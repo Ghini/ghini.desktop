@@ -27,6 +27,8 @@ from bauble.utils.log import log, debug
 
 # FIXME: everytime you open and close a TreeViewEditorDialog the dialog
 # get a little bigger, i think the last column is creeping
+# UPDATE: i did a quick fix for this, grep for self.view_window or see
+# add_new_row
     
 # TODO: create a contextual helps so that pressing ctrl-space on a cell
 # gives a tooltip or dialog giving you more information about the current
@@ -776,10 +778,10 @@ class TreeViewEditorDialog(TableEditor):
         self.create_toolbar()                
         self.dialog.vbox.pack_start(self.toolbar, fill=False, expand=False)
         
-        sw = gtk.ScrolledWindow()        
-        sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
-        sw.add(self.view)
-        self.dialog.vbox.pack_start(sw)
+        self.view_window = gtk.ScrolledWindow()        
+        self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
+        self.view_window.add(self.view)
+        self.dialog.vbox.pack_start(self.view_window)
         self.dialog.set_default_size(-1, 300) # an arbitrary size
                 
         # set ok button insensitive
@@ -1144,13 +1146,18 @@ class TreeViewEditorDialog(TableEditor):
             self.add_new_row()
             self.dummy_row = True
     
-        
+    
+    number_of_adds = 0
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: 
             raise Exception("no model in the row")
         if row is None:
             row = self.table        
+        global number_of_adds
+        number_of_adds += 1
+        if number_of_adds > 20:
+            self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_NEVER)
         model.append([ModelRowDict(row, self.columns, self.defaults)])        
 
 

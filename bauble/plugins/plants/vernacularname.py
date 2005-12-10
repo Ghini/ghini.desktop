@@ -11,8 +11,7 @@ from bauble.utils.log import log, debug
 class VernacularName(BaubleTable):
     
     name = UnicodeCol()
-    language = UnicodeCol()
-    
+    language = UnicodeCol()    
     species = ForeignKey('Species', notNull=True)
 
     
