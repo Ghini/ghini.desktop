@@ -438,7 +438,7 @@ class SQLiteParamsBox(CMParamsBox):
 
     def create_gui(self):
         label_alignment = (0.0, 0.5)
-        label = gtk.Label("Filename")
+        label = gtk.Label("Filename: ")
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 0, 1)
         hbox = gtk.HBox(False)
