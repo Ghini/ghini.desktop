@@ -118,6 +118,8 @@ class CSVImporter:
                   
         
         for line in reader:
+#            if table.__name__ == 'Genus':    
+#                debug(line)
             for col in reader.fieldnames: # validate columns
                 if line[col] == '': 
                     del line[col]

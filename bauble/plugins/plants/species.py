@@ -116,14 +116,13 @@ class Species(BaubleTable):
                       default="")
     
     # TODO: should be unicode
-    vernacular_name = UnicodeCol(default=None) # vernacular name
+    #vernacular_name = UnicodeCol(default=None) # vernacular name
     # it would be best to display the vernacular names in a dropdown list
     # with a way to add to the list    
-    #vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
+    vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
-    #default_vernacular_name = ForeignKey('VernacularName')
-    #default_vernacular_name = SingleJoin('VernacularName', 
-    #                                     joinColumn='species_id')
+    default_vernacular_name = SingleJoin('VernacularName', 
+                                         joinColumn='species_id')
     
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table
@@ -217,10 +216,61 @@ class Species(BaubleTable):
 class SpeciesSynonym(BaubleTable):
     # deleting either of the species this synonym refers to makes
     # this synonym irrelevant
-    species = ForeignKey('Species', cascade=True)
+    species = ForeignKey('Species', default=None, cascade=True)
     synonym = ForeignKey('Species', cascade=True)
     
 
+# 
+# SpeciesSynonymEditor
+#
+class SpeciesSynonymEditor(TreeViewEditorDialog):
+
+    visible_columns_pref = "editor.species_syn.columns"
+    column_width_pref = "editor.species_syn.column_width"
+    default_visible_list = ['synonym']
+    
+    standalone = False
+    label = 'Species Synonym'
+    
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+        TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
+                                      "Species Synonym Editor", 
+                                      parent, select=select, 
+                                      defaults=defaults, connection=connection)
+        titles = {'synonymID': 'Synonym of Species'}
+                  
+        # can't be edited as a standalone so the species should only be set by
+        # the parent editor
+        self.columns.pop('speciesID')
+        
+        self.columns.titles = titles
+        self.columns["synonymID"].meta.get_completions = self.get_species_completions
+
+    def get_species_completions(self, text):
+        # get entry and determine from what has been input which
+        # field is currently being edited and give completion
+        # if this return None then the entry will never search for completions
+        # TODO: finish this, it would be good if we could just stick
+        # the table row in the model and tell the renderer how to get the
+        # string to match on, though maybe not as fast, and then to get
+        # the value we would only have to do a row.id instead of storing
+        # these tuples in the model
+        # UPDATE: the only problem with sticking the table row in the column
+        # is how many queries would it take to screw in a lightbulb, this
+        # would be easy to test it just needs to be done
+        # TODO: there should be a better/faster way to do this 
+        # using a join or something
+        parts = text.split(" ")
+        genus = parts[0]
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
+                                    connection=self.transaction)
+        model = gtk.ListStore(str, object) 
+        for row in sr:
+            for species in row.species:                
+                model.append((str(species), species))
+        return model
+    
+    
 
 # Species editor
 #
@@ -285,6 +335,9 @@ class SpeciesEditor(TreeViewEditorDialog):
         #    editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
         self.columns.titles = titles            
+                     
+        # should be able to just do a combo list  for the 
+        # default_vernacular_name built from the list of vernacular names
                      
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions

@@ -667,7 +667,7 @@ class ModelRowDict(dict):
         return v
        
     def __setitem__(self, key, value, dirty=True):
-        debug('[%s] = %s : %s' % (key, value, dirty))
+#        debug('[%s] = %s : %s' % (key, value, dirty))
         dict.__setitem__(self, key, value)
         self.dirty = dirty
        

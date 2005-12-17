@@ -76,20 +76,31 @@ def _register(plugin_class):
     
     # add tables
     for t in plugin_class.tables:
-        #print 'adding table: ', t.__name__            
+        if not issubclass(t, BaubleTable):
+            raise TypeError('%s table from plugin %s is not an instance of '\
+                            'BaubleTable' % (t, plugin_name))
         tables[t.__name__] = t
     
     # add editors
     for e in plugin_class.editors:
+        if not issubclass(e, BaubleEditor):
+            raise TypeError('%s table from plugin %s is not an instance of '\
+                            'BaubleEditor' % (e, plugin_name))
         editors[e.__name__] = e
     
     # add views
     for v in plugin_class.views:
+        if not issubclass(v, BaubleView):
+            raise TypeError('%s table from plugin %s is not an instance of '\
+                            'BaubleView' % (v, plugin_name))        
         views[v.__name__] = v
     
     # add tools
-    for t in plugin_class.tools:    
-        tools[t.__name__] = t
+    for l in plugin_class.tools:    
+        if not issubclass(l, BaubleTool):
+            raise TypeError('%s table from plugin %s is not an instance of '\
+                            'BaubleTool' % (l, plugin_name))                
+        tools[l.__name__] = l
 
 
 def _find_plugins():

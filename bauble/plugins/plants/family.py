@@ -63,13 +63,13 @@ class FamilyEditor(TreeViewEditorDialog):
         return True
 
 # 
-# editor
+# FamilySynonymEditor
 #
 class FamilySynonymEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.family_syn.columns"
     column_width_pref = "editor.family_syn.column_width"
-    default_visible_list = ['family', 'synonym']
+    default_visible_list = ['synonym']
     
     standalone = False
     label = 'Family Synonym'

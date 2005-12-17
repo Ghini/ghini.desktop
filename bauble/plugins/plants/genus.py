@@ -4,7 +4,7 @@
 
 import gtk
 from sqlobject import *
-from bauble.plugins import BaubleTable, tables
+from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 
 # TODO: should be a higher_taxon column that holds values into 
@@ -45,8 +45,10 @@ class Genus(BaubleTable):
     # this causes a problem in postgres if you try to enter a synonym
     # before the record that the synonym refers to exists, mysql and sqlite
     # don't seem to mind though
+    #synonymID = IntCol(default=None) # an id into this table
     #synonym = ForeignKey('Genus', default=None)
-    synonymID = IntCol(default=None) # an id into this table
+    synonyms = MultipleJoin('GenusSynonym', joinColumn='genus_id')
+    
     
     # foreign key    
     family = ForeignKey('Family', notNull=True, cascade=False)
@@ -73,8 +75,14 @@ class GenusSynonym(BaubleTable):
     
     # deleting either of the genera this synonym refers to makes this 
     # synonym irrelevant
-    genus = ForeignKey('Genus', cascade=True)
+    genus = ForeignKey('Genus', default=None, cascade=True)
     synonym = ForeignKey('Genus', cascade=True)
+    
+    def __str__(self):
+        return self. synonym
+
+    def markup(self):
+        return '%s (syn. of %f)' % (self.synonym, self.genus)
     
 #
 # editor
@@ -95,10 +103,11 @@ class GenusEditor(TreeViewEditorDialog):
                   'author': 'Author',
                   'hybrid': 'Hybrid',
                   'familyID': 'Family',
-                  'notes': 'Notes'}
+                  'notes': 'Notes',
+                  'synonyms': 'Synonyms'}
         self.columns.titles = titles
         self.columns["familyID"].meta.get_completions = self.get_family_completions
-
+        self.columns['synonyms'].meta.editor = editors["GenusSynonymEditor"]
 
     def get_family_completions(self, text):
         model = gtk.ListStore(str, object)
@@ -107,6 +116,40 @@ class GenusEditor(TreeViewEditorDialog):
             model.append([str(row), row])
         return model
 
+
+# 
+# GenusSynonymEditor
+#
+class GenusSynonymEditor(TreeViewEditorDialog):
+
+    visible_columns_pref = "editor.genus_syn.columns"
+    column_width_pref = "editor.genus_syn.column_width"
+    default_visible_list = ['synonym']
+    
+    standalone = False
+    label = 'Genus Synonym'
+    
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+        TreeViewEditorDialog.__init__(self, tables["GenusSynonym"], \
+                                      "Genus Synonym Editor", 
+                                      parent, select=select, 
+                                      defaults=defaults, connection=connection)
+        titles = {'synonymID': 'Synonym of Genus'}
+                  
+        # can't be edited as a standalone so the family should only be set by
+        # the parent editor
+        self.columns.pop('genusID')
+        
+        self.columns.titles = titles
+        self.columns["synonymID"].meta.get_completions = self.get_genus_completions
+
+        
+    def get_genus_completions(self, text):
+        model = gtk.ListStore(str, object)
+        sr = tables["Genus"].select("genus LIKE '"+text+"%'")
+        for row in sr:
+            model.append([str(row), row])
+        return model
         
 #
 # infobox

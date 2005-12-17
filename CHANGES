@@ -2,6 +2,8 @@
 ----------
 - editing multiple join columns now seems to be pretty stable, just have to
 finish the GenusSynonym, SpeciesSynonym and VernacularName tables and editors
+- check that plugins, views, tool, editors and tables are subclasses of the 
+appropriate types
 
 2005.12.15
 ----------

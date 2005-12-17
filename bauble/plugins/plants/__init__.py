@@ -18,18 +18,21 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 from family import Family, FamilyEditor, FamilySynonym, FamilySynonymEditor
-from genus import Genus, GenusEditor
-from species import Species, SpeciesEditor, SpeciesInfoBox
+from genus import Genus, GenusSynonym, GenusEditor, GenusSynonymEditor
+from species import Species, SpeciesEditor, SpeciesSynonym, \
+    SpeciesSynonymEditor, SpeciesInfoBox
 from speciesmeta import SpeciesMeta, SpeciesMetaEditor
-#from vernacularname import VernacularName, VernacularNameEditor
+from vernacularname import VernacularName, VernacularNameEditor
 
 
 class PlantsPlugin(BaublePlugin):
-    tables = [Family, Genus, Species, SpeciesMeta, FamilySynonym]
-    #, VernacularName]
-    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor,
-                FamilySynonymEditor]#, 
-               #VernacularNameEditor]
+    tables = [Family, FamilySynonym, Genus, GenusSynonym, Species, 
+              SpeciesSynonym, SpeciesMeta, VernacularName]
+
+    editors = [FamilyEditor, FamilySynonymEditor, GenusEditor, 
+               GenusSynonymEditor,
+               SpeciesEditor, SpeciesSynonymEditor, SpeciesMetaEditor, 
+               VernacularNameEditor]
     
     @classmethod
     def init(cls):                
@@ -62,14 +65,15 @@ class PlantsPlugin(BaublePlugin):
         csv = CSVImporter()    
 #        path = os.path.dirname(__file__) + os.sep + 'default'
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['Family.txt']#,'Genus.txt', 'Species.txt']
+        files = ['Family.txt', 'FamilySynonym.txt']#,'Genus.txt', 'Species.txt']
         csv.start([path+os.sep+f for f in files])
         
         # genera and species take along time so ask the user if
         # they want to import them
         if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
                                "take a while)"):            
-            csv.start([path + os.sep + "Genus.txt"])
+            files = ['Genus.txt', 'GenusSynonym.txt']            
+            csv.start([path+os.sep+f for f in files])            
             #if csv.start([path + os.sep + "Genus.txt"]):
                 #if utils.yes_no_dialog("Would you like to import the Species?"\
                 #                       "(it may take a while)"):

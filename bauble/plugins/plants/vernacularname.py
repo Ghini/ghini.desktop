@@ -22,6 +22,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
     default_visible_list = ['speciesID', 'name', 'language'] 
 
     label = 'Vernacular Name'
+    standalone = False
 
     def __init__(self, parent=None, select=None, defaults={}, connection=None):
         debug(defaults)
@@ -32,11 +33,12 @@ class VernacularNameEditor(TreeViewEditorDialog):
         # set headers
         titles = {"name": "Name",
                   "language": "Language",
-                  "speciesID": "Species"
+                  #"speciesID": "Species"
                  }
         self.columns.titles = titles        
-        self.columns["speciesID"].meta.get_completions = \
-            self.get_species_completions
+        self.columns.pop('speciesID')
+        #self.columns["speciesID"].meta.get_completions = \
+        #    self.get_species_completions
 
 
     def get_species_completions(self, text):
