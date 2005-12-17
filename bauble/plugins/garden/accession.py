@@ -59,7 +59,7 @@ class Accession(BaubleTable):
     #consv_status = StringCol(default=None) # conservation status, free text
     
     # foreign keys and joins
-    species = ForeignKey('Species', notNull=True)
+    species = ForeignKey('Species', notNull=True, cascade=False)
     plants = MultipleJoin("Plant", joinColumn='accession_id')
     
     # these should probably be hidden then we can do some trickery
@@ -180,8 +180,7 @@ class AccessionEditor(TreeViewEditorDialog):
     # editor, somehow we need a good way to get so that when we get the values
     # from the editor we know now to change source_type into an id, etc.s        
     def _set_values_from_widgets(self):
-        super(AccessionEditor, self)._set_values_from_widgets()
-        
+        super(AccessionEditor, self)._set_values_from_widgets()        
         for v in self._values:
             if v.has_key('source_type'):
                 source_class = v['source_type'].__class__.__name__

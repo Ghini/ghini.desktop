@@ -462,11 +462,9 @@ class SearchView(BaubleView):
         response = e.start()
         if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
             e.commit_changes()
-            # TODO: refresh search
             self.refresh_search()            
         e.destroy()
         
-
 
     # TODO: provide a way for the plugin to add extra items to the
     # context menu of a particular type in the search results, this will
@@ -533,11 +531,24 @@ class SearchView(BaubleView):
         # are removing an accession the accession number should be included
         # in the message as well as a list of all the clones associated 
         # with this accession
-        msg = "Are you sure you want to remove this?"
+        row_str = '%s: %s' % (row.__class__.__name__, str(row))
+        msg = "Are you sure you want to remove %s?" % row_str
         if utils.yes_no_dialog(msg):
-            row.destroySelf()
+            from sqlobject.main import SQLObjectIntegrityError
+            try:
+                row.destroySelf()
+                self.refresh_search()
+            except SQLObjectIntegrityError, e:
+                msg = "Could not delete '%s'. It is probably because '%s' "\
+                "still has children that refer to it.  See the Details for "\
+                " more information." % (row_str, row_str)
+                utils.message_details_dialog(msg, str(e))
+            except:
+                msg = "Could not delete '%s'. It is probably because '%s' "\
+                "still has children that refer to it.  See the Details for "\
+                " more information." % (row_str, row_str)
+                utils.message_details_dialog(msg, traceback.format_exc())
         
-        self.search(self.current_search_text)
         # TODO: this should immediately remove the model from the value
         # and refresh the tree, we might have to save the path to
         # remember where we were in the view

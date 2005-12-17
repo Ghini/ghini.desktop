@@ -49,7 +49,7 @@ class Genus(BaubleTable):
     synonymID = IntCol(default=None) # an id into this table
     
     # foreign key    
-    family = ForeignKey('Family', notNull=True)
+    family = ForeignKey('Family', notNull=True, cascade=False)
     species = MultipleJoin("Species", joinColumn="genus_id")
 
     # internal
@@ -70,8 +70,11 @@ class Genus(BaubleTable):
         
         
 class GenusSynonym(BaubleTable):
-    genus = ForeignKey('Genus')
-    synonym = ForeignKey('Genus')
+    
+    # deleting either of the genera this synonym refers to makes this 
+    # synonym irrelevant
+    genus = ForeignKey('Genus', cascade=True)
+    synonym = ForeignKey('Genus', cascade=True)
     
 #
 # editor
@@ -84,9 +87,10 @@ class GenusEditor(TreeViewEditorDialog):
     
     label = 'Genus'
     
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):
         TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
-                                      parent, select=select, defaults=defaults)        
+                                      parent, select=select, defaults=defaults,
+                                      connection=connection)        
         titles = {'genus': 'Genus',
                   'author': 'Author',
                   'hybrid': 'Hybrid',
@@ -99,7 +103,7 @@ class GenusEditor(TreeViewEditorDialog):
     def get_family_completions(self, text):
         model = gtk.ListStore(str, object)
         sr = tables["Family"].select("family LIKE '"+text+"%'")
-        for row in sr:
+        for row in sr:            
             model.append([str(row), row])
         return model
 

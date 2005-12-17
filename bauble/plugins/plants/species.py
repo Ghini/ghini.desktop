@@ -135,7 +135,7 @@ class Species(BaubleTable):
     synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species')
         
     # foreign keys and joins
-    genus = ForeignKey('Genus', notNull=True)
+    genus = ForeignKey('Genus', notNull=True, cascade=False)
     #accessions = MultipleJoin('Accessions', joinColumn='species_id')
     #images = MultipleJoin('Images', joinColumn='species_id')
     #references = MultipleJoin('Reference', joinColumn='species_id')
@@ -212,15 +212,16 @@ class Species(BaubleTable):
                     name += ' ' + species.isp_author
         return name
     
+
     
 class SpeciesSynonym(BaubleTable):
-    species = ForeignKey('Species')
-    synonym = ForeignKey('Species')
+    # deleting either of the species this synonym refers to makes
+    # this synonym irrelevant
+    species = ForeignKey('Species', cascade=True)
+    synonym = ForeignKey('Species', cascade=True)
     
-#class DistributionColumn(ComboColumn):
-#    
-#    def __init__
-#
+
+
 # Species editor
 #
 class SpeciesEditor(TreeViewEditorDialog):
@@ -327,7 +328,7 @@ class SpeciesEditor(TreeViewEditorDialog):
             c.__dict__[elem] = d[elem]
         return c
         
-    def test_values_before_commit(self, values):    
+    def pre_commit_hook(self, values):    
         #s = utils.species2str(dict2class(values)): 
         #if s == 
         # need to test each of the values that make up the species
@@ -338,7 +339,7 @@ class SpeciesEditor(TreeViewEditorDialog):
             return True
         exists = False
         select_values = {}
-        debug(values)
+#        debug(values)
         select_values['genusID'] = values['genusID'].id
         select_values['sp'] = values['sp']        
         sel = Species.selectBy(**select_values)

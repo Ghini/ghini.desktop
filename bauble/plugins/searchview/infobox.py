@@ -24,7 +24,12 @@ def set_widget_value(glade_xml, widget_name, value, markup=True):
         
     if isinstance(w, gtk.Label):
         #w.set_text(str(value))
-        if markup:
+        # FIXME: some of the enum values that have <not set> as a values
+        # will give errors here, but we can't escape the string because
+        # if someone does pass something that needs to be marked up
+        # then it won't display as intended, maybe BaubleTable.markup()
+        # should be responsible for returning a properly escaped values
+        if markup: 
             w.set_markup(str(value))
         else:
             w.set_text(str(value))            

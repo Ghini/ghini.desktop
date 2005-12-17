@@ -12,7 +12,7 @@ class VernacularName(BaubleTable):
     
     name = UnicodeCol()
     language = UnicodeCol()    
-    species = ForeignKey('Species', notNull=True)
+    species = ForeignKey('Species', notNull=True, cascade=True)
 
     
 class VernacularNameEditor(TreeViewEditorDialog):

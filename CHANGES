@@ -1,3 +1,21 @@
+2005.12.17
+----------
+- editing multiple join columns now seems to be pretty stable, just have to
+finish the GenusSynonym, SpeciesSynonym and VernacularName tables and editors
+
+2005.12.15
+----------
+- change editor.text_values_before_commit to pre_commit_hook
+- editing multiple join columns somewhat working though alot of things are
+still broke i'm sure
+
+
+2005.12.13
+----------
+- explicitly set the cascade on most database objects to help keep the
+database from getting dangling references incase something is deleted
+- show a dialog in case removing an item from the search view fails
+
 2005.12.10
 ----------
 - some spring cleaning of old, unused code

@@ -45,7 +45,8 @@ class SpeciesMeta(BaubleTable):
     
     # this should be set by the editor
     # FIXME: this could be dangerous and cause dangling meta information
-    species = ForeignKey('Species', default=None)
+    # - removing the species removes this meta info
+    species = ForeignKey('Species', default=None, cascade=True)
     
     def __str__(self):
         v = []

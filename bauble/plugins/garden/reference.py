@@ -29,9 +29,12 @@ class Reference(BaubleTable):
     title = StringCol(length=64)
     uri = StringCol()
     
-    species = ForeignKey("Species", default=None)
-    family = ForeignKey("Family", default=None)
-    genus = ForeignKey("Genus", default=None)
+    # the cascade=True means that if on of the records the foreignkey refers
+    # to is deleted then this reference is deleted as well, 
+    # is this what we want?
+    species = ForeignKey("Species", default=None, cascade=True)
+    family = ForeignKey("Family", default=None, cascade=True)
+    genus = ForeignKey("Genus", default=None, cascade=True)
 
     def __str__(self): 
         return self.label

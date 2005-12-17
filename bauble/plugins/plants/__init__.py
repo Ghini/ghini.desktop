@@ -17,7 +17,7 @@ import os
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
-from family import Family, FamilyEditor
+from family import Family, FamilyEditor, FamilySynonym, FamilySynonymEditor
 from genus import Genus, GenusEditor
 from species import Species, SpeciesEditor, SpeciesInfoBox
 from speciesmeta import SpeciesMeta, SpeciesMetaEditor
@@ -25,8 +25,10 @@ from speciesmeta import SpeciesMeta, SpeciesMetaEditor
 
 
 class PlantsPlugin(BaublePlugin):
-    tables = [Family, Genus, Species, SpeciesMeta]#, VernacularName]
-    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor]#, 
+    tables = [Family, Genus, Species, SpeciesMeta, FamilySynonym]
+    #, VernacularName]
+    editors = [FamilyEditor, GenusEditor, SpeciesEditor, SpeciesMetaEditor,
+                FamilySynonymEditor]#, 
                #VernacularNameEditor]
     
     @classmethod

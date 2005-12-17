@@ -20,7 +20,7 @@ class Image(BaubleTable):
     # differs from a plant slightly or should it just have a different
     # species
     #plant = MultipleJoin("Plantnames", joinColumn="image_id")
-    species = ForeignKey('Species')
+    species = ForeignKey('Species', cascade=True)
     
     
     def __str__(self): return self.label

@@ -10,14 +10,17 @@ from bauble.plugins import tables
 class Donation(BaubleTable):
     values = {}
     
-    donor = ForeignKey('Donor', notNull=True)                        
+    # don't allow donor to be deleted if donor still has donations
+    donor = ForeignKey('Donor', notNull=True, cascade=False)                        
     donor_acc = StringCol(length=12, default=None) # donor's accession id    
     notes = StringCol(default=None) # ??? random text, memo
     
     # we'll have to set a default to none here because of the way our editors
     # are set up have to commit this table and then set the foreign key later,
     # we have to be careful we don't get dangling tables without an accession
-    accession = ForeignKey('Accession', default=None)
+    #
+    # deleting the foreign accession deleted this donation
+    accession = ForeignKey('Accession', default=None, cascade=True)
         
     def __str__(self):
         # i don't know why this has to be donorID instead of donor
@@ -65,9 +68,11 @@ class Collection(BaubleTable):
     #area = ForeignKey('Areas', default=None)
     #region = ForeignKey('Regions', default=None)
     #place = ForeignKey('Places', default=None)
-    #state = ForeignKey('States', default=None)
+    #state = ForeignKey('States', default=None)    
     country = ForeignKey('Country', default=None) # where collected
-    accession = ForeignKey('Accession', default=None)
+    
+    # deleting this foreign accession delets this collection
+    accession = ForeignKey('Accession', default=None, cascade=False)
     
     def __str__(self):
         #if self.label == None: 

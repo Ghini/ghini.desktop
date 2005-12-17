@@ -6,7 +6,7 @@ import os, sys, re, copy, traceback
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
-from sqlobject.joins import SOSingleJoin
+from sqlobject.joins import SOJoin, SOSingleJoin
 from sqlobject.dbconnection import Transaction
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
@@ -38,6 +38,22 @@ from bauble.utils.log import log, debug
 # and editors that commite multiple values, that way we know what to expect
 # what to get back from commit_changes
     
+# TODO: keep track of when a column is edited and set the row to dirty so
+# we don't have to loop through all rows on commit when nothing has changed 
+
+# an object to fill in for completions in a column
+#class Completion:
+#    
+#    def __init__(self, value, str=None):
+#        self.str = str
+#        self.value = value
+#        
+#    def __str__(self):
+#        if self.str is None:
+#            return str(self.value)
+#        else:
+#            return self.str
+        
     
 class CellRendererButton(gtk.GenericCellRenderer):
     
@@ -62,7 +78,8 @@ class CellRendererButton(gtk.GenericCellRenderer):
 
 class GenericViewColumn(gtk.TreeViewColumn):
     
-    def __init__(self, tree_view_editor, header, renderer, so_col=None, so_join=None):
+    def __init__(self, tree_view_editor, header, renderer, so_col=None, 
+                 so_join=None):
         super(GenericViewColumn, self).__init__(header, renderer)
                 
         if not isinstance(tree_view_editor, TreeViewEditorDialog):
@@ -99,11 +116,13 @@ class GenericViewColumn(gtk.TreeViewColumn):
         #        
         
         
-    def _set_view_model_value(self, path, value):
+    def _set_view_model_value(self, path, value):        
+        debug(value)
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
         row[self.name] = value
+        debug('leaving _set_view_model_value')
     
     #
     # name property
@@ -231,16 +250,32 @@ class TextColumn(GenericViewColumn):
         row = model.get_value(iter, 0)
         #if colname not in row: return # this should never happen
         value = row[self.name]
-        
+        #debug(type(value))
+        #debug(value)
         if value is None: # no value in model
-            renderer.set_property('text', None)
-        elif type(value) == list: 
+            renderer.set_property('text', None)     
+        elif isinstance(value, tuple):
+            # should show a # values, # pending
+            debug('cell_data_func - tuple')
+            text = '%d values, %d pending' % (len(value[0]), len(value[1]))
+            renderer.set_property('text', text)
+        elif isinstance(value, list): 
             # if a list then value[0] should be the string displayed while
             # row[1] is the value we want to put in the model, used mostly
             # for completions
-            renderer.set_property('text', value[1])
+            # FIXME: this fucks up if the value is a multiple join, in
+            # this case we should just put the number of items in the join
+            # by default
+#            if self.meta.so_join is not None:
+#                #debug(str(value))
+            text = '%s values' % len(value)
+            renderer.set_property('text', text)
+            
+            #else: # assume its a completion # should use the completion object
+            #    renderer.set_property('text', value[1])
         else: 
-            # just plain text in model column or something convertible 
+            # just plain text or a Completion
+            # in model column or something convertible 
             # to string like a table row
             renderer.set_property('text', str(value))
             
@@ -303,7 +338,7 @@ class TextColumn(GenericViewColumn):
         # we assume on a successfull completion that 0 is the value
         # that we matched on and 1 is the value we want in the model
         self.dirty = True
-        value = model.get_value(iter, 1)        
+        value = model.get_value(iter, 1)
         self._set_view_model_value(view_model_path, value)
         
         
@@ -329,10 +364,32 @@ class TextColumn(GenericViewColumn):
             
         full_text = entry.get_text() + text        
         entry_completion = entry.get_completion()
+        
         if entry_completion is None:
+            def match_func(entry_completion, key, iter, data=None):
+                model = entry_completion.get_model()
+                completion = model.get_value(iter, 0)
+                print '------'
+                print key
+                print completion
+                print '------'
+                if str(completion).lower().startswith(key):
+                    return True
+                return False
+            
+            def cell_data_func(self, col, cell, model, iter, data=None):
+                # assumes the text column is 0 but the value we want 
+                # to store in the model column 1
+                row = model.get_value(iter, 0)                        
+                cell.set_property('text', v)            
+                
             entry_completion = gtk.EntryCompletion()
+            #r = gtk.CellRendererText()
+            #entry_completion.set_cell_data_func(r, cell_data_func)
+            #entry_completion.pack_start(r)
             entry_completion.set_minimum_key_length(2)
             entry_completion.set_text_column(0)
+            #entry_completion.set_match_func(match_func)
             entry_completion.connect("match-selected", 
                                      self.on_completion_match_selected, 
                                      path)
@@ -355,15 +412,18 @@ class TextColumn(GenericViewColumn):
                 model = self.table_editor.view.get_model()
                 it = model.get_iter(path)
                 row = model.get_value(it,0)
-                e = self.meta.editor(select=row[self.name], 
+                existing = select=row[self.name]
+                e = self.meta.editor(select=existing, 
                                   connection=self.table_editor.transaction)
                 response = e.start()
                 if response == gtk.RESPONSE_ACCEPT or \
                    response == gtk.RESPONSE_OK:
-                    so_obj = e.commit_changes(False)
-                    self._set_view_model_value(path, so_obj)                    
+                    committed = e.commit_changes(False)
+                    debug(committed)
+                    #if type(ret, list) or type(ret, tuple):                    
+                    self._set_view_model_value(path, (existing, committed))
                     self.dirty = True
-                    self.renderer.emit('edited', path, so_obj)                
+                    self.renderer.emit('edited', path, committed)
                 e.destroy()
 
 
@@ -401,7 +461,6 @@ class ComboColumn(TextColumn):
     def on_editing_started(self, cell, editable, path, view):                
         #debug('on_editing_started')
         pass
-
 
 
 def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name, model_col=0, validator=lambda x: x):
@@ -513,6 +572,7 @@ class ModelRowDict(dict):
         # attributes and don't let the editors set attributes that 
         # aren't valid
         # if row is not an instance then make sure
+        self.dirty = False
         self.isinstance = False
         if isinstance(row, BaubleTable):
             self.isinstance = True
@@ -599,11 +659,17 @@ class ModelRowDict(dict):
             else:
                 v = None
                     
-        self[item] = v
+        #self[item] = v
+        # this effectively caches the row item from the instance, the False
+        # is so that the row is set dirty only if it is changed from the 
+        # outside
+        self.__setitem__(item, v, False)
         return v
        
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value, dirty=True):
+        debug('[%s] = %s : %s' % (key, value, dirty))
         dict.__setitem__(self, key, value)
+        self.dirty = dirty
        
 
 #
@@ -829,8 +895,7 @@ class TreeViewEditorDialog(TableEditor):
         if self.select is not None:
             for row in self.select:
                 self.add_new_row(row)
-        else:            
-            self.add_new_row()
+        self.add_new_row()
             
         # enter the columns from the visible list, the column visibility
         # should already have been set before creation from the prefs,
@@ -948,10 +1013,12 @@ class TreeViewEditorDialog(TableEditor):
         # way or at least simpler way of return lists of values
         model = self.view.get_model()
         self._values = []
+        i = 0
         for item in model:
             # copy it so we dont change the data in the model
             # TODO: is it really necessary to copy here
             temp_row = copy.copy(item[0]) 
+#            debug(item[0])
             for name, value in item[0].iteritems():                
                 # del the value if they are none, have to do this b/c 
                 # we don't want to store None in a row without a default
@@ -959,13 +1026,24 @@ class TreeViewEditorDialog(TableEditor):
                     del temp_row[name]
                 elif type(value) == list and type(value[0]) == int:
                     debug('id name pair -- i thought we could del this but i guess we cant')
+                    raise 'id name pair -- i thought we could del this but i guess we cant'
                     temp_row[name] = value[0] # is an id, name pair                
-                 
-            self._values.append(temp_row)
+                elif isinstance(value, tuple):
+                    # the only reason the value should be a tuple is if the
+                    # row has an (existing, pending) pair in it                    
+#                    debug(value)
+                    temp_row[name] = value[1]
             
-        if self.dummy_row:
+            # only get those values that are changed
+            if temp_row.dirty:                             
+                self._values.append(temp_row)
+#            debug(i)
+#            i+=1
+            
+        # shouldn't need this if we are only adding the dirty rows
+        #if self.dummy_row:
             # the last one should always be empty
-            del self._values[len(model)-1] 
+        #    del self._values[len(model)-1] 
         
         
     # TODO: this should replace the commit logic in self.commit_changes to 
@@ -983,8 +1061,13 @@ class TreeViewEditorDialog(TableEditor):
 #        except:
 #            raise
 
-    # pre commit hook
-    def test_values_before_commit(self, values):
+    
+    def pre_commit_hook(self, values):
+        '''
+        called on each item in self.values before committing, this
+        allows a custom editor to do something to the values in the list
+        before they are commited        
+        '''
         return True
     
     
@@ -1003,8 +1086,10 @@ class TreeViewEditorDialog(TableEditor):
         committed_rows = []
         table_instance = None
         for v in self.values:
+            debug(v)
             # make sure it's ok to commit these values            
-            if not self.test_values_before_commit(v):                
+            #if not self.test_values_before_commit(v):                
+            if not self.pre_commit_hook(v):
                 continue                
             # first pop out columns in table_meta.foreign_keys so we can
             # set their foreign key id later                
@@ -1039,14 +1124,14 @@ class TreeViewEditorDialog(TableEditor):
                 # maybe b/c the table_instance hasn't been committed
                 for join in table_instance.sqlmeta.joins:
                     if join_values.has_key(join.joinMethodName):
-                        join_table_instance = join_values.pop(join.joinMethodName)
-                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
+                        for join_table_instance in join_values.pop(join.joinMethodName):
+                            #join_table_instance = join_values.pop(join.joinMethodName)
+                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
                                                 
                 if len(join_values) > 0:
                     debug(join_values)
                     raise ValueError("join_values isn't empty")                    
                     
-                committed_rows.append(table_instance)
             except Exception, e:                
                 self.transaction.rollback()
                 #sqlhub.threadConnection = old_conn
@@ -1060,6 +1145,7 @@ class TreeViewEditorDialog(TableEditor):
                 self.transaction.commit()
                 committed_rows.append(table_instance)
                 
+        debug(committed_rows)
         return committed_rows
         
 
@@ -1121,7 +1207,8 @@ class TreeViewEditorDialog(TableEditor):
             name = join.joinMethodName
             # FIXME: right now we only support editing of single join though 
             # this could be a problem if the editor returns multiple values
-            if not isinstance(join, SOSingleJoin):                         
+            #if not isinstance(join, SOSingleJoin):
+            if not isinstance(join, SOJoin):
                 continue
             column = TextColumn(self, title, so_join=join)
             column.renderer.connect('edited', self.on_column_edited, column)
@@ -1156,7 +1243,7 @@ class TreeViewEditorDialog(TableEditor):
             row = self.table        
         
         self.number_of_adds += 1
-        print self.number_of_adds
+        #print self.number_of_adds
         if self.number_of_adds > 8: # this is a hack to avoid the column creep
             self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         model.append([ModelRowDict(row, self.columns, self.defaults)])        

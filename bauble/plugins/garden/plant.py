@@ -57,8 +57,8 @@ class Plant(BaubleTable):
     
 
     # foreign key and joins
-    accession = ForeignKey('Accession', notNull=True, cascade=True)
-    location = ForeignKey("Location", notNull=True)
+    accession = ForeignKey('Accession', notNull=True, cascade=False)
+    location = ForeignKey("Location", notNull=True, cascade=False)
     
     notes = UnicodeCol(default=None)
     

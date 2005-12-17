@@ -42,7 +42,7 @@ class Region(BaubleTable):
     # i don't think this is used
     iso_code = StringCol(default=None)
     
-    continent = ForeignKey('Continent')
+    continent = ForeignKey('Continent', cascade=False)
     botanical_countries = MultipleJoin('BotanicalCountry', joinColumn='region_id')
     
     def __str__(self): 
@@ -59,7 +59,7 @@ class BotanicalCountry(BaubleTable):
     ed2_status = StringCol(length=64, default=None)
     notes = StringCol(default=None)
     
-    region = ForeignKey('Region')
+    region = ForeignKey('Region', cascade=False)
     units = MultipleJoin('BasicUnit', joinColumn='botanical_country_id')
     
     def __str__(self): 
@@ -75,7 +75,7 @@ class BasicUnit(BaubleTable):
     ed2_status = StringCol(length=64, default=None)
     notes = UnicodeCol(default=None)
     
-    botanical_country = ForeignKey('BotanicalCountry')
+    botanical_country = ForeignKey('BotanicalCountry', cascade=False)
     places = MultipleJoin('Place', joinColumn='state_id')
     
     def __str__(self): 
@@ -91,7 +91,7 @@ class Area(BaubleTable):
     ed2_status = StringCol(length=64, default=None)
     notes = StringCol(default=None)
     
-    region = ForeignKey('Region')
+    region = ForeignKey('Region', cascade=False)
     states = MultipleJoin('State', joinColumn='area_id')
     
     def __str__(self): 
@@ -108,7 +108,7 @@ class State(BaubleTable):
     ed2_status = StringCol(length=64, default=None)
     notes = UnicodeCol(default=None)
     
-    area = ForeignKey('Area')
+    area = ForeignKey('Area', cascade=False)
     places = MultipleJoin('Place', joinColumn='state_id')
     
     def __str__(self): 
@@ -132,11 +132,12 @@ class Place(BaubleTable):
     notes = UnicodeCol(default=None)
 
     # NOTE: Mansel I. and Manu'a don't have continents ???
-    continent = ForeignKey('Continent', default=None) 
-    region = ForeignKey('Region', default=None)
+    continent = ForeignKey('Continent', default=None, cascade=False) 
+    region = ForeignKey('Region', default=None, cascade=False)
     #area = ForeignKey('Area', default=None)
-    botanical_country = ForeignKey('BotanicalCountry', default=None)
-    basic_unit = ForeignKey('BasicUnit', default=None)
+    botanical_country = ForeignKey('BotanicalCountry', default=None, 
+                                   cascade=False)
+    basic_unit = ForeignKey('BasicUnit', default=None, cascade=False)
     #state = ForeignKey('State', default=None)
     #kew_region = ForeignKey('KewRegion', default=None)
 
@@ -170,11 +171,11 @@ class Distribution(BaubleTable):
     have a SingleJoin to a distribution, there is no DistributionEditor,
     the distribution are added from the SpeciesEditor
     """
-    continent = ForeignKey("Continent")
-    area = ForeignKey("Area", default=None)
-    region = ForeignKey("Region", default=None)
-    state = ForeignKey("State", default=None)    
-    place = ForeignKey("Place", default=None)
+    continent = ForeignKey("Continent", cascade=False)
+    area = ForeignKey("Area", default=None, cascade=False)
+    region = ForeignKey("Region", default=None, cascade=False)
+    state = ForeignKey("State", default=None, cascade=False)    
+    place = ForeignKey("Place", default=None, cascade=False)
     #kew_region = ForeignKey("KewRegion", default=None)
     
     # means that the distribution is unknown but is widely
