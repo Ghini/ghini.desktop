@@ -62,6 +62,8 @@ class FamilyEditor(TreeViewEditorDialog):
         #values.pop('synonyms')
         return True
 
+
+
 # 
 # FamilySynonymEditor
 #
@@ -91,7 +93,8 @@ class FamilySynonymEditor(TreeViewEditorDialog):
         
     def get_family_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Family"].select("family LIKE '"+text+"%'")
+        sr = tables["Family"].select("family LIKE '"+text+"%'",
+                                     connection=self.transaction)
         for row in sr:
             model.append([str(row), row])
         return model

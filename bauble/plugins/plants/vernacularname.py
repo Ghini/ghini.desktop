@@ -5,16 +5,19 @@
 import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.plugins.editor import TreeViewEditorDialog, ToggleColumn
 from bauble.utils.log import log, debug
 
 class VernacularName(BaubleTable):
     
-    name = UnicodeCol()
-    language = UnicodeCol()    
-    species = ForeignKey('Species', notNull=True, cascade=True)
-
+    name = UnicodeCol(length=64)
+    language = UnicodeCol(length=64)    
     
+    # default=None b/c the VernacularNameEditor can only be invoked from the 
+    # SpeciesEditor and it should set this on commit
+    species = ForeignKey('Species', default=None, cascade=True)
+
+
 class VernacularNameEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.vernacular.columns"
@@ -37,6 +40,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
                  }
         self.columns.titles = titles        
         self.columns.pop('speciesID')
+        self.columns['default'] = ToggleColumn(self, 'Default')
         #self.columns["speciesID"].meta.get_completions = \
         #    self.get_species_completions
 

@@ -115,14 +115,12 @@ class Species(BaubleTable):
                                   ""),
                       default="")
     
-    # TODO: should be unicode
-    #vernacular_name = UnicodeCol(default=None) # vernacular name
     # it would be best to display the vernacular names in a dropdown list
     # with a way to add to the list    
     vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
-    default_vernacular_name = SingleJoin('VernacularName', 
-                                         joinColumn='species_id')
+    default_vernacular_name = ForeignKey('VernacularName', default=None, 
+                                         cascade=True)
     
 #    synonym = StringCol(default=None)  # should really be an id into table \
 #                                       # or there should be a syn table
@@ -131,7 +129,7 @@ class Species(BaubleTable):
     # not basically, would probably be better to just leaves this and
     # look it up on www.ipni.org www.itis.usda.gov
     #taxonomic_status = StringCol()
-    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species')
+    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
         
     # foreign keys and joins
     genus = ForeignKey('Genus', notNull=True, cascade=False)
@@ -244,7 +242,9 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
         self.columns.pop('speciesID')
         
         self.columns.titles = titles
-        self.columns["synonymID"].meta.get_completions = self.get_species_completions
+        self.columns["synonymID"].meta.get_completions = \
+            self.get_species_completions
+
 
     def get_species_completions(self, text):
         # get entry and determine from what has been input which
@@ -266,6 +266,7 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
                                     connection=self.transaction)
         model = gtk.ListStore(str, object) 
         for row in sr:
+            debug(str(row))
             for species in row.species:                
                 model.append((str(species), species))
         return model
@@ -319,7 +320,8 @@ class SpeciesEditor(TreeViewEditorDialog):
 #                   'distribution': 'Distribution'
                     'species_meta': 'Meta Info',
                     'notes': 'Notes',
-                    'vernacular_name': 'Vernacular Name'
+                    'default_vernacular_nameID': 'Vernacular Names',
+                    'synonyms': 'Synonyms'
 #                    'default_vernacular_name': 'Vernacular Names'
                    }
         
@@ -331,8 +333,8 @@ class SpeciesEditor(TreeViewEditorDialog):
 #        self.columns['distribution'] = dist_column                    
         #self.columns['species_meta'] = \
         #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
-        #self.columns['default_vernacular_name'].meta.editor = \
-        #    editors['VernacularNameEditor']
+        self.columns['default_vernacular_nameID'].meta.editor = \
+            editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
         self.columns.titles = titles            
                      
@@ -341,6 +343,7 @@ class SpeciesEditor(TreeViewEditorDialog):
                      
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions
+        self.columns['synonyms'].meta.editor = editors["SpeciesSynonymEditor"]
         
     
     class dict_obj(object):

@@ -146,7 +146,8 @@ class GenusSynonymEditor(TreeViewEditorDialog):
         
     def get_genus_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Genus"].select("genus LIKE '"+text+"%'")
+        sr = tables["Genus"].select("genus LIKE '"+text+"%'", 
+                                    connection=self.transaction)
         for row in sr:
             model.append([str(row), row])
         return model

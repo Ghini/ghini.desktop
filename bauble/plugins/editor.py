@@ -88,8 +88,12 @@ class GenericViewColumn(gtk.TreeViewColumn):
         
         if so_col is not None and so_join is not None:
             raise ValueError('cannot specify both so_col and join')
-        elif so_col is None and so_join is None:
-            raise ValueError('have to pass either an so_col or an so_join')
+        
+        #
+        # commented out to allow columns to not depend on a table
+        #
+        #elif so_col is None and so_join is None:
+        #    raise ValueError('have to pass either an so_col or an so_join')
         
         self.dirty = False
         self.table_editor = tree_view_editor
@@ -117,12 +121,12 @@ class GenericViewColumn(gtk.TreeViewColumn):
         
         
     def _set_view_model_value(self, path, value):        
-        debug(value)
+ #       debug(value)
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
         row[self.name] = value
-        debug('leaving _set_view_model_value')
+#        debug('leaving _set_view_model_value')
     
     #
     # name property
@@ -133,7 +137,8 @@ class GenericViewColumn(gtk.TreeViewColumn):
         elif self.meta.so_col is not None:
             return self.meta.so_col.name
         
-        raise ValueError("meta.so_col is None")
+        return self.get_property('title')
+        #raise ValueError("meta.so_col is None")
         #return self.meta.so_col.name
     name = property(__get_name)
     
@@ -180,7 +185,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
 #        
 
 # TODO: create a seperate column class that doesn't act like a normal text
-# entry column so that there is a consisten way to show the user they
+# entry column so that there is a consistent way to show the user they
 # need to press Enter or something to open the editor
 class ExternalEditorColumn(GenericViewColumn):
     
@@ -256,8 +261,11 @@ class TextColumn(GenericViewColumn):
             renderer.set_property('text', None)     
         elif isinstance(value, tuple):
             # should show a # values, # pending
-            debug('cell_data_func - tuple')
-            text = '%d values, %d pending' % (len(value[0]), len(value[1]))
+#            debug('cell_data_func - tuple')
+            if value[0] is None:
+                text = '%d pending' % (len(value[1]))
+            else:
+                text = '%d values, %d pending' % (len(value[0]), len(value[1]))
             renderer.set_property('text', text)
         elif isinstance(value, list): 
             # if a list then value[0] should be the string displayed while
@@ -311,8 +319,9 @@ class TextColumn(GenericViewColumn):
 # TODO: set up a validator on the col depending on the sqlobj.column type
         
         if isinstance(self.meta.so_col, SOForeignKey) and \
-          not self.meta.get_completions:
-              msg  = "%s is a foreign key but there are no completions" % self.name
+          not self.meta.get_completions and not self.meta.editor:
+              msg  = "%s is a foreign key but there are no completions and "\
+                     "no editor has been defined for this column" % self.name
               utils.message_dialog(msg, gtk.MESSAGE_ERROR)
               entry.set_property('editable', False)
               return
@@ -652,7 +661,7 @@ class ModelRowDict(dict):
             # is an attribute in the row, should probably validate the type
             # depending on the type of the attribute in row
             if not hasattr(self.row, item):
-                msg = '%s has not attribute %s' % (self.row.__class__, item)
+                msg = '%s has no attribute %s' % (self.row.__class__, item)
                 raise KeyError('ModelRowDict.__getitem__: ' + msg)
             if item in self.defaults:
                 v = self.defaults[item]
