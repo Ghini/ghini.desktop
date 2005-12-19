@@ -76,6 +76,9 @@ class CellRendererButton(gtk.GenericCellRenderer):
         pass
 
 
+# TODO: separate out another class that uses and so_col/so_join so that
+# other classes can extend the GenericViewColumn without having to use
+# SQLObject, what is required for TreeViewEditor to work, self.name, meta
 class GenericViewColumn(gtk.TreeViewColumn):
     
     def __init__(self, tree_view_editor, header, renderer, so_col=None, 
@@ -118,6 +121,17 @@ class GenericViewColumn(gtk.TreeViewColumn):
         #column.set_cell_data_func(r, self.toggle_cell_data_func, name)
         #    if meta.editor is None: # the editor will set the value
         #        
+        
+     
+#    def set_values_in_model(self, path):
+#        '''
+#        this could be called on an editor for it to set its values after
+#        a commit in the model, this saves us from having to worry about what
+#        to return from commit_changes
+#        '''
+#        model = self.table_editor.view.get_model()
+#        i = mode.get_iter(path)
+        
         
         
     def _set_view_model_value(self, path, value):        
@@ -199,6 +213,7 @@ class ExternalEditorColumn(GenericViewColumn):
         # connect to on insert, see TextColumn
         pass
 
+
     
 class ToggleColumn(GenericViewColumn):
     
@@ -216,12 +231,6 @@ class ToggleColumn(GenericViewColumn):
         active = not renderer.get_active()
         self._set_view_model_value(path, active)    
         
-        
-#    def on_renderer_toggled(self, widget, path, data=None):
-#        active = widget.get_active()
-#        model = self.plants_view.get_model()
-#        it = model.get_iter(path)
-#        model.set_value(it, 0, not active)
         
     def cell_data_func(self, col, cell, model, iter, data=None):
         row = model.get_value(iter, 0)

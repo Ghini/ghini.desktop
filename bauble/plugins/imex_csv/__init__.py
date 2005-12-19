@@ -14,6 +14,8 @@ from bauble.utils.log import log, debug
 
 csv_format_params = {}
 
+# TODO: some sort of asynchronous io, see gobject.io_add_watch, 
+# http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq20.016.htp
 
 # TODO: how do i validate unicode ???
 # TODO: i think we can do all of this easier using FormEncode
