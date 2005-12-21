@@ -37,23 +37,7 @@ from bauble.utils.log import log, debug
 # TODO: should we differentiate between editors that commit a single values
 # and editors that commite multiple values, that way we know what to expect
 # what to get back from commit_changes
-    
-# TODO: keep track of when a column is edited and set the row to dirty so
-# we don't have to loop through all rows on commit when nothing has changed 
-
-# an object to fill in for completions in a column
-#class Completion:
-#    
-#    def __init__(self, value, str=None):
-#        self.str = str
-#        self.value = value
-#        
-#    def __str__(self):
-#        if self.str is None:
-#            return str(self.value)
-#        else:
-#            return self.str
-        
+      
     
 class CellRendererButton(gtk.GenericCellRenderer):
     
@@ -123,38 +107,45 @@ class GenericViewColumn(gtk.TreeViewColumn):
         #        
         
      
-#    def set_values_in_model(self, path):
+    def set_value_in_model(self, model, path, value):
 #        '''
 #        this could be called on an editor for it to set its values after
 #        a commit in the model, this saves us from having to worry about what
 #        to return from commit_changes
 #        '''
+        iter = model.get_iter(path)
+        model[iter] = value
 #        model = self.table_editor.view.get_model()
 #        i = mode.get_iter(path)
         
         
         
     def _set_view_model_value(self, path, value):        
- #       debug(value)
+        debug('GenericViewColumn._set_view_model_value(%s)' % str(value))
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
         row = model.get_value(i, 0)
-        row[self.name] = value
+        
+        # allow the caller of _set_view_model_value to define the key in 
+        # the row or else set the value in the row using self.name as the key
+        if isinstance(value, dict):
+            for key, val in value.iteritems():
+                row[key] = val
+        else:
+            row[self.name] = value
 #        debug('leaving _set_view_model_value')
+    
     
     #
     # name property
     #
-    def __get_name(self):
+    def _get_name(self):
         if self.meta.so_join is not None:
             return self.meta.so_join.joinMethodName
         elif self.meta.so_col is not None:
-            return self.meta.so_col.name
-        
+            return self.meta.so_col.name    
         return self.get_property('title')
-        #raise ValueError("meta.so_col is None")
-        #return self.meta.so_col.name
-    name = property(__get_name)
+    name = property(_get_name)
     
     class Meta:
 
@@ -283,6 +274,7 @@ class TextColumn(GenericViewColumn):
             # FIXME: this fucks up if the value is a multiple join, in
             # this case we should just put the number of items in the join
             # by default
+            # UPDATE: is this still the case?
 #            if self.meta.so_join is not None:
 #                #debug(str(value))
             text = '%s values' % len(value)
@@ -428,18 +420,31 @@ class TextColumn(GenericViewColumn):
             # start the editor for the cell if there is one
             if self.meta.editor is not None:
                 model = self.table_editor.view.get_model()
-                it = model.get_iter(path)
-                row = model.get_value(it,0)
-                existing = select=row[self.name]
-                e = self.meta.editor(select=existing, 
+                row = model[model.get_iter(path)][0]
+                debug(row)
+                existing = row[self.name]
+                if self.meta.so_join is not None:
+                    debug(self.meta.so_join)
+                    debug(self.meta.so_join.joinColumn)
+                    debug(self.table_editor.table.__name__)
+                    defaults = {}
+                    if 'id' in row:
+                        instance = self.table_editor.table.get(row['id'])
+                        defaults[self.meta.so_join.joinColumn[:-3]] = instance                    
+                e = self.meta.editor(select=existing, defaults=defaults,
                                   connection=self.table_editor.transaction)
                 response = e.start()
                 if response == gtk.RESPONSE_ACCEPT or \
                    response == gtk.RESPONSE_OK:
                     committed = e.commit_changes(False)
                     debug(committed)
-                    #if type(ret, list) or type(ret, tuple):                    
-                    self._set_view_model_value(path, (existing, committed))
+                    #if type(ret, list) or type(ret, tuple):
+                    if isinstance(committed, dict):
+                        self._set_view_model_value(path, committed)
+                        #for key, val in committed:
+                        #    self._set_view_model_value(path, val, key)
+                    else:
+                        self._set_view_model_value(path, (existing, committed))
                     self.dirty = True
                     self.renderer.emit('edited', path, committed)
                 e.destroy()
@@ -821,6 +826,15 @@ class TreeViewEditorDialog(TableEditor):
     values = property(__get_values)
         
         
+    def pre_start_hook(self):
+        '''
+        this is a pretty rough hack i put it to get thinkgs working if you
+        are using a column that doesn't have a representation as a column
+        in a SQLObject, see vernacularname.py e.g.
+        '''
+        pass
+    
+    
     def start(self):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
@@ -829,8 +843,9 @@ class TreeViewEditorDialog(TableEditor):
                 prefs[self.visible_columns_pref] = self.default_visible_list
             self.set_visible_columns_from_prefs(self.visible_columns_pref)
                     
-        self.start_gui()        
-
+        self.start_gui()
+        self.pre_start_hook()
+        
         # TODO: check that all required columns have been filled in and make
         # sure that a dialog pops up and asks the user if they are sure
         # that they want to close the dialog even though the fields aren't 
@@ -1031,53 +1046,40 @@ class TreeViewEditorDialog(TableEditor):
         # way or at least simpler way of return lists of values
         model = self.view.get_model()
         self._values = []
-        i = 0
         for item in model:
-            # copy it so we dont change the data in the model
-            # TODO: is it really necessary to copy here
-            temp_row = copy.copy(item[0]) 
-#            debug(item[0])
+            # copy so when we make changes to item it doesn't affect our
+            # iterator            
+            temp_row = copy.copy(item[0])                         
+            if not temp_row.dirty:
+                continue
             for name, value in item[0].iteritems():                
                 # del the value if they are none, have to do this b/c 
                 # we don't want to store None in a row without a default
                 if value is None:
-                    del temp_row[name]
-                elif type(value) == list and type(value[0]) == int:
-                    debug('id name pair -- i thought we could del this but i guess we cant')
-                    raise 'id name pair -- i thought we could del this but i guess we cant'
-                    temp_row[name] = value[0] # is an id, name pair                
+                    del temp_row[name]            
                 elif isinstance(value, tuple):
                     # the only reason the value should be a tuple is if the
                     # row has an (existing, pending) pair in it                    
 #                    debug(value)
                     temp_row[name] = value[1]
             
-            # only get those values that are changed
-            if temp_row.dirty:                             
-                self._values.append(temp_row)
-#            debug(i)
-#            i+=1
+            self._values.append(temp_row)
+
             
-        # shouldn't need this if we are only adding the dirty rows
-        #if self.dummy_row:
-            # the last one should always be empty
-        #    del self._values[len(model)-1] 
-        
-        
     # TODO: this should replace the commit logic in self.commit_changes to 
     # allow an editor that extends this class for fine grained control over
     # commits without having to rewrite all of commit_changes
     # right now it's not ready
-#    def commit(self, values):        
-#        try:
-#            if 'id' in v:# updating row
-#                t = self.table.get(values["id"])
-#                del values["id"]
-#                t.set(**values)
-#            else: # adding row
-#                t = self.table(**values)
-#        except:
-#            raise
+    def _commit(self, values):       
+        table_instance = None
+        if 'id' in values:# updating row
+            table_instance = self.table.get(values["id"],
+                                            connection=self.transaction)                    
+            del values["id"]
+            table_instance.set(**values)
+        else: # adding row
+            table_instance = self.table(connection=self.transaction, **values)
+        return table_instance
 
     
     def pre_commit_hook(self, values):
@@ -1085,6 +1087,14 @@ class TreeViewEditorDialog(TableEditor):
         called on each item in self.values before committing, this
         allows a custom editor to do something to the values in the list
         before they are commited        
+        '''
+        return True
+    
+    
+    def post_commit_hook(self, table_instance):
+        '''
+        called after some values have been committed with the table instance
+        those values were committed to
         '''
         return True
     
@@ -1129,14 +1139,8 @@ class TreeViewEditorDialog(TableEditor):
             # update or set the row depending on where there is an 'id' key
             # in the v dict            
             try:                
-                if 'id' in v:# updating row
-                    table_instance = self.table.get(v["id"], 
-                                                   connection=self.transaction)                    
-                    del v["id"]
-                    table_instance.set(**v)
-                else: # adding row
-                    table_instance = self.table(connection=self.transaction, 
-                                                **v)                    
+                table_instance = self._commit(v)
+                
                 # have to set the join this way since 
                 # table_instance.joinColumnName doesn't seem to work here, 
                 # maybe b/c the table_instance hasn't been committed
@@ -1149,11 +1153,11 @@ class TreeViewEditorDialog(TableEditor):
                 if len(join_values) > 0:
                     debug(join_values)
                     raise ValueError("join_values isn't empty")                    
-                    
+                
+                self.post_commit_hook(table_instance)
+                
             except Exception, e:                
                 self.transaction.rollback()
-                #sqlhub.threadConnection = old_conn
-                #sqlhub.processConnection = old_conn
                 msg = "Could not commit changes.\n" + str(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
@@ -1163,7 +1167,7 @@ class TreeViewEditorDialog(TableEditor):
                 self.transaction.commit()
                 committed_rows.append(table_instance)
                 
-        debug(committed_rows)
+        #debug(committed_rows)
         return committed_rows
         
 
@@ -1193,7 +1197,7 @@ class TreeViewEditorDialog(TableEditor):
             #debug("create_view_column: %s -- %s", name, col)
             if name.startswith("_"): # private/not editable
                 continue
-            title = name.replace('_', '__')
+            title = name.replace('_', '__') # not a mnemonic
             if isinstance(col, SOEnumCol):
                 column = ComboColumn(self, title, so_col=col)
                 model = gtk.ListStore(str)
@@ -1210,6 +1214,8 @@ class TreeViewEditorDialog(TableEditor):
                 columns.foreign_keys.append(name)
             
             # set handlers for the view
+            # TODO should i do issubclass here instead, just in case
+            # we derive one of these columns it will still work the same
             if isinstance(column, TextColumn):
                 column.renderer.connect('edited', self.on_column_edited,
                                         column)

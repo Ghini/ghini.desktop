@@ -18,6 +18,8 @@ class VernacularName(BaubleTable):
     # SpeciesEditor and it should set this on commit
     species = ForeignKey('Species', default=None, cascade=True)
 
+    def __str__(self):
+        return self.name
 
 
 # should be able to have a default column that doesn't use the row
@@ -25,6 +27,10 @@ class VernacularName(BaubleTable):
 # of the select row, right now this just emulates GenericViewModel but we 
 # really should refactor GenericViewModel to allow for this sort of behavior
 class DefaultColumn(gtk.TreeViewColumn):
+    '''
+    this column is a toggle column which will represent which if the values
+    in the model will be returned as the default vernacular name
+    '''
     
     def __init__(self, tree_view_editor, header):
         self.renderer = gtk.CellRendererToggle()
@@ -40,7 +46,11 @@ class DefaultColumn(gtk.TreeViewColumn):
         self.set_reorderable(True)
         self.selected_row = None
         
-        
+    #def _get_name(self):
+    #    return 'default'
+    
+    #def on_edited(self, *args):
+    #    super
     def on_toggled(self, renderer, path, data=None):
         self.dirty = True
         active = not renderer.get_active()
@@ -59,9 +69,14 @@ class DefaultColumn(gtk.TreeViewColumn):
             active = self.selected_row.get_path() == model.get_path(iter)
             cell.set_property('active', active)        
         
-        
+#    
+# VernacularNameEditor
+#
 class VernacularNameEditor(TreeViewEditorDialog):
-
+    '''
+    for editing the vernacular names of a species
+    '''
+    
     visible_columns_pref = "editor.vernacular.columns"
     column_width_pref = "editor.vernacular.column_width"
     default_visible_list = ['speciesID', 'name', 'language'] 
@@ -70,6 +85,12 @@ class VernacularNameEditor(TreeViewEditorDialog):
     standalone = False
 
     def __init__(self, parent=None, select=None, defaults={}, connection=None):
+        debug('defaults: %s' % defaults)
+        debug('select: %s' % select)
+        self.default_id = defaults['species'].default_vernacular_nameID
+        debug(self.default_id)
+        #select = None
+        defaults = {}
         TreeViewEditorDialog.__init__(self, VernacularName, 
                                       "Vernacular Name Editor", parent,
                                       select=select, defaults=defaults,
@@ -79,21 +100,72 @@ class VernacularNameEditor(TreeViewEditorDialog):
                   "language": "Language",
                   #"speciesID": "Species"
                  }
+
         self.columns.titles = titles        
         self.columns.pop('speciesID')
         self.columns['default'] = DefaultColumn(self, 'Default')
         #self.columns["speciesID"].meta.get_completions = \
         #    self.get_species_completions
-
-
-#    def get_species_completions(self, text):
-#        # see accession.py for notes about this method
-#        parts = text.split(" ")
-#        genus = parts[0]
-#        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
-#                                    connection=self.transaction)
-#        model = gtk.ListStore(str, object) 
-#        for row in sr:
-#            for species in row.species:                
-#                model.append((str(species), species))
-#        return model
+        self.default_instance = None
+        
+    
+    def pre_start_hook(self):
+        # set the default toggle
+        model = self.view.get_model()
+        for item in model: # skip last row which should be empty
+            #path = model.get_path(item)
+            debug(item)
+            debug(item[0])
+            row = item[0]
+            if 'id' in row and row['id'] == self.default_id:
+                debug('default: %s' % row)
+                path = model.get_path(item.iter)
+                self.columns['default'].selected_row = \
+                    gtk.TreeRowReference(model, path)
+            
+            
+    is_default = False
+    def pre_commit_hook(self, values):
+        #super(VernacularNameEditor, self).pre_commit_hook(values)
+        debug('pre_commit_hook: %s'  % values)
+        if values == self.default_values:
+            debug('-- is default')
+            self.is_default = True
+        return True
+        
+        
+    def post_commit_hook(self, table_instance):
+        if self.is_default:
+            self.default_instance = table_instance
+            self.is_default = False # reset 
+        
+        
+    def commit_changes(self, commit_transaction=True):
+        committed_rows = \
+            super(VernacularNameEditor, self).commit_changes(commit_transaction)
+        debug(committed_rows)
+        debug(self.default_instance)
+        if len(committed_rows) == 0:            
+            return committed_rows
+        else:
+            self.dirty = True
+            return {'default_vernacular_nameID': self.default_instance, 
+                    "vernacular_names": committed_rows}
+                
+    def _set_values_from_widgets(self):
+        super(VernacularNameEditor, self)._set_values_from_widgets()
+        # this is a bit silly b/c it loops over the model twice, once in 
+        # super._set_values_from_widgets and once here, this shouldn't 
+        # really be a performance hit though
+        model = self.view.get_model()
+        debug('_set_values_from_widgets')
+        sr = self.columns['default'].selected_row
+        if sr is None:
+            return
+        selected_item = sr.get_model().get_iter(sr.get_path())
+        selected_value = model[selected_item][0]
+        for item in model:                                        
+            if item[0] == selected_value:
+                self.default_values = selected_value
+                return
+        

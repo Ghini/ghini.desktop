@@ -116,7 +116,7 @@ class Species(BaubleTable):
                       default="")
     
     # it would be best to display the vernacular names in a dropdown list
-    # with a way to add to the list    
+	# with a way to add to the list    
     vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
     default_vernacular_name = ForeignKey('VernacularName', default=None, 
@@ -218,60 +218,51 @@ class SpeciesSynonym(BaubleTable):
     synonym = ForeignKey('Species', cascade=True)
     
 
-# 
-# SpeciesSynonymEditor
-#
-class SpeciesSynonymEditor(TreeViewEditorDialog):
 
-    visible_columns_pref = "editor.species_syn.columns"
-    column_width_pref = "editor.species_syn.column_width"
-    default_visible_list = ['synonym']
-    
-    standalone = False
-    label = 'Species Synonym'
-    
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
-        TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
-                                      "Species Synonym Editor", 
-                                      parent, select=select, 
-                                      defaults=defaults, connection=connection)
-        titles = {'synonymID': 'Synonym of Species'}
-                  
-        # can't be edited as a standalone so the species should only be set by
-        # the parent editor
-        self.columns.pop('speciesID')
+class VernacularNameColumn(TextColumn):
         
-        self.columns.titles = titles
-        self.columns["synonymID"].meta.get_completions = \
-            self.get_species_completions
+	def __init__(self, tree_view_editor, header, so_col=None):
+		super(VernacularNameColumn, self).__init__(tree_view_editor, header,
+                                                   so_col=so_col)
+		self.meta.editor = editors['VernacularNameEditor']
+    
+#    def on_key_press(self, widget, event, path):
+#        """
+#        if the column has an editor, invoke it
+#        """
+#        keyname = gtk.gdk.keyval_name(event.keyval)
+#        if keyname == 'Return':
+#            # start the editor for the cell if there is one
+#            if self.meta.editor is not None:
+#                model = self.table_editor.view.get_model()
+#                it = model.get_iter(path)
+#                row = model.get_value(it,0)
+#                existing = select=row[self.name]
+#                e = self.meta.editor(select=existing, 
+#                                  connection=self.table_editor.transaction)
+#                response = e.start()
+#                if response == gtk.RESPONSE_ACCEPT or \
+#                   response == gtk.RESPONSE_OK:
+#                    committed = e.commit_changes(False)
+#                    debug(committed)
+#                    #if type(ret, list) or type(ret, tuple):                    
+#                    self._set_view_model_value(path, (existing, committed))
+#                    self.
+#                    self.dirty = True
+#                    self.renderer.emit('edited', path, committed)
+#                e.destroy()
+#	#def _get_name(self):
+#	#	return 'default_vernacular_nameID'
+#    #def _set_view_mode_values
 
 
-    def get_species_completions(self, text):
-        # get entry and determine from what has been input which
-        # field is currently being edited and give completion
-        # if this return None then the entry will never search for completions
-        # TODO: finish this, it would be good if we could just stick
-        # the table row in the model and tell the renderer how to get the
-        # string to match on, though maybe not as fast, and then to get
-        # the value we would only have to do a row.id instead of storing
-        # these tuples in the model
-        # UPDATE: the only problem with sticking the table row in the column
-        # is how many queries would it take to screw in a lightbulb, this
-        # would be easy to test it just needs to be done
-        # TODO: there should be a better/faster way to do this 
-        # using a join or something
-        parts = text.split(" ")
-        genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
-                                    connection=self.transaction)
-        model = gtk.ListStore(str, object) 
-        for row in sr:
-            debug(str(row))
-            for species in row.species:                
-                model.append((str(species), species))
-        return model
-    
-    
+# 
+# the getter for the vernacular names column
+#
+def _get_vernacular_name(row):
+    debug(row.default_vernacular_name)
+    return row.default_vernacular_name
+
 
 # Species editor
 #
@@ -301,30 +292,17 @@ class SpeciesEditor(TreeViewEditorDialog):
                    'isp': 'Isp. epithet',
                    'isp_rank': 'Isp. rank',
                    'isp_author': 'Isp. author',
-#                    'isp2': 'Isp. 2',
-#                    'isp2_rank': 'Isp. 2 rank',
-#                    'isp2_author': 'Isp. 2 author',
-#                    'isp3': 'Isp. 3',
-#                    'isp3_rank': 'Isp. 3 rank',
-#                    'isp3_author': 'Isp. 3 author',
-#                    'isp4': 'Isp. 4',
-#                    'isp4_rank': 'Isp. 4 rank',
-#                    'isp4_author': 'Isp. 4 author',
 #                   'iucn23': 'IUCN 2.3\nCategory',
 #                   'iucn31': 'IUCN 3.1\nCategory',
                    'id_qual': 'ID qualifier',
-#                   'vernac_name': 'Common Name',
-#                   'poison_humans': 'Poisonious\nto humans',
-#                  'poison_animals': 'Poisonious\nto animals',
-#                   'food_plant': 'Food plant',
 #                   'distribution': 'Distribution'
                     'species_meta': 'Meta Info',
                     'notes': 'Notes',
-                    'default_vernacular_nameID': 'Vernacular Names',
-                    'synonyms': 'Synonyms'
-#                    'default_vernacular_name': 'Vernacular Names'
-                   }
-        
+#                    'default_vernacular_nameID': 'Vernacular Names',
+                    'synonyms': 'Synonyms',
+                    'vernacular_names': 'Vernacular Names',
+				   }
+
         # make a custom distribution column
 #        self.columns.pop('distribution') # this probably isn't necessary     
 #        dist_column = ComboColumn(self.view, 'Distribution',
@@ -333,8 +311,18 @@ class SpeciesEditor(TreeViewEditorDialog):
 #        self.columns['distribution'] = dist_column                    
         #self.columns['species_meta'] = \
         #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
-        self.columns['default_vernacular_nameID'].meta.editor = \
+        #self.columns['default_vernacular_nameID'] = \
+        
+        self.columns.pop('default_vernacular_nameID')
+        self.columns['vernacular_names'].meta.editor = \
             editors['VernacularNameEditor']
+#        self.columns['vernacular_names'].meta.getter = _get_vernacular_name
+        
+            #VernacularNameColumn(self, 'Vern name', 
+            #                     so_col=Species.sqlmeta.columns['default_vernacular_nameID'])
+		#	so_col=Species.sqlmeta.columns['default_vernacular_nameID'])
+        #self.columns['default_vernacular_nameID'].meta.editor = \
+        #    editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
         self.columns.titles = titles            
                      
@@ -344,14 +332,6 @@ class SpeciesEditor(TreeViewEditorDialog):
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions
         self.columns['synonyms'].meta.editor = editors["SpeciesSynonymEditor"]
-        
-    
-    class dict_obj(object):
-        
-        def __init__(self, d):
-            self.dic = d
-        def __getattr__(self, item):
-            return self.dic[item]
     
         
     def commit_changes_NO(self):
@@ -365,28 +345,8 @@ class SpeciesEditor(TreeViewEditorDialog):
         #super(SpeciesEditor, self).commit_changes()
         values = self.get_values_from_view()
     
-    # from http://vsbabu.org/mt/archives/2003/02/13/joy_of_python_classes_and_dictionaries.html
-    def dict2class(d):
-        """Return a class that has same attributes/values and
-           dictionaries key/value
-        """
-        
-        #see if it is indeed a dictionary
-        if type(d) != types.DictType:
-            return None
-        
-        #define a dummy class
-        class Dummy:
-            pass
-            
-        c = Dummy
-        for elem in d.keys():
-            c.__dict__[elem] = d[elem]
-        return c
-        
+          
     def pre_commit_hook(self, values):    
-        #s = utils.species2str(dict2class(values)): 
-        #if s == 
         # need to test each of the values that make up the species
         # against the database, not just the string, i guess we need to
         # check each of the keys in values, check if they are name components
@@ -457,6 +417,62 @@ class SpeciesEditor(TreeViewEditorDialog):
             print "add genus"
 
         
+
+# 
+# SpeciesSynonymEditor
+#
+class SpeciesSynonymEditor(TreeViewEditorDialog):
+
+    visible_columns_pref = "editor.species_syn.columns"
+    column_width_pref = "editor.species_syn.column_width"
+    default_visible_list = ['synonym']
+    
+    standalone = False
+    label = 'Species Synonym'
+    
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+        TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
+                                      "Species Synonym Editor", 
+                                      parent, select=select, 
+                                      defaults=defaults, connection=connection)
+        titles = {'synonymID': 'Synonym of Species'}
+                  
+        # can't be edited as a standalone so the species should only be set by
+        # the parent editor
+        self.columns.pop('speciesID')
+        
+        self.columns.titles = titles
+        self.columns["synonymID"].meta.get_completions = \
+            self.get_species_completions
+
+
+    def get_species_completions(self, text):
+        # get entry and determine from what has been input which
+        # field is currently being edited and give completion
+        # if this return None then the entry will never search for completions
+        # TODO: finish this, it would be good if we could just stick
+        # the table row in the model and tell the renderer how to get the
+        # string to match on, though maybe not as fast, and then to get
+        # the value we would only have to do a row.id instead of storing
+        # these tuples in the model
+        # UPDATE: the only problem with sticking the table row in the column
+        # is how many queries would it take to screw in a lightbulb, this
+        # would be easy to test it just needs to be done
+        # TODO: there should be a better/faster way to do this 
+        # using a join or something
+        parts = text.split(" ")
+        genus = parts[0]
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
+                                    connection=self.transaction)
+        model = gtk.ListStore(str, object) 
+        for row in sr:
+            debug(str(row))
+            for species in row.species:                
+                model.append((str(species), species))
+        return model
+    
+    
+    
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
         set_widget_value

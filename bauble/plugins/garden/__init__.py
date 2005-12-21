@@ -8,7 +8,7 @@ from bauble.plugins import BaublePlugin, plugins, tables
 from accession import Accession, AccessionEditor
 from location import Location, LocationEditor
 from plant import Plant, PlantEditor, PlantInfoBox
-from reference import Reference, ReferenceEditor
+#from reference import Reference, ReferenceEditor
 from source import Donation, Collection
 from source_editor import SourceEditor
 from donor import Donor, DonorEditor, DonorInfoBox
