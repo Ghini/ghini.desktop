@@ -58,8 +58,8 @@ class DefaultColumn(gtk.TreeViewColumn):
         self.selected_row = gtk.TreeRowReference(model, path)
 
             
-    def get_selected(self):
-        pass
+#    def get_selected(self):
+#        pass
     
     
     def cell_data_func(self, col, cell, model, iter, data=None):
@@ -84,13 +84,19 @@ class VernacularNameEditor(TreeViewEditorDialog):
     label = 'Vernacular Name'
     standalone = False
 
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):
-        debug('defaults: %s' % defaults)
-        debug('select: %s' % select)
-        self.default_id = defaults['species'].default_vernacular_nameID
-        debug(self.default_id)
+
+    def __init__(self, parent=None, select=None, default_name=None, defaults={}, 
+                 connection=None):
+        '''
+        default_id is the id of the row in select that should be set as the 
+        default name
+        '''
+        #debug('defaults: %s' % defaults)
+        #debug('select: %s' % select)
+        #self.default_id = defaults['species'].default_vernacular_nameID
+        #debug(self.default_id)
         #select = None
-        defaults = {}
+        #defaults = {}
         TreeViewEditorDialog.__init__(self, VernacularName, 
                                       "Vernacular Name Editor", parent,
                                       select=select, defaults=defaults,
@@ -107,6 +113,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
         #self.columns["speciesID"].meta.get_completions = \
         #    self.get_species_completions
         self.default_instance = None
+        self.default_name = default_name
         
     
     def pre_start_hook(self):
@@ -117,7 +124,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
             debug(item)
             debug(item[0])
             row = item[0]
-            if 'id' in row and row['id'] == self.default_id:
+            if 'id' in row and row['id'] == self.default_name.id:
                 debug('default: %s' % row)
                 path = model.get_path(item.iter)
                 self.columns['default'].selected_row = \
@@ -135,6 +142,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
         
         
     def post_commit_hook(self, table_instance):
+        debug(self.column['default'].selected_row)
         if self.is_default:
             self.default_instance = table_instance
             self.is_default = False # reset 
@@ -144,13 +152,16 @@ class VernacularNameEditor(TreeViewEditorDialog):
         committed_rows = \
             super(VernacularNameEditor, self).commit_changes(commit_transaction)
         debug(committed_rows)
-        debug(self.default_instance)
+        debug(self.default_instance)        
+        if self.default_instance is None and len(committed_rows) > 0:
+            self.commit_changes(commit_transaction)
         if len(committed_rows) == 0:            
-            return committed_rows
+            return None, committed_rows
         else:
             self.dirty = True
-            return {'default_vernacular_nameID': self.default_instance, 
-                    "vernacular_names": committed_rows}
+            #return {'default_vernacular_nameID': self.default_instance, 
+            #        "vernacular_names": committed_rows}
+            return self.default_instance, committed_rows
                 
     def _set_values_from_widgets(self):
         super(VernacularNameEditor, self)._set_values_from_widgets()

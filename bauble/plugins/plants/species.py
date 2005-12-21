@@ -221,39 +221,27 @@ class SpeciesSynonym(BaubleTable):
 
 class VernacularNameColumn(TextColumn):
         
-	def __init__(self, tree_view_editor, header, so_col=None):
-		super(VernacularNameColumn, self).__init__(tree_view_editor, header,
+    def __init__(self, tree_view_editor, header, so_col=None):
+        super(VernacularNameColumn, self).__init__(tree_view_editor, header,
                                                    so_col=so_col)
-		self.meta.editor = editors['VernacularNameEditor']
+        self.meta.editor = editors['VernacularNameEditor']
     
-#    def on_key_press(self, widget, event, path):
-#        """
-#        if the column has an editor, invoke it
-#        """
-#        keyname = gtk.gdk.keyval_name(event.keyval)
-#        if keyname == 'Return':
-#            # start the editor for the cell if there is one
-#            if self.meta.editor is not None:
-#                model = self.table_editor.view.get_model()
-#                it = model.get_iter(path)
-#                row = model.get_value(it,0)
-#                existing = select=row[self.name]
-#                e = self.meta.editor(select=existing, 
-#                                  connection=self.table_editor.transaction)
-#                response = e.start()
-#                if response == gtk.RESPONSE_ACCEPT or \
-#                   response == gtk.RESPONSE_OK:
-#                    committed = e.commit_changes(False)
-#                    debug(committed)
-#                    #if type(ret, list) or type(ret, tuple):                    
-#                    self._set_view_model_value(path, (existing, committed))
-#                    self.
-#                    self.dirty = True
-#                    self.renderer.emit('edited', path, committed)
-#                e.destroy()
-#	#def _get_name(self):
-#	#	return 'default_vernacular_nameID'
-#    #def _set_view_mode_values
+    
+    def _start_editor(self, path):        
+        e = self.meta.editor(select=existing, defaults=defaults,
+                             connection=self.table_editor.transaction)
+        response = e.start()
+        if response == gtk.RESPONSE_ACCEPT or response == gtk.RESPONSE_OK:
+            default_name, all_names = e.commit_changes(False)
+            model = self.table_editor.view.get_model()
+            i = model.get_iter(path)
+            row = model.get_value(i, 0)
+            row['default_vernacular_nameID'] = default_name
+            row['vernacular_names'] = all_names
+            self.dirty = True
+            self.renderer.emit('edited', path, committed)
+        e.destroy()
+
 
 
 # 
@@ -466,7 +454,7 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
                                     connection=self.transaction)
         model = gtk.ListStore(str, object) 
         for row in sr:
-            debug(str(row))
+#            debug(str(row))
             for species in row.species:                
                 model.append((str(species), species))
         return model

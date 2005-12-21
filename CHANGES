@@ -1,3 +1,8 @@
+2005.12.20
+----------
+- columns that have external editors now have a star(*) in their header
+- think i need to rethink this whole multiple join editors on columns
+
 2005.12.18
 ----------
 - synonym editors work, now just have to finish the VernacularNameEditor

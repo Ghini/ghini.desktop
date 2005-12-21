@@ -60,6 +60,7 @@ class CellRendererButton(gtk.GenericCellRenderer):
         pass
 
 
+    
 # TODO: separate out another class that uses and so_col/so_join so that
 # other classes can extend the GenericViewColumn without having to use
 # SQLObject, what is required for TreeViewEditor to work, self.name, meta
@@ -121,21 +122,13 @@ class GenericViewColumn(gtk.TreeViewColumn):
         
         
     def _set_view_model_value(self, path, value):        
-        debug('GenericViewColumn._set_view_model_value(%s)' % str(value))
+#        debug('GenericViewColumn._set_view_model_value(%s)' % str(value))
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
-        row = model.get_value(i, 0)
-        
-        # allow the caller of _set_view_model_value to define the key in 
-        # the row or else set the value in the row using self.name as the key
-        if isinstance(value, dict):
-            for key, val in value.iteritems():
-                row[key] = val
-        else:
-            row[self.name] = value
+        row = model.get_value(i, 0)        
+        row[self.name] = value
 #        debug('leaving _set_view_model_value')
-    
-    
+       
     #
     # name property
     #
@@ -189,20 +182,125 @@ class GenericViewColumn(gtk.TreeViewColumn):
 #        
 #        
 
-# TODO: create a seperate column class that doesn't act like a normal text
-# entry column so that there is a consistent way to show the user they
-# need to press Enter or something to open the editor
-class ExternalEditorColumn(GenericViewColumn):
-    
-    def __init__(self, tree_view_editor, header, so_col=None, so_join=None):
-        super(ExternalEditorColumn, self).__init__(tree_view_editor, header, 
-                                                   CellRendererButton,
-                                                   so_col, so_join)
-        
-        
-    def on_editing_started(self, cell, entry, path, view):
-        # connect to on insert, see TextColumn
-        pass
+## TODO: create a seperate column class that doesn't act like a normal text
+## entry column so that there is a consistent way to show the user they
+## need to press Enter or something to open the editor
+#class ExternalEditorColumn(GenericViewColumn):
+#
+#    def __init__(self, tree_view_editor, header, renderer=None, so_col=None, 
+#                 so_join=None):        
+#        if renderer is None:
+#            renderer = gtk.CellRendererText()            
+#        super(ExternalEditorColumn, self).__init__(tree_view_editor, header, 
+#                                                   renderer, so_col, so_join)
+#        self.renderer.set_property("editable", True)
+#        self.renderer.connect("editing_started", self.on_editing_started, 
+#                              tree_view_editor)
+#        self.renderer.connect('edited', self.on_edited)
+#    
+#    
+#    def cell_data_func(self, column, renderer, model, iter, data=None):
+#        
+#        row = model.get_value(iter, 0)
+#        #if colname not in row: return # this should never happen
+#        value = row[self.name]
+#        debug('ExternalEditorColumn.cell_data: %s' % value)
+#        #debug(type(value))
+#        #debug(value)
+#        if value is None: # no value in model
+#            renderer.set_property('text', None)     
+#        elif isinstance(value, tuple):
+#            # should show a # values, # pending
+##            debug('cell_data_func - tuple')
+#            if value[0] is None:
+#                text = '%d pending' % (len(value[1]))
+#            else:
+#                text = '%d values, %d pending' % (len(value[0]), len(value[1]))
+#            renderer.set_property('text', text)
+#        elif isinstance(value, list): 
+#            # if a list then value[0] should be the string displayed while
+#            # row[1] is the value we want to put in the model, used mostly
+#            # for completions
+#            # FIXME: this fucks up if the value is a multiple join, in
+#            # this case we should just put the number of items in the join
+#            # by default
+#            # UPDATE: is this still the case?
+##            if self.meta.so_join is not None:
+##                #debug(str(value))
+#            text = '%s values' % len(value)
+#            renderer.set_property('text', text)
+#            
+#            #else: # assume its a completion # should use the completion object
+#            #    renderer.set_property('text', value[1])
+#        else: 
+#            # just plain text or a Completion
+#            # in model column or something convertible 
+#            # to string like a table row
+#            renderer.set_property('text', str(value))
+#            
+#
+#    def on_edited(self, renderer, path, new_text, set_in_model=True):
+#        # means that the value is set by the on_match_completed function,
+#        # there should be a way to set either on_edited or on_completion
+#        # but not both
+#        # TODO: what happens when you type something into the column
+#        # that has a completion but what you type isn't a completion
+#        # we should either query for the value or don't allow it to 
+#        # be set
+#        #debug('on_edited')        
+#        # don't allow empty strings in the model, this usually means a null
+#        # value in the cell
+#        if new_text == "":
+#            return
+#        self.dirty = True        
+#        self._set_view_model_value(path, new_text)
+#        
+#                                           
+#    def on_editing_started(self, cell, entry, path, view):
+#        # if the cell has it's own editor we shouldn't be here
+#        if self.meta.editor is not None: 
+#            entry.connect('key-press-event', self.on_key_press, path)
+#            entry.set_property('editable', False)
+#                
+#
+#    def on_key_press(self, widget, event, path):
+#        """
+#        if the column has an editor, invoke it
+#        """
+#        keyname = gtk.gdk.keyval_name(event.keyval)
+#        if keyname == 'Return':
+#            # start the editor for the cell if there is one
+#            if self.meta.editor is not None:
+#                model = self.table_editor.view.get_model()
+#                row = model[model.get_iter(path)][0]
+#                debug(row)
+#                existing = row[self.name]
+#                if self.meta.so_join is not None:
+#                    debug(self.meta.so_join)
+#                    debug(self.meta.so_join.joinColumn)
+#                    debug(self.table_editor.table.__name__)
+#                    defaults = {}
+#                    if 'id' in row:
+#                        instance = self.table_editor.table.get(row['id'])
+#                        defaults[self.meta.so_join.joinColumn[:-3]] = instance                    
+#                e = self.meta.editor(select=existing, defaults=defaults,
+#                                  connection=self.table_editor.transaction)
+#                response = e.start()
+#                if response == gtk.RESPONSE_ACCEPT or \
+#                   response == gtk.RESPONSE_OK:
+#                    committed = e.commit_changes(False)
+#                    debug(committed)
+#                    #if type(ret, list) or type(ret, tuple):
+#                    if isinstance(committed, dict):
+#                        self._set_view_model_value(path, committed)
+#                        #for key, val in committed:
+#                        #    self._set_view_model_value(path, val, key)
+#                    else:
+#                        self._set_view_model_value(path, (existing, committed))
+#                    self.dirty = True
+#                    self.renderer.emit('edited', path, committed)
+#                e.destroy()
+                
 
 
     
@@ -250,41 +348,37 @@ class TextColumn(GenericViewColumn):
                               tree_view_editor)
         self.renderer.connect('edited', self.on_edited)
     
-    
     def cell_data_func(self, column, renderer, model, iter, data=None):
         row = model.get_value(iter, 0)
-        #if colname not in row: return # this should never happen
         value = row[self.name]
-        #debug(type(value))
-        #debug(value)
         if value is None: # no value in model
             renderer.set_property('text', None)     
-        elif isinstance(value, tuple):
-            # should show a # values, # pending
-#            debug('cell_data_func - tuple')
+        else:
+            renderer.set_property('text', str(value))
+            
+    def cell_data_func(self, column, renderer, model, iter, data=None):
+        row = model.get_value(iter, 0)
+#        if colname not in row: 
+#            return # this should never happen
+        value = row[self.name]
+        if value is None: # no value in model
+            renderer.set_property('text', None)     
+        elif isinstance(value, tuple):     
+            # the tuple should be the number of items in the column and the
+            # number of values waiting to be committed
             if value[0] is None:
                 text = '%d pending' % (len(value[1]))
             else:
                 text = '%d values, %d pending' % (len(value[0]), len(value[1]))
             renderer.set_property('text', text)
-        elif isinstance(value, list): 
-            # if a list then value[0] should be the string displayed while
-            # row[1] is the value we want to put in the model, used mostly
-            # for completions
-            # FIXME: this fucks up if the value is a multiple join, in
-            # this case we should just put the number of items in the join
-            # by default
-            # UPDATE: is this still the case?
-#            if self.meta.so_join is not None:
-#                #debug(str(value))
+        elif isinstance(value, list):  # the item is a of values
             text = '%s values' % len(value)
             renderer.set_property('text', text)
             
             #else: # assume its a completion # should use the completion object
             #    renderer.set_property('text', value[1])
         else: 
-            # just plain text or a Completion
-            # in model column or something convertible 
+            # just plain text in model column or something convertible 
             # to string like a table row
             renderer.set_property('text', str(value))
             
@@ -411,43 +505,45 @@ class TextColumn(GenericViewColumn):
             entry_completion.set_model(model)
 
 
+    def _start_editor(self, path):
+        '''
+        this provides the standard behavior of starting an external editor
+        on a column and adding the value returned from editor.commit_changes
+        into the model
+        _start_editor can abe extended to make it easier to use external 
+        editors that don't provide standard behavior
+        '''
+        model = self.table_editor.view.get_model()
+        row = model[model.get_iter(path)][0]
+#        debug(row)
+        existing = row[self.name]
+        debug('existing: %s' % existing)
+        # TODO: if this is a tuple then there are still pending changes and 
+        # we should put all of them in the select to pass to the editor            
+        default_name = row['default_vernacular_nameID']
+        e = self.meta.editor(select=existing, default_name=default_name,
+                             connection=self.table_editor.transaction)
+        response = e.start()
+        if response == gtk.RESPONSE_ACCEPT or \
+           response == gtk.RESPONSE_OK:
+            committed = e.commit_changes(False)
+#            debug(committed)
+            self._set_view_model_value(path, (existing, committed))
+            self.dirty = True
+            self.renderer.emit('edited', path, committed)
+        e.destroy()
+        
+        
     def on_key_press(self, widget, event, path):
-        """
+        '''
         if the column has an editor, invoke it
-        """
+        '''
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname == 'Return':
             # start the editor for the cell if there is one
             if self.meta.editor is not None:
-                model = self.table_editor.view.get_model()
-                row = model[model.get_iter(path)][0]
-                debug(row)
-                existing = row[self.name]
-                if self.meta.so_join is not None:
-                    debug(self.meta.so_join)
-                    debug(self.meta.so_join.joinColumn)
-                    debug(self.table_editor.table.__name__)
-                    defaults = {}
-                    if 'id' in row:
-                        instance = self.table_editor.table.get(row['id'])
-                        defaults[self.meta.so_join.joinColumn[:-3]] = instance                    
-                e = self.meta.editor(select=existing, defaults=defaults,
-                                  connection=self.table_editor.transaction)
-                response = e.start()
-                if response == gtk.RESPONSE_ACCEPT or \
-                   response == gtk.RESPONSE_OK:
-                    committed = e.commit_changes(False)
-                    debug(committed)
-                    #if type(ret, list) or type(ret, tuple):
-                    if isinstance(committed, dict):
-                        self._set_view_model_value(path, committed)
-                        #for key, val in committed:
-                        #    self._set_view_model_value(path, val, key)
-                    else:
-                        self._set_view_model_value(path, (existing, committed))
-                    self.dirty = True
-                    self.renderer.emit('edited', path, committed)
-                e.destroy()
+                self._start_editor(path)
+
 
 
 class ComboColumn(TextColumn):
@@ -909,6 +1005,28 @@ class TreeViewEditorDialog(TableEditor):
     
     def start_tree_view(self):
         
+        # put a star at the end of the column names that have external
+        # editors
+        # TODO: maybe we should be iterating through the columns again
+        # FIXME: this doesn't work b/c by now the columns have already been
+        # added to the view so if we removed the columns and appended them
+        # back it would screw up the column order and world of other things
+        # if somehow we could delay creating the TreeViewColumns until
+        # now it would be easier but that would require alot of big changes
+#        for name, column in self.columns.iteritems():
+#            if column.meta.editor is not None:
+#                debug('popping %s' % name)
+#                meta = column.meta
+#                title = column.get_title()                     
+#                self.columns.pop(name)
+#                c = ExternalEditorColumn(self, title + '*')
+#                c.meta = meta
+#                self.view.remove()
+#                self.columns[name] = c
+#                
+#                debug(self.columns[name])
+#        debug(self.columns)
+        
         # remove join columns if they don't have an editor associated
         column_names = self.columns.keys()
         for join in self.table.sqlmeta.joins:
@@ -925,6 +1043,7 @@ class TreeViewEditorDialog(TableEditor):
             
         # create the model from the tree view and add rows if a
         # selectresult is passed
+        debug('select: %s' % str(self.select))
         if self.select is not None:
             for row in self.select:
                 self.add_new_row(row)
@@ -950,6 +1069,7 @@ class TreeViewEditorDialog(TableEditor):
             if name in width_dict and width_dict[name] > 0:                                
                 column.set_fixed_width(width_dict[name])                
             
+        
         # now that all the columns are here, let us know if anything 
         # changes
 #        self.view.connect("move-cursor", self.on_view_move_cursor)
@@ -1260,6 +1380,7 @@ class TreeViewEditorDialog(TableEditor):
     
     number_of_adds = 0
     def add_new_row(self, row=None):
+        debug("row: %s" % row)
         model = self.view.get_model()
         if model is None: 
             raise Exception("no model in the row")
@@ -1269,7 +1390,7 @@ class TreeViewEditorDialog(TableEditor):
         self.number_of_adds += 1
         #print self.number_of_adds
         if self.number_of_adds > 8: # this is a hack to avoid the column creep
-            self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
+            self.view_window.set_pjolicy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
         model.append([ModelRowDict(row, self.columns, self.defaults)])        
 
 
