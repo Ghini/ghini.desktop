@@ -143,7 +143,7 @@
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
 		  <property name="active">False</property>
-		  <property name="inconsistent">True</property>
+		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
 		</widget>
 		<packing>
@@ -186,7 +186,7 @@
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
 		  <property name="active">False</property>
-		  <property name="inconsistent">True</property>
+		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
 		</widget>
 		<packing>
@@ -207,7 +207,7 @@
 		  <property name="relief">GTK_RELIEF_NORMAL</property>
 		  <property name="focus_on_click">True</property>
 		  <property name="active">False</property>
-		  <property name="inconsistent">True</property>
+		  <property name="inconsistent">False</property>
 		  <property name="draw_indicator">True</property>
 		</widget>
 		<packing>

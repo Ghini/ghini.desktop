@@ -1,3 +1,12 @@
+2005.12.22
+----------
+- editing SingleJoin and MultipleJoin columns now work
+- creating a column in a TreeViewEditorDialog that's not a column in the table
+is now much easier
+- lots of fixes in speciesmeta.py
+- preparing for a release soon
+- too many fixes to list
+
 2005.12.20
 ----------
 - columns that have external editors now have a star(*) in their header

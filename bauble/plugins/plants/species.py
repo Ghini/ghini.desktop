@@ -122,9 +122,6 @@ class Species(BaubleTable):
     default_vernacular_name = ForeignKey('VernacularName', default=None, 
                                          cascade=True)
     
-#    synonym = StringCol(default=None)  # should really be an id into table \
-#                                       # or there should be a syn table
-    
     # where this name stands in taxonomy, whether it's a synonym or
     # not basically, would probably be better to just leaves this and
     # look it up on www.ipni.org www.itis.usda.gov
@@ -221,35 +218,78 @@ class SpeciesSynonym(BaubleTable):
 
 class VernacularNameColumn(TextColumn):
         
-    def __init__(self, tree_view_editor, header, so_col=None):
+    def __init__(self, tree_view_editor, header):
+        # this is silly to have the get the join this way
+        vern_join = None
+        for j in Species.sqlmeta.joins: 
+            if j.joinMethodName == 'vernacular_names':
+                vern_join = j
+                break
+        assert vern_join is not None
         super(VernacularNameColumn, self).__init__(tree_view_editor, header,
-                                                   so_col=so_col)
+               so_col=vern_join)
         self.meta.editor = editors['VernacularNameEditor']
-    
+
     
     def _start_editor(self, path):        
-        e = self.meta.editor(select=existing, defaults=defaults,
-                             connection=self.table_editor.transaction)
+        model = self.table_editor.view.get_model()
+        row = model[model.get_iter(path)][0]
+        existing = row[self.name]
+        old_committed = []
+        select = None
+        if isinstance(existing, tuple): # existing/committed paot
+            existing, old_committed = existing
+            select = existing+old_committed
+        else:
+            select = existing
+        e = self.meta.editor(select=select,
+                             default_name=row['default_vernacular_nameID'],
+                             connection=self.table_editor.transaction)        
+        #existing = None
+        #model = self.table_editor.view.get_model()
+        #row = model[model.get_iter(path)][0]
+        #existing = row[self.name]
+        #e = self.meta.editor(select=existing, 
+        #                     default_name=row['default_vernacular_nameID'],
+        #                     connection=self.table_editor.transaction)
         response = e.start()
         if response == gtk.RESPONSE_ACCEPT or response == gtk.RESPONSE_OK:
-            default_name, all_names = e.commit_changes(False)
+            default_name, committed_names = e.commit_changes(False)
             model = self.table_editor.view.get_model()
             i = model.get_iter(path)
             row = model.get_value(i, 0)
             row['default_vernacular_nameID'] = default_name
-            row['vernacular_names'] = all_names
-            self.dirty = True
-            self.renderer.emit('edited', path, committed)
+#            debug(committed_names)
+            if committed_names is not None and len(committed_names) > 0:
+                row['vernacular_names'] = (existing, 
+                                           old_committed+committed_names)
+            # why do we do this? to set the values in the model
+            self.renderer.emit('edited', path, default_name) 
         e.destroy()
 
 
-
-# 
-# the getter for the vernacular names column
-#
-def _get_vernacular_name(row):
-    debug(row.default_vernacular_name)
-    return row.default_vernacular_name
+    def cell_data_func(self, column, renderer, model, iter, data=None):
+        row = model.get_value(iter, 0)
+        all_names = row[self.name]
+        # and what if there are pending names????
+#        debug(all_names)
+        if all_names is not None:
+            default_name = row['default_vernacular_nameID']
+            if isinstance(all_names, tuple): 
+                existing, pending = all_names
+                if existing is None:
+                    renderer.set_property('text', '%s (%s pending)' \
+                                      % (default_name, len(pending)))
+                else:
+                    renderer.set_property('text', '%s (%s names, %s pending)' \
+                                          % (default_name, len(existing), 
+                                             len(pending)))
+            else:
+                renderer.set_property('text', '%s (%s names)' \
+                                      % (default_name, len(all_names)))
+                                      
+        else:
+            renderer.set_property('text', None)
 
 
 # Species editor
@@ -302,20 +342,11 @@ class SpeciesEditor(TreeViewEditorDialog):
         #self.columns['default_vernacular_nameID'] = \
         
         self.columns.pop('default_vernacular_nameID')
-        self.columns['vernacular_names'].meta.editor = \
-            editors['VernacularNameEditor']
-#        self.columns['vernacular_names'].meta.getter = _get_vernacular_name
+        self.columns['vernacular_names'] = \
+            VernacularNameColumn(self, 'Vernacular Names')
         
-            #VernacularNameColumn(self, 'Vern name', 
-            #                     so_col=Species.sqlmeta.columns['default_vernacular_nameID'])
-		#	so_col=Species.sqlmeta.columns['default_vernacular_nameID'])
-        #self.columns['default_vernacular_nameID'].meta.editor = \
-        #    editors['VernacularNameEditor']
         self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
-        self.columns.titles = titles            
-                     
-        # should be able to just do a combo list  for the 
-        # default_vernacular_name built from the list of vernacular names
+        self.columns.titles = titles                     
                      
         # set completions
         self.columns["genusID"].meta.get_completions= self.get_genus_completions

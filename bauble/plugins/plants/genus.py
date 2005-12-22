@@ -109,6 +109,7 @@ class GenusEditor(TreeViewEditorDialog):
         self.columns["familyID"].meta.get_completions = self.get_family_completions
         self.columns['synonyms'].meta.editor = editors["GenusSynonymEditor"]
 
+
     def get_family_completions(self, text):
         model = gtk.ListStore(str, object)
         sr = tables["Family"].select("family LIKE '"+text+"%'")
