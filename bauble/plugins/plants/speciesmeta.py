@@ -7,7 +7,7 @@ from sqlobject import *
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TableEditor, ComboColumn
+from bauble.plugins.editor import TableEditorDialog, ComboColumn
 from bauble.utils.log import log, debug
 
 # TODO create a meta table that holds information about a species 
@@ -61,16 +61,19 @@ class SpeciesMeta(BaubleTable):
         return ','.join(v)
     
     
-class SpeciesMetaEditor(TableEditor):
+class SpeciesMetaEditor(TableEditorDialog):
     
     standalone = False
     label = 'Species Meta'
     
     def __init__(self, select=None, defaults={}, connection=None):
         super(SpeciesMetaEditor, self).__init__(tables["SpeciesMeta"], 
+                                                None, None,
                                                 select, defaults, connection)
         path = os.path.join(paths.lib_dir(), 'plugins', 'plants')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
+        
+        # override dialog from TableEditorDialog
         self.dialog = self.glade_xml.get_widget('main_dialog')
         self.dist_combo = self.glade_xml.get_widget('dist_combo')
         self.committed = False
@@ -82,28 +85,14 @@ class SpeciesMetaEditor(TableEditor):
         self.__values = None
     
     
-    def start(self):
-#        debug(self.select)
+    def start(self, commit_transaction):
         self.__populate_distribution_combo()
         if self.select is not None:
             self._set_widget_values_from_instance(self.select)
-            
-        response = gtk.RESPONSE_CANCEL
-        while True:
-            msg = 'Are you sure you want to lose your changes?'            
-            response = self.dialog.run()
-            if response == gtk.RESPONSE_OK:
-                break
-            elif self.dirty and utils.yes_no_dialog(msg):
-                self.dirty = False
-                break      
-            elif not self.dirty:
-                break               
-
-        self._set_values_from_widgets()
-        self.dialog.destroy()
-                
-        return response
+        committed = self._run(commit_transaction)
+        self._cleanup()
+        return committed
+    
         
     
     def commit_changes(self, commit_transaction=True):

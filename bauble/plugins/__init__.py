@@ -215,7 +215,7 @@ class BaublePlugin(object):
         
         
 class BaubleTable(SQLObject):
-    sqlmeta.cacheValues = False
+#    sqlmeta.cacheValues = False
     
     def __init__(self, **kw):        
         super(BaubleTable, self).__init__(**kw)        

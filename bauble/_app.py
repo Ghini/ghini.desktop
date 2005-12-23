@@ -37,9 +37,12 @@ class BaubleApp:
         bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
                                value=str(bauble.version))
         # TODO: should use a transaction here
-        try:
+        #old_auto = sqlhub.processConnection.autoCommit
+        try:            
+            #sqlhub.processConnection.autoCommit = True
             for p in plugins.values():
                 p.create_tables()
+            
         except:
             msg = "Error creating tables. Your database may be corrupt."
             utils.message_details_dialog(msg, traceback.format_exc(),
@@ -48,13 +51,16 @@ class BaubleApp:
             # create the created timestamp 
             bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
                         value=str(datetime.datetime.now()))        
-        
+        #sqlhub.processConnection.autoCommit = old_auto
 #        except pysqlite2.dbapi2.OperationalError:
 #            msg = "Error creating the database. This sometimes happens " \
 #            "when trying to create a SQLite database on a network drive. " \
 #            "Try creating the database in a local drive or folder."
 #            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-
+        # refresh the search view
+        if self.gui is not None:
+            view = self.gui.get_current_view()
+            view.refresh_search()
 
     #
     # tracing execution 
@@ -85,26 +91,23 @@ class BaubleApp:
         open a database connection
         """
         import sqlobject.sqlite.sqliteconnection as sqlite
-        if uri.startswith('sqlite:'):# and sqlite.using_sqlite2:
-            #uri += "?check_same_thread=0" # incase using multiple threads
-#            uri += "&autoCommit=0"        
-            pass
-        #debug(uri) # this can print your passwd
+        #debug(uri) # ** WARNING: this can print your passwd
         sqlhub.processConnection = connectionForURI(uri)
+
         
 #        if debug.enabled:
 #            should do something like debug_sql=True and debug_sql_output=True
 #        sqlhub.processConnection.debug = True
 #        sqlhub.processConnection.debugOutput = True
-#        sqlhub.processConnection.autoCommit = False
+
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect
             sqlhub.processConnection.getConnection()
+#            sqlhub.processConnection.autoCommit = False
             # if not autocommit then mysql import won't work unless we 
             # temporary store autocommit and restore it to the original
             # values, either way why would we want autocommit false
-            #self.conn.autoCommit = False 
         except Exception, e:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 
@@ -145,7 +148,7 @@ class BaubleApp:
                     return False
                         
         except Exception:
-            debug(traceback.format_exc())
+            #debug(traceback.format_exc())
             msg = "The database you have connected to is either empty or " \
                   "wasn't created using Bauble. Would you like to create a " \
                   "create a database at this connection?" + warning

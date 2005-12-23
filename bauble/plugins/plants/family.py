@@ -50,7 +50,7 @@ class FamilyEditor(TreeViewEditorDialog):
         
         TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
                                       parent, select=select, defaults=defaults,
-                                      connection=None)
+                                      connection=connection)
         titles = {'family': 'Family',
                   'notes': 'Notes',
                   'synonyms': 'Synonyms'}

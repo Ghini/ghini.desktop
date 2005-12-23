@@ -10,7 +10,7 @@ import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TableEditor
+from bauble.plugins.editor import TableEditorDialog
 from bauble.utils.log import debug
 
 # FIXME: there is a bug that if  you open the source editor window, close
@@ -296,11 +296,10 @@ class DonationEditor:
         setComboModelFromSelect(self.donor_combo, sel)
 
 
-    def set_values(self, values):
-        pass
-        
-
+#    def set_values(self, values):
+#        pass
     def get_values(self):
+
         # donor_combo
         # get the donor id from the model
         values = {}
@@ -314,9 +313,6 @@ class DonationEditor:
         #self.dialog.set_sensitive(False)
         e = editors['DonorEditor'](connection=self.connection)
         response = e.start()
-        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-            e.commit_changes()
-        e.destroy()
         #editor_class().start()
         #self.dialog.set_sensitive(True)
         #model = gtk.ListStore(obj)
@@ -335,14 +331,14 @@ class DonationEditor:
         pass
     
     
-class SourceEditor(TableEditor):
+class SourceEditor(TableEditorDialog):
     
     label = 'Acession Sources'
     standalone = False
     show_in_toolbar = False
     
     def __init__(self, select=None, defaults={}, connection=None):
-        super(SourceEditor, self).__init__(None, select, defaults, 
+        super(SourceEditor, self).__init__(None, None, None, select, defaults, 
               connection=connection)
         if select is not None and not isinstance(select, BaubleTable):
             raise ValueError("SourceEditor.__init__: select should be a "\
@@ -451,7 +447,6 @@ class SourceEditor(TableEditor):
         #self.commited = None
         table_instance = None
         try:
-            
             # i guess the connection is inherant
             if self.select is None: # create a new table row
                 table_instance = table(connection=self.transaction, **values)
@@ -482,22 +477,35 @@ class SourceEditor(TableEditor):
         return table_instance
         
         
-    def start(self):
-        # this ensures that the visibility is set properly in the meta before
-        # before everything is created
-
-        while True:
-            msg = 'Are you sure you want to lose your changes?'
-            response = self.dialog.run()
-            if response == gtk.RESPONSE_OK:
-                    break
-            elif self._dirty and utils.yes_no_dialog(msg):
-                break      
-            elif not dirty:
-                break
-        return response
+    def start(self, commit_transaction=True):   
+         committed = self._run(commit_transaction)
+         self._cleanup()
+         return committed
+         
+         
+    def _set_values_from_widgets(self):
+         '''
+         we get the values from the other editor so we don't worry about
+         this method
+         '''
+         pass
+     
+#    def start(self):
+#        # this ensures that the visibility is set properly in the meta before
+#        # before everything is created
+#
+#        while True:
+#            msg = 'Are you sure you want to lose your changes?'
+#            response = self.dialog.run()
+#            if response == gtk.RESPONSE_OK:
+#                    break
+#            elif self._dirty and utils.yes_no_dialog(msg):
+#                break      
+#            elif not dirty:
+#                break
+#        return response
     
     
-    def destroy(self):
-        super(SourceEditor, self).destroy()
-        self.dialog.destroy()
+#    def destroy(self):
+#        super(SourceEditor, self).destroy()
+#        self.dialog.destroy()

@@ -458,12 +458,15 @@ class SearchView(BaubleView):
             
             
     def on_activate_editor(self, item, editor, select=None, defaults={}):
-        e = editor(select=select, defaults=defaults)
-        response = e.start()
-        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-            e.commit_changes()
-            self.refresh_search()            
-        e.destroy()
+        e = editor(select=select, defaults=defaults)        
+        committed = e.start()
+        if committed is not None:
+            self.refresh_search()
+#        response = e.start()
+#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:        
+#            e.commit_changes()
+#            self.refresh_search()            
+#        e.destroy()
         
 
     # TODO: provide a way for the plugin to add extra items to the

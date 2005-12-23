@@ -1,3 +1,13 @@
+2005.12.23
+----------
+- fixed bug when creating Tag tables
+- think i fixed the problem with transaction and ghost data by 
+setting cacheValues=True
+- a large refactoring of TableEditor, TreeViewEditor and now TableEditorDialog
+- refresh search view after creating tables
+- fixes a bug importing csv tables where we pass in more than one filename to
+csv.start() and the file has the id's included in the rows
+
 2005.12.22
 ----------
 - editing SingleJoin and MultipleJoin columns now work

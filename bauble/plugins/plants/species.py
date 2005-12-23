@@ -244,17 +244,9 @@ class VernacularNameColumn(TextColumn):
             select = existing
         e = self.meta.editor(select=select,
                              default_name=row['default_vernacular_nameID'],
-                             connection=self.table_editor.transaction)        
-        #existing = None
-        #model = self.table_editor.view.get_model()
-        #row = model[model.get_iter(path)][0]
-        #existing = row[self.name]
-        #e = self.meta.editor(select=existing, 
-        #                     default_name=row['default_vernacular_nameID'],
-        #                     connection=self.table_editor.transaction)
-        response = e.start()
-        if response == gtk.RESPONSE_ACCEPT or response == gtk.RESPONSE_OK:
-            default_name, committed_names = e.commit_changes(False)
+                             connection=self.table_editor.transaction)
+        default_name, committed_names = e.start(False)
+        if default_name is not None and committed_names is not None:
             model = self.table_editor.view.get_model()
             i = model.get_iter(path)
             row = model.get_value(i, 0)
@@ -265,7 +257,7 @@ class VernacularNameColumn(TextColumn):
                                            old_committed+committed_names)
             # why do we do this? to set the values in the model
             self.renderer.emit('edited', path, default_name) 
-        e.destroy()
+        #e.destroy()
 
 
     def cell_data_func(self, column, renderer, model, iter, data=None):
@@ -302,10 +294,11 @@ class SpeciesEditor(TreeViewEditorDialog):
     
     label = 'Species'
     
-    def __init__(self, parent=None, select=None, defaults={}):  
+    def __init__(self, parent=None, select=None, defaults={}, connection=None):  
         TreeViewEditorDialog.__init__(self, tables["Species"],
                                       "Species Editor", parent,
-                                      select=select, defaults=defaults)
+                                      select=select, defaults=defaults,
+                                      connection=connection)
         titles = {"genusID": "Genus",
                    "sp": "Species",
                    "sp_hybrid": "Sp. hybrid",

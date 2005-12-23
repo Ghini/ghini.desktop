@@ -25,7 +25,9 @@ class ConnectionManager:
     def __init__(self, current_name=None):
         self.current_name = None # this should get set in on_name_combo_changed
         self.create_gui()
-        self.dialog.connect('response', self.on_response)
+        self.dialog.connect('response', self.on_dialog_response)
+        self.dialog.connect('close', self.on_dialog_close_or_delete)
+        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         self.set_active_connection_by_name(current_name)        
         self._dirty = False
         
@@ -42,8 +44,32 @@ class ConnectionManager:
                   'you can connect to the database.'
             utils.message_dialog(msg)
             name, uri = self.start()
-        self.dialog.destroy()
+        #self.dialog.destroy()
+        self.dialog.hide()
         return name, uri
+        
+        
+    def on_dialog_response(self, dialog, response, data=None):
+        if response == gtk.RESPONSE_OK:
+            self.save_current_to_prefs()
+        elif response == gtk.RESPONSE_CANCEL or \
+             response == gtk.RESPONSE_DELETE_EVENT:
+            if not self.compare_params_to_prefs(self.current_name):
+                msg="Do you want to save your changes?"
+                if utils.yes_no_dialog(msg):
+                    self.save_current_to_prefs()       
+
+        # system-defined GtkDialog responses are always negative, in which
+        # case we want to hide it
+        if response < 0:
+            dialog.hide()
+            #dialog.emit_stop_by_name('response')
+        return response
+    
+    
+    def on_dialog_close_or_delete(self, widget, event=None):
+        self.dialog.hide()
+        return gtk.TRUE
         
         
     def _get_supported_dbtypes(self):
@@ -201,16 +227,7 @@ class ConnectionManager:
             #self.type_combo.set_active(0)
         
                     
-    def on_response(self, dialog, response, data=None):
-        if response == gtk.RESPONSE_OK:
-            self.save_current_to_prefs()
-        elif response == gtk.RESPONSE_CANCEL or \
-             response == gtk.RESPONSE_DELETE_EVENT:
-            if not self.compare_params_to_prefs(self.current_name):
-                msg="Do you want to save your changes?"
-                if utils.yes_no_dialog(msg):
-                    self.save_current_to_prefs()              
-        return response
+
 
 
     def set_info_label(self, msg="Choose a connection"):

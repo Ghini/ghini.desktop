@@ -60,36 +60,42 @@ class CSVImporter:
         
         old_conn = sqlobject.sqlhub.getConnection()
         trans = old_conn.transaction()       
-        sqlobject.sqlhub.threadConnection = trans
+        sqlobject.sqlhub.processConnection = trans
         
         filename = None   # these two are here in case we get an exception
         table_name = None
-        try:
-            for filename in filenames:
+        for filename in filenames:
+            try:
                 path, base = os.path.split(filename)
-                table_name, ext = os.path.splitext(base)
-                self.import_file(filename, tables[table_name], trans)
-        except Exception, e:
-            #print e            
-            #exc, msg = e
-            #print msg
-            trans.rollback()
-            msg = "Error importing values from %s into table %s\n" \
-                   % (filename, table_name)
-            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)            
-            error = True
-        else:
-            trans.commit()
-            # this gets pass some problem when import tables with id's
-            # into postgres but i can't remember exactly what
-            if sqlobject.sqlhub.processConnection.dbName == "postgres":
-                    sql = "SELECT max(id) FROM %s" % table_name                    
-                    max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]
-                    sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
-                    sqlobject.sqlhub.processConnection.query(sql)    
+                table_class_name, ext = os.path.splitext(base)
+                table = tables[table_class_name]
+                table_name = table.sqlmeta.table
+                self.import_file(filename, table, trans)
+            except Exception, e:
+                msg = "Error importing values from %s into table %s\n" \
+                       % (filename, table_name)
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                             gtk.MESSAGE_ERROR)            
+                error = True
+                break
+            else:
+                # this gets pass some problem when import tables with id's
+                # into postgres, the table_name_id_seq doesn't get set to the
+                # max value so subsequent inserts to the table won't give
+                # unique id numbers
+                if sqlobject.sqlhub.processConnection.dbName == "postgres":
+                    sql = "SELECT max(id) FROM %s" % table_name
+                    max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]                    
+                    if max is not None:
+                        sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
+                        sqlobject.sqlhub.processConnection.query(sql)    
                 
         bauble.app.set_busy(False)
-        sqlobject.sqlhub.threadConnection = old_conn
+        sqlobject.sqlhub.processConnection = old_conn
+        if not error:
+            trans.commit()
+        else:
+            trans.rollback()
         return not error
         
         

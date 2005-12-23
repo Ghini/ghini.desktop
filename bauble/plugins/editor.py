@@ -335,18 +335,19 @@ class TextColumn(SOViewColumn):
             select = existing
         e = self.meta.editor(select=select,
                              connection=self.table_editor.transaction)
-        response = e.start()
-        if response == gtk.RESPONSE_ACCEPT or \
-           response == gtk.RESPONSE_OK:
-            committed = e.commit_changes(False)
-            debug(committed)
+        committed = response = e.start(False)
+        if committed is not None:
+#        if response == gtk.RESPONSE_ACCEPT or \
+#           response == gtk.RESPONSE_OK:
+            #committed = e.commit_changes(False)
+#            debug(committed)
             if isinstance(committed, list):
                 self._set_view_model_value(path, (existing, old_committed+committed))
             else:
                 self._set_view_model_value(path, committed)
             self.dirty = True
             self.renderer.emit('edited', path, committed)
-        e.destroy()
+        #e.destroy()
         
         
     def on_key_press(self, widget, event, path):
@@ -653,37 +654,36 @@ class TableEditor(BaubleEditor):
         super(TableEditor, self).__init__()
         self.defaults = copy.copy(defaults)
         self.table = table
-        self.select = select        
-        self._old_connection = sqlhub.processConnection
+        self.select = select                
         self.__dirty = False
+        self._old_connection = sqlhub.getConnection()
         if connection is None:
-            self.transaction = sqlhub.processConnection.transaction()
+            self.transaction = self._old_connection.transaction()
         elif isinstance(connection, Transaction):
             self.transaction = connection
         else:
             self.transaction = connection.transaction()
-        sqlhub.processConnection = self.transaction
+        sqlhub.processConnection = self.transaction        
         
         
-    def start(self): 
+    def start(self, commit_transaction=True): 
+        '''
+        required to implement, should return the values committed by this 
+        editor
+        '''
         raise NotImplementedError
+
 
     #
     # dirty property
     #
     def _get_dirty(self):
-        return self.__dirty
-    
+        return self.__dirty    
     def _set_dirty(self, dirty):
-        self.__dirty = dirty
-        
+        self.__dirty = dirty        
     dirty = property(_get_dirty, _set_dirty)
 
-    
-    # TODO: this should replace the commit logic in self.commit_changes to 
-    # allow an editor that extends this class for fine grained control over
-    # commits without having to rewrite all of commit_changes
-    # right now it's not ready
+
     def _commit(self, values):       
         table_instance = None
         if 'id' in values:# updating row
@@ -700,11 +700,97 @@ class TableEditor(BaubleEditor):
         raise NotImplementedError
     
     
-    def destroy(self):
-        super(TableEditor, self).__init__()
+    #def destroy(self):
+    def _cleanup(self):
+        '''
+        this should be called in start when everthing is finished doing
+        what it does, not doing so will cause some strange behavior
+        with connections and transaction
+        '''
         sqlhub.processConnection = self._old_connection
+#
+#
+#
+class TableEditorDialog(TableEditor):
+    
+    def __init__(self, table, title="Table Editor", parent=None, select=None, 
+                 defaults={}, connection=None):
+        super(TableEditorDialog, self).__init__(table, select, defaults, 
+                                                   connection=connection)
+        self.dialog = gtk.Dialog(title, parent, 
+                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        self._values = []
+    
+    
+    def _run(self, commit_transaction=True):
+        # connect these here in case self.dialog is overwridden after the 
+        # construct is called
+        self.dialog.connect('response', self.on_dialog_response)
+        self.dialog.connect('close', self.on_dialog_close_or_delete)
+        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
+        '''
+        loops until return
+        '''
+        # TODO: should i set the transaction here instead of the constructor,
+        # is this the only place we really need it????, then we wouldn't
+        # have to call _cleanup
+        committed = None
+        while True:
+            msg = 'Are you sure you want to lose your changes?'
+            response = self.dialog.run()
+            if response == gtk.RESPONSE_OK:
+                try:
+                    self.save_state()
+                    self._set_values_from_widgets()
+                    committed = self.commit_changes(commit_transaction)
+                except:
+                    debug(traceback.format_exc())
+                    pass
+                else:
+                    break
+            elif self.dirty and utils.yes_no_dialog(msg):
+#                debug('transaction.rollback')
+                self.transaction.rollback()
+                self.dirty = False
+                break
+            elif not self.dirty:
+                break
 
+        return committed        
+        
+        
+    def on_dialog_response(self, dialog, response, *args):
+        # system-defined GtkDialog responses are always negative, in which
+        # case we want to hide it
+        if response < 0:
+            dialog.hide()
+            #dialog.emit_stop_by_name('response')
+        return response
+    
+    
+    def on_dialog_close_or_delete(self, widget, event=None):
+        self.dialog.hide()
+        return gtk.TRUE
+        
+    def __get_values(self):
+        return self._values
+    values = property(__get_values)
+            
+    def start(self, commit_transaction=True):
+        raise NotImplementedError('TableEditorDialog.start()')
+    
+    def _set_values_from_widgets(self):
+        raise NotImplementedError('TableEditorDialog._set_values_from_widgets()')
 
+    def save_state(self):
+        '''
+        save the state of the editor whether it be the gui or whatever, this 
+        should not make database commits unless to BaubleMeta,
+        not required to implement
+        '''        
+        pass
 
 #
 # TreeViewEditorDialog
@@ -722,7 +808,7 @@ class TableEditor(BaubleEditor):
 # being edited and what could be wrong ala eclipse
 # TODO: separate TreeViewEditor and TreeViewEditorDialog so we could use
 # the TreeViewEditor outside of a dialog in the future
-class TreeViewEditorDialog(TableEditor):
+class TreeViewEditorDialog(TableEditorDialog):
     """the model for the view in this class only has a single column which
     is a Table class which is really just a dict. each value in the dict
     relates to a column in the tree but
@@ -751,15 +837,15 @@ class TreeViewEditorDialog(TableEditor):
 
     def __init__(self, table, title="Table Editor", parent=None, select=None, 
                  defaults={}, connection=None):
-        super(TreeViewEditorDialog, self).__init__(table, select, defaults, 
-               connection=connection)
+        super(TreeViewEditorDialog, self).__init__(table, title, parent, 
+               select, defaults, connection=connection)
         self.__view = None        
         self.__dirty = False # accessed via self.dirty property
         self.table_meta = TableMeta()        
-        self.dialog = gtk.Dialog(title, parent, 
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+#        self.dialog = gtk.Dialog(title, parent, 
+#                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+#                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+#                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
 #        self.dialog.connect('close)
         self.init_gui()
         
@@ -768,37 +854,19 @@ class TreeViewEditorDialog(TableEditor):
         self.dummy_row = False
         # _values will hold values of the widgets after start returns
         # 
-        self._values = None
+        #self._values = None
         #self.connect('response', self.on_response)
         
-        self.dialog.connect('response', self.on_dialog_response)
-        self.dialog.connect('close', self.on_dialog_close_or_delete)
-        self.dialog.connect('response', self.on_dialog_close_or_delete)
+
     
     
-    def on_dialog_response(self, dialog, response, *args):
-        # system-defined GtkDialog responses are always negative, in which
-        # case we want to hide it
-        if response < 0:
-            dialog.hide()
-            #dialog.emit_stop_by_name('response')
-        return response
-    
-    
-    def on_dialog_close_or_delete(self, widget, event=None):
-        self.dialog.hide()
-        return gtk.TRUE
-    
-    
-    def destroy(self):
-        #self.dialog.destroy()
-        #self.dialog.hid
-        super(TreeViewEditorDialog, self).destroy()
+#    def destroy(self):
+#        #self.dialog.destroy()
+#        #self.dialog.hid
+#        super(TreeViewEditorDialog, self).destroy()
         
                 
-    def __get_values(self):
-        return self._values
-    values = property(__get_values)
+
         
         
     def pre_start_hook(self):
@@ -810,7 +878,7 @@ class TreeViewEditorDialog(TableEditor):
         pass
     
     
-    def start(self):
+    def start(self, commit_transaction=True):
         # this ensures that the visibility is set properly in the meta before
         # before everything is created
         if self.visible_columns_pref is not None:
@@ -825,29 +893,11 @@ class TreeViewEditorDialog(TableEditor):
         # sure that a dialog pops up and asks the user if they are sure
         # that they want to close the dialog even though the fields aren't 
         # complete
-
-        response = None
-        while True:
-            msg = 'Are you sure you want to lose your changes?'
-            response = self.dialog.run()
-            if response == gtk.RESPONSE_OK:
-                break
-            elif self.dirty and utils.yes_no_dialog(msg):
-                self.dirty = False
-                break
-            elif not self.dirty:
-                break
-                
-        self.store_column_widths()
-        self.store_visible_columns()
-        self._set_values_from_widgets()
-        return response
-
-#    def do_commit(self):
-#        self.store_column_widths()
-#        self.store_visible_columns()
-#        self._set_values_from_widgets()
         
+        committed = self._run(commit_transaction)
+        self._cleanup()
+        return committed
+
         
     def init_gui(self):
         self.init_tree_view()
@@ -1000,7 +1050,8 @@ class TreeViewEditorDialog(TableEditor):
         return self.__dirty
     
     def _set_dirty(self, dirty):
-        super(TreeViewEditorDialog, self)._set_dirty(dirty)
+        #super(TreeViewEditorDialog, self)._set_dirty(dirty)
+        self.__dirty = dirty
         self.set_ok_sensitive(dirty)
         
     dirty = property(_get_dirty, _set_dirty)
@@ -1151,15 +1202,21 @@ class TreeViewEditorDialog(TableEditor):
                 
                 self.post_commit_hook(table_instance)
                 
-            except Exception, e:                
+            except Exception, e:                                
                 self.transaction.rollback()
                 msg = "Could not commit changes.\n" + str(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                               gtk.MESSAGE_ERROR)
-                return None
+                #return None
+                raise
             else:
-                self.transaction.commit()
+                if commit_transaction:
+                    self.transaction.commit()
+                    debug('****  transaction committed')
+                else:                    
+                    pass
+                    debug('**** transaction NOT committed')
                 committed_rows.append(table_instance)
                 
         #debug(committed_rows)
@@ -1288,7 +1345,12 @@ class TreeViewEditorDialog(TableEditor):
         return prefs[self.column_width_pref]
 
 
-    def store_column_widths(self):
+    def save_state(self):
+        self._store_column_widths()
+        self._store_visible_columns()
+        
+        
+    def _store_column_widths(self):
         """
         store the column widths as a dict in the preferences, self
         if self.column_width_pref is None then just don't store the prefs
@@ -1309,7 +1371,7 @@ class TreeViewEditorDialog(TableEditor):
             prefs[self.column_width_pref] = pref_dict
 
         
-    def store_visible_columns(self):
+    def _store_visible_columns(self):
         """
         get the currently visible columns and store them to the preferences
         """

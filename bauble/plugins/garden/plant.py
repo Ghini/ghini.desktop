@@ -142,7 +142,7 @@ class PlantEditor(TreeViewEditorDialog):
             self.get_location_completions
 
 
-    def start(self):
+    def start(self, commit_transaction=True):
         accessions = tables["Accession"].select()
         if accessions.count() < 1:
             msg = "You can't add plants/clones to the database without first " \
@@ -150,29 +150,43 @@ class PlantEditor(TreeViewEditorDialog):
                   "Would you like to add accessions now?"
             if utils.yes_no_dialog(msg):
                 acc_editor = editors["AccessionEditor"](connection=self._old_connection)
-                response = acc_editor.start()
-                if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
-                    acc_editor.commit_changes()
-                acc_editor.destroy()
+                acc_editor.start()
+                #response = acc_editor.start()
+                #if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
+                #    acc_editor.commit_changes()
+                #acc_editor.destroy()
                     
         accessions = tables["Accession"].select()
         if accessions.count() < 1:   # no accessions were added
             return
         
         locations = tables["Location"].select()
+        # keep location committed b/c locations.select might return 1 since
+        # the location is just in the cache
+        loc_committed = [] 
         if locations.count() < 1:
             msg = "You are trying to add plants to the database but no " \
                   "locations exists.\n" \
                   "Would you like to add some locations now?"
             if utils.yes_no_dialog(msg):
+                self._old_connection.debug = True
+                self._old_connection.debugOutput = True
                 loc_editor = editors["LocationEditor"](connection=self._old_connection)
-                response = loc_editor.start()
-                if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
-                    loc_editor.commit_changes()
-                loc_editor.destroy()
-                
-        locations = tables["Location"].select()
-        if locations.count() < 1: # no locations were added
+                loc_committed = loc_editor.start()
+                print loc_committed[0]
+                #response = loc_editor.start()
+                #if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
+                #    loc_editor.commit_changes()
+                #loc_editor.destroy()
+                #for loc in loc_committed:
+                #    loc.expire()
+        
+        #locations = tables["Location"].select()
+        #locations = tables["Location"].get(
+        print (list(locations))
+        print(locations.count())
+        if len(loc_committed) < 1 and locations.count() < 1: # no locations were added
+            #debug('no location were added')
             return
             
         return super(PlantEditor, self).start()

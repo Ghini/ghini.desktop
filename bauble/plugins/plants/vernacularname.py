@@ -22,6 +22,7 @@ class VernacularName(BaubleTable):
 
     def __str__(self):
         return self.name
+    
 
 
 # should be able to have a default column that doesn't use the row
@@ -158,7 +159,10 @@ class VernacularNameEditor(TreeViewEditorDialog):
     def pre_commit_hook(self, values):
         #super(VernacularNameEditor, self).pre_commit_hook(values)
 #        debug('pre_commit_hook: %s'  % values)
-        
+        #sr = self.columns['default'].selected_row
+        #path = sr.get_path()
+        #model = sr.get_model()        
+        #debug()
         if values == self.default_values:
 #            debug('-- is default')
             self.is_default = True
@@ -201,8 +205,10 @@ class VernacularNameEditor(TreeViewEditorDialog):
             return
         selected_item = sr.get_model().get_iter(sr.get_path())
         selected_value = model[selected_item][0]
+        self.default_values = None
         for item in model:                                        
             if item[0] == selected_value:
                 self.default_values = selected_value
                 return
+        raise 'could not get selected values'
         

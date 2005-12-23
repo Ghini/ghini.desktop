@@ -135,6 +135,8 @@ class TagItemGUI:
         while response != gtk.RESPONSE_OK \
           and response != gtk.RESPONSE_DELETE_EVENT:            
             response = self.dialog.run()
+            
+        # FIXME: should be be hiding the dialog or destroying it        
         self.dialog.destroy()
     
         
@@ -292,7 +294,7 @@ class TagPlugin(BaublePlugin):
             
     @classmethod
     def create_tables(cls):
-        BaublePlugin.create_tables()
+        super(TagPlugin, cls).create_tables()
         if bauble.app.gui is not None:
             _reset_tags_menu() 
         

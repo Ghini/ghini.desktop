@@ -159,13 +159,13 @@ class GUI:
         """
         debug('on_activate_editor')
         e = editor()
-        response = e.start()
-        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-            debug('committing')
-            e.commit_changes()
-        else:
-            debug('rolling back')
-            e.transaction.rollback()
+        committed = e.start()
+#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+#            debug('committing')
+#            e.commit_changes()
+#        else:
+#            debug('rolling back')
+#            e.transaction.rollback()
         
         
     def create_main_menu(self):
@@ -267,12 +267,13 @@ class GUI:
         
     def on_insert_menu_item_activate(self, widget, editor):
         e = editor()
-        response = e.start()
-        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-            e.commit_changes()
-        else:
-            e.transaction.rollback()
-        e.destroy()
+        committed = e.start()
+#        response = e.start()
+#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+#            e.commit_changes()
+#        else:
+#            e.transaction.rollback()
+#        e.destroy()
             
         
     def on_edit_menu_prefs(self, widget, data=None):

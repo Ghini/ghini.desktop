@@ -190,35 +190,44 @@ class AccessionEditor(TreeViewEditorDialog):
                 v['source_type'] = source_class
     
     
-    def commit_changes(self):
-        committed_rows = TreeViewEditorDialog.commit_changes(self)
-        if not committed_rows:
-            return committed_rows
-                            
-        # TODO: here should we iterate over the response from 
-        # TreeViewEditorDialog.commit_changes or is the 'values' sufficient
-        for row in committed_rows:
-            pass
-            #debug(row)
-        return committed_rows
-        for v in self.values:
-            acc_id = v["acc_id"]
-            sel = tables["Accession"].selectBy(acc_id=acc_id)
-            if sel.count() > 1:
-                raise Exception("AccessionEditor.commit_changes():  "\
-                                "more than one accession exists with id: " +
-                                acc_id)
-            msg  = "No Plants/Clones exist for this accession %s. Would you "\
-                   "like to add them now?"
-            if not utils.yes_no_dialog(msg % acc_id):
-                continue
-            e = editors['PlantEditor'](defaults={"accessionID":sel[0]},
-                                       connection=self._old_connection)
-            response = e.start()
-            if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-                e.commit_changes()
-            e.destroy()
-        return committed_rows
+#
+# TODO: fix this so it asks if you want to adds plant when you're done
+#
+#
+#    def commit_changes_old(self, commit_transaction=True):
+#        committed_rows = TreeViewEditorDialog.commit_changes(self, 
+#                                                            commit_transaction)
+#        if not committed_rows:
+#            return committed_rows
+#                            
+#        # TODO: here should we iterate over the response from 
+#        # TreeViewEditorDialog.commit_changes or is the 'values' sufficient
+#        for row in committed_rows:
+#            pass
+#            #debug(row)
+#        return committed_rows
+#    
+#        #
+#        # it would be nice to have this done later
+#        #
+#        for v in self.values:
+#            acc_id = v["acc_id"]
+#            sel = tables["Accession"].selectBy(acc_id=acc_id)
+#            if sel.count() > 1:
+#                raise Exception("AccessionEditor.commit_changes():  "\
+#                                "more than one accession exists with id: " +
+#                                acc_id)
+#            msg  = "No Plants/Clones exist for this accession %s. Would you "\
+#                   "like to add them now?"
+#            if not utils.yes_no_dialog(msg % acc_id):
+#                continue
+#            e = editors['PlantEditor'](defaults={"accessionID":sel[0]},
+#                                       connection=self._old_connection)
+#            response = e.start()
+#            #if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
+#            #    e.commit_changes()
+#            #e.destroy()
+#        return committed_rows
         
 #
 # infobox for searchview

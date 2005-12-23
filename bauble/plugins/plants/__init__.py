@@ -53,10 +53,24 @@ class PlantsPlugin(BaublePlugin):
             search_meta = SearchMeta("Species", ["sp", "isp"], "sp")
             SearchView.register_search_meta("name", search_meta)
             SearchView.register_search_meta("sp", search_meta)
-            
+
             SearchView.view_meta["Species"].set(children='accessions',
                                                 editor=SpeciesEditor, 
                                                 infobox=SpeciesInfoBox)
+                                                            
+            search_meta = SearchMeta("VernacularName", ['name'], "name")
+            SearchView.register_search_meta("vernacular", search_meta)
+            SearchView.register_search_meta("vern", search_meta)
+            SearchView.register_search_meta("common", search_meta)
+            
+            # TODO: this needs some work, what should we be able to do
+            # when a vernacular name is returned, should we just return the 
+            # species
+            #SearchView.view_meta["VernacularName"].set(children='species')
+                                                #editor=SpeciesEditor, 
+                                                #infobox=SpeciesInfoBox)            
+            
+
             
     @classmethod
     def create_tables(cls):
