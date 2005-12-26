@@ -328,6 +328,7 @@ class TextColumn(SOViewColumn):
         existing = row[self.name]
         old_committed = []
         select = None
+        debug('_start_editor')
         if isinstance(existing, tuple): # existing/committed paot
             existing, old_committed = existing
             select = existing+old_committed
@@ -335,12 +336,10 @@ class TextColumn(SOViewColumn):
             select = existing
         e = self.meta.editor(select=select,
                              connection=self.table_editor.transaction)
-        committed = response = e.start(False)
+        debug('starttomg')
+        committed = e.start(False)
+        debug('finished start')
         if committed is not None:
-#        if response == gtk.RESPONSE_ACCEPT or \
-#           response == gtk.RESPONSE_OK:
-            #committed = e.commit_changes(False)
-#            debug(committed)
             if isinstance(committed, list):
                 self._set_view_model_value(path, (existing, old_committed+committed))
             else:
@@ -656,6 +655,9 @@ class TableEditor(BaubleEditor):
         self.table = table
         self.select = select                
         self.__dirty = False
+        debug('connection: %s' % connection)
+        #self.transaction = connection
+        #self.transaction = sqlhub.processConnection
         #self._old_connection = sqlhub.getConnection()
         self._old_connection = sqlhub.processConnection
         if connection is None:
@@ -663,8 +665,10 @@ class TableEditor(BaubleEditor):
         elif isinstance(connection, Transaction):
             self.transaction = connection
         else:
-            self.transaction = connection.transaction()
+            self.transaction = connection.transaction()            
         sqlhub.processConnection = self.transaction
+#        debug('old: %s' % self._old_connection)
+#        debug('process: %s' % self.transaction)
         
         
     def start(self, commit_transaction=True): 
@@ -707,8 +711,10 @@ class TableEditor(BaubleEditor):
         this should be called in start when everthing is finished doing
         what it does, not doing so will cause some strange behavior
         with connections and transaction
-        '''
+        '''        
         sqlhub.processConnection = self._old_connection
+        del self.transaction
+#        debug('_cleanup: %s' % sqlhub.processConnection)
 #
 #
 #
@@ -754,6 +760,7 @@ class TableEditorDialog(TableEditor):
             elif self.dirty and utils.yes_no_dialog(msg):
 #                debug('transaction.rollback')
                 self.transaction.rollback()
+                self.transaction.begin()
                 self.dirty = False
                 break
             elif not self.dirty:

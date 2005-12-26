@@ -461,7 +461,7 @@ class SearchView(BaubleView):
         e = editor(select=select, defaults=defaults)        
         committed = e.start()
         if committed is not None:
-            self.refresh_search()
+            self.refresh_search()        
 #        response = e.start()
 #        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:        
 #            e.commit_changes()
@@ -551,14 +551,7 @@ class SearchView(BaubleView):
                 "still has children that refer to it.  See the Details for "\
                 " more information." % (row_str, row_str)
                 utils.message_details_dialog(msg, traceback.format_exc())
-        
-        # TODO: this should immediately remove the model from the value
-        # and refresh the tree, we might have to save the path to
-        # remember where we were in the view
-        # TODO: we can probably just accomplish this by collapsing and then
-        # expanding the parent of the item to be removed
-
-        
+    
     def on_view_row_activated(self, view, path, column, data=None):
         """
         expand the row on activation

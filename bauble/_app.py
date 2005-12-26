@@ -90,11 +90,9 @@ class BaubleApp:
         """
         open a database connection
         """
-        import sqlobject.sqlite.sqliteconnection as sqlite
+        #import sqlobject.sqlite.sqliteconnection as sqlite
         #debug(uri) # ** WARNING: this can print your passwd
         sqlhub.processConnection = connectionForURI(uri)
-
-        
 #        if debug.enabled:
 #            should do something like debug_sql=True and debug_sql_output=True
 #        sqlhub.processConnection.debug = True
@@ -103,7 +101,12 @@ class BaubleApp:
         try:
             # make the connection, we don't really need the connection,
             # we just want to make sure we can connect
+            #sqlhub.processConnection = connectionForURI(uri)
             sqlhub.processConnection.getConnection()
+            #sqlhub.processConnection = sqlhub.processConnection.transaction()
+            # do everything in a transaction
+            #sqlhub.processConnection = conn.transaction()            
+            #sqlhub.processConnection.getConnection()
 #            sqlhub.processConnection.autoCommit = False
             # if not autocommit then mysql import won't work unless we 
             # temporary store autocommit and restore it to the original
