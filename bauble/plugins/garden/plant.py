@@ -145,26 +145,17 @@ class PlantEditor(TreeViewEditorDialog):
     def start(self, commit_transaction=True):
         '''
         '''
-        # NOTE: had an annoying bug where when cacheValues=True and adding
-        # at item in this method to the locations then cancelling the
-        # plant editor, and then removing the location, when i would quit
-        # and restart then the location would be back, the problem was
-        # that I wasn't calling self._cleanup() here if not locations or 
-        # accessions were created
-        #
-        print 'self.trans: %s' % self.transaction
         accessions = tables["Accession"].select()
         if accessions.count() < 1:
             msg = "You can't add plants/clones to the database without first " \
                   "adding accessions.\n" \
                   "Would you like to add accessions now?"
             if utils.yes_no_dialog(msg):
-                acc_editor = editors["AccessionEditor"](connection=self.transaction)
+                acc_editor = editors["AccessionEditor"]()
                 acc_editor.start() # use the same transaction but commit
                     
         accessions = tables["Accession"].select()
         if accessions.count() < 1:   # no accessions were added
-            self._cleanup()
             return
         
         locations = tables["Location"].select()
@@ -176,15 +167,11 @@ class PlantEditor(TreeViewEditorDialog):
                   "locations exists.\n" \
                   "Would you like to add some locations now?"
             if utils.yes_no_dialog(msg):
-                #self._old_connection.debug = True
-                #self._old_connection.debugOutput = True
-                #loc_editor = editors["LocationEditor"](connection=self._old_connection)
-                loc_editor = editors["LocationEditor"](connection=self.transaction)
+                loc_editor = editors["LocationEditor"]()
                 loc_editor.start() # use the same transaction but commit
         
         locations = tables["Location"].select()
         if locations.count() < 1:
-            self._cleanup()
             return
             
         return super(PlantEditor, self).start(commit_transaction)
@@ -192,8 +179,7 @@ class PlantEditor(TreeViewEditorDialog):
 
     def get_accession_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Accession"].select("acc_id LIKE '"+text+"%'",
-                                        connection=self.transaction)
+        sr = tables["Accession"].select("acc_id LIKE '"+text+"%'")
         for row in sr:
             s = str(row) + " - " + str(row.species)
             model.append([s, row])
@@ -202,8 +188,7 @@ class PlantEditor(TreeViewEditorDialog):
             
     def get_location_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Location"].select("site LIKE '" + text + "%'", 
-                                       connection=self.transaction)
+        sr = tables["Location"].select("site LIKE '" + text + "%'")
         for row in sr:
             model.append([str(row), row])
         return model

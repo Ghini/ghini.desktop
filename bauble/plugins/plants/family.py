@@ -46,11 +46,10 @@ class FamilyEditor(TreeViewEditorDialog):
     
     label = 'Families'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):
+    def __init__(self, parent=None, select=None, defaults={}):
         
         TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
-                                      parent, select=select, defaults=defaults,
-                                      connection=connection)
+                                      parent, select=select, defaults=defaults)
         titles = {'family': 'Family',
                   'notes': 'Notes',
                   'synonyms': 'Synonyms'}
@@ -76,11 +75,11 @@ class FamilySynonymEditor(TreeViewEditorDialog):
     standalone = False
     label = 'Family Synonym'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+    def __init__(self, parent=None, select=None, defaults={}):        
         TreeViewEditorDialog.__init__(self, tables["FamilySynonym"], \
                                       "Family Synonym Editor", 
                                       parent, select=select, 
-                                      defaults=defaults, connection=connection)
+                                      defaults=defaults)
         titles = {'synonymID': 'Synonym of Family'}
                   
         # can't be edited as a standalone so the family should only be set by
@@ -93,8 +92,7 @@ class FamilySynonymEditor(TreeViewEditorDialog):
         
     def get_family_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Family"].select("family LIKE '"+text+"%'",
-                                     connection=self.transaction)
+        sr = tables["Family"].select("family LIKE '"+text+"%'")
         for row in sr:
             model.append([str(row), row])
         return model

@@ -116,11 +116,10 @@ class AccessionEditor(TreeViewEditorDialog):
 
     label = 'Accessions'
 
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):
+    def __init__(self, parent=None, select=None, defaults={}):
         
         TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
-                                      parent, select=select, defaults=defaults,
-                                      connection=connection)
+                                      parent, select=select, defaults=defaults)
         titles = {"acc_id": "Acc ID",
                    "speciesID": "Name",
                    "prov_type": "Provenance Type",
@@ -167,8 +166,7 @@ class AccessionEditor(TreeViewEditorDialog):
         # using a join or something
         parts = text.split(" ")
         genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
-                                    connection=self.transaction)
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
         model = gtk.ListStore(str, object) 
         for row in sr:
             for species in row.species:                

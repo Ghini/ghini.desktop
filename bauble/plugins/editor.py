@@ -7,7 +7,6 @@ import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
 from sqlobject.joins import SOJoin, SOSingleJoin
-from sqlobject.dbconnection import Transaction
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
@@ -220,12 +219,13 @@ class TextColumn(SOViewColumn):
         # value in the cell
         if new_text == "":
             return
-        self.dirty = True
+        
         if self.meta.get_completions is not None:
             return        
         if self.meta.editor is None:
             self._set_view_model_value(path, new_text)
-        
+            self.dirty = True 
+            
                                            
     def on_editing_started(self, cell, entry, path, view):
         # if the cell has it's own editor we shouldn't be here
@@ -328,17 +328,13 @@ class TextColumn(SOViewColumn):
         existing = row[self.name]
         old_committed = []
         select = None
-        debug('_start_editor')
         if isinstance(existing, tuple): # existing/committed paot
             existing, old_committed = existing
             select = existing+old_committed
         else:
             select = existing
-        e = self.meta.editor(select=select,
-                             connection=self.table_editor.transaction)
-        debug('starttomg')
-        committed = e.start(False)
-        debug('finished start')
+        e = self.meta.editor(select=select)
+        committed = e.start(False)        
         if committed is not None:
             if isinstance(committed, list):
                 self._set_view_model_value(path, (existing, old_committed+committed))
@@ -346,8 +342,7 @@ class TextColumn(SOViewColumn):
                 self._set_view_model_value(path, committed)
             self.dirty = True
             self.renderer.emit('edited', path, committed)
-        #e.destroy()
-        
+            
         
     def on_key_press(self, widget, event, path):
         '''
@@ -649,26 +644,12 @@ class TableEditor(BaubleEditor):
 
     standalone = True
     
-    def __init__(self, table, select=None, defaults={}, connection=None):
+    def __init__(self, table, select=None, defaults={}):
         super(TableEditor, self).__init__()
         self.defaults = copy.copy(defaults)
         self.table = table
         self.select = select                
         self.__dirty = False
-        debug('connection: %s' % connection)
-        #self.transaction = connection
-        #self.transaction = sqlhub.processConnection
-        #self._old_connection = sqlhub.getConnection()
-        self._old_connection = sqlhub.processConnection
-        if connection is None:
-            self.transaction = self._old_connection.transaction()
-        elif isinstance(connection, Transaction):
-            self.transaction = connection
-        else:
-            self.transaction = connection.transaction()            
-        sqlhub.processConnection = self.transaction
-#        debug('old: %s' % self._old_connection)
-#        debug('process: %s' % self.transaction)
         
         
     def start(self, commit_transaction=True): 
@@ -692,38 +673,25 @@ class TableEditor(BaubleEditor):
     def _commit(self, values):       
         table_instance = None
         if 'id' in values:# updating row
-            table_instance = self.table.get(values["id"],
-                                            connection=self.transaction)                    
+            table_instance = self.table.get(values["id"])                    
             del values["id"]
             table_instance.set(**values)
         else: # adding row
-            table_instance = self.table(connection=self.transaction, **values)
+            table_instance = self.table(**values)
         return table_instance
     
     
-    def commit_changes(self, commit_transaction=True):    
+    def commit_changes(self):
         raise NotImplementedError
     
-    
-    #def destroy(self):
-    def _cleanup(self):
-        '''
-        this should be called in start when everthing is finished doing
-        what it does, not doing so will cause some strange behavior
-        with connections and transaction
-        '''        
-        sqlhub.processConnection = self._old_connection
-        del self.transaction
-#        debug('_cleanup: %s' % sqlhub.processConnection)
 #
 #
 #
 class TableEditorDialog(TableEditor):
     
     def __init__(self, table, title="Table Editor", parent=None, select=None, 
-                 defaults={}, connection=None):
-        super(TableEditorDialog, self).__init__(table, select, defaults, 
-                                                   connection=connection)
+                 defaults={}):
+        super(TableEditorDialog, self).__init__(table, select, defaults)
         self.dialog = gtk.Dialog(title, parent, 
                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
@@ -731,7 +699,7 @@ class TableEditorDialog(TableEditor):
         self._values = []
     
     
-    def _run(self, commit_transaction=True):
+    def _run(self):
         # connect these here in case self.dialog is overwridden after the 
         # construct is called
         self.dialog.connect('response', self.on_dialog_response)
@@ -740,9 +708,6 @@ class TableEditorDialog(TableEditor):
         '''
         loops until return
         '''
-        # TODO: should i set the transaction here instead of the constructor,
-        # is this the only place we really need it????, then we wouldn't
-        # have to call _cleanup
         committed = None
         while True:
             msg = 'Are you sure you want to lose your changes?'
@@ -751,16 +716,18 @@ class TableEditorDialog(TableEditor):
                 try:
                     self.save_state()
                     self._set_values_from_widgets()
-                    committed = self.commit_changes(commit_transaction)
-                except:
+                    committed = self.commit_changes()                    
+                except Exception, e:
+                    msg = "Could not commit changes.\n" + str(e)
                     debug(traceback.format_exc())
-                    pass
+                    utils.message_details_dialog(msg, traceback.format_exc(), 
+                                              gtk.MESSAGE_ERROR)
                 else:
                     break
             elif self.dirty and utils.yes_no_dialog(msg):
 #                debug('transaction.rollback')
-                self.transaction.rollback()
-                self.transaction.begin()
+                sqlhub.processConnection.rollback()
+                sqlhub.processConnection.begin()
                 self.dirty = False
                 break
             elif not self.dirty:
@@ -844,9 +811,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         
 
     def __init__(self, table, title="Table Editor", parent=None, select=None, 
-                 defaults={}, connection=None):
+                 defaults={}):
         super(TreeViewEditorDialog, self).__init__(table, title, parent, 
-               select, defaults, connection=connection)
+               select, defaults)
         self.__view = None        
         self.__dirty = False # accessed via self.dirty property
         self.table_meta = TableMeta()        
@@ -864,18 +831,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         # 
         #self._values = None
         #self.connect('response', self.on_response)
-        
-
-    
-    
-#    def destroy(self):
-#        #self.dialog.destroy()
-#        #self.dialog.hid
-#        super(TreeViewEditorDialog, self).destroy()
-        
                 
-
-        
         
     def pre_start_hook(self):
         '''
@@ -902,8 +858,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         # that they want to close the dialog even though the fields aren't 
         # complete
         
-        committed = self._run(commit_transaction)
-        self._cleanup()
+        committed = self._run()
+        if commit_transaction:
+            sqlhub.processConnection.commit()
         return committed
 
         
@@ -1147,7 +1104,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-    def commit_changes(self, commit_transaction=True):
+    def commit_changes(self):
         """
         commit any change made in the table editor
         """        
@@ -1160,13 +1117,9 @@ class TreeViewEditorDialog(TableEditorDialog):
         # table then is it really using the transaction, it might be if 
         # sqlhub.threadConnection is set to the transaction
         #
-        # ARE WE STILL USING commit_transaction HERE????
         committed_rows = []
         table_instance = None
         for v in self.values:
-            if self.transaction._obsolete:
-                self.transaction.begin()
-#            debug(v)
             # make sure it's ok to commit these values            
             #if not self.test_values_before_commit(v):                
             if not self.pre_commit_hook(v):
@@ -1190,46 +1143,28 @@ class TreeViewEditorDialog(TableEditorDialog):
                 
             # update or set the row depending on where there is an 'id' key
             # in the v dict            
-            try:                
-                table_instance = self._commit(v)
+            table_instance = self._commit(v)
                 
-                # have to set the join this way since 
-                # table_instance.joinColumnName doesn't seem to work here, 
-                # maybe b/c the table_instance hasn't been committed
-                for join in table_instance.sqlmeta.joins:
-                    if join_values.has_key(join.joinMethodName):
-                        if isinstance(join, SOSingleJoin):
-                            join_table_instance = join_values.pop(join.joinMethodName)
-                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
-                        else: # must be a multple join???
-                            for join_table_instance in join_values.pop(join.joinMethodName):
-                                #join_table_instance = join_values.pop(join.joinMethodName)
-                                join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
-                                                
-                if len(join_values) > 0:
-                    debug(join_values)
-                    raise ValueError("join_values isn't empty")                    
+            # have to set the join this way since 
+            # table_instance.joinColumnName doesn't seem to work here, 
+            # maybe b/c the table_instance hasn't been committed
+            for join in table_instance.sqlmeta.joins:
+                if join_values.has_key(join.joinMethodName):
+                    if isinstance(join, SOSingleJoin):
+                        join_table_instance = join_values.pop(join.joinMethodName)
+                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
+                    else: # must be a multple join???
+                        for join_table_instance in join_values.pop(join.joinMethodName):
+                            #join_table_instance = join_values.pop(join.joinMethodName)
+                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
+                                            
+            if len(join_values) > 0:
+                debug(join_values)
+                raise ValueError("join_values isn't empty")                    
+            
+            self.post_commit_hook(table_instance)
+            committed_rows.append(table_instance)
                 
-                self.post_commit_hook(table_instance)
-                
-            except Exception, e:                                
-                self.transaction.rollback()
-                msg = "Could not commit changes.\n" + str(e)
-                debug(traceback.format_exc())
-                utils.message_details_dialog(msg, traceback.format_exc(), 
-                                              gtk.MESSAGE_ERROR)
-                #return None
-                raise
-            else:
-                if commit_transaction:
-                    self.transaction.commit()
-                    debug('****  transaction committed')
-                else:                    
-                    pass
-                    debug('**** transaction NOT committed')
-                committed_rows.append(table_instance)
-                
-        #debug(committed_rows)
         return committed_rows
         
 

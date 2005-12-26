@@ -90,27 +90,15 @@ class BaubleApp:
         """
         open a database connection
         """
-        #import sqlobject.sqlite.sqliteconnection as sqlite
         #debug(uri) # ** WARNING: this can print your passwd
-        sqlhub.processConnection = connectionForURI(uri)
-#        if debug.enabled:
-#            should do something like debug_sql=True and debug_sql_output=True
-#        sqlhub.processConnection.debug = True
-#        sqlhub.processConnection.debugOutput = True
-
         try:
-            # make the connection, we don't really need the connection,
-            # we just want to make sure we can connect
-            #sqlhub.processConnection = connectionForURI(uri)
+            # TODO: should make the global transaction available as
+            # bauble.transaction and possible wrap it in a class so
+            # we basically make rollback automatically do a begin() and
+            # make begin() a NOOP
+            sqlhub.processConnection = connectionForURI(uri)
             sqlhub.processConnection.getConnection()
-            #sqlhub.processConnection = sqlhub.processConnection.transaction()
-            # do everything in a transaction
-            #sqlhub.processConnection = conn.transaction()            
-            #sqlhub.processConnection.getConnection()
-#            sqlhub.processConnection.autoCommit = False
-            # if not autocommit then mysql import won't work unless we 
-            # temporary store autocommit and restore it to the original
-            # values, either way why would we want autocommit false
+            sqlhub.processConnection = sqlhub.processConnection.transaction()
         except Exception, e:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 

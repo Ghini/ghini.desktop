@@ -119,9 +119,23 @@ class Species(BaubleTable):
 	# with a way to add to the list    
     vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
-    default_vernacular_name = ForeignKey('VernacularName', default=None, 
-                                         cascade=True)
-    
+    # FIXME: what happens if we delete the object that this foreign key
+    # points to
+    default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
+                                         #cascade=True)
+    def _get_default_vernacular_nameID(self):
+        # delete self.default_vernacular_name in case it has been deleted
+        # elsewhere
+        try:
+            v = tables['VernacularName'].get(self.default_vernacular_name)
+            debug(v)
+        except:
+            self.default_vernacular_name = None
+#        if v is None:
+#            self.default_vernacular_name = None
+#        debug(self.default_vernacular_name)
+        return self.default_vernacular_name
+        #if self.default_vernacular_name
     # where this name stands in taxonomy, whether it's a synonym or
     # not basically, would probably be better to just leaves this and
     # look it up on www.ipni.org www.itis.usda.gov
@@ -243,21 +257,22 @@ class VernacularNameColumn(TextColumn):
         else:
             select = existing
         e = self.meta.editor(select=select,
-                             default_name=row['default_vernacular_nameID'],
-                             connection=self.table_editor.transaction)
-        default_name, committed_names = e.start(False)
+                             default_name=row['default_vernacular_nameID'])
+        returned = e.start(False)
+        if returned is None:
+            return
+        default_name, committed_names = returned # unpack
         if default_name is not None and committed_names is not None:
             model = self.table_editor.view.get_model()
             i = model.get_iter(path)
             row = model.get_value(i, 0)
             row['default_vernacular_nameID'] = default_name
-#            debug(committed_names)
             if committed_names is not None and len(committed_names) > 0:
                 row['vernacular_names'] = (existing, 
                                            old_committed+committed_names)
             # why do we do this? to set the values in the model
             self.renderer.emit('edited', path, default_name) 
-        #e.destroy()
+            self.dirty = True
 
 
     def cell_data_func(self, column, renderer, model, iter, data=None):
@@ -294,11 +309,10 @@ class SpeciesEditor(TreeViewEditorDialog):
     
     label = 'Species'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):  
+    def __init__(self, parent=None, select=None, defaults={}):  
         TreeViewEditorDialog.__init__(self, tables["Species"],
                                       "Species Editor", parent,
-                                      select=select, defaults=defaults,
-                                      connection=connection)
+                                      select=select, defaults=defaults)
         titles = {"genusID": "Genus",
                    "sp": "Species",
                    "sp_hybrid": "Sp. hybrid",
@@ -442,11 +456,11 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
     standalone = False
     label = 'Species Synonym'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+    def __init__(self, parent=None, select=None, defaults={}):        
         TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
                                       "Species Synonym Editor", 
                                       parent, select=select, 
-                                      defaults=defaults, connection=connection)
+                                      defaults=defaults)
         titles = {'synonymID': 'Synonym of Species'}
                   
         # can't be edited as a standalone so the species should only be set by
@@ -474,8 +488,7 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
         # using a join or something
         parts = text.split(" ")
         genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'",
-                                    connection=self.transaction)
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
         model = gtk.ListStore(str, object) 
         for row in sr:
 #            debug(str(row))

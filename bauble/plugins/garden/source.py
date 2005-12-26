@@ -71,8 +71,8 @@ class Collection(BaubleTable):
     #state = ForeignKey('States', default=None)    
     country = ForeignKey('Country', default=None) # where collected
     
-    # deleting this foreign accession delets this collection
-    accession = ForeignKey('Accession', default=None, cascade=False)
+    # deleting this foreign accession deletes this collection
+    accession = ForeignKey('Accession', default=None, cascade=True)
     
     def __str__(self):
         #if self.label == None: 

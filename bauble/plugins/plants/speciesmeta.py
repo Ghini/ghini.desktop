@@ -66,10 +66,10 @@ class SpeciesMetaEditor(TableEditorDialog):
     standalone = False
     label = 'Species Meta'
     
-    def __init__(self, select=None, defaults={}, connection=None):
+    def __init__(self, select=None, defaults={}):
         super(SpeciesMetaEditor, self).__init__(tables["SpeciesMeta"], 
                                                 None, None,
-                                                select, defaults, connection)
+                                                select, defaults)
         path = os.path.join(paths.lib_dir(), 'plugins', 'plants')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
         
@@ -89,25 +89,19 @@ class SpeciesMetaEditor(TableEditorDialog):
         self.__populate_distribution_combo()
         if self.select is not None:
             self._set_widget_values_from_instance(self.select)
-        committed = self._run(commit_transaction)
-        self._cleanup()
+        committed = self._run()
+        if commit_transaction:
+            sqlhub.processConnection.commit()
         return committed
     
         
     
-    def commit_changes(self, commit_transaction=True):
-        table_instance = None
-        try:
-            table_instance = self._commit(self.__values)                       
-        except Exception, e:                
-            self.transaction.rollback()
-            msg = "SourcedEditor.commit_changes(): could not commit changes"
-            debug(traceback.format_exc())
-            utils.message_details_dialog(msg, traceback.format_exc(), 
-                                          gtk.MESSAGE_ERROR)
-            return None
-        else:
-            self.transaction.commit()
+    def commit_changes(self):
+        '''
+        we just implement this since species meta should only ever return
+        a single value
+        '''        
+        table_instance = self._commit(self.__values)                       
         return table_instance
 
 

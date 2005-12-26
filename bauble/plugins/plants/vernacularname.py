@@ -116,16 +116,15 @@ class VernacularNameEditor(TreeViewEditorDialog):
     standalone = False
 
 
-    def __init__(self, parent=None, select=None, default_name=None, defaults={}, 
-                 connection=None):
+    def __init__(self, parent=None, select=None, default_name=None,
+                 defaults={}):
         '''
         default_id is the id of the row in select that should be set as the 
         default name
         '''
         TreeViewEditorDialog.__init__(self, VernacularName, 
                                       "Vernacular Name Editor", parent,
-                                      select=select, defaults=defaults,
-                                      connection=connection)
+                                      select=select, defaults=defaults)
         # set headers
         titles = {"name": "Name",
                   "language": "Language",
@@ -176,9 +175,9 @@ class VernacularNameEditor(TreeViewEditorDialog):
             self.is_default = False # reset 
         
         
-    def commit_changes(self, commit_transaction=True):
+    def commit_changes(self):
         committed_rows = \
-            super(VernacularNameEditor, self).commit_changes(commit_transaction)
+            super(VernacularNameEditor, self).commit_changes()
         if self.default_name is None:
             sr = self.columns['default'].selected_row
             model = sr.get_model()

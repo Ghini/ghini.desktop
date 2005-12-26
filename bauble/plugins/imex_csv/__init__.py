@@ -56,11 +56,7 @@ class CSVImporter:
             filenames = self._get_filenames()
         if filenames is None:
             bauble.app.set_busy(False)
-            return
-        
-        old_conn = sqlobject.sqlhub.getConnection()
-        trans = old_conn.transaction()       
-        sqlobject.sqlhub.processConnection = trans
+            return        
         
         filename = None   # these two are here in case we get an exception
         table_name = None
@@ -70,7 +66,7 @@ class CSVImporter:
                 table_class_name, ext = os.path.splitext(base)
                 table = tables[table_class_name]
                 table_name = table.sqlmeta.table
-                self.import_file(filename, table, trans)
+                self.import_file(filename, table)
             except Exception, e:
                 msg = "Error importing values from %s into table %s\n" \
                        % (filename, table_name)
@@ -91,15 +87,16 @@ class CSVImporter:
                         sqlobject.sqlhub.processConnection.query(sql)    
                 
         bauble.app.set_busy(False)
-        sqlobject.sqlhub.processConnection = old_conn
         if not error:
-            trans.commit()
+            sqlobject.sqlhub.processConnection.commit()
         else:
-            trans.rollback()
+            sqlobject.sqlhub.processConnection.rollback()
+            sqlobject.sqlhub.processConnection.begin()
         return not error
         
         
-    def import_file(self, filename, table, connection):
+    def import_file(self, filename, table):
+#        debug('imex_csv.import_file(%s, %s)' % (filename, table))
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         # create validator map
@@ -134,7 +131,7 @@ class CSVImporter:
                 else: 
                     line[col] = validators[col](line[col])
             try:
-                table(connection=connection, **line) # add row to table
+                table(**line) # add row to table
             except Exception, e:
                 raise str(line), e
             

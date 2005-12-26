@@ -1,3 +1,9 @@
+2005.12.26
+----------
+- got fed up with connections and transactions behaving differently between
+postgres and sqlite so i changed everything that accesses the database to use
+transactions
+
 2005.12.23
 ----------
 - fixed bug when creating Tag tables

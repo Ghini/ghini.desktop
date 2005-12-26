@@ -95,10 +95,9 @@ class GenusEditor(TreeViewEditorDialog):
     
     label = 'Genus'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):
+    def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
-                                      parent, select=select, defaults=defaults,
-                                      connection=connection)        
+                                      parent, select=select, defaults=defaults)
         titles = {'genus': 'Genus',
                   'author': 'Author',
                   'hybrid': 'Hybrid',
@@ -130,11 +129,11 @@ class GenusSynonymEditor(TreeViewEditorDialog):
     standalone = False
     label = 'Genus Synonym'
     
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):        
+    def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, tables["GenusSynonym"], \
                                       "Genus Synonym Editor", 
                                       parent, select=select, 
-                                      defaults=defaults, connection=connection)
+                                      defaults=defaults)
         titles = {'synonymID': 'Synonym of Genus'}
                   
         # can't be edited as a standalone so the family should only be set by
@@ -147,8 +146,7 @@ class GenusSynonymEditor(TreeViewEditorDialog):
         
     def get_genus_completions(self, text):
         model = gtk.ListStore(str, object)
-        sr = tables["Genus"].select("genus LIKE '"+text+"%'", 
-                                    connection=self.transaction)
+        sr = tables["Genus"].select("genus LIKE '"+text+"%'")
         for row in sr:
             model.append([str(row), row])
         return model

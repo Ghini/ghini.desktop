@@ -199,9 +199,15 @@ class SearchView(BaubleView):
     
     # should be the search string relevant to the results in the results view
     current_search_text = None
+ 
+# TODO: I think we should have a way to clear the search results, especially 
+# while creating a new database   
+#    def clear_search(self):
+#        pass
     
     def refresh_search(self):
-        self.search(self.current_search_text)
+        if self.current_search_text is not None:
+            self.search(self.current_search_text)
         
         
     def search(self, text):
@@ -489,18 +495,23 @@ class SearchView(BaubleView):
         value = model.get_value(i, 0) 
         
         menu = gtk.Menu()
-        # value is a row in the table and .name is the name of the table
-        # so find an editor with the same name as the table, this is a bit
-        # basic and requires editors and tables to have the same name
-        edit_item = gtk.MenuItem("Edit")
-        # TODO: there should be a better way to get the editor b/c this
-        # dictates that all editors are in ClassnameEditor format
+
+
         editor_class = self.view_meta[value.__class__.__name__].editor
-        edit_item.connect("activate", self.on_activate_editor,
-                          editor_class, [value], None)
-        menu.add(edit_item)
-        menu.add(gtk.SeparatorMenuItem())
+        if editor_class is not None:
+            # value is a row in the table and .name is the name of the table
+            # so find an editor with the same name as the table, this is a bit
+            # basic and requires editors and tables to have the same name
+            edit_item = gtk.MenuItem("Edit")
+            # TODO: there should be a better way to get the editor b/c this
+            # dictates that all editors are in ClassnameEditor format
+    
+            edit_item.connect("activate", self.on_activate_editor,
+                              editor_class, [value], None)
+            menu.add(edit_item)
+            menu.add(gtk.SeparatorMenuItem())
         
+        add_item = None
         for join in value.sqlmeta.joins:            
             # for each join in the selected row then add an item on the context
             # menu for adding rows to the database of the same type the join
@@ -517,7 +528,8 @@ class SearchView(BaubleView):
                                   editor_class, None, defaults)
                 menu.add(add_item)
         
-        menu.add(gtk.SeparatorMenuItem())
+        if add_item is not None:
+            menu.add(gtk.SeparatorMenuItem())
         
         remove_item = gtk.MenuItem("Remove")
         remove_item.connect("activate", self.on_activate_remove_item, value)
@@ -540,7 +552,10 @@ class SearchView(BaubleView):
             from sqlobject.main import SQLObjectIntegrityError
             try:
                 row.destroySelf()
+                # since we are doing everything in a transaction, commit it
+                sqlobject.sqlhub.processConnection.commit() 
                 self.refresh_search()
+                
             except SQLObjectIntegrityError, e:
                 msg = "Could not delete '%s'. It is probably because '%s' "\
                 "still has children that refer to it.  See the Details for "\

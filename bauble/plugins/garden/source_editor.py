@@ -20,9 +20,9 @@ from bauble.utils.log import debug
 
 def text_coord_to_decimal(dir, text):
     bits = re.split(':| ', text)
-    print bits
+#    debug(bits)
     if len(bits) == 3:
-        print bits
+#        debug(bits)
         dec = utils.dms_to_decimal(dir, *map(float, bits))
     else:
         try:
@@ -65,13 +65,13 @@ def set_dict_value_from_widget(glade_xml, name, key, dic, validator=lambda x: x)
 
 
 def set_widget_value(glade_xml, widget_name, value):
-    print 'set_widget_value: ' + widget_name
+#    debug('set_widget_value: ' + widget_name)
     if value is None: return
     w = glade_xml.get_widget(widget_name)
     if w is None:
         raise ValueError("set_widget_value: no widget by the name "+\
                          widget_name)
-    print type(value)
+#    debug(type(value))
     if type(value) == ForeignKey:
         pass
     elif isinstance(w, gtk.Entry):
@@ -118,12 +118,11 @@ class CollectionEditor:
     
     initialized = False
     
-    def __init__(self, glade_xml, row=None, connection=None):
+    def __init__(self, glade_xml, row=None):
         self.table = tables["Collection"]
         if not self.initialized:
             self.initialize(glade_xml, row)
             self.initialized = True
-        self.connection = connection
 
         
     def initialize(self, glade_xml, row=None):    
@@ -137,7 +136,7 @@ class CollectionEditor:
 
         self.row = row
         if self.row is not None:
-            print 'CollectionsEditor.initalized - refreshing'
+            #debug('CollectionsEditor.initalized - refreshing')
             self.refresh_widgets_from_row()
     
     
@@ -189,7 +188,7 @@ class CollectionEditor:
         #set_widget_value(self.glade_xml, 'collid_entry', self.row.coll_date)
         #set_widget_value(self.glade_xml, 'collector_entry', self.row.collector)
         #set_widget_value(self.glade_xml, 'locale_entry', self.row.locale)
-        print 'range'
+        #debug('range')
         
         print '---------'
         for widget_name, col_name in self.widget_to_column_name_map.iteritems():
@@ -267,12 +266,11 @@ class DonationEditor:
 
     initialized = False
     
-    def __init__(self, glade_xml, row=None, connection=None):            
+    def __init__(self, glade_xml, row=None):            
         self.table = tables["Donation"]
         if not self.initialized:
             self.initialize(glade_xml, row)
             self.initialized = True
-        self.connection = connection
         
     def initialize(self, glade_xml, row=None):    
         self.glade_xml = glade_xml
@@ -311,7 +309,7 @@ class DonationEditor:
     
     def on_don_new_button_clicked(self, button, data=None):
         #self.dialog.set_sensitive(False)
-        e = editors['DonorEditor'](connection=self.connection)
+        e = editors['DonorEditor']()
         response = e.start()
         #editor_class().start()
         #self.dialog.set_sensitive(True)
@@ -337,9 +335,8 @@ class SourceEditor(TableEditorDialog):
     standalone = False
     show_in_toolbar = False
     
-    def __init__(self, select=None, defaults={}, connection=None):
-        super(SourceEditor, self).__init__(None, None, None, select, defaults, 
-              connection=connection)
+    def __init__(self, select=None, defaults={}):
+        super(SourceEditor, self).__init__(None, None, None, select, defaults)
         if select is not None and not isinstance(select, BaubleTable):
             raise ValueError("SourceEditor.__init__: select should be a "\
                              "single row in the table")
@@ -405,8 +402,7 @@ class SourceEditor(TableEditorDialog):
         editor = None
         for label, e in self.source_editor_map:
             if label == active:
-                editor = e(self.glade_xml, self.select, 
-                           connection=self.transaction)
+                editor = e(self.glade_xml, self.select)
                 continue
                 
         if editor is None:
@@ -428,7 +424,7 @@ class SourceEditor(TableEditorDialog):
         #self.dialog.show_all()
         
         
-    def commit_changes(self, commit_transaction=True):
+    def commit_changes(self):
         # TODO: since the source is a single join and is only relevant
         # to its parent(accession) then we should allow a way to get
         # the values so that wherever the values are returned then the
@@ -441,45 +437,28 @@ class SourceEditor(TableEditorDialog):
         
         if values is None: 
             return None
-        #conn = sqlhub.getConnection()
-        #trans = conn.transaction()        
-        #trans = sqlhub.processConnection.transaction()
-        #self.commited = None
+
         table_instance = None
-        try:
-            # i guess the connection is inherant
-            if self.select is None: # create a new table row
-                table_instance = table(connection=self.transaction, **values)
-            else: # update the table row passed in
-                # TODO: if select and table aren't the same we should
-                # ask the user if they want to change the type source
-                if not isinstance(self.select, self.curr_editor.table):
-                    msg = 'SourceEditor.commit_changes: Bauble does not ' \
-                          'currently support changing the source type'
-                    raise ValueError(msg)
-                self.select.set(**values)
-                table_instance = self.select # TODO: does this work????
-                #raise NotImplementedError("TODO: updating a collection "\
-                #                          "hasn't been implemented")
-                #pass
-            #trans.commit()
-            #self.committed = t
-        except Exception, e:
-            msg = "SourcedEditor.commit_changes(): could not commit changes"
-            utils.message_details_dialog(msg, traceback.format_exc(), 
-                                         gtk.MESSAGE_ERROR)
-            if commit_transaction:
-                trans.rollback()
-            return table_instance
-        else:
-            if commit_transaction:
-                self.transaction.commit()
+        if self.select is None: # create a new table row
+            table_instance = table(**values)
+        else: # update the table row passed in
+            # TODO: if select and table aren't the same we should
+            # ask the user if they want to change the type source
+            if not isinstance(self.select, self.curr_editor.table):
+                msg = 'SourceEditor.commit_changes: Bauble does not ' \
+                      'currently support changing the source type'
+                raise ValueError(msg)
+            self.select.set(**values)
+            table_instance = self.select # TODO: does this work????
+            #raise NotImplementedError("TODO: updating a collection "\
+            #                          "hasn't been implemented")
         return table_instance
         
         
     def start(self, commit_transaction=True):   
-         committed = self._run(commit_transaction)
-         self._cleanup()
+         committed = self._run()
+         if commit_transaction:
+             sqlhub.processConnection.commit()
          return committed
          
          

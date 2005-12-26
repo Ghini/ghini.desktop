@@ -48,10 +48,9 @@ class DonorEditor(TreeViewEditorDialog):
 
     label = 'Donors'
 
-    def __init__(self, parent=None, select=None, defaults={}, connection=None):
+    def __init__(self, parent=None, select=None, defaults={}):
         TreeViewEditorDialog.__init__(self, Donor, "Donor Editor", 
-                                      parent, select=select, defaults=defaults,
-                                      connection=connection)
+                                      parent, select=select, defaults=defaults)
         titles = {"name": "Name",
                   "donor_type": "Donor Type",
                   'address': 'Address',
