@@ -113,8 +113,12 @@ class BaubleApp:
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
             return False
-                    
-                    
+                                    
+        if name is not None:
+            prefs[prefs.conn_default_pref] = name
+            prefs.save()
+        return True
+    
         # make sure the version information matches or if the bauble
         # table doesn't exists then this may not be a bauble created 
         # database
@@ -157,11 +161,8 @@ class BaubleApp:
                 return self.open_database(uri, name, before_main)
             else:
                 return False
-                    
-        if name is not None:
-            prefs[prefs.conn_default_pref] = name
-            prefs.save()
-        return True
+            
+        
         
         
     def destroy(self, widget, data=None):

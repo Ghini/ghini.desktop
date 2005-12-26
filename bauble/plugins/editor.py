@@ -656,14 +656,15 @@ class TableEditor(BaubleEditor):
         self.table = table
         self.select = select                
         self.__dirty = False
-        self._old_connection = sqlhub.getConnection()
+        #self._old_connection = sqlhub.getConnection()
+        self._old_connection = sqlhub.processConnection
         if connection is None:
             self.transaction = self._old_connection.transaction()
         elif isinstance(connection, Transaction):
             self.transaction = connection
         else:
             self.transaction = connection.transaction()
-        sqlhub.processConnection = self.transaction        
+        sqlhub.processConnection = self.transaction
         
         
     def start(self, commit_transaction=True): 
@@ -1156,6 +1157,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         committed_rows = []
         table_instance = None
         for v in self.values:
+            if self.transaction._obsolete:
+                self.transaction.begin()
 #            debug(v)
             # make sure it's ok to commit these values            
             #if not self.test_values_before_commit(v):                

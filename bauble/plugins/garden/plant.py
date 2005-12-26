@@ -143,13 +143,22 @@ class PlantEditor(TreeViewEditorDialog):
 
 
     def start(self, commit_transaction=True):
+        '''
+        '''
+        # NOTE: had an annoying bug where when cacheValues=True and adding
+        # at item in this method to the locations then cancelling the
+        # plant editor, and then removing the location, when i would quit
+        # and restart then the location would be back, the problem was
+        # that I wasn't calling self._cleanup() here if not locations or 
+        # accessions were created
+        #
         accessions = tables["Accession"].select()
         if accessions.count() < 1:
             msg = "You can't add plants/clones to the database without first " \
                   "adding accessions.\n" \
                   "Would you like to add accessions now?"
             if utils.yes_no_dialog(msg):
-                acc_editor = editors["AccessionEditor"](connection=self._old_connection)
+                acc_editor = editors["AccessionEditor"](connection=self.transaction)
                 acc_editor.start()
                 #response = acc_editor.start()
                 #if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
@@ -158,6 +167,7 @@ class PlantEditor(TreeViewEditorDialog):
                     
         accessions = tables["Accession"].select()
         if accessions.count() < 1:   # no accessions were added
+            self._cleanup()
             return
         
         locations = tables["Location"].select()
@@ -171,9 +181,12 @@ class PlantEditor(TreeViewEditorDialog):
             if utils.yes_no_dialog(msg):
                 self._old_connection.debug = True
                 self._old_connection.debugOutput = True
-                loc_editor = editors["LocationEditor"](connection=self._old_connection)
-                loc_committed = loc_editor.start()
-                print loc_committed[0]
+                #loc_editor = editors["LocationEditor"](connection=self._old_connection)
+                loc_editor = editors["LocationEditor"](connection=self.transaction)
+                loc_editor.start()
+                
+                #loc_committed = loc_editor.start()
+                #print loc_committed[0]
                 #response = loc_editor.start()
                 #if response==gtk.RESPONSE_OK or response==gtk.RESPONSE_ACCEPT:
                 #    loc_editor.commit_changes()
@@ -183,10 +196,15 @@ class PlantEditor(TreeViewEditorDialog):
         
         #locations = tables["Location"].select()
         #locations = tables["Location"].get(
-        print (list(locations))
-        print(locations.count())
-        if len(loc_committed) < 1 and locations.count() < 1: # no locations were added
-            #debug('no location were added')
+        #print (list(locations))
+        #print(locations.count())
+        #if loc_committed is not None \
+        #  and len(loc_committed) < 1 \
+        #  and locations.count() < 1: # no locations were added
+            #
+        if locations.count() < 1:
+            debug('no location were added')
+            self._cleanup()
             return
             
         return super(PlantEditor, self).start()
