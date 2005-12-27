@@ -6,6 +6,7 @@ import gtk
 from sqlobject import *
 import bauble.utils as utils
 import bauble.paths as paths
+import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.utils.log import log, debug
@@ -250,10 +251,13 @@ class VernacularNameColumn(TextColumn):
         row = model[model.get_iter(path)][0]
         existing = row[self.name]
         old_committed = []
-        select = None
-        if isinstance(existing, tuple): # existing/committed paot
+        select = None    
+        if isinstance(existing, tuple): # existing/pending pair
             existing, old_committed = existing
-            select = existing+old_committed
+            if existing is None: # nothing already exist
+                select = old_committed
+            else:
+                select = existing+old_committed
         else:
             select = existing
         e = self.meta.editor(select=select,
@@ -270,7 +274,7 @@ class VernacularNameColumn(TextColumn):
             if committed_names is not None and len(committed_names) > 0:
                 row['vernacular_names'] = (existing, 
                                            old_committed+committed_names)
-            # why do we do this? to set the values in the model
+            # why do we emit edited? to set the values in the model
             self.renderer.emit('edited', path, default_name) 
             self.dirty = True
 
@@ -278,10 +282,16 @@ class VernacularNameColumn(TextColumn):
     def cell_data_func(self, column, renderer, model, iter, data=None):
         row = model.get_value(iter, 0)
         all_names = row[self.name]
-        # and what if there are pending names????
-#        debug(all_names)
+        if row.committed:
+            renderer.set_property('sensitive', False)
+            renderer.set_property('editable', False)
+        else:
+            renderer.set_property('sensitive', True)
+            renderer.set_property('editable', True)        
+
         if all_names is not None:
-            default_name = row['default_vernacular_nameID']
+            default_name = row['default_vernacular_nameID']            
+            #debug(default_name)
             if isinstance(all_names, tuple): 
                 existing, pending = all_names
                 if existing is None:
@@ -293,8 +303,7 @@ class VernacularNameColumn(TextColumn):
                                              len(pending)))
             else:
                 renderer.set_property('text', '%s (%s names)' \
-                                      % (default_name, len(all_names)))
-                                      
+                                      % (default_name, len(all_names)))                                      
         else:
             renderer.set_property('text', None)
 
@@ -348,7 +357,13 @@ class SpeciesEditor(TreeViewEditorDialog):
         #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
         #self.columns['default_vernacular_nameID'] = \
         
+        # remove the default vernacular name column have this set
+        # by the VernacularNameColumn, but we have to make sure that the
+        # default vernacular name is listed in the foreign keys or we'll 
+        # commit_changes won't know to set it
+        
         self.columns.pop('default_vernacular_nameID')
+        #self.columns.foreign_keys.append('default_vernacular_nameID')
         self.columns['vernacular_names'] = \
             VernacularNameColumn(self, 'Vernacular Names')
         
@@ -360,16 +375,16 @@ class SpeciesEditor(TreeViewEditorDialog):
         self.columns['synonyms'].meta.editor = editors["SpeciesSynonymEditor"]
     
         
-    def commit_changes_NO(self):
-        # TODO: speciess are a complex typle where more than one field
-        # make the plant unique, write a custom commit_changes to get the value
-        # from the table as a dictionary, convert this dictionary to 
-        # an object that can be accessed by attributes so it mimic a 
-        # Species object, pass the dict to species2str and test
-        # that a species with the same name doesn't already exist in the 
-        # database, if it does exist then ask the use what they want to do
-        #super(SpeciesEditor, self).commit_changes()
-        values = self.get_values_from_view()
+#    def commit_changes_NO(self):
+#        # TODO: speciess are a complex typle where more than one field
+#        # make the plant unique, write a custom commit_changes to get the value
+#        # from the table as a dictionary, convert this dictionary to 
+#        # an object that can be accessed by attributes so it mimic a 
+#        # Species object, pass the dict to species2str and test
+#        # that a species with the same name doesn't already exist in the 
+#        # database, if it does exist then ask the use what they want to do
+#        #super(SpeciesEditor, self).commit_changes()
+#        values = self.get_values_from_view()
     
           
     def pre_commit_hook(self, values):    
@@ -382,8 +397,12 @@ class SpeciesEditor(TreeViewEditorDialog):
         exists = False
         select_values = {}
 #        debug(values)
-        select_values['genusID'] = values['genusID'].id
-        select_values['sp'] = values['sp']        
+        try:
+            select_values['genusID'] = values['genusID'].id
+            select_values['sp'] = values['sp']        
+        except KeyError, e:
+            raise bauble.BaubleError('You must enter the required field %s' %e)
+            
         sel = Species.selectBy(**select_values)
         names = ""
         for s in sel:

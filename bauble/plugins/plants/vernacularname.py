@@ -93,12 +93,20 @@ class DefaultColumn(GenericViewColumn):
 #            self.default_name = selected_value.row
     
     
-    def cell_data_func(self, col, cell, model, iter, data=None):
+    def cell_data_func(self, column, renderer, model, iter, data=None):        
+        row = model.get_value(iter, 0)
+        if row.committed:
+            renderer.set_property('sensitive', False)
+            renderer.set_property('activatable', False)
+        else:
+            renderer.set_property('sensitive', True)
+            renderer.set_property('activatable', True)
+            
         if self.selected_row is None:
-            cell.set_property('active', False)            
+            renderer.set_property('active', False)            
         else:
             active = self.selected_row.get_path() == model.get_path(iter)
-            cell.set_property('active', active)        
+            renderer.set_property('active', active)        
         
 #    
 # VernacularNameEditor
@@ -186,7 +194,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
             if sel.isinstance:
                 self.default_name = sel.row
             else:
-                raise 'no default selected'
+                raise BaubleError('no default selected')
                     
 #        debug(committed_rows)
         return self.default_name, committed_rows

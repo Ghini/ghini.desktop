@@ -8,6 +8,7 @@ from bauble.plugins import BaublePlugin, BaubleTable, plugins, views, tables
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble
+from bauble.utils.log import debug
 
 
 class TagItemGUI:
@@ -253,10 +254,13 @@ def _reset_tags_menu():
     #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
         
-    for tag in Tag.select():
-        item = gtk.MenuItem(tag.tag)            
-        item.connect("activate", _tag_menu_item_activated, tag.tag)
-        tags_menu.append(item)
+    try:
+        for tag in Tag.select():
+            item = gtk.MenuItem(tag.tag)            
+            item.connect("activate", _tag_menu_item_activated, tag.tag)
+            tags_menu.append(item)
+    except:
+        debug('maybe the tags table hasn\'t been created yet')        
 
     global _tags_menu_item
     if _tags_menu_item is None:

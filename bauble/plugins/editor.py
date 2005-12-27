@@ -139,8 +139,18 @@ class GenericViewColumn(gtk.TreeViewColumn):
         row = model.get_value(i, 0)        
         row[self.name] = value
     
-        
-    def cell_data_func(self, col, cell, model, iter, view):
+            
+    def cell_data_func(self, column, renderer, model, iter, data=None):
+        # NOTE: all classes that extend GenericViewColumn should add this
+        # at the top of the cell_data_func method so that behavior is 
+        # consistent for rows that have already been committed
+#        row = model.get_value(iter, 0)
+#        if row.committed:
+#            renderer.set_property('sensitive', False)
+#            renderer.set_property('editable', False)
+#        else:
+#            renderer.set_property('sensitive', True)
+#            renderer.set_property('editable', True)
         raise NotImplementedError, "%s.cell_data_func not implemented" % \
             self.__class__.__name__               
  
@@ -187,6 +197,13 @@ class TextColumn(SOViewColumn):
         row = model.get_value(iter, 0)
 #        if colname not in row: 
 #            return # this should never happen
+        if row.committed:
+            renderer.set_property('sensitive', False)
+            renderer.set_property('editable', False)
+        else:
+            renderer.set_property('sensitive', True)
+            renderer.set_property('editable', True)
+            
         value = row[self.name]
         if value is None: # no value in model
             renderer.set_property('text', None)     
@@ -374,17 +391,23 @@ class ToggleColumn(SOViewColumn):
         self._set_view_model_value(path, active)    
         
         
-    def cell_data_func(self, col, cell, model, iter, data=None):
+    #def cell_data_func(self, col, cell, model, iter, data=None):
+    def cell_data_func(self, column, renderer, model, iter, data=None):        
         row = model.get_value(iter, 0)
         value = row[self.name]
-        #debug(iter)
+        if row.committed:
+            renderer.set_property('sensitive', False)
+            renderer.set_property('editable', False)
+        else:
+            renderer.set_property('sensitive', True)
+            renderer.set_property('editable', True)
         if value is None:
             # this should really get the default value from the table
             #debug('inconsistent')
-            cell.set_property('inconsistent', False) 
+            renderer.set_property('inconsistent', False) 
         else:
             #debug('active: ' + str(value))
-            cell.set_property('active', value)
+            renderer.set_property('active', value)
             
             
 #
@@ -404,14 +427,21 @@ class ComboColumn(SOViewColumn):
         self.renderer.set_property("text-column", 0)
 
 
-    def cell_data_func(self, col, cell, model, iter, data=None):
+#    def cell_data_func(self, col, cell, model, iter, data=None):
+    def cell_data_func(self, column, renderer, model, iter, data=None):                
         # assumes the text column is 0 but the value we want 
         # to store in the model column 1
         row = model.get_value(iter, 0)        
+        if row.committed:
+            renderer.set_property('sensitive', False)
+            renderer.set_property('editable', False)
+        else:
+            renderer.set_property('sensitive', True)
+            renderer.set_property('editable', True)        
         if row is not None:
             v = row[self.name]
             #debug(v)
-            cell.set_property('text', v)
+            renderer.set_property('text', v)
                                 
         
     def __get_model(self):
@@ -536,6 +566,13 @@ class ModelRowDict(dict):
         # aren't valid
         # if row is not an instance then make sure
         self.dirty = False
+        
+        # committed is set to True if the row has been committed to the 
+        # database, this doesn't necessarily imply that transaction.commit() 
+        # has been called but it means that the table this row represents
+        # has been created or it values have been changed to match this dict
+        self.committed = False 
+        
         self.isinstance = False
         if isinstance(row, BaubleTable):
             self.isinstance = True
@@ -672,12 +709,16 @@ class TableEditor(BaubleEditor):
 
     def _commit(self, values):       
         table_instance = None
+        debug(values)
         if 'id' in values:# updating row
+            debug('updating')
             table_instance = self.table.get(values["id"])                    
             del values["id"]
             table_instance.set(**values)
-        else: # adding row
+        else: # creating new row
+            debug('new')
             table_instance = self.table(**values)
+        debug(repr(table_instance))
         return table_instance
     
     
@@ -1086,6 +1127,16 @@ class TreeViewEditorDialog(TableEditorDialog):
             
             self._values.append(temp_row)
 
+    
+    def _transform_row(self, row):    
+        temp = row.copy()
+        for name, value in row.iteritems():
+            if value is None:
+                del temp[name]
+            elif isinstance(value, tuple):
+                temp[name] = value[1]
+        return temp
+            
             
     def pre_commit_hook(self, values):
         '''
@@ -1104,47 +1155,36 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-    def commit_changes(self):
-        """
-        commit any change made in the table editor
-        """        
-        # TODO: do a map through the values returned from get_tables_values
-        # and check if any of them are lists in the (table, values) format
-        # if they are then we need pop the list from the values and commit
-        # the current table, set the foreign key of the sub table and commit 
-        # it
-        # TODO: if i don't set the connection parameter when i create the
-        # table then is it really using the transaction, it might be if 
-        # sqlhub.threadConnection is set to the transaction
-        #
+    def _commit_model_row(self):
         committed_rows = []
         table_instance = None
-        for v in self.values:
-            # make sure it's ok to commit these values            
-            #if not self.test_values_before_commit(v):                
-            if not self.pre_commit_hook(v):
-                continue                
-            # first pop out columns in table_meta.foreign_keys so we can
-            # set their foreign key id later                
-            foreigners = {}
-            join_values = {}            
-            #for col, col_attr in self.table_meta.foreign_keys:
-            for name in self.columns.foreign_keys:
-                # use has_key to check the dict and not the table, 
-                # see ModelRowDict.__contains__
-                if v.has_key(name): 
-                    v[name] = v[name].id
+        model = self.view.get_model()        
+        for item in model:
             
-            # remove the join values from v so we can set them with the 
-            # row id later
-            for name in self.columns.joins:
-                if v.has_key(name):                    
-                    join_values[name] = v.pop(name)                    
-                
-            # update or set the row depending on where there is an 'id' key
-            # in the v dict            
-            table_instance = self._commit(v)
-                
+            # then this row hasn't changed or has already been committed
+            if not item[0].dirty or item[0].committed: 
+                continue            
+            row = self._transform_row(item[0])
+            #debug(row)
+            
+            # make a copy of the dict so we don't change anything
+            if not self.pre_commit_hook(row):
+                continue
+                        
+            for fk in self.columns.foreign_keys:
+                if fk in row:
+                    debug('%s: %s' % (fk, row[fk]))
+                    row[fk] = row[fk].id
+            
+            debug(row)
+            join_values = {}
+            for join in self.columns.joins:
+                if join in row:
+                    join_values[join] = row.pop(join)
+            
+            table_instance = self._commit(row)
+            debug(repr(table_instance))
+            
             # have to set the join this way since 
             # table_instance.joinColumnName doesn't seem to work here, 
             # maybe b/c the table_instance hasn't been committed
@@ -1155,7 +1195,6 @@ class TreeViewEditorDialog(TableEditorDialog):
                         join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
                     else: # must be a multple join???
                         for join_table_instance in join_values.pop(join.joinMethodName):
-                            #join_table_instance = join_values.pop(join.joinMethodName)
                             join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
                                             
             if len(join_values) > 0:
@@ -1163,9 +1202,78 @@ class TreeViewEditorDialog(TableEditorDialog):
                 raise ValueError("join_values isn't empty")                    
             
             self.post_commit_hook(table_instance)
-            committed_rows.append(table_instance)
-                
+            committed_rows.append(table_instance)            
+            item[0].committed = True
+            #model.remove(item.iter) # on success remove from model
+                            
         return committed_rows
+            
+            
+    def commit_changes(self):
+        return self._commit_model_row()
+    
+    
+#    def commit_changes_old(self):
+#        """
+#        commit any change made in the table editor
+#        """        
+#        # TODO: do a map through the values returned from get_tables_values
+#        # and check if any of them are lists in the (table, values) format
+#        # if they are then we need pop the list from the values and commit
+#        # the current table, set the foreign key of the sub table and commit 
+#        # it
+#        # TODO: if i don't set the connection parameter when i create the
+#        # table then is it really using the, it might be if 
+#        # sqlhub.threadConnection is set to the transaction
+#        #
+#        committed_rows = []
+#        table_instance = None
+#        for v in self.values:
+#            # make sure it's ok to commit these values            
+#            #if not self.test_values_before_commit(v):                
+#            if not self.pre_commit_hook(v):
+#                continue                
+#            # first pop out columns in table_meta.foreign_keys so we can
+#            # set their foreign key id later                
+#            #foreigners = {}
+#            join_values = {}            
+#            #for col, col_attr in self.table_meta.foreign_keys:
+#            for name in self.columns.foreign_keys:
+#                # use has_key to check the dict and not the table, 
+#                # see ModelRowDict.__contains__
+#                if v.has_key(name): 
+#                    v[name] = v[name].id
+#            
+#            # remove the join values from v so we can set them with the 
+#            # row id later
+#            for name in self.columns.joins:
+#                if v.has_key(name):                    
+#                    join_values[name] = v.pop(name)                    
+#                
+#            # update or set the row depending on where there is an 'id' key
+#            # in the v dict            
+#            table_instance = self._commit(v)
+#                
+#            # have to set the join this way since 
+#            # table_instance.joinColumnName doesn't seem to work here, 
+#            # maybe b/c the table_instance hasn't been committed
+#            for join in table_instance.sqlmeta.joins:
+#                if join_values.has_key(join.joinMethodName):
+#                    if isinstance(join, SOSingleJoin):
+#                        join_table_instance = join_values.pop(join.joinMethodName)
+#                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
+#                    else: # must be a multple join???
+#                        for join_table_instance in join_values.pop(join.joinMethodName):
+#                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
+#                                            
+#            if len(join_values) > 0:
+#                debug(join_values)
+#                raise ValueError("join_values isn't empty")                    
+#            
+#            self.post_commit_hook(table_instance)
+#            committed_rows.append(table_instance)
+#                
+#        return committed_rows
         
 
 #    def on_view_move_cursor(self, view, step, count, data=None):
