@@ -520,35 +520,6 @@ class TableMeta:
         self.joins = []
     
 
-## TODO: finish this and get rid of ModelRowDict, to make this as useful
-# as ModelRowDict it would have to have some knowledge of the tables
-#class ListStoreDict(gtk.ListStore):
-#    """
-#    can be uses the same as a tree store but the row can be accessed
-#    by a key other than int
-#    """
-#    # {id: int}
-#    def __init__(self, **kwargs):
-#        types = []
-#        self.name_map = {}
-#        i = 0
-#        for name, t in kwargs.iteritems():
-#            name_map[name] = i
-#            types.append(t)
-#            i += 1
-#        super(ListStoreDict(), self).__init__(*types)
-#   
-#   
-#    def get_value(self, iter, name):
-#        return super(ListStoreDict, self).get_value(iter, name_map[name])()
-#   
-#   
-#    def append(self, **kwargs):
-#        values = []
-#        for name, index in self.name_map.iteritems():
-#            values[index] = kwargs[name]
-#        super(ListStoreDict, self).append()           
-       
                
 class ModelRowDict(dict):
     """
@@ -709,16 +680,12 @@ class TableEditor(BaubleEditor):
 
     def _commit(self, values):       
         table_instance = None
-        debug(values)
         if 'id' in values:# updating row
-            debug('updating')
             table_instance = self.table.get(values["id"])                    
             del values["id"]
             table_instance.set(**values)
         else: # creating new row
-            debug('new')
             table_instance = self.table(**values)
-        debug(repr(table_instance))
         return table_instance
     
     
@@ -1096,6 +1063,8 @@ class TreeViewEditorDialog(TableEditorDialog):
 #        self.view.resize_children()
          
         
+    # TODO: this is not longer relevant as we do _transform_row on each
+    # row in the model as we commit
     def _set_values_from_widgets(self):
         """
         used by commit_changes to get the values from a table so they
@@ -1165,17 +1134,14 @@ class TreeViewEditorDialog(TableEditorDialog):
             if not item[0].dirty or item[0].committed: 
                 continue            
             row = self._transform_row(item[0])
-            #debug(row)
-            
+            debug(row)
             # make a copy of the dict so we don't change anything
             if not self.pre_commit_hook(row):
                 continue
                         
             for fk in self.columns.foreign_keys:
                 if fk in row:
-                    debug('%s: %s' % (fk, row[fk]))
                     row[fk] = row[fk].id
-            
             debug(row)
             join_values = {}
             for join in self.columns.joins:
@@ -1183,8 +1149,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                     join_values[join] = row.pop(join)
             
             table_instance = self._commit(row)
-            debug(repr(table_instance))
-            
+            debug(table_instance)
             # have to set the join this way since 
             # table_instance.joinColumnName doesn't seem to work here, 
             # maybe b/c the table_instance hasn't been committed

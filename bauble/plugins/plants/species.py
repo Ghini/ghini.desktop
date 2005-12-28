@@ -120,22 +120,23 @@ class Species(BaubleTable):
 	# with a way to add to the list    
     vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     # this is the default vernacular name we'll use
-    # FIXME: what happens if we delete the object that this foreign key
-    # points to
+    # FIXME: what happens if to the value in default_vernacular_name if 
+    # we delete the object that this foreign key points to, should somehow
+    # get reset to None
     default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
                                          #cascade=True)
-    def _get_default_vernacular_nameID(self):
-        # delete self.default_vernacular_name in case it has been deleted
-        # elsewhere
-        try:
-            v = tables['VernacularName'].get(self.default_vernacular_name)
-            debug(v)
-        except:
-            self.default_vernacular_name = None
-#        if v is None:
+#    def _get_default_vernacular_nameID(self):
+#        # delete self.default_vernacular_name in case it has been deleted
+#        # elsewhere
+#        try:
+#            v = tables['VernacularName'].get(self.default_vernacular_name)
+#            debug(v)
+#        except:
 #            self.default_vernacular_name = None
-#        debug(self.default_vernacular_name)
-        return self.default_vernacular_name
+##        if v is None:
+##            self.default_vernacular_name = None
+##        debug(self.default_vernacular_name)
+#        return self.default_vernacular_name
         #if self.default_vernacular_name
     # where this name stands in taxonomy, whether it's a synonym or
     # not basically, would probably be better to just leaves this and

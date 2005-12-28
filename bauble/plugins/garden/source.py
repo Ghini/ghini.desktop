@@ -13,7 +13,7 @@ class Donation(BaubleTable):
     # don't allow donor to be deleted if donor still has donations
     donor = ForeignKey('Donor', notNull=True, cascade=False)                        
     donor_acc = StringCol(length=12, default=None) # donor's accession id    
-    notes = StringCol(default=None) # ??? random text, memo
+    notes = UnicodeCol(default=None) # ??? random text, memo
     
     # we'll have to set a default to none here because of the way our editors
     # are set up have to commit this table and then set the foreign key later,
@@ -33,12 +33,12 @@ class Collection(BaubleTable):
     
     _cacheValue = False
     
-    collector = StringCol(length=50, default=None)  # primary collector's name
-    collector2 = StringCol(length=50, default=None) # additional collectors name
-    coll_id = StringCol(length=50, default=None)    # collector's/collection id
+    collector = UnicodeCol(length=50, default=None)  # primary collector's name
+    collector2 = UnicodeCol(length=50, default=None) # additional collectors name
+    coll_id = UnicodeCol(length=50, default=None)    # collector's/collection id
     coll_date = DateTimeCol(default=None)         # collection date
     
-    locale = StringCol() # text of where collected
+    locale = UnicodeCol() # text of where collected
     
     # this could also just be a float and we could convert back and 
     # forth to deg, min, sec with a utility function
@@ -55,8 +55,8 @@ class Collection(BaubleTable):
     # depth under water, same as minus altitude
     #depth = FloatCol(default=None) 
     
-    habitat = StringCol(default=None) # habitat, free text
-    notes = StringCol(default=None)
+    habitat = UnicodeCol(default=None) # habitat, free text
+    notes = UnicodeCol(default=None)
     
     # we'll have to set a default to none here because of the way our editors
     # are set up have to commit this table and then set the foreign key later,

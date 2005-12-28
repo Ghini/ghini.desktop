@@ -45,38 +45,9 @@ class DefaultColumn(GenericViewColumn):
     def _get_name(self):
         return "default"
         
-#        self.renderer = gtk.CellRendererToggle()
- #       self.view = tree_view_editor.view
         
-#        self.name = 'default'
-#        self.meta = GenericViewColumn.Meta()
-
-#        self.set_cell_data_func(self.renderer, self.cell_data_func)
-#        self.set_clickable(True)
-#        self.set_resizable(True)
-#        self.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-#        self.set_reorderable(True)
-
-#        self.__dirty = False
-#        self.tree_editor =  tree_view_editor
-        
-        
-#    def _get_dirty(self):
-#        return self.__dirty
-#        
-#    def _set_dirty(self, dirty):
-#        self.__dirty = dirty
-#        # FIXME: this is going to be a problem if we undirty this column
-#        # then the entire tree_editor becomes undirty regardless of the
-#        # rest of the columns, should probably not allow a treevieweditor
-#        # to become undirty
-#        self.tree_editor.dirty = dirty 
-#        
-#    dirty = property(_get_dirty, _set_dirty)
-
-
     def on_toggled(self, renderer, path, data=None):
-        # FIXME: don't allow selection of the last row, it's empty stupid
+        # FIXME: don't allow selection of the last row, it's empty stupid                    
         self.dirty = True
         active = not renderer.get_active()
         model = self.table_editor.view.get_model()
@@ -101,12 +72,14 @@ class DefaultColumn(GenericViewColumn):
         else:
             renderer.set_property('sensitive', True)
             renderer.set_property('activatable', True)
-            
-        if self.selected_row is None:
-            renderer.set_property('active', False)            
+                        
+        if len(model) == 1: # this is the only item in the model
+            renderer.set_active(True)        
+        elif self.selected_row is None:
+            renderer.set_active(False)            
         else:
             active = self.selected_row.get_path() == model.get_path(iter)
-            renderer.set_property('active', active)        
+            renderer.set_active(active)        
         
 #    
 # VernacularNameEditor
@@ -149,27 +122,23 @@ class VernacularNameEditor(TreeViewEditorDialog):
     def pre_start_hook(self):
         # set the default toggle
         model = self.view.get_model()
-        for item in model: # skip last row which should be empty
-            #path = model.get_path(item)
-#            debug(item)
-#            debug(item[0])
-            row = item[0]
-            if 'id' in row and row['id'] == self.default_name.id:
-#                debug('default: %s' % row)
-                path = model.get_path(item.iter)
-                self.columns['default'].selected_row = \
-                    gtk.TreeRowReference(model, path)
+        
+        if len(model) == 1: 
+            # only one value in the model, set it as the default
+            model[0]
+        else:
+            for item in model: # skip last row which should be empty
+                row = item[0]
+                if 'id' in row and row['id'] == self.default_name.id:
+    #                debug('default: %s' % row)
+                    path = model.get_path(item.iter)
+                    self.columns['default'].selected_row = \
+                        gtk.TreeRowReference(model, path)
         self.default_name = None
             
             
     is_default = False
     def pre_commit_hook(self, values):
-        #super(VernacularNameEditor, self).pre_commit_hook(values)
-#        debug('pre_commit_hook: %s'  % values)
-        #sr = self.columns['default'].selected_row
-        #path = sr.get_path()
-        #model = sr.get_model()        
-        #debug()
         if values == self.default_values:
 #            debug('-- is default')
             self.is_default = True
@@ -217,5 +186,5 @@ class VernacularNameEditor(TreeViewEditorDialog):
             if item[0] == selected_value:
                 self.default_values = selected_value
                 return
-        raise 'could not get selected values'
+        raise BaubleError('could not get selected values')
         
