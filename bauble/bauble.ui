@@ -10,9 +10,9 @@
       <menuitem action="edit_cut"/>
       <menuitem action="edit_copy"/>
       <menuitem action="edit_paste"/>
-      <separator/>
+      <!--<separator/>
       <menuitem action="edit_preferences"/>
-      <separator/>
+      <separator/>-->
     </menu>    
     <menu name="Tools" action="tools">
     <separator/>

@@ -44,7 +44,6 @@ class TagItemGUI:
         d.run()
         name = entry.get_text()
         d.destroy()
-        print name
         if name is not "":
             try: # name already exist
                 t = Tag.byTag(name)

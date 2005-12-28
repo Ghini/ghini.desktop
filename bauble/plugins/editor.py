@@ -3,6 +3,7 @@
 #
 
 import os, sys, re, copy, traceback
+import xml.sax.saxutils as saxutils
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
@@ -728,8 +729,9 @@ class TableEditorDialog(TableEditor):
                 except Exception, e:
                     msg = "Could not commit changes.\n" + str(e)
                     debug(traceback.format_exc())
-                    utils.message_details_dialog(msg, traceback.format_exc(), 
-                                              gtk.MESSAGE_ERROR)
+                    utils.message_details_dialog(saxutils.escape(msg), 
+                                                 traceback.format_exc(), 
+                                                 gtk.MESSAGE_ERROR)
                 else:
                     break
             elif self.dirty and utils.yes_no_dialog(msg):
@@ -755,7 +757,8 @@ class TableEditorDialog(TableEditor):
     
     def on_dialog_close_or_delete(self, widget, event=None):
         self.dialog.hide()
-        return gtk.TRUE
+        return True
+        
         
     def __get_values(self):
         return self._values
@@ -1134,7 +1137,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             if not item[0].dirty or item[0].committed: 
                 continue            
             row = self._transform_row(item[0])
-            debug(row)
+#            debug(row)
             # make a copy of the dict so we don't change anything
             if not self.pre_commit_hook(row):
                 continue
@@ -1142,14 +1145,14 @@ class TreeViewEditorDialog(TableEditorDialog):
             for fk in self.columns.foreign_keys:
                 if fk in row:
                     row[fk] = row[fk].id
-            debug(row)
+#            debug(row)
             join_values = {}
             for join in self.columns.joins:
                 if join in row:
                     join_values[join] = row.pop(join)
             
             table_instance = self._commit(row)
-            debug(table_instance)
+#            debug(table_instance)
             # have to set the join this way since 
             # table_instance.joinColumnName doesn't seem to work here, 
             # maybe b/c the table_instance hasn't been committed

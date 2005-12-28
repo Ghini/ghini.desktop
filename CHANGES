@@ -1,3 +1,17 @@
+2005.12.28
+----------
+- fixed datetime issues with the CollectionEditor
+- change TreeViewEditorDialog.commit_changes again to just iterate of the model
+in the view and call _transform_row on each row in the model instead of 
+calling _set_value_from_widgets in start()
+- if everything doesn't get successfully committed in a TreeViewEditorDialog
+then desensitize those rows that were committed correctly and reshow the dialog
+- removed 'Preferences' from the Edit menu until we get some preferences tabs
+- forgot to commit plugin\tag\tag.glade to svn
+- too many fixes to name, i think we're ready for 0.4.0, just have to test on 
+Windows
+
+
 2005.12.26
 ----------
 - got fed up with connections and transactions behaving differently between

@@ -36,7 +36,15 @@ class Collection(BaubleTable):
     collector = UnicodeCol(length=50, default=None)  # primary collector's name
     collector2 = UnicodeCol(length=50, default=None) # additional collectors name
     coll_id = UnicodeCol(length=50, default=None)    # collector's/collection id
-    coll_date = DateTimeCol(default=None)         # collection date
+    
+    
+    # collection date
+    # TODO: is there anyway to get this date format from BaubleMeta, also
+    # i don't know why setting dateFormat here give me an error about getting
+    # the date in unicode instead of a DateTimeCol eventhough i set this
+    # column using a datetime object    
+    #coll_date = DateCol(default=None, dateFormat='%d/%m/%Y')    
+    coll_date = DateCol(default=None)
     
     locale = UnicodeCol() # text of where collected
     

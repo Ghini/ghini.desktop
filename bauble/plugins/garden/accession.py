@@ -313,7 +313,8 @@ else:
             set_widget_value(self.glade_xml, 'elev_data', v)
             
             set_widget_value(self.glade_xml, 'coll_data', collection.collector)
-            set_widget_value(self.glade_xml, 'data_data', collection.coll_date)
+            set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
+            #set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
             set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
             set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
             set_widget_value(self.glade_xml, 'collnotes_data', collection.notes)

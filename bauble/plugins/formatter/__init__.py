@@ -39,7 +39,8 @@ formatters_default_pref = 'formatter.default'
 
 renderers_map = {'Apache FOP': 'fop -fo %(fo_filename)s -pdf %(out_filename)s',
                  'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
-                 'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s'
+                 'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s',
+#                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'                 
                 }
 
 # TODO: if formatter chosen has any problems, i.e. the stylesheet file doesn't
@@ -94,21 +95,25 @@ class Formatter:
             combo_set_active_text(self.formatters_combo, default)
         
         pdf_filename = None
-        if self.formatter_dialog.run() == gtk.RESPONSE_OK:
-            # refresh formatters in case they change in the options and set
-            # the default
-            formatters = prefs[formatters_list_pref]
-            active = self.formatters_combo.get_active_text()
-            prefs[formatters_default_pref] = active
-            # TODO: should we make sure the stylesheet exists first?
-            stylesheet = formatters[active]['stylesheet'] 
-            fo_cmd = renderers_map[formatters[active]['renderer']]
-            pdf_filename = self.create_pdf(fo_cmd, stylesheet)
-            
+        
+        try:
+            if self.formatter_dialog.run() == gtk.RESPONSE_OK:
+                # refresh formatters in case they change in the options and set
+                # the default
+                formatters = prefs[formatters_list_pref]
+                active = self.formatters_combo.get_active_text()
+                prefs[formatters_default_pref] = active
+                # TODO: should we make sure the stylesheet exists first?
+                stylesheet = formatters[active]['stylesheet'] 
+                fo_cmd = renderers_map[formatters[active]['renderer']]
+                pdf_filename = self.create_pdf(fo_cmd, stylesheet)
+        finally:
+            #self.formatter_dialog.destroy()
+            self.formatter_dialog.hide()
         
         # FIXME: see conn_mgr.py, we shouldn't have to destroy the dialog,
         # only hide it on response, close or delete-event
-        self.formatter_dialog.destroy()        
+        
         return pdf_filename
         
 
@@ -471,8 +476,13 @@ class FormatterOptions:
             self.stylesheet_button.set_filename('')
             self.stylesheet_button.set_sensitive(False)
             return
-            
-        formatter = prefs[formatters_list_pref][name]
+
+        #debug(name)
+        try:        
+            formatter = prefs[formatters_list_pref][name]
+        except:
+            return
+        
         renderer = formatter['renderer']        
         if formatter['renderer'] is not None:
             try:            

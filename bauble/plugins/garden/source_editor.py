@@ -3,15 +3,17 @@
 #
 
 import os, re, traceback
+from datetime import datetime
 import gtk
 import gtk.glade
 from sqlobject import * 
-import bauble
+from bauble import BaubleError
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TableEditorDialog
 from bauble.utils.log import debug
+
 
 # FIXME: there is a bug that if  you open the source editor window, close
 # it and then open it again then the widgets don't show on the donations
@@ -66,7 +68,8 @@ def set_dict_value_from_widget(glade_xml, name, key, dic, validator=lambda x: x)
 
 def set_widget_value(glade_xml, widget_name, value):
 #    debug('set_widget_value: ' + widget_name)
-    if value is None: return
+    if value is None: 
+        return
     w = glade_xml.get_widget(widget_name)
     if w is None:
         raise ValueError("set_widget_value: no widget by the name "+\
@@ -74,6 +77,10 @@ def set_widget_value(glade_xml, widget_name, value):
 #    debug(type(value))
     if type(value) == ForeignKey:
         pass
+    if isinstance(value, datetime):
+        # TODO: get the date format from BaubleMeta
+        s = "%s/%s/%s" % (value.day, value.month, value.year)
+        w.set_text(s)
     elif isinstance(w, gtk.Entry):
         w.set_text(value)
 
@@ -190,10 +197,10 @@ class CollectionEditor:
         #set_widget_value(self.glade_xml, 'locale_entry', self.row.locale)
         #debug('range')
         
-        print '---------'
+        #debug('---------')
         for widget_name, col_name in self.widget_to_column_name_map.iteritems():
             attr = getattr(self.row, col_name)
-            print type(attr)
+            #debug(type(attr))
             if type(attr) == ForeignKey:
                 # TODO, implement this in a global function since we have 
                 # to do it for at least the four location combos
@@ -222,7 +229,7 @@ class CollectionEditor:
         # collector_entry, should be a combo entry with an id in the model
         set_dict_value_from_widget(self.glade_xml, 'collector_entry', 'collector', values)
 
-        # colldate_entry, dd/mm/yy
+        # colldate_entry
         set_dict_value_from_widget(self.glade_xml, 'colldate_entry', 'coll_date', values)
         # collid_entry
         set_dict_value_from_widget(self.glade_xml, 'collid_entry', 'coll_id', values)
@@ -283,11 +290,11 @@ class DonationEditor:
         
         self.donor_combo = self.glade_xml.get_widget('donor_combo')
         sel = tables["Donor"].select()
-        print 'init_donations'
-        print sel
-        for s in sel:
-            print s
-        print '---------'
+#        debug('init_donations')
+#        debug('print sel')
+#        for s in sel:
+#            debug(s)
+#        debug('---------')
         r = gtk.CellRendererText()
         self.donor_combo.pack_start(r)
         self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
@@ -372,7 +379,7 @@ class SourceEditor(TableEditorDialog):
             
         # TODO: the indexes shouldn't be hardcoded like this
         if self.select is not None:
-            print type(self.select)
+#            debug(type(self.select))
             if type(self.select) == tables["Collection"]:
                 self.type_combo.set_active(0)
             elif type(self.select) == tables["Donations"]:
@@ -423,7 +430,36 @@ class SourceEditor(TableEditorDialog):
         editor.box.show_all()
         #self.dialog.show_all()
         
-        
+    def _transform_row(self, row):
+        # TODO: we need a much better way to define the date format for the 
+        # database, possible having a wizard when creating a new database to 
+        # select the global date format at database creation and store the 
+        # date format in BuableMeta, really we shouldn't have to set it
+        # in BaubleMeta since we store datatime objects in the database, we 
+        # just have to be able to convert the value at entry time, lets just
+        # do this conversion in _transform_row
+#        date_str = sel
+#        colldate_entry = self.glade_xml.get_widget('colldate_entry')
+#        date_str = colldate_entry.get_text()
+
+#        values[coll_date] = date
+        if 'coll_date' in row:
+            # should get the date format from somewhere, most likely
+            # from BaubleMeta, should also validate the date but i think
+            # datetime actually does this, e.g. month < 12
+            date_str = row['coll_date']
+            rx = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+            m = rx.match(date_str)
+            if m is None:
+                raise BaubleError("Collection date not in dd/mm/yyyy format")
+            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                    m.group('day')]]
+            dt = datetime(*ymd)
+            row['coll_date'] = dt
+            
+            
+            
+            
     def commit_changes(self):
         # TODO: since the source is a single join and is only relevant
         # to its parent(accession) then we should allow a way to get
@@ -437,6 +473,8 @@ class SourceEditor(TableEditorDialog):
         
         if values is None: 
             return None
+
+        self._transform_row(values)
 
         table_instance = None
         if self.select is None: # create a new table row
