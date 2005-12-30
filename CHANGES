@@ -1,3 +1,8 @@
+2005.12.30
+----------
+- you can now do 'OR'ed searches with by separting values with a comma, 
+e.g 2004.0001,2004.0002 would give you both accessions with those acc_id's
+
 2005.12.28
 ----------
 - fixed datetime issues with the CollectionEditor

@@ -25,7 +25,7 @@
 # be a separate plugin that requires search view 
 #***********
 
-import os, traceback
+import os, sys, traceback
 import gtk
 import bauble.utils as utils
 import bauble.paths as paths
@@ -37,8 +37,15 @@ from bauble.plugins.imex_abcd import abcd
 formatters_list_pref = 'formatter.formatters'    
 formatters_default_pref = 'formatter.default'
 
-renderers_map = {'Apache FOP': 'fop -fo %(fo_filename)s -pdf %(out_filename)s',
-                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
+# TODO: look for this on the path before starting anything and warn the use
+# so they have a clue why the formatter isn't working
+if sys.platform == "win32":
+    fop_cmd = 'fop.bat'
+else:
+    fop_cmd = 'fop'
+    
+renderers_map = {'Apache FOP': fop_cmd + ' -fo %(fo_filename)s -pdf %(out_filename)s',
+#                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
                  'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s',
 #                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'                 
                 }

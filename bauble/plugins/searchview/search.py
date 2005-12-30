@@ -238,6 +238,8 @@ class SearchView(BaubleView):
             model.append([msg])
             self.results_view.set_model(model)
         except bauble.BaubleError, e:
+            debug('BaubleError')
+            debug(e)
             model = gtk.ListStore(str)
             model.append(['** Error: %s' % e])
             self.results_view.set_model(model)
@@ -316,39 +318,73 @@ class SearchView(BaubleView):
         else:
             like = "LIKE"
             
+        q = ''
         for v in values:
+#            debug(v)
             if v == "*" or v == "all":
                 s = table.select(orderBy=search_meta.sort_column)[:]
                 return s
-            q = "%s %s '%%%s%%'" % (columns[0], like, v)
+            if len(q) is 0:
+                q = "%s %s '%%%s%%'" % (columns[0], like, v)
+            else:
+                q += " OR %s %s '%%%s%%'" % (columns[0], like, v)
+
             for c in columns[1:]:
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
+#        debug(q)
         return table.select(q)
         
                 
     # parser grammar definitions
+#    __domain = Word(alphanums)
+#    __quotes = Word('"' + "'")
+#    __values_str = Word(alphanums+'*' +' '+';'+'.')    
+#    __values = __quotes.suppress() + __values_str + __quotes.suppress() \
+#               ^ __values_str
+#    __expression = __domain + Word('=', max=2).suppress() + __values
     __domain = Word(alphanums)
-    __quotes = Word('"' + "'")
-    __values_str = Word(alphanums+'*' +' '+';'+'.')
-    __values = __quotes.suppress() + __values_str + __quotes.suppress() \
-               ^ __values_str
-    __expression = __domain + Word('=', max=2).suppress() + __values
+    __quotes = Word('"' + "'")    
+    __value_str = Word(alphanums+'*' +' '+';'+'.')
+    __quoted_value_str = __quotes.suppress() + __value_str + __quotes.suppress()
+    __value = __quoted_value_str ^ __value_str
+    __single_value = __value
+    __multiple_values = OneOrMore(__single_value + Word(',').suppress()) + \
+                        Optional(__single_value)
+    __possible_values = __single_value ^ __multiple_values
+    __expression = __domain + Word('=', max=2).suppress() + __possible_values
+    #__expression = __domain + Word('=') + __possible_values
                     
-    parser = OneOrMore(Group(__expression ^ __values))
+    parser = OneOrMore(Group(__expression ^ __possible_values))
+
+
+    # FIXME: loc= search parses the search as ['default', 'loc'] instead
+    # of a domain with an empty value list
 
     def parse_text(self, text):        
         parsed_string = self.parser.parseString(text)
-        searches = {}
+        searches = {}        
         for group in parsed_string:
-            if len(group) == 1:            
-                if 'default' not in searches:
-                    searches['default'] = []
-                searches['default'].append(group[0])
-            else:
+#            debug(group)            
+#            if group[0].endswith('='):
+#                raise bauble.BaubleError('no value given for domain: ' + \
+#                                     group[0][:-1])
+#            group[0] = group[0][:-1]
+            
+            if len(group) == 1:
+                domain = 'default'
+            elif group[0] in self.domain_map:
                 domain = group[0]
-                if domain not in searches:
-                    searches[domain] = []
-                searches[domain].append(group[1])
+                group = group[1:]
+            else:
+                domain = 'default'
+            
+            append = lambda v: searches[domain].append(v)
+            try:
+                map(append, group)
+            except KeyError:
+                searches[domain] = []
+                map(append, group)
+     
         return searches
     
     
@@ -390,6 +426,7 @@ class SearchView(BaubleView):
         
         
     def populate_results_no_threading(self, search):
+#        debug(search)
         #self.set_sensitive(False)
         results = []
         added = False
