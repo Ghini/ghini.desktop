@@ -24,8 +24,8 @@ class BaubleApp:
 
     def delete_event(self, widget, event, data=None):
         # when is this ever called? why is it here
-        print "BaubleApp.delete_event"
-        return gtk.FALSE
+        print debug('BaubleApp.delete_event')
+        return False
 
 
     def create_database(self):
@@ -33,25 +33,23 @@ class BaubleApp:
         create new Bauble database at the current connection
         '''
         bauble.BaubleMetaTable.dropTable(ifExists=True)
-        bauble.BaubleMetaTable.createTable(ifNotExists=True)  
+        #bauble.BaubleMetaTable.createTable(ifNotExists=True)
+        bauble.BaubleMetaTable.createTable()  
         bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
                                value=str(bauble.version))
-        # TODO: should use a transaction here
-        #old_auto = sqlhub.processConnection.autoCommit
         try:            
             #sqlhub.processConnection.autoCommit = True
             for p in plugins.values():
-                p.create_tables()
-            
+                p.create_tables()            
         except:
             msg = "Error creating tables. Your database may be corrupt."
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
         else:
-            # create the created timestamp 
-            bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
-                        value=str(datetime.datetime.now()))        
-        #sqlhub.processConnection.autoCommit = old_auto
+            # create the created timestamp
+            t = bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
+                        value=str(datetime.datetime.now()))
+            sqlhub.processConnection.commit()
 #        except pysqlite2.dbapi2.OperationalError:
 #            msg = "Error creating the database. This sometimes happens " \
 #            "when trying to create a SQLite database on a network drive. " \
@@ -61,7 +59,7 @@ class BaubleApp:
         if self.gui is not None:
             view = self.gui.get_current_view()
             view.refresh_search()
-
+        debug('leaving')
     #
     # tracing execution 
     #
@@ -145,7 +143,7 @@ class BaubleApp:
                     return False
                         
         except Exception:
-            #debug(traceback.format_exc())
+            debug(traceback.format_exc())
             msg = "The database you have connected to is either empty or " \
                   "wasn't created using Bauble. Would you like to create a " \
                   "create a database at this connection?" + warning

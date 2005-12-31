@@ -215,19 +215,7 @@ class BaublePlugin(object):
         
         
 class BaubleTable(SQLObject):
-    
-    # sqlite: this has to be True, if not then transactions 
-    # seem to be autocommitted and rolling  them back doesn't work
-    
-    # postgres: True, rolling back connection seems to work, creating
-    # new database works, but completion doesn't work for the locations
-    # in PlantEditor.start b/c we start the editor with a connection but
-    # try and complete with the transaction, should just pass the 
-    # transaction to the location editor and commit it,
-    # - removing things from the database via the search view doesn't seem
-    # to work if an editor has been started
-#    sqlmeta.cacheValues = False
-    
+       
     def __init__(self, **kw):        
         super(BaubleTable, self).__init__(**kw)        
         self.values = {}

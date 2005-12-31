@@ -2,6 +2,7 @@
 ----------
 - small regression fix for opening databases created with a version different 
 from the version of Bauble you're using
+- properly handle exception thrown when importing csv files
 
 2005.12.30
 ----------

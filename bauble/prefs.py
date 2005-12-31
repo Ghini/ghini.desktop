@@ -11,6 +11,9 @@ from bauble.utils.log import debug
 # TODO: i think it would be a hell of alot simpler and easier to
 # read if we just stuck with a
 # name = value format and remove all that ugly set_pref crap
+# TODO: include the version of the database in the prefs so that if the prefs
+# are opened with a different version then the user will know and possible
+# migrate pref version though i don't think the prefs  format will change much
 
 default_filename = 'config'
 if sys.platform == "win32":

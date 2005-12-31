@@ -19,6 +19,7 @@ csv_format_params = {}
 
 # TODO: how do i validate unicode ???
 # TODO: i think we can do all of this easier using FormEncode
+# TODO: DateTimeCol and DateTime i guess should convert to a datetime object
 column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOIntCol: lambda x: int(x),
                           sqlobject.SOFloatCol: lambda x: float(x),
@@ -26,7 +27,8 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOStringCol: lambda x: str(x),
                           sqlobject.SOEnumCol: lambda x: x,
                           sqlobject.SOUnicodeCol: lambda x: x,
-                          sqlobject.SODateTimeCol: lambda x: x}
+                          sqlobject.SODateTimeCol: lambda x: x,
+                          sqlobject.SODateCol: lambda x: x}
                           #sqlobject.SOUnicodeCol: lambda x: unicode(x)
                    
                           
@@ -40,15 +42,13 @@ type_validators = {int: lambda x: int(x),
                    
 
 class CSVImporter:
-    
-    import_lock = threading.Lock()
-    in_thread = True
+
     
     def start(self, filenames=None):
         """
         the simplest way to import, no threads, nothing
         """        
-
+        
         error = False # return value
         bauble.app.set_busy(True)
                 
@@ -60,6 +60,8 @@ class CSVImporter:
         
         filename = None   # these two are here in case we get an exception
         table_name = None
+        # TODO: should probably save autocommit and then restore it
+        #sqlobject.sqlhub.processConnection.autoCommit = False
         for filename in filenames:
             try:
                 path, base = os.path.split(filename)
@@ -83,10 +85,13 @@ class CSVImporter:
                     sql = "SELECT max(id) FROM %s" % table_name
                     max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]                    
                     if max is not None:
-                        sql = "SELECT setval('%s_id_seq', %d);" % (table_name, max+1)
+                        sql = "SELECT setval('%s_id_seq', %d);" % \
+                              (table_name, max+1)
                         sqlobject.sqlhub.processConnection.query(sql)    
                 
         bauble.app.set_busy(False)
+        #sqlobject.sqlhub.processConnection.autoCommit = True
+        #sqlobject.sqlhub.processConnection.commit()
         if not error:
             sqlobject.sqlhub.processConnection.commit()
         else:
@@ -133,7 +138,9 @@ class CSVImporter:
             try:
                 table(**line) # add row to table
             except Exception, e:
-                raise str(line), e
+                raise bauble.BaubleError("%s\n%s" % (str(e), line))
+            #except Exception, e:
+                #raise str(line), e
             
             
     def _get_filenames(self):
@@ -159,111 +166,13 @@ class CSVImporter:
         filenames = fc.get_filenames()
         fc.destroy()
         return filenames
-            
-            
-#    def start_in_thread(self, filenames=None, block=False):
-#        """
-#        run the importer, if no filenames are are give then it will ask you
-#        for the files to import
-#        if there are any problems importing any of the files in filenames then
-#        then entire import is rolled back
-#        """
-#        # TODO: this could be part of the gui rather so that the file are choses
-#        # before 'OK' is clicked, we could have a table with two columns with
-#        # the left side the filenames and the right side the 'guessed' table name
-#        # but with a drop down to change the table, each row could also have an
-#        # expand arrow that when expanded peeks at the file for the columns and 
-#        # shows the column mapping and if there are any errors
-#        # mapping 
-#        if filenames is None:
-#            filenames = _get_filenames()
-#                                                          
-#        bauble.app.set_busy(True)
-#
-#        t = threading.Thread(target=self._import_worker, args=(filenames))
-#        t.start()
-#        if block:
-#            t.join()
-    
-    
 
-        
         
     def on_response(self, widget, response, data=None):
         debug('on_response')
         debug(response)
         
-        
-#    def _import_worker(self, filenames):
-#        """
-#        this should not be used directly but is used by start()
-#        
-#        """
-#
-#        dialog = None
-#        # save the original connection
-#        old_conn = sqlobject.sqlhub.getConnection()        
-#        gtk.threads_enter()        
-#        # TODO: connect to this cancel button so the user can stop the import
-#        # process and rollback any changes
-#        dialog = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-#                          type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_CANCEL, 
-#                          message_format='importing...')
-#        dialog.connect('response', self.on_response)
-#        debug('show_all')
-#        dialog.show_all()
-#        gtk.threads_leave()
-#        
-#        trans = old_conn.transaction()       
-#        sqlobject.sqlhub.threadConnection = trans
-#        
-#        try:
-#            for filename in filenames:                     
-#                path, base = os.path.split(filename)
-#                table_name, ext = os.path.splitext(base)
-#                # the name of the file has to match the name of the 
-#                # tables class
-#                if table_name not in tables:
-#                    msg = "%s table does not exist. Would you like to continue " \
-#                          "importing the rest of the tables?" % table_name
-#                    gtk.threads_enter()
-#                    keep_on = utils.yes_no_dialog(msg)
-#                    gtk.threads_leave()
-#                    if keep_on: continue
-#                    else: break            
-#    
-#                # TODO: could do something more with this to indicate progress
-#                # like a counter on the row number being imported
-#                gtk.threads_enter()
-#                dialog.set_markup('importing ' + table_name+ '...')
-#                dialog.queue_resize()
-#                gtk.threads_leave()
-#                                
-#                self.import_file(filename, tables[table_name], trans)
-#        except Exception, e:            
-#            traceback.print_exc()
-#            # TODO: should ask the user if they would like to import the 
-#            # rest of the tables or bail, should probably do all commits in 
-#            # one transaction so all data gets imported from all files 
-#            # successfully or nothing at all
-#            msg = "Error importing values from %s into table %s\n" % (filename, table_name)
-#            sys.stderr.write(msg)            
-#            gtk.threads_enter()
-#            utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_ERROR)
-#            gtk.threads_leave()
-#            trans.rollback()
-#        else:
-#            trans.commit()
-#                
-#        sqlobject.sqlhub.threadConnection = old_conn
-#        gtk.threads_enter()
-#        if dialog is not None: 
-#            dialog.destroy()
-#        bauble.app.gui.window.set_sensitive(True)
-#        bauble.app.gui.window.window.set_cursor(None)
-#        gtk.threads_leave()
-   
-        
+                
 # TODO: should use sqlobject.fromDatabase() to create the schema
 # incase  you want to export a database with a different version 
 # than the version of bauble you are using
