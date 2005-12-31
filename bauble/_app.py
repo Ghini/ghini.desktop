@@ -108,7 +108,7 @@ class BaubleApp:
         if name is not None:
             prefs[prefs.conn_default_pref] = name
             prefs.save()
-        return True
+        #return True
     
         # make sure the version information matches or if the bauble
         # table doesn't exists then this may not be a bauble created 
@@ -116,7 +116,9 @@ class BaubleApp:
         warning = "\n\n<i>Warning: If a database does already exists at this "\
                   "connection, creating a new database could corrupt it.</i>"
         try:
+            #debug('get version')
             sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.version)
+            #debug(sel)
             db_version = eval(sel[0].value)
             if db_version[0:2] != bauble.version[0:2]:# compare major and minor
                 msg = 'You are using Bauble version %d.%d.%d while the '\
@@ -152,7 +154,7 @@ class BaubleApp:
                 return self.open_database(uri, name, before_main)
             else:
                 return False
-            
+        return True
         
         
         
