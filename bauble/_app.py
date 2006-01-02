@@ -24,7 +24,7 @@ class BaubleApp:
 
     def delete_event(self, widget, event, data=None):
         # when is this ever called? why is it here
-        print debug('BaubleApp.delete_event')
+        debug('BaubleApp.delete_event')
         return False
 
 

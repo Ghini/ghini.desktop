@@ -4,10 +4,9 @@
 
 import imp, os, sys
 
-
 # major, minor, revision 
 # should be updated for each release of bauble
-version = (0,4,0)
+version = (0,4,1)
 version_str = '%s.%s.%s' % (version[0], version[1], version[2])
 
 def main_is_frozen():
@@ -18,11 +17,16 @@ def main_is_frozen():
 import pygtk
 if not main_is_frozen():
     pygtk.require("2.0")
+else:
+   # put library.zip first in the path when using py2exe so libxml2 gets 
+   # imported correctly
+   zipfile = sys.path[-1]
+   sys.path.insert(0,zipfile)
+   
 import gtk
 
 import bauble.utils as utils
 import bauble.paths as paths
-
 sys.path.append(paths.lib_dir())
 sys.path.append(paths.lib_dir() + os.sep + 'lib')
 

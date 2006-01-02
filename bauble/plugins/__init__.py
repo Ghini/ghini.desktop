@@ -31,6 +31,7 @@
 
 import os, sys, traceback, re
 import gtk
+import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
 from sqlobject import SQLObject, sqlmeta, DateTimeCol
@@ -62,7 +63,8 @@ def start_plugins():
 def _register(plugin_class):        
     # check dependencies
     plugin_name = plugin_class.__name__
-    log.info("registering " + plugin_name)
+    if not bauble.main_is_frozen():
+	log.info("registering " + plugin_name)
     for dependency in plugin_class.depends:            
         #print 'depends: ', dependency
         if dependency not in plugins:
@@ -107,7 +109,7 @@ def _find_plugins():
     modules = []
     path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
-        debug("library.zip")
+#        debug("library.zip")
         pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
         #debug(zipfiles)
@@ -117,14 +119,14 @@ def _find_plugins():
         #return ()
         #x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
         x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
-        debug(x)
+#        debug(x)
         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
         rx = re.compile(s.encode('string_escape'))        
         for filename in x:    
-            debug(filename)
+#            debug(filename)
             m = rx.match(filename)
             if m is not None:
-                debug('%s.%s' % (pkg, m.group(1)))
+#                debug('%s.%s' % (pkg, m.group(1)))
                 modules.append('%s.%s' % (pkg, m.group(1)))
                 
     else:                

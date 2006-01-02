@@ -22,10 +22,12 @@ import bauble.utils as utils
 #debug.enable = True
 
 if sys.platform == "win32":
+    pass
     sys.path.append(paths.lib_dir() + os.sep + "lib" + os.sep + "win32")
     os.environ["PATH"] += paths.main_dir() + os.pathsep +  "lib" + os.sep + \
                           "win32"
 sys.path.append(paths.lib_dir() + os.sep + "lib")
+sys.path.insert(0, paths.lib_dir() + os.sep + "lib")
 os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
 
 # i guess we would need to use the builtin tk library to show an

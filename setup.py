@@ -9,7 +9,7 @@ import glob
 
 import sys
 if sys.platform == "win32":
-    import py2exe
+    import py2exe    
 
 
 # TODO: if on a unix system then create a shell script in the PATH

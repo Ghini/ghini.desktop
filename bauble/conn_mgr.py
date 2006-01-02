@@ -69,7 +69,7 @@ class ConnectionManager:
     
     def on_dialog_close_or_delete(self, widget, event=None):
         self.dialog.hide()
-        return gtk.TRUE
+        return True
         
         
     def _get_supported_dbtypes(self):

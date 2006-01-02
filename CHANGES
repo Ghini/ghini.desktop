@@ -1,8 +1,14 @@
 2005.01.02
+----------
 - drastically improved csv export speed by about a million percent by 
 using map()
 - some fixes for win32, mostly works now
 - ready for 0.4.0
+- released 0.4.0
+- tried to get rid of that annoying dialog caused by the logger
+- rearranged the sys.path to put library.zip in front when using py2exe so
+that libxml2 get imported correctly, this fixes the formatter on win32
+
 
 2005.12.31
 ----------
