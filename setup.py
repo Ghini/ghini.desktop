@@ -71,16 +71,17 @@ setup(name="Bauble",
       version=version,
       console=["scripts/bauble"],
       windows=["scripts/bauble"],          
-      options=opts,
-      packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + \
-      plugins_pkgs,
-      scripts=["scripts/bauble"], # for setuptools?      
-      data_files=[('bauble', ('bauble/bauble.ui',)),
-                  ('bauble/images', glob.glob('bauble/images/*.png'))] + 
-                  data,
-      package_data={'': ['*.ui','images/*.png'],
+      scripts=["scripts/bauble"], # for setuptools?
+      options=opts,      
+      packages=["bauble"] + ["bauble.%s" % p for p in subpackages]+plugins_pkgs,
+      package_data={'': ['*.ui','*.glade','images/*.png','pixmaps/*.png'],
                     'bauble.plugins.geography': ['default/*.txt'],
                     'bauble.plugins.garden': ['*.glade']},
+
+      data_files=[('bauble', ('bauble/bauble.ui','bauble/conn_mgr.glade')),
+                  ('bauble/images', glob.glob('bauble/images/*.png')),
+		  ('bauble/pixmaps', glob.glob('bauble/pixmaps/*.png'))] +
+                  data,
 #      install_requires=["FormEncode==0.2.2", "SQLObject==0.7",
 #                        "pysqlite==2.0.4"],
 #                        "PyGTK>=2.6"],# pygtk is not supported using distutils
@@ -95,5 +96,5 @@ setup(name="Bauble",
       license="GPL",
       keywords="database biodiversity botanic",
       url="http://bauble.belizebotanic.org",
-      download_url="http://bauble.belizebotanic.org/bauble-0.1.tar.gz"      
+#      download_url="http://bauble.belizebotanic.org/bauble-0.1.tar.gz"      
      )            

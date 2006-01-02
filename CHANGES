@@ -1,6 +1,8 @@
 2005.01.02
 - drastically improved csv export speed by about a million percent by 
 using map()
+- some fixes for win32, mostly works now
+- ready for 0.4.0
 
 2005.12.31
 ----------
