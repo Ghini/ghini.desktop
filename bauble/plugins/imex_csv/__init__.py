@@ -154,8 +154,15 @@ class CSVImporter:
                     table_class(**line) # add row to table
                 except Exception, e:
                     raise bauble.BaubleError("%s\n%s" % (str(e), line))
-            
-            
+    
+     
+    # TODO: do something like this on long operations so the gui doesn't freeze
+    # up
+    #gobject.idle_add(callback, ...)
+    #def _import_callback(self):
+    #    pass
+    
+    
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
                 """
