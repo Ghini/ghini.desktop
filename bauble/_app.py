@@ -59,7 +59,7 @@ class BaubleApp:
         if self.gui is not None:
             view = self.gui.get_current_view()
             view.refresh_search()
-        debug('leaving')
+#        debug('leaving')
     #
     # tracing execution 
     #

@@ -26,20 +26,9 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOBoolCol: lambda x: bool(x),
                           sqlobject.SOStringCol: lambda x: str(x),
                           sqlobject.SOEnumCol: lambda x: x,
-                          sqlobject.SOUnicodeCol: lambda x: x,
+                          sqlobject.SOUnicodeCol: lambda x: unicode(x,'utf-8'),
                           sqlobject.SODateTimeCol: lambda x: x,
                           sqlobject.SODateCol: lambda x: x}
-                          #sqlobject.SOUnicodeCol: lambda x: unicode(x)
-                   
-                          
-type_validators = {int: lambda x: int(x),
-                   float: lambda x: float(x),
-                   str: lambda x: str(x),
-                   bool: lambda x: bool(x),                   
-                   unicode: lambda x: x}
-                   #unicode: lambda x: unicode(x, 'latin-1')}
-                   #unicode: lambda x: unicode(x, 'utf-8')
-                   
 
 class CSVImporter:
 
@@ -60,15 +49,16 @@ class CSVImporter:
         
         filename = None   # these two are here in case we get an exception
         table_name = None
-        # TODO: should probably save autocommit and then restore it
-        #sqlobject.sqlhub.processConnection.autoCommit = False
         for filename in filenames:
             try:
                 path, base = os.path.split(filename)
                 table_class_name, ext = os.path.splitext(base)
                 table = tables[table_class_name]
                 table_name = table.sqlmeta.table
+#                import time
+#                t = time.clock()
                 self.import_file(filename, table)
+#                debug(time.clock() - t)
             except Exception, e:
                 msg = "Error importing values from %s into table %s\n" \
                        % (filename, table_name)
@@ -90,8 +80,6 @@ class CSVImporter:
                         sqlobject.sqlhub.processConnection.query(sql)    
                 
         bauble.app.set_busy(False)
-        #sqlobject.sqlhub.processConnection.autoCommit = True
-        #sqlobject.sqlhub.processConnection.commit()
         if not error:
             sqlobject.sqlhub.processConnection.commit()
         else:
@@ -100,47 +88,72 @@ class CSVImporter:
         return not error
         
         
-    def import_file(self, filename, table):
+    def import_file(self, filename, table_class):
 #        debug('imex_csv.import_file(%s, %s)' % (filename, table))
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
         # create validator map
         validators = {} # TODO: look at formencode to do this
-        for col in table.sqlmeta.columnList:
+        for col in table_class.sqlmeta.columnList:
             if type(col) not in column_type_validators:
                 raise Exception("no validator for col " + col.name + \
                                 " with type " + str(col.__class__))                
             validators[col.name] = column_type_validators[type(col)]
-        validators['id'] = type_validators[int]            
+        validators['id'] = int
         
-        t = table.select()
+        t = table_class.select()
         if t.count() > 0:
             msg = "The %s table already contains some data. If two rows "\
                   "have the same id in the import file and the database "\
                   "then the file will not import "\
                   "correctly.\n\n<i>Would you like to drop the table in the "\
                   "database first. You will lose the data in your database "\
-                  "if you do this?</i>" % table.sqlmeta.table
+                  "if you do this?</i>" % table_class.sqlmeta.table
             if utils.yes_no_dialog(msg):
-                table.dropTable(ifExists=True, dropJoinTables=True, 
+                table_class.dropTable(ifExists=True, dropJoinTables=True, 
                                 cascade=True)
-                table.createTable()
-                  
+                table_class.createTable()
+
         
-        for line in reader:
-#            if table.__name__ == 'Genus':    
-#                debug(line)
-            for col in reader.fieldnames: # validate columns
-                if line[col] == '': 
-                    del line[col]
-                else: 
-                    line[col] = validators[col](line[col])
-            try:
-                table(**line) # add row to table
-            except Exception, e:
-                raise bauble.BaubleError("%s\n%s" % (str(e), line))
-            #except Exception, e:
-                #raise str(line), e
+        # testing a  couple of different implementations here, the 
+        # considerations here are
+        # 1. does map() help here...not really
+        # 2. the line[col] = validators[col](line[col]) is hardly any 
+        # overhead
+        # 3. most the of the time is spent in creating the table row so
+        # there might not be much for me to do here
+        # 4. might be worthwhile to put this code in a standalone script
+        # and test it with profile to see where the time is really spent        
+        # 5. i don't know if there's any penalties with the way we pass  the 
+        # arguments using **line, this would be something worthile to check
+        # in a script
+        if True:
+            # this is me playing around
+            for line in reader:
+                def __validate_col(col):
+                    if line[col] == '': 
+                        line.pop(col) # pop seems to be slightly faster than del
+                    else:
+                        # convert to proper type from str
+                        line[col] = validators[col](line[col])                    
+                map(__validate_col, reader.fieldnames)
+                try:
+                    table_class(**line) # add row to table
+                except Exception, e:
+                    raise bauble.BaubleError("%s\n%s" % (str(e), line))
+        else:
+            # this is the original implementation
+            for line in reader:
+                for col in reader.fieldnames:
+                    if line[col] == '': 
+                        line.pop(col) # pop seems to be slightly faster than del
+                    else:
+                        # convert to proper type from str
+                        line[col] = validators[col](line[col])                    
+                try:
+                    table_class(**line) # add row to table
+                except Exception, e:
+                    raise bauble.BaubleError("%s\n%s" % (str(e), line))
             
             
     def _get_filenames(self):
@@ -225,22 +238,8 @@ class CSVExporter:
             rows_append = rows.append
             for row in table.select():                                
                 values = []
-                values_append = values.append
-#                def get_col(name_col):
-#                    name, col = name_col
-#                    if type(col) == sqlobject.ForeignKey:
-#                        name = name+"ID"
-#                    return getattr(row, name)
-#                values = map(get_col, col_dict.iteritems())
-#                values_append(row.id)                
-                #for name, col in col_dict.iteritems():
-                values_append(row.id) # id is always first
-                for name in col_dict:
-                    #if type(col) == sqlobject.ForeignKey:
-                    #if col.foreignKey:
-                    #    name = name+"ID"
-                    v = getattr(row, name)
-                    values_append(v)
+                values.append(row.id) # id is always first
+                map(lambda col: values.append(getattr(row, col)), col_dict)
                 rows_append(values)
             f = file(filename_template % table_name, "wb")
             writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
