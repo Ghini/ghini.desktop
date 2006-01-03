@@ -24,18 +24,16 @@ from bauble import version_str as version
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
-
 plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
             'formatter','plants','searchview']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-
-lib = ['sqlobject']#, 'pysqlite2']
-
 sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres', 
                   'sqlite', 'sybase', 'maxdb', 'util', 'manager']
 subpackages = ['plugins', 'utils']
+all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
+
 # packaged to be included in the py2exe library.zip
-py2exe_includes = gtk_pkgs + plugins_pkgs + lib + ["encodings"]#, "lib"]
+py2exe_includes = gtk_pkgs + plugins_pkgs + ["encodings"]
 
 opts = {
     "py2exe": {
@@ -55,33 +53,44 @@ opts = {
 
 # get the data files for the plugins, this should 
 # only be used for py2exe
-globs= []
-for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
+plugin_data = {}
+data_patterns = ('default/*.txt', '*.ui', '*.glade')
+for pattern in data_patterns:
     # glob for pattern in each of the package directories
     i = pattern.rfind(os.sep)
     extra_path = ""
     if i != -1:
         extra_path = pattern[:pattern.find(os.sep)]
-    globs += [(p.replace('.',os.sep) + os.sep + extra_path, 
-              glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
-             for p in plugins_pkgs]
-data = [p for p in globs if len(p[1]) != 0]
+    for p in plugins_pkgs:
+        package_dir = p.replace('.',os.sep) + '/'
+        files = glob.glob('%s%s' % (package_dir, pattern))        
+        if len(files) != 0:
+            if p not in plugin_data:
+                plugin_data[p] = []
+            plugin_data[p] += [f[len(package_dir):] for f in files]
+
+bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png','pixmaps/*.png']}
+package_data = {}
+package_data.update(bauble_package_data)
+package_data.update(plugin_data)
+
+all_package_dirs = {}
+for p in all_packages:    
+    all_package_dirs[p] = p.replace('.', os.sep)
+    
+#print '------- packages --------\n' + str(all_packages)
+#print '------- package directories --------\n' + str(all_package_dirs)
+#print '------- packages data--------\n' + str(package_data)
 
 setup(name="Bauble",
       version=version,
       console=["scripts/bauble"],
       windows=["scripts/bauble"],          
       scripts=["scripts/bauble"], # for setuptools?
-      options=opts,      
-      packages=["bauble"] + ["bauble.%s" % p for p in subpackages]+plugins_pkgs,
-      package_data={'': ['*.ui','*.glade','images/*.png','pixmaps/*.png'],
-                    'bauble.plugins.geography': ['default/*.txt'],
-                    'bauble.plugins.garden': ['*.glade']},
-
-      data_files=[('bauble', ('bauble/bauble.ui','bauble/conn_mgr.glade')),
-                  ('bauble/images', glob.glob('bauble/images/*.png')),
-		  ('bauble/pixmaps', glob.glob('bauble/pixmaps/*.png'))] +
-                  data,
+      options=opts,
+      packages = all_packages,
+      package_dir = all_package_dirs,
+      package_data = package_data,
 #      install_requires=["FormEncode==0.2.2", "SQLObject==0.7",
 #                        "pysqlite==2.0.4"],
 #                        "PyGTK>=2.6"],# pygtk is not supported using distutils
@@ -94,7 +103,7 @@ setup(name="Bauble",
       Bauble is a biodiversity collection manager software application
       """,
       license="GPL",
-      keywords="database biodiversity botanic",
+      keywords="database biodiversity botanic collection",
       url="http://bauble.belizebotanic.org",
-#      download_url="http://bauble.belizebotanic.org/bauble-0.1.tar.gz"      
+#      download_url="http://bauble.belizebotanic.org/files/bauble-0.1.tar.gz"
      )            

@@ -1,6 +1,6 @@
-include bauble/lib/win32/*.*
-include bauble/lib/fpconst.py
+#include bauble/lib/win32/*.*
+#include bauble/lib/fpconst.py
 include bauble/*.ui
-recursive-include bauble *.py
-recursive-include debian *.*
+recursive-include bauble *.py *.glade *.txt
+#recursive-include debian *.*
 recursive-include bauble/images *.*
