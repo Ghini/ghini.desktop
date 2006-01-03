@@ -7,6 +7,7 @@ from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 import bauble.utils as utils
+from bauble.utils.log import debug
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -279,7 +280,8 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'notes_data', row.notes)                                
+#            debug(row.notes)
+            set_widget_value(self.glade_xml, 'notes_data', row.notes)
         
 
     class PlantInfoBox(InfoBox):

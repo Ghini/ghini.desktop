@@ -6,8 +6,9 @@ import sys, os
 import gtk
 import bauble.utils as utils
 import bauble.paths as paths
-
+from bauble.utils.log import debug
 from bauble.plugins import tables
+
 
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear
@@ -21,7 +22,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True):
     w = glade_xml.get_widget(widget_name)
     if value is None: 
         value = DEFAULT_VALUE
-        
+
     if isinstance(w, gtk.Label):
         #w.set_text(str(value))
         # FIXME: some of the enum values that have <not set> as a values
@@ -33,7 +34,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True):
             w.set_markup(str(value))
         else:
             w.set_text(str(value))            
-    if isinstance(w, gtk.TextView):
+    elif isinstance(w, gtk.TextView):
         w.get_buffer().set_text(value)
     
 

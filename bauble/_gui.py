@@ -14,6 +14,16 @@ from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
 
+
+# TODO: use this bit of code to set the window icon, also see the docs
+# for gtk.Window.set_icon and gtk.Window.set_icon_list for providing the
+# different icon sizes
+#  w = gtk.Window()
+#  icon = w.render_icon(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_BUTTON)
+#  w.set_icon(icon)
+#  w.show()
+#  gtk.main()
+
 #
 # GUI
 #
