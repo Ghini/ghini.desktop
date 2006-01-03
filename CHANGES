@@ -1,3 +1,10 @@
+2005.01.03
+----------
+- did a terrible job packaging 0.4.0 and probably earlier version, should 
+be better now
+- results in the search view are now sorted alphabetically
+
+
 2005.01.02
 ----------
 - drastically improved csv export speed by about a million percent by 
@@ -16,10 +23,12 @@ that libxml2 get imported correctly, this fixes the formatter on win32
 from the version of Bauble you're using
 - properly handle exception thrown when importing csv files
 
+
 2005.12.30
 ----------
 - you can now do 'OR'ed searches with by separting values with a comma, 
 e.g 2004.0001,2004.0002 would give you both accessions with those acc_id's
+
 
 2005.12.28
 ----------
@@ -41,6 +50,7 @@ Windows
 postgres and sqlite so i changed everything that accesses the database to use
 transactions
 
+
 2005.12.23
 ----------
 - fixed bug when creating Tag tables
@@ -51,6 +61,7 @@ setting cacheValues=True
 - fixes a bug importing csv tables where we pass in more than one filename to
 csv.start() and the file has the id's included in the rows
 
+
 2005.12.22
 ----------
 - editing SingleJoin and MultipleJoin columns now work
@@ -60,10 +71,12 @@ is now much easier
 - preparing for a release soon
 - too many fixes to list
 
+
 2005.12.20
 ----------
 - columns that have external editors now have a star(*) in their header
 - think i need to rethink this whole multiple join editors on columns
+
 
 2005.12.18
 ----------
@@ -76,6 +89,7 @@ is now much easier
 finish the GenusSynonym, SpeciesSynonym and VernacularName tables and editors
 - check that plugins, views, tool, editors and tables are subclasses of the 
 appropriate types
+
 
 2005.12.15
 ----------
@@ -90,6 +104,7 @@ still broke i'm sure
 database from getting dangling references incase something is deleted
 - show a dialog in case removing an item from the search view fails
 
+
 2005.12.10
 ----------
 - some spring cleaning of old, unused code
@@ -102,9 +117,11 @@ good and decent in the world
 the synonyms better sorted out
 - refresh the search view after adding or removing items from the results
 
+
 2005.12.09
 ----------
 - major overhaul on the connection manager, now (mostly) uses glade
+
 
 2005.12.08
 ---------

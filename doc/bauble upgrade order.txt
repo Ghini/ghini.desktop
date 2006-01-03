@@ -1,0 +1,24 @@
+# in sqlite the order doesn't matter
+
+BasicUnit.txt
+BotanicalCountry.txt
+Continent.txt
+Country.txt
+Family.txt
+Location.txt
+Place.txt
+Region.txt
+
+Genus.txt
+
+GenusSynonym.txt
+Species.txt
+
+Accession.txt
+SpeciesMeta.txt
+VernacularName.txt
+
+Collection.txt
+Donation.txt
+Donor.txt
+Plant.txt

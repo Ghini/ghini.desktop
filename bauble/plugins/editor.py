@@ -339,7 +339,7 @@ class TextColumn(SOViewColumn):
         on a column and adding the value returned from editor.commit_changes
         into the model
         _start_editor can abe extended to make it easier to use external 
-        editors that don't provide standard behavior
+        editors that don\'t provide standard behavior
         '''
         model = self.table_editor.view.get_model()
         row = model[model.get_iter(path)][0]
@@ -425,10 +425,16 @@ class ComboColumn(SOViewColumn):
         super(ComboColumn, self).__init__(tree_view_editor, header, 
                                           gtk.CellRendererCombo(), so_col)
         # which column from the combo model to display
+        self.renderer.set_property('has-entry', False)
         self.renderer.set_property("text-column", 0)
+        self.renderer.connect('edited', self.on_edited)
 
 
-#    def cell_data_func(self, col, cell, model, iter, data=None):
+    def on_edited(self, renderer, path, new_text, set_in_model=True):
+        self._set_view_model_value(path, new_text)
+        self.dirty =  True
+        
+
     def cell_data_func(self, column, renderer, model, iter, data=None):                
         # assumes the text column is 0 but the value we want 
         # to store in the model column 1

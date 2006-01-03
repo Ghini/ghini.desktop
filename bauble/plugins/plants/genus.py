@@ -10,6 +10,14 @@ from bauble.plugins.editor import TreeViewEditorDialog
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
+# TODO: since there can be more than one genus with the same name but
+# different authors we need to show the Genus author in the result search
+# and at least give the Genus it's own infobox, we should also check if
+# when entering a plantname with a chosen genus if that genus has an author
+# ask the user if they want to use the accepted name and show the author of
+# the genus then so they aren't using the wrong version of the Genus,
+# e.g. Cananga
+
 #
 # Genus table
 #

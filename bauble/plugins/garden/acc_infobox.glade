@@ -1105,7 +1105,8 @@
       <property name="spacing">0</property>
 
       <child>
-	<widget class="GtkScrolledWindow" id="notes_data">
+	<widget class="GtkScrolledWindow" id="notes_sw">
+	  <property name="border_width">5</property>
 	  <property name="visible">True</property>
 	  <property name="can_focus">True</property>
 	  <property name="hscrollbar_policy">GTK_POLICY_NEVER</property>
@@ -1114,14 +1115,14 @@
 	  <property name="window_placement">GTK_CORNER_TOP_LEFT</property>
 
 	  <child>
-	    <widget class="GtkTextView" id="text_view1">
+	    <widget class="GtkTextView" id="notes_data">
 	      <property name="visible">True</property>
 	      <property name="can_focus">True</property>
 	      <property name="editable">False</property>
 	      <property name="overwrite">False</property>
 	      <property name="accepts_tab">True</property>
 	      <property name="justification">GTK_JUSTIFY_LEFT</property>
-	      <property name="wrap_mode">GTK_WRAP_NONE</property>
+	      <property name="wrap_mode">GTK_WRAP_WORD</property>
 	      <property name="cursor_visible">False</property>
 	      <property name="pixels_above_lines">0</property>
 	      <property name="pixels_below_lines">0</property>

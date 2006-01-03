@@ -48,6 +48,13 @@ from pyparsing import *
 # expanded rows and then maybe we can reexpand them after we've 
 # finished refreshing the view
 
+# TODO: i don't really think that the sort column is that necessary
+# in the SearchMeta since we have to sort all the results later, though
+# if the results are partially sorted when we get them it make make them
+# much faster to sort later, this would be worth looking into, we could also
+# use the sort_column as the column to compare in the sorted method of
+# populate_results
+
 class SearchMeta:
     
     def __init__(self, table_name, column_names, sort_column=None):
@@ -438,9 +445,10 @@ class SearchView(BaubleView):
         for domain, values in search.iteritems():
             results += self.query(domain, values)
         
-        if len(results) > 0: 
-            #for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
-            for r in results:
+        if len(results) > 0:             
+            #for r in results:
+            # sort all the results
+            for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
                 p = model.append(None, [r])
                 #print r.__class__.__name__
 #                table_name = r.__class__.__name__
