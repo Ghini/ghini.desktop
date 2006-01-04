@@ -242,10 +242,10 @@ class AccessionEditor(TreeViewEditorDialog):
 # infobox for searchview
 #
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
-        set_widget_value
-    import bauble.paths as paths
     import os
+    import bauble.paths as paths
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
+        set_widget_value        
 except ImportError:
     pass
 else:
@@ -265,7 +265,7 @@ else:
         def update(self, row):
             set_widget_value(self.glade_xml, 'name_data', row.species.markup(True))
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
-            set_widget_value(self.glade_xml, 'prov_data', row.prov_type, False)
+            set_widget_value(self.glade_xml, 'prov_data',row.prov_type, False)
             
             
     class NotesExpander(InfoExpander):

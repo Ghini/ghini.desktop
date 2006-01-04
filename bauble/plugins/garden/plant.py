@@ -240,10 +240,12 @@ class PlantEditor(TreeViewEditorDialog):
         
         
 try:
+    import os
+#    from xml.sax.saxutils import escape
+    import bauble.paths as paths
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
         set_widget_value
-    import os
-    import bauble.paths as paths
+
 except ImportError:
     pass
 else:
@@ -262,9 +264,10 @@ else:
         
         def update(self, row):
             set_widget_value(self.glade_xml, 'location_data',row.location.site)
-            set_widget_value(self.glade_xml, 'status_data',row.acc_status)
-            set_widget_value(self.glade_xml, 'type_data',row.acc_type)
-            set_widget_value(self.glade_xml, 'notes_data',row.notes)
+            set_widget_value(self.glade_xml, 'status_data',
+                             row.acc_status, False)
+            set_widget_value(self.glade_xml, 'type_data',
+                             row.acc_type, False)
             
             
     class NotesExpander(InfoExpander):

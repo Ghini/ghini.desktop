@@ -17,8 +17,8 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
                           type=type, buttons=buttons)        
     d.set_markup(msg)
     r = d.run()
-    #d.destroy()
-    d.hide() # TODO: should we be hiding or destroying
+    d.destroy()
+    #d.hide() # TODO: should we be hiding or destroying
     return r
     
 
@@ -28,8 +28,8 @@ def yes_no_dialog(msg):
                           buttons = gtk.BUTTONS_YES_NO)            
     d.set_markup(msg)    
     r = d.run()
-    #d.destroy()
-    d.hide() # TODO: should we be hiding or detroying
+    d.destroy()
+    #d.hide() # TODO: should we be hiding or detroying
     return r == gtk.RESPONSE_YES
 
 
@@ -53,8 +53,8 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.vbox.pack_start(expand)
     d.show_all()
     r = d.run()
-    #d.destroy() # TODO: should we be hiding or destroying
-    d.hide()
+    d.destroy() # TODO: should we be hiding or destroying
+    #d.hide()
     return r
 
 

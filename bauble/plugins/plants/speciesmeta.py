@@ -74,6 +74,7 @@ class SpeciesMetaEditor(TableEditorDialog):
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
         
         # override dialog from TableEditorDialog
+        self.dialog.destroy() # TODO: is this safe???
         self.dialog = self.glade_xml.get_widget('main_dialog')
         self.dist_combo = self.glade_xml.get_widget('dist_combo')
         self.committed = False
@@ -100,8 +101,12 @@ class SpeciesMetaEditor(TableEditorDialog):
         '''
         we just implement this since species meta should only ever return
         a single value
-        '''        
-        table_instance = self._commit(self.__values)                       
+        '''
+        # if we were passed in an object to edit make sure we keep the same
+        # id so we don't wind up with multple SpeciesMeta for one Species
+        if self.select is not None:
+            self.__values['id'] = self.select.id
+        table_instance = self._commit(self.__values)
         return table_instance
 
 

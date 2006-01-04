@@ -187,7 +187,11 @@ class Species(BaubleTable):
             italic = "%s"
         #name = "%s %s" % (italic % str(species.genus), italic % species.sp)
         name = italic % str(species.genus)
-        
+
+        # id qualifier
+        if species.id_qual:
+            name += " %s" % species.id_qual
+            
         # take care of species hybrid
         if not species.sp_hybrid == "":
             # we don't have a second sp name for the hyrbid formula right now

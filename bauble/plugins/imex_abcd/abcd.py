@@ -27,15 +27,17 @@ unit_template_str = """
                 <unitid>$unitid</unitid>
                 <identifications>
                     <identification>
-                        <result>
-                            <taxonidentified>
-                                $family
-                                $scientific_name
-                                $informal_names
-                                $distribution
-                            </taxonidentified>
-                        </result>
-                    </identification>
+                    <result>
+                        <taxonidentified>
+                           <scientificname>
+                             $family
+                             $scientific_name
+                             $informal_names
+                             $distribution
+                           </scientificname>
+                         </taxonidentified>
+                    </result>
+                 </identification>
                 </identifications>
             </unit>
 """
@@ -55,12 +57,9 @@ family_template = Template(family_template_str)
 
 name_template_str = """
 <scientificname>
-    <nameatomised>
-        <botanical>
-            <genusormonomial>$genus</genusormonomial>
-            <firstepithet>$sp</firstepithet>
-        </botanical>
-    </nameatomised>
+  <fullscientificnamestring>
+    $name
+  </fullscientificnamestring>
 </scientificname>
 """
 name_template = Template(name_template_str)
@@ -119,17 +118,21 @@ def plants_to_abcd(plants):
         id = xml_safe(acc.acc_id + '.' + p.plant_id)
         
         f = family_template.substitute(family=xml_safe(str(acc.species.genus.family)))
-        n = name_template.substitute(genus=xml_safe(str(acc.species.genus)), 
-                                     sp=xml_safe(str(acc.species.sp)))
+        n = name_template.substitute(name=xml_safe(str(acc.species)))
         v = acc.species.default_vernacular_name or ""
         informal_name = informal_name_template.substitute(informal_name=
                                                           xml_safe(str(v)))
-        v = acc.species.species_meta.distribution or ""
-        d = distribution_template.substitute(distribution=xml_safe(str(v)))
+        
+        if acc.species.species_meta:
+            d = acc.species.species_meta.distribution or ""
+        else:
+            d = ""
+        dist = distribution_template.substitute(distribution=xml_safe(str(d)))
+        
         units.append(unit_template.substitute(unitid=id, family=f, 
                                               scientific_name=n, 
                                               informal_names=informal_name,
-                                              distribution=d))
+                                              distribution=dist))
     
     #abcd = xml.sax.saxutils.escape(main_template.substitute(units='\n'.join(units))).encode('utf-8')
     abcd = main_template.substitute(units='\n'.join(units))

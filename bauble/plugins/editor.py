@@ -712,14 +712,17 @@ class TableEditorDialog(TableEditor):
                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         self._values = []
-    
+
+#    def __del__(self):
+#        debug('TableEditorDialog.destroy()')
+#        self.dialog.destroy()
     
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
         # construct is called
-        self.dialog.connect('response', self.on_dialog_response)
-        self.dialog.connect('close', self.on_dialog_close_or_delete)
-        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
+        #self.dialog.connect('response', self.on_dialog_response)
+        #self.dialog.connect('close', self.on_dialog_close_or_delete)
+        #self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         '''
         loops until return
         '''
@@ -748,13 +751,14 @@ class TableEditorDialog(TableEditor):
                 break
             elif not self.dirty:
                 break
-
+        self.dialog.destroy()
         return committed        
         
         
     def on_dialog_response(self, dialog, response, *args):
         # system-defined GtkDialog responses are always negative, in which
         # case we want to hide it
+        debug(dialog)
         if response < 0:
             dialog.hide()
             #dialog.emit_stop_by_name('response')

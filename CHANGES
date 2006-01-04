@@ -1,3 +1,10 @@
+2005.01.04
+----------
+- fixed bug where editing an existing SpeciesMeta would just create a new
+one
+- back to deleting dialogs instead of just hiding them
+- abcd export and formatter wouldn't work if a Species SpeciesMeta was None
+
 2005.01.03
 ----------
 - did a terrible job packaging 0.4.0 and probably earlier version, should 
