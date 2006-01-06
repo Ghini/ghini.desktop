@@ -25,7 +25,7 @@ from bauble import version_str as version
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
 plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
-            'formatter','plants','searchview']
+            'formatter','plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres', 
                   'sqlite', 'sybase', 'maxdb', 'util', 'manager']
@@ -69,7 +69,8 @@ for pattern in data_patterns:
                 plugin_data[p] = []
             plugin_data[p] += [f[len(package_dir):] for f in files]
 
-bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png','pixmaps/*.png']}
+bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png',
+				  'pixmaps/*.png']}
 package_data = {}
 package_data.update(bauble_package_data)
 package_data.update(plugin_data)

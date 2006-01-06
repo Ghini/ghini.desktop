@@ -37,11 +37,12 @@
 		</fo:block>
 	      </fo:block-container>
 	      
-	      <!-- ** Genus species ** -->
+	      <!-- ** Scientific Name ** -->
 	      <fo:block-container absolute-position="absolute" 
-				  top="14mm" bottom="26mm">
-		<fo:block font-style='italic' margin-left="5mm" 
-			  margin-right="5mm" font-size="15pt" 
+				  top="14mm" bottom="22mm">
+		<fo:block font-style='italic' 
+			  margin-left="5mm" 
+			  margin-right="5mm" font-size="12pt" 
 			  text-align="center">
 		  <xsl:value-of select='.//fullscientificnamestring'/>
 		  <!--

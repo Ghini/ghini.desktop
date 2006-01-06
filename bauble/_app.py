@@ -218,6 +218,4 @@ class BaubleApp:
             self.gui.set_current_view(views["SearchView"])
         
         bauble.plugins.start_plugins()
-#        gtk.threads_enter()
         gtk.main()
-#        gtk.threads_leave()

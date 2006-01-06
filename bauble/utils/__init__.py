@@ -2,10 +2,13 @@
 # this is just a dummy file so i can import on this directory
 #
 
-import imp, os, sys
+import imp, os, sys, re
 import gtk
-import re
-from xml.sax.saxutils import escape
+
+# we can't be guaranteed bauble has been completely imported yet and so 
+# bauble.app may not exist
+import bauble
+
 
 # TODO: if i escape the messages that come in then my own markup doesn't 
 # work, what really needs to be done is make sure that any exception that
@@ -14,7 +17,12 @@ from xml.sax.saxutils import escape
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+			  parent=bauble.app.gui.window,
                           type=type, buttons=buttons)        
+    if hasattr(bauble, "app"): # this might get called before bauble has started
+	parent = bauble.app.gui.window
+    else:
+	parent = None
     d.set_markup(msg)
     r = d.run()
     d.destroy()
@@ -24,8 +32,13 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
 
 def yes_no_dialog(msg):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          type=gtk.MESSAGE_QUESTION,
+                          parent=bauble.app.gui.window,
+			  type=gtk.MESSAGE_QUESTION,
                           buttons = gtk.BUTTONS_YES_NO)            
+    if hasattr(bauble, "app"): # this might get called before bauble has started
+	parent = bauble.app.gui.window
+    else:
+	parent = None
     d.set_markup(msg)    
     r = d.run()
     d.destroy()
@@ -33,9 +46,16 @@ def yes_no_dialog(msg):
     return r == gtk.RESPONSE_YES
 
 
+
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):
+
+    if hasattr(bauble, "app"): # this might get called before bauble has started
+	parent = bauble.app.gui.window
+    else:
+	parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+			  parent=parent,
                           type=type, buttons=buttons)        
     d.set_markup(msg)
     expand = gtk.Expander("Details")    

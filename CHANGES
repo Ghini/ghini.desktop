@@ -1,9 +1,23 @@
 2005.01.04
 ----------
+- some 'correctness' fixes, like giving dialogs parents if applicable
+- forgot to package the 'tag' plugin which is a major feature for 0.4.x, yes 
+i'm an idiot
+- tweaks to the example xsl stylesheet in the formatter plugin 
+(labels.xsl, larger_label.xsl)
+- removed all signs of threading code, there's no going back
+- the SpeciesMetaEditor now just uses the vbox from the glade file instead
+of destroying the dialog it was graciously given by TableEditorDialog only to 
+replace it by another dialog
+
+
+2005.01.04
+----------
 - fixed bug where editing an existing SpeciesMeta would just create a new
 one
 - back to deleting dialogs instead of just hiding them
 - abcd export and formatter wouldn't work if a Species SpeciesMeta was None
+
 
 2005.01.03
 ----------

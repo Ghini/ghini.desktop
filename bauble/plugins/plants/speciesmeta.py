@@ -4,6 +4,7 @@
 import os, traceback
 import gtk
 from sqlobject import *
+import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
@@ -68,14 +69,19 @@ class SpeciesMetaEditor(TableEditorDialog):
     
     def __init__(self, select=None, defaults={}):
         super(SpeciesMetaEditor, self).__init__(tables["SpeciesMeta"], 
-                                                None, None,
+                                                'Species Meta Test', None,
                                                 select, defaults)
         path = os.path.join(paths.lib_dir(), 'plugins', 'plants')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
         
         # override dialog from TableEditorDialog
-        self.dialog.destroy() # TODO: is this safe???
-        self.dialog = self.glade_xml.get_widget('main_dialog')
+#        self.dialog.destroy() # TODO: is this safe???
+        #self.dialog = self.glade_xml.get_widget('main_dialog')
+	self.dialog.set_resizable(False)
+	vbox = self.glade_xml.get_widget('main_box')
+	vbox.unparent()
+	self.dialog.vbox.pack_start(vbox)
+	
         self.dist_combo = self.glade_xml.get_widget('dist_combo')
         self.committed = False
         self.food_check = self.glade_xml.get_widget('food_check')
@@ -193,7 +199,10 @@ class SpeciesMetaEditor(TableEditorDialog):
         
     def __populate_distribution_combo(self):        
         # TODO: maybe i should just pickle the object out and read it back in
-        # instead reading these from the database every time
+        # instead reading these from the database every time, it might be 
+	# faster than querying the database but then again by sticking with
+	# the database we're at least guaranteed some consistency with the rest
+	# of the app
         model = gtk.TreeStore(str)
         model.append(None, ["Cultivated"])
         for continent in tables['Continent'].select(orderBy='continent'):

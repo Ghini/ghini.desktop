@@ -3,7 +3,7 @@
 #
 
 
-import os, sys, csv, traceback, threading
+import os, sys, csv, traceback
 import gtk.gdk
 import sqlobject
 #from bauble.tools.imex import *
@@ -216,7 +216,6 @@ class CSVExporter:
         if not os.path.exists(path):
             raise ValueError("CSVExporter: path does not exist.\n" + path) 
 
-        #gtk.gdk.threads_enter()
         filename_template = path + os.sep +"%s.txt"
         for name in tables.keys():
             filename = filename_template % name
@@ -225,7 +224,6 @@ class CSVExporter:
                 return
                 
         #path = self.chooser_button.get_label()
-        #gtk.gdk.threads_leave()
         #progress = utils.ProgressDialog()
         #progress.show_all()
     

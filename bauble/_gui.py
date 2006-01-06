@@ -4,7 +4,7 @@
 # Description: TODO: finish the descriptions and check the other files have
 #
 
-import os, time, thread, re
+import os, time, re
 import gtk, gobject
 import sqlobject
 import bauble.utils as utils
@@ -88,34 +88,35 @@ class GUI:
         self.window.show_all()
 
 
-    def pb_pulse_worker(self, from_thread):
-        self.pb_lock.acquire() # ********** critical
-        while not self.stop_pulse:
-            #print "pulse"
-            if not from_thread: 
-                gtk.gdk.threads_enter()
-            self.progressbar.pulse()
-            if not from_thread: 
-                gtk.gdk.threads_leave()
-            time.sleep(.1)
-#        self.progressbar.set_fraction(1.0
-        if not from_thread: gtk.gdk.threads_enter()
-        self.progressbar.set_fraction(1.0)
-        if not from_thread: gtk.gdk.threads_leave()
-        self.pb_lock.release()
+#     def pb_pulse_worker(self, from_thread):
+#         self.pb_lock.acquire() # ********** critical
+#         while not self.stop_pulse:
+#             #print "pulse"
+#             if not from_thread: 
+#                 gtk.gdk.threads_enter()
+#             self.progressbar.pulse()
+#             if not from_thread: 
+#                 gtk.gdk.threads_leave()
+#             time.sleep(.1)
+# #        self.progressbar.set_fraction(1.0
+#         if not from_thread: gtk.gdk.threads_enter()
+#         self.progressbar.set_fraction(1.0)
+#         if not from_thread: gtk.gdk.threads_leave()
+#         self.pb_lock.release()
         
 
     def pulse_progressbar(self, from_thread=False):
         """
         create a seperate thread the run the progress bar
-        """
-        return
-        if not hasattr(self, "pb_lock"):
-            self.pb_lock = thread.allocate_lock()
-        self.stop_pulse = False
-        self.progressbar.set_pulse_step(.1)
-        self.progressbar.set_fraction(1.0)
-        id = thread.start_new_thread(self.pb_pulse_worker, (from_thread,))
+        """	
+	raise NotImplemented()
+        # TODO: this needs to be rethought, we can't use threads        
+#         if not hasattr(self, "pb_lock"):
+#             self.pb_lock = thread.allocate_lock()
+#         self.stop_pulse = False
+#         self.progressbar.set_pulse_step(.1)
+#         self.progressbar.set_fraction(1.0)
+#         id = thread.start_new_thread(self.pb_pulse_worker, (from_thread,))
         
 
     def stop_progressbar(self):

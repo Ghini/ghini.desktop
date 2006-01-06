@@ -44,8 +44,7 @@ class ConnectionManager:
                   'you can connect to the database.'
             utils.message_dialog(msg)
             name, uri = self.start()
-        #self.dialog.destroy()
-        self.dialog.hide()
+        self.dialog.destroy()
         return name, uri
         
         
@@ -205,8 +204,8 @@ class ConnectionManager:
         
             
     def on_add_button_clicked(self, button, data=None):
-        d = gtk.Dialog("Enter a connection name", None,
-                       gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+        d = gtk.Dialog("Enter a connection name", self.dialog,
+                       gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250,-1)
@@ -333,7 +332,7 @@ class ConnectionManager:
 
     
     def get_passwd(self, title="Enter your password", before_main=False):
-        d = gtk.Dialog(title, None,
+        d = gtk.Dialog(title, self.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)

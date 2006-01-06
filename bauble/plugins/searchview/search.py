@@ -2,7 +2,7 @@
 # search.py
 #
 
-import re, threading, traceback
+import re, traceback
 import gtk
 import sqlobject
 import bauble
@@ -192,11 +192,6 @@ class SearchView(BaubleView):
         #    gbif = self.gbif_expand.get_child()
         #    gbif.search(value)
         
-
-    def on_pb_cancel(self, response, data=None):
-        if response == gtk.RESPONSE_CANCEL:
-            self.CANCEL = True
-
     
     def on_search_button_clicked(self, widget):
         text = self.entry.get_text()
@@ -393,47 +388,10 @@ class SearchView(BaubleView):
                 map(append, group)
      
         return searches
-    
-    
-    def populate_worker(self, search):
-        gtk.gdk.threads_enter()
-        results = []
-        added = False
-        model = self.results_view.get_model()
-        self.results_view.set_model(None) # temporary
-        if model is None: 
-            model = gtk.TreeStore(object)
-        for domain, values in search.iteritems():
-            results += self.query(domain, values)
-            for r in results:
-                added = True
-                p = model.append(None, [r])                
-                model.append(p, ["_dummy"])                
-        if not added:
-            model.append(None, ["Couldn't find anything"])
-        self.results_view.set_model(model)
-        #self.set_sensitive(True)
-        gtk.gdk.threads_leave()
-        #bauble.gui.stop_progressbar()
-
+        
 
     def populate_results(self, search):        
-        self.CANCEL = False
-        #self.set_sensitive(False)
-        #bauble.gui.pulse_progressbar()
-        #thread = threading.Thread(target=self.populate_worker, args=(search,))
-        #thread.start()
-        # there's really no point setting the cursor for a long operation
-        # without threading b/c the cursor doesn't get updated, maybe if 
-        # waited for half second or so
-        import gtk.gdk
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        self.populate_results_no_threading(search)
-        bauble.app.gui.window.window.set_cursor(None)
-        
-        
-    def populate_results_no_threading(self, search):
-#        debug(search)
         #self.set_sensitive(False)
         results = []
         added = False
@@ -458,7 +416,7 @@ class SearchView(BaubleView):
         else: 
             model.append(None, ["Couldn't find anything"])
         self.results_view.set_model(model)
-        #self.set_sensitive(True)
+	bauble.app.gui.window.window.set_cursor(None)
     
     
     def append_children(self, model, parent, kids, have_kids):
@@ -531,6 +489,11 @@ class SearchView(BaubleView):
         """
         popup a context menu on the selected row
         """
+	# TODO: should probably fix this so you can right click on something
+	# that is not the selection, but get the path from where the click
+	# happened, make that that selection and then popup the menu,
+	# see the pygtk FAQ about this at
+	# http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3: 
             return # if not right click then leave
         sel = view.get_selection()
@@ -540,7 +503,6 @@ class SearchView(BaubleView):
         value = model.get_value(i, 0) 
         
         menu = gtk.Menu()
-
 
         editor_class = self.view_meta[value.__class__.__name__].editor
         if editor_class is not None:

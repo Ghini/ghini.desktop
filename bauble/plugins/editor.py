@@ -163,7 +163,6 @@ class SOViewColumn(GenericViewColumn):
         so_col could be either a SOCol or and SOJoin, see SQLObject
         '''        
         super(SOViewColumn, self).__init__(tree_view_editor, header, renderer)
-        #GenericViewColumn.__init__(self, tree_view_editor, header, renderer)
         assert so_col is not None
         self.meta.so_col = so_col  
         if isinstance(so_col, SOCol) and so_col._default == NoDefault:
@@ -355,7 +354,8 @@ class TextColumn(SOViewColumn):
         committed = e.start(False)        
         if committed is not None:
             if isinstance(committed, list):
-                self._set_view_model_value(path, (existing, old_committed+committed))
+                self._set_view_model_value(path, (existing,
+                                                  old_committed+committed))
             else:
                 self._set_view_model_value(path, committed)
             self.dirty = True
@@ -435,7 +435,7 @@ class ComboColumn(SOViewColumn):
         self.dirty =  True
         
 
-    def cell_data_func(self, column, renderer, model, iter, data=None):                
+    def cell_data_func(self, column, renderer, model, iter, data=None):
         # assumes the text column is 0 but the value we want 
         # to store in the model column 1
         row = model.get_value(iter, 0)        
@@ -463,7 +463,8 @@ class ComboColumn(SOViewColumn):
         pass
 
 
-def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name, model_col=0, validator=lambda x: x):
+def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name,
+                               model_col=0, validator=lambda x: x):
     w = glade_xml.get_widget(widget_name)
     v = get_widget_value(glade_xml, widget_name, model_col)
     
@@ -704,13 +705,20 @@ class TableEditor(BaubleEditor):
 #
 class TableEditorDialog(TableEditor):
     
-    def __init__(self, table, title="Table Editor", parent=None, select=None, 
+    def __init__(self, table, title="Table Editor",
+                 parent=None, select=None, 
                  defaults={}):
         super(TableEditorDialog, self).__init__(table, select, defaults)
+        if parent is None: # should we even allow a change in parent
+            parent = bauble.app.gui.window
         self.dialog = gtk.Dialog(title, parent, 
-                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+                               gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, 
+                                 (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+##         self.dialog = gtk.Dialog(title, parent, 
+##                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
+##                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+##                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         self._values = []
 
 #    def __del__(self):
@@ -720,9 +728,9 @@ class TableEditorDialog(TableEditor):
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
         # construct is called
-        #self.dialog.connect('response', self.on_dialog_response)
-        #self.dialog.connect('close', self.on_dialog_close_or_delete)
-        #self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
+        self.dialog.connect('response', self.on_dialog_response)
+        self.dialog.connect('close', self.on_dialog_close_or_delete)
+        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         '''
         loops until return
         '''
@@ -758,11 +766,11 @@ class TableEditorDialog(TableEditor):
     def on_dialog_response(self, dialog, response, *args):
         # system-defined GtkDialog responses are always negative, in which
         # case we want to hide it
-        debug(dialog)
+        #debug(dialog)
         if response < 0:
-            dialog.hide()
-            #dialog.emit_stop_by_name('response')
-        return response
+            self.dialog.hide()
+            #self.dialog.emit_stop_by_name('response')
+        #return response
     
     
     def on_dialog_close_or_delete(self, widget, event=None):
@@ -915,7 +923,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.__view = gtk.TreeView(gtk.ListStore(object))
         
         # create the columns from the meta data
-        self.columns = self.create_view_columns()                                        
+        self.columns = self.create_view_columns()
         self.view.set_headers_clickable(False)
 
 
@@ -974,12 +982,12 @@ class TreeViewEditorDialog(TableEditorDialog):
                 if name in self.columns:
                     self.view.insert_column(self.columns[name], 0)
         
-        # append the rest of the column to the end and set all the widths        
+        # append the rest of the column to the end and set all the widths
         width_dict = self.get_column_widths_from_prefs()            
         for name, column in self.columns.iteritems():
             if name not in visible_list:
                 self.view.append_column(self.columns[name])
-            if name in width_dict and width_dict[name] > 0:                                
+            if name in width_dict and width_dict[name] > 0:
                 column.set_fixed_width(width_dict[name])                
             
         
@@ -1103,7 +1111,7 @@ class TreeViewEditorDialog(TableEditorDialog):
                     del temp_row[name]            
                 elif isinstance(value, tuple):
                     # the only reason the value should be a tuple is if the
-                    # row has an (existing, pending) pair in it                    
+                    # row has an (existing, pending) pair in it
 #                    debug(value)
                     temp_row[name] = value[1]
             
@@ -1169,11 +1177,14 @@ class TreeViewEditorDialog(TableEditorDialog):
             for join in table_instance.sqlmeta.joins:
                 if join_values.has_key(join.joinMethodName):
                     if isinstance(join, SOSingleJoin):
-                        join_table_instance = join_values.pop(join.joinMethodName)
-                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
+                        join_table_instance=join_values.pop(join.joinMethodName)
+                        join_table_instance.set(**{join.joinColumn[:-3]:
+                                                   table_instance.id})                        
                     else: # must be a multple join???
-                        for join_table_instance in join_values.pop(join.joinMethodName):
-                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
+                        for join_table_instance in \
+                                join_values.pop(join.joinMethodName):
+                            join_table_instance.set(**{join.joinColumn[:-3]:
+                                                       table_instance.id})
                                             
             if len(join_values) > 0:
                 debug(join_values)
@@ -1371,7 +1382,8 @@ class TreeViewEditorDialog(TableEditorDialog):
 
     
     def get_column_widths_from_prefs(self):
-        if self.column_width_pref is None or self.column_width_pref not in prefs:
+        if self.column_width_pref is None or self.column_width_pref \
+               not in prefs:
             return {}        
         return prefs[self.column_width_pref]
 

@@ -27,6 +27,7 @@
 
 import os, sys, traceback
 import gtk
+import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -194,10 +195,10 @@ class Formatter:
                 
         
     def build_gui(self):
-        self.dialog = gtk.Dialog('Formatter', None, 
-                                 flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+        self.dialog = gtk.Dialog('Formatter', bauble.app.gui.window, 
+                          flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                  buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                           gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
+                                        gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
         hbox = gtk.HBox()
         #formatters_combo = gtk.ComboBox()
         #if len(formatters is None)        
@@ -329,7 +330,7 @@ class FormatterOptions:
         
     
     def on_new_button_clicked(self, widget):
-        d = gtk.Dialog('Enter a name for the formatter', None,
+        d = gtk.Dialog('Enter a name for the formatter', bauble.app.gui.window,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))    
