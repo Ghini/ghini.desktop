@@ -97,6 +97,7 @@ if sys.platform == "win32":
                           ('bauble/images', glob.glob('bauble/images/*.png')),
                           ('bauble/pixmaps', glob.glob('bauble/pixmaps/*.png'))] 
 else:
+    opts=None
     py2exe_data_files = None
     
 all_package_dirs = {}
