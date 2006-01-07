@@ -541,7 +541,8 @@ else:
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "General", glade_xml)
             w = self.glade_xml.get_widget('general_box')
-            w.unparent()
+            main_window = self.glade_xml.get_widget('main_window')
+            main_window.remove(w)            
             self.vbox.pack_start(w)
         
         

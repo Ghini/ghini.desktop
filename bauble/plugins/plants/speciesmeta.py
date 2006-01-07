@@ -77,9 +77,11 @@ class SpeciesMetaEditor(TableEditorDialog):
         # override dialog from TableEditorDialog
 #        self.dialog.destroy() # TODO: is this safe???
         #self.dialog = self.glade_xml.get_widget('main_dialog')
+        window = self.glade_xml.get_widget('main_window')
+        vbox = self.glade_xml.get_widget('main_box')
+        window.remove(vbox)
+        
 	self.dialog.set_resizable(False)
-	vbox = self.glade_xml.get_widget('main_box')
-	vbox.unparent()
 	self.dialog.vbox.pack_start(vbox)
 	
         self.dist_combo = self.glade_xml.get_widget('dist_combo')
@@ -95,7 +97,7 @@ class SpeciesMetaEditor(TableEditorDialog):
     def start(self, commit_transaction):
         self.__populate_distribution_combo()
         if self.select is not None:
-            self._set_widget_values_from_instance(self.select)
+            self._set_widget_values_from_instance(self.select) 
         committed = self._run()
         if commit_transaction:
             sqlhub.processConnection.commit()

@@ -1,3 +1,10 @@
+2005.01.07
+----------
+- think i finally fixed what was causing all the crashes, for some reason i was
+unparenting widgets instead of removing them from their containers
+- ready for 0.4.2, the real release of the 0.4.x series
+
+
 2005.01.04
 ----------
 - some 'correctness' fixes, like giving dialogs parents if applicable

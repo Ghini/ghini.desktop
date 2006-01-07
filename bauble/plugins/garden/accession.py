@@ -257,8 +257,9 @@ else:
     
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "General", glade_xml)
+            general_window = self.glade_xml.get_widget('general_window')
             w = self.glade_xml.get_widget('general_box')
-            w.unparent()
+            general_window.remove(w)
             self.vbox.pack_start(w)
         
         
@@ -275,8 +276,9 @@ else:
     
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "Notes", glade_xml)
+            notes_window = self.glade_xml.get_widget('notes_window')
             w = self.glade_xml.get_widget('notes_box')
-            w.unparent()
+            notes_window.remove(w)
             self.vbox.pack_start(w)
         
         
@@ -336,13 +338,15 @@ else:
                 return
             
             if isinstance(value, tables["Collection"]):
+                coll_window = self.glade_xml.get_widget('collections_window')
                 w = self.glade_xml.get_widget('collections_box')
-                w.unparent()
+                coll_window.remove(w)
                 self.curr_box = w
                 self.update_collections(value)        
             elif isinstance(value, tables["Donation"]):
+                don_window = self.glade_xml.get_widget('donations_window')
                 w = self.glade_xml.get_widget('donations_box')
-                w.unparent()
+                don_window.remove(w)
                 self.curr_box = w
                 self.update_donations(value)            
             else:
