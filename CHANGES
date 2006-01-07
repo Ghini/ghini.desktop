@@ -3,6 +3,8 @@
 - think i finally fixed what was causing all the crashes, for some reason i was
 unparenting widgets instead of removing them from their containers
 - ready for 0.4.2, the real release of the 0.4.x series
+- had to revert some changes in setup.py to make py2exe work for win32
+- small fix for the libxml2/formatter problem
 
 
 2005.01.04

@@ -4,11 +4,7 @@
 
 import imp, os, sys, re
 import gtk
-
-# we can't be guaranteed bauble has been completely imported yet and so 
-# bauble.app may not exist
 import bauble
-
 
 # TODO: if i escape the messages that come in then my own markup doesn't 
 # work, what really needs to be done is make sure that any exception that
@@ -16,42 +12,38 @@ import bauble
 # coming through
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
+    if hasattr(bauble, "app"): # this might get called before bauble has started
+        parent = bauble.app.gui.window
+    else:
+	parent = None	
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			  parent=bauble.app.gui.window,
-                          type=type, buttons=buttons)        
-    if hasattr(bauble, "app"): # this might get called before bauble has started
-	parent = bauble.app.gui.window
-    else:
-	parent = None
+                          type=type, buttons=buttons)
     d.set_markup(msg)
     r = d.run()
     d.destroy()
-    #d.hide() # TODO: should we be hiding or destroying
     return r
     
 
 def yes_no_dialog(msg):
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=bauble.app.gui.window,
-			  type=gtk.MESSAGE_QUESTION,
-                          buttons = gtk.BUTTONS_YES_NO)            
     if hasattr(bauble, "app"): # this might get called before bauble has started
 	parent = bauble.app.gui.window
     else:
 	parent = None
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=bauble.app.gui.window,
+			  type=gtk.MESSAGE_QUESTION,
+                          buttons = gtk.BUTTONS_YES_NO)            
     d.set_markup(msg)    
     r = d.run()
     d.destroy()
-    #d.hide() # TODO: should we be hiding or detroying
     return r == gtk.RESPONSE_YES
-
 
 
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):
-
     if hasattr(bauble, "app"): # this might get called before bauble has started
-	parent = bauble.app.gui.window
+	    parent = bauble.app.gui.window
     else:
 	parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -69,12 +61,10 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     sw.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
     sw.add(text_view)    
     expand.add(sw)
-#    expand.add(text_view)
     d.vbox.pack_start(expand)
     d.show_all()
     r = d.run()
     d.destroy() # TODO: should we be hiding or destroying
-    #d.hide()
     return r
 
 
