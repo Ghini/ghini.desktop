@@ -1,1 +1,13 @@
+Bauble 
+============
+
 All code contained as part of the Buable package is licenced under the GNU GPL
+
+Downloading:
+-------------	
+You can download the later version of Bauble from 
+http://bauble.belizebotanic.org
+
+Installation:
+-------------
+python setup.py install
