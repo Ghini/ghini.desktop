@@ -264,7 +264,8 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', row.species.markup(True))
+            set_widget_value(self.glade_xml, 'name_data', 
+			     row.species.markup(True))
             set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
             set_widget_value(self.glade_xml, 'prov_data',row.prov_type, False)
             

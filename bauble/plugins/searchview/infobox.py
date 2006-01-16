@@ -19,6 +19,7 @@ from bauble.plugins import tables
 DEFAULT_VALUE='--'
 
 def set_widget_value(glade_xml, widget_name, value, markup=True):
+#    debug(value)
     w = glade_xml.get_widget(widget_name)
     if value is None: 
         value = DEFAULT_VALUE

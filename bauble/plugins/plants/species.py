@@ -10,6 +10,7 @@ import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.utils.log import log, debug
+import xml.sax.saxutils as sax
 #from speciesmeta import SpeciesMeta
     
 #
@@ -183,8 +184,10 @@ class Species(BaubleTable):
         # ampersand could be in the author name
         if markup:
             italic = "<i>%s</i>"
+	    escape = sax.escape
         else:
             italic = "%s"
+	    escape = lambda x: x
         #name = "%s %s" % (italic % str(species.genus), italic % species.sp)
         name = italic % str(species.genus)
 
@@ -215,7 +218,8 @@ class Species(BaubleTable):
             return name
         
         if species.sp_author is not None and authors is not False:
-            name += ' ' + species.sp_author.replace('&', '&amp;')
+            #name += ' ' + species.sp_author.replace('&', '&amp;')
+	    name += ' ' + escape(species.sp_author)
         if not species.isp_rank == "":
             if species.isp_rank == "cv.":
                 name += " '" + species.isp + "'"
@@ -223,7 +227,7 @@ class Species(BaubleTable):
                 name += ' ' + species.isp_rank + ' ' + \
                               italic % species.isp
                 if species.isp_author is not None and authors is not False:
-                    name += ' ' + species.isp_author
+                    name += ' ' + escape(species.isp_author)
         return name
     
 
@@ -547,8 +551,7 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', 
-                             Species.str(row, True, True))
+            set_widget_value(self.glade_xml, 'name_data', row.markup(True))
             set_widget_value(self.glade_xml, 'nacc_data', len(row.accessions))
             
             nplants = 0

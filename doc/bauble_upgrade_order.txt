@@ -12,11 +12,12 @@ Region.txt
 Genus.txt
 
 GenusSynonym.txt
+VernacularName.txt
+
 Species.txt
 
 Accession.txt
 SpeciesMeta.txt
-VernacularName.txt
 
 Collection.txt
 Donation.txt

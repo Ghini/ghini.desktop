@@ -1,7 +1,7 @@
 #
 # tag module
 #
-import os
+import os, traceback
 import gtk
 from sqlobject import *
 from bauble.plugins import BaublePlugin, BaubleTable, plugins, views, tables
@@ -239,7 +239,7 @@ def _tag_menu_item_activated(widget, tag_name):
     
 _tags_menu_item = None
 
-def _reset_tags_menu():
+def _reset_tags_menu():    
     tags_menu = gtk.Menu()
     add_tag_item = gtk.MenuItem('Tag Selection')
     add_tag_item.connect('activate', _on_add_tag_activated)
@@ -259,7 +259,17 @@ def _reset_tags_menu():
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
     except:
-        debug('maybe the tags table hasn\'t been created yet')        
+	#debug(traceback.format_exc())
+	msg = "There was a problem creating the Tags menu"
+	utils.message_details_dialog(msg, traceback.format_exc(), 
+				     gtk.MESSAGE_ERROR)
+#	raise
+        #debug('** maybe the tags table hasn\'t been created yet')
+	sqlhub.processConnection.rollback()
+	sqlhub.processConnection.begin()
+	# FIXME: if we get here then the next we do with a transaction will 
+	# fail which means that and exception here makes the entire program 
+	# fail, we need to do something about this
 
     global _tags_menu_item
     if _tags_menu_item is None:

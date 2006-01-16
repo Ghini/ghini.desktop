@@ -16,7 +16,7 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
         parent = bauble.app.gui.window
     else:
 	parent = None	
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			  parent=bauble.app.gui.window,
                           type=type, buttons=buttons)
     d.set_markup(msg)
@@ -26,14 +26,15 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     
 
 def yes_no_dialog(msg):
-    if hasattr(bauble, "app"): # this might get called before bauble has started
+     #this might get called before bauble has started
+    if hasattr(bauble, "app") and bauble.app.gui is not None:
 	parent = bauble.app.gui.window
     else:
 	parent = None
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=bauble.app.gui.window,
-			  type=gtk.MESSAGE_QUESTION,
-                          buttons = gtk.BUTTONS_YES_NO)            
+    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+			 parent=parent,
+			 type=gtk.MESSAGE_QUESTION,
+			 buttons = gtk.BUTTONS_YES_NO)            
     d.set_markup(msg)    
     r = d.run()
     d.destroy()

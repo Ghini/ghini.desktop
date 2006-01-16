@@ -1,3 +1,10 @@
+2006.01.16
+----------
+- properly escape Species.sp_author and Species.
+- fixed a problem if tag table couldn't be loaded then the global transaction
+is invalidated and bauble can't be used
+
+
 2005.01.07
 ----------
 - think i finally fixed what was causing all the crashes, for some reason i was
