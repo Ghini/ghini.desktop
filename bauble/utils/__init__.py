@@ -6,6 +6,38 @@ import imp, os, sys, re
 import gtk
 import bauble
 
+def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
+    """
+    glade_xml: the glade_file to get the widget from
+    widget_name: the name of the widget
+    value: the value to put in the widget
+    markup: whether or not
+    default: the default value to put in the widget if the value is None
+    """
+#    debug(value)
+    w = glade_xml.get_widget(widget_name)
+    if value is None: 
+        value = default
+
+    if isinstance(w, gtk.Label):
+        #w.set_text(str(value))
+        # FIXME: some of the enum values that have <not set> as a values
+        # will give errors here, but we can't escape the string because
+        # if someone does pass something that needs to be marked up
+        # then it won't display as intended, maybe BaubleTable.markup()
+        # should be responsible for returning a properly escaped values
+        if markup: 
+            w.set_markup(str(value))
+        else:
+            w.set_text(str(value))            
+    elif isinstance(w, gtk.TextView):
+        w.get_buffer().set_text(value)
+    elif isinstance(w, gtk.Entry):
+	w.set_text(value)
+    else:
+	raise TypeError('don\'t know how to handle the widget type %s with '\
+			'name %s' % (type(w), widget_name))
+
 # TODO: if i escape the messages that come in then my own markup doesn't 
 # work, what really needs to be done is make sure that any exception that
 # are going to be passed to one of these dialogs should be escaped before 

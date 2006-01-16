@@ -9,6 +9,11 @@ import bauble.paths as paths
 from bauble.utils.log import debug
 from bauble.plugins import tables
 
+# TODO: at some point all files using this method should use the one from
+# utils instead, we need to set some type of deprecation warning on using this
+# method and move it completely by 0.5.0
+def set_widget_value(glade_xml, widget_name, value, markup=True):
+    utils.set_widget_value(glade_xml, widget_name, value, markup, default='--')
 
 # TODO: need some way to handle multiple join, maybe display some 
 # number automatically but after that then a scrollbar should appear
@@ -17,27 +22,6 @@ from bauble.plugins import tables
 
 # what to display if the value in the database is None
 DEFAULT_VALUE='--'
-
-def set_widget_value(glade_xml, widget_name, value, markup=True):
-#    debug(value)
-    w = glade_xml.get_widget(widget_name)
-    if value is None: 
-        value = DEFAULT_VALUE
-
-    if isinstance(w, gtk.Label):
-        #w.set_text(str(value))
-        # FIXME: some of the enum values that have <not set> as a values
-        # will give errors here, but we can't escape the string because
-        # if someone does pass something that needs to be marked up
-        # then it won't display as intended, maybe BaubleTable.markup()
-        # should be responsible for returning a properly escaped values
-        if markup: 
-            w.set_markup(str(value))
-        else:
-            w.set_text(str(value))            
-    elif isinstance(w, gtk.TextView):
-        w.get_buffer().set_text(value)
-    
 
 class InfoExpander(gtk.Expander):
     """

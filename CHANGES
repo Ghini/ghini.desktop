@@ -3,6 +3,8 @@
 - properly escape Species.sp_author and Species.
 - fixed a problem if tag table couldn't be loaded then the global transaction
 is invalidated and bauble can't be used
+- move set_widget_value into utils, eventually need to change all the plugins
+to use this one to be consisten
 
 
 2005.01.07

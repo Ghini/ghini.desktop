@@ -63,22 +63,27 @@ def set_dict_value_from_widget(glade_xml, name, key, dic,
 
 
 def set_widget_value(glade_xml, widget_name, value):
-#    debug('set_widget_value: ' + widget_name)
-    if value is None: 
-        return
-    w = glade_xml.get_widget(widget_name)
-    if w is None:
-        raise ValueError("set_widget_value: no widget by the name "+\
-                         widget_name)
-#    debug(type(value))
-    if type(value) == ForeignKey:
-        pass
-    if isinstance(value, datetime):
-        # TODO: get the date format from BaubleMeta
-        s = "%s/%s/%s" % (value.day, value.month, value.year)
-        w.set_text(s)
-    elif isinstance(w, gtk.Entry):
-        w.set_text(value)
+    return utils.set_widget_value(glade_xml, widget_name, value)
+
+#     debug('set_widget_value(%s, %s)' % (widget_name, value))
+#     if value is None: 
+#         return
+#     w = glade_xml.get_widget(widget_name)
+#     if w is None:
+#         raise ValueError("set_widget_value: no widget by the name "+\
+#                          widget_name)
+# #    debug(type(value))
+#     if type(value) == ForeignKey:
+#         pass
+#     if isinstance(value, datetime):
+#         # TODO: get the date format from BaubleMeta
+#         s = "%s/%s/%s" % (value.day, value.month, value.year)
+#         w.set_text(s)
+#     elif isinstance(w, gtk.Entry):
+#         w.set_text(value)
+#     else:
+# 	raise TypeError('unknown widget type (%s) in glade file named %s' \
+# 			% (type(w), widget_name))
 
 
 def combo_cell_data_func(cell, renderer, model, iter, data):
