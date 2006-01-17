@@ -116,6 +116,18 @@ class CollectionEditor:
     
     initialized = False
     
+    widget_to_column_name_map = {'collector_entry': 'collector',
+                                 'colldate_entry': 'coll_date',
+                                 'collid_entry': 'coll_id',
+                                 'locale_entry': 'locale',
+                                 'lat_entry': 'latitude',
+                                 'lon_entry': 'longitude',
+                                 'geoacc_entry': 'geo_accy',
+                                 'alt_entry': 'elevation',
+                                 'altacc_entry': 'elevation_accy',
+                                 'habitat_entry': 'habitat',
+                                 'notes_entry': 'notes'}
+
     def __init__(self, glade_xml, row=None):
         self.table = tables["Collection"]
         if not self.initialized:
@@ -189,17 +201,6 @@ class CollectionEditor:
             set_widget_value(self.glade_xml, widget_name,
                              getattr(self.row, col_name))
         
-    widget_to_column_name_map = {'collector_entry': 'collector',
-                                 'colldate_entry': 'coll_date',
-                                 'collid_entry': 'coll_id',
-                                 'locale_entry': 'locale',
-                                 'lat_entry': 'latitude',
-                                 'lon_entry': 'longitude',
-                                 'geoacc_entry': 'geo_accy',
-                                 'alt_entry': 'elevation',
-                                 'altacc_entry': 'elevation_accy',
-                                 'habitat_entry': 'habitat',
-                                 'notes_entry': 'notes'}
         
     def get_values(self):
         values = {}
@@ -257,6 +258,10 @@ class CollectionEditor:
         
 class DonationEditor:
 
+    widget_to_column_name_map = {'donor_combo': 'donor',
+                                 'donid_entry': 'donor_acc',
+                                 'donnotes_entry': 'notes'}
+
     initialized = False
     
     def __init__(self, glade_xml, row=None):            
@@ -285,6 +290,20 @@ class DonationEditor:
         self.donor_combo.pack_start(r)
         self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
         setComboModelFromSelect(self.donor_combo, sel)
+
+	self.row = row
+        if self.row is not None:
+            #debug('CollectionsEditor.initalized - refreshing')
+            self.refresh_widgets_from_row()
+
+
+    def refresh_widgets_from_row(self):
+        """
+        set all values from the donation object
+        """
+        for widget_name,col_name in self.widget_to_column_name_map.iteritems():
+            set_widget_value(self.glade_xml, widget_name,
+                             getattr(self.row, col_name))
 
 
     def get_values(self):
@@ -362,7 +381,7 @@ class SourceEditor(TableEditorDialog):
         if self.select is not None:
             if isinstance(self.select, tables["Collection"]):
                 self.type_combo.set_active(0)
-            elif isinstance(self.select, tables["Donations"]):
+            elif isinstance(self.select, tables["Donation"]):
                 self.type_combo.set_active(1)
             else:
                 raise Exception('SourceEditor: unknown row type')

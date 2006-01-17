@@ -1,5 +1,13 @@
 2006.01.16
 ----------
+- fixed problem with editing an Accession's Donation if the donations already 
+exists
+- fixed some problems with the Accession Infobox
+- fixes for the message dialog in utils if they are opened before the gui
+starts
+
+2006.01.16
+----------
 - properly escape Species.sp_author and Species.
 - fixed a problem if tag table couldn't be loaded then the global transaction
 is invalidated and bauble can't be used

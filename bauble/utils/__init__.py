@@ -6,14 +6,44 @@ import imp, os, sys, re
 import gtk
 import bauble
 
+
+def search_tree_model(rows, data, func=lambda row, data: row[0] == data):
+    '''
+    got this from the pygtk tutorial
+    '''
+    if not rows:
+	return None
+    for row in rows:
+	if func(row, data):
+	    return row
+	result = search_tree_model(row.iterchildren(), func, data)
+	if result:
+	    return result
+    return None
+
+
+def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
+    '''
+    find value in combo model and set it as active, else raise ValueError
+    cmp(row, value) is the a function to use for comparison
+    NOTE: 
+    '''
+    model = combo.get_model()
+    match = search_tree_model(model, value, cmp)
+    if match is None:
+	raise ValueError('set_combo_from_value() - could not find value in '\
+			 'combo: %s' % value)
+    combo.set_active_iter(match.iter)
+    
+
 def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
-    """
+    '''
     glade_xml: the glade_file to get the widget from
     widget_name: the name of the widget
     value: the value to put in the widget
     markup: whether or not
     default: the default value to put in the widget if the value is None
-    """
+    '''
 #    debug(value)
     w = glade_xml.get_widget(widget_name)
     if value is None: 
@@ -34,6 +64,9 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
         w.get_buffer().set_text(value)
     elif isinstance(w, gtk.Entry):
 	w.set_text(value)
+    elif isinstance(w, gtk.ComboBox): # TODO: what about comboentry
+	set_combo_from_value(w, value)
+	
     else:
 	raise TypeError('don\'t know how to handle the widget type %s with '\
 			'name %s' % (type(w), widget_name))
@@ -44,7 +77,8 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
 # coming through
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
-    if hasattr(bauble, "app"): # this might get called before bauble has started
+    if hasattr(bauble, "app") and bauble.app.gui is not None: 
+	# this might get called before bauble has started
         parent = bauble.app.gui.window
     else:
 	parent = None	
@@ -57,9 +91,9 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     return r
     
 
-def yes_no_dialog(msg):
-     #this might get called before bauble has started
-    if hasattr(bauble, "app") and bauble.app.gui is not None:
+def yes_no_dialog(msg):     
+    if hasattr(bauble, "app") and bauble.app.gui is not None:	
+        # this might get called before bauble has started
 	parent = bauble.app.gui.window
     else:
 	parent = None
@@ -74,12 +108,13 @@ def yes_no_dialog(msg):
 
 
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
-                           buttons=gtk.BUTTONS_OK):
-    if hasattr(bauble, "app"): # this might get called before bauble has started
-	    parent = bauble.app.gui.window
+                           buttons=gtk.BUTTONS_OK):    
+    if hasattr(bauble, "app") and bauble.app.gui is not None: 
+	# this might get called before bauble has started
+	parent = bauble.app.gui.window
     else:
 	parent = None
-    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			  parent=parent,
                           type=type, buttons=buttons)        
     d.set_markup(msg)
@@ -112,9 +147,9 @@ def startfile(filename):
         
 
 def dms_to_decimal(dir, deg, min, sec):
-    """
+    '''
     convert degrees, minutes, seconds to decimal
-    """
+    '''
     # TODO: more test cases
     dec = (((sec/60.0) + min) /60.0) + deg
     if dir == 'W' or dir == 'S':
@@ -123,9 +158,9 @@ def dms_to_decimal(dir, deg, min, sec):
     
         
 def decimal_to_dms(decimal, long_or_lat):
-    """
-    long_or_lat: should be either 'long' or 'lat'
-    """
+    '''
+    long_or_lat: should be either "long" or "lat"
+    '''
     # NOTE: if speed is an issue, which i don't think it ever will be
     # this could probably be optimized
     # TODO: more test cases
@@ -151,9 +186,9 @@ def latitude_to_dms(decimal):
    
     
 if __name__ == '__main__':
-    """
+    '''
     could probably put this in a doctest
-    """
+    '''
     dec = dms_to_decimal('W', 87, 43, 41)
     dir, deg, min, sec = decimal_to_dms(dec, 'long')
     print dec
