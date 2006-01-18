@@ -55,6 +55,9 @@ from pyparsing import *
 # use the sort_column as the column to compare in the sorted method of
 # populate_results
 
+# TODO: provide a way to pin down the infobox so that changing the selection
+# in the results_view doesn't change the values in the infobox
+
 class SearchMeta:
     
     def __init__(self, table_name, column_names, sort_column=None):
@@ -151,9 +154,11 @@ class SearchView(BaubleView):
         if self.infobox is not None:
             if self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
-            # self.infobox.destroy() # temporary disable, may be causing a crash
+		# had temporary disabled this in case it was causing a crash 
+		# but, not i don't think it is
+		self.infobox.destroy() 
 
-        # row is an object instance not a class so we have to get the class
+        # row is  an object instance not a class so we have to get the class
         # and then the name to look it up in self.view_meta
         table_name = type(row).__name__
         if table_name in self.view_meta and \
@@ -175,11 +180,12 @@ class SearchView(BaubleView):
             selected.append(model[row][0])
         return selected
         
+
     def on_results_view_select_row(self, view):
         """
         add and removes the infobox which should change depending on
         the type of the row selected
-        """        
+        """      
         sel = view.get_selection() # get the selected row
         model, i = sel.get_selected()
         value = model.get_value(i, 0)
@@ -197,6 +203,8 @@ class SearchView(BaubleView):
         text = self.entry.get_text()
         self.current_search_text = text
         self.search(text)
+	# the row has been unselected, so turn off the infobox
+	self.set_infobox_from_row(None) 
         
     
     # should be the search string relevant to the results in the results view

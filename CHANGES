@@ -1,10 +1,15 @@
 2006.01.16
 ----------
+- a clicking on the "Search" button in the search view now turns off the 
+current infobox
+- the ConnectionManager and its password dialog now ask to be centered on 
+the screen
 - fixed problem with editing an Accession's Donation if the donations already 
 exists
 - fixed some problems with the Accession Infobox
 - fixes for the message dialog in utils if they are opened before the gui
 starts
+
 
 2006.01.16
 ----------

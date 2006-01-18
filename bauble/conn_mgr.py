@@ -335,6 +335,8 @@ class ConnectionManager:
         d = gtk.Dialog(title, self.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
+	d.set_gravity(gtk.gdk.GRAVITY_CENTER)
+	d.set_position(gtk.WIN_POS_CENTER)
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250,-1)
         entry = gtk.Entry()
