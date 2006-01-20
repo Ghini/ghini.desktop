@@ -207,7 +207,7 @@ class SpeciesMetaEditor(TableEditorDialog):
 	# of the app
         model = gtk.TreeStore(str)
         model.append(None, ["Cultivated"])
-        for continent in tables['Continent'].select(orderBy='continent'):
+        for continent in tables['Continent'].select():
             p1 = model.append(None, [str(continent)])
             for region in continent.regions:
                 p2 = model.append(p1, [str(region)])

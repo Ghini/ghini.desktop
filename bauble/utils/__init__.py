@@ -83,8 +83,8 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     else:
 	parent = None	
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-			  parent=bauble.app.gui.window,
-                          type=type, buttons=buttons)
+			 parent=parent,
+			 type=type, buttons=buttons)
     d.set_markup(msg)
     r = d.run()
     d.destroy()

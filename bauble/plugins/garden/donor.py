@@ -10,6 +10,9 @@ from bauble.plugins.editor import TreeViewEditorDialog
 # in the search view
 
 class Donor(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'name'
     
     donor_type = EnumCol(enumValues=('Expedition', # Expedition
                                      "Gene bank", # Gene bank

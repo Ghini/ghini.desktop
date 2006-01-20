@@ -14,7 +14,10 @@ from bauble.utils.log import debug
 # sense the acc_id may not be set when setting the plant_id
 
 class Plant(BaubleTable):
-    
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'plant_id'
+
     # add to end of accession id, e.g. 04-0002.05
     # these are only unique when combined with an accession_id
     values = {}

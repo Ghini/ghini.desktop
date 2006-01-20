@@ -36,6 +36,10 @@ from bauble.utils.log import log, debug
 # gives a tooltip or dialog giving you more information about the current
 # cell you are editing
 
+# FIXME: if you enter two plants and then hit commit and the first one commits 
+# and the second doesn't then the dialog comes back up, if you try to commit 
+# again then you get an error, something about plant_id_seq, this may be a
+# postgres specific bug
     
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    

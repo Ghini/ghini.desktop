@@ -9,6 +9,9 @@ from bauble.plugins.editor import TreeViewEditorDialog
 
 class Location(BaubleTable):
 
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'site'
+
     # should only need either loc_id or site as long as whichever one is 
     # unique, probably site, there is already and internal id
     # what about sublocations, like if the locations were the grounds

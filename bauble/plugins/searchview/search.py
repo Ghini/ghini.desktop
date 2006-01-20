@@ -12,6 +12,7 @@ from bauble.plugins.searchview.infobox import InfoBox
 from bauble.plugins import BaubleView, BaubleTable, tables, editors
 from bauble.utils.log import debug
 from pyparsing import *
+#from earthenware.gui.pgtk.easygrid import EasyGrid
 
 
 # NOTE: to add a new search domain do:
@@ -22,8 +23,8 @@ from pyparsing import *
 
 # TODO: whenever an editor is called and changes are commited we should get 
 # a list of expanded paths and then search again on the same criteria and then
-# reexpand the paths that were saved and the path of the item that was the editor
-# was called on
+# reexpand the paths that were saved and the path of the item that was the 
+# editor was called on
 
 # TODO: things todo when a result is selected
 # - GBIF search results, probably have to look up specific institutions
@@ -117,6 +118,8 @@ class SearchView(BaubleView):
                 tablename = so_instance.__class__.__name__            
                 if callable(self.children):
                     return self.children(so_instance)
+
+		# TODO: need to get in the default sort order
                 return getattr(so_instance, self.children)
         
             
@@ -174,7 +177,7 @@ class SearchView(BaubleView):
         '''
         return all the selected rows
         '''
-        model, rows = self.results_view.get_selection().get_selected_rows()        
+        model, rows = self.results_view.get_selection().get_selected_rows()
         selected = []
         for row in rows:
             selected.append(model[row][0])
@@ -400,11 +403,12 @@ class SearchView(BaubleView):
 
     def populate_results(self, search):        
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        #self.set_sensitive(False)
+        #self.set_sensitive(False)	
         results = []
         added = False
         model = self.results_view.get_model()
-        self.results_view.set_model(None) # temporary
+        self.results_view.set_model(None) # temporarily remove the model
+
         if model is None: 
             model = gtk.TreeStore(object)
         
@@ -412,18 +416,29 @@ class SearchView(BaubleView):
             results += self.query(domain, values)
         
         if len(results) > 0:             
-            #for r in results:
-            # sort all the results
-            for r in sorted(results, cmp=lambda x, y: cmp(str(x), str(y))):
-                p = model.append(None, [r])
+	    # don't bother sorting the results, if everything in the same
+	    # level is of the same type then it probably has been sorted by
+	    # the database any way and if it's not the same type then sorting
+	    # a bunch of random types of data isn't that practical anyway
+	    debug('appending results')
+	    for r in results:                
+		#model.append(model.append(None, [r]), '-')
+		p = model.append(None, [r])
+
+		# TODO: is it faster to check if it has children now or 
+		# or just add the dummy row and check on expansion
                 #print r.__class__.__name__
-#                table_name = r.__class__.__name__
-#                if table_name in self.view_meta and \
-#                    self.view_meta[table_name].expand_child is not None:
-                model.append(p, ["_dummy"])
+                #table_name = r.__class__.__name__
+		#if table_name in self.view_meta and \
+                #    self.view_meta[table_name].children is not None:
+		model.append(p, ["-"])
         else: 
             model.append(None, ["Couldn't find anything"])
-        self.results_view.set_model(model)
+
+
+	debug('setting model')
+        self.results_view.set_model(model)	
+	debug('model set')
 	bauble.app.gui.window.window.set_cursor(None)
     
     
@@ -606,9 +621,9 @@ class SearchView(BaubleView):
         entry_box.pack_start(self.entry, True, True, 5)
         entry_box.pack_end(self.search_button, False, False, 5)
         self.content_box.pack_start(entry_box, False, False, 5)
-                
+        
         # create the results view and info box
-        self.results_view = gtk.TreeView() # will be a select results row
+        self.results_view = gtk.TreeView() # will be a select results row    
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
         

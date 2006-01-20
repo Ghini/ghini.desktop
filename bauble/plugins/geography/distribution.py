@@ -23,7 +23,10 @@ from bauble.plugins.editor import TableEditor
 
 # level 1
 class Continent(BaubleTable):
-    
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "continent"
+
     continent = StringCol(length=24, alternateID=True)
     code = IntCol(alternateID=True)
     
@@ -35,6 +38,9 @@ class Continent(BaubleTable):
     
 # level2
 class Region(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "region"
     
     region = UnicodeCol(length=64, alternateID=True)
     code = IntCol(alternateID=True)
@@ -50,11 +56,16 @@ class Region(BaubleTable):
     
 # level3
 class BotanicalCountry(BaubleTable):
+
+#    class sqlmeta(BaubleTable.sqlmeta):
+#	defaultOrder = "name"
+    class sqlmeta:
+	defaultOrder = "name"
     
+    name = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=5, alternateID=True)
     #area = StringCol(length=64)
-    name = UnicodeCol(length=64, alternateID=True
-                       )
+
     iso_code = StringCol(length=4, default=None)
     ed2_status = StringCol(length=64, default=None)
     notes = StringCol(default=None)
@@ -68,6 +79,9 @@ class BotanicalCountry(BaubleTable):
      
 # level 3     
 class BasicUnit(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "name"
     
     name = UnicodeCol(length=64)
     code = StringCol(length=8, alternateID=True)
@@ -83,6 +97,10 @@ class BasicUnit(BaubleTable):
           
 # level3
 class Area(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "area"
+	
     
     area = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=5, alternateID=True)
@@ -101,6 +119,9 @@ class Area(BaubleTable):
         
 # level4
 class State(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "state"
     
     state = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=8, alternateID=True)
@@ -117,6 +138,9 @@ class State(BaubleTable):
     
 # gazetteer
 class Place(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "place"
     
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
@@ -125,8 +149,9 @@ class Place(BaubleTable):
     # ID*Gazetteer*L1 code*L2 code*L3 code*L4 code*Kew region code*Kew region subdivision*Kew region*Synonym*Notes
     #331**2,00*24,00*SOC*SOC-OO*10,00*C*North East Tropical Africa**
     #333**3,00*33,00*TCS*TCS-AB*2,00*A*Orient**
-    code = StringCol(length=4, alternateID=True)
     place = UnicodeCol(length=64, default=None)
+    code = StringCol(length=4, alternateID=True)
+
     #name = UnicodeCol(length=64)
     synonym = UnicodeCol(length=250, default=None)
     notes = UnicodeCol(default=None)
@@ -148,6 +173,9 @@ class Place(BaubleTable):
 
 
 class KewRegion(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = "region"
     
     # TODO: one column in the data has none, i don't know why, i think it means
     # that its cultivated and its origin is unknown, neother code or region

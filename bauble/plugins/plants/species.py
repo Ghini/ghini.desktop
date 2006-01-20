@@ -17,6 +17,9 @@ import xml.sax.saxutils as sax
 # Species table
 #
 class Species(BaubleTable):
+
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'sp'
     
     def __init__(self, **kw):
         super(Species, self).__init__(**kw)

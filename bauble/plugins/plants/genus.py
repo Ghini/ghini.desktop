@@ -23,7 +23,8 @@ from bauble.plugins.editor import TreeViewEditorDialog
 #
 class Genus(BaubleTable):
 
-    _cacheValue = False
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'genus'
     
     # it is possible that there can be genera with the same name but 
     # different authors and probably means that at different points in literature

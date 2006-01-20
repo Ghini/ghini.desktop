@@ -11,6 +11,9 @@ from bauble.utils.log import debug
 
 class Family(BaubleTable):
 
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'family'
+
     family = StringCol(length=45, notNull=True, alternateID="True")
     synonyms = MultipleJoin('FamilySynonym', joinColumn='family_id')
     notes = StringCol(default=None)

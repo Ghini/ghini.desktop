@@ -13,27 +13,30 @@ from bauble.utils.log import debug
 
 class Accession(BaubleTable):
 
+    class sqlmeta(BaubleTable.sqlmeta):
+	defaultOrder = 'acc_id'
+
     values = {} # dictionary of values to restrict to columns
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
     
     
     prov_type = EnumCol(enumValues=("Wild", # Wild,
-                                    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
-                                    "Not of wild source", # Not of wild source
-                                    "Insufficient Data", # Insufficient data
-                                    "Unknown",
-                                    "<not set>"),
-                        default = "<not set>")
+				    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
+				    "Not of wild source", # Not of wild source
+				    "Insufficient Data", # Insufficient data
+				    "Unknown",
+				    "<not set>"),
+			default = "<not set>")
 
     # wild provenance status, wild native, wild non-native, cultivated native
     wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
-                                           "Wild non-native", # Propagule of wild plant in cultivation
-                                           "Cultivated native", # Not of wild source
-                                           "Insufficient Data", # Insufficient data
-                                           "Unknown",
-                                           "<not set>"),
-                               default="<not set>")
-                                 
+					   "Wild non-native", # Propagule of wild plant in cultivation
+					   "Cultivated native", # Not of wild source
+					   "Insufficient Data", # Insufficient data
+					   "Unknown",
+					   "<not set>"),
+			       default="<not set>")
+    
     # propagation history ???
     #prop_history = StringCol(length=11, default=None)
 

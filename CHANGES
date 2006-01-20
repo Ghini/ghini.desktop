@@ -1,3 +1,11 @@
+2006.01.19
+----------
+- make the default sort order more reasonable for accessions, plants, families,
+genera, and species
+- removed sorting of results in the search view since tables should now
+specify their own sort order
+
+
 2006.01.16
 ----------
 - a clicking on the "Search" button in the search view now turns off the 
