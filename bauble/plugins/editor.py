@@ -35,37 +35,7 @@ from bauble.utils.log import log, debug
 # TODO: create a contextual helps so that pressing ctrl-space on a cell
 # gives a tooltip or dialog giving you more information about the current
 # cell you are editing
-
-# FIXME: if you enter two plants and then hit commit and the first one commits 
-# and the second doesn't then the dialog comes back up, if you try to commit 
-# again then you get an error, something about plant_id_seq, this may be a
-# postgres specific bug
-# UPDATE: the problem is the transaction is no longer valid, we could commit 
-# the changes made so far we could then if the user hits cancel then go through
-# the committed rows and delete them by id, but this might cause a problem with
-# columns that have single joins, i.e. leaving dangling foreign key references 
-# if cascading is not set up correctly, is there a way to revalidate the 
-# transaction without rolling back and starting again
-# - the other way to do it is to completely roll back the transaction but that
-# kindof defeats the point of greying out the already commited items, unless we
-# could just put an arrow or change the color of the offending row and leave
-# the ones that committed correctly as greyed even though we're going to commit
-# them again
-# - what about postgres 'savepoints', this would allow us to commit the
-# work that has happened so far and roll back any future work, we could also set
-# a savepoint at the beggining of the commit and rollback to the top of the 
-# commit if the user decides to cancel
-# - the other thing is to go ahead and commit everything that has been committed
-# so far and start a new transaction, the downside with this is that then 
-# hitting CANCEL won't rollback the values that have already been committed 
-# which might not be clear to the user, this brings up the question is "what
-# does the user expect?" should those that have been greyed out be assumed that
-# they are there to stay or should they be considered part of the current 
-# transaction and hitting CANCEL on the dialog cancel everything in the dialog,
-# removing them from the model once they have been committed might clear this
-# up but what if there is some relation between the rows and you want all or 
-# nothing
-# 
+ 
 # 
 # TODO:  i was using ModelRowDict.committed to indicate which rows have been 
 # committed so that when there was a problem and an exception was raised on a 
@@ -767,18 +737,12 @@ class TableEditorDialog(TableEditor):
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.dialog = gtk.Dialog(title, parent, 
-                               gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, 
+                               gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                                  (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-##         self.dialog = gtk.Dialog(title, parent, 
-##                             gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-##                             (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-##                              gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         self._values = []
 
-#    def __del__(self):
-#        debug('TableEditorDialog.destroy()')
-#        self.dialog.destroy()
+
     
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
@@ -1292,74 +1256,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             
     def commit_changes(self):
         return self._commit_model_rows()
-    
-    
-#    def commit_changes_old(self):
-#        """
-#        commit any change made in the table editor
-#        """        
-#        # TODO: do a map through the values returned from get_tables_values
-#        # and check if any of them are lists in the (table, values) format
-#        # if they are then we need pop the list from the values and commit
-#        # the current table, set the foreign key of the sub table and commit 
-#        # it
-#        # TODO: if i don't set the connection parameter when i create the
-#        # table then is it really using the, it might be if 
-#        # sqlhub.threadConnection is set to the transaction
-#        #
-#        committed_rows = []
-#        table_instance = None
-#        for v in self.values:
-#            # make sure it's ok to commit these values            
-#            #if not self.test_values_before_commit(v):                
-#            if not self.pre_commit_hook(v):
-#                continue                
-#            # first pop out columns in table_meta.foreign_keys so we can
-#            # set their foreign key id later                
-#            #foreigners = {}
-#            join_values = {}            
-#            #for col, col_attr in self.table_meta.foreign_keys:
-#            for name in self.columns.foreign_keys:
-#                # use has_key to check the dict and not the table, 
-#                # see ModelRowDict.__contains__
-#                if v.has_key(name): 
-#                    v[name] = v[name].id
-#            
-#            # remove the join values from v so we can set them with the 
-#            # row id later
-#            for name in self.columns.joins:
-#                if v.has_key(name):                    
-#                    join_values[name] = v.pop(name)                    
-#                
-#            # update or set the row depending on where there is an 'id' key
-#            # in the v dict            
-#            table_instance = self._commit(v)
-#                
-#            # have to set the join this way since 
-#            # table_instance.joinColumnName doesn't seem to work here, 
-#            # maybe b/c the table_instance hasn't been committed
-#            for join in table_instance.sqlmeta.joins:
-#                if join_values.has_key(join.joinMethodName):
-#                    if isinstance(join, SOSingleJoin):
-#                        join_table_instance = join_values.pop(join.joinMethodName)
-#                        join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})                        
-#                    else: # must be a multple join???
-#                        for join_table_instance in join_values.pop(join.joinMethodName):
-#                            join_table_instance.set(**{join.joinColumn[:-3]: table_instance.id})
-#                                            
-#            if len(join_values) > 0:
-#                debug(join_values)
-#                raise ValueError("join_values isn't empty")                    
-#            
-#            self.post_commit_hook(table_instance)
-#            committed_rows.append(table_instance)
-#                
-#        return committed_rows
-        
-
-#    def on_view_move_cursor(self, view, step, count, data=None):
-#        pass
-        
+            
     
     def on_cursor_changed(self, view, data=None):
         # TODO: this should be reworked to have some sort of information
