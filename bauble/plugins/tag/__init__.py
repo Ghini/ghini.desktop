@@ -136,7 +136,6 @@ class TagItemGUI:
           and response != gtk.RESPONSE_DELETE_EVENT:            
             response = self.dialog.run()
             
-        # FIXME: should be be hiding the dialog or destroying it        
         self.dialog.destroy()
     
         

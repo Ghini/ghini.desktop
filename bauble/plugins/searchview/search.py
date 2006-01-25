@@ -420,7 +420,6 @@ class SearchView(BaubleView):
 	    # level is of the same type then it probably has been sorted by
 	    # the database any way and if it's not the same type then sorting
 	    # a bunch of random types of data isn't that practical anyway
-	    debug('appending results')
 	    for r in results:                
 		#model.append(model.append(None, [r]), '-')
 		p = model.append(None, [r])
@@ -435,10 +434,7 @@ class SearchView(BaubleView):
         else: 
             model.append(None, ["Couldn't find anything"])
 
-
-	debug('setting model')
         self.results_view.set_model(model)	
-	debug('model set')
 	bauble.app.gui.window.window.set_cursor(None)
     
     

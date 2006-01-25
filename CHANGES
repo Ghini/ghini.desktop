@@ -1,3 +1,18 @@
+2006.01.25
+----------
+- fixed a problem are trying to commit the values in an editor if there had
+been a previous exception trying to commit
+- the offending row is now highlighted when there is a problem trying to 
+commit the values in an editor
+- added editor.CommitException to wrap the exception throws from the database
+on commit, also allows us to pass the model row used when trying to commit
+
+
+2006.01.23
+----------
+- changed TreeViewEditorDialog._commit_model_row to _commit_model_rows
+
+
 2006.01.19
 ----------
 - make the default sort order more reasonable for accessions, plants, families,

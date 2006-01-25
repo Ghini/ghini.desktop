@@ -40,7 +40,45 @@ from bauble.utils.log import log, debug
 # and the second doesn't then the dialog comes back up, if you try to commit 
 # again then you get an error, something about plant_id_seq, this may be a
 # postgres specific bug
-    
+# UPDATE: the problem is the transaction is no longer valid, we could commit 
+# the changes made so far we could then if the user hits cancel then go through
+# the committed rows and delete them by id, but this might cause a problem with
+# columns that have single joins, i.e. leaving dangling foreign key references 
+# if cascading is not set up correctly, is there a way to revalidate the 
+# transaction without rolling back and starting again
+# - the other way to do it is to completely roll back the transaction but that
+# kindof defeats the point of greying out the already commited items, unless we
+# could just put an arrow or change the color of the offending row and leave
+# the ones that committed correctly as greyed even though we're going to commit
+# them again
+# - what about postgres 'savepoints', this would allow us to commit the
+# work that has happened so far and roll back any future work, we could also set
+# a savepoint at the beggining of the commit and rollback to the top of the 
+# commit if the user decides to cancel
+# - the other thing is to go ahead and commit everything that has been committed
+# so far and start a new transaction, the downside with this is that then 
+# hitting CANCEL won't rollback the values that have already been committed 
+# which might not be clear to the user, this brings up the question is "what
+# does the user expect?" should those that have been greyed out be assumed that
+# they are there to stay or should they be considered part of the current 
+# transaction and hitting CANCEL on the dialog cancel everything in the dialog,
+# removing them from the model once they have been committed might clear this
+# up but what if there is some relation between the rows and you want all or 
+# nothing
+# 
+# 
+# TODO:  i was using ModelRowDict.committed to indicate which rows have been 
+# committed so that when there was a problem and an exception was raised on a 
+# commit then
+# the next time around in commit_changes we would only have to commit those
+# rows which hadn't yet been committed, this didn't work because sometimes
+# the exception would invalidate the transaction and we have to start over
+# either way, i don't think there's any reason to keep this committed attribute
+# around, we should remove it from ModelRowDict and all of the 
+# cell_data_func function in the columns
+
+
+   
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    
 #    def __init__(self, *args, **kwargs):
@@ -61,13 +99,26 @@ from bauble.utils.log import log, debug
 #                         flags):
 #        pass
 
+class CommitException(Exception):
+
+    def __init__(self, exc, row):
+	self.row = row # the model we were trying to commit
+	self.exc = exc # the exception thrown while committing
+	
+    def __str__(self):
+	return str(self.exc)
 
 
 class GenericViewColumn(gtk.TreeViewColumn):
     
     def __init__(self, tree_view_editor, header, renderer):
-        super(GenericViewColumn, self).__init__(header, renderer)
-        
+	#renderer.weight = 900	
+        super(GenericViewColumn, self).__init__(header, renderer, 
+						cell_background_set=1)
+	renderer.set_property('cell-background-gdk', 
+			      gtk.gdk.color_parse('#EC9FA4'))
+	#renderer.set_property('cell-background', 'red')
+        #renderer.cell_background = 'pink'
         if not isinstance(tree_view_editor, TreeViewEditorDialog):
             raise ValueError('tree_view_editor must be an isntance of '\
                              'TreeViewEditorDialog')
@@ -740,23 +791,44 @@ class TableEditorDialog(TableEditor):
         '''
         committed = None
         while True:
-            msg = 'Are you sure you want to lose your changes?'
+            not_ok_msg = 'Are you sure you want to lose your changes?'
+	    exc_msg = "Could not commit changes.\n"
             response = self.dialog.run()
             if response == gtk.RESPONSE_OK:
                 try:
                     self.save_state()
+		    # TODO: we need to remove _set_values_from_widgets since
+		    # we now do _transform_row on each row during commit,
+		    # we leave it hear for now since i think some of the 
+		    # plugins haven't moved over to _transform_row though
+		    # they eventually should be
                     self._set_values_from_widgets()
                     committed = self.commit_changes()                    
+		except CommitException, e:
+		    debug(traceback.format_exc())
+		    exc_msg + ' \n %s' % str(e)
+		    utils.message_details_dialog(saxutils.escape(exc_msg), 
+						 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+		    self.reset_committed()
+		    self.reset_background()
+		    e.row[1] = True #set the flag to change the background color
+		    sqlhub.processConnection.rollback()
+		    sqlhub.processConnection.begin()
+		    pass
                 except Exception, e:
-                    msg = "Could not commit changes.\n" + str(e)
-                    debug(traceback.format_exc())
-                    utils.message_details_dialog(saxutils.escape(msg), 
+		    debug(traceback.format_exc())
+		    exc_msg + ' \n %s' % str(e)                    
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
                                                  traceback.format_exc(), 
                                                  gtk.MESSAGE_ERROR)
+		    self.reset_committed()
+		    self.reset_background()
+		    sqlhub.processConnection.rollback()
+		    sqlhub.processConnection.begin()
                 else:
                     break
-            elif self.dirty and utils.yes_no_dialog(msg):
-#                debug('transaction.rollback')
+            elif self.dirty and utils.yes_no_dialog(not_ok_msg):
                 sqlhub.processConnection.rollback()
                 sqlhub.processConnection.begin()
                 self.dirty = False
@@ -765,8 +837,23 @@ class TableEditorDialog(TableEditor):
                 break
         self.dialog.destroy()
         return committed        
+
         
-        
+    def reset_committed(self):	
+	'''
+	reset all of the ModelRowDict.committed attributes in the view
+	'''
+	for row in self.view.get_model():
+	    row[0].committed = False
+
+    def reset_background(self):
+	'''
+	turn off all background-set attributes
+	'''
+	for row in self.view.get_model():
+	    row[1] = False
+
+
     def on_dialog_response(self, dialog, response, *args):
         # system-defined GtkDialog responses are always negative, in which
         # case we want to hide it
@@ -923,14 +1010,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         create the main tree view
         """
-        # have to create the view before the column
-        self.__view = gtk.TreeView(gtk.ListStore(object))
-        
-        # create the columns from the meta data
+        self.__view = gtk.TreeView(gtk.ListStore(object, 'gboolean'))
         self.columns = self.create_view_columns()
         self.view.set_headers_clickable(False)
 
 
+    # TODO: is making the view read only really a necessary?
     def __get_view(self):
         return self.__view
     view = property(__get_view)
@@ -1149,51 +1234,54 @@ class TreeViewEditorDialog(TableEditorDialog):
         return True
     
     
-    def _commit_model_row(self):
+    def _commit_model_rows(self):
         committed_rows = []
         table_instance = None
         model = self.view.get_model()        
         for item in model:
-            
             # then this row hasn't changed or has already been committed
             if not item[0].dirty or item[0].committed: 
                 continue            
             row = self._transform_row(item[0])
-#            debug(row)
-            # make a copy of the dict so we don't change anything
+
             if not self.pre_commit_hook(row):
                 continue
                         
             for fk in self.columns.foreign_keys:
                 if fk in row:
                     row[fk] = row[fk].id
-#            debug(row)
+
             join_values = {}
             for join in self.columns.joins:
                 if join in row:
                     join_values[join] = row.pop(join)
             
-            table_instance = self._commit(row)
+	    try:
+		table_instance = self._commit(row)
 #            debug(table_instance)
             # have to set the join this way since 
             # table_instance.joinColumnName doesn't seem to work here, 
             # maybe b/c the table_instance hasn't been committed
-            for join in table_instance.sqlmeta.joins:
-                if join_values.has_key(join.joinMethodName):
-                    if isinstance(join, SOSingleJoin):
-                        join_table_instance=join_values.pop(join.joinMethodName)
-                        join_table_instance.set(**{join.joinColumn[:-3]:
-                                                   table_instance.id})                        
-                    else: # must be a multple join???
-                        for join_table_instance in \
-                                join_values.pop(join.joinMethodName):
-                            join_table_instance.set(**{join.joinColumn[:-3]:
-                                                       table_instance.id})
-                                            
-            if len(join_values) > 0:
-                debug(join_values)
-                raise ValueError("join_values isn't empty")                    
-            
+		for join in table_instance.sqlmeta.joins:
+		    if join_values.has_key(join.joinMethodName):
+			if isinstance(join, SOSingleJoin):
+			    join_table_instance = \
+				join_values.pop(join.joinMethodName)
+			    join_table_instance.set(**{join.joinColumn[:-3]:
+                                                   table_instance.id})
+			else: # must be a multple join???
+			    for join_table_instance in \
+				    join_values.pop(join.joinMethodName):
+				join_table_instance.set(**{join.joinColumn[:-3]:
+							   table_instance.id})
+	    except Exception, exc:
+		raise CommitException(exc, item)
+		
+	    if len(join_values) > 0:
+		debug(join_values)
+		raise ValueError("join_values isn't empty")                    
+
+		
             self.post_commit_hook(table_instance)
             committed_rows.append(table_instance)            
             item[0].committed = True
@@ -1203,7 +1291,7 @@ class TreeViewEditorDialog(TableEditorDialog):
             
             
     def commit_changes(self):
-        return self._commit_model_row()
+        return self._commit_model_rows()
     
     
 #    def commit_changes_old(self):
@@ -1358,15 +1446,14 @@ class TreeViewEditorDialog(TableEditorDialog):
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: 
-            raise Exception("no model in the row")
+            raise Exception("the view doesn't have a model")
         if row is None:
             row = self.table        
         
         self.number_of_adds += 1
-        #print self.number_of_adds
         if self.number_of_adds > 8: # this is a hack to avoid the column creep
             self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
-        model.append([ModelRowDict(row, self.columns, self.defaults)])        
+        model.append([ModelRowDict(row, self.columns, self.defaults), False])
 
 
     def set_visible_columns_from_prefs(self, prefs_key):

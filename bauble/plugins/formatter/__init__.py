@@ -116,11 +116,7 @@ class Formatter:
                 fo_cmd = renderers_map[formatters[active]['renderer']]
                 pdf_filename = self.create_pdf(fo_cmd, stylesheet)
         finally:
-            #self.formatter_dialog.destroy()
-            self.formatter_dialog.hide()
-        
-        # FIXME: see conn_mgr.py, we shouldn't have to destroy the dialog,
-        # only hide it on response, close or delete-event
+            self.formatter_dialog.destroy()        
         
         return pdf_filename
         
