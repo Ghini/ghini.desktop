@@ -1,3 +1,11 @@
+2006.02.02
+----------
+- some usability work on the connection manager and minor fixes
+- the prefs config directory is now only created when bauble is run, not just
+when it's packages are imported, like when run from setup.py
+- small try..except changes to the utils dialogs
+
+
 2006.01.25
 ----------
 - fixed a problem are trying to commit the values in an editor if there had

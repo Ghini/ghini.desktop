@@ -77,10 +77,9 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
 # coming through
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
-    if hasattr(bauble, "app") and bauble.app.gui is not None: 
-	# this might get called before bauble has started
+    try: # this might get called before bauble has started
         parent = bauble.app.gui.window
-    else:
+    except:
 	parent = None	
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			 parent=parent,
@@ -91,11 +90,10 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     return r
     
 
-def yes_no_dialog(msg):     
-    if hasattr(bauble, "app") and bauble.app.gui is not None:	
-        # this might get called before bauble has started
+def yes_no_dialog(msg):         
+    try: # this might get called before bauble has started
 	parent = bauble.app.gui.window
-    else:
+    except:
 	parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			 parent=parent,
@@ -109,11 +107,10 @@ def yes_no_dialog(msg):
 
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):    
-    if hasattr(bauble, "app") and bauble.app.gui is not None: 
-	# this might get called before bauble has started
-	parent = bauble.app.gui.window
-    else:
-	parent = None
+    try: # this might get called before bauble has started
+	parent = bauble.app.gui.window	
+    except:	
+	parent = None	
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			  parent=parent,
                           type=type, buttons=buttons)        

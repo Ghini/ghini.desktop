@@ -34,11 +34,7 @@ else:
     raise Exception("Could not get path to store preferences: " \
                     "unsupported platform")                    
 
-# create the directory if it doesn't exist
-head, tail = os.path.split(default_prefs_file)
-if not os.path.exists(head):
-    os.mkdir(head)
-    
+
 prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep
 general_prefs_icon = prefs_icon_dir + "prefs_general.png"
 security_prefs_icon = prefs_icon_dir + "prefs_security.png"
@@ -126,10 +122,20 @@ class _prefs(dict):
     conn_default_pref = "conn.default"
     conn_list_pref = "conn.list"    
     
-    def __init__(self, filename=default_prefs_file):        
-        self.config = ConfigParser()
-        self.config.read(filename)
+    def __init__(self, filename=default_prefs_file):
         self._filename = filename
+    
+
+    def init(self):
+	'''
+	initialize the preferences, should only be called from app.main
+	'''
+	# create directory tree of filename if it doesn't yet exist
+	head, tail = os.path.split(self._filename)
+	if not os.path.exists(head):
+	    os.makedirs(head)	    
+        self.config = ConfigParser()
+        self.config.read(self._filename)    
 
 
     @staticmethod

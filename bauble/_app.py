@@ -179,10 +179,10 @@ class BaubleApp:
             
     
     def main(self):
-        
-        import bauble.plugins
-        # intialize the plugins        
-        bauble.plugins.init_plugins()
+	prefs.init() # intialize the preferences
+
+        import bauble.plugins        
+        bauble.plugins.init_plugins() # intialize the plugins        
         
         # open default database on startup
         # import these here to avoid recursive import hell
@@ -197,8 +197,7 @@ class BaubleApp:
                 self.quit()
             if self.open_database(uri, name, True):
                 break
-                        
-        
+                                
         # now that we have a connection create the gui
         self.gui = gui.GUI(self)
         

@@ -2,7 +2,7 @@
 # conn_mgr.py
 #
 
-import os, copy
+import os, copy, traceback
 import gtk
 import sqlobject
 import utils
@@ -130,6 +130,7 @@ class ConnectionManager:
         
         self.type_combo = self.glade_xml.get_widget('type_combo')
         # test for different supported database types, this doesn't necessarily
+
         # mean these database connections have been tested but if someone
         # tries one and it doesn't work then hopefully they'll let us know
         #self.type_combo.set_model(gtk.ListStore(str))
@@ -181,12 +182,7 @@ class ConnectionManager:
             row = model[i][0]
             if row == name:
                 self.name_combo.remove_text(i)
-                break
-            
-        self.current_name = None
-        #self.set_active_connection_by_name(None)
-        self.type_combo.set_active(-1)
-        self.name_combo.set_active(-1)
+                break	
         
 
     def on_remove_button_clicked(self, button, data=None):
@@ -210,7 +206,8 @@ class ConnectionManager:
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250,-1)
         entry = gtk.Entry()
-        entry.connect("activate", lambda entry: d.response(gtk.RESPONSE_ACCEPT))
+        entry.connect("activate", 
+		      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
         d.show_all()
         d.run()
@@ -218,7 +215,7 @@ class ConnectionManager:
         d.destroy()
         if name is not '':            
             self.name_combo.prepend_text(name)
-            expander = self.glade_xml.get_widget('expander').set_expanded(True)        
+            expander = self.glade_xml.get_widget('expander').set_expanded(True)
             self.name_combo.set_active(0)
         
             # TODO: 
@@ -226,9 +223,6 @@ class ConnectionManager:
             #self.type_combo.set_active(0)
         
                     
-
-
-
     def set_info_label(self, msg="Choose a connection"):
         self.info_label.set_text(msg)
         
@@ -263,14 +257,20 @@ class ConnectionManager:
         params["type"] = self.type_combo.get_active_text()
         return params == stored_params
 
+
+    # old_params caches the parameter values for when the param box changes
+    # but we want to keep the values, e.g. when the type changes
+    old_params = {}
         
     def on_changed_name_combo(self, combo, data=None):
         """
         the name changed so fill in everything else
         """
         name = combo.get_active_text()
+	if name is None:
+	    return
+
         conn_list = prefs[prefs.conn_list_pref]
-        
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:            
             if self.current_name not in conn_list:
@@ -279,34 +279,34 @@ class ConnectionManager:
                     self.save_current_to_prefs()
                 else: 
                     self.remove_connection(self.current_name)
+		    #combo.set_active_iter(active_iter)
                     self.current_name = None
             elif not self.compare_params_to_prefs(self.current_name):
                 msg = "Do you want to save your changes to %s ?" \
                       % self.current_name                
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()        
-            
-
-        if conn_list is not None and name in conn_list:
+	
+        if conn_list is not None and name in conn_list:	    
             conn = conn_list[name]
             # TODO: there could be a problem here if the db type is in the
             # connection list but is not supported any more
-            self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
-            #self.type_combo.set_active(conn["type"])
-            self.params_box.set_parameters(conn_list[name])
+	    self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
+	    self.params_box.set_parameters(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
             self.type_combo.emit("changed") # in case 0 was already active
         self.current_name = name
+	self.old_params.clear()
 
-        
+
     def on_changed_type_combo(self, combo, data=None):
         """
         the type changed so change the params_box
         """
         if self.params_box is not None:
-            #self.vbox.remove(self.params_box)
-            self.expander_box.remove(self.params_box)
+	    self.old_params.update(self.params_box.get_parameters())
+	    self.expander_box.remove(self.params_box)
             
         dbtype = combo.get_active_text()        
         if dbtype == None:
@@ -321,13 +321,12 @@ class ConnectionManager:
         conn_list = prefs[prefs.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
-            if conn_list.has_key(name) and conn_list[name]["type"]==dbtype:
-            #if name in conn_list and conn_list[name]["type"]==dbtype:
-                self.params_box.set_parameters(conn_list[name])
+	    if name in conn_list and len(self.old_params.keys()) == 0:
+		self.params_box.set_parameters(conn_list[name])
+	    elif len(self.old_params.keys()) != 0:
+		self.params_box.set_parameters(self.old_params)
                 
-        #self.vbox.pack_start(self.params_box, False, False)
         self.expander_box.pack_start(self.params_box, False, False)
-        #self.show_all()
         self.dialog.show_all()
 
     
@@ -441,10 +440,13 @@ class CMParamsBox(gtk.Table):
 
 
     def set_parameters(self, params):        
-        self.db_entry.set_text(params["db"])
-        self.host_entry.set_text(params["host"])
-        self.user_entry.set_text(params["user"])
-        self.passwd_check.set_active(params["passwd"])
+	try:
+	    self.db_entry.set_text(params["db"])
+	    self.host_entry.set_text(params["host"])
+	    self.user_entry.set_text(params["user"])
+	    self.passwd_check.set_active(params["passwd"])
+	except KeyError:
+	    debug(traceback.format_exc())
 
 
 class SQLiteParamsBox(CMParamsBox):
@@ -475,7 +477,10 @@ class SQLiteParamsBox(CMParamsBox):
     
 
     def set_parameters(self, params):
-        self.file_entry.set_text(params["file"])
+	try:
+	    self.file_entry.set_text(params["file"])
+	except KeyError:
+	    debug(traceback.format_exc())
 
 
     def on_activate_browse_button(self, widget, data=None):
@@ -497,7 +502,6 @@ class CMParamsBoxFactory:
         pass
         
     def createParamsBox(db_type):
-#        debug("createParamsBox: " + db_type)
         if db_type.lower() == "sqlite":
             return SQLiteParamsBox()
         return CMParamsBox()
