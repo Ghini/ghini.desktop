@@ -41,11 +41,13 @@
 	      <!-- ** Scientific name ** -->
 	      <!-- TODO: this isn"t properly setting the name to italics, maybe
 		   it"s a problem with XEP -->
+	      
 	      <fo:block-container absolute-position="absolute" top="17mm" 
 				  bottom="12mm">
 		<fo:block line-height=".9" font-size="23pt" 
 			  font-family="Bitstream Vera Serif, serif" 
-			  font-style="italic" font-weight="500" 
+			  font-style="italic" 
+			  font-weight="500"
 			  margin-left="2mm" margin-right="2mm" 
 			  text-align="center">
 		  <xsl:value-of select=".//fullscientificnamestring"/>
