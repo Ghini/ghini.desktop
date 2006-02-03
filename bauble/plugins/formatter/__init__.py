@@ -45,10 +45,12 @@ if sys.platform == "win32":
 else:
     fop_cmd = 'fop'
     
-renderers_map = {'Apache FOP': fop_cmd + ' -fo %(fo_filename)s -pdf %(out_filename)s',
-#                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
+renderers_map = {'Apache FOP': fop_cmd + \
+		 ' -fo %(fo_filename)s -pdf %(out_filename)s',
                  'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s',
-#                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'                 
+#                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
+#                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar \
+#		 ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
                 }
 
 # TODO: if formatter chosen has any problems, i.e. the stylesheet file doesn't
@@ -71,7 +73,7 @@ class Formatter:
     
     def __init__(self):
         path = os.path.join(paths.lib_dir(), "plugins", "formatter")
-        self.glade_xml = gtk.glade.XML(path + os.sep + "formatter.glade")        
+        self.glade_xml = gtk.glade.XML(path + os.sep + "formatter.glade")
         handlers = {'on_edit_button_clicked': self.on_edit_button_clicked,
                    }
         self.glade_xml.signal_autoconnect(handlers)
@@ -153,12 +155,15 @@ class Formatter:
         
         # run the formatter to produce the pdf file, xep has to be on the
         # path
-        #fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename, 
                             'out_filename': filename})
-
-        os.system(fo_cmd)
-        #stdin, stdout_err = os.popen4(fo_cmd, 'r')
+	
+	# TODO: 
+	# 1: get exit code with waiting for the process the finish/block
+	# 2. popup progress dialog
+	# 3. read stdout and stderr if didn't exit with 0
+	# 4. i don't know how to get all these
+        os.system(fo_cmd)    	
         
 #        d = gtk.Dialog('Output', None, 
 #                       flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -192,9 +197,12 @@ class Formatter:
         
     def build_gui(self):
         self.dialog = gtk.Dialog('Formatter', bauble.app.gui.window, 
-                          flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                 buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                                        gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
+				 flags=gtk.DIALOG_MODAL | \
+				 gtk.DIALOG_DESTROY_WITH_PARENT,
+                                 buttons=((gtk.STOCK_OK, 
+					   gtk.RESPONSE_ACCEPT,
+					   gtk.STOCK_CANCEL, 
+					   gtk.RESPONSE_REJECT)))
         hbox = gtk.HBox()
         #formatters_combo = gtk.ComboBox()
         #if len(formatters is None)        
@@ -276,7 +284,7 @@ class FormatterOptions:
         '''
         path = os.path.join(paths.lib_dir(), "plugins", "formatter")
         self.glade_xml = gtk.glade.XML(path + os.sep + 'formatter.glade')
-        self.formatters_combo = self.glade_xml.get_widget('opt_formatters_combo')
+        self.formatters_combo=self.glade_xml.get_widget('opt_formatters_combo')
         
         self.remove_button = self.glade_xml.get_widget('remove_button')
         self.remove_button.set_sensitive(False)

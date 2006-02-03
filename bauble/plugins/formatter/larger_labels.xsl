@@ -29,7 +29,9 @@
 	      <!-- ** Family ** -->
 	      <fo:block-container absolute-position="absolute" top="7mm" 
 				  bottom="32mm">
-		<fo:block font-weight="bold" margin-left="5mm" 
+		<fo:block font-family="Bitstream Vera Sans, sans" 
+			  font-weight="bold" 
+			  margin-left="5mm" 
 			  margin-right="5mm"  font-size="20pt" 
 			  text-align="center">
 		  <xsl:value-of select=".//highertaxonname"/>
@@ -42,7 +44,7 @@
 	      <fo:block-container absolute-position="absolute" top="17mm" 
 				  bottom="12mm">
 		<fo:block line-height=".9" font-size="23pt" 
-			  font-family="serif" 
+			  font-family="Bitstream Vera Serif, serif" 
 			  font-style="italic" font-weight="500" 
 			  margin-left="2mm" margin-right="2mm" 
 			  text-align="center">
@@ -61,7 +63,8 @@
 	      <!-- ** Vernacular name ** -->
 	      <fo:block-container absolute-position="absolute" top="33mm" 
 				  bottom="12mm">                    
-		<fo:block font-weight="bold" margin-left="5mm" 
+		<fo:block font-family="Bitstream Vera Sans, sans"
+			  font-weight="bold" margin-left="5mm" 
 			  margin-right="5mm" font-size="22pt" 
 			  text-align="center">
 		  <xsl:value-of select=".//informalnamestring"/>
@@ -71,8 +74,8 @@
 	      <!-- ** Plant ID ** -->
 	      <fo:block-container absolute-position="absolute" top="52mm"
 				  bottom="0mm" left="2mm" width="50mm"> 
-		<fo:block font-family="serif" font-size="15pt" 
-			  text-align="left">
+		<fo:block font-family="Bitstream Vera Serif, serif"
+			  font-size="15pt" text-align="left">
 		  <xsl:value-of select="unitid"/>
 		</fo:block>                
 	      </fo:block-container>
@@ -82,8 +85,8 @@
 	      <fo:block-container absolute-position="absolute" top="52mm"
 				  bottom="0mm" left="60mm" right="2mm" 
 				  width="60mm">
-		<fo:block font-family="serif" font-size="15pt" 
-			  text-align="right">
+		<fo:block font-family="Bitstream Vera Serif, serif" 
+			  font-size="15pt" text-align="right">
 		  <xsl:value-of select=".//distribution"/>
 		</fo:block>
 	      </fo:block-container>
@@ -96,4 +99,3 @@
     </fo:root>
   </xsl:template>
 </xsl:stylesheet>
-

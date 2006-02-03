@@ -28,7 +28,11 @@ if sys.platform == "win32":
                           "win32"
 sys.path.append(paths.lib_dir() + os.sep + "lib")
 sys.path.insert(0, paths.lib_dir() + os.sep + "lib")
-os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
+# TODO: we had set this before but i see no reason we should be changing $PATH,
+# this doesn't affect anything then we should completely remove it, either
+# way it could corrupt the path since it didn't put an os.pathsep after
+# the original $PATH before appending our one
+#os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
 
 # i guess we would need to use the builtin tk library to show an
 # error if gtk is not available, but that adds extra dependencies

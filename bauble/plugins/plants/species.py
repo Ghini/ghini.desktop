@@ -62,7 +62,7 @@ class Species(BaubleTable):
                                    "subvar.", # sub variety
                                    "f.",     # form
                                    "subf.",  # subform
-                                   "cv.",    # cultivar                                   
+                                   "cv.",    # cultivar
                                    ""), 
                        default="")
 

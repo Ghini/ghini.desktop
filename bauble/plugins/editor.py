@@ -47,7 +47,10 @@ from bauble.utils.log import log, debug
 # around, we should remove it from ModelRowDict and all of the 
 # cell_data_func function in the columns
 
-
+# TODO: the TreeViewEditorDialog has been fixed to support deleting the value
+# in a column this may mean that using None in and EnumCol work so since it 
+# would be better to store None in an EnumCol instead of a bunch of empty 
+# strings so we should check and change all the models if so
    
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    
@@ -260,12 +263,14 @@ class TextColumn(SOViewColumn):
         # don't allow empty strings in the model, this usually means a null
         # value in the cell
         if new_text == "":
-            return
+	    value = None
+	else:
+	    value = new_text
         
         if self.meta.get_completions is not None:
             return        
         if self.meta.editor is None:
-            self._set_view_model_value(path, new_text)
+            self._set_view_model_value(path, value)
             self.dirty = True 
             
                                            
@@ -641,16 +646,9 @@ class ModelRowDict(dict):
             else: # we want this to fail if item doesn't exist in row
                 v = getattr(self.row, item)
                 
-            if v is None and item in self.defaults:
-                v = self.defaults[item]
-            
-            #if item in self.row.sqlmeta.columns: # is a column
-            #    column = self.row.sqlmeta.columns[item]            
-            #else:
-            #    column = self.row.sqlmeta.joins[item]
             if item in self.row.sqlmeta.columns:
                 column = self.row.sqlmeta.columns[item]            
-                if v is not None and isinstance(column, SOForeignKey):                
+                if v is not None and isinstance(column, SOForeignKey):
                     table_name = column.foreignKey                    
                     v = tables[table_name].get(v)
         else:
@@ -660,18 +658,24 @@ class ModelRowDict(dict):
             if not hasattr(self.row, item):
                 msg = '%s has no attribute %s' % (self.row.__class__, item)
                 raise KeyError('ModelRowDict.__getitem__: ' + msg)
-            if item in self.defaults:
-                v = self.defaults[item]
-            else:
-                v = None
-                    
-        #self[item] = v
+	
+#	debug(item)	
+	if v is None:
+	    if item in self.defaults:
+		v = self.defaults[item]
+	    elif item in self.row.sqlmeta.columns:
+		default = self.row.sqlmeta.columns[item].default
+		if default is NoDefault:
+		    default = None
+		v = default
+	    
         # this effectively caches the row item from the instance, the False
         # is so that the row is set dirty only if it is changed from the 
         # outside
         self.__setitem__(item, v, False)
         return v
        
+
     def __setitem__(self, key, value, dirty=True):
 #        debug('[%s] = %s : %s' % (key, value, dirty))
         dict.__setitem__(self, key, value)
@@ -770,7 +774,7 @@ class TableEditorDialog(TableEditor):
                     committed = self.commit_changes()                    
 		except CommitException, e:
 		    debug(traceback.format_exc())
-		    exc_msg + ' \n %s' % str(e)
+		    exc_msg + ' \n %s\n%s' % (str(e), e.row)
 		    utils.message_details_dialog(saxutils.escape(exc_msg), 
 						 traceback.format_exc(),
                                                  gtk.MESSAGE_ERROR)
@@ -1174,9 +1178,11 @@ class TreeViewEditorDialog(TableEditorDialog):
     def _transform_row(self, row):    
         temp = row.copy()
         for name, value in row.iteritems():
-            if value is None:
-                del temp[name]
-            elif isinstance(value, tuple):
+            #if value is None:
+            #    del temp[name]
+	    #if name in self.columns.foreign_keys and value is None:
+	    #	del temp[name]
+            if isinstance(value, tuple):
                 temp[name] = value[1]
         return temp
             
@@ -1211,23 +1217,25 @@ class TreeViewEditorDialog(TableEditorDialog):
             if not self.pre_commit_hook(row):
                 continue
                         
-            for fk in self.columns.foreign_keys:
-                if fk in row:
+            for fk in self.columns.foreign_keys: # get foreign keys from row
+                if fk in row and row[fk] is not None:
                     row[fk] = row[fk].id
 
             join_values = {}
-            for join in self.columns.joins:
+            for join in self.columns.joins: # get joins from row
                 if join in row:
-                    join_values[join] = row.pop(join)
-            
-	    try:
+		    if row[join]:
+			join_values[join] = row.pop(join)
+		    else:
+			row.pop(join) # so we don't try to commit joins
+	
+	    try: # commit
 		table_instance = self._commit(row)
-#            debug(table_instance)
             # have to set the join this way since 
             # table_instance.joinColumnName doesn't seem to work here, 
             # maybe b/c the table_instance hasn't been committed
 		for join in table_instance.sqlmeta.joins:
-		    if join_values.has_key(join.joinMethodName):
+		    if join.joinMethodName in join_values:
 			if isinstance(join, SOSingleJoin):
 			    join_table_instance = \
 				join_values.pop(join.joinMethodName)
@@ -1242,7 +1250,6 @@ class TreeViewEditorDialog(TableEditorDialog):
 		raise CommitException(exc, item)
 		
 	    if len(join_values) > 0:
-		debug(join_values)
 		raise ValueError("join_values isn't empty")                    
 
 		
