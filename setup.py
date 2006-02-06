@@ -9,8 +9,6 @@ import glob
 
 import sys
 
-
-
 # TODO: if on a unix system then create a shell script in the PATH
 # to launch bauble, on windows?
 # TODO: the only thing that's not working is bundling pysqlite2, the 
@@ -22,10 +20,10 @@ from bauble import version_str as version
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
-gtk_pkgs = [ "pango", "atk", "gobject", "gtk" ]
+gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres', 
                   'sqlite', 'sybase', 'maxdb', 'util', 'manager']
-                  
+
 plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
             'formatter','plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
@@ -34,10 +32,6 @@ all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
 # packaged to be included in the py2exe library.zip
 py2exe_includes = gtk_pkgs + plugins_pkgs + ["encodings"]
-
-                      
-
-
 
 # get all the package data
 plugin_data = {}

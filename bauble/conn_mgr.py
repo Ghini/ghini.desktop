@@ -82,6 +82,14 @@ class ConnectionManager:
         if sqlobject.sqlite.isSupported():
             self._supported_dbtypes["SQLite"] = i
             i += 1
+        else: # isSupported for sqlite only tests for sqlite, not pysqlite2
+            try:
+                import pysqlite2
+            except ImportError: 
+                pass
+            else:
+                self._supported_dbtypes["SQLite"] = i
+                i += 1
         if sqlobject.mysql.isSupported():
             self._supported_dbtypes["MySQL"] = i
             i += 1 

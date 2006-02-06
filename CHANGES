@@ -1,3 +1,9 @@
+2006.02.06
+----------
+- fixes for building a py2exe executable using pygtk >= 2.8.4
+- make sure we check for pysqlite even if SQLObject says sqlite is not supported
+
+
 2006.02.03
 ----------
 - fixed removing existing data in a row which also means you can now set None
