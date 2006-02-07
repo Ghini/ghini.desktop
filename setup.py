@@ -77,7 +77,7 @@ if sys.platform == "win32":
         }
     }
     globs= []
-    for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade'):
+    for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade', '*.xsl'):
         # glob for pattern in each of the package directories
         i = pattern.rfind(os.sep)
         extra_path = ""

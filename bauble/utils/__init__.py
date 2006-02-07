@@ -135,9 +135,13 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 
 def startfile(filename):
     if sys.platform == 'win32':
-        os.startfile(filename)
+        try:
+            os.startfile(filename)
+        except WindowsError, e: # probably no file association
+            msg = "Could not open pdf file.\n\n%s" % str(e)
+            message_dialog(msg)        
     elif sys.platform == 'linux2':
-        # need to determine if gnome or kde
+        # FIXME: need to determine if gnome or kde
         os.system("gnome-open " + filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file:" + filename)

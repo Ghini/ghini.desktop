@@ -127,9 +127,12 @@ class Formatter:
         import libxml2
         import libxslt
         import tempfile
+        #debug('pdf: ' + filename)
         if filename is None:
             # no filename, create a temporary file            
             dummy, filename = tempfile.mkstemp()                
+            filename += ".pdf"
+        #debug('pdf: %s' % filename)
         
         # get all the plants from the model in ABCD format
         plants = []
@@ -733,7 +736,7 @@ class FormatterTool(BaubleTool):
                                          gtk.MESSAGE_ERROR)
         else:
             if pdf_filename is not None:            
-                utils.startfile(pdf_filename)        
+                utils.startfile(pdf_filename)
         
         #if response == gtk.RESPONSE_ACCEPT:
         #    pdf_filename = formatter.create_pdf()
