@@ -2,6 +2,11 @@
 ----------
 - include the example xsl files in the distribution
 - add .pdf to formatter output filename so file associations work on windows
+- added user_dir() to paths to get the users setting directory
+- log message now automatically go to a file in a frozen executable on win32
+- in general made logging better, shouldn't get logger popup on windows 
+anymore though it may still come up if there's a print statement somewhere
+
 
 2006.02.06
 ----------

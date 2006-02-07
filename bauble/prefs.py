@@ -16,23 +16,24 @@ from bauble.utils.log import debug
 # migrate pref version though i don't think the prefs  format will change much
 
 default_filename = 'config'
-if sys.platform == "win32":
-    if 'APPDATA' in os.environ:
-        default_prefs_file = os.path.join(os.environ["APPDATA"], "Bauble", 
-                                         default_filename)
-    else:
-        raise Exception("Could not get path to store preferences: no APPDATA "\
-                        "variable")
-elif sys.platform == "linux2":
-    if 'HOME' in os.environ:
-        default_prefs_file = os.path.join(os.environ["HOME"], ".bauble", 
-                                          default_filename)
-    else:
-        raise Exception("Could not get path to store preferences: "\
-                        "no HOME variable")
-else:
-    raise Exception("Could not get path to store preferences: " \
-                    "unsupported platform")                    
+default_prefs_file = os.path.join(paths.user_dir(), default_filename)
+#if sys.platform == "win32":
+#    if 'APPDATA' in os.environ:
+#        default_prefs_file = os.path.join(os.environ["APPDATA"], "Bauble", 
+#                                         default_filename)
+#    else:
+#        raise Exception("Could not get path to store preferences: no APPDATA "\
+#                        "variable")
+#elif sys.platform == "linux2":
+#    if 'HOME' in os.environ:
+#        default_prefs_file = os.path.join(os.environ["HOME"], ".bauble", 
+#                                          default_filename)
+#    else:
+#        raise Exception("Could not get path to store preferences: "\
+#                        "no HOME variable")
+#else:
+#    raise Exception("Could not get path to store preferences: " \
+#                    "unsupported platform")                    
 
 
 prefs_icon_dir = paths.lib_dir() + os.sep + "images" + os.sep

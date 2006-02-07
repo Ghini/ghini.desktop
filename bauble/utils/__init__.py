@@ -129,7 +129,7 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.vbox.pack_start(expand)
     d.show_all()
     r = d.run()
-    d.destroy() # TODO: should we be hiding or destroying
+    d.destroy()
     return r
 
 

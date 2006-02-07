@@ -21,3 +21,22 @@ def lib_dir():
     else:
         dir = os.path.dirname(__file__)
     return dir
+
+    
+def user_dir():
+    if sys.platform == "win32":
+        if 'APPDATA' in os.environ:
+            dir = os.path.join(os.environ["APPDATA"], "Bauble")
+        else:
+            raise Exception("Could not get path for user settings: no "\
+                            "APPDATA variable")
+    elif sys.platform == "linux2":
+        if 'HOME' in os.environ:
+            dir = os.path.join(os.environ["HOME"], ".bauble")
+        else:
+            raise Exception("Could not get path for user settings: "\
+                            "no HOME variable")
+    else:
+        raise Exception("Could not get path to user settings: " \
+                        "unsupported platform")    
+    return dir
