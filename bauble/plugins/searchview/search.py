@@ -141,7 +141,6 @@ class SearchView(BaubleView):
         #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
-        #self.entry.grab_focus() # this doesn't seem to work
 
     
     def set_infobox_from_row(self, row):    
@@ -157,8 +156,6 @@ class SearchView(BaubleView):
         if self.infobox is not None:
             if self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
-		# had temporary disabled this in case it was causing a crash 
-		# but, not i don't think it is
 		self.infobox.destroy() 
 
         # row is  an object instance not a class so we have to get the class
@@ -204,24 +201,35 @@ class SearchView(BaubleView):
     
     def on_search_button_clicked(self, widget):
         text = self.entry.get_text()
-        self.current_search_text = text
-        self.search(text)
+	self.search_text = text
 	# the row has been unselected, so turn off the infobox
 	self.set_infobox_from_row(None) 
         
-    
-    # should be the search string relevant to the results in the results view
-    current_search_text = None
- 
-# TODO: I think we should have a way to clear the search results, especially 
-# while creating a new database   
-#    def clear_search(self):
-#        pass
-    
+
+    # search text property: setting self.search_text resets the view and
+    # automatically searches for the text unless you set it to '' or None
+    _search_text = None
+    def _get_search_text(self):
+	return self._search_text
+    def _set_search_text(self, text):
+	self.reset()
+	self._search_text = text or ''
+	self.entry.set_text(self._search_text)
+	if self._search_text != '':
+	    self.search(self._search_text)
+    search_text = property(_get_search_text, _set_search_text)
+
+
+    def reset(self):
+	self._search_text = None
+	self.entry.set_text('')
+	self.results_view.set_model(None)
+	self.set_infobox_from_row(None)
+
+
     def refresh_search(self):
-        if self.current_search_text is not None:
-            self.search(self.current_search_text)
-        
+	self.search_text = self.search_text        
+
         
     def search(self, text):
         """
@@ -231,8 +239,7 @@ class SearchView(BaubleView):
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
         self.entry.set_text(text)
-        self.current_search_text = text
-        
+	self._search_text = text
         
         # clear the old model
         self.set_sensitive(False)

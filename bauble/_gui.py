@@ -50,13 +50,19 @@ class GUI:
 #        if not view_set:
 #            self.set_current_view(views["SearchView"])
             
-            
-    def create_gui(self):            
+    def __get_title(self):
+	return '%s %s - %s' % ('Bauble', bauble.version_str, 
+			       bauble.app.conn_name)
+    title = property(__get_title)
+
+
+    def create_gui(self):
         # create main window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)        
-        self.window.set_title("Bauble %s" % bauble.version_str)
+        #self.window.set_title("Bauble %s - %s" % bauble.version_str)
+	self.window.set_title(self.title)
     
         # top level vbox for menu, content, status bar
         main_vbox = gtk.VBox()
@@ -311,7 +317,9 @@ class GUI:
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
             self.bauble.create_database()
-        # TODO: reset the view
+	    
+	# reset the view
+	self.get_current_view().reset()
             
         
     def on_file_menu_open(self, widget, data=None):        
@@ -323,9 +331,11 @@ class GUI:
         name, uri = cm.start()
         if name is None:
             return
-        self.bauble.open_database(uri, name, True)
-        
-        # TODO reset the view
+	if(self.bauble.open_database(uri, name, True)):
+	    self.window.set_title(self.title)
+
+	# reset the search view
+	self.get_current_view().reset()
             
 
     def save_state(self):

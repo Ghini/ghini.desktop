@@ -13,8 +13,8 @@ from bauble.utils.log import log, debug
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
 # a red line should indicate that the value are valid, i.e. the name
-# is in the wrong format, or better just don't the use leave the entry until
-# whatever is there is an the correct format
+# is in the wrong format, or better just don't the allow the user to leave the 
+# entry until whatever is there is an the correct format
 
 # TODO: when you start and there are no connections defined then make the user
 # create a connection or at least inform them
@@ -28,7 +28,14 @@ class ConnectionManager:
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-        self.set_active_connection_by_name(current_name)        
+	conn_list = prefs[prefs.conn_list_pref]
+	if conn_list is None or len(conn_list.keys()) == 0:
+	    msg = "You don't have any connections in your connection list.\n"\
+		  "Close this message and click on '%s' to create a new "\
+		  "connection." % 'Add'
+	    utils.message_dialog(msg)
+	else:
+	    self.set_active_connection_by_name(current_name)        
         self._dirty = False
         
         
@@ -138,7 +145,6 @@ class ConnectionManager:
         
         self.type_combo = self.glade_xml.get_widget('type_combo')
         # test for different supported database types, this doesn't necessarily
-
         # mean these database connections have been tested but if someone
         # tries one and it doesn't work then hopefully they'll let us know
         #self.type_combo.set_model(gtk.ListStore(str))
@@ -454,7 +460,8 @@ class CMParamsBox(gtk.Table):
 	    self.user_entry.set_text(params["user"])
 	    self.passwd_check.set_active(params["passwd"])
 	except KeyError:
-	    debug(traceback.format_exc())
+	    pass
+	    #debug(traceback.format_exc())
 
 
 class SQLiteParamsBox(CMParamsBox):
@@ -488,7 +495,8 @@ class SQLiteParamsBox(CMParamsBox):
 	try:
 	    self.file_entry.set_text(params["file"])
 	except KeyError:
-	    debug(traceback.format_exc())
+	    pass
+	    #debug(traceback.format_exc())
 
 
     def on_activate_browse_button(self, widget, data=None):

@@ -1,8 +1,12 @@
 2006.02.07
 ----------
+- if we can't find any connections in the prefs then popup a dialog telling
+the user they should create one
+- change the window title to include the name of the current connection
+- opening a new connection or creating a new database now resets the searchview
 - include the example xsl files in the distribution
 - add .pdf to formatter output filename so file associations work on windows
-- added user_dir() to paths to get the users setting directory
+- added user_dir() to bauble.paths to get the users setting directory
 - log message now automatically go to a file in a frozen executable on win32
 - in general made logging better, shouldn't get logger popup on windows 
 anymore though it may still come up if there's a print statement somewhere
@@ -12,7 +16,6 @@ anymore though it may still come up if there's a print statement somewhere
 ----------
 - fixes for building a py2exe executable using pygtk >= 2.8.4
 - make sure we check for pysqlite even if SQLObject says sqlite is not supported
-
 
 2006.02.03
 ----------

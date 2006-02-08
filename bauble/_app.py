@@ -101,7 +101,7 @@ class BaubleApp:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
-            return False
+            return True
                                     
         if name is not None:
             prefs[prefs.conn_default_pref] = name
@@ -140,7 +140,7 @@ class BaubleApp:
                     self.create_database()
                     return self.open_database(uri, name, before_main)
                 else:
-                    return False
+                    return None
                         
         except Exception:
             debug(traceback.format_exc())
@@ -152,6 +152,7 @@ class BaubleApp:
                 return self.open_database(uri, name, before_main)
             else:
                 return False
+	self.conn_name = name
         return True
         
         
@@ -192,13 +193,15 @@ class BaubleApp:
         default_conn = prefs[prefs.conn_default_pref]
         while True:            
             cm = ConnectionManager(default_conn)            
-            name, uri = cm.start()
-            if name is None:
+            conn_name, uri = cm.start()
+            if conn_name is None:
                 self.quit()
-            if self.open_database(uri, name, True):
+            if self.open_database(uri, conn_name, True):
                 break
                                 
         # now that we have a connection create the gui
+	self.conn_name = conn_name
+	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)
         self.gui = gui.GUI(self)
         
         # load the last view open from the prefs
