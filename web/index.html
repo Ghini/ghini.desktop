@@ -27,10 +27,6 @@
 	<a href="http://www.fsf.org">free</a>, 
 	cross-platform alternative to BG-Base and similiar software.
       </p>
-      <p>
-	It is currently in the early stages of development but you can 
-	<a href="#download">download</a> a working version.
-      </p> 
       
       <div class="screenshot">
 	<a href="./images/bauble_ss1_large.png" style="float: right">
@@ -54,16 +50,22 @@
       
       <h1>Features</h1>
       <ul>
-	<li>Bauble is free. Bauble is licensed under the 
+	<li>
+	  Bauble is free. Bauble is licensed under the 
 	  <a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a> 
 	  which means you can download, distribute and change the source 
 	  code for Bauble as long as the changes you make are also 
 	  licensed under the 
-	  <a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a>.</li>
-	<li>Bauble is cross-platform. Bauble supports both Linux and 
+	  <a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a>.
+	  This in no way affects the data you manage with Bauble.
+	</li>
+	<li>
+	  Bauble is cross-platform. Bauble supports both Linux and 
 	  Windows and could easily be ported to other platforms if 
-	  there was interest. </li>
-	<li>Bauble supports a wide variety of database backends. It has been 
+	  there was interest. 
+	</li>
+	<li>
+	  Bauble supports a wide variety of database backends. It has been 
 	  tested using <a href="http://www.sqlite.org">SQLite</a>, 
 	  <a href="http://postgres.org">Postgres</a>, and
 	  <a href="http://www.mysql.com">MySQL</a>. In theory it will work
@@ -73,37 +75,33 @@
 	  <a href="http://www.mysql.com/products/maxdb/">SapDB/MaxDB</a>, 
 	  Oracle and MSSQL.
 	</li>
-	
-	<!--<li>Most actions in Bauble are based on searches. This allows you 
-	    to 
-	    quickly and easily access the information you are looking for.  For 
-	    example, in the search bar you can enter Maxillaria and Bauble will 
-	    display all of species of the genus Maxillaria in your collection.
-	    </li>-->
-	<!--
-	    <li>When a plant is selected from the search results a side bar will 
-	      automatically display links to relevant information about the 
-	      selected species as provided by the 
-	      <a href="http://www.gbif.org">Global Biodiversity Information 
-		Facility</a>. The information may include links to records from 
-	      other institutions, images, distribution maps, identification keys, 
-	      and more. (** coming soon)</li>
-	    -->
-	<!--
-	    <li>
-	      Bauble makes it difficult to enter redundant information in the 
-	      database. 	  
-	    </li>
-	    -->
-	<!--
-	    Eventually we would like to create user definable filters on types 
-	    so that users are restricted to entering information in a particular 
-	    format, e.g. accession number can be restricted to a format specific 
-	    to the institution.
-	  -->
 	<li>
-	  Did we mention it's free!
+	  Bauble can generate reports through an 
+	  <a href="http://www.w3.org/TR/xsl/">XSL</a> formatter backend.  
+	  There is no fancy report designer but there is a GUI that allows
+	  you to pass the results of a search through an XSL formatter. This
+	  allows you to layout your data any way you wish and save it in a 
+	  just about any format you can imagine including PDF, 
+	  XML, or HTML.
 	</li>
+	<li>
+	  Bauble is transaction safe. All database queries and updates are 
+	  done through a transaction so any if you make a mistake while
+	  editing a record you can easily back out of you mistakes.
+	</li>
+	<li>
+	  Bauble can export data in CSV or Access to Biological Collection
+	  Data (ABCD) format. In the future we hope to
+	  support other standard formats such as ITF2, BioCASE, etc.
+	</li>
+	<li>
+	  Bauble supports tagging.  You can tag any arbitrary data stored in
+	  a Bauble managed database with arbitrary names. This way you can
+	  create collections of records organized the way you want with names
+	  you give them.
+	</li>
+
+
       </ul>
       
       
@@ -113,12 +111,6 @@
 	also plan to implement the following features sometime in the future.
       </p>
       <ul>
-	<li>
-	  Allow Bauble import and export data in several formation including 
-	  ABCD, ITF2, others including the ability to easily share information 
-	  with other online database that support protocols such as DiGIR, 
-	  BioCASE, etc.
-	</li>
 	<li>
 	  Because Bauble is being developed at 
 	  <a href="http://www.belizebotanic.org">Belize Botanic Gardens</a> 
