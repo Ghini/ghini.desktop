@@ -12,11 +12,12 @@ def _main_is_frozen():
 
 def _default_handler():
 #    if bauble.main_is_frozen():
-    if _main_is_frozen():
-	filename = os.path.join(paths.user_dir(), 'bauble.log')	
-	handler = logging.FileHandler(filename)    
+    import bauble.paths as paths
+    if _main_is_frozen():        
+	    filename = os.path.join(paths.user_dir(), 'bauble.log')	
+	    handler = logging.FileHandler(filename)    
     else:
-	handler = logging.StreamHandler()
+	    handler = logging.StreamHandler()
     return handler
 
 
@@ -47,21 +48,21 @@ debug = debug_logger.debug
 
 class log:
 
-     @staticmethod
-     def debug(*args, **kw):
- 	debug(*args, **kw)
+    @staticmethod
+    def debug(*args, **kw):
+        debug(*args, **kw)
 
-     @staticmethod
-     def info(*args, **kw):
- 	info(*args, **kw)
+    @staticmethod
+    def info(*args, **kw):
+ 	    info(*args, **kw)
 
-     @staticmethod
-     def warning(*args, **kw):
- 	logging.warning(*args, **kw)
+    @staticmethod
+    def warning(*args, **kw):
+ 	    logging.warning(*args, **kw)
 
-     @staticmethod
-     def error(*args, **kw):
- 	logging.error(*args, **kw)
+    @staticmethod
+    def error(*args, **kw):
+ 	    logging.error(*args, **kw)
 
 warning = log.warning
 error = log.error
