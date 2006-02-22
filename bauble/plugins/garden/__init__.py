@@ -50,6 +50,8 @@ class GardenPlugin(BaublePlugin):
             SearchView.register_search_meta("loc", search_meta)            
             SearchView.view_meta["Location"].set("plants", LocationEditor)
 
+	    search_meta = SearchMeta('Plant', ["plant_id"], "plant_id")
+	    SearchView.register_search_meta('plant', search_meta)
             SearchView.view_meta["Plant"].set(None, PlantEditor, PlantInfoBox)
             
             search_meta = SearchMeta('Donor', ['name'])

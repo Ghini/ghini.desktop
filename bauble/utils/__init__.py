@@ -105,6 +105,9 @@ def yes_no_dialog(msg):
     return r == gtk.RESPONSE_YES
 
 
+#
+# TODO: give the button the default focus instead of the expander
+#
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):    
     try: # this might get called before bauble has started

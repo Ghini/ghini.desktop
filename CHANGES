@@ -1,3 +1,19 @@
+2006.02.22
+----------
+- first commit on new search query features
+
+
+2006.02.20
+----------
+- don't continue with program if loading one of the plugins fail
+- upgraded searchview.pyparsing to 1.4.1
+
+
+2006.02.08
+----------
+- release 0.4.4
+
+
 2006.02.07
 ----------
 - if we can't find any connections in the prefs then popup a dialog telling

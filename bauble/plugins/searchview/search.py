@@ -5,6 +5,7 @@
 import re, traceback
 import gtk
 import sqlobject
+import formencode
 import bauble
 import bauble.utils as utils
 from bauble.prefs import prefs
@@ -14,8 +15,9 @@ from bauble.utils.log import debug
 from pyparsing import *
 #from earthenware.gui.pgtk.easygrid import EasyGrid
 
-
+#
 # NOTE: to add a new search domain do:
+#
 # 1. add table to search map with columns to search
 # 2. add domain keys to domain map
 # 3. if you want a result to expand on one of its children then
@@ -58,6 +60,89 @@ from pyparsing import *
 
 # TODO: provide a way to pin down the infobox so that changing the selection
 # in the results_view doesn't change the values in the infobox
+
+# TODO: make the search entry a combo. clicking on the combo button
+# pops up the previous X searches. the up and down arrows cycle through the 
+# search history. the histories should be stored separately per connection, 
+# possible in the BaubleMeta table. the X number of search to remember and 
+# saving the searches per connection should be configurable
+
+class SearchParser:
+
+    # TODO: if the search language doesn't change we could make this 
+    # a static class, the only reason we wouldn't is if we made the values
+    # in self.domain_map keywords
+     
+
+    # FIXME: loc= search parses the search as ['default', 'loc'] instead
+    # of a domain with an empty value list	
+
+    def __init__(self):	
+
+	domain = Word(alphanums).setResultsName('domain')
+	quotes = Word('"\'')    
+
+	value_str = Word(alphanums+'*' +' '+';'+'.')
+	_values = (delimitedList(Optional(quotes).suppress() + value_str + \
+	    Optional(quotes).suppress()))#.setResultsName('values')
+	values = Group(_values).setResultsName('values')
+	
+	operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
+	expression = domain + operator + values
+
+	subdomain = Word(alphanums + '._').setResultsName('subdomain')
+	query_expression = (subdomain + operator + \
+			    values).setResultsName('query')
+
+	query = domain + CaselessKeyword("where").suppress() + subdomain + \
+	    operator + values
+
+	self.statement = (values ^ expression ^ query)
+		
+
+    def parseString(self, text):
+	return self.statement.parseString(text)
+	
+
+class OperatorValidator(formencode.FancyValidator):
+
+    to_operator_map = {'=': '==', 
+		       '<>': '!=',
+		       }
+
+    def _to_python(self, value, state=None):
+	if value in self.to_operator_map:
+	    return self.to_operator_map[value]
+	else:
+	    return value
+
+
+    def _from_python(self, value, state=None):
+	return value
+
+
+# class ValueConverter:
+
+#     col_convert_map = { sqlobject.StringCol: str,
+# 		        sqlobject.IntCol: int
+# 			}
+
+#     def __init__(self, col):
+# 	self.col = col
+# 	self.convertor = \
+# 	    formencode.validators.DictConverter(self.col_convert_map)
+
+
+#     def to_python(self, value, state=None):
+# 	debug(value)
+# 	try:
+# 	    v = self.converter.to_python(value)
+# 	    debug(v)
+# 	    return v
+# 	    #v = self.col_convert_map[self.col](value)
+# 	except:
+# 	    raise formencode.Invalid('could not convert value')
+		       	 
 
 class SearchMeta:
     
@@ -141,6 +226,7 @@ class SearchView(BaubleView):
         #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
+	self.parser = SearchParser() 
 
     
     def set_infobox_from_row(self, row):    
@@ -230,7 +316,87 @@ class SearchView(BaubleView):
     def refresh_search(self):
 	self.search_text = self.search_text        
 
+    
+    def _get_search_results_from_tokens(self, tokens):
+	'''
+	take list of tokens from parser.parseString() and return search
+	results for them
+	'''
+	results = []            
+	if 'subdomain' in tokens and 'domain' in tokens: # a query expression
+	    subdomain = tokens['subdomain']
+	    operator = tokens['operator']
+	    values = tokens['values']
+	    print subdomain
+	    domain_table = tables[self.domain_map[tokens['domain']]]
+	    index = subdomain.rfind('.')
+	    joins = None
+	    col = None
+	    if index != -1:
+		joins, col = subdomain[:index], subdomain[index+1:]
+	    else:
+		col = subdomain
+	    #joins, col = subdomains.rsplit('.', 1)
+	    print domain_table
+	    print joins
+	    print col
+
+	    if joins is None:
+		results = domain_table.select('domain_table.q.%s %s "%s"' % \
+					      (col,operator, ','.join(values)))
+	    else:
+		all = domain_table.select()
+		if all.count() != 0:
+		    subresults = []
+		    for item in all:
+			subresults += eval('item.%s' % joins)
+		    if col == 'id':
+			values_validator = formencode.validators.Int()
+		    else:
+			values_validator = \
+			    subresults[0].sqlmeta.columns[col].validator()
+			    
+		    op = OperatorValidator.to_python(operator)
+		    for r in subresults:		 
+			# TODO: only works for binary operators
+#			debug(r)
+			v = values_validator.to_python(','.join(values), None)
+			if not isinstance(v, int):
+			    # TODO: add quotes, this could be buggy b/c we 
+			    # don't check for all available types
+			    v = '"%s"' % v
+#			debug(v)
+			#debug(v[0])
+			#cmp = "r.%s %s '%s'" % (col, op, .join(values))
+			
+			cmp = "r.%s %s %s" % (col, op, v)
+#			debug(cmp)
+			try:
+			    if eval(cmp):
+				results.append(r)
+			except SyntaxError, e:
+			    results.append(str(e))
+			    break
+		print results
+	elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
+	    # a general expression
+	    domain = tokens['domain']
+	    values = tokens['values']
+	    v = ','.join(values)
+#	    debug(v)
+	    table_name = self.domain_map[domain]
+	    results += self.query_table(table_name, v)[:]	    
+#	    debug(results)
+	elif 'values' in tokens: # a list of values
+	    values = tokens['values']
+#	    debug(values)
+	    for table_name in self.search_metas.keys():
+		results += self.query_table(table_name, values)[:]
+	else:
+	    raise BaubleError('invalid tokens')
+	return results
         
+
     def search(self, text):
         """
         search the database using text
@@ -246,9 +412,14 @@ class SearchView(BaubleView):
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.results_view.set_model(None)        
         try:
-            search = self.parse_text(text)
-            self.populate_results(search)
-        except SyntaxError, (msg, domain):
+	    tokens = self.parser.parseString(text)	    
+	    if 'domain' in tokens and tokens['domain'] not in self.domain_map:
+		raise SyntaxError(None, tokens['domain'])
+	    results = self._get_search_results_from_tokens(tokens)
+	    if len(results) == 0:
+		results.append('nothing')
+	    self.populate_results(results)
+	except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
             self.results_view.set_model(model)
@@ -257,16 +428,23 @@ class SearchView(BaubleView):
             model = gtk.ListStore(str)
             model.append([msg])
             self.results_view.set_model(model)
+	except AttributeError, err:
+	    msg = err
+	    model = gtk.ListStore(str)
+            model.append([msg])
+            self.results_view.set_model(model)
         except bauble.BaubleError, e:
             debug('BaubleError')
             debug(e)
             model = gtk.ListStore(str)
             model.append(['** Error: %s' % e])
             self.results_view.set_model(model)
-        except:
-            msg = "Could not complete search."
-            utils.message_details_dialog(msg, traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+	except Exception ,e:		
+	    model = gtk.ListStore(str)
+	    model.append(['** Error: %s' % e])
+            self.results_view.set_model(model)
+	    
+		    
         self.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
 
@@ -301,25 +479,25 @@ class SearchView(BaubleView):
         return False
 
     
-    def query(self, domain, values):
-        if domain == "default":
-            results = []            
-            for table_name in self.search_metas.keys():
-                results += self.query_table(table_name, values)[:]
-            return results
-#        elif domain == 'sql':
-#            debug(values[0])
-#            conn = sqlobject.sqlhub.processConnection
-#            sel = conn.queryAll(values[0])        
-#            debug(sel)
-#            return sel or ()
-        elif not self.domain_map.has_key(domain):
-            #raise KeyError('%s is not a recognized search domain' % domain)
-            raise bauble.BaubleError('%s is not a recognized search domain' % \
-                                     domain)
-        else:
-            table = self.domain_map[domain]
-            return self.query_table(table, values)
+#     def query(self, domain, values):
+#         if domain == "default":
+#             results = []            
+#             for table_name in self.search_metas.keys():
+#                 results += self.query_table(table_name, values)[:]
+#             return results
+# #        elif domain == 'sql':
+# #            debug(values[0])
+# #            conn = sqlobject.sqlhub.processConnection
+# #            sel = conn.queryAll(values[0])        
+# #            debug(sel)
+# #            return sel or ()
+#         elif not self.domain_map.has_key(domain):
+#             #raise KeyError('%s is not a recognized search domain' % domain)
+#             raise bauble.BaubleError('%s is not a recognized search domain' % \
+#                                      domain)
+#         else:
+#             table = self.domain_map[domain]
+#             return self.query_table(table, values)
         
                     
     def query_table(self, table_name, values):
@@ -353,62 +531,102 @@ class SearchView(BaubleView):
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
 #        debug(q)
         return table.select(q)
-        
-                
-    # parser grammar definitions
-#    __domain = Word(alphanums)
-#    __quotes = Word('"' + "'")
-#    __values_str = Word(alphanums+'*' +' '+';'+'.')    
-#    __values = __quotes.suppress() + __values_str + __quotes.suppress() \
-#               ^ __values_str
-#    __expression = __domain + Word('=', max=2).suppress() + __values
-    __domain = Word(alphanums)
-    __quotes = Word('"' + "'")    
-    __value_str = Word(alphanums+'*' +' '+';'+'.')
-    __quoted_value_str = __quotes.suppress() + __value_str + __quotes.suppress()
-    __value = __quoted_value_str ^ __value_str
-    __single_value = __value
-    __multiple_values = OneOrMore(__single_value + Word(',').suppress()) + \
-                        Optional(__single_value)
-    __possible_values = __single_value ^ __multiple_values
-    __expression = __domain + Word('=', max=2).suppress() + __possible_values
-    #__expression = __domain + Word('=') + __possible_values
-                    
-    parser = OneOrMore(Group(__expression ^ __possible_values))
+        	    
 
 
-    # FIXME: loc= search parses the search as ['default', 'loc'] instead
-    # of a domain with an empty value list
+#     def parse_text(self, text):        
+#         tokens = self.parser.parseString(text)
+#         searches = {}        
+# 	if 'subdomain' in tokens: # a query expression
+# 	    # resolve domain, combine domain and 
+# 	    # TODO: accession where species.accessions.plants.acc_status = Dead
+# 	    # 
+# 	    # Accessions.select(Select(Species.q.accession, where=(
+# 	    # 
+# #	    select = []
+# #	    for acc in Accessions.select():
+# #		for sp in acc.species:
+# #		    for acc2 in sp:
+# #			for p in acc2:
+# #			    if acc_status == 'Dead':
+# #				select.append(acc)
+# 	    subdomains = tokens['subdomain'].split('.')
+# 	    print subdomains
+# 	    table = tables[self.domain_map[tokens['domain']]]
+# 	    results = table.select()
+# 	    for sub in subdomains[:-1]:
+# 		print sub
+# 		results = eval('results.%s' % sub)
+# 		print len(results)		
+# 	    print results
+# 	    print results.count()
+# 	    operator = tokens['operator']
+# 	    values = ','.join(tokens['values'])	    
+# 	    query = '%s %s %s' % (subdomains[-1], operator, values)
+# 	    print query
+# 	    results2 = []
+# 	    for r in results:
+# 		results2 += r.selectBy(query)
+# 		#results = results.selectBy(query)
+# 	    print results2
+# 	elif 'domain' in tokens: # a regular expression
+# 	    pass
+# 	elif 'values' in tokens: # a list of values
+# 	    results = []            
+#             for table_name in self.search_metas.keys():
+#                 results += self.query_table(table_name, values)[:]
+# 	    self.populate_results(results)
+#             return results
+# 	    return
 
-    def parse_text(self, text):        
-        parsed_string = self.parser.parseString(text)
-        searches = {}        
-        for group in parsed_string:
-#            debug(group)            
-#            if group[0].endswith('='):
-#                raise bauble.BaubleError('no value given for domain: ' + \
-#                                     group[0][:-1])
-#            group[0] = group[0][:-1]
+# 	else:
+# 	    raise Exception('ParseError')    
+
+# 	return searches
+    
+    
+    
+#         for group in parsed_string:
+#             debug(group)            
+# #            if group[0].endswith('='):
+# #                raise bauble.BaubleError('no value given for domain: ' + \
+# #                                     group[0][:-1])
+# #            group[0] = group[0][:-1]
             
-            if len(group) == 1:
-                domain = 'default'
-            elif group[0] in self.domain_map:
-                domain = group[0]
-                group = group[1:]
-            else:
-                domain = 'default'
+#             if len(group) == 1:
+#                 domain = 'default'
+#             elif group[0] in self.domain_map:
+#                 domain = group[0]
+#                 group = group[1:]
+#             else:
+#                 domain = 'default'
             
-            append = lambda v: searches[domain].append(v)
-            try:
-                map(append, group)
-            except KeyError:
-                searches[domain] = []
-                map(append, group)
+#             append = lambda v: searches[domain].append(v)
+#             try:
+#                 map(append, group)
+#             except KeyError:
+#                 searches[domain] = []
+#                 map(append, group)
      
-        return searches
+#         return searches
         
 
-    def populate_results(self, search):        
+    def populate_results(self, select):
+	bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        #self.set_sensitive(False)	
+        results = []
+        added = False
+        model = self.results_view.get_model()
+        self.results_view.set_model(None) # temporarily remove the model
+	model = gtk.TreeStore(object)
+	for s in select:
+	    p = model.append(None, [s])
+	    model.append(p, ['-'])
+	self.results_view.set_model(model)	
+	bauble.app.gui.window.window.set_cursor(None)
+	    
+
+    def populate_results_old(self, search):        
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         #self.set_sensitive(False)	
         results = []

@@ -66,7 +66,6 @@ def _register(plugin_class):
     if not bauble.main_is_frozen():
 	log.info("registering " + plugin_name)
     for dependency in plugin_class.depends:            
-        #print 'depends: ', dependency
         if dependency not in plugins:
             msg = "Can't load plugin %s. This plugin depends on %s but "\
                   "%s doesn't exist" %(plugin_name, dependency, dependency)
@@ -109,31 +108,25 @@ def _find_plugins():
     modules = []
     path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
-#        debug("library.zip")
         pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-        #debug(zipfiles)
-        for f in zipfiles.keys():
-            pass
-            #debug(f)
-        #return ()
-        #x = [zipfiles[file][0] for file in zipfiles.keys() if pkg in file]
-        x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
-#        debug(x)
+#        for f in zipfiles.keys():
+#            pass
+
+        x = [zipfiles[file][0] for file in zipfiles.keys() \
+	     if "bauble\\plugins" in file]
         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
         rx = re.compile(s.encode('string_escape'))        
         for filename in x:    
-#            debug(filename)
             m = rx.match(filename)
             if m is not None:
-#                debug('%s.%s' % (pkg, m.group(1)))
                 modules.append('%s.%s' % (pkg, m.group(1)))
                 
     else:                
         for d in os.listdir(path):
             full = path + os.sep + d                
-            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-                #modules.append("plugins." + d)
+            if os.path.isdir(full) and os.path.exists(full + 
+						      os.sep + "__init__.py"):
                 modules.append(d)
                 
     # import the modules and test if they provide a plugin to make sure 
@@ -144,8 +137,10 @@ def _find_plugins():
             mod = __import__(m, globals(), locals(), ['plugins'])
         except Exception, e:
             msg = "Could not import the %s module." % m#\n\n%s" % 
-            utils.message_details_dialog(msg, str(traceback.format_exc()), gtk.MESSAGE_ERROR)
-            continue
+            utils.message_details_dialog(msg, str(traceback.format_exc()), 
+					 gtk.MESSAGE_ERROR)
+	    raise
+            #continue
         if hasattr(mod, "plugin"):                 
             plugins.append(mod.plugin)
     return plugins
