@@ -1,3 +1,8 @@
+2006.02.23
+----------
+- more or less finished the new search queries, can now do search like
+acc where plants.acc_status = Dead
+
 2006.02.22
 ----------
 - first commit on new search query features

@@ -104,6 +104,8 @@ class SearchParser:
 	return self.statement.parseString(text)
 	
 
+# TODO: we need different operator validators depending on the database type,
+# e.g. postgres doesn't like '=='
 class OperatorValidator(formencode.FancyValidator):
 
     to_operator_map = {'=': '==', 
@@ -119,29 +121,6 @@ class OperatorValidator(formencode.FancyValidator):
 
     def _from_python(self, value, state=None):
 	return value
-
-
-# class ValueConverter:
-
-#     col_convert_map = { sqlobject.StringCol: str,
-# 		        sqlobject.IntCol: int
-# 			}
-
-#     def __init__(self, col):
-# 	self.col = col
-# 	self.convertor = \
-# 	    formencode.validators.DictConverter(self.col_convert_map)
-
-
-#     def to_python(self, value, state=None):
-# 	debug(value)
-# 	try:
-# 	    v = self.converter.to_python(value)
-# 	    debug(v)
-# 	    return v
-# 	    #v = self.col_convert_map[self.col](value)
-# 	except:
-# 	    raise formencode.Invalid('could not convert value')
 		       	 
 
 class SearchMeta:
@@ -325,9 +304,9 @@ class SearchView(BaubleView):
 	results = []            
 	if 'subdomain' in tokens and 'domain' in tokens: # a query expression
 	    subdomain = tokens['subdomain']
+	    #operator = OperatorValidator.to_python(tokens['operator'])
 	    operator = tokens['operator']
 	    values = tokens['values']
-	    print subdomain
 	    domain_table = tables[self.domain_map[tokens['domain']]]
 	    index = subdomain.rfind('.')
 	    joins = None
@@ -335,61 +314,72 @@ class SearchView(BaubleView):
 	    if index != -1:
 		joins, col = subdomain[:index], subdomain[index+1:]
 	    else:
-		col = subdomain
-	    #joins, col = subdomains.rsplit('.', 1)
-	    print domain_table
-	    print joins
-	    print col
-
-	    if joins is None:
-		results = domain_table.select('domain_table.q.%s %s "%s"' % \
-					      (col,operator, ','.join(values)))
-	    else:
+		col = subdomain		
+	    if joins is None: # select from column in domain_table
+		# get the validator for the column
+		if col == 'id':
+		    values_validator = formencode.validators.Int()
+		elif col in domain_table.sqlmeta.columns:
+		    values_validator = \
+			domain_table.sqlmeta.columns[col].validator()
+		else:
+		    raise KeyError('"%s" not a column in table "%s"' % \
+				       (col, domain_table.__name__))
+		v = values_validator.to_python(','.join(values), None)
+		if not isinstance(v, int):
+		    # TODO: add quotes, this could be buggy b/c we 
+		    # don't check for all available types		
+		    # TODO: postgres requires single quotes, sqlite doesn't 
+		    # seem to care, what about mysql?
+		    v = "'%s'" % v 
+		stmt = "%s.%s %s %s" % (domain_table.sqlmeta.table,
+					col,operator, v)
+		results += domain_table.select(stmt)
+	    else: # resolve the joins and select from the last join in the list
+		# TODO: would it be possible to do this backwards. if we could
+		# get the type of the table of the last join on the list of 
+		# subdomains we could then query this table for the value in 
+		# col, this would allow us to walk up the list of joins until
+		# we get to the top. it seems like this way would be alot more
+		# efficient because you only get the values from the 
+		# domain_table from the beginning instead of starting with
+		# all values in domain tables and narrowing down from there
 		all = domain_table.select()
 		if all.count() != 0:
 		    subresults = []
 		    for item in all:
 			subresults += eval('item.%s' % joins)
+		    # get the validator for the column
 		    if col == 'id':
 			values_validator = formencode.validators.Int()
-		    else:
+		    elif col in subresults[0].sqlmeta.columns:
 			values_validator = \
 			    subresults[0].sqlmeta.columns[col].validator()
-			    
-		    op = OperatorValidator.to_python(operator)
+		    else:
+			raise KeyError('"%s" not a column in table "%s"' % \
+				       (col, subresults[0].sqlmeta.table))
+
+		    # TODO: only works for binary operators
+		    v = values_validator.to_python(','.join(values), None)
+		    if not isinstance(v, int):
+			# TODO: add quotes, this could be buggy b/c we 
+			# don't check for all available types
+			v = '"%s"' % v			
 		    for r in subresults:		 
-			# TODO: only works for binary operators
-#			debug(r)
-			v = values_validator.to_python(','.join(values), None)
-			if not isinstance(v, int):
-			    # TODO: add quotes, this could be buggy b/c we 
-			    # don't check for all available types
-			    v = '"%s"' % v
-#			debug(v)
-			#debug(v[0])
-			#cmp = "r.%s %s '%s'" % (col, op, .join(values))
-			
-			cmp = "r.%s %s %s" % (col, op, v)
-#			debug(cmp)
+			expression = "r.%s %s %s" % (col, operator, v)
 			try:
-			    if eval(cmp):
+			    if eval(expression):
 				results.append(r)
 			except SyntaxError, e:
 			    results.append(str(e))
 			    break
-		print results
 	elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
 	    # a general expression
-	    domain = tokens['domain']
-	    values = tokens['values']
-	    v = ','.join(values)
-#	    debug(v)
-	    table_name = self.domain_map[domain]
-	    results += self.query_table(table_name, v)[:]	    
-#	    debug(results)
+	    values = ','.join(tokens['values']) # can values not be in tokens?
+	    table_name = self.domain_map[tokens['domain']]
+	    results += self.query_table(table_name, values)#[:]
 	elif 'values' in tokens: # a list of values
 	    values = tokens['values']
-#	    debug(values)
 	    for table_name in self.search_metas.keys():
 		results += self.query_table(table_name, values)[:]
 	else:
@@ -417,8 +407,11 @@ class SearchView(BaubleView):
 		raise SyntaxError(None, tokens['domain'])
 	    results = self._get_search_results_from_tokens(tokens)
 	    if len(results) == 0:
-		results.append('nothing')
-	    self.populate_results(results)
+		model = gtk.ListStore(str)
+		model.append(["Couldn't find anything"])
+		self.results_view.set_model(model)
+	    else:
+		self.populate_results(results)
 	except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
@@ -441,6 +434,7 @@ class SearchView(BaubleView):
             self.results_view.set_model(model)
 	except Exception ,e:		
 	    model = gtk.ListStore(str)
+	    debug(traceback.format_exc())
 	    model.append(['** Error: %s' % e])
             self.results_view.set_model(model)
 	    
@@ -477,27 +471,6 @@ class SearchView(BaubleView):
             return True
         self.append_children(model, iter, kids, True)
         return False
-
-    
-#     def query(self, domain, values):
-#         if domain == "default":
-#             results = []            
-#             for table_name in self.search_metas.keys():
-#                 results += self.query_table(table_name, values)[:]
-#             return results
-# #        elif domain == 'sql':
-# #            debug(values[0])
-# #            conn = sqlobject.sqlhub.processConnection
-# #            sel = conn.queryAll(values[0])        
-# #            debug(sel)
-# #            return sel or ()
-#         elif not self.domain_map.has_key(domain):
-#             #raise KeyError('%s is not a recognized search domain' % domain)
-#             raise bauble.BaubleError('%s is not a recognized search domain' % \
-#                                      domain)
-#         else:
-#             table = self.domain_map[domain]
-#             return self.query_table(table, values)
         
                     
     def query_table(self, table_name, values):
@@ -531,85 +504,7 @@ class SearchView(BaubleView):
                 q += " OR %s %s '%%%s%%'" % (c, like, v)
 #        debug(q)
         return table.select(q)
-        	    
-
-
-#     def parse_text(self, text):        
-#         tokens = self.parser.parseString(text)
-#         searches = {}        
-# 	if 'subdomain' in tokens: # a query expression
-# 	    # resolve domain, combine domain and 
-# 	    # TODO: accession where species.accessions.plants.acc_status = Dead
-# 	    # 
-# 	    # Accessions.select(Select(Species.q.accession, where=(
-# 	    # 
-# #	    select = []
-# #	    for acc in Accessions.select():
-# #		for sp in acc.species:
-# #		    for acc2 in sp:
-# #			for p in acc2:
-# #			    if acc_status == 'Dead':
-# #				select.append(acc)
-# 	    subdomains = tokens['subdomain'].split('.')
-# 	    print subdomains
-# 	    table = tables[self.domain_map[tokens['domain']]]
-# 	    results = table.select()
-# 	    for sub in subdomains[:-1]:
-# 		print sub
-# 		results = eval('results.%s' % sub)
-# 		print len(results)		
-# 	    print results
-# 	    print results.count()
-# 	    operator = tokens['operator']
-# 	    values = ','.join(tokens['values'])	    
-# 	    query = '%s %s %s' % (subdomains[-1], operator, values)
-# 	    print query
-# 	    results2 = []
-# 	    for r in results:
-# 		results2 += r.selectBy(query)
-# 		#results = results.selectBy(query)
-# 	    print results2
-# 	elif 'domain' in tokens: # a regular expression
-# 	    pass
-# 	elif 'values' in tokens: # a list of values
-# 	    results = []            
-#             for table_name in self.search_metas.keys():
-#                 results += self.query_table(table_name, values)[:]
-# 	    self.populate_results(results)
-#             return results
-# 	    return
-
-# 	else:
-# 	    raise Exception('ParseError')    
-
-# 	return searches
-    
-    
-    
-#         for group in parsed_string:
-#             debug(group)            
-# #            if group[0].endswith('='):
-# #                raise bauble.BaubleError('no value given for domain: ' + \
-# #                                     group[0][:-1])
-# #            group[0] = group[0][:-1]
-            
-#             if len(group) == 1:
-#                 domain = 'default'
-#             elif group[0] in self.domain_map:
-#                 domain = group[0]
-#                 group = group[1:]
-#             else:
-#                 domain = 'default'
-            
-#             append = lambda v: searches[domain].append(v)
-#             try:
-#                 map(append, group)
-#             except KeyError:
-#                 searches[domain] = []
-#                 map(append, group)
-     
-#         return searches
-        
+        	            
 
     def populate_results(self, select):
 	bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
@@ -624,44 +519,7 @@ class SearchView(BaubleView):
 	    model.append(p, ['-'])
 	self.results_view.set_model(model)	
 	bauble.app.gui.window.window.set_cursor(None)
-	    
-
-    def populate_results_old(self, search):        
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        #self.set_sensitive(False)	
-        results = []
-        added = False
-        model = self.results_view.get_model()
-        self.results_view.set_model(None) # temporarily remove the model
-
-        if model is None: 
-            model = gtk.TreeStore(object)
-        
-        for domain, values in search.iteritems():
-            results += self.query(domain, values)
-        
-        if len(results) > 0:             
-	    # don't bother sorting the results, if everything in the same
-	    # level is of the same type then it probably has been sorted by
-	    # the database any way and if it's not the same type then sorting
-	    # a bunch of random types of data isn't that practical anyway
-	    for r in results:                
-		#model.append(model.append(None, [r]), '-')
-		p = model.append(None, [r])
-
-		# TODO: is it faster to check if it has children now or 
-		# or just add the dummy row and check on expansion
-                #print r.__class__.__name__
-                #table_name = r.__class__.__name__
-		#if table_name in self.view_meta and \
-                #    self.view_meta[table_name].children is not None:
-		model.append(p, ["-"])
-        else: 
-            model.append(None, ["Couldn't find anything"])
-
-        self.results_view.set_model(model)	
-	bauble.app.gui.window.window.set_cursor(None)
-    
+	        
     
     def append_children(self, model, parent, kids, have_kids):
         """
