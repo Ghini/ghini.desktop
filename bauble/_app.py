@@ -101,7 +101,7 @@ class BaubleApp:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
-            return True
+            return None
                                     
         if name is not None:
             prefs[prefs.conn_default_pref] = name
@@ -153,7 +153,7 @@ class BaubleApp:
             else:
                 return False
 	self.conn_name = name
-        return True
+        return sqlhub.process_connection
         
         
         

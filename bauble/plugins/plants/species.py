@@ -12,6 +12,8 @@ from bauble.plugins.editor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.utils.log import log, debug
 import xml.sax.saxutils as sax
 #from speciesmeta import SpeciesMeta
+
+# TODO: SpeciesMetaEditor isn't modal on the SpeciesEditor
     
 #
 # Species table
@@ -535,6 +537,12 @@ try:
 except ImportError:
     pass
 else:
+
+# TODO: add the vernacular names to the species infobox, maybe like
+# English: name1, name2
+# Spanish: name1
+# or
+# name1 (English), name2 (English), name3 (English), etc
     
 #    
 # Species infobox for SearchView
@@ -580,7 +588,8 @@ else:
             """
             InfoBox.__init__(self)
             path = os.path.join(paths.lib_dir(), "plugins", "plants")
-            self.glade_xml = gtk.glade.XML(path + os.sep + "species_infobox.glade")
+            self.glade_xml = gtk.glade.XML(path + os.sep + 
+					   "species_infobox.glade")
             
             self.general = GeneralSpeciesExpander(self.glade_xml)
             self.add_expander(self.general)

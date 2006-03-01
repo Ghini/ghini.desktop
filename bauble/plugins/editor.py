@@ -51,7 +51,14 @@ from bauble.utils.log import log, debug
 # in a column this may mean that using None in and EnumCol work so since it 
 # would be better to store None in an EnumCol instead of a bunch of empty 
 # strings so we should check and change all the models if so
-   
+
+# TODO: remove underscores in the context menu and would probably be good to
+# capitalize the first letter of the first work in the add section of the 
+# context menu. i.e. Vernacular names
+
+# TODO: on add or insert from context menu only collapse parent of selected
+# result, on insert from menu refresh search
+
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    
 #    def __init__(self, *args, **kwargs):
@@ -762,9 +769,9 @@ class TableEditorDialog(TableEditor):
             not_ok_msg = 'Are you sure you want to lose your changes?'
 	    exc_msg = "Could not commit changes.\n"
             response = self.dialog.run()
+	    self.save_state()
             if response == gtk.RESPONSE_OK:
-                try:
-                    self.save_state()
+                try:                    
 		    # TODO: we need to remove _set_values_from_widgets since
 		    # we now do _transform_row on each row during commit,
 		    # we leave it hear for now since i think some of the 

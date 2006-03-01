@@ -1,7 +1,16 @@
+2005.02.28
+----------
+- fixed problem with creating vernacular names
+- save an editors state even if the dialog is canceled
+- fixed problem when opening a database fails the wrong value was being
+return from open_database()
+
+
 2006.02.23
 ----------
 - more or less finished the new search queries, can now do search like
 acc where plants.acc_status = Dead
+
 
 2006.02.22
 ----------
@@ -36,7 +45,9 @@ anymore though it may still come up if there's a print statement somewhere
 2006.02.06
 ----------
 - fixes for building a py2exe executable using pygtk >= 2.8.4
-- make sure we check for pysqlite even if SQLObject says sqlite is not supported
+- make sure we check for pysqlite even if SQLObject says sqlite is not 
+supported
+
 
 2006.02.03
 ----------

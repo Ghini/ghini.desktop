@@ -13,6 +13,9 @@ from bauble.utils.log import debug
 # already exists with the accession number, this probably won't work though
 # sense the acc_id may not be set when setting the plant_id
 
+# TODO: should probably make acc_status required since whether a plant is 
+# living or dead is pretty important
+
 class Plant(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):

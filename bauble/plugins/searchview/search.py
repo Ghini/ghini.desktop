@@ -67,6 +67,11 @@ from pyparsing import *
 # possible in the BaubleMeta table. the X number of search to remember and 
 # saving the searches per connection should be configurable
 
+# TODO: search won't work on a unicode col. e.g. try 'acc where notes='test''
+
+# TODO: add vernacular names doesn't work from the context menu when right 
+# clicking on a species
+
 class SearchParser:
 
     # TODO: if the search language doesn't change we could make this 
@@ -691,6 +696,8 @@ class SearchView(BaubleView):
                   
         # create the entry and search button
         self.entry = gtk.Entry()
+	#self.combo_entry = gtk.combo_box_entry_new_text()
+	#self.entry = combo_entry.entry
         self.entry.connect("key_press_event", self.on_entry_key_press)
         
         self.search_button = gtk.Button("Search")

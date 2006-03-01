@@ -10,6 +10,102 @@ from string import Template
 from bauble.utils.log import log, debug
 import xml.sax.saxutils
 
+# TODO: also need ability to dump to darwin core, should consider just writing
+# an xsl transformation to do the conversion instead of writing more export
+# code, Darwin Core is a flat structure and from i understand doesn't have a 
+# sense of "unit"
+
+# TODO: need to also respect the number of children and element can have
+# e.g. Units can have 1 to infinity Unit children whereas elements require
+# at least one and some can have at most one child
+
+class SQLObjectToABCD:
+    def __init__(so_class, parent):
+	pass
+
+    def toABCD():
+	pass
+
+
+# temporary placeholder until lxml
+class Element: 
+    def __init__(tag):
+	Element.__init__(self, tag)
+
+# temporary placeholder
+class SubElement: 
+    def __init__(parent, tag):
+	SubElement.__init__(self, parent, tag)
+
+
+# it would be good if this could somehow incapsulate more than one tag but 
+# still stick to the element tree api so we could easily read and write the 
+# data
+class SpeciesToABCD(SubElement):
+    def __init__(self, species, parent):
+	pass
+    
+    def markup(self):
+	'''
+	<scientificname>
+	<fullscientificnamestring>
+	$name
+	</fullscientificnamestring>
+	</scientificname'''
+	return str(species)
+	
+
+class AccessionABCD:
+    def __init__(so_class, parent):
+	assert isinstance(parent, SpeciesABCD)
+
+
+class DataSets(Element):
+    def __init__(self):
+	# assert list of classes that can be children of ABCDRoot
+	# [DataSet]
+	Element.__init__(self, "DataSets")
+
+	def append(child):
+	    assert isinstance(child, DataSet)
+
+class DataSet(SubElement):
+
+    def __init__(parent):
+	assert isinstance(parent [DataSets])
+	# possible children [DataSetGUID, TechnicalContacts, ContentContacts, 
+	# OtherProviders, Metadata, Units]
+
+
+class Units(SubElement):
+    def __init__(self, parent):
+	assert isinstance(parent, [DataSet])
+
+    def append(self, child):
+	# assert [Unit]
+	pass
+
+
+class Unit:
+    def append(self, child):
+	# assert [UnitGUID, SourceInstitutionID, SourceID, UnitID, 
+	# UnitIDNumeric, LastEditor, DateLastEdited, Owner, IPRStatements, 
+	# UnitContentContacts, SourceReference, UnitReferences, 
+	# Identifications, RecordBasis, KindOfUnit, SpecimenUnit, 
+	# ObservationUnit, CultureCollectionUnit, MycologicalUnit, 
+	# HerbariumUnit, BotanicalGardenUnit, PlantGeneticResourceUnit, 
+	# ZoologicalUnit, PaleontologicalUnit, MultiMediaObjects, 
+	# Associations, Assemblages, NamedCollectionsOrSurvey, Gathering, 
+	# CollectorsFieldNumber, MeasurementsOrFacts, Sex, Age, Sequences, 
+	# Notes, RecordURI, EAnnotations, UnitExtension
+	pass
+
+#datasets = ABCDDataSets()
+#ds = ABCDDataSet(datasets)
+#units = ABCDUnits(ds)
+#unit = ABCDUnit(units)
+#print datasets
+
 main_template_str = """<?xml version="1.0" encoding="utf-8"?>
 <datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
           xsi:noNamespaceSchemaLocation="file:/home/brett/devel/ABCD/ABCD.xsd">
@@ -86,6 +182,7 @@ $informal_name
 </informalnamestring>
 """
 informal_name_template = Template(informal_name_str)
+
 
 
 

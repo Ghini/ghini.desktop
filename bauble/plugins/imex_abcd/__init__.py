@@ -12,9 +12,9 @@ import bauble.plugins.imex_abcd.abcd
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
 
-# TODO: should have a command line argument to create labels without starting the
-# full bauble interface, after creating the labels it should automatically open
-# the whatever ever view is associated with pdf files
+# TODO: should have a command line argument to create labels without starting 
+# the full bauble interface, after creating the labels it should automatically 
+# open the whatever ever view is associated with pdf files
 # e.g bauble -labels "select string"
 # bauble -labels "block=4"
 # bauble -label "acc=1997"
@@ -22,10 +22,10 @@ import bauble.plugins.imex_abcd.abcd
 # TODO: create label make in the tools that show a dialog with an entry
 # the entry is for a search string that then returns a list of all the labels
 # that'll be made with checkboxess next to them to de/select the ones you 
-# don't want to print, could also have a check box to select species or accessions
-# so we can print labels for plants that don't have accessions, though this could
-# be a problem b/c abcd data expects 'unitid' fields but we could have a special
-# case just for generating labels
+# don't want to print, could also have a check box to select species or 
+# accessions so we can print labels for plants that don't have accessions, 
+# though this could be a problem b/c abcd data expects 'unitid' fields but 
+# we could have a special case just for generating labels
 # 
 
 class ABCDImporter:

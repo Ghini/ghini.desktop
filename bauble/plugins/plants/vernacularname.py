@@ -9,6 +9,14 @@ from bauble.plugins.editor import TreeViewEditorDialog, ToggleColumn, \
     GenericViewColumn
 from bauble.utils.log import log, debug
 
+# TODO: getting a vernacular name in the search results isn't very useful,
+# it would be nice if we could expand a list of species that might all share a 
+# common name, e.g. citrus could return anything with citrus in the 
+# vernacular name, also instead of displaying the vernacular name in the
+# results we could just return the species the the vernacular name points to
+
+# TODO: distribution doesn't seem to work in the species infobox
+
 class VernacularName(BaubleTable):
     
     name = UnicodeCol(length=64)
@@ -47,7 +55,7 @@ class DefaultColumn(GenericViewColumn):
         
         
     def on_toggled(self, renderer, path, data=None):
-        # FIXME: don't allow selection of the last row, it's empty stupid                    
+        # FIXME: don't allow selection of the last row, it's empty stupid
         self.dirty = True
         active = not renderer.get_active()
         model = self.table_editor.view.get_model()
@@ -89,6 +97,13 @@ class VernacularNameEditor(TreeViewEditorDialog):
     for editing the vernacular names of a species
     '''
     
+    # TODO: need to update this editor to remove the _set_values_from_widgets
+    # and start using _transform_row
+
+    # TODO: if the dialog is opened with no values automatically select
+    # the first row as the default, update: this actually happens but when you
+    # edit the row the selection goes away
+
     visible_columns_pref = "editor.vernacular.columns"
     column_width_pref = "editor.vernacular.column_width"
     default_visible_list = ['speciesID', 'name', 'language'] 
@@ -117,6 +132,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
         self.default_instance = None
         self.default_name = default_name
         #self.default_instance = default_name
+	self.default_values = None
         
     
     def pre_start_hook(self):
