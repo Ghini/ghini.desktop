@@ -7,22 +7,13 @@
 import os, time, re
 import gtk, gobject
 import sqlobject
+import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import plugins, tools, views, editors
 from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
-
-
-# TODO: use this bit of code to set the window icon, also see the docs
-# for gtk.Window.set_icon and gtk.Window.set_icon_list for providing the
-# different icon sizes
-#  w = gtk.Window()
-#  icon = w.render_icon(gtk.STOCK_DIALOG_INFO, gtk.ICON_SIZE_BUTTON)
-#  w.set_icon(icon)
-#  w.show()
-#  gtk.main()
 
 #
 # GUI
@@ -31,24 +22,9 @@ class GUI:
     
     current_view_pref = "gui.current_view"
     
-    def __init__(self, bauble_app):
-        self.bauble = bauble_app
+    def __init__(self):
         self.create_gui()
         
-#        # load the last view open from the prefs
-#        v = prefs[self.current_view_pref]
-#        if v is None: # default view is the search view            
-#            v = str(views["SearchView"])
-#    
-#        view_set = False
-#        for name, view in views.iteritems():
-#            if v == str(view):
-#                self.set_current_view(view)
-#                view_set = True
-#                # TODO: if this view can't be shown then default to SearchView
-#                
-#        if not view_set:
-#            self.set_current_view(views["SearchView"])
             
     def __get_title(self):
 	return '%s %s - %s' % ('Bauble', bauble.version_str, 
@@ -60,9 +36,11 @@ class GUI:
         # create main window
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(800, 600)
-        self.window.connect("destroy", self.on_quit)        
-        #self.window.set_title("Bauble %s - %s" % bauble.version_str)
-	self.window.set_title(self.title)
+        self.window.connect("destroy", self.on_quit)
+	self.window.set_title(self.title)    
+	filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
+	pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+	self.window.set_icon(pixbuf)
     
         # top level vbox for menu, content, status bar
         main_vbox = gtk.VBox()
@@ -177,12 +155,6 @@ class GUI:
         debug('on_activate_editor')
         e = editor()
         committed = e.start()
-#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-#            debug('committing')
-#            e.commit_changes()
-#        else:
-#            debug('rolling back')
-#            e.transaction.rollback()
         
         
     def create_main_menu(self):
@@ -251,7 +223,8 @@ class GUI:
         for editor in sorted(editors.values(), cmp=compare_labels):
             if editor.standalone:
                 item = gtk.MenuItem(editor.label)
-                item.connect("activate", self.on_insert_menu_item_activate, editor)
+                item.connect("activate", self.on_insert_menu_item_activate, 
+			     editor)
                 menu.append(item)
         return menu
     
@@ -267,7 +240,7 @@ class GUI:
                 menu.append(item)
             else:
                 if tool.category not in submenus: # create new category
-                    category_menu_item = gtk.MenuItem(tool.category)                    
+                    category_menu_item = gtk.MenuItem(tool.category)
                     category_menu = gtk.Menu()
                     category_menu_item.set_submenu(category_menu)
                     menu.prepend(category_menu_item)
@@ -285,12 +258,6 @@ class GUI:
     def on_insert_menu_item_activate(self, widget, editor):
         e = editor()
         committed = e.start()
-#        response = e.start()
-#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-#            e.commit_changes()
-#        else:
-#            e.transaction.rollback()
-#        e.destroy()
             
         
     def on_edit_menu_prefs(self, widget, data=None):
@@ -316,7 +283,7 @@ class GUI:
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
-            self.bauble.create_database()
+	    bauble.app.create_database()
 	    
 	# reset the view
 	self.get_current_view().reset()
@@ -331,7 +298,8 @@ class GUI:
         name, uri = cm.start()
         if name is None:
             return
-	if(self.bauble.open_database(uri, name, True)):
+
+	if(bauble.app.open_database(uri, name, True)):
 	    self.window.set_title(self.title)
 
 	# reset the search view
@@ -353,7 +321,7 @@ class GUI:
         
         
     def on_quit(self, widget, data=None):
-        self.bauble.quit()
+	bauble.app.quit()
         
         
 

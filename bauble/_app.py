@@ -68,7 +68,6 @@ class BaubleApp:
         print "SQL:",statement
         return True
     
-    
     def set_busy(self, busy):
         if self.gui is None:
             return
@@ -153,7 +152,7 @@ class BaubleApp:
             else:
                 return False
 	self.conn_name = name
-        return sqlhub.process_connection
+        return sqlhub.processConnection
         
         
         
@@ -202,7 +201,7 @@ class BaubleApp:
         # now that we have a connection create the gui
 	self.conn_name = conn_name
 	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)
-        self.gui = gui.GUI(self)
+        self.gui = gui.GUI()
         
         # load the last view open from the prefs
         v = prefs[self.gui.current_view_pref]

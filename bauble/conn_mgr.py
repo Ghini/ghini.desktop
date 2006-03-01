@@ -121,8 +121,9 @@ class ConnectionManager:
     
         
     def create_gui(self):
-        path = os.path.join(paths.lib_dir())
-        self.glade_xml = gtk.glade.XML(path + os.sep + "conn_mgr.glade")
+        #path = os.path.join(paths.lib_dir())	
+	glade_path = os.path.join(paths.lib_dir(), "conn_mgr.glade")
+        self.glade_xml = gtk.glade.XML(glade_path)
         
         handlers = {'on_add_button_clicked': self.on_add_button_clicked,
                     'on_remove_button_clicked': self.on_remove_button_clicked,
@@ -130,8 +131,13 @@ class ConnectionManager:
         self.glade_xml.signal_autoconnect(handlers)
         
         self.dialog = self.glade_xml.get_widget('main_dialog')
+	icon_path  = os.path.join(paths.lib_dir(), "images", "icon.svg")
+	pixbuf = gtk.gdk.pixbuf_new_from_file(icon_path)
+	self.dialog.set_icon(pixbuf)
+
         logo = self.glade_xml.get_widget('logo_image')
-        logo.set_from_file(path + os.sep + 'pixmaps/bauble_logo.png')
+	logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
+        logo.set_from_file(logo_path)
         
         self.params_box = None
         if self.supported_dbtypes is None:

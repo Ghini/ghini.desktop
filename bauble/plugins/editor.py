@@ -1068,6 +1068,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         have a default value, i.e. required columns show in the menu
         but they should be greyed out so you can't turn them off
         """
+	# FIXME: why doesn the label not show up here????
         self.toolbar = gtk.Toolbar()
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
@@ -1218,7 +1219,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         for item in model:
             # then this row hasn't changed or has already been committed
             if not item[0].dirty or item[0].committed: 
-                continue            
+                continue
             row = self._transform_row(item[0])
 
             if not self.pre_commit_hook(row):

@@ -24,9 +24,9 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="19.647765"
-     inkscape:cx="168.05266"
-     inkscape:cy="841.97703"
+     inkscape:zoom="1.2279853"
+     inkscape:cx="336.46427"
+     inkscape:cy="768.09803"
      inkscape:current-layer="layer1"
      inkscape:window-width="822"
      inkscape:window-height="588"
@@ -47,98 +47,26 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
-    <path
-       sodipodi:type="star"
-       style="fill:#19915d;fill-opacity:0.45299146;stroke:#000000;stroke-width:0.12500000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
-       id="path1063"
-       sodipodi:sides="5"
-       sodipodi:cx="79.398346"
-       sodipodi:cy="264.48630"
-       sodipodi:r1="32.189693"
-       sodipodi:r2="26.042009"
-       sodipodi:arg1="0.96525166"
-       sodipodi:arg2="1.5935702"
-       inkscape:flatsided="true"
-       inkscape:rounded="0.0000000"
-       inkscape:randomized="0.0000000"
-       d="M 97.721041,290.95241 L 59.889599,290.09070 L 49.018583,253.84457 L 80.131366,232.30495 L 110.23114,255.23886 L 97.721041,290.95241 z "
-       transform="translate(173.7756,-12.54482)"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       sodipodi:type="star"
-       style="fill:#7bbaa2;fill-opacity:1.0000000;stroke:#000000;stroke-width:0.12500000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
-       id="path1064"
-       sodipodi:sides="5"
-       sodipodi:cx="79.398346"
-       sodipodi:cy="264.48630"
-       sodipodi:r1="32.189693"
-       sodipodi:r2="26.042009"
-       sodipodi:arg1="0.96525166"
-       sodipodi:arg2="1.5935702"
-       inkscape:flatsided="true"
-       inkscape:rounded="0.0000000"
-       inkscape:randomized="0.0000000"
-       d="M 97.721041,290.95241 L 59.889599,290.09070 L 49.018583,253.84457 L 80.131366,232.30495 L 110.23114,255.23886 L 97.721041,290.95241 z "
-       transform="matrix(0.568737,0.000000,0.000000,0.653788,207.8883,79.87386)"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.12500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       d="M 253.85147,219.89301 L 253.49158,231.68049"
-       id="path1067"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.12500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       d="M 270.58644,246.79595 L 283.90244,242.74717"
-       id="path1068"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.12500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       d="M 222.72084,241.39757 L 235.67694,245.80625"
-       id="path1069"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.12500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       d="M 233.60756,277.65667 L 241.88507,269.46913"
-       id="path1070"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
-    <path
-       style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.12500000;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-       d="M 263.47858,270.18891 L 271.39620,278.28648"
-       id="path1071"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.svg"
-       inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002" />
     <g
        id="g4836"
        inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
        inkscape:export-xdpi="95.330002"
-       inkscape:export-ydpi="95.330002">
+       inkscape:export-ydpi="95.330002"
+       transform="translate(-13.02947,-180.7839)">
       <path
          sodipodi:type="star"
-         style="fill:#97cdb6;fill-opacity:1.0000000;stroke:#000000;stroke-width:0.12500000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+         style="fill:#97cdb6;fill-opacity:1;stroke:#000000;stroke-width:0.125;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1"
          id="path1096"
          sodipodi:sides="5"
          sodipodi:cx="191.37038"
          sodipodi:cy="312.32889"
          sodipodi:r1="28.103834"
          sodipodi:r2="22.736479"
-         sodipodi:arg1="0.95265210"
+         sodipodi:arg1="0.9526521"
          sodipodi:arg2="1.5809706"
          inkscape:flatsided="true"
-         inkscape:rounded="0.0000000"
-         inkscape:randomized="0.0000000"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
          d="M 207.65722,335.23226 L 174.62089,334.89612 L 164.73178,303.37284 L 191.65631,284.22651 L 218.18569,303.91671 L 207.65722,335.23226 z "
          transform="matrix(1.748559,-1.740479e-2,1.740479e-2,1.748559,-141.5513,-197.1633)"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
@@ -146,53 +74,53 @@
          inkscape:export-ydpi="95.330002" />
       <path
          sodipodi:type="star"
-         style="fill:#7bbaa2;fill-opacity:1.0000000;stroke:#000000;stroke-width:0.12500000;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4.0000000;stroke-dashoffset:0.0000000;stroke-opacity:1.0000000"
+         style="fill:#7bbaa2;fill-opacity:1;stroke:#000000;stroke-width:0.125;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1"
          id="path1099"
          sodipodi:sides="5"
          sodipodi:cx="191.37038"
          sodipodi:cy="312.32889"
          sodipodi:r1="28.103834"
          sodipodi:r2="22.736479"
-         sodipodi:arg1="0.95265210"
+         sodipodi:arg1="0.9526521"
          sodipodi:arg2="1.5809706"
          inkscape:flatsided="true"
-         inkscape:rounded="0.0000000"
-         inkscape:randomized="0.0000000"
+         inkscape:rounded="0"
+         inkscape:randomized="0"
          d="M 207.65722,335.23226 L 174.62089,334.89612 L 164.73178,303.37284 L 191.65631,284.22651 L 218.18569,303.91671 L 207.65722,335.23226 z "
          transform="matrix(1.031777,-1.027009e-2,1.027009e-2,1.031777,-2.352862,25.75968)"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
          inkscape:export-xdpi="95.330002"
          inkscape:export-ydpi="95.330002" />
       <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.24223208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
-         d="M 198.46208,296.48893 L 198.29520,317.11969"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.24223208;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
+         d="M 198.46208,296.48893 L 198.2952,317.11969"
          id="path1100"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
          inkscape:export-xdpi="95.330002"
          inkscape:export-ydpi="95.330002" />
       <path
-         style="fill:#000000;fill-opacity:1.0000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.26411849;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+         style="fill:#000000;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:0.26411849;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
          d="M 245.04069,330.46851 L 225.94424,337.09625"
          id="path2345"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
          inkscape:export-xdpi="95.330002"
          inkscape:export-ydpi="95.330002" />
       <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.28272855;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.28272855;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
          d="M 215.39464,369.48957 L 227.31702,385.35952"
          id="path2967"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
          inkscape:export-xdpi="95.330002"
          inkscape:export-ydpi="95.330002" />
       <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.28194401;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.28194401;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
          d="M 181.24338,369.51346 L 169.73323,385.32668"
          id="path3590"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
          inkscape:export-xdpi="95.330002"
          inkscape:export-ydpi="95.330002" />
       <path
-         style="fill:none;fill-opacity:0.75000000;fill-rule:evenodd;stroke:#000000;stroke-width:0.26710364;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4.0000000;stroke-opacity:1.0000000"
+         style="fill:none;fill-opacity:0.75;fill-rule:evenodd;stroke:#000000;stroke-width:0.26710364;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1"
          d="M 170.75615,337.09821 L 151.94079,330.52576"
          id="path4213"
          inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
@@ -201,12 +129,12 @@
     </g>
     <text
        xml:space="preserve"
-       style="font-size:12.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#747474;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr"
+       style="font-size:12.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#4b4444;fill-opacity:1;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr"
        x="294.39142"
        y="305.94675"
        id="text4844"
        transform="matrix(4.173536,0.000000,0.000000,4.173536,-973.2687,-938.4388)"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
+       inkscape:export-filename="/home/brett/devel/bauble/bauble/images/bauble_logo.png"
        inkscape:export-xdpi="95.330002"
        inkscape:export-ydpi="95.330002"><tspan
          sodipodi:role="line"
@@ -215,11 +143,11 @@
          y="305.94675">Bauble</tspan></text>
     <text
        xml:space="preserve"
-       style="font-size:12.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#747474;fill-opacity:1.0000000;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr"
+       style="font-size:12.000000;font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;fill:#3c3c3c;fill-opacity:1;stroke:none;stroke-width:1.0000000pt;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1.0000000;font-family:Bitstream Vera Sans;text-anchor:start;writing-mode:lr"
        x="295.83099"
        y="352.73267"
        id="text5468"
-       inkscape:export-filename="/home/brett/devel/bauble_web/images/bauble_logo.png"
+       inkscape:export-filename="/home/brett/devel/bauble/bauble/images/bauble_logo.png"
        inkscape:export-xdpi="95.330002"
        inkscape:export-ydpi="95.330002"
        transform="translate(0.000000,5.000000)"><tspan
@@ -227,41 +155,51 @@
          id="tspan5469"
          x="295.83099"
          y="352.73267">biodiversity collection manager</tspan></text>
-    <path
-       sodipodi:type="star"
-       style="opacity:0.5;fill:#31cd32;fill-opacity:1;stroke:#4f867c;stroke-opacity:1"
-       id="path1388"
-       sodipodi:sides="5"
-       sodipodi:cx="137.62259"
-       sodipodi:cy="228.06619"
-       sodipodi:r1="31.635117"
-       sodipodi:r2="31.635117"
-       sodipodi:arg1="0.7145492"
-       sodipodi:arg2="1.3428677"
-       inkscape:flatsided="true"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 161.5194,248.79596 L 125.29193,257.19926 L 106.10501,225.34165 L 130.47431,197.24927 L 164.72229,211.74482 L 161.5194,248.79596 z "
-       transform="matrix(0.973104,0.230368,-0.230368,0.973104,78.44455,-20.47683)" />
-    <path
-       sodipodi:type="star"
-       style="opacity:0.5;fill:#31cd32;fill-opacity:1;stroke:#4f867c;stroke-opacity:1"
-       id="path1390"
-       sodipodi:sides="5"
-       sodipodi:cx="137.62259"
-       sodipodi:cy="228.06619"
-       sodipodi:r1="31.635117"
-       sodipodi:r2="31.635117"
-       sodipodi:arg1="0.7145492"
-       sodipodi:arg2="1.3428677"
-       inkscape:flatsided="true"
-       inkscape:rounded="0"
-       inkscape:randomized="0"
-       d="M 161.5194,248.79596 L 125.29193,257.19926 L 106.10501,225.34165 L 130.47431,197.24927 L 164.72229,211.74482 L 161.5194,248.79596 z "
-       transform="matrix(0.665803,0.157619,-0.157619,0.665803,104.0797,59.89596)" />
-    <path
-       style="fill:#73b68b;fill-opacity:1;fill-rule:evenodd;stroke:#468b90;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       d="M 159.96731,201.57837 L 159.86551,211.85944"
-       id="path2267" />
+    <g
+       id="g1952"
+       inkscape:label="Layer 1"
+       transform="matrix(0.106676,-1.735408e-2,1.735408e-2,0.106676,168.6618,280.1373)"
+       inkscape:export-filename="/home/brett/devel/bauble/bauble/images/bauble_logo.png"
+       inkscape:export-xdpi="95.330002"
+       inkscape:export-ydpi="95.330002">
+      <g
+         id="g1403">
+        <path
+           style="fill:#8bba48;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 118.96044,255.73146 L 273.48115,177.30985 L 347.50911,279.57959 L 279.04339,377.41842 L 118.96044,255.73146 z "
+           id="path1365"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           style="fill:#9bc358;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 118.76085,256.80848 L 209.88103,760.27955 L 279.04339,377.41842 L 118.76085,256.80848 z "
+           id="path1367"
+           sodipodi:nodetypes="cccc" />
+        <path
+           style="fill:#a9cb73;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 211.44656,757.15737 L 279.04339,377.41842 L 489.40826,477.21763 L 211.44656,757.15737 z "
+           id="path1369"
+           sodipodi:nodetypes="cccc" />
+        <path
+           style="fill:#c7dca3;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 348.29834,280.2253 L 500.69395,354.20424 L 486.90197,474.97837 L 279.04339,377.41842 L 348.29834,280.2253 z "
+           id="path1371"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           style="fill:#d6e6bb;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1.00230193px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 274.90796,177.597 L 348.43672,279.17559 L 501.32035,353.41217 L 631.07493,352.74578 L 530.32556,280.30233 L 385.70482,211.92194 L 274.90796,177.597 z "
+           id="path1373"
+           sodipodi:nodetypes="ccccccc" />
+        <path
+           style="fill:#9bc358;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 632.20005,353.74412 L 679.86825,515.18909 L 487.81265,475.35357 L 501.65703,354.4007 L 632.20005,353.74412 z "
+           id="path1375"
+           sodipodi:nodetypes="ccccc" />
+        <path
+           style="fill:#68a74a;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="M 487.10675,476.1675 L 679.11523,516.02352 L 210.11655,759.93011 L 487.10675,476.1675 z "
+           id="path1377"
+           sodipodi:nodetypes="cccc" />
+      </g>
+    </g>
   </g>
 </svg>

@@ -20,10 +20,11 @@
 # inside this module as a multiline string to avoid having to find the file on 
 # the disk
 
-# ********
 # TODO: this tool should be included in the search view plugin or at least
 # be a separate plugin that requires search view 
-#***********
+
+# TODO: should make the search results sortable when clicking on the column 
+# headers
 
 import os, sys, traceback
 import gtk

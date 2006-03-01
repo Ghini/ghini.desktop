@@ -51,7 +51,7 @@ for pattern in data_patterns:
             plugin_data[p] += [f[len(package_dir):] for f in files]            
 
 bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png',
-				  'pixmaps/*.png']}
+				  'pixmaps/*.png', 'images/*.svg']}
 package_data = {}
 package_data.update(bauble_package_data)
 package_data.update(plugin_data)

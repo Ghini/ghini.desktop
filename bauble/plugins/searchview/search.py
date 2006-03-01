@@ -27,6 +27,13 @@ from pyparsing import *
 # a list of expanded paths and then search again on the same criteria and then
 # reexpand the paths that were saved and the path of the item that was the 
 # editor was called on
+# - should check out TreeView.map_expanded_rows to get all the 
+# expanded rows and then maybe we can reexpand them after we've 
+# finished refreshing the view
+# - now when we add  and edit items from the context menu then the current row
+# and parent row are collapsed and expanded respectively, but if something
+# is added from these editors that are in the same tree branch as from
+# the currently selected row then it won't update
 
 # TODO: things todo when a result is selected
 # - GBIF search results, probably have to look up specific institutions
@@ -46,10 +53,6 @@ from pyparsing import *
 # we would need a list of these and someway to include separators so there
 # could be multiple menu items in the context menu, could also probably 
 # replicate the context menu in the menu bar as well
-
-# TODO: should check out TreeView.map_expanded_rows to get all the 
-# expanded rows and then maybe we can reexpand them after we've 
-# finished refreshing the view
 
 # TODO: i don't really think that the sort column is that necessary
 # in the SearchMeta since we have to sort all the results later, though
@@ -87,7 +90,7 @@ class SearchParser:
 	domain = Word(alphanums).setResultsName('domain')
 	quotes = Word('"\'')    
 
-	value_str = Word(alphanums+'*' +' '+';'+'.')
+	value_str = Word(alphanums+'*' +' '+';'+'.'+' ')
 	_values = (delimitedList(Optional(quotes).suppress() + value_str + \
 	    Optional(quotes).suppress()))#.setResultsName('values')
 	values = Group(_values).setResultsName('values')
@@ -105,7 +108,7 @@ class SearchParser:
 	self.statement = (values ^ expression ^ query)
 		
 
-    def parseString(self, text):
+    def parse_string(self, text):
 	return self.statement.parseString(text)
 	
 
@@ -380,7 +383,9 @@ class SearchView(BaubleView):
 			    break
 	elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
 	    # a general expression
-	    values = ','.join(tokens['values']) # can values not be in tokens?
+	    #values = ','.join(tokens['values']) # can values not be in tokens?
+	    values= tokens['values']
+#	    debug(values)	    
 	    table_name = self.domain_map[tokens['domain']]
 	    results += self.query_table(table_name, values)#[:]
 	elif 'values' in tokens: # a list of values
@@ -407,7 +412,8 @@ class SearchView(BaubleView):
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.results_view.set_model(None)        
         try:
-	    tokens = self.parser.parseString(text)	    
+	    tokens = self.parser.parse_string(text)	    
+#	    debug(tokens)
 	    if 'domain' in tokens and tokens['domain'] not in self.domain_map:
 		raise SyntaxError(None, tokens['domain'])
 	    results = self._get_search_results_from_tokens(tokens)
@@ -479,7 +485,11 @@ class SearchView(BaubleView):
         
                     
     def query_table(self, table_name, values):
-#        debug(values)
+	"""
+	query the table table_name for values which are 'OR'ed together
+	table_name: the table_name should be registered in search_meta
+	values: list of values to query table_name
+	"""
         if table_name not in self.search_metas:
             raise ValueError("SearchView.query: no search meta for domain ", 
                               domain)
@@ -572,18 +582,34 @@ class SearchView(BaubleView):
         if keyname == "Return":
             self.search_button.emit("clicked")
             
-            
-    def on_activate_editor(self, item, editor, select=None, defaults={}):
-        e = editor(select=select, defaults=defaults)        
+    
+    # TODO: this won't work if the item in the results has already been clicked
+    # on and there's no icon to indicate children
+    def on_activate_add_item(self, item, path, editor, defaults={}):
+	# on add we should collapse/expand  on the currently select row
+        e = editor(defaults=defaults)
         committed = e.start()
         if committed is not None:
-            self.refresh_search()        
-#        response = e.start()
-#        if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:        
-#            e.commit_changes()
-#            self.refresh_search()            
-#        e.destroy()
-        
+	    debug(path)
+	    if len(path) == 1: # the root, 
+		# refresh the search in case the item indicates that it doesn't
+		# have any kids in the search results
+	    	self.refresh_search()
+	    self.results_view.collapse_row(path)
+	    self.results_view.expand_to_path(path)    
+
+
+    def on_activate_edit_item(self, item, path, editor, select=None):
+	# on edit we should collapse/expand on the parent path
+        e = editor(select=select)
+        committed = e.start()
+        if committed is not None:
+#	    debug(path)
+	    if len(path) > 1: # not the root
+		parent_path = path[:-1]
+		self.results_view.collapse_row(parent_path)
+		self.results_view.expand_to_path(parent_path)
+
 
     # TODO: provide a way for the plugin to add extra items to the
     # context menu of a particular type in the search results, this will
@@ -593,6 +619,7 @@ class SearchView(BaubleView):
     #    pass
     
     def on_view_button_release(self, view, event, data=None):
+        
         """
         popup a context menu on the selected row
         """
@@ -608,7 +635,7 @@ class SearchView(BaubleView):
         if model == None:
             return # nothing to pop up a context menu on
         value = model.get_value(i, 0) 
-        
+        path = model.get_path(i) # get the path to pass the on_activate_*_item
         menu = gtk.Menu()
 
         editor_class = self.view_meta[value.__class__.__name__].editor
@@ -619,9 +646,8 @@ class SearchView(BaubleView):
             edit_item = gtk.MenuItem("Edit")
             # TODO: there should be a better way to get the editor b/c this
             # dictates that all editors are in ClassnameEditor format
-    
-            edit_item.connect("activate", self.on_activate_editor,
-                              editor_class, [value], None)
+	    edit_item.connect("activate", self.on_activate_edit_item,
+			      path, editor_class, [value])
             menu.add(edit_item)
             menu.add(gtk.SeparatorMenuItem())
         
@@ -637,9 +663,9 @@ class SearchView(BaubleView):
                 if join.joinColumn[-3:] == "_id": 
                     defaults[join.joinColumn.replace("_id", "ID")] = value
                     #defaults[join.joinColumn[:-3] + "ID"] = value        
-                add_item = gtk.MenuItem("Add " + join.joinMethodName)                
-                add_item.connect("activate", self.on_activate_editor, 
-                                  editor_class, None, defaults)
+                add_item = gtk.MenuItem("Add " + join.joinMethodName)
+		add_item.connect("activate", self.on_activate_add_item,
+				 path, editor_class, defaults)
                 menu.add(add_item)
         
         if add_item is not None:

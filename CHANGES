@@ -1,3 +1,15 @@
+2005.03.01
+----------
+- fixed the open_database() fix
+- adding and editing item from the context menu refreshes the view a bit 
+smarter
+- new logo image
+- new logo as window icon
+- cleaned up some old code in the GUI
+- fixed problem with storing the string 'NoneType' instead of the value None in
+the accession.source_type column
+
+
 2005.02.28
 ----------
 - fixed problem with creating vernacular names

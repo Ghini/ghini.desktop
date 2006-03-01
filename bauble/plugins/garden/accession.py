@@ -99,7 +99,6 @@ class Accession(BaubleTable):
 #
 
 def get_source(row):
-#    debug('get_source: ' + str(row.source_type))
     if row.source_type == None:
         return None
     elif row.source_type == tables['Donation'].__name__:
@@ -179,7 +178,7 @@ class AccessionEditor(TreeViewEditorDialog):
         
     def _transform_row(self, row):
         row = super(AccessionEditor, self)._transform_row(row)
-        if 'source_type' in row:
+        if 'source_type' in row and row['source_type'] is not None:
             source_class = row['source_type'].__class__.__name__
             attribute_name = '_' + source_class.lower()
             self.columns.joins.append(attribute_name)                
