@@ -50,8 +50,7 @@ for pattern in data_patterns:
                 plugin_data[p] = []
             plugin_data[p] += [f[len(package_dir):] for f in files]            
 
-bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png',
-				  'pixmaps/*.png', 'images/*.svg']}
+bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg']}
 package_data = {}
 package_data.update(bauble_package_data)
 package_data.update(plugin_data)
@@ -87,8 +86,10 @@ if sys.platform == "win32":
                   glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
                  for p in plugins_pkgs]    
     py2exe_data_files = [p for p in globs if len(p[1]) != 0]
-    py2exe_data_files += [('bauble', ('bauble/bauble.ui','bauble/conn_mgr.glade')),
-                          ('bauble/images', glob.glob('bauble/images/*.png')),
+    py2exe_data_files += [('bauble', ('bauble/bauble.ui',
+				      'bauble/conn_mgr.glade')),
+                          ('bauble/images', 
+			   glob.glob('bauble/images/*.png')+glob.glob('bauble/images/*.svg')),
                           ('bauble/pixmaps', glob.glob('bauble/pixmaps/*.png'))] 
 else:
     opts=None

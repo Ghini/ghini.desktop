@@ -131,9 +131,11 @@ class ConnectionManager:
         self.glade_xml.signal_autoconnect(handlers)
         
         self.dialog = self.glade_xml.get_widget('main_dialog')
-	icon_path  = os.path.join(paths.lib_dir(), "images", "icon.svg")
-	pixbuf = gtk.gdk.pixbuf_new_from_file(icon_path)
-	self.dialog.set_icon(pixbuf)
+	if sys.platform != 'win32':
+	    # TODO: need and svg pixbuf loaded for windows
+	    icon_path  = os.path.join(paths.lib_dir(), "images", "icon.svg")
+	    pixbuf = gtk.gdk.pixbuf_new_from_file(icon_path)
+	    self.dialog.set_icon(pixbuf)
 
         logo = self.glade_xml.get_widget('logo_image')
 	logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
