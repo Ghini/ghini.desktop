@@ -2,7 +2,7 @@
 # conn_mgr.py
 #
 
-import os, copy, traceback
+import os, sys, copy, traceback
 import gtk
 import sqlobject
 import utils

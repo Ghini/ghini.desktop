@@ -4,7 +4,7 @@
 # Description: TODO: finish the descriptions and check the other files have
 #
 
-import os, time, re
+import os, sys, time, re
 import gtk, gobject
 import sqlobject
 import bauble
