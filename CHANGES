@@ -1,4 +1,8 @@
-2005.03.01
+2006.03.02
+----------
+- forgot to add icon and logo to svn
+
+2006.03.01
 ----------
 - fixed the open_database() fix
 - adding and editing item from the context menu refreshes the view a bit 
@@ -10,7 +14,7 @@ smarter
 the accession.source_type column
 
 
-2005.02.28
+2006.02.28
 ----------
 - fixed problem with creating vernacular names
 - save an editors state even if the dialog is canceled
