@@ -13,7 +13,7 @@
 			       margin-bottom="0.5in"
 			       margin-left="0.5in"
 			       margin-right="0.5in">
-	  <fo:region-body column-count="2" column-gap=".5mm"/>
+	  <fo:region-body column-count="2" column-gap="0"/>
 	</fo:simple-page-master>
       </fo:layout-master-set>    
       
@@ -22,7 +22,7 @@
 	  <xsl:for-each select="unit">
 	    
 	    <!-- ** the label block ** -->        
-	    <fo:block-container margin="1mm" keep-together="always" 
+	    <fo:block-container margin=".5mm" keep-together="always" 
 				border="solid black 1px" width="122mm" 
 				height="59mm">
 	      
@@ -85,8 +85,8 @@
 	      <!-- ** Distribution ** -->
 	      <!-- border="solid orange 1px" -->
 	      <fo:block-container absolute-position="absolute" top="52mm"
-				  bottom="0mm" left="60mm" right="2mm" 
-				  width="60mm">
+				  bottom="0mm" left="50mm" right="2mm" 
+				  width="70mm">
 		<fo:block font-family="Bitstream Vera Serif, serif" 
 			  font-size="15pt" text-align="right">
 		  <xsl:value-of select=".//distribution"/>

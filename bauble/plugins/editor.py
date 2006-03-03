@@ -168,7 +168,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
             return self.get_title()
     name = property(_get_name)
     
-     
+
     def _set_view_model_value(self, path, value):        
         model = self.table_editor.view.get_model()
         i = model.get_iter(path)
@@ -753,7 +753,6 @@ class TableEditorDialog(TableEditor):
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
         self._values = []
 
-
     
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
@@ -903,6 +902,24 @@ class TreeViewEditorDialog(TableEditorDialog):
                 self[name].set_property('title', title)
         
         titles = property(fset=__set_titles)
+
+
+    #
+    # view property
+    # 
+    # TODO: is making the view read only really a necessary?
+    def _get_view(self):
+        return self.__view
+    view = property(_get_view)
+
+    #
+    # model property
+    #
+    def _get_model(self):
+	return self.view.get_model()
+    def _set_model(self):
+	self.view.set_model(model)
+    model = property(_get_model, _set_model)
         
 
     def __init__(self, table, title="Table Editor", parent=None, select=None, 
@@ -988,12 +1005,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.__view = gtk.TreeView(gtk.ListStore(object, 'gboolean'))
         self.columns = self.create_view_columns()
         self.view.set_headers_clickable(False)
-
-
-    # TODO: is making the view read only really a necessary?
-    def __get_view(self):
-        return self.__view
-    view = property(__get_view)
   
     
     def start_tree_view(self):
