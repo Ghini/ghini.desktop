@@ -4,6 +4,7 @@
 
 import os, sys, re, copy, traceback
 import xml.sax.saxutils as saxutils
+import warnings
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
@@ -58,6 +59,16 @@ from bauble.utils.log import log, debug
 
 # TODO: on add or insert from context menu only collapse parent of selected
 # result, on insert from menu refresh search
+
+# FIXME: if a column that is edited by a subeditor has pending changes and 
+# the commit on the main editor fails then the temporary object from the 
+# subeditor is lost, its probably because this object was part of the 
+# transaction and was lost when we got an error and rolled back the 
+# transaction, and its not in the cache anymore either
+# - this is going to be a difficult problem, (1) if we don't rollback on error 
+# we can keep the pending object but the error could invalidate our transaction
+# so we can't anything anyway, (2) if we rollback then we lose the pending
+# changes in the subeditor
 
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    
@@ -770,13 +781,7 @@ class TableEditorDialog(TableEditor):
             response = self.dialog.run()
 	    self.save_state()
             if response == gtk.RESPONSE_OK:
-                try:                    
-		    # TODO: we need to remove _set_values_from_widgets since
-		    # we now do _transform_row on each row during commit,
-		    # we leave it hear for now since i think some of the 
-		    # plugins haven't moved over to _transform_row though
-		    # they eventually should be
-                    self._set_values_from_widgets()
+                try:
                     committed = self.commit_changes()                    
 		except CommitException, e:
 		    debug(traceback.format_exc())
@@ -786,10 +791,10 @@ class TableEditorDialog(TableEditor):
                                                  gtk.MESSAGE_ERROR)
 		    self.reset_committed()
 		    self.reset_background()
-		    e.row[1] = True #set the flag to change the background color
+		    #set the flag to change the background color
+		    e.row[1] = True 
 		    sqlhub.processConnection.rollback()
 		    sqlhub.processConnection.begin()
-		    pass
                 except Exception, e:
 		    debug(traceback.format_exc())
 		    exc_msg + ' \n %s' % str(e)                    
@@ -820,6 +825,7 @@ class TableEditorDialog(TableEditor):
 	for row in self.view.get_model():
 	    row[0].committed = False
 
+
     def reset_background(self):
 	'''
 	turn off all background-set attributes
@@ -841,17 +847,11 @@ class TableEditorDialog(TableEditor):
     def on_dialog_close_or_delete(self, widget, event=None):
         self.dialog.hide()
         return True
-        
-        
-    def __get_values(self):
-        return self._values
-    values = property(__get_values)
+            
             
     def start(self, commit_transaction=True):
         raise NotImplementedError('TableEditorDialog.start()')
     
-    def _set_values_from_widgets(self):
-        raise NotImplementedError('TableEditorDialog._set_values_from_widgets()')
 
     def save_state(self):
         '''
@@ -907,7 +907,7 @@ class TreeViewEditorDialog(TableEditorDialog):
     #
     # view property
     # 
-    # TODO: is making the view read only really a necessary?
+    # TODO: is making the view read only really a necessary
     def _get_view(self):
         return self.__view
     view = property(_get_view)
@@ -917,7 +917,7 @@ class TreeViewEditorDialog(TableEditorDialog):
     #
     def _get_model(self):
 	return self.view.get_model()
-    def _set_model(self):
+    def _set_model(self, model):
 	self.view.set_model(model)
     model = property(_get_model, _set_model)
         
@@ -929,19 +929,11 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.__view = None        
         self.__dirty = False # accessed via self.dirty property
         self.table_meta = TableMeta()        
-#        self.dialog = gtk.Dialog(title, parent, 
-#                            gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT, 
-#                            (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-#                             gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-#        self.dialog.connect('close)
         self.init_gui()
         
         # this is used to indicate that the last row is a valid row
         # or it is one that was added automatically but never used
         self.dummy_row = False
-        # _values will hold values of the widgets after start returns
-        # 
-        #self._values = None
         #self.connect('response', self.on_response)
                 
         
@@ -1002,6 +994,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         create the main tree view
         """
+	# the gboolean is here to control whether to turn on the background 
+	# color
         self.__view = gtk.TreeView(gtk.ListStore(object, 'gboolean'))
         self.columns = self.create_view_columns()
         self.view.set_headers_clickable(False)
@@ -1159,61 +1153,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         # could do this with a property notify signal
 #        self.view.resize_children()
          
-        
-    # TODO: this is not longer relevant as we do _transform_row on each
-    # row in the model as we commit
-    def _set_values_from_widgets(self):
-        """
-        used by commit_changes to get the values from a table so they
-        can be commited to the database, this version of the function
-        removes the values with None as the value from the row, i thought
-        this was necessary but now i don't, in fact it may be better in
-        case you want to explicitly set things null
-        """
-        # TODO: this method needs some love, there should be a more obvious
-        # way or at least simpler way of return lists of values
-        model = self.view.get_model()
-        self._values = []
-        for item in model:
-            # copy so when we make changes to item it doesn't affect our
-            # iterator            
-            temp_row = copy.copy(item[0])                         
-            if not temp_row.dirty:
-                continue
-            for name, value in item[0].iteritems():                
-                # del the value if they are none, have to do this b/c 
-                # we don't want to store None in a row without a default
-                if value is None:
-                    del temp_row[name]            
-                elif isinstance(value, tuple):
-                    # the only reason the value should be a tuple is if the
-                    # row has an (existing, pending) pair in it
-#                    debug(value)
-                    temp_row[name] = value[1]
-            
-            self._values.append(temp_row)
-
-    
-    def _transform_row(self, row):    
-        temp = row.copy()
-        for name, value in row.iteritems():
-            #if value is None:
-            #    del temp[name]
-	    #if name in self.columns.foreign_keys and value is None:
-	    #	del temp[name]
-            if isinstance(value, tuple):
-                temp[name] = value[1]
-        return temp
-            
-            
-    def pre_commit_hook(self, values):
-        '''
-        called on each item in self.values before committing, this
-        allows a custom editor to do something to the values in the list
-        before they are commited        
-        '''
-        return True
-    
     
     def post_commit_hook(self, table_instance):
         '''
@@ -1222,19 +1161,32 @@ class TreeViewEditorDialog(TableEditorDialog):
         '''
         return True
     
+
+    def _model_row_to_values(self, row):
+	'''
+	_model_row_to_values
+	row: iter from self.model
+	return None if you don't want to commit anything
+	'''	
+	if not row[0].dirty or row[0].committed:
+	    # then this row hasn't changed or has already been committed
+	    return None	
+	values = row[0].copy()
+	for name, value in values.iteritems():
+	    if isinstance(value, tuple):
+		values[name] = value[1]
+	return values
+	    
     
     def _commit_model_rows(self):
         committed_rows = []
         table_instance = None
         model = self.view.get_model()        
         for item in model:
-            # then this row hasn't changed or has already been committed
-            if not item[0].dirty or item[0].committed: 
-                continue
-            row = self._transform_row(item[0])
 
-            if not self.pre_commit_hook(row):
-                continue
+	    row = self._model_row_to_values(item)
+	    if row is None:
+		continue
                         
             for fk in self.columns.foreign_keys: # get foreign keys from row
                 if fk in row and row[fk] is not None:
@@ -1250,9 +1202,9 @@ class TreeViewEditorDialog(TableEditorDialog):
 	
 	    try: # commit
 		table_instance = self._commit(row)
-            # have to set the join this way since 
-            # table_instance.joinColumnName doesn't seem to work here, 
-            # maybe b/c the table_instance hasn't been committed
+		# have to set the join this way since 
+		# table_instance.joinColumnName doesn't seem to work here, 
+		# maybe b/c the table_instance hasn't been committed
 		for join in table_instance.sqlmeta.joins:
 		    if join.joinMethodName in join_values:
 			if isinstance(join, SOSingleJoin):
@@ -1344,19 +1296,10 @@ class TreeViewEditorDialog(TableEditorDialog):
             column.renderer.connect('edited', self.on_column_edited, column)
             columns[name] = column
             
-        return columns
-        
-        
-#    def on_column_toggled(self, renderer, path, column):
-#        if column.dirty:
-#            self.dirty = False
-#            #self.set_dirty(True)
+        return columns            
     
     
     def on_column_edited(self, renderer, path, new_text, column):
-#        if column.dirty:
-#            self.dirty = True
-
         # edited the last row so add a new one,
         # i think this may a bit of a bastardization of path but works for now
         model = self.view.get_model()
@@ -1369,13 +1312,14 @@ class TreeViewEditorDialog(TableEditorDialog):
     def add_new_row(self, row=None):
         model = self.view.get_model()
         if model is None: 
-            raise Exception("the view doesn't have a model")
+            raise bauble.BaubleError("the view doesn't have a model")
         if row is None:
             row = self.table        
         
         self.number_of_adds += 1
         if self.number_of_adds > 8: # this is a hack to avoid the column creep
             self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
+	# the False is for the background color
         model.append([ModelRowDict(row, self.columns, self.defaults), False])
 
 
@@ -1391,8 +1335,6 @@ class TreeViewEditorDialog(TableEditorDialog):
                 col.set_visible(True)
             else:
                 col.set_visible(False)                
-#            elif not col.meta.required: 
-#                col.set_visible(False)
 
     
     def get_column_widths_from_prefs(self):
@@ -1419,7 +1361,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         for name, col in self.columns.iteritems():
             width_dict[name] = col.get_width()
         
-        #debug(width_dict)
         pref_dict = prefs[self.column_width_pref]
         if pref_dict is None:
             prefs[self.column_width_pref] = width_dict
@@ -1439,5 +1380,5 @@ class TreeViewEditorDialog(TableEditorDialog):
             if c.get_visible():
                 visible.append(c.name)
         prefs[self.visible_columns_pref] = visible
-        #prefs.save()
+
         

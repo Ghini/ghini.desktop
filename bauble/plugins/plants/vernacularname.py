@@ -4,6 +4,7 @@
 
 import gtk
 from sqlobject import *
+import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, ToggleColumn, \
     GenericViewColumn
@@ -46,30 +47,21 @@ class DefaultColumn(GenericViewColumn):
     def __init__(self, tree_view_editor, header, name=None):
         super(DefaultColumn, self).__init__(tree_view_editor, header, 
                                             gtk.CellRendererToggle())
-        self.selected_row = None
+        self.selected_row = None	
         self.renderer.connect('toggled', self.on_toggled)
         self.meta.required = True
+	
         
     def _get_name(self):
-        return "default"
+        return "default"        
         
-        
+
     def on_toggled(self, renderer, path, data=None):
         # FIXME: don't allow selection of the last row, it's empty stupid
         self.dirty = True
         active = not renderer.get_active()
         model = self.table_editor.view.get_model()
         self.selected_row = gtk.TreeRowReference(model, path)
-        
-#        it = model.get_iter(path)        
-#        
-#        selected_value = model[it][0]
-#        debug(selected_value)
-#        # if the selected row represent a table value instead of just
-#        # a dict then go ahead and set it as the default
-#        if selected_value.isinstance:
-#            debug('set default')
-#            self.default_name = selected_value.row
     
     
     def cell_data_func(self, column, renderer, model, iter, data=None):        
@@ -81,7 +73,14 @@ class DefaultColumn(GenericViewColumn):
             renderer.set_property('sensitive', True)
             renderer.set_property('activatable', True)
                         
-        if len(model) == 1: # this is the only item in the model
+	if len(model) == 1: 
+	    # this is the only item in the model so set the selected row,
+	    # this probably isn't the best place to be setting 
+	    # self.selected_row since we'll be setting it over and over again,
+	    # but it seems to work and it makes sure that if there is only
+	    # one item in the model then it's always selected
+	    model = self.table_editor.view.get_model()
+	    self.selected_row = gtk.TreeRowReference(model, (0,))
             renderer.set_active(True)        
         elif self.selected_row is None:
             renderer.set_active(False)            
@@ -96,14 +95,6 @@ class VernacularNameEditor(TreeViewEditorDialog):
     '''
     for editing the vernacular names of a species
     '''
-    
-    # TODO: need to update this editor to remove the _set_values_from_widgets
-    # and start using _transform_row
-
-    # TODO: if the dialog is opened with no values automatically select
-    # the first row as the default, update: this actually happens but when you
-    # edit the row the selection goes away
-
     visible_columns_pref = "editor.vernacular.columns"
     column_width_pref = "editor.vernacular.column_width"
     default_visible_list = ['speciesID', 'name', 'language'] 
@@ -129,9 +120,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
         self.columns.titles = titles        
         self.columns.pop('speciesID')
         self.columns['default'] = DefaultColumn(self, 'Default')
-        self.default_instance = None
         self.default_name = default_name
-        #self.default_instance = default_name
 	self.default_values = None
         
     
@@ -141,6 +130,7 @@ class VernacularNameEditor(TreeViewEditorDialog):
         
         if len(model) == 1: 
             # only one value in the model, set it as the default
+	    # TODO: this isn't doing anything, why is it here?
             model[0]
         else:
             for item in model: # skip last row which should be empty
@@ -150,16 +140,10 @@ class VernacularNameEditor(TreeViewEditorDialog):
                     path = model.get_path(item.iter)
                     self.columns['default'].selected_row = \
                         gtk.TreeRowReference(model, path)
-        self.default_name = None
-            
-            
+        self.default_name = None            	
+
+
     is_default = False
-    def pre_commit_hook(self, values):
-        if values == self.default_values:
-#            debug('-- is default')
-            self.is_default = True
-        return True
-        
         
     def post_commit_hook(self, table_instance):
 #        debug(self.columns['default'].selected_row)
@@ -167,40 +151,48 @@ class VernacularNameEditor(TreeViewEditorDialog):
             self.default_name = table_instance
             self.is_default = False # reset 
         
-        
+
+    def _model_row_to_values(self, row):
+	'''
+	_model_row_to_values
+	row: iter from self.model
+	return None if you don't want to commit anything
+	'''    
+	values = super(VernacularNameEditor, self)._model_row_to_values(row)
+	if values is None:
+	    return None
+
+	if values == self.default_values:
+	    self.is_default = True
+	else:
+	    # reset to false incase commit_changes is called twice
+	    self.is_default = False 
+	    
+	return values
+
+
+
     def commit_changes(self):
+	selected_row = self.columns['default'].selected_row
+	model = selected_row.get_model()
+	self.default_values = model[model.get_iter(selected_row.get_path())][0]
+
         committed_rows = \
             super(VernacularNameEditor, self).commit_changes()
+
+	selected_row = self.columns['default'].selected_row
+	model = selected_row.get_model()
+	sel = model[model.get_iter(selected_row.get_path())][0]
+
         if self.default_name is None:
             sr = self.columns['default'].selected_row
             model = sr.get_model()
             sel = model[model.get_iter(sr.get_path())][0]
-#            debug(sel)
-            if sel.isinstance:
-                self.default_name = sel.row
-            else:
-                raise BaubleError('no default selected')
-                    
-#        debug(committed_rows)
+            debug(sel)
+	    if sel.isinstance:
+		self.default_name = sel.row
+	    else:
+		raise bauble.BaubleError('no default selected')	    
         return self.default_name, committed_rows
                 
-                
-    def _set_values_from_widgets(self):
-        super(VernacularNameEditor, self)._set_values_from_widgets()
-        # this is a bit silly b/c it loops over the model twice, once in 
-        # super._set_values_from_widgets and once here, this shouldn't 
-        # really be a performance hit though
-        model = self.view.get_model()
-#        debug('_set_values_from_widgets')
-        sr = self.columns['default'].selected_row
-        if sr is None:
-            return
-        selected_item = sr.get_model().get_iter(sr.get_path())
-        selected_value = model[selected_item][0]
-        self.default_values = None
-        for item in model:                                        
-            if item[0] == selected_value:
-                self.default_values = selected_value
-                return
-        raise BaubleError('could not get selected values')
-        
+    

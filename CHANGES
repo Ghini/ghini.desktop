@@ -1,6 +1,17 @@
+2006.03.04
+----------
+- combined editor.pre_commit_hook and _transform_row in _model_row_to_values
+- updated all editors to use _model_row_values and got rid of all instances of
+_transform_row and pre_commit_hook
+- cleaned out old bits code
+
+
 2006.03.02
 ----------
 - forgot to add icon and logo to svn
+- disabled icon from win32 since my gtk for win32 doesn't have an svg pixbuf 
+loader
+
 
 2006.03.01
 ----------

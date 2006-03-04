@@ -60,11 +60,6 @@ class FamilyEditor(TreeViewEditorDialog):
         self.columns['synonyms'].meta.editor = editors["FamilySynonymEditor"]
 
 
-    def pre_commit_hook(self, values):
-        #values.pop('synonyms')
-        return True
-
-
 
 # 
 # FamilySynonymEditor

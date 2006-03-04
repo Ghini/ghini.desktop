@@ -416,25 +416,30 @@ class SourceEditor(TableEditorDialog):
         self.curr_editor = editor                
         self.source_box.pack_start(editor.box)
         editor.box.show_all()
-        
-    def _transform_row(self, row):
-        # TODO: we need a much better way to define the date format for the 
+    
+
+    def _validate_row(self, values):
+	'''
+	_model_row_to_values
+	row: iter from self.model
+	return None if you don't want to commit anything
+	'''    
+	# TODO: we need a much better way to define the date format for the 
         # database, possible having a wizard when creating a new database to 
         # select the global date format at database creation and store the 
         # date format in BuableMeta, really we shouldn't have to set it
         # in BaubleMeta since we store datatime objects in the database, we 
-        # just have to be able to convert the value at entry time, lets just
-        # do this conversion in _transform_row
+        # just have to be able to convert the value at entry time
 #        date_str = sel
 #        colldate_entry = self.glade_xml.get_widget('colldate_entry')
 #        date_str = colldate_entry.get_text()
 
 #        values[coll_date] = date
-        if 'coll_date' in row:
+        if 'coll_date' in values:
             # should get the date format from somewhere, most likely
             # from BaubleMeta, should also validate the date but i think
             # datetime actually does this, e.g. month < 12
-            date_str = row['coll_date']
+            date_str = values['coll_date']
             rx = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
             m = rx.match(date_str)
             if m is None:
@@ -442,7 +447,8 @@ class SourceEditor(TableEditorDialog):
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                     m.group('day')]]
             dt = datetime(*ymd)
-            row['coll_date'] = dt
+            values['coll_date'] = dt
+	return values
             
             
             
@@ -461,7 +467,7 @@ class SourceEditor(TableEditorDialog):
         if values is None: 
             return None
 
-        self._transform_row(values)
+        self._validate_row(values)
 
         table_instance = None
         if self.select is None: # create a new table row
@@ -485,14 +491,7 @@ class SourceEditor(TableEditorDialog):
          if commit_transaction:
              sqlhub.processConnection.commit()
          return committed
-         
-         
-    def _set_values_from_widgets(self):
-         '''
-         we get the values from the other editor so we don't worry about
-         this method
-         '''
-         pass
+                  
      
 #    def start(self):
 #        # this ensures that the visibility is set properly in the meta before

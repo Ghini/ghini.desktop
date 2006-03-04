@@ -401,16 +401,19 @@ class SpeciesEditor(TreeViewEditorDialog):
 #        values = self.get_values_from_view()
     
           
-    def pre_commit_hook(self, values):    
+    def _model_row_to_values(self, row):    
         # need to test each of the values that make up the species
         # against the database, not just the string, i guess we need to
         # check each of the keys in values, check if they are name components
         # use each of these values in a query to speciess
+	values = super(SpeciesEditor, self)._model_row_to_values(row)
+	if values is None:
+	    return values
+
         if values.has_key('id'):
-            return True
+            return values
         exists = False
         select_values = {}
-#        debug(values)
         try:
             select_values['genusID'] = values['genusID'].id
             select_values['sp'] = values['sp']        
@@ -426,11 +429,10 @@ class SpeciesEditor(TreeViewEditorDialog):
                "are trying to create. Are your sure this is what you want to "\
                "do?\n\n" + names
         if exists and not utils.yes_no_dialog(msg):
-            return False
-        return True
-            
+            return None
+        return values
 
-    # 
+
     def get_genus_completions(self, text):
         model = gtk.ListStore(str, object)
         sr = tables["Genus"].select("genus LIKE '"+text+"%'")        

@@ -590,7 +590,6 @@ class SearchView(BaubleView):
         e = editor(defaults=defaults)
         committed = e.start()
         if committed is not None:
-	    debug(path)
 	    if len(path) == 1: # the root, 
 		# refresh the search in case the item indicates that it doesn't
 		# have any kids in the search results

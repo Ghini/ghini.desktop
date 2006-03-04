@@ -176,31 +176,24 @@ class AccessionEditor(TreeViewEditorDialog):
         return model
     
         
-    def _transform_row(self, row):
-        row = super(AccessionEditor, self)._transform_row(row)
-        if 'source_type' in row and row['source_type'] is not None:
-            source_class = row['source_type'].__class__.__name__
+    def _model_row_to_values(self, row):
+	'''
+	_model_row_to_values
+	row: iter from self.model
+	return None if you don't want to commit anything
+	'''    
+	values = super(AccessionEditor, self)._model_row_to_values(row)
+	if values is None:
+	    return None
+        if 'source_type' in values and values['source_type'] is not None:
+            source_class = values['source_type'].__class__.__name__
             attribute_name = '_' + source_class.lower()
             self.columns.joins.append(attribute_name)                
-            row[attribute_name] = row.pop('source_type')
-            row['source_type'] = source_class
-        return row
+            values[attribute_name] = values.pop('source_type')
+            values['source_type'] = source_class
+        return values
     
-    
-    # TODO:  we should have to reproduce this entire method just for this 
-    # editor, somehow we need a good way to get so that when we get the values
-    # from the editor we know now to change source_type into an id, etc.s        
-#    def _set_values_from_widgets(self):
-#        super(AccessionEditor, self)._set_values_from_widgets()        
-#        for v in self._values:
-#            if v.has_key('source_type'):
-#                source_class = v['source_type'].__class__.__name__
-#                attribute_name = '_' + source_class.lower()
-#                self.columns.joins.append(attribute_name)                
-#                v[attribute_name] = v.pop('source_type')
-#                v['source_type'] = source_class
-    
-    
+
 #
 # TODO: fix this so it asks if you want to adds plant when you're done
 #
@@ -319,10 +312,10 @@ else:
             
             set_widget_value(self.glade_xml, 'coll_data', collection.collector)
             set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
-            #set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
+            #set_widget_value(self.glade_xml,'date_data', collection.coll_date)
             set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
-            set_widget_value(self.glade_xml, 'habitat_data', collection.habitat)
-            set_widget_value(self.glade_xml, 'collnotes_data', collection.notes)
+            set_widget_value(self.glade_xml,'habitat_data', collection.habitat)
+            set_widget_value(self.glade_xml,'collnotes_data', collection.notes)
             
                 
         def update_donations(self, donation):

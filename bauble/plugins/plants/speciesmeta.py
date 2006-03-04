@@ -102,8 +102,7 @@ class SpeciesMetaEditor(TableEditorDialog):
         if commit_transaction:
             sqlhub.processConnection.commit()
         return committed
-    
-        
+            
     
     def commit_changes(self):
         '''
@@ -112,9 +111,10 @@ class SpeciesMetaEditor(TableEditorDialog):
         '''
         # if we were passed in an object to edit make sure we keep the same
         # id so we don't wind up with multple SpeciesMeta for one Species
+	values = self._get_values_from_widgets()
         if self.select is not None:
-            self.__values['id'] = self.select.id
-        table_instance = self._commit(self.__values)
+            values['id'] = self.select.id
+        table_instance = self._commit(values)
         return table_instance
 
 
@@ -147,57 +147,33 @@ class SpeciesMetaEditor(TableEditorDialog):
             self.poison_animals_check.set_active(meta.poison_animals)
 
                         
-    def _set_values_from_widgets(self):
-        self.__values = {}
-        #self.__values['__class__'] = self.table
+    def _get_values_from_widgets(self):
+        values = {}
+        #values['__class__'] = self.table
         #values['distribution'] = self.dist_combo.get_active_text()
         it = self.dist_combo.get_active_iter()
         if it is not None:
             model = self.dist_combo.get_model()
             v = model.get_value(it, 0)
-            self.__values['distribution'] = v
+            values['distribution'] = v
         
         if not self.food_check.get_inconsistent():
-            self.__values['food_plant'] = self.food_check.get_active()
+            values['food_plant'] = self.food_check.get_active()
             
         if not self.poison_animals_check.get_inconsistent():
-            self.__values['poison_animals'] = \
+            values['poison_animals'] = \
                 self.poison_animals_check.get_active()
         
         if not self.poison_humans_check.get_inconsistent():
-            self.__values['poison_humans'] = \
+            values['poison_humans'] = \
                 self.poison_humans_check.get_active()
         
         # not values in self__values so set it to None so we don't create
         # empty objects
-        if len(self.__values.keys()) == 0:
-            self.__values = None
-        
-        
-    def get_values(self):
-        return _values
-        
-#        values = {}
-#        values['__class__'] = self.table
-#        #values['distribution'] = self.dist_combo.get_active_text()
-#        it = self.dist_combo.get_active_iter()
-#        model = self.dist_combo.get_model()
-#        v = model.get_value(it, 0)
-#        values['distribution'] = v
-#        
-#        
-#        if not self.food_check.get_inconsistent():
-#            values['food_plant'] = self.food_check.get_active()
-#            
-#        
-#        if not self.poison_animals_check.get_inconsistent():
-#            values['poison_animals'] = self.poison_animals_check.get_active()
-#        
-#        if not self.poison_humans_check.get_inconsistent():
-#            values['poison_humans'] = self.poison_humans_check.get_active()
-#        
-#        return values
-#    #values = property(_get_values)
+        if len(values.keys()) == 0:
+            values = None
+	return values
+                
         
     def __populate_distribution_combo(self):        
         # TODO: maybe i should just pickle the object out and read it back in
