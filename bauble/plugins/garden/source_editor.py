@@ -62,30 +62,6 @@ def set_dict_value_from_widget(glade_xml, name, key, dic,
         dic[key] = v
 
 
-def set_widget_value(glade_xml, widget_name, value):
-    return utils.set_widget_value(glade_xml, widget_name, value)
-
-#     debug('set_widget_value(%s, %s)' % (widget_name, value))
-#     if value is None: 
-#         return
-#     w = glade_xml.get_widget(widget_name)
-#     if w is None:
-#         raise ValueError("set_widget_value: no widget by the name "+\
-#                          widget_name)
-# #    debug(type(value))
-#     if type(value) == ForeignKey:
-#         pass
-#     if isinstance(value, datetime):
-#         # TODO: get the date format from BaubleMeta
-#         s = "%s/%s/%s" % (value.day, value.month, value.year)
-#         w.set_text(s)
-#     elif isinstance(w, gtk.Entry):
-#         w.set_text(value)
-#     else:
-# 	raise TypeError('unknown widget type (%s) in glade file named %s' \
-# 			% (type(w), widget_name))
-
-
 def combo_cell_data_func(cell, renderer, model, iter, data):
     v = model.get_value(iter, 0)
     renderer.set_property('text', str(v))
@@ -150,9 +126,8 @@ class CollectionEditor:
 
         self.row = row
         if self.row is not None:
-            #debug('CollectionsEditor.initalized - refreshing')
             self.refresh_widgets_from_row()
-    
+
     
     def on_coord_entry_changed(self, widget):
         pass
@@ -198,7 +173,7 @@ class CollectionEditor:
         set all values from the collection object
         """
         for widget_name,col_name in self.widget_to_column_name_map.iteritems():
-            set_widget_value(self.glade_xml, widget_name,
+            utils.set_widget_value(self.glade_xml, widget_name,
                              getattr(self.row, col_name))
         
         
@@ -302,7 +277,7 @@ class DonationEditor:
         set all values from the donation object
         """
         for widget_name,col_name in self.widget_to_column_name_map.iteritems():
-            set_widget_value(self.glade_xml, widget_name,
+            utils.set_widget_value(self.glade_xml, widget_name,
                              getattr(self.row, col_name))
 
 
@@ -364,7 +339,8 @@ class SourceEditor(TableEditorDialog):
     def create_gui(self):
         self.curr_editor = None    
         path = os.path.join(paths.lib_dir(), "plugins", "garden")
-        self.glade_xml = gtk.glade.XML(path + os.sep + 'source_editor.glade')
+        #self.glade_xml = gtk.glade.XML(path + os.sep + 'source_editor.glade')
+	self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
         self.dialog = self.glade_xml.get_widget('source_dialog')
         self.source_box = self.glade_xml.get_widget('source_box')
 #        handlers = {'on_response': self.on_response,
@@ -490,25 +466,4 @@ class SourceEditor(TableEditorDialog):
          committed = self._run()
          if commit_transaction:
              sqlhub.processConnection.commit()
-         return committed
-                  
-     
-#    def start(self):
-#        # this ensures that the visibility is set properly in the meta before
-#        # before everything is created
-#
-#        while True:
-#            msg = 'Are you sure you want to lose your changes?'
-#            response = self.dialog.run()
-#            if response == gtk.RESPONSE_OK:
-#                    break
-#            elif self._dirty and utils.yes_no_dialog(msg):
-#                break      
-#            elif not dirty:
-#                break
-#        return response
-    
-    
-#    def destroy(self):
-#        super(SourceEditor, self).destroy()
-#        self.dialog.destroy()
+         return committed                      
