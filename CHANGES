@@ -6,6 +6,7 @@ mess up out transaction which can screw up any pending commits from an editor's
 sub editors
 - starting the mockups for the new editors and combined all editors in a plugin
 into one glade file, see editors.glade in the plugin directory
+- created basic installer script for windows
 
 
 2006.03.04
