@@ -1,5 +1,13 @@
 2006.03.04
 ----------
+- finally made the ok button on the message_details_dialog the default focus
+- check the constraints on the columns before we try and commit se we don't
+mess up out transaction which can screw up any pending commits from an editor's
+sub editors
+
+
+2006.03.04
+----------
 - combined editor.pre_commit_hook and _transform_row in _model_row_to_values
 - updated all editors to use _model_row_values and got rid of all instances of
 _transform_row and pre_commit_hook

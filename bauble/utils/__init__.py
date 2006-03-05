@@ -118,6 +118,7 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 			  parent=parent,
                           type=type, buttons=buttons)        
     d.set_markup(msg)
+    
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
     text_view.set_editable(False)
@@ -130,6 +131,8 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     sw.add(text_view)    
     expand.add(sw)
     d.vbox.pack_start(expand)
+    ok_button = d.action_area.get_children()[0]
+    d.set_focus(ok_button)
     d.show_all()
     r = d.run()
     d.destroy()

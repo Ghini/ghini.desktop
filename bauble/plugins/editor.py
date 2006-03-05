@@ -8,6 +8,7 @@ import warnings
 import gtk
 from sqlobject.sqlbuilder import *
 from sqlobject import *
+from sqlobject.constraints import BadValue, notNull
 from sqlobject.joins import SOJoin, SOSingleJoin
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
@@ -32,12 +33,12 @@ from bauble.utils.log import log, debug
 # scrollbar before getting the widths to see if this changes anything
 # UPDATE: i did a quick fix for this, grep for self.view_window or see
 # add_new_row
+# - got an email from the bug i filed on this which give a workaround
     
 # TODO: create a contextual helps so that pressing ctrl-space on a cell
 # gives a tooltip or dialog giving you more information about the current
 # cell you are editing
  
-# 
 # TODO:  i was using ModelRowDict.committed to indicate which rows have been 
 # committed so that when there was a problem and an exception was raised on a 
 # commit then
@@ -57,18 +58,6 @@ from bauble.utils.log import log, debug
 # capitalize the first letter of the first work in the add section of the 
 # context menu. i.e. Vernacular names
 
-# TODO: on add or insert from context menu only collapse parent of selected
-# result, on insert from menu refresh search
-
-# FIXME: if a column that is edited by a subeditor has pending changes and 
-# the commit on the main editor fails then the temporary object from the 
-# subeditor is lost, its probably because this object was part of the 
-# transaction and was lost when we got an error and rolled back the 
-# transaction, and its not in the cache anymore either
-# - this is going to be a difficult problem, (1) if we don't rollback on error 
-# we can keep the pending object but the error could invalidate our transaction
-# so we can't anything anyway, (2) if we rollback then we lose the pending
-# changes in the subeditor
 
 #class CellRendererButton(gtk.GenericCellRenderer):
 #    
@@ -86,7 +75,7 @@ from bauble.utils.log import log, debug
 #                    flags):
 #        pass
 #    
-#    def on_start_editing(self, event, widget, path, background_area, cell_area, 
+#    def on_start_editing(self, event, widget, path, background_area, cell_area,
 #                         flags):
 #        pass
 
@@ -733,8 +722,28 @@ class TableEditor(BaubleEditor):
     dirty = property(_get_dirty, _set_dirty)
 
 
+    # TODO: it would probably be better to validate the values when 
+    # entering then into the interface instead of accepting any crap and 
+    # validating it on
+    def _check_constraints(self, values):
+	for name, value in values.iteritems():
+	    if name in self.table.sqlmeta.columns:
+		col = self.table.sqlmeta.columns[name]
+		validators = col.createValidators()
+		if value is None and notNull not in col.constraints:
+		    continue
+		for constraint in col.constraints:
+		    # why are None's in the contraints?
+		    if constraint is not None: 
+			constraint(self.table.__name__, col, value)
+	    else:		
+		# assume it's a join and don't do anything
+		pass
+	    
+	
     def _commit(self, values):       
         table_instance = None
+	self._check_constraints(values)
         if 'id' in values:# updating row
             table_instance = self.table.get(values["id"])                    
             del values["id"]
@@ -783,6 +792,9 @@ class TableEditorDialog(TableEditor):
             if response == gtk.RESPONSE_OK:
                 try:
                     committed = self.commit_changes()                    
+		except BadValue, e:
+		    utils.message_dialog(saxutils.escape(str(e)), 
+							 gtk.MESSAGE_ERROR)
 		except CommitException, e:
 		    debug(traceback.format_exc())
 		    exc_msg + ' \n %s\n%s' % (str(e), e.row)
@@ -1107,12 +1119,12 @@ class TreeViewEditorDialog(TableEditorDialog):
         ok_button.set_sensitive(sensitive)
         
     
-#    #
-#    # dirty property
-#    #
+    #
+    # dirty property
+    #
     def _get_dirty(self):
         return self.__dirty
-    
+   
     def _set_dirty(self, dirty):
         #super(TreeViewEditorDialog, self)._set_dirty(dirty)
         self.__dirty = dirty
@@ -1217,12 +1229,18 @@ class TreeViewEditorDialog(TableEditorDialog):
 				    join_values.pop(join.joinMethodName):
 				join_table_instance.set(**{join.joinColumn[:-3]:
 							   table_instance.id})
+	    except BadValue, e:
+		# TODO: should we try and highlight the offending row or column
+		# we could also just use the CommitException exception wrapper
+		# and do an if isinstance(CommitException.exc, BadValue)
+		# so we don't do a rollback on BadValues
+		raise e
 	    except Exception, exc:
+		debug(traceback.format_exc())
 		raise CommitException(exc, item)
 		
 	    if len(join_values) > 0:
-		raise ValueError("join_values isn't empty")                    
-
+		raise ValueError("join_values isn't empty")
 		
             self.post_commit_hook(table_instance)
             committed_rows.append(table_instance)            
