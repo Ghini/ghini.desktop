@@ -726,16 +726,35 @@ class TableEditor(BaubleEditor):
     # entering then into the interface instead of accepting any crap and 
     # validating it on
     def _check_constraints(self, values):
+#	debug(values)
 	for name, value in values.iteritems():
 	    if name in self.table.sqlmeta.columns:
 		col = self.table.sqlmeta.columns[name]
 		validators = col.createValidators()
+		# TODO: there is another possible bug here where the value is 
+		# not converted to the proper type in the values dict, e.g. a 
+		# string is entered for sp_author when it should be a unicode
+		# but maybe this is converted properly to unicode by
+		# formencode before going in the database, this would need to
+		# be checked better if we expect proper unicode support for
+		# unicode columns
+		# - should have a isUnicode constraint for UnicodeCols
 		if value is None and notNull not in col.constraints:
 		    continue
+#		debug(name)
+#		debug(col)
+#		debug(col.constraints)
 		for constraint in col.constraints:
 		    # why are None's in the contraints?
 		    if constraint is not None: 
-			constraint(self.table.__name__, col, value)
+			if isinstance(col, SOUnicodeCol) and \
+			   constraint == constraints.isString and \
+			   isinstance(value, unicode):
+			    # do do isString on unicode values if we're working
+			    # with a unicode col
+			    pass
+			else:
+			    constraint(self.table.__name__, col, value)
 	    else:		
 		# assume it's a join and don't do anything
 		pass

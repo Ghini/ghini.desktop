@@ -1,3 +1,8 @@
+2006.03.07
+----------
+- fix problem with unicode strings and constraints
+
+
 2006.03.04
 ----------
 - finally made the ok button on the message_details_dialog the default focus
