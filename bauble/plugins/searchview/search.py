@@ -5,6 +5,7 @@
 import re, traceback
 import gtk
 import sqlobject
+from sqlobject.sqlbuilder import _LikeQuoted
 import formencode
 import bauble
 import bauble.utils as utils
@@ -75,6 +76,13 @@ from pyparsing import *
 # TODO: add vernacular names doesn't work from the context menu when right 
 # clicking on a species
 
+# TODO: improve error reporting, especially when there is an error in the
+# search string or if there aren't any results
+# e.g. 'Can't find 'values' in table 'Table'
+
+# TODO: on some search errors the connection gets invalidated, this 
+# happened to me on 'loc where site=test'
+
 class SearchParser:
 
     # TODO: if the search language doesn't change we could make this 
@@ -89,36 +97,34 @@ class SearchParser:
 
 	domain = Word(alphanums).setResultsName('domain')
 	quotes = Word('"\'')    
-
-	value_str = Word(alphanums+'*' +' '+';'+'.'+' ')
-	_values = (delimitedList(Optional(quotes).suppress() + value_str + \
-	    Optional(quotes).suppress()))#.setResultsName('values')
+    
+	value_str_chars = alphanums + '*;.'
+	value_str = Word(value_str_chars)
+	quoted_value_str = Optional(quotes).suppress() + \
+	    Word(value_str_chars+' ') + Optional(quotes).suppress()
+	_values = delimitedList(value_str | quoted_value_str)
 	values = Group(_values).setResultsName('values')
 	
 	operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
-	expression = domain + operator + values
+	expression = domain + operator + values + StringEnd()
 
 	subdomain = Word(alphanums + '._').setResultsName('subdomain')
 	query_expression = (subdomain + operator + \
 			    values).setResultsName('query')
 
 	query = domain + CaselessKeyword("where").suppress() + subdomain + \
-	    operator + values
+	    operator + values + StringEnd()
 
-	self.statement = (values ^ expression ^ query)
+	self.statement = (query | expression | (values + StringEnd()))
 		
 
     def parse_string(self, text):
 	return self.statement.parseString(text)
 	
 
-# TODO: we need different operator validators depending on the database type,
-# e.g. postgres doesn't like '=='
 class OperatorValidator(formencode.FancyValidator):
 
-    to_operator_map = {'=': '==', 
-		       '<>': '!=',
-		       }
+    to_operator_map = {}
 
     def _to_python(self, value, state=None):
 	if value in self.to_operator_map:
@@ -129,6 +135,46 @@ class OperatorValidator(formencode.FancyValidator):
 
     def _from_python(self, value, state=None):
 	return value
+
+
+class SQLOperatorValidator(OperatorValidator):
+
+    def __init__(self, db_type, *args, **kwargs):
+	super(SQLOperatorValidator, self).__init__(*args, **kwargs)	
+	type_map = {'postgres': self.pg_operator_map,
+		    'sqlite': self.sqlite_operator_map,
+		    'mysql': self.mysql_operator_map
+		    }
+	self.db_type = db_type
+	self.to_operator_map = type_map.get(self.db_type, {})
+	
+	
+    # TODO: using operators like this doesn't do the fuzzy matching
+    # using like so when searching you would have to specify exactly what
+    # you want, maybe we could do '=' and '!=' do fuzzy matching using like
+    # and '==' and '<>' do exact matches, to do this we just
+    # need to override _to_python to do a string sub on NOT LIKE(%%s%)
+    pg_operator_map = {'==': '=', 
+		       '!=': '<>',
+		       }
+    sqlite_operator_map = {'=': '==',
+			   '!=': '<>'
+			   }
+    mysql_operator_map = {'=': '==',
+			  '!=': '<>'
+			  }
+
+
+class PythonOperatorValidator(OperatorValidator):
+    '''
+    convert accepted parse operators to python operators
+    NOTE: this operator validator is only for python operators and doesn't
+    do convert operators that may be specific to the database type
+    '''
+    to_operator_map = {'=': '==', 
+		       '<>': '!=',
+		       }
+
 		       	 
 
 class SearchMeta:
@@ -312,8 +358,9 @@ class SearchView(BaubleView):
 	results = []            
 	if 'subdomain' in tokens and 'domain' in tokens: # a query expression
 	    subdomain = tokens['subdomain']
+	    
 	    #operator = OperatorValidator.to_python(tokens['operator'])
-	    operator = tokens['operator']
+	    #operator = tokens['operator']
 	    values = tokens['values']
 	    domain_table = tables[self.domain_map[tokens['domain']]]
 	    index = subdomain.rfind('.')
@@ -335,13 +382,14 @@ class SearchView(BaubleView):
 				       (col, domain_table.__name__))
 		v = values_validator.to_python(','.join(values), None)
 		if not isinstance(v, int):
-		    # TODO: add quotes, this could be buggy b/c we 
-		    # don't check for all available types		
-		    # TODO: postgres requires single quotes, sqlite doesn't 
-		    # seem to care, what about mysql?
-		    v = "'%s'" % v 
+		    # quote if not an int
+		    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+		db_type = sqlobject.sqlhub.processConnection.dbName
+		operator = tokens['operator']
+		sql_operator= SQLOperatorValidator(db_type).to_python(operator)
 		stmt = "%s.%s %s %s" % (domain_table.sqlmeta.table,
-					col,operator, v)
+					col, sql_operator, v)
+#		debug(stmt)
 		results += domain_table.select(stmt)
 	    else: # resolve the joins and select from the last join in the list
 		# TODO: would it be possible to do this backwards. if we could
@@ -370,15 +418,19 @@ class SearchView(BaubleView):
 		    # TODO: only works for binary operators
 		    v = values_validator.to_python(','.join(values), None)
 		    if not isinstance(v, int):
-			# TODO: add quotes, this could be buggy b/c we 
-			# don't check for all available types
-			v = '"%s"' % v			
-		    for r in subresults:		 
-			expression = "r.%s %s %s" % (col, operator, v)
+			# quote if not an int
+			v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+		    py_operator = \
+			PythonOperatorValidator.to_python(tokens['operator'])
+		    expression = "r.%s %s %s" % (col, py_operator, v)
+		    for r in subresults:
 			try:
 			    if eval(expression):
 				results.append(r)
 			except SyntaxError, e:
+			    msg='Error: Could not evaluate expression, ' + \
+				'most likely because the operator you ' + \
+				'entered is not supported. -- %s'% expression 
 			    results.append(str(e))
 			    break
 	elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
@@ -626,7 +678,7 @@ class SearchView(BaubleView):
 	# that is not the selection, but get the path from where the click
 	# happened, make that that selection and then popup the menu,
 	# see the pygtk FAQ about this at
-	# http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
+	#http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3: 
             return # if not right click then leave
         sel = view.get_selection()
@@ -748,7 +800,7 @@ class SearchView(BaubleView):
         self.results_view.connect("cursor-changed",
                                   self.on_results_view_select_row)
         self.results_view.connect("test-expand-row",
-                                  self.on_test_expand_row)                                  
+                                  self.on_test_expand_row)
         self.results_view.connect("button-release-event", 
                                   self.on_view_button_release)
         self.results_view.connect("row-activated",

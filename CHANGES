@@ -1,3 +1,10 @@
+2006.03.10
+----------
+- search parser correctness fixes
+- remove name domain for searching species and replaced it with 'species'
+- made quoting of value in search expression more portable with _LikeQuotedx
+
+
 2006.03.07
 ----------
 - fix problem with unicode strings and constraints

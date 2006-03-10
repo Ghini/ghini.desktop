@@ -51,7 +51,7 @@ class PlantsPlugin(BaublePlugin):
             SearchView.view_meta["Genus"].set("species", GenusEditor)
             
             search_meta = SearchMeta("Species", ["sp", "isp"], "sp")
-            SearchView.register_search_meta("name", search_meta)
+            SearchView.register_search_meta("species", search_meta)
             SearchView.register_search_meta("sp", search_meta)
 
             SearchView.view_meta["Species"].set(children='accessions',
