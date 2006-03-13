@@ -82,16 +82,21 @@ from pyparsing import *
 
 # TODO: on some search errors the connection gets invalidated, this 
 # happened to me on 'loc where site=test'
+# UPDATE: this query doesn't invalidate the connection any more but apparantly
+# there's a way that this happens so we track it down
+
+# TODO: it would be good to be able to search using the SIMILAR TO operator
+# but we need to designate a way to show that value is a regular expression
+
+# TODO: support '%' at from and end of string to do fuzzy searches, should
+# really support any standard sql regex syntax like ?*, etc...
+
 
 class SearchParser:
 
     # TODO: if the search language doesn't change we could make this 
     # a static class, the only reason we wouldn't is if we made the values
     # in self.domain_map keywords
-     
-
-    # FIXME: loc= search parses the search as ['default', 'loc'] instead
-    # of a domain with an empty value list	
 
     def __init__(self):	
 
@@ -121,6 +126,7 @@ class SearchParser:
     def parse_string(self, text):
 	return self.statement.parseString(text)
 	
+
 
 class OperatorValidator(formencode.FancyValidator):
 
@@ -380,7 +386,8 @@ class SearchView(BaubleView):
 		else:
 		    raise KeyError('"%s" not a column in table "%s"' % \
 				       (col, domain_table.__name__))
-		v = values_validator.to_python(','.join(values), None)
+		#v = values_validator.to_python(','.join(values), None)
+		v = values_validator.from_python(','.join(values), None)
 		if not isinstance(v, int):
 		    # quote if not an int
 		    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
