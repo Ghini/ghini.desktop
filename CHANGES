@@ -1,3 +1,8 @@
+2006.04.07
+----------
+- fix regression for source editor not returning the correct response codes
+
+
 2006.04.05
 ----------
 - fixed problem where bauble wouldn't run if it couldn't open the log file (reported by Helder Perez)

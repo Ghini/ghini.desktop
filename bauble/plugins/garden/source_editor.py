@@ -282,7 +282,6 @@ class DonationEditor:
 
 
     def get_values(self):
-
         # donor_combo
         # get the donor id from the model
         values = {}
@@ -296,13 +295,8 @@ class DonationEditor:
     
     
     def on_don_new_button_clicked(self, button, data=None):
-        #self.dialog.set_sensitive(False)
         e = editors['DonorEditor']()
         response = e.start()
-        #editor_class().start()
-        #self.dialog.set_sensitive(True)
-        #model = gtk.ListStore(obj)
-        #self.init_donations()
         donor_combo = self.glade_xml.get_widget('donor_combo')
         setComboModelFromSelect(donor_combo, tables["Donor"].select())
         
@@ -339,12 +333,9 @@ class SourceEditor(TableEditorDialog):
     def create_gui(self):
         self.curr_editor = None    
         path = os.path.join(paths.lib_dir(), "plugins", "garden")
-        #self.glade_xml = gtk.glade.XML(path + os.sep + 'source_editor.glade')
-	self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
+        self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
         self.dialog = self.glade_xml.get_widget('source_dialog')
         self.source_box = self.glade_xml.get_widget('source_box')
-#        handlers = {'on_response': self.on_response,
-#                    'on_type_combo_changed': self.on_type_combo_changed,}
         handlers = {'on_type_combo_changed': self.on_type_combo_changed,}
         self.glade_xml.signal_autoconnect(handlers)
         
@@ -374,7 +365,6 @@ class SourceEditor(TableEditorDialog):
     def on_type_combo_changed(self, combo, data=None):
         if self.curr_editor is not None:
             self.source_box.remove(self.curr_editor.box)
-            #self.curr_box.destroy()
         
         # TODO: check that nothing has been changed and ask the use if 
         # they want to save if something has changed, would probably have
@@ -395,12 +385,12 @@ class SourceEditor(TableEditorDialog):
     
 
     def _validate_row(self, values):
-	'''
-	_model_row_to_values
-	row: iter from self.model
-	return None if you don't want to commit anything
-	'''    
-	# TODO: we need a much better way to define the date format for the 
+        '''
+        _model_row_to_values
+	    row: iter from self.model
+	    return None if you don't want to commit anything
+	    '''    
+	    # TODO: we need a much better way to define the date format for the 
         # database, possible having a wizard when creating a new database to 
         # select the global date format at database creation and store the 
         # date format in BuableMeta, really we shouldn't have to set it
@@ -424,22 +414,17 @@ class SourceEditor(TableEditorDialog):
                                     m.group('day')]]
             dt = datetime(*ymd)
             values['coll_date'] = dt
-	return values
+        return values
             
-            
-            
-            
+                        
     def commit_changes(self):
         # TODO: since the source is a single join and is only relevant
         # to its parent(accession) then we should allow a way to get
         # the values so that wherever the values are returned then the
         # accession foreign key can be set there and commited
         active = self.type_combo.get_active_text()
-        #table, values = self.get_values(active)
-        
         table = self.curr_editor.table
-        values = self.curr_editor.get_values()
-        
+        values = self.curr_editor.get_values()        
         if values is None: 
             return None
 

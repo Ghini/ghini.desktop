@@ -807,7 +807,7 @@ class TableEditorDialog(TableEditor):
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
         # construct is called	
-	self.dialog.connect('response', self.on_dialog_response)
+        self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         '''
@@ -816,37 +816,37 @@ class TableEditorDialog(TableEditor):
         committed = None
         while True:
             not_ok_msg = 'Are you sure you want to lose your changes?'
-	    exc_msg = "Could not commit changes.\n"
+            exc_msg = "Could not commit changes.\n"
             response = self.dialog.run()
-	    self.save_state()
+            self.save_state()
             if response == gtk.RESPONSE_OK:
                 try:
-                    committed = self.commit_changes()                    
-		except BadValue, e:
-		    utils.message_dialog(saxutils.escape(str(e)), 
-							 gtk.MESSAGE_ERROR)
-		except CommitException, e:
-		    debug(traceback.format_exc())
-		    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-		    utils.message_details_dialog(saxutils.escape(exc_msg), 
-						 traceback.format_exc(),
-                                                 gtk.MESSAGE_ERROR)
-		    self.reset_committed()
-		    self.reset_background()
-		    #set the flag to change the background color
-		    e.row[1] = True 
-		    sqlhub.processConnection.rollback()
-		    sqlhub.processConnection.begin()
+                    committed = self.commit_changes()
+                except BadValue, e:
+        		    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+        		    debug(traceback.format_exc())
+        		    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+        		    utils.message_details_dialog(saxutils.escape(exc_msg), 
+        						 traceback.format_exc(),
+                                                         gtk.MESSAGE_ERROR)
+        		    self.reset_committed()
+        		    self.reset_background()
+        		    #set the flag to change the background color
+        		    e.row[1] = True 
+        		    sqlhub.processConnection.rollback()
+        		    sqlhub.processConnection.begin()
                 except Exception, e:
-		    debug(traceback.format_exc())
-		    exc_msg + ' \n %s' % str(e)                    
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                 traceback.format_exc(), 
-                                                 gtk.MESSAGE_ERROR)
-		    self.reset_committed()
-		    self.reset_background()
-		    sqlhub.processConnection.rollback()
-		    sqlhub.processConnection.begin()
+        		    debug(traceback.format_exc())
+        		    exc_msg + ' \n %s' % str(e)                    
+                            utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                         traceback.format_exc(), 
+                                                         gtk.MESSAGE_ERROR)
+        		    self.reset_committed()
+        		    self.reset_background()
+        		    sqlhub.processConnection.rollback()
+        		    sqlhub.processConnection.begin()
                 else:
                     break
             elif self.dirty and utils.yes_no_dialog(not_ok_msg):
@@ -864,16 +864,16 @@ class TableEditorDialog(TableEditor):
 	'''
 	reset all of the ModelRowDict.committed attributes in the view
 	'''
-	for row in self.view.get_model():
-	    row[0].committed = False
+    	for row in self.view.get_model():
+    	    row[0].committed = False
 
 
     def reset_background(self):
-	'''
-	turn off all background-set attributes
-	'''
-	for row in self.view.get_model():
-	    row[1] = False
+    	'''
+    	turn off all background-set attributes
+    	'''
+    	for row in self.view.get_model():
+    	    row[1] = False
 
 
     def on_dialog_response(self, dialog, response, *args):
