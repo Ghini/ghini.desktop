@@ -1,3 +1,14 @@
+2006.04.05
+----------
+- fixed problem where bauble wouldn't run if it couldn't open the log file (reported by Helder Perez)
+
+
+2006.04.04
+----------
+- cache Species strings but disable it until we can invalidate the cache
+in case the Species is changed
+
+
 2006.03.13
 ----------
 - fix for searching for strings in unicode columns

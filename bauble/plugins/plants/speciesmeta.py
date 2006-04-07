@@ -79,8 +79,12 @@ class SpeciesMetaEditor(TableEditorDialog):
         #self.dialog = self.glade_xml.get_widget('main_dialog')
         window = self.glade_xml.get_widget('main_window')
         vbox = self.glade_xml.get_widget('main_box')
-        window.remove(vbox)
-        
+        window.remove(vbox)        	
+	self.dialog = gtk.Dialog('Species Meta Editor', None, 
+				 gtk.DIALOG_MODAL | \
+				 gtk.DIALOG_DESTROY_WITH_PARENT,
+                                 (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
 	self.dialog.set_resizable(False)
 	self.dialog.vbox.pack_start(vbox)
 	

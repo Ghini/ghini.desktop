@@ -112,6 +112,7 @@ setup(name="Bauble",
       windows=["scripts/bauble"],          
       scripts=["scripts/bauble"], # for setuptools?
       options=opts,
+      dist_dir='dist/Bauble-%s' % version, # distribution directory
       packages = all_packages,
       package_dir = all_package_dirs,
       package_data = package_data,

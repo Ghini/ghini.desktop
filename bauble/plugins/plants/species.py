@@ -21,10 +21,11 @@ import xml.sax.saxutils as sax
 class Species(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'sp'
+        defaultOrder = 'sp'
     
     def __init__(self, **kw):
         super(Species, self).__init__(**kw)
+        self.__cached_str = None
         
     sp_hybrid = EnumCol(enumValues=("H", 
                                     "x", 
@@ -162,12 +163,14 @@ class Species(BaubleTable):
     species_meta = SingleJoin('SpeciesMeta', joinColumn='species_id')        
 
     
+    
     def __str__(self):
-          #TODO: this needs alot of work to be complete
-        #name = str(self.genus) + " " + self.sp
-        #if self.isp_rank is not None:
-        #    name = "%s %s %s" % (name, self.isp_rank, self.isp)
-        #return name.strip()
+        # we'll cache the str(self) since building it is relatively heavy
+        # TODO: we can't enable this until we can invalidated _cached_str in
+        # cache self is changed
+        #if self.__cached_str is None:
+        #    self.__cached_str = Species.str(self)
+        #return self.__cached_str        
         return Species.str(self)
     
     
@@ -187,6 +190,12 @@ class Species(BaubleTable):
         # TODO: should do a translation table for any entities that might
         # be in the author strings ans use translate, what else besided 
         # ampersand could be in the author name
+        # TODO: how complete is this for the latest nomencalture code?
+        # TODO: optimize: (1) be sure to use % substitution in instead of +=, 
+        # (2) maybe create the name in parts and return them all combined in 
+        # the end
+        
+        
         if markup:
             italic = "<i>%s</i>"
 	    escape = sax.escape
@@ -322,6 +331,7 @@ class VernacularNameColumn(TextColumn):
             renderer.set_property('text', None)
 
 
+#
 # Species editor
 #
 class SpeciesEditor(TreeViewEditorDialog):
@@ -337,29 +347,29 @@ class SpeciesEditor(TreeViewEditorDialog):
                                       "Species Editor", parent,
                                       select=select, defaults=defaults)
         titles = {"genusID": "Genus",
-                   "sp": "Species",
-                   "sp_hybrid": "Sp. hybrid",
-                   "sp_qual": "Sp. qualifier",
-                   "sp_author": "Sp. author",
-                   "cv_group": "Cv. group",
+		  "sp": "Species",
+		  "sp_hybrid": "Sp. hybrid",
+		  "sp_qual": "Sp. qualifier",
+		  "sp_author": "Sp. author",
+		  "cv_group": "Cv. group",
 #                   "cv": "Cultivar",
 #                   "trades": "Trade name",
 #                   "supfam": 'Super family',
 #                   'subgen': 'Subgenus',
 #                   'subgen_rank': 'Subgeneric rank',
-                   'isp': 'Isp. epithet',
-                   'isp_rank': 'Isp. rank',
-                   'isp_author': 'Isp. author',
+		  'isp': 'Isp. epithet',
+		  'isp_rank': 'Isp. rank',
+		  'isp_author': 'Isp. author',
 #                   'iucn23': 'IUCN 2.3\nCategory',
 #                   'iucn31': 'IUCN 3.1\nCategory',
-                   'id_qual': 'ID qualifier',
+		  'id_qual': 'ID qualifier',
 #                   'distribution': 'Distribution'
-                    'species_meta': 'Meta Info',
-                    'notes': 'Notes',
+		  'species_meta': 'Meta Info',
+		  'notes': 'Notes',
 #                    'default_vernacular_nameID': 'Vernacular Names',
-                    'synonyms': 'Synonyms',
-                    'vernacular_names': 'Vernacular Names',
-				   }
+		  'synonyms': 'Synonyms',
+		  'vernacular_names': 'Vernacular Names',
+		  }
 
         # make a custom distribution column
 #        self.columns.pop('distribution') # this probably isn't necessary     

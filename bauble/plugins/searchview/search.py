@@ -91,6 +91,8 @@ from pyparsing import *
 # TODO: support '%' at from and end of string to do fuzzy searches, should
 # really support any standard sql regex syntax like ?*, etc...
 
+# TODO: try this syntax for AND and OR queries, this should make it easy
+#a=Entries.select(AND(Entries.q.aCount==3,Entries.q.alpha==myalpha))
 
 class SearchParser:
 

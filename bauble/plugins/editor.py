@@ -328,6 +328,9 @@ class TextColumn(SOViewColumn):
         """
         handle text filtering/validation and completions
         """
+	# TODO: this is flawed since we can't get the index into the entry
+	# where the text is being inserted so if the used inserts text into 
+	# the middle of the string then this could break
         # TODO: the problem is only validates on letter at a time
         # we need to have a format string which is inserted
         # in the entry before typeing starts and fills in the gap
@@ -377,6 +380,8 @@ class TextColumn(SOViewColumn):
         _start_editor can abe extended to make it easier to use external 
         editors that don\'t provide standard behavior
         '''
+	# TODO: should make it possible to pass a parent to the sub editor
+	# so that the sub editor can be modal to this editor
         model = self.table_editor.view.get_model()
         row = model[model.get_iter(path)][0]
         existing = row[self.name]
@@ -782,21 +787,27 @@ class TableEditorDialog(TableEditor):
     
     def __init__(self, table, title="Table Editor",
                  parent=None, select=None, 
-                 defaults={}):
+                 defaults={}, dialog=None):
         super(TableEditorDialog, self).__init__(table, select, defaults)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
-        self.dialog = gtk.Dialog(title, parent, 
-                               gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                                 (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                                  gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        self._values = []
+
+	# allow the dialog to 
+	if dialog is None:
+	    self.dialog = gtk.Dialog(title, parent, 
+				     gtk.DIALOG_MODAL | \
+				     gtk.DIALOG_DESTROY_WITH_PARENT,
+				     (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+				      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+	else: 
+	    self.dialog = dialog
+	self._values = []
 
     
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
-        # construct is called
-        self.dialog.connect('response', self.on_dialog_response)
+        # construct is called	
+	self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         '''
@@ -881,6 +892,7 @@ class TableEditorDialog(TableEditor):
             
             
     def start(self, commit_transaction=True):
+	# at the least should call self._run()
         raise NotImplementedError('TableEditorDialog.start()')
     
 
@@ -1124,6 +1136,15 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.toolbar.insert(col_button, -1)  
         
             
+    # TODO: we don't use this anymore since we require that the foreign
+    # key values have to be in the in the completion list
+    # - the only place that this is implemented is in species.pu but it 
+    # doesn't matter since foreign_does_not_exists is never called
+    # - it wouldn't
+    # be a bad idea if we wanted to make it easier to add new items, right now
+    # e.g. a genus that doesn't exists could be added before the species is 
+    # committed
+	
     def foreign_does_not_exist(self, name, value):
         """
         this is intended to be overridden in a subclass to do something
