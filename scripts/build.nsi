@@ -1,9 +1,10 @@
 ;
 ; NSIS Install Script for Bauble
 ;
-; TODO: should create two version of this installer, one that bundles GTK and one that doesn't
-; could also create one that asks the use if they would like to download and install the GTK libs 
-; if they aren't available, ala slickrun
+; TODO: should create two version of this installer, one that bundles GTK and
+; one that doesn't
+; could also create one that asks the use if they would like to download and
+; install the GTK libs if they aren't available, ala slickrun
 
 ; include Modern UI
 !include "MUI.nsh"
@@ -17,7 +18,7 @@ Outfile "bauble-${version}-setup.exe"
 !define prodname "Bauble"
 !define exec "bauble.exe"
 !define license_file "LICENSE"
- !define readme "README"
+!define readme "README"
  
 ; icons must be Microsoft .ICO files
 ; !define icon "icon.ico"

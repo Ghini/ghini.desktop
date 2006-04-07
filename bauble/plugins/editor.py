@@ -82,22 +82,22 @@ from bauble.utils.log import log, debug
 class CommitException(Exception):
 
     def __init__(self, exc, row):
-	self.row = row # the model we were trying to commit
-	self.exc = exc # the exception thrown while committing
-	
+        self.row = row # the model we were trying to commit
+        self.exc = exc # the exception thrown while committing
+    
     def __str__(self):
-	return str(self.exc)
+        return str(self.exc)
 
 
 class GenericViewColumn(gtk.TreeViewColumn):
     
     def __init__(self, tree_view_editor, header, renderer):
-	#renderer.weight = 900	
+        #renderer.weight = 900    
         super(GenericViewColumn, self).__init__(header, renderer, 
-						cell_background_set=1)
-	renderer.set_property('cell-background-gdk', 
-			      gtk.gdk.color_parse('#EC9FA4'))
-	#renderer.set_property('cell-background', 'red')
+                        cell_background_set=1)
+        renderer.set_property('cell-background-gdk', 
+                  gtk.gdk.color_parse('#EC9FA4'))
+        #renderer.set_property('cell-background', 'red')
         #renderer.cell_background = 'pink'
         if not isinstance(tree_view_editor, TreeViewEditorDialog):
             raise ValueError('tree_view_editor must be an isntance of '\
@@ -270,12 +270,12 @@ class TextColumn(SOViewColumn):
         # don't allow empty strings in the model, this usually means a null
         # value in the cell
         if new_text == "":
-	    value = None
-	else:
-	    value = new_text
-        
+            value = None
+        else:
+            value = new_text
+            
         if self.meta.get_completions is not None:
-            return        
+            return          
         if self.meta.editor is None:
             self._set_view_model_value(path, value)
             self.dirty = True 
@@ -328,9 +328,9 @@ class TextColumn(SOViewColumn):
         """
         handle text filtering/validation and completions
         """
-	# TODO: this is flawed since we can't get the index into the entry
-	# where the text is being inserted so if the used inserts text into 
-	# the middle of the string then this could break
+    # TODO: this is flawed since we can't get the index into the entry
+    # where the text is being inserted so if the used inserts text into 
+    # the middle of the string then this could break
         # TODO: the problem is only validates on letter at a time
         # we need to have a format string which is inserted
         # in the entry before typeing starts and fills in the gap
@@ -380,8 +380,8 @@ class TextColumn(SOViewColumn):
         _start_editor can abe extended to make it easier to use external 
         editors that don\'t provide standard behavior
         '''
-	# TODO: should make it possible to pass a parent to the sub editor
-	# so that the sub editor can be modal to this editor
+    # TODO: should make it possible to pass a parent to the sub editor
+    # so that the sub editor can be modal to this editor
         model = self.table_editor.view.get_model()
         row = model[model.get_iter(path)][0]
         existing = row[self.name]
@@ -657,12 +657,16 @@ class ModelRowDict(dict):
                 v = self.getters[item](self.row)
             else: # we want this to fail if item doesn't exist in row
                 v = getattr(self.row, item)
+                debug('%s: %s (from database 1)' % (item, repr(v)))
                 
+            # resolve foreign keys
+            # TODO: there might be a more reasonable wayto do this
             if item in self.row.sqlmeta.columns:
                 column = self.row.sqlmeta.columns[item]            
                 if v is not None and isinstance(column, SOForeignKey):
                     table_name = column.foreignKey                    
                     v = tables[table_name].get(v)
+                    debug('%s: %s (from database)' % (item, repr(v)))
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
@@ -670,17 +674,17 @@ class ModelRowDict(dict):
             if not hasattr(self.row, item):
                 msg = '%s has no attribute %s' % (self.row.__class__, item)
                 raise KeyError('ModelRowDict.__getitem__: ' + msg)
-	
-#	debug(item)	
-	if v is None:
-	    if item in self.defaults:
-		v = self.defaults[item]
-	    elif item in self.row.sqlmeta.columns:
-		default = self.row.sqlmeta.columns[item].default
-		if default is NoDefault:
-		    default = None
-		v = default
-	    
+        
+#        debug(item)    
+        if v is None:
+            if item in self.defaults:
+                v = self.defaults[item]
+            elif item in self.row.sqlmeta.columns:
+                default = self.row.sqlmeta.columns[item].default
+                if default is NoDefault:
+                    default = None
+                v = default
+        
         # this effectively caches the row item from the instance, the False
         # is so that the row is set dirty only if it is changed from the 
         # outside
@@ -731,43 +735,45 @@ class TableEditor(BaubleEditor):
     # entering then into the interface instead of accepting any crap and 
     # validating it on
     def _check_constraints(self, values):
-#	debug(values)
-	for name, value in values.iteritems():
-	    if name in self.table.sqlmeta.columns:
-		col = self.table.sqlmeta.columns[name]
-		validators = col.createValidators()
-		# TODO: there is another possible bug here where the value is 
-		# not converted to the proper type in the values dict, e.g. a 
-		# string is entered for sp_author when it should be a unicode
-		# but maybe this is converted properly to unicode by
-		# formencode before going in the database, this would need to
-		# be checked better if we expect proper unicode support for
-		# unicode columns
-		# - should have a isUnicode constraint for UnicodeCols
-		if value is None and notNull not in col.constraints:
-		    continue
-#		debug(name)
-#		debug(col)
-#		debug(col.constraints)
-		for constraint in col.constraints:
-		    # why are None's in the contraints?
-		    if constraint is not None: 
-			if isinstance(col, SOUnicodeCol) and \
-			   constraint == constraints.isString and \
-			   isinstance(value, unicode):
-			    # do do isString on unicode values if we're working
-			    # with a unicode col
-			    pass
-			else:
-			    constraint(self.table.__name__, col, value)
-	    else:		
-		# assume it's a join and don't do anything
-		pass
-	    
-	
+#        debug(values)
+        for name, value in values.iteritems():
+            if name in self.table.sqlmeta.columns:
+                col = self.table.sqlmeta.columns[name]
+                validators = col.createValidators()
+                # TODO: there is another possible bug here where the value is 
+                # not converted to the proper type in the values dict, e.g. a 
+                # string is entered for sp_author when it should be a unicode
+                # but maybe this is converted properly to unicode by
+                # formencode before going in the database, this would need to
+                # be checked better if we expect proper unicode support for
+                # unicode columns
+                # - should have a isUnicode constraint for UnicodeCols
+                if value is None and notNull not in col.constraints:
+                    continue
+        #        debug(name)
+        #        debug(col)
+        #        debug(col.constraints)
+                for constraint in col.constraints:
+                    # why are None's in the contraints?
+                    if constraint is not None: 
+                        if isinstance(col, SOUnicodeCol) and \
+                            constraint == constraints.isString and \
+                            isinstance(value, unicode):
+                            # do isString on unicode values if we're working
+                            # with a unicode col
+                            pass
+                        else:
+                            constraint(self.table.__name__, col, value)
+            else:        
+                # assume it's a join and don't do anything
+                pass
+        
+    
     def _commit(self, values):       
         table_instance = None
-	self._check_constraints(values)
+        debug(values)
+        self._check_constraints(values)
+        debug(values)
         if 'id' in values:# updating row
             table_instance = self.table.get(values["id"])                    
             del values["id"]
@@ -792,21 +798,21 @@ class TableEditorDialog(TableEditor):
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
 
-	# allow the dialog to 
-	if dialog is None:
-	    self.dialog = gtk.Dialog(title, parent, 
-				     gtk.DIALOG_MODAL | \
-				     gtk.DIALOG_DESTROY_WITH_PARENT,
-				     (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-				      gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-	else: 
-	    self.dialog = dialog
-	self._values = []
+        # allow the dialog to 
+        if dialog is None:
+            self.dialog = gtk.Dialog(title, parent, 
+                         gtk.DIALOG_MODAL | \
+                         gtk.DIALOG_DESTROY_WITH_PARENT,
+                         (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+                          gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+        else: 
+            self.dialog = dialog
+        self._values = []
 
     
     def _run(self):
         # connect these here in case self.dialog is overwridden after the 
-        # construct is called	
+        # construct is called    
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
@@ -823,30 +829,30 @@ class TableEditorDialog(TableEditor):
                 try:
                     committed = self.commit_changes()
                 except BadValue, e:
-        		    utils.message_dialog(saxutils.escape(str(e)),
+                    utils.message_dialog(saxutils.escape(str(e)),
                                          gtk.MESSAGE_ERROR)
                 except CommitException, e:
-        		    debug(traceback.format_exc())
-        		    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-        		    utils.message_details_dialog(saxutils.escape(exc_msg), 
-        						 traceback.format_exc(),
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(),
                                                          gtk.MESSAGE_ERROR)
-        		    self.reset_committed()
-        		    self.reset_background()
-        		    #set the flag to change the background color
-        		    e.row[1] = True 
-        		    sqlhub.processConnection.rollback()
-        		    sqlhub.processConnection.begin()
+                    self.reset_committed()
+                    self.reset_background()
+                    #set the flag to change the background color
+                    e.row[1] = True 
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
                 except Exception, e:
-        		    debug(traceback.format_exc())
-        		    exc_msg + ' \n %s' % str(e)                    
-                            utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                         traceback.format_exc(), 
-                                                         gtk.MESSAGE_ERROR)
-        		    self.reset_committed()
-        		    self.reset_background()
-        		    sqlhub.processConnection.rollback()
-        		    sqlhub.processConnection.begin()
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    self.reset_committed()
+                    self.reset_background()
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
                 else:
                     break
             elif self.dirty and utils.yes_no_dialog(not_ok_msg):
@@ -860,20 +866,20 @@ class TableEditorDialog(TableEditor):
         return committed        
 
         
-    def reset_committed(self):	
-	'''
-	reset all of the ModelRowDict.committed attributes in the view
-	'''
-    	for row in self.view.get_model():
-    	    row[0].committed = False
+    def reset_committed(self):    
+        '''
+        reset all of the ModelRowDict.committed attributes in the view
+        '''
+        for row in self.view.get_model():
+            row[0].committed = False
 
 
     def reset_background(self):
-    	'''
-    	turn off all background-set attributes
-    	'''
-    	for row in self.view.get_model():
-    	    row[1] = False
+        '''
+        turn off all background-set attributes
+        '''
+        for row in self.view.get_model():
+            row[1] = False
 
 
     def on_dialog_response(self, dialog, response, *args):
@@ -892,7 +898,7 @@ class TableEditorDialog(TableEditor):
             
             
     def start(self, commit_transaction=True):
-	# at the least should call self._run()
+        # at the least should call self._run()
         raise NotImplementedError('TableEditorDialog.start()')
     
 
@@ -959,9 +965,9 @@ class TreeViewEditorDialog(TableEditorDialog):
     # model property
     #
     def _get_model(self):
-	return self.view.get_model()
+        return self.view.get_model()
     def _set_model(self, model):
-	self.view.set_model(model)
+        self.view.set_model(model)
     model = property(_get_model, _set_model)
         
 
@@ -1037,8 +1043,8 @@ class TreeViewEditorDialog(TableEditorDialog):
         """
         create the main tree view
         """
-	# the gboolean is here to control whether to turn on the background 
-	# color
+    # the gboolean is here to control whether to turn on the background 
+    # color
         self.__view = gtk.TreeView(gtk.ListStore(object, 'gboolean'))
         self.columns = self.create_view_columns()
         self.view.set_headers_clickable(False)
@@ -1116,7 +1122,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         have a default value, i.e. required columns show in the menu
         but they should be greyed out so you can't turn them off
         """
-	# FIXME: why doesn the label not show up here????
+    # FIXME: why doesn the label not show up here????
         self.toolbar = gtk.Toolbar()
         col_button = gtk.MenuToolButton(None, label="Columns")
         menu = gtk.Menu()
@@ -1144,7 +1150,7 @@ class TreeViewEditorDialog(TableEditorDialog):
     # be a bad idea if we wanted to make it easier to add new items, right now
     # e.g. a genus that doesn't exists could be added before the species is 
     # committed
-	
+    
     def foreign_does_not_exist(self, name, value):
         """
         this is intended to be overridden in a subclass to do something
@@ -1215,30 +1221,30 @@ class TreeViewEditorDialog(TableEditorDialog):
     
 
     def _model_row_to_values(self, row):
-	'''
-	_model_row_to_values
-	row: iter from self.model
-	return None if you don't want to commit anything
-	'''	
-	if not row[0].dirty or row[0].committed:
-	    # then this row hasn't changed or has already been committed
-	    return None	
-	values = row[0].copy()
-	for name, value in values.iteritems():
-	    if isinstance(value, tuple):
-		values[name] = value[1]
-	return values
-	    
+        '''
+        _model_row_to_values
+        row: iter from self.model
+        return None if you don't want to commit anything
+        '''
+        if not row[0].dirty or row[0].committed:
+            # then this row hasn't changed or has already been committed
+            return None
+        values = row[0].copy()
+        for name, value in values.iteritems():
+            if isinstance(value, tuple):
+                values[name] = value[1]
+        return values
+        
     
     def _commit_model_rows(self):
         committed_rows = []
         table_instance = None
         model = self.view.get_model()        
         for item in model:
-
-	    row = self._model_row_to_values(item)
-	    if row is None:
-		continue
+            row = self._model_row_to_values(item)
+            debug(row)
+            if row is None:
+                continue
                         
             for fk in self.columns.foreign_keys: # get foreign keys from row
                 if fk in row and row[fk] is not None:
@@ -1247,46 +1253,46 @@ class TreeViewEditorDialog(TableEditorDialog):
             join_values = {}
             for join in self.columns.joins: # get joins from row
                 if join in row:
-		    if row[join]:
-			join_values[join] = row.pop(join)
-		    else:
-			row.pop(join) # so we don't try to commit joins
-	
-	    try: # commit
-		table_instance = self._commit(row)
-		# have to set the join this way since 
-		# table_instance.joinColumnName doesn't seem to work here, 
-		# maybe b/c the table_instance hasn't been committed
-		for join in table_instance.sqlmeta.joins:
-		    if join.joinMethodName in join_values:
-			if isinstance(join, SOSingleJoin):
-			    join_table_instance = \
-				join_values.pop(join.joinMethodName)
-			    join_table_instance.set(**{join.joinColumn[:-3]:
-                                                   table_instance.id})
-			else: # must be a multple join???
-			    for join_table_instance in \
-				    join_values.pop(join.joinMethodName):
-				join_table_instance.set(**{join.joinColumn[:-3]:
-							   table_instance.id})
-	    except BadValue, e:
-		# TODO: should we try and highlight the offending row or column
-		# we could also just use the CommitException exception wrapper
-		# and do an if isinstance(CommitException.exc, BadValue)
-		# so we don't do a rollback on BadValues
-		raise e
-	    except Exception, exc:
-		debug(traceback.format_exc())
-		raise CommitException(exc, item)
-		
-	    if len(join_values) > 0:
-		raise ValueError("join_values isn't empty")
-		
+                    if row[join]:
+                        join_values[join] = row.pop(join)
+                    else:
+                        row.pop(join) # so we don't try to commit joins
+    
+            try: # commit
+                debug(row)
+                table_instance = self._commit(row)
+                # have to set the join this way since 
+                # table_instance.joinColumnName doesn't seem to work here, 
+                # maybe b/c the table_instance hasn't been committed
+                debug(table_instance)
+                debug(table_instance.sqlmeta.joins)
+                for join in table_instance.sqlmeta.joins:
+                    if join.joinMethodName in join_values:
+                        if isinstance(join, SOSingleJoin):
+                            join_table_instance = join_values.pop(join.joinMethodName)
+                            join_table_instance.set(**{join.joinColumn[:-3]:
+                                                       table_instance.id})
+                        else: # must be a multple join???
+                            for join_table_instance in join_values.pop(join.joinMethodName):
+                                join_table_instance.set(**{join.joinColumn[:-3]:
+                                                           table_instance.id})
+            except BadValue, e:
+                # TODO: should we try and highlight the offending row or column
+                # we could also just use the CommitException exception wrapper
+                # and do an if isinstance(CommitException.exc, BadValue)
+                # so we don't do a rollback on BadValues
+                raise e
+            except Exception, exc:
+                debug(traceback.format_exc())
+                raise CommitException(exc, item)
+                
+            if len(join_values) > 0:
+                raise ValueError("join_values isn't empty")
+                
             self.post_commit_hook(table_instance)
             committed_rows.append(table_instance)            
             item[0].committed = True
             #model.remove(item.iter) # on success remove from model
-                            
         return committed_rows
             
             
@@ -1377,7 +1383,7 @@ class TreeViewEditorDialog(TableEditorDialog):
         self.number_of_adds += 1
         if self.number_of_adds > 8: # this is a hack to avoid the column creep
             self.view_window.set_policy(gtk.POLICY_NEVER, gtk.POLICY_ALWAYS)
-	# the False is for the background color
+    # the False is for the background color
         model.append([ModelRowDict(row, self.columns, self.defaults), False])
 
 
@@ -1396,8 +1402,7 @@ class TreeViewEditorDialog(TableEditorDialog):
 
     
     def get_column_widths_from_prefs(self):
-        if self.column_width_pref is None or self.column_width_pref \
-               not in prefs:
+        if self.column_width_pref is None or self.column_width_pref not in prefs:
             return {}        
         return prefs[self.column_width_pref]
 
