@@ -657,7 +657,6 @@ class ModelRowDict(dict):
                 v = self.getters[item](self.row)
             else: # we want this to fail if item doesn't exist in row
                 v = getattr(self.row, item)
-                debug('%s: %s (from database 1)' % (item, repr(v)))
                 
             # resolve foreign keys
             # TODO: there might be a more reasonable wayto do this
@@ -666,7 +665,6 @@ class ModelRowDict(dict):
                 if v is not None and isinstance(column, SOForeignKey):
                     table_name = column.foreignKey                    
                     v = tables[table_name].get(v)
-                    debug('%s: %s (from database)' % (item, repr(v)))
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
@@ -733,7 +731,10 @@ class TableEditor(BaubleEditor):
 
     # TODO: it would probably be better to validate the values when 
     # entering then into the interface instead of accepting any crap and 
-    # validating it on
+    # validating it on commit
+    # TODO: this has alot of work arounds, i don't think sqlobject.contraints
+    # are complete or well tested, maybe we should create our own contraint 
+    # system or at least help to complete SQLObject's constraints
     def _check_constraints(self, values):
 #        debug(values)
         for name, value in values.iteritems():
@@ -750,13 +751,17 @@ class TableEditor(BaubleEditor):
                 # - should have a isUnicode constraint for UnicodeCols
                 if value is None and notNull not in col.constraints:
                     continue
-        #        debug(name)
-        #        debug(col)
-        #        debug(col.constraints)
+#                debug(name)
+#                debug(col)
+#                debug(col.constraints)
                 for constraint in col.constraints:
                     # why are None's in the contraints?
+#                    debug(constraint)
                     if constraint is not None: 
-                        if isinstance(col, SOUnicodeCol) and \
+                        # TODO: when should we accept unicode values as strings
+                        # sqlite returns unicode values instead of strings
+                        # from an EnumCol
+                        if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
                             constraint == constraints.isString and \
                             isinstance(value, unicode):
                             # do isString on unicode values if we're working
@@ -771,9 +776,7 @@ class TableEditor(BaubleEditor):
     
     def _commit(self, values):       
         table_instance = None
-        debug(values)
-        self._check_constraints(values)
-        debug(values)
+        self._check_constraints(values)    
         if 'id' in values:# updating row
             table_instance = self.table.get(values["id"])                    
             del values["id"]
@@ -1242,7 +1245,6 @@ class TreeViewEditorDialog(TableEditorDialog):
         model = self.view.get_model()        
         for item in model:
             row = self._model_row_to_values(item)
-            debug(row)
             if row is None:
                 continue
                         
@@ -1259,13 +1261,10 @@ class TreeViewEditorDialog(TableEditorDialog):
                         row.pop(join) # so we don't try to commit joins
     
             try: # commit
-                debug(row)
                 table_instance = self._commit(row)
                 # have to set the join this way since 
                 # table_instance.joinColumnName doesn't seem to work here, 
                 # maybe b/c the table_instance hasn't been committed
-                debug(table_instance)
-                debug(table_instance.sqlmeta.joins)
                 for join in table_instance.sqlmeta.joins:
                     if join.joinMethodName in join_values:
                         if isinstance(join, SOSingleJoin):

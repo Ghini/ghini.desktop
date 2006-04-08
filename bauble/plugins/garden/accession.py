@@ -99,6 +99,10 @@ class Accession(BaubleTable):
 #
 
 def get_source(row):
+    # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
+    # into some of the accession.source_type columns, this can cause an error
+    # here but it's not critical, but we should make sure this doesn't happen
+    # again in the future, maybe incorporated into a test
     if row.source_type == None:
         return None
     elif row.source_type == tables['Donation'].__name__:
