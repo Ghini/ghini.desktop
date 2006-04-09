@@ -31,6 +31,10 @@ import bauble.utils as utils
 import bauble.paths as paths
 sys.path.append(paths.lib_dir())
 
+# create the user directory
+if not os.path.exists(paths.user_dir()):
+    os.makedirs(paths.user_dir())
+
 # TODO: why do we add lib to the path???
 sys.path.append(paths.lib_dir() + os.sep + 'lib') 
 

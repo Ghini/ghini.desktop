@@ -2,6 +2,7 @@
 # logger/debugger for Bauble
 #
 import os, sys, logging
+import utils
 
 def _main_is_frozen():
     import imp
@@ -13,8 +14,8 @@ def _main_is_frozen():
 def _default_handler():
     import bauble.paths as paths
     if _main_is_frozen():        
-        filename = os.path.join(paths.user_dir(), 'bauble.log')	
-        handler = logging.FileHandler(filename, 'w+')            
+        filename = os.path.join(paths.user_dir(), 'bauble.log')
+        handler = logging.FileHandler(filename, 'w+')
     else:             
         handler = logging.StreamHandler()
     return handler
@@ -27,13 +28,15 @@ def _config_logger(name, level, format, propagate=False):
     try:
         handler = _default_handler()
     except IOError, e:
+        import traceback
+        
         # TODO: popup a dialog telling the user that the default logger
         # couldn't be started??
         global __yesyesiknow
         if not __yesyesiknow and not _main_is_frozen():
             msg = '** Could not open the default log file.\nPress any key to '\
-                  'continue.'
-            raw_input(msg)
+            'continue.\n\n%s' % str(e)
+            utils.message_details_dialog(msg, traceback.format_exc())
             __yesyesiknow = True        
         handler = logging.StreamHandler()
     handler.setLevel(level)

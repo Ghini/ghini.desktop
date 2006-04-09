@@ -1,5 +1,11 @@
 2006.04.09
 ----------
+- fixed a small problem with the logger and the user directory that could
+make Bauble not run at all
+- released 0.4.6
+
+2006.04.09
+----------
 - released 0.4.5
 
 2006.04.08
