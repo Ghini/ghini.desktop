@@ -30,7 +30,7 @@ def _config_logger(name, level, format, propagate=False):
         # TODO: popup a dialog telling the user that the default logger
         # couldn't be started??
         global __yesyesiknow
-        if not __yesyesiknow:
+        if not __yesyesiknow and not _main_is_frozen():
             msg = '** Could not open the default log file.\nPress any key to '\
                   'continue.'
             raw_input(msg)
