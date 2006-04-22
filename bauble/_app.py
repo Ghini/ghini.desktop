@@ -6,9 +6,9 @@
 import os, sys, traceback
 import gtk
 from sqlobject import *
-from bauble.plugins import plugins, tools, views, editors
+#from bauble.plugins import plugins, tools, views, editors
 import bauble.utils as utils
-from bauble.plugins import plugins
+#from bauble.plugins import plugins
 from bauble.prefs import prefs
 from bauble.utils.log import debug
 import datetime
@@ -20,6 +20,7 @@ class BaubleApp:
     
     def __init__(self):
         self.gui = None
+        #self.db_engine = None
     
 
     def delete_event(self, widget, event, data=None):
@@ -48,7 +49,7 @@ class BaubleApp:
         else:
             # create the created timestamp
             t = bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
-                        value=str(datetime.datetime.now()))
+                                       value=str(datetime.datetime.now()))
             sqlhub.processConnection.commit()
 #        except pysqlite2.dbapi2.OperationalError:
 #            msg = "Error creating the database. This sometimes happens " \
@@ -93,6 +94,7 @@ class BaubleApp:
             # bauble.transaction and possible wrap it in a class so
             # we basically make rollback automatically do a begin() and
             # make begin() a NOOP
+            #self.db_engine = sqlalchemy.create_engine(uri)
             sqlhub.processConnection = connectionForURI(uri)
             sqlhub.processConnection.getConnection()
             sqlhub.processConnection = sqlhub.processConnection.transaction()
@@ -151,7 +153,7 @@ class BaubleApp:
                 return self.open_database(uri, name, before_main)
             else:
                 return False
-	self.conn_name = name
+    	self.conn_name = name
         return sqlhub.processConnection
         
         
@@ -179,7 +181,7 @@ class BaubleApp:
             
     
     def main(self):
-	prefs.init() # intialize the preferences
+        prefs.init() # intialize the preferences
 
         import bauble.plugins        
         bauble.plugins.init_plugins() # intialize the plugins        
@@ -199,8 +201,8 @@ class BaubleApp:
                 break
                                 
         # now that we have a connection create the gui
-	self.conn_name = conn_name
-	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)
+    	self.conn_name = conn_name
+    	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)
         self.gui = gui.GUI()
         
         # load the last view open from the prefs
