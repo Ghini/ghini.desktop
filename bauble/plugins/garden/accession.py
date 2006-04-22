@@ -7,14 +7,14 @@ import gtk
 from sqlobject import * 
 import bauble.utils as utils
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog, TableEditorDialog
+from bauble.plugins.editor import TreeViewEditorDialog, TableEditorDialog, TableEditor
 from bauble.utils.log import debug
 
 
 class Accession(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'acc_id'
+	       defaultOrder = 'acc_id'
 
     values = {} # dictionary of values to restrict to columns
     acc_id = StringCol(length=20, notNull=True, alternateID=True)
@@ -117,12 +117,115 @@ def get_source(row):
     
 # Model View Presenter patter
 # see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
-class AccessionPresenter:
+class AccessionEditorView(TableEditorDialog):
     
-    def __init__(self, model, view):
-        # put the data from the model into the view
-        pass
+    def __init__(self, parent=None, select=None, defaults={}):    
+        path = os.path.join(paths.lib_dir(), "plugins", "garden")
+        self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
+        dialog = self.glade_xml.get_widget('acc_editor_dialog')
+        TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
+                                   parent=parent, select=select, 
+                                   defaults=defaults, dialog=dialog)    
+        
+        self.name_entry = self.glade_xml.get_widget('name_entry')
+        completion = gtk.EntryCompletion()    
+        r = gtk.CellRendererText()
+        completion.pack_start(r)
+        completion.set_cell_data_func(r, self.species_cell_data_func)
+        completion.set_match_func(self.completion_match_func)
+        completion.set_minimum_key_length(3)
+        completion.set_inline_completion(True)
+        completion.set_popup_completion(True)         
+        self.name_entry.set_completion(completion)
+        #self.name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
+        #self.name_entry.connect('insert-text', self.on_insert_text)
+        
+        # set up automatic signal handling, all signals should be called
+        # on the presenter
+    
+        
+    def completion_match_func(self, completion, key_string, iter, data=None):        
+        species = completion.get_model().get_value(iter, 0)        
+        if str(species).lower().startswith(key_string.lower()):
+            return True
+        return False            
+    
+        
+    def species_cell_data_func(self, column, renderer, model, iter, data=None):
+        species = model.get_value(iter, 0)        
+        renderer.set_property('markup', str(species))                 
+        
+        
+    def get_widget(self, name):
+        return self.glade_xml.get_widget(name)
 
+    
+                
+class AccessionEditorPresenter:
+    
+    def __init__(self, accession, view):
+        # put the data from the model into the view
+        self.view = view
+        # glade xml acts as the view
+
+    
+        # add listeners to the view
+        name_entry = self.view.get_widget('name_entry')
+        name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
+        name_entry.connect('insert-text', self.on_insert_text)                
+    
+    def refresh_view(self):
+        '''get the values from the model and put them in the view'''
+        pass
+    
+    def _set_names_completions(self, text):
+        parts = text.split(" ")
+        genus = parts[0]
+        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+        model = gtk.ListStore(object)     
+        for row in sr:
+            for species in row.species:
+                model.append([species,])
+                    
+        completion = self.name_entry.get_completion()
+        completion.set_model(model)
+        completion.connect('match-selected', self.on_match_selected)
+
+
+    def on_match_selected(self, completion, model, iter, data=None):    
+        species = model.get_value(iter, 0)
+        completion.get_entry().set_text(str(species))
+
+
+    def on_insert_text(self, entry, new_text, new_text_length, position):
+        # TODO: this is flawed since we can't get the index into the entry
+        # where the text is being inserted so if the used inserts text into 
+        # the middle of the string then this could break
+        entry_text = entry.get_text()
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
+        # this funny logic is so that completions are reset if the user
+        # paste multiple characters in the entry
+        if len(new_text) == 1 and len(full_text) == 2:
+            self._set_names_completions(full_text)
+        elif new_text_length > 2:
+            self._set_names_completions(full_text)
+        
+
+            
+class new2_AccessionEditor(TableEditor):
+    
+    label = 'Accessions'
+    
+    def __init__(self, table=Accession, select=None, defaults={}):
+        TableEditor.__init__(self, table, select, defaults)
+        
+        
+    def start(self):    
+        #self.presenter = AccessionEditorPresenter(AccessionEditorView())
+        self._run()            
+    
+        
 class new_AccessionEditor(TableEditorDialog):
 
     label = 'Accessions'
