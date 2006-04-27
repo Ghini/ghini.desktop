@@ -6,9 +6,8 @@
 import os, sys, traceback
 import gtk
 from sqlobject import *
-#from bauble.plugins import plugins, tools, views, editors
+from bauble.plugins import plugins, tools, views, editors
 import bauble.utils as utils
-#from bauble.plugins import plugins
 from bauble.prefs import prefs
 from bauble.utils.log import debug
 import datetime
@@ -183,12 +182,12 @@ class BaubleApp:
     def main(self):
         prefs.init() # intialize the preferences
 
-        import bauble.plugins        
-        bauble.plugins.init_plugins() # intialize the plugins        
+        #import bauble.plugins        
+        bauble.plugins.init_plugins() # intialize the plugins      
         
         # open default database on startup
         # import these here to avoid recursive import hell
-        import bauble._gui as gui
+        
         from bauble.conn_mgr import ConnectionManager#Dialog
         #self.conn = None
         default_conn = prefs[prefs.conn_default_pref]
@@ -201,8 +200,9 @@ class BaubleApp:
                 break
                                 
         # now that we have a connection create the gui
+        import bauble._gui as gui
     	self.conn_name = conn_name
-    	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)
+    	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)        
         self.gui = gui.GUI()
         
         # load the last view open from the prefs

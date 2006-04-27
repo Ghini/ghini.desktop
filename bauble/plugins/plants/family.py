@@ -4,15 +4,41 @@
 
 import gtk
 from sqlobject import *
+import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog
 from datetime import datetime
 from bauble.utils.log import debug
 
+#
+# *** playing around with sqlalchemy
+#
+#from sqlalchemy import *
+#families = Table('family', bauble.app.db_engine,
+#                 Column('family_id', Integer, primary_key=True),
+#                 Column('user_name', String(16)))                 
+#             
+#             
+#        
+#
+#class Family(BaubleTable):
+#    
+#    def __init__(self):
+#        BaubleTable.__init__(self, families)
+#        
+#
+#synonyms = Table('family_synonym', bauble.app.db_engine,
+#                 Column('family_id', Integer, ForeignKey('families.family_id')),
+#                 Column('synonym_id', Integer, ForeignKey('families.family_id')))
+#                
+#class FamilySynonym(BaubleTable):
+#    def __init__(self):
+#        BaubleTable.__init__(self, synonyms)
+                        
 class Family(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'family'
+	       defaultOrder = 'family'
 
     family = StringCol(length=45, notNull=True, alternateID="True")
     synonyms = MultipleJoin('FamilySynonym', joinColumn='family_id')

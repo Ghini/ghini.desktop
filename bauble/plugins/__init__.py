@@ -123,7 +123,9 @@ def _find_plugins():
                 modules.append('%s.%s' % (pkg, m.group(1)))
                 
     else:                
-        for d in os.listdir(path):
+        # TODO: revert this back to make all plugins load
+        #for d in 'plants':                            
+        for d in os.listdir(path):        
             full = path + os.sep + d                
             if os.path.isdir(full) and os.path.exists(full + 
 						      os.sep + "__init__.py"):
@@ -151,9 +153,9 @@ def load():
     # once the plugins have been found, this is called at the bottom of 
     # this file
     found = _find_plugins()
-    for p in found:        
+    for p in found:                
         plugins[p.__name__] = p
-    #print plugins
+
     for p in plugins.values():
         p.register()  
 
@@ -211,6 +213,20 @@ class BaublePlugin(object):
             t.createTable()
         
         
+#from sqlalchemy import *
+#class BaubleTable(object):
+#    
+#    def __init__(self, table):
+#        debug(self.__class__)
+#        self.mapper = mapper(self.__class__, table)
+#    
+#    class sqlmeta:
+#        pass
+#        
+#    def markup(self):
+#        return str(self)
+
+    
 class BaubleTable(SQLObject):
        
     def __init__(self, **kw):        

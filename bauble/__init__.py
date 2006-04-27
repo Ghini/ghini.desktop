@@ -19,13 +19,15 @@ if not main_is_frozen():
    pygtk.require("2.0")     
 else: # main is frozen
    # put library.zip first in the path when using py2exe so libxml2 gets 
-   # imported correctly, also if i don't import gtk here first then it 
-   # doesn't work, i don't yet know why
+   # imported correctly, 
+   # FIXME: if i don't import gtk here first then it doesn't work, i don't 
+   # yet know why
    import gtk
    zipfile = sys.path[-1]
    sys.path.insert(0,zipfile)
 
 import gtk
+import gtk.glade # this needs to be here
 
 import bauble.utils as utils
 import bauble.paths as paths

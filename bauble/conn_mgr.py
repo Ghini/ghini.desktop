@@ -28,15 +28,15 @@ class ConnectionManager:
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-	conn_list = prefs[prefs.conn_list_pref]
-	if conn_list is None or len(conn_list.keys()) == 0:
-	    msg = "You don't have any connections in your connection list.\n"\
-		  "Close this message and click on '%s' to create a new "\
-		  "connection." % 'Add'
-	    utils.message_dialog(msg)
-	else:
-	    self.set_active_connection_by_name(current_name)        
-        self._dirty = False
+    	conn_list = prefs[prefs.conn_list_pref]
+    	if conn_list is None or len(conn_list.keys()) == 0:
+    	    msg = "You don't have any connections in your connection list.\n"\
+    		  "Close this message and click on '%s' to create a new "\
+    		  "connection." % 'Add'
+    	    utils.message_dialog(msg)
+    	else:
+    	    self.set_active_connection_by_name(current_name)        
+            self._dirty = False
         
         
     def start(self):
@@ -121,8 +121,7 @@ class ConnectionManager:
     
         
     def create_gui(self):
-        #path = os.path.join(paths.lib_dir())	
-	glade_path = os.path.join(paths.lib_dir(), "conn_mgr.glade")
+        glade_path = os.path.join(paths.lib_dir(), "conn_mgr.glade")        
         self.glade_xml = gtk.glade.XML(glade_path)
         
         handlers = {'on_add_button_clicked': self.on_add_button_clicked,
@@ -131,14 +130,14 @@ class ConnectionManager:
         self.glade_xml.signal_autoconnect(handlers)
         
         self.dialog = self.glade_xml.get_widget('main_dialog')
-	if sys.platform != 'win32':
-	    # TODO: need and svg pixbuf loaded for windows
-	    icon_path  = os.path.join(paths.lib_dir(), "images", "icon.svg")
-	    pixbuf = gtk.gdk.pixbuf_new_from_file(icon_path)
-	    self.dialog.set_icon(pixbuf)
+    	if sys.platform != 'win32':
+    	    # TODO: need and svg pixbuf loaded for windows
+    	    icon_path  = os.path.join(paths.lib_dir(), "images", "icon.svg")
+    	    pixbuf = gtk.gdk.pixbuf_new_from_file(icon_path)
+    	    self.dialog.set_icon(pixbuf)
 
         logo = self.glade_xml.get_widget('logo_image')
-	logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
+        logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
         logo.set_from_file(logo_path)
         
         self.params_box = None
@@ -289,8 +288,8 @@ class ConnectionManager:
         the name changed so fill in everything else
         """
         name = combo.get_active_text()
-	if name is None:
-	    return
+        if name is None:
+            return
 
         conn_list = prefs[prefs.conn_list_pref]
         #if self.params_box is not None and self.current_name is not None:
@@ -319,7 +318,7 @@ class ConnectionManager:
             self.type_combo.set_active(0)
             self.type_combo.emit("changed") # in case 0 was already active
         self.current_name = name
-	self.old_params.clear()
+        self.old_params.clear()
 
 
     def on_changed_type_combo(self, combo, data=None):
@@ -356,8 +355,8 @@ class ConnectionManager:
         d = gtk.Dialog(title, self.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
-	d.set_gravity(gtk.gdk.GRAVITY_CENTER)
-	d.set_position(gtk.WIN_POS_CENTER)
+    	d.set_gravity(gtk.gdk.GRAVITY_CENTER)
+    	d.set_position(gtk.WIN_POS_CENTER)
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250,-1)
         entry = gtk.Entry()
@@ -462,14 +461,14 @@ class CMParamsBox(gtk.Table):
 
 
     def set_parameters(self, params):        
-	try:
-	    self.db_entry.set_text(params["db"])
-	    self.host_entry.set_text(params["host"])
-	    self.user_entry.set_text(params["user"])
-	    self.passwd_check.set_active(params["passwd"])
-	except KeyError:
-	    pass
-	    #debug(traceback.format_exc())
+    	try:
+    	    self.db_entry.set_text(params["db"])
+    	    self.host_entry.set_text(params["host"])
+    	    self.user_entry.set_text(params["user"])
+    	    self.passwd_check.set_active(params["passwd"])
+    	except KeyError:
+    	    pass
+    	    #debug(traceback.format_exc())
 
 
 class SQLiteParamsBox(CMParamsBox):
@@ -500,11 +499,11 @@ class SQLiteParamsBox(CMParamsBox):
     
 
     def set_parameters(self, params):
-	try:
-	    self.file_entry.set_text(params["file"])
-	except KeyError:
-	    pass
-	    #debug(traceback.format_exc())
+    	try:
+    	    self.file_entry.set_text(params["file"])
+    	except KeyError:
+    	    pass
+    	    #debug(traceback.format_exc())
 
 
     def on_activate_browse_button(self, widget, data=None):

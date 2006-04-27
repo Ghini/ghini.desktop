@@ -115,17 +115,139 @@ def get_source(row):
     
 
     
-# Model View Presenter patter
-# see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
-class AccessionEditorView(TableEditorDialog):
+class SQLObjectProxy(dict):    
+    '''
+    SQLObjectProxy does two things
+    1. if so_object is an instance it caches values from the database and
+    if those values are changed in the object then the values aren't changed
+    in the database, only in our copy of the values
+    2. if so_object is NOT an instance but simply an SQLObject derived class 
+    then this proxy will only set the values in our local store but will
+    make sure that the columns exist on item access and will return default
+    values from the model if the values haven't been set
+        
+    ** WARNING: ** this is definately not thread safe or good for concurrent
+    access, this effectively caches values from the database so if while using
+    this class something changes in the database this class will still use
+    the cached value
+    '''
     
-    def __init__(self, parent=None, select=None, defaults={}):    
+    # TODO: needs to be better tested
+    
+    def __init__(self, so_object):
+        # we have to set so_object this way since it is called in __contains__
+        # which is used by self.__setattr__
+        dict.__setattr__(self, 'so_object', so_object)
+        self.dirty = False
+        
+        self.isinstance = False        
+        if isinstance(so_object, SQLObject):
+            self.isinstance = True
+            self['id'] = so_object.id # always keep the id
+        elif not issubclass(so_object, SQLObject):
+            msg = 'row should be either an instance or class of SQLObject'
+            raise ValueError('SQLObjectProxy.__init__: ' + msg)        
+        
+        
+    def __contains__(self, item):
+        """
+        this causes the 'in' operator and has_key to behave differently,
+        e.g. 'in' will tell you if it exists in either the dictionary
+        or the table while has_key will only tell you if it exists in the 
+        dictionary, this is a very important difference
+        """
+        if dict.__contains__(self, item):
+            return True
+        return hasattr(self.so_object, item)
+    
+        
+    def __getitem__(self, item):
+        '''
+        get items from the dict
+        if the item does not exist then we create the item in the dictionary
+        and set its value from the default or to None
+        '''
+        
+        # item is already in the dict
+        if self.has_key(item): # use has_key to avoid __contains__
+            return self.get(item)                
+        
+        # else if row is an instance then get it from the table
+        v = None                        
+        if self.isinstance:
+            v = getattr(self.so_object, item)
+            # resolve foreign keys
+            # TODO: there might be a more reasonable wayto do this
+            if item in self.so_object.sqlmeta.columns:
+                column = self.so_object.sqlmeta.columns[item]            
+                if v is not None and isinstance(column, SOForeignKey):
+                    table_name = column.foreignKey                    
+                    v = tables[table_name].get(v)
+        else:
+            # else not an instance so at least make sure that the item
+            # is an attribute in the row, should probably validate the type
+            # depending on the type of the attribute in row
+            debug('else')
+            if not hasattr(self.row, item):
+                msg = '%s has no attribute %s' % (self.row.__class__, item)
+                raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
+                
+        
+        if v is None:
+            # we haven't gotten anything for v yet, first check the 
+            # default for the column
+            if item in self.so_object.sqlmeta.columns:
+                default = self.row.sqlmeta.columns[item].default
+                if default is NoDefault:
+                    default = None
+                v = default
+        
+        # this effectively caches the row item from the instance, the False
+        # is so that the row is set dirty only if it is changed from the 
+        # outside
+        self.__setitem__(item, v, False)
+        return v            
+           
+                
+    def __setitem__(self, key, value, dirty=True):
+        '''
+        set item in the dict, this does not change the database, only 
+        the cached values
+        '''
+        dict.__setitem__(self, key, value)
+        self.dirty = dirty
+    
+    
+    def __getattr__(self, name):
+        '''
+        override attribute read 
+        '''
+        if name in self:
+            return self.__getitem__(name)
+        return dict.__getattribute__(self, name)
+    
+    
+    def __setattr__(self, name, value):
+        '''
+        override attribute write
+        '''
+        if name in self:            
+            self.__setitem__(name, value)
+        else:
+            dict.__setattr__(self, name, value)    
+    
+            
+# Model View Presenter pattern
+# see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
+class AccessionEditorView:
+    
+    def __init__(self, parent=None):    
         path = os.path.join(paths.lib_dir(), "plugins", "garden")
         self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
-        dialog = self.glade_xml.get_widget('acc_editor_dialog')
-        TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
-                                   parent=parent, select=select, 
-                                   defaults=defaults, dialog=dialog)    
+        self.dialog = self.glade_xml.get_widget('acc_editor_dialog')
+        #TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
+        #                           parent=parent, select=select, 
+        #                           defaults=defaults, dialog=dialog)    
         
         self.name_entry = self.glade_xml.get_widget('name_entry')
         completion = gtk.EntryCompletion()    
@@ -161,24 +283,39 @@ class AccessionEditorView(TableEditorDialog):
 
     
                 
+# TODO: *******
+# this is how this needs to go down:
+# 1. we need to attach a listener on the widget, these listeners should be 
+# methods of the presenter and should set the values in the model
+# 2. the presenter should set the widget values from the view
+# 3. if the model row is a ForeignKey then the value should be resolved
+# and the foreign key should be set in the model while the resolved string 
+# representation of the object should be put in the widget, this means that
+# if the widgets are refreshed from the model we should again resolve the
+# foreign key values from the foreign key id stored in the model
+# 4. in general the model should be getting values from the 
 class AccessionEditorPresenter:
     
-    def __init__(self, accession, view):
+    def __init__(self, model, view):
+        '''
+        model: should be an instance of class Accession
+        view: should be an instance of AccessionEditorView
+        '''
         # put the data from the model into the view
         self.view = view
-        # glade xml acts as the view
-
     
         # add listeners to the view
         name_entry = self.view.get_widget('name_entry')
-        name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
-        name_entry.connect('insert-text', self.on_insert_text)                
+        #name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
+        name_entry.connect('insert-text', self.on_insert_text, 'speciesID')
     
+        
     def refresh_view(self):
         '''get the values from the model and put them in the view'''
         pass
     
-    def _set_names_completions(self, text):
+    
+    def _set_names_completions(self, text, model_field):
         parts = text.split(" ")
         genus = parts[0]
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
@@ -189,21 +326,25 @@ class AccessionEditorPresenter:
                     
         completion = self.name_entry.get_completion()
         completion.set_model(model)
-        completion.connect('match-selected', self.on_match_selected)
+        completion.connect('match-selected', self.on_match_selected, 
+                           model_field)
 
 
-    def on_match_selected(self, completion, model, iter, data=None):    
+    def on_match_selected(self, completion, model, iter, model_field):    
         species = model.get_value(iter, 0)
         completion.get_entry().set_text(str(species))
 
 
-    def on_insert_text(self, entry, new_text, new_text_length, position):
+    def on_insert_text(self, entry, new_text, new_text_length, position, 
+                       model_field):
         # TODO: this is flawed since we can't get the index into the entry
         # where the text is being inserted so if the used inserts text into 
         # the middle of the string then this could break
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
+        debug(full_text)
+        debug(model_field)
         # this funny logic is so that completions are reset if the user
         # paste multiple characters in the entry
         if len(new_text) == 1 and len(full_text) == 2:
@@ -211,20 +352,42 @@ class AccessionEditorPresenter:
         elif new_text_length > 2:
             self._set_names_completions(full_text)
         
-
             
-class new2_AccessionEditor(TableEditor):
+    def start(self):
+        self.view.dialog.run()
+        
+        
+class AccessionEditor(TableEditor):
     
     label = 'Accessions'
-    
-    def __init__(self, table=Accession, select=None, defaults={}):
-        TableEditor.__init__(self, table, select, defaults)
         
+    def __init__(self, model=Accession, defaults={}):
+        TableEditor.__init__(self, table=Accession, select=None, 
+                             defaults=defaults)        
+        # TODO: should the model be decorated or have some sort of facade 
+        # instead of working directly on a SQLObject, possible some ugly
+        # magic object that creates field on the fly when accessed and making
+        # sure the values are validated when setting them by checking the
+        # validators on the SQLObject, something similar to ModelRowDict
+        # 
+        assert(issubclass(model, (BaubleTable, Accession)))        
+        self.model = SQLObjectProxy(model)
         
+                        
     def start(self):    
-        #self.presenter = AccessionEditorPresenter(AccessionEditorView())
-        self._run()            
-    
+        self.presenter = AccessionEditorPresenter(self.model, 
+                                                  AccessionEditorView())
+        self.presenter.start()
+        self.model.acc_id = '3323'
+        debug(self.model)        
+        debug(self.model.keys())
+        if len(self.model.keys()) > 0:        
+            return self._commit(self.model)
+        else:
+            return None
+        
+    #def commit_changes(self):
+    #    self._commit(**self.model)
         
 class new_AccessionEditor(TableEditorDialog):
 
@@ -309,7 +472,7 @@ class new_AccessionEditor(TableEditorDialog):
 	
         
     
-class AccessionEditor(TreeViewEditorDialog):
+class old_AccessionEditor(TreeViewEditorDialog):
 
     visible_columns_pref = "editor.accession.columns"
     column_width_pref = "editor.accession.column_width"
