@@ -132,7 +132,7 @@
 		  <property name="column_spacing">0</property>
 
 		  <child>
-		    <widget class="GtkEntry" id="entry5">
+		    <widget class="GtkEntry" id="acc_id_entry">
 		      <property name="visible">True</property>
 		      <property name="editable">True</property>
 		      <property name="visibility">True</property>
@@ -247,7 +247,7 @@
 		  <property name="shadow_type">GTK_SHADOW_ETCHED_IN</property>
 
 		  <child>
-		    <widget class="GtkTextView" id="textview1">
+		    <widget class="GtkTextView" id="notes_textview">
 		      <property name="visible">True</property>
 		      <property name="editable">True</property>
 		      <property name="overwrite">False</property>

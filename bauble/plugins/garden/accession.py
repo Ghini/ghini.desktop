@@ -2,10 +2,11 @@
 # accessions module
 #
 
-
+import os
 import gtk
 from sqlobject import * 
 import bauble.utils as utils
+import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.plugins.editor import TreeViewEditorDialog, TableEditorDialog, TableEditor
 from bauble.utils.log import debug
@@ -125,8 +126,11 @@ class SQLObjectProxy(dict):
     then this proxy will only set the values in our local store but will
     make sure that the columns exist on item access and will return default
     values from the model if the values haven't been set
-        
-    ** WARNING: ** this is definately not thread safe or good for concurrent
+    3. keys will only exist in the dictionary if they have been accessed, 
+    either by read or write, so **self will give you the dictionary of only
+    those things  that have been read or changed
+    
+    ** WARNING: ** this is definetely not thread safe or good for concurrent
     access, this effectively caches values from the database so if while using
     this class something changes in the database this class will still use
     the cached value
@@ -139,7 +143,7 @@ class SQLObjectProxy(dict):
         # which is used by self.__setattr__
         dict.__setattr__(self, 'so_object', so_object)
         self.dirty = False
-        
+                
         self.isinstance = False        
         if isinstance(so_object, SQLObject):
             self.isinstance = True
@@ -187,7 +191,6 @@ class SQLObjectProxy(dict):
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
             # depending on the type of the attribute in row
-            debug('else')
             if not hasattr(self.row, item):
                 msg = '%s has no attribute %s' % (self.row.__class__, item)
                 raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
@@ -241,48 +244,115 @@ class SQLObjectProxy(dict):
 # see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
 class AccessionEditorView:
     
-    def __init__(self, parent=None):    
-        path = os.path.join(paths.lib_dir(), "plugins", "garden")
-        self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
-        self.dialog = self.glade_xml.get_widget('acc_editor_dialog')
-        #TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
-        #                           parent=parent, select=select, 
-        #                           defaults=defaults, dialog=dialog)    
+    class _widgets(dict):
+        '''
+        dictionary and attribute access for widgets
+        '''
+        # TODO: should i worry about making this more secure/read only
+
+        def __init__(self, glade_xml):
+            self.glade_xml = glade_xml
+            
+        def __getitem__(self, name):
+            # TODO: raise a key error if there is no widget
+            return self.glade_xml.get_widget(name)
         
-        self.name_entry = self.glade_xml.get_widget('name_entry')
+        def __getattr__(self, name):
+            return self.glade_xml.get_widget(name)
+    
+    ui_path = os.path.join(paths.lib_dir(), "plugins", "garden",
+                           'editors.glade')
+    widgets = _widgets(gtk.glade.XML(ui_path))                
+
+        
+    def __init__(self, parent=None):
+        self.dialog = self.widgets.acc_editor_dialog
+
+        # configure name_entry
         completion = gtk.EntryCompletion()    
-        r = gtk.CellRendererText()
-        completion.pack_start(r)
-        completion.set_cell_data_func(r, self.species_cell_data_func)
-        completion.set_match_func(self.completion_match_func)
-        completion.set_minimum_key_length(3)
+        completion.set_match_func(self.name_completion_match_func)        
+#        r = gtk.CellRendererText() # set up the completion renderer
+#        completion.pack_start(r)
+#        completion.set_cell_data_func(r, self.name_cell_data_func)        
+        completion.set_text_column(0)    
+        completion.set_minimum_key_length(2)
         completion.set_inline_completion(True)
-        completion.set_popup_completion(True)         
-        self.name_entry.set_completion(completion)
-        #self.name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
-        #self.name_entry.connect('insert-text', self.on_insert_text)
+        completion.set_popup_completion(True)                 
+        self.widgets.name_entry.set_completion(completion)
         
-        # set up automatic signal handling, all signals should be called
+        # TODO: set up automatic signal handling, all signals should be called
         # on the presenter
     
         
-    def completion_match_func(self, completion, key_string, iter, data=None):        
-        species = completion.get_model().get_value(iter, 0)        
-        if str(species).lower().startswith(key_string.lower()):
-            return True
-        return False            
+    def start(self):
+        self.widgets.acc_editor_dialog.run()    
+        
+        
+    def name_completion_match_func(self, completion, key_string, iter, data=None):        
+        '''
+        the only thing this does different is it make the match case insensitve
+        '''
+        value = completion.get_model()[iter][0]
+        return str(value).lower().startswith(key_string.lower())         
     
         
-    def species_cell_data_func(self, column, renderer, model, iter, data=None):
-        species = model.get_value(iter, 0)        
-        renderer.set_property('markup', str(species))                 
+#    def name_cell_data_func(self, column, renderer, model, iter, data=None):
+#        '''
+#        render the values in the completion popup model
+#        '''
+#        #species = model.get_value(iter, 0)        
+#        value = model[iter][0]
+#        renderer.set_property('text', str(value))
         
-        
-    def get_widget(self, name):
-        return self.glade_xml.get_widget(name)
+
+class GenericEditorPresenter:
+    '''
+    this class cannont be instantiated
+    expects a self.model and self.view
+    '''
+    def __init__(self, model, view):
+        '''
+        model should be an instance of SQLObjectProxy
+        view should be an instance of GenericEditorView
+        '''
+        widget_model_map = {}
+        self.model = model
+        self.view = view
 
     
-                
+    def bind_widget_to_model(self, widget_name, model_field):
+        # TODO: this is just an idea stub, should we have a method like
+        # this so to put the model values in the view we just
+        # need a for loop over the keys of the widget_model_map
+        pass
+    
+    
+    def assign_simple_handler(self, widget_name, model_field):
+        '''
+        assign handlers to widgets to change fields in the model
+        '''
+        # TODO: this should validate the data, i.e. convert strings to
+        # int, or does commit do that?
+        widget = self.view.widgets[widget_name]
+        if isinstance(widget, gtk.Entry):            
+            def insert(entry, new_text, new_text_length, position):
+                entry_text = entry.get_text()                
+                pos = entry.get_position()
+                full_text = entry_text[:pos] + new_text + entry_text[pos:]    
+                self.model[model_field] = full_text
+            widget.connect('insert-text', insert)
+        elif isinstance(widget, gtk.TextView):
+            def insert(buffer, iter, text, length, data=None):            
+                text = buffer.get_text(buffer.get_start_iter(), 
+                                       buffer.get_end_iter())
+                self.model[model_field] = text
+            widget.get_buffer().connect('insert-text', insert)
+        else:
+            raise ValueError('widget type not supported: %s' % type(widget))
+    
+    def start(self):
+        raise NotImplentedError
+    
 # TODO: *******
 # this is how this needs to go down:
 # 1. we need to attach a listener on the widget, these listeners should be 
@@ -294,67 +364,117 @@ class AccessionEditorView:
 # if the widgets are refreshed from the model we should again resolve the
 # foreign key values from the foreign key id stored in the model
 # 4. in general the model should be getting values from the 
-class AccessionEditorPresenter:
+class AccessionEditorPresenter(GenericEditorPresenter):
     
     def __init__(self, model, view):
         '''
         model: should be an instance of class Accession
         view: should be an instance of AccessionEditorView
         '''
-        # put the data from the model into the view
-        self.view = view
-    
+        GenericEditorPresenter.__init__(self, model, view)
         # add listeners to the view
-        name_entry = self.view.get_widget('name_entry')
-        #name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
-        name_entry.connect('insert-text', self.on_insert_text, 'speciesID')
+        self.view.widgets.name_entry.connect('insert-text', 
+                                             self.on_insert_text, 'speciesID')
+        self.assign_simple_handler('acc_id_entry', 'acc_id')
+        self.assign_simple_handler('notes_textview', 'notes')
+        
+        self.view.dialog.connect('response', self.on_dialog_response)
+        self.view.dialog.connect('close', self.on_dialog_close_or_delete)
+        self.view.dialog.connect('delete-event', self.on_dialog_close_or_delete)    
+
+             
+    def on_dialog_response(self, dialog, response, *args):
+        # system-defined GtkDialog responses are always negative, in which
+        # case we want to hide it
+        if response < 0:
+            dialog.hide()
+            #self.dialog.emit_stop_by_name('response')
+        #return response
+    
+    
+    def on_dialog_close_or_delete(self, dialog, event=None):
+        dialog.hide()
+        return True
+
+    
+    def refresh_view(self):
+        '''get the values from the model and put them in the view'''        
+        pass           
     
         
-    def refresh_view(self):
-        '''get the values from the model and put them in the view'''
-        pass
-    
-    
     def _set_names_completions(self, text, model_field):
         parts = text.split(" ")
         genus = parts[0]
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        model = gtk.ListStore(object)     
+        
+#        model = gtk.ListStore(object)
+#        # TODO: this is _really_ slow, it may take a second or two to append
+#        # 100 entries
+#        for row in sr:
+#            for species in row.species:
+#                model.append([species])
+        model = gtk.ListStore(str, int)
+#        # TODO: this is _really_ slow, it may take a second or two to append
+#        # 100 entries
         for row in sr:
             for species in row.species:
-                model.append([species,])
-                    
-        completion = self.name_entry.get_completion()
+                model.append([str(species), species.id])
+                
+#        model = gtk.ListStore(str)
+#        for x in xrange(1, 100):
+#            model.append([str(x)])
+        
+        completion = self.view.widgets.name_entry.get_completion()
         completion.set_model(model)
-        completion.connect('match-selected', self.on_match_selected, 
+        completion.connect('match-selected', self.on_name_match_selected, 
                            model_field)
 
-
-    def on_match_selected(self, completion, model, iter, model_field):    
-        species = model.get_value(iter, 0)
-        completion.get_entry().set_text(str(species))
+        
+    def on_name_match_selected(self, completion, compl_model, iter, 
+                               model_field):
+        '''
+        put the selected value in the model
+        '''                
+        # TODO: i would rather just put the object in the column and get
+        # the id from that but there is that funny bug when using custom 
+        # renderers for a gtk.EntryCompletion
+        
+        # column 0 holds the name of the plant while column 1 holds the id         
+        name = compl_model[iter][0]
+        entry = self.view.widgets.name_entry
+        entry.set_text(str(name))
+        entry.set_position(-1)
+        
+        # for foreign keys put the id in the model
+        # TODO: since this in from a completion will it always be from a 
+        # foreign key. what about EnumCols, will they use a combobox
+#        if model_field[-2:] == "ID":
+#            self.model[model_field] = value.id
+#        else:
+#            debug('model[%s] = value' % model_field)
+#            self.model[model_field] = value
+        self.model[model_field] = compl_model[iter][1]
+        debug(self.model)
 
 
     def on_insert_text(self, entry, new_text, new_text_length, position, 
                        model_field):
         # TODO: this is flawed since we can't get the index into the entry
-        # where the text is being inserted so if the used inserts text into 
+        # where the text is being inserted so if the user inserts text into 
         # the middle of the string then this could break
-        entry_text = entry.get_text()
+        entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
-        debug(full_text)
-        debug(model_field)
         # this funny logic is so that completions are reset if the user
         # paste multiple characters in the entry
         if len(new_text) == 1 and len(full_text) == 2:
-            self._set_names_completions(full_text)
-        elif new_text_length > 2:
-            self._set_names_completions(full_text)
+            self._set_names_completions(full_text, model_field)
+        elif new_text_length > 2 and entry_text != '':
+            self._set_names_completions(full_text, model_field)
         
             
     def start(self):
-        self.view.dialog.run()
+        self.view.start()
         
         
 class AccessionEditor(TableEditor):
@@ -378,9 +498,7 @@ class AccessionEditor(TableEditor):
         self.presenter = AccessionEditorPresenter(self.model, 
                                                   AccessionEditorView())
         self.presenter.start()
-        self.model.acc_id = '3323'
         debug(self.model)        
-        debug(self.model.keys())
         if len(self.model.keys()) > 0:        
             return self._commit(self.model)
         else:
@@ -389,86 +507,86 @@ class AccessionEditor(TableEditor):
     #def commit_changes(self):
     #    self._commit(**self.model)
         
-class new_AccessionEditor(TableEditorDialog):
-
-    label = 'Accessions'
-
-    def __init__(self, parent=None, select=None, defaults={}):	
-    	path = os.path.join(paths.lib_dir(), "plugins", "garden")
-    	self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
-    	dialog = self.glade_xml.get_widget('acc_editor_dialog')
-    	TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
-                                   parent=parent, select=select, 
-                                   defaults=defaults, dialog=dialog)
-	
-
-    def completion_match_func(self, completion, key_string, iter, data=None):        
-        species = completion.get_model().get_value(iter, 0)        
-        if str(species).lower().startswith(key_string.lower()):
-            return True
-        return False
-        
-        
-    def species_cell_data_func(self, column, renderer, model, iter, data=None):
-        species = model.get_value(iter, 0)        
-        renderer.set_property('markup', str(species))     
-        
-    
-    def start_gui(self):
-    	self.name_entry = self.glade_xml.get_widget('name_entry')
-    	completion = gtk.EntryCompletion()	
-        r = gtk.CellRendererText()
-        completion.pack_start(r)
-        completion.set_cell_data_func(r, self.species_cell_data_func)
-        completion.set_match_func(self.completion_match_func)
-    	completion.set_minimum_key_length(3)
-    	completion.set_inline_completion(True)
-    	completion.set_popup_completion(True)         
-    	self.name_entry.set_completion(completion)
-    	self.name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
-    	self.name_entry.connect('insert-text', self.on_insert_text)
-
-        
-    def _set_names_completions(self, text):
-    	parts = text.split(" ")
-    	genus = parts[0]
-    	sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        model = gtk.ListStore(object)     
-    	for row in sr:
-            for species in row.species:
-                model.append([species,])
-    			    
-    	completion = self.name_entry.get_completion()
-    	completion.set_model(model)
-    	completion.connect('match-selected', self.on_match_selected)
-
-
-    def on_match_selected(self, completion, model, iter, data=None):    
-        species = model.get_value(iter, 0)
-        completion.get_entry().set_text(str(species))
-
-
-    def on_insert_text(self, entry, new_text, new_text_length, position):
-    	# TODO: this is flawed since we can't get the index into the entry
-    	# where the text is being inserted so if the used inserts text into 
-    	# the middle of the string then this could break
-    	entry_text = entry.get_text()
-    	cursor = entry.get_position()
-    	full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
-    	# this funny logic is so that completions are reset if the user
-    	# paste multiple characters in the entry
-    	if len(new_text) == 1 and len(full_text) == 2:
-    	    self._set_names_completions(full_text)
-    	elif new_text_length > 2:
-    	    self._set_names_completions(full_text)
-	
-    def on_expand_source(self, *args):
-        pass
-    
-    
-    def start(self):	
-    	self.start_gui()
-    	self._run()
+#class new_AccessionEditor(TableEditorDialog):
+#
+#    label = 'Accessions'
+#
+#    def __init__(self, parent=None, select=None, defaults={}):	
+#    	path = os.path.join(paths.lib_dir(), "plugins", "garden")
+#    	self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
+#    	dialog = self.glade_xml.get_widget('acc_editor_dialog')
+#    	TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
+#                                   parent=parent, select=select, 
+#                                   defaults=defaults, dialog=dialog)
+#	
+#
+#    def completion_match_func(self, completion, key_string, iter, data=None):        
+#        species = completion.get_model().get_value(iter, 0)        
+#        if str(species).lower().startswith(key_string.lower()):
+#            return True
+#        return False
+#        
+#        
+#    def species_cell_data_func(self, column, renderer, model, iter, data=None):
+#        species = model.get_value(iter, 0)        
+#        renderer.set_property('markup', str(species))     
+#        
+#    
+#    def start_gui(self):
+#    	self.name_entry = self.glade_xml.get_widget('name_entry')
+#    	completion = gtk.EntryCompletion()	
+#        r = gtk.CellRendererText()
+#        completion.pack_start(r)
+#        completion.set_cell_data_func(r, self.species_cell_data_func)
+#        completion.set_match_func(self.completion_match_func)
+#    	completion.set_minimum_key_length(3)
+#    	completion.set_inline_completion(True)
+#    	completion.set_popup_completion(True)         
+#    	self.name_entry.set_completion(completion)
+#    	self.name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
+#    	self.name_entry.connect('insert-text', self.on_insert_text)
+#
+#        
+#    def _set_names_completions(self, text):
+#    	parts = text.split(" ")
+#    	genus = parts[0]
+#    	sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+#        model = gtk.ListStore(object)     
+#    	for row in sr:
+#            for species in row.species:
+#                model.append([species,])
+#    			    
+#    	completion = self.name_entry.get_completion()
+#    	completion.set_model(model)
+#    	completion.connect('match-selected', self.on_match_selected)
+#
+#
+#    def on_match_selected(self, completion, model, iter, data=None):    
+#        species = model.get_value(iter, 0)
+#        completion.get_entry().set_text(str(species))
+#
+#
+#    def on_insert_text(self, entry, new_text, new_text_length, position):
+#    	# TODO: this is flawed since we can't get the index into the entry
+#    	# where the text is being inserted so if the used inserts text into 
+#    	# the middle of the string then this could break
+#    	entry_text = entry.get_text()
+#    	cursor = entry.get_position()
+#    	full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
+#    	# this funny logic is so that completions are reset if the user
+#    	# paste multiple characters in the entry
+#    	if len(new_text) == 1 and len(full_text) == 2:
+#    	    self._set_names_completions(full_text)
+#    	elif new_text_length > 2:
+#    	    self._set_names_completions(full_text)
+#	
+#    def on_expand_source(self, *args):
+#        pass
+#    
+#    
+#    def start(self):	
+#    	self.start_gui()
+#    	self._run()
 	
         
     
