@@ -6,7 +6,7 @@ import gtk
 from sqlobject import *
 import bauble
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog, ToggleColumn, \
+from bauble.editor import TreeViewEditorDialog, ToggleColumn, \
     GenericViewColumn
 from bauble.utils.log import log, debug
 

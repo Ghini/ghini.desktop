@@ -11,7 +11,7 @@ from bauble import BaubleError
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TableEditorDialog
+from bauble.editor import TableEditorDialog
 from bauble.utils.log import debug
 
 

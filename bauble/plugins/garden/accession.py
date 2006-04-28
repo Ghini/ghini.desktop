@@ -8,7 +8,7 @@ from sqlobject import *
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog, TableEditorDialog, TableEditor
+from bauble.editor import TreeViewEditorDialog, TableEditorDialog, TableEditor
 from bauble.utils.log import debug
 
 

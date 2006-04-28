@@ -703,11 +703,16 @@ class TableEditor(BaubleEditor):
 
     standalone = True
     
-    def __init__(self, table, select=None, defaults={}):
+    def __init__(self, table, select=None, defaults={}, parent=None):
+        '''
+        parent parameter added revision circa 242, allows
+        any editor extending this class the set it modality properly
+        '''
         super(TableEditor, self).__init__()
         self.defaults = copy.copy(defaults)
         self.table = table
         self.select = select                
+        self.parent = parent
         self.__dirty = False
         
         

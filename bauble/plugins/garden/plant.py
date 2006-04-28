@@ -5,7 +5,7 @@
 import gtk
 from sqlobject import * 
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.editor import TreeViewEditorDialog
 import bauble.utils as utils
 from bauble.utils.log import debug
 

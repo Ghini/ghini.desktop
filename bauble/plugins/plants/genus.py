@@ -5,7 +5,7 @@
 import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.editor import TreeViewEditorDialog
 
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus

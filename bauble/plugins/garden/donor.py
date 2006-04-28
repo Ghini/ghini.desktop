@@ -4,7 +4,7 @@
 
 from sqlobject import * 
 from bauble.plugins import BaubleTable, tables
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.editor import TreeViewEditorDialog
 
 # TODO: show list of donations given by donor if searching for the donor name
 # in the search view

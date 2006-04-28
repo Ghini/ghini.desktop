@@ -7,9 +7,9 @@ import os
 import gtk
 from sqlobject import *
 #import bauble.utils as utils
-from bauble.plugins.editor import set_dict_value_from_widget, get_widget_value
+from bauble.editor import set_dict_value_from_widget, get_widget_value
 from bauble.plugins import BaubleTable, tables
-from bauble.plugins.editor import TableEditor
+from bauble.editor import TableEditor
 
 
 # FIXME: there are lots of problems with these tables

@@ -4,7 +4,7 @@
 
 from sqlobject import * 
 from bauble.plugins import BaubleTable, tables
-from bauble.plugins.editor import TreeViewEditorDialog
+from bauble.editor import TreeViewEditorDialog
 
 
 class Location(BaubleTable):
