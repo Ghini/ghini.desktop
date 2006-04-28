@@ -7,7 +7,7 @@
   <property name="title" translatable="yes" context="yes">Accession Editor</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
   <property name="window_position">GTK_WIN_POS_NONE</property>
-  <property name="modal">False</property>
+  <property name="modal">True</property>
   <property name="default_width">320</property>
   <property name="default_height">260</property>
   <property name="resizable">True</property>
@@ -110,7 +110,7 @@
 	      <property name="angle">0</property>
 	    </widget>
 	    <packing>
-	      <property name="padding">10</property>
+	      <property name="padding">5</property>
 	      <property name="expand">False</property>
 	      <property name="fill">False</property>
 	    </packing>
@@ -296,7 +296,7 @@
 	      </child>
 	    </widget>
 	    <packing>
-	      <property name="padding">10</property>
+	      <property name="padding">5</property>
 	      <property name="expand">True</property>
 	      <property name="fill">True</property>
 	    </packing>
@@ -310,6 +310,7 @@
 
 	      <child>
 		<widget class="GtkHBox" id="hbox3">
+		  <property name="border_width">10</property>
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">0</property>
@@ -340,8 +341,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBox" id="combo2">
+		    <widget class="GtkComboBox" id="prov_combo">
 		      <property name="visible">True</property>
+		      <property name="items" translatable="yes">--</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
 		    </widget>
@@ -378,8 +380,9 @@
 		  </child>
 
 		  <child>
-		    <widget class="GtkComboBox" id="combo1">
+		    <widget class="GtkComboBox" id="wild_prov_combo">
 		      <property name="visible">True</property>
+		      <property name="items" translatable="yes">--</property>
 		      <property name="add_tearoffs">False</property>
 		      <property name="focus_on_click">True</property>
 		    </widget>
@@ -423,7 +426,7 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkExpander" id="expander1">
+	    <widget class="GtkExpander" id="source_expander">
 	      <property name="visible">True</property>
 	      <property name="expanded">False</property>
 	      <property name="spacing">0</property>
@@ -433,7 +436,7 @@
 	      </child>
 
 	      <child>
-		<widget class="GtkLabel" id="source_expander">
+		<widget class="GtkLabel" id="source_expander_label">
 		  <property name="visible">True</property>
 		  <property name="label" translatable="yes">Source</property>
 		  <property name="use_underline">False</property>

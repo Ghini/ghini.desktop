@@ -8,7 +8,8 @@ from sqlobject import *
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.editor import TreeViewEditorDialog, TableEditorDialog, TableEditor
+from bauble.editor import TreeViewEditorDialog, TableEditorDialog, \
+    TableEditor, SQLObjectProxy
 from bauble.utils.log import debug
 
 
@@ -116,129 +117,7 @@ def get_source(row):
     
 
     
-class SQLObjectProxy(dict):    
-    '''
-    SQLObjectProxy does two things
-    1. if so_object is an instance it caches values from the database and
-    if those values are changed in the object then the values aren't changed
-    in the database, only in our copy of the values
-    2. if so_object is NOT an instance but simply an SQLObject derived class 
-    then this proxy will only set the values in our local store but will
-    make sure that the columns exist on item access and will return default
-    values from the model if the values haven't been set
-    3. keys will only exist in the dictionary if they have been accessed, 
-    either by read or write, so **self will give you the dictionary of only
-    those things  that have been read or changed
-    
-    ** WARNING: ** this is definetely not thread safe or good for concurrent
-    access, this effectively caches values from the database so if while using
-    this class something changes in the database this class will still use
-    the cached value
-    '''
-    
-    # TODO: needs to be better tested
-    
-    def __init__(self, so_object):
-        # we have to set so_object this way since it is called in __contains__
-        # which is used by self.__setattr__
-        dict.__setattr__(self, 'so_object', so_object)
-        self.dirty = False
-                
-        self.isinstance = False        
-        if isinstance(so_object, SQLObject):
-            self.isinstance = True
-            self['id'] = so_object.id # always keep the id
-        elif not issubclass(so_object, SQLObject):
-            msg = 'row should be either an instance or class of SQLObject'
-            raise ValueError('SQLObjectProxy.__init__: ' + msg)        
-        
-        
-    def __contains__(self, item):
-        """
-        this causes the 'in' operator and has_key to behave differently,
-        e.g. 'in' will tell you if it exists in either the dictionary
-        or the table while has_key will only tell you if it exists in the 
-        dictionary, this is a very important difference
-        """
-        if dict.__contains__(self, item):
-            return True
-        return hasattr(self.so_object, item)
-    
-        
-    def __getitem__(self, item):
-        '''
-        get items from the dict
-        if the item does not exist then we create the item in the dictionary
-        and set its value from the default or to None
-        '''
-        
-        # item is already in the dict
-        if self.has_key(item): # use has_key to avoid __contains__
-            return self.get(item)                
-        
-        # else if row is an instance then get it from the table
-        v = None                        
-        if self.isinstance:
-            v = getattr(self.so_object, item)
-            # resolve foreign keys
-            # TODO: there might be a more reasonable wayto do this
-            if item in self.so_object.sqlmeta.columns:
-                column = self.so_object.sqlmeta.columns[item]            
-                if v is not None and isinstance(column, SOForeignKey):
-                    table_name = column.foreignKey                    
-                    v = tables[table_name].get(v)
-        else:
-            # else not an instance so at least make sure that the item
-            # is an attribute in the row, should probably validate the type
-            # depending on the type of the attribute in row
-            if not hasattr(self.row, item):
-                msg = '%s has no attribute %s' % (self.row.__class__, item)
-                raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
-                
-        
-        if v is None:
-            # we haven't gotten anything for v yet, first check the 
-            # default for the column
-            if item in self.so_object.sqlmeta.columns:
-                default = self.row.sqlmeta.columns[item].default
-                if default is NoDefault:
-                    default = None
-                v = default
-        
-        # this effectively caches the row item from the instance, the False
-        # is so that the row is set dirty only if it is changed from the 
-        # outside
-        self.__setitem__(item, v, False)
-        return v            
-           
-                
-    def __setitem__(self, key, value, dirty=True):
-        '''
-        set item in the dict, this does not change the database, only 
-        the cached values
-        '''
-        dict.__setitem__(self, key, value)
-        self.dirty = dirty
-    
-    
-    def __getattr__(self, name):
-        '''
-        override attribute read 
-        '''
-        if name in self:
-            return self.__getitem__(name)
-        return dict.__getattribute__(self, name)
-    
-    
-    def __setattr__(self, name, value):
-        '''
-        override attribute write
-        '''
-        if name in self:            
-            self.__setitem__(name, value)
-        else:
-            dict.__setattr__(self, name, value)    
-    
+
             
 # Model View Presenter pattern
 # see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
@@ -378,11 +257,41 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('acc_id_entry', 'acc_id')
         self.assign_simple_handler('notes_textview', 'notes')
         
+        # TODO: should we set these to the default value or leave them
+        # be and let the default be set when the row is created, i'm leaning
+        # toward the second, its easier if it works this way
+        self.init_prov_combo()
+        self.init_wild_prov_combo()
+        
         self.view.dialog.connect('response', self.on_dialog_response)
         self.view.dialog.connect('close', self.on_dialog_close_or_delete)
         self.view.dialog.connect('delete-event', self.on_dialog_close_or_delete)    
+        
+        self.refresh_view() # put model values in view
+        
+        
+    def init_prov_combo(self):
+        combo = self.view.widgets.prov_combo
+        model = gtk.ListStore(str)
+        for enum in self.model.columns['prov_type'].enumValues:
+            model.append([enum])
+        combo.set_model(model)
+        def changed(*args):
+            self.model.prov_type = combo.get_active_text()
+        combo.connect('changed', changed)
+    
+    
+    def init_wild_prov_combo(self):
+        combo = self.view.widgets.wild_prov_combo
+        model = gtk.ListStore(str)
+        for enum in self.model.columns['wild_prov_status'].enumValues:
+            model.append([enum])
+        combo.set_model(model)
+        def changed(*args):
+            self.model.prov_type = combo.get_active_text()
+        combo.connect('changed', changed)
 
-             
+
     def on_dialog_response(self, dialog, response, *args):
         # system-defined GtkDialog responses are always negative, in which
         # case we want to hide it
@@ -419,11 +328,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         for row in sr:
             for species in row.species:
                 model.append([str(species), species.id])
-                
-#        model = gtk.ListStore(str)
-#        for x in xrange(1, 100):
-#            model.append([str(x)])
-        
+                        
         completion = self.view.widgets.name_entry.get_completion()
         completion.set_model(model)
         completion.connect('match-selected', self.on_name_match_selected, 
