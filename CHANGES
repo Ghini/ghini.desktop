@@ -1,3 +1,10 @@
+2006.05.01
+----------
+- mostly work on new accession editor
+- some small fixes for utils
+- added get method to prefs to return default value
+- small change in searchview.search.py to support new editor api
+
 2006.04.09
 ----------
 - fixed a small problem with the logger and the user directory that could

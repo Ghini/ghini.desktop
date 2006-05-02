@@ -2,7 +2,7 @@
 # logger/debugger for Bauble
 #
 import os, sys, logging
-import utils
+import bauble.utils
 
 def _main_is_frozen():
     import imp

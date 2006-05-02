@@ -661,7 +661,10 @@ class SearchView(BaubleView):
 
     def on_activate_edit_item(self, item, path, editor, select=None):
 	# on edit we should collapse/expand on the parent path
-        e = editor(select=select)
+    
+        # TODO: the model keyword is temporary and is only there
+        # while we transition to the new editors
+        e = editor(select=select, model=select[0])
         committed = e.start()
         if committed is not None:
 #	    debug(path)

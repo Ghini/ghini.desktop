@@ -266,7 +266,7 @@ class DonationEditor:
         self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
         setComboModelFromSelect(self.donor_combo, sel)
 
-	self.row = row
+        self.row = row
         if self.row is not None:
             #debug('CollectionsEditor.initalized - refreshing')
             self.refresh_widgets_from_row()

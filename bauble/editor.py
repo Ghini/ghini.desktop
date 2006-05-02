@@ -96,7 +96,7 @@ class GenericViewColumn(gtk.TreeViewColumn):
         super(GenericViewColumn, self).__init__(header, renderer, 
                         cell_background_set=1)
         renderer.set_property('cell-background-gdk', 
-                  gtk.gdk.color_parse('#EC9FA4'))
+                              gtk.gdk.color_parse('#EC9FA4'))
         #renderer.set_property('cell-background', 'red')
         #renderer.cell_background = 'pink'
         if not isinstance(tree_view_editor, TreeViewEditorDialog):
@@ -569,8 +569,143 @@ class TableMeta:
         self.foreign_keys = []
         self.joins = []
     
-
-               
+    
+# TODO: this is a new, simpler ModelRowDict sort of class, it doesn't try
+# to be as smart as ModelRowDict but it's a bit more elegant, the ModelRowDict
+# should be abolished or at least changed to usr SQLObjectProxy
+# TODO: this should do some contraint checking before allowing the value to be
+# set in the dict
+class SQLObjectProxy(dict):    
+    '''
+    SQLObjectProxy does two things
+    1. if so_object is an instance it caches values from the database and
+    if those values are changed in the object then the values aren't changed
+    in the database, only in our copy of the values
+    2. if so_object is NOT an instance but simply an SQLObject derived class 
+    then this proxy will only set the values in our local store but will
+    make sure that the columns exist on item access and will return default
+    values from the model if the values haven't been set
+    3. keys will only exist in the dictionary if they have been accessed, 
+    either by read or write, so **self will give you the dictionary of only
+    those things  that have been read or changed
+    
+    ** WARNING: ** this is definetely not thread safe or good for concurrent
+    access, this effectively caches values from the database so if while using
+    this class something changes in the database this class will still use
+    the cached value
+    '''
+    
+    # TODO: needs to be better tested
+    
+    def __init__(self, so_object):
+        # we have to set so_object this way since it is called in __contains__
+        # which is used by self.__setattr__
+        dict.__setattr__(self, 'so_object', so_object)
+        dict.__setattr__(self, 'dirty', False)
+        #self.dirty = False
+                
+        self.isinstance = False        
+        if isinstance(so_object, SQLObject):
+            self.isinstance = True
+            self['id'] = so_object.id # always keep the id
+        elif not issubclass(so_object, SQLObject):
+            msg = 'row should be either an instance or class of SQLObject'
+            raise ValueError('SQLObjectProxy.__init__: ' + msg)        
+        
+        
+    def __contains__(self, item):
+        """
+        this causes the 'in' operator and has_key to behave differently,
+        e.g. 'in' will tell you if it exists in either the dictionary
+        or the table while has_key will only tell you if it exists in the 
+        dictionary, this is a very important difference
+        """
+        if dict.__contains__(self, item):
+            return True
+        return hasattr(self.so_object, item)
+    
+        
+    def __getitem__(self, item):
+        '''
+        get items from the dict
+        if the item does not exist then we create the item in the dictionary
+        and set its value from the default or to None
+        '''
+        
+        # item is already in the dict
+        if self.has_key(item): # use has_key to avoid __contains__
+            return self.get(item)                
+        
+        # else if row is an instance then get it from the table
+        v = None                        
+        if self.isinstance:
+            v = getattr(self.so_object, item)
+            # resolve foreign keys
+            # TODO: there might be a more reasonable wayto do this
+            if item in self.so_object.sqlmeta.columns:
+                column = self.so_object.sqlmeta.columns[item]            
+                if v is not None and isinstance(column, SOForeignKey):
+                    table_name = column.foreignKey                    
+                    v = tables[table_name].get(v)
+        else:
+            # else not an instance so at least make sure that the item
+            # is an attribute in the row, should probably validate the type
+            # depending on the type of the attribute in row
+            if not hasattr(self.so_object, item):
+                msg = '%s has no attribute %s' % (self.so_object.__class__, 
+                                                  item)
+                raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
+                
+        
+        if v is None:
+            # we haven't gotten anything for v yet, first check the 
+            # default for the column
+            if item in self.so_object.sqlmeta.columns:
+                default = self.so_object.sqlmeta.columns[item].default
+                if default is NoDefault:
+                    default = None
+                v = default
+        
+        # this effectively caches the row item from the instance, the False
+        # is so that the row is set dirty only if it is changed from the 
+        # outside
+        self.__setitem__(item, v, False)
+        return v            
+           
+                
+    def __setitem__(self, key, value, dirty=True):
+        '''
+        set item in the dict, this does not change the database, only 
+        the cached values
+        '''
+        dict.__setitem__(self, key, value)
+        dict.__setattr__(self, 'dirty', dirty)
+        #self.dirty = dirty
+    
+    
+    def __getattr__(self, name):
+        '''
+        override attribute read 
+        '''
+        if name in self:
+            return self.__getitem__(name)
+        return dict.__getattribute__(self, name)
+    
+    
+    def __setattr__(self, name, value):
+        '''
+        override attribute write
+        '''
+        if name in self:            
+            self.__setitem__(name, value)
+        else:
+            dict.__setattr__(self, name, value)    
+    
+    def _get_columns(self):
+        return self.so_object.sqlmeta.columns
+    columns = property(_get_columns)
+    
+    
 class ModelRowDict(dict):
     """
     a dictionary representation of an SQLObject used for storing table
@@ -828,9 +963,9 @@ class TableEditorDialog(TableEditor):
         loops until return
         '''
         committed = None
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
         while True:
-            not_ok_msg = 'Are you sure you want to lose your changes?'
-            exc_msg = "Could not commit changes.\n"
             response = self.dialog.run()
             self.save_state()
             if response == gtk.RESPONSE_OK:

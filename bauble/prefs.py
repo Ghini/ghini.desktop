@@ -128,13 +128,13 @@ class _prefs(dict):
     
 
     def init(self):
-	'''
-	initialize the preferences, should only be called from app.main
-	'''
-	# create directory tree of filename if it doesn't yet exist
-	head, tail = os.path.split(self._filename)
-	if not os.path.exists(head):
-	    os.makedirs(head)	    
+        '''
+	    initialize the preferences, should only be called from app.main
+        '''
+	    # create directory tree of filename if it doesn't yet exist
+        head, tail = os.path.split(self._filename)
+        if not os.path.exists(head):
+            os.makedirs(head)	    
         self.config = ConfigParser()
         self.config.read(self._filename)    
 
@@ -145,8 +145,18 @@ class _prefs(dict):
         return name[:index], name[index+1:]
 
 
-    def __getitem__(self, item):
-        section, option = _prefs._parse_key(item)
+    def get(self, key, default):
+        '''
+        get value for key else return default
+        '''
+        value = self[key]
+        if value is None:
+            return default
+        return value
+        
+
+    def __getitem__(self, key):
+        section, option = _prefs._parse_key(key)
         # this doesn't allow None values for preferences
         if not self.config.has_section(section) or \
            not self.config.has_option(section, option):
@@ -156,18 +166,21 @@ class _prefs(dict):
             eval_chars = '{[(' 
             if i[0] in eval_chars: # then the value is a dict, list or tuple
                 return eval(i)
-            return self.config.get(section, option)
+            elif i == 'True' or i == 'False':
+                return eval(i)
+            return i
+            #return self.config.get(section, option)
 
         
-    def __setitem__(self, item, value):
-        section, option = _prefs._parse_key(item)
+    def __setitem__(self, key, value):
+        section, option = _prefs._parse_key(key)
         if not self.config.has_section(section):
             self.config.add_section(section)
         self.config.set(section, option, str(value))
 
         
-    def __contains__(self, item):
-        section, option = _prefs._parse_key(item)
+    def __contains__(self, key):
+        section, option = _prefs._parse_key(key)
         if self.config.has_section(section) and \
            self.config.has_option(section, option):
             return True

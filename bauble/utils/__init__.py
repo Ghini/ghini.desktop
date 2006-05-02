@@ -5,18 +5,18 @@
 import imp, os, sys, re
 import gtk
 import bauble
-
+from bauble.utils.log import debug
 
 def search_tree_model(rows, data, func=lambda row, data: row[0] == data):
     '''
     got this from the pygtk tutorial
     '''
     if not rows:
-	return None
+        return None
     for row in rows:
-	if func(row, data):
-	    return row
-	result = search_tree_model(row.iterchildren(), func, data)
+        if func(row, data):
+            return row
+        result = search_tree_model(row.iterchildren(), func, data)
 	if result:
 	    return result
     return None
@@ -28,27 +28,39 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     cmp(row, value) is the a function to use for comparison
     NOTE: 
     '''
-    model = combo.get_model()
+    model = combo.get_model()    
     match = search_tree_model(model, value, cmp)
     if match is None:
-	raise ValueError('set_combo_from_value() - could not find value in '\
-			 'combo: %s' % value)
+        raise ValueError('set_combo_from_value() - could not find value in '\
+                         'combo: %s' % value)
     combo.set_active_iter(match.iter)
-    
 
-def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
+    
+def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
+    model = combo.get_model()
+    match = search_tree_model(model, value, cmp)
+    return match.iter
+
+
+def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
     '''
     glade_xml: the glade_file to get the widget from
     widget_name: the name of the widget
     value: the value to put in the widget
     markup: whether or not
     default: the default value to put in the widget if the value is None
+    
+    NOTE: any values passed in for widgets that expect a string will call
+    the values __str__ method    
     '''
-#    debug(value)
-    w = glade_xml.get_widget(widget_name)
-    if value is None: 
-        value = default
 
+    w = glade_xml.get_widget(widget_name)
+    if value is None:  # set the value from the default
+        if isinstance(w,(gtk.Label, gtk.TextView, gtk.Entry)) and default is None:
+            value = ''
+        else:
+            value = default
+        
     if isinstance(w, gtk.Label):
         #w.set_text(str(value))
         # FIXME: some of the enum values that have <not set> as a values
@@ -56,20 +68,24 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=""):
         # if someone does pass something that needs to be marked up
         # then it won't display as intended, maybe BaubleTable.markup()
         # should be responsible for returning a properly escaped values
+        # or we should just catch the error(is there an error) and call
+        # set_text if set_markup fails
         if markup: 
             w.set_markup(str(value))
         else:
-            w.set_text(str(value))            
+            w.set_text(str(value))
     elif isinstance(w, gtk.TextView):
-        w.get_buffer().set_text(value)
+        w.get_buffer().set_text(str(value))
     elif isinstance(w, gtk.Entry):
-	w.set_text(value)
+        w.set_text(str(value))
     elif isinstance(w, gtk.ComboBox): # TODO: what about comboentry
-	set_combo_from_value(w, value)
-	
+        if value is None:
+            w.set_active(-1)
+        else:
+            set_combo_from_value(w, value)	
     else:
-	raise TypeError('don\'t know how to handle the widget type %s with '\
-			'name %s' % (type(w), widget_name))
+        raise TypeError('don\'t know how to handle the widget type %s with '\
+		                'name %s' % (type(w), widget_name))
 
 # TODO: if i escape the messages that come in then my own markup doesn't 
 # work, what really needs to be done is make sure that any exception that

@@ -1,3 +1,8 @@
+#
+# dump table schemas
+#
+
+# i'm not actually sure what this does
 
 tables = get_all_tables() # return {name: sqlobject,...}
 for table_name, table in tables.iteritems():

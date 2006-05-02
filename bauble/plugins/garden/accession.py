@@ -11,6 +11,7 @@ from bauble.plugins import BaubleTable, tables, editors
 from bauble.editor import TreeViewEditorDialog, TableEditorDialog, \
     TableEditor, SQLObjectProxy
 from bauble.utils.log import debug
+from bauble.prefs import prefs
 
 
 class Accession(BaubleTable):
@@ -74,6 +75,9 @@ class Accession(BaubleTable):
     # 
     # holds the string 'Collection' or 'Donation' which indicates where
     # we should get the source information from either of those columns
+    # TODO: it seems like it would make more sense just to make this and
+    # EnumCol(enumValues='Collection, Donation') since that's essentially
+    # what it is anyways
     source_type = StringCol(length=64, default=None)    
                             
     # the source type says whether we should be looking at the 
@@ -121,7 +125,7 @@ def get_source(row):
             
 # Model View Presenter pattern
 # see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
-class AccessionEditorView:
+class GenericEditorView:
     
     class _widgets(dict):
         '''
@@ -131,25 +135,40 @@ class AccessionEditorView:
 
         def __init__(self, glade_xml):
             self.glade_xml = glade_xml
-            
+        
         def __getitem__(self, name):
             # TODO: raise a key error if there is no widget
             return self.glade_xml.get_widget(name)
-        
+    
         def __getattr__(self, name):
             return self.glade_xml.get_widget(name)
-    
-    ui_path = os.path.join(paths.lib_dir(), "plugins", "garden",
-                           'editors.glade')
-    widgets = _widgets(gtk.glade.XML(ui_path))                
-
         
+    def __init__(self, glade_xml_path, parent=None):
+        self.glade_xml = gtk.glade.XML(glade_xml_path)
+        self.parent = parent
+        self.widgets = GenericEditorView._widgets(self.glade_xml)
+    
+    def set_widget_value(self, widget_name, value, markup=True, default=None):
+        utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
+                               default)
+        
+class AccessionEditorView(GenericEditorView):
+    
+    # these have to correspond to the response values in the glade file
+    RESPONSE_OK_AND_ADD = 11
+    RESPONSE_NEXT = 22
+    source_expanded_pref = 'editor.accesssion.source.expanded'
+
     def __init__(self, parent=None):
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
+                                                      'plugins', 'garden', 
+                                                      'editors.glade'),
+                                   parent=parent)
         self.dialog = self.widgets.acc_editor_dialog
 
-        # configure name_entry
+        # configure species_entry
         completion = gtk.EntryCompletion()    
-        completion.set_match_func(self.name_completion_match_func)        
+        completion.set_match_func(self.species_completion_match_func)        
 #        r = gtk.CellRendererText() # set up the completion renderer
 #        completion.pack_start(r)
 #        completion.set_cell_data_func(r, self.name_cell_data_func)        
@@ -157,17 +176,27 @@ class AccessionEditorView:
         completion.set_minimum_key_length(2)
         completion.set_inline_completion(True)
         completion.set_popup_completion(True)                 
-        self.widgets.name_entry.set_completion(completion)
-        
+        self.widgets.species_entry.set_completion(completion)
+        self.restore_state()
         # TODO: set up automatic signal handling, all signals should be called
         # on the presenter
     
+    
+    def save_state(self):
+        prefs[self.source_expanded_pref] = \
+            self.widgets.source_expander.get_expanded()
         
+        
+    def restore_state(self):
+        expanded = prefs.get(self.source_expanded_pref, True)
+        self.widgets.source_expander.set_expanded(expanded)
+
+            
     def start(self):
-        self.widgets.acc_editor_dialog.run()    
+        return self.widgets.acc_editor_dialog.run()    
         
         
-    def name_completion_match_func(self, completion, key_string, iter, data=None):        
+    def species_completion_match_func(self, completion, key_string, iter, data=None):        
         '''
         the only thing this does different is it make the match case insensitve
         '''
@@ -245,14 +274,16 @@ class GenericEditorPresenter:
 # 4. in general the model should be getting values from the 
 class AccessionEditorPresenter(GenericEditorPresenter):
     
-    def __init__(self, model, view):
+    def __init__(self, model, view, defaults={}):
         '''
         model: should be an instance of class Accession
         view: should be an instance of AccessionEditorView
         '''
         GenericEditorPresenter.__init__(self, model, view)
+        self.defaults = defaults
+        
         # add listeners to the view
-        self.view.widgets.name_entry.connect('insert-text', 
+        self.view.widgets.species_entry.connect('insert-text', 
                                              self.on_insert_text, 'speciesID')
         self.assign_simple_handler('acc_id_entry', 'acc_id')
         self.assign_simple_handler('notes_textview', 'notes')
@@ -260,16 +291,57 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
         # toward the second, its easier if it works this way
+        
         self.init_prov_combo()
         self.init_wild_prov_combo()
+        self.init_source_expander()
         
         self.view.dialog.connect('response', self.on_dialog_response)
         self.view.dialog.connect('close', self.on_dialog_close_or_delete)
         self.view.dialog.connect('delete-event', self.on_dialog_close_or_delete)    
         
         self.refresh_view() # put model values in view
+    
+    
+    def on_source_expander_activate(self, expander):
+        if not expander.get_expanded():
+            # then add content before it gets expanded
+            pass
+
+    
+    def init_source_expander(self):        
+        # get collection or donation box depending on source_type
+        if self.model.isinstance:
+            debug(self.model.source_type)
+        else:
+            pass
+
+        combo = self.view.widgets.source_type_combo
+        model = gtk.ListStore(str)        
+        model.append(['Collection'])
+        model.append(['Donation'])
+        combo.set_model(model)
+        combo.set_active(0)
+#        combo.append_text('Donation')
+#        combo.append_text('Collection')
+
+        box = self.view.widgets.collection_box
+        old_window = self.view.widgets.collection_window
+        box.get_parent().remove(box)
+#        if box.get_parent() == old_window:
+#            debug('removing box from window')
+#            old_window.remove(box) # this could be removed already
+        #source_box = self.view.widgets.source_box
+        source_box = self.view.widgets.source_box
+        source_box.pack_start(box)
+        self.view.widgets.source_expander.connect('activate', 
+                                           self.on_source_expander_activate)
+        #box.set_visible(True)
+        box.show_all()
+        source_box.show_all()
+        self.view.dialog.show_all()
         
-        
+    
     def init_prov_combo(self):
         combo = self.view.widgets.prov_combo
         model = gtk.ListStore(str)
@@ -305,13 +377,46 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         dialog.hide()
         return True
 
-    
+
+    widget_to_field_map = {'acc_id_entry': 'acc_id',
+                           'prov_combo': 'prov_type',
+                           'wild_prov_combo': 'wild_prov_status',
+                           'species_entry': 'species',
+                           'source_type_combo': 'source_type',}
+#                           'collector_entry': 'collector',
+#                           'colldate_entry': 'coll_date',
+#                           'collid_entry': 'coll_id',
+#                           'locale_entry': 'locale',
+#                           'lat_entry': 'latitude',
+#                           'lon_entry': 'longitude',
+#                           'geoacc_entry': 'geo_accy',
+#                           'alt_entry': 'elevation',
+#                           'altacc_entry': 'elevation_accy',
+#                           'habitat_entry': 'habitat',
+#                           'notes_entry': 'notes'}
+
+    widget_to_source_feild_map = {'collector_entry': 'collector',
+                                  'colldate_entry': 'coll_date',
+                                  'collid_entry': 'coll_id',
+                                  'locale_entry': 'locale',
+                                  'lat_entry': 'latitude',
+                                  'lon_entry': 'longitude',
+                                  'geoacc_entry': 'geo_accy',
+                                  'alt_entry': 'elevation',
+                                  'altacc_entry': 'elevation_accy',
+                                  'habitat_entry': 'habitat',
+                                  'notes_entry': 'notes'}
+
     def refresh_view(self):
-        '''get the values from the model and put them in the view'''        
-        pass           
+        '''
+        get the values from the model and put them in the view
+        '''
+        for widget, field in self.widget_to_field_map.iteritems():
+            self.view.set_widget_value(widget, self.model[field],
+                                       self.defaults.get(field, None))         
     
         
-    def _set_names_completions(self, text, model_field):
+    def _set_species_completions(self, text, model_field):
         parts = text.split(" ")
         genus = parts[0]
         sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
@@ -329,13 +434,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             for species in row.species:
                 model.append([str(species), species.id])
                         
-        completion = self.view.widgets.name_entry.get_completion()
+        completion = self.view.widgets.species_entry.get_completion()
         completion.set_model(model)
-        completion.connect('match-selected', self.on_name_match_selected, 
+        completion.connect('match-selected', self.on_species_match_selected, 
                            model_field)
 
         
-    def on_name_match_selected(self, completion, compl_model, iter, 
+    def on_species_match_selected(self, completion, compl_model, iter, 
                                model_field):
         '''
         put the selected value in the model
@@ -346,7 +451,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         # column 0 holds the name of the plant while column 1 holds the id         
         name = compl_model[iter][0]
-        entry = self.view.widgets.name_entry
+        entry = self.view.widgets.species_entry
         entry.set_text(str(name))
         entry.set_position(-1)
         
@@ -369,215 +474,183 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # the middle of the string then this could break
         entry_text = entry.get_text()                
         cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         # this funny logic is so that completions are reset if the user
         # paste multiple characters in the entry
         if len(new_text) == 1 and len(full_text) == 2:
-            self._set_names_completions(full_text, model_field)
-        elif new_text_length > 2 and entry_text != '':
-            self._set_names_completions(full_text, model_field)
+            self._set_species_completions(full_text, model_field)
+        elif new_text_length > 2:# and entry_text != '':
+            self._set_species_completions(full_text[:2], model_field)
         
             
     def start(self):
-        self.view.start()
+        return self.view.start()
         
-        
+class SourceBoxPresenter:
+    pass
+
 class AccessionEditor(TableEditor):
     
     label = 'Accessions'
         
-    def __init__(self, model=Accession, defaults={}):
+    # TODO: the kwargs is really only here to support the old editor 
+    # constructor
+    def __init__(self, model=Accession, defaults={}, **kwargs):
+        '''
+        model: either an Accession class or instance
+        defaults: a dictionary of Accession field name keys with default
+        values to enter in the model if none are give
+        '''
         TableEditor.__init__(self, table=Accession, select=None, 
-                             defaults=defaults)        
-        # TODO: should the model be decorated or have some sort of facade 
-        # instead of working directly on a SQLObject, possible some ugly
-        # magic object that creates field on the fly when accessed and making
-        # sure the values are validated when setting them by checking the
-        # validators on the SQLObject, something similar to ModelRowDict
-        # 
-        assert(issubclass(model, (BaubleTable, Accession)))        
+                             defaults=defaults)
+        # assert that the model is some form of an Accession
+        debug(repr(model))
+        debug(defaults)
+        if not isinstance(model, Accession):
+            assert(issubclass(model, Accession)) 
+            
+        # can't have both defaults and a model instance
+        assert(not isinstance(model, Accession) or len(defaults.keys()) == 0)
         self.model = SQLObjectProxy(model)
-        
-                        
+        self.view = AccessionEditorView()
+        self.presenter = AccessionEditorPresenter(self.model, self.view,
+                                                  defaults)
+                                
     def start(self):    
-        self.presenter = AccessionEditorPresenter(self.model, 
-                                                  AccessionEditorView())
-        self.presenter.start()
-        debug(self.model)        
-        if len(self.model.keys()) > 0:        
-            return self._commit(self.model)
-        else:
-            return None
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            if response == gtk.RESPONSE_OK or \
+                    response == self.presenter.view.RESPONSE_NEXT or \
+                    response == self.presenter.view.RESPONSE_OK_AND_ADD:
+                try:
+                    committed = self.commit_changes()                
+                except BadValue, e:
+                    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                except Exception, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                else:
+                    break
+            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+                sqlhub.processConnection.rollback()
+                sqlhub.processConnection.begin()
+                self.model.dirty = False
+                break
+            elif not self.model.dirty:
+                break
+        return committed      
+    
+#        debug(self.model)        
+#        if len(self.model.keys()) > 0:        
+#            return self._commit(self.model)
+#        else:
+#            return None
         
-    #def commit_changes(self):
-    #    self._commit(**self.model)
+    def commit_changes(self):
+        self._commit(**self.model)
         
-#class new_AccessionEditor(TableEditorDialog):
+
+	    
+#class old_AccessionEditor(TreeViewEditorDialog):
+#
+#    visible_columns_pref = "editor.accession.columns"
+#    column_width_pref = "editor.accession.column_width"
+#    default_visible_list = ['acc_id', 'species']
 #
 #    label = 'Accessions'
 #
-#    def __init__(self, parent=None, select=None, defaults={}):	
-#    	path = os.path.join(paths.lib_dir(), "plugins", "garden")
-#    	self.glade_xml = gtk.glade.XML(path + os.sep + 'editors.glade')
-#    	dialog = self.glade_xml.get_widget('acc_editor_dialog')
-#    	TableEditorDialog.__init__(self, Accession, title='Accessions Editor',
-#                                   parent=parent, select=select, 
-#                                   defaults=defaults, dialog=dialog)
-#	
+#    def __init__(self, parent=None, select=None, defaults={}):
+#        
+#        TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
+#                                      parent, select=select, defaults=defaults)
+#        titles = {"acc_id": "Acc ID",
+#                   "speciesID": "Name",
+#                   "prov_type": "Provenance Type",
+#                   "wild_prov_status": "Wild Provenance Status",
+#                   'source_type': 'Source',
+#                   'notes': 'Notes'
+##                   "ver_level": "Verification Level",           
+##                   "ver_name": "Verifier's Name",
+##                   "ver_date": "Verification Date",
+##                   "ver_lit": "Verification Literature",
+#                   }
 #
-#    def completion_match_func(self, completion, key_string, iter, data=None):        
-#        species = completion.get_model().get_value(iter, 0)        
-#        if str(species).lower().startswith(key_string.lower()):
-#            return True
-#        return False
+#        self.columns.titles = titles
+#        self.columns['source_type'].meta.editor = editors["SourceEditor"]
+#        self.columns['source_type'].meta.getter = get_source
+#        
+#        self.columns['speciesID'].meta.get_completions = \
+#            self.get_species_completions
+#        
+#        # set the accession column of the table that will be in the 
+#        # source_type columns returned from self.get_values_from view
+#        # TODO: this is a little hoaky and could use some work, might be able
+#        # to do this automatically if the value in the column is a table
+#        # the the expected type is a single join
+#        # could do these similar to the way we handle joins in 
+#        # create_view_columns
+#        #self.table_meta.foreign_keys = [('_collection', 'accession'),
+#        #                                ('_donation', 'accession')]
 #        
 #        
-#    def species_cell_data_func(self, column, renderer, model, iter, data=None):
-#        species = model.get_value(iter, 0)        
-#        renderer.set_property('markup', str(species))     
-#        
+#    def get_species_completions(self, text):
+#        # get entry and determine from what has been input which
+#        # field is currently being edited and give completion
+#        # if this return None then the entry will never search for completions
+#        # TODO: finish this, it would be good if we could just stick
+#        # the table row in the model and tell the renderer how to get the
+#        # string to match on, though maybe not as fast, and then to get
+#        # the value we would only have to do a row.id instead of storing
+#        # these tuples in the model
+#        # UPDATE: the only problem with sticking the table row in the column
+#        # is how many queries would it take to screw in a lightbulb, this
+#        # would be easy to test it just needs to be done
+#        # TODO: there should be a better/faster way to do this 
+#        # using a join or something
+#        parts = text.split(" ")
+#        genus = parts[0]
+#        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+#        model = gtk.ListStore(str, object) 
+#        for row in sr:
+#            for species in row.species:                
+#                model.append((str(species), species))
+#        return model
 #    
-#    def start_gui(self):
-#    	self.name_entry = self.glade_xml.get_widget('name_entry')
-#    	completion = gtk.EntryCompletion()	
-#        r = gtk.CellRendererText()
-#        completion.pack_start(r)
-#        completion.set_cell_data_func(r, self.species_cell_data_func)
-#        completion.set_match_func(self.completion_match_func)
-#    	completion.set_minimum_key_length(3)
-#    	completion.set_inline_completion(True)
-#    	completion.set_popup_completion(True)         
-#    	self.name_entry.set_completion(completion)
-#    	self.name_entry.connect('insert-at-cursor', self.on_insert_at_cursor)
-#    	self.name_entry.connect('insert-text', self.on_insert_text)
-#
 #        
-#    def _set_names_completions(self, text):
-#    	parts = text.split(" ")
-#    	genus = parts[0]
-#    	sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-#        model = gtk.ListStore(object)     
-#    	for row in sr:
-#            for species in row.species:
-#                model.append([species,])
-#    			    
-#    	completion = self.name_entry.get_completion()
-#    	completion.set_model(model)
-#    	completion.connect('match-selected', self.on_match_selected)
-#
-#
-#    def on_match_selected(self, completion, model, iter, data=None):    
-#        species = model.get_value(iter, 0)
-#        completion.get_entry().set_text(str(species))
-#
-#
-#    def on_insert_text(self, entry, new_text, new_text_length, position):
-#    	# TODO: this is flawed since we can't get the index into the entry
-#    	# where the text is being inserted so if the used inserts text into 
-#    	# the middle of the string then this could break
-#    	entry_text = entry.get_text()
-#    	cursor = entry.get_position()
-#    	full_text = entry_text[:cursor] + new_text + entry_text[cursor:]    
-#    	# this funny logic is so that completions are reset if the user
-#    	# paste multiple characters in the entry
-#    	if len(new_text) == 1 and len(full_text) == 2:
-#    	    self._set_names_completions(full_text)
-#    	elif new_text_length > 2:
-#    	    self._set_names_completions(full_text)
-#	
-#    def on_expand_source(self, *args):
-#        pass
+#    def _model_row_to_values(self, row):
+#	'''
+#	_model_row_to_values
+#	row: iter from self.model
+#	return None if you don't want to commit anything
+#	'''    
+#	values = super(AccessionEditor, self)._model_row_to_values(row)
+#	if values is None:
+#	    return None
+#        if 'source_type' in values and values['source_type'] is not None:
+#            source_class = values['source_type'].__class__.__name__
+#            attribute_name = '_' + source_class.lower()
+#            self.columns.joins.append(attribute_name)                
+#            values[attribute_name] = values.pop('source_type')
+#            values['source_type'] = source_class
+#        return values
 #    
-#    
-#    def start(self):	
-#    	self.start_gui()
-#    	self._run()
-	
-        
-    
-class old_AccessionEditor(TreeViewEditorDialog):
-
-    visible_columns_pref = "editor.accession.columns"
-    column_width_pref = "editor.accession.column_width"
-    default_visible_list = ['acc_id', 'species']
-
-    label = 'Accessions'
-
-    def __init__(self, parent=None, select=None, defaults={}):
-        
-        TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
-                                      parent, select=select, defaults=defaults)
-        titles = {"acc_id": "Acc ID",
-                   "speciesID": "Name",
-                   "prov_type": "Provenance Type",
-                   "wild_prov_status": "Wild Provenance Status",
-                   'source_type': 'Source',
-                   'notes': 'Notes'
-#                   "ver_level": "Verification Level",           
-#                   "ver_name": "Verifier's Name",
-#                   "ver_date": "Verification Date",
-#                   "ver_lit": "Verification Literature",
-                   }
-
-        self.columns.titles = titles
-        self.columns['source_type'].meta.editor = editors["SourceEditor"]
-        self.columns['source_type'].meta.getter = get_source
-        
-        self.columns['speciesID'].meta.get_completions = \
-            self.get_species_completions
-        
-        # set the accession column of the table that will be in the 
-        # source_type columns returned from self.get_values_from view
-        # TODO: this is a little hoaky and could use some work, might be able
-        # to do this automatically if the value in the column is a table
-        # the the expected type is a single join
-        # could do these similar to the way we handle joins in 
-        # create_view_columns
-        #self.table_meta.foreign_keys = [('_collection', 'accession'),
-        #                                ('_donation', 'accession')]
-        
-        
-    def get_species_completions(self, text):
-        # get entry and determine from what has been input which
-        # field is currently being edited and give completion
-        # if this return None then the entry will never search for completions
-        # TODO: finish this, it would be good if we could just stick
-        # the table row in the model and tell the renderer how to get the
-        # string to match on, though maybe not as fast, and then to get
-        # the value we would only have to do a row.id instead of storing
-        # these tuples in the model
-        # UPDATE: the only problem with sticking the table row in the column
-        # is how many queries would it take to screw in a lightbulb, this
-        # would be easy to test it just needs to be done
-        # TODO: there should be a better/faster way to do this 
-        # using a join or something
-        parts = text.split(" ")
-        genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        model = gtk.ListStore(str, object) 
-        for row in sr:
-            for species in row.species:                
-                model.append((str(species), species))
-        return model
-    
-        
-    def _model_row_to_values(self, row):
-	'''
-	_model_row_to_values
-	row: iter from self.model
-	return None if you don't want to commit anything
-	'''    
-	values = super(AccessionEditor, self)._model_row_to_values(row)
-	if values is None:
-	    return None
-        if 'source_type' in values and values['source_type'] is not None:
-            source_class = values['source_type'].__class__.__name__
-            attribute_name = '_' + source_class.lower()
-            self.columns.joins.append(attribute_name)                
-            values[attribute_name] = values.pop('source_type')
-            values['source_type'] = source_class
-        return values
-    
 
 #
 # TODO: fix this so it asks if you want to adds plant when you're done
