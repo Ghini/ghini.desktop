@@ -311,6 +311,7 @@ class DonationEditor:
         pass
     
     
+
 class SourceEditor(TableEditorDialog):
     
     label = 'Acession Sources'

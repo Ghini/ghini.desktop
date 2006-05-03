@@ -599,6 +599,7 @@ class SQLObjectProxy(dict):
         #self.dirty = False
                 
         self.isinstance = False        
+        debug(so_object)
         if isinstance(so_object, SQLObject):
             self.isinstance = True
             self['id'] = so_object.id # always keep the id
@@ -607,6 +608,9 @@ class SQLObjectProxy(dict):
             raise ValueError('SQLObjectProxy.__init__: ' + msg)        
         
     __notifiers__ = {}
+    
+    
+    # TODO: provide a way to remove notifiers
     
     def add_notifier(self, column, callback):
         '''
