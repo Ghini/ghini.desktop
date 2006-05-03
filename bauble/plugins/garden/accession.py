@@ -2,9 +2,11 @@
 # accessions module
 #
 
-import os
+import os, traceback
+import xml.sax.saxutils as saxutils
 import gtk
 from sqlobject import * 
+from sqlobject.constraints import BadValue, notNull
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
@@ -12,6 +14,7 @@ from bauble.editor import TreeViewEditorDialog, TableEditorDialog, \
     TableEditor, SQLObjectProxy
 from bauble.utils.log import debug
 from bauble.prefs import prefs
+from bauble.error import CommitException
 
 
 class Accession(BaubleTable):
@@ -50,7 +53,8 @@ class Accession(BaubleTable):
     #
     # verification, a verification table would probably be better and then
     # the accession could have a verification history with a previous
-    # verification id which could create a chain for the history
+    # verification id which could create a chain for the history,
+    # this would be necessary especially for herbarium records
     #
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -118,8 +122,6 @@ def get_source(row):
         return row._collection
     else:
         raise ValueError('unknown source type: ' + str(row.source_type))
-    
-
     
 
             
@@ -302,7 +304,33 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         self.refresh_view() # put model values in view
     
+        # connect methods that watch for change now that we have 
+        # refreshed the view
+        self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
+                                             'prov_type')
+        self.view.widgets.wild_prov_combo.connect('changed', 
+                                                  self.on_combo_changed,
+                                                  'wild_prov_status')
+        self.init_change_notifier()
+        
+        
+    def on_field_changed(self, field):
+        self.view.widgets.acc_ok_button.set_sensitive(True)
+        self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
+        self.view.widgets.acc_next_button.set_sensitive(True)
+        
     
+    def init_change_notifier(self):
+        '''
+        for each widget register a signal handler to be notified when the
+        value in the widget changes, that way we can do things like sensitize
+        the ok button
+        '''
+        for widget, field in self.widget_to_field_map.iteritems():            
+            w = self.view.widgets[widget]
+            self.model.add_notifier(field, self.on_field_changed)
+            
+        
     def on_source_expander_activate(self, expander):
         if not expander.get_expanded():
             # then add content before it gets expanded
@@ -342,15 +370,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.dialog.show_all()
         
     
+    # TODO: should i combine these two init_(wild)_prov_combo methods
     def init_prov_combo(self):
         combo = self.view.widgets.prov_combo
         model = gtk.ListStore(str)
         for enum in self.model.columns['prov_type'].enumValues:
             model.append([enum])
         combo.set_model(model)
-        def changed(*args):
-            self.model.prov_type = combo.get_active_text()
-        combo.connect('changed', changed)
+#        def changed(*args):
+#            debug('on_prov_combo_changed')
+#            self.model.prov_type = combo.get_active_text()
+#        combo.connect('changed', changed)
     
     
     def init_wild_prov_combo(self):
@@ -358,11 +388,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         model = gtk.ListStore(str)
         for enum in self.model.columns['wild_prov_status'].enumValues:
             model.append([enum])
-        combo.set_model(model)
-        def changed(*args):
-            self.model.prov_type = combo.get_active_text()
-        combo.connect('changed', changed)
+        combo.set_model(model)        
+#        def changed(*args):
+#            self.model.wild_prov_status = combo.get_active_text()
+#        combo.connect('changed', changed)
 
+
+    def on_combo_changed(self, combo, field):
+        self.model[field] = combo.get_active_text()
 
     def on_dialog_response(self, dialog, response, *args):
         # system-defined GtkDialog responses are always negative, in which
@@ -381,7 +414,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     widget_to_field_map = {'acc_id_entry': 'acc_id',
                            'prov_combo': 'prov_type',
                            'wild_prov_combo': 'wild_prov_status',
-                           'species_entry': 'species',
+                           'species_entry': 'speciesID',
                            'source_type_combo': 'source_type',}
 #                           'collector_entry': 'collector',
 #                           'colldate_entry': 'coll_date',
@@ -412,6 +445,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         get the values from the model and put them in the view
         '''
         for widget, field in self.widget_to_field_map.iteritems():
+            if field[-2:] == "ID":
+                field = field[:-2]
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
     
@@ -526,6 +561,7 @@ class AccessionEditor(TableEditor):
             if response == gtk.RESPONSE_OK or \
                     response == self.presenter.view.RESPONSE_NEXT or \
                     response == self.presenter.view.RESPONSE_OK_AND_ADD:
+                debug('response is OK: %s' % response)
                 try:
                     committed = self.commit_changes()                
                 except BadValue, e:
@@ -549,6 +585,7 @@ class AccessionEditor(TableEditor):
                 else:
                     break
             elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+                debug(self.model.dirty)
                 sqlhub.processConnection.rollback()
                 sqlhub.processConnection.begin()
                 self.model.dirty = False
@@ -564,7 +601,7 @@ class AccessionEditor(TableEditor):
 #            return None
         
     def commit_changes(self):
-        self._commit(**self.model)
+        self._commit(self.model)
         
 
 	    

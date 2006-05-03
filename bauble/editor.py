@@ -14,6 +14,7 @@ import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
+from bauble.error import CommitException
 
 from bauble.utils.log import log, debug
 
@@ -79,14 +80,7 @@ from bauble.utils.log import log, debug
 #                         flags):
 #        pass
 
-class CommitException(Exception):
 
-    def __init__(self, exc, row):
-        self.row = row # the model we were trying to commit
-        self.exc = exc # the exception thrown while committing
-    
-    def __str__(self):
-        return str(self.exc)
 
 
 class GenericViewColumn(gtk.TreeViewColumn):
@@ -612,7 +606,20 @@ class SQLObjectProxy(dict):
             msg = 'row should be either an instance or class of SQLObject'
             raise ValueError('SQLObjectProxy.__init__: ' + msg)        
         
-        
+    __notifiers__ = {}
+    
+    def add_notifier(self, column, callback):
+        '''
+        add a callback function to be called whenever a column is changed
+        callback should be of the form:
+        def callback(field)
+        '''
+        try:
+            self.__notifiers__[column].append(callback)
+        except KeyError:
+            self.__notifiers__[column] = [callback]
+
+
     def __contains__(self, item):
         """
         this causes the 'in' operator and has_key to behave differently,
@@ -624,7 +631,7 @@ class SQLObjectProxy(dict):
             return True
         return hasattr(self.so_object, item)
     
-        
+    
     def __getitem__(self, item):
         '''
         get items from the dict
@@ -678,8 +685,15 @@ class SQLObjectProxy(dict):
         set item in the dict, this does not change the database, only 
         the cached values
         '''
+#        debug('setitem(%s, %s, %s)' % (key, value, dirty))
         dict.__setitem__(self, key, value)
         dict.__setattr__(self, 'dirty', dirty)
+        if dirty:
+            try:
+                for callback in self.__notifiers__[key]:
+                    callback(key)
+            except KeyError:
+                pass
         #self.dirty = dirty
     
     
@@ -701,9 +715,11 @@ class SQLObjectProxy(dict):
         else:
             dict.__setattr__(self, name, value)    
     
+    
     def _get_columns(self):
         return self.so_object.sqlmeta.columns
     columns = property(_get_columns)
+    
     
     
 class ModelRowDict(dict):

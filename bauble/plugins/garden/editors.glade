@@ -33,7 +33,7 @@
 	  <property name="layout_style">GTK_BUTTONBOX_END</property>
 
 	  <child>
-	    <widget class="GtkButton" id="cancel_button">
+	    <widget class="GtkButton" id="acc_cancel_button">
 	      <property name="visible">True</property>
 	      <property name="label">gtk-cancel</property>
 	      <property name="use_stock">True</property>
@@ -44,8 +44,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="ok_button">
+	    <widget class="GtkButton" id="acc_ok_button">
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="label">gtk-ok</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
@@ -55,8 +56,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="ok_and_add_button">
+	    <widget class="GtkButton" id="acc_ok_and_add_button">
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="label" translatable="yes" context="yes">OK and add plants...</property>
 	      <property name="use_underline">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>
@@ -66,8 +68,9 @@
 	  </child>
 
 	  <child>
-	    <widget class="GtkButton" id="next_button">
+	    <widget class="GtkButton" id="acc_next_button">
 	      <property name="visible">True</property>
+	      <property name="sensitive">False</property>
 	      <property name="label">gtk-media-next</property>
 	      <property name="use_stock">True</property>
 	      <property name="relief">GTK_RELIEF_NORMAL</property>

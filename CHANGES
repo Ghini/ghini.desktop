@@ -1,3 +1,10 @@
+2006.05.02
+----------
+- add a callback system to SQLObjectProxy to notify of changed in the model
+- the basics seem to work on the accession editor as long as you
+don't mess around with the collection/donation information
+- created bauble/error.py to hold exception/error classes
+
 2006.05.01
 ----------
 - mostly work on new accession editor
