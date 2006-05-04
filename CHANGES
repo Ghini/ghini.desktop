@@ -1,3 +1,13 @@
+2006.05.04
+----------
+- added accelerator for Insert menu
+- changed to utils.set_widget_value to try and make setting the combobox
+value a bit more correct
+- indentation fixes in _gui.py
+- factored check_constraints and commit_to_table out of the editor
+- accession editor seems to be working pretty good though I still need
+to write test and work on editing donations
+
 2006.05.02
 ----------
 - add a callback system to SQLObjectProxy to notify of changed in the model

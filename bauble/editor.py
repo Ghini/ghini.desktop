@@ -81,6 +81,58 @@ from bauble.utils.log import log, debug
 #        pass
 
 
+def check_constraints(table, values):
+    '''
+    table: a SQLObject class
+    values: dictionary of values for table    
+    '''
+    for name, value in values.iteritems():
+        if name in table.sqlmeta.columns:
+            col = table.sqlmeta.columns[name]
+            validators = col.createValidators()
+            # TODO: there is another possible bug here where the value is 
+            # not converted to the proper type in the values dict, e.g. a 
+            # string is entered for sp_author when it should be a unicode
+            # but maybe this is converted properly to unicode by
+            # formencode before going in the database, this would need to
+            # be checked better if we expect proper unicode support for
+            # unicode columns
+            # - should have a isUnicode constraint for UnicodeCols
+            if value is None and notNull not in col.constraints:
+                continue
+            for constraint in col.constraints:
+                # why are None's in the contraints?
+                if constraint is not None: 
+                    # TODO: when should we accept unicode values as strings
+                    # sqlite returns unicode values instead of strings
+                    # from an EnumCol
+                    if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
+                        constraint == constraints.isString and \
+                        isinstance(value, unicode):
+                        # do isString on unicode values if we're working
+                        # with a unicode col
+                        pass
+                    else:
+                        constraint(table.__name__, col, value)
+        else:        
+            # assume it's a join and don't do anything
+            pass
+            
+
+def commit_to_table(table, values):
+    '''
+    table: a SQLObject class
+    values: dictionary of values for table    
+    '''
+    table_instance = None
+    check_constraints(table, values)    
+    if 'id' in values:# updating row
+        table_instance = table.get(values["id"])                    
+        del values["id"]
+        table_instance.set(**values)
+    else: # creating new row
+        table_instance = table(**values)
+    return table_instance
 
 
 class GenericViewColumn(gtk.TreeViewColumn):
@@ -569,6 +621,11 @@ class TableMeta:
 # should be abolished or at least changed to usr SQLObjectProxy
 # TODO: this should do some contraint checking before allowing the value to be
 # set in the dict
+# TODO: if you try to access a join in the so_object then it will add it
+# to the dictionary, so then if you try to commit from the dict keys/value
+# you will get an error, shouldn't allow this to happen though right
+# now to get around this you can just access the joins through the so_object
+# member
 class SQLObjectProxy(dict):    
     '''
     SQLObjectProxy does two things
@@ -596,7 +653,6 @@ class SQLObjectProxy(dict):
         # which is used by self.__setattr__
         dict.__setattr__(self, 'so_object', so_object)
         dict.__setattr__(self, 'dirty', False)
-        #self.dirty = False
                 
         self.isinstance = False        
         debug(so_object)
@@ -896,54 +952,56 @@ class TableEditor(BaubleEditor):
     # are complete or well tested, maybe we should create our own contraint 
     # system or at least help to complete SQLObject's constraints
     def _check_constraints(self, values):
-#        debug(values)
-        for name, value in values.iteritems():
-            if name in self.table.sqlmeta.columns:
-                col = self.table.sqlmeta.columns[name]
-                validators = col.createValidators()
-                # TODO: there is another possible bug here where the value is 
-                # not converted to the proper type in the values dict, e.g. a 
-                # string is entered for sp_author when it should be a unicode
-                # but maybe this is converted properly to unicode by
-                # formencode before going in the database, this would need to
-                # be checked better if we expect proper unicode support for
-                # unicode columns
-                # - should have a isUnicode constraint for UnicodeCols
-                if value is None and notNull not in col.constraints:
-                    continue
-#                debug(name)
-#                debug(col)
-#                debug(col.constraints)
-                for constraint in col.constraints:
-                    # why are None's in the contraints?
-#                    debug(constraint)
-                    if constraint is not None: 
-                        # TODO: when should we accept unicode values as strings
-                        # sqlite returns unicode values instead of strings
-                        # from an EnumCol
-                        if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
-                            constraint == constraints.isString and \
-                            isinstance(value, unicode):
-                            # do isString on unicode values if we're working
-                            # with a unicode col
-                            pass
-                        else:
-                            constraint(self.table.__name__, col, value)
-            else:        
-                # assume it's a join and don't do anything
-                pass
+        return check_contraints(self.table, values)
+##        debug(values)
+#        for name, value in values.iteritems():
+#            if name in self.table.sqlmeta.columns:
+#                col = self.table.sqlmeta.columns[name]
+#                validators = col.createValidators()
+#                # TODO: there is another possible bug here where the value is 
+#                # not converted to the proper type in the values dict, e.g. a 
+#                # string is entered for sp_author when it should be a unicode
+#                # but maybe this is converted properly to unicode by
+#                # formencode before going in the database, this would need to
+#                # be checked better if we expect proper unicode support for
+#                # unicode columns
+#                # - should have a isUnicode constraint for UnicodeCols
+#                if value is None and notNull not in col.constraints:
+#                    continue
+##                debug(name)
+##                debug(col)
+##                debug(col.constraints)
+#                for constraint in col.constraints:
+#                    # why are None's in the contraints?
+##                    debug(constraint)
+#                    if constraint is not None: 
+#                        # TODO: when should we accept unicode values as strings
+#                        # sqlite returns unicode values instead of strings
+#                        # from an EnumCol
+#                        if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
+#                            constraint == constraints.isString and \
+#                            isinstance(value, unicode):
+#                            # do isString on unicode values if we're working
+#                            # with a unicode col
+#                            pass
+#                        else:
+#                            constraint(self.table.__name__, col, value)
+#            else:        
+#                # assume it's a join and don't do anything
+#                pass
         
     
     def _commit(self, values):       
-        table_instance = None
-        self._check_constraints(values)    
-        if 'id' in values:# updating row
-            table_instance = self.table.get(values["id"])                    
-            del values["id"]
-            table_instance.set(**values)
-        else: # creating new row
-            table_instance = self.table(**values)
-        return table_instance
+        return commit_to_table(self.table, values)
+#        table_instance = None
+#        self._check_constraints(values)    
+#        if 'id' in values:# updating row
+#            table_instance = self.table.get(values["id"])                    
+#            del values["id"]
+#            table_instance.set(**values)
+#        else: # creating new row
+#            table_instance = self.table(**values)
+#        return table_instance
     
     
     def commit_changes(self):

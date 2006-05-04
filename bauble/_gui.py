@@ -27,8 +27,8 @@ class GUI:
         
             
     def __get_title(self):
-	return '%s %s - %s' % ('Bauble', bauble.version_str, 
-			       bauble.app.conn_name)
+        return '%s %s - %s' % ('Bauble', bauble.version_str, 
+                               bauble.app.conn_name)
     title = property(__get_title)
 
 
@@ -37,12 +37,12 @@ class GUI:
         self.window = gtk.Window(gtk.WINDOW_TOPLEVEL)
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)
-	self.window.set_title(self.title)    
-	if sys.platform != 'win32':
-	    # TODO: need and svg pixbuf loaded for windows
-	    filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
-	    pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-	    self.window.set_icon(pixbuf)
+        self.window.set_title(self.title)
+        if sys.platform != 'win32':
+            # TODO: need and svg pixbuf loaded for windows
+            filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
+            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+            self.window.set_icon(pixbuf)
     
         # top level vbox for menu, content, status bar
         main_vbox = gtk.VBox()
@@ -203,7 +203,7 @@ class GUI:
         self.menubar = ui_manager.get_widget("/MenuBar")
         
         # TODO: why does't using the tools menu from the ui manager work
-        self.add_menu("Insert", self.build_insert_menu())
+        self.add_menu("_Insert", self.build_insert_menu())
         self.add_menu("Tools", self.build_tools_menu())
         
         return self.menubar

@@ -11,11 +11,13 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.editor import TreeViewEditorDialog, TableEditorDialog, \
-    TableEditor, SQLObjectProxy
+    TableEditor, SQLObjectProxy, commit_to_table, check_constraints
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
+class DontCommitException(Exception):
+    pass
 
 class Accession(BaubleTable):
 
@@ -269,8 +271,31 @@ class GenericEditorPresenter:
                                        buffer.get_end_iter())
                 self.model[model_field] = text
             widget.get_buffer().connect('insert-text', insert)
+        elif isinstance(widget, gtk.ComboBox):
+            def changed(combo, data=None):                
+                model = combo.get_model()
+                debug(model)
+                if model is None:
+                    return                
+                i = combo.get_active_iter()
+                debug(i)
+                if i is None:
+                    return
+                data = combo.get_model()[combo.get_active_iter()][0]
+                debug(data)
+                # TODO: should we check here that data is an instance or an
+                # integer
+                if model_field[-2:] == "ID": 
+                    self.model[model_field] = data.id
+                else:
+                    self.model[model_field] = data
+            widget.connect('changed', changed)
+            
+                
+                
         else:
-            raise ValueError('widget type not supported: %s' % type(widget))
+            raise ValueError('assign_simple_handler() -- '\
+                             'widget type not supported: %s' % type(widget))
     
     def start(self):
         raise NotImplementedError
@@ -281,44 +306,124 @@ class GenericEditorPresenter:
         raise NotImplementedError
     
 
-    
+
+            
     
 class CollectionPresenter(GenericEditorPresenter):
     
-    def __init__(self, model, view):
-        GenericEditorPresenter.__init__(self, model, view)
-        self.view.widgets.collector_entry.connect('insert-text', 
-                                                  self.on_collector_entry_insert_text)
-        
-    def on_collector_entry_insert_text(self, entry, new_text, new_text_length, 
-                                       position, data=None):
-        entry_text = entry.get_text()                
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        debug('set collector: %s' % full_text)
-        self.model.collector = full_text
-        
-    widget_to_field_map = {'collector_entry': 'collector',
-                           }
+    widget_to_field_map = {'collector_entry': 'collector',                           
+                           'colldate_entry': 'coll_date',
+                           'collid_entry': 'coll_id',
+                           'locale_entry': 'locale',
+                           'lat_entry': 'latitude',
+                           'lon_entry': 'longitude',
+                           'geoacc_entry': 'geo_accy',
+                           'alt_entry': 'elevation',
+                           'altacc_entry': 'elevation_accy',
+                           'habitat_entry': 'habitat',
+                           'notes_entry': 'notes'}
     
+    
+    def __init__(self, model, view, defaults={}):
+        GenericEditorPresenter.__init__(self, model, view)
+        self.defaults = defaults
+        self.assign_simple_handler('collector_entry', 'collector')
+        self.assign_simple_handler('locale_entry', 'locale')
+        self.assign_simple_handler('colldate_entry', 'coll_date')
+        self.assign_simple_handler('collid_entry', 'coll_id')
+        self.assign_simple_handler('lat_entry', 'latitude')
+        self.assign_simple_handler('lon_entry', 'longitude')
+        self.assign_simple_handler('geoacc_entry', 'geo_accy')
+        self.assign_simple_handler('alt_entry', 'elevation')
+        self.assign_simple_handler('altacc_entry', 'elevation_accy')
+        self.assign_simple_handler('habitat_entry', 'habitat')
+        self.assign_simple_handler('notes_entry', 'notes')
+        
+        
+#        self.view.widgets.collector_entry.connect('insert-text', 
+#                                                  self.on_collector_entry_insert_text)
+        
+#    def on_collector_entry_insert_text(self, entry, new_text, new_text_length, 
+#                                       position, data=None):
+#        entry_text = entry.get_text()                
+#        cursor = entry.get_position()
+#        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+#        debug('set collector: %s' % full_text)
+#        self.model.collector = full_text
+        
+
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             if field[-2:] == "ID":
                 field = field[:-2]
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
-        self.view.widgets
 
     
     
     
 class DonationPresenter(GenericEditorPresenter):
+    widget_to_field_map = {'donor_combo': 'donor',
+                           'donid_entry': 'donor_acc',
+                           'donnotes_entry': 'notes'}    
     
-    def __init__(self, model, view):
+    def __init__(self, model, view, defaults={}):
+        debug('DonationPresenter')
         GenericEditorPresenter.__init__(self, model, view)
         
+        self.defaults = defaults
+        self.assign_simple_handler('donor_combo', 'donor')
+        self.assign_simple_handler('donid_entry', 'donor_acc')
+        self.assign_simple_handler('donnotes_entry', 'notes')
+        
+        
+        
+        self.view.widgets.don_new_button.connect('clicked', 
+                                                 self.on_don_new_clicked)
+        self.view.widgets.don_edit_button.connect('clicked',
+                                                  self.on_don_edit_clicked)
+        
+    def on_don_new_clicked(self, button, data=None):
+        debug('on_don_new_clicked')
+        e = editors['DonorEditor']()
+        e.start()
+        
+    def on_don_edit_clicked(self, button, data=None):
+        e = editor['DonorEditor']()
+        e.start()
+
     def refresh_view(self):
-        pass
+        model = gtk.ListStore(object)
+        for donor in tables['Donor'].select():
+            debug('donor: %s' % donor)
+            model.append([donor])
+        self.view.widgets.donor_combo.set_model(model)
+        
+        # TODO: what if there is a donor id in the source but the donor
+        # doesn't exist
+        for widget, field in self.widget_to_field_map.iteritems():
+            if field[-2:] == "ID":
+                field = field[:-2]
+            self.view.set_widget_value(widget, self.model[field],
+                                       self.defaults.get(field, None))                 
+        
+
+
+class SourcePresenterFactory:
+    
+    def __init__(self):
+        raise NotImplementedError('SourcePresenterFactor should not be '\
+                                  'instantiated')
+        
+    @staticmethod
+    def createSourcePresenter(source_type, model, view, defaults={}):
+        if source_type == 'Collection':
+            return CollectionPresenter(model, view, defaults)
+        elif source_type == 'Donation':
+            return DonationPresenter(model, view, defaults)
+        else:
+            raise ValueError('unknown source type: %s' % source_type)
+
 
 # TODO: *******
 # this is how this needs to go down:
@@ -375,7 +480,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         
     def on_field_changed(self, field):
-        debug('changed: %s' % field)
         self.view.widgets.acc_ok_button.set_sensitive(True)
         self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
         self.view.widgets.acc_next_button.set_sensitive(True)
@@ -390,13 +494,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():            
             w = self.view.widgets[widget]
             self.model.add_notifier(field, self.on_field_changed)
-            
         
-    def on_source_expander_activate(self, expander):
-        if not expander.get_expanded():
-            # then add content before it gets expanded
-            pass
-
     
     def on_source_type_combo_changed(self, combo, data=None):
         '''
@@ -405,107 +503,91 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         source_type = combo.get_active_text()
         box = None
-        debug(source_type)
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
 
-        if source_type is None:
-            return
-        elif source_type == 'Donation':
-            box = self.view.widgets.donation_box
-            if self.model.isinstance and self.model._donation is not None:
-                don_model = self.model._donation
+        source = None
+        source_model = None
+#        if source_type is None:
+#            # remove source box
+#            pass
+#        elif self.model.isinstance:            
+        if source_type is not None:
+            if self.model.isinstance:
+                source = get_source(self.model.so_object)
+                if source is not None and source.__class__.__name__ == source_type:
+                    source_model = SQLObjectProxy(source)
             else:
-                don_model = SQLObjectProxy(tables['Donation'])
-            self.source_presenter = DonationPresenter(don_model, self.view)
-        elif source_type == 'Collection':
-            box = self.view.widgets.collection_box
-            if self.model.isinstance and self.model._collection is not None:
-                coll_model = SQLObjectProxy(self.model._collection)
-            else:
-                coll_model = SQLObjectProxy(tables['Collection'])
-            self.source_presenter = CollectionPresenter(coll_model, self.view)
-        else:
-            raise ValueError('unknown source type i source_type_combo: %s' \
-                             % source_Type)
+                source_model = SQLObjectProxy(tables[source_type])        
         
+        box_map = {'Donation': 'donation_box', 'Collection': 'collection_box'}
+
+        def remove_parent(widget):
+            p = widget.get_parent()
+            if p is not None:
+                p.remove(widget)
                 
+        # replace source box contents with our new box
         source_box = self.view.widgets.source_box
         if self.current_source_box is not None:
-            source_box.remove(self.current_source_box)
-        parent = box.get_parent()
-        if parent is not None:
-            parent.remove(box)         
+            remove_parent(self.current_source_box)
+        if source_type is not None:
+            self.current_source_box = self.view.widgets[box_map[source_type]]
+            remove_parent(self.current_source_box)
+            source_box.pack_start(self.current_source_box)
+        else:
+            self.current_source_box = None
         
-        # initialize model change notifiers    
-        for widget, field in self.source_presenter.widget_to_field_map.iteritems():
-            debug('%s, %s' % (widget, field))
-            w = self.view.widgets[widget]
-            self.source_presenter.model.add_notifier(field, self.on_field_changed)
-            
-        source_box.pack_start(box)
-        self.current_source_box = box        
-        source_box.show_all()        
+        if source_model is not None:
+            self.source_presenter = SourcePresenterFactory.\
+                createSourcePresenter(source_type, source_model, self.view,
+                                      self.defaults)
+            debug(self.source_presenter)
+            self.source_presenter.refresh_view()
+            # initialize model change notifiers    
+            debug(self.source_presenter.widget_to_field_map)
+            for widget, field in self.source_presenter.widget_to_field_map.iteritems():
+#                debug('%s, %s' % (widget, field))
+                self.source_presenter.model.add_notifier(field, 
+                                                         self.on_field_changed)
+        self.model.source_type = source_type
+        source_box.show_all()
         
 
     def init_source_expander(self):        
-        # get collection or donation box depending on source_type
-        
-        if self.model.isinstance:
-            debug(self.model.source_type)
-        else:
-            pass
-
+        '''
+        initialized the source expander contents
+        '''
         combo = self.view.widgets.source_type_combo
         model = gtk.ListStore(str)        
         model.append(['Collection'])
         model.append(['Donation'])
+        model.append([None])
         combo.set_model(model)
-        combo.set_active(0)
-#        combo.append_text('Donation')
-#        combo.append_text('Collection')
-
-        #box = self.view.widgets.collection_box
-        #old_window = self.view.widgets.collection_window
-        #box.get_parent().remove(box)
-#        if box.get_parent() == old_window:
-#            debug('removing box from window')
-#            old_window.remove(box) # this could be removed already
-        #source_box = self.view.widgets.source_box
-        #source_box = self.view.widgets.source_box
-        #source_box.pack_start(box)
-        self.view.widgets.source_expander.connect('activate', 
-                                           self.on_source_expander_activate)
-        #box.set_visible(True)
+        combo.set_active(-1)
         self.view.widgets.source_type_combo.connect('changed', 
-                                                    self.on_source_type_combo_changed)
-        #box.show_all()
-        #source_box.show_all()
+                                            self.on_source_type_combo_changed)
         self.view.dialog.show_all()
         
     
     # TODO: should i combine these two init_(wild)_prov_combo methods
+    
     def init_prov_combo(self):
         combo = self.view.widgets.prov_combo
         model = gtk.ListStore(str)
         for enum in self.model.columns['prov_type'].enumValues:
             model.append([enum])
         combo.set_model(model)
-#        def changed(*args):
-#            debug('on_prov_combo_changed')
-#            self.model.prov_type = combo.get_active_text()
-#        combo.connect('changed', changed)
     
     
     def init_wild_prov_combo(self):
+        # TODO: the wild_prov_combo should only be set sensitive if
+        # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
         combo = self.view.widgets.wild_prov_combo
         model = gtk.ListStore(str)
         for enum in self.model.columns['wild_prov_status'].enumValues:
             model.append([enum])
         combo.set_model(model)        
-#        def changed(*args):
-#            self.model.wild_prov_status = combo.get_active_text()
-#        combo.connect('changed', changed)
 
 
     def on_combo_changed(self, combo, field):
@@ -558,11 +640,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         get the values from the model and put them in the view
         '''
-        for widget, field in self.widget_to_field_map.iteritems():
-            
+        for widget, field in self.widget_to_field_map.iteritems():            
             if field[-2:] == "ID":
                 field = field[:-2]
-            debug('refresh(%s, %s=%s' % (widget, field, self.model[field]))
+            debug('refresh(%s, %s=%s)' % (widget, field, self.model[field]))
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
     
@@ -679,6 +760,9 @@ class AccessionEditor(TableEditor):
                 debug('response is OK: %s' % response)
                 try:
                     committed = self.commit_changes()                
+                except DontCommitException:
+                    debug('Dont Commit Adultery')
+                    continue
                 except BadValue, e:
                     utils.message_dialog(saxutils.escape(str(e)),
                                          gtk.MESSAGE_ERROR)
@@ -711,7 +795,8 @@ class AccessionEditor(TableEditor):
         if commit_transaction:
             debug('committing')
             sqlhub.processConnection.commit()
-        return committed
+        debug(committed)
+        return repr(committed)
     
 #        debug(self.model)        
 #        if len(self.model.keys()) > 0:        
@@ -719,29 +804,64 @@ class AccessionEditor(TableEditor):
 #        else:
 #            return None
         
+# if there is a source presenter
+#    then 
+
     def commit_changes(self):
-        debug(self.model)
-        if not self.source_presenter.model.dirty: # don't change source
-            self.model.pop('source_type')
-        elif self.model.isinstance: # the source type has changed
+        source_model = None
+        source_table = None
+    
+        # if source_type changes and the original source type wasn't none
+        # warn the user
+        if self.model.isinstance:
             orig_source_type = self.model.so_object.source_type
-            if orig_source_type != self.model.source_type:
+            if orig_source_type is not None \
+              and self.model.source_type != orig_source_type:
                 msg = 'You are about to change the type of the accession\'s '\
-                      'source data. All previous source data will be '\
-                      'deleted. Are you sure this is what you want to do?'
+                       'source data. All previous source data will be '\
+                       'deleted. Are you sure this is what you want to do?'
                 if utils.yes_no_dialog(msg):
-                    if orig_source_type == 'Collection':
-                        self.model.so_object._collection.delete()
-                    elif orig_source_type == 'Donation':
-                        self.model.so_object._donation.delete()
-                    else:
-                        raise ValueError('unknown source type for accession '\
-                                         '%s: %s' % (self.model.so_object.id, 
-                                                     orig_source_type))
+                    # change source, destroying old one
+                    source = get_source(self.model.so_object)
+                    if source is not None:
+                        debug('DESTROYING SELF')
+                        source.destroySelf()    
+                else:
+                    raise DontCommitException
+#            source_table = tables[source_model.so_object.__class__.__name__]                    
+#        else:
+#            source_table = tables[source_model.so_object.__name__]
+                
+                
+        if self.presenter.source_presenter is not None \
+          and self.presenter.source_presenter.model.dirty:
+            source_model = self.presenter.source_presenter.model
+            debug(source_model)                 
+            if source_model.isinstance:
+                source_table = tables[source_model.so_object.__class__.__name__]
+            else:
+                source_table = tables[source_model.so_object.__name__]
         
-                          
-            
-        self._commit(self.model)
+        debug(self.model)
+        accession = None
+        if self.model.dirty:
+            accession = self._commit(self.model)
+        elif self.presenter.source_presenter is not None \
+          and self.presenter.source_presenter.model.dirty \
+          and not self.model.dirty:
+            if self.model.isinstance:
+                accession = self.model.so_object
+            else: # commit it anyway to make sure error get thrown
+                accession = self._commit(self.model)
+
+        
+        if source_model is not None:
+            source_model['accession'] = accession.id
+            debug(source_model)
+            debug(source_table)
+            new_source = commit_to_table(source_table, source_model)
+            debug(repr(new_source))
+        return accession
         
 
 	    

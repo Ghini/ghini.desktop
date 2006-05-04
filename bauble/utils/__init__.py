@@ -39,7 +39,9 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     model = combo.get_model()
     match = search_tree_model(model, value, cmp)
-    return match.iter
+    if match is not None:
+        return match.iter
+    return None
 
 
 def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
@@ -79,10 +81,17 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
     elif isinstance(w, gtk.Entry):
         w.set_text(str(value))
     elif isinstance(w, gtk.ComboBox): # TODO: what about comboentry
-        if value is None:
+        # TODO: what if None is in the model
+        i = combo_get_value_iter(w, value)
+        if i is not None:
+            combo.set_active_iter(i)
+        elif w.get_model() is not None:
             w.set_active(-1)
-        else:
-            set_combo_from_value(w, value)	
+#        if value is None:
+#            if w.get_model() is not None:
+#                w.set_active(-1)
+#        else:
+#            set_combo_from_value(w, value)	
     else:
         raise TypeError('don\'t know how to handle the widget type %s with '\
 		                'name %s' % (type(w), widget_name))
