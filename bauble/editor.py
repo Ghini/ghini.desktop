@@ -76,7 +76,6 @@ def commit_to_table(table, values):
     return table_instance
 
 
-
 def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name,
                                model_col=0, validator=lambda x: x):
     w = glade_xml.get_widget(widget_name)
@@ -134,80 +133,7 @@ def get_widget_value(glade_xml, widget_name, column=0):
 #    elif isinstance(w, gtk.Entry):
 #        w.set_text(value)
 
-    
-class GenericEditorPresenter:
-    '''
-    this class cannont be instantiated
-    expects a self.model and self.view
-    '''
-    def __init__(self, model, view, defaults={}):
-        '''
-        model should be an instance of SQLObjectProxy
-        view should be an instance of GenericEditorView
-        '''
-        widget_model_map = {}
-        self.model = model
-        self.view = view
-        self.defaults = defaults
 
-    
-    def bind_widget_to_model(self, widget_name, model_field):
-        # TODO: this is just an idea stub, should we have a method like
-        # this so to put the model values in the view we just
-        # need a for loop over the keys of the widget_model_map
-        pass
-    
-    
-    def assign_simple_handler(self, widget_name, model_field):
-        '''
-        assign handlers to widgets to change fields in the model
-        '''
-        # TODO: this should validate the data, i.e. convert strings to
-        # int, or does commit do that?
-        widget = self.view.widgets[widget_name]
-        if isinstance(widget, gtk.Entry):            
-            def insert(entry, new_text, new_text_length, position):
-                entry_text = entry.get_text()                
-                pos = entry.get_position()
-                full_text = entry_text[:pos] + new_text + entry_text[pos:]    
-                self.model[model_field] = full_text
-            widget.connect('insert-text', insert)
-        elif isinstance(widget, gtk.TextView):
-            def insert(buffer, iter, text, length, data=None):            
-                text = buffer.get_text(buffer.get_start_iter(), 
-                                       buffer.get_end_iter())
-                self.model[model_field] = text
-            widget.get_buffer().connect('insert-text', insert)
-        elif isinstance(widget, gtk.ComboBox):
-            def changed(combo, data=None):                
-                model = combo.get_model()
-                if model is None:
-                    return                
-                i = combo.get_active_iter()
-                if i is None:
-                    return
-                data = combo.get_model()[combo.get_active_iter()][0]
-                # TODO: should we check here that data is an instance or an
-                # integer
-                if model_field[-2:] == "ID": 
-                    self.model[model_field] = data.id
-                else:
-                    self.model[model_field] = data
-            widget.connect('changed', changed)                
-        else:
-            raise ValueError('assign_simple_handler() -- '\
-                             'widget type not supported: %s' % type(widget))
-    
-    def start(self):
-        raise NotImplementedError
-    
-    def refresh_view(self):
-        # TODO: should i provide a generic implementation of this method
-        # as long as widget_to_field_map exist
-        raise NotImplementedError
-    
-    
-    
 # TODO: this is a new, simpler ModelRowDict sort of class, it doesn't try
 # to be as smart as ModelRowDict but it's a bit more elegant, the ModelRowDict
 # should be abolished or at least changed to usr SQLObjectProxy
@@ -247,7 +173,6 @@ class SQLObjectProxy(dict):
         dict.__setattr__(self, 'dirty', False)
                 
         self.isinstance = False        
-        debug(so_object)
         if isinstance(so_object, SQLObject):
             self.isinstance = True
             self['id'] = so_object.id # always keep the id
@@ -371,8 +296,270 @@ class SQLObjectProxy(dict):
     def _get_columns(self):
         return self.so_object.sqlmeta.columns
     columns = property(_get_columns)
+
+
+
+class GenericEditorView:
     
     
+    class _widgets(dict):
+        '''
+        dictionary and attribute access for widgets
+        '''
+        # TODO: should i worry about making this more secure/read only
+
+        def __init__(self, glade_xml):
+            self.glade_xml = glade_xml
+        
+        def __getitem__(self, name):
+            # TODO: raise a key error if there is no widget
+            return self.glade_xml.get_widget(name)
+    
+        def __getattr__(self, name):
+            return self.glade_xml.get_widget(name)
+        
+        
+    def __init__(self, glade_xml, parent=None):
+        '''
+        glade_xml either at gtk.glade.XML instance or a path to a glade 
+        XML file
+        '''
+        if isinstance(glade_xml, gtk.glade.XML):
+            self.glade_xml = glade_xml
+        else: # assume it's a path string
+            self.glade_xml = gtk.glade.XML(glade_xml)
+        self.parent = parent
+        self.widgets = GenericEditorView._widgets(self.glade_xml)
+    
+    
+    def set_widget_value(self, widget_name, value, markup=True, default=None):
+        utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
+                               default)
+        
+        
+    def connect_dialog_close(self, dialog):
+        dialog.connect('response', self.on_dialog_response)
+        dialog.connect('close', self.on_dialog_close_or_delete)
+        dialog.connect('delete-event', self.on_dialog_close_or_delete)    
+        
+        
+    def on_dialog_response(self, dialog, response, *args):
+        if response < 0:
+            dialog.hide()
+    
+    
+    def on_dialog_close_or_delete(self, dialog, event=None):
+        dialog.hide()
+        return True
+    
+    
+    def save_state(self):
+        pass
+        
+    def restore_state(self):
+        pass
+        
+    def start(self):
+        raise NotImplementedError()
+        
+        
+class DontCommitException(Exception):
+    '''
+    this is used for GenericModelViewPresenterEditor.commit_changes() to
+    signal that for some reason the editor doesn't want to commit the current
+    values and would like to redisplay
+    '''
+    pass
+    
+    
+class GenericEditorPresenter:
+    '''
+    this class cannont be instantiated
+    expects a self.model and self.view
+    '''
+    def __init__(self, model, view, defaults={}):
+        '''
+        model should be an instance of SQLObjectProxy
+        view should be an instance of GenericEditorView
+        '''
+        widget_model_map = {}
+        self.model = model
+        self.view = view
+        self.defaults = defaults
+
+    
+    def bind_widget_to_model(self, widget_name, model_field):
+        # TODO: this is just an idea stub, should we have a method like
+        # this so to put the model values in the view we just
+        # need a for loop over the keys of the widget_model_map
+        pass
+    
+    
+    def assign_simple_handler(self, widget_name, model_field):
+        '''
+        assign handlers to widgets to change fields in the model
+        '''
+        # TODO: this should validate the data, i.e. convert strings to
+        # int, or does commit do that?
+        widget = self.view.widgets[widget_name]
+        if isinstance(widget, gtk.Entry):            
+            def insert(entry, new_text, new_text_length, position):
+                entry_text = entry.get_text()                
+                pos = entry.get_position()
+                full_text = entry_text[:pos] + new_text + entry_text[pos:]    
+                self.model[model_field] = full_text
+            def delete(entry, start, end, data=None):
+                text = entry.get_text()
+                full_text = text[:start] + text[end:]
+                self.model[model_field] = full_text                
+            widget.connect('insert-text', insert)
+            widget.connect('delete-text', delete)
+        elif isinstance(widget, gtk.TextView):
+            def insert(buffer, iter, new_text, length, data=None):
+                buff_text = buffer.get_text(buffer.get_start_iter(), 
+                                            buffer.get_end_iter())
+                text_start = buffer.get_text(buffer.get_start_iter(), iter)
+                text_end = buffer.get_text(iter, buffer.get_end_iter())
+                full_text = ''.join((text_start, new_text, text_end))
+#                debug(full_text)
+                self.model[model_field] = full_text
+            def delete(buffer, start_iter, end_iter, data=None):
+                start = start_iter.get_offset()
+                end = end_iter.get_offset()                
+                text = buffer.get_text(buffer.get_start_iter(),
+                                       buffer.get_end_iter())                
+                new_text = text[:start] + text[end:]
+#                debug(new_text)
+                self.model[model_field] = new_text
+            widget.get_buffer().connect('insert-text', insert)
+            widget.get_buffer().connect('delete-range', delete)
+        elif isinstance(widget, gtk.ComboBox):
+            def changed(combo, data=None):                
+                model = combo.get_model()
+                if model is None:
+                    return                
+                i = combo.get_active_iter()
+                if i is None:
+                    return
+                data = combo.get_model()[combo.get_active_iter()][0]
+                # TODO: should we check here that data is an instance or an
+                # integer                
+                if model_field[-2:] == "ID": 
+                    #self.model[model_field] = data.id
+                    self.model[model_field[:-2]] = data
+                else:
+                    self.model[model_field] = data
+                
+            widget.connect('changed', changed)                
+        else:
+            raise ValueError('assign_simple_handler() -- '\
+                             'widget type not supported: %s' % type(widget))
+    
+    def start(self):
+        raise NotImplementedError
+    
+    def refresh_view(self):
+        # TODO: should i provide a generic implementation of this method
+        # as long as widget_to_field_map exist
+        raise NotImplementedError
+    
+    
+    
+class GenericModelViewPresenterEditor(BaubleEditor):
+    
+    label = ''
+    standalone = True
+    ok_responses = ()
+    
+    def __init__(self, model, defaults={}, parent=None):
+        '''
+        model: either a BaubleTable instance or class
+        defaults: a dictionary of column names in the model and default values
+        for the columns if not other value is specified
+        parent: the parent windows for th view
+        '''
+        self.model = SQLObjectProxy(model)
+        
+    
+    def assert_args(self, model, type_class, defaults):
+        '''
+        to be called on the passed model and parameter and not on self.model
+        this would normally be called by a class extending this class before
+        GenericModelViewPresenterEditor.__init__() is called
+        '''
+        # either an instance or class of type_class
+        assert(isinstance(model, type_class) or issubclass(model, type_class))
+        # can't have both defaults and a model instance
+        assert(not isinstance(model, type_class) or len(defaults.keys()) == 0)
+        
+
+    def start(self, commit_transaction=True):    
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            if response == gtk.RESPONSE_OK or response in self.ok_responses:
+                try:
+                    committed = self.commit_changes()                
+                except DontCommitException:
+                    continue
+                except BadValue, e:
+                    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                except Exception, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                else:
+                    break
+            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+#                debug(self.model.dirty)
+                sqlhub.processConnection.rollback()
+                sqlhub.processConnection.begin()
+                self.model.dirty = False
+                break
+            elif not self.model.dirty:
+                break
+            
+        if commit_transaction:
+            sqlhub.processConnection.commit()
+
+        return committed
+
+
+   # TODO: it would probably be better to validate the values when 
+    # entering then into the interface instead of accepting any crap and 
+    # validating it on commit
+    # TODO: this has alot of work arounds, i don't think sqlobject.contraints
+    # are complete or well tested, maybe we should create our own contraint 
+    # system or at least help to complete SQLObject's constraints
+    def _check_constraints(self, values):
+        return check_contraints(self.table, values)
+
+
+    def _commit(self, values):
+        if self.model.isinstance:
+            table_class = self.model.so_object.__class__
+        else:
+            table_class = self.model.so_object
+        return commit_to_table(table_class, values)
+    
+    
+    def commit_changes(self):
+        raise NotImplementedError
     
 
 
@@ -422,63 +609,17 @@ class TableEditor(BaubleEditor):
     # system or at least help to complete SQLObject's constraints
     def _check_constraints(self, values):
         return check_contraints(self.table, values)
-##        debug(values)
-#        for name, value in values.iteritems():
-#            if name in self.table.sqlmeta.columns:
-#                col = self.table.sqlmeta.columns[name]
-#                validators = col.createValidators()
-#                # TODO: there is another possible bug here where the value is 
-#                # not converted to the proper type in the values dict, e.g. a 
-#                # string is entered for sp_author when it should be a unicode
-#                # but maybe this is converted properly to unicode by
-#                # formencode before going in the database, this would need to
-#                # be checked better if we expect proper unicode support for
-#                # unicode columns
-#                # - should have a isUnicode constraint for UnicodeCols
-#                if value is None and notNull not in col.constraints:
-#                    continue
-##                debug(name)
-##                debug(col)
-##                debug(col.constraints)
-#                for constraint in col.constraints:
-#                    # why are None's in the contraints?
-##                    debug(constraint)
-#                    if constraint is not None: 
-#                        # TODO: when should we accept unicode values as strings
-#                        # sqlite returns unicode values instead of strings
-#                        # from an EnumCol
-#                        if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
-#                            constraint == constraints.isString and \
-#                            isinstance(value, unicode):
-#                            # do isString on unicode values if we're working
-#                            # with a unicode col
-#                            pass
-#                        else:
-#                            constraint(self.table.__name__, col, value)
-#            else:        
-#                # assume it's a join and don't do anything
-#                pass
-        
-    
+
+
     def _commit(self, values):       
         return commit_to_table(self.table, values)
-#        table_instance = None
-#        self._check_constraints(values)    
-#        if 'id' in values:# updating row
-#            table_instance = self.table.get(values["id"])                    
-#            del values["id"]
-#            table_instance.set(**values)
-#        else: # creating new row
-#            table_instance = self.table(**values)
-#        return table_instance
     
-    
+
     def commit_changes(self):
         raise NotImplementedError
     
-#
-#
-#
+
+
 class TableEditorDialog(TableEditor):
     
     def __init__(self, table, title="Table Editor",

@@ -1,9 +1,14 @@
 2006.05.05
+----------
 - refactored TreeViewEditorDialog and all relevant code out of 
 bauble/editor.py and into bauble/treevieweditor.py
 - changed all files relevant to TreeViewEditorDialog refactoring
 - more accession editor work
 - start of work for a better donor editor
+- committed r251
+- both accession and donor editor seem more or less finished, just need to
+hook up next and ok_and_add buttons
+- more refactoring and cleanup, too much to list
 
 2006.05.04
 ----------

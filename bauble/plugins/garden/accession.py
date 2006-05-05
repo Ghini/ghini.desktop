@@ -11,14 +11,14 @@ import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.editor import TableEditor, SQLObjectProxy, commit_to_table, \
-    check_constraints, GenericEditorPresenter
+from bauble.editor import *
+#from bauble.editor import TableEditor, SQLObjectProxy, commit_to_table, \
+#    check_constraints, GenericModelViewPresenterEditor, \
+#    GenericEditorPresenter, GenericEditorView, DontCommitException
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
-class DontCommitException(Exception):
-    pass
 
 class Accession(BaubleTable):
 
@@ -114,9 +114,6 @@ class Accession(BaubleTable):
         return '%s (%s)' % (self.acc_id, self.species.markup())
 
 
-#
-# Accession editor
-#
 
 def get_source(row):
     # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
@@ -134,50 +131,9 @@ def get_source(row):
         raise ValueError('unknown source type: ' + str(row.source_type))
     
 
-            
-# Model View Presenter pattern
-# see http://www.martinfowler.com/eaaDev/ModelViewPresenter.html
-class GenericEditorView:
-    
-    class _widgets(dict):
-        '''
-        dictionary and attribute access for widgets
-        '''
-        # TODO: should i worry about making this more secure/read only
-
-        def __init__(self, glade_xml):
-            self.glade_xml = glade_xml
-        
-        def __getitem__(self, name):
-            # TODO: raise a key error if there is no widget
-            return self.glade_xml.get_widget(name)
-    
-        def __getattr__(self, name):
-            return self.glade_xml.get_widget(name)
-        
-    def __init__(self, glade_xml, parent=None):
-        '''
-        glade_xml either at gtk.glade.XML instance or a path to a glade 
-        XML file
-        '''
-        if isinstance(glade_xml, gtk.glade.XML):
-            self.glade_xml = glade_xml
-        else: # assume it's a path string
-            self.glade_xml = gtk.glade.XML(glade_xml)
-        self.parent = parent
-        self.widgets = GenericEditorView._widgets(self.glade_xml)
-    
-    def set_widget_value(self, widget_name, value, markup=True, default=None):
-        utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
-                               default)
-        
-        
         
 class AccessionEditorView(GenericEditorView):
     
-    # these have to correspond to the response values in the glade file
-    RESPONSE_OK_AND_ADD = 11
-    RESPONSE_NEXT = 22
     source_expanded_pref = 'editor.accesssion.source.expanded'
 
     def __init__(self, parent=None):
@@ -185,11 +141,8 @@ class AccessionEditorView(GenericEditorView):
                                                       'plugins', 'garden', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.dialog = self.widgets.acc_editor_dialog
+        self.dialog = self.widgets.accession_dialog
         self.dialog.set_transient_for(parent)
-        #p = self.dialog.get_parent()
-        #if p is not None:
-
         # configure species_entry
         completion = gtk.EntryCompletion()    
         completion.set_match_func(self.species_completion_match_func)        
@@ -204,7 +157,7 @@ class AccessionEditorView(GenericEditorView):
         self.restore_state()
         # TODO: set up automatic signal handling, all signals should be called
         # on the presenter
-    
+        self.connect_dialog_close(self.widgets.accession_dialog)
     
     def save_state(self):
         prefs[self.source_expanded_pref] = \
@@ -217,7 +170,7 @@ class AccessionEditorView(GenericEditorView):
 
             
     def start(self):
-        return self.widgets.acc_editor_dialog.run()    
+        return self.widgets.accession_dialog.run()    
         
         
     def species_completion_match_func(self, completion, key_string, iter, data=None):        
@@ -255,6 +208,7 @@ class CollectionPresenter(GenericEditorPresenter):
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
+        self.refresh_view()
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
         self.assign_simple_handler('colldate_entry', 'coll_date')
@@ -267,18 +221,6 @@ class CollectionPresenter(GenericEditorPresenter):
         self.assign_simple_handler('habitat_entry', 'habitat')
         self.assign_simple_handler('notes_entry', 'notes')
         
-        
-#        self.view.widgets.collector_entry.connect('insert-text', 
-#                                                  self.on_collector_entry_insert_text)
-        
-#    def on_collector_entry_insert_text(self, entry, new_text, new_text_length, 
-#                                       position, data=None):
-#        entry_text = entry.get_text()                
-#        cursor = entry.get_position()
-#        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-#        debug('set collector: %s' % full_text)
-#        self.model.collector = full_text
-        
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
@@ -286,10 +228,8 @@ class CollectionPresenter(GenericEditorPresenter):
                 field = field[:-2]
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
+    
 
-    
-    
-    
 class DonationPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'donor_combo': 'donor',
@@ -298,16 +238,23 @@ class DonationPresenter(GenericEditorPresenter):
     
     
     def __init__(self, model, view, defaults={}):
-        debug('DonationPresenter')
         GenericEditorPresenter.__init__(self, model, view)        
-        self.defaults = defaults
-        self.assign_simple_handler('donor_combo', 'donor')
+        self.defaults = defaults        
+        donor_combo = self.view.widgets.donor_combo
+        donor_combo.connect('changed', self.on_donor_combo_changed)
+        r = gtk.CellRendererText()            
+        donor_combo.pack_start(r)
+        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
+       
+        self.refresh_view()
         self.assign_simple_handler('donid_entry', 'donor_acc')
-        self.assign_simple_handler('donnotes_entry', 'notes')        
+        self.assign_simple_handler('donnotes_entry', 'notes')
+        self.assign_simple_handler('donor_combo', 'donor')
         self.view.widgets.don_new_button.connect('clicked', 
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
+        
         
         
     def on_don_new_clicked(self, button, data=None):
@@ -316,7 +263,10 @@ class DonationPresenter(GenericEditorPresenter):
         to the new donor
         '''
         e = editors['DonorEditor']()
-        e.start()
+        donor = e.start()
+        if donor is not None:
+            self.refresh_view()
+            self.view.set_widget_value('donor_combo', donor)
         
         
     def on_don_edit_clicked(self, button, data=None):
@@ -326,11 +276,18 @@ class DonationPresenter(GenericEditorPresenter):
         donor_combo = self.view.widgets.donor_combo
         i = donor_combo.get_active_iter()
         donor = donor_combo.get_model()[i][0]
-        e = editors['DonorEditor'](select=[donor])
-        e.start()
+        e = editors['DonorEditor'](model=donor, 
+                                   parent=self.view.widgets.accession_dialog)
+        edited = e.start()
+        if edited is not None:
+            self.refresh_view()
 
 
-    def on_donor_combo_changed(self, combo, data=None):        
+    def on_donor_combo_changed(self, combo, data=None):
+        '''
+        changed the sensitivity of the don_edit_button if the
+        selected item in the donor_combo is an instance of Donor
+        '''
         i = combo.get_active_iter()
         if i is None:
             return
@@ -341,33 +298,28 @@ class DonationPresenter(GenericEditorPresenter):
             self.view.widgets.don_edit_button.set_sensitive(False)
 
             
-    def combo_cell_data_func(self, cell, renderer, model, iter, data):
+    def combo_cell_data_func(self, cell, renderer, model, iter):
         v = model[iter][0]
         renderer.set_property('text', str(v))        
-        
-        
+                
+           
     def refresh_view(self):
-        donor_combo = self.view.widgets.donor_combo
-        sel = tables["Donor"].select()
-        r = gtk.CellRendererText()
-        donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func, None)
         model = gtk.ListStore(object)
         for value in tables['Donor'].select():
             model.append([value])
-        donor_combo.set_model(model)
-
-        donor_combo.connect('changed', self.on_donor_combo_changed)
+        self.view.widgets.donor_combo.set_model(model)
+        
         if len(model) == 1: # only one to choose from
             donor_combo.set_active(0)    
         
         # TODO: what if there is a donor id in the source but the donor
-        # doesn't exist
+        # doesn't exist        
         for widget, field in self.widget_to_field_map.iteritems():
             if field[-2:] == "ID":
                 field = field[:-2]
-            self.view.set_widget_value(widget, self.model[field],
-                                       self.defaults.get(field, None))                 
+#            debug("%s: %s = %s" % (widget, field, self.model[field]))
+            default = self.defaults.get(field, None)
+            self.view.set_widget_value(widget, self.model[field], default)
         
 
 
@@ -387,17 +339,13 @@ class SourcePresenterFactory:
             raise ValueError('unknown source type: %s' % source_type)
 
 
-# TODO: *******
-# this is how this needs to go down:
-# 1. we need to attach a listener on the widget, these listeners should be 
-# methods of the presenter and should set the values in the model
-# 2. the presenter should set the widget values from the view
-# 3. if the model row is a ForeignKey then the value should be resolved
-# and the foreign key should be set in the model while the resolved string 
-# representation of the object should be put in the widget, this means that
-# if the widgets are refreshed from the model we should again resolve the
-# foreign key values from the foreign key id stored in the model
-# 4. in general the model should be getting values from the 
+# TODO: pick one or a combination of the following
+# 1. the ok, next and whatever buttons shouldn't be made sensitive until
+# all required field are valid, or all field are valid
+# 2. implement eclipse style label at the top of the editor that give
+# information about context, whether a field is invalid or whatever
+# 3. change color around widget with an invalid value so the user knows there's
+# a problem
 class AccessionEditorPresenter(GenericEditorPresenter):
     
     def __init__(self, model, view, defaults={}):
@@ -408,28 +356,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
         self.current_source_box = None
-        self.source_presenter = None
-                
+        self.source_presenter = None                
         # add listeners to the view
         self.view.widgets.species_entry.connect('insert-text', 
-                                             self.on_insert_text, 'speciesID')
+                                             self.on_insert_text, 'species')
         self.assign_simple_handler('acc_id_entry', 'acc_id')
         self.assign_simple_handler('notes_textview', 'notes')
         
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-        
+        # toward the second, its easier if it works this way        
         self.init_prov_combo()
         self.init_wild_prov_combo()
-        self.init_source_expander()
-        
-        self.view.dialog.connect('response', self.on_dialog_response)
-        self.view.dialog.connect('close', self.on_dialog_close_or_delete)
-        self.view.dialog.connect('delete-event', self.on_dialog_close_or_delete)    
-        
-        self.refresh_view() # put model values in view
-    
+        self.init_source_expander()        
+        self.refresh_view() # put model values in view    
         # connect methods that watch for change now that we have 
         # refreshed the view
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
@@ -441,6 +381,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         
     def on_field_changed(self, field):
+#        debug('on field changed: %s' % field)
         self.view.widgets.acc_ok_button.set_sensitive(True)
         self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
         self.view.widgets.acc_next_button.set_sensitive(True)
@@ -469,17 +410,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         source = None
         source_model = None
-#        if source_type is None:
-#            # remove source box
-#            pass
-#        elif self.model.isinstance:            
         if source_type is not None:
             if self.model.isinstance:
                 source = get_source(self.model.so_object)
                 if source is not None and source.__class__.__name__ == source_type:
                     source_model = SQLObjectProxy(source)
-            else:
-                source_model = SQLObjectProxy(tables[source_type])        
+            if source_model is None:
+                source_model = SQLObjectProxy(tables[source_type])
+            
         
         box_map = {'Donation': 'donation_box', 'Collection': 'collection_box'}
 
@@ -503,12 +441,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.source_presenter = SourcePresenterFactory.\
                 createSourcePresenter(source_type, source_model, self.view,
                                       self.defaults)
-            debug(self.source_presenter)
-            self.source_presenter.refresh_view()
             # initialize model change notifiers    
-            debug(self.source_presenter.widget_to_field_map)
             for widget, field in self.source_presenter.widget_to_field_map.iteritems():
-#                debug('%s, %s' % (widget, field))
                 self.source_presenter.model.add_notifier(field, 
                                                          self.on_field_changed)
         self.model.source_type = source_type
@@ -554,48 +488,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def on_combo_changed(self, combo, field):
         self.model[field] = combo.get_active_text()
 
-    def on_dialog_response(self, dialog, response, *args):
-        # system-defined GtkDialog responses are always negative, in which
-        # case we want to hide it
-        if response < 0:
-            dialog.hide()
-            #self.dialog.emit_stop_by_name('response')
-        #return response
-    
-    
-    def on_dialog_close_or_delete(self, dialog, event=None):
-        dialog.hide()
-        return True
-
 
     widget_to_field_map = {'acc_id_entry': 'acc_id',
                            'prov_combo': 'prov_type',
                            'wild_prov_combo': 'wild_prov_status',
-                           'species_entry': 'speciesID',
+                           'species_entry': 'species',
                            'source_type_combo': 'source_type',}
-#                           'collector_entry': 'collector',
-#                           'colldate_entry': 'coll_date',
-#                           'collid_entry': 'coll_id',
-#                           'locale_entry': 'locale',
-#                           'lat_entry': 'latitude',
-#                           'lon_entry': 'longitude',
-#                           'geoacc_entry': 'geo_accy',
-#                           'alt_entry': 'elevation',
-#                           'altacc_entry': 'elevation_accy',
-#                           'habitat_entry': 'habitat',
-#                           'notes_entry': 'notes'}
-
-    widget_to_source_feild_map = {'collector_entry': 'collector',
-                                  'colldate_entry': 'coll_date',
-                                  'collid_entry': 'coll_id',
-                                  'locale_entry': 'locale',
-                                  'lat_entry': 'latitude',
-                                  'lon_entry': 'longitude',
-                                  'geoacc_entry': 'geo_accy',
-                                  'alt_entry': 'elevation',
-                                  'altacc_entry': 'elevation_accy',
-                                  'habitat_entry': 'habitat',
-                                  'notes_entry': 'notes'}
+    
 
     def refresh_view(self):
         '''
@@ -604,7 +503,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():            
             if field[-2:] == "ID":
                 field = field[:-2]
-            debug('refresh(%s, %s=%s)' % (widget, field, self.model[field]))
+#            debug('refresh(%s, %s=%s)' % (widget, field, self.model[field]))
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
     
@@ -680,19 +579,15 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         return self.view.start()
         
         
-class GenericModelViewPresenterEditor:
-    
-    def __init__(self, model, defaults={}, **kwargs):
-        pass
-    
-    
-    def start(self, commit_transaction=True):
-        pass
-    
-    
-class AccessionEditor(TableEditor):
+
+class AccessionEditor(GenericModelViewPresenterEditor):
     
     label = 'Accessions'
+    
+    # these have to correspond to the response values in the view
+    RESPONSE_OK_AND_ADD = 11
+    RESPONSE_NEXT = 22
+    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
     # TODO: the kwargs is really only here to support the old editor 
     # constructor
@@ -703,83 +598,15 @@ class AccessionEditor(TableEditor):
         values to enter in the model if none are give
         '''
         
-        TableEditor.__init__(self, table=Accession, select=None, 
-                             defaults=defaults)
-        # assert that the model is some form of an Accession
-        debug(repr(model))
-        debug(defaults)
-        if not isinstance(model, Accession):
-            assert(issubclass(model, Accession)) 
-            
-        # can't have both defaults and a model instance
-        assert(not isinstance(model, Accession) or len(defaults.keys()) == 0)
-        self.model = SQLObjectProxy(model)
-        
+
+        self.assert_args(model, Accession, defaults)
+        GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, self.view,
                                                   defaults)
-                                
-    def start(self, commit_transaction=True):    
-        not_ok_msg = 'Are you sure you want to lose your changes?'
-        exc_msg = "Could not commit changes.\n"
-        committed = None
-        while True:
-            response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
-            if response == gtk.RESPONSE_OK or \
-                    response == self.presenter.view.RESPONSE_NEXT or \
-                    response == self.presenter.view.RESPONSE_OK_AND_ADD:
-                debug('response is OK: %s' % response)
-                try:
-                    committed = self.commit_changes()                
-                except DontCommitException:
-                    debug('Dont Commit Adultery')
-                    continue
-                except BadValue, e:
-                    utils.message_dialog(saxutils.escape(str(e)),
-                                         gtk.MESSAGE_ERROR)
-                except CommitException, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                except Exception, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s' % str(e)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                 traceback.format_exc(),
-                                                 gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                else:
-                    break
-            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
-                debug(self.model.dirty)
-                sqlhub.processConnection.rollback()
-                sqlhub.processConnection.begin()
-                self.model.dirty = False
-                break
-            elif not self.model.dirty:
-                break
-            
-        if commit_transaction:
-            debug('committing')
-            sqlhub.processConnection.commit()
-        debug(committed)
-        return repr(committed)
-    
-#        debug(self.model)        
-#        if len(self.model.keys()) > 0:        
-#            return self._commit(self.model)
-#        else:
-#            return None
-        
-# if there is a source presenter
-#    then 
+
 
     def commit_changes(self):
         source_model = None
@@ -798,7 +625,7 @@ class AccessionEditor(TableEditor):
                     # change source, destroying old one
                     source = get_source(self.model.so_object)
                     if source is not None:
-                        debug('DESTROYING SELF')
+#                        debug('DESTROYING SELF')
                         source.destroySelf()    
                 else:
                     raise DontCommitException
@@ -810,13 +637,13 @@ class AccessionEditor(TableEditor):
         if self.presenter.source_presenter is not None \
           and self.presenter.source_presenter.model.dirty:
             source_model = self.presenter.source_presenter.model
-            debug(source_model)                 
+#            debug(source_model)                 
             if source_model.isinstance:
                 source_table = tables[source_model.so_object.__class__.__name__]
             else:
                 source_table = tables[source_model.so_object.__name__]
         
-        debug(self.model)
+#        debug(self.model)
         accession = None
         if self.model.dirty:
             accession = self._commit(self.model)
@@ -828,13 +655,12 @@ class AccessionEditor(TableEditor):
             else: # commit it anyway to make sure error get thrown
                 accession = self._commit(self.model)
 
-        
+#        debug(source_model)                
         if source_model is not None:
             source_model['accession'] = accession.id
-            debug(source_model)
-            debug(source_table)
+#            debug(source_model)
             new_source = commit_to_table(source_table, source_model)
-            debug(repr(new_source))
+#            debug(repr(new_source))
         return accession
         
         
@@ -917,7 +743,6 @@ else:
             
             set_widget_value(self.glade_xml, 'coll_data', collection.collector)
             set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
-            #set_widget_value(self.glade_xml,'date_data', collection.coll_date)
             set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
             set_widget_value(self.glade_xml,'habitat_data', collection.habitat)
             set_widget_value(self.glade_xml,'collnotes_data', collection.notes)
