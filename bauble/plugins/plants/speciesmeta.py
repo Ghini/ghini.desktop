@@ -8,7 +8,7 @@ import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.editor import TableEditorDialog, ComboColumn
+from bauble.editor import TableEditorDialog
 from bauble.utils.log import log, debug
 
 # TODO create a meta table that holds information about a species 

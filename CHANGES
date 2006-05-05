@@ -1,3 +1,10 @@
+2006.05.05
+- refactored TreeViewEditorDialog and all relevant code out of 
+bauble/editor.py and into bauble/treevieweditor.py
+- changed all files relevant to TreeViewEditorDialog refactoring
+- more accession editor work
+- start of work for a better donor editor
+
 2006.05.04
 ----------
 - added accelerator for Insert menu

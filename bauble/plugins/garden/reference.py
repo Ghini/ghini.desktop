@@ -4,7 +4,7 @@
 
 from sqlobject import * 
 from bauble.plugins import BaubleTable
-from bauble.editor import TreeViewEditorDialog
+from bauble.treevieweditor import TreeViewEditorDialog
 
 
 # TODO: references should be a many-to-many relationship with

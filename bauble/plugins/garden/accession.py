@@ -7,11 +7,12 @@ import xml.sax.saxutils as saxutils
 import gtk
 from sqlobject import * 
 from sqlobject.constraints import BadValue, notNull
+import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.editor import TreeViewEditorDialog, TableEditorDialog, \
-    TableEditor, SQLObjectProxy, commit_to_table, check_constraints
+from bauble.editor import TableEditor, SQLObjectProxy, commit_to_table, \
+    check_constraints, GenericEditorPresenter
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
@@ -44,6 +45,10 @@ class Accession(BaubleTable):
                                            "Unknown",
                                            "<not set>"),
                                default="<not set>")
+    
+    #TODO: need to provide a date field for when the accession was accessioned
+    #acc_date = DateCol())
+    
     
     # propagation history ???
     #prop_history = StringCol(length=11, default=None)
@@ -181,6 +186,9 @@ class AccessionEditorView(GenericEditorView):
                                                       'editors.glade'),
                                    parent=parent)
         self.dialog = self.widgets.acc_editor_dialog
+        self.dialog.set_transient_for(parent)
+        #p = self.dialog.get_parent()
+        #if p is not None:
 
         # configure species_entry
         completion = gtk.EntryCompletion()    
@@ -228,86 +236,6 @@ class AccessionEditorView(GenericEditorView):
 #        value = model[iter][0]
 #        renderer.set_property('text', str(value))
         
-
-class GenericEditorPresenter:
-    '''
-    this class cannont be instantiated
-    expects a self.model and self.view
-    '''
-    def __init__(self, model, view):
-        '''
-        model should be an instance of SQLObjectProxy
-        view should be an instance of GenericEditorView
-        '''
-        widget_model_map = {}
-        self.model = model
-        self.view = view
-
-    
-    def bind_widget_to_model(self, widget_name, model_field):
-        # TODO: this is just an idea stub, should we have a method like
-        # this so to put the model values in the view we just
-        # need a for loop over the keys of the widget_model_map
-        pass
-    
-    
-    def assign_simple_handler(self, widget_name, model_field):
-        '''
-        assign handlers to widgets to change fields in the model
-        '''
-        # TODO: this should validate the data, i.e. convert strings to
-        # int, or does commit do that?
-        widget = self.view.widgets[widget_name]
-        if isinstance(widget, gtk.Entry):            
-            def insert(entry, new_text, new_text_length, position):
-                entry_text = entry.get_text()                
-                pos = entry.get_position()
-                full_text = entry_text[:pos] + new_text + entry_text[pos:]    
-                self.model[model_field] = full_text
-            widget.connect('insert-text', insert)
-        elif isinstance(widget, gtk.TextView):
-            def insert(buffer, iter, text, length, data=None):            
-                text = buffer.get_text(buffer.get_start_iter(), 
-                                       buffer.get_end_iter())
-                self.model[model_field] = text
-            widget.get_buffer().connect('insert-text', insert)
-        elif isinstance(widget, gtk.ComboBox):
-            def changed(combo, data=None):                
-                model = combo.get_model()
-                debug(model)
-                if model is None:
-                    return                
-                i = combo.get_active_iter()
-                debug(i)
-                if i is None:
-                    return
-                data = combo.get_model()[combo.get_active_iter()][0]
-                debug(data)
-                # TODO: should we check here that data is an instance or an
-                # integer
-                if model_field[-2:] == "ID": 
-                    self.model[model_field] = data.id
-                else:
-                    self.model[model_field] = data
-            widget.connect('changed', changed)
-            
-                
-                
-        else:
-            raise ValueError('assign_simple_handler() -- '\
-                             'widget type not supported: %s' % type(widget))
-    
-    def start(self):
-        raise NotImplementedError
-    
-    def refresh_view(self):
-        # TODO: should i provide a generic implementation of this method
-        # as long as widget_to_field_map exist
-        raise NotImplementedError
-    
-
-
-            
     
 class CollectionPresenter(GenericEditorPresenter):
     
@@ -363,41 +291,75 @@ class CollectionPresenter(GenericEditorPresenter):
     
     
 class DonationPresenter(GenericEditorPresenter):
+    
     widget_to_field_map = {'donor_combo': 'donor',
                            'donid_entry': 'donor_acc',
                            'donnotes_entry': 'notes'}    
     
+    
     def __init__(self, model, view, defaults={}):
         debug('DonationPresenter')
-        GenericEditorPresenter.__init__(self, model, view)
-        
+        GenericEditorPresenter.__init__(self, model, view)        
         self.defaults = defaults
         self.assign_simple_handler('donor_combo', 'donor')
         self.assign_simple_handler('donid_entry', 'donor_acc')
-        self.assign_simple_handler('donnotes_entry', 'notes')
-        
-        
-        
+        self.assign_simple_handler('donnotes_entry', 'notes')        
         self.view.widgets.don_new_button.connect('clicked', 
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
         
+        
     def on_don_new_clicked(self, button, data=None):
-        debug('on_don_new_clicked')
+        '''
+        create a new donor, setting the current donor on donor_combo
+        to the new donor
+        '''
         e = editors['DonorEditor']()
         e.start()
         
+        
     def on_don_edit_clicked(self, button, data=None):
-        e = editor['DonorEditor']()
+        '''
+        edit currently selected donor
+        '''
+        donor_combo = self.view.widgets.donor_combo
+        i = donor_combo.get_active_iter()
+        donor = donor_combo.get_model()[i][0]
+        e = editors['DonorEditor'](select=[donor])
         e.start()
 
+
+    def on_donor_combo_changed(self, combo, data=None):        
+        i = combo.get_active_iter()
+        if i is None:
+            return
+        value = combo.get_model()[i][0]
+        if isinstance(value, tables['Donor']):
+            self.view.widgets.don_edit_button.set_sensitive(True)
+        else:
+            self.view.widgets.don_edit_button.set_sensitive(False)
+
+            
+    def combo_cell_data_func(self, cell, renderer, model, iter, data):
+        v = model[iter][0]
+        renderer.set_property('text', str(v))        
+        
+        
     def refresh_view(self):
+        donor_combo = self.view.widgets.donor_combo
+        sel = tables["Donor"].select()
+        r = gtk.CellRendererText()
+        donor_combo.pack_start(r)
+        donor_combo.set_cell_data_func(r, self.combo_cell_data_func, None)
         model = gtk.ListStore(object)
-        for donor in tables['Donor'].select():
-            debug('donor: %s' % donor)
-            model.append([donor])
-        self.view.widgets.donor_combo.set_model(model)
+        for value in tables['Donor'].select():
+            model.append([value])
+        donor_combo.set_model(model)
+
+        donor_combo.connect('changed', self.on_donor_combo_changed)
+        if len(model) == 1: # only one to choose from
+            donor_combo.set_active(0)    
         
         # TODO: what if there is a donor id in the source but the donor
         # doesn't exist
@@ -447,8 +409,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.defaults = defaults
         self.current_source_box = None
         self.source_presenter = None
-        
-        
+                
         # add listeners to the view
         self.view.widgets.species_entry.connect('insert-text', 
                                              self.on_insert_text, 'speciesID')
@@ -719,19 +680,29 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         return self.view.start()
         
         
-
+class GenericModelViewPresenterEditor:
+    
+    def __init__(self, model, defaults={}, **kwargs):
+        pass
+    
+    
+    def start(self, commit_transaction=True):
+        pass
+    
+    
 class AccessionEditor(TableEditor):
     
     label = 'Accessions'
         
     # TODO: the kwargs is really only here to support the old editor 
     # constructor
-    def __init__(self, model=Accession, defaults={}, **kwargs):
+    def __init__(self, model=Accession, defaults={}, parent=None, **kwargs):
         '''
         model: either an Accession class or instance
         defaults: a dictionary of Accession field name keys with default
         values to enter in the model if none are give
         '''
+        
         TableEditor.__init__(self, table=Accession, select=None, 
                              defaults=defaults)
         # assert that the model is some form of an Accession
@@ -743,7 +714,10 @@ class AccessionEditor(TableEditor):
         # can't have both defaults and a model instance
         assert(not isinstance(model, Accession) or len(defaults.keys()) == 0)
         self.model = SQLObjectProxy(model)
-        self.view = AccessionEditorView()
+        
+        if parent is None: # should we even allow a change in parent
+            parent = bauble.app.gui.window
+        self.view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, self.view,
                                                   defaults)
                                 
@@ -863,130 +837,6 @@ class AccessionEditor(TableEditor):
             debug(repr(new_source))
         return accession
         
-
-	    
-#class old_AccessionEditor(TreeViewEditorDialog):
-#
-#    visible_columns_pref = "editor.accession.columns"
-#    column_width_pref = "editor.accession.column_width"
-#    default_visible_list = ['acc_id', 'species']
-#
-#    label = 'Accessions'
-#
-#    def __init__(self, parent=None, select=None, defaults={}):
-#        
-#        TreeViewEditorDialog.__init__(self, Accession, "Accession Editor", 
-#                                      parent, select=select, defaults=defaults)
-#        titles = {"acc_id": "Acc ID",
-#                   "speciesID": "Name",
-#                   "prov_type": "Provenance Type",
-#                   "wild_prov_status": "Wild Provenance Status",
-#                   'source_type': 'Source',
-#                   'notes': 'Notes'
-##                   "ver_level": "Verification Level",           
-##                   "ver_name": "Verifier's Name",
-##                   "ver_date": "Verification Date",
-##                   "ver_lit": "Verification Literature",
-#                   }
-#
-#        self.columns.titles = titles
-#        self.columns['source_type'].meta.editor = editors["SourceEditor"]
-#        self.columns['source_type'].meta.getter = get_source
-#        
-#        self.columns['speciesID'].meta.get_completions = \
-#            self.get_species_completions
-#        
-#        # set the accession column of the table that will be in the 
-#        # source_type columns returned from self.get_values_from view
-#        # TODO: this is a little hoaky and could use some work, might be able
-#        # to do this automatically if the value in the column is a table
-#        # the the expected type is a single join
-#        # could do these similar to the way we handle joins in 
-#        # create_view_columns
-#        #self.table_meta.foreign_keys = [('_collection', 'accession'),
-#        #                                ('_donation', 'accession')]
-#        
-#        
-#    def get_species_completions(self, text):
-#        # get entry and determine from what has been input which
-#        # field is currently being edited and give completion
-#        # if this return None then the entry will never search for completions
-#        # TODO: finish this, it would be good if we could just stick
-#        # the table row in the model and tell the renderer how to get the
-#        # string to match on, though maybe not as fast, and then to get
-#        # the value we would only have to do a row.id instead of storing
-#        # these tuples in the model
-#        # UPDATE: the only problem with sticking the table row in the column
-#        # is how many queries would it take to screw in a lightbulb, this
-#        # would be easy to test it just needs to be done
-#        # TODO: there should be a better/faster way to do this 
-#        # using a join or something
-#        parts = text.split(" ")
-#        genus = parts[0]
-#        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-#        model = gtk.ListStore(str, object) 
-#        for row in sr:
-#            for species in row.species:                
-#                model.append((str(species), species))
-#        return model
-#    
-#        
-#    def _model_row_to_values(self, row):
-#	'''
-#	_model_row_to_values
-#	row: iter from self.model
-#	return None if you don't want to commit anything
-#	'''    
-#	values = super(AccessionEditor, self)._model_row_to_values(row)
-#	if values is None:
-#	    return None
-#        if 'source_type' in values and values['source_type'] is not None:
-#            source_class = values['source_type'].__class__.__name__
-#            attribute_name = '_' + source_class.lower()
-#            self.columns.joins.append(attribute_name)                
-#            values[attribute_name] = values.pop('source_type')
-#            values['source_type'] = source_class
-#        return values
-#    
-
-#
-# TODO: fix this so it asks if you want to adds plant when you're done
-#
-#
-#    def commit_changes_old(self, commit_transaction=True):
-#        committed_rows = TreeViewEditorDialog.commit_changes(self, 
-#                                                            commit_transaction)
-#        if not committed_rows:
-#            return committed_rows
-#                            
-#        # TODO: here should we iterate over the response from 
-#        # TreeViewEditorDialog.commit_changes or is the 'values' sufficient
-#        for row in committed_rows:
-#            pass
-#            #debug(row)
-#        return committed_rows
-#    
-#        #
-#        # it would be nice to have this done later
-#        #
-#        for v in self.values:
-#            acc_id = v["acc_id"]
-#            sel = tables["Accession"].selectBy(acc_id=acc_id)
-#            if sel.count() > 1:
-#                raise Exception("AccessionEditor.commit_changes():  "\
-#                                "more than one accession exists with id: " +
-#                                acc_id)
-#            msg  = "No Plants/Clones exist for this accession %s. Would you "\
-#                   "like to add them now?"
-#            if not utils.yes_no_dialog(msg % acc_id):
-#                continue
-#            e = editors['PlantEditor'](defaults={"accessionID":sel[0]},
-#                                       connection=self._old_connection)
-#            response = e.start()
-#            #if response == gtk.RESPONSE_OK or response == gtk.RESPONSE_ACCEPT:
-#            #    e.commit_changes()
-#            #e.destroy()
-#        return committed_rows
         
 #
 # infobox for searchview

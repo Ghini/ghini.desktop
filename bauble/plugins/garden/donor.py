@@ -4,7 +4,7 @@
 
 from sqlobject import * 
 from bauble.plugins import BaubleTable, tables
-from bauble.editor import TreeViewEditorDialog
+from bauble.treevieweditor import TreeViewEditorDialog
 
 # TODO: show list of donations given by donor if searching for the donor name
 # in the search view
@@ -12,7 +12,7 @@ from bauble.editor import TreeViewEditorDialog
 class Donor(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'name'
+        defaultOrder = 'name'
     
     donor_type = EnumCol(enumValues=('Expedition', # Expedition
                                      "Gene bank", # Gene bank
@@ -42,6 +42,40 @@ class Donor(BaubleTable):
     
     def __str__(self):
         return self.name
+
+
+#class DonorEditorView(GenericEditorView):
+#
+#    def __init__(self, ):
+#
+#class DonorEditorPresenter(GenericEditorPresenter):
+#    
+#    def __init__(self, model, view, defaults={}):
+#        GenericEditorPresenter.__init__(self, model, view, defaults)
+#    pass
+#
+#class DonorEditor(TableEditor):
+#    def __init__(self, model=Donor, defaults={}, **kwargs):
+#        '''
+#        model: either an Accession class or instance
+#        defaults: a dictionary of Accession field name keys with default
+#        values to enter in the model if none are give
+#        '''
+#        TableEditor.__init__(self, table=Donor, select=None, 
+#                             defaults=defaults)
+#        # assert that the model is some form of an Accession
+#        debug(repr(model))
+#        debug(defaults)
+#        if not isinstance(model, Donor):
+#            assert(issubclass(model, Donor)) 
+#            
+#        # can't have both defaults and a model instance
+#        assert(not isinstance(model, Accession) or len(defaults.keys()) == 0)
+#        self.model = SQLObjectProxy(model)
+#        self.view = DonorEditorView()
+#        self.presenter = DonorEditorPresenter(self.model, self.view, defaults)
+            
+            
 
 
 class DonorEditor(TreeViewEditorDialog):

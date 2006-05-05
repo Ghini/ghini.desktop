@@ -67,7 +67,7 @@ def combo_cell_data_func(cell, renderer, model, iter, data):
     renderer.set_property('text', str(v))
     
     
-def setComboModelFromSelect(combo, select):
+def set_combo_model_from_select(combo, select):
     model = gtk.ListStore(object)
     for value in select:
         model.append([value])
@@ -264,7 +264,7 @@ class DonationEditor:
         r = gtk.CellRendererText()
         self.donor_combo.pack_start(r)
         self.donor_combo.set_cell_data_func(r, combo_cell_data_func, None)
-        setComboModelFromSelect(self.donor_combo, sel)
+        set_combo_model_from_select(self.donor_combo, sel)
 
         self.row = row
         if self.row is not None:
@@ -298,7 +298,7 @@ class DonationEditor:
         e = editors['DonorEditor']()
         response = e.start()
         donor_combo = self.glade_xml.get_widget('donor_combo')
-        setComboModelFromSelect(donor_combo, tables["Donor"].select())
+        set_combo_model_from_select(donor_combo, tables["Donor"].select())
         
         
     def on_don_edit_button_clicked(self, button, data=None):

@@ -8,7 +8,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble
 from bauble.plugins import BaubleTable, tables, editors
-from bauble.editor import TreeViewEditorDialog, ComboColumn, TextColumn
+from bauble.treevieweditor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.utils.log import log, debug
 import xml.sax.saxutils as sax
 #from speciesmeta import SpeciesMeta

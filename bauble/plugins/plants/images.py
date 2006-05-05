@@ -3,7 +3,7 @@
 #
 
 from bauble.plugins import BaubleTable, tables
-from bauble.editor import TreeViewEditorDialog
+from bauble.treevieweditor import TreeViewEditorDialog
 
 
 class Image(BaubleTable):

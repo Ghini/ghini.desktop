@@ -84,7 +84,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
         # TODO: what if None is in the model
         i = combo_get_value_iter(w, value)
         if i is not None:
-            combo.set_active_iter(i)
+            w.set_active_iter(i)
         elif w.get_model() is not None:
             w.set_active(-1)
 #        if value is None:
