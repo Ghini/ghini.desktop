@@ -3,10 +3,13 @@
 #
 
 import os, traceback
+from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk
+import gobject
 from sqlobject import * 
 from sqlobject.constraints import BadValue, notNull
+from sqlobject.sqlbuilder import _LikeQuoted
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
@@ -92,7 +95,9 @@ class Accession(BaubleTable):
     # should also allow None values so that we can effectively delete the 
     # source information though we have to be careful we don't mess anything
     # up here
-    source_type = StringCol(length=64, default=None)    
+    #source_type = StringCol(length=64, default=None)    
+    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
+                          default=None)
                             
     # the source type says whether we should be looking at the 
     # _collection or _donation joins for the source info
@@ -151,7 +156,10 @@ class AccessionEditorView(GenericEditorView):
 #        completion.set_cell_data_func(r, self.name_cell_data_func)        
         completion.set_text_column(0)    
         completion.set_minimum_key_length(2)
-        completion.set_inline_completion(True)
+        # DONT DO INLINE COMPLETION, it can cause insert text to look up 
+        # new and unneccessary completions and doesn't put the species id
+        # in the model any way since on_species_selected isn't called
+        #completion.set_inline_completion(True) 
         completion.set_popup_completion(True)                 
         self.widgets.species_entry.set_completion(completion)
         self.restore_state()
@@ -189,11 +197,41 @@ class AccessionEditorView(GenericEditorView):
 #        value = model[iter][0]
 #        renderer.set_property('text', str(value))
         
-    
+
+class Problems:
+        
+        _problems = []
+        
+        def add(self, problem):
+            self._problems.append(problem)
+            
+        def remove(self, problem):
+            # TODO: nothing happens if problem does not exist in self.problems
+            # should we ignore it or do..
+            # if problem not in self.problems
+            #   raise KeyError()
+            while 1:
+                try:
+                    self._problems.remove(problem)
+                except:
+                    break
+            
+        def __len__(self):
+            return len(self._problems)
+            
+        def __str__(self):
+            return str(self._problems)
+
+# TODO: should have a label next to lat/lon entry to show what value will be 
+# stored in the database, might be good to include both DMS and the float
+# so the user can see both no matter what is in the entry. it could change in
+# time as the user enters data in the entry
+# TODO: shouldn't allow entering altitude accuracy without entering accuracy,
+# same for geographic accuracy
 class CollectionPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'collector_entry': 'collector',                           
-                           'colldate_entry': 'coll_date',
+                           'coll_date_entry': 'coll_date',
                            'collid_entry': 'coll_id',
                            'locale_entry': 'locale',
                            'lat_entry': 'latitude',
@@ -204,23 +242,60 @@ class CollectionPresenter(GenericEditorPresenter):
                            'habitat_entry': 'habitat',
                            'notes_entry': 'notes'}
     
-    
+    # TODO: could make the problems be tuples of an id and description to
+    # be displayed in a dialog or on a label ala eclipse
+    PROBLEM_BAD_LATITUDE = 1
+    PROBLEM_BAD_LONGITUDE = 2
+    PROBLEM_INVALID_DATE = 3
+            
+    def _get_column_validator(self, column):
+        return self.model.columns[column].validator
+        
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
         self.refresh_view()
+        self.problems = Problems()
+        
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
-        self.assign_simple_handler('colldate_entry', 'coll_date')
+        self.assign_simple_handler('coll_date_entry', 'coll_date')
         self.assign_simple_handler('collid_entry', 'coll_id')
-        self.assign_simple_handler('lat_entry', 'latitude')
-        self.assign_simple_handler('lon_entry', 'longitude')
-        self.assign_simple_handler('geoacc_entry', 'geo_accy')
-        self.assign_simple_handler('alt_entry', 'elevation')
-        self.assign_simple_handler('altacc_entry', 'elevation_accy')
+        self.assign_simple_handler('geoacc_entry', 'geo_accy',
+                                   self._get_column_validator('geo_accy'))
+        self.assign_simple_handler('alt_entry', 'elevation', 
+                                   self._get_column_validator('elevation'))
+        self.assign_simple_handler('altacc_entry', 'elevation_accy',
+                                   self._get_column_validator('elevation'))
         self.assign_simple_handler('habitat_entry', 'habitat')
         self.assign_simple_handler('notes_entry', 'notes')
         
+        lat_entry = self.view.widgets.lat_entry
+        lat_entry.connect('insert-text', self.on_lat_entry_insert)
+        lat_entry.connect('delete-text', self.on_lat_entry_delete)
+        
+        lon_entry = self.view.widgets.lon_entry
+        lon_entry.connect('insert-text', self.on_lon_entry_insert)
+        lon_entry.connect('delete-text', self.on_lon_entry_delete)
+        
+        coll_date_entry = self.view.widgets.coll_date_entry
+        coll_date_entry.connect('insert-text', self.on_date_entry_insert)
+        coll_date_entry.connect('delete-text', self.on_date_entry_delete)
+
+        # TODO: maybe i should only be checking on one of these since they
+        # have to one or the other, it works with both connected since
+        # the one being untoggled is called first and the one be toggled
+        # on is called last
+        north_radio = self.view.widgets.north_radio
+        north_radio.connect('toggled', self.on_north_south_radio_toggled)
+        south_radio = self.view.widgets.north_radio
+        south_radio.connect('toggled', self.on_north_south_radio_toggled)
+        
+        east_radio = self.view.widgets.east_radio
+        east_radio.connect('toggled', self.on_east_west_radio_toggled)
+        west_radio = self.view.widgets.west_radio
+        west_radio.connect('toggled', self.on_east_west_radio_toggled)
+
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
@@ -228,8 +303,170 @@ class CollectionPresenter(GenericEditorPresenter):
                 field = field[:-2]
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
+            
+    def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_date_from_text(full_text)
+        
+
+    def on_date_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_date_from_text(full_text)
+        
+
+    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+    def _set_date_from_text(self, text):
+        bg_color = None
+        m = self._date_regex.match(text)
+        dt = None # datetime
+        if m is None:
+            self.problems.add(self.PROBLEM_INVALID_DATE)            
+            bg_color = gtk.gdk.color_parse("red")
+        else:
+#            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
+#                                    m.group('day')))
+            try:
+                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                        m.group('day')]]            
+                dt = datetime(*ymd)            
+                self.problems.remove(self.PROBLEM_INVALID_DATE)
+            except:
+                self.problems.add(self.PROBLEM_INVALID_DATE)
+                
+        self.model.coll_date = dt
+        e = self.view.widgets.coll_date_eventbox
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
+        
+
+    def on_north_south_radio_toggled(self, button, data=None):
+        direction = self._get_lon_direction()
+        lon_text = self.view.widgets.lon_entry.get_text()
+        if lon_text != '':
+            self._set_longitude_from_text(lon_text)
+        
+        
+    def on_east_west_radio_toggled(self, button, data=None):
+        direction = self._get_lat_direction()
+        lat_text = self.view.widgets.lat_entry.get_text()
+        if lat_text != '':
+            self._set_latitude_from_text(lat_text)
     
 
+    # TODO: need to write a test for this method
+    @staticmethod
+    def _parse_lat_lon(direction, text):
+        bits = re.split(':| ', text)
+#        debug('%s: %s' % (direction, bits))
+        if len(bits) == 3:
+            dec = utils.dms_to_decimal(dir, *map(float, bits))
+        else:
+            try:
+                dec = abs(float(text))
+                if dec > 0 and direction in ('W', 'S'):
+                    dec = -dec
+            except:
+                # TODO: or parse error? does it matter?
+                raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
+                                 text)
+#        debug(dec)
+        return dec
+
+
+    def _get_lon_direction(self):
+        if self.view.widgets.north_radio.get_active():
+            return 'N'
+        elif self.view.widgets.south_radio.get_active():
+            return 'S'
+        raise ValueError('North/South radio buttons in a confused state')
+            
+            
+    def _get_lat_direction(self):
+        if self.view.widgets.east_radio.get_active():
+            return 'E'
+        elif self.view.widgets.west_radio.get_active():
+            return 'W'
+        raise ValueError('East/West radio buttons in a confused state')
+    
+    
+    def on_lat_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_latitude_from_text(full_text)
+        
+
+    def on_lat_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_latitude_from_text(full_text)
+            
+            
+    def _set_latitude_from_text(self, text):
+        bg_color = None
+        longitude = None
+        try:
+            if text != '' and text is not None:
+                direction = self._get_lat_direction()
+                latitude = CollectionPresenter._parse_lat_lon(direction, text)
+        except:         
+            bg_color = gtk.gdk.color_parse("red")
+            self.problems.add(self.PROBLEM_BAD_LATITUDE)
+            self.model['latitude'] = None
+        else:
+            self.problems.remove(self.PROBLEM_BAD_LATITUDE)
+            self.model['latitude'] = latitude            
+                
+        e = self.view.widgets.lat_event_box    
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
+        
+        
+    def on_lon_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+#        e = self.view.widgets.lon_event_box
+#        e.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("red"))
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_longitude_from_text(full_text)
+ 
+ 
+    def on_lon_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_longitude_from_text(full_text)
+
+
+    def _set_longitude_from_text(self, text):
+        bg_color = None
+        longitude = None
+        try:
+            if text != '' and text is not None:
+                direction = self._get_lon_direction()
+                longitude = CollectionPresenter._parse_lat_lon(direction, text)            
+        except:
+            bg_color = gtk.gdk.color_parse("red")            
+            self.problems.add(self.PROBLEM_BAD_LONGITUDE)
+            # set the model so that the ok buttons will be reset
+            #self.model['longitude'] = None 
+        else:
+            self.problems.remove(self.PROBLEM_BAD_LONGITUDE)
+            #self.model['longitude'] = longitude            
+            
+        self.model['longitude'] = longitude
+        e = self.view.widgets.lon_event_box    
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
+    
+    
+    
+    
 class DonationPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'donor_combo': 'donor',
@@ -240,13 +477,14 @@ class DonationPresenter(GenericEditorPresenter):
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)        
         self.defaults = defaults        
+        self.problems = Problems()
         donor_combo = self.view.widgets.donor_combo
         donor_combo.connect('changed', self.on_donor_combo_changed)
         r = gtk.CellRendererText()            
         donor_combo.pack_start(r)
         donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
        
-        self.refresh_view()
+        self.refresh_view()        
         self.assign_simple_handler('donid_entry', 'donor_acc')
         self.assign_simple_handler('donnotes_entry', 'notes')
         self.assign_simple_handler('donor_combo', 'donor')
@@ -346,6 +584,9 @@ class SourcePresenterFactory:
 # information about context, whether a field is invalid or whatever
 # 3. change color around widget with an invalid value so the user knows there's
 # a problem
+# TODO: the accession editor presenter should give an error if no species exist
+# in fact it should give a message dialog and ask if you would like
+# to enter some species now, or maybe import some
 class AccessionEditorPresenter(GenericEditorPresenter):
     
     def __init__(self, model, view, defaults={}):
@@ -356,35 +597,109 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
         self.current_source_box = None
-        self.source_presenter = None                
-        # add listeners to the view
-        self.view.widgets.species_entry.connect('insert-text', 
-                                             self.on_insert_text, 'species')
-        self.assign_simple_handler('acc_id_entry', 'acc_id')
-        self.assign_simple_handler('notes_textview', 'notes')
-        
+        self.source_presenter = None        
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way        
+        # toward the second, its easier if it works this way
+        self.init_species_entry()
         self.init_prov_combo()
         self.init_wild_prov_combo()
         self.init_source_expander()        
         self.refresh_view() # put model values in view    
         # connect methods that watch for change now that we have 
         # refreshed the view
+        self.view.widgets.species_entry.connect('insert-text', 
+                                                self.on_insert_text, 'species')
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
                                              'prov_type')
         self.view.widgets.wild_prov_combo.connect('changed', 
                                                   self.on_combo_changed,
                                                   'wild_prov_status')
+        self.assign_simple_handler('acc_id_entry', 'acc_id')
+        self.assign_simple_handler('notes_textview', 'notes')
         self.init_change_notifier()
+    
+        
+    def on_species_match_selected(self, completion, compl_model, iter):
+        '''
+        put the selected value in the model
+        '''                
+        # TODO: i would rather just put the object in the column and get
+        # the id from that but there is that funny bug when using custom 
+        # renderers for a gtk.EntryCompletion, the only downside with this
+        # is calling Species.str() over and over from cell_data_func, but 
+        # would these get cached?
+        
+        # column 0 holds the name of the plant while column 1 holds the id         
+        name = compl_model[iter][0]
+        entry = self.view.widgets.species_entry
+        entry.set_text(str(name))
+        entry.set_position(-1)
+        self.model.species = compl_model[iter][1]
+
+
+    def on_insert_text(self, entry, new_text, new_text_length, position, 
+                       data=None):
+        # TODO: this is flawed since we can't get the index into the entry
+        # where the text is being inserted so if the user inserts text into 
+        # the middle of the string then this could break
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        # this funny logic is so that completions are reset if the user
+        # paste multiple characters in the entry    
+        if len(new_text) == 1 and len(full_text) == 2:
+            self.idle_add_species_completions(full_text)
+        elif new_text_length > 2:# and entry_text != '':
+            self.idle_add_species_completions(full_text[:2])
+            
+            
+    def init_species_entry(self):
+        completion = self.view.widgets.species_entry.get_completion()
+        completion.connect('match-selected', self.on_species_match_selected)
+        if self.model.isinstance:
+#            debug(self.model['species'].genus)
+            genus = self.model['species'].genus
+            self.idle_add_species_completions(str(genus)[:2])
         
         
+    def idle_add_species_completions(self, text):
+#        debug('idle_add_competions')
+        parts = text.split(" ")
+        genus = parts[0]
+        like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
+        sr = tables["Genus"].select('genus LIKE %s' % like_genus)
+        #debug(like_genus)        
+        def _add_completion_callback(select):
+            #self.view.widgets.accession_dialog.set_sensitive(False)
+            n_gen = sr.count()
+            n_sp = 0
+            model = gtk.ListStore(str, int)
+            for row in sr:    
+                if len(row.species) == 0: # give a bit of a speed up
+                    continue
+                n_sp += len(row.species)
+                for species in row.species:                
+                    model.append([str(species), species.id])
+#            debug('%s species in %s genera' % (n_sp, n_gen))
+            completion = self.view.widgets.species_entry.get_completion()
+            completion.set_model(model)
+            #self.view.widgets.accession_dialog.set_sensitive(True)
+        gobject.idle_add(_add_completion_callback, sr)
+        
+    
+    
     def on_field_changed(self, field):
 #        debug('on field changed: %s' % field)
-        self.view.widgets.acc_ok_button.set_sensitive(True)
-        self.view.widgets.acc_ok_and_add_button.set_sensitive(True)
-        self.view.widgets.acc_next_button.set_sensitive(True)
+        sensitive = True
+        if self.source_presenter is not None:
+            if len(self.source_presenter.problems) == 0:
+                sensitive = True
+            else:
+                sensitive = False
+        self.view.widgets.acc_ok_button.set_sensitive(sensitive)
+        self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
+        self.view.widgets.acc_next_button.set_sensitive(sensitive)
         
     
     def init_change_notifier(self):
@@ -448,7 +763,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.model.source_type = source_type
         source_box.show_all()
         
-
+        
     def init_source_expander(self):        
         '''
         initialized the source expander contents
@@ -507,74 +822,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
     
-        
-    def _set_species_completions(self, text, model_field):
-        parts = text.split(" ")
-        genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        
-#        model = gtk.ListStore(object)
-#        # TODO: this is _really_ slow, it may take a second or two to append
-#        # 100 entries
-#        for row in sr:
-#            for species in row.species:
-#                model.append([species])
-        model = gtk.ListStore(str, int)
-#        # TODO: this is _really_ slow, it may take a second or two to append
-#        # 100 entries
-        for row in list(sr):
-            for species in list(row.species):
-                model.append([str(species), species.id])
-                        
-        completion = self.view.widgets.species_entry.get_completion()
-        completion.set_model(model)
-        completion.connect('match-selected', self.on_species_match_selected, 
-                           model_field)
-
-        
-    def on_species_match_selected(self, completion, compl_model, iter, 
-                               model_field):
-        '''
-        put the selected value in the model
-        '''                
-        # TODO: i would rather just put the object in the column and get
-        # the id from that but there is that funny bug when using custom 
-        # renderers for a gtk.EntryCompletion
-        
-        # column 0 holds the name of the plant while column 1 holds the id         
-        name = compl_model[iter][0]
-        entry = self.view.widgets.species_entry
-        entry.set_text(str(name))
-        entry.set_position(-1)
-        
-        # for foreign keys put the id in the model
-        # TODO: since this in from a completion will it always be from a 
-        # foreign key. what about EnumCols, will they use a combobox
-#        if model_field[-2:] == "ID":
-#            self.model[model_field] = value.id
-#        else:
-#            debug('model[%s] = value' % model_field)
-#            self.model[model_field] = value
-        self.model[model_field] = compl_model[iter][1]
-        debug(self.model)
-
-
-    def on_insert_text(self, entry, new_text, new_text_length, position,
-                       model_field):
-        # TODO: this is flawed since we can't get the index into the entry
-        # where the text is being inserted so if the user inserts text into 
-        # the middle of the string then this could break
-        entry_text = entry.get_text()                
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        # this funny logic is so that completions are reset if the user
-        # paste multiple characters in the entry
-        if len(new_text) == 1 and len(full_text) == 2:
-            self._set_species_completions(full_text, model_field)
-        elif new_text_length > 2:# and entry_text != '':
-            self._set_species_completions(full_text[:2], model_field)
-        
-            
+                
     def start(self):
         return self.view.start()
         
@@ -597,20 +845,119 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         defaults: a dictionary of Accession field name keys with default
         values to enter in the model if none are give
         '''
-        
-
         self.assert_args(model, Accession, defaults)
         GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
+        # keep parent and defaults around in case in start() we get
+        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
+        # editor
+        self.parent = parent
+        self.defaults = defaults 
         self.view = AccessionEditorView(parent=parent)
         self.presenter = AccessionEditorPresenter(self.model, self.view,
-                                                  defaults)
+                                                  self.defaults)
 
 
+    def start(self, commit_transaction=True):    
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            if response == gtk.RESPONSE_OK or response in self.ok_responses:
+                try:
+                    committed = self.commit_changes()                
+                except DontCommitException:
+                    continue
+                except BadValue, e:
+                    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                except Exception, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                else:
+                    break
+            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+#                debug(self.model.dirty)
+                sqlhub.processConnection.rollback()
+                sqlhub.processConnection.begin()
+                self.model.dirty = False
+                break
+            elif not self.model.dirty:
+                break
+            
+        if commit_transaction:
+            sqlhub.processConnection.commit()
+
+        # TODO: if we could get the response from the view
+        # then we could just call GenericModelViewPresenterEditor.start()
+        # and then add this code but GenericModelViewPresenterEditor doesn't
+        # know anything about it's presenter though maybe it should
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            if self.model.isinstance:
+                model = self.model.so_object.__class__
+            else:
+                model = self.model.so_object
+            e = AccessionEditor(model, self.defaults, self.parent)
+            more_committed = e.start(commit_transaction)
+        elif response == self.RESPONSE_OK_AND_ADD:
+            # TODO: when the plant editor gets it's own glade implementation
+            # we should change accessionID to accession
+            e = editors['PlantEditor'](parent=self.parent, 
+                                       defaults={'accessionID': committed})
+            more_committed = e.start(commit_transaction)            
+                    
+        if more_committed is not None:
+            committed = [committed]
+            if isinstance(more_committed, list):
+                committed.extend(more_committed)
+            else:
+                committed.append(more_committed)
+                
+        return committed
+    
+    
+    def commit_source_changes(self, accession):
+        
+        if self.presenter.source_presenter is not None \
+          and self.presenter.source_presenter.model.dirty:
+            source_model = self.presenter.source_presenter.model
+#            debug(source_model)                 
+            if source_model.isinstance:
+                source_table = tables[source_model.so_object.__class__.__name__]
+            else:
+                source_table = tables[source_model.so_object.__name__]
+                
+#        debug(source_model)                
+        if source_model is None:
+            return
+#        debug(source_model)
+        if 'latitude' in source_model and source_model.latitude is not None:
+            if 'longitude' in source_model and source_model.longitude is None:
+                msg = 'model must have both latitude and longitude or neither'
+                raise ValueError(msg)
+                    
+        source_model['accession'] = accession.id
+        new_source = commit_to_table(source_table, source_model)
+        
+        
+        
     def commit_changes(self):
-        source_model = None
-        source_table = None
     
         # if source_type changes and the original source type wasn't none
         # warn the user
@@ -625,25 +972,10 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     # change source, destroying old one
                     source = get_source(self.model.so_object)
                     if source is not None:
-#                        debug('DESTROYING SELF')
                         source.destroySelf()    
                 else:
                     raise DontCommitException
-#            source_table = tables[source_model.so_object.__class__.__name__]                    
-#        else:
-#            source_table = tables[source_model.so_object.__name__]
                 
-                
-        if self.presenter.source_presenter is not None \
-          and self.presenter.source_presenter.model.dirty:
-            source_model = self.presenter.source_presenter.model
-#            debug(source_model)                 
-            if source_model.isinstance:
-                source_table = tables[source_model.so_object.__class__.__name__]
-            else:
-                source_table = tables[source_model.so_object.__name__]
-        
-#        debug(self.model)
         accession = None
         if self.model.dirty:
             accession = self._commit(self.model)
@@ -654,14 +986,18 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 accession = self.model.so_object
             else: # commit it anyway to make sure error get thrown
                 accession = self._commit(self.model)
-
-#        debug(source_model)                
-        if source_model is not None:
-            source_model['accession'] = accession.id
-#            debug(source_model)
-            new_source = commit_to_table(source_table, source_model)
-#            debug(repr(new_source))
+        
+        # reset self.model and self.presenter.model in case 
+        # commit_source_changes fails we won't commit the same accession again
+        #self.model = SQLObject(accession)
+        new_model = SQLObjectProxy(accession)
+        self.model = new_model
+        self.presenter.model = new_model
+        self.commit_source_changes(accession)
         return accession
+    
+    
+
         
         
 #
@@ -675,6 +1011,8 @@ try:
 except ImportError:
     pass
 else:
+    # TODO: i don't think this shows all field of an accession, like the 
+    # accuracy values
     class GeneralAccessionExpander(InfoExpander):
         """
         generic information about an accession like
@@ -727,7 +1065,8 @@ else:
             geo_accy = collection.geo_accy
             if geo_accy is None:
                 geo_accy = ''
-            else: geo_accy = '(+/-)' + geo_accy + 'm.'
+            else: 
+                geo_accy = '(+/- %sm)' % geo_accy
             
             if collection.latitude is not None:
                 set_widget_value(self.glade_xml, 'lat_data',
@@ -737,8 +1076,9 @@ else:
                                 '%.2f %s' %(collection.longitude, geo_accy))                                
             
             v = collection.elevation
+
             if collection.elevation_accy is not None:
-                v = '+/- ' + v + 'm.'
+                v = '%s (+/- %sm)' % (v, collection.elevation_accy)
             set_widget_value(self.glade_xml, 'elev_data', v)
             
             set_widget_value(self.glade_xml, 'coll_data', collection.collector)

@@ -330,6 +330,7 @@ class GenericEditorView:
             self.glade_xml = gtk.glade.XML(glade_xml)
         self.parent = parent
         self.widgets = GenericEditorView._widgets(self.glade_xml)
+        self.response = None
     
     
     def set_widget_value(self, widget_name, value, markup=True, default=None):
@@ -344,8 +345,10 @@ class GenericEditorView:
         
         
     def on_dialog_response(self, dialog, response, *args):
-        if response < 0:
-            dialog.hide()
+        dialog.hide()
+        self.response = response
+        #if response < 0:
+        #    dialog.hide()
     
     
     def on_dialog_close_or_delete(self, dialog, event=None):
@@ -394,24 +397,39 @@ class GenericEditorPresenter:
         # need a for loop over the keys of the widget_model_map
         pass
     
-    
-    def assign_simple_handler(self, widget_name, model_field):
+
+    # TODO: this should validate the data, i.e. convert strings to
+    # int, or does commit do that?
+    # TODO: here's our options
+    # 1. validate on input, wouldn't be difficult just raise an error in 
+    # _set_in_model if the validation isn't good, add a problem to the 
+    # problem list, and set the event box red, the only thing is getting
+    # the event box names into assign simple_handler
+    # 2. validate on commit, not as nice for the user since it allows
+    # them to put junk in the handler without them knowing and its not as 
+    # obviously clear where the problem is, but this is much easier to 
+    # implement
+    def assign_simple_handler(self, widget_name, model_field, validator=None):
         '''
         assign handlers to widgets to change fields in the model
         '''
-        # TODO: this should validate the data, i.e. convert strings to
-        # int, or does commit do that?
+
+        def _set_in_model(value, field=model_field):
+            if validator is not None:                
+                value = validator.to_python(value, None)
+            self.model[field] = value
+            
         widget = self.view.widgets[widget_name]
         if isinstance(widget, gtk.Entry):            
             def insert(entry, new_text, new_text_length, position):
                 entry_text = entry.get_text()                
                 pos = entry.get_position()
                 full_text = entry_text[:pos] + new_text + entry_text[pos:]    
-                self.model[model_field] = full_text
+                _set_in_model(full_text)
             def delete(entry, start, end, data=None):
                 text = entry.get_text()
                 full_text = text[:start] + text[end:]
-                self.model[model_field] = full_text                
+                _set_in_model(full_text)
             widget.connect('insert-text', insert)
             widget.connect('delete-text', delete)
         elif isinstance(widget, gtk.TextView):
@@ -421,16 +439,14 @@ class GenericEditorPresenter:
                 text_start = buffer.get_text(buffer.get_start_iter(), iter)
                 text_end = buffer.get_text(iter, buffer.get_end_iter())
                 full_text = ''.join((text_start, new_text, text_end))
-#                debug(full_text)
-                self.model[model_field] = full_text
+                _set_in_model(full_text)
             def delete(buffer, start_iter, end_iter, data=None):
                 start = start_iter.get_offset()
                 end = end_iter.get_offset()                
                 text = buffer.get_text(buffer.get_start_iter(),
                                        buffer.get_end_iter())                
                 new_text = text[:start] + text[end:]
-#                debug(new_text)
-                self.model[model_field] = new_text
+                _set_in_model(new_text)
             widget.get_buffer().connect('insert-text', insert)
             widget.get_buffer().connect('delete-range', delete)
         elif isinstance(widget, gtk.ComboBox):
@@ -445,10 +461,12 @@ class GenericEditorPresenter:
                 # TODO: should we check here that data is an instance or an
                 # integer                
                 if model_field[-2:] == "ID": 
-                    #self.model[model_field] = data.id
-                    self.model[model_field[:-2]] = data
+                    debug('assign_simple_handler: setting without ID on end')
+                    field = model_field[:-2]
                 else:
-                    self.model[model_field] = data
+                    field = model_field
+                #self.model[model_field] = data
+                _set_in_model(data, field)
                 
             widget.connect('changed', changed)                
         else:
@@ -487,6 +505,8 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         this would normally be called by a class extending this class before
         GenericModelViewPresenterEditor.__init__() is called
         '''
+        # FIXME: this can cause the wrong error in issubclass if model
+        # is not and class type
         # either an instance or class of type_class
         assert(isinstance(model, type_class) or issubclass(model, type_class))
         # can't have both defaults and a model instance
@@ -562,7 +582,13 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         raise NotImplementedError
     
 
-
+# TODO: this isn't being used yet, it's only an idea stub
+class GenericEditor(BaubleEditor):
+    
+    def __init__(self, model):
+        pass
+    
+    
 #
 # editor interface
 #

@@ -221,4 +221,7 @@ class BaubleApp:
             self.gui.set_current_view(views["SearchView"])
         
         bauble.plugins.start_plugins()
+        
+        #import profile
+        #profile.run('gtk.main()', 'bauble.profile')
         gtk.main()

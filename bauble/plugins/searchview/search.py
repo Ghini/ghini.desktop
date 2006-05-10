@@ -267,7 +267,7 @@ class SearchView(BaubleView):
         #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
-	self.parser = SearchParser() 
+        self.parser = SearchParser() 
 
     
     def set_infobox_from_row(self, row):    
@@ -315,8 +315,7 @@ class SearchView(BaubleView):
         """      
         sel = view.get_selection() # get the selected row
         model, i = sel.get_selected()
-        value = model.get_value(i, 0)
-        
+        value = model.get_value(i, 0)        
         self.set_infobox_from_row(value)
         
         # check that the gbif view is expanded
@@ -328,134 +327,135 @@ class SearchView(BaubleView):
     
     def on_search_button_clicked(self, widget):
         text = self.entry.get_text()
-	self.search_text = text
-	# the row has been unselected, so turn off the infobox
-	self.set_infobox_from_row(None) 
+        self.search_text = text
+        # the row has been unselected, so turn off the infobox
+        self.set_infobox_from_row(None) 
         
 
     # search text property: setting self.search_text resets the view and
     # automatically searches for the text unless you set it to '' or None
     _search_text = None
     def _get_search_text(self):
-	return self._search_text
+        return self._search_text
     def _set_search_text(self, text):
-	self.reset()
-	self._search_text = text or ''
-	self.entry.set_text(self._search_text)
-	if self._search_text != '':
-	    self.search(self._search_text)
+        self.reset()
+        self._search_text = text or ''
+        self.entry.set_text(self._search_text)
+        if self._search_text != '':
+            self.search(self._search_text)
     search_text = property(_get_search_text, _set_search_text)
 
 
     def reset(self):
-	self._search_text = None
-	self.entry.set_text('')
-	self.results_view.set_model(None)
-	self.set_infobox_from_row(None)
+        self._search_text = None
+        self.entry.set_text('')
+        self.results_view.set_model(None)
+        self.set_infobox_from_row(None)
 
 
     def refresh_search(self):
-	self.search_text = self.search_text        
+        self.search_text = self.search_text        
 
     
     def _get_search_results_from_tokens(self, tokens):
-	'''
-	take list of tokens from parser.parseString() and return search
-	results for them
-	'''
-	results = []            
-	if 'subdomain' in tokens and 'domain' in tokens: # a query expression
-	    subdomain = tokens['subdomain']
-	    
-	    #operator = OperatorValidator.to_python(tokens['operator'])
-	    #operator = tokens['operator']
-	    values = tokens['values']
-	    domain_table = tables[self.domain_map[tokens['domain']]]
-	    index = subdomain.rfind('.')
-	    joins = None
-	    col = None
-	    if index != -1:
-		joins, col = subdomain[:index], subdomain[index+1:]
-	    else:
-		col = subdomain		
-	    if joins is None: # select from column in domain_table
-		# get the validator for the column
-		if col == 'id':
-		    values_validator = formencode.validators.Int()
-		elif col in domain_table.sqlmeta.columns:
-		    values_validator = \
-			domain_table.sqlmeta.columns[col].validator()
-		else:
-		    raise KeyError('"%s" not a column in table "%s"' % \
-				       (col, domain_table.__name__))
-		#v = values_validator.to_python(','.join(values), None)
-		v = values_validator.from_python(','.join(values), None)
-		if not isinstance(v, int):
-		    # quote if not an int
-		    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
-		db_type = sqlobject.sqlhub.processConnection.dbName
-		operator = tokens['operator']
-		sql_operator= SQLOperatorValidator(db_type).to_python(operator)
-		stmt = "%s.%s %s %s" % (domain_table.sqlmeta.table,
-					col, sql_operator, v)
-#		debug(stmt)
-		results += domain_table.select(stmt)
-	    else: # resolve the joins and select from the last join in the list
-		# TODO: would it be possible to do this backwards. if we could
-		# get the type of the table of the last join on the list of 
-		# subdomains we could then query this table for the value in 
-		# col, this would allow us to walk up the list of joins until
-		# we get to the top. it seems like this way would be alot more
-		# efficient because you only get the values from the 
-		# domain_table from the beginning instead of starting with
-		# all values in domain tables and narrowing down from there
-		all = domain_table.select()
-		if all.count() != 0:
-		    subresults = []
-		    for item in all:
-			subresults += eval('item.%s' % joins)
-		    # get the validator for the column
-		    if col == 'id':
-			values_validator = formencode.validators.Int()
-		    elif col in subresults[0].sqlmeta.columns:
-			values_validator = \
-			    subresults[0].sqlmeta.columns[col].validator()
-		    else:
-			raise KeyError('"%s" not a column in table "%s"' % \
-				       (col, subresults[0].sqlmeta.table))
-
-		    # TODO: only works for binary operators
-		    v = values_validator.to_python(','.join(values), None)
-		    if not isinstance(v, int):
-			# quote if not an int
-			v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
-		    py_operator = \
-			PythonOperatorValidator.to_python(tokens['operator'])
-		    expression = "r.%s %s %s" % (col, py_operator, v)
-		    for r in subresults:
-			try:
-			    if eval(expression):
-				results.append(r)
-			except SyntaxError, e:
-			    msg='Error: Could not evaluate expression, ' + \
-				'most likely because the operator you ' + \
-				'entered is not supported. -- %s'% expression 
-			    results.append(str(e))
-			    break
-	elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
-	    # a general expression
-	    #values = ','.join(tokens['values']) # can values not be in tokens?
-	    values= tokens['values']
-#	    debug(values)	    
-	    table_name = self.domain_map[tokens['domain']]
-	    results += self.query_table(table_name, values)#[:]
-	elif 'values' in tokens: # a list of values
-	    values = tokens['values']
-	    for table_name in self.search_metas.keys():
-		results += self.query_table(table_name, values)[:]
-	else:
-	    raise BaubleError('invalid tokens')
-	return results
+        '''
+        take list of tokens from parser.parseString() and return search
+        results for them
+        '''
+        results = []            
+        if 'subdomain' in tokens and 'domain' in tokens: # a query expression
+    	    subdomain = tokens['subdomain']
+    	    
+    	    #operator = OperatorValidator.to_python(tokens['operator'])
+    	    #operator = tokens['operator']
+    	    values = tokens['values']
+    	    domain_table = tables[self.domain_map[tokens['domain']]]
+    	    index = subdomain.rfind('.')
+    	    joins = None
+    	    col = None
+    	    if index != -1:
+                joins, col = subdomain[:index], subdomain[index+1:]
+    	    else:
+                col = subdomain		
+    	    if joins is None: # select from column in domain_table
+                # get the validator for the column
+                if col == 'id':
+                    values_validator = formencode.validators.Int()
+                elif col in domain_table.sqlmeta.columns:
+                    values_validator = \
+                    domain_table.sqlmeta.columns[col].validator()
+                else:
+                    raise KeyError('"%s" not a column in table "%s"' % \
+                                   (col, domain_table.__name__))
+                #v = values_validator.to_python(','.join(values), None)
+                v = values_validator.from_python(','.join(values), None)
+                if not isinstance(v, int):
+                    # quote if not an int
+                    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+                db_type = sqlobject.sqlhub.processConnection.dbName
+                operator = tokens['operator']
+                sql_operator= SQLOperatorValidator(db_type).to_python(operator)
+                stmt = "%s.%s %s %s" % (domain_table.sqlmeta.table,
+                                        col, sql_operator, v)
+    #		    debug(stmt)
+                results += domain_table.select(stmt)
+    	    else: 
+                # resolve the joins and select from the last join in the list
+                # TODO: would it be possible to do this backwards. if we could
+                # get the type of the table of the last join on the list of 
+                # subdomains we could then query this table for the value in 
+                # col, this would allow us to walk up the list of joins until
+                # we get to the top. it seems like this way would be alot more
+                # efficient because you only get the values from the 
+                # domain_table from the beginning instead of starting with
+                # all values in domain tables and narrowing down from there
+                all = domain_table.select()
+                if all.count() != 0:
+                    subresults = []
+                    for item in all:
+                        subresults += eval('item.%s' % joins)
+        		    # get the validator for the column
+                    if col == 'id':
+                        values_validator = formencode.validators.Int()
+                    elif col in subresults[0].sqlmeta.columns:
+                        values_validator = \
+                            subresults[0].sqlmeta.columns[col].validator()
+                    else:
+                        raise KeyError('"%s" not a column in table "%s"' % \
+                                       (col, subresults[0].sqlmeta.table))
+        
+        		    # TODO: only works for binary operators
+                    v = values_validator.to_python(','.join(values), None)
+                    if not isinstance(v, int):
+                        # quote if not an int
+        			    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+                    py_operator = \
+                        PythonOperatorValidator.to_python(tokens['operator'])
+                    expression = "r.%s %s %s" % (col, py_operator, v)
+                    for r in subresults:
+                        try:
+                            if eval(expression):
+                                results.append(r)
+                        except SyntaxError, e:
+                            msg = 'Error: Could not evaluate expression, ' + \
+                                  'most likely because the operator you ' + \
+                                  'entered is not supported. -- %s'% expression 
+                            results.append(str(e))
+                            break
+        elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
+            # a general expression
+            #values = ','.join(tokens['values']) # can values not be in tokens?
+            values= tokens['values']
+#            debug(values)	    
+            table_name = self.domain_map[tokens['domain']]
+            results += self.query_table(table_name, values)#[:]
+        elif 'values' in tokens: # a list of values
+            values = tokens['values']
+            for table_name in self.search_metas.keys():
+                results += self.query_table(table_name, values)[:]
+        else:
+            raise BaubleError('invalid tokens')
+        return results
         
 
     def search(self, text):
@@ -466,25 +466,25 @@ class SearchView(BaubleView):
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
         self.entry.set_text(text)
-	self._search_text = text
+        self._search_text = text
         
         # clear the old model
         self.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         self.results_view.set_model(None)        
         try:
-	    tokens = self.parser.parse_string(text)	    
-#	    debug(tokens)
-	    if 'domain' in tokens and tokens['domain'] not in self.domain_map:
-		raise SyntaxError(None, tokens['domain'])
-	    results = self._get_search_results_from_tokens(tokens)
-	    if len(results) == 0:
-		model = gtk.ListStore(str)
-		model.append(["Couldn't find anything"])
-		self.results_view.set_model(model)
-	    else:
-		self.populate_results(results)
-	except SyntaxError, (msg, domain):
+    	    tokens = self.parser.parse_string(text)	    
+    #	    debug(tokens)
+    	    if 'domain' in tokens and tokens['domain'] not in self.domain_map:
+                raise SyntaxError(None, tokens['domain'])
+    	    results = self._get_search_results_from_tokens(tokens)
+    	    if len(results) == 0:
+        		model = gtk.ListStore(str)
+        		model.append(["Couldn't find anything"])
+        		self.results_view.set_model(model)
+    	    else:
+                self.populate_results(results)
+        except SyntaxError, (msg, domain):
             model = gtk.ListStore(str)
             model.append(["Unknown search domain: " + domain])
             self.results_view.set_model(model)
@@ -493,9 +493,9 @@ class SearchView(BaubleView):
             model = gtk.ListStore(str)
             model.append([msg])
             self.results_view.set_model(model)
-	except AttributeError, err:
-	    msg = err
-	    model = gtk.ListStore(str)
+        except AttributeError, err:
+            msg = err
+            model = gtk.ListStore(str)
             model.append([msg])
             self.results_view.set_model(model)
         except bauble.BaubleError, e:
@@ -504,13 +504,12 @@ class SearchView(BaubleView):
             model = gtk.ListStore(str)
             model.append(['** Error: %s' % e])
             self.results_view.set_model(model)
-	except Exception ,e:		
-	    model = gtk.ListStore(str)
-	    debug(traceback.format_exc())
-	    model.append(['** Error: %s' % e])
+        except Exception ,e:		
+            model = gtk.ListStore(str)
+            debug(traceback.format_exc())
+            model.append(['** Error: %s' % e])
             self.results_view.set_model(model)
-	    
-		    
+	    		    
         self.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
 
@@ -546,11 +545,11 @@ class SearchView(BaubleView):
         
                     
     def query_table(self, table_name, values):
-	"""
-	query the table table_name for values which are 'OR'ed together
-	table_name: the table_name should be registered in search_meta
-	values: list of values to query table_name
-	"""
+        """
+        query the table table_name for values which are 'OR'ed together    
+        table_name: the table_name should be registered in search_meta
+        values: list of values to query table_name
+        """
         if table_name not in self.search_metas:
             raise ValueError("SearchView.query: no search meta for domain ", 
                               domain)
@@ -583,18 +582,18 @@ class SearchView(BaubleView):
         	            
 
     def populate_results(self, select):
-	bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         #self.set_sensitive(False)	
         results = []
         added = False
         model = self.results_view.get_model()
         self.results_view.set_model(None) # temporarily remove the model
-	model = gtk.TreeStore(object)
-	for s in select:
-	    p = model.append(None, [s])
-	    model.append(p, ['-'])
-	self.results_view.set_model(model)	
-	bauble.app.gui.window.window.set_cursor(None)
+        model = gtk.TreeStore(object)
+        for s in select:
+            p = model.append(None, [s])
+            model.append(p, ['-'])
+        self.results_view.set_model(model)	
+        bauble.app.gui.window.window.set_cursor(None)
 	        
     
     def append_children(self, model, parent, kids, have_kids):
@@ -651,12 +650,12 @@ class SearchView(BaubleView):
         e = editor(defaults=defaults)
         committed = e.start()
         if committed is not None:
-	    if len(path) == 1: # the root, 
-		# refresh the search in case the item indicates that it doesn't
-		# have any kids in the search results
-	    	self.refresh_search()
-	    self.results_view.collapse_row(path)
-	    self.results_view.expand_to_path(path)    
+            if len(path) == 1: # the root, 
+            # refresh the search in case the item indicates that it doesn't
+            # have any kids in the search results
+	    	    self.refresh_search()
+            self.results_view.collapse_row(path)
+            self.results_view.expand_to_path(path)    
 
 
     def on_activate_edit_item(self, item, path, editor, select=None):
@@ -666,12 +665,13 @@ class SearchView(BaubleView):
         # while we transition to the new editors
         e = editor(select=select, model=select[0])
         committed = e.start()
+#        debug(committed)
         if committed is not None:
 #	    debug(path)
-	    if len(path) > 1: # not the root
-		parent_path = path[:-1]
-		self.results_view.collapse_row(parent_path)
-		self.results_view.expand_to_path(parent_path)
+            if len(path) > 1: # not the root
+                parent_path = path[:-1]
+                self.results_view.collapse_row(parent_path)
+                self.results_view.expand_to_path(parent_path)
 
 
     # TODO: provide a way for the plugin to add extra items to the
@@ -681,8 +681,7 @@ class SearchView(BaubleView):
     #def add_context_menu_item(self, obj_type, menu_item):
     #    pass
     
-    def on_view_button_release(self, view, event, data=None):
-        
+    def on_view_button_release(self, view, event, data=None):        
         """
         popup a context menu on the selected row
         """
@@ -709,8 +708,8 @@ class SearchView(BaubleView):
             edit_item = gtk.MenuItem("Edit")
             # TODO: there should be a better way to get the editor b/c this
             # dictates that all editors are in ClassnameEditor format
-	    edit_item.connect("activate", self.on_activate_edit_item,
-			      path, editor_class, [value])
+            edit_item.connect("activate", self.on_activate_edit_item,
+                              path, editor_class, [value])
             menu.add(edit_item)
             menu.add(gtk.SeparatorMenuItem())
         
@@ -727,8 +726,8 @@ class SearchView(BaubleView):
                     defaults[join.joinColumn.replace("_id", "ID")] = value
                     #defaults[join.joinColumn[:-3] + "ID"] = value        
                 add_item = gtk.MenuItem("Add " + join.joinMethodName)
-		add_item.connect("activate", self.on_activate_add_item,
-				 path, editor_class, defaults)
+                add_item.connect("activate", self.on_activate_add_item,
+                                 path, editor_class, defaults)
                 menu.add(add_item)
         
         if add_item is not None:

@@ -188,21 +188,19 @@ class Species(BaubleTable):
         by using concatenation
         """    
         # TODO: should do a translation table for any entities that might
-        # be in the author strings ans use translate, what else besided 
+        # be in the author strings and use translate, what else besided 
         # ampersand could be in the author name
-        # TODO: how complete is this for the latest nomencalture code?
+        # TODO: how complete is this for the latest nomenclature code?
         # TODO: optimize: (1) be sure to use % substitution in instead of +=, 
         # (2) maybe create the name in parts and return them all combined in 
         # the end
-        
-        
+        # TODO: create tests for all possible name combinations 
         if markup:
             italic = "<i>%s</i>"
 	    escape = sax.escape
         else:
             italic = "%s"
-	    escape = lambda x: x
-        #name = "%s %s" % (italic % str(species.genus), italic % species.sp)
+	    escape = lambda x: x        
         name = italic % str(species.genus)
 
         # id qualifier
@@ -220,7 +218,7 @@ class Species(BaubleTable):
             else:
                 name += ' %s %s' % (species.sp_hybrid, species.sp)
         else:
-            name += ' ' + italic % species.sp
+            name = ' '.join([name, italic % species.sp])
             
         # cultivar groups and cultivars
         if species.cv_group is not None:
