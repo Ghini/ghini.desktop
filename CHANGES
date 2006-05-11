@@ -1,3 +1,10 @@
+2006.05.11
+----------
+- brought the decimal/dms conversion funcation back into accession.py
+since this is the only place they are used and fixed them up a bit
+- wrote my first unit test for the conversion funcations and added
+the test.py to the garden plugin
+
 2006.05.10
 ----------
 - added validator support to GenericEditorPresenter.assign_simple_handler()

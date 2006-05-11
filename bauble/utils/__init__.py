@@ -176,45 +176,9 @@ def startfile(filename):
         os.system("gnome-open " + filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file:" + filename)
-        
+            
+    
 
-def dms_to_decimal(dir, deg, min, sec):
-    '''
-    convert degrees, minutes, seconds to decimal
-    '''
-    # TODO: more test cases
-    dec = (((sec/60.0) + min) /60.0) + deg
-    if dir == 'W' or dir == 'S':
-        dec = -dec
-    return dec
-    
-        
-def decimal_to_dms(decimal, long_or_lat):
-    '''
-    long_or_lat: should be either "long" or "lat"
-    '''
-    # NOTE: if speed is an issue, which i don't think it ever will be
-    # this could probably be optimized
-    # TODO: more test cases
-    dir_map = { 'long': ['E', 'W'],
-                'lat':  ['N', 'S']}
-    dir = dir_map[long_or_lat][1]
-    if decimal < 0:
-        dir = dir_map[long_or_lat][0]
-        
-    dec = abs(decimal)
-    d = abs(int(dec))
-    m = abs((dec-d)*60)
-    s = abs((int(m)-m) * 60)
-    return dir, int(d), int(m), int(s)
-    
-    
-def longitude_to_dms(decimal):
-    return decimal_to_dms(decimal, 'long')
-
-    
-def latitude_to_dms(decimal):
-    return decimal_to_dms(decimal, 'lat')
    
     
 if __name__ == '__main__':

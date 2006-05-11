@@ -2,7 +2,7 @@
 # accessions module
 #
 
-import os, traceback
+import os, traceback, math
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk
@@ -22,6 +22,62 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
+
+#def utm_wgs84_to_dms():
+#    pass
+#
+#def dms_to_utm_wgs84():
+#    pass
+
+def longitude_to_dms(decimal):
+    return decimal_to_dms(decimal, 'long')
+
+    
+def latitude_to_dms(decimal):
+    return decimal_to_dms(decimal, 'lat')
+
+# TODO: should get the precision from the values passed in, 
+# e.g. if seconds was passed in as an integer there is no reason
+# to keep 6 decimal places for precision
+def dms_to_decimal(dir, deg, min, sec):
+    '''
+    convert degrees, minutes, seconds to decimal
+    return float rounded to 5 decimal points
+    '''
+    if dir in ('E', 'W'): # longitude
+        assert(abs(deg) > 0 and abs(deg) <= 180)
+    else:
+        assert(abs(deg) > 0 and abs(deg) <= 90)
+    assert(abs(min) > 0 and abs(min) < 60)
+    assert(abs(sec) > 0 and abs(sec) < 60)    
+    #dec = (sec/3600.0) + (min/60.0) + deg
+    dec = (float(sec)/3600.0) + (float(min)/60.0) + float(deg)
+    if dir in ('W', 'S'):
+        dec = -dec
+    ROUND_TO = 5
+    return round(dec, ROUND_TO)
+    
+        
+def decimal_to_dms(decimal, long_or_lat):
+    '''
+    long_or_lat: should be either "long" or "lat"
+    
+    returns dir, degrees, minutes seconds
+    seconds rounded to two decimal points
+    '''
+    
+    dir_map = { 'long': ['E', 'W'],
+                'lat':  ['N', 'S']}
+    dir = dir_map[long_or_lat][0]
+    if decimal < 0:
+        dir = dir_map[long_or_lat][1]
+    
+    dec = abs(decimal)
+    d = int(dec)
+    m = abs((dec-d)*60)        
+    s = abs((int(m)-m) * 60)    
+    ROUND_TO=2
+    return dir, int(d), int(m), round(s,ROUND_TO)
 
 class Accession(BaubleTable):
 
@@ -358,12 +414,14 @@ class CollectionPresenter(GenericEditorPresenter):
     
 
     # TODO: need to write a test for this method
+    # TODO: still need to support degrees minutes seconds,
+    # decimal degrees, and degrees with decimal minutes
     @staticmethod
     def _parse_lat_lon(direction, text):
         bits = re.split(':| ', text)
 #        debug('%s: %s' % (direction, bits))
         if len(bits) == 3:
-            dec = utils.dms_to_decimal(dir, *map(float, bits))
+            dec = dms_to_decimal(dir, *map(float, bits))
         else:
             try:
                 dec = abs(float(text))
@@ -373,7 +431,6 @@ class CollectionPresenter(GenericEditorPresenter):
                 # TODO: or parse error? does it matter?
                 raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
                                  text)
-#        debug(dec)
         return dec
 
 
