@@ -295,8 +295,8 @@ class CollectionPresenter(GenericEditorPresenter):
                            'geoacc_entry': 'geo_accy',
                            'alt_entry': 'elevation',
                            'altacc_entry': 'elevation_accy',
-                           'habitat_entry': 'habitat',
-                           'notes_entry': 'notes'}
+                           'habitat_textview': 'habitat',
+                           'coll_notes_textview': 'notes'}
     
     # TODO: could make the problems be tuples of an id and description to
     # be displayed in a dialog or on a label ala eclipse
@@ -323,8 +323,8 @@ class CollectionPresenter(GenericEditorPresenter):
                                    self._get_column_validator('elevation'))
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
                                    self._get_column_validator('elevation'))
-        self.assign_simple_handler('habitat_entry', 'habitat')
-        self.assign_simple_handler('notes_entry', 'notes')
+        self.assign_simple_handler('habitat_textview', 'habitat')
+        self.assign_simple_handler('coll_notes_textview', 'notes')
         
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
@@ -673,7 +673,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                                   self.on_combo_changed,
                                                   'wild_prov_status')
         self.assign_simple_handler('acc_id_entry', 'acc_id')
-        self.assign_simple_handler('notes_textview', 'notes')
+        self.assign_simple_handler('acc_notes_textview', 'notes')
         self.init_change_notifier()
     
         
@@ -805,7 +805,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if source_type is not None:
             self.current_source_box = self.view.widgets[box_map[source_type]]
             remove_parent(self.current_source_box)
-            source_box.pack_start(self.current_source_box)
+            source_box.pack_start(self.current_source_box, expand=False, 
+                                  fill=True)
         else:
             self.current_source_box = None
         

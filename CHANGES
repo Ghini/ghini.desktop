@@ -1,3 +1,7 @@
+2006.05.12
+----------
+- drastically improved the accession editor gui
+
 2006.05.11
 ----------
 - brought the decimal/dms conversion funcation back into accession.py
