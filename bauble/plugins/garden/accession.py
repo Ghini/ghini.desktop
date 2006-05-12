@@ -15,9 +15,6 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.editor import *
-#from bauble.editor import TableEditor, SQLObjectProxy, commit_to_table, \
-#    check_constraints, GenericModelViewPresenterEditor, \
-#    GenericEditorPresenter, GenericEditorView, DontCommitException
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
@@ -79,6 +76,8 @@ def decimal_to_dms(decimal, long_or_lat):
     ROUND_TO=2
     return dir, int(d), int(m), round(s,ROUND_TO)
 
+
+
 class Accession(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
@@ -93,8 +92,8 @@ class Accession(BaubleTable):
                                     "Not of wild source", # Not of wild source
                                     "Insufficient Data", # Insufficient data
                                     "Unknown",
-                                    "<not set>"),
-                        default = "<not set>")
+                                    None),
+                        default=None)
 
     # wild provenance status, wild native, wild non-native, cultivated native
     wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
@@ -102,11 +101,11 @@ class Accession(BaubleTable):
                                            "Cultivated native", # Not of wild source
                                            "Insufficient Data", # Insufficient data
                                            "Unknown",
-                                           "<not set>"),
-                               default="<not set>")
+                                           None),
+                               default=None)
     
     #TODO: need to provide a date field for when the accession was accessioned
-    #acc_date = DateCol())
+    date = DateCol(notNull=True)
     
     
     # propagation history ???
@@ -145,12 +144,7 @@ class Accession(BaubleTable):
     # 
     # holds the string 'Collection' or 'Donation' which indicates where
     # we should get the source information from either of those columns
-    # TODO: it seems like it would make more sense just to make this and
-    # EnumCol(enumValues='Collection, Donation') since that's essentially
-    # what it is anyways
-    # should also allow None values so that we can effectively delete the 
-    # source information though we have to be careful we don't mess anything
-    # up here
+    # this is the old column def
     #source_type = StringCol(length=64, default=None)    
     source_type = EnumCol(enumValues=('Collection', 'Donation', None),
                           default=None)
@@ -315,7 +309,7 @@ class CollectionPresenter(GenericEditorPresenter):
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
-        self.assign_simple_handler('coll_date_entry', 'coll_date')
+#        self.assign_simple_handler('coll_date_entry', 'coll_date')
         self.assign_simple_handler('collid_entry', 'coll_id')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
                                    self._get_column_validator('geo_accy'))
@@ -646,6 +640,15 @@ class SourcePresenterFactory:
 # to enter some species now, or maybe import some
 class AccessionEditorPresenter(GenericEditorPresenter):
     
+    widget_to_field_map = {'acc_id_entry': 'acc_id',
+                           'acc_date_entry': 'date',
+                           'prov_combo': 'prov_type',
+                           'wild_prov_combo': 'wild_prov_status',
+                           'species_entry': 'species',
+                           'source_type_combo': 'source_type',}
+    
+    PROBLEM_INVALID_DATE = 3
+    
     def __init__(self, model, view, defaults={}):
         '''
         model: should be an instance of class Accession
@@ -654,7 +657,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
         self.current_source_box = None
-        self.source_presenter = None        
+        self.source_presenter = None  
+        self.problems = Problems()
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
         # toward the second, its easier if it works this way
@@ -674,8 +678,53 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                                   'wild_prov_status')
         self.assign_simple_handler('acc_id_entry', 'acc_id')
         self.assign_simple_handler('acc_notes_textview', 'notes')
+        
+        acc_date_entry = self.view.widgets.acc_date_entry
+        acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
+        acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
+        
         self.init_change_notifier()
     
+    
+    def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        debug('acc:date_insert: %s' % full_text)
+        self._set_acc_date_from_text(full_text)
+        
+
+    def on_acc_date_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_acc_date_from_text(full_text)
+        
+
+    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+    def _set_acc_date_from_text(self, text):
+        bg_color = None
+        m = self._date_regex.match(text)
+        dt = None # datetime
+        if m is None:
+            self.problems.add(self.PROBLEM_INVALID_DATE)            
+            bg_color = gtk.gdk.color_parse("red")
+        else:
+#            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
+#                                    m.group('day')))
+            try:
+                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                        m.group('day')]]            
+                dt = datetime(*ymd)            
+                self.problems.remove(self.PROBLEM_INVALID_DATE)
+            except:
+                self.problems.add(self.PROBLEM_INVALID_DATE)
+                
+        self.model.date = dt
+        e = self.view.widgets.acc_date_eventbox
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
         
     def on_species_match_selected(self, completion, compl_model, iter):
         '''
@@ -749,10 +798,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def on_field_changed(self, field):
 #        debug('on field changed: %s' % field)
         sensitive = True
-        if self.source_presenter is not None:
-            if len(self.source_presenter.problems) == 0:
-                sensitive = True
-            else:
+        if len(self.problems) != 0:
+            sensitive = False
+        elif self.source_presenter is not None:
+            if len(self.source_presenter.problems) != 0:
                 sensitive = False
         self.view.widgets.acc_ok_button.set_sensitive(sensitive)
         self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
@@ -862,11 +911,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.model[field] = combo.get_active_text()
 
 
-    widget_to_field_map = {'acc_id_entry': 'acc_id',
-                           'prov_combo': 'prov_type',
-                           'wild_prov_combo': 'wild_prov_status',
-                           'species_entry': 'species',
-                           'source_type_combo': 'source_type',}
+    
     
 
     def refresh_view(self):

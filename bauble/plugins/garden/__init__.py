@@ -7,7 +7,7 @@ from accession import *
 from bauble.plugins import BaublePlugin, plugins, tables
 from accession import Accession, AccessionEditor
 from location import Location, LocationEditor
-from plant import Plant, PlantEditor, PlantInfoBox
+from plant import Plant, PlantHistory, PlantEditor, PlantInfoBox
 #from reference import Reference, ReferenceEditor
 from source import Donation, Collection
 from source_editor import SourceEditor
@@ -24,8 +24,10 @@ class GardenPlugin(BaublePlugin):
                SourceEditor]#, ReferenceEditor]
             #ReferenceEditor,DonorEditor, SourceEditor]
 
-    tables = [Accession, Location, Plant, Donor, Donation, Collection]
-    #tables = [Accession, Location, Plant, Reference, Donor, Donation, Collection]
+    tables = [Accession, Location, Plant, Donor, Donation, Collection,
+              PlantHistory]
+#    tables = [Accession, Location, Plant, Reference, Donor, Donation, 
+#              Collection]
     
     @classmethod
     def init(cls):
@@ -58,8 +60,7 @@ class GardenPlugin(BaublePlugin):
             SearchView.register_search_meta('donor', search_meta)
             SearchView.register_search_meta('don', search_meta)
             SearchView.view_meta["Donor"].set("donations", DonorEditor, 
-                                              DonorInfoBox)
-            
+                                              DonorInfoBox)            
 
             # done here b/c the Species table is not part of this plugin
             SearchView.view_meta["Species"].child = "accessions"

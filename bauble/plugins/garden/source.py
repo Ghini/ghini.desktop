@@ -38,7 +38,7 @@ class Collection(BaubleTable):
     _cacheValue = False
     
     collector = UnicodeCol(length=50, default=None)  # primary collector's name
-    collector2 = UnicodeCol(length=50, default=None) # additional collectors name
+#    collector2 = UnicodeCol(length=50, default=None) # additional collectors name
     coll_id = UnicodeCol(length=50, default=None)    # collector's/collection id
     
     

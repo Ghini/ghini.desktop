@@ -28,9 +28,9 @@ class Donor(BaubleTable):
                                      "Individual", # Individual
                                      "Other", # Other
                                      "Unknown",
-                                     "<not set>"),
+                                     None),
                                       # Unknown
-                          default='<not set>')
+                          default=None)
                          
                             
     name = UnicodeCol(length=72, alternateID=True)

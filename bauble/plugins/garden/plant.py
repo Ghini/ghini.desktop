@@ -16,10 +16,17 @@ from bauble.utils.log import debug
 # TODO: should probably make acc_status required since whether a plant is 
 # living or dead is pretty important
 
+class PlantHistory(BaubleTable):
+    class sqlmeta(BaubleTable.sqlmeta):
+        defaultOrder = 'date'
+    date = DateCol(notNull=True)
+    description = UnicodeCol()
+    plant = ForeignKey('Plant', notNull=True, cascade=True)
+    
 class Plant(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'plant_id'
+	       defaultOrder = 'plant_id'
 
     # add to end of accession id, e.g. 04-0002.05
     # these are only unique when combined with an accession_id
@@ -43,8 +50,8 @@ class Plant(BaubleTable):
                                    'Vegetative Part', # Vegetative Part
                                    'Tissue Culture', # Tissue culture
                                    'Other', # Other
-                                   '<not set>'),
-                       default='<not set>')
+                                   None),
+                       default=None)
                           
                           
     # accession status
@@ -59,8 +66,8 @@ class Plant(BaubleTable):
                                      'Transfered', # Noncurrent accession due to Transfer
                                      'Stored in dormant state', # Stored in dormant state
                                      'Other', # Other
-                                     '<not set>'),
-                         default='<not set>')
+                                     None),
+                         default=None)
     
 
     # foreign key and joins
