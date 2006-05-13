@@ -1,5 +1,11 @@
 2006.05.12
 ----------
+- more tweaks on the accession editor, the labels on required fields are now 
+italicized, the lon/lat editing should be a dream now
+- don't round lon/lat conversion values
+
+2006.05.12
+----------
 - drastically improved the accession editor gui
 - changed version to 0.5.0
 - made model changes for 0.5.0
@@ -7,7 +13,6 @@
 - added Accession.date and updated the editor
 - removed Collection.collector2
 - changed all <not set>'s in EnumCol's to None
-
 
 2006.05.11
 ----------

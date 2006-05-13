@@ -28,7 +28,6 @@ from bauble.error import CommitException
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
-
     
 def latitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'lat')
@@ -52,7 +51,8 @@ def dms_to_decimal(dir, deg, min, sec):
     if dir in ('W', 'S'):
         dec = -dec
     ROUND_TO = 5
-    return round(dec, ROUND_TO)
+    #return round(dec, ROUND_TO)
+    return dec
     
         
 def decimal_to_dms(decimal, long_or_lat):
@@ -63,8 +63,8 @@ def decimal_to_dms(decimal, long_or_lat):
     seconds rounded to two decimal points
     '''
     
-    dir_map = { 'long': ['E', 'W'],
-                'lat':  ['N', 'S']}
+    dir_map = {'long': ['E', 'W'],
+               'lat':  ['N', 'S']}
     dir = dir_map[long_or_lat][0]
     if decimal < 0:
         dir = dir_map[long_or_lat][1]
@@ -74,7 +74,8 @@ def decimal_to_dms(decimal, long_or_lat):
     m = abs((dec-d)*60)        
     s = abs((int(m)-m) * 60)    
     ROUND_TO=2
-    return dir, int(d), int(m), round(s,ROUND_TO)
+    #return dir, int(d), int(m), round(s,ROUND_TO)
+    return dir, int(d), int(m), s
 
 
 
@@ -217,6 +218,7 @@ class AccessionEditorView(GenericEditorView):
         # on the presenter
         self.connect_dialog_close(self.widgets.accession_dialog)
     
+    
     def save_state(self):
         prefs[self.source_expanded_pref] = \
             self.widgets.source_expander.get_expanded()
@@ -332,19 +334,14 @@ class CollectionPresenter(GenericEditorPresenter):
         coll_date_entry.connect('insert-text', self.on_date_entry_insert)
         coll_date_entry.connect('delete-text', self.on_date_entry_delete)
 
-        # TODO: maybe i should only be checking on one of these since they
-        # have to one or the other, it works with both connected since
-        # the one being untoggled is called first and the one be toggled
-        # on is called last
+        # don't need to connection to south/west since they are in the same
+        # groups as north/east
         north_radio = self.view.widgets.north_radio
-        north_radio.connect('toggled', self.on_north_south_radio_toggled)
-        south_radio = self.view.widgets.north_radio
-        south_radio.connect('toggled', self.on_north_south_radio_toggled)
-        
-        east_radio = self.view.widgets.east_radio
-        east_radio.connect('toggled', self.on_east_west_radio_toggled)
-        west_radio = self.view.widgets.west_radio
-        west_radio.connect('toggled', self.on_east_west_radio_toggled)
+        self.north_toggle_signal_id = north_radio.connect('toggled', 
+                                                          self.on_north_south_radio_toggled)        
+        east_radio = self.view.widgets.east_radio        
+        self.east_toggle_signal_id = east_radio.connect('toggled', 
+                                                   self.on_east_west_radio_toggled)
 
 
     def refresh_view(self):
@@ -353,6 +350,23 @@ class CollectionPresenter(GenericEditorPresenter):
                 field = field[:-2]
             self.view.set_widget_value(widget, self.model[field],
                                        self.defaults.get(field, None))         
+        #lat_dms_label
+        latitude = self.model.latitude
+        if latitude is not None:
+            dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
+            self.view.widgets.lat_dms_label.set_text(dms_string)
+            if latitude < 0:
+                self.view.widgets.south_radio.set_active(True)
+            else:
+                self.view.widgets.north_radio.set_active(True)
+        longitude = self.model.longitude
+        if longitude is not None:
+            dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
+            self.view.widgets.lon_dms_label.set_text(dms_string)
+            if longitude < 0:
+                self.view.widgets.west_radio.set_active(True)
+            else:
+                self.view.widgets.east_radio.set_active(True)
             
     def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
@@ -392,43 +406,54 @@ class CollectionPresenter(GenericEditorPresenter):
         e.modify_bg(gtk.STATE_NORMAL, bg_color)
         e.queue_draw()
         
-
-    def on_north_south_radio_toggled(self, button, data=None):
-        direction = self._get_lon_direction()
-        lon_text = self.view.widgets.lon_entry.get_text()
-        if lon_text != '':
-            self._set_longitude_from_text(lon_text)
-        
         
     def on_east_west_radio_toggled(self, button, data=None):
+        direction = self._get_lon_direction()
+        entry = self.view.widgets.lon_entry
+        lon_text = entry.get_text()    
+        if lon_text == '':
+            return
+        if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
+            entry.set_text('-%s' % lon_text)
+        elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
+            entry.set_text(lon_text[1:])
+
+                
+    def on_north_south_radio_toggled(self, button, data=None):
         direction = self._get_lat_direction()
-        lat_text = self.view.widgets.lat_entry.get_text()
-        if lat_text != '':
-            self._set_latitude_from_text(lat_text)
+        entry = self.view.widgets.lat_entry
+        lat_text = entry.get_text()
+        if lat_text == '':
+            return        
+        if direction == 'S' and lat_text[0] != '-' and len(lat_text) > 2:
+            entry.set_text('-%s' % lat_text)
+        elif direction == 'N' and lat_text[0] == '-' and len(lat_text) > 2:
+            entry.set_text(lat_text[1:])
     
 
     # TODO: need to write a test for this method
-    # TODO: still need to support degrees minutes seconds,
-    # decimal degrees, and degrees with decimal minutes
     @staticmethod
     def _parse_lat_lon(direction, text):
-        bits = re.split(':| ', text)
+        bits = re.split(':| ', text.strip())
 #        debug('%s: %s' % (direction, bits))
-        if len(bits) == 3:
-            dec = dms_to_decimal(dir, *map(float, bits))
+        if len(bits) == 1:
+            dec = abs(float(text))
+            if dec > 0 and direction in ('W', 'S'):
+                dec = -dec
+        elif len(bits) == 2:
+            deg, tmp = map(float, bits)
+            sec = tmp/60
+            min = tmp-60
+            dec = dms_to_decimal(direction, deg, min, sec)
+        elif len(bits) == 3:
+            dec = dms_to_decimal(direction, *map(float, bits))
         else:
-            try:
-                dec = abs(float(text))
-                if dec > 0 and direction in ('W', 'S'):
-                    dec = -dec
-            except:
-                # TODO: or parse error? does it matter?
-                raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
-                                 text)
+            raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
+                             text)
         return dec
 
 
-    def _get_lon_direction(self):
+    def _get_lat_direction(self):
         if self.view.widgets.north_radio.get_active():
             return 'N'
         elif self.view.widgets.south_radio.get_active():
@@ -436,7 +461,7 @@ class CollectionPresenter(GenericEditorPresenter):
         raise ValueError('North/South radio buttons in a confused state')
             
             
-    def _get_lat_direction(self):
+    def _get_lon_direction(self):
         if self.view.widgets.east_radio.get_active():
             return 'E'
         elif self.view.widgets.west_radio.get_active():
@@ -448,7 +473,7 @@ class CollectionPresenter(GenericEditorPresenter):
                             data=None):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]       
         self._set_latitude_from_text(full_text)
         
 
@@ -460,19 +485,29 @@ class CollectionPresenter(GenericEditorPresenter):
             
     def _set_latitude_from_text(self, text):
         bg_color = None
-        longitude = None
+        latitude = None
+        dms_string = ''
         try:
             if text != '' and text is not None:
+                self.view.widgets.north_radio.handler_block(self.north_toggle_signal_id)
+                if text[0] == '-':
+                    self.view.widgets.south_radio.set_active(True)
+                else:
+                    self.view.widgets.north_radio.set_active(True)
+                self.view.widgets.north_radio.handler_unblock(self.north_toggle_signal_id)
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
+                #u"\N{DEGREE SIGN}"                
+                dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
         except:         
+            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.problems.add(self.PROBLEM_BAD_LATITUDE)
-            self.model['latitude'] = None
         else:
             self.problems.remove(self.PROBLEM_BAD_LATITUDE)
-            self.model['latitude'] = latitude            
-                
+                    
+        self.model['latitude'] = latitude
+        self.view.widgets.lat_dms_label.set_text(dms_string)
         e = self.view.widgets.lat_event_box    
         e.modify_bg(gtk.STATE_NORMAL, bg_color)
         e.queue_draw()
@@ -480,8 +515,6 @@ class CollectionPresenter(GenericEditorPresenter):
         
     def on_lon_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
-#        e = self.view.widgets.lon_event_box
-#        e.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse("red"))
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -497,24 +530,30 @@ class CollectionPresenter(GenericEditorPresenter):
     def _set_longitude_from_text(self, text):
         bg_color = None
         longitude = None
+        dms_string = ''
         try:
             if text != '' and text is not None:
+                self.view.widgets.east_radio.handler_block(self.east_toggle_signal_id)
+                if text[0] == '-':
+                    self.view.widgets.west_radio.set_active(True)
+                else:
+                    self.view.widgets.east_radio.set_active(True)
+                self.view.widgets.east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)            
+                dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
         except:
+#            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")            
             self.problems.add(self.PROBLEM_BAD_LONGITUDE)
-            # set the model so that the ok buttons will be reset
-            #self.model['longitude'] = None 
         else:
             self.problems.remove(self.PROBLEM_BAD_LONGITUDE)
-            #self.model['longitude'] = longitude            
             
         self.model['longitude'] = longitude
+        self.view.widgets.lon_dms_label.set_text(dms_string)
         e = self.view.widgets.lon_event_box    
         e.modify_bg(gtk.STATE_NORMAL, bg_color)
         e.queue_draw()
-    
     
     
     
@@ -543,7 +582,6 @@ class DonationPresenter(GenericEditorPresenter):
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
-        
         
         
     def on_don_new_clicked(self, button, data=None):
@@ -726,6 +764,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         e.modify_bg(gtk.STATE_NORMAL, bg_color)
         e.queue_draw()
         
+        
     def on_species_match_selected(self, completion, compl_model, iter):
         '''
         put the selected value in the model
@@ -793,7 +832,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             #self.view.widgets.accession_dialog.set_sensitive(True)
         gobject.idle_add(_add_completion_callback, sr)
         
-    
     
     def on_field_changed(self, field):
 #        debug('on field changed: %s' % field)
@@ -887,8 +925,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.dialog.show_all()
         
     
-    # TODO: should i combine these two init_(wild)_prov_combo methods
-    
     def init_prov_combo(self):
         combo = self.view.widgets.prov_combo
         model = gtk.ListStore(str)
@@ -910,9 +946,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def on_combo_changed(self, combo, field):
         self.model[field] = combo.get_active_text()
 
-
-    
-    
 
     def refresh_view(self):
         '''
@@ -962,6 +995,13 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                                                   self.defaults)
 
 
+    def handle_response(self, response):
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        # TODO: use this method to factor out some of the code from self.start
+        pass
+    
     def start(self, commit_transaction=True):    
         not_ok_msg = 'Are you sure you want to lose your changes?'
         exc_msg = "Could not commit changes.\n"
@@ -969,6 +1009,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
+            source_dirty = self.presenter.source_presenter is not None and \
+                self.presenter.source_presenter.model.dirty
             if response == gtk.RESPONSE_OK or response in self.ok_responses:
                 try:
                     committed = self.commit_changes()                
@@ -994,13 +1036,12 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     sqlhub.processConnection.begin()
                 else:
                     break
-            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
-#                debug(self.model.dirty)
+            elif (self.model.dirty or source_dirty) and utils.yes_no_dialog(not_ok_msg):
                 sqlhub.processConnection.rollback()
                 sqlhub.processConnection.begin()
                 self.model.dirty = False
                 break
-            elif not self.model.dirty:
+            elif not (self.model.dirty or source_dirty):
                 break
             
         if commit_transaction:
@@ -1036,20 +1077,17 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     
     
     def commit_source_changes(self, accession):
-        
+        source_model = None
         if self.presenter.source_presenter is not None \
           and self.presenter.source_presenter.model.dirty:
             source_model = self.presenter.source_presenter.model
-#            debug(source_model)                 
             if source_model.isinstance:
                 source_table = tables[source_model.so_object.__class__.__name__]
             else:
                 source_table = tables[source_model.so_object.__name__]
                 
-#        debug(source_model)                
         if source_model is None:
             return
-#        debug(source_model)
         if 'latitude' in source_model and source_model.latitude is not None:
             if 'longitude' in source_model and source_model.longitude is None:
                 msg = 'model must have both latitude and longitude or neither'
@@ -1057,7 +1095,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     
         source_model['accession'] = accession.id
         new_source = commit_to_table(source_table, source_model)
-        
         
         
     def commit_changes(self):
@@ -1100,9 +1137,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         return accession
     
     
-
-        
-        
+       
 #
 # infobox for searchview
 #
@@ -1171,6 +1206,7 @@ else:
             else: 
                 geo_accy = '(+/- %sm)' % geo_accy
             
+            # TODO: should probably show the DMS format here as well
             if collection.latitude is not None:
                 set_widget_value(self.glade_xml, 'lat_data',
                                  '%.2f %s' %(collection.latitude, geo_accy))
