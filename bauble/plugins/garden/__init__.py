@@ -10,9 +10,7 @@ from location import Location, LocationEditor
 from plant import Plant, PlantHistory, PlantEditor, PlantInfoBox
 #from reference import Reference, ReferenceEditor
 from source import Donation, Collection
-from source_editor import SourceEditor
 from donor import Donor, DonorEditor, DonorInfoBox
-
 
 # other ideas:
 # - cultivation table
@@ -20,14 +18,10 @@ from donor import Donor, DonorEditor, DonorInfoBox
 
 class GardenPlugin(BaublePlugin):
 
-    editors = [AccessionEditor, LocationEditor, PlantEditor, DonorEditor, 
-               SourceEditor]#, ReferenceEditor]
-            #ReferenceEditor,DonorEditor, SourceEditor]
+    editors = [AccessionEditor, LocationEditor, PlantEditor, DonorEditor]
 
     tables = [Accession, Location, Plant, Donor, Donation, Collection,
               PlantHistory]
-#    tables = [Accession, Location, Plant, Reference, Donor, Donation, 
-#              Collection]
     
     @classmethod
     def init(cls):

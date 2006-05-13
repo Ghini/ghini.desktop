@@ -500,7 +500,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 #u"\N{DEGREE SIGN}"                
                 dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
         except:         
-            debug(traceback.format_exc())
+#            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.problems.add(self.PROBLEM_BAD_LATITUDE)
         else:
