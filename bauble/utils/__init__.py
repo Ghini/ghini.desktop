@@ -115,11 +115,14 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
     return r
     
 
+# TODO: it would be nice to implement a yes_or_no method that asks from the 
+# console if there is no gui. is it possible to know if we have a terminal
+# to write to
 def yes_no_dialog(msg):         
     try: # this might get called before bauble has started
-	parent = bauble.app.gui.window
+        parent = bauble.app.gui.window
     except:
-	parent = None
+        parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
 			 parent=parent,
 			 type=gtk.MESSAGE_QUESTION,
@@ -136,14 +139,12 @@ def yes_no_dialog(msg):
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):    
     try: # this might get called before bauble has started
-	parent = bauble.app.gui.window	
+        parent = bauble.app.gui.window	
     except:	
-	parent = None	
+        parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-			  parent=parent,
-                          type=type, buttons=buttons)        
-    d.set_markup(msg)
-    
+                         parent=parent,type=type, buttons=buttons)        
+    d.set_markup(msg)    
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
     text_view.set_editable(False)

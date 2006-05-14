@@ -6,6 +6,15 @@ import imp, os, sys
 
 # major, minor, revision 
 # should be updated for each release of bauble
+
+# this is from the python docs, we should probably have something similar
+# for bauble so we can do release candidate and beta releases
+# version_info 
+# A tuple containing the five components of the version number: 
+# major, minor, micro, releaselevel, and serial. All values except 
+# releaselevel are integers; the release level is 'alpha', 'beta', 
+# 'candidate', or 'final'. The version_info value corresponding to the Python 
+# version 2.0 is (2, 0, 0, 'final', 0). New in version 2.0. 
 version = (0,5,0)
 version_str = '%s.%s.%s' % (version[0], version[1], version[2])
 

@@ -285,10 +285,10 @@ class GUI:
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
-	    bauble.app.create_database()
+            bauble.app.create_database()
 	    
-	# reset the view
-	self.get_current_view().reset()
+        # reset the view, i think this is already set 
+        self.get_current_view().reset()
             
         
     def on_file_menu_open(self, widget, data=None):        
@@ -301,7 +301,7 @@ class GUI:
         if name is None:
             return
 
-	if(bauble.app.open_database(uri, name, True)):
+	if(bauble.app.open_database(uri, name)):
 	    self.window.set_title(self.title)
 
 	# reset the search view

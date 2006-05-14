@@ -27,142 +27,77 @@ class Species(BaubleTable):
         super(Species, self).__init__(**kw)
         self.__cached_str = None
         
-    sp_hybrid = EnumCol(enumValues=("H", 
-                                    "x", 
-                                    "+",
-                                    ""), 
-                        default="") 
-    
-    
-    sp_qual = EnumCol(enumValues=("agg.", 
-                                  "s.lat.", 
-                                  "s. str.",
-                                  ""), 
-                      default="")
-                                                    
+    # TODO: create an index from sp_hybrid, sp_qual, sp, sp_author, cv_group, 
+    # isp, isp_author, isp_rank, genus
+    #species_index = DatabaseIndex('genus', 'sp', 'sp_author', 'sp_hybrid', 
+    #                             'sp_qual', 'cv_group', 'infrasp', 
+    #                             'infrasp_author', 'infrasp_rank')
     sp = StringCol(length=40, notNull=True)          # specific epithet
-    sp_author = UnicodeCol(default=None)  # species author
-        
-    cv_group = StringCol(length=50, default=None)    # cultivar group
-    #cv = StringCol(length=30, default=None)          # cultivar epithet
-    #trades = StringCol(length=50, default=None)      # trades, e.g. "Sundance"
+    sp_author = UnicodeCol(default=None)  # species author    
+    sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None) 
     
-#    supfam = StringCol(length=30, default=None)          
-#    subgen = StringCol(length=50, default=None)
-#    subgen_rank = EnumCol(enumValues=("subgenus", 
-#                                      "section", 
-#                                      "subsection",
-#                                      "series", 
-#                                      "subseries",
-#                                      None),
-#                          default=None)                             
-
-    isp = StringCol(length=30, default=None)         # intraspecific epithet
-    isp_author = UnicodeCol(length=255, default=None) # intraspecific author
-    # intraspecific rank
-    isp_rank = EnumCol(enumValues=("subsp.", # subspecies
-                                   "var.",   # variety
-                                   "subvar.", # sub variety
-                                   "f.",     # form
-                                   "subf.",  # subform
-                                   "cv.",    # cultivar
-                                   ""), 
-                       default="")
-
-#    isp2 = StringCol(length=30, default=None)
-#    isp2_author = UnicodeCol(length=254, default=None)
-#    isp2_rank = StringCol(length=10, default=None)
-#
-#
-#    isp3 = StringCol(length=30, default=None)
-#    isp3_author = UnicodeCol(length=254, default=None)
-#    isp3_rank = StringCol(length=10, default=None)
-#
-#
-#    isp4 = StringCol(length=30, default=None)
-#    isp4_author = UnicodeCol(length=254, default=None)
-#    isp4_rank = StringCol(length=10, default=None)
     
+    sp_qual = EnumCol(enumValues=("agg.", "s.lat.", "s. str.", None), 
+                      default=None)                                                
+    cv_group = StringCol(length=50, default=None)    # cultivar group                        
+    infrasp = StringCol(length=30, default=None)         # intraspecific epithet
+    infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
+    '''
+    subsp. - subspecies
+    var. - variety
+    subvar. - sub variety
+    f. - form
+    subf. - subform
+    cv. - cultivar
+    '''
+    infrasp_rank = EnumCol(enumValues=("subsp.", "var.", "subvar.", "f.", 
+                                       "subf.",  "cv.", None), default=None)
+#    isp = StringCol(length=30, default=None)         # intraspecific epithet
+#    isp_author = UnicodeCol(length=255, default=None) # intraspecific author
+#    # intraspecific rank
+#    isp_rank = EnumCol(enumValues=("subsp.", # subspecies
+#                                   "var.",   # variety
+#                                   "subvar.", # sub variety
+#                                   "f.",     # form
+#                                   "subf.",  # subform
+#                                   "cv.",    # cultivar
+#                                   None), 
+#                       default=None)
 
-    # TODO: maybe the IUCN information should be looked up online
-    # rather than being entered in the database or maybe there could
-    # be an option to lookup the code online
-    #iucn23 = StringCol(length=5, default=None)  # iucn category version 2.3
-#    values["iucn23"] = [("EX", "Extinct"),
-#                        ("EW", "Extinct in the wild"),
-#                        ("CR", "Critically endangered"),
-#                        ("EN", "Endangered"),
-#                        ("VU", "Vulnerable"),
-#                        #("LR", "Low risk"),
-#                        ("CD", "Conservation dependent"), # low risk cat 1
-#                        ("NT", "Near threatened"), # low risk cat 2
-#                        ("LC", "Least consern"), # low risk cat 3
-#                        ("DD", "Data deficient"),
-#                        ("NE", "Not evaluated")]
-    
-    #iucn31 = StringCol(length=50, default=None) # iucn category_version 3.1
-#    values["iucn31"] = [("EX", "Extinct"),
-#                        ("EW", "Extinct in the wild"),
-#                        ("CR", "Critically endangered"),
-#                        ("EN", "Endangered"),
-#                        ("VU", "Vulnerable"),
-#                        ("NT", "Near threatened"), 
-#                        ("LC", "Least consern"), 
-#                        ("DD", "Data deficient"),
-#                        ("NE", "Not evaluated")]
     
     #rank_qual = StringCol(length=1, default=None) # rank qualifier, a single
     # character
+    '''
+    "aff.", # Akin to or bordering
+    "cf.", # compare with
+    "Incorrect", # Incorrect
+    "forsan", # Perhaps
+    "near", # Close to
+    "?", # Quesionable
+    '''
+    id_qual = EnumCol(enumValues=("aff.", "cf.", "Incorrect", "forsan", "near", 
+                                  "?", None), default=None)    
+    notes = UnicodeCol(default=None)
     
-    id_qual = EnumCol(enumValues=("aff.", # Akin to or bordering
-                                  "cf.", # compare with
-                                  "Incorrect", # Incorrect
-                                  "forsan", # Perhaps
-                                  "near", # Close to
-                                  "?", # Quesionable
-                                  ""),
-                      default="")
-    
+    # foreign keys
+    default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
+                                         #cascade=True)
+    genus = ForeignKey('Genus', notNull=True, cascade=False)
+    #
+    # joins
+    #
+    # hold meta information about this plant
+    species_meta = SingleJoin('SpeciesMeta', joinColumn='species_id')
+    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
     # it would be best to display the vernacular names in a dropdown list
-	# with a way to add to the list    
-    vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
-    # this is the default vernacular name we'll use
+    # with a way to add to the list    
     # FIXME: what happens if to the value in default_vernacular_name if 
     # we delete the object that this foreign key points to, should somehow
     # get reset to None
-    default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
-                                         #cascade=True)
-#    def _get_default_vernacular_nameID(self):
-#        # delete self.default_vernacular_name in case it has been deleted
-#        # elsewhere
-#        try:
-#            v = tables['VernacularName'].get(self.default_vernacular_name)
-#            debug(v)
-#        except:
-#            self.default_vernacular_name = None
-##        if v is None:
-##            self.default_vernacular_name = None
-##        debug(self.default_vernacular_name)
-#        return self.default_vernacular_name
-        #if self.default_vernacular_name
-    # where this name stands in taxonomy, whether it's a synonym or
-    # not basically, would probably be better to just leaves this and
-    # look it up on www.ipni.org www.itis.usda.gov
-    #taxonomic_status = StringCol()
-    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
-        
-    # foreign keys and joins
-    genus = ForeignKey('Genus', notNull=True, cascade=False)
+    vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
     #accessions = MultipleJoin('Accessions', joinColumn='species_id')
     #images = MultipleJoin('Images', joinColumn='species_id')
     #references = MultipleJoin('Reference', joinColumn='species_id')
-    
-    notes = UnicodeCol(default=None)
-    
-    # hold meta information about this plant
-    species_meta = SingleJoin('SpeciesMeta', joinColumn='species_id')        
-
-    
     
     def __str__(self):
         # we'll cache the str(self) since building it is relatively heavy
@@ -195,6 +130,7 @@ class Species(BaubleTable):
         # (2) maybe create the name in parts and return them all combined in 
         # the end
         # TODO: create tests for all possible name combinations 
+        #genus, sp_hybrid, id_qual, sp, sp_hybrid, infrasp, cv_group
         if markup:
             italic = "<i>%s</i>"
 	    escape = sax.escape
@@ -208,38 +144,39 @@ class Species(BaubleTable):
             name += " %s" % species.id_qual
             
         # take care of species hybrid
-        if not species.sp_hybrid == "":
+        if species.sp_hybrid:
             # we don't have a second sp name for the hyrbid formula right now
             # so we'll just use the isp for now
-            if species.isp is not None:
+            if species.infrasp is not None:
                 name += " %s %s %s " % (italic % species.sp, 
                                         species.sp_hybrid,
-                                        italic % species.isp)
+                                        italic % species.infrasp)
             else:
-                name += ' %s %s' % (species.sp_hybrid, species.sp)
+                name += ' %s %s' % (species.sp_hybrid or '', species.sp)
         else:
             name = ' '.join([name, italic % species.sp])
             
         # cultivar groups and cultivars
         if species.cv_group is not None:
-            if species.isp_rank == "cv.":
+            if species.infrasp_rank == "cv.":
                 name += ' (' + species.cv_group + " Group) '" + \
-                italic % species.isp + "'"
+                italic % species.infrasp + "'"
             else: 
                 name += ' ' + species.cv_group + ' Group'
             return name
         
         if species.sp_author is not None and authors is not False:
             #name += ' ' + species.sp_author.replace('&', '&amp;')
-	    name += ' ' + escape(species.sp_author)
-        if not species.isp_rank == "":
-            if species.isp_rank == "cv.":
-                name += " '" + species.isp + "'"
+            name += ' ' + escape(species.sp_author)
+        
+        if species.infrasp_rank:
+            if species.infrasp_rank == "cv.":
+                name += " '" + species.infrasp + "'"
             else:
-                name += ' ' + species.isp_rank + ' ' + \
-                              italic % species.isp
-                if species.isp_author is not None and authors is not False:
-                    name += ' ' + escape(species.isp_author)
+                name = '%s %s %s' % (name, species.infrasp_rank, 
+                                     italic % species.infrasp)
+                if species.infrasp_author is not None and authors is not False:
+                    name += ' ' + escape(species.infrasp_author)
         return name
     
 
@@ -355,9 +292,9 @@ class SpeciesEditor(TreeViewEditorDialog):
 #                   "supfam": 'Super family',
 #                   'subgen': 'Subgenus',
 #                   'subgen_rank': 'Subgeneric rank',
-		  'isp': 'Isp. epithet',
-		  'isp_rank': 'Isp. rank',
-		  'isp_author': 'Isp. author',
+		  'infrasp': 'Isp. epithet',
+		  'infrasp_rank': 'Isp. rank',
+		  'infrasp_author': 'Isp. author',
 #                   'iucn23': 'IUCN 2.3\nCategory',
 #                   'iucn31': 'IUCN 3.1\nCategory',
 		  'id_qual': 'ID qualifier',

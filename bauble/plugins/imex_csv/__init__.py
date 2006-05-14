@@ -32,12 +32,33 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
 
 class CSVImporter:
 
+    def sort_filenames(self, filenames):
+        # this is a mega hack so to to sort a list of filenames by
+        # the order they should be imported, ideally we would have
+        # a way to sort by dependency but that's more work
+
+        sortlist = ['Continent.txt',"Country.txt","Region.txt", 
+                    "BotanicalCountry.txt",
+                    "BasicUnit.txt", "Place.txt",
+                    "Location.txt","Family.txt","FamilySynonym.txt","Genus.txt",
+                    "GenusSynonym.txt","Species.txt","SpeciesMeta.txt",
+                    "SpeciesSynonym.txt","VernacularName.txt","Accession.txt",
+                    "Donor.txt","Donation.txt","Collection.txt","Plant.txt",
+                    "Tag.txt","TaggedObj.txt"]
+
+        import copy
+        sorted_filenames = copy.copy(sortlist)
+        def compare_files(one, two):
+            one_file = os.path.basename(one)
+            two_file = os.path.basename(two)
+            return cmp(sortlist.index(one_file), sortlist.index(two_file))
+        return sorted(filenames, cmp=compare_files)
+
     
-    def start(self, filenames=None):
+    def start(self, filenames=None, force=False):
         """
         the simplest way to import, no threads, nothing
         """        
-        
         error = False # return value
         bauble.app.set_busy(True)
                 
@@ -47,6 +68,8 @@ class CSVImporter:
             bauble.app.set_busy(False)
             return        
         
+        filenames = self.sort_filenames(filenames)
+#        print filenames
         filename = None   # these two are here in case we get an exception
         table_name = None
         for filename in filenames:
@@ -57,7 +80,10 @@ class CSVImporter:
                 table_name = table.sqlmeta.table
 #                import time
 #                t = time.clock()
-                self.import_file(filename, table)
+#                debug('start import')
+                log.info('importing %s table from %s' % (table.__name__, filename))
+                self.import_file(filename, table, force=force)
+ #               debug('finish import')
 #                debug(time.clock() - t)
             except Exception, e:
                 msg = "Error importing values from %s into table %s\n" \
@@ -79,6 +105,7 @@ class CSVImporter:
                               (table_name, max+1)
                         sqlobject.sqlhub.processConnection.query(sql)    
                 
+#        debug('unset busy')
         bauble.app.set_busy(False)
         if not error:
             sqlobject.sqlhub.processConnection.commit()
@@ -88,7 +115,7 @@ class CSVImporter:
         return not error
         
         
-    def import_file(self, filename, table_class):
+    def import_file(self, filename, table_class, force=False):
 #        debug('imex_csv.import_file(%s, %s)' % (filename, table))
         f = file(filename, "rb")
         reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
@@ -109,7 +136,7 @@ class CSVImporter:
                   "correctly.\n\n<i>Would you like to drop the table in the "\
                   "database first. You will lose the data in your database "\
                   "if you do this?</i>" % table_class.sqlmeta.table
-            if utils.yes_no_dialog(msg):
+            if force or utils.yes_no_dialog(msg):
                 table_class.dropTable(ifExists=True, dropJoinTables=True, 
                                 cascade=True)
                 table_class.createTable()
@@ -283,8 +310,55 @@ class CSVImexPlugin(BaublePlugin):
 plugin = CSVImexPlugin
 
 
-if __name__ == "__main__":
+
+
+def main():
     # should allow you to export or import from a database from the
     # command line, you would just have to pass the connection uri
     # and the name of the directory to export to
-    pass
+    # TODO: allow -i for import, -e for export
+    # TODO: need to pass in a database connection string
+    # postgres://bbg:garden@ceiba.test
+    # TODO: if not connection is passed on the command line the open the 
+    # connection manager
+    import sys
+    from sqlobject import sqlhub, connectionForURI
+    from bauble.conn_mgr import ConnectionManager#Dialog
+    from bauble.prefs import prefs
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option('--force', dest='force', action='store_true', 
+                      default=False, help='force import')
+    options, args = parser.parse_args()
+    prefs.init() # intialize the preferences
+
+    default_conn = prefs[prefs.conn_default_pref]
+    cm = ConnectionManager(default_conn)
+    conn_name, uri = cm.start()
+    if conn_name is None:
+        return
+    
+    sqlhub.processConnection = connectionForURI(uri)    
+    sqlhub.processConnection.getConnection()
+    sqlhub.processConnection = sqlhub.processConnection.transaction()    
+    
+    if not options.force:
+        msg = 'Importing to this connection (%s) will destroy any existing data '\
+              ' in the database. Are you sure this is what you want to do? ' % uri
+        response = raw_input(msg)
+        if response not in ('Y', 'y'):
+            return
+        
+    # check that the database version are the same
+    from bauble._app import BaubleApp
+    BaubleApp.open_database(uri)
+        
+    bauble.plugins.load()
+    importer = CSVImporter()
+    print 'importing....'
+    importer.start(args, force=options.force)
+    sqlhub.processConnection.commit()
+    print '...finished importing'
+
+if __name__ == "__main__":
+    main()

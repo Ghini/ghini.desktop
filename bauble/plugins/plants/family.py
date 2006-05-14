@@ -10,42 +10,35 @@ from bauble.treevieweditor import TreeViewEditorDialog
 from datetime import datetime
 from bauble.utils.log import debug
 
-#
-# *** playing around with sqlalchemy
-#
-#from sqlalchemy import *
-#families = Table('family', bauble.app.db_engine,
-#                 Column('family_id', Integer, primary_key=True),
-#                 Column('user_name', String(16)))                 
-#             
-#             
-#        
-#
-#class Family(BaubleTable):
-#    
-#    def __init__(self):
-#        BaubleTable.__init__(self, families)
-#        
-#
-#synonyms = Table('family_synonym', bauble.app.db_engine,
-#                 Column('family_id', Integer, ForeignKey('families.family_id')),
-#                 Column('synonym_id', Integer, ForeignKey('families.family_id')))
-#                
-#class FamilySynonym(BaubleTable):
-#    def __init__(self):
-#        BaubleTable.__init__(self, synonyms)
                         
 class Family(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	       defaultOrder = 'family'
+        defaultOrder = 'family'
 
     family = StringCol(length=45, notNull=True, alternateID="True")
-    synonyms = MultipleJoin('FamilySynonym', joinColumn='family_id')
+    
+    '''    
+    The qualifier field designates the botanical status of the family.
+    Possible values:
+        s. lat. - aggregrate family (sensu lato)
+        s. str. segregate family (sensu stricto)
+    '''
+    qualifier = EnumCol(enumValues=('s. lat.', 's. str.', None), default=None)
     notes = StringCol(default=None)
+    
+    # indices
+    family_index = DatabaseIndex('family', 'qualifier', unique=True)
+    
+    
+    # joins
+    synonyms = MultipleJoin('FamilySynonym', joinColumn='family_id')    
     genera = MultipleJoin("Genus", joinColumn="family_id")
     
+        
     def __str__(self): 
+        # TODO: need ability to include the qualifier as part of the name, 
+        # maybe as a keyworkd argument flag
         return self.family
     
     
@@ -81,6 +74,7 @@ class FamilyEditor(TreeViewEditorDialog):
                                       parent, select=select, defaults=defaults)
         titles = {'family': 'Family',
                   'notes': 'Notes',
+                  'qualifier': 'Qualifier',
                   'synonyms': 'Synonyms'}
         self.columns.titles = titles
         self.columns['synonyms'].meta.editor = editors["FamilySynonymEditor"]

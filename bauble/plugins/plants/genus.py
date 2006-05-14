@@ -24,7 +24,7 @@ from bauble.treevieweditor import TreeViewEditorDialog
 class Genus(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'genus'
+        defaultOrder = 'genus'
     
     # it is possible that there can be genera with the same name but 
     # different authors and probably means that at different points in literature
@@ -32,45 +32,35 @@ class Genus(BaubleTable):
     # synonym for the same species,
     # this screws us up b/c you can now enter duplicate genera, somehow
     # NOTE: we should at least warn the user that a duplicate is being entered
-    genus = StringCol(length=32)    
+    genus = StringCol(length=50)    
+            
+    '''
+    hybrid: indicates whether the name in the Genus Name field refers to an 
+    Intergeneric hybrid or an Intergeneric graft chimaera.
+    Content of genhyb   Nature of Name in gen
+     H        An intergeneric hybrid collective name
+     x        An Intergeneric Hybrid
+     +        An Intergeneric Graft Hybrid or Graft Chimaera
+    '''
+    hybrid = EnumCol(enumValues=("H", "x", "+", None), default=None) 
+                            
+    author = UnicodeCol(length=255, default=None)
+    notes = StringCol(default=None)
     
-    #synonyms = MultipleJoin('GenusSynonym', joinColumn='genus')
+    # indices
     # we can't do this right now unless we do more work on 
     # the synonyms table, see 
     # {'author': 'Raf.', 'synonymID': 13361, 'familyID': 214, 'genus': 'Trisiola', 'id': 15845}
     # in Genus.txt
     genus_index = DatabaseIndex('genus', 'author', 'family', unique=True)
     
-    #hybrid = StringCol(length=1, default=None) # generic hybrid code, H,x,+
-    hybrid = EnumCol(enumValues=("H", 
-                                 "x", 
-                                 "+",
-                                 ""), 
-                     default="") 
-                        
-    notes = StringCol(default=None)
-    author = UnicodeCol(length=255, default=None)
-    #synonym_id = IntCol(default=None) # an id into this table
-    # this causes a problem in postgres if you try to enter a synonym
-    # before the record that the synonym refers to exists, mysql and sqlite
-    # don't seem to mind though
-    #synonymID = IntCol(default=None) # an id into this table
-    #synonym = ForeignKey('Genus', default=None)
-    synonyms = MultipleJoin('GenusSynonym', joinColumn='genus_id')
-    
-    
-    # foreign key    
+    # foreign keys
     family = ForeignKey('Family', notNull=True, cascade=False)
+    
+    # joins
     species = MultipleJoin("Species", joinColumn="genus_id")
+    synonyms = MultipleJoin('GenusSynonym', joinColumn='genus_id')    
 
-    # internal
-    #_entered = DateTimeCol(default=None)
-    #_changed = DateTimeCol(default=None)
-    #_initials1st = StringCol(length=50, default=None)
-    #_initials_c = StringCol(length=50, default=None)
-    #_source_1 = IntCol(default=None)
-    #_source_2 = IntCol(default=None)
-    #_updated = DateTimeCol(default=None)
 
     def __str__(self):
         if self.hybrid:

@@ -1,3 +1,16 @@
+2006.05.14
+----------
+- more model changes on family, genus and species
+- sort text files on csv import so we import them in order of dependencies
+- can now import csv from the command line, it's crude but it works
+- more work on bauble-upgrade-0.4-to-0.5.py script
+- appropriate changes to editors where the model changed
+- changes to BaubleApp so that we can open and create database without starting
+up the gui/full app
+- don't load plugins on automatically on plugins module import, 
+# wait until either plugins.load is called or plugins.init_plugins()
+- more, more, more
+
 2006.05.12
 ----------
 - more tweaks on the accession editor, the labels on required fields are now 

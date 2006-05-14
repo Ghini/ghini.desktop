@@ -1,5 +1,18 @@
 #!/usr/bin/env python
 
+# How to use this scripts to upgrade your version of Bauble from 
+# 0.4.x to 0.5.x
+# 1. connect to existing database with version 0.4.x of Bauble
+# 2. from the Bauble menu select Tools\Export\Comma Separated Values
+# 3. selected a directory to create the backup files
+# 4. from the command line cd to the directory where the backup files are
+# 5. run this script, the converted files are in the new/ directory
+# 6. connect to the new database with Bauble 0.5.x
+# 7. from the Bauble menu select File\New
+# 8. from the Bauble menu select Tools\Import\Comma Separated Values
+# 9. select all the files from the new/ directory, click OK
+# 10. check that the values in the database are correct
+
 #what has changed?
 #------------------
 #Accession.date added (done, dates set to 3000-01-01)
@@ -13,6 +26,8 @@
 #PlantHistory - though this table didn't exist so there is nothing
 #to migrate
 # remove Collector.collector2 (done)
+# Species.sp_hybrid, sp_qual, isp_rank, id_qual '' changed to None *** TODO **
+
 
 # can i alter tables in the database or only work on dumped text files
 # maybe taked dumped text files, create a temporary sqlite database 
@@ -68,13 +83,10 @@ def migrate_accession(filename):
         m = rx.match(line).groupdict()
         new_line = m.copy()
         if m['source_type'] == '"NoneType"':
-            #new_line['source_type'] = None
             new_line['source_type'] = ''
         if m['prov_type'] == '"<not set>"':
-            #new_line['prov_type'] = None
             new_line['prov_type'] = ''
         if m['wild_prov_status'] == '"<not set>"':
-            #new_line['wild_prov_status'] = None
             new_line['wild_prov_status'] = ''
         new_line['date'] = '1900-01-01'
         new_out_line = line_template % new_line
@@ -85,14 +97,14 @@ def migrate_donor(filename):
     columns = ("id","fax","tel","name","donor_type","address","email")
     rx = build_line_regex(columns)
     outfile = open_outfile(filename)
-    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', ''))
+    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
     line_template = build_line_template(columns)
     for line in open(filename).readlines()[1:]:
         line = line.strip()
         m = rx.match(line).groupdict()
         new_line = m.copy()
         if m['donor_type'] == '"NoneType"':
-            new_line['donor_type'] = None
+            new_line['donor_type'] = ''
         outfile.write(line_template % new_line)
         
         
@@ -101,19 +113,54 @@ def migrate_plant(filename):
                "acc_status")
     rx = build_line_regex(columns)
     outfile = open_outfile(filename)
-    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', ''))
+    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
     line_template = build_line_template(columns)
     for line in open(filename).readlines()[1:]:
         line = line.strip()
         m = rx.match(line).groupdict()
         new_line = m.copy()
         if m['acc_type'] == '"<not set>"':
-            new_line['acc_type'] = None
+            new_line['acc_type'] = ''
         if m['acc_status'] == '"<not set>"':
-            new_line['acc_status'] = None
+            new_line['acc_status'] = ''
         outfile.write(line_template % new_line)
     
-    
+def migrate_family(filename):
+    columns = ["id","notes","family"]
+    rx = build_line_regex(columns)
+    outfile = open_outfile(filename)    
+    new_columns = columns + ['qualifier']
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
+    line_template = build_line_template(new_columns)
+    for line in open(filename).readlines()[1:]:
+        line = line.strip()
+        m = rx.match(line).groupdict()
+        new_line = m.copy()        
+        new_line['qualifier'] = '""'
+        outfile.write(line_template % new_line)
+        
+def migrate_species(filename):
+    columns = ["id","sp","default_vernacular_nameID","notes","isp","id_qual",
+               "sp_author","isp_rank","isp_author","genusID","cv_group",
+               "sp_qual","sp_hybrid"]
+    rx = build_line_regex(columns)
+    outfile = open_outfile(filename)    
+    new_columns = columns + ['infrasp', 'infrasp_rank', 'infrasp_author']
+    new_columns.remove('isp')
+    new_columns.remove('isp_rank')
+    new_columns.remove('isp_author')
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
+    line_template = build_line_template(new_columns)
+    for line in open(filename).readlines()[1:]:
+        line = line.strip()
+        m = rx.match(line).groupdict()
+        new_line = m.copy()        
+        new_line['infrasp'] = new_line.pop('isp')
+        new_line['infrasp_rank'] = new_line.pop('isp_rank')
+        new_line['infrasp_author'] = new_line.pop('isp_author')
+        outfile.write(line_template % new_line)
+        
+        
 def migrate_collection(filename):
     columns = ("id","accessionID","countryID","elevation","habitat",
                "collector2","locale","notes","longitude","latitude","geo_accy",
@@ -121,7 +168,7 @@ def migrate_collection(filename):
     rx = build_line_regex(columns)
     outfile = open_outfile(filename)
     new_columns = columns[0:5] + columns[6:]
-    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', ''))
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
     line_template = build_line_template(new_columns)
     for line in open(filename).readlines()[1:]:
         line = line.strip()
@@ -144,6 +191,8 @@ migration_map = {'Accession.txt': migrate_accession,
                  'Collection.txt': migrate_collection,
                  'Plant.txt': migrate_plant,
                  'Donor.txt': migrate_donor,
+                 'Species.txt': migrate_species,
+                 'Family.txt': migrate_family,
                  }
 
 print 'migrating...'

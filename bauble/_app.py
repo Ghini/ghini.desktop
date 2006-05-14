@@ -17,34 +17,38 @@ DEBUG_SQL = False
 
 class BaubleApp:
     
-    def __init__(self):
-        self.gui = None
-        #self.db_engine = None
+    conn_name = None
+    gui = None
     
+    def __init__(self):
+        pass
 
-    def delete_event(self, widget, event, data=None):
-        # when is this ever called? why is it here
-        debug('BaubleApp.delete_event')
-        return False
-
-
-    def create_database(self):
+    @staticmethod
+    def create_database():
         '''
         create new Bauble database at the current connection
         '''
-        bauble.BaubleMetaTable.dropTable(ifExists=True)
-        #bauble.BaubleMetaTable.createTable(ifNotExists=True)
-        bauble.BaubleMetaTable.createTable()  
-        bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
-                               value=str(bauble.version))
+        # FIXME: for some reason the application locks up when this is called 
+        # from gui.on_file_menu_new and an exception is raised, i don't know
+        # what is locking it up since on_file_menu_new returns, maybe another
+        # loop running somewhere but the app redraws and there is a busy
+        # cursor, i also don't understand why tables are still being imported 
+        # on error
+        bauble.BaubleMetaTable.dropTable(ifExists=True)   
         try:            
             #sqlhub.processConnection.autoCommit = True
             for p in plugins.values():
                 p.create_tables()            
+            bauble.BaubleMetaTable.createTable()  
+            bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
+                                   value=str(bauble.version))
         except:
             msg = "Error creating tables. Your database may be corrupt."
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
+            # should be do a rollback here so that we return to the previous
+            # database state, we would first need a begiin at the beginning of 
+            # this method for it to work correction i think
         else:
             # create the created timestamp
             t = bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
@@ -55,18 +59,7 @@ class BaubleApp:
 #            "when trying to create a SQLite database on a network drive. " \
 #            "Try creating the database in a local drive or folder."
 #            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        # refresh the search view
-        if self.gui is not None:
-            view = self.gui.get_current_view()
-            view.refresh_search()
-#        debug('leaving')
-    #
-    # tracing execution 
-    #
-    def mytrace(self, statement, binding):
-        "Called just before executing each statement"
-        print "SQL:",statement
-        return True
+
     
     def set_busy(self, busy):
         if self.gui is None:
@@ -82,8 +75,9 @@ class BaubleApp:
         template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
         return template % params
                           
-        
-    def open_database(self, uri, name=None, before_main=False):        
+                          
+    @classmethod
+    def open_database(klass, uri, name=None):        
         """
         open a database connection
         """
@@ -137,8 +131,8 @@ class BaubleApp:
                       'database.  You like to try to create the database '\
                       'again?' + warning
                 if utils.yes_no_dialog(msg):
-                    self.create_database()
-                    return self.open_database(uri, name, before_main)
+                    klass.create_database()
+                    return klass.open_database(uri, name)
                 else:
                     return None
                         
@@ -148,13 +142,12 @@ class BaubleApp:
                   "wasn't created using Bauble. Would you like to create a " \
                   "create a database at this connection?" + warning
             if utils.yes_no_dialog(msg):
-                self.create_database()
-                return self.open_database(uri, name, before_main)
+                klass.create_database()
+                return klass.open_database(uri, name)
             else:
                 return False
-    	self.conn_name = name
+    	klass.conn_name = name
         return sqlhub.processConnection
-        
         
         
     def destroy(self, widget, data=None):
@@ -196,7 +189,7 @@ class BaubleApp:
             conn_name, uri = cm.start()
             if conn_name is None:
                 self.quit()
-            if self.open_database(uri, conn_name, True):
+            if self.open_database(uri, conn_name):
                 break
                                 
         # now that we have a connection create the gui

@@ -47,7 +47,8 @@ tables = {}
 def init_plugins():
     """
     initialized all the plugins in plugins
-    """    
+    """
+    load()
     for p in plugins.values():
         p.init()
     
@@ -277,5 +278,5 @@ class BaubleTool(object):
 #def init_module():
 #    load()
 #init_module()
-load()
+#load()
     
