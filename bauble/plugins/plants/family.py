@@ -28,8 +28,7 @@ class Family(BaubleTable):
     notes = StringCol(default=None)
     
     # indices
-    family_index = DatabaseIndex('family', 'qualifier', unique=True)
-    
+    family_index = DatabaseIndex('family', 'qualifier', unique=True)    
     
     # joins
     synonyms = MultipleJoin('FamilySynonym', joinColumn='family_id')    

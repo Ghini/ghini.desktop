@@ -34,11 +34,10 @@ class Species(BaubleTable):
     #                             'infrasp_author', 'infrasp_rank')
     sp = StringCol(length=40, notNull=True)          # specific epithet
     sp_author = UnicodeCol(default=None)  # species author    
-    sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None) 
-    
-    
+    sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
     sp_qual = EnumCol(enumValues=("agg.", "s.lat.", "s. str.", None), 
                       default=None)                                                
+    
     cv_group = StringCol(length=50, default=None)    # cultivar group                        
     infrasp = StringCol(length=30, default=None)         # intraspecific epithet
     infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
@@ -51,22 +50,7 @@ class Species(BaubleTable):
     cv. - cultivar
     '''
     infrasp_rank = EnumCol(enumValues=("subsp.", "var.", "subvar.", "f.", 
-                                       "subf.",  "cv.", None), default=None)
-#    isp = StringCol(length=30, default=None)         # intraspecific epithet
-#    isp_author = UnicodeCol(length=255, default=None) # intraspecific author
-#    # intraspecific rank
-#    isp_rank = EnumCol(enumValues=("subsp.", # subspecies
-#                                   "var.",   # variety
-#                                   "subvar.", # sub variety
-#                                   "f.",     # form
-#                                   "subf.",  # subform
-#                                   "cv.",    # cultivar
-#                                   None), 
-#                       default=None)
-
-    
-    #rank_qual = StringCol(length=1, default=None) # rank qualifier, a single
-    # character
+                                       "subf.",  "cv.", None), default=None)    
     '''
     "aff.", # Akin to or bordering
     "cf.", # compare with
@@ -80,10 +64,12 @@ class Species(BaubleTable):
     notes = UnicodeCol(default=None)
     
     # foreign keys
+    #
     default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
                                          #cascade=True)
     genus = ForeignKey('Genus', notNull=True, cascade=False)
-    #
+    
+
     # joins
     #
     # hold meta information about this plant
