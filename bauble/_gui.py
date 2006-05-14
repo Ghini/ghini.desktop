@@ -1,8 +1,6 @@
 #
 # gui.py
 #
-# Description: TODO: finish the descriptions and check the other files have
-#
 
 import os, sys, time, re
 import gtk, gobject

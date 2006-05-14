@@ -12,12 +12,9 @@ class Donation(BaubleTable):
     
     # don't allow donor to be deleted if donor still has donations
     donor = ForeignKey('Donor', notNull=True, cascade=False)                        
-    # TODO: need to add the data for 0.5.0 and need to update the donation
-    # editor and donation infobox to support it
-    # date = DateCol()
-
     donor_acc = StringCol(length=12, default=None) # donor's accession id    
     notes = UnicodeCol(default=None) # ??? random text, memo
+    date = DateCol(notNull=True)
     
     # we'll have to set a default to none here because of the way our editors
     # are set up have to commit this table and then set the foreign key later,

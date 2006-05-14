@@ -35,6 +35,7 @@ class Donor(BaubleTable):
                             
     name = UnicodeCol(length=72, alternateID=True)
     donations = MultipleJoin('Donation', joinColumn='donor_id')
+
     
     # contact information
     # TOD0: these should be unicode as well

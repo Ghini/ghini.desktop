@@ -94,7 +94,7 @@ def migrate_accession(filename):
 
 
 def migrate_donor(filename):
-    columns = ("id","fax","tel","name","donor_type","address","email")
+    columns = ["id","fax","tel","name","donor_type","address","email"]
     rx = build_line_regex(columns)
     outfile = open_outfile(filename)
     outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
@@ -124,6 +124,22 @@ def migrate_plant(filename):
         if m['acc_status'] == '"<not set>"':
             new_line['acc_status'] = ''
         outfile.write(line_template % new_line)
+    
+    
+def migrate_donation(filename):
+    columns = ["id","accessionID","notes","donor_acc","donorID"]
+    rx = build_line_regex(columns)
+    outfile = open_outfile(filename)    
+    new_columns = columns + ['date']
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
+    line_template = build_line_template(new_columns)
+    for line in open(filename).readlines()[1:]:
+        line = line.strip()
+        m = rx.match(line).groupdict()    
+        new_line = m.copy()        
+        new_line['date'] = '1900-01-01'
+        outfile.write(line_template % new_line)
+    
     
 def migrate_family(filename):
     columns = ["id","notes","family"]
@@ -209,7 +225,8 @@ migration_map = {'Accession.txt': migrate_accession,
                  'Donor.txt': migrate_donor,
                  'Species.txt': migrate_species,
                  'Family.txt': migrate_family,
-                 'Family.txt': migrate_genus
+                 'Genus.txt': migrate_genus,
+                 'Donation.txt': migrate_donation
                  }
 
 print 'migrating...'

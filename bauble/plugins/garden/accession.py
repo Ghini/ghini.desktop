@@ -303,6 +303,7 @@ class CollectionPresenter(GenericEditorPresenter):
     def _get_column_validator(self, column):
         return self.model.columns[column].validator
         
+        
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
@@ -348,7 +349,11 @@ class CollectionPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             if field[-2:] == "ID":
                 field = field[:-2]
-            self.view.set_widget_value(widget, self.model[field],
+            value = self.model[field]
+#            debug('%s, %s, %s' % (widget, field, value))
+            if value is not None and field == 'coll_date':
+                value = '%s/%s/%s' % (value.day, value.month, value.year)
+            self.view.set_widget_value(widget, value,
                                        self.defaults.get(field, None))         
         #lat_dms_label
         latitude = self.model.latitude
@@ -561,8 +566,9 @@ class DonationPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'donor_combo': 'donor',
                            'donid_entry': 'donor_acc',
-                           'donnotes_entry': 'notes'}    
-    
+                           'donnotes_entry': 'notes',
+                           'don_date_entry': 'date'}    
+    PROBLEM_INVALID_DATE = 3
     
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)        
@@ -578,10 +584,50 @@ class DonationPresenter(GenericEditorPresenter):
         self.assign_simple_handler('donid_entry', 'donor_acc')
         self.assign_simple_handler('donnotes_entry', 'notes')
         self.assign_simple_handler('donor_combo', 'donor')
+        don_date_entry = self.view.widgets.don_date_entry
+        don_date_entry.connect('insert-text', self.on_date_entry_insert)
+        don_date_entry.connect('delete-text', self.on_date_entry_delete)
         self.view.widgets.don_new_button.connect('clicked', 
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
+        
+        
+    def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_date_from_text(full_text)
+        
+
+    def on_date_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_date_from_text(full_text)
+        
+
+    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+    def _set_date_from_text(self, text):
+        bg_color = None
+        m = self._date_regex.match(text)
+        dt = None # datetime
+        if m is None:
+            self.problems.add(self.PROBLEM_INVALID_DATE)            
+            bg_color = gtk.gdk.color_parse("red")
+        else:
+            try:
+                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                        m.group('day')]]            
+                dt = datetime(*ymd)            
+                self.problems.remove(self.PROBLEM_INVALID_DATE)
+            except:
+                self.problems.add(self.PROBLEM_INVALID_DATE)
+                
+        self.model.date = dt
+        e = self.view.widgets.don_date_eventbox
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
         
         
     def on_don_new_clicked(self, button, data=None):
@@ -631,22 +677,26 @@ class DonationPresenter(GenericEditorPresenter):
                 
            
     def refresh_view(self):
-        model = gtk.ListStore(object)
+        model = gtk.ListStore(object)        
         for value in tables['Donor'].select():
             model.append([value])
-        self.view.widgets.donor_combo.set_model(model)
-        
+        donor_combo = self.view.widgets.donor_combo
+        #donor_combo.clear()
+        donor_combo.set_model(model)        
         if len(model) == 1: # only one to choose from
-            donor_combo.set_active(0)    
+            donor_combo.set_active(0)
         
         # TODO: what if there is a donor id in the source but the donor
         # doesn't exist        
         for widget, field in self.widget_to_field_map.iteritems():
             if field[-2:] == "ID":
                 field = field[:-2]
-#            debug("%s: %s = %s" % (widget, field, self.model[field]))
+            value = self.model[field]
+#            debug('%s, %s, %s' % (widget, field, value))
+            if value is not None and field == 'date':
+                value = '%s/%s/%s' % (value.day, value.month, value.year)
             default = self.defaults.get(field, None)
-            self.view.set_widget_value(widget, self.model[field], default)
+            self.view.set_widget_value(widget, value, default)
         
 
 
@@ -707,6 +757,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view    
         # connect methods that watch for change now that we have 
         # refreshed the view
+        #
+        # TODO: need alot of work on species entry, should change colors if
+        # a species isn't selected and one is selected but then if something
+        # changes then it should invalidate again
+        #
         self.view.widgets.species_entry.connect('insert-text', 
                                                 self.on_insert_text, 'species')
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
@@ -730,7 +785,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        debug('acc:date_insert: %s' % full_text)
+#        debug('acc:date_insert: %s' % full_text)
         self._set_acc_date_from_text(full_text)
         
 
@@ -954,8 +1009,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():            
             if field[-2:] == "ID":
                 field = field[:-2]
-#            debug('refresh(%s, %s=%s)' % (widget, field, self.model[field]))
-            self.view.set_widget_value(widget, self.model[field],
+            value = self.model[field]
+#            debug('%s, %s, %s' % (widget, field, value))
+            if value is not None and field == 'date':
+                value = '%s/%s/%s' % (value.day, value.month, value.year)
+            self.view.set_widget_value(widget, value, 
                                        self.defaults.get(field, None))         
     
                 
@@ -1144,8 +1202,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 try:
     import os
     import bauble.paths as paths
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
-        set_widget_value        
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
 except ImportError:
     pass
 else:
@@ -1166,10 +1223,10 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', 
+            utils.set_widget_value(self.glade_xml, 'name_data', 
 			     row.species.markup(True))
-            set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
-            set_widget_value(self.glade_xml, 'prov_data',row.prov_type, False)
+            utils.set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
+            utils.set_widget_value(self.glade_xml, 'prov_data',row.prov_type, False)
             
             
     class NotesExpander(InfoExpander):
@@ -1186,7 +1243,7 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'notes_data', row.notes)            
+            utils.set_widget_value(self.glade_xml, 'notes_data', row.notes)            
     
     
     class SourceExpander(InfoExpander):
@@ -1198,7 +1255,7 @@ else:
         
         def update_collections(self, collection):
             
-            set_widget_value(self.glade_xml, 'loc_data', collection.locale)
+            utils.set_widget_value(self.glade_xml, 'loc_data', collection.locale)
             
             geo_accy = collection.geo_accy
             if geo_accy is None:
@@ -1208,30 +1265,30 @@ else:
             
             # TODO: should probably show the DMS format here as well
             if collection.latitude is not None:
-                set_widget_value(self.glade_xml, 'lat_data',
+                utils.set_widget_value(self.glade_xml, 'lat_data',
                                  '%.2f %s' %(collection.latitude, geo_accy))
             if collection.longitude is not None:
-                set_widget_value(self.glade_xml, 'lon_data',
+                utils.set_widget_value(self.glade_xml, 'lon_data',
                                 '%.2f %s' %(collection.longitude, geo_accy))                                
             
             v = collection.elevation
 
             if collection.elevation_accy is not None:
                 v = '%s (+/- %sm)' % (v, collection.elevation_accy)
-            set_widget_value(self.glade_xml, 'elev_data', v)
+            utils.set_widget_value(self.glade_xml, 'elev_data', v)
             
-            set_widget_value(self.glade_xml, 'coll_data', collection.collector)
-            set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
-            set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
-            set_widget_value(self.glade_xml,'habitat_data', collection.habitat)
-            set_widget_value(self.glade_xml,'collnotes_data', collection.notes)
+            utils.set_widget_value(self.glade_xml, 'coll_data', collection.collector)
+            utils.set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
+            utils.set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
+            utils.set_widget_value(self.glade_xml,'habitat_data', collection.habitat)
+            utils.set_widget_value(self.glade_xml,'collnotes_data', collection.notes)
             
                 
         def update_donations(self, donation):
-            set_widget_value(self.glade_xml, 'donor_data', 
+            utils.set_widget_value(self.glade_xml, 'donor_data', 
                              tables['Donor'].get(donation.donorID).name)
-            set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
-            set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
+            utils.set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
+            utils.set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
         
         
         def update(self, value):        

@@ -13,6 +13,7 @@ from bauble.plugins import tables
 # utils instead, we need to set some type of deprecation warning on using this
 # method and move it completely by 0.5.0
 def set_widget_value(glade_xml, widget_name, value, markup=True):
+    debug('DeprecationWarning: use set_widget_value from the utils modules')
     utils.set_widget_value(glade_xml, widget_name, value, markup, default='--')
 
 # TODO: need some way to handle multiple join, maybe display some 

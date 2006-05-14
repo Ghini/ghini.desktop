@@ -19,6 +19,8 @@ from bauble.utils.log import log, debug
 # TODO: when you start and there are no connections defined then make the user
 # create a connection or at least inform them
 
+# TODO: should redo this to use a model view presenter pattern like the new 
+# editors, makes it easier to handle things like status on the entries
 
 class ConnectionManager:
     
