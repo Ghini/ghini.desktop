@@ -139,6 +139,22 @@ def migrate_family(filename):
         new_line['qualifier'] = '""'
         outfile.write(line_template % new_line)
         
+        
+def migrate_genus(filename):
+    columns = ["id","familyID","notes","genus","hybrid","author"]
+    rx = build_line_regex(columns)
+    outfile = open_outfile(filename)    
+    new_columns = columns + ['qualifier']
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
+    line_template = build_line_template(new_columns)
+    for line in open(filename).readlines()[1:]:
+        line = line.strip()
+        m = rx.match(line).groupdict()
+        new_line = m.copy()        
+        new_line['qualifier'] = '""'
+        outfile.write(line_template % new_line)
+        
+        
 def migrate_species(filename):
     columns = ["id","sp","default_vernacular_nameID","notes","isp","id_qual",
                "sp_author","isp_rank","isp_author","genusID","cv_group",
@@ -193,6 +209,7 @@ migration_map = {'Accession.txt': migrate_accession,
                  'Donor.txt': migrate_donor,
                  'Species.txt': migrate_species,
                  'Family.txt': migrate_family,
+                 'Family.txt': migrate_genus
                  }
 
 print 'migrating...'

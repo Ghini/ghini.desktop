@@ -43,7 +43,13 @@ class Genus(BaubleTable):
      +        An Intergeneric Graft Hybrid or Graft Chimaera
     '''
     hybrid = EnumCol(enumValues=("H", "x", "+", None), default=None) 
-                            
+    '''    
+    The qualifier field designates the botanical status of the genus.
+    Possible values:
+        s. lat. - aggregrate family (sensu lato)
+        s. str. segregate family (sensu stricto)
+    '''
+    qualifier = EnumCol(enumValues=('s. lat.', 's. str.', None), default=None)
     author = UnicodeCol(length=255, default=None)
     notes = StringCol(default=None)
     
@@ -101,6 +107,7 @@ class GenusEditor(TreeViewEditorDialog):
                   'author': 'Author',
                   'hybrid': 'Hybrid',
                   'familyID': 'Family',
+                  'qualifier': 'Qualifier',
                   'notes': 'Notes',
                   'synonyms': 'Synonyms'}
         self.columns.titles = titles
