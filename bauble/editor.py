@@ -596,7 +596,9 @@ class TableEditor(BaubleEditor):
 
     standalone = True
     
-    def __init__(self, table, select=None, defaults={}, parent=None):
+    # the model parameter is only there to support the transition to the new
+    # editor interface
+    def __init__(self, table, select=None, defaults={}, parent=None, model=None):
         '''
         parent parameter added revision circa 242, allows
         any editor extending this class the set it modality properly

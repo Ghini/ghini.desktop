@@ -6,7 +6,7 @@ data_dir = '/home/brett/devel/bauble/data/'
 families_file = data_dir + 'csv/Family.txt'
 genera_file = data_dir + 'csv/Genera.txt'
 checklist_file = data_dir + 'old/belize_plants.txt'
-species_columns='"genusID","sp","sp_author","isp_rank","isp","isp_author","sp_hybrid"'
+species_columns='"genusID","sp","sp_author","infrasp_rank","infrasp","infrasp_author","sp_hybrid"'
 
 # synonyms to use for the checklist genera
 #generic_synonyms = {'Adenocalymna', Adenocalymma Mart. ex Meisn.
@@ -14,14 +14,14 @@ species_columns='"genusID","sp","sp_author","isp_rank","isp","isp_author","sp_hy
 # a plant class with support for parsing a plant name string
 # to contruct the object
 class Plant:
-    def __init__(self, genus=None, species=None, isp_rank=None, 
-                 isp=None, cv=None):
+    def __init__(self, genus=None, species=None, infrasp_rank=None, 
+                 infrasp=None, cv=None):
         self.genus = genus or ""
         self.species = species or ""
         self.species_author = ""
-        self.isp_rank = isp_rank or ""
-        self.isp_author =  ""
-        self.isp = isp or ""
+        self.infrasp_rank = infrasp_rank or ""
+        self.infrasp_author =  ""
+        self.infrasp = infrasp or ""
 #        self.cv = cv or ""
 #        self.is_cv = '' # HACK for this file only
         self.hybrid = ''
@@ -50,19 +50,19 @@ class Plant:
         self.hybrid = m.group("hybrid")
         self.species_author = m.group("author")
         
-        # check for isp_rank
+        # check for infrasp_rank
         if species.find("subsp.") != -1:
-            self.isp_rank = "subsp."
+            self.infrasp_rank = "subsp."
         elif species.find("var.") != -1:
-            self.isp_rank = "var."
+            self.infrasp_rank = "var."
             
-        if self.isp_rank is not "":
-            ispPart = partsList[1].strip();
+        if self.infrasp_rank is not "":
+            infraspPart = partsList[1].strip();
             m = re.match(
-                """\A(?P<isp>[\w]*)\s?
-                (?P<isp_author>.*)""", ispPart, re.VERBOSE)            
-            self.isp = m.group("isp")
-            self.isp_author = m.group("isp_author")
+                """\A(?P<infrasp>[\w]*)\s?
+                (?P<infrasp_author>.*)""", infraspPart, re.VERBOSE)            
+            self.infrasp = m.group("infrasp")
+            self.infrasp_author = m.group("infrasp_author")
 
     # return a dict with key, value pairs for each member that has a value
     # don't return key/values if the string is ""
@@ -100,8 +100,8 @@ class Plant:
         if self.species is not None:            
             s += " " + self.species
         else: s += " sp."
-        if self.isp_rank is not None:
-            s += " " + self.isp_rank + " " + self.isp
+        if self.infrasp_rank is not None:
+            s += " " + self.infrasp_rank + " " + self.infrasp
 #        if self.cv is not None:
 #            s += " " + self.cv
             
@@ -112,7 +112,7 @@ class Plant:
     def csv(self, with_family=False):
         """
         print out in comma separated values format with the following fields:
-        genus, species, species_author, isp_rank, isp, isp_author, cv, hybrid
+        genus, species, species_author, infrasp_rank, infrasp, infrasp_author, cv, hybrid
         """        
         csv = ""
         ft = "," # field terminated
@@ -127,8 +127,8 @@ class Plant:
         try:
             csv += field(self.species) + ft + \
                    field(self.species_author) + ft + \
-                   field(self.isp_rank)  + ft + \
-                   field(self.isp) + ft + field(self.isp_author)
+                   field(self.infrasp_rank)  + ft + \
+                   field(self.infrasp) + ft + field(self.infrasp_author)
         except UnicodeDecodeError, e:
             print sys.stderr.write(e)
             raise

@@ -214,7 +214,7 @@ class SearchView(BaubleView):
     give everything that matches either one\
     2. should follow some sort of precedence using AND, OR and parentheses
     3. if the search get too complicated we may have to define a language
-    4. search specifically by family, genus, sp, isp(x?), author,
+    4. search specifically by family, genus, sp, infrasp(x?), author,
     garden location, country/region or origin, conservation status, edible
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
     '''
@@ -647,6 +647,7 @@ class SearchView(BaubleView):
     # on and there's no icon to indicate children
     def on_activate_add_item(self, item, path, editor, defaults={}):
 	# on add we should collapse/expand  on the currently select row
+        debug(defaults)
         e = editor(defaults=defaults)
         committed = e.start()
         if committed is not None:
@@ -723,7 +724,8 @@ class SearchView(BaubleView):
             if other_class in self.view_meta:
                 editor_class = self.view_meta[other_class].editor # get editor 
                 if join.joinColumn[-3:] == "_id": 
-                    defaults[join.joinColumn.replace("_id", "ID")] = value
+                    defaults[join.joinColumn.replace("_id", "ID")] = value # with ID
+                    defaults[join.joinColumn.replace("_id", "")] = value # without ID for new editor
                     #defaults[join.joinColumn[:-3] + "ID"] = value        
                 add_item = gtk.MenuItem("Add " + join.joinMethodName)
                 add_item.connect("activate", self.on_activate_add_item,

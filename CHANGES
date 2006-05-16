@@ -1,3 +1,11 @@
+2006.05.16
+----------
+- fixed problems passing default values into new editors
+- fixed problem with arguments on old editors, added temporary fix for 
+old editors
+- workaround for weird bug with text entries and completions in the accession
+editor
+
 2006.05.14
 ----------
 - more model changes on family, genus and species

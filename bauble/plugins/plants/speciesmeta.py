@@ -67,10 +67,10 @@ class SpeciesMetaEditor(TableEditorDialog):
     standalone = False
     label = 'Species Meta'
     
-    def __init__(self, select=None, defaults={}):
+    def __init__(self, select=None, defaults={}, **kwargs):
         super(SpeciesMetaEditor, self).__init__(tables["SpeciesMeta"], 
                                                 'Species Meta Test', None,
-                                                select, defaults)
+                                                select, defaults, **kwargs)
         path = os.path.join(paths.lib_dir(), 'plugins', 'plants')
         self.glade_xml = gtk.glade.XML(path + os.sep + 'speciesmeta.glade')
         

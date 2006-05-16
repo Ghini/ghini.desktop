@@ -100,9 +100,10 @@ class GenusEditor(TreeViewEditorDialog):
     
     label = 'Genus'
     
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
         TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
-                                      parent, select=select, defaults=defaults)
+                                      parent, select=select, defaults=defaults,
+                                      **kwargs)
         titles = {'genus': 'Genus',
                   'author': 'Author',
                   'hybrid': 'Hybrid',
@@ -136,10 +137,10 @@ class GenusSynonymEditor(TreeViewEditorDialog):
     label = 'Genus Synonym'
     
     def __init__(self, parent=None, select=None, defaults={}):
-        TreeViewEditorDialog.__init__(self, tables["GenusSynonym"], \
+        TreeViewEditorDialog.__init__(self, tables["GenusSynonym"],
                                       "Genus Synonym Editor", 
-                                      parent, select=select, 
-                                      defaults=defaults)
+                                      parent, select=select, defaults=defaults, 
+                                      **kwargs)
         titles = {'synonymID': 'Synonym of Genus'}
                   
         # can't be edited as a standalone so the family should only be set by

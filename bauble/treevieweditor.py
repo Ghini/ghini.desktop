@@ -697,8 +697,10 @@ class TreeViewEditorDialog(TableEditorDialog):
     model = property(_get_model, _set_model)
         
 
+    # the model parameter is only here to support the transition to the new 
+    # editor interface
     def __init__(self, table, title="Table Editor", parent=None, select=None, 
-                 defaults={}):
+                 defaults={}, model=None):
         super(TreeViewEditorDialog, self).__init__(table, title, parent, 
                select, defaults)
         self.__view = None        

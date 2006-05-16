@@ -202,10 +202,10 @@ class AccessionEditorView(GenericEditorView):
         # configure species_entry
         completion = gtk.EntryCompletion()    
         completion.set_match_func(self.species_completion_match_func)        
-#        r = gtk.CellRendererText() # set up the completion renderer
-#        completion.pack_start(r)
-#        completion.set_cell_data_func(r, self.name_cell_data_func)        
-        completion.set_text_column(0)    
+        r = gtk.CellRendererText() # set up the completion renderer
+        completion.pack_start(r)
+        completion.set_cell_data_func(r, self.species_cell_data_func)        
+        #completion.set_text_column(0)    
         completion.set_minimum_key_length(2)
         # DONT DO INLINE COMPLETION, it can cause insert text to look up 
         # new and unneccessary completions and doesn't put the species id
@@ -239,8 +239,10 @@ class AccessionEditorView(GenericEditorView):
         '''
         value = completion.get_model()[iter][0]
         return str(value).lower().startswith(key_string.lower())         
-    
-        
+
+    def species_cell_data_func(self, column, renderer, model, iter, data=None):
+        v = model[iter][0]
+        renderer.set_property('text', str(v))        
 #    def name_cell_data_func(self, column, renderer, model, iter, data=None):
 #        '''
 #        render the values in the completion popup model
@@ -312,7 +314,6 @@ class CollectionPresenter(GenericEditorPresenter):
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
-#        self.assign_simple_handler('coll_date_entry', 'coll_date')
         self.assign_simple_handler('collid_entry', 'coll_id')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
                                    self._get_column_validator('geo_accy'))
@@ -354,7 +355,7 @@ class CollectionPresenter(GenericEditorPresenter):
             if value is not None and field == 'coll_date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value,
-                                       self.defaults.get(field, None))         
+                                       default=self.defaults.get(field, None))         
         #lat_dms_label
         latitude = self.model.latitude
         if latitude is not None:
@@ -372,6 +373,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 self.view.widgets.west_radio.set_active(True)
             else:
                 self.view.widgets.east_radio.set_active(True)
+            
             
     def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
@@ -696,7 +698,7 @@ class DonationPresenter(GenericEditorPresenter):
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             default = self.defaults.get(field, None)
-            self.view.set_widget_value(widget, value, default)
+            self.view.set_widget_value(widget, value, default=default)
         
 
 
@@ -744,6 +746,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
+        # defaults probably has both speciesID and species, see 
+        # SearchView.on_view_button_release
+        self.defaults.pop('speciesID', None) 
+        self.model.update(defaults)
+        debug(model)
         self.current_source_box = None
         self.source_presenter = None  
         self.problems = Problems()
@@ -763,7 +770,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # changes then it should invalidate again
         #
         self.view.widgets.species_entry.connect('insert-text', 
-                                                self.on_insert_text, 'species')
+                                                self.on_species_insert_text, 
+                                                'species')
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
                                              'prov_type')
         self.view.widgets.wild_prov_combo.connect('changed', 
@@ -831,18 +839,40 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # would these get cached?
         
         # column 0 holds the name of the plant while column 1 holds the id         
-        name = compl_model[iter][0]
+#        name = compl_model[iter][0]
+#        entry = self.view.widgets.species_entry
+#        entry.set_text(str(name))
+#        entry.set_position(-1)
+#        self.model.species = compl_model[iter][1]
+        species = compl_model[iter][0]
+        debug('selected: %s' % str(species))
         entry = self.view.widgets.species_entry
-        entry.set_text(str(name))
+        entry.set_text(str(species))
         entry.set_position(-1)
-        self.model.species = compl_model[iter][1]
+        self.model.species = species
 
 
-    def on_insert_text(self, entry, new_text, new_text_length, position, 
+    def on_species_entry_delete(self, entry, start, end, data=None):
+        #text = entry.get_text()
+        #full_text = text[:start] + text[end:]
+        #self._set_date_from_text(full_text)
+        pass
+        
+        
+    prev_text = ''
+    def on_species_insert_text(self, entry, new_text, new_text_length, position, 
                        data=None):
         # TODO: this is flawed since we can't get the index into the entry
         # where the text is being inserted so if the user inserts text into 
         # the middle of the string then this could break
+        debug('on_species_insert_text: \'%s\'' % new_text)
+        if new_text == '':
+            # this is to workaround the problem of having a second 
+            # insert-text signal called with new_text = '' when there is a 
+            # custom renderer on the entry completion for this entry
+            entry.set_text(self.prev_text)
+            return False
+            
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -852,6 +882,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.idle_add_species_completions(full_text)
         elif new_text_length > 2:# and entry_text != '':
             self.idle_add_species_completions(full_text[:2])
+        self.prev_text = full_text
             
             
     def init_species_entry(self):
@@ -874,13 +905,15 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             #self.view.widgets.accession_dialog.set_sensitive(False)
             n_gen = sr.count()
             n_sp = 0
-            model = gtk.ListStore(str, int)
+            #model = gtk.ListStore(str, int)
+            model = gtk.ListStore(object)
             for row in sr:    
                 if len(row.species) == 0: # give a bit of a speed up
                     continue
                 n_sp += len(row.species)
                 for species in row.species:                
-                    model.append([str(species), species.id])
+                    #model.append([str(species), species.id])
+                    model.append([species])
 #            debug('%s species in %s genera' % (n_sp, n_gen))
             completion = self.view.widgets.species_entry.get_completion()
             completion.set_model(model)
@@ -1011,10 +1044,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 field = field[:-2]
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
+#            debug('default: %s' % self.defaults.get(field, None))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value, 
-                                       self.defaults.get(field, None))         
+                                       default=self.defaults.get(field, None))
     
                 
     def start(self):
@@ -1059,6 +1093,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         '''
         # TODO: use this method to factor out some of the code from self.start
         pass
+    
     
     def start(self, commit_transaction=True):    
         not_ok_msg = 'Are you sure you want to lose your changes?'

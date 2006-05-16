@@ -10,7 +10,7 @@ from bauble.treevieweditor import TreeViewEditorDialog
 class Location(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = 'site'
+        defaultOrder = 'site'
 
     # should only need either loc_id or site as long as whichever one is 
     # unique, probably site, there is already and internal id
@@ -36,9 +36,10 @@ class LocationEditor(TreeViewEditorDialog):
 
     label = 'Location'
 
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
         TreeViewEditorDialog.__init__(self, Location, "Location Editor", 
-                                      parent,select=select, defaults=defaults)
+                                      parent,select=select, defaults=defaults,
+                                      **kwargs)
         # set headers
         titles = {"site": "Site",
                   "description": "Description"}

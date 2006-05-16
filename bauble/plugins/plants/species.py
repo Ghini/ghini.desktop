@@ -263,10 +263,11 @@ class SpeciesEditor(TreeViewEditorDialog):
     
     label = 'Species'
     
-    def __init__(self, parent=None, select=None, defaults={}):  
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):  
         TreeViewEditorDialog.__init__(self, tables["Species"],
                                       "Species Editor", parent,
-                                      select=select, defaults=defaults)
+                                      select=select, defaults=defaults, 
+                                      **kwargs)
         titles = {"genusID": "Genus",
 		  "sp": "Species",
 		  "sp_hybrid": "Sp. hybrid",
@@ -422,11 +423,11 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
     standalone = False
     label = 'Species Synonym'
     
-    def __init__(self, parent=None, select=None, defaults={}):        
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):        
         TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
                                       "Species Synonym Editor", 
                                       parent, select=select, 
-                                      defaults=defaults)
+                                      defaults=defaults, *kwargs)
         titles = {'synonymID': 'Synonym of Species'}
                   
         # can't be edited as a standalone so the species should only be set by
@@ -465,8 +466,7 @@ class SpeciesSynonymEditor(TreeViewEditorDialog):
     
     
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
-        set_widget_value
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
 except ImportError:
     pass
 else:
@@ -495,13 +495,15 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'name_data', row.markup(True))
-            set_widget_value(self.glade_xml, 'nacc_data', len(row.accessions))
+            utils.set_widget_value(self.glade_xml, 'name_data', 
+                                   row.markup(True))
+            utils.set_widget_value(self.glade_xml, 'nacc_data', 
+                                   len(row.accessions))
             
             nplants = 0
             for acc in row.accessions:
                 nplants += len(acc.plants)
-            set_widget_value(self.glade_xml, 'nplants_data', nplants)    
+            utils.set_widget_value(self.glade_xml, 'nplants_data', nplants)    
     
     
     class SpeciesInfoBox(InfoBox):

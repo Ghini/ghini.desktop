@@ -67,10 +67,11 @@ class FamilyEditor(TreeViewEditorDialog):
     
     label = 'Families'
     
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
         
         TreeViewEditorDialog.__init__(self, tables["Family"], "Family Editor", 
-                                      parent, select=select, defaults=defaults)
+                                      parent, select=select, defaults=defaults, 
+                                      **kwargs)
         titles = {'family': 'Family',
                   'notes': 'Notes',
                   'qualifier': 'Qualifier',
@@ -92,11 +93,11 @@ class FamilySynonymEditor(TreeViewEditorDialog):
     standalone = False
     label = 'Family Synonym'
     
-    def __init__(self, parent=None, select=None, defaults={}):        
-        TreeViewEditorDialog.__init__(self, tables["FamilySynonym"], \
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):        
+        TreeViewEditorDialog.__init__(self, tables["FamilySynonym"],
                                       "Family Synonym Editor", 
                                       parent, select=select, 
-                                      defaults=defaults)
+                                      defaults=defaults, **kwargs)
         titles = {'synonymID': 'Synonym of Family'}
                   
         # can't be edited as a standalone so the family should only be set by

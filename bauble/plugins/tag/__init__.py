@@ -142,7 +142,7 @@ class TagItemGUI:
 class Tag(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	orderBy = "tag"
+        orderBy = "tag"
 
     tag = UnicodeCol(alternateID=True)
     objects = MultipleJoin('TaggedObj', joinColumn='tag_id')

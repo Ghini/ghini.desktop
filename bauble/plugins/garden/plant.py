@@ -29,95 +29,55 @@ class Plant(BaubleTable):
 	       defaultOrder = 'plant_id'
 
     # add to end of accession id, e.g. 04-0002.05
-    # these are only unique when combined with an accession_id
-    values = {}
+    # these are only unique when combined with an accession_id, see the 
+    # id_index index    
     #plant_id = IntCol(notNull=True) 
     # makes sense that it should be an int but we won't restrict it that way,
     # if the editor wants to ensure that it is int then it should attach
     # a formencode.Validator on it
     plant_id = StringCol(notNull=True)
 
-    id_index = DatabaseIndex('plant_id', 'accession', unique=True)
-    # accession type
-#    acc_type = StringCol(length=4, default=None)
-#    values['acc_type'] = [('P', 'Whole plant'),
-#                          ('S', 'Seed or Sport'),
-#                          ('V', 'Vegetative Part'),
-#                          ('T', 'Tissue culture'),
-#                          ('O', 'Other')]
-    acc_type = EnumCol(enumValues=('Plant', # Whole plant
-                                   'Seed/Spore', # Seed or Spore
-                                   'Vegetative Part', # Vegetative Part
-                                   'Tissue Culture', # Tissue culture
-                                   'Other', # Other
-                                   None),
+
+    # Plant: Whole plant
+    # Seed/Spore: Seed or Spore
+    # Vegetative Part: Vegetative Part
+    # Tissue Culture: Tissue culture
+    # Other: Other, probably see notes for more information
+    # None: no information, unknown
+    acc_type = EnumCol(enumValues=('Plant', 'Seed/Spore', 'Vegetative Part', 
+                                   'Tissue Culture', 'Other', None),
                        default=None)
                           
-                          
-    # accession status
-#    acc_status = StringCol(length=6, default=None)
-#    values['acc_status'] = [('C', 'Current accession in living collection'),
-#                            ('D', 'Noncurrent accession due to Death'),
-#                            ('T', 'Noncurrent accession due to Transfer'),
-#                            ('S', 'Stored in dormant state'),
-#                            ('O', 'Other')]
-    acc_status = EnumCol(enumValues=('Living accession', # Current accession in living collection
-                                     'Dead', # Noncurrent accession due to Death
-                                     'Transfered', # Noncurrent accession due to Transfer
-                                     'Stored in dormant state', # Stored in dormant state
-                                     'Other', # Other
-                                     None),
+    # Accession Status
+    # Living accession: Current accession in living collection
+    # Dead: Noncurrent accession due to Death
+    # Transfered: Noncurrent accession due to Transfer
+    # Stored in dormant state: Stored in dormant state
+    # Other: Other, possible see notes for more information
+    # None: no information, unknown)
+    acc_status = EnumCol(enumValues=('Living accession', 'Dead', 'Transfered', 
+                                     'Stored in dormant state', 'Other', None),
                          default=None)
     
+    notes = UnicodeCol(default=None)
 
-    # foreign key and joins
+    # indices
+    #
+    id_index = DatabaseIndex('plant_id', 'accession', unique=True)
+    
+    # foreign key
+    # 
     accession = ForeignKey('Accession', notNull=True, cascade=False)
     location = ForeignKey("Location", notNull=True, cascade=False)
     
-    notes = UnicodeCol(default=None)
+    # joins
+    #
+    history = MultipleJoin('PlantHistory', joinColumn='plant_id')
     
-    #location = MultipleJoin("Locations", joinColumn="locations_id")
-    #mta_out = MultipleJoin("MaterialTransfers", joinColumn="genus_id")
-    
-    # these should only be at the accession level
-#    ver_level = StringCol(length=2, default=None) # verification level
-#    ver_name = StringCol(length=50, default=None) # verifier's name
-#    ver_date = DateTimeCol(default=None) # verification data
-#    ver_hist = StringCol(default=None)  # verification history
-#    ver_lit = StringCol(default=None) # verification list
-
-    # perrination flag, 2 letter code
-#    perr_flag = StringCol(length=2, default=None) 
-#    breed_sys = StringCol(length=3, default=None) # breeding system    
-    
-#    ADatePlant = DateTimeCol(default=None)
-#    ADateInspected = DateTimeCol(default=None)    
-    
-    # unknowns
-#    plantQual = IntCol(default=None)    # ?
-#    plantHeld = StringCol(length=50, default=None)    
-    #dater = DateTimeCol(default=None)
-    #datep = DateTimeCol(default=None)
-    #datei = DateTimeCol(default=None)
-    #Seedp = StringCol(length=50, default=None)
-    #Seedv = StringCol(length=1, default=None) # bool ?
-    #Seedl = BoolCol(default=None)
-    #ExchgM = StringCol(length=10, default=None)
-    #Specc = StringCol(length=1, default=None) # bool?
-    #MDate = DateTimeCol(default=None)
-    #MInfo = StringCol(default=None)
-    #culinf = StringCol(default=None)
-    #proinf = StringCol(default=None)
-    #PlantsComments = StringCol(default=None)
-    #LabelInfo = StringCol(default=None)
-    #PlantLifeForm = StringCol(length=50, default=None)
-    #InsCode = StringCol(length=6, default=None)
-    #ITFRec = BoolCol(default=None)
-    #Source1 = IntCol(default=None)
-    #Source2 = IntCol(default=None)
 
     def __str__(self): 
         return "%s.%s" % (self.accession, self.plant_id)
+    
     
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
@@ -138,9 +98,10 @@ class PlantEditor(TreeViewEditorDialog):
 
     label = 'Plants\\Clones'
 
-    def __init__(self, parent=None, select=None, defaults={}):
+    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
         TreeViewEditorDialog.__init__(self, Plant, "Plants/Clones Editor", 
-                                      parent, select=select, defaults=defaults)
+                                      parent, select=select, defaults=defaults,
+                                      **kwargs)
         # set headers
         titles = {'plant_id': 'Plant ID',
                    'accessionID': 'Accession ID',

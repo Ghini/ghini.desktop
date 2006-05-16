@@ -104,14 +104,15 @@ class VernacularNameEditor(TreeViewEditorDialog):
 
 
     def __init__(self, parent=None, select=None, default_name=None,
-                 defaults={}):
+                 defaults={}, **kwargs):
         '''
         default_id is the id of the row in select that should be set as the 
         default name
         '''
         TreeViewEditorDialog.__init__(self, VernacularName, 
                                       "Vernacular Name Editor", parent,
-                                      select=select, defaults=defaults)
+                                      select=select, defaults=defaults, 
+                                      **kwargs)
         # set headers
         titles = {"name": "Name",
                   "language": "Language",
