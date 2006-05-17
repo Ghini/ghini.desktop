@@ -12,7 +12,7 @@ class Donation(BaubleTable):
     
     # don't allow donor to be deleted if donor still has donations
     donor = ForeignKey('Donor', notNull=True, cascade=False)                        
-    donor_acc = StringCol(length=12, default=None) # donor's accession id    
+    donor_acc = UnicodeCol(length=32, default=None) # donor's accession id    
     notes = UnicodeCol(default=None) # ??? random text, memo
     date = DateCol(notNull=True)
     

@@ -16,6 +16,7 @@ class Donor(BaubleTable):
     class sqlmeta(BaubleTable.sqlmeta):
         defaultOrder = 'name'
     
+    name = UnicodeCol(length=72, alternateID=True)
     donor_type = EnumCol(enumValues=('Expedition', # Expedition
                                      "Gene bank", # Gene bank
                                      "Botanic Garden or Arboretum", # Botanic Garden or Arboretum
@@ -31,18 +32,14 @@ class Donor(BaubleTable):
                                      None),
                                       # Unknown
                           default=None)
-                         
-                            
-    name = UnicodeCol(length=72, alternateID=True)
+                             
     donations = MultipleJoin('Donation', joinColumn='donor_id')
-
     
     # contact information
-    # TOD0: these should be unicode as well
-    address = StringCol(default=None)
-    email = StringCol(default=None)
-    fax = StringCol(default=None)
-    tel = StringCol(default=None)
+    address = UnicodeCol(default=None)
+    email = UnicodeCol(default=None)
+    fax = UnicodeCol(default=None)
+    tel = UnicodeCol(default=None)
     
     def __str__(self):
         return self.name
@@ -116,12 +113,11 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 
 
-
 class DonorEditor(GenericModelViewPresenterEditor):
     
     label = 'Donors'
     RESPONSE_NEXT = 22
-    ok_responses = (RESPONSE_NEXT)
+    ok_responses = (RESPONSE_NEXT,)
     
     def __init__(self, model=Donor, defaults={}, parent=None, **kwargs):
         '''
@@ -135,33 +131,14 @@ class DonorEditor(GenericModelViewPresenterEditor):
         self.view = DonorEditorView(parent=parent)
         self.presenter = DonorEditorPresenter(self.model, self.view, defaults)
             
+            
     def commit_changes(self):
         committed = None
         if self.model.dirty:
             committed = self._commit(self.model)
         return committed
         
-            
 
-
-#class DonorEditor_old(TreeViewEditorDialog):
-#
-#    visible_columns_pref = "editor.donor.columns"
-#    column_width_pref = "editor.donor.column_width"
-#
-#    label = 'Donors'
-#
-#    def __init__(self, parent=None, select=None, defaults={}):
-#        TreeViewEditorDialog.__init__(self, Donor, "Donor Editor", 
-#                                      parent, select=select, defaults=defaults)
-#        titles = {"name": "Name",
-#                  "donor_type": "Donor Type",
-#                  'address': 'Address',
-#                  'email': 'Email',
-#                  'fax': 'Fax #',
-#                  'tel': 'Tel #'
-#                 }
-#        self.columns.titles = titles
         
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \

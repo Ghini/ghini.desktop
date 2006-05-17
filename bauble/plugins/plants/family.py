@@ -25,7 +25,7 @@ class Family(BaubleTable):
         s. str. segregate family (sensu stricto)
     '''
     qualifier = EnumCol(enumValues=('s. lat.', 's. str.', None), default=None)
-    notes = StringCol(default=None)
+    notes = UnicodeCol(default=None)
     
     # indices
     family_index = DatabaseIndex('family', 'qualifier', unique=True)    

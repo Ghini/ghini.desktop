@@ -84,10 +84,8 @@ class Accession(BaubleTable):
     class sqlmeta(BaubleTable.sqlmeta):
 	       defaultOrder = 'acc_id'
 
-    values = {} # dictionary of values to restrict to columns
-    acc_id = StringCol(length=20, notNull=True, alternateID=True)
-    
-    
+    acc_id = UnicodeCol(length=20, notNull=True, alternateID=True)
+        
     prov_type = EnumCol(enumValues=("Wild", # Wild,
                                     "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
                                     "Not of wild source", # Not of wild source
@@ -105,11 +103,31 @@ class Accession(BaubleTable):
                                            None),
                                default=None)
     
-    #TODO: need to provide a date field for when the accession was accessioned
+    # date accessioned
     date = DateCol(notNull=True)
     
+    # indicates wherewe should get the source information from either of those 
+    # columns
+    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
+                          default=None)                   
+    notes = UnicodeCol(default=None)    
     
-    # propagation history ???
+    # foriegn keys
+    #
+    species = ForeignKey('Species', notNull=True, cascade=False)    
+    
+    # joins
+    #
+    _collection = SingleJoin('Collection', joinColumn='accession_id')
+    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
+    plants = MultipleJoin("Plant", joinColumn='accession_id')    
+    
+    
+    # these probably belong in separate tables with a single join
+    #cultv_info = StringCol(default=None)      # cultivation information
+    #prop_info = StringCol(default=None)       # propogation information
+    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
+       # propagation history ???
     #prop_history = StringCol(length=11, default=None)
 
     # accession lineage, parent garden code and acc id ???
@@ -134,34 +152,6 @@ class Accession(BaubleTable):
     # of this accession in some sort of conservation program
     #consv_status = StringCol(default=None) # conservation status, free text
     
-    # foreign keys and joins
-    species = ForeignKey('Species', notNull=True, cascade=False)
-    plants = MultipleJoin("Plant", joinColumn='accession_id')
-    
-    # these should probably be hidden then we can do some trickery
-    # in the accession editor to choose where a collection or donation
-    # source, the source will contain one of collection or donation
-    # tables
-    # 
-    # holds the string 'Collection' or 'Donation' which indicates where
-    # we should get the source information from either of those columns
-    # this is the old column def
-    #source_type = StringCol(length=64, default=None)    
-    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
-                          default=None)
-                            
-    # the source type says whether we should be looking at the 
-    # _collection or _donation joins for the source info
-    #_collection = SingleJoin('Collection', joinColumn='accession_id', makeDefault=None)
-    _collection = SingleJoin('Collection', joinColumn='accession_id')
-    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
-        
-    notes = UnicodeCol(default=None)
-    
-    # these probably belong in separate tables with a single join
-    #cultv_info = StringCol(default=None)      # cultivation information
-    #prop_info = StringCol(default=None)       # propogation information
-    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
     
     def __str__(self): 
         return self.acc_id
@@ -738,6 +728,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'source_type_combo': 'source_type',}
     
     PROBLEM_INVALID_DATE = 3
+    PROBLEM_INVALID_SPECIES = 4
     
     def __init__(self, model, view, defaults={}):
         '''
@@ -750,7 +741,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # SearchView.on_view_button_release
         self.defaults.pop('speciesID', None) 
         self.model.update(defaults)
-        debug(model)
+#        debug(model)
         self.current_source_box = None
         self.source_presenter = None  
         self.problems = Problems()
@@ -770,7 +761,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # changes then it should invalidate again
         #
         self.view.widgets.species_entry.connect('insert-text', 
-                                                self.on_species_insert_text, 
+                                                self.on_species_entry_insert, 
+                                                'species')
+        self.view.widgets.species_entry.connect('delete-text', 
+                                                self.on_species_entry_delete, 
                                                 'species')
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
                                              'prov_type')
@@ -828,6 +822,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         e.queue_draw()
         
         
+    # the previous value that was in the species entry, this is for a 
+    # workaround for how entry completion works
+    prev_species_text = ''
+        
     def on_species_match_selected(self, completion, compl_model, iter):
         '''
         put the selected value in the model
@@ -845,31 +843,45 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #        entry.set_position(-1)
 #        self.model.species = compl_model[iter][1]
         species = compl_model[iter][0]
-        debug('selected: %s' % str(species))
+#        debug('selected: %s' % str(species))
         entry = self.view.widgets.species_entry
         entry.set_text(str(species))
         entry.set_position(-1)
+        e = self.view.widgets.species_entry_eventbox
+        e.modify_bg(gtk.STATE_NORMAL, None)
+        e.queue_draw()
+        self.problems.remove(self.PROBLEM_INVALID_SPECIES)
         self.model.species = species
+        self.prev_text = str(species)
 
 
     def on_species_entry_delete(self, entry, start, end, data=None):
-        #text = entry.get_text()
-        #full_text = text[:start] + text[end:]
-        #self._set_date_from_text(full_text)
-        pass
+#        debug('on_species_delete: \'%s\'' % entry.get_text())        
+#        debug(self.model.species)
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        if full_text == '' or (full_text == str(self.model.species)):
+            return
+        e = self.view.widgets.species_entry_eventbox
+        bg_color = gtk.gdk.color_parse("red")
+        e.modify_bg(gtk.STATE_NORMAL, bg_color)
+        e.queue_draw()
+        self.problems.add(self.PROBLEM_INVALID_SPECIES)
+        self.model.species = None
         
-        
-    prev_text = ''
-    def on_species_insert_text(self, entry, new_text, new_text_length, position, 
+    
+    def on_species_entry_insert(self, entry, new_text, new_text_length, position, 
                        data=None):
         # TODO: this is flawed since we can't get the index into the entry
         # where the text is being inserted so if the user inserts text into 
         # the middle of the string then this could break
-        debug('on_species_insert_text: \'%s\'' % new_text)
+#        debug('on_species_insert_text: \'%s\'' % new_text)
+#        debug(self.model.species)
         if new_text == '':
             # this is to workaround the problem of having a second 
             # insert-text signal called with new_text = '' when there is a 
             # custom renderer on the entry completion for this entry
+#            debug('set from prev: %s' % self.prev_text)
             entry.set_text(self.prev_text)
             return False
             
@@ -883,13 +895,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         elif new_text_length > 2:# and entry_text != '':
             self.idle_add_species_completions(full_text[:2])
         self.prev_text = full_text
+        
+        if full_text != str(self.model.species):
+            bg_color = gtk.gdk.color_parse("red")
+            e = self.view.widgets.species_entry_eventbox
+            e.modify_bg(gtk.STATE_NORMAL, bg_color)
+            e.queue_draw()
+            self.problems.add(self.PROBLEM_INVALID_SPECIES)
+        self.model.species = None
             
             
     def init_species_entry(self):
         completion = self.view.widgets.species_entry.get_completion()
         completion.connect('match-selected', self.on_species_match_selected)
-        if self.model.isinstance:
-#            debug(self.model['species'].genus)
+        if self.model.species is not None:
             genus = self.model['species'].genus
             self.idle_add_species_completions(str(genus)[:2])
         
@@ -922,7 +941,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, field):
-#        debug('on field changed: %s' % field)
+#        debug('on field changed: %s = %s' % (field, self.model[field]))
+#        debug(self.problems)
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False

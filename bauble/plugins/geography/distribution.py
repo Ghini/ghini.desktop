@@ -25,9 +25,10 @@ from bauble.editor import TableEditor
 class Continent(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = "continent"
+        defaultOrder = "continent"
 
-    continent = StringCol(length=24, alternateID=True)
+    #continent = StringCol(length=24, alternateID=True)
+    continent = UnicodeCol(length=24, alternateID=True)
     code = IntCol(alternateID=True)
     
     regions = MultipleJoin('Region', joinColumn='continent_id')
@@ -40,7 +41,7 @@ class Continent(BaubleTable):
 class Region(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = "region"
+        defaultOrder = "region"
     
     region = UnicodeCol(length=64, alternateID=True)
     code = IntCol(alternateID=True)
@@ -60,14 +61,14 @@ class BotanicalCountry(BaubleTable):
 #    class sqlmeta(BaubleTable.sqlmeta):
 #	defaultOrder = "name"
     class sqlmeta:
-	defaultOrder = "name"
+        defaultOrder = "name"
     
     name = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=5, alternateID=True)
     #area = StringCol(length=64)
 
     iso_code = StringCol(length=4, default=None)
-    ed2_status = StringCol(length=64, default=None)
+    ed2_status = UnicodeCol(length=64, default=None)
     notes = StringCol(default=None)
     
     region = ForeignKey('Region', cascade=False)
@@ -81,12 +82,12 @@ class BotanicalCountry(BaubleTable):
 class BasicUnit(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = "name"
+        defaultOrder = "name"
     
     name = UnicodeCol(length=64)
     code = StringCol(length=8, alternateID=True)
     iso_code = StringCol(length=8)
-    ed2_status = StringCol(length=64, default=None)
+    ed2_status = UnicodeCol(length=64, default=None)
     notes = UnicodeCol(default=None)
     
     botanical_country = ForeignKey('BotanicalCountry', cascade=False)
@@ -100,14 +101,13 @@ class Area(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
 	defaultOrder = "area"
-	
-    
+	    
     area = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=5, alternateID=True)
     
     iso_code = StringCol(length=4, default=None)
-    ed2_status = StringCol(length=64, default=None)
-    notes = StringCol(default=None)
+    ed2_status = UnicodeCol(length=64, default=None)
+    notes = UnicodeCol(default=None)
     
     region = ForeignKey('Region', cascade=False)
     states = MultipleJoin('State', joinColumn='area_id')
@@ -121,12 +121,12 @@ class Area(BaubleTable):
 class State(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = "state"
+        defaultOrder = "state"
     
     state = UnicodeCol(length=64, alternateID=True)
     code = StringCol(length=8, alternateID=True)
     iso_code = StringCol(length=8)
-    ed2_status = StringCol(length=64, default=None)
+    ed2_status = UnicodeCol(length=64, default=None)
     notes = UnicodeCol(default=None)
     
     area = ForeignKey('Area', cascade=False)
@@ -140,7 +140,7 @@ class State(BaubleTable):
 class Place(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
-	defaultOrder = "place"
+        defaultOrder = "place"
     
     # TODO: if this is None then i think it means cultivated, should really do
     # something about this
@@ -181,7 +181,7 @@ class KewRegion(BaubleTable):
     # that its cultivated and its origin is unknown, neother code or region
     # should really be None
     code = IntCol(default=None, alternateID=True)
-    region = StringCol(length=64, default=None)
+    region = UnicodeCol(length=64, default=None)
     subdiv = StringCol(length=1, default=None)
     
     places = MultipleJoin('Place', joinColumn='kew_region_id')

@@ -51,7 +51,7 @@ class Genus(BaubleTable):
     '''
     qualifier = EnumCol(enumValues=('s. lat.', 's. str.', None), default=None)
     author = UnicodeCol(length=255, default=None)
-    notes = StringCol(default=None)
+    notes = UnicodeCol(default=None)
     
     # indices
     # we can't do this right now unless we do more work on 

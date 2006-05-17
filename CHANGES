@@ -1,3 +1,17 @@
+2006.05.17
+----------
+- fixed problem with setting the completion when a species is passed to an 
+accession editor
+- the species entry on the accession editor now shows if the value in the 
+entry, or rather in the model, is a valid species by setting the ok buttons
+sensitive and changing the color of the species entry
+- changed donor contact info the unicode
+- Accession.acc_id now unicode
+- Plant.plant_id now unicode
+- Donor.donor_acc now unicode
+- changed some other columns from StringCol to UnicodeCol but I can't remember
+all of them
+
 2006.05.16
 ----------
 - fixed problems passing default values into new editors

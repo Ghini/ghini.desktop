@@ -23,6 +23,7 @@ class PlantHistory(BaubleTable):
     description = UnicodeCol()
     plant = ForeignKey('Plant', notNull=True, cascade=True)
     
+    
 class Plant(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
@@ -35,7 +36,7 @@ class Plant(BaubleTable):
     # makes sense that it should be an int but we won't restrict it that way,
     # if the editor wants to ensure that it is int then it should attach
     # a formencode.Validator on it
-    plant_id = StringCol(notNull=True)
+    plant_id = UnicodeCol(notNull=True)
 
 
     # Plant: Whole plant
@@ -217,8 +218,7 @@ try:
     import os
 #    from xml.sax.saxutils import escape
     import bauble.paths as paths
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
-        set_widget_value
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
 
 except ImportError:
     pass
@@ -238,10 +238,10 @@ else:
         
         
         def update(self, row):
-            set_widget_value(self.glade_xml, 'location_data',row.location.site)
-            set_widget_value(self.glade_xml, 'status_data',
+            utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
+            utils.set_widget_value(self.glade_xml, 'status_data',
                              row.acc_status, False)
-            set_widget_value(self.glade_xml, 'type_data',
+            utils.set_widget_value(self.glade_xml, 'type_data',
                              row.acc_type, False)
             
             
@@ -260,7 +260,7 @@ else:
         
         def update(self, row):
 #            debug(row.notes)
-            set_widget_value(self.glade_xml, 'notes_data', row.notes)
+            utils.set_widget_value(self.glade_xml, 'notes_data', row.notes)
         
 
     class PlantInfoBox(InfoBox):

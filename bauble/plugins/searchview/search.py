@@ -647,7 +647,7 @@ class SearchView(BaubleView):
     # on and there's no icon to indicate children
     def on_activate_add_item(self, item, path, editor, defaults={}):
 	# on add we should collapse/expand  on the currently select row
-        debug(defaults)
+#        debug(defaults)
         e = editor(defaults=defaults)
         committed = e.start()
         if committed is not None:
@@ -686,11 +686,11 @@ class SearchView(BaubleView):
         """
         popup a context menu on the selected row
         """
-	# TODO: should probably fix this so you can right click on something
-	# that is not the selection, but get the path from where the click
-	# happened, make that that selection and then popup the menu,
-	# see the pygtk FAQ about this at
-	#http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
+    	# TODO: should probably fix this so you can right click on something
+    	# that is not the selection, but get the path from where the click
+    	# happened, make that that selection and then popup the menu,
+    	# see the pygtk FAQ about this at
+    	#http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3: 
             return # if not right click then leave
         sel = view.get_selection()
@@ -786,8 +786,8 @@ class SearchView(BaubleView):
                   
         # create the entry and search button
         self.entry = gtk.Entry()
-	#self.combo_entry = gtk.combo_box_entry_new_text()
-	#self.entry = combo_entry.entry
+    	#self.combo_entry = gtk.combo_box_entry_new_text()
+    	#self.entry = combo_entry.entry
         self.entry.connect("key_press_event", self.on_entry_key_press)
         
         self.search_button = gtk.Button("Search")

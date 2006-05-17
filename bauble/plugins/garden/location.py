@@ -17,8 +17,8 @@ class Location(BaubleTable):
     # what about sublocations, like if the locations were the grounds
     # and the sublocation is the block number
     #loc_id = StringCol(length=20) 
-    site = StringCol(length=60, alternateID=True)
-    description = StringCol(default=None)
+    site = UnicodeCol(length=60, alternateID=True)
+    description = UnicodeCol(default=None)
 
     plants = MultipleJoin("Plant", joinColumn="location_id")
     
