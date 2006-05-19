@@ -1,7 +1,8 @@
 #
+# formatter modules
+#
 # this module should allow you to define a XSLT-FO formatter and and .fo file
-# to process on the current selection, basically the same as the label maker
-# plugin but should be configurable
+# to process on the current selection
 #
 
 #
@@ -47,7 +48,7 @@ else:
     fop_cmd = 'fop'
     
 renderers_map = {'Apache FOP': fop_cmd + \
-		 ' -fo %(fo_filename)s -pdf %(out_filename)s',
+                 ' -fo %(fo_filename)s -pdf %(out_filename)s',
                  'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s',
 #                 'xmlroff': 'xmlroff -o %(out_filename)s %(fo_filename)s',
 #                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar \
