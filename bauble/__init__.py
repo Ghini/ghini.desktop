@@ -29,15 +29,10 @@ if not main_is_frozen():
 else: # main is frozen
    # put library.zip first in the path when using py2exe so libxml2 gets 
    # imported correctly, 
-   # FIXME: if i don't import gtk here first then it doesn't work, i don't 
-   # yet know why
-   import gtk
    zipfile = sys.path[-1]
    sys.path.insert(0,zipfile)
 
 import gtk
-import gtk.glade # this needs to be here
-
 import bauble.utils as utils
 import bauble.paths as paths
 sys.path.append(paths.lib_dir())
@@ -45,9 +40,6 @@ sys.path.append(paths.lib_dir())
 # create the user directory
 if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
-
-# TODO: why do we add lib to the path???
-sys.path.append(paths.lib_dir() + os.sep + 'lib') 
 
 # meta information about the bauble database
 from sqlobject import SQLObject, StringCol
