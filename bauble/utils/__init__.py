@@ -1,10 +1,10 @@
 #
-# this is just a dummy file so i can import on this directory
+# utils module
 #
 
 import imp, os, sys, re
-import gtk
 import bauble
+import gtk
 from bauble.utils.log import debug
 
 def search_tree_model(rows, data, func=lambda row, data: row[0] == data):

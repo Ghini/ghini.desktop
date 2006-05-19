@@ -4,6 +4,7 @@
 
 import os, sys, copy, traceback
 import gtk
+import gtk.glade
 import sqlobject
 import utils
 import bauble.paths as paths

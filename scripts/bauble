@@ -15,42 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import os, sys
-
-try:
-    import bauble.paths as paths
-    import bauble.utils as utils
-except ImportError:
-    print "can't import bauble module"
-
-#from bauble.utils.debug import debug
-#debug.enable = True
-
-if sys.platform == "win32":
-    sys.path.append(paths.lib_dir() + os.sep + "lib" + os.sep + "win32")
-    os.environ["PATH"] += paths.main_dir() + os.pathsep +  "lib" + os.sep + \
-                          "win32"
-sys.path.append(paths.lib_dir() + os.sep + "lib")
-sys.path.insert(0, paths.lib_dir() + os.sep + "lib")
-# TODO: we had set this before but i see no reason we should be changing $PATH,
-# this doesn't affect anything then we should completely remove it, either
-# way it could corrupt the path since it didn't put an os.pathsep after
-# the original $PATH before appending our one
-#os.environ["PATH"] += paths.lib_dir() + os.pathsep + "lib"
-
-# i guess we would need to use the builtin tk library to show an
-# error if gtk is not available, but that adds extra dependencies
-# for py2exe
-
-#import pygtk
-#if not utils.main_is_frozen():
-#    pygtk.require("2.0")
-import gtk
-
-gtk.threads_init() # initialize threading
-gtk.threads_enter()
-
-if __name__ == "__main__":    
-    from bauble import app
-    app.main()
-    gtk.threads_leave()
+from bauble.main import bauble_main
+if __name__ == "__main__":  
+	bauble_main()
 
