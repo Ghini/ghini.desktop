@@ -19,6 +19,8 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
+# TODO: colors on the event boxes around some of the entries don't change color 
+# on win32, is this my problem or a gtk+ bug
 
 #def utm_wgs84_to_dms():
 #    pass
@@ -54,7 +56,7 @@ def dms_to_decimal(dir, deg, min, sec):
     #return round(dec, ROUND_TO)
     return dec
     
-        
+
 def decimal_to_dms(decimal, long_or_lat):
     '''
     long_or_lat: should be either "long" or "lat"
