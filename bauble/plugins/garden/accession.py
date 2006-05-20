@@ -10,6 +10,7 @@ import gobject
 from sqlobject import * 
 from sqlobject.constraints import BadValue, notNull
 from sqlobject.sqlbuilder import _LikeQuoted
+from sqlobject.col import FloatValidator
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
@@ -268,6 +269,27 @@ class Problems:
         def __str__(self):
             return str(self._problems)
 
+
+class FloatOrEmptyStringValidator(FloatValidator):
+        
+    def __init__(self, name):
+        FloatValidator.__init__(self, name=name)
+        
+        
+    def to_python(self, value, state):
+        if value is None:
+            return None
+        if isinstance(value, (int, long, float, sqlbuilder.SQLExpression)):
+            return value        
+        elif isinstance(value, str) and value == '':
+            return None
+        try:
+            return float(value)
+        except:
+            raise validators.Invalid("expected a float in the FloatCol '%s', got %s instead" % \
+                (self.name, type(value)), value, state)
+                
+
 # TODO: should have a label next to lat/lon entry to show what value will be 
 # stored in the database, might be good to include both DMS and the float
 # so the user can see both no matter what is in the entry. it could change in
@@ -296,7 +318,7 @@ class CollectionPresenter(GenericEditorPresenter):
             
     def _get_column_validator(self, column):
         return self.model.columns[column].validator
-        
+                
         
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
@@ -308,11 +330,11 @@ class CollectionPresenter(GenericEditorPresenter):
         self.assign_simple_handler('locale_entry', 'locale')
         self.assign_simple_handler('collid_entry', 'coll_id')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
-                                   self._get_column_validator('geo_accy'))
+                                   FloatOrEmptyStringValidator('geo_accy'))
         self.assign_simple_handler('alt_entry', 'elevation', 
-                                   self._get_column_validator('elevation'))
+                                   FloatOrEmptyStringValidator('elevation'))
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
-                                   self._get_column_validator('elevation'))
+                                   FloatOrEmptyStringValidator('elevation_accy'))
         self.assign_simple_handler('habitat_textview', 'habitat')
         self.assign_simple_handler('coll_notes_textview', 'notes')
         
@@ -944,7 +966,19 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     
     def on_field_changed(self, field):
 #        debug('on field changed: %s = %s' % (field, self.model[field]))
-#        debug(self.problems)
+#        debug(self.problems)        
+        prov_sensitive = True                    
+        wild_prov_combo = self.view.widgets.wild_prov_combo
+        if field == 'prov_type':
+            if self.model.prov_type in ['Wild']:
+                self.model.wild_prov_status = wild_prov_combo.get_active_text()
+            else:
+                # remove the value in the model from the wild_prov_combo                
+                prov_sensitive = False
+                self.model.wild_prov_status = None
+        wild_prov_combo.set_sensitive(prov_sensitive)
+        self.view.widgets.wild_prov_label.set_sensitive(prov_sensitive)
+        
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False
@@ -954,6 +988,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.acc_ok_button.set_sensitive(sensitive)
         self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
         self.view.widgets.acc_next_button.set_sensitive(sensitive)
+            
+        
         
     
     def init_change_notifier(self):
@@ -1046,7 +1082,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def init_wild_prov_combo(self):
         # TODO: the wild_prov_combo should only be set sensitive if
         # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
-        combo = self.view.widgets.wild_prov_combo
+        combo = self.view.widgets.wild_prov_combo        
         model = gtk.ListStore(str)
         for enum in self.model.columns['wild_prov_status'].enumValues:
             model.append([enum])
@@ -1071,7 +1107,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value, 
                                        default=self.defaults.get(field, None))
-    
+            
+        if self.model.prov_type in ['Wild']:
+            self.view.widgets.wild_prov_combo.set_sensitive(True)
+            self.view.widgets.wild_prov_label.set_sensitive(True)
+        else:
+            self.view.widgets.wild_prov_combo.set_sensitive(False)
+            self.view.widgets.wild_prov_label.set_sensitive(False)
+
                 
     def start(self):
         return self.view.start()
