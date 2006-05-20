@@ -415,7 +415,7 @@ class GenericEditorPresenter:
         '''
 
         def _set_in_model(value, field=model_field):
-            if validator is not None:                
+            if validator is not None:
                 value = validator.to_python(value, None)
             self.model[field] = value
             

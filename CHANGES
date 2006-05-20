@@ -1,3 +1,15 @@
+2006.05.20
+----------
+- fixed provenance combos in the accession editor
+
+
+2006.05.18
+----------
+- added a main.py to bauble which will start the full application
+- some win32 tweaks and import cleanups
+- added a custom validator to accession.py for when floats col gets and empty
+string from it's widget
+
 2006.05.17
 ----------
 - fixed problem with setting the completion when a species is passed to an 
