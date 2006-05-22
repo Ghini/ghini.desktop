@@ -4,6 +4,10 @@
 - niced up the donor editor and donation editors a bit
 - fix accidental line change in init_species_entry
 - fix warning from the donor_combo in the accession editor
+- problem with dates in the accession editor
+- upgrade SQLObject to SQLObject-0.7.1dev_r1788 bugfix branch for the 
+windows bundle
+- branch for 0.5.0
 
 2006.05.20
 ----------

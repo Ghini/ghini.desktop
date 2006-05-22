@@ -450,7 +450,7 @@ class CollectionPresenter(GenericEditorPresenter):
             try:
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                         m.group('day')]]            
-                dt = datetime(*ymd)            
+                dt = datetime(*ymd).date()
                 self.problems.remove(self.PROBLEM_INVALID_DATE)
             except:
                 self.problems.add(self.PROBLEM_INVALID_DATE)
@@ -669,7 +669,7 @@ class DonationPresenter(GenericEditorPresenter):
             try:
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                         m.group('day')]]            
-                dt = datetime(*ymd)            
+                dt = datetime(*ymd).date()
                 self.problems.remove(self.PROBLEM_INVALID_DATE)
             except:
                 self.problems.add(self.PROBLEM_INVALID_DATE)
@@ -860,6 +860,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+    
     def _set_acc_date_from_text(self, text):
         bg_color = None
         m = self._date_regex.match(text)
@@ -872,12 +873,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #                                    m.group('day')))
             try:
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]            
-                dt = datetime(*ymd)            
+                                        m.group('day')]]
+                dt = datetime(*ymd).date()
                 self.problems.remove(self.PROBLEM_INVALID_DATE)
             except:
+#                debug(traceback.format_exc())
                 self.problems.add(self.PROBLEM_INVALID_DATE)
-                
+                        
         self.model.date = dt
         e = self.view.widgets.acc_date_eventbox
         e.modify_bg(gtk.STATE_NORMAL, bg_color)
