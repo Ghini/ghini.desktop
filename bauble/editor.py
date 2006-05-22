@@ -72,6 +72,8 @@ def commit_to_table(table, values):
         del values["id"]
         table_instance.set(**values)
     else: # creating new row
+#        debug(values)
+#        debug(table)
         table_instance = table(**values)
     return table_instance
 

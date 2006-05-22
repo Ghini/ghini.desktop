@@ -53,7 +53,16 @@ class DonorEditorView(GenericEditorView):
                                                       'editors.glade'),
                                    parent=parent)
         self.connect_dialog_close(self.widgets.donor_dialog)
-        
+        if sys.platform == 'win32':
+            import pango
+            combo = self.widgets.don_type_combo
+            context = combo.get_pango_context()        
+            font_metrics = context.get_metrics(context.get_font_description(), 
+                                               context.get_language())        
+            width = font_metrics.get_approximate_char_width()            
+            new_width = pango.PIXELS(width) * 20
+            combo.set_size_request(new_width, -1)
+            
         
     def start(self):
         return self.widgets.donor_dialog.run()

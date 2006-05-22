@@ -23,6 +23,8 @@ from bauble.error import CommitException
 # TODO: colors on the event boxes around some of the entries don't change color 
 # on win32, is this my problem or a gtk+ bug
 
+# FIXME: time.mktime can't handle dates before 1970 on win32
+
 #def utm_wgs84_to_dms():
 #    pass
 #
@@ -210,7 +212,43 @@ class AccessionEditorView(GenericEditorView):
         # TODO: set up automatic signal handling, all signals should be called
         # on the presenter
         self.connect_dialog_close(self.widgets.accession_dialog)
+        if sys.platform == 'win32':
+            self.do_win32_fixes()
     
+    
+    def do_win32_fixes(self):
+        import pango
+        def get_char_width(widget):
+            context = widget.get_pango_context()        
+            font_metrics = context.get_metrics(context.get_font_description(), 
+                                               context.get_language())        
+            width = font_metrics.get_approximate_char_width()            
+            return pango.PIXELS(width)
+
+        species_entry = self.widgets.species_entry
+        species_entry.set_size_request(get_char_width(species_entry)*20, -1)
+        prov_combo = self.widgets.prov_combo
+        prov_combo.set_size_request(get_char_width(prov_combo)*20, -1)
+        wild_prov_combo = self.widgets.wild_prov_combo
+        wild_prov_combo.set_size_request(get_char_width(wild_prov_combo)*12, -1)
+        source_combo = self.widgets.source_type_combo
+        source_combo.set_size_request(get_char_width(source_combo)*10, -1)
+                
+        # TODO: we really don't need to do the rest of these until we know the 
+        # which source box is going to be opened, could connect to the boxes 
+        # realized or focused signals or something along those lines
+        
+        # fix the widgets in the collection editor
+        lat_entry = self.widgets.lat_entry
+        lat_entry.set_size_request(get_char_width(lat_entry)*10, -1)
+        lon_entry = self.widgets.lon_entry
+        lon_entry.set_size_request(get_char_width(lon_entry)*10, -1)
+        locale_entry = self.widgets.locale_entry
+        locale_entry.set_size_request(get_char_width(locale_entry)*30, -1)
+        
+        # fixes for donation editor
+        pass
+
     
     def save_state(self):
         prefs[self.source_expanded_pref] = \
@@ -233,16 +271,10 @@ class AccessionEditorView(GenericEditorView):
         value = completion.get_model()[iter][0]
         return str(value).lower().startswith(key_string.lower())         
 
+
     def species_cell_data_func(self, column, renderer, model, iter, data=None):
         v = model[iter][0]
-        renderer.set_property('text', str(v))        
-#    def name_cell_data_func(self, column, renderer, model, iter, data=None):
-#        '''
-#        render the values in the completion popup model
-#        '''
-#        #species = model.get_value(iter, 0)        
-#        value = model[iter][0]
-#        renderer.set_property('text', str(value))
+        renderer.set_property('text', str(v))
         
 
 class Problems:
@@ -577,7 +609,7 @@ class CollectionPresenter(GenericEditorPresenter):
         e.queue_draw()
     
     
-    
+# TODO: make the donor_combo insensitive if the model is empty
 class DonationPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'donor_combo': 'donor',
@@ -714,6 +746,11 @@ class DonationPresenter(GenericEditorPresenter):
             default = self.defaults.get(field, None)
             self.view.set_widget_value(widget, value, default=default)
         
+        
+        if self.model.donor is None:
+            self.view.widgets.don_edit_button.set_sensitive(False)
+        else:
+            self.view.widgets.don_edit_button.set_sensitive(True)
 
 
 class SourcePresenterFactory:
@@ -804,7 +841,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         self.init_change_notifier()
     
-    
+        
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
         
@@ -876,6 +913,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         e.queue_draw()
         self.problems.remove(self.PROBLEM_INVALID_SPECIES)
         self.model.species = species
+#        debug('%s' % self.model)
         self.prev_text = str(species)
 
 
@@ -900,7 +938,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # where the text is being inserted so if the user inserts text into 
         # the middle of the string then this could break
 #        debug('on_species_insert_text: \'%s\'' % new_text)
-#        debug(self.model.species)
+#        debug('%s' % self.model)
         if new_text == '':
             # this is to workaround the problem of having a second 
             # insert-text signal called with new_text = '' when there is a 
@@ -926,11 +964,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             e.modify_bg(gtk.STATE_NORMAL, bg_color)
             e.queue_draw()
             self.problems.add(self.PROBLEM_INVALID_SPECIES)
-        self.model.species = None
+            self.model.species = None
+#        debug('%s' % self.model)
             
             
     def init_species_entry(self):
-        completion = self.view.widgets.species_entry.get_completion()
+        completion = entry.get_completion()
         completion.connect('match-selected', self.on_species_match_selected)
         if self.model.species is not None:
             genus = self.model['species'].genus
@@ -995,7 +1034,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def init_change_notifier(self):
         '''
         for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can do things like sensitize
+        value in the widget changes, that way we can w things like sensitize
         the ok button
         '''
         for widget, field in self.widget_to_field_map.iteritems():            
@@ -1067,8 +1106,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         combo.set_model(model)
         combo.set_active(-1)
         self.view.widgets.source_type_combo.connect('changed', 
-                                            self.on_source_type_combo_changed)
-        self.view.dialog.show_all()
+                                            self.on_source_type_combo_changed)            
+#        self.view.dialog.show_all()
         
     
     def init_prov_combo(self):
@@ -1076,7 +1115,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         model = gtk.ListStore(str)
         for enum in self.model.columns['prov_type'].enumValues:
             model.append([enum])
-        combo.set_model(model)
+        combo.set_model(model)        
     
     
     def init_wild_prov_combo(self):
@@ -1256,7 +1295,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         
         
     def commit_changes(self):
-    
+#        debug('commit_changes: %s' % self.model)
         # if source_type changes and the original source type wasn't none
         # warn the user
         if self.model.isinstance:
@@ -1274,7 +1313,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 else:
                     raise DontCommitException
                 
-        accession = None
+        accession = None        
         if self.model.dirty:
             accession = self._commit(self.model)
         elif self.presenter.source_presenter is not None \
