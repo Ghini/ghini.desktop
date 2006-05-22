@@ -1,7 +1,11 @@
+2006.05.22
+----------
+- fix accidental line change in init_species_entry
+- fix warning from the donor_combo in the accession editor
+
 2006.05.20
 ----------
 - fixed provenance combos in the accession editor
-
 
 2006.05.18
 ----------

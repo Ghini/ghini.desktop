@@ -436,6 +436,7 @@ class CollectionPresenter(GenericEditorPresenter):
         
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
+    
     def _set_date_from_text(self, text):
         bg_color = None
         m = self._date_regex.match(text)
@@ -623,8 +624,9 @@ class DonationPresenter(GenericEditorPresenter):
         self.defaults = defaults        
         self.problems = Problems()
         donor_combo = self.view.widgets.donor_combo
+        donor_combo.clear() # avoid gchararry/PyObject warning
         donor_combo.connect('changed', self.on_donor_combo_changed)
-        r = gtk.CellRendererText()            
+        r = gtk.CellRendererText()                    
         donor_combo.pack_start(r)
         donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
        
@@ -729,7 +731,6 @@ class DonationPresenter(GenericEditorPresenter):
         for value in tables['Donor'].select():
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
-        #donor_combo.clear()
         donor_combo.set_model(model)        
         if len(model) == 1: # only one to choose from
             donor_combo.set_active(0)
@@ -968,8 +969,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #        debug('%s' % self.model)
             
             
-    def init_species_entry(self):
-        completion = entry.get_completion()
+    def init_species_entry(self):        
+        completion = self.view.widgets.species_entry.get_completion()
         completion.connect('match-selected', self.on_species_match_selected)
         if self.model.species is not None:
             genus = self.model['species'].genus
