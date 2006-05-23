@@ -5,6 +5,9 @@
 accession id
 - fixed problem with existing accession notes not showing up in the editor
 - now include README, LICENSE and CHANGES in the distribution
+- fixed annoying 'feature' where the species entry on the accession editor 
+would reset the completions for the species when a species was selected, this
+caused weird pauses when the a species was selected
 
 2006.05.22
 ----------

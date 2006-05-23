@@ -824,7 +824,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # a species isn't selected and one is selected but then if something
         # changes then it should invalidate again
         #
-        self.view.widgets.species_entry.connect('insert-text', 
+        self.insert_species_sid = self.view.widgets.species_entry.connect('insert-text', 
                                                 self.on_species_entry_insert, 
                                                 'species')
         self.view.widgets.species_entry.connect('delete-text', 
@@ -847,6 +847,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
         
         self.init_change_notifier()
+    
     
     def on_acc_id_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
@@ -962,22 +963,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         put the selected value in the model
         '''                
-        # TODO: i would rather just put the object in the column and get
-        # the id from that but there is that funny bug when using custom 
-        # renderers for a gtk.EntryCompletion, the only downside with this
-        # is calling Species.str() over and over from cell_data_func, but 
-        # would these get cached?
-        
-        # column 0 holds the name of the plant while column 1 holds the id         
-#        name = compl_model[iter][0]
-#        entry = self.view.widgets.species_entry
-#        entry.set_text(str(name))
-#        entry.set_position(-1)
-#        self.model.species = compl_model[iter][1]
         species = compl_model[iter][0]
 #        debug('selected: %s' % str(species))
         entry = self.view.widgets.species_entry
+        entry.handler_block(self.insert_species_sid)
         entry.set_text(str(species))
+        entry.handler_unblock(self.insert_species_sid)
         entry.set_position(-1)
         e = self.view.widgets.species_entry_eventbox
         e.modify_bg(gtk.STATE_NORMAL, None)
@@ -1014,9 +1005,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             # this is to workaround the problem of having a second 
             # insert-text signal called with new_text = '' when there is a 
             # custom renderer on the entry completion for this entry
-#            debug('set from prev: %s' % self.prev_text)
+            # block the signal from here since it will call this same
+            # method again and resetting the species completions            
+            entry.handler_block(self.insert_species_sid)
             entry.set_text(self.prev_text)
-            return False
+            entry.handler_unblock(self.insert_species_sid)
+            return False # is this 'False' necessary, does it do anything?
             
         entry_text = entry.get_text()                
         cursor = entry.get_position()
@@ -1048,7 +1042,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         
     def idle_add_species_completions(self, text):
-#        debug('idle_add_competions')
+#        debug('idle_add_species_competions: %s' % text)
         parts = text.split(" ")
         genus = parts[0]
         like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
