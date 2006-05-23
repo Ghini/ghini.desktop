@@ -787,7 +787,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'prov_combo': 'prov_type',
                            'wild_prov_combo': 'wild_prov_status',
                            'species_entry': 'species',
-                           'source_type_combo': 'source_type',}
+                           'source_type_combo': 'source_type',
+                           'acc_notes_textview': 'notes'}
     
     PROBLEM_INVALID_DATE = 3
     PROBLEM_INVALID_SPECIES = 4
