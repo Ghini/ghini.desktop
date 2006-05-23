@@ -3,6 +3,8 @@
 - bumped version to 0.5.1
 - accession editor now gives status is accession entered is a duplicate 
 accession id
+- fixed problem with existing accession notes not showing up in the editor
+- now include README, LICENSE and CHANGES in the distribution
 
 2006.05.22
 ----------
