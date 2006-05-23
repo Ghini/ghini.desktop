@@ -6,3 +6,4 @@ recursive-include bauble *.ui *.py *.glade *.txt
 #recursive-include debian *.*
 recursive-include bauble/images *.*
 recursive-include bauble/pixmaps *.*
+include README LICENSE CHANGES

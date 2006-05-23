@@ -1,3 +1,9 @@
+2006.05.23
+----------
+- bumped version to 0.5.1
+- accession editor now gives status is accession entered is a duplicate 
+accession id
+
 2006.05.22
 ----------
 - interface tweaks for windows
