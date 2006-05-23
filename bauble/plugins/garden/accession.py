@@ -791,6 +791,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_DATE = 3
     PROBLEM_INVALID_SPECIES = 4
+    PROBLEM_DUPLICATE_ACCESSION = 5
     
     def __init__(self, model, view, defaults={}):
         '''
@@ -833,7 +834,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.wild_prov_combo.connect('changed', 
                                                   self.on_combo_changed,
                                                   'wild_prov_status')
-        self.assign_simple_handler('acc_id_entry', 'acc_id')
+        #self.assign_simple_handler('acc_id_entry', 'acc_id')
+        self.view.widgets.acc_id_entry.connect('insert-text', 
+                                               self.on_acc_id_entry_insert)
+        self.view.widgets.acc_id_entry.connect('delete-text', 
+                                               self.on_acc_id_entry_delete)
         self.assign_simple_handler('acc_notes_textview', 'notes')
         
         acc_date_entry = self.view.widgets.acc_date_entry
@@ -842,6 +847,67 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         self.init_change_notifier()
     
+    def on_acc_id_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_acc_id_from_text(full_text)
+
+        
+    def on_acc_id_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_acc_id_from_text(full_text)
+                
+        
+    def _set_acc_id_from_text(self, text):
+        sr = Accession.selectBy(acc_id=text)
+#        debug(sr)
+#        debug(list(sr))
+        if sr.count() > 0:
+            self.model.acc_id = None
+            self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION, 
+                             self.view.widgets.acc_id_eventbox)
+            return
+        
+        self.model.acc_id = text
+        self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
+                            self.view.widgets.acc_id_eventbox)
+            
+                
+    def remove_problem(self, problem_id, problem_widgets):
+        '''
+        remove problem_id from self.problems and reset the background color
+        of the widget(s) in problem_widgets
+        '''
+        self.problems.remove(problem_id)
+        if isinstance(problem_widgets, (tuple, list)):
+            for w in problem_widgets:
+                w.modify_bg(gtk.STATE_NORMAL, None)
+                w.queue_draw()
+        else:
+            problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
+            problem_widgets.queue_draw()
+            
+            
+    def add_problem(self, problem_id, problem_widgets):
+        '''
+        add problem_id to self.problems and change the background of widget(s) 
+        in problem_widgets
+        problem_widgets: either a widget or list of widgets whose background
+        color should change to indicate a problem
+        '''
+        self.problems.add(problem_id)            
+        bg_color = gtk.gdk.color_parse("red")
+        if isinstance(problem_widgets, (tuple, list)):
+            for w in problem_widgets:
+                w.modify_bg(gtk.STATE_NORMAL, bg_color)
+                w.queue_draw()
+        else:
+            problem_widgets.modify_bg(gtk.STATE_NORMAL, bg_color)
+            problem_widgets.queue_draw()
+        
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
@@ -859,6 +925,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._set_acc_date_from_text(full_text)
         
 
+    # TODO: there is a funny bug here if you enter the date 1/1/1900
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
     
     def _set_acc_date_from_text(self, text):
