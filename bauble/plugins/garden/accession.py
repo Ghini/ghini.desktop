@@ -10,7 +10,8 @@ import gobject
 from sqlobject import * 
 from sqlobject.constraints import BadValue, notNull
 from sqlobject.sqlbuilder import _LikeQuoted
-from sqlobject.col import FloatValidator
+from sqlobject.col import FloatValidator, IntValidator
+from formencode import *
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
@@ -51,12 +52,10 @@ def dms_to_decimal(dir, deg, min, sec):
         assert(abs(deg) > 0 and abs(deg) <= 90)
     assert(abs(min) > 0 and abs(min) < 60)
     assert(abs(sec) > 0 and abs(sec) < 60)    
-    #dec = (sec/3600.0) + (min/60.0) + deg
-    dec = (float(sec)/3600.0) + (float(min)/60.0) + float(deg)
+    dec = (abs(sec)/3600.0) + (abs(min)/60.0) + abs(deg)
+    #dec = (((abs(sec)/60.0) + abs(min)) /60.0) + abs(deg)
     if dir in ('W', 'S'):
         dec = -dec
-    ROUND_TO = 5
-    #return round(dec, ROUND_TO)
     return dec
     
 
@@ -75,7 +74,7 @@ def decimal_to_dms(decimal, long_or_lat):
         dir = dir_map[long_or_lat][1]
     
     dec = abs(decimal)
-    d = int(dec)
+    d = abs(int(dec))
     m = abs((dec-d)*60)        
     s = abs((int(m)-m) * 60)    
     ROUND_TO=2
@@ -277,30 +276,25 @@ class AccessionEditorView(GenericEditorView):
         renderer.set_property('text', str(v))
         
 
-class Problems:
-        
-        _problems = []
-        
-        def add(self, problem):
-            self._problems.append(problem)
-            
-        def remove(self, problem):
-            # TODO: nothing happens if problem does not exist in self.problems
-            # should we ignore it or do..
-            # if problem not in self.problems
-            #   raise KeyError()
-            while 1:
-                try:
-                    self._problems.remove(problem)
-                except:
-                    break
-            
-        def __len__(self):
-            return len(self._problems)
-            
-        def __str__(self):
-            return str(self._problems)
 
+class IntOrEmptyStringValidator(IntValidator):
+        
+    def __init__(self, name):
+        IntValidator.__init__(self, name=name)
+        
+        
+    def to_python(self, value, state):
+        if value is None:
+            return None
+        if isinstance(value, (int, long, sqlbuilder.SQLExpression)):
+            return value        
+        elif isinstance(value, str) and value == '':
+            return None
+        try:
+            return int(value)
+        except:
+            raise validators.Invalid("expected a int in the FloatCol '%s', got %s instead" % \
+                (self.name, type(value)), value, state)
 
 class FloatOrEmptyStringValidator(FloatValidator):
         
@@ -328,6 +322,8 @@ class FloatOrEmptyStringValidator(FloatValidator):
 # time as the user enters data in the entry
 # TODO: shouldn't allow entering altitude accuracy without entering accuracy,
 # same for geographic accuracy
+# TODO: should show an error if something other than a number is entered in
+# the altitude entry
 class CollectionPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'collector_entry': 'collector',                           
@@ -356,13 +352,13 @@ class CollectionPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
         self.refresh_view()
-        self.problems = Problems()
+    
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
         self.assign_simple_handler('collid_entry', 'coll_id')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
-                                   FloatOrEmptyStringValidator('geo_accy'))
+                                   IntOrEmptyStringValidator('geo_accy'))
         self.assign_simple_handler('alt_entry', 'elevation', 
                                    FloatOrEmptyStringValidator('elevation'))
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
@@ -419,6 +415,12 @@ class CollectionPresenter(GenericEditorPresenter):
                 self.view.widgets.west_radio.set_active(True)
             else:
                 self.view.widgets.east_radio.set_active(True)
+                
+        if self.model.elevation == None:
+            self.view.widgets.altacc_entry.set_sensitive(False)
+        
+        if self.model.latitude is None or self.model.longitude is None:
+            self.view.widgets.geoacc_entry.set_sensitive(False)
             
             
     def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
@@ -438,12 +440,17 @@ class CollectionPresenter(GenericEditorPresenter):
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
     
     def _set_date_from_text(self, text):
-        bg_color = None
-        m = self._date_regex.match(text)
+        if text == '':
+            self.model.coll_date = None
+            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                    self.view.widgets.coll_date_entry)
+            return
+        
         dt = None # datetime
+        m = self._date_regex.match(text)
         if m is None:
-            self.problems.add(self.PROBLEM_INVALID_DATE)            
-            bg_color = gtk.gdk.color_parse("red")
+            self.add_problem(self.PROBLEM_INVALID_DATE, 
+                             self.view.widgets.coll_date_entry)
         else:
 #            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
 #                                    m.group('day')))
@@ -451,14 +458,12 @@ class CollectionPresenter(GenericEditorPresenter):
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                         m.group('day')]]            
                 dt = datetime(*ymd).date()
-                self.problems.remove(self.PROBLEM_INVALID_DATE)
+                self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                    self.view.widgets.coll_date_entry)
             except:
-                self.problems.add(self.PROBLEM_INVALID_DATE)
-                
+                self.add_problem(self.PROBLEM_INVALID_DATE, 
+                                    self.view.widgets.coll_date_entry)                
         self.model.coll_date = dt
-        e = self.view.widgets.coll_date_eventbox
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
         
         
     def on_east_west_radio_toggled(self, button, data=None):
@@ -500,6 +505,7 @@ class CollectionPresenter(GenericEditorPresenter):
             min = tmp-60
             dec = dms_to_decimal(direction, deg, min, sec)
         elif len(bits) == 3:
+#            debug(bits)
             dec = dms_to_decimal(direction, *map(float, bits))
         else:
             raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
@@ -538,7 +544,6 @@ class CollectionPresenter(GenericEditorPresenter):
             
             
     def _set_latitude_from_text(self, text):
-        bg_color = None
         latitude = None
         dms_string = ''
         try:
@@ -556,15 +561,14 @@ class CollectionPresenter(GenericEditorPresenter):
         except:         
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
-            self.problems.add(self.PROBLEM_BAD_LATITUDE)
+            self.add_problem(self.PROBLEM_BAD_LATITUDE, 
+                             self.view.widgets.lat_entry)
         else:
-            self.problems.remove(self.PROBLEM_BAD_LATITUDE)
+            self.remove_problem(self.PROBLEM_BAD_LATITUDE, 
+                             self.view.widgets.lat_entry)
                     
         self.model['latitude'] = latitude
         self.view.widgets.lat_dms_label.set_text(dms_string)
-        e = self.view.widgets.lat_event_box    
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
         
         
     def on_lon_entry_insert(self, entry, new_text, new_text_length, position, 
@@ -582,7 +586,6 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def _set_longitude_from_text(self, text):
-        bg_color = None
         longitude = None
         dms_string = ''
         try:
@@ -599,15 +602,14 @@ class CollectionPresenter(GenericEditorPresenter):
         except:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")            
-            self.problems.add(self.PROBLEM_BAD_LONGITUDE)
+            self.add_problem(self.PROBLEM_BAD_LONGITUDE, 
+                              self.view.widgets.lon_entry)
         else:
-            self.problems.remove(self.PROBLEM_BAD_LONGITUDE)
+            self.remove_problem(self.PROBLEM_BAD_LONGITUDE, 
+                              self.view.widgets.lon_entry)
             
         self.model['longitude'] = longitude
         self.view.widgets.lon_dms_label.set_text(dms_string)
-        e = self.view.widgets.lon_event_box    
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
     
     
 # TODO: make the donor_combo insensitive if the model is empty
@@ -621,8 +623,7 @@ class DonationPresenter(GenericEditorPresenter):
     
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)        
-        self.defaults = defaults        
-        self.problems = Problems()
+        self.defaults = defaults
         donor_combo = self.view.widgets.donor_combo
         donor_combo.clear() # avoid gchararry/PyObject warning
         donor_combo.connect('changed', self.on_donor_combo_changed)
@@ -658,26 +659,31 @@ class DonationPresenter(GenericEditorPresenter):
         
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-    def _set_date_from_text(self, text):
-        bg_color = None
+    def _set_date_from_text(self, text):        
+        if text == '':
+            self.model.date = None
+            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                    self.view.widgets.coll_date_entry)
+            return
+        
         m = self._date_regex.match(text)
         dt = None # datetime
         if m is None:
-            self.problems.add(self.PROBLEM_INVALID_DATE)            
-            bg_color = gtk.gdk.color_parse("red")
+            self.add_problem(self.PROBLEM_INVALID_DATE, 
+                             self.view.widgets.don_date_entry)
         else:
             try:
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                         m.group('day')]]            
                 dt = datetime(*ymd).date()
-                self.problems.remove(self.PROBLEM_INVALID_DATE)
+                self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                 gets.don_date_entry)
             except:
-                self.problems.add(self.PROBLEM_INVALID_DATE)
+                self.add_problem(self.PROBLEM_INVALID_DATE, 
+                                 self.view.widgets.don_date_entry)
                 
         self.model.date = dt
-        e = self.view.widgets.don_date_eventbox
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
+
         
         
     def on_don_new_clicked(self, button, data=None):
@@ -808,7 +814,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #        debug(model)
         self.current_source_box = None
         self.source_presenter = None  
-        self.problems = Problems()
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
         # toward the second, its easier if it works this way
@@ -869,47 +874,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #        debug(list(sr))
         if sr.count() > 0:
             self.model.acc_id = None
-            self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION, 
-                             self.view.widgets.acc_id_eventbox)
+            self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
+                             self.view.widgets.acc_id_entry)
             return
         
         self.model.acc_id = text
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
-                            self.view.widgets.acc_id_eventbox)
+                            self.view.widgets.acc_id_entry)
             
-                
-    def remove_problem(self, problem_id, problem_widgets):
-        '''
-        remove problem_id from self.problems and reset the background color
-        of the widget(s) in problem_widgets
-        '''
-        self.problems.remove(problem_id)
-        if isinstance(problem_widgets, (tuple, list)):
-            for w in problem_widgets:
-                w.modify_bg(gtk.STATE_NORMAL, None)
-                w.queue_draw()
-        else:
-            problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
-            problem_widgets.queue_draw()
-            
-            
-    def add_problem(self, problem_id, problem_widgets):
-        '''
-        add problem_id to self.problems and change the background of widget(s) 
-        in problem_widgets
-        problem_widgets: either a widget or list of widgets whose background
-        color should change to indicate a problem
-        '''
-        self.problems.add(problem_id)            
-        bg_color = gtk.gdk.color_parse("red")
-        if isinstance(problem_widgets, (tuple, list)):
-            for w in problem_widgets:
-                w.modify_bg(gtk.STATE_NORMAL, bg_color)
-                w.queue_draw()
-        else:
-            problem_widgets.modify_bg(gtk.STATE_NORMAL, bg_color)
-            problem_widgets.queue_draw()
-        
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
@@ -917,7 +889,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-#        debug('acc:date_insert: %s' % full_text)
+        debug('acc:date_insert: %s' % full_text)
         self._set_acc_date_from_text(full_text)
         
 
@@ -935,7 +907,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         m = self._date_regex.match(text)
         dt = None # datetime
         if m is None:
-            self.problems.add(self.PROBLEM_INVALID_DATE)            
+            self.add_problem(self.PROBLEM_INVALID_DATE, 
+                             self.view.widgets.acc_date_entry)
             bg_color = gtk.gdk.color_parse("red")
         else:
 #            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
@@ -944,15 +917,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                         m.group('day')]]
                 dt = datetime(*ymd).date()
-                self.problems.remove(self.PROBLEM_INVALID_DATE)
+                self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                    self.view.widgets.acc_date_entry)
             except:
-#                debug(traceback.format_exc())
-                self.problems.add(self.PROBLEM_INVALID_DATE)
+                debug(traceback.format_exc())
+                self.add_problem(self.PROBLEM_INVALID_DATE,
+                                 self.view.widgets.acc_date_entry)
                         
         self.model.date = dt
-        e = self.view.widgets.acc_date_eventbox
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
         
         
     # the previous value that was in the species entry, this is for a 
@@ -970,10 +942,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         entry.set_text(str(species))
         entry.handler_unblock(self.insert_species_sid)
         entry.set_position(-1)
-        e = self.view.widgets.species_entry_eventbox
-        e.modify_bg(gtk.STATE_NORMAL, None)
-        e.queue_draw()
-        self.problems.remove(self.PROBLEM_INVALID_SPECIES)
+        self.remove_problem(self.PROBLEM_INVALID_SPECIES, 
+                            self.view.widgets.species_entry)
         self.model.species = species
 #        debug('%s' % self.model)
         self.prev_text = str(species)
@@ -987,10 +957,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if full_text == '' or (full_text == str(self.model.species)):
             return
         e = self.view.widgets.species_entry_eventbox
-        bg_color = gtk.gdk.color_parse("red")
-        e.modify_bg(gtk.STATE_NORMAL, bg_color)
-        e.queue_draw()
-        self.problems.add(self.PROBLEM_INVALID_SPECIES)
+        self.add_problem(self.PROBLEM_INVALID_SPECIES, 
+                         self.view.widgets.species_entry)
         self.model.species = None
         
     
@@ -1024,11 +992,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.prev_text = full_text
         
         if full_text != str(self.model.species):
-            bg_color = gtk.gdk.color_parse("red")
-            e = self.view.widgets.species_entry_eventbox
-            e.modify_bg(gtk.STATE_NORMAL, bg_color)
-            e.queue_draw()
-            self.problems.add(self.PROBLEM_INVALID_SPECIES)
+            self.add_problem(self.PROBLEM_INVALID_SPECIES, 
+                             self.view.widgets.species_entry)
             self.model.species = None
 #        debug('%s' % self.model)
             
@@ -1047,30 +1012,28 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         genus = parts[0]
         like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
         sr = tables["Genus"].select('genus LIKE %s' % like_genus)
-        #debug(like_genus)        
         def _add_completion_callback(select):
-            #self.view.widgets.accession_dialog.set_sensitive(False)
             n_gen = sr.count()
             n_sp = 0
-            #model = gtk.ListStore(str, int)
             model = gtk.ListStore(object)
             for row in sr:    
                 if len(row.species) == 0: # give a bit of a speed up
                     continue
                 n_sp += len(row.species)
                 for species in row.species:                
-                    #model.append([str(species), species.id])
                     model.append([species])
-#            debug('%s species in %s genera' % (n_sp, n_gen))
             completion = self.view.widgets.species_entry.get_completion()
             completion.set_model(model)
-            #self.view.widgets.accession_dialog.set_sensitive(True)
         gobject.idle_add(_add_completion_callback, sr)
         
     
     def on_field_changed(self, field):
 #        debug('on field changed: %s = %s' % (field, self.model[field]))
 #        debug(self.problems)        
+        # TODO: we could have problems here if we are monitoring more than
+        # one model change and the two models have a field with the same name,
+        # e.g. date, then if we do 'if date == something' we won't know
+        # which model changed
         prov_sensitive = True                    
         wild_prov_combo = self.view.widgets.wild_prov_combo
         if field == 'prov_type':
@@ -1083,6 +1046,21 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         wild_prov_combo.set_sensitive(prov_sensitive)
         self.view.widgets.wild_prov_label.set_sensitive(prov_sensitive)
         
+        if field == 'longitude' or field == 'latitude':
+            source_model = self.source_presenter.model
+            if source_model.latitude is not None and source_model.longitude is not None:
+                self.view.widgets.geoacc_entry.set_sensitive(True)
+            else:
+                self.view.widgets.geoacc_entry.set_sensitive(False)
+            
+        if field == 'elevation':
+            if self.source_presenter.model.elevation is not None:            
+                self.view.widgets.altacc_entry.set_sensitive(True)
+                debug('True')
+            else: 
+                debug('False')
+                self.view.widgets.altacc_entry.set_sensitive(False)
+                
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False
@@ -1116,7 +1094,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         box = None
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
-
         source = None
         source_model = None
         if source_type is not None:
@@ -1134,13 +1111,19 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             p = widget.get_parent()
             if p is not None:
                 p.remove(widget)
-                
+                                
         # replace source box contents with our new box
         source_box = self.view.widgets.source_box
         if self.current_source_box is not None:
+#            debug(self.current_source_box)
             remove_parent(self.current_source_box)
         if source_type is not None:
+#            debug(source_type)
             self.current_source_box = self.view.widgets[box_map[source_type]]
+            # FIXME: there seems to be a bug here if you change to source type 
+            # too many times or too fast then self.current.source_box can 
+            # be None
+#            debug(self.current_source_box)
             remove_parent(self.current_source_box)
             source_box.pack_start(self.current_source_box, expand=False, 
                                   fill=True)
@@ -1350,11 +1333,30 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 
         if source_model is None:
             return
-        if 'latitude' in source_model and source_model.latitude is not None:
-            if 'longitude' in source_model and source_model.longitude is None:
+        
+        if 'latitude' in source_model or 'longitude' in source_model:
+            if (source_model.latitude is not None and source_model.longitude is None) or \
+                (source_model.longitude is not None and source_model.latitude is None):
                 msg = 'model must have both latitude and longitude or neither'
                 raise ValueError(msg)
-                    
+            elif source_model.latitude is None and source_model.longitude is None:
+                source_model.geo_accy = None # don't save 
+        else:
+            source_model.geo_accy = None # don't save 
+                
+#        if 'latitude' in source_model and source_model.latitude is not None:
+#            if 'longitude' in source_model and source_model.longitude is None:
+#                msg = 'model must have both latitude and longitude or neither'
+#                raise ValueError(msg)
+#            else:
+#                source_model.geo_accy = None # don't save 
+#        else:
+#                source_model.geo_accy = None
+            
+        # reset the elevation accuracy if the elevation is None
+        if source_model.elevation is None:
+            source_model.elevation_accy = None
+            
         source_model['accession'] = accession.id
         new_source = commit_to_table(source_table, source_model)
         
