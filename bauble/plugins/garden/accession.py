@@ -239,12 +239,18 @@ class AccessionEditorView(GenericEditorView):
         
         # fix the widgets in the collection editor
         lat_entry = self.widgets.lat_entry
-        lat_entry.set_size_request(get_char_width(lat_entry)*10, -1)
+        lat_entry.set_size_request(get_char_width(lat_entry)*8, -1)
         lon_entry = self.widgets.lon_entry
-        lon_entry.set_size_request(get_char_width(lon_entry)*10, -1)
+        lon_entry.set_size_request(get_char_width(lon_entry)*8, -1)
         locale_entry = self.widgets.locale_entry
         locale_entry.set_size_request(get_char_width(locale_entry)*30, -1)
         
+        lat_dms_label = self.widgets.lat_dms_label
+        lat_dms_label.set_size_request(get_char_width(lat_dms_label)*7, -1)
+        lon_dms_label = self.widgets.lon_dms_label
+        lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
+        
+        #lon_dms_label = self.widgets.lon_dms_label
         # fixes for donation editor
         pass
 
