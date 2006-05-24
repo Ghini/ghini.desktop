@@ -377,11 +377,37 @@ class DontCommitException(Exception):
     pass
     
     
+class Problems:
+        
+        _problems = []
+        
+        def add(self, problem):
+            self._problems.append(problem)
+            
+        def remove(self, problem):
+            # TODO: nothing happens if problem does not exist in self.problems
+            # should we ignore it or do..
+            # if problem not in self.problems
+            #   raise KeyError()
+            while 1:
+                try:
+                    self._problems.remove(problem)
+                except:
+                    break
+            
+        def __len__(self):
+            return len(self._problems)
+            
+        def __str__(self):
+            return str(self._problems)
+            
+    
 class GenericEditorPresenter:
     '''
     this class cannont be instantiated
     expects a self.model and self.view
     '''
+    problem_color = gtk.gdk.color_parse('#FFDCDF')
     def __init__(self, model, view, defaults={}):
         '''
         model should be an instance of SQLObjectProxy
@@ -391,7 +417,44 @@ class GenericEditorPresenter:
         self.model = model
         self.view = view
         self.defaults = defaults
+        self.problems = Problems()
 
+
+    def remove_problem(self, problem_id, problem_widgets):
+        '''
+        remove problem_id from self.problems and reset the background color
+        of the widget(s) in problem_widgets
+        '''
+        self.problems.remove(problem_id)
+        if isinstance(problem_widgets, (tuple, list)):
+            for w in problem_widgets:
+                w.modify_bg(gtk.STATE_NORMAL, None)
+                w.modify_base(gtk.STATE_NORMAL, None)
+                w.queue_draw()
+        else:
+            problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
+            problem_widgets.modify_base(gtk.STATE_NORMAL, None)
+            problem_widgets.queue_draw()
+            
+            
+    def add_problem(self, problem_id, problem_widgets=None):
+        '''
+        add problem_id to self.problems and change the background of widget(s) 
+        in problem_widgets
+        problem_widgets: either a widget or list of widgets whose background
+        color should change to indicate a problem
+        '''
+        self.problems.add(problem_id)
+        if isinstance(problem_widgets, (tuple, list)):
+            for w in problem_widgets:
+                w.modify_bg(gtk.STATE_NORMAL, self.problem_color)
+                w.modify_base(gtk.STATE_NORMAL, self.problem_color)
+                w.queue_draw()
+        elif problem_widgets is not None:
+            problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
+            problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
+            problem_widgets.queue_draw()
+    
     
     def bind_widget_to_model(self, widget_name, model_field):
         # TODO: this is just an idea stub, should we have a method like

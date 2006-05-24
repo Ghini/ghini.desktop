@@ -1,5 +1,20 @@
 2006.05.23
 ----------
+- changed the way that the accession editor displays when something is wrong
+with an entry, the old way using event boxes didn't work like i thought
+- moved Problems class into editor.py and added self.problem to 
+GenericEditorPresenter and added GenericEditorPresenter.add_problem and 
+GenericEditorPresenter.remove_problem
+- fix calculation error with accession.dms_to_decimal when the direction is 
+west or source, i.e. negative
+- don't save the elevation accuracy for the accession if the elevation is None
+- make sure that both or neither latitude and longitude are required
+- don't save geo accuracy of latitude and longitude are none
+- desensitize geoacc_entry if latitude or longitude are None
+- desensitize altacc_entry if alt_entry is None
+
+2006.05.23
+----------
 - bumped version to 0.5.1
 - accession editor now gives status is accession entered is a duplicate 
 accession id
