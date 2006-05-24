@@ -449,7 +449,7 @@ class CollectionPresenter(GenericEditorPresenter):
         if text == '':
             self.model.coll_date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE, 
-                                    self.view.widgets.coll_date_entry)
+                                self.view.widgets.coll_date_entry)
             return
         
         dt = None # datetime
@@ -669,24 +669,33 @@ class DonationPresenter(GenericEditorPresenter):
         if text == '':
             self.model.date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE, 
-                                    self.view.widgets.coll_date_entry)
+                                self.view.widgets.don_date_entry)
             return
         
         m = self._date_regex.match(text)
         dt = None # datetime
-        if m is None:
+        try:
+            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                    m.group('day')]]            
+            dt = datetime(*ymd).date()
+            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                self.view.widgets.don_date_entry)
+        except:
             self.add_problem(self.PROBLEM_INVALID_DATE, 
                              self.view.widgets.don_date_entry)
-        else:
-            try:
-                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]            
-                dt = datetime(*ymd).date()
-                self.remove_problem(self.PROBLEM_INVALID_DATE, 
-                                 gets.don_date_entry)
-            except:
-                self.add_problem(self.PROBLEM_INVALID_DATE, 
-                                 self.view.widgets.don_date_entry)
+#        if m is None:
+#            self.add_problem(self.PROBLEM_INVALID_DATE, 
+#                             self.view.widgets.don_date_entry)
+#        else:
+#            try:
+#                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+#                                        m.group('day')]]            
+#                dt = datetime(*ymd).date()
+#                self.remove_problem(self.PROBLEM_INVALID_DATE, 
+#                                 gets.don_date_entry)
+#            except:
+#                self.add_problem(self.PROBLEM_INVALID_DATE, 
+#                                 self.view.widgets.don_date_entry)
                 
         self.model.date = dt
 
@@ -909,26 +918,23 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
     
     def _set_acc_date_from_text(self, text):
-        bg_color = None
         m = self._date_regex.match(text)
         dt = None # datetime
-        if m is None:
-            self.add_problem(self.PROBLEM_INVALID_DATE, 
+        if text == '':
+            # accession date can't be None
+            self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.acc_date_entry)
-            bg_color = gtk.gdk.color_parse("red")
-        else:
-#            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
-#                                    m.group('day')))
-            try:
-                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]
-                dt = datetime(*ymd).date()
-                self.remove_problem(self.PROBLEM_INVALID_DATE, 
-                                    self.view.widgets.acc_date_entry)
-            except:
-                debug(traceback.format_exc())
-                self.add_problem(self.PROBLEM_INVALID_DATE,
-                                 self.view.widgets.acc_date_entry)
+            self.model.date = dt
+        try:
+            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
+                                    m.group('day')]]
+            dt = datetime(*ymd).date()
+            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                self.view.widgets.acc_date_entry)
+        except:
+#            debug(traceback.format_exc())
+            self.add_problem(self.PROBLEM_INVALID_DATE,
+                             self.view.widgets.acc_date_entry)
                         
         self.model.date = dt
         
