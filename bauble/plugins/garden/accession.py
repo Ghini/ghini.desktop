@@ -889,7 +889,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        debug('acc:date_insert: %s' % full_text)
+#        debug('acc:date_insert: %s' % full_text)
         self._set_acc_date_from_text(full_text)
         
 
@@ -1056,9 +1056,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if field == 'elevation':
             if self.source_presenter.model.elevation is not None:            
                 self.view.widgets.altacc_entry.set_sensitive(True)
-                debug('True')
             else: 
-                debug('False')
                 self.view.widgets.altacc_entry.set_sensitive(False)
                 
         sensitive = True
