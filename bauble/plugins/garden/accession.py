@@ -1364,7 +1364,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 #                source_model.geo_accy = None
             
         # reset the elevation accuracy if the elevation is None
-        if source_model.elevation is None:
+        if 'elevation' in source_model and source_model.elevation is None:
             source_model.elevation_accy = None
             
         source_model['accession'] = accession.id
