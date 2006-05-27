@@ -9,6 +9,7 @@ import bauble.paths as paths
 import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.treevieweditor import TreeViewEditorDialog, ComboColumn, TextColumn
+from bauble.editor import *
 from bauble.utils.log import log, debug
 import xml.sax.saxutils as sax
 #from speciesmeta import SpeciesMeta
@@ -174,6 +175,231 @@ class SpeciesSynonym(BaubleTable):
     synonym = ForeignKey('Species', cascade=True)
     
 
+class SpeciesEditorPresenter(GenericEditorPresenter):
+    
+    
+    def __init__(self, model, view, defaults={}):
+        GenericEditorPresenter.__init__(self, model, view)
+        self.defaults = defaults
+        
+        self.vern_presenter = None #VernacularNamePresenter()
+        self.synonyms_presenter = None #SynonymsPresenter()
+        self.meta_presenter = None #SpeciesMetaPresenter()
+        self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
+    
+    def init_genus_entry(self):
+        pass
+        
+    def start(self):
+        return self.view.start()
+        
+        
+    def refresh_view(self):
+        for presenter in self.sub_presenters:
+            presenter.refresh_view()
+        
+    
+        
+class VernacularNamePresenter(GenericEditorPresenter):
+    
+    def __init__(self, model, view, defaults={}):
+        GenericEditorPresenter.__init__(self, model, view)        
+    
+    
+    def refresh_view(self):
+        pass
+    
+    
+    
+class SynonymsPresenter(GenericEditorPresenter):
+    
+    def __init__(self, model, view, defaults={}):
+        GenericEditorPresenter.__init__(self, model, view)        
+        
+        
+    def refresh_view(self):
+        pass
+    
+    
+class SpeciesMetaPresenter(GenericEditorPresenter):    
+    
+    def __init__(self, model, view, defaults={}):
+        GenericEditorPresenter.__init__(self, model, view)        
+        
+        
+    def refresh_view(self):
+        pass
+    
+    
+
+class SpeciesEditorView(GenericEditorView):
+    def __init__(self, parent=None):
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
+                                                      'plugins', 'plants', 
+                                                      'editors.glade'),
+                                   parent=parent)
+        self.dialog = self.widgets.species_dialog
+        self.dialog.set_transient_for(parent)
+        
+        # configure genus_entry
+        completion = gtk.EntryCompletion()    
+        completion.set_match_func(self.genus_completion_match_func)        
+        r = gtk.CellRendererText() # set up the completion renderer
+        completion.pack_start(r)
+        completion.set_cell_data_func(r, self.genus_cell_data_func)        
+        #completion.set_text_column(0)    
+        completion.set_minimum_key_length(2)
+        completion.set_popup_completion(True)                 
+        self.widgets.sp_genus_entry.set_completion(completion)
+        self.restore_state()
+        # TODO: set up automatic signal handling, all signals should be called
+        # on the presenter
+        self.connect_dialog_close(self.widgets.species_dialog)
+        if sys.platform == 'win32':
+            self.do_win32_fixes()
+            
+    def genus_completion_match_func(self, completion, key_string, iter, 
+                                    data=None):
+        '''
+        the only thing this does different is it make the match case insensitve
+        '''
+        value = completion.get_model()[iter][0]
+        return str(value).lower().startswith(key_string.lower())   
+        
+    def genus_cell_data_func(self, column, renderer, model, iter, data=None):
+        v = model[iter][0]
+        renderer.set_property('text', str(v))
+        
+    def do_win32_fixes(self):
+        pass
+        
+    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded', 
+                          'sp_qual_expander': 'editor.species.qual.expanded',
+                          'sp_meta_expander': 'editor.species.meta.expanded'}
+    def save_state(self):        
+        for expander, pref in self.expanders_pref_map.iteritems():
+            prefs[pref] = self.widgets[expander].get_expanded()
+        
+        
+    def restore_state(self):
+        for expander, pref in self.expanders_pref_map.iteritems():
+            expanded = prefs.get(pref, True)
+            self.widgets[expander].set_expanded(expanded)
+
+            
+    def start(self):
+        return self.widgets.species_dialog.run()    
+    
+
+class SpeciesEditor(GenericModelViewPresenterEditor):
+    
+    label = 'Species'
+    # these have to correspond to the response values in the view
+    RESPONSE_OK_AND_ADD = 11
+    RESPONSE_NEXT = 22
+    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
+    
+    def __init__(self, model=Species, defaults={}, parent=None, **kwargs):
+        self.assert_args(model, Species, defaults)
+        GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
+        if parent is None: # should we even allow a change in parent
+            parent = bauble.app.gui.window
+        # keep parent and defaults around in case in start() we get
+        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
+        # editor
+        self.parent = parent
+        self.defaults = defaults 
+        self.view = SpeciesEditorView(parent=parent)
+        self.presenter = SpeciesEditorPresenter(self.model, self.view,
+                                                self.defaults)
+        
+    def start(self, commit_transaction=True):    
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            vernacular_dirty = self.presenter.vern_presenter is not None and \
+                self.presenter.vern_presenter.model.dirty
+            synonyms_dirty = self.presenter.synonyms_presenter is not None and\
+                self.presenter.synonyms_presenter.model.dirty
+            meta_dirty = self.presenter.meta_presenter is not None and\
+                self.presenter.meta_presenter.model.dirty
+            sub_presenters_dirty = vernacular_dirty or synonyms_dirty or meta_dirty
+            if response == gtk.RESPONSE_OK or response in self.ok_responses:
+                try:
+                    committed = self.commit_changes()                
+                except DontCommitException:
+                    continue
+                except BadValue, e:
+                    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                except Exception, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                else:
+                    break
+            elif (self.model.dirty or sub_presenters_dirty) and utils.yes_no_dialog(not_ok_msg):
+                sqlhub.processConnection.rollback()
+                sqlhub.processConnection.begin()
+                self.model.dirty = False
+                break
+            elif not (self.model.dirty or sub_presenters_dirty):
+                break
+            
+        if commit_transaction:
+            sqlhub.processConnection.commit()
+
+        # TODO: if we could get the response from the view
+        # then we could just call GenericModelViewPresenterEditor.start()
+        # and then add this code but GenericModelViewPresenterEditor doesn't
+        # know anything about it's presenter though maybe it should
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            if self.model.isinstance:
+                model = self.model.so_object.__class__
+            else:
+                model = self.model.so_object
+            e = SpeciesEditor(model, self.defaults, self.parent)
+            more_committed = e.start(commit_transaction)
+        elif response == self.RESPONSE_OK_AND_ADD:
+            # TODO: when the plant editor gets it's own glade implementation
+            # we should change accessionID to accession
+            e = editors['AccessionEditor'](parent=self.parent, 
+                                       defaults={'speciesID': committed})
+            more_committed = e.start(commit_transaction)            
+                    
+        if more_committed is not None:
+            committed = [committed]
+            if isinstance(more_committed, list):
+                committed.extend(more_committed)
+            else:
+                committed.append(more_committed)
+                
+        return committed
+    
+    
+    def commit_changes(self):
+        pass
+    def commit_meta_changes(self):
+        pass
+    def comit_vernacular_name_changes(self):
+        pass
+    def commit_synonyms_changes(self):
+        pass
 
 class VernacularNameColumn(TextColumn):
         
@@ -255,7 +481,7 @@ class VernacularNameColumn(TextColumn):
 #
 # Species editor
 #
-class SpeciesEditor(TreeViewEditorDialog):
+class SpeciesEditor_old(TreeViewEditorDialog):
     
     visible_columns_pref = "editor.species.columns"
     column_width_pref = "editor.species.column_width"
