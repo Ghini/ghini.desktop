@@ -17,12 +17,16 @@ import os
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
-from family import Family, FamilyEditor, FamilySynonym, FamilySynonymEditor
-from genus import Genus, GenusSynonym, GenusEditor, GenusSynonymEditor
-from species import Species, SpeciesEditor, SpeciesSynonym, \
+
+from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, FamilySynonymEditor
+from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, GenusSynonymEditor
+from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
+    SpeciesSynonym, VernacularName
+from bauble.plugins.plants.species_editor import SpeciesEditor, \
     SpeciesSynonymEditor, SpeciesInfoBox
-from speciesmeta import SpeciesMeta, SpeciesMetaEditor
-from vernacularname import VernacularName, VernacularNameEditor
+
+from bauble.plugins.plants.speciesmeta import SpeciesMetaEditor
+from bauble.plugins.plants.vernacularname import VernacularNameEditor
 
 
 class PlantsPlugin(BaublePlugin):
