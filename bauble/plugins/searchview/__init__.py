@@ -9,7 +9,7 @@ class SearchViewPlugin(BaublePlugin):
     label = 'Search'
     description = ''    
         
-    from search import SearchView
+    from bauble.plugins.searchview.search import SearchView
     views = [SearchView]
             
 plugin = SearchViewPlugin

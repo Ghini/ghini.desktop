@@ -18,21 +18,6 @@ from bauble.utils.log import log, debug
 
 # TODO: distribution doesn't seem to work in the species infobox
 
-class VernacularName(BaubleTable):
-    
-    name = UnicodeCol(length=64)
-    language = UnicodeCol(length=64)    
-    
-    # default=None b/c the VernacularNameEditor can only be invoked from the 
-    # SpeciesEditor and it should set this on commit
-    species = ForeignKey('Species', default=None, cascade=True)
-
-    index = DatabaseIndex('name', 'language', 'species', unique=True)
-
-    def __str__(self):
-        return self.name
-    
-
 
 # should be able to have a default column that doesn't use the row
 # at all, just keeps the value of the selected row and returns the id 

@@ -11,55 +11,7 @@ from bauble.plugins import BaubleTable, tables, editors
 from bauble.editor import TableEditorDialog
 from bauble.utils.log import log, debug
 
-# TODO create a meta table that holds information about a species 
-# like poisonous, etc. that way we don't have to bumble up species everytime
-# we want to add more meta information
-# TODO: allow us to search on somthing like meta=poisonous
-class SpeciesMeta(BaubleTable):
-    
-    poison_humans = BoolCol(default=None)
-    poison_animals = BoolCol(default=None)
-    
-    # poison_humans should imply food_plant false or whatever value
-    # is meant to be in food_plant
-    #food_plant = StringCol(length=50, default=None)
-    food_plant = BoolCol(default=None)
-    
-    # TODO: create distribution table that holds one of each of the 
-    # geography tables which will hold the plants distribution, this
-    # distribution table could even be part of the geography module
 
-    # UPDATE: it might be better to do something like the source_type in the 
-    # the accessions, do we need the distribution table if we're only
-    # going to be holding one of the value from continent/region/etc, the only
-    # exception is that we also need to hold a cultivated value and possible
-    # something like "tropical", we can probably still use the distribution
-    # table as long as setting to and from the distribution is handled silently
-    #distribution = SingleJoin('Distribution', joinColumn='species_id', 
-    #                           makeDefault=None)
-    # right now we'll just include the string from one of the tdwg 
-    # plant distribution tables though in the future it would be good
-    # to have a SingleJoin to a distribution table so we get the extra
-    # benefit of things like iso codes and hierarchial data, e.g. get
-    # all plants from africa
-    distribution = UnicodeCol(default=None)
-    
-    # this should be set by the editor
-    # FIXME: this could be dangerous and cause dangling meta information
-    # - removing the species removes this meta info
-    species = ForeignKey('Species', default=None, cascade=True)
-    
-    def __str__(self):
-        v = []
-        if self.distribution is not None:
-            v.append(self.distribution)
-        if self.food_plant is not None and self.food_plant:
-            v.append('Food')
-        if self.poison_humans is not None and self.poison_humans:
-            v.append('Poisonous')
-        if self.poison_animals is not None and self.poison_animals:
-            v.append('Poisonous to animals')            
-        return ','.join(v)
     
     
 class SpeciesMetaEditor(TableEditorDialog):

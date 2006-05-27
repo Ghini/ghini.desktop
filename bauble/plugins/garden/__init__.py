@@ -5,12 +5,12 @@
 import os, sys
 from accession import *
 from bauble.plugins import BaublePlugin, plugins, tables
-from accession import Accession, AccessionEditor
-from location import Location, LocationEditor
-from plant import Plant, PlantHistory, PlantEditor, PlantInfoBox
+from bauble.plugins.garden.accession import Accession, AccessionEditor
+from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.plant import Plant, PlantHistory, PlantEditor, PlantInfoBox
 #from reference import Reference, ReferenceEditor
-from source import Donation, Collection
-from donor import Donor, DonorEditor, DonorInfoBox
+from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.donor import Donor, DonorEditor, DonorInfoBox
 
 # other ideas:
 # - cultivation table

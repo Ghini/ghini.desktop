@@ -1,6 +1,11 @@
 2006.05.27
 ----------
 - started toying around with the species editor
+- alot of changes in the plants plugin, all species model definitions were
+moved to species_model.py while all editor(and for now infoboxes) for species
+model are in species_model.py
+- changed all plugins to use absolute instead of relative paths
+- fixed problem with acc_id_entry and the sensitivity/self.problems
 
 2006.05.23
 ----------

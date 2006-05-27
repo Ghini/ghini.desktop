@@ -5,8 +5,8 @@
 import os
 import bauble.paths as paths
 from bauble.plugins import plugins, BaublePlugin
-from country import Country
-from distribution import Continent, Region, Area, State, Place, KewRegion, \
+from bauble.plugins.geography.country import Country
+from bauble.plugins.geography.distribution import Continent, Region, Area, State, Place, KewRegion, \
     Distribution, BotanicalCountry, BasicUnit
 from bauble.utils.log import log, debug
 

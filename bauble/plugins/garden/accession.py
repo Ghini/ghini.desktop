@@ -21,6 +21,7 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
+
 # TODO: colors on the event boxes around some of the entries don't change color 
 # on win32, is this my problem or a gtk+ bug
 
@@ -885,17 +886,15 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     def _set_acc_id_from_text(self, text):
         sr = Accession.selectBy(acc_id=text)
-#        debug(sr)
-#        debug(list(sr))
         if sr.count() > 0:
-            self.model.acc_id = None
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_id_entry)
+            self.model.acc_id = None            
             return
         
-        self.model.acc_id = text
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_id_entry)
+        self.model.acc_id = text
             
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
