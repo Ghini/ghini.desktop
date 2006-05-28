@@ -98,19 +98,9 @@ class Species(BaubleTable):
     @staticmethod
     def str(species, authors=False, markup=False):
         """
-        return the full plant name string
-        NOTE: it may be better to create a separate method for the markup
-        since substituting into the italic make slow things down, should do 
-        some benchmarks. also, which is faster, doing substitution this way or
-        by using concatenation
+        return the full plant name string        
         """    
-        # TODO: should do a translation table for any entities that might
-        # be in the author strings and use translate, what else besided 
-        # ampersand could be in the author name
-        # TODO: how complete is this for the latest nomenclature code?
-        # TODO: optimize: (1) be sure to use % substitution in instead of +=, 
-        # (2) maybe create the name in parts and return them all combined in 
-        # the end
+        # TODO: how complete is this for the latest nomenclature code?        
         # TODO: create tests for all possible name combinations 
         #genus, sp_hybrid, id_qual, sp, sp_hybrid, infrasp, cv_group
         if markup:
@@ -118,48 +108,48 @@ class Species(BaubleTable):
             escape = sax.escape
         else:
             italic = "%s"
-            escape = lambda x: x        
-        name = italic % str(species.genus)
-
+            escape = lambda x: x
+            
+        name = []
+        name.append(italic % str(species.genus))
+        
         # id qualifier
         if species.id_qual:
-            name += " %s" % species.id_qual
+            name.append(species.id_qual)
             
         # take care of species hybrid
         if species.sp_hybrid:
             # we don't have a second sp name for the hyrbid formula right now
             # so we'll just use the isp for now
             if species.infrasp is not None:
-                name += " %s %s %s " % (italic % species.sp, 
-                                        species.sp_hybrid,
-                                        italic % species.infrasp)
-            else:
-                name += ' %s %s' % (species.sp_hybrid or '', species.sp)
-        else:
-            name = ' '.join([name, italic % species.sp])
+                name.extend([italic % species.sp, species.sp_hybrid,
+                             italic % species.infrasp])
+            else:                
+                name.extend([species.sp_hybrid or '', species.sp])
+        else:            
+            name.append(italic % species.sp)
             
         # cultivar groups and cultivars
         if species.cv_group is not None:
-            if species.infrasp_rank == "cv.":
-                name += ' (' + species.cv_group + " Group) '" + \
-                italic % species.infrasp + "'"
-            else: 
-                name += ' ' + species.cv_group + ' Group'
-            return name
+            if species.infrasp_rank == "cv.":                
+                name.extend(['(%s Group)' % species.cv_group, 
+                             "'%s'" % italic % species.infrasp])
+            else:                                 
+                name.append('%s Group' % species.cv_group)
+            return ' '.join(name)
         
         if species.sp_author is not None and authors is not False:
-            #name += ' ' + species.sp_author.replace('&', '&amp;')
-            name += ' ' + escape(species.sp_author)
+            name.append(escape(species.sp_author))
         
         if species.infrasp_rank:
             if species.infrasp_rank == "cv.":
-                name += " '" + species.infrasp + "'"
+                name.append("'%s'" % species.infrasp)
             else:
-                name = '%s %s %s' % (name, species.infrasp_rank, 
-                                     italic % species.infrasp)
+                name.extend([species.infrasp_rank, italic % species.infrasp])
                 if species.infrasp_author is not None and authors is not False:
-                    name += ' ' + escape(species.infrasp_author)
-        return name
+                    name.append(escape(species.infrasp_author))
+                    
+        return ' '.join(name)
     
 
     

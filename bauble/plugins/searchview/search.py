@@ -102,31 +102,31 @@ class SearchParser:
 
     def __init__(self):	
 
-	domain = Word(alphanums).setResultsName('domain')
-	quotes = Word('"\'')    
+    	domain = Word(alphanums).setResultsName('domain')
+    	quotes = Word('"\'')    
+        
+    	value_str_chars = alphanums + '*;.'
+    	value_str = Word(value_str_chars)
+    	quoted_value_str = Optional(quotes).suppress() + \
+    	    Word(value_str_chars+' ') + Optional(quotes).suppress()
+    	_values = delimitedList(value_str | quoted_value_str)
+    	values = Group(_values).setResultsName('values')
+    	
+    	operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
+    	expression = domain + operator + values + StringEnd()
     
-	value_str_chars = alphanums + '*;.'
-	value_str = Word(value_str_chars)
-	quoted_value_str = Optional(quotes).suppress() + \
-	    Word(value_str_chars+' ') + Optional(quotes).suppress()
-	_values = delimitedList(value_str | quoted_value_str)
-	values = Group(_values).setResultsName('values')
-	
-	operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
-	expression = domain + operator + values + StringEnd()
-
-	subdomain = Word(alphanums + '._').setResultsName('subdomain')
-	query_expression = (subdomain + operator + \
-			    values).setResultsName('query')
-
-	query = domain + CaselessKeyword("where").suppress() + subdomain + \
-	    operator + values + StringEnd()
-
-	self.statement = (query | expression | (values + StringEnd()))
+    	subdomain = Word(alphanums + '._').setResultsName('subdomain')
+    	query_expression = (subdomain + operator + \
+    			    values).setResultsName('query')
+    
+    	query = domain + CaselessKeyword("where").suppress() + subdomain + \
+    	    operator + values + StringEnd()
+    
+    	self.statement = (query | expression | (values + StringEnd()))
 		
 
     def parse_string(self, text):
-	return self.statement.parseString(text)
+        return self.statement.parseString(text)
 	
 
 
@@ -457,7 +457,8 @@ class SearchView(BaubleView):
             raise BaubleError('invalid tokens')
         return results
         
-
+    nresults_statusbar_context = 'searchview.nresults'
+    
     def search(self, text):
         """
         search the database using text
@@ -471,44 +472,33 @@ class SearchView(BaubleView):
         # clear the old model
         self.set_sensitive(False)
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        self.results_view.set_model(None)        
+        self.results_view.set_model(None)      
+        statusbar = bauble.app.gui.statusbar        
+        sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        results = []
+        error_msg = None
         try:
     	    tokens = self.parser.parse_string(text)	    
-    #	    debug(tokens)
-    	    if 'domain' in tokens and tokens['domain'] not in self.domain_map:
-                raise SyntaxError(None, tokens['domain'])
+            if 'domain' in tokens and tokens.domain not in self.domain_map:
+                raise SyntaxError("Unknown search domain: %s" % tokens.domain)
     	    results = self._get_search_results_from_tokens(tokens)
-    	    if len(results) == 0:
-        		model = gtk.ListStore(str)
-        		model.append(["Couldn't find anything"])
-        		self.results_view.set_model(model)
-    	    else:
-                self.populate_results(results)
-        except SyntaxError, (msg, domain):
-            model = gtk.ListStore(str)
-            model.append(["Unknown search domain: " + domain])
-            self.results_view.set_model(model)
         except ParseException, err:
-            msg = 'Error in search string at column %s' % err.column
+            error_msg = 'Error in search string at column %s' % err.column
+        except (bauble.BaubleError, AttributeError, Exception, SyntaxError), e:
+#            debug(traceback.format_exc())
+            error_msg = '** Error: %s' % e
+                    
+        if len(results) == 0:
             model = gtk.ListStore(str)
-            model.append([msg])
+            if error_msg is not None:
+                model.append([error_msg])
+            else:
+                model.append(["Couldn't find anything"])
+            statusbar.pop(sbcontext_id)
             self.results_view.set_model(model)
-        except AttributeError, err:
-            msg = err
-            model = gtk.ListStore(str)
-            model.append([msg])
-            self.results_view.set_model(model)
-        except bauble.BaubleError, e:
-            debug('BaubleError')
-            debug(e)
-            model = gtk.ListStore(str)
-            model.append(['** Error: %s' % e])
-            self.results_view.set_model(model)
-        except Exception ,e:		
-            model = gtk.ListStore(str)
-            debug(traceback.format_exc())
-            model.append(['** Error: %s' % e])
-            self.results_view.set_model(model)
+        else:
+            self.populate_results(results)
+            statusbar.push(sbcontext_id, "%s results" % len(results))  
 	    		    
         self.set_sensitive(True)
         bauble.app.gui.window.window.set_cursor(None)
@@ -583,6 +573,7 @@ class SearchView(BaubleView):
 
     def populate_results(self, select):
         bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        
         #self.set_sensitive(False)	
         results = []
         added = False
