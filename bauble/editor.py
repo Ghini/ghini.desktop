@@ -533,7 +533,15 @@ class GenericEditorPresenter:
                 #self.model[model_field] = data
                 _set_in_model(data, field)
                 
-            widget.connect('changed', changed)                
+            widget.connect('changed', changed)
+        elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton, 
+                                 gtk.RadioButton)):
+            def toggled(button, data=None):
+                active = button.get_active()
+                button.set_inconsistent(False)
+                _set_in_model(not active, model_field)                
+            widget.connect('toggled', toggled)
+            
         else:
             raise ValueError('assign_simple_handler() -- '\
                              'widget type not supported: %s' % type(widget))

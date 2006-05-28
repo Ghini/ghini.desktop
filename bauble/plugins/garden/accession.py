@@ -1079,8 +1079,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
         self.view.widgets.acc_next_button.set_sensitive(sensitive)
             
-        
-        
     
     def init_change_notifier(self):
         '''

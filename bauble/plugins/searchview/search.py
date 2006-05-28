@@ -457,6 +457,7 @@ class SearchView(BaubleView):
             raise BaubleError('invalid tokens')
         return results
         
+        
     nresults_statusbar_context = 'searchview.nresults'
     
     def search(self, text):
@@ -485,7 +486,7 @@ class SearchView(BaubleView):
         except ParseException, err:
             error_msg = 'Error in search string at column %s' % err.column
         except (bauble.BaubleError, AttributeError, Exception, SyntaxError), e:
-#            debug(traceback.format_exc())
+            debug(traceback.format_exc())
             error_msg = '** Error: %s' % e
                     
         if len(results) == 0:
