@@ -2,36 +2,164 @@
 # Species table definition
 #
 import os
-import gtk
+import gtk, gobject
 from sqlobject import *
+from sqlobject.sqlbuilder import _LikeQuoted
+#import bauble
 import bauble.utils as utils
 import bauble.paths as paths
-import bauble
 from bauble.plugins import tables, editors
-from bauble.treevieweditor import TreeViewEditorDialog, ComboColumn, TextColumn
+#from bauble.treevieweditor import TreeViewEditorDialog, ComboColumn, TextColumn
 from bauble.editor import *
 from bauble.utils.log import log, debug
 import xml.sax.saxutils as sax
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
     SpeciesSynonym, VernacularName
 
-# TODO: SpeciesMetaEditor isn't modal on the SpeciesEditor    
+# TODO: need to make sure that unicode values are being stored properly from
+# the entry, e.g. species_author should store unicode
 
 class SpeciesEditorPresenter(GenericEditorPresenter):
+    
+    PROBLEM_INVALID_GENUS = 1
+    
+    widget_to_field_map = {'sp_species_entry': 'sp',
+                           'sp_author_entry': 'sp_author',
+                           'sp_infra_rank_combo': 'infrasp_rank',
+                           'sp_infra_entry': 'infrasp',
+                           'sp_cvgroup_entry': 'cv_group',
+                           'sp_infra_author_entry': 'infrasp_author',
+                           'sp_idqual_combo': 'id_qual',
+                           'sp_spqual_combo': 'sp_qual',
+                           'sp_notes_textview': 'notes'}
     
     
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
-        
+        self.assign_simple_handler('sp_species_entry', 'sp')
+        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
+        self.assign_simple_handler('sp_infra_entry', 'infrasp')
+        self.assign_simple_handler('sp_cvgroup_entry', 'cv_group')
+        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author')
+        self.assign_simple_handler('sp_idqual_combo', 'id_qual')
+        self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
+        self.assign_simple_handler('sp_author_entry', 'sp_author')
+        self.assign_simple_handler('sp_notes_textview', 'notes')
+        self.init_genus_entry()
+        self.init_combos()
         self.vern_presenter = None #VernacularNamePresenter()
         self.synonyms_presenter = None #SynonymsPresenter()
         self.meta_presenter = None #SpeciesMetaPresenter()
         self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
     
+    
     def init_genus_entry(self):
-        pass
+        genus_entry = self.view.widgets.sp_genus_entry
+        completion = genus_entry.get_completion()
+        completion.connect('match-selected', self.on_genus_match_selected)
+        if self.model.genus is not None:
+            self.idle_add_species_completions(str(self.model.genus)[:2])
+        self.insert_genus_sid = genus_entry.connect('insert-text', 
+                                                self.on_genus_entry_insert)
+        genus_entry.connect('delete-text', self.on_genus_entry_delete)
+    
+    
+    def init_combos(self):
+        combos = ['sp_infra_rank_combo', 'sp_idqual_combo', 'sp_spqual_combo']
+        for combo_name in combos:
+            combo = self.view.widgets[combo_name]
+            combo.clear()
+            r = gtk.CellRendererText()
+            combo.pack_start(r, True)
+            combo.add_attribute(r, 'text', 0)            
+            model = gtk.ListStore(str)
+            column = self.model.columns[self.widget_to_field_map[combo_name]]
+            for enum in sorted(column.enumValues):
+                if enum == None:
+                    combo.append_text('')
+                else:
+                    combo.append_text(enum)
+          
         
+    def idle_add_genus_completions(self, text):
+#        debug('idle_add_genus_competions: %s' % text)        
+        like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % text))
+        sr = tables["Genus"].select('genus LIKE %s' % like_genus)
+        def _add_completion_callback(select):
+            model = gtk.ListStore(object)
+            for genus in select:  
+                model.append([genus])  
+            completion = self.view.widgets.sp_genus_entry.get_completion()
+            completion.set_model(model)
+        gobject.idle_add(_add_completion_callback, sr)
+    
+    
+    def on_genus_match_selected(self, completion, compl_model, iter):
+        '''
+        put the selected value in the model
+        '''                
+        genus = compl_model[iter][0]
+#        debug('selected: %s' % str(species))
+        entry = self.view.widgets.sp_genus_entry
+        entry.handler_block(self.insert_genus_sid)
+        entry.set_text(str(genus))
+        entry.handler_unblock(self.insert_genus_sid)
+        entry.set_position(-1)
+        self.remove_problem(self.PROBLEM_INVALID_GENUS, 
+                            self.view.widgets.sp_genus_entry)
+        self.model.genus = genus
+#        debug('%s' % self.model)
+        self.prev_text = str(genus)
+
+
+    def on_genus_entry_delete(self, entry, start, end, data=None):
+#        debug('on_species_delete: \'%s\'' % entry.get_text())        
+#        debug(self.model.species)
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        if full_text == '' or (full_text == str(self.model.genus)):
+            return
+        self.add_problem(self.PROBLEM_INVALID_GENUS, 
+                         self.view.widgets.species_entry)
+        self.model.species = None
+        
+    
+    def on_genus_entry_insert(self, entry, new_text, new_text_length, position, 
+                       data=None):
+        # TODO: this is flawed since we can't get the index into the entry
+        # where the text is being inserted so if the user inserts text into 
+        # the middle of the string then this could break
+#        debug('on_species_insert_text: \'%s\'' % new_text)
+#        debug('%s' % self.model)
+        if new_text == '':
+            # this is to workaround the problem of having a second 
+            # insert-text signal called with new_text = '' when there is a 
+            # custom renderer on the entry completion for this entry
+            # block the signal from here since it will call this same
+            # method again and resetting the species completions            
+            entry.handler_block(self.insert_genus_sid)
+            entry.set_text(self.prev_text)
+            entry.handler_unblock(self.insert_genus_sid)
+            return False # is this 'False' necessary, does it do anything?
+            
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        # this funny logic is so that completions are reset if the user
+        # paste multiple characters in the entry    
+        if len(new_text) == 1 and len(full_text) == 2:
+            self.idle_add_genus_completions(full_text)
+        elif new_text_length > 2:# and entry_text != '':
+            self.idle_add_genus_completions(full_text[:2])
+        self.prev_text = full_text
+        
+        if full_text != str(self.model.genus):
+            self.add_problem(self.PROBLEM_INVALID_GENUS, 
+                             self.view.widgets.sp_genus_entry)
+            self.model.genus = None
+#        debug('%s' % self.model)
+    
     def start(self):
         return self.view.start()
         
@@ -75,6 +203,12 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
     
 
 class SpeciesEditorView(GenericEditorView):
+    
+    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded', 
+                          'sp_qual_expander': 'editor.species.qual.expanded',
+                          'sp_meta_expander': 'editor.species.meta.expanded'}
+    
+    
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
                                                       'plugins', 'plants', 
@@ -100,6 +234,7 @@ class SpeciesEditorView(GenericEditorView):
         if sys.platform == 'win32':
             self.do_win32_fixes()
             
+            
     def genus_completion_match_func(self, completion, key_string, iter, 
                                     data=None):
         '''
@@ -108,16 +243,16 @@ class SpeciesEditorView(GenericEditorView):
         value = completion.get_model()[iter][0]
         return str(value).lower().startswith(key_string.lower())   
         
+        
     def genus_cell_data_func(self, column, renderer, model, iter, data=None):
         v = model[iter][0]
         renderer.set_property('text', str(v))
         
+        
     def do_win32_fixes(self):
         pass
         
-    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded', 
-                          'sp_qual_expander': 'editor.species.qual.expanded',
-                          'sp_meta_expander': 'editor.species.meta.expanded'}
+        
     def save_state(self):        
         for expander, pref in self.expanders_pref_map.iteritems():
             prefs[pref] = self.widgets[expander].get_expanded()
@@ -235,6 +370,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     
     
     def commit_changes(self):
+        debug(self.model)
         pass
     def commit_meta_changes(self):
         pass
@@ -243,295 +379,295 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     def commit_synonyms_changes(self):
         pass
 
-class VernacularNameColumn(TextColumn):
-        
-    def __init__(self, tree_view_editor, header):
-        # this is silly to have the get the join this way
-        vern_join = None
-        for j in Species.sqlmeta.joins: 
-            if j.joinMethodName == 'vernacular_names':
-                vern_join = j
-                break
-        assert vern_join is not None
-        super(VernacularNameColumn, self).__init__(tree_view_editor, header,
-               so_col=vern_join)
-        self.meta.editor = editors['VernacularNameEditor']
-
-    
-    def _start_editor(self, path):        
-        model = self.table_editor.view.get_model()
-        row = model[model.get_iter(path)][0]
-        existing = row[self.name]
-        old_committed = []
-        select = None    
-        if isinstance(existing, tuple): # existing/pending pair
-            existing, old_committed = existing
-            if existing is None: # nothing already exist
-                select = old_committed
-            else:
-                select = existing+old_committed
-        else:
-            select = existing
-        e = self.meta.editor(select=select,
-                             default_name=row['default_vernacular_nameID'])
-        returned = e.start(False)
-        if returned is None:
-            return
-        default_name, committed_names = returned # unpack
-        if default_name is not None and committed_names is not None:
-            model = self.table_editor.view.get_model()
-            i = model.get_iter(path)
-            row = model.get_value(i, 0)
-            row['default_vernacular_nameID'] = default_name
-            if committed_names is not None and len(committed_names) > 0:
-                row['vernacular_names'] = (existing, 
-                                           old_committed+committed_names)
-            # why do we emit edited? to set the values in the model
-            self.renderer.emit('edited', path, default_name) 
-            self.dirty = True
-
-
-    def cell_data_func(self, column, renderer, model, iter, data=None):
-        row = model.get_value(iter, 0)
-        all_names = row[self.name]
-        if row.committed:
-            renderer.set_property('sensitive', False)
-            renderer.set_property('editable', False)
-        else:
-            renderer.set_property('sensitive', True)
-            renderer.set_property('editable', True)        
-
-        if all_names is not None:
-            default_name = row['default_vernacular_nameID']            
-            #debug(default_name)
-            if isinstance(all_names, tuple): 
-                existing, pending = all_names
-                if existing is None:
-                    renderer.set_property('text', '%s (%s pending)' \
-                                      % (default_name, len(pending)))
-                else:
-                    renderer.set_property('text', '%s (%s names, %s pending)' \
-                                          % (default_name, len(existing), 
-                                             len(pending)))
-            else:
-                renderer.set_property('text', '%s (%s names)' \
-                                      % (default_name, len(all_names)))                                      
-        else:
-            renderer.set_property('text', None)
-
-
+#class VernacularNameColumn(TextColumn):
+#        
+#    def __init__(self, tree_view_editor, header):
+#        # this is silly to have the get the join this way
+#        vern_join = None
+#        for j in Species.sqlmeta.joins: 
+#            if j.joinMethodName == 'vernacular_names':
+#                vern_join = j
+#                break
+#        assert vern_join is not None
+#        super(VernacularNameColumn, self).__init__(tree_view_editor, header,
+#               so_col=vern_join)
+#        self.meta.editor = editors['VernacularNameEditor']
 #
-# Species editor
+#    
+#    def _start_editor(self, path):        
+#        model = self.table_editor.view.get_model()
+#        row = model[model.get_iter(path)][0]
+#        existing = row[self.name]
+#        old_committed = []
+#        select = None    
+#        if isinstance(existing, tuple): # existing/pending pair
+#            existing, old_committed = existing
+#            if existing is None: # nothing already exist
+#                select = old_committed
+#            else:
+#                select = existing+old_committed
+#        else:
+#            select = existing
+#        e = self.meta.editor(select=select,
+#                             default_name=row['default_vernacular_nameID'])
+#        returned = e.start(False)
+#        if returned is None:
+#            return
+#        default_name, committed_names = returned # unpack
+#        if default_name is not None and committed_names is not None:
+#            model = self.table_editor.view.get_model()
+#            i = model.get_iter(path)
+#            row = model.get_value(i, 0)
+#            row['default_vernacular_nameID'] = default_name
+#            if committed_names is not None and len(committed_names) > 0:
+#                row['vernacular_names'] = (existing, 
+#                                           old_committed+committed_names)
+#            # why do we emit edited? to set the values in the model
+#            self.renderer.emit('edited', path, default_name) 
+#            self.dirty = True
 #
-class SpeciesEditor_old(TreeViewEditorDialog):
-    
-    visible_columns_pref = "editor.species.columns"
-    column_width_pref = "editor.species.column_width"
-    default_visible_list = ['genus', 'sp']
-    
-    label = 'Species'
-    
-    def __init__(self, parent=None, select=None, defaults={}, **kwargs):  
-        TreeViewEditorDialog.__init__(self, tables["Species"],
-                                      "Species Editor", parent,
-                                      select=select, defaults=defaults, 
-                                      **kwargs)
-        titles = {"genusID": "Genus",
-		  "sp": "Species",
-		  "sp_hybrid": "Sp. hybrid",
-		  "sp_qual": "Sp. qualifier",
-		  "sp_author": "Sp. author",
-		  "cv_group": "Cv. group",
-#                   "cv": "Cultivar",
-#                   "trades": "Trade name",
-#                   "supfam": 'Super family',
-#                   'subgen': 'Subgenus',
-#                   'subgen_rank': 'Subgeneric rank',
-		  'infrasp': 'Isp. epithet',
-		  'infrasp_rank': 'Isp. rank',
-		  'infrasp_author': 'Isp. author',
-#                   'iucn23': 'IUCN 2.3\nCategory',
-#                   'iucn31': 'IUCN 3.1\nCategory',
-		  'id_qual': 'ID qualifier',
-#                   'distribution': 'Distribution'
-		  'species_meta': 'Meta Info',
-		  'notes': 'Notes',
-#                    'default_vernacular_nameID': 'Vernacular Names',
-		  'synonyms': 'Synonyms',
-		  'vernacular_names': 'Vernacular Names',
-		  }
-
-        # make a custom distribution column
-#        self.columns.pop('distribution') # this probably isn't necessary     
-#        dist_column = ComboColumn(self.view, 'Distribution',
-#                           so_col = Species.sqlmeta.columns['distribution'])
-#        dist_column.model = self.make_model()
-#        self.columns['distribution'] = dist_column                    
-        #self.columns['species_meta'] = \
-        #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
-        #self.columns['default_vernacular_nameID'] = \
-        
-        # remove the default vernacular name column have this set
-        # by the VernacularNameColumn, but we have to make sure that the
-        # default vernacular name is listed in the foreign keys or we'll 
-        # commit_changes won't know to set it
-        
-        self.columns.pop('default_vernacular_nameID')
-        #self.columns.foreign_keys.append('default_vernacular_nameID')
-        self.columns['vernacular_names'] = \
-            VernacularNameColumn(self, 'Vernacular Names')
-        
-        self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
-        self.columns.titles = titles                     
-                     
-        # set completions
-        self.columns["genusID"].meta.get_completions= self.get_genus_completions
-        self.columns['synonyms'].meta.editor = editors["SpeciesSynonymEditor"]
-    
-        
-#    def commit_changes_NO(self):
-#        # TODO: speciess are a complex typle where more than one field
-#        # make the plant unique, write a custom commit_changes to get the value
-#        # from the table as a dictionary, convert this dictionary to 
-#        # an object that can be accessed by attributes so it mimic a 
-#        # Species object, pass the dict to species2str and test
-#        # that a species with the same name doesn't already exist in the 
-#        # database, if it does exist then ask the use what they want to do
-#        #super(SpeciesEditor, self).commit_changes()
-#        values = self.get_values_from_view()
-    
-          
-    def _model_row_to_values(self, row):    
-        # need to test each of the values that make up the species
-        # against the database, not just the string, i guess we need to
-        # check each of the keys in values, check if they are name components
-        # use each of these values in a query to speciess
-	values = super(SpeciesEditor, self)._model_row_to_values(row)
-	if values is None:
-	    return values
-
-        if values.has_key('id'):
-            return values
-        exists = False
-        select_values = {}
-        try:
-            select_values['genusID'] = values['genusID'].id
-            select_values['sp'] = values['sp']        
-        except KeyError, e:
-            raise bauble.BaubleError('You must enter the required field %s' %e)
-            
-        sel = Species.selectBy(**select_values)
-        names = ""
-        for s in sel:
-            exists = True
-            names += "%d: %s\n" % (s.id, s)
-        msg  = "The following plant names are similiar to the plant name you "\
-               "are trying to create. Are your sure this is what you want to "\
-               "do?\n\n" + names
-        if exists and not utils.yes_no_dialog(msg):
-            return None
-        return values
-
-
-    def get_genus_completions(self, text):
-        model = gtk.ListStore(str, object)
-        sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
-        for row in sr: 
-            model.append([str(row), row])
-        return model
-                
-    
-    def on_genus_completion_match_selected(self, completion, model, 
-                                           iter, path):
-        """
-        all foreign keys should use entry completion so you can't type in
-        values that don't already exists in the database, therefore, allthough
-        i don't like it the view.model.row is set here for foreign key columns
-        and in self.on_renderer_edited for other column types                
-        """        
-        genus = model.get_value(iter, 1)
-        self.set_view_model_value(path, "genusID", genus)        
-        
-                                    
-#    def make_model(self):
-#        model = gtk.TreeStore(str)
-#        model.append(None, ["Cultivated"])
-#        for continent in tables['Continent'].select(orderBy='continent'):
-#            p1 = model.append(None, [str(continent)])
-#            for region in continent.regions:
-#                p2 = model.append(p1, [str(region)])
-#                for country in region.botanical_countries:
-#                    p3 = model.append(p2, [str(country)])
-#                    for unit in country.units:
-#                        if str(unit) != str(country):
-#                            model.append(p3, [str(unit)])    
+#
+#    def cell_data_func(self, column, renderer, model, iter, data=None):
+#        row = model.get_value(iter, 0)
+#        all_names = row[self.name]
+#        if row.committed:
+#            renderer.set_property('sensitive', False)
+#            renderer.set_property('editable', False)
+#        else:
+#            renderer.set_property('sensitive', True)
+#            renderer.set_property('editable', True)        
+#
+#        if all_names is not None:
+#            default_name = row['default_vernacular_nameID']            
+#            #debug(default_name)
+#            if isinstance(all_names, tuple): 
+#                existing, pending = all_names
+#                if existing is None:
+#                    renderer.set_property('text', '%s (%s pending)' \
+#                                      % (default_name, len(pending)))
+#                else:
+#                    renderer.set_property('text', '%s (%s names, %s pending)' \
+#                                          % (default_name, len(existing), 
+#                                             len(pending)))
+#            else:
+#                renderer.set_property('text', '%s (%s names)' \
+#                                      % (default_name, len(all_names)))                                      
+#        else:
+#            renderer.set_property('text', None)
+#
+#
+##
+## Species editor
+##
+#class SpeciesEditor_old(TreeViewEditorDialog):
+#    
+#    visible_columns_pref = "editor.species.columns"
+#    column_width_pref = "editor.species.column_width"
+#    default_visible_list = ['genus', 'sp']
+#    
+#    label = 'Species'
+#    
+#    def __init__(self, parent=None, select=None, defaults={}, **kwargs):  
+#        TreeViewEditorDialog.__init__(self, tables["Species"],
+#                                      "Species Editor", parent,
+#                                      select=select, defaults=defaults, 
+#                                      **kwargs)
+#        titles = {"genusID": "Genus",
+#		  "sp": "Species",
+#		  "sp_hybrid": "Sp. hybrid",
+#		  "sp_qual": "Sp. qualifier",
+#		  "sp_author": "Sp. author",
+#		  "cv_group": "Cv. group",
+##                   "cv": "Cultivar",
+##                   "trades": "Trade name",
+##                   "supfam": 'Super family',
+##                   'subgen': 'Subgenus',
+##                   'subgen_rank': 'Subgeneric rank',
+#		  'infrasp': 'Isp. epithet',
+#		  'infrasp_rank': 'Isp. rank',
+#		  'infrasp_author': 'Isp. author',
+##                   'iucn23': 'IUCN 2.3\nCategory',
+##                   'iucn31': 'IUCN 3.1\nCategory',
+#		  'id_qual': 'ID qualifier',
+##                   'distribution': 'Distribution'
+#		  'species_meta': 'Meta Info',
+#		  'notes': 'Notes',
+##                    'default_vernacular_nameID': 'Vernacular Names',
+#		  'synonyms': 'Synonyms',
+#		  'vernacular_names': 'Vernacular Names',
+#		  }
+#
+#        # make a custom distribution column
+##        self.columns.pop('distribution') # this probably isn't necessary     
+##        dist_column = ComboColumn(self.view, 'Distribution',
+##                           so_col = Species.sqlmeta.columns['distribution'])
+##        dist_column.model = self.make_model()
+##        self.columns['distribution'] = dist_column                    
+#        #self.columns['species_meta'] = \
+#        #    TextColumn(self.view, 'Species Meta', so_col=Species.sqlmeta.joins['species_meta'])
+#        #self.columns['default_vernacular_nameID'] = \
+#        
+#        # remove the default vernacular name column have this set
+#        # by the VernacularNameColumn, but we have to make sure that the
+#        # default vernacular name is listed in the foreign keys or we'll 
+#        # commit_changes won't know to set it
+#        
+#        self.columns.pop('default_vernacular_nameID')
+#        #self.columns.foreign_keys.append('default_vernacular_nameID')
+#        self.columns['vernacular_names'] = \
+#            VernacularNameColumn(self, 'Vernacular Names')
+#        
+#        self.columns['species_meta'].meta.editor = editors["SpeciesMetaEditor"]
+#        self.columns.titles = titles                     
+#                     
+#        # set completions
+#        self.columns["genusID"].meta.get_completions= self.get_genus_completions
+#        self.columns['synonyms'].meta.editor = editors["SpeciesSynonymEditor"]
+#    
+#        
+##    def commit_changes_NO(self):
+##        # TODO: speciess are a complex typle where more than one field
+##        # make the plant unique, write a custom commit_changes to get the value
+##        # from the table as a dictionary, convert this dictionary to 
+##        # an object that can be accessed by attributes so it mimic a 
+##        # Species object, pass the dict to species2str and test
+##        # that a species with the same name doesn't already exist in the 
+##        # database, if it does exist then ask the use what they want to do
+##        #super(SpeciesEditor, self).commit_changes()
+##        values = self.get_values_from_view()
+#    
+#          
+#    def _model_row_to_values(self, row):    
+#        # need to test each of the values that make up the species
+#        # against the database, not just the string, i guess we need to
+#        # check each of the keys in values, check if they are name components
+#        # use each of these values in a query to speciess
+#	values = super(SpeciesEditor, self)._model_row_to_values(row)
+#	if values is None:
+#	    return values
+#
+#        if values.has_key('id'):
+#            return values
+#        exists = False
+#        select_values = {}
+#        try:
+#            select_values['genusID'] = values['genusID'].id
+#            select_values['sp'] = values['sp']        
+#        except KeyError, e:
+#            raise bauble.BaubleError('You must enter the required field %s' %e)
+#            
+#        sel = Species.selectBy(**select_values)
+#        names = ""
+#        for s in sel:
+#            exists = True
+#            names += "%d: %s\n" % (s.id, s)
+#        msg  = "The following plant names are similiar to the plant name you "\
+#               "are trying to create. Are your sure this is what you want to "\
+#               "do?\n\n" + names
+#        if exists and not utils.yes_no_dialog(msg):
+#            return None
+#        return values
+#
+#
+#    def get_genus_completions(self, text):
+#        model = gtk.ListStore(str, object)
+#        sr = tables["Genus"].select("genus LIKE '"+text+"%'")        
+#        for row in sr: 
+#            model.append([str(row), row])
 #        return model
-                            
-      
-    def foreign_does_not_exist(self, name, value):
-        self.add_genus(value)    
-
-
-    def add_genus(self, name):
-        msg = "The Genus %s does not exist. Would you like to add it?" % name
-        if utils.yes_no_dialog(msg):
-            print "add genus"
-
-        
-
-# 
-# SpeciesSynonymEditor
+#                
+#    
+#    def on_genus_completion_match_selected(self, completion, model, 
+#                                           iter, path):
+#        """
+#        all foreign keys should use entry completion so you can't type in
+#        values that don't already exists in the database, therefore, allthough
+#        i don't like it the view.model.row is set here for foreign key columns
+#        and in self.on_renderer_edited for other column types                
+#        """        
+#        genus = model.get_value(iter, 1)
+#        self.set_view_model_value(path, "genusID", genus)        
+#        
+#                                    
+##    def make_model(self):
+##        model = gtk.TreeStore(str)
+##        model.append(None, ["Cultivated"])
+##        for continent in tables['Continent'].select(orderBy='continent'):
+##            p1 = model.append(None, [str(continent)])
+##            for region in continent.regions:
+##                p2 = model.append(p1, [str(region)])
+##                for country in region.botanical_countries:
+##                    p3 = model.append(p2, [str(country)])
+##                    for unit in country.units:
+##                        if str(unit) != str(country):
+##                            model.append(p3, [str(unit)])    
+##        return model
+#                            
+#      
+#    def foreign_does_not_exist(self, name, value):
+#        self.add_genus(value)    
 #
-class SpeciesSynonymEditor(TreeViewEditorDialog):
-
-    visible_columns_pref = "editor.species_syn.columns"
-    column_width_pref = "editor.species_syn.column_width"
-    default_visible_list = ['synonym']
-    
-    standalone = False
-    label = 'Species Synonym'
-    
-    def __init__(self, parent=None, select=None, defaults={}, **kwargs):        
-        TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
-                                      "Species Synonym Editor", 
-                                      parent, select=select, 
-                                      defaults=defaults, *kwargs)
-        titles = {'synonymID': 'Synonym of Species'}
-                  
-        # can't be edited as a standalone so the species should only be set by
-        # the parent editor
-        self.columns.pop('speciesID')
-        
-        self.columns.titles = titles
-        self.columns["synonymID"].meta.get_completions = \
-            self.get_species_completions
-
-
-    def get_species_completions(self, text):
-        # get entry and determine from what has been input which
-        # field is currently being edited and give completion
-        # if this return None then the entry will never search for completions
-        # TODO: finish this, it would be good if we could just stick
-        # the table row in the model and tell the renderer how to get the
-        # string to match on, though maybe not as fast, and then to get
-        # the value we would only have to do a row.id instead of storing
-        # these tuples in the model
-        # UPDATE: the only problem with sticking the table row in the column
-        # is how many queries would it take to screw in a lightbulb, this
-        # would be easy to test it just needs to be done
-        # TODO: there should be a better/faster way to do this 
-        # using a join or something
-        parts = text.split(" ")
-        genus = parts[0]
-        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
-        model = gtk.ListStore(str, object) 
-        for row in sr:
-#            debug(str(row))
-            for species in row.species:                
-                model.append((str(species), species))
-        return model
-    
-    
+#
+#    def add_genus(self, name):
+#        msg = "The Genus %s does not exist. Would you like to add it?" % name
+#        if utils.yes_no_dialog(msg):
+#            print "add genus"
+#
+#        
+#
+## 
+## SpeciesSynonymEditor
+##
+#class SpeciesSynonymEditor(TreeViewEditorDialog):
+#
+#    visible_columns_pref = "editor.species_syn.columns"
+#    column_width_pref = "editor.species_syn.column_width"
+#    default_visible_list = ['synonym']
+#    
+#    standalone = False
+#    label = 'Species Synonym'
+#    
+#    def __init__(self, parent=None, select=None, defaults={}, **kwargs):        
+#        TreeViewEditorDialog.__init__(self, tables["SpeciesSynonym"], \
+#                                      "Species Synonym Editor", 
+#                                      parent, select=select, 
+#                                      defaults=defaults, *kwargs)
+#        titles = {'synonymID': 'Synonym of Species'}
+#                  
+#        # can't be edited as a standalone so the species should only be set by
+#        # the parent editor
+#        self.columns.pop('speciesID')
+#        
+#        self.columns.titles = titles
+#        self.columns["synonymID"].meta.get_completions = \
+#            self.get_species_completions
+#
+#
+#    def get_species_completions(self, text):
+#        # get entry and determine from what has been input which
+#        # field is currently being edited and give completion
+#        # if this return None then the entry will never search for completions
+#        # TODO: finish this, it would be good if we could just stick
+#        # the table row in the model and tell the renderer how to get the
+#        # string to match on, though maybe not as fast, and then to get
+#        # the value we would only have to do a row.id instead of storing
+#        # these tuples in the model
+#        # UPDATE: the only problem with sticking the table row in the column
+#        # is how many queries would it take to screw in a lightbulb, this
+#        # would be easy to test it just needs to be done
+#        # TODO: there should be a better/faster way to do this 
+#        # using a join or something
+#        parts = text.split(" ")
+#        genus = parts[0]
+#        sr = tables["Genus"].select("genus LIKE '"+genus+"%'")
+#        model = gtk.ListStore(str, object) 
+#        for row in sr:
+##            debug(str(row))
+#            for species in row.species:                
+#                model.append((str(species), species))
+#        return model
+#    
+#    
     
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander

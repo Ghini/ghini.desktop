@@ -37,6 +37,7 @@ class Species(BaubleTable):
     infrasp = StringCol(length=30, default=None)         # intraspecific epithet
     infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
     '''
+    infrasp_rank values:
     subsp. - subspecies
     var. - variety
     subvar. - sub variety
@@ -52,7 +53,7 @@ class Species(BaubleTable):
     "Incorrect", # Incorrect
     "forsan", # Perhaps
     "near", # Close to
-    "?", # Quesionable
+    "?", # Questionable
     '''
     id_qual = EnumCol(enumValues=("aff.", "cf.", "Incorrect", "forsan", "near", 
                                   "?", None), default=None)    

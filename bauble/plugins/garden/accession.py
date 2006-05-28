@@ -5,8 +5,7 @@
 import os, traceback, math
 from datetime import datetime
 import xml.sax.saxutils as saxutils
-import gtk
-import gobject
+import gtk, gobject
 from sqlobject import * 
 from sqlobject.constraints import BadValue, notNull
 from sqlobject.sqlbuilder import _LikeQuoted
@@ -21,6 +20,10 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 
+# TODO: underneath the species entry create a label that shows information
+# about the family of the genus of the species selected as well as more
+# info about the genus so we know exactly what plant is being selected
+# e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
 # TODO: colors on the event boxes around some of the entries don't change color 
 # on win32, is this my problem or a gtk+ bug
@@ -358,8 +361,7 @@ class CollectionPresenter(GenericEditorPresenter):
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
-        self.refresh_view()
-    
+        self.refresh_view()    
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
@@ -846,11 +848,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # changes then it should invalidate again
         #
         self.insert_species_sid = self.view.widgets.species_entry.connect('insert-text', 
-                                                self.on_species_entry_insert, 
-                                                'species')
+                                                self.on_species_entry_insert)
         self.view.widgets.species_entry.connect('delete-text', 
-                                                self.on_species_entry_delete, 
-                                                'species')
+                                                self.on_species_entry_delete)
         self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
                                              'prov_type')
         self.view.widgets.wild_prov_combo.connect('changed', 
@@ -967,7 +967,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         full_text = text[:start] + text[end:]
         if full_text == '' or (full_text == str(self.model.species)):
             return
-        e = self.view.widgets.species_entry_eventbox
         self.add_problem(self.PROBLEM_INVALID_SPECIES, 
                          self.view.widgets.species_entry)
         self.model.species = None
@@ -1009,7 +1008,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #        debug('%s' % self.model)
             
             
-    def init_species_entry(self):        
+    def init_species_entry(self):
         completion = self.view.widgets.species_entry.get_completion()
         completion.connect('match-selected', self.on_species_match_selected)
         if self.model.species is not None:

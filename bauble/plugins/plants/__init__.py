@@ -18,12 +18,13 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 
-from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, FamilySynonymEditor
-from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, GenusSynonymEditor
+from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, \
+    FamilySynonymEditor
+from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, \
+    GenusSynonymEditor
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
     SpeciesSynonym, VernacularName
-from bauble.plugins.plants.species_editor import SpeciesEditor, \
-    SpeciesSynonymEditor, SpeciesInfoBox
+from bauble.plugins.plants.species_editor import SpeciesEditor, SpeciesInfoBox
 
 from bauble.plugins.plants.speciesmeta import SpeciesMetaEditor
 from bauble.plugins.plants.vernacularname import VernacularNameEditor
@@ -35,7 +36,7 @@ class PlantsPlugin(BaublePlugin):
 
     editors = [FamilyEditor, FamilySynonymEditor, GenusEditor, 
                GenusSynonymEditor,
-               SpeciesEditor, SpeciesSynonymEditor, SpeciesMetaEditor, 
+               SpeciesEditor, SpeciesMetaEditor, 
                VernacularNameEditor]
     
     @classmethod
