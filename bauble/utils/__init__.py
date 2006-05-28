@@ -92,6 +92,13 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 #                w.set_active(-1)
 #        else:
 #            set_combo_from_value(w, value)	
+    elif isinstance(w, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)): 
+        if value is True:
+            w.set_active(True)
+        elif value is False:
+            w.set_active(False)
+        else:
+            w.set_inconsistent(True)            
     else:
         raise TypeError('don\'t know how to handle the widget type %s with '\
 		                'name %s' % (type(w), widget_name))

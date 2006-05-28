@@ -23,7 +23,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_GENUS = 1
     
-    widget_to_field_map = {'sp_species_entry': 'sp',
+    widget_to_field_map = {'sp_genus_entry': 'genus',
+                           'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
                            'sp_infra_entry': 'infrasp',
@@ -37,6 +38,32 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)
         self.defaults = defaults
+        self.init_genus_entry()
+        self.init_combos()
+                
+        if self.model.vernacular_names is not None:
+            debug(self.model.vernacular_names)
+            vn_model = [SQLObjectProxy(vn) for vn in self.model.vernacular_names]
+        else:
+            #vn_model = [SQLObjectProxy(VernacularName)]
+            vn_model = []
+        self.vern_presenter = VernacularNamePresenter(vn_model, self.view, 
+                                                      defaults=self.defaults.get('vernacular_names', {}))
+        
+        if self.model.synonyms is not None:
+            syn_model = [SQLObjectProxy(syn) for syn in self.model.synonyms]
+        else:
+            #syn_model = [SQLObjectProxy(SpeciesSynonym)]
+            syn_model = []
+        self.synonyms_presenter = SynonymsPresenter(syn_model, self.view, 
+                                                    defaults=self.defaults.get('synonyms', {}))
+        
+        self.meta_presenter = SpeciesMetaPresenter(SQLObjectProxy(tables['SpeciesMeta']), 
+                                                   self.view, 
+                                                   defaults=self.defaults)
+        self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
+        
+        self.refresh_view()        
         self.assign_simple_handler('sp_species_entry', 'sp')
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
         self.assign_simple_handler('sp_infra_entry', 'infrasp')
@@ -45,13 +72,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('sp_idqual_combo', 'id_qual')
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author')
-        self.assign_simple_handler('sp_notes_textview', 'notes')
-        self.init_genus_entry()
-        self.init_combos()
-        self.vern_presenter = None #VernacularNamePresenter()
-        self.synonyms_presenter = None #SynonymsPresenter()
-        self.meta_presenter = None #SpeciesMetaPresenter()
-        self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
+        self.assign_simple_handler('sp_notes_textview', 'notes')        
     
     
     def init_genus_entry(self):
@@ -59,7 +80,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         completion = genus_entry.get_completion()
         completion.connect('match-selected', self.on_genus_match_selected)
         if self.model.genus is not None:
-            self.idle_add_species_completions(str(self.model.genus)[:2])
+            self.idle_add_genus_completions(str(self.model.genus)[:2])
         self.insert_genus_sid = genus_entry.connect('insert-text', 
                                                 self.on_genus_entry_insert)
         genus_entry.connect('delete-text', self.on_genus_entry_delete)
@@ -137,7 +158,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             # insert-text signal called with new_text = '' when there is a 
             # custom renderer on the entry completion for this entry
             # block the signal from here since it will call this same
-            # method again and resetting the species completions            
+            # method again and resetting the species completions      
+            debug('nex text == 0')      
             entry.handler_block(self.insert_genus_sid)
             entry.set_text(self.prev_text)
             entry.handler_unblock(self.insert_genus_sid)
@@ -165,40 +187,326 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
         
     def refresh_view(self):
+        for widget, field in self.widget_to_field_map.iteritems():            
+            if field[-2:] == "ID":
+                field = field[:-2]
+            value = self.model[field]
+#            debug('%s, %s, %s' % (widget, field, value))
+            self.view.set_widget_value(widget, value, 
+                                       default=self.defaults.get(field, None))
         for presenter in self.sub_presenters:
             presenter.refresh_view()
         
+        
+# TODO: what we should probably do is just create an interface that the 
+# presenter expects so as long as it implements the interface then it doesn't
+# matter what the back looks like
+# NOTES: what about if the model is a list of items, then __get??__ doesn't
+# make sense
+#class ModelInterface:
+#    dirty = False
+#    def __getitem__(self, item):
+#        raise NotImplementedError()
+#    def __getattr__(self, item):
+#        raise NotImplementedError()
     
+class ModelDecorator:
+        # could use this to provide __iter__ and .dirty but that still doesn't 
+        # solve the problem of how we determine what's dirty unless we set dirty
+        # whenever add or remove is clicked
+         
+        def __init__(self, model, dirty=False):
+            '''
+            model: a tree view model
+            '''
+            self.model = model
+            self.dirty = dirty
+            
+                
+        def __iter__(self):    
+            return self.model.iter()
+                        
+        def remove(self, item):
+            # TODO: this need to be finished,  i guess we'll need to iterate
+            # through the model and remove ALL matches though in reality there
+            # should be only once since each item should have a unique id,
+            # but then how do we know we should delete the object from the
+            # database just because it was removed from the tree model, unless
+            # we mark it here as deleted same as we do with dirty
+            self.dirty = True
+            
+        def append(self, item):
+            self.dirty = True
+            self.model.append([item])
+            
         
 class VernacularNamePresenter(GenericEditorPresenter):
     
     def __init__(self, model, view, defaults={}):
-        GenericEditorPresenter.__init__(self, model, view)        
+        '''
+        model: a list of SQLObject proxy objects
+        view: see GenericEditorPresenter
+        defaults: see GenericEditorPresenter
+        '''
+        GenericEditorPresenter.__init__(self, model, view, defaults)
+        self.init_treeview(model)
+        self.model = ModelDecorator(self.view.widgets.sp_syn_treeview.get_model()) 
+        
+        
+    def init_treeview(self, model):
+        tree = self.view.widgets.vern_treeview
+        
+        def _name_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', v.name)
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn('Name', cell)
+        col.set_cell_data_func(cell, _name_data_func)
+        tree.append_column(col)
+        
+        def _lang_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', v.language)
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn('Language', cell)
+        col.set_cell_data_func(cell, _lang_data_func)
+        tree.append_column(col)
+        
+        tree.set_model(None)
+        tree_model = gtk.ListStore(object)
+        for vn in self.model:
+            debug(vn)
+            tree_model.append([vn])
+        tree.set_model(tree_model)
     
+    def refresh_view(self):        
+        debug('VernacularNamePresenter.refresh_view')
+        return
+        tree = self.view.widgets.vern_treeview
+        tree.set_model(None)
+        model = gtk.ListStore(object)
+        debug(self.model)
+        for vn in self.model:
+            debug(vn)
+            model.append([vn])
+        tree.set_model(model)
     
-    def refresh_view(self):
-        pass
-    
-    
+
     
 class SynonymsPresenter(GenericEditorPresenter):
     
-    def __init__(self, model, view, defaults={}):
-        GenericEditorPresenter.__init__(self, model, view)        
+    PROBLEM_INVALID_SYNONYM = 1
+    
+    
+    def __init__(self, model, view, defaults=[]):
+        '''
+        model: a list of SQLObject proxy objects
+        view: see GenericEditorPresenter
+        defaults: see GenericEditorPresenter
+        '''
+        GenericEditorPresenter.__init__(self, model, view, defaults)     
         
+        self.init_treeview(model)
+        self.model = ModelDecorator(self.view.widgets.sp_syn_treeview.get_model())   
+        self.init_syn_entry()
+        self.insert_syn_sid = self.view.widgets.sp_syn_entry.connect('insert-text', 
+                                                self.on_syn_entry_insert)
+        self.view.widgets.sp_syn_entry.connect('delete-text', 
+                                                self.on_syn_entry_delete)
+        self.selected = None
+        self.view.widgets.sp_syn_add_button.connect('clicked', 
+                                                    self.on_add_button_clicked)
+        #self.refresh_view()
         
+    
+    def init_treeview(self, model):        
+        tree = self.view.widgets.sp_syn_treeview        
+        def _syn_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', str(v.synonym))
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn('Synonym', cell)
+        col.set_cell_data_func(cell, _syn_data_func)
+        tree.append_column(col)
+        
+        tree_model = gtk.ListStore(object)
+        for syn in model:
+            debug(syn)
+            tree_model.append([syn])
+        tree.set_model(tree_model)
+    
+    
     def refresh_view(self):
-        pass
+        debug('SynonymPresenter.refresh_view')
+        return
+        tree = self.view.widgets.vern_treeview
+        tree.set_model(None)
+        model = gtk.ListStore(object)
+        debug(self.model)
+        for syn in self.model:
+            debug(syn)
+            model.append([syn])
+        tree.set_model(model)
+        
+        
+    def init_syn_entry(self):
+        completion = self.view.widgets.sp_syn_entry.get_completion()
+        completion.connect('match-selected', self.on_syn_match_selected)
+        #if self.model.synonym is not None:
+        #    genus = self.model.synonym.genus
+        #    self.idle_add_species_completions(str(genus)[:2])
+        
+        
+    def on_add_button_clicked(self, button, data=None):
+        syn = SQLObjectProxy(SpeciesSynonym)
+        syn.synonym = self.selected
+        self.model.append(syn)
+        self.selected = None
+        entry = self.view.widgets.sp_syn_entry
+        entry.handler_block(self.insert_syn_sid)
+        entry.set_text('')
+        entry.set_position(-1)
+        entry.handler_unblock(self.insert_syn_sid)
+        
+        
+    def on_syn_match_selected(self, completion, compl_model, iter):
+        '''
+        put the selected value in the model
+        '''                
+        synonym = compl_model[iter][0]
+#        debug('selected: %s' % str(species))
+        entry = self.view.widgets.sp_syn_entry
+        entry.handler_block(self.insert_syn_sid)
+        entry.set_text(str(synonym))
+        entry.handler_unblock(self.insert_syn_sid)
+        entry.set_position(-1)
+        self.remove_problem(self.PROBLEM_INVALID_SYNONYM, 
+                            self.view.widgets.sp_syn_entry)
+        self.selected = synonym
+#        debug('%s' % self.model)
+        self.prev_text = str(synonym)
+        
+        
+    def on_syn_entry_delete(self, entry, start, end, data=None):
+#        debug('on_species_delete: \'%s\'' % entry.get_text())        
+#        debug(self.model.species)
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        if full_text == '' or (full_text == str(self.selected)):
+            return
+        self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
+                         self.view.widgets.sp_syn_entry)
+        self.selected = None
+        
+    
+    def on_syn_entry_insert(self, entry, new_text, new_text_length, position, 
+                       data=None):
+        # TODO: this is flawed since we can't get the index into the entry
+        # where the text is being inserted so if the user inserts text into 
+        # the middle of the string then this could break
+#        debug('on_species_insert_text: \'%s\'' % new_text)
+#        debug('%s' % self.model)
+        if new_text == '':
+            # this is to workaround the problem of having a second 
+            # insert-text signal called with new_text = '' when there is a 
+            # custom renderer on the entry completion for this entry
+            # block the signal from here since it will call this same
+            # method again and resetting the species completions            
+            debug('new text is empty')
+            entry.handler_block(self.insert_syn_sid)
+            entry.set_text(self.prev_text)
+            entry.handler_unblock(self.insert_syn_sid)
+            return False # is this 'False' necessary, does it do anything?
+            
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        # this funny logic is so that completions are reset if the user
+        # paste multiple characters in the entry    
+        if len(new_text) == 1 and len(full_text) == 2:
+            self.idle_add_syn_completions(full_text)
+        elif new_text_length > 2:# and entry_text != '':
+            self.idle_add_syn_completions(full_text[:2])
+        self.prev_text = full_text
+        
+        if full_text != str(self.selected):
+            self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
+                             self.view.widgets.sp_syn_entry)
+            self.selected = None
+#        debug('%s' % self.model)
+
+
+    def idle_add_syn_completions(self, text):
+#        debug('idle_add_species_competions: %s' % text)
+        parts = text.split(" ")
+        genus = parts[0]
+        like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
+        sr = tables["Genus"].select('genus LIKE %s' % like_genus)
+        def _add_completion_callback(select):
+            n_gen = sr.count()
+            n_sp = 0
+            model = gtk.ListStore(object)
+            for row in sr:    
+                if len(row.species) == 0: # give a bit of a speed up
+                    continue
+                n_sp += len(row.species)
+                for species in row.species:                
+                    model.append([species])
+            completion = self.view.widgets.sp_syn_entry.get_completion()
+            completion.set_model(model)
+        gobject.idle_add(_add_completion_callback, sr)
+    
+    
+    
     
     
 class SpeciesMetaPresenter(GenericEditorPresenter):    
     
+    widget_to_field_map = {'sp_dist_combo': 'distribution',
+                           'sp_humanpoison_check': 'poison_humans',
+                           'sp_animalpoison_check': 'poison_animals',
+                           'sp_food_check': 'food_plant'}
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)        
+        self.init_distribution_combo()
+        self.refresh_view()
+        
+        # TODO: there is no way to set the check buttons to None once they
+        # have been set and the inconsistent state doesn't convey None that
+        # well, the only other option I know of is to use Yes/No/None combos
+        # instead of checks
+        self.assign_simple_handler('sp_dist_combo', 'distribution')
+        self.assign_simple_handler('sp_humanpoison_check', 'poison_humans')
+        self.assign_simple_handler('sp_animalpoison_check', 'poison_animals')
+        self.assign_simple_handler('sp_food_check', 'food_plant')
+        
+        
+    def init_distribution_combo(self):        
+        def _populate():            
+            model = gtk.TreeStore(str)
+            model.append(None, ["Cultivated"])
+            for continent in tables['Continent'].select():
+                p1 = model.append(None, [str(continent)])
+                for region in continent.regions:
+                    p2 = model.append(p1, [str(region)])
+                    for country in region.botanical_countries:
+                        p3 = model.append(p2, [str(country)])
+                        for unit in country.units:
+                            if str(unit) != str(country):
+                                model.append(p3, [str(unit)])            
+            self.view.widgets.sp_dist_combo.set_model(model)
+        gobject.idle_add(_populate)
         
         
     def refresh_view(self):
-        pass
+        for widget, field in self.widget_to_field_map.iteritems():            
+            if field[-2:] == "ID":
+                field = field[:-2]
+            value = self.model[field]
+#            debug('%s, %s, %s' % (widget, field, value))
+#            debug('default: %s' % self.defaults.get(field, None))
+            self.view.set_widget_value(widget, value, 
+                                       default=self.defaults.get(field, None))
     
     
 
@@ -217,16 +525,17 @@ class SpeciesEditorView(GenericEditorView):
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
         
-        # configure genus_entry
-        completion = gtk.EntryCompletion()    
-        completion.set_match_func(self.genus_completion_match_func)        
-        r = gtk.CellRendererText() # set up the completion renderer
-        completion.pack_start(r)
-        completion.set_cell_data_func(r, self.genus_cell_data_func)        
-        #completion.set_text_column(0)    
-        completion.set_minimum_key_length(2)
-        completion.set_popup_completion(True)                 
-        self.widgets.sp_genus_entry.set_completion(completion)
+        for entry in ('sp_genus_entry', 'sp_syn_entry'):        
+            completion = gtk.EntryCompletion()    
+            completion.set_match_func(self._lower_completion_match_func)        
+            cell = gtk.CellRendererText() # set up the completion renderer
+            completion.pack_start(cell)
+            completion.set_cell_data_func(cell, self._completion_cell_data_func)
+            completion.set_minimum_key_length(2)
+            completion.set_popup_completion(True)        
+            self.widgets[entry].set_completion(completion)
+    
+        
         self.restore_state()
         # TODO: set up automatic signal handling, all signals should be called
         # on the presenter
@@ -234,8 +543,8 @@ class SpeciesEditorView(GenericEditorView):
         if sys.platform == 'win32':
             self.do_win32_fixes()
             
-            
-    def genus_completion_match_func(self, completion, key_string, iter, 
+                    
+    def _lower_completion_match_func(self, completion, key_string, iter, 
                                     data=None):
         '''
         the only thing this does different is it make the match case insensitve
@@ -244,7 +553,8 @@ class SpeciesEditorView(GenericEditorView):
         return str(value).lower().startswith(key_string.lower())   
         
         
-    def genus_cell_data_func(self, column, renderer, model, iter, data=None):
+    def _completion_cell_data_func(self, column, renderer, model, iter, 
+                                         data=None):
         v = model[iter][0]
         renderer.set_property('text', str(v))
         
@@ -267,6 +577,7 @@ class SpeciesEditorView(GenericEditorView):
     def start(self):
         return self.widgets.species_dialog.run()    
     
+
 
 class SpeciesEditor(GenericModelViewPresenterEditor):
     

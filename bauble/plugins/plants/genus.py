@@ -70,7 +70,7 @@ class Genus(BaubleTable):
 
     def __str__(self):
         if self.hybrid:
-            return self.hybrid + ' ' + self.genus
+            return '%s %s' % (self.hybrid, self.genus)
         else:
             return self.genus
         

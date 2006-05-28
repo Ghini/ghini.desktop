@@ -32,13 +32,13 @@ class SpeciesMetaEditor(TableEditorDialog):
         window = self.glade_xml.get_widget('main_window')
         vbox = self.glade_xml.get_widget('main_box')
         window.remove(vbox)        	
-	self.dialog = gtk.Dialog('Species Meta Editor', None, 
-				 gtk.DIALOG_MODAL | \
-				 gtk.DIALOG_DESTROY_WITH_PARENT,
+        self.dialog = gtk.Dialog('Species Meta Editor', None,
+                                 gtk.DIALOG_MODAL | \
+                                 gtk.DIALOG_DESTROY_WITH_PARENT,
                                  (gtk.STOCK_OK, gtk.RESPONSE_OK, 
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-	self.dialog.set_resizable(False)
-	self.dialog.vbox.pack_start(vbox)
+    	self.dialog.set_resizable(False)
+    	self.dialog.vbox.pack_start(vbox)
 	
         self.dist_combo = self.glade_xml.get_widget('dist_combo')
         self.committed = False
@@ -67,7 +67,7 @@ class SpeciesMetaEditor(TableEditorDialog):
         '''
         # if we were passed in an object to edit make sure we keep the same
         # id so we don't wind up with multple SpeciesMeta for one Species
-	values = self._get_values_from_widgets()
+        values = self._get_values_from_widgets()
         if self.select is not None:
             values['id'] = self.select.id
         table_instance = self._commit(values)
