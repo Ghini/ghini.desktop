@@ -44,20 +44,16 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         if self.model.vernacular_names is not None:
             debug(self.model.vernacular_names)
             vn_model = [SQLObjectProxy(vn) for vn in self.model.vernacular_names]
-        else:
-            #vn_model = [SQLObjectProxy(VernacularName)]
+        else:            
             vn_model = []
         self.vern_presenter = VernacularNamePresenter(vn_model, self.view, 
                                                       defaults=self.defaults.get('vernacular_names', {}))
-        
-        if self.model.synonyms is not None:
+        if self.model.synonyms is not None:        
             syn_model = [SQLObjectProxy(syn) for syn in self.model.synonyms]
         else:
-            #syn_model = [SQLObjectProxy(SpeciesSynonym)]
             syn_model = []
         self.synonyms_presenter = SynonymsPresenter(syn_model, self.view, 
-                                                    defaults=self.defaults.get('synonyms', {}))
-        
+                                                    defaults=self.defaults.get('synonyms', {}))        
         self.meta_presenter = SpeciesMetaPresenter(SQLObjectProxy(tables['SpeciesMeta']), 
                                                    self.view, 
                                                    defaults=self.defaults)
@@ -224,8 +220,21 @@ class ModelDecorator:
             
                 
         def __iter__(self):    
-            return self.model.iter()
-                        
+            self.iter = self.model.get_iter_root()
+            #self.iter = iter(self.model)
+            return self
+            #return iter(self.model)
+            #return self.model.get_iter_root()
+            
+        def next(self):
+            debug(self.iter)
+            if self.iter is None:
+                raise StopIteration
+            debug(self.model[self.iter][0])
+            v = self.model[self.iter][0]
+            self.iter = self.model.iter_next(self.iter)
+            return v
+                
         def remove(self, item):
             # TODO: this need to be finished,  i guess we'll need to iterate
             # through the model and remove ALL matches though in reality there
@@ -233,7 +242,19 @@ class ModelDecorator:
             # but then how do we know we should delete the object from the
             # database just because it was removed from the tree model, unless
             # we mark it here as deleted same as we do with dirty
-            self.dirty = True
+            
+            # search through the model for all occurences of item and remove
+            # them from the model and append them to self.removed
+            while 1:
+                result = utils.search_tree_model(item)
+                debug(Results)
+                if results is None:
+                    break
+                self.model.remove(result)
+                debug(result)                        
+                self.removed.append(item)
+                self.dirty = True
+            
             
         def append(self, item):
             self.dirty = True
@@ -278,6 +299,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
             debug(vn)
             tree_model.append([vn])
         tree.set_model(tree_model)
+    
     
     def refresh_view(self):        
         debug('VernacularNamePresenter.refresh_view')
@@ -682,13 +704,56 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     
     def commit_changes(self):
         debug(self.model)
-        pass
-    def commit_meta_changes(self):
-        pass
-    def comit_vernacular_name_changes(self):
-        pass
-    def commit_synonyms_changes(self):
-        pass
+        synonyms = self.model.pop('synonyms', None)
+        vnames = self.model.pop('vernacular_names', None)
+        species = None
+        if self.model.dirty:
+            species = self._commit(self.model)        
+        elif self.model.isinstance:
+            species = self.model.so_object
+        debug(species)
+        if species is not None:
+            self.commit_meta_changes(species)            
+            #self.commit_vernacular_name_changes(species)
+            self.commit_synonyms_changes(species)
+        return species
+    
+    
+    def commit_meta_changes(self, species):
+        debug('commit_meta_changes')
+        meta_model = self.presenter.meta_presenter.model 
+        debug(meta_model)
+        if meta_model.dirty:
+            debug('committing dirty meta')
+            meta_model.species = species
+            #meta_model.speciesID = species.id
+            commit_to_table(SpeciesSynonym, meta_model)
+            #self._commit(meta_model)
+    
+        
+    def commit_vernacular_name_changes(self, species):
+        debug('commit_vernacular_name_changes')
+        vn_model = self.presenter.vern_presenter.model 
+        for item in vn_model:
+            if item.dirty:
+                item.species = species
+                commit_to_table(VernacularName, meta_model)
+        
+        
+    def commit_synonyms_changes(self, species):
+        debug('commit_synonyms_changes')
+        syn_model = self.presenter.synonyms_presenter.model 
+        # TODO: need to also check model.removed and delete any items in the
+        # list from the database
+        for item in syn_model:
+            debug(item)
+            debug(type(item))
+            #if item.dirty:                
+            # if it has a species that means it's not a new synonym
+            if item.species is None:
+                item.species = species
+                commit_to_table(SpeciesSynonym, item)
+        
 
 #class VernacularNameColumn(TextColumn):
 #        
