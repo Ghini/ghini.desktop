@@ -146,6 +146,8 @@ def get_widget_value(glade_xml, widget_name, column=0):
 # you will get an error, shouldn't allow this to happen though right
 # now to get around this you can just access the joins through the so_object
 # member
+# TODO: i think we should only add things to self.dict if they are column types
+# since this is used for committing, all other types aren't used in the commit
 class SQLObjectProxy(dict):    
     '''
     SQLObjectProxy does two things
@@ -158,7 +160,7 @@ class SQLObjectProxy(dict):
     values from the model if the values haven't been set
     3. keys will only exist in the dictionary if they have been accessed, 
     either by read or write, so **self will give you the dictionary of only
-    those things  that have been read or changed
+    those things that have been read or changed
     
     ** WARNING: ** this is definetely not thread safe or good for concurrent
     access, this effectively caches values from the database so if while using
@@ -225,7 +227,7 @@ class SQLObjectProxy(dict):
         # else if row is an instance then get it from the table
         v = None                        
         if self.isinstance:
-            v = getattr(self.so_object, item)
+            v = getattr(self.so_object, item)            
             # resolve foreign keys
             # TODO: there might be a more reasonable wayto do this
             if item in self.so_object.sqlmeta.columns:

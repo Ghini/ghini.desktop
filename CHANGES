@@ -1,9 +1,13 @@
+2006.05.29
+----------
+- got the basics working on the species editor
+- first pass at adding synonyms with new species editor
+
 2006.05.28
 ----------
 - did some work to try and improve the speed of displaying strings
 - cleaned up SearchView.search and added status bar message for the number of 
 results in a search
-
 
 2006.05.27
 ----------

@@ -11,6 +11,7 @@ def search_tree_model(rows, data, func=lambda row, data: row[0] == data):
     '''
     got this from the pygtk tutorial
     '''
+    # TODO: what exactly does this do again?...put some docs here
     if not rows:
         return None
     for row in rows:
@@ -184,18 +185,5 @@ def startfile(filename):
         os.system("gnome-open " + filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file:" + filename)
-            
-    
-
-   
-    
-if __name__ == '__main__':
-    '''
-    could probably put this in a doctest
-    '''
-    dec = dms_to_decimal('W', 87, 43, 41)
-    dir, deg, min, sec = decimal_to_dms(dec, 'long')
-    print dec
-    print '%s %d %d %d' % (dir, deg, min, sec)
    
    
