@@ -1,3 +1,14 @@
+2006.05.30
+----------
+- did some work on the species editor and the vernacular name editor, can now
+set default vernacular names for the species
+
+2006.05.29
+----------
+- can no longer set attributes in SQLObjectProxy that don't exist, this helps
+reduce possible bugs
+- first pass at adding vernacular names in the species editor
+
 2006.05.29
 ----------
 - got the basics working on the species editor

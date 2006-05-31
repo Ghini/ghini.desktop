@@ -42,7 +42,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.init_combos()
                 
         if self.model.vernacular_names is not None:
-            debug(self.model.vernacular_names)
             vn_model = [SQLObjectProxy(vn) for vn in self.model.vernacular_names]
         else:            
             vn_model = []
@@ -190,8 +189,12 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 #            debug('%s, %s, %s' % (widget, field, value))
             self.view.set_widget_value(widget, value, 
                                        default=self.defaults.get(field, None))
-        for presenter in self.sub_presenters:
-            presenter.refresh_view()
+        #for presenter in self.sub_presenters:
+        #    presenter.refresh_view()
+        self.vern_presenter.refresh_view(self.model.default_vernacular_name)
+        self.synonyms_presenter.refresh_view()
+        self.meta_presenter.refresh_view()
+        
         
         
 # TODO: what we should probably do is just create an interface that the 
@@ -205,7 +208,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 #        raise NotImplementedError()
 #    def __getattr__(self, item):
 #        raise NotImplementedError()
-    
+# NOTES: this basically makes a gtk.ListStore act like a cross between a 
+# ListStore and a SQLObjectProxy
 class ModelDecorator:
         # could use this to provide __iter__ and .dirty but that still doesn't 
         # solve the problem of how we determine what's dirty unless we set dirty
@@ -220,20 +224,27 @@ class ModelDecorator:
             
                 
         def __iter__(self):    
-            self.iter = self.model.get_iter_root()
+            self.next_iter = self.model.get_iter_root()
             #self.iter = iter(self.model)
             return self
             #return iter(self.model)
             #return self.model.get_iter_root()
             
+        
+        current_iter = None
+        next_iter = None
         def next(self):
-            debug(self.iter)
-            if self.iter is None:
+#            debug(self.iter)
+            self.current_iter = self.next_iter
+            if self.current_iter is None:
                 raise StopIteration
-            debug(self.model[self.iter][0])
-            v = self.model[self.iter][0]
-            self.iter = self.model.iter_next(self.iter)
+            debug(self.model[self.current_iter][0])
+            v = self.model[self.current_iter][0]
+            #self.iter = self.model.iter_next(self.iter)
+            self.next_iter = self.model.iter_next(self.current_iter)
+            #self.iter = self.model.iter_next(self.iter)
             return v
+                
                 
         def remove(self, item):
             # TODO: this need to be finished,  i guess we'll need to iterate
@@ -257,6 +268,8 @@ class ModelDecorator:
             
             
         def append(self, item):
+            debug(item)
+            debug(type(item))
             self.dirty = True
             self.model.append([item])
             
@@ -270,19 +283,44 @@ class VernacularNamePresenter(GenericEditorPresenter):
         defaults: see GenericEditorPresenter
         '''
         GenericEditorPresenter.__init__(self, model, view, defaults)
+        self.default = None
         self.init_treeview(model)
-        self.model = ModelDecorator(self.view.widgets.sp_syn_treeview.get_model()) 
+        self.model = ModelDecorator(self.view.widgets.vern_treeview.get_model()) 
+        self.view.widgets.vern_add_button.connect('clicked', 
+                                                  self.on_add_button_clicked)
         
         
+    def on_add_button_clicked(self, button, data=None):
+        name = self.view.widgets.vern_name_entry.get_text()
+        lang = self.view.widgets.vern_lang_entry.get_text()
+        proxy = SQLObjectProxy(VernacularName)
+        proxy.name = name
+        proxy.language = lang
+        self.model.append(proxy)
+        
+    
+        
+    def on_default_toggled(self, cell, path, data=None):        
+        active = cell.get_property('active')
+#        debug('%s: %s' % (path, type(path)))
+#        debug('on_default_toggled: %s' % active)                
+        if not active:
+            self.default = gtk.TreeRowReference(self.model.model, path)
+            #self.default = path
+        #cell.set_property('active', not_active)
+#        debug(self.default)
+        
+    
     def init_treeview(self, model):
         tree = self.view.widgets.vern_treeview
-        
+                
         def _name_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', v.name)
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Name', cell)
         col.set_cell_data_func(cell, _name_data_func)
+        #col.set_resizable(True)
         tree.append_column(col)
         
         def _lang_data_func(column, cell, model, iter, data=None):
@@ -291,6 +329,23 @@ class VernacularNamePresenter(GenericEditorPresenter):
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Language', cell)
         col.set_cell_data_func(cell, _lang_data_func)
+        #col.set_resizable(True)
+        tree.append_column(col)
+        
+        def _default_data_func(column, cell, model, iter, data=None):
+            if self.default is None:
+                return
+            active = False
+            # [0] on the path since this is a liststore
+            if self.default.get_path() == model.get_path(iter):
+                active = True
+            cell.set_property('active', active)
+            
+        cell = gtk.CellRendererToggle()
+        cell.connect('toggled', self.on_default_toggled)
+        col = gtk.TreeViewColumn('Default', cell)
+        col.set_cell_data_func(cell, _default_data_func)
+        #col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         tree.append_column(col)
         
         tree.set_model(None)
@@ -301,17 +356,25 @@ class VernacularNamePresenter(GenericEditorPresenter):
         tree.set_model(tree_model)
     
     
-    def refresh_view(self):        
-        debug('VernacularNamePresenter.refresh_view')
-        return
-        tree = self.view.widgets.vern_treeview
-        tree.set_model(None)
-        model = gtk.ListStore(object)
-        debug(self.model)
+    def refresh_view(self, default_vernacular_name):
+#        debug(default_vernacular_name)        
+        if default_vernacular_name is None:
+            return
         for vn in self.model:
-            debug(vn)
-            model.append([vn])
-        tree.set_model(model)
+            if vn.id == default_vernacular_name.id:
+                path  = self.model.model.get_path(self.model.current_iter)
+                self.default = gtk.TreeRowReference(self.model.model, path)
+        if self.default is None:
+            raise ValueError('couldn\'t set the default name: %s' % 
+                             default_vernacular_name)
+#        tree = self.view.widgets.vern_treeview
+#        tree.set_model(None)
+#        model = gtk.ListStore(object)
+#        debug(self.model)
+#        for vn in self.model:
+#            debug(vn)
+#            model.append([vn])
+#        tree.set_model(model)
     
 
     
@@ -353,22 +416,20 @@ class SynonymsPresenter(GenericEditorPresenter):
         
         tree_model = gtk.ListStore(object)
         for syn in model:
-            debug(syn)
             tree_model.append([syn])
         tree.set_model(tree_model)
     
     
     def refresh_view(self):
-        debug('SynonymPresenter.refresh_view')
         return
-        tree = self.view.widgets.vern_treeview
-        tree.set_model(None)
-        model = gtk.ListStore(object)
-        debug(self.model)
-        for syn in self.model:
-            debug(syn)
-            model.append([syn])
-        tree.set_model(model)
+#        tree = self.view.widgets.vern_treeview
+#        tree.set_model(None)
+#        model = gtk.ListStore(object)
+#        debug(self.model)
+#        for syn in self.model:
+#            debug(syn)
+#            model.append([syn])
+#        tree.set_model(model)
         
         
     def init_syn_entry(self):
@@ -703,6 +764,9 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     
     
     def commit_changes(self):
+        # TODO: somehow we need to get the default vernacular name from the list
+        # after it is commited and set species.default_vernacular to the id, 
+        # maybe commit_changes can return the default for us and we can
         debug(self.model)
         synonyms = self.model.pop('synonyms', None)
         vnames = self.model.pop('vernacular_names', None)
@@ -714,34 +778,52 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         debug(species)
         if species is not None:
             self.commit_meta_changes(species)            
-            #self.commit_vernacular_name_changes(species)
+            vn = self.commit_vernacular_name_changes(species)
+            species.default_vernacular_name = vn
             self.commit_synonyms_changes(species)
         return species
     
     
     def commit_meta_changes(self, species):
-        debug('commit_meta_changes')
+        '''
+        if this returns none then it means that nothing was commited
+        '''
+#        debug('commit_meta_changes')
         meta_model = self.presenter.meta_presenter.model 
-        debug(meta_model)
+#        debug(meta_model)
+        meta = None
         if meta_model.dirty:
-            debug('committing dirty meta')
+#            debug('committing dirty meta')
             meta_model.species = species
             #meta_model.speciesID = species.id
-            commit_to_table(SpeciesSynonym, meta_model)
-            #self._commit(meta_model)
-    
+            meta = commit_to_table(SpeciesSynonym, meta_model)
+            #self._commit(meta_model)            
+        return meta
+            
+            
         
     def commit_vernacular_name_changes(self, species):
-        debug('commit_vernacular_name_changes')
+        '''
+        returns the vernacular name instance that was selected as the default
+        '''
+#        debug('commit_vernacular_name_changes')
         vn_model = self.presenter.vern_presenter.model 
+        default = None
         for item in vn_model:
-            if item.dirty:
+            if item.species is None: # then it's a new entry
                 item.species = species
-                commit_to_table(VernacularName, meta_model)
+                vn = commit_to_table(VernacularName, item)
+            else: # item should be an instance of VernacularName
+                vn = item.so_object
+            if self.presenter.vern_presenter.default.get_path() == vn_model.model.get_path(vn_model.current_iter):
+                default = vn
+        return default
         
         
     def commit_synonyms_changes(self, species):
-        debug('commit_synonyms_changes')
+        '''
+        '''
+#        debug('commit_synonyms_changes')
         syn_model = self.presenter.synonyms_presenter.model 
         # TODO: need to also check model.removed and delete any items in the
         # list from the database
