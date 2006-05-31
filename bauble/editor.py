@@ -175,8 +175,8 @@ class SQLObjectProxy(dict):
         # which is used by self.__setattr__
         dict.__setattr__(self, 'so_object', so_object)
         dict.__setattr__(self, 'dirty', False)
-                
-        self.isinstance = False        
+        dict.__setattr__(self, 'isinstance', False)
+        #self.isinstance = False        
         if isinstance(so_object, SQLObject):
             self.isinstance = True
             self['id'] = so_object.id # always keep the id
@@ -274,8 +274,7 @@ class SQLObjectProxy(dict):
                 for callback in self.__notifiers__[key]:
                     callback(key)
             except KeyError:
-                pass
-        #self.dirty = dirty
+                pass 
     
     
     def __getattr__(self, name):
@@ -291,10 +290,13 @@ class SQLObjectProxy(dict):
         '''
         override attribute write
         '''
-        if name in self:            
+#        debug('__setattr__(%s, %s)' % (name, value))        
+        if name in self:         
             self.__setitem__(name, value)
-        else:
+        elif hasattr(self, name):        
             dict.__setattr__(self, name, value)    
+        else:
+            raise AttributeError('no attribute %s' % name)
     
     
     def _get_columns(self):
