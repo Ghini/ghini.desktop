@@ -68,8 +68,46 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author')
         self.assign_simple_handler('sp_notes_textview', 'notes')        
+        
+        self.init_change_notifier()
     
     
+    def on_field_changed(self, field):
+#        debug('on_field_changed: %s' % field)
+        sensitive = True
+        if len(self.problems) != 0 \
+           or len(self.vern_presenter.problems) != 0 \
+           or len(self.synonyms_presenter.problems) != 0 \
+           or len(self.meta_presenter.problems) != 0:
+            sensitive = False
+        self.view.widgets.sp_ok_button.set_sensitive(sensitive)
+        self.view.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
+        self.view.widgets.sp_next_button.set_sensitive(sensitive)
+
+    
+    def init_change_notifier(self):
+        '''
+        for each widget register a signal handler to be notified when the
+        value in the widget changes, that way we can w things like sensitize
+        the ok button
+        '''
+        for widget, field in self.widget_to_field_map.iteritems():            
+            w = self.view.widgets[widget]
+            self.model.add_notifier(field, self.on_field_changed)
+            
+        for widget, field in self.synonyms_presenter.widget_to_field_map.iteritems():            
+            w = self.view.widgets[widget]
+            self.model.add_notifier(field, self.on_field_changed)
+            
+        for widget, field in self.vern_presenter.widget_to_field_map.iteritems():            
+            w = self.view.widgets[widget]
+            self.model.add_notifier(field, self.on_field_changed)
+            
+        for widget, field in self.meta_presenter.widget_to_field_map.iteritems():            
+            w = self.view.widgets[widget]
+            self.model.add_notifier(field, self.on_field_changed)
+            
+            
     def init_genus_entry(self):
         genus_entry = self.view.widgets.sp_genus_entry
         completion = genus_entry.get_completion()
@@ -177,6 +215,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             self.model.genus = None
 #        debug('%s' % self.model)
     
+    
     def start(self):
         return self.view.start()
         
@@ -230,7 +269,9 @@ class ModelDecorator:
             #return iter(self.model)
             #return self.model.get_iter_root()
             
-        
+        def __len__(self):
+            return len(self.model)
+    
         current_iter = None
         next_iter = None
         def next(self):
@@ -268,13 +309,17 @@ class ModelDecorator:
             
             
         def append(self, item):
-            debug(item)
-            debug(type(item))
             self.dirty = True
-            self.model.append([item])
+            return self.model.append([item])
             
-        
+            
+# TODO: maybe we should change the text color of the new vernacular names
+# added to blue to indicate which ones have been added and which one already
+# exist in the database....should probably do the same with the synonyms
 class VernacularNamePresenter(GenericEditorPresenter):
+    
+    widget_to_field_map = {'vern_name_entry': 'name',
+                           'vern_lang_entry': 'language'}
     
     def __init__(self, model, view, defaults={}):
         '''
@@ -286,29 +331,86 @@ class VernacularNamePresenter(GenericEditorPresenter):
         self.default = None
         self.init_treeview(model)
         self.model = ModelDecorator(self.view.widgets.vern_treeview.get_model()) 
-        self.view.widgets.vern_add_button.connect('clicked', 
+        self.view.widgets.sp_vern_add_button.connect('clicked', 
                                                   self.on_add_button_clicked)
+        self.view.widgets.sp_vern_remove_button.connect('clicked', 
+                                                  self.on_remove_button_clicked)
+        lang_entry = self.view.widgets.vern_lang_entry
+        lang_entry.connect('insert-text', self.on_entry_insert, 'vern_name_entry')
+        lang_entry.connect('delete-text', self.on_entry_delete, 'vern_name_entry')
         
+        name_entry = self.view.widgets.vern_name_entry
+        name_entry.connect('insert-text', self.on_entry_insert, 'vern_lang_entry')
+        name_entry.connect('delete-text', self.on_entry_delete, 'vern_lang_entry')        
+        
+    
+    def on_entry_insert(self, entry, new_text, new_text_length, position, 
+                        other_widget_name):
+        '''
+        ensures that the two vernacular name entries both have text and sets 
+        the sensitivity of the add button if so
+        '''
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        sensitive = False
+        if full_text != '' and self.view.widgets[other_widget_name].get_text() != '':
+            sensitive = True
+        self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
+        
+        
+    def on_entry_delete(self, entry, start, end, other_widget_name):
+        '''
+        ensures that the two vernacular name entries both have text and sets 
+        the sensitivity of the add button if so
+        '''
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        sensitive = False
+        if full_text != '' and self.view.widgets[other_widget_name].get_text() != '':
+            sensitive = True
+        self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
+    
         
     def on_add_button_clicked(self, button, data=None):
+        '''
+        add the values in the entries to the model
+        '''
         name = self.view.widgets.vern_name_entry.get_text()
         lang = self.view.widgets.vern_lang_entry.get_text()
         proxy = SQLObjectProxy(VernacularName)
         proxy.name = name
         proxy.language = lang
-        self.model.append(proxy)
-        
+        it = self.model.append(proxy)
+        if len(self.model) == 1:
+            model = self.model.model
+            self.default = gtk.TreeRowReference(model, model.get_path(it))
+        self.view.widgets.sp_vern_add_button.set_sensitive(False)
+        self.view.widgets.vern_name_entry.set_text('')
+        self.view.widgets.vern_lang_entry.set_text('')
     
-        
+    
+    def on_remove_button_clicked(self, button, data=None):        
+        # TODO: maybe we should only ask 'are you sure' if the selected value
+        # is an instance, this means it will be deleted from the database        
+        tree = self.view.widgets.vern_treeview
+        path, col = tree.get_cursor()        
+        model = tree.get_model()
+        value = model[model.get_iter(path)][0]
+        # TODO: we need to do some some of 'unit of work' pattern in the model
+        # decorator with a 'removed' list so we know which vernacular names
+        # to delete from the database
+        msg = 'Are you sure you want to remove the %s?' % value.name
+        if utils.yes_no_dialog(msg):
+            debug('remove: %s' % value.name)
+        else:
+            debug('NOT removing: %s' % value.name)
+            
+            
     def on_default_toggled(self, cell, path, data=None):        
         active = cell.get_property('active')
-#        debug('%s: %s' % (path, type(path)))
-#        debug('on_default_toggled: %s' % active)                
         if not active:
             self.default = gtk.TreeRowReference(self.model.model, path)
-            #self.default = path
-        #cell.set_property('active', not_active)
-#        debug(self.default)
         
     
     def init_treeview(self, model):
@@ -320,6 +422,8 @@ class VernacularNamePresenter(GenericEditorPresenter):
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Name', cell)
         col.set_cell_data_func(cell, _name_data_func)
+        #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        col.set_min_width(150)
         #col.set_resizable(True)
         tree.append_column(col)
         
@@ -329,7 +433,9 @@ class VernacularNamePresenter(GenericEditorPresenter):
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Language', cell)
         col.set_cell_data_func(cell, _lang_data_func)
+        #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
         #col.set_resizable(True)
+        col.set_min_width(150)
         tree.append_column(col)
         
         def _default_data_func(column, cell, model, iter, data=None):
@@ -339,13 +445,14 @@ class VernacularNamePresenter(GenericEditorPresenter):
             # [0] on the path since this is a liststore
             if self.default.get_path() == model.get_path(iter):
                 active = True
-            cell.set_property('active', active)
-            
+            cell.set_property('active', active)            
         cell = gtk.CellRendererToggle()
         cell.connect('toggled', self.on_default_toggled)
         col = gtk.TreeViewColumn('Default', cell)
         col.set_cell_data_func(cell, _default_data_func)
-        #col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        col.set_fixed_width(20)
+        col.set_max_width(20)
         tree.append_column(col)
         
         tree.set_model(None)
@@ -354,7 +461,15 @@ class VernacularNamePresenter(GenericEditorPresenter):
             debug(vn)
             tree_model.append([vn])
         tree.set_model(tree_model)
+        
+        tree.connect('cursor-changed', self.on_tree_cursor_changed)
+        
     
+    def on_tree_cursor_changed(self, tree, data=None):
+        path, column = tree.get_cursor()
+        debug('on_tree_cursor_changed: %s' % path)
+        self.view.widgets.sp_vern_remove_button.set_sensitive(True)
+        
     
     def refresh_view(self, default_vernacular_name):
 #        debug(default_vernacular_name)        
@@ -367,14 +482,6 @@ class VernacularNamePresenter(GenericEditorPresenter):
         if self.default is None:
             raise ValueError('couldn\'t set the default name: %s' % 
                              default_vernacular_name)
-#        tree = self.view.widgets.vern_treeview
-#        tree.set_model(None)
-#        model = gtk.ListStore(object)
-#        debug(self.model)
-#        for vn in self.model:
-#            debug(vn)
-#            model.append([vn])
-#        tree.set_model(model)
     
 
     
@@ -382,7 +489,8 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_SYNONYM = 1
     
-    
+    widget_to_field_map = {'sp_syn_entry': 'synonym'}
+
     def __init__(self, model, view, defaults=[]):
         '''
         model: a list of SQLObject proxy objects
@@ -401,7 +509,6 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.selected = None
         self.view.widgets.sp_syn_add_button.connect('clicked', 
                                                     self.on_add_button_clicked)
-        #self.refresh_view()
         
     
     def init_treeview(self, model):        
@@ -422,14 +529,6 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     def refresh_view(self):
         return
-#        tree = self.view.widgets.vern_treeview
-#        tree.set_model(None)
-#        model = gtk.ListStore(object)
-#        debug(self.model)
-#        for syn in self.model:
-#            debug(syn)
-#            model.append([syn])
-#        tree.set_model(model)
         
         
     def init_syn_entry(self):
@@ -450,8 +549,9 @@ class SynonymsPresenter(GenericEditorPresenter):
         entry.set_text('')
         entry.set_position(-1)
         entry.handler_unblock(self.insert_syn_sid)
+        self.view.widgets.sp_syn_add_button.set_sensitive(False)
         
-        
+    
     def on_syn_match_selected(self, completion, compl_model, iter):
         '''
         put the selected value in the model
@@ -465,6 +565,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         entry.set_position(-1)
         self.remove_problem(self.PROBLEM_INVALID_SYNONYM, 
                             self.view.widgets.sp_syn_entry)
+        self.view.widgets.sp_syn_add_button.set_sensitive(True)
         self.selected = synonym
 #        debug('%s' % self.model)
         self.prev_text = str(synonym)
@@ -476,9 +577,12 @@ class SynonymsPresenter(GenericEditorPresenter):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         if full_text == '' or (full_text == str(self.selected)):
+            self.remove_problem(self.PROBLEM_INVALID_SYNONYM, 
+                                self.view.widgets.sp_syn_entry)
             return
         self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
                          self.view.widgets.sp_syn_entry)
+        self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.selected = None
         
     
@@ -515,6 +619,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         if full_text != str(self.selected):
             self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
                              self.view.widgets.sp_syn_entry)
+            self.view.widgets.sp_syn_add_button.set_sensitive(False)
             self.selected = None
 #        debug('%s' % self.model)
 
@@ -565,7 +670,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         
         
     def init_distribution_combo(self):        
-        def _populate():            
+        def _populate():
             model = gtk.TreeStore(str)
             model.append(None, ["Cultivated"])
             for continent in tables['Continent'].select():
@@ -578,6 +683,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
                             if str(unit) != str(country):
                                 model.append(p3, [str(unit)])            
             self.view.widgets.sp_dist_combo.set_model(model)
+            self.view.widgets.sp_dist_combo.set_sensitive(True)
         gobject.idle_add(_populate)
         
         
