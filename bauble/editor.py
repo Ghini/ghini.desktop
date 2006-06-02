@@ -484,6 +484,7 @@ class GenericEditorPresenter:
         '''
 
         def _set_in_model(value, field=model_field):
+            debug('_set_in_model(%s, %s,)' % (value, field))
             if validator is not None:
                 value = validator.to_python(value, None)
             self.model[field] = value
@@ -519,7 +520,7 @@ class GenericEditorPresenter:
             widget.get_buffer().connect('insert-text', insert)
             widget.get_buffer().connect('delete-range', delete)
         elif isinstance(widget, gtk.ComboBox):
-            def changed(combo, data=None):                
+            def changed(combo, data=None):
                 model = combo.get_model()
                 if model is None:
                     return                
@@ -540,10 +541,11 @@ class GenericEditorPresenter:
             widget.connect('changed', changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton, 
                                  gtk.RadioButton)):
-            def toggled(button, data=None):
+            def toggled(button, data=None):                
                 active = button.get_active()
+                debug('toggled: %s' % active)
                 button.set_inconsistent(False)
-                _set_in_model(not active, model_field)                
+                _set_in_model(active, model_field)                
             widget.connect('toggled', toggled)
             
         else:

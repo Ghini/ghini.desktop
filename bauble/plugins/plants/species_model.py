@@ -30,7 +30,7 @@ class Species(BaubleTable):
     sp = StringCol(length=40, notNull=True)          # specific epithet
     sp_author = UnicodeCol(default=None)  # species author    
     sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
-    sp_qual = EnumCol(enumValues=("agg.", "s.lat.", "s. str.", None), 
+    sp_qual = EnumCol(enumValues=("agg.", "s. lat.", "s. str.", None), 
                       default=None)                                                
     
     cv_group = StringCol(length=50, default=None)    # cultivar group                        
