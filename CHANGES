@@ -1,6 +1,9 @@
 2006.06.01
 ----------
 - continue work on species editor
+- fixed but in utils.search_tree_model where the function was calling itself
+recursively with the wrong arguments
+- fixed setting False values on a gtk.CheckBoxe in utils.set_widget_value
 
 2006.05.30
 ----------

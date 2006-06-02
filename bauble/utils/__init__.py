@@ -7,17 +7,19 @@ import bauble
 import gtk
 from bauble.utils.log import debug
 
-def search_tree_model(rows, data, func=lambda row, data: row[0] == data):
+def search_tree_model(model, data, func=lambda row, data: row[0] == data):
     '''
-    got this from the pygtk tutorial
+    model: the tree model the search
+    data: what we are searching for
+    func: the function to use to compare each row in the model, the default
+    signatude is lambda row, data: row[0] == data
     '''
-    # TODO: what exactly does this do again?...put some docs here
-    if not rows:
+    if not model:
         return None
-    for row in rows:
+    for row in model:
         if func(row, data):
             return row
-        result = search_tree_model(row.iterchildren(), func, data)
+        result = search_tree_model(row.iterchildren(), data, func)
 	if result:
 	    return result
     return None
@@ -94,9 +96,10 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 #        else:
 #            set_combo_from_value(w, value)	
     elif isinstance(w, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)): 
-        if value is True:
+        if value is True:     
             w.set_active(True)
-        elif value is False:
+        elif value is False: # how come i have to unset inconsistent for False?
+            w.set_inconsistent(False)
             w.set_active(False)
         else:
             w.set_inconsistent(True)            
@@ -126,15 +129,17 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
 # TODO: it would be nice to implement a yes_or_no method that asks from the 
 # console if there is no gui. is it possible to know if we have a terminal
 # to write to
-def yes_no_dialog(msg):         
-    try: # this might get called before bauble has started
-        parent = bauble.app.gui.window
-    except:
-        parent = None
+def yes_no_dialog(msg, parent=None):
+    if parent is None:
+        try: # this might get called before bauble has started
+            parent = bauble.app.gui.window
+        except:
+            parent = None
+
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-			 parent=parent,
-			 type=gtk.MESSAGE_QUESTION,
-			 buttons = gtk.BUTTONS_YES_NO)            
+                         parent=parent,
+                         type=gtk.MESSAGE_QUESTION,
+                         buttons = gtk.BUTTONS_YES_NO)            
     d.set_markup(msg)    
     r = d.run()
     d.destroy()

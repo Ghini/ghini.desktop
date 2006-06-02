@@ -1339,7 +1339,7 @@
 	  <child>
 	    <widget class="GtkExpander" id="sp_meta_expander">
 	      <property name="visible">True</property>
-	      <property name="expanded">False</property>
+	      <property name="expanded">True</property>
 	      <property name="spacing">0</property>
 
 	      <child>
