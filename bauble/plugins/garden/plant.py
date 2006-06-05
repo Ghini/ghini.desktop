@@ -69,6 +69,9 @@ class Plant(BaubleTable):
     # foreign key
     # 
     accession = ForeignKey('Accession', notNull=True, cascade=False)
+    
+    # TODO: change the "location" field to "site" and then add specific 
+    # locations fields like geographic coordinates
     location = ForeignKey("Location", notNull=True, cascade=False)
     
     # joins
