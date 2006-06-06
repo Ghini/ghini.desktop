@@ -13,12 +13,18 @@ from sqlobject.sqlbuilder import *
 from sqlobject import *
 from sqlobject.constraints import BadValue, notNull
 from sqlobject.joins import SOJoin, SOSingleJoin
+# for some reason if I do "from formencode import *" then i get 
+# sqlobject.sqlbuilder.NoDefault in some of my columns, i haven't looked into 
+# why but it must be some sort of scope/name conflict
+#from formencode import *
+from formencode import validators
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug
+
 
 
 
@@ -195,6 +201,7 @@ class SQLObjectProxy(dict):
         callback should be of the form:
         def callback(field)
         '''
+#        debug('SQLObjectProxy(%s, %s)' % (column, callback))
         try:
             self.__notifiers__[column].append(callback)
         except KeyError:
@@ -482,11 +489,16 @@ class GenericEditorPresenter:
         '''
         assign handlers to widgets to change fields in the model
         '''
-
-        def _set_in_model(value, field=model_field):
-            debug('_set_in_model(%s, %s,)' % (value, field))
+        def _set_in_model(value, field=model_field):            
+#            debug('_set_in_model(%s, %s,)' % (value, field))
             if validator is not None:
-                value = validator.to_python(value, None)
+                try:
+                    value = validator.to_python(value, None)
+                    self.problems.remove('BAD_VALUE_%s' % model_field)
+                    self.model[field] = value
+                except validators.Invalid, e:
+                    self.problems.add('BAD_VALUE_%s' % model_field)
+                    value = None # make sure the value in the model is reset                
             self.model[field] = value
             
         widget = self.view.widgets[widget_name]

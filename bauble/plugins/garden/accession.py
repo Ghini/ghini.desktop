@@ -1038,7 +1038,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, field):
-#        debug('on field changed: %s = %s' % (field, self.model[field]))
+        #debug('on field changed: %s = %s' % (field, self.model[field]))
+#        debug('on field changed: %s' % field)
 #        debug(self.problems)        
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
@@ -1141,7 +1142,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 createSourcePresenter(source_type, source_model, self.view,
                                       self.defaults)
             # initialize model change notifiers    
-            for widget, field in self.source_presenter.widget_to_field_map.iteritems():
+            for field in self.source_presenter.widget_to_field_map.values():
+                debug(field)
                 self.source_presenter.model.add_notifier(field, 
                                                          self.on_field_changed)
         self.model.source_type = source_type
@@ -1288,8 +1290,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 else:
                     break
             elif (self.model.dirty or source_dirty) and utils.yes_no_dialog(not_ok_msg):
-                sqlhub.processConnection.rollback()
-                sqlhub.processConnection.begin()
                 self.model.dirty = False
                 break
             elif not (self.model.dirty or source_dirty):
