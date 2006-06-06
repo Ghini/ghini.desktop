@@ -7,9 +7,6 @@ from sqlobject import *
 from bauble.plugins import BaubleTable
 
 
-# hold the table definitions for Species, Synonyms, VernacularName and SpeciesMeta
-# while species_editor.py hold the editor for all these tables
-
 #
 # Species table
 #

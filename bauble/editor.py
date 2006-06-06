@@ -555,7 +555,7 @@ class GenericEditorPresenter:
                                  gtk.RadioButton)):
             def toggled(button, data=None):                
                 active = button.get_active()
-                debug('toggled: %s' % active)
+#                debug('toggled: %s' % active)
                 button.set_inconsistent(False)
                 _set_in_model(active, model_field)                
             widget.connect('toggled', toggled)
