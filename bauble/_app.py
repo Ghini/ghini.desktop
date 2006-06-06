@@ -95,12 +95,13 @@ class BaubleApp:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
+            sqlhub.processConnection = None
+            klass.conn_name = None
             return None
                                     
         if name is not None:
             prefs[prefs.conn_default_pref] = name
             prefs.save()
-        #return True
     
         # make sure the version information matches or if the bauble
         # table doesn't exists then this may not be a bauble created 
@@ -132,8 +133,10 @@ class BaubleApp:
                       'again?' + warning
                 if utils.yes_no_dialog(msg):
                     klass.create_database()
+                    klass.conn_name = name
                     return klass.open_database(uri, name)
                 else:
+                    klass.conn_name = None
                     return None
                         
         except Exception:
@@ -143,9 +146,11 @@ class BaubleApp:
                   "create a database at this connection?" + warning
             if utils.yes_no_dialog(msg):
                 klass.create_database()
+                klass.conn_name = name
                 return klass.open_database(uri, name)
             else:
-                return False
+                klass.conn_name = None
+                return None
     	klass.conn_name = name
         return sqlhub.processConnection
         
@@ -194,8 +199,6 @@ class BaubleApp:
                                 
         # now that we have a connection create the gui
         import bauble._gui as gui
-    	self.conn_name = conn_name
-    	title = "%s %s - %s" % ('Bauble', bauble.version_str, conn_name)        
         self.gui = gui.GUI()
         
         # load the last view open from the prefs

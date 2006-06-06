@@ -299,11 +299,11 @@ class GUI:
         if name is None:
             return
 
-	if(bauble.app.open_database(uri, name)):
-	    self.window.set_title(self.title)
-
-	# reset the search view
-	self.get_current_view().reset()
+    	if bauble.app.open_database(uri, name) is not None:
+    	    self.window.set_title(self.title)
+    
+    	# reset the search view
+    	self.get_current_view().reset()
             
 
     def save_state(self):
