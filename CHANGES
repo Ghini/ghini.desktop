@@ -1,3 +1,16 @@
+2006.06.06
+----------
+- fixed bug with setting background color on the species editor genus entry 
+when a character is deleted
+- fixed a bug when cancelling a dirty model in the species and accession 
+editors would make further commits not commit until bauble was closed and 
+possibly not commit at all
+- connected the full name label in the species editor
+- lots of small changes in the species editor so we can stabilize for 0.5.2
+- any value from a widget that doesn't validate against the model now adds
+a problem to the presenter which usually disables the ok buttons
+
+
 2006.06.01
 ----------
 - continue work on species editor
