@@ -254,9 +254,7 @@ class AccessionEditorView(GenericEditorView):
         lon_dms_label = self.widgets.lon_dms_label
         lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
         
-        #lon_dms_label = self.widgets.lon_dms_label
-        # fixes for donation editor
-        pass
+        # fixes for donation editor        
 
     
     def save_state(self):
@@ -306,6 +304,8 @@ class IntOrEmptyStringValidator(IntValidator):
             raise validators.Invalid("expected a int in the FloatCol '%s', got %s instead" % \
                 (self.name, type(value)), value, state)
 
+
+
 class FloatOrEmptyStringValidator(FloatValidator):
         
     def __init__(self, name):
@@ -325,6 +325,7 @@ class FloatOrEmptyStringValidator(FloatValidator):
             raise validators.Invalid("expected a float in the FloatCol '%s', got %s instead" % \
                 (self.name, type(value)), value, state)
                 
+
 
 # TODO: should have a label next to lat/lon entry to show what value will be 
 # stored in the database, might be good to include both DMS and the float
@@ -1143,7 +1144,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                       self.defaults)
             # initialize model change notifiers    
             for field in self.source_presenter.widget_to_field_map.values():
-                debug(field)
                 self.source_presenter.model.add_notifier(field, 
                                                          self.on_field_changed)
         self.model.source_type = source_type
@@ -1475,13 +1475,17 @@ else:
             else: 
                 geo_accy = '(+/- %sm)' % geo_accy
             
-            # TODO: should probably show the DMS format here as well
             if collection.latitude is not None:
-                utils.set_widget_value(self.glade_xml, 'lat_data',
-                                 '%.2f %s' %(collection.latitude, geo_accy))
+                dir, deg, min, sec = latitude_to_dms(collection.latitude)
+                s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+                    (collection.latitude, dir, deg, min, sec, geo_accy)
+                utils.set_widget_value(self.glade_xml, 'lat_data', s)
+
             if collection.longitude is not None:
-                utils.set_widget_value(self.glade_xml, 'lon_data',
-                                '%.2f %s' %(collection.longitude, geo_accy))                                
+                dir, deg, min, sec = longitude_to_dms(collection.longitude)
+                s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+                    (collection.longitude, dir, deg, min, sec, geo_accy)
+                utils.set_widget_value(self.glade_xml, 'lon_data', s)                                
             
             v = collection.elevation
 

@@ -9,7 +9,7 @@ possibly not commit at all
 - lots of small changes in the species editor so we can stabilize for 0.5.2
 - any value from a widget that doesn't validate against the model now adds
 a problem to the presenter which usually disables the ok buttons
-
+- fixes and on the species and accession info boxes
 
 2006.06.01
 ----------

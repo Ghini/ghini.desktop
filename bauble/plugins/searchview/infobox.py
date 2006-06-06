@@ -36,6 +36,24 @@ class InfoExpander(gtk.Expander):
         self.add(self.vbox)
         self.glade_xml = glade_xml
         self.set_expanded(True)
+        self.widgets = InfoExpander._widgets(glade_xml)
+        
+        
+    class _widgets(dict):
+        '''
+        dictionary and attribute access for widgets
+        '''
+        # TODO: should i worry about making this more secure/read only
+
+        def __init__(self, glade_xml):
+            self.glade_xml = glade_xml
+        
+        def __getitem__(self, name):
+            # TODO: raise a key error if there is no widget
+            return self.glade_xml.get_widget(name)
+    
+        def __getattr__(self, name):
+            return self.glade_xml.get_widget(name)
         
         
     def update(self, value):
@@ -86,6 +104,7 @@ class InfoBox(gtk.ScrolledWindow):
     
     
     def update(self, row):
+        # TODO: should we just iter over the expanders and update them all
         raise NotImplementedError
 
 

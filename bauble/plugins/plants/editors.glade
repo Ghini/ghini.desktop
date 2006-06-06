@@ -758,7 +758,7 @@
 	<widget class="GtkVBox" id="vbox1">
 	  <property name="visible">True</property>
 	  <property name="homogeneous">False</property>
-	  <property name="spacing">0</property>
+	  <property name="spacing">5</property>
 
 	  <child>
 	    <widget class="GtkLabel" id="sp_fullname_label">
@@ -947,6 +947,7 @@
 
 	      <child>
 		<widget class="GtkVBox" id="vbox2">
+		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">0</property>
@@ -1030,6 +1031,7 @@
 		      <child>
 			<widget class="GtkEntry" id="sp_infra_entry">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="editable">True</property>
 			  <property name="visibility">True</property>
 			  <property name="max_length">0</property>
@@ -1121,6 +1123,7 @@
 		      <child>
 			<widget class="GtkEntry" id="sp_infra_author_entry">
 			  <property name="visible">True</property>
+			  <property name="sensitive">False</property>
 			  <property name="editable">True</property>
 			  <property name="visibility">True</property>
 			  <property name="max_length">0</property>
@@ -1179,7 +1182,7 @@
 	  <child>
 	    <widget class="GtkExpander" id="sp_qual_expander">
 	      <property name="visible">True</property>
-	      <property name="expanded">False</property>
+	      <property name="expanded">True</property>
 	      <property name="spacing">0</property>
 
 	      <child>
@@ -1190,6 +1193,7 @@
 
 		  <child>
 		    <widget class="GtkHBox" id="hbox4">
+		      <property name="border_width">5</property>
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
 		      <property name="spacing">20</property>
@@ -1345,6 +1349,7 @@
 
 	      <child>
 		<widget class="GtkVBox" id="vbox4">
+		  <property name="border_width">5</property>
 		  <property name="visible">True</property>
 		  <property name="homogeneous">False</property>
 		  <property name="spacing">10</property>
@@ -1353,7 +1358,7 @@
 		    <widget class="GtkHBox" id="hbox6">
 		      <property name="visible">True</property>
 		      <property name="homogeneous">False</property>
-		      <property name="spacing">0</property>
+		      <property name="spacing">8</property>
 
 		      <child>
 			<widget class="GtkLabel" id="label36">
