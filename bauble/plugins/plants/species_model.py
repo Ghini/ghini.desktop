@@ -5,6 +5,7 @@
 import xml.sax.saxutils as sax
 from sqlobject import *
 from bauble.plugins import BaubleTable
+from bauble.utils.log import log, debug
 
 
 #
@@ -29,6 +30,10 @@ class Species(BaubleTable):
     sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
     sp_qual = EnumCol(enumValues=("agg.", "s. lat.", "s. str.", None), 
                       default=None)                                                
+    
+    # TODO: add trade_name for better support for cultivated plants
+    # see http://www.hortax.org.uk/gardenplantsnames.html
+    #trade_name = StringCol(length=50, default=None)    # cultivar group                        
     
     cv_group = StringCol(length=50, default=None)    # cultivar group                        
     infrasp = StringCol(length=30, default=None)         # intraspecific epithet
@@ -122,7 +127,7 @@ class Species(BaubleTable):
                 name.extend([italic % species.sp, species.sp_hybrid,
                              italic % species.infrasp])
             else:                
-                name.extend([species.sp_hybrid or '', species.sp])
+                name.extend([species.sp_hybrid, species.sp])
         else:            
             name.append(italic % species.sp)
             
