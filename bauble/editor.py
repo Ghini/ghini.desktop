@@ -27,7 +27,6 @@ from bauble.utils.log import log, debug
 
 
 
-
 def check_constraints(table, values):
     '''
     table: a SQLObject class
@@ -555,7 +554,7 @@ class GenericEditorPresenter:
                                  gtk.RadioButton)):
             def toggled(button, data=None):                
                 active = button.get_active()
-#                debug('toggled: %s' % active)
+                debug('toggled %s: %s' % (widget_name, active))
                 button.set_inconsistent(False)
                 _set_in_model(active, model_field)                
             widget.connect('toggled', toggled)

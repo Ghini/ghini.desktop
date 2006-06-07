@@ -6,6 +6,7 @@ import xml.sax.saxutils as sax
 import gtk, gobject
 from sqlobject import *
 from sqlobject.sqlbuilder import _LikeQuoted
+from sqlobject.col import StringValidator
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.plugins import tables, editors
@@ -22,7 +23,13 @@ from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
 # TODO: ensure None is getting set in the model instead of empty strings, 
 # UPDATE: i think i corrected most of these but i still need to double check
 
-from sqlobject.col import StringValidator
+# TODO: what about hybrid of the form 
+# Genus x hybridname # i think this should be the species name
+# Genus hybrid1 x hybrid2  # and in this case the sp is hybrid 1 and the infra hybrid2
+# what I could do is set the infra_rank combo to not sensitive when hybrid is 
+# selected, that might imply to use the infrasp field as the second part of the
+# hybrid combo
+
 
 
 class StringOrNoneValidator(StringValidator):
@@ -49,6 +56,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
+                           'sp_hybrid_combo': 'sp_hybrid',
                            'sp_infra_entry': 'infrasp',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_infra_author_entry': 'infrasp_author',
@@ -63,6 +71,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.defaults.pop('genusID', None) 
         self.model.update(defaults)        
         self.init_genus_entry()
+        #self.init_infrasp_rank_combo()
         self.init_combos()
         self.init_fullname_widgets()
             
@@ -87,9 +96,14 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
         
         self.refresh_view()        
+        
+        #self.view.widgets.sp_infra_rank_combo.connect('changed', self.on_infra_rank_changed)
+        
         self.assign_simple_handler('sp_species_entry', 'sp')
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank', 
                                    StringOrNoneValidator('infrasp_rank'))
+        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid', 
+                                   StringOrNoneValidator('sp_hybrid'))
         self.assign_simple_handler('sp_infra_entry', 'infrasp')
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group')
         self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author')
@@ -114,8 +128,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(sensitive)
         
         
-        if field == 'infrasp_rank':
-            if self.model[field] != None:
+        if field == 'infrasp_rank':# or field == 'sp_hybrid':
+            if self.model[field] is not None:
                 self.view.widgets.sp_infra_entry.set_sensitive(True)
                 self.view.widgets.sp_infra_author_entry.set_sensitive(True)
                 if self.model[field] == 'cv.':
@@ -157,15 +171,53 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         genus_entry.connect('delete-text', self.on_genus_entry_delete)
     
     
+#    def on_infra_rank_changed(self, combo, data=None):
+#        text = combo.get_active_text()
+#        if text == '':
+#            self.model.infrasp_rank = None
+#            self.model.sp_hybrid = None
+#        elif text in self.model.columns['infrasp_rank'].enumValues:
+#            self.model.sp_hybrid = None
+#            self.model.infrasp_rank = text            
+#        elif text in self.model.columns['sp_hybrid'].enumValues:            
+#            self.model.infrasp_rank = None
+#            self.model.sp_hybrid = text
+#        else:
+#            raise ValueError('unknown value') # should never get here
+#                
+#                
+#    def init_infrasp_rank_combo(self):    
+#        #sp_hybrid = EnumCol(enumValues=("H", "x", "+",None)
+#        #combo = self.view.widgets[combo_name]
+#        combo = self.view.widgets.sp_infra_rank_combo
+#        combo.clear()        
+#        r = gtk.CellRendererText()
+#        combo.pack_start(r, True)
+#        combo.add_attribute(r, 'text', 0)            
+#        #model = gtk.ListStore(str)
+#        #column = self.model.columns[self.widget_to_field_map[combo_name]]
+#        
+#        sp_hybrid = self.model.columns['sp_hybrid']
+#        infrasp_rank = self.model.columns['infrasp_rank']
+#        values = sorted(infrasp_rank.enumValues)
+#        values.extend(sorted(sp_hybrid.enumValues))        
+##        debug(values)
+#        for enum in values:
+#            if enum is not None:
+#                combo.append_text(enum)
+#        combo.insert_text(0, '')
+ 
+        
     def init_combos(self):
-        combos = ['sp_infra_rank_combo', 'sp_idqual_combo', 'sp_spqual_combo']
+        combos = ['sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_idqual_combo', 
+                  'sp_spqual_combo']
+        #combos = ['sp_idqual_combo', 'sp_spqual_combo']
         for combo_name in combos:
             combo = self.view.widgets[combo_name]
             combo.clear()
             r = gtk.CellRendererText()
             combo.pack_start(r, True)
-            combo.add_attribute(r, 'text', 0)            
-            model = gtk.ListStore(str)
+            combo.add_attribute(r, 'text', 0)
             column = self.model.columns[self.widget_to_field_map[combo_name]]
             for enum in sorted(column.enumValues):
                 if enum == None:
@@ -192,8 +244,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
         def on_changed(*args):
             self.refresh_fullname_label()
-        for widget_name in ['sp_infra_rank_combo', 'sp_idqual_combo',
-                            'sp_spqual_combo']:
+        for widget_name in ['sp_infra_rank_combo', 'sp_hybrid_combo', 
+                            'sp_idqual_combo', 'sp_spqual_combo']:
             w = self.view.widgets[widget_name]
             w.connect_after('changed', on_changed)
                     
@@ -208,7 +260,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             values = copy.copy(self.model)
             if values.sp is None:
                 values.sp = ''
-            if values.infrasp is None:
+            if values.infrasp is None and values.infrasp_rank is not None:
                 values.infrasp = ''
             if values.infrasp_rank != 'cv.':
                 values.cv_group = None
@@ -308,13 +360,17 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 #            debug('%s, %s, %s' % (widget, field, value))            
             self.view.set_widget_value(widget, value, 
                                        default=self.defaults.get(field, None))
-        #for presenter in self.sub_presenters:
-        #    presenter.refresh_view()
         
-        if self.model.infrasp_rank == 'cv.':
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
+        if self.model.infrasp_rank is not None:# or self.model.sp_hybrid is not None:
+            self.view.widgets.sp_infra_entry.set_sensitive(True)
+            self.view.widgets.sp_infra_author_entry.set_sensitive(True)
+            if self.model[field] == 'cv.':
+                self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
+            else:
+                self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
         else:
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
+            self.view.widgets.sp_infra_entry.set_sensitive(False)
+            self.view.widgets.sp_infra_author_entry.set_sensitive(False)                
         
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
@@ -765,6 +821,11 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     
     
+# TODO: there is no way to set the check buttons to None once they
+# have been set and the inconsistent state doesn't convey None that
+# well, the only other option I know of is to use Yes/No/None combos
+# instead of checks
+        
 class SpeciesMetaPresenter(GenericEditorPresenter):    
     
     widget_to_field_map = {'sp_dist_combo': 'distribution',
@@ -774,12 +835,10 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
     def __init__(self, model, view, defaults={}):
         GenericEditorPresenter.__init__(self, model, view)        
         self.init_distribution_combo()
-
-        # TODO: there is no way to set the check buttons to None once they
-        # have been set and the inconsistent state doesn't convey None that
-        # well, the only other option I know of is to use Yes/No/None combos
-        # instead of checks
-        
+        # we need to call refresh view here first before setting the signal
+        # handlers b/c SpeciesEditorPresenter will call refresh_view after
+        # these are assigned causing the the model to appear dirty
+        self.refresh_view() 
         self.assign_simple_handler('sp_humanpoison_check', 'poison_humans')
         self.assign_simple_handler('sp_animalpoison_check', 'poison_animals')
         self.assign_simple_handler('sp_food_check', 'food_plant')
