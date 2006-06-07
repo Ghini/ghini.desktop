@@ -64,8 +64,8 @@ def start_plugins():
 def _register(plugin_class):        
     # check dependencies
     plugin_name = plugin_class.__name__
-    if not bauble.main_is_frozen():
-	log.info("registering " + plugin_name)
+    #if not bauble.main_is_frozen():
+    #log.info("registering " + plugin_name)
     for dependency in plugin_class.depends:            
         if dependency not in plugins:
             msg = "Can't load plugin %s. This plugin depends on %s but "\

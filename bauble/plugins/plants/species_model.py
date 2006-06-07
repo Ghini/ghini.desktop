@@ -7,6 +7,23 @@ from sqlobject import *
 from bauble.plugins import BaubleTable
 from bauble.utils.log import log, debug
 
+# possible name formats
+# +Genus # graft chimaera
+# Genus [x] [cv.] 'infrasp'
+# Genus sp
+# Genus sp SpAuthor
+# Genus x sp SpAuthor
+# Genus sp x infrasp
+# Genus sp infrasp_rank infrasp
+# Genus sp [cv.] 'infrasp'
+# Genus sp Cultivar Group
+# Genus sp [cv.] (Cultivar Group) 'infrasp' 
+
+# ** names we don't support
+
+# Genus sp infrasp_rank infrasp 'cv' 
+# eg Rudbeckia fulgida var. sullivantii 'Goldsturm',
+# we can't support this without more infrasp and infrasp_rank fields, like BGRecorder
 
 #
 # Species table
@@ -127,7 +144,7 @@ class Species(BaubleTable):
                 name.extend([italic % species.sp, species.sp_hybrid,
                              italic % species.infrasp])
             else:                
-                name.extend([species.sp_hybrid, species.sp])
+                name.extend([species.sp_hybrid, italic % species.sp])
         else:            
             name.append(italic % species.sp)
             
@@ -135,7 +152,7 @@ class Species(BaubleTable):
         if species.cv_group is not None:
             if species.infrasp_rank == "cv.":                
                 name.extend(['(%s Group)' % species.cv_group, 
-                             "'%s'" % italic % species.infrasp])
+                             "'%s'" % species.infrasp])
             else:                                 
                 name.append('%s Group' % species.cv_group)
             return ' '.join(name)

@@ -1,3 +1,8 @@
+2006.06.07
+----------
+- created some test for Species.str() to make sure we are getting string that
+conform to proper botanical nomenclature
+
 2006.06.06
 ----------
 - fixed bug with setting background color on the species editor genus entry 
