@@ -198,11 +198,12 @@ class CSVImporter:
               nsteps += msg.value
               percent = float(nsteps)/float(total_lines)
               klass.__progress_dialog.pb.set_fraction(percent)
+              klass.__progress_dialog.pb.set_text('%s of %s records' % (nsteps, total_lines))
           elif msg.name == 'update_filename':
               filename, table_name = msg.value  
               msg = 'Importing data into %s table from\n%s' % (table_name, filename)
               klass.__progress_dialog.set_message(msg)
-              klass.__progress_dialog.pb.set_text('importing %s...' % table_name)
+              #klass.__progress_dialog.pb.set_text('importing %s...' % table_name)
 
             
     @staticmethod
