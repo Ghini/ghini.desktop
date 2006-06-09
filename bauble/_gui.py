@@ -13,9 +13,68 @@ from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
 
+# TODO: ProgressBar idea stub
+# - i would like to have a progress bar on the status bar or just popup above 
+# the status bar when there is a task
+# - with an integrated cancel button so that there is one place for any task
+# to update the progress instead of each task creating their own progress 
+# dialog
+# - would probably make sense for it to drop down from below the search entry 
+# when there is a task running and disappear when there isn't
+
+#class ProgressTask:
+#    '''
+#    a task for the statusbarprogress
+#    '''
+#    name = None
+#    fraction = 0.0
+#    total_stepts = 0.0
+#    
+#    def __init__(self, progress_bar):
+#        self.pb = progress_bar
+#        
+#    def update(self, nsteps):
+#        fraction = float(nsteps)/total_steps
+#        self.pb.set_fraction(fraction)
+#        
 #
-# GUI
-#
+#class FancyProgressBar(gtk.HBox):
+#    
+#    def __init__(self):
+#        gtk.HBox.__init__(self)
+#        self.label = gtk.Label()
+#        self.progress_bar = gtk.ProgressBar()
+#        #self.cancel_button = gtk.Button(stock=gtk.STOCK_CANCEL)
+#        self.cancel_button = gtk.Button('Cancel')
+#        self.pack_start(self.label, expand=False, fill=False)
+#        self.pack_start(self.progress_bar, expand=False, fill=False)
+#        self.pack_start(self.cancel_button, expand=False, fill=False)
+#        
+#        # create new task
+#        # set progress state by task
+#        
+#    # create cancel_button
+#    def push_task(self, progress_task):
+#        pass
+#    
+#    def pop_task(self, progress_task):
+#        pass
+#    
+#    def set_text(self, text):
+#        '''
+#        set the text on the label of the progress bar
+#        '''
+#        self.label.set_text(text)
+#        
+#    def cancel_connect(self, callback, task):
+#        '''
+#        connect to the clicked event on the cancel button
+#        
+#        callback -- the method to call
+#        task -- the ProgressTask to cancel
+#        '''
+#        self.cancel_button.connect('clicked', callback, task)
+
 class GUI:
     
     current_view_pref = "gui.current_view"
@@ -59,6 +118,8 @@ class GUI:
         status_box.pack_start(self.statusbar, expand=True, fill=True)
 
         # create the progress bar and add it to the status pane
+        #self.progressbar = FancyProgressBar()
+        #status_box.pack_start(self.progressbar, expand=False, fill=False)
         #self.progressbar = gtk.ProgressBar()
         #self.progressbar.set_size_request(100, -1)
         #self.progressbar.set_fraction(1.0)

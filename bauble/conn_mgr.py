@@ -345,16 +345,18 @@ class ConnectionManager:
         conn_list = prefs[prefs.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
-	    if name in conn_list and len(self.old_params.keys()) == 0:
-		self.params_box.set_parameters(conn_list[name])
-	    elif len(self.old_params.keys()) != 0:
-		self.params_box.set_parameters(self.old_params)
+        if name in conn_list and len(self.old_params.keys()) == 0:
+            self.params_box.set_parameters(conn_list[name])
+        elif len(self.old_params.keys()) != 0:
+            self.params_box.set_parameters(self.old_params)
                 
         self.expander_box.pack_start(self.params_box, False, False)
         self.dialog.show_all()
 
     
-    def get_passwd(self, title="Enter your password", before_main=False):
+    def get_passwd(self, title="Enter your password", before_main=False):     
+        # TODO: if self.dialog is None then ask from the command line
+        # or just set dialog parent to None   
         d = gtk.Dialog(title, self.dialog,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
@@ -373,6 +375,23 @@ class ConnectionManager:
         return passwd
         
  
+    def parameters_to_uri(self, params):
+        if params['type'].lower() == "sqlite":
+            #uri = "sqlite:///" + params["file"]
+            filename = params["file"].replace(":", "|")
+            filename = filename.replace("\\", "/")
+            uri = "sqlite:///" + filename
+            return uri
+        
+        params['type'] = params['type'].lower()
+        template = "%(type)s://%(user)s@%(host)s/%(db)s"
+        if params["passwd"] == True:    
+            params["passwd"] = self.get_passwd()
+            template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
+            
+        uri = template % params      
+        return uri  
+        
     def _get_connection_uri(self):
         type = self.type_combo.get_active_text()
         
@@ -381,21 +400,8 @@ class ConnectionManager:
             return None
         
         params = copy.copy(self.params_box.get_parameters())
-        if type.lower() == "sqlite":
-            #uri = "sqlite:///" + params["file"]
-            filename = params["file"].replace(":", "|")
-            filename = filename.replace("\\", "/")
-            uri = "sqlite:///" + filename
-            return uri
-        
-        params["type"] = type.lower()
-        template = "%(type)s://%(user)s@%(host)s/%(db)s"
-        if params["passwd"] == True:    
-            params["passwd"] = self.get_passwd()
-            template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
-            
-        uri = template % params
-        return uri
+        params['type'] = type.lower()
+        return self.parameters_to_uri(params)
             
 
     def _get_connection_name(self):
