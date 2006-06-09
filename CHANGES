@@ -1,3 +1,9 @@
+2006.06.08
+----------
+- rewrote csv importing to use gtasklets 
+(http://www.gnome.org/~gjc/gtasklet/gtasklets.html) so now we have a progress 
+dialog
+
 2006.06.07
 ----------
 - created some test for Species.str() to make sure we are getting string that

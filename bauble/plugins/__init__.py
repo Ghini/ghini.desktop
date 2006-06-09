@@ -208,10 +208,21 @@ class BaublePlugin(object):
     # on the plugin dependencies
     @classmethod
     def create_tables(cls):
+        '''
+        create the tables associated with this plugin
+        '''
         for t in cls.tables:
             log.info("creating table " + t.__name__)
             t.dropTable(ifExists=True, cascade=True)            
             t.createTable()
+    
+    @staticmethod
+    def default_filenames():
+        '''
+        return the list of filenames to get the default data set from
+        the filenames should be of the form TableClass.txt
+        '''
+        return []
         
         
 #from sqlalchemy import *

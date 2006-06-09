@@ -59,10 +59,10 @@ class GUI:
         status_box.pack_start(self.statusbar, expand=True, fill=True)
 
         # create the progress bar and add it to the status pane
-        self.progressbar = gtk.ProgressBar()
-        self.progressbar.set_size_request(100, -1)
-        self.progressbar.set_fraction(1.0)
-        status_box.pack_start(self.progressbar, expand=False, fill=False)
+        #self.progressbar = gtk.ProgressBar()
+        #self.progressbar.set_size_request(100, -1)
+        #self.progressbar.set_fraction(1.0)
+        #status_box.pack_start(self.progressbar, expand=False, fill=False)
         
         #main_vbox.pack_start(self.statusbar, expand=False, fill=False)
         main_vbox.pack_start(status_box, expand=False, fill=False)
