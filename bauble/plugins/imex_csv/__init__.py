@@ -31,140 +31,140 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SODateCol: lambda x: x}
 
 
-class ImportTasklet:        
-                
-    def run(self, filenames, force, monitor_tasklet):
-        gtasklet.run(ImportTasklet._real_run(filenams, force, monitor_tasklet))
-    
-    @staticmethod
-    def _real_run(self, filenames, force, monitor_tasklet):
-        filenames, force, monitor_tasklet = args
-        '''
-        a tasklet that import data into a Bauble database, this method should
-        be run as a gtasklet task, see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
-        
-        filenames -- the list of files names t
-        force -- causes the data to be imported regardless if there already 
-        the table already has something in it (TODO: this doesn't do anything yet)
-        monitor_tasklet -- the tasklet that monitors the progress of this task
-        and update the interface
-        '''
-        error = False        
-        # TODO: what is the best number for this the timout, we want the 
-        # smallest number so that the gui is still responsive and the progress
-        # dialog can updates
-        timeout = gtasklet.WaitForTimeout(5)
-        for filename in filenames:
-            line = None # dummy for exception handler
-            try:
-                path, base = os.path.split(filename)
-                table_class_name, ext = os.path.splitext(base)
-                table = tables[table_class_name]
-                table_name = table.sqlmeta.table
-                log.info('importing %s table from %s' % (table.__name__, filename))                
-                yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table_class_name))
-                #//////////////
-                f = file(filename, "rb")
-                reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-                validators = CSVImporter._get_validators(table)
-                t = table.select()
-                if t.count() > 0:
-                    msg = "The %s table already contains some data. If two rows "\
-                          "have the same id in the import file and the database "\
-                          "then the file will not import "\
-                          "correctly.\n\n<i>Would you like to drop the table in the "\
-                          "database first. You will lose the data in your database "\
-                          "if you do this?</i>" % table_class.sqlmeta.table
-                    if force or utils.yes_no_dialog(msg):
-                        table_class.dropTable(ifExists=True, dropJoinTables=True, 
-                                        cascade=True)
-                        table_class.createTable()
-        
-                for line in reader:
-                    if CSVImporter.__cancel:
-                        break
-                    def __validate_col(col):
-                        if line[col] == '': 
-                            line.pop(col) # pop seems to be slightly faster than del
-                        else:
-                            # convert to proper type from str
-                            line[col] = validators[col](line[col])                    
-                    map(__validate_col, reader.fieldnames)                             
-                    lineno = 1
-                    yield gtasklet.Message('update_progress', 
-                                           dest=monitor_tasklet, value=lineno)
-
-                    table(**line) # create row in table
-                    yield timeout
-                    gtasklet.get_event()
-                    lineno += 1
-
-            except Exception, e:
-                msg = "Error importing values from %s into table %s\n\n%s\n" \
-                       % (filename, table_name, line or '')
-                utils.message_details_dialog(msg, traceback.format_exc(), 
-                                             gtk.MESSAGE_ERROR)            
-                error = True
-                break
-            else:
-                # this gets pass some problem when import tables with id's
-                # into postgres, the table_name_id_seq doesn't get set to the
-                # max value so subsequent inserts to the table won't give
-                # unique id numbers
-                if sqlobject.sqlhub.processConnection.dbName == "postgres":
-                    sql = "SELECT max(id) FROM %s" % table_name
-                    max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]                    
-                    if max is not None:
-                        sql = "SELECT setval('%s_id_seq', %d);" % \
-                              (table_name, max+1)
-                        sqlobject.sqlhub.processConnection.query(sql)    
-                
-        if not error and not CSVImporter.__cancel:
-            sqlobject.sqlhub.processConnection.commit()
-        else:
-            sqlobject.sqlhub.processConnection.rollback()
-            sqlobject.sqlhub.processConnection.begin()
-        yield gtasklet.Message('quit', dest=monitor_tasklet)
-
-
-
-class ImportMonitorTasklet(gtasklet.Tasklet):
-    
-    def run(self, total_lines, import_task):
-        gtasklet.run(ImportMonitorTasklet._real_run(total_lines, import_task))
-        
-    @staticmethod
-    def run(total_lines, import_task):
-        '''
-        monitors the progress of CSVImporter._task_import_files and updates the
-        interface accordingly
-        
-        import_task -- the task that this is monitoring
-        total_lines -- the total number of lines in all the files we're importing
-        '''
-        dialog = ProgressDialog(title='Importing...')
-        dialog.show_all()
-        dialog.connect_cancel(CSVImporter._cancel_import, import_task)
-        bauble.app.set_busy(True)
-        msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 'update_filename'))
-        lines_so_far = 0
-        while True:
-          yield msgwait
-          msg = gtasklet.get_event()
-          if msg.name == "quit":
-              bauble.app.set_busy(False) 
-              dialog.destroy()          
-          elif msg.name == 'update_progress':
-              lines_so_far += msg.value
-              percent = float(lines_so_far)/float(total_lines)
-              #debug('%s of %s: %.2f' % (lines_so_far, total_lines, percent))
-              dialog.pb.set_fraction(percent)
-          elif msg.name == 'update_filename':
-              filename, table_name = msg.value  
-              msg = 'Importing data into %s table from\n%s' % (table_name, filename)
-              dialog.set_message(msg)
-              #dialog.pb.set_text(filename)
-              dialog.pb.set_text('importing %s...' % table_name)        
+#class ImportTasklet:        
+#                
+#    def run(self, filenames, force, monitor_tasklet):
+#        gtasklet.run(ImportTasklet._real_run(filenams, force, monitor_tasklet))
+#    
+#    @staticmethod
+#    def _real_run(self, filenames, force, monitor_tasklet):
+#        filenames, force, monitor_tasklet = args
+#        '''
+#        a tasklet that import data into a Bauble database, this method should
+#        be run as a gtasklet task, see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
+#        
+#        filenames -- the list of files names t
+#        force -- causes the data to be imported regardless if there already 
+#        the table already has something in it (TODO: this doesn't do anything yet)
+#        monitor_tasklet -- the tasklet that monitors the progress of this task
+#        and update the interface
+#        '''
+#        error = False        
+#        # TODO: what is the best number for this the timout, we want the 
+#        # smallest number so that the gui is still responsive and the progress
+#        # dialog can updates
+#        timeout = gtasklet.WaitForTimeout(5)
+#        for filename in filenames:
+#            line = None # dummy for exception handler
+#            try:
+#                path, base = os.path.split(filename)
+#                table_class_name, ext = os.path.splitext(base)
+#                table = tables[table_class_name]
+#                table_name = table.sqlmeta.table
+#                log.info('importing %s table from %s' % (table.__name__, filename))                
+#                yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table_class_name))
+#                #//////////////
+#                f = file(filename, "rb")
+#                reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
+#                validators = CSVImporter._get_validators(table)
+#                t = table.select()
+#                if t.count() > 0:
+#                    msg = "The %s table already contains some data. If two rows "\
+#                          "have the same id in the import file and the database "\
+#                          "then the file will not import "\
+#                          "correctly.\n\n<i>Would you like to drop the table in the "\
+#                          "database first. You will lose the data in your database "\
+#                          "if you do this?</i>" % table_class.sqlmeta.table
+#                    if force or utils.yes_no_dialog(msg):
+#                        table_class.dropTable(ifExists=True, dropJoinTables=True, 
+#                                        cascade=True)
+#                        table_class.createTable()
+#        
+#                for line in reader:
+#                    if CSVImporter.__cancel:
+#                        break
+#                    def __validate_col(col):
+#                        if line[col] == '': 
+#                            line.pop(col) # pop seems to be slightly faster than del
+#                        else:
+#                            # convert to proper type from str
+#                            line[col] = validators[col](line[col])                    
+#                    map(__validate_col, reader.fieldnames)                             
+#                    lineno = 1
+#                    yield gtasklet.Message('update_progress', 
+#                                           dest=monitor_tasklet, value=lineno)
+#
+#                    table(**line) # create row in table
+#                    yield timeout
+#                    gtasklet.get_event()
+#                    lineno += 1
+#
+#            except Exception, e:
+#                msg = "Error importing values from %s into table %s\n\n%s\n" \
+#                       % (filename, table_name, line or '')
+#                utils.message_details_dialog(msg, traceback.format_exc(), 
+#                                             gtk.MESSAGE_ERROR)            
+#                error = True
+#                break
+#            else:
+#                # this gets pass some problem when import tables with id's
+#                # into postgres, the table_name_id_seq doesn't get set to the
+#                # max value so subsequent inserts to the table won't give
+#                # unique id numbers
+#                if sqlobject.sqlhub.processConnection.dbName == "postgres":
+#                    sql = "SELECT max(id) FROM %s" % table_name
+#                    max = sqlobject.sqlhub.processConnection.queryOne(sql)[0]                    
+#                    if max is not None:
+#                        sql = "SELECT setval('%s_id_seq', %d);" % \
+#                              (table_name, max+1)
+#                        sqlobject.sqlhub.processConnection.query(sql)    
+#                
+#        if not error and not CSVImporter.__cancel:
+#            sqlobject.sqlhub.processConnection.commit()
+#        else:
+#            sqlobject.sqlhub.processConnection.rollback()
+#            sqlobject.sqlhub.processConnection.begin()
+#        yield gtasklet.Message('quit', dest=monitor_tasklet)
+#
+#
+#
+#class ImportMonitorTasklet(gtasklet.Tasklet):
+#    
+#    def run(self, total_lines, import_task):
+#        gtasklet.run(ImportMonitorTasklet._real_run(total_lines, import_task))
+#        
+#    @staticmethod
+#    def run(total_lines, import_task):
+#        '''
+#        monitors the progress of CSVImporter._task_import_files and updates the
+#        interface accordingly
+#        
+#        import_task -- the task that this is monitoring
+#        total_lines -- the total number of lines in all the files we're importing
+#        '''
+#        dialog = ProgressDialog(title='Importing...')
+#        dialog.show_all()
+#        dialog.connect_cancel(CSVImporter._cancel_import, import_task)
+#        bauble.app.set_busy(True)
+#        msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 'update_filename'))
+#        lines_so_far = 0
+#        while True:
+#          yield msgwait
+#          msg = gtasklet.get_event()
+#          if msg.name == "quit":
+#              bauble.app.set_busy(False) 
+#              dialog.destroy()          
+#          elif msg.name == 'update_progress':
+#              lines_so_far += msg.value
+#              percent = float(lines_so_far)/float(total_lines)
+#              #debug('%s of %s: %.2f' % (lines_so_far, total_lines, percent))
+#              dialog.pb.set_fraction(percent)
+#          elif msg.name == 'update_filename':
+#              filename, table_name = msg.value  
+#              msg = 'Importing data into %s table from\n%s' % (table_name, filename)
+#              dialog.set_message(msg)
+#              #dialog.pb.set_text(filename)
+#              dialog.pb.set_text('importing %s...' % table_name)        
 
 
 class CSVImporter:
@@ -297,7 +297,7 @@ class CSVImporter:
               
         
     @staticmethod
-    def _task_monitor_progress(import_task, total_lines):
+    def _task_monitor_progress(total_lines):
         '''
         monitors the progress of CSVImporter._task_import_files and updates the
         interface accordingly
@@ -307,7 +307,7 @@ class CSVImporter:
         '''
         dialog = ProgressDialog(title='Importing...')
         dialog.show_all()
-        dialog.connect_cancel(CSVImporter._cancel_import, import_task)
+        #dialog.connect_cancel(CSVImporter._cancel_import, import_task)
         bauble.app.set_busy(True)
         msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 'update_filename'))
         lines_so_far = 0
@@ -425,12 +425,12 @@ class CSVImporter:
                 # get the total number of lines for all the files
                 total_lines += len(file(filename).readlines())
             
-            monitor_tasklet = ImportMonitorTasklet()
-            import_tasklet = ImportTasklet()
-            monitor_tasklet.run(total_lines, import_tasklet)
-            import_tasklet.run(filenames, force, monitor_task)
-            #monitor_task = gtasklet.run(CSVImporter._task_monitor_progress(total_lines))
-            #gtasklet.run(CSVImporter._task_import_files(filenames, force, monitor_task))
+#            monitor_tasklet = ImportMonitorTasklet()
+#            import_tasklet = ImportTasklet()
+#            monitor_tasklet.run(total_lines, import_tasklet)
+#            import_tasklet.run(filenames, force, monitor_task)
+            monitor_task = gtasklet.run(CSVImporter._task_monitor_progress(total_lines))
+            gtasklet.run(CSVImporter._task_import_files(filenames, force, monitor_task))
       
         
     def _get_filenames(self):
