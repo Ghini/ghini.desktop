@@ -37,8 +37,16 @@ class BaubleApp:
         bauble.BaubleMetaTable.dropTable(ifExists=True)   
         try:            
             #sqlhub.processConnection.autoCommit = True
+            default_filenames = []
             for p in plugins.values():
-                p.create_tables()            
+                p.create_tables()
+                default_filenames.extend(p.default_filenames())
+            # import default data
+#            debug(default_filenames)
+            if len(default_filenames) > 0:
+                from bauble.plugins.imex_csv import CSVImporter
+                csv = CSVImporter()    
+                csv.start(default_filenames)
             bauble.BaubleMetaTable.createTable()  
             bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
                                    value=str(bauble.version))

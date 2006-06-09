@@ -80,25 +80,33 @@ class PlantsPlugin(BaublePlugin):
     @classmethod
     def create_tables(cls):
         super(PlantsPlugin, cls).create_tables()
-        from bauble.plugins.imex_csv import CSVImporter
-        csv = CSVImporter()    
-#        path = os.path.dirname(__file__) + os.sep + 'default'
-        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['Family.txt', 'FamilySynonym.txt']#,'Genus.txt', 'Species.txt']
-        csv.start([path+os.sep+f for f in files])
-        
+#        from bauble.plugins.imex_csv import CSVImporter
+#        csv = CSVImporter()    
+#        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
+#        files = ['Family.txt', 'FamilySynonym.txt']#,'Genus.txt', 'Species.txt']
+#        csv.start([path+os.sep+f for f in files])
+#        
+#        # genera and species take along time so ask the user if
+#        # they want to import them
+#        if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
+#                               "take a while)"):            
+#            files = ['Genus.txt', 'GenusSynonym.txt']            
+#            csv.start([path+os.sep+f for f in files])            
+
+    @staticmethod
+    def default_filenames():
+        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")        
+        files = ['Family.txt', 'FamilySynonym.txt']#,'Genus.txt', 'Species.txt']        
         # genera and species take along time so ask the user if
         # they want to import them
-        if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
-                               "take a while)"):            
-            files = ['Genus.txt', 'GenusSynonym.txt']            
-            csv.start([path+os.sep+f for f in files])            
-            #if csv.start([path + os.sep + "Genus.txt"]):
-                #if utils.yes_no_dialog("Would you like to import the Species?"\
-                #                       "(it may take a while)"):
-                #    csv.start([path + os.sep + "Species.txt"])
+        #if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
+        #                       "take a while)"):            
+        #    files += 'Genus.txt', 'GenusSynonym.txt
+        #files.append('Genus.txt', 'GenusSynonym.txt')
+        #files += 'Genus.txt', 'GenusSynonym.txt'
+        return [os.path.join(path, f) for f in files]
 
-    
+
     def install(cls):
         """
         do any setup and configuration required bt this plugin like
