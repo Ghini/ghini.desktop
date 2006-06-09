@@ -1,3 +1,8 @@
+2006.06.09
+----------
+- more work on csv export to make the gui more responsive
+- code cleanups and docs
+
 2006.06.08
 ----------
 - rewrote csv importing to use gtasklets 

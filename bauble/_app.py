@@ -41,8 +41,8 @@ class BaubleApp:
             for p in plugins.values():
                 p.create_tables()
                 default_filenames.extend(p.default_filenames())
+                
             # import default data
-#            debug(default_filenames)
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter
                 csv = CSVImporter()    
