@@ -54,17 +54,19 @@ class AttrDict(dict):
 # possible name formats
 # TODO: need to also test unicode in the relevant fields
 
-def test_speciesStr():    
+def test_speciesStr(verbose=False):    
     '''
     the string conversion from Species.str()
     '''
+    # all possible combinations of species values
     example_dicts = [AttrDict(genus='Genus', sp='species'), 
                      AttrDict(genus='Genus', sp='species', sp_author='SpAuthor'),
                      AttrDict(genus='Genus', sp='spname', sp_hybrid='x'),
                      AttrDict(genus='Genus', sp='spname', infrasp_rank='var.', infrasp='ispname'),
                      AttrDict(genus='Genus', sp='spname', infrasp_rank='cv.', infrasp='ispname'),
-                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName'),
-                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.', infrasp='ispname')
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName'), # TODO: should this be valid?
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.', infrasp='ispname'),
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.')
                      ]
     examples_no_authors_no_markup = (('Genus species', example_dicts[0]),
                                      ('Genus species', example_dicts[1]),
@@ -72,7 +74,8 @@ def test_speciesStr():
                                      ('Genus spname var. ispname', example_dicts[3]),
                                      ('Genus spname \'ispname\'', example_dicts[4]),
                                      ('Genus spname CvGroupName Group', example_dicts[5]),
-                                     ('Genus spname (CvGroupName Group) \'ispname\'', example_dicts[6])
+                                     ('Genus spname (CvGroupName Group) \'ispname\'', example_dicts[6]),
+                                     ('Genus spname CvGroupName Group', example_dicts[7])
                                      )
                          
     examples_yes_authors_no_markup = (('Genus species', example_dicts[0]),
@@ -97,32 +100,36 @@ def test_speciesStr():
                                        ('<i>Genus</i> <i>spname</i> CvGroupName Group', example_dicts[5]),
                                        ('<i>Genus</i> <i>spname</i> (CvGroupName Group) \'ispname\'', example_dicts[6]))
         
-    print 'test Species.str(authors=False, markup=False)\n----------------'
+    if verbose:
+        print '\ntest Species.str(authors=False, markup=False)\n----------------'
     for name, name_dict in examples_no_authors_no_markup:    
         s = Species.str(name_dict, authors=False, markup=False)        
-        #print '%s == %s %s' % (name, s, name_dict)
+        if verbose:
+            print '%s == %s %s' % (name, s, name_dict)
         assert(name == s)
         
-    print
-    print 'test Species.str(authors=True, markup=False)\n----------------'
+    if verbose:
+        print '\ntest Species.str(authors=True, markup=False)\n----------------'
     for name, name_dict in examples_yes_authors_no_markup:    
         s = Species.str(name_dict, authors=True, markup=False)
-        #print '%s == %s %s' % (name, s, name_dict)
+        if verbose:
+            print '%s == %s %s' % (name, s, name_dict)
         assert(name == s)
         
-    
-    print
-    print 'test Species.str(authors=False, markup=True)\n----------------'
+    if verbose:
+        print '\ntest Species.str(authors=False, markup=True)\n----------------'
     for name, name_dict in examples_no_authors_yes_markup:    
         s = Species.str(name_dict, authors=False, markup=True)
-        #print '%s == %s %s' % (name, s, name_dict)
+        if verbose:
+            print '%s == %s %s' % (name, s, name_dict)
         assert(name == s)
         
-    print
-    print 'test Species.str(authors=True, markup=True)\n----------------'
+    if verbose:
+        print '\ntest Species.str(authors=True, markup=True)\n----------------'
     for name, name_dict in examples_yes_authors_yes_markup:    
         s = Species.str(name_dict, authors=True, markup=True)
-        #print '%s == %s %s' % (name, s, name_dict)
+        if verbose:
+            print '%s == %s %s' % (name, s, name_dict)
         assert(name == s)
         
 def test_createSpecies():    
@@ -136,4 +143,51 @@ def test_createSpecies():
     
     pass
 
-test_speciesStr()
+def profile():
+    example_dicts = [AttrDict(genus='Genus', sp='species'), 
+                     AttrDict(genus='Genus', sp='species', sp_author='SpAuthor'),
+                     AttrDict(genus='Genus', sp='spname', sp_hybrid='x'),
+                     AttrDict(genus='Genus', sp='spname', infrasp_rank='var.', infrasp='ispname'),
+                     AttrDict(genus='Genus', sp='spname', infrasp_rank='cv.', infrasp='ispname'),
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName'), # TODO: should this be valid?
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.', infrasp='ispname'),
+                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.')
+                     ]
+    examples_yes_authors_yes_markup = (('<i>Genus</i> <i>species</i>', example_dicts[0]),
+                                       ('<i>Genus</i> <i>species</i> SpAuthor', example_dicts[1]),
+                                       ('<i>Genus</i> x <i>spname</i>', example_dicts[2]),
+                                       ('<i>Genus</i> <i>spname</i> var. <i>ispname</i>', example_dicts[3]),
+                                       ('<i>Genus</i> <i>spname</i> \'ispname\'', example_dicts[4]),
+                                       ('<i>Genus</i> <i>spname</i> CvGroupName Group', example_dicts[5]),
+                                       ('<i>Genus</i> <i>spname</i> (CvGroupName Group) \'ispname\'', example_dicts[6]))
+    for i in xrange(1, 1000):
+        for name, name_dict in examples_yes_authors_yes_markup:    
+            s = Species.str(name_dict, authors=True, markup=True)
+            assert(name == s)
+    
+    
+def main():    
+    from optparse import OptionParser
+    parser = OptionParser()
+    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                      help='verbose output')
+    parser.add_option('-p', '--profile', dest='profile', action='store_true',
+                      help='print run times')
+    options, args = parser.parse_args()
+    
+    import profile    
+    import time
+    if options.profile:
+        t1 = time.time()
+        #profile.run('test_speciesStr()')
+        profile.run('profile()')
+        t2 = time.time()
+        print 'time: %s' % (t2-t1)
+    else:
+        test_speciesStr(options.verbose)
+    
+    
+if __name__ == '__main__':
+    main()
+
+

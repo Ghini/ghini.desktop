@@ -1,4 +1,4 @@
-"code","name","notes","ed2_status","iso_code","id","botanical_countryID"
+"code","name","notes","ed2_status","iso_code","id","botanical_country_id"
 "ASS-NA","Nagaland","","","IN",48,22
 "ALB-OO","Albania","","","AL",28,7
 "ARK-OO","Arkansas","","","US",39,17

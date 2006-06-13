@@ -112,50 +112,60 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 # are going to be passed to one of these dialogs should be escaped before 
 # coming through
 
-def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
-    try: # this might get called before bauble has started
-        parent = bauble.app.gui.window
-    except:
-	parent = None	
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-			 parent=parent,
-			 type=type, buttons=buttons)
-    d.set_markup(msg)
-    r = d.run()
-    d.destroy()
-    return r
-    
-
-# TODO: it would be nice to implement a yes_or_no method that asks from the 
-# console if there is no gui. is it possible to know if we have a terminal
-# to write to
-def yes_no_dialog(msg, parent=None):
+def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window
         except:
-            parent = None
+            parent = None    
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=parent, type=type, buttons=buttons)
+    d.set_markup(msg)
+    d.show_all()
+    return d
 
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                         parent=parent,
-                         type=gtk.MESSAGE_QUESTION,
-                         buttons = gtk.BUTTONS_YES_NO)            
-    d.set_markup(msg)    
+
+def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
+    d = create_message_dialog(msg, type, buttons, aprent)
     r = d.run()
     d.destroy()
-    return r == gtk.RESPONSE_YES
+    return r
 
+    
+def create_yes_no_dialog(msg, parent=None):
+    if parent is None:
+        try: # this might get called before bauble has started
+            parent = bauble.app.gui.window
+        except:
+            parent = None    
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+                          parent=parent, type=gtk.MESSAGE_QUESTION,
+                          buttons = gtk.BUTTONS_YES_NO)            
+    d.set_markup(msg)  
+    d.show_all()
+    return d
+    
+    
+# TODO: it would be nice to implement a yes_or_no method that asks from the 
+# console if there is no gui. is it possible to know if we have a terminal
+# to write to?
+def yes_no_dialog(msg, parent=None):
+    d = create_yes_no_dialog(msg, parent)
+    r = d.run()
+    d.destroy()  
+    return r == gtk.RESPONSE_YES
 
 #
 # TODO: give the button the default focus instead of the expander
 #
-def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
-                           buttons=gtk.BUTTONS_OK):    
-    try: # this might get called before bauble has started
-        parent = bauble.app.gui.window	
-    except:	
-        parent = None
-    d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
+def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
+                                  buttons=gtk.BUTTONS_OK, parent=None):
+    if parent is None:
+        try: # this might get called before bauble has started
+            parent = bauble.app.gui.window    
+        except:    
+            parent = None
+    d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                          parent=parent,type=type, buttons=buttons)        
     d.set_markup(msg)    
     expand = gtk.Expander("Details")    
@@ -173,6 +183,12 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     ok_button = d.action_area.get_children()[0]
     d.set_focus(ok_button)
     d.show_all()
+    return d
+    
+    
+def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
+                           buttons=gtk.BUTTONS_OK):    
+    d = create_message_details_dialog(msg, details, type, buttons)
     r = d.run()
     d.destroy()
     return r

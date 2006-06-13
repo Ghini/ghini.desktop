@@ -177,22 +177,28 @@ class SQLObjectProxy(dict):
     
     def __init__(self, so_object):
         # we have to set so_object this way since it is called in __contains__
-        # which is used by self.__setattr__
+        # which is used by self.__setattr__                
         dict.__setattr__(self, 'so_object', so_object)
         dict.__setattr__(self, 'dirty', False)
         dict.__setattr__(self, 'isinstance', False)
-        #self.isinstance = False        
+        dict.__setattr__(self, '_notifiers', {})
+        dict.__setattr__(self, '_pause', False)
+        
+        self._notifiers = {}
         if isinstance(so_object, SQLObject):
             self.isinstance = True
             self['id'] = so_object.id # always keep the id
         elif not issubclass(so_object, SQLObject):
             msg = 'row should be either an instance or class of SQLObject'
-            raise ValueError('SQLObjectProxy.__init__: ' + msg)        
-        
-    __notifiers__ = {}
-    
+            raise ValueError('SQLObjectProxy.__init__: ' + msg)  
+            
+    def pause_notifiers(self, pause):
+        self._pause = pause    
     
     # TODO: provide a way to remove notifiers
+    def clear_notifiers(self):
+        #self._notifiers.clear()
+        dict.__getattribute__(self, '_notifiers').clear()
     
     def add_notifier(self, column, callback):
         '''
@@ -202,9 +208,11 @@ class SQLObjectProxy(dict):
         '''
 #        debug('SQLObjectProxy(%s, %s)' % (column, callback))
         try:
-            self.__notifiers__[column].append(callback)
+            dict.__getattribute__(self, '_notifiers')[column].append(callback)
+            #self._notifiers[column].append(callback)
         except KeyError:
-            self.__notifiers__[column] = [callback]
+            dict.__getattribute__(self, '_notifiers')[column] = [callback]
+            #self._notifiers[column] = [callback]
 
 
     def __contains__(self, item):
@@ -277,9 +285,12 @@ class SQLObjectProxy(dict):
         dict.__setattr__(self, 'dirty', dirty)
         if dirty:
             try:
-                for callback in self.__notifiers__[key]:
-                    callback(key)
-            except KeyError:
+                # if we don't have this hasattr here we'll get infiniter 
+                # recursion on _contains_, im not real sure why
+                if hasattr(self, '_notifiers') and not self._pause:
+                    for callback in self._notifiers[key]:
+                        callback(key)
+            except KeyError, AttributeError:
                 pass 
     
     
@@ -287,7 +298,9 @@ class SQLObjectProxy(dict):
         '''
         override attribute read 
         '''
-        if name in self:
+#        debug('SQLObjectProxy.__getattr__(%s)' % name)
+#        if dict.__contains__(self, name):        
+        if name in self:        
             return self.__getitem__(name)
         return dict.__getattribute__(self, name)
     

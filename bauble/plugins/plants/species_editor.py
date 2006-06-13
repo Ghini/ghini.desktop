@@ -99,24 +99,140 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
         #self.view.widgets.sp_infra_rank_combo.connect('changed', self.on_infra_rank_changed)
         
-        self.assign_simple_handler('sp_species_entry', 'sp')
+        self.assign_simple_handler('sp_species_entry', 'sp',
+                                   StringOrNoneValidator('sp'))
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank', 
                                    StringOrNoneValidator('infrasp_rank'))
         self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid', 
                                    StringOrNoneValidator('sp_hybrid'))
-        self.assign_simple_handler('sp_infra_entry', 'infrasp')
+        self.assign_simple_handler('sp_infra_entry', 'infrasp', 
+                                   StringOrNoneValidator('infrasp'))
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group')
-        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author')
+        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
+                                    StringOrNoneValidator('infrasp_author'))
         self.assign_simple_handler('sp_idqual_combo', 'id_qual', 
                                    StringOrNoneValidator('id_qual'))
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
                                    StringOrNoneValidator('sp_qual'))
-        self.assign_simple_handler('sp_author_entry', 'sp_author')
-        self.assign_simple_handler('sp_notes_textview', 'notes')        
+        self.assign_simple_handler('sp_author_entry', 'sp_author',
+                                   StringOrNoneValidator('sp_author'))
+        self.assign_simple_handler('sp_notes_textview', 'notes',
+                                   StringOrNoneValidator('notes'))        
         
         self.init_change_notifier()
     
+    
+    def refresh_sensitivity(self):
+        sensitive = []
+        notsensitive = []
+        # states_dict:
+        # { field: (sensitive widgets), (insensitive widgets) }
+        # - this assumes that when field is not None, if field is none then
+        # sensitive widgets are set to false
+        infrasp_widgets = ['sp_infra_rank_combo', 'sp_infra_entry', 
+                           'sp_infra_author_entry', 'sp_cvgroup_combo', ]
         
+        states_dict = {'sp_hybrid_combo': ['genus'],
+                       'sp_species_entry': ['genus'],
+                       'sp_author_entry': ['sp'],
+                       'sp_infra_rank_combo': ['sp'],
+                       'sp_infra_entry': ['infrasp_rank', 'sp'],
+                       'sp_infra_author_entry': ['infrasp', 'infrasp_rank', 'sp']}
+        for widget, fields in states_dict.iteritems():
+            none_status = [f for f in fields if self.model[f] is not None]
+            if len(none_status) == len(states_dict[widget]):
+                self.view.widgets[widget].set_sensitive(True)
+            else:
+                self.view.widgets[widget].set_sensitive(False)        
+                
+        if self.model.infrasp_rank == 'cv.':
+            self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
+        else:
+            self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
+            
+        if self.model.sp_hybrid is not None:
+            self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
+            self.view.widgets.sp_infra_entry.set_sensitive(True)
+        return
+    
+    
+        states_dict = {'genus': (['sp_species_entry', 'sp_hybrid_combo'], []),
+                       'sp': (['sp_author_entry', 'sp_infra_rank_combo'],
+                              []),
+                       'sp_hybrid': (['sp_infra_entry'], 
+                                     ['sp_infra_rank_combo']),
+                       'infrasp_rank': (['sp_infra_entry', 'sp_infra_author_entry'], 
+                                        []),
+                       'infrasp': (['sp_infra_author_entry'], 
+                                   [])
+            
+                      }
+        for field, states in states_dict.iteritems():
+            sensitive, insensitive = states
+            debug(field)
+            if self.model[field] is not None:
+                for w in sensitive:
+                    self.view.widgets[w].set_sensitive(True)
+                for w in insensitive:
+                    self.view.widgets[w].set_sensitive(False)
+            else:
+                for w in sensitive:
+                    self.view.widgets[w].set_sensitive(False)
+                    
+                    
+        if self.model.infrasp_rank == 'cv.':
+            self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
+        else:
+            self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
+    
+        return
+    
+    
+        if self.model.sp_hybrid is not None:
+            if self.model.sp is not None:
+                sensitive = ['sp_author_entry', 'sp_infra_entry', ]#, 'sp_infra_author_entry']
+            else:
+                notsensitive = ['sp_infra_rank_combo', 'sp_cvgroup_entry']                
+            notsensitive = ['sp_infra_rank_combo', 'sp_cvgroup_entry']
+            if self.model.infrasp is not None:
+                sensitive.append('sp_infra_author_entry')
+            else:
+                notsensitive.append('sp_infra_author_entry')
+        elif self.model.infrasp_rank is not None:
+            if self.model.infrasp_rank == 'cv.':
+                sensitive = ['sp_infra_rank_combo', 'sp_infra_entry', 
+                              'sp_cvgroup_entry'] #'sp_infra_author_entry',
+            else:
+                sensitive = ['sp_infra_rank_combo', 'sp_infra_entry'] 
+                             #'sp_infra_author_entry']
+                notsensitive = ['sp_cvgroup_entry']
+            if self.model.infrasp is not None:
+                sensitive.append('sp_infra_author_entry')
+            else:
+                notsensitive.append('sp_infra_author_entry')
+        else:
+            sensitive = ['sp_infra_rank_combo']
+            notsensitive = ['sp_cvgroup_entry', 'sp_infra_entry', 
+                            'sp_infra_author_entry']            
+        
+            #if self.model.infrasp is not None:
+            #    sensitive.append('sp_infra_author_entry')
+            #else:
+            #    notsensitive.append('sp_infra_author_entry')
+                
+        
+            
+        # notsensitive and sensitive can have the duplicate names so 
+        # sensitive takes precendence
+        for w in notsensitive:
+            self.view.widgets[w].set_sensitive(False)
+            
+        for w in sensitive:
+            self.view.widgets[w].set_sensitive(True)
+            
+        
+            
+            
     def on_field_changed(self, field):
 #        debug('on_field_changed: %s' % field)
         sensitive = True
@@ -126,19 +242,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
            or len(self.meta_presenter.problems) != 0:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
-        
-        
-        if field == 'infrasp_rank':# or field == 'sp_hybrid':
-            if self.model[field] is not None:
-                self.view.widgets.sp_infra_entry.set_sensitive(True)
-                self.view.widgets.sp_infra_author_entry.set_sensitive(True)
-                if self.model[field] == 'cv.':
-                    self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
-                else:
-                    self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
-            else:
-                self.view.widgets.sp_infra_entry.set_sensitive(False)
-                self.view.widgets.sp_infra_author_entry.set_sensitive(False)
+        self.refresh_sensitivity()
         
     
     def init_change_notifier(self):
@@ -258,13 +362,24 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         else:
             import copy
             values = copy.copy(self.model)
-            if values.sp is None:
-                values.sp = ''
-            if values.infrasp is None and values.infrasp_rank is not None:
-                values.infrasp = ''
-            if values.infrasp_rank != 'cv.':
+            values.pause_notifiers(True)
+            for key, value in values.iteritems():
+                if value is '':
+                    values[key] = None
+                                        
+            if values.sp_hybrid is not None:
+                values.infrasp_rank = None
                 values.cv_group = None
+                values.sp_hybrid = values.sp_hybrid # so this is the last field on_field_changed is called on
+            elif values.infrasp_rank is None:
+                values.infrasp = None
+                values.cv_group = None
+                values.infrasp_author = None
+            elif values.infrasp_rank != 'cv.':
+                values.cv_group = None
+
             s = Species.str(values, authors=True, markup=True)
+            values.pause_notifiers(False)
         self.view.widgets.sp_fullname_label.set_markup(s)
     
     
@@ -359,19 +474,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             value = self.model[field]            
 #            debug('%s, %s, %s' % (widget, field, value))            
             self.view.set_widget_value(widget, value, 
-                                       default=self.defaults.get(field, None))
-        
-        if self.model.infrasp_rank is not None:# or self.model.sp_hybrid is not None:
-            self.view.widgets.sp_infra_entry.set_sensitive(True)
-            self.view.widgets.sp_infra_author_entry.set_sensitive(True)
-            if self.model[field] == 'cv.':
-                self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
-            else:
-                self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
-        else:
-            self.view.widgets.sp_infra_entry.set_sensitive(False)
-            self.view.widgets.sp_infra_author_entry.set_sensitive(False)                
-        
+                                       default=self.defaults.get(field, None))             
+        self.refresh_sensitivity()
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.meta_presenter.refresh_view()
@@ -677,6 +781,7 @@ class SynonymsPresenter(GenericEditorPresenter):
             tree_model.append([syn])
         tree.set_model(tree_model)        
         tree.connect('cursor-changed', self.on_tree_cursor_changed)
+    
     
     def on_tree_cursor_changed(self, tree, data=None):
         path, column = tree.get_cursor()
@@ -1063,7 +1168,14 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         meta = self.model.pop('species_meta', None)
         species = None
         if self.model.dirty:
-            if self.model.infrasp_rank != 'cv.': 
+            if self.model.sp_hybrid is not None:
+                self.model.infrasp_rank = None
+                self.model.cv_group = None
+            elif self.model.infrasp_rank is None:
+                self.model.infrasp = None
+                self.model.infrasp_author = None
+                self.model.cv_group = None
+            elif self.model.infrasp_rank != 'cv.': 
                 # no cv group if not a cultivar
                 self.model.cv_group = None
             species = self._commit(self.model)        

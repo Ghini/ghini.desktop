@@ -6,11 +6,13 @@ import gtk
 # and one for the total task
 
 class ProgressDialog(gtk.Dialog):
+    
     def __init__(self, parent=None, title=None):
         # TODO: if parent is None try and set it to the bauble main window
         if parent is None and bauble.app.gui is not None:
             parent = bauble.app.gui.window
-        gtk.Dialog.__init__(self, parent=parent, title=title)
+        gtk.Dialog.__init__(self, parent=parent, title=title,
+                            flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT)
         self.set_resizable(False)
         self.cancel_button = self.add_button(gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL)
         self.box = gtk.VBox()        

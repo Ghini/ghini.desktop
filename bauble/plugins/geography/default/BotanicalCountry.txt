@@ -1,4 +1,4 @@
-"code","name","notes","regionID","ed2_status","iso_code","id"
+"code","name","notes","region_id","ed2_status","iso_code","id"
 "CPI","Central American Pacific Is.","",45,"","",80
 "MNT","Montana","",38,"","US",193
 "AGE","Argentina Northeast","",50,"","AR",3

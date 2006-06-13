@@ -84,15 +84,9 @@ class PlantsPlugin(BaublePlugin):
 
     @staticmethod
     def default_filenames():
-        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")        
-        files = ['Family.txt', 'FamilySynonym.txt']#,'Genus.txt', 'Species.txt']        
-        # genera and species take along time so ask the user if
-        # they want to import them
-        #if utils.yes_no_dialog("Would you like to import the Genera? (it may "\
-        #                       "take a while)"):            
-        #    files += 'Genus.txt', 'GenusSynonym.txt
-        #files.append('Genus.txt', 'GenusSynonym.txt')
-        files += 'Genus.txt', 'GenusSynonym.txt'
+        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
+        files = ['Family.txt', 'FamilySynonym.txt']
+        #files += 'Genus.txt', 'GenusSynonym.txt'
         return [os.path.join(path, f) for f in files]
 
 
