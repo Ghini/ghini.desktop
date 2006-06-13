@@ -1,3 +1,15 @@
+2006.06.12
+----------
+- changed the format of csv import to now use the column names as they are in
+the database instead of how SQLObject sees them
+- changed the way dialogs are show in csv import to prevent lock ups
+- tried to improve the speed of imports a bit by changing the way the rows
+are inserted, we now use sqlobject.sqlbuild.Insert. though it would still probably
+be faster if we got it to work by sending the entire list of values to the 
+insert instead of one row at i time, i'm not sure if this is the real bottleneck
+on the imports
+- lots of other small fixes in csv import/export
+
 2006.06.09
 ----------
 - more work on csv export to make the gui more responsive

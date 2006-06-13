@@ -1,4 +1,4 @@
-"id","hybrid","genus","author","familyID"
+"id","hybrid","genus","author","family_id"
 24904,"","Acanthodium","Delile",1
 8801,"","Acanthopale","C.B.Clarke",1
 8802,"","Acanthopsis","Harv.",1

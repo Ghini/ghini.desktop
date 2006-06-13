@@ -7,23 +7,27 @@ from sqlobject import *
 from bauble.plugins import BaubleTable
 from bauble.utils.log import log, debug
 
-# possible name formats
-# +Genus # graft chimaera
-# Genus [x] [cv.] 'infrasp'
+# ***** supported names
 # Genus sp
-# Genus sp SpAuthor
-# Genus x sp SpAuthor
-# Genus sp x infrasp
+# Genus sp sp_author
+# Genus sp_hybrid (cv.) 'infrasp' # not supported any more?
+# Genus sp_hybrid sp
+# Genus sp sp_hybrid infrasp
 # Genus sp infrasp_rank infrasp
-# Genus sp [cv.] 'infrasp'
-# Genus sp Cultivar Group
-# Genus sp [cv.] (Cultivar Group) 'infrasp' 
+# Genus sp (cv.) 'infrasp'
+# Genus sp cv_group
+# Genus sp (cv.) (cv_group) 'infrasp' 
 
-# ** names we don't support
-
+# ***** names we don't support
+# Genux sp x sp2 [infrasp_rank] infrasp
 # Genus sp infrasp_rank infrasp 'cv' 
 # eg Rudbeckia fulgida var. sullivantii 'Goldsturm',
 # we can't support this without more infrasp and infrasp_rank fields, like BGRecorder
+
+# ***** are these even valid
+# Genus x sp sp_author
+# Genus sp sp_athor x infrasp infrasp_author
+
 
 #
 # Species table
@@ -111,67 +115,77 @@ class Species(BaubleTable):
     
     
     def markup(self, authors=False):
+        '''
+        returns this object as a string with markup
+        
+        authors -- falgs to toggle whethe the author names should be included
+        '''
         return Species.str(self, authors, True)
     
     
     @staticmethod
     def str(species, authors=False, markup=False):
-        """
-        return the full plant name string        
-        """    
-        # TODO: how complete is this for the latest nomenclature code?        
-        # TODO: create tests for all possible name combinations 
-        #genus, sp_hybrid, id_qual, sp, sp_hybrid, infrasp, cv_group
+        '''
+        returns a string for species
+        
+        species -- the species object to get the values from
+        authors -- flags to toggle whether the author names should be included
+        markup - flags to toggle whether the returned text is marked up to show
+        italics on the epithets
+        '''
+        genus = str(species.genus)
+        sp = species.sp
         if markup:
-            italic = "<i>%s</i>"
+            italic = "<i>%s</i>"            
+            genus = italic % species.genus
+            if sp is not None: # shouldn't really be allowed
+                sp = italic % species.sp
+            # the infrasp italic is handled below
             escape = sax.escape
         else:
             italic = "%s"
             escape = lambda x: x
             
-        name = []
-        name.append(italic % str(species.genus))
-        
-        # id qualifier
-        if species.id_qual:
-            name.append(species.id_qual)
-            
-        # take care of species hybrid
-        if species.sp_hybrid:
-            # we don't have a second sp name for the hyrbid formula right now
-            # so we'll just use the isp for now
-            if species.infrasp is not None:
-                name.extend([italic % species.sp, species.sp_hybrid,
-                             italic % species.infrasp])
-            else:                
-                name.extend([species.sp_hybrid, italic % species.sp])
-        else:            
-            name.append(italic % species.sp)
-            
-        # cultivar groups and cultivars
-        if species.cv_group is not None:
-            if species.infrasp_rank == "cv.":                
-                name.extend(['(%s Group)' % species.cv_group, 
-                             "'%s'" % species.infrasp])
-            else:                                 
-                name.append('%s Group' % species.cv_group)
-            return ' '.join(name)
-        
-        if species.sp_author is not None and authors is not False:
-            name.append(escape(species.sp_author))
-        
-        if species.infrasp_rank:
-            if species.infrasp_rank == "cv.":
-                name.append("'%s'" % species.infrasp)
-            else:
-                name.extend([species.infrasp_rank, italic % species.infrasp])
-                if species.infrasp_author is not None and authors is not False:
-                    name.append(escape(species.infrasp_author))
+        author = None
+        isp_author = None                        
+        if authors:
+            if species.sp_author:
+                author = escape(species.sp_author)
+            if species.infrasp_author:            
+                isp_author = escape(species.infrasp_author)
                     
+        if species.sp_hybrid: # is a hybrid
+            if species.infrasp is not None:                    
+                name = [s for s in [genus, sp, author, species.sp_hybrid, 
+                                    species.infrasp, isp_author] if s is not None]
+            else:
+                name = [s for s in [genus, species.sp_hybrid, sp, author] if s is not None]
+        else: # isn't a hybrid
+            if species.cv_group:
+                if species.infrasp is None:
+                    cv = None
+                    group = '%s Group' % species.cv_group
+                else:
+                    cv = "'%s'" % species.infrasp
+                    group = '(%s Group)' % species.cv_group
+                name = [s for s in [genus, sp, author, group, cv, isp_author] if s is not None]
+            else:
+                if species.infrasp is None:
+                    isp = None
+                    isp_rank = None
+                else:
+                    if species.infrasp_rank == 'cv.':
+                        isp_rank = None                    
+                        isp = "'%s'" % (species.infrasp or '')
+                    else:
+                        isp_rank = species.infrasp_rank
+                        isp = italic % species.infrasp
+                name = [s for s in [genus, sp, author, 
+                                    isp_rank, isp, isp_author] if s is not None]
+            
         return ' '.join(name)
-    
+            
 
-    
 class SpeciesSynonym(BaubleTable):
     # deleting either of the species this synonym refers to makes
     # this synonym irrelevant

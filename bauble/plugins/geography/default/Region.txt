@@ -1,4 +1,4 @@
-"continentID","iso_code","region","code","id"
+"continent_id","iso_code","region","code","id"
 4,"","Malesia","42",27
 4,"","Papuasia","43",28
 6,"","Southwestern Pacific","60",31

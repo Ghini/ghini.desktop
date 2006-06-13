@@ -5,6 +5,7 @@
 import os, sys, csv, traceback
 import gtk.gdk
 import sqlobject
+from sqlobject.sqlbuilder import *
 import bauble
 import bauble.utils as utils
 from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
@@ -12,12 +13,8 @@ from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
 from bauble.utils.progressdialog import ProgressDialog
 
-csv_format_params = {}
-
-# TODO: some sort of asynchronous io, see gobject.io_add_watch, 
-# http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq20.016.htp
-
-# TODO: how do i validate unicode ???
+# TODO: is there a way to validate that the unicode is unicode or has the 
+# proper encoding?
 # TODO: i think we can do all of this easier using FormEncode
 # TODO: DateTimeCol and DateTime i guess should convert to a datetime object
 column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
@@ -26,7 +23,8 @@ column_type_validators = {sqlobject.SOForeignKey: lambda x: int(x),
                           sqlobject.SOBoolCol: lambda x: bool(x),
                           sqlobject.SOStringCol: lambda x: str(x),
                           sqlobject.SOEnumCol: lambda x: x,
-                          sqlobject.SOUnicodeCol: lambda x: unicode(x,'utf-8'),
+                          #sqlobject.SOUnicodeCol: lambda x: unicode(x,'utf-8'),
+                          sqlobject.SOUnicodeCol: lambda x: x,
                           sqlobject.SODateTimeCol: lambda x: x,
                           sqlobject.SODateCol: lambda x: x}
 
@@ -48,7 +46,7 @@ class CSVImporter:
                     "GenusSynonym.txt","Species.txt","SpeciesMeta.txt",
                     "SpeciesSynonym.txt","VernacularName.txt","Accession.txt",
                     "Donor.txt","Donation.txt","Collection.txt","Plant.txt",
-                    "Tag.txt","TaggedObj.txt"]
+                    'PlantHistory.txt', "Tag.txt","TaggedObj.txt"]
 
         import copy
         sorted_filenames = copy.copy(sortlist)
@@ -78,7 +76,6 @@ class CSVImporter:
         # dialog can updates but not too slow for inserts
         # TODO: instead of timeout on every insert maybe we should only timeout
         # every other one or something like that
-        #timeout = gtasklet.WaitForTimeout(5)
         timeout = gtasklet.WaitForTimeout(8)
         for filename in filenames:
             line = None # dummy for exception handler
@@ -101,41 +98,50 @@ class CSVImporter:
                           "then the file will not import "\
                           "correctly.\n\n<i>Would you like to drop the table in the "\
                           "database first. You will lose the data in your database "\
-                          "if you do this?</i>" % table_class.sqlmeta.table
-                    if force or utils.yes_no_dialog(msg):
-                        table_class.dropTable(ifExists=True, dropJoinTables=True, 
+                          "if you do this?</i>" % table_name                    
+                    d = utils.create_yes_no_dialog(msg)
+                    yield (gtasklet.WaitForSignal(d, "response"),
+                           gtasklet.WaitForSignal(d, "close"))   
+                    response = gtasklet.get_event().signal_args[0]        
+                    d.destroy()
+                    if force or response == gtk.RESPONSE_YES:
+                        table.dropTable(ifExists=True, dropJoinTables=True, 
                                         cascade=True)
-                        table_class.createTable()
-        
-                lineno = 1
+                        table.createTable()
+                values = []
+                lineno = 0
                 for line in reader:
                     while CSVImporter.__pause:
                         yield timeout
                         gtasklet.get_event()
                     if CSVImporter.__cancel:
                         break                
+                    values = {}
                     def __validate_col(col):
-                        if line[col] == '': 
-                            line.pop(col) # pop seems to be slightly faster than del
-                        else:
-                            # convert to proper type from str
-                            line[col] = validators[col](line[col])                    
+                        if line[col] is not '':
+                            values[col] = validators[col](line[col])
                     map(__validate_col, reader.fieldnames)
-                    t = table(**line) # create row in table
-                    #t.sync()
-                    #debug('%s: %s' % (lineno, lineno % 2))
-                    #if lineno % 2 == 0:
+                    conn = sqlobject.sqlhub.processConnection                     
+                    sql = conn.sqlrepr(Insert(table_name, values=values))
+                    conn.query(sql)
                     yield gtasklet.Message('update_progress', 
                                            dest=monitor_tasklet, value=1)
                     yield timeout
                     gtasklet.get_event()
                     lineno += 1
-
+                if CSVImporter.__cancel:
+                    break
             except Exception, e:
                 msg = "Error importing values from %s into table %s\n\n%s\n" \
-                       % (filename, table_name, line or '')
-                utils.message_details_dialog(msg, traceback.format_exc(), 
-                                             gtk.MESSAGE_ERROR)            
+                       % (filename, table_name, line or '')   
+                debug(traceback.format_exc())
+                debug(msg)
+                d= utils.create_message_details_dialog(msg, traceback.format_exc(), 
+                                                       gtk.MESSAGE_ERROR)
+                yield (gtasklet.WaitForSignal(d, "response"),
+                       gtasklet.WaitForSignal(d, "close"))
+                gtasklet.get_event()
+                d.destroy()
                 error = True
                 break
             else:
@@ -150,13 +156,16 @@ class CSVImporter:
                         sql = "SELECT setval('%s_id_seq', %d);" % \
                               (table_name, max+1)
                         sqlobject.sqlhub.processConnection.query(sql)    
-                
         if not error and not CSVImporter.__cancel:
             sqlobject.sqlhub.processConnection.commit()
         else:
             sqlobject.sqlhub.processConnection.rollback()
             sqlobject.sqlhub.processConnection.begin()
         yield gtasklet.Message('quit', dest=monitor_tasklet)
+    
+        # reset flags
+        CSVImporter.__cancel = False 
+        error = False # this shouldn't be static no?
 
     
     __cancel = False # flag to cancel importing
@@ -193,7 +202,7 @@ class CSVImporter:
           msg = gtasklet.get_event()
           if msg.name == "quit":
               bauble.app.set_busy(False) 
-              klass.__progress_dialog.destroy()          
+              klass.__progress_dialog.destroy()
           elif msg.name == 'update_progress':
               nsteps += msg.value
               percent = float(nsteps)/float(total_lines)
@@ -203,7 +212,6 @@ class CSVImporter:
               filename, table_name = msg.value  
               msg = 'Importing data into %s table from\n%s' % (table_name, filename)
               klass.__progress_dialog.set_message(msg)
-              #klass.__progress_dialog.pb.set_text('importing %s...' % table_name)
 
             
     @staticmethod
@@ -217,10 +225,13 @@ class CSVImporter:
         '''
         validators = {} # TODO: look at formencode to do this
         for col in table_class.sqlmeta.columnList:
-            if type(col) not in column_type_validators:
-                raise Exception("no validator for col " + col.name + \
-                                " with type " + str(col.__class__))                
-            validators[col.name] = column_type_validators[type(col)]
+#            if type(col) not in column_type_validators:
+#                raise Exception("no validator for col " + col.name + \
+#                                " with type " + str(col.__class__))           
+            if col.name.upper().endswith('ID'):
+                validators['%s_id' % col.name[:-2]] = column_type_validators[type(col)]
+            else:
+                validators[col.name] = column_type_validators[type(col)]
         validators['id'] = int        
         return validators
         
@@ -363,25 +374,29 @@ class CSVExporter:
             filename = filename_template % name
             if os.path.exists(filename) and not \
                utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
-                return
-                
-        #path = self.chooser_button.get_label()
-        #progress = utils.ProgressDialog()
-        #progress.show_all()
-    
-        #bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+                return                
         bauble.app.set_busy(True)
         #rows = []
         #rows_append = rows.append
         for table_name, table in tables.iteritems():
             print "exporting " + table_name
             #progress.pulse()
+            col_dict = {}
+            header = ['id']
+            for name, col in table.sqlmeta.columns.iteritems():
+                if name.upper().endswith('ID'):
+                    header.append('%s_id' % name[:-2])
+                else:
+                    header.append(name)
+
             col_dict = table.sqlmeta.columns
+            
             rows = []
             # TODO: probably don't need to write out column names or even
             # create the file if it contains no data, could be an option
             # TODO: this is slow as dirt
-            rows.append(["id"] + col_dict.keys()[:]) # write col names
+            #rows.append(["id"] + col_dict.keys()[:]) # write col names
+            rows.append(header) # write col names
             rows_append = rows.append
             for row in table.select():                                
                 values = []
@@ -435,8 +450,12 @@ def main():
     # TODO: allow -i for import, -e for export
     # TODO: need to pass in a database connection string
     # postgres://bbg:garden@ceiba.test
-    # TODO: if not connection is passed on the command line the open the 
-    # connection manager
+
+    # TODO: ****** i think the only reason this isn't working is because of using the 
+    # connection manager so we can either 1. figure out how to use the connection 
+    # manager from a tasklet or 2. don't use the connection manager and get 
+    # connection paramaters from the command line including the passwd
+    
     import sys
     from sqlobject import sqlhub, connectionForURI
     from bauble.conn_mgr import ConnectionManager#Dialog
@@ -461,8 +480,8 @@ def main():
         conn_name, uri = cm.start()
         if conn_name is None: return
     else:
-        params = prefs[prefs.conn_list_pref][options.conn]
-        uri = ConnectionManager.parameters_to_uri(params)
+        params = prefs[prefs.conn_list_pref][options.conn]            
+        uri = ConnectionManager().parameters_to_uri(params)
     
     sqlhub.processConnection = connectionForURI(uri)    
     sqlhub.processConnection.getConnection()
@@ -484,9 +503,11 @@ def main():
     bauble.plugins.load()
     importer = CSVImporter()
     print 'importing....'
-    importer.start(args, force=options.force, block=True)
+    importer.start(args, force=options.force)    
     sqlhub.processConnection.commit()
     print '...finished importing'
 
+
 if __name__ == "__main__":
-    main()
+    gtasklet.run(main())
+    gtk.main()

@@ -1,4 +1,4 @@
-"basic_unitID","code","synonym","notes","regionID","continentID","place","id","botanical_countryID"
+"basic_unit_id","code","synonym","notes","region_id","continent_id","place","id","botanical_country_id"
 29,"344","African Is.","part of Amirante group",15,2,"African Banks",64,8
 339,"345","","",15,2,"Agalega",65,182
 185,"346","","",16,3,"Aginsky Buryat",66,85

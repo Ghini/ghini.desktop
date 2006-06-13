@@ -689,7 +689,6 @@ class Tasklet(object):
         assert self.state == Tasklet.STATE_SUSPENDED
         old_wait_list = self.wait_list
         while True: # loop while tasklet yields tasklet.post_message(...)
-
             gen_value = self.__invoke()
             if gen_value is None:
                 return
