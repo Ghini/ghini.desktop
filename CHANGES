@@ -1,3 +1,11 @@
+2006.06.13
+----------
+- now ask in BaubleApp.create_database if the user wants to import the genera
+- show a message and don't let the use open the accession or species editor
+unless species or genera already exist in the database
+- forgot to change GenusSynonyms.txt to new imex_csv format
+- other small bugs in imex_csv and the utils message_dialog
+
 2006.06.12
 ----------
 - changed the format of csv import to now use the column names as they are in

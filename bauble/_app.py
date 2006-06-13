@@ -41,12 +41,30 @@ class BaubleApp:
             for p in plugins.values():
                 p.create_tables()
                 default_filenames.extend(p.default_filenames())
+
+            default_basenames = [os.path.basename(f) for f in default_filenames]
+            if 'Genus.txt' in default_basenames:
+                msg = 'Would you like to import the Genera?\n\n<i>Note: This '\
+                      'takes a little more time.</i>'
+                debug(msg)
+                debug(default_filenames)
+                if not utils.yes_no_dialog(msg):
+                    genus_index = default_basenames.index('Genus.txt')
+                    del default_filenames[genus_index]                    
+                    try:
+                        default_basenames = [os.path.basename(f) for f in default_filenames]
+                        gensyn_index = default_basenames.index('GenusSynonym.txt')
+                        debug(gensyn_index)
+                        del default_filenames[gensyn_index]                    
+                    except:
+                        debug('GenusSynonym.txt not in default_filenames')
                         
             # import default data
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter
                 csv = CSVImporter()    
                 csv.start(default_filenames)
+
             bauble.BaubleMetaTable.createTable()  
             bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
                                    value=str(bauble.version))

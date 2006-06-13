@@ -75,7 +75,6 @@ class PlantsPlugin(BaublePlugin):
                                                 #editor=SpeciesEditor, 
                                                 #infobox=SpeciesInfoBox)            
             
-
             
     @classmethod
     def create_tables(cls):
@@ -86,7 +85,7 @@ class PlantsPlugin(BaublePlugin):
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
         files = ['Family.txt', 'FamilySynonym.txt']
-        #files += 'Genus.txt', 'GenusSynonym.txt'
+        files += 'Genus.txt', 'GenusSynonym.txt'
         return [os.path.join(path, f) for f in files]
 
 
