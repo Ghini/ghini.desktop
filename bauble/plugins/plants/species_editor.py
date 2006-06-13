@@ -290,7 +290,9 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             elif values.infrasp_rank != 'cv.':
                 values.cv_group = None
 
-            s = Species.str(values, authors=True, markup=True)
+            #s = '%s\n%s' % (self.model.genus.family, Species.str(values, authors=True, markup=True))
+            s = '%s  -  %s' % (self.model.genus.family, Species.str(values, authors=True, markup=True))
+            #s += '%s\n'\n%s' % self.model.genus.family
             values.pause_notifiers(False)
         self.view.widgets.sp_fullname_label.set_markup(s)
     
@@ -919,8 +921,11 @@ class SpeciesEditorView(GenericEditorView):
             completion = gtk.EntryCompletion()    
             completion.set_match_func(self._lower_completion_match_func)        
             cell = gtk.CellRendererText() # set up the completion renderer
-            completion.pack_start(cell)
-            completion.set_cell_data_func(cell, self._completion_cell_data_func)
+            completion.pack_start(cell)            
+            if entry == 'sp_genus_entry':
+                completion.set_cell_data_func(cell, self._genus_completion_cell_data_func)    
+            else:
+                completion.set_cell_data_func(cell, self._completion_cell_data_func)    
             completion.set_minimum_key_length(2)
             completion.set_popup_completion(True)        
             self.widgets[entry].set_completion(completion)    
@@ -951,6 +956,12 @@ class SpeciesEditorView(GenericEditorView):
         '''
         value = completion.get_model()[iter][0]
         return str(value).lower().startswith(key_string.lower())   
+        
+        
+    def _genus_completion_cell_data_func(self, column, renderer, model, iter, 
+                                         data=None):
+        v = model[iter][0]
+        renderer.set_property('text', '%s (%s)' % (str(v), v.family))
         
         
     def _completion_cell_data_func(self, column, renderer, model, iter, 
