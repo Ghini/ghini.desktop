@@ -507,7 +507,7 @@ class GenericEditorPresenter:
                 try:
                     value = validator.to_python(value, None)
                     self.problems.remove('BAD_VALUE_%s' % model_field)
-                    self.model[field] = value
+                    #self.model[field] = value
                 except validators.Invalid, e:
                     self.problems.add('BAD_VALUE_%s' % model_field)
                     value = None # make sure the value in the model is reset                
