@@ -16,7 +16,7 @@ class Family(BaubleTable):
     class sqlmeta(BaubleTable.sqlmeta):
         defaultOrder = 'family'
 
-    family = StringCol(length=45, notNull=True, alternateID="True")
+    family = StringCol(length=45, notNull=True)#, alternateID="True")
     
     '''    
     The qualifier field designates the botanical status of the family.
@@ -37,8 +37,15 @@ class Family(BaubleTable):
         
     def __str__(self): 
         # TODO: need ability to include the qualifier as part of the name, 
-        # maybe as a keyworkd argument flag
+        # maybe as a keyworkd argument flag        
         return self.family
+    
+    @staticmethod
+    def str(family, full_string=False):
+        if full_string and family.qualifier is not None:
+            return '%s (%s)' % (family.family, family.qualifier)
+        else:
+            return family.family
     
     
     

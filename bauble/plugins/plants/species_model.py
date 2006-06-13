@@ -7,6 +7,9 @@ from sqlobject import *
 from bauble.plugins import BaubleTable
 from bauble.utils.log import log, debug
 
+# TODO: need to incorporate the species qualifier and id qualifier string
+# into the name string
+
 # ***** supported names
 # Genus sp
 # Genus sp sp_author

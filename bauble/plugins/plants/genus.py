@@ -73,7 +73,15 @@ class Genus(BaubleTable):
             return '%s %s' % (self.hybrid, self.genus)
         else:
             return self.genus
-        
+    
+    @staticmethod
+    def str(genus, full_string=False):
+        # TODO: should the qualifier be a standard part of the string, is it
+        # standard as part of botanical nomenclature
+        if full_string and genus.qualifier is not None:
+            return '%s (%s)' % (str(genus), genus.qualifier)
+        else:
+            return str(genus)
         
         
 class GenusSynonym(BaubleTable):

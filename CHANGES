@@ -4,6 +4,10 @@
 - show a message and don't let the use open the accession or species editor
 unless species or genera already exist in the database
 - forgot to change GenusSynonyms.txt to new imex_csv format
+- change Family.family to not be alternateID so we can have both, 
+e.g., Malvaceae (s. lat) and Malvaceae (s. str), this is a bit of a fuck
+up since it changes the model so it should require us to bump the minor
+number and recreate the database if you want this feature
 - other small bugs in imex_csv and the utils message_dialog
 
 2006.06.12

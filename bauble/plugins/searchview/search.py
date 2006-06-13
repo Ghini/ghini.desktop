@@ -182,7 +182,6 @@ class PythonOperatorValidator(OperatorValidator):
     to_operator_map = {'=': '==', 
 		       '<>': '!=',
 		       }
-
 		       	 
 
 class SearchMeta:
@@ -469,6 +468,9 @@ class SearchView(BaubleView):
         # outside the class so the entry and search results match
         self.entry.set_text(text)
         self._search_text = text
+                
+        # TODO: check the length of the results and if they are more than say
+        # 200 then we should popup a progress dialog or something
         
         # clear the old model
         self.set_sensitive(False)
