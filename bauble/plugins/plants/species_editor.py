@@ -12,6 +12,8 @@ import bauble.paths as paths
 from bauble.plugins import tables, editors
 from bauble.editor import *
 from bauble.utils.log import log, debug
+from bauble.plugins.plants.family import Family
+from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
     SpeciesSynonym, VernacularName
 
@@ -291,7 +293,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                 values.cv_group = None
 
             #s = '%s\n%s' % (self.model.genus.family, Species.str(values, authors=True, markup=True))
-            s = '%s  -  %s' % (self.model.genus.family, Species.str(values, authors=True, markup=True))
+            s = '%s  -  %s' % (Family.str(self.model.genus.family, full_string=True),
+                               Species.str(values, authors=True, markup=True))
             #s += '%s\n'\n%s' % self.model.genus.family
             values.pause_notifiers(False)
         self.view.widgets.sp_fullname_label.set_markup(s)
@@ -961,7 +964,9 @@ class SpeciesEditorView(GenericEditorView):
     def _genus_completion_cell_data_func(self, column, renderer, model, iter, 
                                          data=None):
         v = model[iter][0]
-        renderer.set_property('text', '%s (%s)' % (str(v), v.family))
+        renderer.set_property('text', '%s (%s)' % \
+                              (Genus.str(v, full_string=True), 
+                               Family.str(v.family, full_string=True)))
         
         
     def _completion_cell_data_func(self, column, renderer, model, iter, 
