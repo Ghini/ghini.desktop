@@ -123,118 +123,58 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     
     def refresh_sensitivity(self):
+        '''
+        set the sensitivity on the widgets that make up the species name 
+        according to values in the model
+        '''
         sensitive = []
         notsensitive = []
         # states_dict:
-        # { field: (sensitive widgets), (insensitive widgets) }
+        # { field: [widget(s) whose sensitivity == fields is not None] }
+        # - if widgets is a tuple then at least one of the items has to not be None
         # - this assumes that when field is not None, if field is none then
         # sensitive widgets are set to false
-        infrasp_widgets = ['sp_infra_rank_combo', 'sp_infra_entry', 
-                           'sp_infra_author_entry', 'sp_cvgroup_combo', ]
-        
         states_dict = {'sp_hybrid_combo': ['genus'],
                        'sp_species_entry': ['genus'],
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
-                       'sp_infra_entry': ['infrasp_rank', 'sp'],
-                       'sp_infra_author_entry': ['infrasp', 'infrasp_rank', 'sp']}
+                       'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
+                       'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'), 'infrasp', 'sp']}
         for widget, fields in states_dict.iteritems():
-            none_status = [f for f in fields if self.model[f] is not None]
+            none_status = []
+            for field in fields:                
+                if isinstance(field, tuple):
+                    none_list = [f for f in field if self.model[f] is not None]
+                    if len(none_list) != 0:
+                        none_status.extend(none_list)
+                elif self.model[field] is not None:
+                    none_status.append(field)
+            
             if len(none_status) == len(states_dict[widget]):
                 self.view.widgets[widget].set_sensitive(True)
             else:
                 self.view.widgets[widget].set_sensitive(False)        
-                
+        
+        # infraspecific rank has to be a cultivar for the cultivar group entry
+        # to be sensitive
         if self.model.infrasp_rank == 'cv.':
             self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
         else:
             self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
             
+        # turn off the infraspecific rank combo if the hybrid value in the model
+        # is not None
         if self.model.sp_hybrid is not None:
             self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
-            self.view.widgets.sp_infra_entry.set_sensitive(True)
-        return
     
-    
-        states_dict = {'genus': (['sp_species_entry', 'sp_hybrid_combo'], []),
-                       'sp': (['sp_author_entry', 'sp_infra_rank_combo'],
-                              []),
-                       'sp_hybrid': (['sp_infra_entry'], 
-                                     ['sp_infra_rank_combo']),
-                       'infrasp_rank': (['sp_infra_entry', 'sp_infra_author_entry'], 
-                                        []),
-                       'infrasp': (['sp_infra_author_entry'], 
-                                   [])
-            
-                      }
-        for field, states in states_dict.iteritems():
-            sensitive, insensitive = states
-            debug(field)
-            if self.model[field] is not None:
-                for w in sensitive:
-                    self.view.widgets[w].set_sensitive(True)
-                for w in insensitive:
-                    self.view.widgets[w].set_sensitive(False)
-            else:
-                for w in sensitive:
-                    self.view.widgets[w].set_sensitive(False)
-                    
-                    
-        if self.model.infrasp_rank == 'cv.':
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
-        else:
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
-    
-        return
-    
-    
-        if self.model.sp_hybrid is not None:
-            if self.model.sp is not None:
-                sensitive = ['sp_author_entry', 'sp_infra_entry', ]#, 'sp_infra_author_entry']
-            else:
-                notsensitive = ['sp_infra_rank_combo', 'sp_cvgroup_entry']                
-            notsensitive = ['sp_infra_rank_combo', 'sp_cvgroup_entry']
-            if self.model.infrasp is not None:
-                sensitive.append('sp_infra_author_entry')
-            else:
-                notsensitive.append('sp_infra_author_entry')
-        elif self.model.infrasp_rank is not None:
-            if self.model.infrasp_rank == 'cv.':
-                sensitive = ['sp_infra_rank_combo', 'sp_infra_entry', 
-                              'sp_cvgroup_entry'] #'sp_infra_author_entry',
-            else:
-                sensitive = ['sp_infra_rank_combo', 'sp_infra_entry'] 
-                             #'sp_infra_author_entry']
-                notsensitive = ['sp_cvgroup_entry']
-            if self.model.infrasp is not None:
-                sensitive.append('sp_infra_author_entry')
-            else:
-                notsensitive.append('sp_infra_author_entry')
-        else:
-            sensitive = ['sp_infra_rank_combo']
-            notsensitive = ['sp_cvgroup_entry', 'sp_infra_entry', 
-                            'sp_infra_author_entry']            
-        
-            #if self.model.infrasp is not None:
-            #    sensitive.append('sp_infra_author_entry')
-            #else:
-            #    notsensitive.append('sp_infra_author_entry')
-                
-        
-            
-        # notsensitive and sensitive can have the duplicate names so 
-        # sensitive takes precendence
-        for w in notsensitive:
-            self.view.widgets[w].set_sensitive(False)
-            
-        for w in sensitive:
-            self.view.widgets[w].set_sensitive(True)
-            
-        
-            
             
     def on_field_changed(self, field):
+        '''
+        rests the sensitivity on the ok buttons and the name widgets when 
+        value change in the model
+        '''
 #        debug('on_field_changed: %s' % field)
+#        debug('on_field_changed: %s = %s' % (field, self.model[field]))
         sensitive = True
         if len(self.problems) != 0 \
            or len(self.vern_presenter.problems) != 0 \
@@ -265,6 +205,9 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             
             
     def init_genus_entry(self):
+        '''
+        initialize the genus entry
+        '''
         genus_entry = self.view.widgets.sp_genus_entry
         completion = genus_entry.get_completion()
         completion.connect('match-selected', self.on_genus_match_selected)
@@ -273,46 +216,13 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.insert_genus_sid = genus_entry.connect('insert-text', 
                                                 self.on_genus_entry_insert)
         genus_entry.connect('delete-text', self.on_genus_entry_delete)
-    
-    
-#    def on_infra_rank_changed(self, combo, data=None):
-#        text = combo.get_active_text()
-#        if text == '':
-#            self.model.infrasp_rank = None
-#            self.model.sp_hybrid = None
-#        elif text in self.model.columns['infrasp_rank'].enumValues:
-#            self.model.sp_hybrid = None
-#            self.model.infrasp_rank = text            
-#        elif text in self.model.columns['sp_hybrid'].enumValues:            
-#            self.model.infrasp_rank = None
-#            self.model.sp_hybrid = text
-#        else:
-#            raise ValueError('unknown value') # should never get here
-#                
-#                
-#    def init_infrasp_rank_combo(self):    
-#        #sp_hybrid = EnumCol(enumValues=("H", "x", "+",None)
-#        #combo = self.view.widgets[combo_name]
-#        combo = self.view.widgets.sp_infra_rank_combo
-#        combo.clear()        
-#        r = gtk.CellRendererText()
-#        combo.pack_start(r, True)
-#        combo.add_attribute(r, 'text', 0)            
-#        #model = gtk.ListStore(str)
-#        #column = self.model.columns[self.widget_to_field_map[combo_name]]
-#        
-#        sp_hybrid = self.model.columns['sp_hybrid']
-#        infrasp_rank = self.model.columns['infrasp_rank']
-#        values = sorted(infrasp_rank.enumValues)
-#        values.extend(sorted(sp_hybrid.enumValues))        
-##        debug(values)
-#        for enum in values:
-#            if enum is not None:
-#                combo.append_text(enum)
-#        combo.insert_text(0, '')
  
         
     def init_combos(self):
+        '''
+        initialize the infraspecifi rank combo, the species hybrid combo,
+        the species idqualifier combo and the species qualifier combo
+        '''        
         combos = ['sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_idqual_combo', 
                   'sp_spqual_combo']
         #combos = ['sp_idqual_combo', 'sp_spqual_combo']
@@ -355,6 +265,9 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                     
         
     def refresh_fullname_label(self):
+        '''
+        resets the fullname label according to values in the model
+        '''
         if len(self.problems) > 0:
             s = '--'
         elif self.model.genus == None:
@@ -365,8 +278,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             values.pause_notifiers(True)
             for key, value in values.iteritems():
                 if value is '':
-                    values[key] = None
-                                        
+                    values[key] = None                                        
             if values.sp_hybrid is not None:
                 values.infrasp_rank = None
                 values.cv_group = None
@@ -384,6 +296,11 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     
     def idle_add_genus_completions(self, text):
+        '''
+        adds completions to the genus entry according to text
+        
+        text -- the text to match against
+        '''
 #        debug('idle_add_genus_competions: %s' % text)        
         like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % text))
         sr = tables["Genus"].select('genus LIKE %s' % like_genus)
