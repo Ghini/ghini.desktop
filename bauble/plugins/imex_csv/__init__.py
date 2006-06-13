@@ -228,7 +228,7 @@ class CSVImporter:
 #            if type(col) not in column_type_validators:
 #                raise Exception("no validator for col " + col.name + \
 #                                " with type " + str(col.__class__))           
-            if col.name.upper().endswith('ID'):
+            if col.name.endswith('ID'):
                 validators['%s_id' % col.name[:-2]] = column_type_validators[type(col)]
             else:
                 validators[col.name] = column_type_validators[type(col)]
@@ -384,7 +384,7 @@ class CSVExporter:
             col_dict = {}
             header = ['id']
             for name, col in table.sqlmeta.columns.iteritems():
-                if name.upper().endswith('ID'):
+                if name.endswith('ID'):
                     header.append('%s_id' % name[:-2])
                 else:
                     header.append(name)

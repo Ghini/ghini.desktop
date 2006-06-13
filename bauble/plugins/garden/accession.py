@@ -1242,9 +1242,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         # editor
         self.parent = parent
         self.defaults = defaults 
-        self.view = AccessionEditorView(parent=parent)
-        self.presenter = AccessionEditorPresenter(self.model, self.view,
-                                                  self.defaults)
+        
 
 
     def handle_response(self, response):
@@ -1256,6 +1254,14 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     
     
     def start(self, commit_transaction=True):    
+        if tables['Species'].select().count() == 0:
+            msg = 'You must first add or import at least one species into the '\
+                  'database before you can add accessions.'
+            utils.message_dialog(msg)
+            return
+        self.view = AccessionEditorView(parent=self.parent)
+        self.presenter = AccessionEditorPresenter(self.model, self.view,
+                                                  self.defaults)
         not_ok_msg = 'Are you sure you want to lose your changes?'
         exc_msg = "Could not commit changes.\n"
         committed = None

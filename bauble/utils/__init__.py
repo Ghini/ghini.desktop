@@ -125,8 +125,8 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, pa
     return d
 
 
-def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK):
-    d = create_message_dialog(msg, type, buttons, aprent)
+def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
+    d = create_message_dialog(msg, type, buttons, parent)
     r = d.run()
     d.destroy()
     return r

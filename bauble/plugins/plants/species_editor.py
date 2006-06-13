@@ -1080,11 +1080,17 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         # editor
         self.parent = parent
         self.defaults = defaults 
-        self.view = SpeciesEditorView(parent=parent)
-        self.presenter = SpeciesEditorPresenter(self.model, self.view,
-                                                self.defaults)
+        
         
     def start(self, commit_transaction=True):    
+        if tables['Genus'].select().count() == 0:
+            msg = 'You must first add or import at least one genus into the '\
+                  'database before you can add species.'
+            utils.message_dialog(msg)
+            return
+        self.view = SpeciesEditorView(parent=self.parent)
+        self.presenter = SpeciesEditorPresenter(self.model, self.view,
+                                                self.defaults)
         not_ok_msg = 'Are you sure you want to lose your changes?'
         exc_msg = "Could not commit changes.\n"
         committed = None
@@ -1093,7 +1099,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             vernacular_dirty = self.presenter.vern_presenter is not None and \
                 self.presenter.vern_presenter.model.dirty
-            synonyms_dirty = self.presenter.synonyms_presenter is not None and\
+            synonyms_dirty = self.presenter.synonyms_presenter is not None and \
                 self.presenter.synonyms_presenter.model.dirty
             meta_dirty = self.presenter.meta_presenter is not None and\
                 self.presenter.meta_presenter.model.dirty
