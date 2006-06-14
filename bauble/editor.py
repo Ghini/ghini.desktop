@@ -221,6 +221,8 @@ class SQLObjectProxy(dict):
         e.g. 'in' will tell you if it exists in either the dictionary
         or the table while has_key will only tell you if it exists in the 
         dictionary, this is a very important difference
+        
+        @param item:  a field name for the SQLObject class this proxy wraps
         """
         if dict.__contains__(self, item):
             return True
@@ -232,6 +234,8 @@ class SQLObjectProxy(dict):
         get items from the dict
         if the item does not exist then we create the item in the dictionary
         and set its value from the default or to None
+        
+        @param item:
         '''
         
         # item is already in the dict
@@ -279,6 +283,10 @@ class SQLObjectProxy(dict):
         '''
         set item in the dict, this does not change the database, only 
         the cached values
+        
+        @param key:
+        @param value:
+        @param dirty:
         '''
 #        debug('setitem(%s, %s, %s)' % (key, value, dirty))
         dict.__setitem__(self, key, value)
@@ -297,6 +305,8 @@ class SQLObjectProxy(dict):
     def __getattr__(self, name):
         '''
         override attribute read 
+        
+        @param name:
         '''
 #        debug('SQLObjectProxy.__getattr__(%s)' % name)
 #        if dict.__contains__(self, name):        
@@ -308,6 +318,9 @@ class SQLObjectProxy(dict):
     def __setattr__(self, name, value):
         '''
         override attribute write
+        
+        @param name:
+        @param value:
         '''
 #        debug('__setattr__(%s, %s)' % (name, value))        
         if name in self:         
@@ -319,6 +332,9 @@ class SQLObjectProxy(dict):
     
     
     def _get_columns(self):
+        '''
+        get the column dictionary from the sqlobject this proxy wraps
+        '''
         return self.so_object.sqlmeta.columns
     columns = property(_get_columns)
 
@@ -334,13 +350,22 @@ class GenericEditorView:
         # TODO: should i worry about making this more secure/read only
 
         def __init__(self, glade_xml):
+            '''
+            @params glade_xml: a gtk.glade.XML object
+            '''
             self.glade_xml = glade_xml
         
         def __getitem__(self, name):
+            '''
+            @param name:
+            '''
             # TODO: raise a key error if there is no widget
             return self.glade_xml.get_widget(name)
     
         def __getattr__(self, name):
+            '''
+            @param name:
+            '''
             return self.glade_xml.get_widget(name)
         
         
@@ -348,6 +373,9 @@ class GenericEditorView:
         '''
         glade_xml either at gtk.glade.XML instance or a path to a glade 
         XML file
+        
+        @param glade_xml:
+        @param parent:
         '''
         if isinstance(glade_xml, gtk.glade.XML):
             self.glade_xml = glade_xml
@@ -359,17 +387,28 @@ class GenericEditorView:
     
     
     def set_widget_value(self, widget_name, value, markup=True, default=None):
+        '''
+        @param widget_name:
+        @param value:
+        @param markup: =True
+        @param default: =None
+        '''
         utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
                                default)
         
         
     def connect_dialog_close(self, dialog):
+        '''
+        @param dialog:
+        '''
         dialog.connect('response', self.on_dialog_response)
         dialog.connect('close', self.on_dialog_close_or_delete)
         dialog.connect('delete-event', self.on_dialog_close_or_delete)    
         
         
     def on_dialog_response(self, dialog, response, *args):
+        '''
+        '''
         dialog.hide()
         self.response = response
         #if response < 0:
@@ -377,17 +416,25 @@ class GenericEditorView:
     
     
     def on_dialog_close_or_delete(self, dialog, event=None):
+        '''
+        '''
         dialog.hide()
         return True
     
     
     def save_state(self):
+        '''
+        '''
         pass
         
     def restore_state(self):
+        '''
+        '''
         pass
         
     def start(self):
+        '''
+        '''
         raise NotImplementedError()
         
         
@@ -399,15 +446,33 @@ class DontCommitException(Exception):
     '''
     pass
     
+
+# TODO: could use this to add to the problem list and it could give us more
+# information about a problem and could have a unique id we could use to 
+# compare with
+#class Problem:
+#    
+#    def __init__(self, name, description):
+#        id = some random number
+#        pass
+#    
+#    def __cmp__(self, other):
+#        pass
     
 class Problems:
         
         _problems = []
         
         def add(self, problem):
+            '''
+            @param problem:
+            '''
             self._problems.append(problem)
             
         def remove(self, problem):
+            '''
+            @param problem:
+            '''
             # TODO: nothing happens if problem does not exist in self.problems
             # should we ignore it or do..
             # if problem not in self.problems
@@ -419,9 +484,15 @@ class Problems:
                     break
             
         def __len__(self):
+            '''
+            @return: the number of problems
+            '''
             return len(self._problems)
             
         def __str__(self):
+            '''
+            @return: a string of the list of problems
+            '''
             return str(self._problems)
             
     
@@ -433,8 +504,8 @@ class GenericEditorPresenter:
     problem_color = gtk.gdk.color_parse('#FFDCDF')
     def __init__(self, model, view, defaults={}):
         '''
-        model should be an instance of SQLObjectProxy
-        view should be an instance of GenericEditorView
+        @param model: should be an instance of SQLObjectProxy
+        @param view: should be an instance of GenericEditorView
         '''
         widget_model_map = {}
         self.model = model
@@ -447,6 +518,9 @@ class GenericEditorPresenter:
         '''
         remove problem_id from self.problems and reset the background color
         of the widget(s) in problem_widgets
+        
+        @param problem_id:
+        @param problem_widgets:
         '''
         self.problems.remove(problem_id)
         if isinstance(problem_widgets, (tuple, list)):
@@ -466,6 +540,9 @@ class GenericEditorPresenter:
         in problem_widgets
         problem_widgets: either a widget or list of widgets whose background
         color should change to indicate a problem
+        
+        @param problem_id:
+        @param problem_widgets:
         '''
         self.problems.add(problem_id)
         if isinstance(problem_widgets, (tuple, list)):

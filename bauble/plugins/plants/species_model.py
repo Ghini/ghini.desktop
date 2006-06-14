@@ -51,7 +51,23 @@ class Species(BaubleTable):
     #                             'infrasp_author', 'infrasp_rank')
     sp = StringCol(length=40, notNull=True)          # specific epithet
     sp_author = UnicodeCol(default=None)  # species author    
+    
+    ''' 
+    sp_hybrid
+    ---------
+    H -- A hybrid formula for an Interspecific hybrid
+    x -- A Nothotaxon name for an Interspecific hybrid
+    + -- An Interspecific graft hybrid or graft chimaera
+    '''
     sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
+    
+    '''
+    sp_qual
+    -------
+    agg. -- An aggregate species
+    s. lat. -- aggregrate species (sensu lato)
+    s. str. -- segregate species (sensu stricto)
+    '''
     sp_qual = EnumCol(enumValues=("agg.", "s. lat.", "s. str.", None), 
                       default=None)                                                
     
@@ -63,23 +79,26 @@ class Species(BaubleTable):
     infrasp = StringCol(length=30, default=None)         # intraspecific epithet
     infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
     '''
-    infrasp_rank values:
-    subsp. - subspecies
-    var. - variety
-    subvar. - sub variety
-    f. - form
-    subf. - subform
-    cv. - cultivar
+    infrasp_rank
+    ------------
+    subsp. -- subspecies
+    var. -- variety
+    subvar. -- sub variety
+    f. -- form
+    subf. -- subform
+    cv. -- cultivar
     '''
     infrasp_rank = EnumCol(enumValues=("subsp.", "var.", "subvar.", "f.", 
                                        "subf.",  "cv.", None), default=None)    
     '''
-    "aff.", # Akin to or bordering
-    "cf.", # compare with
-    "Incorrect", # Incorrect
-    "forsan", # Perhaps
-    "near", # Close to
-    "?", # Questionable
+    id_qual
+    ---------
+    aff. -- Akin to or bordering
+    cf. -- compare with
+    Incorrect -- Incorrect
+    forsan -- Perhaps
+    near -- Close to
+    ? -- Questionable
     '''
     id_qual = EnumCol(enumValues=("aff.", "cf.", "Incorrect", "forsan", "near", 
                                   "?", None), default=None)    
@@ -245,15 +264,30 @@ class SpeciesMeta(BaubleTable):
         
         
 class VernacularName(BaubleTable):
+    '''
+    **** documents for vernacularname
+    '''
     
+    '''
+    the vernacular name
+    '''
     name = UnicodeCol(length=64)
+    
+    '''
+    language is free text and could include something like UK or US to identify
+    the origin of the name
+    '''
     language = UnicodeCol(length=64)    
     
     # default=None b/c the VernacularNameEditor can only be invoked from the 
     # SpeciesEditor and it should set this on commit
+    '''
+    a key to the species this vernacular name refers to
+    '''
     species = ForeignKey('Species', default=None, cascade=True)
 
     index = DatabaseIndex('name', 'language', 'species', unique=True)
 
     def __str__(self):
         return self.name
+    
