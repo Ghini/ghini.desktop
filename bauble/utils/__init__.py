@@ -9,10 +9,10 @@ from bauble.utils.log import debug
 
 def search_tree_model(model, data, func=lambda row, data: row[0] == data):
     '''
-    model: the tree model the search
-    data: what we are searching for
-    func: the function to use to compare each row in the model, the default
-    signatude is lambda row, data: row[0] == data
+    @param model: the tree model the search
+    @param data: what we are searching for
+    @param func: the function to use to compare each row in the model, the 
+        default is C{lambda row, data: row[0] == data}
     '''
     if not model:
         return None
@@ -29,6 +29,7 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     '''
     find value in combo model and set it as active, else raise ValueError
     cmp(row, value) is the a function to use for comparison
+        
     NOTE: 
     '''
     model = combo.get_model()    
@@ -40,6 +41,13 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
 
     
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
+    '''
+    @param combo: the combo where we should search
+    @param value: the value to search for
+    @param cmp: the method to use to compare rows in the combo model and value, 
+        the default is C{lambda row, value: row[0] == value}
+    @return: the gtk.TreeIter that points to value
+    '''
     model = combo.get_model()
     match = search_tree_model(model, value, cmp)
     if match is not None:
@@ -49,11 +57,11 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
 
 def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
     '''
-    glade_xml: the glade_file to get the widget from
-    widget_name: the name of the widget
-    value: the value to put in the widget
-    markup: whether or not
-    default: the default value to put in the widget if the value is None
+    @param glade_xml: the glade_file to get the widget from
+    @param widget_name: the name of the widget
+    @param value: the value to put in the widget
+    @param markup: whether or not
+    @param default: the default value to put in the widget if the value is None    
     
     NOTE: any values passed in for widgets that expect a string will call
     the values __str__ method    
@@ -113,6 +121,8 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 # coming through
 
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
+    '''
+    '''
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window
@@ -126,6 +136,8 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, pa
 
 
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
+    '''
+    '''
     d = create_message_dialog(msg, type, buttons, parent)
     r = d.run()
     d.destroy()
@@ -133,6 +145,8 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=No
 
     
 def create_yes_no_dialog(msg, parent=None):
+    '''
+    '''
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window
@@ -150,6 +164,8 @@ def create_yes_no_dialog(msg, parent=None):
 # console if there is no gui. is it possible to know if we have a terminal
 # to write to?
 def yes_no_dialog(msg, parent=None):
+    '''
+    '''
     d = create_yes_no_dialog(msg, parent)
     r = d.run()
     d.destroy()  
@@ -160,6 +176,8 @@ def yes_no_dialog(msg, parent=None):
 #
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                                   buttons=gtk.BUTTONS_OK, parent=None):
+    '''
+    '''
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window    
@@ -188,6 +206,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
                            buttons=gtk.BUTTONS_OK):    
+    '''
+    '''
     d = create_message_details_dialog(msg, details, type, buttons)
     r = d.run()
     d.destroy()
@@ -195,6 +215,12 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 
 
 def startfile(filename):
+    '''
+    @param filename: the name of the file to execute
+    
+    opens a file with it's associated application, should work on win32 and
+    linux/gnome for now
+    '''
     if sys.platform == 'win32':
         try:
             os.startfile(filename)

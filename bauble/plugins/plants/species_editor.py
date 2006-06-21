@@ -1217,7 +1217,7 @@ else:
                     else:
                         names.append('%s - %s' % \
                                      (vn.name, vn.language))
-                self.widgets.vernacular_data.set_markup('\n'.join(names))
+                self.set_widget_value('vernacular_data', '\n'.join(names))
                 self.set_sensitive(True)
                 # TODO: get expanded state from prefs
                 self.set_expanded(True) 
@@ -1267,30 +1267,37 @@ else:
             # make the check buttons read only
             def on_enter(button, *args):
                 button.emit_stop_by_name("enter-notify-event")
-                return TRUE            
+                return TRUE 
             self.widgets.food_check.connect('enter-notify-event', on_enter)
             self.widgets.phumans_check.connect('enter-notify-event', on_enter)
             self.widgets.panimals_check.connect('enter-notify-event', on_enter)
 
         
         def update(self, row):
-            utils.set_widget_value(self.glade_xml, 'name_data', 
-                                   row.markup(True))
-            utils.set_widget_value(self.glade_xml, 'nacc_data', 
-                                   len(row.accessions))
+            self.set_widget_value('name_data', row.markup(True))
+            self.set_widget_value('nacc_data', len(row.accessions))
+            
+            if row.id_qual is not None:
+                self.widgets.idqual_label.set_sensitive(True)
+                self.widgets.idqual_data.set_sensitive(True) 
+                self.set_widget_value('idqual_data', row.id_qual)
+            else:
+                self.widgets.idqual_label.set_sensitive(False)
+                self.widgets.idqual_data.set_sensitive(False)
+            
             if row.species_meta is not None:
                 meta = row.species_meta
-                utils.set_widget_value(self.glade_xml, 'dist_data', meta.distribution)
-                utils.set_widget_value(self.glade_xml, 'food_check', meta.food_plant)
-                utils.set_widget_value(self.glade_xml, 'phumans_check', meta.poison_humans)
-                utils.set_widget_value(self.glade_xml, 'panimals_check', meta.poison_animals)
+                self.set_widget_value('dist_data', meta.distribution)
+                self.set_widget_value('food_check', meta.food_plant)
+                self.set_widget_value('phumans_check', meta.poison_humans)
+                self.set_widget_value('panimals_check', meta.poison_animals)
             
             nplants = 0
             # TODO: could probably speed this up quite a bit with an sql query
             # and sql max function
             for acc in row.accessions:
                 nplants += len(acc.plants)
-            utils.set_widget_value(self.glade_xml, 'nplants_data', nplants)    
+            self.set_widget_value('nplants_data', nplants)    
     
     
     

@@ -7,9 +7,6 @@ from sqlobject import *
 from bauble.plugins import BaubleTable
 from bauble.utils.log import log, debug
 
-# TODO: need to incorporate the species qualifier and id qualifier string
-# into the name string
-
 # ***** supported names
 # Genus sp
 # Genus sp sp_author
@@ -205,8 +202,12 @@ class Species(BaubleTable):
                 name = [s for s in [genus, sp, author, 
                                     isp_rank, isp, isp_author] if s is not None]
             
-        return ' '.join(name)
+        
+        if species.sp_qual is not None:
+            name.append(species.sp_qual)
+        return ' '.join(name)        
             
+
 
 class SpeciesSynonym(BaubleTable):
     # deleting either of the species this synonym refers to makes
@@ -261,6 +262,7 @@ class SpeciesMeta(BaubleTable):
         if self.poison_animals is not None and self.poison_animals:
             v.append('Poisonous to animals')            
         return ','.join(v)
+        
         
         
 class VernacularName(BaubleTable):
