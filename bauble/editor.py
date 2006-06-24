@@ -177,34 +177,50 @@ class SQLObjectProxy(dict):
     
     def __init__(self, so_object):
         # we have to set so_object this way since it is called in __contains__
-        # which is used by self.__setattr__                
+        # which is used by self.__setattr__                        
         dict.__setattr__(self, 'so_object', so_object)
         dict.__setattr__(self, 'dirty', False)
         dict.__setattr__(self, 'isinstance', False)
         dict.__setattr__(self, '_notifiers', {})
         dict.__setattr__(self, '_pause', False)
         
-        self._notifiers = {}
+        
+        #self._notifiers = {}
+        dict.__setattr__(self, '_notifiers', {})
         if isinstance(so_object, SQLObject):
-            self.isinstance = True
+            dict.__setattr__(self, 'isinstance', True)
+            #self.isinstance = True
             self['id'] = so_object.id # always keep the id
         elif not issubclass(so_object, SQLObject):
             msg = 'row should be either an instance or class of SQLObject'
             raise ValueError('SQLObjectProxy.__init__: ' + msg)  
+    
             
     def pause_notifiers(self, pause):
-        self._pause = pause    
+        '''
+        @param pause: flags to disable calling notifier callbacks
+        @type pause: boolean
+        '''
+        dict.__setattr__(self, '_pause', pause)
+        #self._pause = pause    
+    
     
     # TODO: provide a way to remove notifiers
     def clear_notifiers(self):
+        '''
+        remove all notifiers
+        '''
         #self._notifiers.clear()
         dict.__getattribute__(self, '_notifiers').clear()
+    
     
     def add_notifier(self, column, callback):
         '''
         add a callback function to be called whenever a column is changed
-        callback should be of the form:
-        def callback(field)
+        callback should be of the form C{def callback(field)}
+        
+        @param column: the name of the column in the SQLObject
+        @param callback: the call back to call when the column is changed
         '''
 #        debug('SQLObjectProxy(%s, %s)' % (column, callback))
         try:
@@ -217,6 +233,9 @@ class SQLObjectProxy(dict):
 
     def __contains__(self, item):
         """
+        this will check if item is in the dictionary or if self.so_object has an
+        attribute by the name of item
+        
         this causes the 'in' operator and has_key to behave differently,
         e.g. 'in' will tell you if it exists in either the dictionary
         or the table while has_key will only tell you if it exists in the 
@@ -226,7 +245,10 @@ class SQLObjectProxy(dict):
         """
         if dict.__contains__(self, item):
             return True
-        return hasattr(self.so_object, item)
+#        debug('__contains__(%s)' % item)
+        
+        return hasattr(dict.__getattribute__(self, 'so_object'), item)
+        #return hasattr(self.so_object, item)
     
     
     def __getitem__(self, item):
@@ -242,23 +264,31 @@ class SQLObjectProxy(dict):
         if self.has_key(item): # use has_key to avoid __contains__
             return self.get(item)                
         
+        # avoid all the _getattr_ calls
+#        debug('_getitem_(%s)' % item)
+        self_so_object =  self.__getattribute__('so_object')
         # else if row is an instance then get it from the table
         v = None                        
-        if self.isinstance:
-            v = getattr(self.so_object, item)            
+        if self.isinstance:            
+            v = getattr(self_so_object, item)            
             # resolve foreign keys
             # TODO: there might be a more reasonable wayto do this
-            if item in self.so_object.sqlmeta.columns:
-                column = self.so_object.sqlmeta.columns[item]            
+            
+            if item in self_so_object.sqlmeta.columns:
+                column = self_so_object.sqlmeta.columns[item]            
                 if v is not None and isinstance(column, SOForeignKey):
+#                    debug('foreign key')
                     table_name = column.foreignKey                    
+#                    debug(table_name)
                     v = tables[table_name].get(v)
+#                    debug(v)
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
             # depending on the type of the attribute in row
-            if not hasattr(self.so_object, item):
-                msg = '%s has no attribute %s' % (self.so_object.__class__, 
+            #if not hasattr(self.so_object, item):
+            if not hasattr(self_so_object, item):
+                msg = '%s has no attribute %s' % (self_so_object.__class__, 
                                                   item)
                 raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
                 
@@ -266,8 +296,8 @@ class SQLObjectProxy(dict):
         if v is None:
             # we haven't gotten anything for v yet, first check the 
             # default for the column
-            if item in self.so_object.sqlmeta.columns:
-                default = self.so_object.sqlmeta.columns[item].default
+            if item in self_so_object.sqlmeta.columns:
+                default = self_so_object.sqlmeta.columns[item].default
                 if default is NoDefault:
                     default = None
                 v = default
@@ -295,8 +325,10 @@ class SQLObjectProxy(dict):
             try:
                 # if we don't have this hasattr here we'll get infiniter 
                 # recursion on _contains_, im not real sure why
-                if hasattr(self, '_notifiers') and not self._pause:
-                    for callback in self._notifiers[key]:
+                #if hasattr(self, '_notifiers') and not self._pause:
+                if hasattr(self, '_pause') and not dict.__getattribute__(self, '_pause'):
+                    #for callback in self._notifiers[key]:
+                    for callback in dict.__getattribute__(self, '_notifiers')[key]:
                         callback(key)
             except KeyError, AttributeError:
                 pass 
@@ -310,7 +342,7 @@ class SQLObjectProxy(dict):
         '''
 #        debug('SQLObjectProxy.__getattr__(%s)' % name)
 #        if dict.__contains__(self, name):        
-        if name in self:        
+        if name in self: 
             return self.__getitem__(name)
         return dict.__getattribute__(self, name)
     
@@ -644,7 +676,7 @@ class GenericEditorPresenter:
                                  gtk.RadioButton)):
             def toggled(button, data=None):                
                 active = button.get_active()
-                debug('toggled %s: %s' % (widget_name, active))
+#                debug('toggled %s: %s' % (widget_name, active))
                 button.set_inconsistent(False)
                 _set_in_model(active, model_field)                
             widget.connect('toggled', toggled)

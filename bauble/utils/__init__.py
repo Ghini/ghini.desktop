@@ -105,6 +105,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 #            set_combo_from_value(w, value)	
     elif isinstance(w, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)): 
         if value is True:     
+            w.set_inconsistent(False)
             w.set_active(True)
         elif value is False: # how come i have to unset inconsistent for False?
             w.set_inconsistent(False)
