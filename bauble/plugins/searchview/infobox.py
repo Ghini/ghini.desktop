@@ -21,7 +21,8 @@ def set_widget_value(glade_xml, widget_name, value, markup=True):
 
 # TODO: reset expander data on expand, the problem is that we don't keep the 
 # row around that was used to update the infoexpander, if we don't do this then 
-# we can't update unless the search view updates us
+# we can't update unless the search view updates us, this means that the search
+# view would have to register on_expanded on each info expander in the infobox
 
 # what to display if the value in the database is None
 DEFAULT_VALUE='--'

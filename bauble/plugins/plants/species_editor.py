@@ -143,6 +143,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
                        'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'), 'infrasp', 'sp']}
         for widget, fields in states_dict.iteritems():
+#            debug('%s: %s' % (widget, fields))
             none_status = []
             for field in fields:                
                 if isinstance(field, tuple):
@@ -173,7 +174,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     def on_field_changed(self, field):
         '''
         rests the sensitivity on the ok buttons and the name widgets when 
-        value change in the model
+        values change in the model
         '''
 #        debug('on_field_changed: %s' % field)
 #        debug('on_field_changed: %s = %s' % (field, self.model[field]))
@@ -196,14 +197,18 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         for field in self.widget_to_field_map.values():            
             self.model.add_notifier(field, self.on_field_changed)
             
-        for field in self.synonyms_presenter.widget_to_field_map.values():            
-            self.model.add_notifier(field, self.on_field_changed)
+        #for field in self.synonyms_presenter.widget_to_field_map.values():            
+        #    self.model.add_notifier(field, self.on_field_changed)
             
-        for field in self.vern_presenter.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+        #for field in self.vern_presenter.widget_to_field_map.values():
+        #    self.model.add_notifier(field, self.on_field_changed)
             
         for field in self.meta_presenter.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+            self.meta_presenter.model.add_notifier(field, self.on_field_changed)
+            #self.model.add_notifier(field, self.on_field_changed)
+                
+        self.vern_presenter.set_default_changed_notifier(self.on_field_changed)
+        #self.model.dummy_model
             
             
     def init_genus_entry(self):
@@ -222,7 +227,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
     def init_combos(self):
         '''
-        initialize the infraspecifi rank combo, the species hybrid combo,
+        initialize the infraspecific rank combo, the species hybrid combo,
         the species idqualifier combo and the species qualifier combo
         '''        
         combos = ['sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_idqual_combo', 
@@ -442,6 +447,8 @@ class ModelDecorator:
         current_iter = None
         next_iter = None
         def next(self):
+            '''
+            '''
             self.current_iter = self.next_iter
             if self.current_iter is None:
                 raise StopIteration
@@ -452,9 +459,9 @@ class ModelDecorator:
                 
         def remove(self, item):
             '''
-            item: the value to remove from the model, if item is a 
-            gtk.TreeModelIter then remove only the item that item points to,
-            else remove all items in the model that are the same as item
+            @param item: the value to remove from the model, if item is a 
+                gtk.TreeModelIter then remove only the item that item points to,
+                else remove all items in the model that are the same as item
             '''            
             # if item is a TreeIter then remove only that value
             if isinstance(item, gtk.TreeIter):
@@ -479,6 +486,9 @@ class ModelDecorator:
             
             
         def append(self, item):
+            '''
+            @param item:
+            '''
             self.dirty = True
             return self.model.append([item])
             
@@ -488,8 +498,8 @@ class ModelDecorator:
 # exist in the database....should probably do the same with the synonyms
 class VernacularNamePresenter(GenericEditorPresenter):
     
-    widget_to_field_map = {'vern_name_entry': 'name',
-                           'vern_lang_entry': 'language'}
+    #widget_to_field_map = {'vern_name_entry': 'name',
+    #                       'vern_lang_entry': 'language'}
     
     def __init__(self, model, view, defaults={}):
         '''
@@ -581,14 +591,33 @@ class VernacularNamePresenter(GenericEditorPresenter):
                 path = self.model.model.get_path(self.model.model.get_iter_first())
                 self.default = gtk.TreeRowReference(self.model.model, path)
         
-            
+        
+    def set_default_changed_notifier(self, callback):    
+        self.default_changed_callback = callback
+        
+        
     def on_default_toggled(self, cell, path, data=None):        
+        '''
+        default column callback
+        '''
         active = cell.get_property('active')
         if not active:
             self.default = gtk.TreeRowReference(self.model.model, path)
+            # since the default column doesn't correspond to a column in 
+            # VernacularName and so a notifier won't be sent that the model has 
+            # changed then set the model as dirty here so we can reset the 
+            # default vernacular name in commit_changes()
+            #self.model[0]
+            #model = self.default.get_model()
+            #it = model.get_iter(self.default.get_path())
+            #self.model.model[it] = self.model.model[it]
+            self.default_changed_callback('default_vernacular_name')
+            #self.model.dirty = True 
         
     
     def init_treeview(self, model):
+        '''
+        '''
         tree = self.view.widgets.vern_treeview
                 
         def _name_data_func(column, cell, model, iter, data=None):
@@ -598,8 +627,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         col = gtk.TreeViewColumn('Name', cell)
         col.set_cell_data_func(cell, _name_data_func)
         #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        col.set_min_width(150)
-        #col.set_resizable(True)
+        #col.set_min_width(150)
+        col.set_fixed_width(150)
+        col.set_min_width(50)
+        col.set_resizable(True)
         tree.append_column(col)
         
         def _lang_data_func(column, cell, model, iter, data=None):
@@ -609,8 +640,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         col = gtk.TreeViewColumn('Language', cell)
         col.set_cell_data_func(cell, _lang_data_func)
         #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        #col.set_resizable(True)
-        col.set_min_width(150)
+        col.set_resizable(True)
+        #col.set_min_width(150)
+        col.set_fixed_width(150)
+        col.set_min_width(50)
         tree.append_column(col)
         
         def _default_data_func(column, cell, model, iter, data=None):
@@ -664,7 +697,7 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_SYNONYM = 1
     
-    widget_to_field_map = {'sp_syn_entry': 'synonym'}
+    #widget_to_field_map = {'sp_syn_entry': 'synonym'}
 
     def __init__(self, model, view, defaults=[]):
         '''
@@ -1160,6 +1193,10 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         for item in vn_model.removed:
             item.destroySelf()
             
+#        if species.default_vernacular_name is not None:
+#            old_default = VernacularName.get(species.default_vernacular_name.id)
+#            species.default_vernacular_name = None
+
         return default
         
         

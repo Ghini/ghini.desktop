@@ -103,8 +103,7 @@ class Species(BaubleTable):
     
     # foreign keys
     #
-    default_vernacular_name = ForeignKey('VernacularName', default=None)#, 
-                                         #cascade=True)
+    default_vernacular_name = ForeignKey('VernacularName', default=None, cascade='null')
     genus = ForeignKey('Genus', notNull=True, cascade=False)
     
 
@@ -115,7 +114,7 @@ class Species(BaubleTable):
     synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
     # it would be best to display the vernacular names in a dropdown list
     # with a way to add to the list    
-    # FIXME: what happens if to the value in default_vernacular_name if 
+    # FIXME: what happens to the value in default_vernacular_name if 
     # we delete the object that this foreign key points to, should somehow
     # get reset to None
     vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
@@ -124,6 +123,10 @@ class Species(BaubleTable):
     #references = MultipleJoin('Reference', joinColumn='species_id')
     
     def __str__(self):
+        '''
+        returns a string representation of this speccies, 
+        calls Species.str(self)
+        '''
         # we'll cache the str(self) since building it is relatively heavy
         # TODO: we can't enable this until we can invalidated _cached_str in
         # cache self is changed
@@ -137,7 +140,7 @@ class Species(BaubleTable):
         '''
         returns this object as a string with markup
         
-        authors -- falgs to toggle whethe the author names should be included
+        @param authors: flag to toggle whethe the author names should be included
         '''
         return Species.str(self, authors, True)
     
@@ -147,10 +150,10 @@ class Species(BaubleTable):
         '''
         returns a string for species
         
-        species -- the species object to get the values from
-        authors -- flags to toggle whether the author names should be included
-        markup - flags to toggle whether the returned text is marked up to show
-        italics on the epithets
+        @param species: the species object to get the values from
+        @param authors: flags to toggle whether the author names should be included
+        @param markup: flags to toggle whether the returned text is marked up to show
+            italics on the epithets
         '''
         genus = str(species.genus)
         sp = species.sp
@@ -210,6 +213,9 @@ class Species(BaubleTable):
 
 
 class SpeciesSynonym(BaubleTable):
+    '''
+    a table to hold species synonyms
+    '''
     # deleting either of the species this synonym refers to makes
     # this synonym irrelevant
     species = ForeignKey('Species', default=None, cascade=True)
@@ -218,13 +224,26 @@ class SpeciesSynonym(BaubleTable):
     
     
 class SpeciesMeta(BaubleTable):
+    '''
+    a table to hold meta information abot a species, such as it's distributions
+    and where it is edible or poisonous
+    '''
     
+    '''
+    whether this plant is poisonous to humans
+    '''
     poison_humans = BoolCol(default=None)
+    
+    '''
+    whether this plant is poisonous to animals
+    '''
     poison_animals = BoolCol(default=None)
     
-    # poison_humans should imply food_plant false or whatever value
+    # TODO: poison_humans should imply food_plant false or whatever value
     # is meant to be in food_plant
-    #food_plant = StringCol(length=50, default=None)
+    '''
+    whether this plant is poisonous to considered edible
+    '''
     food_plant = BoolCol(default=None)
     
     # TODO: create distribution table that holds one of each of the 
@@ -244,14 +263,25 @@ class SpeciesMeta(BaubleTable):
     # to have a SingleJoin to a distribution table so we get the extra
     # benefit of things like iso codes and hierarchial data, e.g. get
     # all plants from africa
+    '''
+    the plants natural distribution
+    '''
     distribution = UnicodeCol(default=None)
     
     # this should be set by the editor
     # FIXME: this could be dangerous and cause dangling meta information
     # - removing the species removes this meta info
+    '''
+    the species this meta information refers to
+    '''    
     species = ForeignKey('Species', default=None, cascade=True)
     
+    
     def __str__(self):
+        '''
+        @returns: the string the representation of this meta info,
+            e.g. Cultivated, Food, Poisonous, Poisonous to animals
+        '''
         v = []
         if self.distribution is not None:
             v.append(self.distribution)
@@ -267,7 +297,7 @@ class SpeciesMeta(BaubleTable):
         
 class VernacularName(BaubleTable):
     '''
-    **** documents for vernacularname
+    a vernacular name for a species
     '''
     
     '''

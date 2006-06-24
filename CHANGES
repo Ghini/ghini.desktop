@@ -1,3 +1,15 @@
+2006.06.24
+----------
+- on going doc improvements
+- improved speed of editor.SQLObjectProxy by doing less attribute lookups
+in some methods
+- removed some unnecessary code in species_editor.py
+- removing a row from the vernacular name table with now set any 
+Species.default_vernacular_name column to None if the default_vernacular_name
+refers to the delete row
+- basic cleanup/fixing to get ready for 0.5.2 release
+
+
 2006.06.21
 ----------
 - documentation updates

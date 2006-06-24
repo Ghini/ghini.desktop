@@ -184,7 +184,9 @@ def main():
         t2 = time.time()
         print 'time: %s' % (t2-t1)
     else:
+        print 'starting tests...'
         test_speciesStr(options.verbose)
+        print 'done.'
     
     
 if __name__ == '__main__':
