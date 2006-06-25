@@ -34,6 +34,7 @@ class BaubleApp:
         # loop running somewhere but the app redraws and there is a busy
         # cursor, i also don't understand why tables are still being imported 
         # on error
+        bauble.app.set_busy(True)
         bauble.BaubleMetaTable.dropTable(ifExists=True)   
         try:            
             #sqlhub.processConnection.autoCommit = True
@@ -85,7 +86,7 @@ class BaubleApp:
 #            "when trying to create a SQLite database on a network drive. " \
 #            "Try creating the database in a local drive or folder."
 #            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-
+        bauble.app.set_busy(False)
     
     def set_busy(self, busy):
         if self.gui is None:

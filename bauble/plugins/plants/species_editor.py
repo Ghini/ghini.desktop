@@ -1179,7 +1179,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             # TODO: when the plant editor gets it's own glade implementation
             # we should change accessionID to accession
             e = editors['AccessionEditor'](parent=self.parent, 
-                                       defaults={'speciesID': committed})
+                                           defaults={'species': committed})
             more_committed = e.start(commit_transaction)            
                     
         if more_committed is not None:

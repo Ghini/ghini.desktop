@@ -1,5 +1,15 @@
 2006.06.24
 ----------
+- pass species correctly accession editor when opened from the species editor
+- fixes for windows
+- set app busy when creating a new database, this doesn't work very well since
+the gui isn't given time to update and csv import doesn't block
+- now get plants from family and genera in results 
+- make sure that the plants in the formatter list are unique
+- other minor improvements to formatter plugin and documentation updates
+
+2006.06.24
+----------
 - on going doc improvements
 - improved speed of editor.SQLObjectProxy by doing less attribute lookups
 in some methods
