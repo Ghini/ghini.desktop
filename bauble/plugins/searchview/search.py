@@ -3,7 +3,7 @@
 #
 
 import re, traceback
-import gtk
+import gtk, gobject
 import sqlobject
 from sqlobject.sqlbuilder import _LikeQuoted
 import formencode
@@ -101,7 +101,9 @@ class SearchParser:
     # in self.domain_map keywords
 
     def __init__(self):	
-
+        '''
+        the constructor
+        '''
     	domain = Word(alphanums).setResultsName('domain')
     	quotes = Word('"\'')    
         
@@ -126,6 +128,8 @@ class SearchParser:
 		
 
     def parse_string(self, text):
+        '''
+        '''
         return self.statement.parseString(text)
 	
 
@@ -135,26 +139,26 @@ class OperatorValidator(formencode.FancyValidator):
     to_operator_map = {}
 
     def _to_python(self, value, state=None):
-	if value in self.to_operator_map:
-	    return self.to_operator_map[value]
-	else:
-	    return value
+    	if value in self.to_operator_map:
+    	    return self.to_operator_map[value]
+    	else:
+    	    return value
 
 
     def _from_python(self, value, state=None):
-	return value
+        return value
 
 
 class SQLOperatorValidator(OperatorValidator):
 
     def __init__(self, db_type, *args, **kwargs):
-	super(SQLOperatorValidator, self).__init__(*args, **kwargs)	
-	type_map = {'postgres': self.pg_operator_map,
-		    'sqlite': self.sqlite_operator_map,
-		    'mysql': self.mysql_operator_map
-		    }
-	self.db_type = db_type
-	self.to_operator_map = type_map.get(self.db_type, {})
+    	super(SQLOperatorValidator, self).__init__(*args, **kwargs)	
+    	type_map = {'postgres': self.pg_operator_map,
+    		    'sqlite': self.sqlite_operator_map,
+    		    'mysql': self.mysql_operator_map
+    		    }
+    	self.db_type = db_type
+    	self.to_operator_map = type_map.get(self.db_type, {})
 	
 	
     # TODO: using operators like this doesn't do the fuzzy matching
@@ -232,19 +236,29 @@ class SearchView(BaubleView):
                 self.set()
                 
             def set(self, children=None, editor=None, infobox=None):
+                '''
+                @param children: where to find the children for this type, 
+                    can be a callable of the form C{children(row)}
+                @param editor: the editor for this type
+                @param infobox: the infobox for this type
+                '''
                 self.children = children
                 self.editor = editor
                 self.infobox = infobox
         
         
             def get_children(self, so_instance):
+                '''
+                @param so_instance: get the children from so_instance according
+                    to self.children
+                '''
                 if self.children is None:
                     return []
                 tablename = so_instance.__class__.__name__            
                 if callable(self.children):
                     return self.children(so_instance)
 
-		# TODO: need to get in the default sort order
+		        # TODO: need to get in the default sort order
                 return getattr(so_instance, self.children)
         
             
@@ -257,20 +271,42 @@ class SearchView(BaubleView):
     
     @classmethod
     def register_search_meta(cls, domain, search_meta):        
+        '''
+        @param domain: a shorthand for for queries for this class
+        @param search_meta: the meta information to register with the domain
+        '''
         table_name = search_meta.table.__name__
         cls.domain_map[domain] = table_name
         cls.search_metas[table_name] = search_meta
   
   
     def __init__(self):
+        '''
+        the constructor
+        '''
         #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
         self.parser = SearchParser() 
+        
+        # we only need this for the timeout version of populate_results
+        self.populate_callback_id = None
 
+
+    def update_infobox(self):
+        '''
+        sets the infobox according to the currently selected row
+        or remove the infobox is nothing is selected
+        '''
+        sel = self.results_view.get_selection() # get the selected row
+        model, i = sel.get_selected()
+        value = model.get_value(i, 0)        
+        self.set_infobox_from_row(value)
+            
     
-    def set_infobox_from_row(self, row):    
-#        return    
+    def set_infobox_from_row(self, row):
+        '''
+        '''
         if not hasattr(self, 'infobox'):
             self.infobox = None
         
@@ -308,14 +344,11 @@ class SearchView(BaubleView):
         
 
     def on_results_view_select_row(self, view):
-        """
+        '''
         add and removes the infobox which should change depending on
         the type of the row selected
-        """      
-        sel = view.get_selection() # get the selected row
-        model, i = sel.get_selected()
-        value = model.get_value(i, 0)        
-        self.set_infobox_from_row(value)
+        '''
+        self.update_infobox()
         
         # check that the gbif view is expanded
         # if it is then pass the selected row to gbif
@@ -325,6 +358,8 @@ class SearchView(BaubleView):
         
     
     def on_search_button_clicked(self, widget):
+        '''
+        '''
         text = self.entry.get_text()
         self.search_text = text
         # the row has been unselected, so turn off the infobox
@@ -460,9 +495,9 @@ class SearchView(BaubleView):
     nresults_statusbar_context = 'searchview.nresults'
     
     def search(self, text):
-        """
+        '''
         search the database using text
-        """
+        '''
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
@@ -473,8 +508,7 @@ class SearchView(BaubleView):
         # 200 then we should popup a progress dialog or something
         
         # clear the old model
-        self.set_sensitive(False)
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        bauble.app.set_busy(True)
         self.results_view.set_model(None)      
         statusbar = bauble.app.gui.statusbar        
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
@@ -497,21 +531,30 @@ class SearchView(BaubleView):
                 model.append([error_msg])
             else:
                 model.append(["Couldn't find anything"])
-            statusbar.pop(sbcontext_id)
-            self.results_view.set_model(model)
+            statusbar.pop(sbcontext_id)            
+            self.results_view.set_model(model)            
+            bauble.app.set_busy(False)
         else:
-            self.populate_results(results)
-            statusbar.push(sbcontext_id, "%s results" % len(results))  
-	    		    
-        self.set_sensitive(True)
-        bauble.app.gui.window.window.set_cursor(None)
+            def populate_callback():
+                self.populate_results(results)
+                statusbar.push(sbcontext_id, "%s results" % len(results))  
+                bauble.app.set_busy(False)
+            if len(results) > 2000:
+                msg = 'This query returned %s results.  It may take a '\
+                        'long time to get all the data. Are you sure you want to '\
+                        'continue?' % len(results)
+                if utils.yes_no_dialog(msg):                    
+                    gobject.idle_add(populate_callback)
+            else:
+	    		gobject.idle_add(populate_callback)
+        
 
 
     def remove_children(self, model, parent):
-        """
+        '''
         remove all children of some parent in the model, reverse
         iterate through them so you don't invalidate the iter
-        """
+        '''
         while model.iter_has_child(parent):            
             nkids = model.iter_n_children(parent)
             child = model.iter_nth_child(parent, nkids-1)
@@ -519,10 +562,10 @@ class SearchView(BaubleView):
 
         
     def on_test_expand_row(self, view, iter, path, data=None):
-        """
+        '''
         look up the table type of the selected row and if it has
         any children then add them to the row
-        """
+        '''
         expand = False
         model = view.get_model()
         row = model.get_value(iter, 0)
@@ -538,11 +581,11 @@ class SearchView(BaubleView):
         
                     
     def query_table(self, table_name, values):
-        """
+        '''
         query the table table_name for values which are 'OR'ed together    
         table_name: the table_name should be registered in search_meta
         values: list of values to query table_name
-        """
+        '''
         if table_name not in self.search_metas:
             raise ValueError("SearchView.query: no search meta for domain ", 
                               domain)
@@ -574,29 +617,95 @@ class SearchView(BaubleView):
         return table.select(q)
         	            
 
-    def populate_results(self, select):
-        bauble.app.gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+#
+# this is a version of populate_results using timeouts, it eventually bails 
+# starts to slowdown and and so with the timeout it winds up not being that
+# good anyways
+#
+    
+#    def populate_results(self, select):
+#        if self.populate_callback_id is not None:
+#            gobject.source_remove(self.populate_callback_id)
+#        results = []
+#        model = self.results_view.get_model()
+#        self.results_view.set_model(None) # temporarily remove the model
+#        model = gtk.TreeStore(object)
+#        model.set_default_sort_func(lambda *args: -1) 
+#        model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
+#        
+#        def idle_callback():
+#            def append_select(select):
+#                for s in select:
+#                    p = model.append(None, [s])
+#                    model.append(p, ['-'])            
+#            slice_size = 100
+#            timeout = 500 # in milliseconds
+#            if len(select) < slice_size:
+#                append_select(select)
+#            else:
+#                current = slice_size                
+#                append_select(select[0:slice_size])
+#                total_size = len(select)
+#                def timeout_callback(curr):
+#                    current = curr[0]
+#                    the_end = False
+#                    if current+slice_size > total_size:
+#                        the_end = True
+#                        sr = select[current:total_size-1]
+#                    else:
+#                        sr = select[current:current+slice_size]
+#                    append_select(sr)
+#                    curr[0] += slice_size
+#                    if the_end:
+#                        self.results_view.thaw_child_notify()
+#                    return not the_end
+#                self.populate_callback_id = gobject.timeout_add(timeout, timeout_callback, [current])
+#        gobject.idle_add(idle_callback)
+#        self.results_view.freeze_child_notify()
+#        self.results_view.set_model(model)
         
-        #self.set_sensitive(False)	
-        results = []
-        added = False
+        
+    def populate_results(self, select, check_for_kids=False):
+        '''
+        populate the results view with the rows in select
+        
+        @param select: an iterable object to get the rows from
+        @param check_for_kids: whether we should check if each of the rows in 
+            select have children and set the expand indicator as such, this can
+            signicantly slow down large lists of data, if this is False then all
+            appended rows will have an expand indicator and the children will 
+            be check on expansion
+        '''
+        results = []        
         model = self.results_view.get_model()
         self.results_view.set_model(None) # temporarily remove the model
         model = gtk.TreeStore(object)
+        model.set_default_sort_func(lambda *args: -1) 
+        model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         for s in select:
-            p = model.append(None, [s])
-            model.append(p, ['-'])
+            p = model.append(None, [s])            
+            if check_for_kids:
+                kids = self.view_meta[s.__class__.__name__].get_children(s)            
+                if len(kids) > 0:                
+                    model.append(p, ['-'])        
+            else:
+                model.append(p, ['-'])             
+        self.results_view.freeze_child_notify()
         self.results_view.set_model(model)	
-        bauble.app.gui.window.window.set_cursor(None)
+        self.results_view.thaw_child_notify()
 	        
     
     def append_children(self, model, parent, kids, have_kids):
-        """
-        append the elements of list <kids> to the model with parent <parent>
-        if have_kids is true the string "_dummy" is appending to each
-        of the kids kids
-        @return the model with the kids appended
-        """
+        '''
+        append object to a parent iter in the model        
+        
+        @param model: the model the append to
+        @param parent:  the parent iter
+        @param kids: a list of kids to append
+        @param have_kids: whether we should add a dummy indicator that the appended
+            kids have kides        
+        @return: the model with the kids appended
+        '''
         if parent is None:
             raise Exception("need a parent")
         for k in kids:
@@ -607,9 +716,9 @@ class SearchView(BaubleView):
        
         
     def get_rowname(self, col, cell, model, iter):
-        """
+        '''
         return the string representation of some row inthe mode
-        """
+        '''
         # TODO:
         # it is possible that the row can be valid but the value returned
         # from __str__ is none b/c there is nothing in the column, this
@@ -622,7 +731,7 @@ class SearchView(BaubleView):
         # it shouldn't have a default and in the fix_geo.py script we
         # should set the empty name to (cultivated) or something along
         # those lines
-        row = model.get_value(iter, 0)
+        row = model[iter][0]
         if row is None:
             cell.set_property('text', "")
         elif isinstance(row, BaubleTable):
@@ -632,6 +741,8 @@ class SearchView(BaubleView):
     
 
     def on_entry_key_press(self, widget, event, data=None):
+        '''
+        '''
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname == "Return":
             self.search_button.emit("clicked")
@@ -640,7 +751,9 @@ class SearchView(BaubleView):
     # TODO: this won't work if the item in the results has already been clicked
     # on and there's no icon to indicate children
     def on_activate_add_item(self, item, path, editor, defaults={}):
-	# on add we should collapse/expand  on the currently select row
+        '''
+        '''
+        # on add we should collapse/expand  on the currently select row
 #        debug(defaults)
         e = editor(defaults=defaults)
         committed = e.start()
@@ -654,6 +767,8 @@ class SearchView(BaubleView):
 
 
     def on_activate_edit_item(self, item, path, editor, select=None):
+        '''
+        '''
 	# on edit we should collapse/expand on the parent path
     
         # TODO: the model keyword is temporary and is only there
@@ -667,7 +782,7 @@ class SearchView(BaubleView):
                 parent_path = path[:-1]
                 self.results_view.collapse_row(parent_path)
                 self.results_view.expand_to_path(parent_path)
-
+        self.update_infobox()
 
     # TODO: provide a way for the plugin to add extra items to the
     # context menu of a particular type in the search results, this will
@@ -677,9 +792,9 @@ class SearchView(BaubleView):
     #    pass
     
     def on_view_button_release(self, view, event, data=None):        
-        """
+        '''
         popup a context menu on the selected row
-        """
+        '''
     	# TODO: should probably fix this so you can right click on something
     	# that is not the selection, but get the path from where the click
     	# happened, make that that selection and then popup the menu,
@@ -738,6 +853,8 @@ class SearchView(BaubleView):
         
         
     def on_activate_remove_item(self, item, row):
+        '''
+        '''
         # TODO: this will leave stray joins unless cascade is set to true
         # see col.cascade
         # TODO: should give a row specific message to the user, e.g if they
@@ -765,17 +882,18 @@ class SearchView(BaubleView):
                 " more information." % (row_str, row_str)
                 utils.message_details_dialog(msg, traceback.format_exc())
     
+    
     def on_view_row_activated(self, view, path, column, data=None):
-        """
+        '''
         expand the row on activation
-        """
+        '''
         view.expand_row(path, False)
             
 
     def create_gui(self):
-        """
+        '''
         create the interface
-        """
+        '''
         self.content_box = gtk.VBox()  
                   
         # create the entry and search button
@@ -796,10 +914,11 @@ class SearchView(BaubleView):
         self.results_view = gtk.TreeView() # will be a select results row    
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
+        self.results_view.set_fixed_height_mode(True)
         
         renderer = gtk.CellRendererText()
         column = gtk.TreeViewColumn("Name", renderer)
-        
+        column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         column.set_cell_data_func(renderer, self.get_rowname)
         self.results_view.append_column(column)
         
@@ -852,8 +971,8 @@ class SearchView(BaubleView):
         
 
     def on_activate_gbif_expand(self, expander, data=None):
-        """
-        """
+        '''
+        '''
         expanded = expander.get_expanded()
         gbif = expander.get_child()
         # this is fired before the expanded state is set so we should assume
@@ -872,8 +991,8 @@ class SearchView(BaubleView):
     # would cause it to be slow if rows were collapsed and need to be
     # reopend
     def on_row_collapsed(self, view, iter, path, data=None):
-        """        
-        """
+        '''        
+        '''
         pass
        
 
