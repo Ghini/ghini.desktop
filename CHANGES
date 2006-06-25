@@ -8,7 +8,10 @@ in some methods
 Species.default_vernacular_name column to None if the default_vernacular_name
 refers to the delete row
 - basic cleanup/fixing to get ready for 0.5.2 release
-
+- new vernacular names and synonyms are now blue to show that they have just 
+been added but not committed
+- some tweaks to the search results tree view
+- update infobox after editing an existing row
 
 2006.06.21
 ----------

@@ -25,14 +25,6 @@ from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
 # TODO: ensure None is getting set in the model instead of empty strings, 
 # UPDATE: i think i corrected most of these but i still need to double check
 
-# TODO: what about hybrid of the form 
-# Genus x hybridname # i think this should be the species name
-# Genus hybrid1 x hybrid2  # and in this case the sp is hybrid 1 and the infra hybrid2
-# what I could do is set the infra_rank combo to not sensitive when hybrid is 
-# selected, that might imply to use the infrasp field as the second part of the
-# hybrid combo
-
-
 
 class StringOrNoneValidator(StringValidator):
     '''
@@ -356,9 +348,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     def on_genus_entry_insert(self, entry, new_text, new_text_length, position, 
                        data=None):
-        # TODO: this is flawed since we can't get the index into the entry
-        # where the text is being inserted so if the user inserts text into 
-        # the middle of the string then this could break
 #        debug('on_species_insert_text: \'%s\'' % new_text)
 #        debug('%s' % self.model)
         if new_text == '':
@@ -408,9 +397,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.meta_presenter.refresh_view()
         
         
-        
-# TODO: what we should probably do is just create an interface that the 
-# presenter expects so as long as it implements the interface then it doesn't
+# TODO: what we should probably do is just create an interface that all
+# presenters expects so as long as it implements the interface then it doesn't
 # matter what the back looks like
 # NOTES: what about if the model is a list of items, then __get??__ doesn't
 # make sense
@@ -492,14 +480,10 @@ class ModelDecorator:
             self.dirty = True
             return self.model.append([item])
             
-            
-# TODO: maybe we should change the text color of the new vernacular names
-# added to blue to indicate which ones have been added and which one already
-# exist in the database....should probably do the same with the synonyms
+
+
 class VernacularNamePresenter(GenericEditorPresenter):
     
-    #widget_to_field_map = {'vern_name_entry': 'name',
-    #                       'vern_lang_entry': 'language'}
     
     def __init__(self, model, view, defaults={}):
         '''
@@ -571,7 +555,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(True)
     
     
-    def on_remove_button_clicked(self, button, data=None):        
+    def on_remove_button_clicked(self, button, data=None):
+        '''
+        removes the currently selected vernacular name from the view
+        '''        
         # TODO: maybe we should only ask 'are you sure' if the selected value
         # is an instance, this means it will be deleted from the database        
         tree = self.view.widgets.vern_treeview
@@ -593,6 +580,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         
         
     def set_default_changed_notifier(self, callback):    
+        '''
+        set the callback to call when the default toggles changes, will be
+        called like C{callback('default_vernacular_name')}
+        '''
         self.default_changed_callback = callback
         
         
@@ -603,16 +594,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         active = cell.get_property('active')
         if not active:
             self.default = gtk.TreeRowReference(self.model.model, path)
-            # since the default column doesn't correspond to a column in 
-            # VernacularName and so a notifier won't be sent that the model has 
-            # changed then set the model as dirty here so we can reset the 
-            # default vernacular name in commit_changes()
-            #self.model[0]
-            #model = self.default.get_model()
-            #it = model.get_iter(self.default.get_path())
-            #self.model.model[it] = self.model.model[it]
             self.default_changed_callback('default_vernacular_name')
-            #self.model.dirty = True 
         
     
     def init_treeview(self, model):
@@ -623,6 +605,11 @@ class VernacularNamePresenter(GenericEditorPresenter):
         def _name_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', v.name)
+            # just added so change the background color to indicate its new
+            if not v.isinstance:
+                cell.set_property('foreground', 'blue')
+            else:
+                cell.set_property('foreground', None)
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Name', cell)
         col.set_cell_data_func(cell, _name_data_func)
@@ -636,6 +623,11 @@ class VernacularNamePresenter(GenericEditorPresenter):
         def _lang_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', v.language)
+            # just added so change the background color to indicate its new
+            if not v.isinstance:
+                cell.set_property('foreground', 'blue')
+            else:
+                cell.set_property('foreground', None)
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Language', cell)
         col.set_cell_data_func(cell, _lang_data_func)
@@ -697,13 +689,12 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_SYNONYM = 1
     
-    #widget_to_field_map = {'sp_syn_entry': 'synonym'}
-
+    
     def __init__(self, model, view, defaults=[]):
         '''
-        model: a list of SQLObject proxy objects
-        view: see GenericEditorPresenter
-        defaults: see GenericEditorPresenter
+        @param model: a list of SQLObject proxy objects
+        @param view: see GenericEditorPresenter
+        @param defaults: see GenericEditorPresenter
         '''
         GenericEditorPresenter.__init__(self, model, view, defaults)     
         
@@ -722,10 +713,18 @@ class SynonymsPresenter(GenericEditorPresenter):
         
     
     def init_treeview(self, model):        
+        '''
+        initialize the gtk.TreeView
+        '''
         tree = self.view.widgets.sp_syn_treeview        
         def _syn_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', str(v.synonym))
+            # just added so change the background color to indicate its new
+            if not v.isinstance:
+                cell.set_property('foreground', 'blue')
+            else:
+                cell.set_property('foreground', None)
         cell = gtk.CellRendererText()
         col = gtk.TreeViewColumn('Synonym', cell)
         col.set_cell_data_func(cell, _syn_data_func)
@@ -739,15 +738,23 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     
     def on_tree_cursor_changed(self, tree, data=None):
+        '''
+        '''
         path, column = tree.get_cursor()
         self.view.widgets.sp_syn_remove_button.set_sensitive(True)
 
     
     def refresh_view(self):
+        '''
+        doesn't do anything
+        '''
         return
         
         
     def init_syn_entry(self):
+        '''
+        initializes the synonym entry
+        '''
         completion = self.view.widgets.sp_syn_entry.get_completion()
         completion.connect('match-selected', self.on_syn_match_selected)
         #if self.model.synonym is not None:
@@ -756,6 +763,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         
         
     def on_add_button_clicked(self, button, data=None):
+        '''
+        adds the synonym from the synonym entry to the list of synonyms for 
+            this species
+        '''
         syn = SQLObjectProxy(SpeciesSynonym)
         syn.synonym = self.selected
         self.model.append(syn)
@@ -769,6 +780,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         
         
     def on_remove_button_clicked(self, button, data=None):
+        '''
+        removes the currently selected synonym from the list of synonyms for
+        this species
+        '''
         # TODO: maybe we should only ask 'are you sure' if the selected value
         # is an instance, this means it will be deleted from the database        
         tree = self.view.widgets.sp_syn_treeview
@@ -807,6 +822,8 @@ class SynonymsPresenter(GenericEditorPresenter):
         
         
     def on_syn_entry_delete(self, entry, start, end, data=None):
+        '''
+        '''
 #        debug('on_species_delete: \'%s\'' % entry.get_text())        
 #        debug(self.model.species)
         text = entry.get_text()
@@ -822,7 +839,9 @@ class SynonymsPresenter(GenericEditorPresenter):
         
     
     def on_syn_entry_insert(self, entry, new_text, new_text_length, position, 
-                       data=None):
+                            data=None):
+        '''
+        '''
         # TODO: this is flawed since we can't get the index into the entry
         # where the text is being inserted so if the user inserts text into 
         # the middle of the string then this could break
@@ -860,6 +879,8 @@ class SynonymsPresenter(GenericEditorPresenter):
 
 
     def idle_add_syn_completions(self, text):
+        '''
+        '''
 #        debug('idle_add_species_competions: %s' % text)
         parts = text.split(" ")
         genus = parts[0]
@@ -892,7 +913,13 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
                            'sp_humanpoison_check': 'poison_humans',
                            'sp_animalpoison_check': 'poison_animals',
                            'sp_food_check': 'food_plant'}
+        
     def __init__(self, model, view, defaults={}):
+        '''
+        @param model:
+        @param view:
+        @param defaults:
+        '''
         GenericEditorPresenter.__init__(self, model, view)        
         self.init_distribution_combo()
         # we need to call refresh view here first before setting the signal
@@ -905,6 +932,8 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         
         
     def init_distribution_combo(self):        
+        '''
+        '''
         def _populate():
             model = gtk.TreeStore(str)
             model.append(None, ["Cultivated"])
@@ -926,6 +955,8 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         
         
     def refresh_view(self):
+        '''
+        '''
 #        debug('SpeciesMetaPresenter.refresh_view()')
         for widget, field in self.widget_to_field_map.iteritems():
             if field[-2:] == "ID":
@@ -946,6 +977,8 @@ class SpeciesEditorView(GenericEditorView):
     
     
     def __init__(self, parent=None):
+        '''
+        '''
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
                                                       'plugins', 'plants', 
                                                       'editors.glade'),
@@ -975,11 +1008,16 @@ class SpeciesEditorView(GenericEditorView):
         
         
     def _get_window(self):
+        '''
+        '''
         return self.widgets.species_dialog    
     window = property(_get_window)
     
     
     def set_accept_buttons_sensitive(self, sensitive):        
+        '''
+        set the sensitivity of all the accept/ok buttons for the editor dialog
+        '''
         self.widgets.sp_ok_button.set_sensitive(sensitive)
         self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
         self.widgets.sp_next_button.set_sensitive(sensitive)
@@ -996,6 +1034,8 @@ class SpeciesEditorView(GenericEditorView):
         
     def _genus_completion_cell_data_func(self, column, renderer, model, iter, 
                                          data=None):
+        '''
+        '''
         v = model[iter][0]
         renderer.set_property('text', '%s (%s)' % \
                               (Genus.str(v, full_string=True), 
@@ -1004,26 +1044,38 @@ class SpeciesEditorView(GenericEditorView):
         
     def _completion_cell_data_func(self, column, renderer, model, iter, 
                                          data=None):
+        '''
+        '''
         v = model[iter][0]
         renderer.set_property('text', str(v))
         
         
     def do_win32_fixes(self):
+        '''
+        '''
         pass
         
         
     def save_state(self):        
+        '''
+        save the current state of the gui to the preferences
+        '''
         for expander, pref in self.expanders_pref_map.iteritems():
             prefs[pref] = self.widgets[expander].get_expanded()
         
         
     def restore_state(self):
+        '''
+        restore the state of the gui from the preferences
+        '''
         for expander, pref in self.expanders_pref_map.iteritems():
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
             
     def start(self):
+        '''
+        '''
         return self.widgets.species_dialog.run()    
     
 
@@ -1037,6 +1089,12 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
     
     def __init__(self, model=Species, defaults={}, parent=None, **kwargs):
+        '''
+        @param model: Species
+        @param defaults: {}
+        @param parent: None
+        '''
+        
         self.assert_args(model, Species, defaults)
         GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
         if parent is None: # should we even allow a change in parent
@@ -1049,6 +1107,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         
         
     def start(self, commit_transaction=True):    
+        '''
+        '''
         if tables['Genus'].select().count() == 0:
             msg = 'You must first add or import at least one genus into the '\
                   'database before you can add species.'
@@ -1134,6 +1194,9 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     
     
     def commit_changes(self):
+        '''
+        commit all changes to the species editor
+        '''
 #        debug(self.model)
         synonyms = self.model.pop('synonyms', None)
         vnames = self.model.pop('vernacular_names', None)
@@ -1314,6 +1377,12 @@ else:
             self.set_widget_value('name_data', row.markup(True))
             self.set_widget_value('nacc_data', len(row.accessions))
             
+            #nplants = 0
+            #for acc in row.accessions:
+            #    nplants += len(acc.plants)
+            #nacc_data_str = '%s in %s plants' % (len(row.accessions), nplants)
+            #self.set_widget_value('nacc_data', nacc_data_str)
+            
             if row.id_qual is not None:
                 self.widgets.idqual_label.set_sensitive(True)
                 self.widgets.idqual_data.set_sensitive(True) 
@@ -1339,16 +1408,16 @@ else:
     
     
     class SpeciesInfoBox(InfoBox):
-        """
+        '''
         - general info, fullname, common name, num of accessions and clones
-        - reference
-        - images
-        - redlist status
         - poisonous to humans
         - poisonous to animals
         - food plant
-        - origin/distrobution
-        """
+        - origin/distribution
+        '''
+        
+        # others to consider: reference, images, redlist status
+        
         def __init__(self):
             """ 
             fullname, synonyms, ...
