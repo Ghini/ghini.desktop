@@ -1,29 +1,10 @@
 #
-# formatter modules
+# formatter module
 #
 # this module should allow you to define a XSLT-FO formatter and and .fo file
 # to process on the current selection
 #
-
 #
-# label maker module
-#
-# NOTE: this module depends on the XEP xsl formatter from RenderX (renderx.com)
-# which is a commercial product, i haven't yet found a free/open alternative
-# that can implment enough of the XSL-FO standard that we need to generate the
-# labels, if anyone else know how we can change the XSL output to work with 
-# Apache's FOP then that would be ideal
-# 
-# The other part that sucks is that this all requires Java, it would be ideal
-# if xmlroff supported more of the XSL standard
-
-# TODO: once the label layout is formalized then we can put the xsl stylesheet
-# inside this module as a multiline string to avoid having to find the file on 
-# the disk
-
-# TODO: this tool should be included in the search view plugin or at least
-# be a separate plugin that requires search view 
-
 # TODO: should make the search results sortable when clicking on the column 
 # headers
 
@@ -61,7 +42,9 @@ renderers_map = {'Apache FOP': fop_cmd + \
 # until we check for errors since we can't check if the fo renderer doesn't 
 # exist
 
-# this could probably go in bauble.utils
+# TODO: this could probably go in bauble.utils
+# UPDATE: utils.set_combo_from_value does essentially the same thing but I don't
+# want to switch it just now without testing it maybe for version 0.5.2+
 def combo_set_active_text(combo, text):
     model = combo.get_model()
     for row in model:
@@ -74,6 +57,9 @@ def combo_set_active_text(combo, text):
 class Formatter:
     
     def __init__(self):
+        '''
+        the contructor
+        '''
         path = os.path.join(paths.lib_dir(), "plugins", "formatter")
         self.glade_xml = gtk.glade.XML(path + os.sep + "formatter.glade")
         handlers = {'on_edit_button_clicked': self.on_edit_button_clicked,
@@ -85,7 +71,28 @@ class Formatter:
         self.treeview = self.glade_xml.get_widget('treeview')
         
         
+    def do_win32_fixes(self):
+        '''
+        '''
+        import pango
+        def get_char_width(widget):
+            context = widget.get_pango_context()        
+            font_metrics = context.get_metrics(context.get_font_description(), 
+                                               context.get_language())        
+            width = font_metrics.get_approximate_char_width()            
+            return pango.PIXELS(width)
+
+        formatters_combo = self.glade_xml.get_widget('formatters_combo')
+        formatters_combo.set_size_request(get_char_width(formatters_combo)*20, -1)
+        
+        
     def start(self, plants):
+        '''
+        @param plants: the plants to format
+        '''
+        if sys.platform == 'win32':
+            self.do_win32_fixes()
+            
         self.populate_tree(plants)        
         # TODO: check if there are formatters defined and if not then ask
         # the user if they would like to create one now, this might be 
@@ -126,15 +133,21 @@ class Formatter:
         
 
     def create_pdf(self, fo_cmd, stylesheet, filename=None):
+        '''
+        returns the filename of a new pdf file
+        @param fo_cmd: e.g fop -fo %(fo_filename)s -pdf %(out_filename)s'
+        @param stylesheet: the filename of an xsl stylesheet to apply to the 
+            data, this file is what determines the formatting
+        @param filename: the output filename, if filename is None(the default) 
+            then a random temporary file will be created
+        '''
         import libxml2
         import libxslt
         import tempfile
-        #debug('pdf: ' + filename)
         if filename is None:
             # no filename, create a temporary file            
             dummy, filename = tempfile.mkstemp()                
             filename += ".pdf"
-        #debug('pdf: %s' % filename)
         
         # get all the plants from the model in ABCD format
         plants = []
@@ -188,6 +201,8 @@ class Formatter:
 
 
     def populate_formatters_from_prefs(self):
+        '''
+        '''
         model = gtk.ListStore(str)
         formatters = prefs[formatters_list_pref]
         if formatters is None:
@@ -201,23 +216,19 @@ class Formatter:
                 
         
     def build_gui(self):
-        self.dialog = gtk.Dialog('Formatter', bauble.app.gui.window, 
-				 flags=gtk.DIALOG_MODAL | \
-				 gtk.DIALOG_DESTROY_WITH_PARENT,
-                                 buttons=((gtk.STOCK_OK, 
-					   gtk.RESPONSE_ACCEPT,
-					   gtk.STOCK_CANCEL, 
-					   gtk.RESPONSE_REJECT)))
+        '''
+        '''
+        self.dialog = gtk.Dialog('Formatter', bauble.app.gui.window,
+                                 flags=gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
+                                 buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
+                                           gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
         hbox = gtk.HBox()
-        #formatters_combo = gtk.ComboBox()
-        #if len(formatters is None)        
-        #model = gtk.ListStore()
-        #for formatter in formatters:        
-        #hbox.pack_start(gtk.)
         self.dialog.vbox.pack_start(hbox)
         
         
     def on_edit_button_clicked(self, widget):
+        '''
+        '''
         active = self.formatters_combo.get_active_text()        
         fo = FormatterOptions(active)
         fo.start()
@@ -226,16 +237,22 @@ class Formatter:
         
         
     def name_cell_data_method(self, column, cell, model, iter, data=None):
+        '''
+        '''
         plant = model.get_value(iter, 1)
         cell.set_property('text', str(plant.accession.species))
         
         
     def id_cell_data_method(self, column, cell, model, iter, data=None):
+        '''
+        '''
         plant = model.get_value(iter, 1)
         cell.set_property('text', str(plant))    
         
     
     def toggle_cell_data_method(self, column, cell, model, iter, data=None):
+        '''
+        '''
         value = model.get_value(iter, 0)
         #debug(iter)
         if value is None:
@@ -248,6 +265,8 @@ class Formatter:
         
         
     def on_renderer_toggled(self, widget, path, model):
+        '''
+        '''
         active = widget.get_active()
         #model = self.plants_view.get_model()
         it = model.get_iter(path)
@@ -255,6 +274,8 @@ class Formatter:
         
         
     def populate_tree(self, plants):
+        '''
+        '''
         model = gtk.ListStore(bool, object)
         for p in plants:
         
@@ -282,6 +303,8 @@ class Formatter:
             
             
 class FormatterOptions:
+    '''
+    '''
     
     def __init__(self, active_formatter=None):
         '''
@@ -333,12 +356,16 @@ class FormatterOptions:
     
     
     def start(self):
+        '''
+        '''
         d = self.glade_xml.get_widget('options_dialog')
         d.run()            
         d.destroy()
         
     
     def on_new_button_clicked(self, widget):
+        '''
+        '''
         d = gtk.Dialog('Enter a name for the formatter', bauble.app.gui.window,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -355,6 +382,8 @@ class FormatterOptions:
             
 
     def on_remove_button_clicked(self, widget):        
+        '''
+        '''        
         # should only be ble to click remove if there is a formatter selected
         name = self.formatters_combo.get_active_text()
         msg = 'Are you sure you want to remove the %s formatter?' % name
@@ -375,6 +404,8 @@ class FormatterOptions:
         
     
     def on_renderers_combo_changed(self, combo):
+        '''
+        '''
         renderer = combo.get_active_text()
         if renderer is not None:
             self.set_active_formatter_renderer_in_prefs(renderer)
@@ -382,6 +413,8 @@ class FormatterOptions:
         
     
     def on_stylesheet_button_response(self, dialog, response):        
+        '''
+        '''
         if response != gtk.RESPONSE_ACCEPT:
             return
         filename = dialog.get_filename()
@@ -390,6 +423,8 @@ class FormatterOptions:
         
             
     def on_formatters_combo_changed(self, combo):
+        '''
+        '''        
         self.refresh_active_formatter_options()
         self.renderers_combo.set_sensitive(True)
         self.stylesheet_button.set_sensitive(True)        
@@ -399,7 +434,7 @@ class FormatterOptions:
             self.remove_button.set_sensitive(True)
     
             
-    def add_formatter(self, name, renderer=None, stylesheet=None):
+    def add_formatter(self, name, renderer=None, stylesheet=None):        
         '''
         add a formatter with name to formatter in the prefs, the renderer and
         stylesheet both default to None
@@ -517,6 +552,8 @@ class FormatterOptions:
         
     @staticmethod
     def in_model(model, item):  
+        '''
+        '''        
         if model == None:
             return False      
         for i in model:
@@ -524,214 +561,73 @@ class FormatterOptions:
                 return True
         return False
         
-#class Formatter2(gtk.Dialog):
-#        
-#    def __init__(self, plants, title='Formatter', parent=None):
-#        """
-#        plants - the list of Plants to generate the labels from
-#        """
-#        gtk.Dialog.__init__(self, title, parent,
-#                            flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT, 
-#                            buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-#                                     gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-#        self.create_gui(plants)
-#        
-#        
-#    def check_cell_data_func(self, column, cell, model, iter, data=None):
-#        yes_no = model.get_value(iter, 0)
-#        cell.set_property('active', yes_no)        
-#        
-#        
-#    def id_cell_data_func(self, column, cell, model, iter, data=None):
-#        plant = model.get_value(iter, 1)
-#        id = str(plant.accession.acc_id) + '.' + str(plant.plant_id)        
-#        cell.set_property('text', id)
-#    
-#    
-#    def name_cell_data_func(self, column, cell, model, iter, data=None):
-#        plant = model.get_value(iter, 1)
-#        cell.set_property('text', plant.accession.species)        
-#        
-#        
-#    def on_renderer_toggled(self, widget, path, data=None):
-#        active = widget.get_active()
-#        model = self.plants_view.get_model()
-#        it = model.get_iter(path)
-#        model.set_value(it, 0, not active)
-#
-#        
-#    def create_toolbar(self):
-#        toolbar = gtk.Toolbar()
-#        #gtk.Ci
-#        return toolbar
-#        
-#    def create_gui(self, plants):
-#        
-#        model = gtk.ListStore(bool, object)
-#        for p in plants:
-#            model.append([True, p])
-#                        
-#        self.plants_view = gtk.TreeView(model)
-#        
-#        # create the checkbox column
-#        r = gtk.CellRendererToggle()        
-#        r.connect("toggled", self.on_renderer_toggled)
-#        c = gtk.TreeViewColumn("", r)
-#        c.set_cell_data_func(r, self.check_cell_data_func)
-#        self.plants_view.append_column(c)
-#        
-#        # create the id column
-#        r = gtk.CellRendererText()
-#        c = gtk.TreeViewColumn("Id", r)
-#        c.set_cell_data_func(r, self.id_cell_data_func)
-#        self.plants_view.append_column(c)
-#        
-#        # create the name column
-#        r = gtk.CellRendererText()
-#        c = gtk.TreeViewColumn("Name", r)
-#        c.set_cell_data_func(r, self.name_cell_data_func)
-#        self.plants_view.append_column(c)
-#                
-#        self.vbox.pack_start(self.plants_view)
-#        self.show_all()
-#        
-#        
-#    def create_pdf(self, filename=None):
-#        import libxml2
-#        import libxslt
-#        import tempfile
-#        if filename is None:
-#            # no filename, create a temporary file            
-#            dummy, filename = tempfile.mkstemp()                
-#        
-#        # get all the plants from the model in ABCD format
-#        plants = []
-#        for yes_no, plant in self.plants_view.get_model():
-#            if yes_no:
-#                plants.append(plant)
-#        abcd_data = abcd.plants_to_abcd(plants)
-#        
-#                
-#        # create xsl fo file
-#        dummy, fo_filename = tempfile.mkstemp()
-#        xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
-##        debug(xslt_filename)
-#        # how come we don't have to free style_doc???
-#        style_doc = libxml2.parseFile(xslt_filename) 
-#        style = libxslt.parseStylesheetDoc(style_doc)
-#        doc = libxml2.parseDoc(abcd_data)
-#        result = style.applyStylesheet(doc, None)
-#        style.saveResultToFilename(fo_filename, result, 0)
-#        style.freeStylesheet()
-#        doc.freeDoc()
-#        result.freeDoc()
-#        
-#        # run the formatter to produce the pdf file, xep has to be on the
-#        # path
-#        fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
-##        debug(fo_cmd)
-#        os.system(fo_cmd)    
-#            
-#        # open and return the file hander or filename so we don't have to close it
-#        return filename    
-#    
-#    
-#    def create_pdf_old(self, filename=None):
-#        # TODO: should change this to use libxslt then we can return the abcd
-#        # file from the exporter, pass that directly to libxslt and then
-#        # the only os.system call we have to make is to XEP
-#     
-#        import tempfile
-#        if filename is None:
-#            # create a temporary file            
-#            dummy, filename = tempfile.mkstemp()
-#        
-#        from tools.import_export.abcd import ABCDExporter
-#        dummy, abcd_filename = tempfile.mkstemp()
-#        exporter = ABCDExporter()
-#        
-#        # get all the plants from the model
-#        plants = []
-#        for yes_no, plant in self.plants_view.get_model():
-#            if yes_no:
-#                plants.append(plant)
-#        exporter.run(abcd_filename, plants)
-#        
-#        dummy, fo_filename = tempfile.mkstemp()
-#        xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
-#        # run the xslt command to create the fo file
-#        xslt_cmd = 'xsltproc %s %s > %s' % (xslt_filename, abcd_filename, fo_filename)
-#        print xslt_cmd
-#        os.system(xslt_cmd)
-#        
-#        # run the formatter to produce the pdf file
-#        fo_cmd = 'xep -fo %s -pdf %s' % (fo_filename, filename)
-#        print fo_cmd
-#        os.system(fo_cmd)    
-#            
-#        # open and return the file hander or filename so we don't have to close it
-#        return filename
-
-#
-# the plugin
-#
 
 class FormatterTool(BaubleTool):    
     label = "Formatter"
     
     @classmethod
-    def start(self):
-        #import tools.labels
-        
-        # TODO: really the Label Maker tool should only be sensitive if the 
-        # search view is visible but right now since we only have one view 
-        # we won't worry about that
-        
+    def start(self):        
+        '''
+        '''    
         # get all of the current plants from the view
         import bauble
         view = bauble.app.gui.get_current_view()        
-        #view = self.get_current_view()
-        #if not isinstance(view, views.Search):
-        #if not instance(view, bauble.plugins.searchview.search.SearchView):
-        
-        # TODO: change plugins.views so we can access it like this
-        # if not isinstance(view, plugins.views["SearchView"]):
-        if not isinstance(view, bauble.plugins.searchview.search.SearchView):
-            raise Error("GUI.on_tools_menu_label_maker: can only "\
-                        "make labels from the search vew")
+
+#        if not isinstance(view, bauble.plugins.searchview.search.SearchView):
+#            raise Error('Formmatter: can only format results from the '\
+#                        'search vew')
                         
-        # TODO: this assumes a but too much about SearchView's internal workings
+        # TODO: this assumes a bit too much about SearchView's internal workings
         model = view.results_view.get_model()
         if model is None:
             utils.message_dialog("Search for something first.")
             return
         
-        plants = []
+        all_plants = {}
+        def add_plants(plants):
+            for p in plants:
+                id = str(p.id)
+                if id not in all_plants.keys():
+                    all_plants[id] = p               
+                         
+        def get_plants_from_accessions(accessions):
+            p = []
+            for acc in accessions:
+                p += acc.plants
+            return p
+        
+        bauble.app.set_busy(True)
+        # extract the plants from the search results
         for row in model:
             value = row[0]
-            # right now we don't create labels for all plants under
-            # families and genera
-            #tables = plugins.tables
             if isinstance(value, tables["Family"]):
-                #print "family: " + str(value)
-                pass
+                for gen in value.genera:
+                    for sp in gen.species:
+                        p = get_plants_from_accessions(sp.accessions)
+                        add_plants(p)
             elif isinstance(value, tables["Genus"]):
-                #print "genera: " + str(value)
-                pass
+                for sp in value.species:
+                    p = get_plants_from_accessions(sp.accessions)
+                    add_plants(p)
             elif isinstance(value, tables["Species"]):
-                for acc in value.accessions:
-                    plants += acc.plants
+                p = get_plants_from_accessions(value.accessions)
+                add_plants(p)
             elif isinstance(value, tables["Accession"]):
-                plants += value.plants
+                add_plants(value.plants)
             elif isinstance(value, tables["Plant"]):
-                plants.append(value)            
+                add_plants([value])
             elif isinstance(value, tables["Location"]):
-                plants += value.plants
+                add_plants(value.plants)
             
-        #print plants
-        formatter = Formatter()
-        try:
-            pdf_filename = formatter.start(plants)
+        if len(all_plants) == 0:
+            utils.message_dialog('There are no plants in the search '\
+                                 'results. Please try another search.')
+            bauble.app.set_busy(False)
+            return
+        
+        formatter = Formatter()    
+        try:            
+            pdf_filename = formatter.start(all_plants.values())
         except:
             msg = 'Could not create PDF file.'
             utils.message_details_dialog(msg, traceback.format_exc(), 
@@ -739,15 +635,13 @@ class FormatterTool(BaubleTool):
         else:
             if pdf_filename is not None:            
                 utils.startfile(pdf_filename)
-        
-        #if response == gtk.RESPONSE_ACCEPT:
-        #    pdf_filename = formatter.create_pdf()
-        #    print pdf_filename
-            
-        #formatter.destroy()
+        bauble.app.set_busy(False)       
+    
     
     
 class FormatterPlugin(BaublePlugin):
+    '''
+    '''    
     tools = [FormatterTool]
     depends = ["ABCDImexPlugin"]
         
