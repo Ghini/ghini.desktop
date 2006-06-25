@@ -744,10 +744,10 @@ class Tasklet(object):
         if __debug__:
             self.__message_queue = [msg for msg in self.__message_queue
                                     if __get_action(msg) != Message.DISCARD]
-        else:
+        else:            
             ## slightly more efficient version of the above
             self.__message_queue = [msg for msg in self.__message_queue
-                if (self._message_actions.getdefault(msg.name, Message.DISCARD)
+                if (self._message_actions.get(msg.name, Message.DISCARD)
                     != Message.DISCARD)]
 
         ## find next ACCEPT-able message from queue, and pop it out
