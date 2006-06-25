@@ -124,26 +124,9 @@ def get_widget_value(glade_xml, widget_name, column=0):
                      " ** unknown widget type: %s " % (__file__,str(type(w))))
     
 
-# ****
-# TODO: i'm pretty sure this is just some old code that should be removed
-# ****
-#def set_widget_value(glade_xml, widget_name, value):
-#    print 'set_widget_value: ' + widget_name
-#    if value is None: return
-#    w = glade_xml.get_widget(widget_name)
-#    if w is None:
-#        raise ValueError("set_widget_value: no widget by the name "+\
-#                         widget_name)
-#    print type(value)
-#    if type(value) == ForeignKey:
-#        pass
-#    elif isinstance(w, gtk.Entry):
-#        w.set_text(value)
-
-
 # TODO: this is a new, simpler ModelRowDict sort of class, it doesn't try
 # to be as smart as ModelRowDict but it's a bit more elegant, the ModelRowDict
-# should be abolished or at least changed to usr SQLObjectProxy
+# should be abolished or at least changed to use SQLObjectProxy
 # TODO: this should do some contraint checking before allowing the value to be
 # set in the dict
 # TODO: if you try to access a join in the so_object then it will add it
@@ -202,7 +185,6 @@ class SQLObjectProxy(dict):
         @type pause: boolean
         '''
         dict.__setattr__(self, '_pause', pause)
-        #self._pause = pause    
     
     
     # TODO: provide a way to remove notifiers
@@ -210,7 +192,6 @@ class SQLObjectProxy(dict):
         '''
         remove all notifiers
         '''
-        #self._notifiers.clear()
         dict.__getattribute__(self, '_notifiers').clear()
     
     
@@ -222,13 +203,10 @@ class SQLObjectProxy(dict):
         @param column: the name of the column in the SQLObject
         @param callback: the call back to call when the column is changed
         '''
-#        debug('SQLObjectProxy(%s, %s)' % (column, callback))
         try:
             dict.__getattribute__(self, '_notifiers')[column].append(callback)
-            #self._notifiers[column].append(callback)
         except KeyError:
             dict.__getattribute__(self, '_notifiers')[column] = [callback]
-            #self._notifiers[column] = [callback]
 
 
     def __contains__(self, item):
@@ -245,10 +223,8 @@ class SQLObjectProxy(dict):
         """
         if dict.__contains__(self, item):
             return True
-#        debug('__contains__(%s)' % item)
         
         return hasattr(dict.__getattribute__(self, 'so_object'), item)
-        #return hasattr(self.so_object, item)
     
     
     def __getitem__(self, item):
@@ -259,29 +235,25 @@ class SQLObjectProxy(dict):
         
         @param item:
         '''
+#        debug('_getitem_(%s)' % item)
         
         # item is already in the dict
         if self.has_key(item): # use has_key to avoid __contains__
             return self.get(item)                
         
-        # avoid all the _getattr_ calls
-#        debug('_getitem_(%s)' % item)
+        # avoid all the __getattr__ calls for a but of a speed improvement
         self_so_object =  self.__getattribute__('so_object')
         # else if row is an instance then get it from the table
         v = None                        
         if self.isinstance:            
             v = getattr(self_so_object, item)            
             # resolve foreign keys
-            # TODO: there might be a more reasonable wayto do this
-            
+            # TODO: there might be a more reasonable wayto do this            
             if item in self_so_object.sqlmeta.columns:
                 column = self_so_object.sqlmeta.columns[item]            
                 if v is not None and isinstance(column, SOForeignKey):
-#                    debug('foreign key')
                     table_name = column.foreignKey                    
-#                    debug(table_name)
                     v = tables[table_name].get(v)
-#                    debug(v)
         else:
             # else not an instance so at least make sure that the item
             # is an attribute in the row, should probably validate the type
@@ -379,7 +351,6 @@ class GenericEditorView:
         '''
         dictionary and attribute access for widgets
         '''
-        # TODO: should i worry about making this more secure/read only
 
         def __init__(self, glade_xml):
             '''
@@ -420,10 +391,10 @@ class GenericEditorView:
     
     def set_widget_value(self, widget_name, value, markup=True, default=None):
         '''
-        @param widget_name:
-        @param value:
-        @param markup: =True
-        @param default: =None
+        @param widget_name: the name of the widget whose value we want to set
+        @param value: the value to put in the widgets
+        @param markup: whether the data in value uses pango markup
+        @param default: the default value to put in the widget if value is None
         '''
         utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
                                default)
@@ -497,13 +468,13 @@ class Problems:
         
         def add(self, problem):
             '''
-            @param problem:
+            @param problem: the problem to add
             '''
             self._problems.append(problem)
             
         def remove(self, problem):
             '''
-            @param problem:
+            @param problem: the problem to remove
             '''
             # TODO: nothing happens if problem does not exist in self.problems
             # should we ignore it or do..
@@ -530,8 +501,7 @@ class Problems:
     
 class GenericEditorPresenter:
     '''
-    this class cannont be instantiated
-    expects a self.model and self.view
+    the presenter of the Model View Presenter Pattern
     '''
     problem_color = gtk.gdk.color_parse('#FFDCDF')
     def __init__(self, model, view, defaults={}):
@@ -588,11 +558,11 @@ class GenericEditorPresenter:
             problem_widgets.queue_draw()
     
     
-    def bind_widget_to_model(self, widget_name, model_field):
-        # TODO: this is just an idea stub, should we have a method like
-        # this so to put the model values in the view we just
-        # need a for loop over the keys of the widget_model_map
-        pass
+#    def bind_widget_to_model(self, widget_name, model_field):
+#        # TODO: this is just an idea stub, should we have a method like
+#        # this so to put the model values in the view we just
+#        # need a for loop over the keys of the widget_model_map
+#        pass
     
 
     # TODO: this should validate the data, i.e. convert strings to
@@ -726,6 +696,9 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         
 
     def start(self, commit_transaction=True):    
+        '''
+        @param commit_transaction:
+        '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         exc_msg = "Could not commit changes.\n"
         committed = None
@@ -779,10 +752,14 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     # are complete or well tested, maybe we should create our own contraint 
     # system or at least help to complete SQLObject's constraints
     def _check_constraints(self, values):
+        '''
+        '''
         return check_contraints(self.table, values)
 
 
     def _commit(self, values):
+        '''
+        '''
         if self.model.isinstance:
             table_class = self.model.so_object.__class__
         else:
@@ -791,14 +768,18 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     
     
     def commit_changes(self):
+        '''
+        '''
         raise NotImplementedError
     
 
 # TODO: this isn't being used yet, it's only an idea stub
-class GenericEditor(BaubleEditor):
-    
-    def __init__(self, model):
-        pass
+#class GenericEditor(BaubleEditor):
+#    
+#    def __init__(self, model):
+#        '''
+#        '''
+#        pass
     
     
 #
@@ -848,14 +829,20 @@ class TableEditor(BaubleEditor):
     # are complete or well tested, maybe we should create our own contraint 
     # system or at least help to complete SQLObject's constraints
     def _check_constraints(self, values):
+        '''
+        '''
         return check_contraints(self.table, values)
 
 
     def _commit(self, values):       
+        '''
+        '''
         return commit_to_table(self.table, values)
     
 
     def commit_changes(self):
+        '''
+        '''
         raise NotImplementedError
     
 
@@ -865,6 +852,8 @@ class TableEditorDialog(TableEditor):
     def __init__(self, table, title="Table Editor",
                  parent=None, select=None, 
                  defaults={}, dialog=None):
+        '''
+        '''
         super(TableEditorDialog, self).__init__(table, select, defaults)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -882,6 +871,8 @@ class TableEditorDialog(TableEditor):
 
     
     def _run(self):
+        '''
+        '''
         # connect these here in case self.dialog is overwridden after the 
         # construct is called    
         self.dialog.connect('response', self.on_dialog_response)
