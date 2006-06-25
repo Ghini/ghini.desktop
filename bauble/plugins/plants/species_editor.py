@@ -777,6 +777,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         entry.set_position(-1)
         entry.handler_unblock(self.insert_syn_sid)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
+        self.view.set_accept_buttons_sensitive(True)
         
         
     def on_remove_button_clicked(self, button, data=None):
@@ -790,9 +791,6 @@ class SynonymsPresenter(GenericEditorPresenter):
         path, col = tree.get_cursor()
         model = tree.get_model()
         value = model[model.get_iter(path)][0]
-        # TODO: we need to do some some of 'unit of work' pattern in the model
-        # decorator with a 'removed' list so we know which vernacular names
-        # to delete from the database        
         s = Species.str(value.synonym, markup=True)
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
@@ -978,6 +976,9 @@ class SpeciesEditorView(GenericEditorView):
     
     def __init__(self, parent=None):
         '''
+        the constructor
+        
+        @param parent: the parent window
         '''
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
                                                       'plugins', 'plants', 
@@ -1000,8 +1001,6 @@ class SpeciesEditorView(GenericEditorView):
             self.widgets[entry].set_completion(completion)    
         
         self.restore_state()
-        # TODO: set up automatic signal handling, all signals should be called
-        # on the presenter
         self.connect_dialog_close(self.widgets.species_dialog)
         if sys.platform == 'win32':
             self.do_win32_fixes()
@@ -1075,6 +1074,7 @@ class SpeciesEditorView(GenericEditorView):
             
     def start(self):
         '''
+        starts the views, essentially calls run() on the main dialog
         '''
         return self.widgets.species_dialog.run()    
     
@@ -1108,6 +1108,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         
     def start(self, commit_transaction=True):    
         '''
+        @param commit_transaction: where we should call 
+            sqlhub.processConnection.commit() to commit our changes
         '''
         if tables['Genus'].select().count() == 0:
             msg = 'You must first add or import at least one genus into the '\
@@ -1164,10 +1166,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         if commit_transaction:
             sqlhub.processConnection.commit()
 
-        # TODO: if we could get the response from the view
-        # then we could just call GenericModelViewPresenterEditor.start()
-        # and then add this code but GenericModelViewPresenterEditor doesn't
-        # know anything about it's presenter though maybe it should
+        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
             if self.model.isinstance:
@@ -1255,20 +1254,15 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         # delete the items that need to be removed from the database    
         for item in vn_model.removed:
             item.destroySelf()
-            
-#        if species.default_vernacular_name is not None:
-#            old_default = VernacularName.get(species.default_vernacular_name.id)
-#            species.default_vernacular_name = None
 
         return default
         
         
     def commit_synonyms_changes(self, species):
         '''
+        commit changes in the synonyms presenter
         '''
         syn_model = self.presenter.synonyms_presenter.model 
-        # TODO: need to also check model.removed and delete any items in the
-        # list from the database
         for item in syn_model:
             # if it has a species that means it's not a new synonym
             if item.species is None:
@@ -1295,7 +1289,9 @@ else:
 # Species infobox for SearchView
 #
     class VernacularExpander(InfoExpander):
-        
+        '''
+        the constructor
+        '''
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "Vernacular Names", glade_xml)
             vernacular_box = self.widgets.vernacular_box
@@ -1305,6 +1301,11 @@ else:
             
             
         def update(self, row):
+            '''
+            update the expander
+            
+            @param row: the row to get thevalues from
+            '''
             if len(row.vernacular_names) == 0:
                 self.set_sensitive(False)
                 self.set_expanded(False)
@@ -1335,6 +1336,11 @@ else:
             
             
         def update(self, row):
+            '''
+            update the expander
+            
+            @param row: the row to get thevalues from
+            '''
             if len(row.synonyms) == 0:
                 self.set_sensitive(False)
                 self.set_expanded(False)
@@ -1351,12 +1357,15 @@ else:
     
     
     class GeneralSpeciesExpander(InfoExpander):
-        """
+        '''
         generic information about an accession like
         number of clones, provenance type, wild provenance type, speciess
-        """
+        '''
     
         def __init__(self, glade_xml):
+            '''
+            the constructor
+            '''
             InfoExpander.__init__(self, "General", glade_xml)
             general_box = self.widgets.general_box
             if general_box.get_parent() is not None:
@@ -1374,6 +1383,11 @@ else:
 
         
         def update(self, row):
+            '''
+            update the expander
+            
+            @param row: the row to get the values from
+            '''
             self.set_widget_value('name_data', row.markup(True))
             self.set_widget_value('nacc_data', len(row.accessions))
             
@@ -1419,9 +1433,9 @@ else:
         # others to consider: reference, images, redlist status
         
         def __init__(self):
-            """ 
-            fullname, synonyms, ...
-            """
+            ''' 
+            the constructor
+            '''
             InfoBox.__init__(self)
             glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
                                       'species_infobox.glade')            
@@ -1444,6 +1458,11 @@ else:
             
             
         def update(self, row):
+            '''
+            update the expanders in this infobox
+            
+            @param row: the row to get the values from
+            '''
             self.general.update(row)
             self.vernacular.update(row)
             self.synonyms.update(row)
