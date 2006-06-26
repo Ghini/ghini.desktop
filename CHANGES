@@ -1,4 +1,8 @@
-2006.06.24
+2006.06.26
+----------
+release 0.5.2
+
+2006.06.25
 ----------
 - pass species correctly accession editor when opened from the species editor
 - fixes for windows
