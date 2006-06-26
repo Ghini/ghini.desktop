@@ -3,10 +3,10 @@
 
 <glade-interface>
 
-<widget class="GtkDialog" id="options_dialog">
+<widget class="GtkDialog" id="formatter_options_dialog">
   <property name="title" translatable="yes" context="yes">Formatter Options</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
   <property name="modal">True</property>
   <property name="default_width">320</property>
   <property name="default_height">260</property>
@@ -63,7 +63,7 @@
 	    <widget class="GtkHBox" id="hbox3">
 	      <property name="visible">True</property>
 	      <property name="homogeneous">False</property>
-	      <property name="spacing">0</property>
+	      <property name="spacing">5</property>
 
 	      <child>
 		<widget class="GtkComboBox" id="opt_formatters_combo">
@@ -134,7 +134,7 @@
 		  <property name="n_columns">2</property>
 		  <property name="homogeneous">False</property>
 		  <property name="row_spacing">5</property>
-		  <property name="column_spacing">0</property>
+		  <property name="column_spacing">5</property>
 
 		  <child>
 		    <widget class="GtkLabel" id="label4">
@@ -228,10 +228,10 @@
   </child>
 </widget>
 
-<widget class="GtkDialog" id="formatter">
+<widget class="GtkDialog" id="formatter_dialog">
   <property name="title" translatable="yes">Formatter</property>
   <property name="type">GTK_WINDOW_TOPLEVEL</property>
-  <property name="window_position">GTK_WIN_POS_NONE</property>
+  <property name="window_position">GTK_WIN_POS_CENTER_ON_PARENT</property>
   <property name="modal">True</property>
   <property name="default_width">640</property>
   <property name="default_height">480</property>

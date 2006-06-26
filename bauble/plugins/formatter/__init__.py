@@ -66,7 +66,7 @@ class Formatter:
                    }
         self.glade_xml.signal_autoconnect(handlers)
         
-        self.formatter_dialog = self.glade_xml.get_widget('formatter')        
+        self.formatter_dialog = self.glade_xml.get_widget('formatter_dialog')
         self.formatters_combo = self.glade_xml.get_widget('formatters_combo')
         self.treeview = self.glade_xml.get_widget('treeview')
         
@@ -100,7 +100,7 @@ class Formatter:
         self.populate_formatters_from_prefs()
         formatters = prefs[formatters_list_pref]
         if formatters is None:
-            fo = FormatterOptions()
+            fo = FormatterOptions(parent=self.formatter_dialog)
             fo.start()
                 
         # get formatters again in case FormatterOptions changed anything
@@ -230,7 +230,7 @@ class Formatter:
         '''
         '''
         active = self.formatters_combo.get_active_text()        
-        fo = FormatterOptions(active)
+        fo = FormatterOptions(active, parent=self.formatter_dialog)
         fo.start()
         self.populate_formatters_from_prefs()
         combo_set_active_text(self.formatters_combo, active)
@@ -306,10 +306,11 @@ class FormatterOptions:
     '''
     '''
     
-    def __init__(self, active_formatter=None):
+    def __init__(self, active_formatter=None, parent=None):
         '''
         active_formatter is the formatter we should set as active for editing
         '''
+        self.parent = parent
         path = os.path.join(paths.lib_dir(), "plugins", "formatter")
         self.glade_xml = gtk.glade.XML(path + os.sep + 'formatter.glade')
         self.formatters_combo=self.glade_xml.get_widget('opt_formatters_combo')
@@ -358,7 +359,11 @@ class FormatterOptions:
     def start(self):
         '''
         '''
-        d = self.glade_xml.get_widget('options_dialog')
+        d = self.glade_xml.get_widget('formatter_options_dialog')
+        if self.parent is not None:            
+            d.set_transient_for(self.parent)
+        else:
+            d.set_transient_for(bauble.app.gui.window)
         d.run()            
         d.destroy()
         
@@ -366,13 +371,17 @@ class FormatterOptions:
     def on_new_button_clicked(self, widget):
         '''
         '''
-        d = gtk.Dialog('Enter a name for the formatter', bauble.app.gui.window,
+        d = gtk.Dialog('New Formatter Name', bauble.app.gui.window,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))    
+        d.vbox.set_spacing(10)
+        label = gtk.Label('Enter a name for the new formatter.')        
+        label.set_padding(10, 10)
+        d.vbox.pack_start(label)    
         entry = gtk.Entry()
-        entry.show()
         d.vbox.pack_start(entry)    
+        d.show_all()
         if d.run() == gtk.RESPONSE_ACCEPT:
             name = entry.get_text()            
             model = self.formatters_combo.get_model()
