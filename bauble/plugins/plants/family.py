@@ -13,27 +13,23 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 
 
-def edit_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
-    
+def edit_callback(row):
+    value = row[0]    
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
     e = FamilyEditor(select=[value], model=value)
     e.start()
 
 
-def add_genera_callback(model, path):
-    from bauble.plugins.plants.genus import GenusEditor
-    it = model.get_iter(path)
-    value = model[it][0]
-    e = GenusEditor(defaults={'familyID./': value})
+def add_genera_callback(row):
+    from bauble.plugins.plants.genus import GenusEditor    
+    value = row[0]
+    e = GenusEditor(defaults={'familyID': value})
     e.start()
 
 
-def remove_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
+def remove_callback(row):    
+    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
         

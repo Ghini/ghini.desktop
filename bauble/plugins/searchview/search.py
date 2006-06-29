@@ -729,7 +729,10 @@ class SearchView(BaubleView):
         value = model[iter][0]
         table_name = value.__class__.__name__
         func = self.view_meta[table_name].markup_func
-        cell.set_property('markup', func(value))
+        try:        
+            cell.set_property('markup', func(value))
+        except:
+            cell.set_property('markup', str(value))
      
 
     def on_entry_key_press(self, widget, event, data=None):
@@ -796,14 +799,20 @@ class SearchView(BaubleView):
     	#http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3: 
             return # if not right click then leave
+        
         sel = view.get_selection()
         model, i = sel.get_selected()
         if model == None:
             return # nothing to pop up a context menu on
-        value = model.get_value(i, 0) 
-        path = model.get_path(i) # get the path to pass the on_activate_*_item
+        value = model[i][0]
+        
+        path = model.get_path(i) # get the path to pass to the callback
         
         table_name = value.__class__.__name__
+        if self.view_meta[table_name].context_menu_desc is None:            
+            # not context menu
+            return        
+        
         menu = None
         try:
             menu = self.context_menu_cache[table_name]
@@ -813,15 +822,17 @@ class SearchView(BaubleView):
                 if label == '--':
                     menu.add(gtk.SeparatorMenuItem())
                 else:
-                    def on_activate(item, f, model, path):
-                        f(model, path)
+                    def on_activate(item, f, model, iter):
+                        sel = view.get_selection()
+                        model, treeiter = sel.get_selected()
+                        f(model[treeiter])
                         # TODO: maybe after the f is called we should always 
                         # refresh the view and try to reexpand to path, if we
                         # can't expand to path maybe we should at least expand
                         # the parent before it was edited, i think this should 
                         # catch most changes
 
-                    item = gtk.MenuItem(label)
+                    item = gtk.MenuItem(label)                    
                     item.connect('activate', on_activate, func, model, path)
                     menu.add(item)
             self.context_menu_cache[table_name] = menu
