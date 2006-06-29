@@ -11,7 +11,7 @@
 
 ; general
 Name "Bauble"
-!define version "0.5.2"
+!define version "0.5.3"
 !define src_dir "../dist"
 Outfile "bauble-${version}-setup.exe"
  

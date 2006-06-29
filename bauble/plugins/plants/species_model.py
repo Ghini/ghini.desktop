@@ -2,10 +2,13 @@
 # species_model.py
 #
 
+import traceback
 import xml.sax.saxutils as sax
 from sqlobject import *
 from bauble.plugins import BaubleTable
+import bauble.utils as utils
 from bauble.utils.log import log, debug
+
 
 # ***** supported names
 # Genus sp
@@ -27,6 +30,61 @@ from bauble.utils.log import log, debug
 # ***** are these even valid
 # Genus x sp sp_author
 # Genus sp sp_athor x infrasp infrasp_author
+
+def edit_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    from bauble.plugins.plants.species_editor import SpeciesEditor
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = SpeciesEditor(select=[value], model=value)
+    e.start()
+
+
+def add_accession_callback(model, path):
+    from bauble.plugins.garden.accession import AccessionEditor
+    it = model.get_iter(path)
+    value = model[it][0]
+    e = AccessionEditor(defaults={'species': value})
+    e.start()
+
+
+def remove_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+            
+
+species_context_menu = [('Edit', edit_callback),
+                       ('--', None),
+                       ('Add accession', add_accession_callback),
+                       ('--', None),
+                       ('Remove', remove_callback)]
+
+
+def species_markup_func(species):
+    '''
+    '''
+    return species.markup(authors=False)
 
 
 #

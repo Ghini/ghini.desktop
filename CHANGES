@@ -1,3 +1,16 @@
+2006.06.29
+----------
+- change the way the results in the search view are displayed and how the 
+context menu is built, push more of the work off to the plugins since they 
+should know more about the types the represent
+
+2006.06.28
+----------
+- fixed error message in update_infobox if the iter was None
+- fixed a problem when trying to commit donations, refactored out fixing up
+the model from the accession source presenter depending on the type of the 
+presenter
+
 2006.06.26
 ----------
 release 0.5.2
