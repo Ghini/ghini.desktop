@@ -2,10 +2,13 @@
 # Genera table module
 #
 
+import traceback
 import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.treevieweditor import TreeViewEditorDialog
+import bauble.utils as utils
+
 
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
@@ -17,6 +20,61 @@ from bauble.treevieweditor import TreeViewEditorDialog
 # ask the user if they want to use the accepted name and show the author of
 # the genus then so they aren't using the wrong version of the Genus,
 # e.g. Cananga
+
+def edit_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = GenusEditor(select=[value], model=value)
+    e.start()
+
+
+def add_species_callback(model, path):
+    from bauble.plugins.plants.species_editor import SpeciesEditor
+    it = model.get_iter(path)
+    value = model[it][0]
+    e = SpeciesEditor(defaults={'genus': value})
+    e.start()
+
+
+def remove_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+
+
+genus_context_menu = [('Edit', edit_callback),
+                       ('--', None),
+                       ('Add species', add_species_callback),
+                       ('--', None),
+                       ('Remove', remove_callback)]
+
+
+def genus_markup_func(genus):
+    '''
+    '''
+    return '%s (%s)' % (str(genus), str(genus.family))
 
 #
 # Genus table

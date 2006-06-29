@@ -25,10 +25,14 @@ from bauble.error import CommitException
 # info about the genus so we know exactly what plant is being selected
 # e.g. Malvaceae (sensu lato), Hibiscus (senso stricto)
 
-# TODO: colors on the event boxes around some of the entries don't change color 
-# on win32, is this my problem or a gtk+ bug
-
 # FIXME: time.mktime can't handle dates before 1970 on win32
+
+# TODO: there is a bug if you edit an existing accession and change the 
+# accession number but change it back to the original then it indicates the
+# number is invalid b/c it's a duplicate...maybe we can check the current value 
+# to see if the value to be changed is the same as the value in the row you
+# are currently editing, but only if the sqlobject proxy object has an instance
+# behind it
 
 #def utm_wgs84_to_dms():
 #    pass
@@ -1254,6 +1258,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     
     
     def start(self, commit_transaction=True):    
+        '''
+        '''
         if tables['Species'].select().count() == 0:
             msg = 'You must first add or import at least one species into the '\
                   'database before you can add accessions.'
@@ -1333,11 +1339,40 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         return committed
     
     
+    @staticmethod
+    def __cleanup_donation_model(model):
+        '''
+        '''
+        return model
+    
+    
+    @staticmethod
+    def __cleanup_collection_model(model):
+        '''
+        '''
+        if 'latitude' in model or 'longitude' in model:
+            if (model.latitude is not None and model.longitude is None) or \
+                (model.longitude is not None and model.latitude is None):
+                msg = 'model must have both latitude and longitude or neither'
+                raise ValueError(msg)
+            elif model.latitude is None and model.longitude is None:
+                model.geo_accy = None # don't save 
+        else:
+            model.geo_accy = None # don't save                 
+            
+        # reset the elevation accuracy if the elevation is None
+        if 'elevation' in model and model.elevation is None:
+            model.elevation_accy = None
+        return model
+
+        
     def commit_source_changes(self, accession):
+        '''
+        '''
         source_model = None
-        if self.presenter.source_presenter is not None \
-          and self.presenter.source_presenter.model.dirty:
-            source_model = self.presenter.source_presenter.model
+        presenter = self.presenter.source_presenter
+        if presenter is not None and presenter.model.dirty:
+            source_model = presenter.model
             if source_model.isinstance:
                 source_table = tables[source_model.so_object.__class__.__name__]
             else:
@@ -1346,34 +1381,18 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         if source_model is None:
             return
         
-        if 'latitude' in source_model or 'longitude' in source_model:
-            if (source_model.latitude is not None and source_model.longitude is None) or \
-                (source_model.longitude is not None and source_model.latitude is None):
-                msg = 'model must have both latitude and longitude or neither'
-                raise ValueError(msg)
-            elif source_model.latitude is None and source_model.longitude is None:
-                source_model.geo_accy = None # don't save 
-        else:
-            source_model.geo_accy = None # don't save 
-                
-#        if 'latitude' in source_model and source_model.latitude is not None:
-#            if 'longitude' in source_model and source_model.longitude is None:
-#                msg = 'model must have both latitude and longitude or neither'
-#                raise ValueError(msg)
-#            else:
-#                source_model.geo_accy = None # don't save 
-#        else:
-#                source_model.geo_accy = None
-            
-        # reset the elevation accuracy if the elevation is None
-        if 'elevation' in source_model and source_model.elevation is None:
-            source_model.elevation_accy = None
-            
+        if isinstance(presenter, CollectionPresenter):
+            source_model = AccessionEditor.__cleanup_collection_model(source_model)
+        elif isinstance(presenter, DonationPresenter):
+            source_model = AccessionEditor.__cleanup_donation_model(source_model)
+                    
         source_model['accession'] = accession.id
         new_source = commit_to_table(source_table, source_model)
         
         
     def commit_changes(self):
+        '''
+        '''
 #        debug('commit_changes: %s' % self.model)
         # if source_type changes and the original source type wasn't none
         # warn the user

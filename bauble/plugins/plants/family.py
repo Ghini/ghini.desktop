@@ -2,15 +2,74 @@
 # Family table definition
 #
 
+import traceback
 import gtk
 from sqlobject import *
 import bauble
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.treevieweditor import TreeViewEditorDialog
 from datetime import datetime
+import bauble.utils as utils
 from bauble.utils.log import debug
 
-                        
+
+def edit_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = FamilyEditor(select=[value], model=value)
+    e.start()
+
+
+def add_genera_callback(model, path):
+    from bauble.plugins.plants.genus import GenusEditor
+    it = model.get_iter(path)
+    value = model[it][0]
+    e = GenusEditor(defaults={'familyID./': value})
+    e.start()
+
+
+def remove_callback(model, path):
+    it = model.get_iter(path)
+    value = model[it][0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+
+
+family_context_menu = [('Edit', edit_callback),
+                       ('--', None),
+                       ('Add genera', add_genera_callback),
+                       ('--', None),
+                       ('Remove', remove_callback)]
+
+        
+def family_markup_func(family):
+    '''
+    '''
+    return str(family)
+
+
+
 class Family(BaubleTable):
 
     class sqlmeta(BaubleTable.sqlmeta):
