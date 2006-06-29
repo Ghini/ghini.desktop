@@ -31,9 +31,8 @@ from bauble.utils.log import log, debug
 # Genus x sp sp_author
 # Genus sp sp_athor x infrasp infrasp_author
 
-def edit_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
+def edit_callback(row):
+    value = row[0]
     from bauble.plugins.plants.species_editor import SpeciesEditor
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
@@ -41,17 +40,15 @@ def edit_callback(model, path):
     e.start()
 
 
-def add_accession_callback(model, path):
+def add_accession_callback(row):
     from bauble.plugins.garden.accession import AccessionEditor
-    it = model.get_iter(path)
-    value = model[it][0]
+    value = row[0]
     e = AccessionEditor(defaults={'species': value})
     e.start()
 
 
-def remove_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
+def remove_callback(row):
+    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
         

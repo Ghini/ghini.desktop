@@ -8,6 +8,48 @@ from bauble.editor import *
 from bauble.treevieweditor import TreeViewEditorDialog
 import bauble.paths as paths
 
+def edit_callback(row):
+    value = row[0]
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = DonorEditor(select=[value], model=value)
+    e.start()
+    
+
+def remove_callback(row):
+    value = row[0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+            
+    
+    view = bauble.app.gui.get_current_view()
+    debug('refresh search')
+    view.refresh_search()
+
+
+donor_context_menu = [('Edit', edit_callback),
+                      ('--', None),
+                      ('Remove', remove_callback)]
+
+
 # TODO: show list of donations given by donor if searching for the donor name
 # in the search view
 
@@ -125,23 +167,91 @@ class DonorEditorPresenter(GenericEditorPresenter):
 class DonorEditor(GenericModelViewPresenterEditor):
     
     label = 'Donors'
-    RESPONSE_NEXT = 22
+    RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
     
     def __init__(self, model=Donor, defaults={}, parent=None, **kwargs):
         '''
-        model: either an Accession class or instance
-        defaults: a dictionary of Accession field name keys with default
-        values to enter in the model if none are give
+        @param model: either an Accession class or instance
+        @param defaults: a dictionary of Accession field name keys with default
+        @param values to enter in the model if none are give
         '''
         self.assert_args(model, Donor, defaults)
         GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
         self.model = SQLObjectProxy(model)
-        self.view = DonorEditorView(parent=parent)
-        self.presenter = DonorEditorPresenter(self.model, self.view, defaults)
+        self.parent = parent
+        self.defaults = defaults
+    
+    def start(self, commit_transaction=True):    
+        '''
+        @param commit_transaction: where we should call 
+            sqlobject.sqlhub.processConnection.commit() to commit our changes
+        '''
+        self.view = DonorEditorView(parent=self.parent)
+        self.presenter = DonorEditorPresenter(self.model, self.view, self.defaults)
+        
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            if response == gtk.RESPONSE_OK or response in self.ok_responses:
+                try:
+                    committed = self.commit_changes()                
+                except DontCommitException:
+                    continue
+                except BadValue, e:
+                    utils.message_dialog(saxutils.escape(str(e)),
+                                         gtk.MESSAGE_ERROR)
+                except CommitException, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                except Exception, e:
+                    debug(traceback.format_exc())
+                    exc_msg + ' \n %s' % str(e)
+                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+                                                 traceback.format_exc(),
+                                                 gtk.MESSAGE_ERROR)
+                    sqlhub.processConnection.rollback()
+                    sqlhub.processConnection.begin()
+                else:
+                    break
+            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+                self.model.dirty = False
+                break
+            elif not self.model.dirty:
+                break
             
-            
+        if commit_transaction:
+            sqlhub.processConnection.commit()
+
+        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            if self.model.isinstance:
+                model = self.model.so_object.__class__
+            else:
+                model = self.model.so_object
+            e = DonorEditor(model, self.defaults, self.parent)
+            more_committed = e.start(commit_transaction)
+                    
+        if more_committed is not None:
+            committed = [committed]
+            if isinstance(more_committed, list):
+                committed.extend(more_committed)
+            else:
+                committed.append(more_committed)
+                
+        return committed        
+
+    
     def commit_changes(self):
+        debug('DonorEditor.commit_changes: %s' % self.model)
         committed = None
         if self.model.dirty:
             committed = self._commit(self.model)

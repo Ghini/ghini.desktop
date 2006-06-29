@@ -90,6 +90,57 @@ def decimal_to_dms(decimal, long_or_lat):
     return dir, int(d), int(m), s
 
 
+def edit_callback(row):
+    value = row[0]
+    
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = AccessionEditor(select=[value], model=value)
+    e.start()
+
+
+def add_plants_callback(row):
+    from bauble.plugins.garden.plant import PlantEditor
+    value = row[0]
+    e = PlantEditor(defaults={'accessionID': value})
+    e.start()
+
+
+def remove_callback(row):
+    value = row[0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+
+
+acc_context_menu = [('Edit', edit_callback),
+                    ('--', None),
+                    ('Add plants', add_plants_callback),
+                    ('--', None),
+                    ('Remove', remove_callback)]
+
+def acc_markup_func(acc):
+    '''
+    '''
+    return '%s (%s)' % (str(acc), acc.species.markup(authors=False))
+
 
 class Accession(BaubleTable):
 

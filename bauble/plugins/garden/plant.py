@@ -16,6 +16,54 @@ from bauble.utils.log import debug
 # TODO: should probably make acc_status required since whether a plant is 
 # living or dead is pretty important
 
+# TODO: need a way to search plants by the full accession number, 
+# e.g. 2004.0011.02 would return a specific plant, probably need to be
+# able to set a callback function like the children field of the view meta
+
+def edit_callback(row):
+    value = row[0]    
+    # TODO: the select paramater can go away when we move FamilyEditor to the 
+    # new style editors    
+    e = PlantEditor(select=[value], model=value)
+    e.start()
+
+
+def remove_callback(row):
+    value = row[0]
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+        
+    if utils.yes_no_dialog(msg):
+        from sqlobject.main import SQLObjectIntegrityError
+        try:
+            value.destroySelf()
+            # since we are doing everything in a transaction, commit it
+            sqlhub.processConnection.commit() 
+            #self.refresh_search()                
+        except SQLObjectIntegrityError, e:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, str(e))
+        except:
+            msg = "Could not delete '%s'. It is probably because '%s' "\
+                  "still has children that refer to it.  See the Details for "\
+                  " more information." % (s, s)
+            utils.message_details_dialog(msg, traceback.format_exc())
+
+
+plant_context_menu = [('Edit', edit_callback),
+                      ('--', None),
+                      ('Remove', remove_callback)]
+
+
+def plant_markup_func(plant):
+    '''
+    '''
+    return '%s (%s)' % (str(plant), 
+                        plant.accession.species.markup(authors=False))
+
+
 class PlantHistory(BaubleTable):
     class sqlmeta(BaubleTable.sqlmeta):
         defaultOrder = 'date'

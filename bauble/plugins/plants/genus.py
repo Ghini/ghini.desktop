@@ -21,9 +21,8 @@ import bauble.utils as utils
 # the genus then so they aren't using the wrong version of the Genus,
 # e.g. Cananga
 
-def edit_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
+def edit_callback(row):
+    value = row[0]
     
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
@@ -31,17 +30,15 @@ def edit_callback(model, path):
     e.start()
 
 
-def add_species_callback(model, path):
+def add_species_callback(row):
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    it = model.get_iter(path)
-    value = model[it][0]
+    value = row[0]
     e = SpeciesEditor(defaults={'genus': value})
     e.start()
 
 
-def remove_callback(model, path):
-    it = model.get_iter(path)
-    value = model[it][0]
+def remove_callback(row):
+    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
         
