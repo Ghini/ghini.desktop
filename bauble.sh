@@ -1,4 +1,4 @@
 #!/bin/sh
-export PYTHONPATH=`dirname $0`
+#export PYTHONPATH=`dirname $0`
 SCRIPT_PATH=`dirname $0`/scripts/bauble
-python $SCRIPT_PATH
+PYTHONPATH=`dirname $0` python $SCRIPT_PATH
