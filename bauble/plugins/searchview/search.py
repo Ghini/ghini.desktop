@@ -24,18 +24,6 @@ from pyparsing import *
 # 3. if you want a result to expand on one of its children then
 #    add the table and the default child to child_expand_map
 
-# TODO: whenever an editor is called and changes are commited we should get 
-# a list of expanded paths and then search again on the same criteria and then
-# reexpand the paths that were saved and the path of the item that was the 
-# editor was called on
-# - should check out TreeView.map_expanded_rows to get all the 
-# expanded rows and then maybe we can reexpand them after we've 
-# finished refreshing the view
-# - now when we add  and edit items from the context menu then the current row
-# and parent row are collapsed and expanded respectively, but if something
-# is added from these editors that are in the same tree branch as from
-# the currently selected row then it won't update
-
 # TODO: things todo when a result is selected
 # - GBIF search results, probably have to look up specific institutions
 # - search Lifemapper for distributions maps
@@ -46,14 +34,6 @@ from pyparsing import *
 # tables, it only has to query the tables module for the search map for all 
 # tables, could also do something similar to domain map and child expand
 # map
-
-# TODO: as part of the view meta we should pass some sort table/map
-# to build the context menu for a particular type with 
-# (icon, label, callback(row)) or something of the sort, this would allow
-# plugins to better control their behavior within the search view, in fact
-# we would need a list of these and someway to include separators so there
-# could be multiple menu items in the context menu, could also probably 
-# replicate the context menu in the menu bar as well
 
 # TODO: i don't really think that the sort column is that necessary
 # in the SearchMeta since we have to sort all the results later, though
@@ -73,9 +53,6 @@ from pyparsing import *
 
 # TODO: search won't work on a unicode col. e.g. try 'acc where notes='test''
 
-# TODO: add vernacular names doesn't work from the context menu when right 
-# clicking on a species
-
 # TODO: improve error reporting, especially when there is an error in the
 # search string or if there aren't any results
 # e.g. 'Can't find 'values' in table 'Table'
@@ -83,7 +60,7 @@ from pyparsing import *
 # TODO: on some search errors the connection gets invalidated, this 
 # happened to me on 'loc where site=test'
 # UPDATE: this query doesn't invalidate the connection any more but apparantly
-# there's a way that this happens so we track it down
+# there's a way that this happens so we should track it down
 
 # TODO: it would be good to be able to search using the SIMILAR TO operator
 # but we need to designate a way to show that value is a regular expression
@@ -154,9 +131,9 @@ class SQLOperatorValidator(OperatorValidator):
     def __init__(self, db_type, *args, **kwargs):
     	super(SQLOperatorValidator, self).__init__(*args, **kwargs)	
     	type_map = {'postgres': self.pg_operator_map,
-    		    'sqlite': self.sqlite_operator_map,
-    		    'mysql': self.mysql_operator_map
-    		    }
+    		        'sqlite': self.sqlite_operator_map,
+    		        'mysql': self.mysql_operator_map
+    		        }
     	self.db_type = db_type
     	self.to_operator_map = type_map.get(self.db_type, {})
 	
@@ -516,13 +493,12 @@ class SearchView(BaubleView):
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
         self.entry.set_text(text)
-        self._search_text = text
-                
-        # TODO: check the length of the results and if they are more than say
-        # 200 then we should popup a progress dialog or something
+        self._search_text = text            
         
         # clear the old model
-        bauble.app.set_busy(True)
+        set_cursor = bauble.app.gui.window.window.set_cursor
+        set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        #bauble.app.set_busy(True)
         self.results_view.set_model(None)      
         statusbar = bauble.app.gui.statusbar        
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
@@ -547,22 +523,25 @@ class SearchView(BaubleView):
                 model.append(["Couldn't find anything"])
             statusbar.pop(sbcontext_id)            
             self.results_view.set_model(model)            
-            bauble.app.set_busy(False)
+            set_cursor(None)
+            #bauble.app.set_busy(False)
         else:
             def populate_callback():
                 self.populate_results(results)
                 statusbar.push(sbcontext_id, "%s results" % len(results))  
-                bauble.app.set_busy(False)
+                set_cursor(None)
+                #bauble.app.set_busy(False)
             if len(results) > 2000:
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you want to '\
                         'continue?' % len(results)
                 if utils.yes_no_dialog(msg):                    
                     gobject.idle_add(populate_callback)
+                else:
+                    set_cursor(None)
             else:
 	    		gobject.idle_add(populate_callback)
         
-
 
     def remove_children(self, model, parent):
         '''
@@ -745,8 +724,6 @@ class SearchView(BaubleView):
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname == "Return":
             self.search_button.emit("clicked")
-            
-
     
     
     def get_expanded_rows(self):
@@ -772,8 +749,7 @@ class SearchView(BaubleView):
                 # paths, which seems like the opposite of what tree row 
                 # reference is meant to do                
                 self.results_view.expand_to_path(ref.get_path())
-                
-                
+                                
                 
     def on_view_button_release(self, view, event, data=None):        
         '''
@@ -926,29 +902,29 @@ class SearchView(BaubleView):
         self.show_all()
         
 
-    def on_activate_gbif_expand(self, expander, data=None):
-        '''
-        '''
-        expanded = expander.get_expanded()
-        gbif = expander.get_child()
-        # this is fired before the expanded state is set so we should assume
-        # that if this is fired the opposite is being done. e.g. if it is 
-        # activate and is currently expanded we should assume it us being
-        # collapsed
-        if not expanded and gbif is None:
-            gbif = views.views.GBIFView(bauble)
-            expander.add(gbif)
-        elif gbif is not None:
-            expander.remove(gbif)
+#    def on_activate_gbif_expand(self, expander, data=None):
+#        '''
+#        '''
+#        expanded = expander.get_expanded()
+#        gbif = expander.get_child()
+#        # this is fired before the expanded state is set so we should assume
+#        # that if this is fired the opposite is being done. e.g. if it is 
+#        # activate and is currently expanded we should assume it us being
+#        # collapsed
+#        if not expanded and gbif is None:
+#            gbif = views.views.GBIFView(bauble)
+#            expander.add(gbif)
+#        elif gbif is not None:
+#            expander.remove(gbif)
             
         
     # TODO: should i or should i not delete everything that is a child
     # of the row when it is collapsed, this would save memory but
     # would cause it to be slow if rows were collapsed and need to be
     # reopend
-    def on_row_collapsed(self, view, iter, path, data=None):
-        '''        
-        '''
-        pass
+#    def on_row_collapsed(self, view, iter, path, data=None):
+#        '''        
+#        '''
+#        pass
        
 
