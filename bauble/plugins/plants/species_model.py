@@ -37,14 +37,14 @@ def edit_callback(row):
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
     e = SpeciesEditor(select=[value], model=value)
-    e.start()
+    return e.start() != None
 
 
 def add_accession_callback(row):
     from bauble.plugins.garden.accession import AccessionEditor
     value = row[0]
     e = AccessionEditor(defaults={'species': value})
-    e.start()
+    return e.start() != None
 
 
 def remove_callback(row):
@@ -58,6 +58,7 @@ def remove_callback(row):
             value.destroySelf()
             # since we are doing everything in a transaction, commit it
             sqlhub.processConnection.commit() 
+            return True
             #self.refresh_search()                
         except SQLObjectIntegrityError, e:
             msg = "Could not delete '%s'. It is probably because '%s' "\
@@ -69,7 +70,7 @@ def remove_callback(row):
                   "still has children that refer to it.  See the Details for "\
                   " more information." % (s, s)
             utils.message_details_dialog(msg, traceback.format_exc())
-            
+    
 
 species_context_menu = [('Edit', edit_callback),
                        ('--', None),

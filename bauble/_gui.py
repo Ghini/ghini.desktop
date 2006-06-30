@@ -317,8 +317,14 @@ class GUI:
         
         
     def on_insert_menu_item_activate(self, widget, editor):
+        view = self.get_current_view()
+        expanded_rows = view.get_expanded_rows()
         e = editor()
         committed = e.start()
+        if committed is not None:
+            view.results_view.collapse_all()
+            view.expand_to_all_refs(expanded_rows)                        
+            
             
         
     def on_edit_menu_prefs(self, widget, data=None):
