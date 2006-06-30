@@ -8,7 +8,7 @@
   <body>
     <div id="header">
       <a href="./index.html">
-	<img id="logo" src="images/bauble_logo.png" alt="logo"/>
+	<img id="logo" src="images/bauble_logo.gif" alt="logo"/>
       </a>
     </div>
     
@@ -21,8 +21,24 @@
       </p>
 
       <h3>
-	Entering Data
+	<i>
+	  This document is a work in progress.
+	</i>
       </h3>
+
+      <ol>
+	<li><a href="#entering_data">Entering Data</a></li>
+	<li><a href="#searching">Searching</a></li>
+	<li><a href="#creating_reports">Creating Reports</a></li>
+	<li>Importing</li>
+	<li>Writing plugins</li>
+      </o>
+      
+      <a name="entering_data">
+	<h3>
+	  Entering Data
+	</h3>
+      </a>
       <p>
 	There are two ways to enter data in Bauble.  One way is from the 
 	<em>Insert</em> menu.  The other is by right clicking on one of the 
@@ -33,23 +49,18 @@
 	in for you when the editor opens.
       </p>
       <p>
-	Currently, nearly all data entry in Bauble is done by entering data
-	in tables. You can hide some columns in the data entry table from
-	the Column drop down list on the editor.  Some columns are required
-	and can't be hidden.
-      </p>
-      <p>
-	Other data entry forms can only be accessed from within
-	another editor, for example the Source editor for an Accession. To
-	edit the Source for an accession you have to press <em>Enter</em>
-	in the Source column in the Accession editor to open the external 
-	Source editor.  I know it's not very obvious at the moment but 
-	hopefully that will change before long.
+	Prior to 0.5.0 all data entry in Bauble was done by entering the data
+	in a spreadsheet like table.  We are now moving over to form like 
+	editors which provide the user a richer interface.  So far only the
+	accession editor and species editor are using this new format 
+	although these are the most complicated of the editors. The others 
+	should be soon to follow.
 
-      </p>
-      <h3>
-	Searching
-      </h3>      
+      <a name="searching">
+	<h3>
+	  Searching
+	</h3>   
+      </a>
       <p>
 	One of the main goals for the design of Bauble was to be able to
 	find what you want in your data quickly.  Searching in Bauble
@@ -80,12 +91,16 @@
 	  <td>Search in the sp field of the Species table</td>
 	</tr>
 	<tr>
-	  <td>acc, accession</td>
+	  <td>accession, acc</td>
 	  <td>Search in the acc_id field of the Accessions table</td>
 	</tr>
 	<tr>
-	  <td>loc, location</td>
+	  <td>location, loc</td>
 	  <td>Search in the site field of the Location table</td>
+	</tr>
+	<tr>
+	  <td>donor, don</td>
+	  <td>Search in the name field of the Donor table</td>
 	</tr>
       </table>
       <p>
@@ -99,26 +114,29 @@
 	(as of version 0.3.1) they are correct. 	
       </p>
       <ol>
-	<li>Search are case insensitive.</li>
+	<li>Searches are case insensitive.</li>
 	<li>To search for something with a space in it you should enclose
 	the search string in quotes. e.g. loc="Orchid House"</li>
 	<li>You can use the character * to search for everything. 
 	e.g. acc=* will give you
 	all the accessions.  Be careful when doing a search that will return
 	thousands of results like gen=*. It can take a *really* long time
-	to load 24,000+ generic names.</li>
+	to load 25,000+ generic names.</li>
       </ol>
     
 
-      <h3>Creating Reports</h3>
+      <a name="creating_reports">
+	<h3>Creating Reports</h3>
+      </a>
       <p>
 	Though Bauble does have an extremely powerful report/formatting system,
-	its doesn't at the moment have a nice user interface for generating
+	it doesn't at the moment have a nice user interface for generating
 	reports.
       </p>
       <p>
 	Bauble dumps the data that you have in your search results to 
-	Access to Biological Collection Data (ABCD) XML format, sends the data
+	<a href="http://ww3.bgbm.org/abcddocs/FrontPage">Access to Biological 
+	  Collection Data (ABCD)</a> XML format, sends the data
 	through an XSL processor using the stylesheet of your choice to 
 	generate PDF files.  If this doesn't mean anything to you then you 
 	are better off avoiding the report system for the moment. Though fully
