@@ -3,6 +3,7 @@
 - improved behavior of resetting the view after an action has been done
 from the context menu or insert menu
 - don't change sensitivity on search
+- first go at a Genus infobox
 
 2006.06.29
 ----------

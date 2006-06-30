@@ -21,7 +21,7 @@ from bauble.plugins import BaublePlugin, plugins
 from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, \
     FamilySynonymEditor, family_context_menu, family_markup_func
 from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, \
-    GenusSynonymEditor, genus_context_menu, genus_markup_func
+    GenusSynonymEditor, GenusInfoBox, genus_context_menu, genus_markup_func
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
     SpeciesSynonym, VernacularName, species_context_menu, species_markup_func
 from bauble.plugins.plants.species_editor import SpeciesEditor, SpeciesInfoBox
@@ -56,7 +56,7 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("genus", search_meta)
             SearchView.register_search_meta("gen", search_meta)
             SearchView.view_meta["Genus"].set(children="species", 
-#                                              infobox=GenusInfoBox,
+                                              infobox=GenusInfoBox,
                                               context_menu=genus_context_menu,
                                               markup_func=genus_markup_func)
             
