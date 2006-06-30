@@ -2,12 +2,13 @@
 # Genera table module
 #
 
-import traceback
+import os, traceback
 import gtk
 from sqlobject import *
 from bauble.plugins import BaubleTable, tables, editors
 from bauble.treevieweditor import TreeViewEditorDialog
 import bauble.utils as utils
+
 
 
 # TODO: should be a higher_taxon column that holds values into 
@@ -228,11 +229,58 @@ try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
 except ImportError:
     pass
-else:
-    class GeneraInfoBox(InfoBox):
+else:    
+    import bauble.paths as paths
+    
+    class GeneralGenusExpander(InfoExpander):
+        '''
+        generic information about an accession like
+        number of clones, provenance type, wild provenance type, speciess
+        '''
+    
+        def __init__(self, glade_xml):
+            '''
+            the constructor
+            '''
+            InfoExpander.__init__(self, "General", glade_xml)
+            general_box = self.widgets.gen_general_box
+            if general_box.get_parent() is not None:
+                general_box.get_parent().remove(general_box)
+                
+            self.vbox.pack_start(general_box)
+            
+        def update(self, row):
+            '''
+            update the expander
+            
+            @param row: the row to get the values from
+            '''
+            self.set_widget_value('gen_name_data', str(row))
+            self.set_widget_value('gen_nsp_data', len(row.species))
+            
+            nacc = 0
+            nplants = 0
+            for sp in row.species:
+                nacc += len(sp.accessions)
+                for acc in sp.accessions:
+                    nplants += len(acc.plants)
+                    
+            self.set_widget_value('gen_nacc_data', nacc)
+            self.set_widget_value('gen_nplants_data', nplants)
+                
+                
+    class GenusInfoBox(InfoBox):
         """
         - number of taxon in number of accessions
         - references
         """
         def __init__(self):
             InfoBox.__init__(self)
+            glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
+                                      'infoboxes.glade')            
+            self.glade_xml = gtk.glade.XML(glade_file)            
+            self.general = GeneralGenusExpander(self.glade_xml)
+            self.add_expander(self.general)
+        
+        def update(self, row):
+            self.general.update(row)

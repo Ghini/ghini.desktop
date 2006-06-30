@@ -791,7 +791,8 @@ class SearchView(BaubleView):
                         model, treeiter = sel.get_selected()
                         # TODO: the func should return True if the model changed
                         # se we can refresh the view
-                        if f(model[treeiter]):
+                        if f(model[treeiter]) is not None:
+                            debug('returned something')
                             try:
                                 value = model[treeiter][0]
                                 value.__class__.get(value.id)
@@ -799,7 +800,8 @@ class SearchView(BaubleView):
                                 # the value must have been removed
                                 model.remove(treeiter)
                             self.results_view.collapse_all()
-                            self.expand_to_all_refs(expanded_rows)                        
+                            self.expand_to_all_refs(expanded_rows)         
+                            self.update_infobox()
                         # TODO: maybe after the f is called we should always 
                         # refresh the view and try to reexpand to path, if we
                         # can't expand to path maybe we should at least expand

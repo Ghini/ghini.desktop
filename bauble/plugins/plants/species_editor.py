@@ -1294,7 +1294,7 @@ else:
         '''
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "Vernacular Names", glade_xml)
-            vernacular_box = self.widgets.vernacular_box
+            vernacular_box = self.widgets.sp_vernacular_box
             if vernacular_box.get_parent() is not None:
                 vernacular_box.get_parent().remove(vernacular_box)                
             self.vbox.pack_start(vernacular_box)
@@ -1318,7 +1318,7 @@ else:
                     else:
                         names.append('%s - %s' % \
                                      (vn.name, vn.language))
-                self.set_widget_value('vernacular_data', '\n'.join(names))
+                self.set_widget_value('sp_vernacular_data', '\n'.join(names))
                 self.set_sensitive(True)
                 # TODO: get expanded state from prefs
                 self.set_expanded(True) 
@@ -1329,7 +1329,7 @@ else:
         
         def __init__(self, glade_xml):
             InfoExpander.__init__(self, "Synonyms", glade_xml)
-            synonyms_box = self.widgets.synonyms_box
+            synonyms_box = self.widgets.sp_synonyms_box
             if synonyms_box.get_parent() is not None:
                 synonyms_box.get_parent().remove(synonyms_box)                
             self.vbox.pack_start(synonyms_box)
@@ -1367,7 +1367,7 @@ else:
             the constructor
             '''
             InfoExpander.__init__(self, "General", glade_xml)
-            general_box = self.widgets.general_box
+            general_box = self.widgets.sp_general_box
             if general_box.get_parent() is not None:
                 general_box.get_parent().remove(general_box)
                 
@@ -1377,9 +1377,9 @@ else:
             def on_enter(button, *args):
                 button.emit_stop_by_name("enter-notify-event")
                 return TRUE 
-            self.widgets.food_check.connect('enter-notify-event', on_enter)
-            self.widgets.phumans_check.connect('enter-notify-event', on_enter)
-            self.widgets.panimals_check.connect('enter-notify-event', on_enter)
+            self.widgets.sp_food_check.connect('enter-notify-event', on_enter)
+            self.widgets.sp_phumans_check.connect('enter-notify-event', on_enter)
+            self.widgets.sp_panimals_check.connect('enter-notify-event', on_enter)
 
         
         def update(self, row):
@@ -1388,8 +1388,8 @@ else:
             
             @param row: the row to get the values from
             '''
-            self.set_widget_value('name_data', row.markup(True))
-            self.set_widget_value('nacc_data', len(row.accessions))
+            self.set_widget_value('sp_name_data', row.markup(True))
+            self.set_widget_value('sp_nacc_data', len(row.accessions))
             
             #nplants = 0
             #for acc in row.accessions:
@@ -1398,26 +1398,26 @@ else:
             #self.set_widget_value('nacc_data', nacc_data_str)
             
             if row.id_qual is not None:
-                self.widgets.idqual_label.set_sensitive(True)
-                self.widgets.idqual_data.set_sensitive(True) 
-                self.set_widget_value('idqual_data', row.id_qual)
+                self.widgets.sp_idqual_label.set_sensitive(True)
+                self.widgets.sp_idqual_data.set_sensitive(True) 
+                self.set_widget_value('sp_idqual_data', row.id_qual)
             else:
-                self.widgets.idqual_label.set_sensitive(False)
-                self.widgets.idqual_data.set_sensitive(False)
+                self.widgets.sp_idqual_label.set_sensitive(False)
+                self.widgets.sp_idqual_data.set_sensitive(False)
             
             if row.species_meta is not None:
                 meta = row.species_meta
-                self.set_widget_value('dist_data', meta.distribution)
-                self.set_widget_value('food_check', meta.food_plant)
-                self.set_widget_value('phumans_check', meta.poison_humans)
-                self.set_widget_value('panimals_check', meta.poison_animals)
+                self.set_widget_value('sp_dist_data', meta.distribution)
+                self.set_widget_value('sp_food_check', meta.food_plant)
+                self.set_widget_value('sp_phumans_check', meta.poison_humans)
+                self.set_widget_value('sp_panimals_check', meta.poison_animals)
             
             nplants = 0
             # TODO: could probably speed this up quite a bit with an sql query
             # and sql max function
             for acc in row.accessions:
                 nplants += len(acc.plants)
-            self.set_widget_value('nplants_data', nplants)    
+            self.set_widget_value('sp_nplants_data', nplants)    
     
     
     
@@ -1438,7 +1438,7 @@ else:
             '''
             InfoBox.__init__(self)
             glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
-                                      'species_infobox.glade')            
+                                      'infoboxes.glade')            
             self.glade_xml = gtk.glade.XML(glade_file)
             
             self.general = GeneralSpeciesExpander(self.glade_xml)
