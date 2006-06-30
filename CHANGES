@@ -1,3 +1,8 @@
+2006.06.30
+----------
+- improved behavior of resetting the view after an action has been done
+from the context menu or insert menu
+
 2006.06.29
 ----------
 - change the way the results in the search view are displayed and how the 

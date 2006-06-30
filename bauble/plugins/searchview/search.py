@@ -299,6 +299,10 @@ class SearchView(BaubleView):
         
         # we only need this for the timeout version of populate_results
         self.populate_callback_id = None
+        
+        # the context menu cache holds the context menus by type in the results
+        # view so that we don't have to rebuild them every time
+        self.context_menu_cache = {}
 
 
     def update_infobox(self):
@@ -742,52 +746,35 @@ class SearchView(BaubleView):
         if keyname == "Return":
             self.search_button.emit("clicked")
             
-    
-    # TODO: this won't work if the item in the results has already been clicked
-    # on and there's no icon to indicate children
-#    def on_activate_add_item(self, item, path, editor, defaults={}):
-#        '''
-#        '''
-#        # on add we should collapse/expand  on the currently select row
-##        debug(defaults)
-#        e = editor(defaults=defaults)
-#        committed = e.start()
-#        if committed is not None:
-#            if len(path) == 1: # the root, 
-#            # refresh the search in case the item indicates that it doesn't
-#            # have any kids in the search results
-#	    	    self.refresh_search()
-#            self.results_view.collapse_row(path)
-#            self.results_view.expand_to_path(path)    
 
-
-#    def on_activate_edit_item(self, item, path, editor, select=None):
-#        '''
-#        '''
-#	# on edit we should collapse/expand on the parent path
-#    
-#        # TODO: the model keyword is temporary and is only there
-#        # while we transition to the new editors
-#        e = editor(select=select, model=select[0])
-#        committed = e.start()
-##        debug(committed)
-#        if committed is not None:
-##	    debug(path)
-#            if len(path) > 1: # not the root
-#                parent_path = path[:-1]
-#                self.results_view.collapse_row(parent_path)
-#                self.results_view.expand_to_path(parent_path)
-#        self.update_infobox()
-#
-#    # TODO: provide a way for the plugin to add extra items to the
-#    # context menu of a particular type in the search results, this will
-#    # allow us to do things like have plugins customize the context menu
-#    #context_menu_items = []
-#    #def add_context_menu_item(self, obj_type, menu_item):
-#    #    pass
-#    
-    context_menu_cache = {}
     
+    
+    def get_expanded_rows(self):
+        '''
+        '''
+        expanded_rows = []
+        self.results_view.map_expanded_rows(lambda view, path: expanded_rows.append(gtk.TreeRowReference(view.get_model(), path)))
+        # if we don't reverse them before returning them then looping over
+        # them to reexpand them may cause paths that are 'lower' in the tree 
+        # have invalid paths
+        expanded_rows.reverse()
+        return expanded_rows
+        
+    
+    def expand_to_all_refs(self, references):
+        '''
+        @param references: a list of TreeRowReferences to expand to
+        '''
+        for ref in references:
+            if ref.valid():
+                # use expand_to_path instead of expand_row b/c then the other 
+                # references that are 'lower' in the tree may have invalid 
+                # paths, which seems like the opposite of what tree row 
+                # reference is meant to do                
+                self.results_view.expand_to_path(ref.get_path())
+                
+                
+                
     def on_view_button_release(self, view, event, data=None):        
         '''
         popup a context menu on the selected row
@@ -810,7 +797,7 @@ class SearchView(BaubleView):
         
         table_name = value.__class__.__name__
         if self.view_meta[table_name].context_menu_desc is None:            
-            # not context menu
+            # no context menu
             return        
         
         menu = None
@@ -823,9 +810,20 @@ class SearchView(BaubleView):
                     menu.add(gtk.SeparatorMenuItem())
                 else:
                     def on_activate(item, f, model, iter):
+                        expanded_rows = self.get_expanded_rows()
                         sel = view.get_selection()
                         model, treeiter = sel.get_selected()
-                        f(model[treeiter])
+                        # TODO: the func should return True if the model changed
+                        # se we can refresh the view
+                        if f(model[treeiter]):
+                            try:
+                                value = model[treeiter][0]
+                                value.__class__.get(value.id)
+                            except:
+                                # the value must have been removed
+                                model.remove(treeiter)
+                            self.results_view.collapse_all()
+                            self.expand_to_all_refs(expanded_rows)                        
                         # TODO: maybe after the f is called we should always 
                         # refresh the view and try to reexpand to path, if we
                         # can't expand to path maybe we should at least expand
@@ -836,82 +834,11 @@ class SearchView(BaubleView):
                     item.connect('activate', on_activate, func, model, path)
                     menu.add(item)
             self.context_menu_cache[table_name] = menu
-                    
-                    
-#        editor_class = self.view_meta[value.__class__.__name__]
-        
-#        if editor_class is not None:
-#            # value is a row in the table and .name is the name of the table
-#            # so find an editor with the same name as the table, this is a bit
-#            # basic and requires editors and tables to have the same name
-#            edit_item = gtk.MenuItem("Edit")
-#            # TODO: there should be a better way to get the editor b/c this
-#            # dictates that all editors are in ClassnameEditor format
-#            edit_item.connect("activate", self.on_activate_edit_item,
-#                              path, editor_class, [value])
-#            menu.add(edit_item)
-#            menu.add(gtk.SeparatorMenuItem())
-#        
-#        add_item = None
-#        for join in value.sqlmeta.joins:            
-#            # for each join in the selected row then add an item on the context
-#            # menu for adding rows to the database of the same type the join
-#            # points to
-#            defaults = {}            
-#            other_class = join.otherClassName
-#            if other_class in self.view_meta:
-#                editor_class = self.view_meta[other_class].editor # get editor 
-#                if join.joinColumn[-3:] == "_id": 
-#                    defaults[join.joinColumn.replace("_id", "ID")] = value # with ID
-#                    defaults[join.joinColumn.replace("_id", "")] = value # without ID for new editor
-#                    #defaults[join.joinColumn[:-3] + "ID"] = value        
-#                add_item = gtk.MenuItem("Add " + join.joinMethodName)
-#                add_item.connect("activate", self.on_activate_add_item,
-#                                 path, editor_class, defaults)
-#                menu.add(add_item)
-#        
-#        if add_item is not None:
-#            menu.add(gtk.SeparatorMenuItem())
-#        
-#        remove_item = gtk.MenuItem("Remove")
-#        remove_item.connect("activate", self.on_activate_remove_item, value)
-#        menu.add(remove_item)
         
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
         
-        
-#    def on_activate_remove_item(self, item, row):
-#        '''
-#        '''
-#        # TODO: this will leave stray joins unless cascade is set to true
-#        # see col.cascade
-#        # TODO: should give a row specific message to the user, e.g if they
-#        # are removing an accession the accession number should be included
-#        # in the message as well as a list of all the clones associated 
-#        # with this accession
-#        row_str = '%s: %s' % (row.__class__.__name__, str(row))
-#        msg = "Are you sure you want to remove %s?" % row_str
-#        if utils.yes_no_dialog(msg):
-#            from sqlobject.main import SQLObjectIntegrityError
-#            try:
-#                row.destroySelf()
-#                # since we are doing everything in a transaction, commit it
-#                sqlobject.sqlhub.processConnection.commit() 
-#                self.refresh_search()
-#                
-#            except SQLObjectIntegrityError, e:
-#                msg = "Could not delete '%s'. It is probably because '%s' "\
-#                "still has children that refer to it.  See the Details for "\
-#                " more information." % (row_str, row_str)
-#                utils.message_details_dialog(msg, str(e))
-#            except:
-#                msg = "Could not delete '%s'. It is probably because '%s' "\
-#                "still has children that refer to it.  See the Details for "\
-#                " more information." % (row_str, row_str)
-#                utils.message_details_dialog(msg, traceback.format_exc())
-    
-    
+            
     def on_view_row_activated(self, view, path, column, data=None):
         '''
         expand the row on activation

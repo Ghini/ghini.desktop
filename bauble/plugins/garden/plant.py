@@ -25,7 +25,7 @@ def edit_callback(row):
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
     e = PlantEditor(select=[value], model=value)
-    e.start()
+    return e.start() != None
 
 
 def remove_callback(row):
@@ -39,7 +39,7 @@ def remove_callback(row):
             value.destroySelf()
             # since we are doing everything in a transaction, commit it
             sqlhub.processConnection.commit() 
-            #self.refresh_search()                
+            return True
         except SQLObjectIntegrityError, e:
             msg = "Could not delete '%s'. It is probably because '%s' "\
                   "still has children that refer to it.  See the Details for "\
