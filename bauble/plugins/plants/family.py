@@ -2,7 +2,7 @@
 # Family table definition
 #
 
-import traceback
+import os, traceback
 import gtk
 from sqlobject import *
 import bauble
@@ -179,17 +179,141 @@ class FamilySynonymEditor(TreeViewEditorDialog):
 
 
 #
-# infobox for SearchView
-# 
+# infobox
+#
 try:
-    from bauble.plugins.searchview.infobox import InfoBox
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander    
 except ImportError:
     pass
-else:
-    class FamiliesInfoBox(InfoBox):
-        """
-        - number of taxon in number of genera
-        - references
-        """
+else:    
+    from sqlobject.sqlbuilder import *
+    import bauble.paths as paths
+    from bauble.plugins.plants.genus import Genus
+    from bauble.plugins.plants.species_model import Species
+    from bauble.plugins.garden.accession import Accession
+    from bauble.plugins.garden.plant import Plant
+    
+    class GeneralFamilyExpander(InfoExpander):
+        '''
+        generic information about an family like number of genus, species,
+        accessions and plants
+        '''
+    
+        def __init__(self, glade_xml):
+            '''
+            the constructor
+            '''
+            InfoExpander.__init__(self, "General", glade_xml)
+            general_box = self.widgets.fam_general_box
+            if general_box.get_parent() is not None:
+                general_box.get_parent().remove(general_box)
+                
+            self.vbox.pack_start(general_box)
+            
+            
+        def update(self, row):
+            '''
+            update the expander
+            
+            @param row: the row to get the values from
+            '''
+            
+            # TODO: need to figure out how to get the number of unique value
+            # from a particular column in a table, see get_num_unique below
+            
+            self.set_widget_value('fam_name_data', str(row))
+            
+            ngen = Genus.select(Genus.q.familyID==row.id).count()
+            self.set_widget_value('fam_ngen_data', ngen)
+            
+            conn = sqlhub.processConnection
+            query_all = conn.queryAll
+            sqlrepr = conn.sqlrepr
+            def get_num_unique(query):
+                unique = []
+                num_unique = 0
+                #for result in conn.queryAll(conn.sqlrepr(query)):
+                for result in query_all(sqlrepr(query)):
+                    if result[0] not in unique:
+                        num_unique += 1
+                        unique.append(result[0])
+                return num_unique
+                                                        
+            # get the number of species
+            species_query = AND(Species.q.genusID == Genus.q.id, 
+                                Genus.q.familyID==row.id)            
+            nsp = Species.select(species_query).count()                        
+            query = Select(Species.q.genusID, where=species_query)            
+            ngen_with_species = get_num_unique(query)
+                                 
+            # get the number of accessions
+            acc_query = AND(Accession.q.speciesID == Species.q.id,
+                            Species.q.genusID == Genus.q.id, 
+                            Genus.q.familyID==row.id)
+            nacc = Accession.select(acc_query).count()
+            unique = []
+            query = Select(Accession.q.speciesID, where=acc_query)
+            nsp_with_accessions = get_num_unique(query)
+                        
+            # get the number of plants
+            plants_query = AND(Plant.q.accessionID == Accession.q.id,
+                               Accession.q.speciesID == Species.q.id,
+                               Species.q.genusID == Genus.q.id, 
+                               Genus.q.familyID==row.id)            
+            nplants = Plant.select(plants_query).count()
+            query = Select(Plant.q.accessionID, where=plants_query)
+            nacc_with_plants = get_num_unique(query)
+
+            # select count(s) 
+            # from species s, 
+            #      genus g, 
+            #      family f 
+            # where f.family='Sapindaceae' 
+            #   and g.family_id = f.id 
+            #   and s.genus_id = g.id;
+            
+            #debug(conn.sqlrepr(sql))
+            # select counts(s)
+            # from species s,
+            #      (select g.genus, g.id
+            #       from genus g, 
+            #            (select family, id
+            #             from family f 
+            #             where family='Sapindaceae') AS fam
+            #       where g.family_id=fam.id) AS gen
+            #where s.genus_id=gen.id;
+            
+            nsp_str = '0'
+            if nsp > 0:
+                nsp_str = '%s in %s genera' % (nsp, ngen_with_species)
+            self.set_widget_value('fam_nsp_data', nsp_str)
+            
+            nacc_str = '0'    
+            if nacc > 0:
+                nacc_str = '%s in %s species' % (nacc, nsp_with_accessions)
+            self.set_widget_value('fam_nacc_data', nacc_str)
+            
+            nplants_str = '0'
+            if nplants > 0:
+                nplants_str = '%s in %s accessions' % (nplants, nacc_with_plants)            
+            self.set_widget_value('fam_nplants_data', nplants_str)
+                
+                
+    class FamilyInfoBox(InfoBox):
+        '''
+        '''
+        
         def __init__(self):
+            '''
+            '''
             InfoBox.__init__(self)
+            glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
+                                      'infoboxes.glade')            
+            self.glade_xml = gtk.glade.XML(glade_file)            
+            self.general = GeneralFamilyExpander(self.glade_xml)
+            self.add_expander(self.general)
+        
+        def update(self, row):
+            '''
+            '''
+            self.general.update(row)

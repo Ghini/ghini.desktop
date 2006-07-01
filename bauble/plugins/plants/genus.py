@@ -230,12 +230,15 @@ try:
 except ImportError:
     pass
 else:    
+    from sqlobject.sqlbuilder import *
     import bauble.paths as paths
+    from bauble.plugins.plants.species_model import Species
+    from bauble.plugins.garden.accession import Accession
+    from bauble.plugins.garden.plant import Plant
     
     class GeneralGenusExpander(InfoExpander):
         '''
-        generic information about an accession like
-        number of clones, provenance type, wild provenance type, speciess
+        expander to present general information about a genus
         '''
     
         def __init__(self, glade_xml):
@@ -249,6 +252,7 @@ else:
                 
             self.vbox.pack_start(general_box)
             
+            
         def update(self, row):
             '''
             update the expander
@@ -256,17 +260,70 @@ else:
             @param row: the row to get the values from
             '''
             self.set_widget_value('gen_name_data', str(row))
-            self.set_widget_value('gen_nsp_data', len(row.species))
             
-            nacc = 0
-            nplants = 0
-            for sp in row.species:
-                nacc += len(sp.accessions)
-                for acc in sp.accessions:
-                    nplants += len(acc.plants)
-                    
-            self.set_widget_value('gen_nacc_data', nacc)
-            self.set_widget_value('gen_nplants_data', nplants)
+            ngen = Genus.select(Genus.q.familyID==row.id).count()
+            nsp = Species.select(Species.q.genusID == row.id).count()
+            self.set_widget_value('gen_nsp_data', nsp)
+            #self.set_widget_value('gen_nsp_data', len(row.species))
+            
+#            nsp = 0
+#            nacc = 0
+#            nplants = 0
+#            nacc_with_plants = 0
+#            for sp in row.species:
+#                nacc += len(sp.accessions)
+#                if len(sp.accessions) > 0:
+#                    nsp += 1
+#                    for acc in sp.accessions:                        
+#                        if acc.plants > 0:
+#                            nacc_with_plants += 1
+#                            nplants += len(acc.plants)
+
+            conn = sqlhub.processConnection
+            query_all = conn.queryAll
+            sqlrepr = conn.sqlrepr
+            def get_num_unique(query):
+                unique = []
+                num_unique = 0
+                #for result in conn.queryAll(conn.sqlrepr(query)):
+                for result in query_all(sqlrepr(query)):
+                    if result[0] not in unique:
+                        num_unique += 1
+                        unique.append(result[0])
+                return num_unique
+
+            # get the number of species
+            species_query = AND(Species.q.genusID == Genus.q.id, 
+                                Genus.q.familyID==row.id)            
+            nsp = Species.select(species_query).count()                        
+            query = Select(Species.q.genusID, where=species_query)            
+            ngen_with_species = get_num_unique(query)
+                                 
+            # get the number of accessions
+            acc_query = AND(Accession.q.speciesID == Species.q.id,
+                            Species.q.genusID == row.id)
+            nacc = Accession.select(acc_query).count()
+            unique = []
+            query = Select(Accession.q.speciesID, where=acc_query)
+            nsp_with_accessions = get_num_unique(query)
+                        
+            # get the number of plants
+            plants_query = AND(Plant.q.accessionID == Accession.q.id,
+                               Accession.q.speciesID == Species.q.id,
+                               Species.q.genusID == row.id)
+            nplants = Plant.select(plants_query).count()
+            query = Select(Plant.q.accessionID, where=plants_query)
+            nacc_with_plants = get_num_unique(query)
+                
+            nacc_str = '0'    
+            if nacc > 0:
+                nacc_str = '%s in %s species' % (nacc, nsp_with_accessions)
+            self.set_widget_value('gen_nacc_data', nacc_str)
+            
+            nplants_str = '0'
+            if nplants > 0:
+                nplants_str = '%s in %s accessions' % (nplants, nacc_with_plants)            
+            self.set_widget_value('gen_nplants_data', nplants_str)
                 
                 
     class GenusInfoBox(InfoBox):

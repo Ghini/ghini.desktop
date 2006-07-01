@@ -1358,8 +1358,7 @@ else:
     
     class GeneralSpeciesExpander(InfoExpander):
         '''
-        generic information about an accession like
-        number of clones, provenance type, wild provenance type, speciess
+        expander to present general information about a species
         '''
     
         def __init__(self, glade_xml):
@@ -1415,9 +1414,16 @@ else:
             nplants = 0
             # TODO: could probably speed this up quite a bit with an sql query
             # and sql max function
+            nacc_with_plants = 0
             for acc in row.accessions:
-                nplants += len(acc.plants)
-            self.set_widget_value('sp_nplants_data', nplants)    
+                if len(acc.plants) > 0:
+                    nacc_with_plants += 1
+                    nplants += len(acc.plants)
+                    
+            nplants_str = 0
+            if nacc_with_plants > 0:
+                nplants_str = '%s in %s accessions' % (nplants, nacc_with_plants)
+            self.set_widget_value('sp_nplants_data', nplants_str)    
     
     
     

@@ -1488,12 +1488,16 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 # infobox for searchview
 #
 try:
-    import os
-    import bauble.paths as paths
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError:
+except ImportError:    
     pass
 else:
+    import os
+    from sqlobject.sqlbuilder import *
+    import bauble.paths as paths
+    from bauble.plugins.garden.plant import Plant
+    
+    
     # TODO: i don't think this shows all field of an accession, like the 
     # accuracy values
     class GeneralAccessionExpander(InfoExpander):
@@ -1511,10 +1515,16 @@ else:
         
         
         def update(self, row):
+                        
             utils.set_widget_value(self.glade_xml, 'name_data', 
-			     row.species.markup(True))
-            utils.set_widget_value(self.glade_xml, 'nplants_data', len(row.plants))
-            utils.set_widget_value(self.glade_xml, 'prov_data',row.prov_type, False)
+			     '%s\n%s' % (row.species.markup(True), row.acc_id))
+            
+            #ngen = Genus.select(Genus.q.familyID==row.id).count()
+            #self.set_widget_value('fam_ngen_data', ngen)
+            
+            nplants = Plant.select(Plant.q.accessionID==row.id).count()
+            self.set_widget_value('nplants_data', nplants)
+            self.set_widget_value('prov_data', row.prov_type, False)
             
             
     class NotesExpander(InfoExpander):
@@ -1555,32 +1565,32 @@ else:
                 dir, deg, min, sec = latitude_to_dms(collection.latitude)
                 s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
                     (collection.latitude, dir, deg, min, sec, geo_accy)
-                utils.set_widget_value(self.glade_xml, 'lat_data', s)
+                self.set_widget_value('lat_data', s)
 
             if collection.longitude is not None:
                 dir, deg, min, sec = longitude_to_dms(collection.longitude)
                 s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
                     (collection.longitude, dir, deg, min, sec, geo_accy)
-                utils.set_widget_value(self.glade_xml, 'lon_data', s)                                
+                self.set_widget_value('lon_data', s)                                
             
             v = collection.elevation
 
             if collection.elevation_accy is not None:
                 v = '%s (+/- %sm)' % (v, collection.elevation_accy)
-            utils.set_widget_value(self.glade_xml, 'elev_data', v)
+            self.set_widget_value('elev_data', v)
             
-            utils.set_widget_value(self.glade_xml, 'coll_data', collection.collector)
-            utils.set_widget_value(self.glade_xml, 'date_data', collection.coll_date)
-            utils.set_widget_value(self.glade_xml, 'collid_data', collection.coll_id)
-            utils.set_widget_value(self.glade_xml,'habitat_data', collection.habitat)
-            utils.set_widget_value(self.glade_xml,'collnotes_data', collection.notes)
+            self.set_widget_value('coll_data', collection.collector)
+            self.set_widget_value('date_data', collection.coll_date)
+            self.set_widget_value('collid_data', collection.coll_id)
+            self.set_widget_value('habitat_data', collection.habitat)
+            self.set_widget_value('collnotes_data', collection.notes)
             
                 
         def update_donations(self, donation):
-            utils.set_widget_value(self.glade_xml, 'donor_data', 
+            self.set_widget_value('donor_data', 
                              tables['Donor'].get(donation.donorID).name)
-            utils.set_widget_value(self.glade_xml, 'donid_data', donation.donor_acc)
-            utils.set_widget_value(self.glade_xml, 'donnotes_data', donation.notes)
+            self.set_widget_value('donid_data', donation.donor_acc)
+            self.set_widget_value('donnotes_data', donation.notes)
         
         
         def update(self, value):        
