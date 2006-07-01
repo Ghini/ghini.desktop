@@ -792,7 +792,6 @@ class SearchView(BaubleView):
                         # TODO: the func should return True if the model changed
                         # se we can refresh the view
                         if f(model[treeiter]) is not None:
-                            debug('returned something')
                             try:
                                 value = model[treeiter][0]
                                 value.__class__.get(value.id)

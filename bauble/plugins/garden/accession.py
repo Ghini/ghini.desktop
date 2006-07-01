@@ -1507,6 +1507,8 @@ else:
         """
     
         def __init__(self, glade_xml):
+            '''
+            '''
             InfoExpander.__init__(self, "General", glade_xml)
             general_window = self.glade_xml.get_widget('general_window')
             w = self.glade_xml.get_widget('general_box')
@@ -1515,13 +1517,10 @@ else:
         
         
         def update(self, row):
-                        
+            '''
+            '''
             utils.set_widget_value(self.glade_xml, 'name_data', 
-			     '%s\n%s' % (row.species.markup(True), row.acc_id))
-            
-            #ngen = Genus.select(Genus.q.familyID==row.id).count()
-            #self.set_widget_value('fam_ngen_data', ngen)
-            
+			     '%s\n%s' % (row.species.markup(True), row.acc_id))            
             nplants = Plant.select(Plant.q.accessionID==row.id).count()
             self.set_widget_value('nplants_data', nplants)
             self.set_widget_value('prov_data', row.prov_type, False)

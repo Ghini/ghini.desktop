@@ -281,6 +281,8 @@ else:
         """
         
         def __init__(self, glade_xml):
+            '''
+            '''
             InfoExpander.__init__(self, "General", glade_xml)
             general_window = self.glade_xml.get_widget('general_window')
             w = self.glade_xml.get_widget('general_box')
@@ -289,9 +291,10 @@ else:
         
         
         def update(self, row):
+            '''
+            '''
             utils.set_widget_value(self.glade_xml, 'name_data', 
-                 '%s\n%s' % (row.accession.species.markup(True), str(row)))
-            
+                 '%s\n%s' % (row.accession.species.markup(True), str(row)))            
             utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
             utils.set_widget_value(self.glade_xml, 'status_data',
                              row.acc_status, False)
@@ -305,6 +308,8 @@ else:
         """
             
         def __init__(self, glade_xml):
+            '''
+            '''
             InfoExpander.__init__(self, "Notes", glade_xml)
             w = self.glade_xml.get_widget('notes_box')
             notes_window = self.glade_xml.get_widget('notes_window')
@@ -313,7 +318,8 @@ else:
         
         
         def update(self, row):
-#            debug(row.notes)
+            '''
+            '''
             utils.set_widget_value(self.glade_xml, 'notes_data', row.notes)
         
 
@@ -321,7 +327,10 @@ else:
         """
         an InfoBox for a Plants table row
         """
+        
         def __init__(self):
+            '''
+            '''
             InfoBox.__init__(self)
             #loc = LocationExpander()
             #loc.set_expanded(True)
@@ -335,7 +344,9 @@ else:
             
         
         def update(self, row):
-            # TODO: don't really need a location expander, could just
+            '''
+            '''
+            # T.ODO: don't really need a location expander, could just
             # use a label in the general section
             #loc = self.get_expander("Location")
             #loc.update(row.location)
