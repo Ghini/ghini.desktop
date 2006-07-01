@@ -7,7 +7,8 @@ from accession import *
 from bauble.plugins import BaublePlugin, plugins, tables
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     acc_context_menu, acc_markup_func
-from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.location import Location, LocationEditor,\
+    loc_context_menu
 from bauble.plugins.garden.plant import Plant, PlantHistory, PlantEditor, \
     PlantInfoBox, plant_context_menu, plant_markup_func
 #from reference import Reference, ReferenceEditor
@@ -49,7 +50,8 @@ class GardenPlugin(BaublePlugin):
             search_meta = SearchMeta("Location", ["site"], "site")
             SearchView.register_search_meta("location", search_meta)
             SearchView.register_search_meta("loc", search_meta)            
-            SearchView.view_meta["Location"].set(children="plants")
+            SearchView.view_meta["Location"].set(children="plants",
+                                                 context_menu=loc_context_menu)
 
             search_meta = SearchMeta('Plant', ["plant_id"], "plant_id")
             SearchView.register_search_meta('plant', search_meta)
