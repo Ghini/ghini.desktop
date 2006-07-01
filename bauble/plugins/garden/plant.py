@@ -289,6 +289,9 @@ else:
         
         
         def update(self, row):
+            utils.set_widget_value(self.glade_xml, 'name_data', 
+                 '%s\n%s' % (row.accession.species.markup(True), str(row)))
+            
             utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
             utils.set_widget_value(self.glade_xml, 'status_data',
                              row.acc_status, False)

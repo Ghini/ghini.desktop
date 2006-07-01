@@ -19,7 +19,7 @@ import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 
 from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, \
-    FamilySynonymEditor, family_context_menu, family_markup_func
+    FamilySynonymEditor, FamilyInfoBox, family_context_menu, family_markup_func
 from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, \
     GenusSynonymEditor, GenusInfoBox, genus_context_menu, genus_markup_func
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
@@ -48,7 +48,7 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("family", search_meta)
             SearchView.register_search_meta("fam", search_meta)            
             SearchView.view_meta["Family"].set(children="genera",
-#                                               infobox=FamilyInfoBox,
+                                               infobox=FamilyInfoBox,
                                                context_menu=family_context_menu,
                                                markup_func=family_markup_func)
             
