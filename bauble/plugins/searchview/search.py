@@ -280,6 +280,8 @@ class SearchView(BaubleView):
         # the context menu cache holds the context menus by type in the results
         # view so that we don't have to rebuild them every time
         self.context_menu_cache = {}
+        self.infobox_cache = {}
+        self.infobox = None
 
 
     def update_infobox(self):
@@ -291,36 +293,45 @@ class SearchView(BaubleView):
         model, it = sel.get_selected()
         if it is not None:
             value = model[it][0]
-            #value = model.get_value(i, 0)        
             self.set_infobox_from_row(value)
             
     
     def set_infobox_from_row(self, row):
         '''
-        '''
-        if not hasattr(self, 'infobox'):
-            self.infobox = None
+        get the infobox from the view meta for the type of row and
+        set the infobox values from row
         
-        # TODO: check the class of the current infobox and if it matches
-        # the class of the infobox we want to add then just update the values
-        # instead of removing the infobox 
-        
-        # remove the old infobox
-        if self.infobox is not None:
-            if self.infobox.parent == self.pane:
+        @param row: the row to use to update the infobox
+        '''        
+        # remove the current infobox if there is one and stop
+        if row is None:            
+            if self.infobox is not None and self.infobox.parent == self.pane:
                 self.pane.remove(self.infobox)
-		self.infobox.destroy() 
+            return
 
-        # row is  an object instance not a class so we have to get the class
-        # and then the name to look it up in self.view_meta
         table_name = type(row).__name__
-        if table_name in self.view_meta and \
+        new_infobox = None
+        
+        # check if we've already created an infobox of this type,
+        # if not create one and put it in self.infobox_cache
+        if table_name in self.infobox_cache.keys():
+            new_infobox = self.infobox_cache[table_name]
+        elif table_name in self.view_meta and \
           self.view_meta[table_name].infobox is not None:
-            self.infobox = self.view_meta[table_name].infobox()
-            if row is not None:
-                self.infobox.update(row)
-            self.pane.pack2(self.infobox, False, True)
-        self.pane.show_all() # reset the pane
+            new_infobox = self.view_meta[table_name].infobox()
+            self.infobox_cache[table_name] = new_infobox        
+                
+        # remove any old infoboxes connected to the pane
+        if self.infobox is not None and \
+          type(self.infobox) != type(new_infobox):
+            if self.infobox.parent == self.pane:                
+                self.pane.remove(self.infobox)
+            
+        # update the infobox and put it in the pane
+        self.infobox = new_infobox    
+        self.infobox.update(row)
+        self.pane.pack2(self.infobox, False, True)
+        self.pane.show_all()
 
 
     def get_selected(self):
