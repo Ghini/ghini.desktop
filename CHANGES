@@ -1,3 +1,10 @@
+2006.07.02
+----------
+- don't remove and destroy the infobox if the current infobox is the same
+type we are going to create
+- cache infoboxes so we only create one of each type once
+- create a (crappy) icon for windows
+
 2006.07.01
 ----------
 - added an InfoBox for Family
