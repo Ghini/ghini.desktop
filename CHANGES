@@ -15,7 +15,7 @@ from the context menu or insert menu
 ----------
 - change the way the results in the search view are displayed and how the 
 context menu is built, push more of the work off to the plugins since they 
-should know more about the types the represent
+should know more about the types they represent
 
 2006.06.28
 ----------
