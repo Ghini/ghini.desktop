@@ -4,19 +4,22 @@
 #     from setuptools import setup
 # except ImportError:
 from distutils.core import setup    
-import os
-import glob
+import os, sys, glob
 
-import sys
-
-# TODO: if on a unix system then create a shell script in the PATH
-# to launch bauble, on windows?
-# TODO: the only thing that's not working is bundling pysqlite2, the 
-# problem seems that that the .pyd file in the sqlite directory
-# doesn't get included so somehow i guess we need to get this
-# inside library.zip or at least somewhere where pysqlite2 can find it
-
-from bauble import version_str as version
+def get_version():    
+    '''
+    returns the bauble version combined with the subversion revision number
+    '''
+    from bauble import version_str as version
+    from svn import repos, fs, core
+    import xml.dom.minidom
+    stdout = os.popen('svn info %s --xml' % os.getcwd(), 'r')
+    dom = xml.dom.minidom.parseString(stdout.read())
+    el = dom.getElementsByTagName("commit")
+    revision = el[0].getAttribute('revision')
+    return '%s.r%s' % (version, revision)
+    
+version = get_version()
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
@@ -126,8 +129,7 @@ setup(name="Bauble",
       author="Brett",
       author_email="brett@belizebotanic.org",
       description="""\
-      Bauble is a biodiversity collection manager software application
-      """,
+      Bauble is a biodiversity collection manager software application""",
       license="GPL",
       keywords="database biodiversity botanic collection",
       url="http://bauble.belizebotanic.org",

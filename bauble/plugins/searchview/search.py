@@ -329,9 +329,10 @@ class SearchView(BaubleView):
             
         # update the infobox and put it in the pane
         self.infobox = new_infobox    
-        self.infobox.update(row)
-        self.pane.pack2(self.infobox, False, True)
-        self.pane.show_all()
+        if self.infobox is not None:
+            self.infobox.update(row)
+            self.pane.pack2(self.infobox, False, True)
+            self.pane.show_all()
 
 
     def get_selected(self):
