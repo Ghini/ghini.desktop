@@ -177,11 +177,10 @@ verification_table = Table('verification',
 class Verification(object):
     pass
 
-# TODO: change acc_id to code
+
 accession_table = Table('accession',
                         Column('id', Integer, primary_key=True),    
-                        Column('acc_id', Unicode(20), nullable=False, unique='code_index'),                        
-#                        Column('code', Unicode(20), nullable=False, unique='code_index'),
+                        Column('code', Unicode(20), nullable=False, unique='code_index'),                        
                         Column('prov_type', Enum(values=['Wild', 
                                                          "Propagule of cultivated wild plant", 
                                                          "Not of wild source",
@@ -215,7 +214,7 @@ def delete_or_expunge(session, obj):
 class Accession(bauble.BaubleMapper):
     
     def __str__(self): 
-        return self.acc_id
+        return self.code
     
     def _get_source(self):
         if self.source_type is None:
@@ -281,12 +280,12 @@ class Accession(bauble.BaubleMapper):
     source = property(_get_source, _set_source, _del_source)
         
     def markup(self):
-        return '%s (%s)' % (self.acc_id, self.species.markup())
+        return '%s (%s)' % (self.code, self.species.markup())
 
 
 from bauble.plugins.garden.source import Donation, donation_table, \
     Collection, collection_table
-from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.plant import Plant, PlantEditor
 
 mapper(Accession, accession_table,
        properties = {
@@ -299,7 +298,7 @@ mapper(Accession, accession_table,
                      'plants': relation(Plant, backref='accession', private=True),
                      'verifications': relation(Verification, backref='accession', order_by='date',
                                                private=True)},
-       order_by='acc_id')
+       order_by='code')
                                
 mapper(Verification, verification_table)
 
@@ -478,9 +477,9 @@ class AccessionEditorView(GenericEditorView):
 
         species_entry = self.widgets.species_entry
         species_entry.set_size_request(get_char_width(species_entry)*20, -1)
-        prov_combo = self.widgets.prov_combo
+        prov_combo = self.widgets.acc_prov_combo
         prov_combo.set_size_request(get_char_width(prov_combo)*20, -1)
-        wild_prov_combo = self.widgets.wild_prov_combo
+        wild_prov_combo = self.widgets.acc_wild_prov_combo
         wild_prov_combo.set_size_request(get_char_width(wild_prov_combo)*12, -1)
         source_combo = self.widgets.source_type_combo
         source_combo.set_size_request(get_char_width(source_combo)*10, -1)
@@ -1005,10 +1004,10 @@ def SourcePresenterFactory(model, view, session):
 # to enter some species now, or maybe import some
 class AccessionEditorPresenter(GenericEditorPresenter):
     
-    widget_to_field_map = {'acc_id_entry': 'acc_id',
+    widget_to_field_map = {'acc_code_entry': 'code',
                            'acc_date_entry': 'date',
-                           'prov_combo': 'prov_type',
-                           'wild_prov_combo': 'wild_prov_status',
+                           'acc_prov_combo': 'prov_type',
+                           'acc_wild_prov_combo': 'wild_prov_status',
                            'species_entry': 'species',
                            'source_type_combo': 'source_type',
                            'acc_notes_textview': 'notes'}
@@ -1031,8 +1030,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # be and let the default be set when the row is created, i'm leaning
         # toward the second, its easier if it works this way
         self.init_species_entry()
-        self.init_prov_combo()
-        self.init_wild_prov_combo()
+        
+        # TODO: the wild_prov_combo should only be set sensitive if
+        # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
+        self.init_enum_combo('acc_prov_combo', 'prov_type')
+        self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_source_expander()             
         self.refresh_view() # put model values in view    
         # connect methods that watch for change now that we have 
@@ -1046,16 +1048,16 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                                 self.on_species_entry_insert)
         self.view.widgets.species_entry.connect('delete-text', 
                                                 self.on_species_entry_delete)
-        self.view.widgets.prov_combo.connect('changed', self.on_combo_changed, 
-                                             'prov_type')
-        self.view.widgets.wild_prov_combo.connect('changed', 
-                                                  self.on_combo_changed,
-                                                  'wild_prov_status')
+        self.view.widgets.acc_prov_combo.connect('changed', self.on_combo_changed, 
+                                                 'prov_type')
+        self.view.widgets.acc_wild_prov_combo.connect('changed', 
+                                                      self.on_combo_changed,
+                                                      'wild_prov_status')
         #self.assign_simple_handler('acc_id_entry', 'acc_id')
-        self.view.widgets.acc_id_entry.connect('insert-text', 
-                                               self.on_acc_id_entry_insert)
-        self.view.widgets.acc_id_entry.connect('delete-text', 
-                                               self.on_acc_id_entry_delete)
+        self.view.widgets.acc_code_entry.connect('insert-text', 
+                                               self.on_acc_code_entry_insert)
+        self.view.widgets.acc_code_entry.connect('delete-text', 
+                                               self.on_acc_code_entry_delete)
         self.assign_simple_handler('acc_notes_textview', 'notes')
         
         acc_date_entry = self.view.widgets.acc_date_entry
@@ -1064,29 +1066,29 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_change_notifier()
     
     
-    def on_acc_id_entry_insert(self, entry, new_text, new_text_length, position, 
+    def on_acc_code_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_acc_id_from_text(full_text)
+        self._set_acc_code_from_text(full_text)
 
         
-    def on_acc_id_entry_delete(self, entry, start, end, data=None):
+    def on_acc_code_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
-        self._set_acc_id_from_text(full_text)
+        self._set_acc_code_from_text(full_text)
                 
         
-    def _set_acc_id_from_text(self, text):
-        if self.session.query(Accession).count_by(acc_id=text) > 0:            
+    def _set_acc_code_from_text(self, text):
+        if self.session.query(Accession).count_by(code=text) > 0:            
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
-                             self.view.widgets.acc_id_entry)
-            self.model.acc_id = None            
+                             self.view.widgets.acc_code_entry)
+            self.model.code = None            
             return        
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
-                            self.view.widgets.acc_id_entry)
-        self.model.acc_id = text
+                            self.view.widgets.acc_code_entry)
+        self.model.code = text
             
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
@@ -1222,15 +1224,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, model, field):
-        debug('on field changed: %s = %s' % (field, getattr(model, field)))
-#        debug('on field changed: %s' % field)
-#        debug(self.problems)        
+#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
         prov_sensitive = True                    
-        wild_prov_combo = self.view.widgets.wild_prov_combo
+        wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
             if model.prov_type in ['Wild']:
                 model.wild_prov_status = wild_prov_combo.get_active_text()
@@ -1239,7 +1239,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 prov_sensitive = False
                 model.wild_prov_status = None
         wild_prov_combo.set_sensitive(prov_sensitive)
-        self.view.widgets.wild_prov_label.set_sensitive(prov_sensitive)
+        self.view.widgets.acc_wild_prov_label.set_sensitive(prov_sensitive)
         
         if field == 'longitude' or field == 'latitude':
 #            source_model = self.source_presenter.model
@@ -1351,31 +1351,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                             self.on_source_type_combo_changed)            
 #        self.view.dialog.show_all()
         
-    
-    def init_prov_combo(self):
-        combo = self.view.widgets.prov_combo
-        model = gtk.ListStore(str)
-        for enum in sorted(self.model.c.prov_type.type.values):
-            if enum == None:
-                combo.append_text('')
-            else:
-                combo.append_text(enum)
-        combo.set_model(model)        
-    
-    
-    def init_wild_prov_combo(self):
-        # TODO: the wild_prov_combo should only be set sensitive if
-        # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
-        combo = self.view.widgets.wild_prov_combo        
-        model = gtk.ListStore(str)
-        for enum in sorted(self.model.c.wild_prov_status.type.values):
-            if enum == None:
-                combo.append_text('')
-            else:
-                combo.append_text(enum)
-        combo.set_model(model)        
-
-
+        
     def on_combo_changed(self, combo, field):
         self.model[field] = combo.get_active_text()
 
@@ -1392,11 +1368,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value(widget, value)
             
         if self.model.prov_type in ['Wild']:
-            self.view.widgets.wild_prov_combo.set_sensitive(True)
-            self.view.widgets.wild_prov_label.set_sensitive(True)
+            self.view.widgets.acc_wild_prov_combo.set_sensitive(True)
+            self.view.widgets.acc_wild_prov_label.set_sensitive(True)
         else:
-            self.view.widgets.wild_prov_combo.set_sensitive(False)
-            self.view.widgets.wild_prov_label.set_sensitive(False)
+            self.view.widgets.acc_wild_prov_combo.set_sensitive(False)
+            self.view.widgets.acc_wild_prov_label.set_sensitive(False)
 
                 
     def start(self):
@@ -1420,7 +1396,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         @param defaults: {}
         @param parent: None
         '''        
-#        bauble.app.db_engine.echo = True
         if isinstance(model_or_defaults, dict):
             model = Accession(**model_or_defaults)
         elif model_or_defaults is None:
@@ -1578,7 +1553,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         debug(self.session.deleted)
 #        debug('%s' % repr(self.model._collection))
 #        debug('%s' % repr(self.model._donation))
-        bauble.app.db_engine.echo = True
         self.session.flush()
 #        bauble.app.db_engine.echo = False
         #return super(AccessionEditor, self).commit_changes()
@@ -1623,7 +1597,7 @@ else:
             '''
             '''
             self.set_widget_value('name_data', 
-                                  '%s\n%s' % (row.species.markup(True), row.acc_id))            
+                                  '%s\n%s' % (row.species.markup(True), row.code))
             session = object_session(row)
             nplants = session.query(Plant).count_by(accession_id=row.id)            
             self.set_widget_value('nplants_data', nplants)

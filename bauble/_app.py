@@ -13,7 +13,6 @@ from bauble.utils.log import debug
 import datetime
 import bauble
 import bauble.meta as meta
-#from bauble import BaubleMetaTable
 
 DEBUG_SQL = False
 
@@ -174,9 +173,6 @@ class BaubleApp(object):
         
         
     def quit(self):
-        # TODO: need to sync tables
-        #for t in tables.tables.values():
-        #    t.sync()
         self.save_state()
         try:
             gtk.main_quit()
@@ -186,15 +182,10 @@ class BaubleApp(object):
     
     def main(self):
         prefs.init() # intialize the preferences
-
-        #import bauble.plugins        
         bauble.plugins.init_plugins() # intialize the plugins      
         
-        # open default database on startup
-        # import these here to avoid recursive import hell
-        
-        from bauble.conn_mgr import ConnectionManager#Dialog
-        #self.conn = None
+        # open default database on startup        
+        from bauble.conn_mgr import ConnectionManager
         default_conn = prefs[prefs.conn_default_pref]
         while True:            
             cm = ConnectionManager(default_conn)            
@@ -224,7 +215,4 @@ class BaubleApp(object):
             self.gui.set_current_view(views["SearchView"])
         
         bauble.plugins.start_plugins()
-        
-        #import profile
-        #profile.run('gtk.main()', 'bauble.profile')
         gtk.main()

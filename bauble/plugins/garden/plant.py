@@ -84,8 +84,7 @@ class PlantHistory(bauble.BaubleMapper):
 # TODO: change plant_id to plant_code, or just code
 plant_table = Table('plant', 
                     Column('id', Integer, primary_key=True),
-                    Column('plant_id', Unicode, nullable=False, unique='plant_index'),                    
-#                    Column('code', Unicode, nullable=False, unique='plant_index'),
+                    Column('code', Unicode, nullable=False, unique='plant_index'),
                     Column('acc_type', 
                            Enum(values=['Plant', 'Seed/Spore', 
                                         'Vegetative Part',  'Tissue Culture', 
@@ -105,14 +104,14 @@ plant_table = Table('plant',
 class Plant(bauble.BaubleMapper):
     
     def __str__(self): 
-        return "%s.%s" % (self.accession, self.plant_id)    
+        return "%s.%s" % (self.accession, self.code)    
     
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
         # FIXME: this makes expanding accessions look ugly with too many
         # plant names around but makes expanding the location essential
         # or you don't know what plants you are looking at
-        return "%s.%s (%s)" % (self.accession, self.plant_id, 
+        return "%s.%s (%s)" % (self.accession, self.code, 
                                self.accession.species.markup())
         
         
@@ -238,7 +237,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 #    PROBLEM_INVALID_DATE = 3
 #    PROBLEM_INVALID_SPECIES = 4
 #    PROBLEM_DUPLICATE_ACCESSION = 5
-    widget_to_field_map = {'plant_code_entry': 'plant_id',
+    widget_to_field_map = {'plant_code_entry': 'code',
                            'plant_acc_entry': 'accession_id',
                            'plant_loc_combo': 'location_id',
                            'plant_acc_type_combo': 'acc_type',
@@ -279,7 +278,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                         acc_get_completions, 
                                         set_func=set_in_model, 
                                         format_func=format_acc)
-        self.assign_simple_handler('plant_code_entry', 'plant_id')
+        self.assign_simple_handler('plant_code_entry', 'code')
         #self.assign_simple_handler('plant_loc_combo', 'code')
         self.assign_simple_handler('plant_notes_textview', 'notes')
         self.assign_simple_handler('plant_loc_combo', 'location_id', ObjectIdValidator())
@@ -311,16 +310,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             combo.set_active(-1)
                     
-        
-    def init_enum_combo(self, widget_name, field):
-        combo = self.view.widgets[widget_name]        
-        model = gtk.ListStore(str)
-        for enum in sorted(self.model.c[field].type.values):
-            if enum == None:
-                model.append([''])
-            else:
-                model.append([enum])
-        combo.set_model(model)
         
         
     # TODO: probably need a on_match_select in case we want to do anything after

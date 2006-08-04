@@ -41,7 +41,7 @@ class GardenPlugin(BaublePlugin):
             #from bauble.plugins.searchview.search import ResultsMeta
             from bauble.plugins.searchview.search import SearchView
             
-            search_meta = SearchMeta("Accession", ["acc_id"], "acc_id")
+            search_meta = SearchMeta("Accession", ["code"], "code")
             SearchView.register_search_meta("accession", search_meta)
             SearchView.register_search_meta("acc", search_meta)      
             SearchView.view_meta["Accession"].set(children="plants",                                                   
@@ -55,7 +55,7 @@ class GardenPlugin(BaublePlugin):
             SearchView.view_meta["Location"].set(children="plants",
                                                  context_menu=loc_context_menu)
 
-            search_meta = SearchMeta('Plant', ["plant_id"], "plant_id")
+            search_meta = SearchMeta('Plant', ["code"], "code")
             SearchView.register_search_meta('plant', search_meta)
             SearchView.view_meta["Plant"].set(infobox=PlantInfoBox,
                                               context_menu=plant_context_menu,
