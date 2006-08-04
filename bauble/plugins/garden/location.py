@@ -199,11 +199,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
                             model_or_defaults={'location_id': self._committed.id})
             more_committed = e.start()
              
-        
-        debug(more_committed)
-        debug(self._committed)
         if more_committed is not None:
-            #committed = [self._committed]
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)
             else:

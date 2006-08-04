@@ -812,6 +812,98 @@ class GenericEditorPresenter:
             raise ValueError('assign_simple_handler() -- '\
                              'widget type not supported: %s' % type(widget))
     
+    
+        # TODO: probably need a on_match_select in case we want to do anything after
+    # the regular on_match_select
+    def assign_completions_handler(self, widget_name, field, 
+                                   get_completions, 
+                                   set_func=lambda self, f, v: setattr(self.model, f, v), 
+                                   format_func=lambda x: str(x)):
+        '''
+        @param widget_name: the name of the widget in self.view.widgets
+        @param field: the name of the field to set in the model
+        @param set_func: the function to call to set the value in the model, 
+            the default is lambda self, f, v: setattr(self.model, f, v)
+        @param format_func: the func to call to format the value in the 
+            completion, the default is lambda x: str(x)
+        '''
+        widget = self.view.widgets[widget_name]
+        PROBLEM = hash(widget_name)
+        insert_sid_name = '_insert_%s_sid' % widget_name
+        def add_completions(text):
+            debug('add_completions(%s)' % text)
+            values = get_completions(text)
+            def idle_callback(values):
+                model = gtk.ListStore(object)
+                for v in values:
+                    model.append([v])
+                completion = widget.get_completion()
+                completion.set_model(model)
+            gobject.idle_add(idle_callback, values)
+        def on_insert_text(entry, new_text, new_text_length, position, data=None):
+            #debug('on_species_insert_text: \'%s\'' % new_text)
+            # debug('%s' % self.model)
+            if new_text == '':
+                # this is to workaround the problem of having a second 
+                # insert-text signal called with new_text = '' when there is a 
+                # custom renderer on the entry completion for this entry
+                # block the signal from here since it will call this same
+                # method again and resetting the species completions
+                #entry.handler_block(self.insert_genus_sid)
+                entry.handler_block(getattr(self, insert_sid_name))
+                entry.set_text(self.prev_text)
+                #entry.handler_unblock(self.insert_genus_sid)
+                entry.handler_unblock(getattr(self, insert_sid_name))
+                return False # is this 'False' necessary, does it do anything?                
+            entry_text = entry.get_text()                
+            cursor = entry.get_position()
+            full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+            # this funny logic is so that completions are reset if the user
+            # paste multiple characters in the entry    
+            if len(new_text) == 1 and len(full_text) == 2:
+                add_completions(full_text)
+            elif new_text_length > 2:# and entry_text != '':
+                add_completions(full_text[:2])
+            self.prev_text = full_text
+            
+            if full_text != str(getattr(self.model, field)):
+                self.add_problem(PROBLEM, widget)
+                setattr(self.model, field, None)                
+        def on_delete_text(entry, start, end, data=None):
+            text = entry.get_text()
+            full_text = text[:start] + text[end:]
+            if full_text == '' or (full_text == str(self.model[field])):
+                return
+            self.add_problem(PROBLEM, widget)
+            setattr(self.model, field, None)            
+        def on_match_select(completion, compl_model, iter):            
+            value = compl_model[iter][0]
+            debug('on_match_select: %s' % str(value))
+            #entry = self.view.widgets.sp_genus_entry
+            
+            #widget.handler_block(self.insert_genus_sid)
+            widget.handler_block(getattr(self, insert_sid_name))
+            widget.set_text(str(value))
+            #widget.handler_unblock(self.insert_genus_sid)
+            widget.handler_unblock(getattr(self, insert_sid_name))
+            widget.set_position(-1)
+            self.remove_problem(PROBLEM, widget)
+            # TODO: temporarily disabled this when doing the set_func stuff
+            #self.session.save(value)
+            #setattr(self.model, field, value)
+            #setattr(self.model, field, value.id)
+            set_func(self, field, value)
+            debug(getattr(self.model, field))
+            self.prev_text = str(value)            
+                    
+        completion = widget.get_completion()
+        completion.connect('match-selected', on_match_select)
+        #if self.model.genus is not None:
+        #    self.idle_add_genus_completions(str(self.model.genus)[:2])
+        sid = widget.connect('insert-text', on_insert_text)
+        setattr(self, insert_sid_name, sid)
+        widget.connect('delete-text', on_delete_text)
+    
     def start(self):
         raise NotImplementedError
     

@@ -260,7 +260,6 @@ class Accession(bauble.BaubleMapper):
         debug('SOURCE %s: %s' % (source, repr(source)))
         session.save_or_update(source)
         debug(old in session.new)
-        debug(old in session.new)
         debug(old in session.deleted)
         debug(old in session.dirty)
 #        for obj in session:

@@ -17,16 +17,13 @@ from bauble.types import Enum
 
 def edit_callback(row):
     value = row[0]    
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
-    e = FamilyEditor(select=[value], model=value)
+    e = FamilyEditor(model_or_defaults=value)
     return e.start() != None
 
 
 def add_genera_callback(row):
-    from bauble.plugins.plants.genus import GenusEditor    
     value = row[0]
-    e = GenusEditor(defaults={'familyID': value})
+    e = GenusEditor(model_or_defaults={'family_id': value.id})
     return e.start() != None
 
 
@@ -77,7 +74,8 @@ family_table = Table('family',
                             nullable=False),
                      Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
                                               empty_to_none=True),
-                           unique='family_index'))
+                           unique='family_index'),
+                     Column('notes', Unicode))
 
 family_synonym_table = Table('family_synonym',
                              Column('id', Integer, primary_key=True),
@@ -89,9 +87,6 @@ family_synonym_table = Table('family_synonym',
                                     nullable=False))
 
 class Family(bauble.BaubleMapper):
-#    def __init__(self, family, qualifier):
-#        self.family = family
-#        self.qualifier = qualifier
     
     def __str__(self): 
         # TODO: need ability to include the qualifier as part of the name, 
@@ -105,6 +100,7 @@ class Family(bauble.BaubleMapper):
         else:
             return family.family            
     
+    
 class FamilySynonym(bauble.BaubleMapper):
     
     # - deleting either of the families that this synonym refers to 
@@ -116,7 +112,7 @@ class FamilySynonym(bauble.BaubleMapper):
         self.family_id
         self.synonym_id
         
-from bauble.plugins.plants.genus import Genus, genus_table
+from bauble.plugins.plants.genus import Genus, genus_table, GenusEditor
 from bauble.plugins.plants.genus import Species, species_table
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
@@ -131,7 +127,7 @@ mapper(FamilySynonym, family_synonym_table)
     
 class FamilyEditorView(GenericEditorView):
     
-    #source_expanded_pref = 'editor.accesssion.source.expanded'
+    syn_expanded_pref = 'editor.family.synonyms.expanded'
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
@@ -141,17 +137,14 @@ class FamilyEditorView(GenericEditorView):
         self.widgets.family_dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.family_dialog)
 
-        
     def save_state(self):
-#        prefs[self.source_expanded_pref] = \
-#            self.widgets.source_expander.get_expanded()
-        pass
-    
+        prefs[self.syn_expanded_pref] = \
+            self.widgets.fam_syn_expander.get_expanded()    
+
         
     def restore_state(self):
-#        expanded = prefs.get(self.source_expanded_pref, True)
-#        self.widgets.source_expander.set_expanded(expanded)
-        pass
+        expanded = prefs.get(self.syn_expanded_pref, True)
+        self.widgets.fam_syn_expander.set_expanded(expanded)        
 
             
     def start(self):
@@ -160,37 +153,34 @@ class FamilyEditorView(GenericEditorView):
 
 class FamilyEditorPresenter(GenericEditorPresenter):
     
-#    widget_to_field_map = {'acc_id_entry': 'acc_id',
-#                           'acc_date_entry': 'date',
-#                           'prov_combo': 'prov_type',
-#                           'wild_prov_combo': 'wild_prov_status',
-#                           'species_entry': 'species',
-#                           'source_type_combo': 'source_type',
-#                           'acc_notes_textview': 'notes'}
-    
-#    PROBLEM_INVALID_DATE = 3
-#    PROBLEM_INVALID_SPECIES = 4
-#    PROBLEM_DUPLICATE_ACCESSION = 5
+    widget_to_field_map = {'fam_family_entry': 'family',
+                           'fam_qualifier_combo': 'qualifier',
+                           'fam_notes_textview': 'notes'}
     
     def __init__(self, model, view):
         '''
-        model: should be an instance of class Accession
-        view: should be an instance of AccessionEditorView
+        @param model: should be an instance of class Accession
+        @param view: should be an instance of AccessionEditorView
         '''
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
 
-        # TODO: should we set these to the default value or leave them
-        # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-
         # initialize widgets
+        self.init_enum_combo('fam_qualifier_combo', 'qualifier')
 
         self.refresh_view() # put model values in view            
         
         # connect signals
+        self.assign_simple_handler('fam_family_entry', 'family')
+        self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
+        self.assign_simple_handler('fam_notes_textview', 'notes')
+        
+        
     def refresh_view(self):
-        pass
+        for widget, field in self.widget_to_field_map.iteritems():
+            value = self.model[field]
+            self.view.set_widget_value(widget, value)
+            
     
     def start(self):
         return self.view.start()
@@ -225,12 +215,52 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.parent = parent
-        
+        self._committed = []
     
-    _committed = [] # TODO: shouldn't be class level
     
     def handle_response(self, response):
-        return True    
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                debug('committing')
+                self.commit_changes()
+                self._committed = [self.model]
+            except SQLError, e:                
+                msg = 'Error committing changes.\n\n%s' % e.orig
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except:
+                msg = 'Unknown error when committing changes. See the details '\
+                      'for more information.'
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+            return True
+        else:
+            return False
+                
+        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            e = FamilyEditor(parent=self.parent)
+            more_committed = e.start()
+        elif response == self.RESPONSE_OK_AND_ADD:
+            e = GenusEditor(parent=self.parent, 
+                            model_or_defaults={'family_id': self._committed[0].id})
+            more_committed = e.start()
+             
+        if more_committed is not None:
+            if isinstance(more_committed, list):
+                self._committed.extend(more_committed)
+            else:
+                self._committed.append(more_committed)                
+        
+        return True            
+        
     
     def start(self):
         self.view = FamilyEditorView(parent=self.parent)
