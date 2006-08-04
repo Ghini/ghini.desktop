@@ -712,7 +712,16 @@ class GenericEditorPresenter:
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
     
-    
+    def init_enum_combo(self, widget_name, field):
+        combo = self.view.widgets[widget_name]        
+        model = gtk.ListStore(str)
+        for enum in sorted(self.model.c[field].type.values):
+            if enum == None:
+                model.append([''])
+            else:
+                model.append([enum])
+        combo.set_model(model)
+        
 #    def bind_widget_to_model(self, widget_name, model_field):
 #        # TODO: this is just an idea stub, should we have a method like
 #        # this so to put the model values in the view we just

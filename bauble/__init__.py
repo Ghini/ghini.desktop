@@ -15,9 +15,8 @@ import imp, os, sys
 # releaselevel are integers; the release level is 'alpha', 'beta', 
 # 'candidate', or 'final'. The version_info value corresponding to the Python 
 # version 2.0 is (2, 0, 0, 'final', 0). New in version 2.0. 
-#version = (0,6,0)
-version = (0,5,4)
-version_str = '%s.%s.%s' % (version[0], version[1], version[2])
+version = (0,6,0)
+version_str = '%s.%s.%s' % (version)
 
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
@@ -42,8 +41,6 @@ sys.path.append(paths.lib_dir())
 if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
-# meta information about the bauble database
-#from sqlobject import SQLObject, StringCol
 try:
     from sqlalchemy import *
     # TODO: check sqlalchemy version
@@ -52,16 +49,6 @@ except ImportError:
           "http://www.sqlalchemy.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
     raise
-
-
-
-
-#    # some keys for the standard information
-#    version = 'version' # a string tuple of (major, minor, revision)
-#    created = 'created' # a string in datetime.now() format
-#
-#    #date_format = 'date'
-    
 
 try:
     import sqlalchemy
