@@ -30,7 +30,7 @@ def edit_callback(row):
     
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
-    e = GenusEditor(select=[value], model=value)
+    e = GenusEditor(model_or_defaults=value)
     return e.start() != None
 
 
@@ -108,10 +108,13 @@ genus_table = Table('genus',
                     # NOTE: we should at least warn the user that a duplicate is being entered
                     #genus = StringCol(length=50)    
                     Column('genus', String(64), unique='genus_index'),                
-                    Column('hybrid', String(1), unique='genus_index'),                         
+                    Column('hybrid', Enum(values=['H', 'x', '+', None], 
+                                          empty_to_none=True), 
+                                          unique='genus_index'),
                     Column('author', Unicode(255), unique='genus_index'),
                     Column('qualifier', Enum(values=['s. lat.', 's. str', None],
-                                             empty_to_none=True)),
+                                             empty_to_none=True),
+                                             unique='genus_index'),
                     Column('notes', Unicode),
                     #family = ForeignKey('Family', notNull=True, cascade=False)                    
                     Column('family_id', Integer, ForeignKey('family.id'), 
@@ -157,7 +160,9 @@ class GenusSynonym(bauble.BaubleMapper):
     def __str__(self):        
         return '(%s)' % self.synonym
 
+from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.species_model import Species
+from bauble.plugins.plants.species_editor import SpeciesEditor
 
 mapper(Genus, genus_table,
        properties = {'species': relation(Species, backref=backref('genus', lazy=False),
@@ -172,7 +177,7 @@ mapper(GenusSynonym, genus_synonym_table)
     
 class GenusEditorView(GenericEditorView):
     
-    #source_expanded_pref = 'editor.accesssion.source.expanded'
+    syn_expanded_pref = 'editor.genus.synonyms.expanded'
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
@@ -184,15 +189,13 @@ class GenusEditorView(GenericEditorView):
 
         
     def save_state(self):
-#        prefs[self.source_expanded_pref] = \
-#            self.widgets.source_expander.get_expanded()
-        pass
-    
+        prefs[self.syn_expanded_pref] = \
+            self.widgets.gen_syn_expander.get_expanded()    
+
         
     def restore_state(self):
-#        expanded = prefs.get(self.source_expanded_pref, True)
-#        self.widgets.source_expander.set_expanded(expanded)
-        pass
+        expanded = prefs.get(self.syn_expanded_pref, True)
+        self.widgets.gen_syn_expander.set_expanded(expanded)
 
             
     def start(self):
@@ -201,17 +204,11 @@ class GenusEditorView(GenericEditorView):
 
 class GenusEditorPresenter(GenericEditorPresenter):
     
-#    widget_to_field_map = {'acc_id_entry': 'acc_id',
-#                           'acc_date_entry': 'date',
-#                           'prov_combo': 'prov_type',
-#                           'wild_prov_combo': 'wild_prov_status',
-#                           'species_entry': 'species',
-#                           'source_type_combo': 'source_type',
-#                           'acc_notes_textview': 'notes'}
-    
-#    PROBLEM_INVALID_DATE = 3
-#    PROBLEM_INVALID_SPECIES = 4
-#    PROBLEM_DUPLICATE_ACCESSION = 5
+    widget_to_field_map = {'gen_family_entry': 'family_id',
+                           'gen_genus_entry': 'genus',
+                           'gen_hybrid_combo': 'hybrid',
+                           'gen_notes_textview': 'notes'}
+
     
     def __init__(self, model, view):
         '''
@@ -220,18 +217,27 @@ class GenusEditorPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
-
-        # TODO: should we set these to the default value or leave them
-        # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-
+        
         # initialize widgets
-
-        self.refresh_view() # put model values in view            
+        self.init_enum_combo('gen_hybrid_combo', 'hybrid')
+        
+        self.refresh_view() # put model values in view
         
         # connect signals
+        def fam_get_completions(text):            
+            return self.session.query(Family).select(Family.c.family.like('%s%%' % text))
+        def set_in_model(self, field, value):
+            debug('set_in_model(%s, %s)' % (field, value))
+            setattr(self.model, field, value.id)
+        self.assign_completions_handler('gen_family_entry', 'family_id', 
+                                        fam_get_completions, set_func=set_in_model)        
+        
+        
     def refresh_view(self):
-        pass
+        for widget, field in self.widget_to_field_map.iteritems():
+            value = self.model[field]
+            self.view.set_widget_value(widget, value)        
+
     
     def start(self):
         return self.view.start()
@@ -270,11 +276,51 @@ class GenusEditor(GenericModelViewPresenterEditor):
     _committed = [] # TODO: shouldn't be class level
     
     def handle_response(self, response):
-        return True    
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                debug('committing')
+                self.commit_changes()
+                self._committed = [self.model]
+            except SQLError, e:                
+                msg = 'Error committing changes.\n\n%s' % e.orig
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except:
+                msg = 'Unknown error when committing changes. See the details '\
+                      'for more information.'
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+            return True
+        else:
+            return False
+                
+        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            e = FamilyEditor(parent=self.parent)
+            more_committed = e.start()
+        elif response == self.RESPONSE_OK_AND_ADD:
+            e = SpeciesEditor(parent=self.parent, 
+                            model_or_defaults={'genus_id': self._committed[0].id})
+            more_committed = e.start()
+             
+        if more_committed is not None:
+            if isinstance(more_committed, list):
+                self._committed.extend(more_committed)
+            else:
+                self._committed.append(more_committed)                
+        
+        return True                
+
     
     def start(self):
-        from bauble.plugins.plants.family import Family
-        if self.session.query(Accession).count() == 0:        
+        if self.session.query(Family).count() == 0:        
             msg = 'You must first add or import at least one Family into the '\
                   'database before you can add plants.'
             utils.message_dialog(msg)
