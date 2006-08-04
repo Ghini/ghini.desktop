@@ -5,7 +5,7 @@
 import os, sys, copy, traceback
 import gtk
 import gtk.glade
-import sqlobject
+from sqlalchemy import *
 import utils
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -26,23 +26,25 @@ from bauble.utils.log import log, debug
 class ConnectionManager:
     
     def __init__(self, current_name=None):
-        self.current_name = None # this should get set in on_name_combo_changed
+        self.current_name = None # this should get set in on_name_combo_changed        
+        
+        
+    def start(self):
         self.create_gui()
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-    	conn_list = prefs[prefs.conn_list_pref]
-    	if conn_list is None or len(conn_list.keys()) == 0:
-    	    msg = "You don't have any connections in your connection list.\n"\
-    		  "Close this message and click on '%s' to create a new "\
-    		  "connection." % 'Add'
-    	    utils.message_dialog(msg)
-    	else:
-    	    self.set_active_connection_by_name(current_name)        
+        conn_list = prefs[prefs.conn_list_pref]
+        if conn_list is None or len(conn_list.keys()) == 0:
+            msg = "You don't have any connections in your connection list.\n"\
+              "Close this message and click on '%s' to create a new "\
+              "connection." % 'Add'
+            utils.message_dialog(msg)
+        else:
+            self.set_active_connection_by_name(self.current_name)        
             self._dirty = False
         
         
-    def start(self):
         response = self.dialog.run()
         name = None
         uri = None
@@ -84,38 +86,28 @@ class ConnectionManager:
     def _get_supported_dbtypes(self):
         """
         get for self.supported_types property
+        
+        search for the supported database python modules are in PYTHONPATH,
+        we don't import them here so we don't waste memory
         """
+        from imp import find_module
+        
         if self._supported_dbtypes != None:
             return self._supported_dbtypes
         self._supported_dbtypes = {}
-        i = 0        
-        if sqlobject.sqlite.isSupported():
-            self._supported_dbtypes["SQLite"] = i
+        i = 0    
+        if find_module('pysqlite2'):
+            self._supported_dbtypes['SQLite'] = i
             i += 1
-        else: # isSupported for sqlite only tests for sqlite, not pysqlite2
-            try:
-                import pysqlite2
-            except ImportError: 
-                pass
-            else:
-                self._supported_dbtypes["SQLite"] = i
-                i += 1
-        if sqlobject.mysql.isSupported():
-            self._supported_dbtypes["MySQL"] = i
-            i += 1 
-        if sqlobject.postgres.isSupported():
-            self._supported_dbtypes["Postgres"] = i
-            i += 1 
-        if sqlobject.firebird.isSupported():
-            self._supported_dbtypes["Firebird"] = i
-            i += 1 
-        if sqlobject.maxdb.isSupported():
-            self._supported_dbtypes["MaxDB"] = i
-            i += 1 
-        if sqlobject.sybase.isSupported(None): # i think this arg is a type
-            self._supported_dbtypes["Sybase"] = i
-            i += 1 
+        if find_module('psycopg2'):
+            self._supported_dbtypes['Postgres'] = i
+            i += 1
+        if find_module('MySQLdb'):
+            self._supported_dbtypes['MySQL'] = i
+            i += 1
+            
         return self._supported_dbtypes
+
         
      # this is a dict with the keys the names of the database types and
      # the value are the index in the type_combo
@@ -345,10 +337,10 @@ class ConnectionManager:
         conn_list = prefs[prefs.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
-        if name in conn_list and len(self.old_params.keys()) == 0:
-            self.params_box.set_parameters(conn_list[name])
-        elif len(self.old_params.keys()) != 0:
-            self.params_box.set_parameters(self.old_params)
+            if name in conn_list and len(self.old_params.keys()) == 0:
+                self.params_box.set_parameters(conn_list[name])
+            elif len(self.old_params.keys()) != 0:
+                self.params_box.set_parameters(self.old_params)
                 
         self.expander_box.pack_start(self.params_box, False, False)
         self.dialog.show_all()

@@ -7,7 +7,6 @@ import sys
 import logging
 logging.basicConfig(level=logging.INFO, format='%(message)s')
 
-# this should go in utils or somethiing
 class _debug(object):
     handler = logging.StreamHandler()
     handler.setLevel(logging.DEBUG)

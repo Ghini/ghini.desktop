@@ -4,7 +4,6 @@
 
 import os, sys, time, re
 import gtk, gobject
-import sqlobject
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths

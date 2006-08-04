@@ -2,7 +2,6 @@
 # MySQL Importer/Exporter
 #
 
-import sqlobject
 #from bauble.tools.imex import *
 from bauble.plugins import BaublePlugin, BaubleTool, plugins
 

@@ -5,6 +5,12 @@
 
 # TODO: should I make everything extend from BaubleException
 
+class BaubleError(Exception):
+     def __init__(self, msg):
+         self.msg = msg
+     def __str__(self):
+         return self.msg    
+
 class CommitException(Exception):
 
     def __init__(self, exc, row):

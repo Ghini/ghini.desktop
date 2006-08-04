@@ -7,22 +7,76 @@ import bauble
 import gtk
 from bauble.utils.log import debug
 
-def search_tree_model(model, data, func=lambda row, data: row[0] == data):
+#def search_tree_model(model, data, func=lambda row, data: row[0] == data):
+#    '''
+#    return the first occurence of data found in model
+#    
+#    @param model: the tree model to search
+#    @param data: what we are searching for
+#    @param func: the function to use to compare each row in the model, the 
+#        default is C{lambda row, data: row[0] == data}
+#    '''
+#    result = None
+#    for row in model:
+#        if func(row, data):
+#            return row
+#        result = search_tree_model(row.iterchildren(), data, func)    
+#    return result
+
+class GladeWidgets(dict):
     '''
-    @param model: the tree model the search
-    @param data: what we are searching for
-    @param func: the function to use to compare each row in the model, the 
-        default is C{lambda row, data: row[0] == data}
+    dictionary and attribute access for widgets
     '''
-    if not model:
-        return None
-    for row in model:
+
+    def __init__(self, glade_xml):
+        '''
+        @params glade_xml: a gtk.glade.XML object
+        '''
+        if isinstance(glade_xml, str):
+            self.glade_xml = gtk.glade.XML(glade_xml)
+        else:
+            self.glade_xml = glade_xml
+    
+    def __getitem__(self, name):
+        '''
+        @param name:
+        '''
+        # TODO: raise a key error if there is no widget
+        return self.glade_xml.get_widget(name)
+
+    def __getattr__(self, name):
+        '''
+        @param name:
+        '''
+        return self.glade_xml.get_widget(name)
+    
+    
+    def remove_parent(self, widget):
+        if isinstance(widget, str):
+            w = self[widget]
+        else:
+            w = widget
+        parent = w.get_parent()
+        if parent is not None:
+            parent.remove(w)
+        
+
+
+def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
+    '''
+    return a list of tree iters to all occurences of data in model
+    '''
+    results = []
+    for row in parent:
+        search_tree_model(row.iterchildren(), data, func)
         if func(row, data):
-            return row
-        result = search_tree_model(row.iterchildren(), data, func)
-	if result:
-	    return result
-    return None
+#            debug('row %s: %s' % (row, row[0]))
+            try:
+                results.extend(row.iter)
+            except:
+                results = [row.iter]
+#    debug(results)
+    return results
 
 
 def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
@@ -30,14 +84,15 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     find value in combo model and set it as active, else raise ValueError
     cmp(row, value) is the a function to use for comparison
         
-    NOTE: 
+    NOTE: if more than one value is found in the combo then the first one
+    in the list is set
     '''
     model = combo.get_model()    
-    match = search_tree_model(model, value, cmp)
-    if match is None:
+    matches = search_tree_model(model, value, cmp)
+    if len(matches) == 0:
         raise ValueError('set_combo_from_value() - could not find value in '\
                          'combo: %s' % value)
-    combo.set_active_iter(match.iter)
+    combo.set_active_iter(matches[0])
 
     
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
@@ -47,12 +102,15 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     @param cmp: the method to use to compare rows in the combo model and value, 
         the default is C{lambda row, value: row[0] == value}
     @return: the gtk.TreeIter that points to value
+    
+    NOTE: if more than one value is found in the combo then the first one
+    in the list is returned
     '''
     model = combo.get_model()
-    match = search_tree_model(model, value, cmp)
-    if match is not None:
-        return match.iter
-    return None
+    matches = search_tree_model(model, value, cmp)
+    if len(matches) == 0:        
+        return None
+    return matches[0]
 
 
 def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):

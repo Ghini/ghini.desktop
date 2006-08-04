@@ -31,11 +31,13 @@
 
 import os, sys, traceback, re
 import gtk
+from sqlalchemy import *
 import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
-from sqlobject import SQLObject, sqlmeta, DateTimeCol
-from datetime import datetime
+#from sqlobject import SQLObject, sqlmeta, DateTimeCol
+#from datetime import datetime
+
 
 plugins = {}
 views = {}
@@ -78,9 +80,10 @@ def _register(plugin_class):
     
     # add tables
     for t in plugin_class.tables:
-        if not issubclass(t, BaubleTable):
-            raise TypeError('%s table from plugin %s is not an instance of '\
-                            'BaubleTable' % (t, plugin_name))
+        # TODO: this isn't really necessary anymore
+#        if not issubclass(t, BaubleTable):
+#            raise TypeError('%s table from plugin %s is not an instance of '\
+#                            'BaubleTable' % (t, plugin_name))
         tables[t.__name__] = t
     
     # add editors
@@ -239,14 +242,24 @@ class BaublePlugin(object):
 #        return str(self)
 
     
-class BaubleTable(SQLObject):
+# TODO: i don't think we use this anymore
+class BaubleTable(object):
        
     def __init__(self, **kw):        
-        super(BaubleTable, self).__init__(**kw)        
-        self.values = {}
+        super(BaubleTable, self).__init__(**kw)
         
-    def markup(self):
-        return str(self)
+
+    
+#class BaubleTable(SQLObject):
+#       
+#    def __init__(self, **kw):        
+#        super(BaubleTable, self).__init__(**kw)        
+#        self.values = {}
+#        
+#    def markup(self):
+#        return str(self)
+    
+    
 ### i can't get this to work, i don't understand
 #    """
 #    This is the part to enable automatic updating of changed objects

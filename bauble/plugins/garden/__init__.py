@@ -30,9 +30,11 @@ class GardenPlugin(BaublePlugin):
     @classmethod
     def init(cls):
         # add joins        
-        acc_join = MultipleJoin('Accession', joinMethodName="accessions", 
-                                joinColumn='species_id')    
-        tables["Species"].sqlmeta.addJoin(acc_join)
+        
+        #acc_join = MultipleJoin('Accession', joinMethodName="accessions", 
+        #                        joinColumn='species_id')            
+        #tables["Species"].sqlmeta.addJoin(acc_join)
+        #table["Species"].mapping.add_property('accessions', relation('accession'))
         
         if "SearchViewPlugin" in plugins:
             from bauble.plugins.searchview.search import SearchMeta

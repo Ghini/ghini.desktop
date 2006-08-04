@@ -3,7 +3,7 @@
 #
 import os, traceback
 import gtk
-from sqlobject import *
+from sqlalchemy import *
 from bauble.plugins import BaublePlugin, BaubleTable, plugins, views, tables
 import bauble.paths as paths
 import bauble.utils as utils
@@ -17,13 +17,12 @@ class TagItemGUI:
     '''
     # TODO: close on 'escape'
     def __init__(self, item):
-        path = os.path.join(paths.lib_dir(), 'plugins', 'tag')
-        self.glade_xml = gtk.glade.XML(path + os.sep + 'tag.glade')
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade')
+        self.glade_xml = gtk.glade.XML(glade_file)
         self.dialog = self.glade_xml.get_widget('tag_item_dialog')
         self.item_data_label = self.glade_xml.get_widget('items_data')
         self.item = item
         self.item_data_label.set_text(str(self.item))            
-
         button = self.glade_xml.get_widget('new_button')
         button.connect('clicked', self.on_new_button_clicked)
         
@@ -137,30 +136,63 @@ class TagItemGUI:
             response = self.dialog.run()
             
         self.dialog.destroy()
-    
-        
-class Tag(BaubleTable):
 
-    class sqlmeta(BaubleTable.sqlmeta):
-        orderBy = "tag"
 
-    tag = UnicodeCol(alternateID=True)
-    objects = MultipleJoin('TaggedObj', joinColumn='tag_id')
-    
+#
+# tag table
+#
+tag_table = Table('tag',
+                  Column('id', Integer, primary_key=True),
+                  Column('tag', Unicode(64), unique=True, nullable=True))
+
+class Tag(object):
     def __str__(self):
         return self.tag
-
+    
     def markup(self):
         return '%s Tag' % self.tag
     
-    
-class TaggedObj(BaubleTable):
-    obj_id = IntCol()
-    obj_class = StringCol(length=32)
-    tag = ForeignKey('Tag', cascade=True)
-    
+#
+# tagged_obj table
+#
+# TODO: can class names be unicode, i.e. should obj_class be unicode
+tagged_obj_table = Table('tagged_obj',
+                         Column('id', Integer, primary_key=True),
+                         Column('obj_id', Integer),
+                         Column('obj_class', String(64)),
+                         Column('tag_id', Integer, ForeignKey('tag.id')))
+
+class TaggedObj(object):
     def __str__():
-        return 'tagged_ibj'
+        return '%s: %s' % (self.obj_class.__name__, self.obj_id)
+        
+mapper(TaggedObj, tagged_obj_table)
+mapper(Tag, tag_table,
+       properties={'objects': relation(TaggedObj, backref='tag')},
+       order_by='tag')
+        
+#class Tag(BaubleTable):
+#
+#    class sqlmeta(BaubleTable.sqlmeta):
+#        orderBy = "tag"
+#
+#    tag = UnicodeCol(alternateID=True)
+#    objects = MultipleJoin('TaggedObj', joinColumn='tag_id')
+#    
+#    def __str__(self):
+#        return self.tag
+#
+#    def markup(self):
+#        return '%s Tag' % self.tag
+#    
+#    
+#class TaggedObj(BaubleTable):
+#    obj_id = IntCol()
+#    obj_class = StringCol(length=32)
+#    tag = ForeignKey('Tag', cascade=True)
+#    
+#    def __str__():
+#        return 'tagged_ibj'
     
             
 def untag_object(name, so_obj):
@@ -256,21 +288,27 @@ def _reset_tags_menu():
     #manage_tag_item = gtk.MenuItem('Manage Tags')
     #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
-        
+    session = create_session()
+    query = session.query(Tag)
     try:
-        for tag in Tag.select():
+        #for tag in tag_.select():
+        for tag in query.select():
             item = gtk.MenuItem(tag.tag)            
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
     except:
-	#debug(traceback.format_exc())
-	msg = "There was a problem creating the Tags menu"
-	utils.message_details_dialog(msg, traceback.format_exc(), 
-				     gtk.MESSAGE_ERROR)
-#	raise
-        #debug('** maybe the tags table hasn\'t been created yet')
-	sqlhub.processConnection.rollback()
-	sqlhub.processConnection.begin()
+    	debug(traceback.format_exc())
+    	msg = "There was a problem creating the Tags menu"
+    	utils.message_details_dialog(msg, traceback.format_exc(), 
+    				     gtk.MESSAGE_ERROR)
+    #	raise
+            #debug('** maybe the tags table hasn\'t been created yet')
+         
+        # TODO: this was in the pre-SQLAlchemy version but I don't
+        # think the equivalent really needs to be here any more since we 
+        # aren't changeing the database, in fact we never were
+    	#sqlhub.processConnection.rollback()
+    	#sqlhub.processConnection.begin()
 	# FIXME: if we get here then the next we do with a transaction will 
 	# fail which means that and exception here makes the entire program 
 	# fail, we need to do something about this
