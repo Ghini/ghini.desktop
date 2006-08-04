@@ -2,7 +2,7 @@
 # References table definition
 #
 
-from sqlobject import * 
+#from sqlobject import * 
 from bauble.plugins import BaubleTable
 from bauble.treevieweditor import TreeViewEditorDialog
 

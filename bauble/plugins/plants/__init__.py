@@ -19,24 +19,19 @@ import bauble.paths as paths
 from bauble.plugins import BaublePlugin, plugins
 
 from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, \
-    FamilySynonymEditor, FamilyInfoBox, family_context_menu, family_markup_func
+    FamilyInfoBox, family_context_menu, family_markup_func
 from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, \
-    GenusSynonymEditor, GenusInfoBox, genus_context_menu, genus_markup_func
+    GenusInfoBox, genus_context_menu, genus_markup_func
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
     SpeciesSynonym, VernacularName, species_context_menu, species_markup_func
 from bauble.plugins.plants.species_editor import SpeciesEditor, SpeciesInfoBox
-
-#from bauble.plugins.plants.speciesmeta import SpeciesMetaEditor
-#from bauble.plugins.plants.vernacularname import VernacularNameEditor
 
 
 class PlantsPlugin(BaublePlugin):
     tables = [Family, FamilySynonym, Genus, GenusSynonym, Species, 
               SpeciesSynonym, SpeciesMeta, VernacularName]
 
-    editors = [FamilyEditor, FamilySynonymEditor, GenusEditor, 
-               GenusSynonymEditor,
-               SpeciesEditor]
+    editors = [FamilyEditor, GenusEditor, SpeciesEditor]
     
     @classmethod
     def init(cls):                
@@ -90,8 +85,7 @@ class PlantsPlugin(BaublePlugin):
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['Family.txt', 'FamilySynonym.txt']
-        files += 'Genus.txt', 'GenusSynonym.txt'
+        files = ['family.txt', 'family_synonym.txt', 'genus.txt', 'genus_synonym.txt']
         return [os.path.join(path, f) for f in files]
 
 

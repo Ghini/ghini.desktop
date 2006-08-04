@@ -2,12 +2,14 @@
 # Plants table definition
 #
 
-import gtk
-from sqlobject import * 
-from bauble.plugins import BaubleTable, tables, editors
-from bauble.treevieweditor import TreeViewEditorDialog
+import gtk, gobject
+from sqlalchemy import *
+from sqlalchemy.orm.session import object_session
+from sqlalchemy.exceptions import SQLError
+from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
+from bauble.types import Enum
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -20,11 +22,12 @@ from bauble.utils.log import debug
 # e.g. 2004.0011.02 would return a specific plant, probably need to be
 # able to set a callback function like the children field of the view meta
 
+# TODO: might be worthwhile to have a label or textview next to the location
+# combo that shows the description of the currently selected location
+
 def edit_callback(row):
     value = row[0]    
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
-    e = PlantEditor(select=[value], model=value)
+    e = PlantEditor(model_or_defaults=value)
     return e.start() != None
 
 
@@ -64,72 +67,45 @@ def plant_markup_func(plant):
                         plant.accession.species.markup(authors=False))
 
 
-class PlantHistory(BaubleTable):
-    class sqlmeta(BaubleTable.sqlmeta):
-        defaultOrder = 'date'
-    date = DateCol(notNull=True)
-    description = UnicodeCol()
-    plant = ForeignKey('Plant', notNull=True, cascade=True)
-    
-    
-class Plant(BaubleTable):
-
-    class sqlmeta(BaubleTable.sqlmeta):
-	       defaultOrder = 'plant_id'
-
-    # add to end of accession id, e.g. 04-0002.05
-    # these are only unique when combined with an accession_id, see the 
-    # id_index index    
-    #plant_id = IntCol(notNull=True) 
-    # makes sense that it should be an int but we won't restrict it that way,
-    # if the editor wants to ensure that it is int then it should attach
-    # a formencode.Validator on it
-    plant_id = UnicodeCol(notNull=True)
+plant_history_table = Table('plant_history',
+                            Column('id', Integer, primary_key=True),
+                            Column('date', Date),
+                            Column('description', Unicode),
+                            Column('plant_id', Integer, ForeignKey('plant.id'),
+                                   nullable=False))
 
 
-    # Plant: Whole plant
-    # Seed/Spore: Seed or Spore
-    # Vegetative Part: Vegetative Part
-    # Tissue Culture: Tissue culture
-    # Other: Other, probably see notes for more information
-    # None: no information, unknown
-    acc_type = EnumCol(enumValues=('Plant', 'Seed/Spore', 'Vegetative Part', 
-                                   'Tissue Culture', 'Other', None),
-                       default=None)
-                          
-    # Accession Status
-    # Living accession: Current accession in living collection
-    # Dead: Noncurrent accession due to Death
-    # Transfered: Noncurrent accession due to Transfer
-    # Stored in dormant state: Stored in dormant state
-    # Other: Other, possible see notes for more information
-    # None: no information, unknown)
-    acc_status = EnumCol(enumValues=('Living accession', 'Dead', 'Transfered', 
-                                     'Stored in dormant state', 'Other', None),
-                         default=None)
-    
-    notes = UnicodeCol(default=None)
+class PlantHistory(bauble.BaubleMapper):
+    def __str__(self):
+        return '%s: %s' % (self.date, self.description)
 
-    # indices
-    #
-    id_index = DatabaseIndex('plant_id', 'accession', unique=True)
-    
-    # foreign key
-    # 
-    accession = ForeignKey('Accession', notNull=True, cascade=False)
-    
-    # TODO: change the "location" field to "site" and then add specific 
-    # locations fields like geographic coordinates
-    location = ForeignKey("Location", notNull=True, cascade=False)
-    
-    # joins
-    #
-    history = MultipleJoin('PlantHistory', joinColumn='plant_id')
-    
 
+
+# TODO: change plant_id to plant_code, or just code
+plant_table = Table('plant', 
+                    Column('id', Integer, primary_key=True),
+                    Column('plant_id', Unicode, nullable=False, unique='plant_index'),                    
+#                    Column('code', Unicode, nullable=False, unique='plant_index'),
+                    Column('acc_type', 
+                           Enum(values=['Plant', 'Seed/Spore', 
+                                        'Vegetative Part',  'Tissue Culture', 
+                                        'Other', None])),
+                    Column('acc_status', Enum(values=['Living accession', 
+                                                      'Dead', 'Transfered', 
+                                                      'Stored in dormant state', 
+                                                      'Other', None])),
+                    Column('notes', Unicode),
+                    Column('accession_id', Integer, ForeignKey('accession.id'), 
+                           nullable=False, unique='plant_index'),
+                    Column('location_id', Integer, ForeignKey('location.id'), 
+                           nullable=False))
+
+# TODO: configure the acc code and plant code separator, the default should
+# be '.'
+class Plant(bauble.BaubleMapper):
+    
     def __str__(self): 
-        return "%s.%s" % (self.accession, self.plant_id)
-    
+        return "%s.%s" % (self.accession, self.plant_id)    
     
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
@@ -138,87 +114,599 @@ class Plant(BaubleTable):
         # or you don't know what plants you are looking at
         return "%s.%s (%s)" % (self.accession, self.plant_id, 
                                self.accession.species.markup())
+        
+        
+        
+from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.location import Location, LocationEditor
+
+#
+# setup mappers
+# 
+plant_mapper = mapper(Plant, plant_table,
+       properties={'history': relation(PlantHistory, backref='plant')})
+mapper(PlantHistory, plant_history_table, order_by='date')
+
+
+
+'''
+       # add to end of accession id, e.g. 04-0002.05
+        # these are only unique when combined with an accession_id, see the 
+        # id_index index    
+        #plant_id = IntCol(notNull=True) 
+        # makes sense that it should be an int but we won't restrict it that way,
+        # if the editor wants to ensure that it is int then it should attach
+        # a formencode.Validator on it
+        #plant_code = column(Unicode, nullable=True, index='plant_index')
+        plant_id = column(Unicode, nullable=True, index='plant_index')
+        #plant_id = UnicodeCol(notNull=True)
+    
+    
+        # Plant: Whole plant
+        # Seed/Spore: Seed or Spore
+        # Vegetative Part: Vegetative Part
+        # Tissue Culture: Tissue culture
+        # Other: Other, probably see notes for more information
+        # None: no information, unknown
+        #acc_type = EnumCol(enumValues=('Plant', 'Seed/Spore', 'Vegetative Part', 
+        #                               'Tissue Culture', 'Other', None),
+        #                   default=None)
+        acc_type = column(Unicode)
+                              
+        # Accession Status
+        # Living accession: Current accession in living collection
+        # Dead: Noncurrent accession due to Death
+        # Transfered: Noncurrent accession due to Transfer
+        # Stored in dormant state: Stored in dormant state
+        # Other: Other, possible see notes for more information
+        # None: no information, unknown)
+        #acc_status = EnumCol(enumValues=('Living accession', 'Dead', 'Transfered', 
+        #                                 'Stored in dormant state', 'Other', None),
+        #                     default=None)
+        acc_status = column(Unicode)
+        
+        notes = column(Unicode)
+        #notes = UnicodeCol(default=None)
+    
+        # indices
+        #
+        #id_index = DatabaseIndex('plant_id', 'accession', unique=True)
+        
+        # foreign key
+        # 
+        #accession = ForeignKey('Accession', notNull=True, cascade=False)
+        accession_id = column(Integer, foreign_key=ForeignKey('accession.id'), 
+                              nullable=False, index='plant_index')
+        
+        # TODO: change the "location" field to "site" and then add specific 
+        # locations fields like geographic coordinates
+        #location = ForeignKey("Location", notNull=True, cascade=False)
+        location_id = column(Integer, foreign_key=ForeignKey('location.id'), 
+                             nullable=False)
+        
+        # joins
+        #
+        #history = MultipleJoin('PlantHistory', joinColumn='plant_id')
+        history = one_to_many('PlantHistory', colname='plant_id', 
+                              backref='plant')
+'''
+   
+
+    
+class PlantEditorView(GenericEditorView):
+    
+    #source_expanded_pref = 'editor.accesssion.source.expanded'
+
+    def __init__(self, parent=None):
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
+                                                      'plugins', 'garden', 
+                                                      'editors.glade'),
+                                   parent=parent)
+        self.widgets.plant_dialog.set_transient_for(parent)
+        self.connect_dialog_close(self.widgets.plant_dialog)
+        def acc_cell_data_func(column, renderer, model, iter, data=None):
+            v = model[iter][0]
+            renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
+        self.attach_completion('plant_acc_entry', acc_cell_data_func)
+        
+    
+    def save_state(self):
+        pass
+    
+        
+    def restore_state(self):
+        pass
+
+            
+    def start(self):
+        return self.widgets.plant_dialog.run()    
+        
+
+class ObjectIdValidator(validators.FancyValidator):
+    
+    def _to_python(self, value, state):
+        return value.id
+#        try:
+#            
+#        except:
+#            raise validators.Invalid('expected a int in column %s, got %s '\
+#                                     'instead' % (self.name, type(value)), value, state)
+
+class PlantEditorPresenter(GenericEditorPresenter):
+    
+    
+#    PROBLEM_INVALID_DATE = 3
+#    PROBLEM_INVALID_SPECIES = 4
+#    PROBLEM_DUPLICATE_ACCESSION = 5
+    widget_to_field_map = {'plant_code_entry': 'plant_id',
+                           'plant_acc_entry': 'accession_id',
+                           'plant_loc_combo': 'location_id',
+                           'plant_acc_type_combo': 'acc_type',
+                           'plant_acc_status_combo': 'acc_status',
+                           'plant_notes_textview': 'notes'}
+    
+    def __init__(self, model, view):
+        '''
+        @model: should be an instance of Plant class
+        @view: should be an instance of PlantEditorView
+        '''
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        self.session = object_session(model)
+
+        # TODO: should we set these to the default value or leave them
+        # be and let the default be set when the row is created, i'm leaning
+        # toward the second, its easier if it works this way
+
+        # initialize widgets
+        self.init_location_combo()
+#        self.init_acc_entry()
+        self.init_enum_combo('plant_acc_status_combo', 'acc_status')
+        self.init_enum_combo('plant_acc_type_combo', 'acc_type')
+        
+        
+#        self.init_history_box()
+        self.refresh_view() # put model values in view            
+        
+        # connect signals
+        def acc_get_completions(text):            
+            return self.session.query(Accession).select(Accession.c.acc_id.like('%s%%' % text))
+        def format_acc(accession):
+            return '%s (%s)' % (accession, accession.species)
+        def set_in_model(self, field, value):
+            debug('set_in_model(%s, %s)' % (field, value))
+            setattr(self.model, field, value.id)
+        self.assign_completions_handler('plant_acc_entry', 'accession_id', 
+                                        acc_get_completions, 
+                                        set_func=set_in_model, 
+                                        format_func=format_acc)
+        self.assign_simple_handler('plant_code_entry', 'plant_id')
+        #self.assign_simple_handler('plant_loc_combo', 'code')
+        self.assign_simple_handler('plant_notes_textview', 'notes')
+        self.assign_simple_handler('plant_loc_combo', 'location_id', ObjectIdValidator())
+        self.assign_simple_handler('plant_acc_status_combo', 'acc_status', StringOrNoneValidator())
+        self.assign_simple_handler('plant_acc_type_combo', 'acc_type', StringOrNoneValidator())        
+
+        self.view.widgets.plant_loc_add_button.connect('clicked', self.on_loc_button_clicked, 'add')
+        self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
+        
+        
+    def on_loc_button_clicked(self, button, cmd=None):
+        location = None
+        combo = self.view.widgets.plant_loc_combo
+        it = combo.get_active_iter()
+        if it is not None:
+            location = combo.get_model()[it][0]         
+        if cmd is 'edit':           
+            e = LocationEditor(model_or_defaults=location)
+        else:
+            e = LocationEditor()
+        e.start()
+        self.init_location_combo()
+        
+        debug(location)
+        if location is not None:
+            self.session.refresh(location)
+            new = self.session.get(Location, location.id)
+            utils.set_combo_from_value(combo, new)
+        else:
+            combo.set_active(-1)
+                    
+        
+    def init_enum_combo(self, widget_name, field):
+        combo = self.view.widgets[widget_name]        
+        model = gtk.ListStore(str)
+        for enum in sorted(self.model.c[field].type.values):
+            if enum == None:
+                model.append([''])
+            else:
+                model.append([enum])
+        combo.set_model(model)
+        
+        
+    # TODO: probably need a on_match_select in case we want to do anything after
+    # the regular on_match_select
+    def assign_completions_handler(self, widget_name, field, 
+                                   get_completions, 
+                                   set_func=lambda self, f, v: setattr(self.model, f, v), 
+                                   format_func=lambda x: str(x)):
+        '''
+        @param widget_name: the name of the widget in self.view.widgets
+        @param field: the name of the field to set in the model
+        @param set_func: the function to call to set the value in the model, 
+            the default is lambda self, f, v: setattr(self.model, f, v)
+        @param format_func: the func to call to format the value in the 
+            completion, the default is lambda x: str(x)
+        '''
+        widget = self.view.widgets[widget_name]
+        PROBLEM = hash(widget_name)
+        def add_completions(text):
+            debug('add_completions(%s)' % text)
+            values = get_completions(text)
+            def idle_callback(values):
+                model = gtk.ListStore(object)
+                for v in values:
+                    model.append([v])
+                completion = widget.get_completion()
+                completion.set_model(model)
+            gobject.idle_add(idle_callback, values)
+        def on_insert_text(entry, new_text, new_text_length, position, data=None):
+            #debug('on_species_insert_text: \'%s\'' % new_text)
+            # debug('%s' % self.model)
+            if new_text == '':
+                # this is to workaround the problem of having a second 
+                # insert-text signal called with new_text = '' when there is a 
+                # custom renderer on the entry completion for this entry
+                # block the signal from here since it will call this same
+                # method again and resetting the species completions      
+                entry.handler_block(self.insert_genus_sid)
+                entry.set_text(self.prev_text)
+                entry.handler_unblock(self.insert_genus_sid)
+                return False # is this 'False' necessary, does it do anything?                
+            entry_text = entry.get_text()                
+            cursor = entry.get_position()
+            full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+            # this funny logic is so that completions are reset if the user
+            # paste multiple characters in the entry    
+            if len(new_text) == 1 and len(full_text) == 2:
+                add_completions(full_text)
+            elif new_text_length > 2:# and entry_text != '':
+                add_completions(full_text[:2])
+            self.prev_text = full_text
+            
+            if full_text != str(getattr(self.model, field)):
+                self.add_problem(PROBLEM, widget)
+                setattr(self.model, field, None)                
+        def on_delete_text(entry, start, end, data=None):
+            text = entry.get_text()
+            full_text = text[:start] + text[end:]
+            if full_text == '' or (full_text == str(self.model[field])):
+                return
+            self.add_problem(PROBLEM, widget)
+            setattr(self.model, field, None)            
+        def on_match_select(completion, compl_model, iter):            
+            value = compl_model[iter][0]
+            debug('on_match_select: %s' % str(value))
+            #entry = self.view.widgets.sp_genus_entry
+            widget.handler_block(self.insert_genus_sid)
+            widget.set_text(str(value))
+            widget.handler_unblock(self.insert_genus_sid)
+            widget.set_position(-1)
+            self.remove_problem(PROBLEM, widget)
+            # TODO: temporarily disabled this when doing the set_func stuff
+            #self.session.save(value)
+            #setattr(self.model, field, value)
+            #setattr(self.model, field, value.id)
+            set_func(self, field, value)
+            debug(getattr(self.model, field))
+            self.prev_text = str(value)            
+                    
+        completion = widget.get_completion()
+        completion.connect('match-selected', on_match_select)
+        #if self.model.genus is not None:
+        #    self.idle_add_genus_completions(str(self.model.genus)[:2])
+        self.insert_genus_sid = widget.connect('insert-text', on_insert_text)
+        widget.connect('delete-text', on_delete_text)
+        
+    def init_location_combo(self):
+        def cell_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', str(v))
+
+        locations = self.session.query(Location).select()
+        renderer = gtk.CellRendererText()
+        combo = self.view.widgets.plant_loc_combo
+        combo.clear()
+        combo.pack_start(renderer, True)
+        combo.set_cell_data_func(renderer, cell_data_func)        
+        model = gtk.ListStore(object)
+        for loc in locations:
+            model.append([loc])
+        combo.set_model(model)
+        # TODO: if len of location == 1 then set the first item as active,
+        # we should probably just always set the first item as active
+        
+        
+        
+    def init_acc_entry(self):
+        pass
+    def init_type_and_status_combo(self):
+        pass
+    def init_history_box(self):
+        pass
+    
+    def refresh_view(self):
+        for widget, field in self.widget_to_field_map.iteritems():            
+            if field is 'accession_id':
+                self.view.set_widget_value(widget, self.model.accession)
+            elif field is 'location_id':
+                self.view.set_widget_value(widget, self.model.location)
+            else:
+                value = self.model[field]
+                self.view.set_widget_value(widget, value)
+    
+    def start(self):
+        return self.view.start()
+    
+    
+class PlantEditor(GenericModelViewPresenterEditor):
+    
+    label = 'Plants'
+    
+    # these have to correspond to the response values in the view
+    RESPONSE_NEXT = 22
+    ok_responses = (RESPONSE_NEXT,)    
+        
+        
+    def __init__(self, model_or_defaults=None, parent=None):
+        '''
+        @param model_or_defaults: Plant instance or default values
+        @param defaults: {}
+        @param parent: None
+        '''        
+        if isinstance(model_or_defaults, dict):
+            model = Plant(**model_or_defaults)
+        elif model_or_defaults is None:
+            model = Plant()
+        elif isinstance(model_or_defaults, Plant):
+            model = model_or_defaults
+        else:
+            raise ValueError('model_or_defaults argument must either be a '\
+                             'dictionary or Plant instance')
+        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        if parent is None: # should we even allow a change in parent
+            parent = bauble.app.gui.window
+        self.parent = parent
+        
+        
+    def commit_changes(self):
+#        debug('commit_changes')
+#        for obj in self.session:
+#            debug(obj)
+        super(PlantEditor, self).commit_changes()
+    
+    
+    _committed = [] # TODO: shouldn't be class level
+    def handle_response(self, response):
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+#                debug('session dirty, committing')
+            try:
+                self.commit_changes()
+                self._committed = self.model
+            except SQLError, e:                
+                exc = traceback.format_exc()
+                msg = 'Error committing changes.\n\n%s' % e.orig
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except:
+                msg = 'Unknown error when committing changes. See the details '\
+                      'for more information.'
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg):                
+            return True
+        elif not self.session.dirty:
+            return True
+        else:
+            return False
+        
+        
+#        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            e = PlantEditor(parent=self.parent)
+            more_committed = e.start()
+                    
+        if more_committed is not None:
+            self._committed = [self._committed]
+            if isinstance(more_committed, list):
+                self._ommitted.extend(more_committed)
+            else:
+                self._committed.append(more_committed)                
+        
+        return True    
+    
+    
+    def start(self):
+        from bauble.plugins.garden.accession import Accession
+        # TODO: should really open the accession and location editors here, and
+        # ask 'Would you like to do that now?'
+        if self.session.query(Accession).count() == 0:        
+            msg = 'You must first add or import at least one Accession into the '\
+                  'database before you can add plants.'
+            utils.message_dialog(msg)
+            return
+        if self.session.query(Location).count() == 0:        
+            msg = 'You must first add or import at least one Location into the '\
+                  'database before you can add species.'
+            utils.message_dialog(msg)
+            return
+        self.view = PlantEditorView(parent=self.parent)
+        self.presenter = PlantEditorPresenter(self.model, self.view)
+        
+        exc_msg = "Could not commit changes.\n"
+        committed = None
+        while True:
+            response = self.presenter.start()
+            self.view.save_state() # should view or presenter save state
+            if self.handle_response(response):
+                break
+            
+        self.session.close() # cleanup session
+        return self._committed
+        
+        
+        
+
+        
+#class Plant(BaubleTable):
+#
+#    class sqlmeta(BaubleTable.sqlmeta):
+#	       defaultOrder = 'plant_id'
+#
+#    # add to end of accession id, e.g. 04-0002.05
+#    # these are only unique when combined with an accession_id, see the 
+#    # id_index index    
+#    #plant_id = IntCol(notNull=True) 
+#    # makes sense that it should be an int but we won't restrict it that way,
+#    # if the editor wants to ensure that it is int then it should attach
+#    # a formencode.Validator on it
+#    plant_id = UnicodeCol(notNull=True)
+#
+#
+#    # Plant: Whole plant
+#    # Seed/Spore: Seed or Spore
+#    # Vegetative Part: Vegetative Part
+#    # Tissue Culture: Tissue culture
+#    # Other: Other, probably see notes for more information
+#    # None: no information, unknown
+#    acc_type = EnumCol(enumValues=('Plant', 'Seed/Spore', 'Vegetative Part', 
+#                                   'Tissue Culture', 'Other', None),
+#                       default=None)
+#                          
+#    # Accession Status
+#    # Living accession: Current accession in living collection
+#    # Dead: Noncurrent accession due to Death
+#    # Transfered: Noncurrent accession due to Transfer
+#    # Stored in dormant state: Stored in dormant state
+#    # Other: Other, possible see notes for more information
+#    # None: no information, unknown)
+#    acc_status = EnumCol(enumValues=('Living accession', 'Dead', 'Transfered', 
+#                                     'Stored in dormant state', 'Other', None),
+#                         default=None)
+#    
+#    notes = UnicodeCol(default=None)
+#
+#    # indices
+#    #
+#    id_index = DatabaseIndex('plant_id', 'accession', unique=True)
+#    
+#    # foreign key
+#    # 
+#    accession = ForeignKey('Accession', notNull=True, cascade=False)
+#    
+#    # TODO: change the "location" field to "site" and then add specific 
+#    # locations fields like geographic coordinates
+#    location = ForeignKey("Location", notNull=True, cascade=False)
+#    
+#    # joins
+#    #
+#    history = MultipleJoin('PlantHistory', joinColumn='plant_id')
+#    
+#
+#    def __str__(self): 
+#        return "%s.%s" % (self.accession, self.plant_id)
+#    
+#    
+#    def markup(self):
+#        #return "%s.%s" % (self.accession, self.plant_id)
+#        # FIXME: this makes expanding accessions look ugly with too many
+#        # plant names around but makes expanding the location essential
+#        # or you don't know what plants you are looking at
+#        return "%s.%s (%s)" % (self.accession, self.plant_id, 
+#                               self.accession.species.markup())
     
 #
 # Plant editor
 #
-class PlantEditor(TreeViewEditorDialog):
-
-    visible_columns_pref = "editor.plant.columns"
-    column_width_pref = "editor.plant.column_width"
-    default_visible_list = ['accession', 'plant_id'] 
-
-    label = 'Plants\\Clones'
-
-    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
-        TreeViewEditorDialog.__init__(self, Plant, "Plants/Clones Editor", 
-                                      parent, select=select, defaults=defaults,
-                                      **kwargs)
-        # set headers
-        titles = {'plant_id': 'Plant ID',
-                   'accessionID': 'Accession ID',
-                   'locationID': 'Location',
-                   'acc_type': 'Accession Type',
-                   'acc_status': 'Accession Status',
-                   'notes': 'Notes'
-                   }
-        self.columns.titles = titles
-        self.columns['accessionID'].meta.get_completions = \
-            self.get_accession_completions
-        self.columns['locationID'].meta.get_completions = \
-            self.get_location_completions
-
-
-    def start(self, commit_transaction=True):
-        '''
-        '''
-        accessions = tables["Accession"].select()
-        if accessions.count() < 1:
-            msg = "You can't add plants/clones to the database without first " \
-                  "adding accessions.\n" \
-                  "Would you like to add accessions now?"
-            if utils.yes_no_dialog(msg):
-                acc_editor = editors["AccessionEditor"]()
-                acc_editor.start() # use the same transaction but commit
-                    
-        accessions = tables["Accession"].select()
-        if accessions.count() < 1:   # no accessions were added
-            return
-        
-        locations = tables["Location"].select()
-        # keep location committed b/c locations.select might return 1 since
-        # the location is just in the cache
-        loc_committed = [] 
-        if locations.count() < 1:
-            msg = "You are trying to add plants to the database but no " \
-                  "locations exists.\n" \
-                  "Would you like to add some locations now?"
-            if utils.yes_no_dialog(msg):
-                loc_editor = editors["LocationEditor"]()
-                loc_editor.start() # use the same transaction but commit
-        
-        locations = tables["Location"].select()
-        if locations.count() < 1:
-            return
-            
-        return super(PlantEditor, self).start(commit_transaction)
-
-
-    def get_accession_completions(self, text):
-        model = gtk.ListStore(str, object)
-        sr = tables["Accession"].select("acc_id LIKE '"+text+"%'")
-        for row in sr:
-            s = str(row) + " - " + str(row.species)
-            model.append([s, row])
-        return model
-            
-            
-    def get_location_completions(self, text):
-        model = gtk.ListStore(str, object)
-        sr = tables["Location"].select("site LIKE '" + text + "%'")
-        for row in sr:
-            model.append([str(row), row])
-        return model
+#class PlantEditor(TreeViewEditorDialog):
+#
+#    visible_columns_pref = "editor.plant.columns"
+#    column_width_pref = "editor.plant.column_width"
+#    default_visible_list = ['accession', 'plant_id'] 
+#
+#    label = 'Plants\\Clones'
+#
+#    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
+#        TreeViewEditorDialog.__init__(self, Plant, "Plants/Clones Editor", 
+#                                      parent, select=select, defaults=defaults,
+#                                      **kwargs)
+#        # set headers
+#        titles = {'plant_id': 'Plant ID',
+#                   'accessionID': 'Accession ID',
+#                   'locationID': 'Location',
+#                   'acc_type': 'Accession Type',
+#                   'acc_status': 'Accession Status',
+#                   'notes': 'Notes'
+#                   }
+#        self.columns.titles = titles
+#        self.columns['accessionID'].meta.get_completions = \
+#            self.get_accession_completions
+#        self.columns['locationID'].meta.get_completions = \
+#            self.get_location_completions
+#
+#
+#    def start(self, commit_transaction=True):
+#        '''
+#        '''
+#        accessions = tables["Accession"].select()
+#        if accessions.count() < 1:
+#            msg = "You can't add plants/clones to the database without first " \
+#                  "adding accessions.\n" \
+#                  "Would you like to add accessions now?"
+#            if utils.yes_no_dialog(msg):
+#                acc_editor = editors["AccessionEditor"]()
+#                acc_editor.start() # use the same transaction but commit
+#                    
+#        accessions = tables["Accession"].select()
+#        if accessions.count() < 1:   # no accessions were added
+#            return
+#        
+#        locations = tables["Location"].select()
+#        # keep location committed b/c locations.select might return 1 since
+#        # the location is just in the cache
+#        loc_committed = [] 
+#        if locations.count() < 1:
+#            msg = "You are trying to add plants to the database but no " \
+#                  "locations exists.\n" \
+#                  "Would you like to add some locations now?"
+#            if utils.yes_no_dialog(msg):
+#                loc_editor = editors["LocationEditor"]()
+#                loc_editor.start() # use the same transaction but commit
+#        
+#        locations = tables["Location"].select()
+#        if locations.count() < 1:
+#            return
+#            
+#        return super(PlantEditor, self).start(commit_transaction)
+#
+#
+#    def get_accession_completions(self, text):
+#        model = gtk.ListStore(str, object)
+#        sr = tables["Accession"].select("acc_id LIKE '"+text+"%'")
+#        for row in sr:
+#            s = str(row) + " - " + str(row.species)
+#            model.append([s, row])
+#        return model
+#            
+#            
+#    def get_location_completions(self, text):
+#        model = gtk.ListStore(str, object)
+#        sr = tables["Location"].select("site LIKE '" + text + "%'")
+#        for row in sr:
+#            model.append([str(row), row])
+#        return model
         
         
 #    # extending this so we can have different value that show for the completions
@@ -270,9 +758,10 @@ try:
 #    from xml.sax.saxutils import escape
     import bauble.paths as paths
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-
 except ImportError:
-    pass
+    # TODO: this should probably be handled a bit more robustly
+    class PlantInfoBox: 
+        pass
 else:
     
     class GeneralPlantExpander(InfoExpander):
@@ -280,26 +769,32 @@ else:
         general expander for the PlantInfoBox        
         """
         
-        def __init__(self, glade_xml):
+        def __init__(self, widgets):
             '''
             '''
-            InfoExpander.__init__(self, "General", glade_xml)
-            general_window = self.glade_xml.get_widget('general_window')
-            w = self.glade_xml.get_widget('general_box')
-            general_window.remove(w)
-            self.vbox.pack_start(w)
+            InfoExpander.__init__(self, "General", widgets)
+            general_box = self.widgets.general_box
+            self.widgets.remove_parent(general_box)
+            self.vbox.pack_start(general_box)
         
         
         def update(self, row):
             '''
             '''
-            utils.set_widget_value(self.glade_xml, 'name_data', 
+            self.set_widget_value('name_data', 
                  '%s\n%s' % (row.accession.species.markup(True), str(row)))            
-            utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
-            utils.set_widget_value(self.glade_xml, 'status_data',
+            self.set_widget_value('location_data',row.location.site)
+            self.set_widget_value('status_data',
                              row.acc_status, False)
-            utils.set_widget_value(self.glade_xml, 'type_data',
+            self.set_widget_value('type_data',
                              row.acc_type, False)
+#            utils.set_widget_value(self.glade_xml, 'name_data', 
+#                 '%s\n%s' % (row.accession.species.markup(True), str(row)))            
+#            utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
+#            utils.set_widget_value(self.glade_xml, 'status_data',
+#                             row.acc_status, False)
+#            utils.set_widget_value(self.glade_xml, 'type_data',
+#                             row.acc_type, False)
             
             
     class NotesExpander(InfoExpander):
@@ -307,20 +802,19 @@ else:
         the plants notes
         """
             
-        def __init__(self, glade_xml):
+        def __init__(self, widgets):
             '''
             '''
-            InfoExpander.__init__(self, "Notes", glade_xml)
-            w = self.glade_xml.get_widget('notes_box')
-            notes_window = self.glade_xml.get_widget('notes_window')
-            notes_window.remove(w)
-            self.vbox.pack_start(w)
+            InfoExpander.__init__(self, "Notes", widgets)
+            notes_box = self.widgets.notes_box
+            self.widgets.remove_parent(notes_box)
+            self.vbox.pack_start(notes_box)
         
         
         def update(self, row):
             '''
             '''
-            utils.set_widget_value(self.glade_xml, 'notes_data', row.notes)
+            self.set_widget_value('notes_data', row.notes)
         
 
     class PlantInfoBox(InfoBox):
@@ -334,12 +828,12 @@ else:
             InfoBox.__init__(self)
             #loc = LocationExpander()
             #loc.set_expanded(True)
-            path = os.path.join(paths.lib_dir(), "plugins", "garden")
-            self.glade_xml = gtk.glade.XML(path + os.sep + "plant_infobox.glade")            
-            self.general = GeneralPlantExpander(self.glade_xml)
+            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", "plant_infobox.glade")
+            self.widgets = utils.GladeWidgets(glade_file)
+            self.general = GeneralPlantExpander(self.widgets)
             self.add_expander(self.general)                    
             
-            self.notes = NotesExpander(self.glade_xml)
+            self.notes = NotesExpander(self.widgets)
             self.add_expander(self.notes)
             
         

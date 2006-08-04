@@ -9,15 +9,20 @@ import os, sys, re, copy, traceback
 import xml.sax.saxutils as saxutils
 import warnings
 import gtk
-from sqlobject.sqlbuilder import *
-from sqlobject import *
-from sqlobject.constraints import BadValue, notNull
-from sqlobject.joins import SOJoin, SOSingleJoin
+from sqlalchemy import *
+from sqlalchemy.orm.session import object_session
+from sqlalchemy.orm.properties import PropertyLoader
+from sqlalchemy.attributes import InstrumentedList
+#from sqlobject.sqlbuilder import *
+#from sqlobject import *
+#from sqlobject.constraints import BadValue, notNull
+#from sqlobject.joins import SOJoin, SOSingleJoin
 # for some reason if I do "from formencode import *" then i get 
 # sqlobject.sqlbuilder.NoDefault in some of my columns, i haven't looked into 
 # why but it must be some sort of scope/name conflict
-#from formencode import *
-from formencode import validators
+from formencode import *
+
+
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
@@ -25,44 +30,45 @@ import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug
 
-
-
-def check_constraints(table, values):
-    '''
-    table: a SQLObject class
-    values: dictionary of values for table    
-    '''
-    for name, value in values.iteritems():
-        if name in table.sqlmeta.columns:
-            col = table.sqlmeta.columns[name]
-            validators = col.createValidators()
-            # TODO: there is another possible bug here where the value is 
-            # not converted to the proper type in the values dict, e.g. a 
-            # string is entered for sp_author when it should be a unicode
-            # but maybe this is converted properly to unicode by
-            # formencode before going in the database, this would need to
-            # be checked better if we expect proper unicode support for
-            # unicode columns
-            # - should have a isUnicode constraint for UnicodeCols
-            if value is None and notNull not in col.constraints:
-                continue
-            for constraint in col.constraints:
-                # why are None's in the contraints?
-                if constraint is not None: 
-                    # TODO: when should we accept unicode values as strings
-                    # sqlite returns unicode values instead of strings
-                    # from an EnumCol
-                    if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
-                        constraint == constraints.isString and \
-                        isinstance(value, unicode):
-                        # do isString on unicode values if we're working
-                        # with a unicode col
-                        pass
-                    else:
-                        constraint(table.__name__, col, value)
-        else:        
-            # assume it's a join and don't do anything
-            pass
+#
+#from formencode import validators
+#
+#def check_constraints(table, values):
+#    '''
+#    table: a SQLObject class
+#    values: dictionary of values for table    
+#    '''
+#    for name, value in values.iteritems():
+#        if name in table.sqlmeta.columns:
+#            col = table.sqlmeta.columns[name]
+#            validators = col.createValidators()
+#            # TODO: there is another possible bug here where the value is 
+#            # not converted to the proper type in the values dict, e.g. a 
+#            # string is entered for sp_author when it should be a unicode
+#            # but maybe this is converted properly to unicode by
+#            # formencode before going in the database, this would need to
+#            # be checked better if we expect proper unicode support for
+#            # unicode columns
+#            # - should have a isUnicode constraint for UnicodeCols
+#            if value is None and notNull not in col.constraints:
+#                continue
+#            for constraint in col.constraints:
+#                # why are None's in the contraints?
+#                if constraint is not None: 
+#                    # TODO: when should we accept unicode values as strings
+#                    # sqlite returns unicode values instead of strings
+#                    # from an EnumCol
+#                    if isinstance(col, (SOUnicodeCol, SOEnumCol)) and \
+#                        constraint == constraints.isString and \
+#                        isinstance(value, unicode):
+#                        # do isString on unicode values if we're working
+#                        # with a unicode col
+#                        pass
+#                    else:
+#                        constraint(table.__name__, col, value)
+#        else:        
+#            # assume it's a join and don't do anything
+#            pass
             
 
 def commit_to_table(table, values):
@@ -124,6 +130,119 @@ def get_widget_value(glade_xml, widget_name, column=0):
                      " ** unknown widget type: %s " % (__file__,str(type(w))))
     
 
+class StringOrNoneValidator(validators.FancyValidator):
+    
+    def _to_python(self, value, state):
+        if value is u'':
+            return None
+        return str(value)
+
+
+class UnicodeOrNoneValidator(validators.FancyValidator):    
+    
+    def _to_python(self, value, state):
+        if value is '':
+            return None
+        return unicode(value, 'utf-8')
+    
+    
+class IntOrNoneStringValidator(validators.FancyValidator):
+    
+    def _to_python(self, value, state):
+        if value is None or (isinstance(value, str) and value == ''):
+            return None
+        elif isinstance(value, (int, long)):
+            return value
+        try:
+            return int(value)
+        except:
+            raise validators.Invalid('expected a int in column %s, got %s '\
+                                     'instead' % (self.name, type(value)), value, state)
+            
+
+class FloatOrNoneStringValidator(validators.FancyValidator):
+    
+    def _to_python(self, value, state):
+        if value is None or (isinstance(value, str) and value == ''):
+            return None
+        elif isinstance(value, (int, long, float)):
+            return value
+        try:
+            return float(value)
+        except:
+            raise validators.Invalid('expected a float in column %s, got %s '\
+                                     'instead' % (self.name, type(value)), value, state)
+
+#
+# decorates and delegates to a SA mapped object
+#
+class ModelDecorator(object):
+    '''
+    creates notifiers and allows dict style access to our model
+    '''
+    
+    __locals__ = ['__notifiers', 'model', '__pause']
+    
+    def __init__(self, model):
+        super(ModelDecorator, self).__init__(model)
+        super(ModelDecorator, self).__setattr__('__notifiers', {})
+        super(ModelDecorator, self).__setattr__('model', model)
+        super(ModelDecorator, self).__setattr__('__pause', False)
+
+    
+    def add_notifier(self, column, callback):
+        notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
+        try:
+            notifiers[column].append(callback)
+        except KeyError:
+            notifiers[column] = [callback]
+    
+        
+    def clear_notifers(self):
+        super(ModelDecorator, self).__getattribute__('__notifiers').clear()
+    
+        
+    def pause_notifiers(self, pause):
+        '''
+        @param pause: flags to disable calling notifier callbacks
+        @type pause: boolean
+        '''
+        super(ModelDecorator, self).__setattr__('__pause', False)
+
+        
+    def __getattr__(self, name):
+#        debug('__getattr__(%s)' % name)
+        #if name not in ModelDecorator.__dict__['__locals__']:
+        if name not in super(ModelDecorator, self).__getattribute__('__locals__'):        
+            return getattr(self.model, name)
+        else:
+            return super(ModelDecorator, self).__getattribute__(name)
+        
+        
+    def __set(self, name, value):
+#        debug('ModelDecorator.__set(%s, %s)' % (name, value))
+        model = super(ModelDecorator, self).__getattribute__('model')
+        setattr(model, name, value)
+        if not super(ModelDecorator, self).__getattribute__('__pause'):            
+            notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
+            if name in notifiers:
+                for callback in notifiers[name]:
+                    callback(model, name)
+        
+        
+        
+    def __setattr__(self, name, value):
+        self.__set(name, value)        
+
+    def __getitem__(self, name):
+        return getattr(self.model, name)
+
+    def __setitem__(self, name, value):
+        self.__set(name, value)        
+          
+    def __str__(self):
+        return str(self.model)
+
 # TODO: this is a new, simpler ModelRowDict sort of class, it doesn't try
 # to be as smart as ModelRowDict but it's a bit more elegant, the ModelRowDict
 # should be abolished or at least changed to use SQLObjectProxy
@@ -136,240 +255,247 @@ def get_widget_value(glade_xml, widget_name, column=0):
 # member
 # TODO: i think we should only add things to self.dict if they are column types
 # since this is used for committing, all other types aren't used in the commit
-class SQLObjectProxy(dict):    
+#class SQLObjectProxy(dict):    
+#    '''
+#    SQLObjectProxy does two things
+#    1. if so_object is an instance it caches values from the database and
+#    if those values are changed in the object then the values aren't changed
+#    in the database, only in our copy of the values
+#    2. if so_object is NOT an instance but simply an SQLObject derived class 
+#    then this proxy will only set the values in our local store but will
+#    make sure that the columns exist on item access and will return default
+#    values from the model if the values haven't been set
+#    3. keys will only exist in the dictionary if they have been accessed, 
+#    either by read or write, so **self will give you the dictionary of only
+#    those things that have been read or changed
+#    
+#    ** WARNING: ** this is definetely not thread safe or good for concurrent
+#    access, this effectively caches values from the database so if while using
+#    this class something changes in the database this class will still use
+#    the cached value
+#    '''
+#    
+#    # TODO: needs to be better tested
+#    
+#    def __init__(self, so_object):
+#        # we have to set so_object this way since it is called in __contains__
+#        # which is used by self.__setattr__                        
+#        dict.__setattr__(self, 'so_object', so_object)
+#        dict.__setattr__(self, 'dirty', False)
+#        dict.__setattr__(self, 'isinstance', False)
+#        dict.__setattr__(self, '_notifiers', {})
+#        dict.__setattr__(self, '_pause', False)
+#        
+#        
+#        #self._notifiers = {}
+#        dict.__setattr__(self, '_notifiers', {})
+#        if isinstance(so_object, SQLObject):
+#            dict.__setattr__(self, 'isinstance', True)
+#            #self.isinstance = True
+#            self['id'] = so_object.id # always keep the id
+#        elif not issubclass(so_object, SQLObject):
+#            msg = 'row should be either an instance or class of SQLObject'
+#            raise ValueError('SQLObjectProxy.__init__: ' + msg)  
+#    
+#            
+#    def pause_notifiers(self, pause):
+#        '''
+#        @param pause: flags to disable calling notifier callbacks
+#        @type pause: boolean
+#        '''
+#        dict.__setattr__(self, '_pause', pause)
+#    
+#    
+#    # TODO: provide a way to remove notifiers
+#    def clear_notifiers(self):
+#        '''
+#        remove all notifiers
+#        '''
+#        dict.__getattribute__(self, '_notifiers').clear()
+#    
+#    
+#    def add_notifier(self, column, callback):
+#        '''
+#        add a callback function to be called whenever a column is changed
+#        callback should be of the form C{def callback(field)}
+#        
+#        @param column: the name of the column in the SQLObject
+#        @param callback: the call back to call when the column is changed
+#        '''
+#        try:
+#            dict.__getattribute__(self, '_notifiers')[column].append(callback)
+#        except KeyError:
+#            dict.__getattribute__(self, '_notifiers')[column] = [callback]
+#
+#
+#    def __contains__(self, item):
+#        """
+#        this will check if item is in the dictionary or if self.so_object has an
+#        attribute by the name of item
+#        
+#        this causes the 'in' operator and has_key to behave differently,
+#        e.g. 'in' will tell you if it exists in either the dictionary
+#        or the table while has_key will only tell you if it exists in the 
+#        dictionary, this is a very important difference
+#        
+#        @param item:  a field name for the SQLObject class this proxy wraps
+#        """
+#        if dict.__contains__(self, item):
+#            return True
+#        
+#        return hasattr(dict.__getattribute__(self, 'so_object'), item)
+#    
+#    
+#    def __getitem__(self, item):
+#        '''
+#        get items from the dict
+#        if the item does not exist then we create the item in the dictionary
+#        and set its value from the default or to None
+#        
+#        @param item:
+#        '''
+##        debug('_getitem_(%s)' % item)
+#        
+#        # item is already in the dict
+#        if self.has_key(item): # use has_key to avoid __contains__
+#            return self.get(item)                
+#        
+#        # avoid all the __getattr__ calls for a but of a speed improvement
+#        self_so_object =  self.__getattribute__('so_object')
+#        # else if row is an instance then get it from the table
+#        v = None                        
+#        if self.isinstance:            
+#            v = getattr(self_so_object, item)            
+#            # resolve foreign keys
+#            # TODO: there might be a more reasonable wayto do this            
+#            if item in self_so_object.sqlmeta.columns:
+#                column = self_so_object.sqlmeta.columns[item]            
+#                if v is not None and isinstance(column, SOForeignKey):
+#                    table_name = column.foreignKey                    
+#                    v = tables[table_name].get(v)
+#        else:
+#            # else not an instance so at least make sure that the item
+#            # is an attribute in the row, should probably validate the type
+#            # depending on the type of the attribute in row
+#            #if not hasattr(self.so_object, item):
+#            if not hasattr(self_so_object, item):
+#                msg = '%s has no attribute %s' % (self_so_object.__class__, 
+#                                                  item)
+#                raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
+#                
+#        
+#        if v is None:
+#            # we haven't gotten anything for v yet, first check the 
+#            # default for the column
+#            if item in self_so_object.sqlmeta.columns:
+#                default = self_so_object.sqlmeta.columns[item].default
+#                if default is NoDefault:
+#                    default = None
+#                v = default
+#        
+#        # this effectively caches the row item from the instance, the False
+#        # is so that the row is set dirty only if it is changed from the 
+#        # outside
+#        self.__setitem__(item, v, False)
+#        return v            
+#           
+#                
+#    def __setitem__(self, key, value, dirty=True):
+#        '''
+#        set item in the dict, this does not change the database, only 
+#        the cached values
+#        
+#        @param key:
+#        @param value:
+#        @param dirty:
+#        '''
+##        debug('setitem(%s, %s, %s)' % (key, value, dirty))
+#        dict.__setitem__(self, key, value)
+#        dict.__setattr__(self, 'dirty', dirty)
+#        if dirty:
+#            try:
+#                # if we don't have this hasattr here we'll get infiniter 
+#                # recursion on _contains_, im not real sure why
+#                #if hasattr(self, '_notifiers') and not self._pause:
+#                if hasattr(self, '_pause') and not dict.__getattribute__(self, '_pause'):
+#                    #for callback in self._notifiers[key]:
+#                    for callback in dict.__getattribute__(self, '_notifiers')[key]:
+#                        callback(key)
+#            except KeyError, AttributeError:
+#                pass 
+#    
+#    
+#    def __getattr__(self, name):
+#        '''
+#        override attribute read 
+#        
+#        @param name:
+#        '''
+##        debug('SQLObjectProxy.__getattr__(%s)' % name)
+##        if dict.__contains__(self, name):        
+#        if name in self: 
+#            return self.__getitem__(name)
+#        return dict.__getattribute__(self, name)
+#    
+#    
+#    def __setattr__(self, name, value):
+#        '''
+#        override attribute write
+#        
+#        @param name:
+#        @param value:
+#        '''
+##        debug('__setattr__(%s, %s)' % (name, value))        
+#        if name in self:         
+#            self.__setitem__(name, value)
+#        elif hasattr(self, name):        
+#            dict.__setattr__(self, name, value)    
+#        else:
+#            raise AttributeError('no attribute %s' % name)
+#    
+#    
+#    def _get_columns(self):
+#        '''
+#        get the column dictionary from the sqlobject this proxy wraps
+#        '''
+#        return self.so_object.sqlmeta.columns
+#    columns = property(_get_columns)
+
+
+def default_completion_match_func(completion, key_string, iter):
     '''
-    SQLObjectProxy does two things
-    1. if so_object is an instance it caches values from the database and
-    if those values are changed in the object then the values aren't changed
-    in the database, only in our copy of the values
-    2. if so_object is NOT an instance but simply an SQLObject derived class 
-    then this proxy will only set the values in our local store but will
-    make sure that the columns exist on item access and will return default
-    values from the model if the values haven't been set
-    3. keys will only exist in the dictionary if they have been accessed, 
-    either by read or write, so **self will give you the dictionary of only
-    those things that have been read or changed
-    
-    ** WARNING: ** this is definetely not thread safe or good for concurrent
-    access, this effectively caches values from the database so if while using
-    this class something changes in the database this class will still use
-    the cached value
+    the default completion function, does a case-insensitive string 
+    comparison of the the completions model[iter][0]
     '''
-    
-    # TODO: needs to be better tested
-    
-    def __init__(self, so_object):
-        # we have to set so_object this way since it is called in __contains__
-        # which is used by self.__setattr__                        
-        dict.__setattr__(self, 'so_object', so_object)
-        dict.__setattr__(self, 'dirty', False)
-        dict.__setattr__(self, 'isinstance', False)
-        dict.__setattr__(self, '_notifiers', {})
-        dict.__setattr__(self, '_pause', False)
-        
-        
-        #self._notifiers = {}
-        dict.__setattr__(self, '_notifiers', {})
-        if isinstance(so_object, SQLObject):
-            dict.__setattr__(self, 'isinstance', True)
-            #self.isinstance = True
-            self['id'] = so_object.id # always keep the id
-        elif not issubclass(so_object, SQLObject):
-            msg = 'row should be either an instance or class of SQLObject'
-            raise ValueError('SQLObjectProxy.__init__: ' + msg)  
-    
-            
-    def pause_notifiers(self, pause):
-        '''
-        @param pause: flags to disable calling notifier callbacks
-        @type pause: boolean
-        '''
-        dict.__setattr__(self, '_pause', pause)
-    
-    
-    # TODO: provide a way to remove notifiers
-    def clear_notifiers(self):
-        '''
-        remove all notifiers
-        '''
-        dict.__getattribute__(self, '_notifiers').clear()
-    
-    
-    def add_notifier(self, column, callback):
-        '''
-        add a callback function to be called whenever a column is changed
-        callback should be of the form C{def callback(field)}
-        
-        @param column: the name of the column in the SQLObject
-        @param callback: the call back to call when the column is changed
-        '''
-        try:
-            dict.__getattribute__(self, '_notifiers')[column].append(callback)
-        except KeyError:
-            dict.__getattribute__(self, '_notifiers')[column] = [callback]
-
-
-    def __contains__(self, item):
-        """
-        this will check if item is in the dictionary or if self.so_object has an
-        attribute by the name of item
-        
-        this causes the 'in' operator and has_key to behave differently,
-        e.g. 'in' will tell you if it exists in either the dictionary
-        or the table while has_key will only tell you if it exists in the 
-        dictionary, this is a very important difference
-        
-        @param item:  a field name for the SQLObject class this proxy wraps
-        """
-        if dict.__contains__(self, item):
-            return True
-        
-        return hasattr(dict.__getattribute__(self, 'so_object'), item)
-    
-    
-    def __getitem__(self, item):
-        '''
-        get items from the dict
-        if the item does not exist then we create the item in the dictionary
-        and set its value from the default or to None
-        
-        @param item:
-        '''
-#        debug('_getitem_(%s)' % item)
-        
-        # item is already in the dict
-        if self.has_key(item): # use has_key to avoid __contains__
-            return self.get(item)                
-        
-        # avoid all the __getattr__ calls for a but of a speed improvement
-        self_so_object =  self.__getattribute__('so_object')
-        # else if row is an instance then get it from the table
-        v = None                        
-        if self.isinstance:            
-            v = getattr(self_so_object, item)            
-            # resolve foreign keys
-            # TODO: there might be a more reasonable wayto do this            
-            if item in self_so_object.sqlmeta.columns:
-                column = self_so_object.sqlmeta.columns[item]            
-                if v is not None and isinstance(column, SOForeignKey):
-                    table_name = column.foreignKey                    
-                    v = tables[table_name].get(v)
-        else:
-            # else not an instance so at least make sure that the item
-            # is an attribute in the row, should probably validate the type
-            # depending on the type of the attribute in row
-            #if not hasattr(self.so_object, item):
-            if not hasattr(self_so_object, item):
-                msg = '%s has no attribute %s' % (self_so_object.__class__, 
-                                                  item)
-                raise KeyError('ModelRowDict.__getitem__: ' + msg)                        
-                
-        
-        if v is None:
-            # we haven't gotten anything for v yet, first check the 
-            # default for the column
-            if item in self_so_object.sqlmeta.columns:
-                default = self_so_object.sqlmeta.columns[item].default
-                if default is NoDefault:
-                    default = None
-                v = default
-        
-        # this effectively caches the row item from the instance, the False
-        # is so that the row is set dirty only if it is changed from the 
-        # outside
-        self.__setitem__(item, v, False)
-        return v            
-           
-                
-    def __setitem__(self, key, value, dirty=True):
-        '''
-        set item in the dict, this does not change the database, only 
-        the cached values
-        
-        @param key:
-        @param value:
-        @param dirty:
-        '''
-#        debug('setitem(%s, %s, %s)' % (key, value, dirty))
-        dict.__setitem__(self, key, value)
-        dict.__setattr__(self, 'dirty', dirty)
-        if dirty:
-            try:
-                # if we don't have this hasattr here we'll get infiniter 
-                # recursion on _contains_, im not real sure why
-                #if hasattr(self, '_notifiers') and not self._pause:
-                if hasattr(self, '_pause') and not dict.__getattribute__(self, '_pause'):
-                    #for callback in self._notifiers[key]:
-                    for callback in dict.__getattribute__(self, '_notifiers')[key]:
-                        callback(key)
-            except KeyError, AttributeError:
-                pass 
-    
-    
-    def __getattr__(self, name):
-        '''
-        override attribute read 
-        
-        @param name:
-        '''
-#        debug('SQLObjectProxy.__getattr__(%s)' % name)
-#        if dict.__contains__(self, name):        
-        if name in self: 
-            return self.__getitem__(name)
-        return dict.__getattribute__(self, name)
-    
-    
-    def __setattr__(self, name, value):
-        '''
-        override attribute write
-        
-        @param name:
-        @param value:
-        '''
-#        debug('__setattr__(%s, %s)' % (name, value))        
-        if name in self:         
-            self.__setitem__(name, value)
-        elif hasattr(self, name):        
-            dict.__setattr__(self, name, value)    
-        else:
-            raise AttributeError('no attribute %s' % name)
-    
-    
-    def _get_columns(self):
-        '''
-        get the column dictionary from the sqlobject this proxy wraps
-        '''
-        return self.so_object.sqlmeta.columns
-    columns = property(_get_columns)
-
-
+    value = completion.get_model()[iter][0]
+    return str(value).lower().startswith(key_string.lower()) 
 
 class GenericEditorView:
     
     
-    class _widgets(dict):
-        '''
-        dictionary and attribute access for widgets
-        '''
-
-        def __init__(self, glade_xml):
-            '''
-            @params glade_xml: a gtk.glade.XML object
-            '''
-            self.glade_xml = glade_xml
-        
-        def __getitem__(self, name):
-            '''
-            @param name:
-            '''
-            # TODO: raise a key error if there is no widget
-            return self.glade_xml.get_widget(name)
-    
-        def __getattr__(self, name):
-            '''
-            @param name:
-            '''
-            return self.glade_xml.get_widget(name)
+#    class _widgets(dict):
+#        '''
+#        dictionary and attribute access for widgets
+#        '''
+#
+#        def __init__(self, glade_xml):
+#            '''
+#            @params glade_xml: a gtk.glade.XML object
+#            '''
+#            self.glade_xml = glade_xml
+#        
+#        def __getitem__(self, name):
+#            '''
+#            @param name:
+#            '''
+#            # TODO: raise a key error if there is no widget
+#            return self.glade_xml.get_widget(name)
+#    
+#        def __getattr__(self, name):
+#            '''
+#            @param name:
+#            '''
+#            return self.glade_xml.get_widget(name)
         
         
     def __init__(self, glade_xml, parent=None):
@@ -385,7 +511,8 @@ class GenericEditorView:
         else: # assume it's a path string
             self.glade_xml = gtk.glade.XML(glade_xml)
         self.parent = parent
-        self.widgets = GenericEditorView._widgets(self.glade_xml)
+        #self.widgets = GenericEditorView._widgets(self.glade_xml)
+        self.widgets = utils.GladeWidgets(self.glade_xml)
         self.response = None
     
     
@@ -424,15 +551,37 @@ class GenericEditorView:
         dialog.hide()
         return True
     
+
+    def attach_completion(self, entry_name, cell_data_func, 
+                          match_func=default_completion_match_func):
+        '''
+        @return: the completion attached to the entry
+        '''
+        self.widgets[entry_name]
+        completion = gtk.EntryCompletion()
+        completion.set_match_func(match_func)        
+        cell = gtk.CellRendererText() # set up the completion renderer
+        completion.pack_start(cell)            
+        completion.set_cell_data_func(cell, cell_data_func)
+        completion.set_minimum_key_length(2)
+        completion.set_popup_completion(True)        
+        self.widgets[entry_name].set_completion(completion)
+        return completion
+    
     
     def save_state(self):
         '''
+        save the state of the view by setting a value in the preferences
+        that will be called restored in restore_state        
+        e.g. prefs[pref_string] = pref_value 
         '''
         pass
         
     def restore_state(self):
         '''
-        '''
+        resore the state of the view, this is usually done by getting a value
+        by the preferences and setting the equivalent in the interface
+        '''        
         pass
         
     def start(self):
@@ -504,15 +653,21 @@ class GenericEditorPresenter:
     the presenter of the Model View Presenter Pattern
     '''
     problem_color = gtk.gdk.color_parse('#FFDCDF')
-    def __init__(self, model, view, defaults={}):
+#    def __init__(self, model, view, defaults={}):
+    def __init__(self, model, view):    
         '''
-        @param model: should be an instance of SQLObjectProxy
+        @param model: an object instance mapped to an SQLAlchemy table
         @param view: should be an instance of GenericEditorView
+        
+        the presenter should usually be initialized in the following order:
+        1. initialize the widgets
+        2. refresh the view, put values from the model into the widgets
+        3. connect the signal handlers
         '''
         widget_model_map = {}
         self.model = model
         self.view = view
-        self.defaults = defaults
+#        self.defaults = defaults
         self.problems = Problems()
 
 
@@ -583,16 +738,18 @@ class GenericEditorPresenter:
         def _set_in_model(value, field=model_field):            
 #            debug('_set_in_model(%s, %s,)' % (value, field))
             if validator is not None:
-                try:
+                try:                    
                     value = validator.to_python(value, None)
                     self.problems.remove('BAD_VALUE_%s' % model_field)
-                    #self.model[field] = value
                 except validators.Invalid, e:
                     self.problems.add('BAD_VALUE_%s' % model_field)
                     value = None # make sure the value in the model is reset                
-            self.model[field] = value
+#            debug('%s: %s' % (value, type(value)))
+            setattr(self.model, field, value)
             
         widget = self.view.widgets[widget_name]
+        assert widget is not None, 'no widget with name %s' % widget_name
+            
         if isinstance(widget, gtk.Entry):            
             def insert(entry, new_text, new_text_length, position):
                 entry_text = entry.get_text()                
@@ -631,16 +788,7 @@ class GenericEditorPresenter:
                 if i is None:
                     return
                 data = combo.get_model()[combo.get_active_iter()][0]
-                # TODO: should we check here that data is an instance or an
-                # integer                
-                if model_field[-2:] == "ID": 
-                    debug('assign_simple_handler: setting without ID on end')
-                    field = model_field[:-2]
-                else:
-                    field = model_field
-                #self.model[model_field] = data
-                _set_in_model(data, field)
-                
+                _set_in_model(data, model_field)                                
             widget.connect('changed', changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton, 
                                  gtk.RadioButton)):
@@ -664,22 +812,34 @@ class GenericEditorPresenter:
         raise NotImplementedError
     
     
-    
+
 class GenericModelViewPresenterEditor(BaubleEditor):
-    
+
     label = ''
     standalone = True
     ok_responses = ()
     
-    def __init__(self, model, defaults={}, parent=None):
+    #def __init__(self, model, defaults={}, parent=None):
+    def __init__(self, model, parent=None):
         '''
-        model: either a BaubleTable instance or class
-        defaults: a dictionary of column names in the model and default values
-        for the columns if not other value is specified
-        parent: the parent windows for th view
+        @param model: an instance of a object mapped to an SQLAlchemy Table
+        @param defaults: a dictionary of column names in the model and default 
+            values for the columns if not other value is specified
+        @param parent: the parent windows for th view
         '''
-        self.model = SQLObjectProxy(model)
-        
+        self.session = create_session(bind_to=bauble.app.db_engine)            
+        model_session = object_session(model)
+        if model_session:            
+            if model in model_session.new: # pending
+                model_session.expunge(model)
+                self.session.save(model)
+                self.model = model
+            else:                
+                self.model = self.session.load(model.__class__, model.id)
+        else:
+            self.model = model
+            self.session.save(self.model)
+
     
     def assert_args(self, model, type_class, defaults):
         '''
@@ -770,7 +930,8 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     def commit_changes(self):
         '''
         '''
-        raise NotImplementedError
+        self.session.flush()
+        return True
     
 
 # TODO: this isn't being used yet, it's only an idea stub
@@ -966,10 +1127,10 @@ class TableEditorDialog(TableEditor):
 
     def save_state(self):
         '''
-        save the state of the editor whether it be the gui or whatever, this 
-        should not make database commits unless to BaubleMeta,
-        not required to implement
-        '''        
+        save the state of the view by setting a value in the preferences
+        that will be called restored in restore_state        
+        e.g. prefs[pref_string] = pref_value 
+        '''
         pass
 
 

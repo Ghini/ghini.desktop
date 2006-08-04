@@ -5,88 +5,74 @@
 
 import os, sys, traceback
 import gtk
-from sqlobject import *
+from sqlalchemy import *
 from bauble.plugins import plugins, tools, views, editors
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.utils.log import debug
 import datetime
 import bauble
+import bauble.meta as meta
+#from bauble import BaubleMetaTable
 
 DEBUG_SQL = False
 
-class BaubleApp:
+class BaubleApp(object):
     
     conn_name = None
     gui = None
-    
-    def __init__(self):
-        pass
+    db_engine = None
 
     @staticmethod
     def create_database():
         '''
         create new Bauble database at the current connection
         '''
-        # FIXME: for some reason the application locks up when this is called 
-        # from gui.on_file_menu_new and an exception is raised, i don't know
-        # what is locking it up since on_file_menu_new returns, maybe another
-        # loop running somewhere but the app redraws and there is a busy
-        # cursor, i also don't understand why tables are still being imported 
-        # on error
+        # TODO: when creating a database there shouldn't be any errors
+        # on import since we are importing from the default values, we should
+        # just force the import and send everything in the database at once
+        # instead of using slices, this would make it alot faster but it may 
+        # make it more difficult to make the interface more responsive,
+        # maybe we can use a dialog without the progress bar to show the status,
+        # should probably work on the status bar to display this
         bauble.app.set_busy(True)
-        bauble.BaubleMetaTable.dropTable(ifExists=True)   
-        try:            
-            #sqlhub.processConnection.autoCommit = True
-            default_filenames = []
+        # drop all tables
+        
+        default_filenames = []
+        try:
+            default_metadata.drop_all()
+            default_metadata.create_all()
+            
             for p in plugins.values():
-                p.create_tables()
                 default_filenames.extend(p.default_filenames())
-
-            default_basenames = [os.path.basename(f) for f in default_filenames]
-            if 'Genus.txt' in default_basenames:
-                msg = 'Would you like to import the Genera?\n\n<i>Note: This '\
-                      'takes a little more time.</i>'
-                debug(msg)
-                debug(default_filenames)
-                if not utils.yes_no_dialog(msg):
-                    genus_index = default_basenames.index('Genus.txt')
-                    del default_filenames[genus_index]                    
-                    try:
-                        default_basenames = [os.path.basename(f) for f in default_filenames]
-                        gensyn_index = default_basenames.index('GenusSynonym.txt')
-                        debug(gensyn_index)
-                        del default_filenames[gensyn_index]                    
-                    except:
-                        debug('GenusSynonym.txt not in default_filenames')
-                        
+            
+            default_basenames = [os.path.basename(f) for f in default_filenames]                        
             # import default data
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter
                 csv = CSVImporter()    
                 csv.start(default_filenames)
-
-            bauble.BaubleMetaTable.createTable()  
-            bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.version,
-                                   value=str(bauble.version))
+            
+            # add the version to the meta table
+            meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
+                                                    value=str(bauble.version))
         except:
             msg = "Error creating tables. Your database may be corrupt."
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-            # should be do a rollback here so that we return to the previous
+            # TODO: should be do a rollback here so that we return to the previous
             # database state, we would first need a begiin at the beginning of 
             # this method for it to work correction i think
+            # UPDATE: this wouldn't work since csv.start() doesn't block, need 
+            # another way to handle the transaction, maybe pass it the csv start
+            # and tell it to commit when it's done. that not good though.
         else:
             # create the created timestamp
-            t = bauble.BaubleMetaTable(name=bauble.BaubleMetaTable.created, 
-                                       value=str(datetime.datetime.now()))
-            sqlhub.processConnection.commit()
-#        except pysqlite2.dbapi2.OperationalError:
-#            msg = "Error creating the database. This sometimes happens " \
-#            "when trying to create a SQLite database on a network drive. " \
-#            "Try creating the database in a local drive or folder."
-#            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
+                                          value=str(datetime.datetime.now()))
+                           
         bauble.app.set_busy(False)
+        
     
     def set_busy(self, busy):
         if self.gui is None:
@@ -104,26 +90,19 @@ class BaubleApp:
                           
                           
     @classmethod
-    def open_database(klass, uri, name=None):        
+    def open_database(cls, uri, name=None):        
         """
         open a database connection
         """
         #debug(uri) # ** WARNING: this can print your passwd
         try:
-            # TODO: should make the global transaction available as
-            # bauble.transaction and possible wrap it in a class so
-            # we basically make rollback automatically do a begin() and
-            # make begin() a NOOP
-            #self.db_engine = sqlalchemy.create_engine(uri)
-            sqlhub.processConnection = connectionForURI(uri)
-            sqlhub.processConnection.getConnection()
-            sqlhub.processConnection = sqlhub.processConnection.transaction()
+            global_connect(uri)
+            cls.db_engine = default_metadata.engine
         except Exception, e:
             msg = "Could not open connection.\n\n%s" % str(e)        
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
-            sqlhub.processConnection = None
-            klass.conn_name = None
+            cls.conn_name = None
             return None
                                     
         if name is not None:
@@ -135,12 +114,13 @@ class BaubleApp:
         # database
         warning = "\n\n<i>Warning: If a database does already exists at this "\
                   "connection, creating a new database could corrupt it.</i>"
-        try:
-            #debug('get version')
-            sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.version)
-            #debug(sel)
-            db_version = eval(sel[0].value)
-            if db_version[0:2] != bauble.version[0:2]:# compare major and minor
+        session = create_session()
+        query = session.query(meta.BaubleMetaTable)
+        try:            
+            result = query.get_by(name=meta.VERSION_KEY)
+            if result is not None:            
+                db_version = eval(result.value)            
+            if result is not None and db_version[0:2] != bauble.version[0:2]:# compare major and minor
                 msg = 'You are using Bauble version %d.%d.%d while the '\
                       'database you have connected to was created with '\
                       'version %d.%d.%d\n\nSome things might not work as '\
@@ -151,19 +131,19 @@ class BaubleApp:
                          db_version[2],)
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING)       
                             
-            sel = bauble.BaubleMetaTable.selectBy(name=bauble.BaubleMetaTable.created)
-            if sel.count() == 0:
+            result = query.get_by(name=meta.CREATED_KEY)
+            if result is None:            
                 msg = 'The database you have connected to does not have a '\
                       'timestamp for when it was created. This usually means '\
                       'that there was a problem when you created the '\
                       'database.  You like to try to create the database '\
                       'again?' + warning
                 if utils.yes_no_dialog(msg):
-                    klass.create_database()
-                    klass.conn_name = name
-                    return klass.open_database(uri, name)
+                    cls.create_database()
+                    cls.conn_name = name
+                    return cls.open_database(uri, name)
                 else:
-                    klass.conn_name = None
+                    cls.conn_name = None
                     return None
                         
         except Exception:
@@ -172,14 +152,14 @@ class BaubleApp:
                   "wasn't created using Bauble. Would you like to create a " \
                   "create a database at this connection?" + warning
             if utils.yes_no_dialog(msg):
-                klass.create_database()
-                klass.conn_name = name
-                return klass.open_database(uri, name)
+                cls.create_database()
+                cls.conn_name = name
+                return cls.open_database(uri, name)
             else:
-                klass.conn_name = None
+                cls.conn_name = None
                 return None
-    	klass.conn_name = name
-        return sqlhub.processConnection
+    	cls.conn_name = name
+        return cls.db_engine        
         
         
     def destroy(self, widget, data=None):

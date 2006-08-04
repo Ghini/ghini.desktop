@@ -15,7 +15,8 @@ import imp, os, sys
 # releaselevel are integers; the release level is 'alpha', 'beta', 
 # 'candidate', or 'final'. The version_info value corresponding to the Python 
 # version 2.0 is (2, 0, 0, 'final', 0). New in version 2.0. 
-version = (0,5,3)
+#version = (0,6,0)
+version = (0,5,4)
 version_str = '%s.%s.%s' % (version[0], version[1], version[2])
 
 def main_is_frozen():
@@ -42,37 +43,41 @@ if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
 # meta information about the bauble database
-from sqlobject import SQLObject, StringCol
-    
-class BaubleMetaTable(SQLObject):
-    
-    class sqlmeta:        
-        table = "bauble"
-    
-    name = StringCol(length=64)
-    value = StringCol(length=128)
-    
-    # some keys for the standard information
-    version = 'version' # a string tuple of (major, minor, revision)
-    created = 'created' # a string in datetime.now() format
-
-    #date_format = 'date'
-    
-
-
-class BaubleError(Exception):
-     def __init__(self, msg):
-         self.msg = msg
-     def __str__(self):
-         return self.msg    
-        
+#from sqlobject import SQLObject, StringCol
 try:
-    from sqlobject import *
+    from sqlalchemy import *
+    # TODO: check sqlalchemy version
 except ImportError:
-    msg = "SQLObject not installed. Please install SQLObject from "\
-          "http://www.sqlobject.org"
+    msg = "SQLAlchemy not installed. Please install SQLObject from "\
+          "http://www.sqlalchemy.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
     raise
+
+
+
+
+#    # some keys for the standard information
+#    version = 'version' # a string tuple of (major, minor, revision)
+#    created = 'created' # a string in datetime.now() format
+#
+#    #date_format = 'date'
+    
+
+try:
+    import sqlalchemy
+except ImportError:
+    msg = 'SQLAlchemy not installed. Please install SQLAlchemy from '\
+          'http://www.sqlalchemy.org'
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
+    raise
+
+
+class BaubleMapper(object):
+    
+    def __init__(self, **kwargs):
+        for attr, value in kwargs.iteritems():
+            setattr(self, attr, value)
+
 
 from bauble._app import BaubleApp
 app = BaubleApp()

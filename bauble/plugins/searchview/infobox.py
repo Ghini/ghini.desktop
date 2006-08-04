@@ -35,7 +35,7 @@ class InfoExpander(gtk.Expander):
     """
     # TODO: we should be able to make this alot more generic
     # and get information from sources other than table columns
-    def __init__(self, label, glade_xml=None):
+    def __init__(self, label, widgets=None):
         '''
         the constructor
 
@@ -47,34 +47,16 @@ class InfoExpander(gtk.Expander):
         gtk.Expander.__init__(self, label)
         self.vbox = gtk.VBox(False)
         self.add(self.vbox)
-        self.glade_xml = glade_xml
         self.set_expanded(True)
-        self.widgets = InfoExpander._widgets(glade_xml)
+        self.widgets = widgets
         
-        
-    class _widgets(dict):
-        '''
-        dictionary and attribute access for widgets
-        '''
-        # TODO: should i worry about making this more secure/read only
-
-        def __init__(self, glade_xml):
-            self.glade_xml = glade_xml
-        
-        def __getitem__(self, name):
-            # TODO: raise a key error if there is no widget
-            return self.glade_xml.get_widget(name)
-    
-        def __getattr__(self, name):
-            return self.glade_xml.get_widget(name)
-        
-        
+              
     def set_widget_value(self, widget_name, value, markup=True, default=None):
         '''
         a shorthand for L{utils.set_widget_value}
         TODO: how do i link the docs to reference utils.set_widget_value
         '''
-        utils.set_widget_value(self.glade_xml, widget_name, value, markup, 
+        utils.set_widget_value(self.widgets.glade_xml, widget_name, value, markup, 
                                default)
         
         

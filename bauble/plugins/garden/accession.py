@@ -6,19 +6,18 @@ import os, traceback, math
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk, gobject
-from sqlobject import * 
-from sqlobject.constraints import BadValue, notNull
-from sqlobject.sqlbuilder import _LikeQuoted
-from sqlobject.col import FloatValidator, IntValidator
-from formencode import *
+from sqlalchemy import *
+from sqlalchemy.orm.session import object_session
+from sqlalchemy.exceptions import SQLError
+import formencode.validators as validators
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins import BaubleTable, tables, editors
 from bauble.editor import *
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
+from bauble.types import Enum
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -34,11 +33,6 @@ from bauble.error import CommitException
 # are currently editing, but only if the sqlobject proxy object has an instance
 # behind it
 
-#def utm_wgs84_to_dms():
-#    pass
-#
-#def dms_to_utm_wgs84():
-#    pass
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
@@ -92,10 +86,7 @@ def decimal_to_dms(decimal, long_or_lat):
 
 def edit_callback(row):
     value = row[0]
-    
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
-    e = AccessionEditor(select=[value], model=value)
+    e = AccessionEditor(value)
     return e.start() != None
 
 
@@ -107,6 +98,7 @@ def add_plants_callback(row):
 
 
 def remove_callback(row):
+    # TODO SA: still need to move this over
     value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
@@ -142,50 +134,175 @@ def acc_markup_func(acc):
     return '%s (%s)' % (str(acc), acc.species.markup(authors=False))
 
 
-class Accession(BaubleTable):
 
-    class sqlmeta(BaubleTable.sqlmeta):
-	       defaultOrder = 'acc_id'
 
-    acc_id = UnicodeCol(length=20, notNull=True, alternateID=True)
+'''
+prov_type:
+----------
+"Wild", # Wild,
+"Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
+"Not of wild source", # Not of wild source
+"Insufficient Data", # Insufficient data
+"Unknown"
+
+wild_prov_status:
+-----------------
+"Wild native", # Endemic found within it indigineous range
+"Wild non-native", # Propagule of wild plant in cultivation
+"Cultivated native", # Not of wild source
+"Insufficient Data", # Insufficient data
+"Unknown",
+
+date: date accessioned
+
+'''
+
+# TODO: accession should have a one-to-many relationship on verifications
+    #ver_level = StringCol(length=2, default=None) # verification level
+    #ver_name = StringCol(length=50, default=None) # verifier's name
+    #ver_date = DateTimeCol(default=None) # verification date
+    #ver_hist = StringCol(default=None)  # verification history
+    #ver_lit = StringCol(default=None) # verification lit
+    #ver_id = IntCol(default=None) # ?? # verifier's ID??
+verification_table = Table('verification',
+                           Column('id', Integer, primary_key=True),
+                           Column('verifier', Unicode(64)),
+                           Column('date', Date),
+                           Column('literature', Unicode),
+                           Column('level', String), # i don't know what this is
+                           Column('accession_id', Integer, 
+                                  ForeignKey('accession.id')))
+
+
+class Verification(object):
+    pass
+
+# TODO: change acc_id to code
+accession_table = Table('accession',
+                        Column('id', Integer, primary_key=True),    
+                        Column('acc_id', Unicode(20), nullable=False, unique='code_index'),                        
+#                        Column('code', Unicode(20), nullable=False, unique='code_index'),
+                        Column('prov_type', Enum(values=['Wild', 
+                                                         "Propagule of cultivated wild plant", 
+                                                         "Not of wild source",
+                                                         "Insufficient Data", 
+                                                         "Unknown",
+                                                         None],
+                                                 empty_to_none=True)),
+                        Column('wild_prov_status', Enum(values=["Wild native",
+                                                                "Wild non-native",
+                                                                "Cultivated native",
+                                                                "Insufficient Data",
+                                                                "Unknown",
+                                                                None],
+                                                        empty_to_none=True)),
+                        Column('date', Date),
+                        Column('source_type', String(10)), # Collection, Donation, None
+                        Column('notes', Unicode),
+                        Column('species_id', Integer, ForeignKey('species.id'), 
+                               nullable=False))
+
+
+def delete_or_expunge(session, obj):
+    if obj in session.new:
+        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
+        session.expunge(obj)
+    else:
+        debug('delete obj: %s -- %s' % (obj, repr(obj)))        
+        session.delete(obj)        
+
+# TODO: need to incorporate the accession.source property into a test
+class Accession(bauble.BaubleMapper):
+    
+    def __str__(self): 
+        return self.acc_id
+    
+    def _get_source(self):
+        if self.source_type is None:
+            return None
+        elif self.source_type == 'Collection':
+            return self._collection
+        elif self.source_type == 'Donation':
+            return self._donation
+        raise AssertionError('unknown source_type in accession: %s' % self.source_type)    
+    def _set_source(self, source):
+        debug('_set_source(%s): %s' % (source or 'None', repr(source)))
+        session = object_session(self)
+        old = self.source
+        if source is None:
+            del self.source
+            return
+        debug(old in session.deleted)
+        if source is not self.source:
+            debug('deleting self.source')
+            del self.source
+        debug(old in session.deleted)
+#        if source is None:
+#            del self.source
+#            #self.source_type = None            
+#            return         
+#        if source is not self.source:
+#            debug('deleting source')
+#            del self.source
+#        if source in session:
+#            print 'source in session: %s' % source
+#        if self.source in session:
+#            print 'self.source in session: %s' % self.source            
+        self.source_type = source.__class__.__name__
+        debug(old in session.deleted)
+#        bauble.app.db_engine.echo = True
+#        source.accession = self
+        if isinstance(source, Collection):
+            self._collection = source
+        elif isinstance(source, Donation):
+            self._donation = source
+        else: 
+            AssertionError('unknown source type')
+        debug('SOURCE %s: %s' % (source, repr(source)))
+        session.save_or_update(source)
+        debug(old in session.new)
+        debug(old in session.new)
+        debug(old in session.deleted)
+        debug(old in session.dirty)
+#        for obj in session:
+#            debug('%s: %s' % (obj, repr(obj)))
+#            debug(obj in session.new)
+#            debug(obj in session.deleted)
+#            debug(obj in session.dirty)
+#            debug('-----------')
+    def _del_source(self):                
+        session = object_session(self)
+        source = self.source
+        if source is not None:
+            delete_or_expunge(session, source)
+        self.source_type = None
+            
         
-    prov_type = EnumCol(enumValues=("Wild", # Wild,
-                                    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
-                                    "Not of wild source", # Not of wild source
-                                    "Insufficient Data", # Insufficient data
-                                    "Unknown",
-                                    None),
-                        default=None)
+    source = property(_get_source, _set_source, _del_source)
+        
+    def markup(self):
+        return '%s (%s)' % (self.acc_id, self.species.markup())
 
-    # wild provenance status, wild native, wild non-native, cultivated native
-    wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
-                                           "Wild non-native", # Propagule of wild plant in cultivation
-                                           "Cultivated native", # Not of wild source
-                                           "Insufficient Data", # Insufficient data
-                                           "Unknown",
-                                           None),
-                               default=None)
-    
-    # date accessioned
-    date = DateCol(notNull=True)
-    
-    # indicates wherewe should get the source information from either of those 
-    # columns
-    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
-                          default=None)                   
-    notes = UnicodeCol(default=None)    
-    
-    # foriegn keys
-    #
-    species = ForeignKey('Species', notNull=True, cascade=False)    
-    
-    # joins
-    #
-    _collection = SingleJoin('Collection', joinColumn='accession_id')
-    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
-    plants = MultipleJoin("Plant", joinColumn='accession_id')    
-    
-    
+
+from bauble.plugins.garden.source import Donation, donation_table, \
+    Collection, collection_table
+from bauble.plugins.garden.plant import Plant
+
+mapper(Accession, accession_table,
+       properties = {
+                     '_collection': relation(Collection, 
+                                             primaryjoin=accession_table.c.id==collection_table.c.accession_id,
+                                             backref='accession', private=True, uselist=False),
+                     '_donation': relation(Donation, 
+                                           primaryjoin=accession_table.c.id==donation_table.c.accession_id,
+                                           backref='accession', private=True, uselist=False),
+                     'plants': relation(Plant, backref='accession', private=True),
+                     'verifications': relation(Verification, backref='accession', order_by='date',
+                                               private=True)},
+       order_by='acc_id')
+                               
+mapper(Verification, verification_table)
+
     # these probably belong in separate tables with a single join
     #cultv_info = StringCol(default=None)      # cultivation information
     #prop_info = StringCol(default=None)       # propogation information
@@ -216,11 +333,87 @@ class Accession(BaubleTable):
     #consv_status = StringCol(default=None) # conservation status, free text
     
     
-    def __str__(self): 
-        return self.acc_id
+
     
-    def markup(self):
-        return '%s (%s)' % (self.acc_id, self.species.markup())
+#class Accession(BaubleTable):
+#
+#    class sqlmeta(BaubleTable.sqlmeta):
+#	       defaultOrder = 'acc_id'
+#
+#    acc_id = UnicodeCol(length=20, notNull=True, alternateID=True)
+#        
+#    prov_type = EnumCol(enumValues=("Wild", # Wild,
+#                                    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
+#                                    "Not of wild source", # Not of wild source
+#                                    "Insufficient Data", # Insufficient data
+#                                    "Unknown",
+#                                    None),
+#                        default=None)
+#
+#    # wild provenance status, wild native, wild non-native, cultivated native
+#    wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
+#                                           "Wild non-native", # Propagule of wild plant in cultivation
+#                                           "Cultivated native", # Not of wild source
+#                                           "Insufficient Data", # Insufficient data
+#                                           "Unknown",
+#                                           None),
+#                               default=None)
+#    
+#    # date accessioned
+#    date = DateCol(notNull=True)
+#    
+#    # indicates wherewe should get the source information from either of those 
+#    # columns
+#    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
+#                          default=None)                   
+#    notes = UnicodeCol(default=None)    
+#    
+#    # foriegn keys
+#    #
+#    species = ForeignKey('Species', notNull=True, cascade=False)    
+#    
+#    # joins
+#    #
+#    _collection = SingleJoin('Collection', joinColumn='accession_id')
+#    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
+#    plants = MultipleJoin("Plant", joinColumn='accession_id')    
+#    
+#    
+#    # these probably belong in separate tables with a single join
+#    #cultv_info = StringCol(default=None)      # cultivation information
+#    #prop_info = StringCol(default=None)       # propogation information
+#    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
+#       # propagation history ???
+#    #prop_history = StringCol(length=11, default=None)
+#
+#    # accession lineage, parent garden code and acc id ???
+#    #acc_lineage = StringCol(length=50, default=None)    
+#    #acctxt = StringCol(default=None) # ???
+#    
+#    #
+#    # verification, a verification table would probably be better and then
+#    # the accession could have a verification history with a previous
+#    # verification id which could create a chain for the history,
+#    # this would be necessary especially for herbarium records
+#    #
+#    #ver_level = StringCol(length=2, default=None) # verification level
+#    #ver_name = StringCol(length=50, default=None) # verifier's name
+#    #ver_date = DateTimeCol(default=None) # verification date
+#    #ver_hist = StringCol(default=None)  # verification history
+#    #ver_lit = StringCol(default=None) # verification lit
+#    #ver_id = IntCol(default=None) # ?? # verifier's ID??
+#    
+#
+#    # i don't think this is the red list status but rather the status
+#    # of this accession in some sort of conservation program
+#    #consv_status = StringCol(default=None) # conservation status, free text
+#    
+#    
+#    def __str__(self): 
+#        return self.acc_id
+#    
+#    def markup(self):
+#        return '%s (%s)' % (self.acc_id, self.species.markup())
 
 
 
@@ -340,53 +533,11 @@ class AccessionEditorView(GenericEditorView):
         
 
 
-class IntOrEmptyStringValidator(IntValidator):
-        
-    def __init__(self, name):
-        IntValidator.__init__(self, name=name)
-        
-        
-    def to_python(self, value, state):
-        if value is None:
-            return None
-        if isinstance(value, (int, long, sqlbuilder.SQLExpression)):
-            return value        
-        elif isinstance(value, str) and value == '':
-            return None
-        try:
-            return int(value)
-        except:
-            raise validators.Invalid("expected a int in the FloatCol '%s', got %s instead" % \
-                (self.name, type(value)), value, state)
-
-
-
-class FloatOrEmptyStringValidator(FloatValidator):
-        
-    def __init__(self, name):
-        FloatValidator.__init__(self, name=name)
-        
-        
-    def to_python(self, value, state):
-        if value is None:
-            return None
-        if isinstance(value, (int, long, float, sqlbuilder.SQLExpression)):
-            return value        
-        elif isinstance(value, str) and value == '':
-            return None
-        try:
-            return float(value)
-        except:
-            raise validators.Invalid("expected a float in the FloatCol '%s', got %s instead" % \
-                (self.name, type(value)), value, state)
-                
-
-
 # TODO: should have a label next to lat/lon entry to show what value will be 
 # stored in the database, might be good to include both DMS and the float
 # so the user can see both no matter what is in the entry. it could change in
 # time as the user enters data in the entry
-# TODO: shouldn't allow entering altitude accuracy without entering accuracy,
+# TODO: shouldn't allow entering altitude accuracy without entering altitude,
 # same for geographic accuracy
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
@@ -410,24 +561,24 @@ class CollectionPresenter(GenericEditorPresenter):
     PROBLEM_BAD_LONGITUDE = 2
     PROBLEM_INVALID_DATE = 3
             
-    def _get_column_validator(self, column):
-        return self.model.columns[column].validator
+#    def _get_column_validator(self, column):
+#        return self.model.columns[column].validator
                 
         
-    def __init__(self, model, view, defaults={}):
-        GenericEditorPresenter.__init__(self, model, view)
-        self.defaults = defaults
+    def __init__(self, model, view, session):
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        self.session = session
         self.refresh_view()    
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
         self.assign_simple_handler('collid_entry', 'coll_id')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
-                                   IntOrEmptyStringValidator('geo_accy'))
+                                   IntOrNoneStringValidator())
         self.assign_simple_handler('alt_entry', 'elevation', 
-                                   FloatOrEmptyStringValidator('elevation'))
+                                   FloatOrNoneStringValidator())
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
-                                   FloatOrEmptyStringValidator('elevation_accy'))
+                                   FloatOrNoneStringValidator())
         self.assign_simple_handler('habitat_textview', 'habitat')
         self.assign_simple_handler('coll_notes_textview', 'notes')
         
@@ -455,15 +606,12 @@ class CollectionPresenter(GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            if field[-2:] == "ID":
-                field = field[:-2]
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'coll_date':
+            if value is not None and field == 'coll_date':                
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
-            self.view.set_widget_value(widget, value,
-                                       default=self.defaults.get(field, None))         
-        #lat_dms_label
+            self.view.set_widget_value(widget, value)
+
         latitude = self.model.latitude
         if latitude is not None:
             dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
@@ -686,20 +834,21 @@ class DonationPresenter(GenericEditorPresenter):
                            'don_date_entry': 'date'}    
     PROBLEM_INVALID_DATE = 3
     
-    def __init__(self, model, view, defaults={}):
-        GenericEditorPresenter.__init__(self, model, view)        
-        self.defaults = defaults
+    def __init__(self, model, view, session):
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)        
+        self.session = session
+        self.refresh_view()        
+
+        # set up widgets and handlers
         donor_combo = self.view.widgets.donor_combo
         donor_combo.clear() # avoid gchararry/PyObject warning
-        donor_combo.connect('changed', self.on_donor_combo_changed)
         r = gtk.CellRendererText()                    
         donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
-       
-        self.refresh_view()        
+        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)        
+        self.view.widgets.donor_combo.connect('changed', self.on_donor_combo_changed)
+        
         self.assign_simple_handler('donid_entry', 'donor_acc')
-        self.assign_simple_handler('donnotes_entry', 'notes')
-        self.assign_simple_handler('donor_combo', 'donor')
+        self.assign_simple_handler('donnotes_entry', 'notes')       
         don_date_entry = self.view.widgets.don_date_entry
         don_date_entry.connect('insert-text', self.on_date_entry_insert)
         don_date_entry.connect('delete-text', self.on_date_entry_delete)
@@ -707,6 +856,23 @@ class DonationPresenter(GenericEditorPresenter):
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
+        
+        
+    def on_donor_combo_changed(self, combo, data=None):
+        '''
+        changed the sensitivity of the don_edit_button if the
+        selected item in the donor_combo is an instance of Donor
+        '''
+        debug('on_donor_combo_changed')
+        i = combo.get_active_iter()
+        if i is None:
+            return
+        value = combo.get_model()[i][0]
+        self.model.donor = value
+        if isinstance(value, tables['Donor']):
+            self.view.widgets.don_edit_button.set_sensitive(True)
+        else:
+            self.view.widgets.don_edit_button.set_sensitive(False)
         
         
     def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
@@ -765,8 +931,7 @@ class DonationPresenter(GenericEditorPresenter):
         create a new donor, setting the current donor on donor_combo
         to the new donor
         '''
-        e = editors['DonorEditor']()
-        donor = e.start()
+        donor = DonorEditor().start()
         if donor is not None:
             self.refresh_view()
             self.view.set_widget_value('donor_combo', donor)
@@ -779,27 +944,14 @@ class DonationPresenter(GenericEditorPresenter):
         donor_combo = self.view.widgets.donor_combo
         i = donor_combo.get_active_iter()
         donor = donor_combo.get_model()[i][0]
-        e = editors['DonorEditor'](model=donor, 
-                                   parent=self.view.widgets.accession_dialog)
+        e = DonorEditor(model=donor, parent=self.view.widgets.accession_dialog)
         edited = e.start()
         if edited is not None:
             self.refresh_view()
 
 
-    def on_donor_combo_changed(self, combo, data=None):
-        '''
-        changed the sensitivity of the don_edit_button if the
-        selected item in the donor_combo is an instance of Donor
-        '''
-        i = combo.get_active_iter()
-        if i is None:
-            return
-        value = combo.get_model()[i][0]
-        if isinstance(value, tables['Donor']):
-            self.view.widgets.don_edit_button.set_sensitive(True)
-        else:
-            self.view.widgets.don_edit_button.set_sensitive(False)
 
+        
             
     def combo_cell_data_func(self, cell, renderer, model, iter):
         v = model[iter][0]
@@ -808,46 +960,37 @@ class DonationPresenter(GenericEditorPresenter):
            
     def refresh_view(self):
         model = gtk.ListStore(object)        
-        for value in tables['Donor'].select():
+        for value in self.session.query(Donor).select():
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
         donor_combo.set_model(model)        
-        if len(model) == 1: # only one to choose from
-            donor_combo.set_active(0)
         
         # TODO: what if there is a donor id in the source but the donor
         # doesn't exist        
-        for widget, field in self.widget_to_field_map.iteritems():
-            if field[-2:] == "ID":
-                field = field[:-2]
+        for widget, field in self.widget_to_field_map.iteritems():            
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
-            default = self.defaults.get(field, None)
-            self.view.set_widget_value(widget, value, default=default)
+            self.view.set_widget_value(widget, value)
         
-        
+        # only one to choose from
+        if len(model) == 1 and self.model['donor'] is None:
+            donor_combo.set_active(0)
+            
         if self.model.donor is None:
             self.view.widgets.don_edit_button.set_sensitive(False)
         else:
             self.view.widgets.don_edit_button.set_sensitive(True)
 
 
-class SourcePresenterFactory:
-    
-    def __init__(self):
-        raise NotImplementedError('SourcePresenterFactor should not be '\
-                                  'instantiated')
-        
-    @staticmethod
-    def createSourcePresenter(source_type, model, view, defaults={}):
-        if source_type == 'Collection':
-            return CollectionPresenter(model, view, defaults)
-        elif source_type == 'Donation':
-            return DonationPresenter(model, view, defaults)
-        else:
-            raise ValueError('unknown source type: %s' % source_type)
+def SourcePresenterFactory(model, view, session):    
+    if isinstance(model, Collection):
+        return CollectionPresenter(model, view, session)
+    elif isinstance(model, Donation):
+        return DonationPresenter(model, view, session)
+    else:
+        raise ValueError('unknown source type: %s' % source_type)
 
 
 # TODO: pick one or a combination of the following
@@ -874,18 +1017,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     PROBLEM_INVALID_SPECIES = 4
     PROBLEM_DUPLICATE_ACCESSION = 5
     
-    def __init__(self, model, view, defaults={}):
+    def __init__(self, model, view):
         '''
         model: should be an instance of class Accession
         view: should be an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, model, view)
-        self.defaults = defaults
-        # defaults probably has both speciesID and species, see 
-        # SearchView.on_view_button_release
-        self.defaults.pop('speciesID', None) 
-        self.model.update(defaults)
-#        debug(model)
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        self.session = object_session(model)
+        self._original_source = self.model.source
         self.current_source_box = None
         self.source_presenter = None  
         # TODO: should we set these to the default value or leave them
@@ -894,7 +1033,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_species_entry()
         self.init_prov_combo()
         self.init_wild_prov_combo()
-        self.init_source_expander()        
+        self.init_source_expander()             
         self.refresh_view() # put model values in view    
         # connect methods that watch for change now that we have 
         # refreshed the view
@@ -922,7 +1061,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
-        
         self.init_change_notifier()
     
     
@@ -941,13 +1079,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 
         
     def _set_acc_id_from_text(self, text):
-        sr = Accession.selectBy(acc_id=text)
-        if sr.count() > 0:
+        if self.session.query(Accession).count_by(acc_id=text) > 0:            
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_id_entry)
             self.model.acc_id = None            
-            return
-        
+            return        
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_id_entry)
         self.model.acc_id = text
@@ -1073,28 +1209,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         
     def idle_add_species_completions(self, text):
-#        debug('idle_add_species_competions: %s' % text)
-        parts = text.split(" ")
-        genus = parts[0]
-        like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
-        sr = tables["Genus"].select('genus LIKE %s' % like_genus)
-        def _add_completion_callback(select):
-            n_gen = sr.count()
-            n_sp = 0
+        def _add_completion_callback(genus):
+            genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
+            sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
+            species = self.session.query(Species).select(sql)
             model = gtk.ListStore(object)
-            for row in sr:    
-                if len(row.species) == 0: # give a bit of a speed up
-                    continue
-                n_sp += len(row.species)
-                for species in row.species:                
-                    model.append([species])
+            for s in species:
+                model.append([s])
             completion = self.view.widgets.species_entry.get_completion()
             completion.set_model(model)
-        gobject.idle_add(_add_completion_callback, sr)
+        gobject.idle_add(_add_completion_callback, text.split(" ")[0])
         
     
-    def on_field_changed(self, field):
-        #debug('on field changed: %s = %s' % (field, self.model[field]))
+    def on_field_changed(self, model, field):
+        debug('on field changed: %s = %s' % (field, getattr(model, field)))
 #        debug('on field changed: %s' % field)
 #        debug(self.problems)        
         # TODO: we could have problems here if we are monitoring more than
@@ -1104,24 +1232,28 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         prov_sensitive = True                    
         wild_prov_combo = self.view.widgets.wild_prov_combo
         if field == 'prov_type':
-            if self.model.prov_type in ['Wild']:
-                self.model.wild_prov_status = wild_prov_combo.get_active_text()
+            if model.prov_type in ['Wild']:
+                model.wild_prov_status = wild_prov_combo.get_active_text()
             else:
                 # remove the value in the model from the wild_prov_combo                
                 prov_sensitive = False
-                self.model.wild_prov_status = None
+                model.wild_prov_status = None
         wild_prov_combo.set_sensitive(prov_sensitive)
         self.view.widgets.wild_prov_label.set_sensitive(prov_sensitive)
         
         if field == 'longitude' or field == 'latitude':
-            source_model = self.source_presenter.model
-            if source_model.latitude is not None and source_model.longitude is not None:
+#            source_model = self.source_presenter.model
+#            if source_model.latitude is not None and source_model.longitude is not None:
+#                self.view.widgets.geoacc_entry.set_sensitive(True)
+#            else:
+#                self.view.widgets.geoacc_entry.set_sensitive(False)
+            if model.latitude is not None and model.longitude is not None:
                 self.view.widgets.geoacc_entry.set_sensitive(True)
             else:
                 self.view.widgets.geoacc_entry.set_sensitive(False)
             
         if field == 'elevation':
-            if self.source_presenter.model.elevation is not None:            
+            if model.elevation is not None:            
                 self.view.widgets.altacc_entry.set_sensitive(True)
             else: 
                 self.view.widgets.altacc_entry.set_sensitive(False)
@@ -1132,19 +1264,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         elif self.source_presenter is not None:
             if len(self.source_presenter.problems) != 0:
                 sensitive = False
-        self.view.widgets.acc_ok_button.set_sensitive(sensitive)
-        self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
-        self.view.widgets.acc_next_button.set_sensitive(sensitive)
+                
+        self.set_accept_buttons_sensitive(sensitive)
             
     
     def init_change_notifier(self):
         '''
         for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can w things like sensitize
+        value in the widget changes, that way we can do things like sensitize
         the ok button
         '''
-        for widget, field in self.widget_to_field_map.iteritems():            
-            w = self.view.widgets[widget]
+        for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
         
     
@@ -1154,55 +1284,56 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source box and setup the appropriate presenter
         '''
         source_type = combo.get_active_text()
-        box = None
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
-        source = None
-        source_model = None
-        if source_type is not None:
-            if self.model.isinstance:
-                source = get_source(self.model.so_object)
-                if source is not None and source.__class__.__name__ == source_type:
-                    source_model = SQLObjectProxy(source)
-            if source_model is None:
-                source_model = SQLObjectProxy(tables[source_type])
-            
+        # this helps keep a reference to the widgets so they don't get destroyed
+        box_map = {'Donation': self.view.widgets.donation_box, 
+                   'Collection': self.view.widgets.collection_box}
         
-        box_map = {'Donation': 'donation_box', 'Collection': 'collection_box'}
-
-        def remove_parent(widget):
-            p = widget.get_parent()
-            if p is not None:
-                p.remove(widget)
+        # the source_type has changed
+        if source_type != self.model.source_type:
+            if source_type is None:
+                self.model.source = None
+            elif isinstance(self._original_source, tables[source_type]):
+                self.model.source = self._original_source
+            else:              
+                self.model.source = tables[source_type]()
                                 
         # replace source box contents with our new box
         source_box = self.view.widgets.source_box
         if self.current_source_box is not None:
-#            debug(self.current_source_box)
-            remove_parent(self.current_source_box)
+            self.view.widgets.remove_parent(self.current_source_box)
         if source_type is not None:
-#            debug(source_type)
-            self.current_source_box = self.view.widgets[box_map[source_type]]
-            # FIXME: there seems to be a bug here if you change to source type 
-            # too many times or too fast then self.current.source_box can 
-            # be None
-#            debug(self.current_source_box)
-            remove_parent(self.current_source_box)
+            debug(source_type)
+            self.current_source_box = box_map[source_type]
+            self.view.widgets.remove_parent(self.current_source_box)
             source_box.pack_start(self.current_source_box, expand=False, 
                                   fill=True)
         else:
             self.current_source_box = None
         
-        if source_model is not None:
-            self.source_presenter = SourcePresenterFactory.\
-                createSourcePresenter(source_type, source_model, self.view,
-                                      self.defaults)
+        if self.model.source is not None:
+            self.source_presenter = \
+                SourcePresenterFactory(self.model.source, self.view, self.session)
             # initialize model change notifiers    
-            for field in self.source_presenter.widget_to_field_map.values():
-                self.source_presenter.model.add_notifier(field, 
-                                                         self.on_field_changed)
-        self.model.source_type = source_type
+            for field in self.source_presenter.widget_to_field_map.values():            
+                self.source_presenter.model.add_notifier(field, self.on_field_changed)
+            debug(self.model.source in self.session.dirty)
+        if self.model.source is None:
+            # turn the accept buttons on here b/c i don't know a better place to 
+            # do it
+            self.set_accept_buttons_sensitive(True)
         source_box.show_all()
+        
+
+        
+    def set_accept_buttons_sensitive(self, sensitive):        
+        '''
+        set the sensitivity of all the accept/ok buttons for the editor dialog
+        '''
+        self.view.widgets.acc_ok_button.set_sensitive(sensitive)
+        self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
+        self.view.widgets.acc_next_button.set_sensitive(sensitive)
         
         
     def init_source_expander(self):        
@@ -1224,8 +1355,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     def init_prov_combo(self):
         combo = self.view.widgets.prov_combo
         model = gtk.ListStore(str)
-        for enum in self.model.columns['prov_type'].enumValues:
-            model.append([enum])
+        for enum in sorted(self.model.c.prov_type.type.values):
+            if enum == None:
+                combo.append_text('')
+            else:
+                combo.append_text(enum)
         combo.set_model(model)        
     
     
@@ -1234,8 +1368,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
         combo = self.view.widgets.wild_prov_combo        
         model = gtk.ListStore(str)
-        for enum in self.model.columns['wild_prov_status'].enumValues:
-            model.append([enum])
+        for enum in sorted(self.model.c.wild_prov_status.type.values):
+            if enum == None:
+                combo.append_text('')
+            else:
+                combo.append_text(enum)
         combo.set_model(model)        
 
 
@@ -1247,16 +1384,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         get the values from the model and put them in the view
         '''
-        for widget, field in self.widget_to_field_map.iteritems():            
-            if field[-2:] == "ID":
-                field = field[:-2]
+        for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
-#            debug('%s, %s, %s' % (widget, field, value))
-#            debug('default: %s' % self.defaults.get(field, None))
+#            debug('%s, model[%s] = %s' % (widget,field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
-            self.view.set_widget_value(widget, value, 
-                                       default=self.defaults.get(field, None))
+            self.view.set_widget_value(widget, value)
             
         if self.model.prov_type in ['Wild']:
             self.view.widgets.wild_prov_combo.set_sensitive(True)
@@ -1280,114 +1413,114 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
-    # TODO: the kwargs is really only here to support the old editor 
-    # constructor
-    def __init__(self, model=Accession, defaults={}, parent=None, **kwargs):
+        
+    def __init__(self, model_or_defaults=None, parent=None):
         '''
-        model: either an Accession class or instance
-        defaults: a dictionary of Accession field name keys with default
-        values to enter in the model if none are give
-        '''
-        self.assert_args(model, Accession, defaults)
-        GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
+        @param model: Accession
+        @param defaults: {}
+        @param parent: None
+        '''        
+#        bauble.app.db_engine.echo = True
+        if isinstance(model_or_defaults, dict):
+            model = Accession(**model_or_defaults)
+        elif model_or_defaults is None:
+            model = Accession()
+        elif isinstance(model_or_defaults, Accession):
+            model = model_or_defaults
+        else:
+            raise ValueError('model_or_defaults argument must either be a '\
+                             'dictionary or Accession instance')
+        GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         # keep parent and defaults around in case in start() we get
         # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
         # editor
         self.parent = parent
-        self.defaults = defaults 
+#        '''
+#        model: either an Accession class or instance
+#        defaults: a dictionary of Accession field name keys with default
+#        values to enter in the model if none are give
+#        '''
+#        self.assert_args(model, Accession, defaults)
+#        GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
+#        if parent is None: # should we even allow a change in parent
+#            parent = bauble.app.gui.window
+#        # keep parent and defaults around in case in start() we get
+#        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
+#        # editor
+#        self.parent = parent
+#        self.defaults = defaults 
         
 
-
+    _committed = None
+    
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
-        # TODO: use this method to factor out some of the code from self.start
-        pass
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+#                debug('session dirty, committing')
+            try:
+                self.commit_changes()
+                self._committed = self.model
+            except SQLError, e:                
+                msg = 'Error committing changes.\n\n%s' % e.orig
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                return False
+            except:
+                msg = 'Unknown error when committing changes. See the details '\
+                      'for more information.'
+                utils.message_details_dialog(msg, traceback.format_exc(), 
+                                             gtk.MESSAGE_ERROR)
+                return False
+        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+            return True
+        else:
+            return False
+                
+        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            e = AccessionEditor(parent=self.parent)
+            more_committed = e.start()
+        elif response == self.RESPONSE_OK_AND_ADD:
+            e = PlantEditor(parent=self.parent, 
+                            model_or_defaults={'accession_id': self._committed.id})
+            more_committed = e.start()
+                    
+        if more_committed is not None:
+            committed = [self._committed]
+            if isinstance(more_committed, list):
+                self._committed.extend(more_committed)
+            else:
+                self._committed.append(more_committed)                
+        
+        return True        
+
     
-    
-    def start(self, commit_transaction=True):    
-        '''
-        '''
-        if tables['Species'].select().count() == 0:
+    def start(self):
+        from bauble.plugins.plants.species_model import Species
+        if self.session.query(Species).count() == 0:        
             msg = 'You must first add or import at least one species into the '\
                   'database before you can add accessions.'
             utils.message_dialog(msg)
             return
         self.view = AccessionEditorView(parent=self.parent)
-        self.presenter = AccessionEditorPresenter(self.model, self.view,
-                                                  self.defaults)
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        self.presenter = AccessionEditorPresenter(self.model, self.view)
+        
         exc_msg = "Could not commit changes.\n"
         committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
-            source_dirty = self.presenter.source_presenter is not None and \
-                self.presenter.source_presenter.model.dirty
-            if response == gtk.RESPONSE_OK or response in self.ok_responses:
-                try:
-                    committed = self.commit_changes()                
-                except DontCommitException:
-                    continue
-                except BadValue, e:
-                    utils.message_dialog(saxutils.escape(str(e)),
-                                         gtk.MESSAGE_ERROR)
-                except CommitException, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                except Exception, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s' % str(e)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                 traceback.format_exc(),
-                                                 gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                else:
-                    break
-            elif (self.model.dirty or source_dirty) and utils.yes_no_dialog(not_ok_msg):
-                self.model.dirty = False
-                break
-            elif not (self.model.dirty or source_dirty):
+            if self.handle_response(response):
                 break
             
-        if commit_transaction:
-            sqlhub.processConnection.commit()
+        self.session.close() # cleanup session
+        return self._committed
 
-        # TODO: if we could get the response from the view
-        # then we could just call GenericModelViewPresenterEditor.start()
-        # and then add this code but GenericModelViewPresenterEditor doesn't
-        # know anything about it's presenter though maybe it should
-        more_committed = None
-        if response == self.RESPONSE_NEXT:
-            if self.model.isinstance:
-                model = self.model.so_object.__class__
-            else:
-                model = self.model.so_object
-            e = AccessionEditor(model, self.defaults, self.parent)
-            more_committed = e.start(commit_transaction)
-        elif response == self.RESPONSE_OK_AND_ADD:
-            # TODO: when the plant editor gets it's own glade implementation
-            # we should change accessionID to accession
-            e = editors['PlantEditor'](parent=self.parent, 
-                                       defaults={'accessionID': committed})
-            more_committed = e.start(commit_transaction)            
-                    
-        if more_committed is not None:
-            committed = [committed]
-            if isinstance(more_committed, list):
-                committed.extend(more_committed)
-            else:
-                committed.append(more_committed)
-                
-        return committed
     
     
     @staticmethod
@@ -1401,7 +1534,9 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     def __cleanup_collection_model(model):
         '''
         '''
-        if 'latitude' in model or 'longitude' in model:
+        # TODO: we should raise something besides commit ValueError
+        # so we can give a meaningful response        
+        if model.latitude is not None or model.longitude is not None:
             if (model.latitude is not None and model.longitude is None) or \
                 (model.longitude is not None and model.latitude is None):
                 msg = 'model must have both latitude and longitude or neither'
@@ -1412,77 +1547,47 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             model.geo_accy = None # don't save                 
             
         # reset the elevation accuracy if the elevation is None
-        if 'elevation' in model and model.elevation is None:
+        if model.elevation is None:
             model.elevation_accy = None
         return model
 
-        
-    def commit_source_changes(self, accession):
-        '''
-        '''
-        source_model = None
-        presenter = self.presenter.source_presenter
-        if presenter is not None and presenter.model.dirty:
-            source_model = presenter.model
-            if source_model.isinstance:
-                source_table = tables[source_model.so_object.__class__.__name__]
-            else:
-                source_table = tables[source_model.so_object.__name__]
-                
-        if source_model is None:
-            return
-        
-        if isinstance(presenter, CollectionPresenter):
-            source_model = AccessionEditor.__cleanup_collection_model(source_model)
-        elif isinstance(presenter, DonationPresenter):
-            source_model = AccessionEditor.__cleanup_donation_model(source_model)
-                    
-        source_model['accession'] = accession.id
-        new_source = commit_to_table(source_table, source_model)
-        
-        
+
     def commit_changes(self):
-        '''
-        '''
-#        debug('commit_changes: %s' % self.model)
-        # if source_type changes and the original source type wasn't none
-        # warn the user
-        if self.model.isinstance:
-            orig_source_type = self.model.so_object.source_type
-            if orig_source_type is not None \
-              and self.model.source_type != orig_source_type:
-                msg = 'You are about to change the type of the accession\'s '\
-                       'source data. All previous source data will be '\
-                       'deleted. Are you sure this is what you want to do?'
-                if utils.yes_no_dialog(msg):
-                    # change source, destroying old one
-                    source = get_source(self.model.so_object)
-                    if source is not None:
-                        source.destroySelf()    
-                else:
-                    raise DontCommitException
-                
-        accession = None        
-        if self.model.dirty:
-            accession = self._commit(self.model)
-        elif self.presenter.source_presenter is not None \
-          and self.presenter.source_presenter.model.dirty \
-          and not self.model.dirty:
-            if self.model.isinstance:
-                accession = self.model.so_object
-            else: # commit it anyway to make sure error get thrown
-                accession = self._commit(self.model)
+        # TODO: call the source cleanup method
+        debug('commit_changes ---------------->')
+        debug(self.session)
+#        for obj in self.session.new:
+#            debug(obj)
+#            if isinstance(obj, (Collection, Donation)) \
+#              and obj not in self.session.new:
+#              #and obj not in self.session.deleted:
+#                debug('** setting accession: %s' % (repr(obj)))
+#                obj.accession = self.model
+        if isinstance(self.model.source, Collection):
+            self.__cleanup_collection_model(self.model.source)
+        elif isinstance(self.model.source, Donation):
+            self.__cleanup_donation_model(self.model.source)
         
-        # reset self.model and self.presenter.model in case 
-        # commit_source_changes fails we won't commit the same accession again
-        #self.model = SQLObject(accession)
-        new_model = SQLObjectProxy(accession)
-        self.model = new_model
-        self.presenter.model = new_model
-        self.commit_source_changes(accession)
-        return accession
-    
-    
+        for obj in self.session:
+            debug('%s: %s\n%s,%s,%s' % (obj, repr(obj), \
+                                         obj in self.session.new, \
+                                         obj in self.session.dirty, \
+                                         obj in self.session.deleted))
+        debug(self.session.new)
+        debug(self.session.dirty)
+        debug(self.session.deleted)
+#        debug('%s' % repr(self.model._collection))
+#        debug('%s' % repr(self.model._donation))
+        bauble.app.db_engine.echo = True
+        self.session.flush()
+#        bauble.app.db_engine.echo = False
+        #return super(AccessionEditor, self).commit_changes()
+
+ 
+# import at the bottom to avoid circular dependencies
+from bauble.plugins.plants.genus import Genus, genus_table
+from bauble.plugins.plants.species_model import Species, species_table
+from bauble.plugins.garden.donor import Donor, DonorEditor
        
 #
 # infobox for searchview
@@ -1493,7 +1598,6 @@ except ImportError:
     pass
 else:
     import os
-    from sqlobject.sqlbuilder import *
     import bauble.paths as paths
     from bauble.plugins.garden.plant import Plant
     
@@ -1506,22 +1610,22 @@ else:
         number of clones, provenance type, wild provenance type, speciess
         """
     
-        def __init__(self, glade_xml):
+        def __init__(self, widgets):
             '''
             '''
-            InfoExpander.__init__(self, "General", glade_xml)
-            general_window = self.glade_xml.get_widget('general_window')
-            w = self.glade_xml.get_widget('general_box')
-            general_window.remove(w)
-            self.vbox.pack_start(w)
+            InfoExpander.__init__(self, "General", widgets)
+            general_box = self.widgets.general_box
+            self.widgets.general_window.remove(general_box)
+            self.vbox.pack_start(general_box)
         
         
         def update(self, row):
             '''
             '''
-            utils.set_widget_value(self.glade_xml, 'name_data', 
-			     '%s\n%s' % (row.species.markup(True), row.acc_id))            
-            nplants = Plant.select(Plant.q.accessionID==row.id).count()
+            self.set_widget_value('name_data', 
+                                  '%s\n%s' % (row.species.markup(True), row.acc_id))            
+            session = object_session(row)
+            nplants = session.query(Plant).count_by(accession_id=row.id)            
             self.set_widget_value('nplants_data', nplants)
             self.set_widget_value('prov_data', row.prov_type, False)
             
@@ -1531,28 +1635,27 @@ else:
         the accession's notes
         """
     
-        def __init__(self, glade_xml):
-            InfoExpander.__init__(self, "Notes", glade_xml)
-            notes_window = self.glade_xml.get_widget('notes_window')
-            w = self.glade_xml.get_widget('notes_box')
-            notes_window.remove(w)
-            self.vbox.pack_start(w)
+        def __init__(self, widgets):
+            InfoExpander.__init__(self, "Notes", widgets)            
+            notes_box = self.widgets.notes_box
+            self.widgets.notes_window.remove(notes_box)
+            self.vbox.pack_start(notes_box)
         
         
         def update(self, row):
-            utils.set_widget_value(self.glade_xml, 'notes_data', row.notes)            
+            self.set_widget_value('notes_data', row.notes)            
     
     
     class SourceExpander(InfoExpander):
         
-        def __init__(self, glade_xml):
-            InfoExpander.__init__(self, 'Source', glade_xml)
+        def __init__(self, widgets):
+            InfoExpander.__init__(self, 'Source', widgets)
             self.curr_box = None
         
         
         def update_collections(self, collection):
             
-            utils.set_widget_value(self.glade_xml, 'loc_data', collection.locale)
+            self.set_widget_value('loc_data', collection.locale)
             
             geo_accy = collection.geo_accy
             if geo_accy is None:
@@ -1586,8 +1689,9 @@ else:
             
                 
         def update_donations(self, donation):
-            self.set_widget_value('donor_data', 
-                             tables['Donor'].get(donation.donorID).name)
+            #self.set_widget_value('donor_data', donation.donor)
+            session = object_session(donation)
+            self.set_widget_value('donor_data', session.load(Donor, donation.donor_id))
             self.set_widget_value('donid_data', donation.donor_acc)
             self.set_widget_value('donnotes_data', donation.notes)
         
@@ -1596,30 +1700,39 @@ else:
             if self.curr_box is not None:
                 self.vbox.remove(self.curr_box)
                     
-            #assert value is not None
             if value is None:
+                self.set_expanded(False)
+                self.set_sensitive(False)
                 return
+                    
+            # TODO: i guess we are losing the references here to box map
+            # and so the widgets are getting destroyed, somehow we need to make
+            # this persistent, maybe make it class level
+            box_map = {Collection: (self.widgets.collections_box, 
+                                    self.update_collections),
+                       Donation: (self.widgets.donations_box, 
+                                  self.update_donations)}
+            box, update = box_map[value.__class__]
+            self.widgets.remove_parent(box)
+            self.curr_box = box
+            update(value)        
+#            if isinstance(value, Collection):            
+#                #box = self.widgets.collections_box
+#                self.widgets.remove_parent(box)
+#                self.curr_box = box
+#                self.update_collections(value)        
+#            elif isinstance(value, Donation):
+#                box = self.widgets.donations_box
+#                self.widgets.remove_parent(box)
+#                self.curr_box = box
+#                self.update_donations(value)            
+#            else:
+#                msg = "Unknown type for source: " + str(type(value))
+#                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             
-            if isinstance(value, tables["Collection"]):
-                coll_window = self.glade_xml.get_widget('collections_window')
-                w = self.glade_xml.get_widget('collections_box')
-                coll_window.remove(w)
-                self.curr_box = w
-                self.update_collections(value)        
-            elif isinstance(value, tables["Donation"]):
-                don_window = self.glade_xml.get_widget('donations_window')
-                w = self.glade_xml.get_widget('donations_box')
-                don_window.remove(w)
-                self.curr_box = w
-                self.update_donations(value)            
-            else:
-                msg = "Unknown type for source: " + str(type(value))
-                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            
-            #if self.curr_box is not None:
-            self.vbox.pack_start(self.curr_box)
-            #self.set_expanded(False) # i think the infobox overrides this
-            #self.set_sensitive(False)
+            self.vbox.pack_start(self.curr_box)            
+            self.set_expanded(True)
+            self.set_sensitive(True)
             
     
     class AccessionInfoBox(InfoBox):
@@ -1629,20 +1742,21 @@ else:
         """
         def __init__(self):
             InfoBox.__init__(self)
-            path = os.path.join(paths.lib_dir(), "plugins", "garden")
-            self.glade_xml = gtk.glade.XML(path + os.sep + "acc_infobox.glade")
+            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+                                "acc_infobox.glade")
+            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
             
-            self.general = GeneralAccessionExpander(self.glade_xml)
+            self.general = GeneralAccessionExpander(self.widgets)
             self.add_expander(self.general)
             
-            self.source = SourceExpander(self.glade_xml)
+            self.source = SourceExpander(self.widgets)
             self.add_expander(self.source)
             
-            self.notes = NotesExpander(self.glade_xml)
+            self.notes = NotesExpander(self.widgets)
             self.add_expander(self.notes)
     
     
-        def update(self, row):        
+        def update(self, row):
             self.general.update(row)
             
             if row.notes is None:
@@ -1654,12 +1768,7 @@ else:
                 self.notes.update(row)
             
             # TODO: should test if the source should be expanded from the prefs
-            if row.source_type == None:
-                self.source.set_expanded(False)
-                self.source.set_sensitive(False)
-            elif row.source_type == 'Collection':
-                self.source.set_expanded(True)
-                self.source.update(row._collection)
-            elif row.source_type == 'Donation':
-                self.source.set_expanded(True)
-                self.source.update(row._donation)
+            self.source.update(row.source)
+
+
+

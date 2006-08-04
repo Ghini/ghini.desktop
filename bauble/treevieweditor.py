@@ -9,10 +9,6 @@ import os, sys, re, copy, traceback
 import xml.sax.saxutils as saxutils
 import warnings
 import gtk
-from sqlobject.sqlbuilder import *
-from sqlobject import *
-from sqlobject.constraints import BadValue, notNull
-from sqlobject.joins import SOJoin, SOSingleJoin
 import bauble
 from bauble.editor import *
 from bauble.plugins import BaubleEditor, BaubleTable, tables

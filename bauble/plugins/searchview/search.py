@@ -4,16 +4,18 @@
 
 import re, traceback
 import gtk, gobject
-import sqlobject
-from sqlobject.sqlbuilder import _LikeQuoted
+from sqlalchemy import *
+import sqlalchemy.exceptions as saexc
 import formencode
 import bauble
+import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
 from bauble.plugins import BaubleView, BaubleTable, tables, editors
 from bauble.utils.log import debug
 from pyparsing import *
+
 #from earthenware.gui.pgtk.easygrid import EasyGrid
 
 #
@@ -282,6 +284,7 @@ class SearchView(BaubleView):
         self.context_menu_cache = {}
         self.infobox_cache = {}
         self.infobox = None
+        self.session = create_session()
 
 
     def update_infobox(self):
@@ -291,9 +294,11 @@ class SearchView(BaubleView):
         '''
         sel = self.results_view.get_selection() # get the selected row
         model, it = sel.get_selected()
+        value = None
         if it is not None:
             value = model[it][0]
-            self.set_infobox_from_row(value)
+#            self.set_infobox_from_row(value)
+        self.set_infobox_from_row(value)
             
     
     def set_infobox_from_row(self, row):
@@ -302,7 +307,7 @@ class SearchView(BaubleView):
         set the infobox values from row
         
         @param row: the row to use to update the infobox
-        '''        
+        '''       
         # remove the current infobox if there is one and stop
         if row is None:            
             if self.infobox is not None and self.infobox.parent == self.pane:
@@ -399,43 +404,54 @@ class SearchView(BaubleView):
         take list of tokens from parser.parseString() and return search
         results for them
         '''
+#        debug('_get_search_results_from_tokens(%s)' % tokens)
         results = []            
-        if 'subdomain' in tokens and 'domain' in tokens: # a query expression
-    	    subdomain = tokens['subdomain']
-    	    
+        session = create_session()
+        if 'subdomain' in tokens and 'domain' in tokens: # a query expression    	        	
     	    #operator = OperatorValidator.to_python(tokens['operator'])
     	    #operator = tokens['operator']
+            joins = None
+            col = None
     	    values = tokens['values']
-    	    domain_table = tables[self.domain_map[tokens['domain']]]
-    	    index = subdomain.rfind('.')
-    	    joins = None
-    	    col = None
+    	    domain_table = tables[self.domain_map[tokens['domain']]]    	    
+            subdomain = tokens['subdomain']    	    
+            index = subdomain.rfind('.')            
     	    if index != -1:
                 joins, col = subdomain[:index], subdomain[index+1:]
     	    else:
                 col = subdomain		
+            debug(joins)
+            debug(col)
     	    if joins is None: # select from column in domain_table
-                # get the validator for the column
-                if col == 'id':
-                    values_validator = formencode.validators.Int()
-                elif col in domain_table.sqlmeta.columns:
-                    values_validator = \
-                    domain_table.sqlmeta.columns[col].validator()
-                else:
-                    raise KeyError('"%s" not a column in table "%s"' % \
-                                   (col, domain_table.__name__))
-                #v = values_validator.to_python(','.join(values), None)
-                v = values_validator.from_python(','.join(values), None)
-                if not isinstance(v, int):
-                    # quote if not an int
-                    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
-                db_type = sqlobject.sqlhub.processConnection.dbName
-                operator = tokens['operator']
-                sql_operator= SQLOperatorValidator(db_type).to_python(operator)
-                stmt = "%s.%s %s %s" % (domain_table.sqlmeta.table,
-                                        col, sql_operator, v)
-    #		    debug(stmt)
-                results += domain_table.select(stmt)
+                # TODO: this is still fairly incomplete and doesn't allow
+                # different operators
+                query = session.query(domain_table)
+                results = query.select(domain_table.c[col]==values[0])
+                debug(results)
+#                # get the validator for the column
+#                if col == 'id':
+#                    values_validator = formencode.validators.Int()
+#                elif col in domain_table.sqlmeta.columns:
+#                    values_validator = \
+#                    domain_table.sqlmeta.columns[col].validator()
+#                else:
+#                    raise KeyError('"%s" not a column in table "%s"' % \
+#                                   (col, domain_table.__name__))
+#                #v = values_validator.to_python(','.join(values), None)
+#                v = values_validator.from_python(','.join(values), None)
+#                if not isinstance(v, int):
+#                    # quote if not an int
+#                    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+#                #db_type = sqlobject.sqlhub.processConnection.dbName
+#                db_type = bauble.app.db_engine.name
+#                debug(db_type)
+#                operator = tokens['operator']
+#                sql_operator= SQLOperatorValidator(db_type).to_python(operator)                
+#                debug(domain_table)
+#                stmt = "%s.%s %s %s" % (domain_table,
+#                                        col, sql_operator, v)
+#                debug(stmt)
+#                results += domain_table.select(stmt)
     	    else: 
                 # resolve the joins and select from the last join in the list
                 # TODO: would it be possible to do this backwards. if we could
@@ -446,39 +462,100 @@ class SearchView(BaubleView):
                 # efficient because you only get the values from the 
                 # domain_table from the beginning instead of starting with
                 # all values in domain tables and narrowing down from there
-                all = domain_table.select()
-                if all.count() != 0:
-                    subresults = []
-                    for item in all:
-                        subresults += eval('item.%s' % joins)
-        		    # get the validator for the column
-                    if col == 'id':
-                        values_validator = formencode.validators.Int()
-                    elif col in subresults[0].sqlmeta.columns:
-                        values_validator = \
-                            subresults[0].sqlmeta.columns[col].validator()
-                    else:
-                        raise KeyError('"%s" not a column in table "%s"' % \
-                                       (col, subresults[0].sqlmeta.table))
-        
-        		    # TODO: only works for binary operators
-                    v = values_validator.to_python(','.join(values), None)
-                    if not isinstance(v, int):
-                        # quote if not an int
-        			    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
-                    py_operator = \
-                        PythonOperatorValidator.to_python(tokens['operator'])
-                    expression = "r.%s %s %s" % (col, py_operator, v)
-                    for r in subresults:
+                # debug(eval('tables["%s"].%s.%s' % (domain_table.__name__, joins, col)))
+                
+                joins = joins.split('.')
+                backrefs = []
+                next_class = domain_table
+                for j in joins:                    
+                    relation = class_mapper(next_class).props[j]
+                    backrefs.append(relation.backref.key)
+                    next_class = relation.argument
+
+                last_class = next_class
+                
+                bottom_results = session.query(last_class).select(last_class.c[col] == values[0])
+                # now walk back up
+                for r in bottom_results: 
+                    upper = None
+                    for backref in backrefs:
                         try:
-                            if eval(expression):
-                                results.append(r)
-                        except SyntaxError, e:
-                            msg = 'Error: Could not evaluate expression, ' + \
-                                  'most likely because the operator you ' + \
-                                  'entered is not supported. -- %s'% expression 
-                            results.append(str(e))
-                            break
+                            upper = upper.__getattribute__(backref)
+                        except:
+                            upper = r.__getattribute__(backref)
+                    if upper is None: 
+                        # shouldn't ever get here
+                        raise ValueError('couldn\'t walk up back references')
+                    results.append(upper)
+                    
+                #domain_table.relations[]
+#                    debug(relation)
+#                    parent_class
+#                    relation_map.insert(0, (relation.classname, relation.backref))
+#                    parent_classname = relation.classname
+#                parent_class = None
+#                
+#                domain_table.relations[join].relations[join]
+#                debug(domain_table)
+#                debug(joins)
+#                debug(col)
+#                debug(joins)
+#                debug(domain_table.relations)
+#                parent_classname = None
+#                relation_map = []
+#                
+#                for j in joins:
+#                    if parent_classname is not None:
+#                        parent_class = ActiveMapperMeta.classes[parent_classname]
+#                        relation = parent_class.relations[j]
+#                    else:
+#                        relation = domain_table.relations[j]
+#                    debug(relation)
+#                    relation_map.insert(0, (relation.classname, relation.backref))
+#                    parent_classname = relation.classname
+#                debug(relation_map)
+#                                         
+#                debug(domain_table.relations[joins[0]])
+                # TODO: get the type of the last join
+#                next_to_last, last_col = join[len(join)-1], join[len(join)-2]
+#                if next_to_last is None:
+#                    next_to_last=
+                                              
+#                all = domain_table.select()
+#                debug(all)
+#                debug(len(all))
+#                if len(all) != 0:
+#                    subresults = []
+#                    for item in all:
+#                        subresults += eval('item.%s' % joins)
+#        		    # get the validator for the column
+#                    if col == 'id':
+#                        values_validator = formencode.validators.Int()
+#                    elif col in subresults[0].sqlmeta.columns:
+#                        values_validator = \
+#                            subresults[0].sqlmeta.columns[col].validator()
+#                    else:
+#                        raise KeyError('"%s" not a column in table "%s"' % \
+#                                       (col, subresults[0].sqlmeta.table))
+#        
+#        		    # TODO: only works for binary operators
+#                    v = values_validator.to_python(','.join(values), None)
+#                    if not isinstance(v, int):
+#                        # quote if not an int
+#        			    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+#                    py_operator = \
+#                        PythonOperatorValidator.to_python(tokens['operator'])
+#                    expression = "r.%s %s %s" % (col, py_operator, v)
+#                    for r in subresults:
+#                        try:
+#                            if eval(expression):
+#                                results.append(r)
+#                        except SyntaxError, e:
+#                            msg = 'Error: Could not evaluate expression, ' + \
+#                                  'most likely because the operator you ' + \
+#                                  'entered is not supported. -- %s'% expression 
+#                            results.append(str(e))
+#                            break
         elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
             # a general expression
             #values = ','.join(tokens['values']) # can values not be in tokens?
@@ -491,7 +568,7 @@ class SearchView(BaubleView):
             for table_name in self.search_metas.keys():
                 results += self.query_table(table_name, values)[:]
         else:
-            raise BaubleError('invalid tokens')
+            raise error.BaubleError('invalid tokens')
         return results
         
         
@@ -523,7 +600,7 @@ class SearchView(BaubleView):
     	    results = self._get_search_results_from_tokens(tokens)
         except ParseException, err:
             error_msg = 'Error in search string at column %s' % err.column
-        except (bauble.BaubleError, AttributeError, Exception, SyntaxError), e:
+        except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
             debug(traceback.format_exc())
             error_msg = '** Error: %s' % e
                     
@@ -588,8 +665,9 @@ class SearchView(BaubleView):
     def query_table(self, table_name, values):
         '''
         query the table table_name for values which are 'OR'ed together    
-        table_name: the table_name should be registered in search_meta
-        values: list of values to query table_name
+        
+        @param table_name: the table_name should be registered in search_meta
+        @param svalues: list of values to query table_name
         '''
         if table_name not in self.search_metas:
             raise ValueError("SearchView.query: no search meta for domain ", 
@@ -597,29 +675,16 @@ class SearchView(BaubleView):
         search_meta = self.search_metas[table_name]
         table = search_meta.table
         columns = search_meta.columns
+        query = self.session.query(table)
         
-        # case insensitive searches
-        # TODO: this should configurable in the preferences
-        if sqlobject.sqlhub.processConnection.dbName == "postgres":
-            like = "ILIKE"
-        else:
-            like = "LIKE"
-            
-        q = ''
-        for v in values:
-#            debug(v)
-            if v == "*" or v == "all":
-                s = table.select(orderBy=search_meta.sort_column)[:]
-                return s
-            if len(q) is 0:
-                q = "%s %s '%%%s%%'" % (columns[0], like, v)
-            else:
-                q += " OR %s %s '%%%s%%'" % (columns[0], like, v)
+        # select everything
+        if values[0] in ('*', 'all'):            
+            return query.select()
 
-            for c in columns[1:]:
-                q += " OR %s %s '%%%s%%'" % (c, like, v)
-#        debug(q)
-        return table.select(q)
+        # select like
+        s = query.select(or_(*[table.c[columns[0]].like('%%%s%%' % v) for v in values]))
+        return s
+        
         	            
 
 #
@@ -728,6 +793,7 @@ class SearchView(BaubleView):
             cell.set_property('markup', func(value))
         except:
             cell.set_property('markup', str(value))
+            
      
 
     def on_entry_key_press(self, widget, event, data=None):
@@ -801,23 +867,23 @@ class SearchView(BaubleView):
                         expanded_rows = self.get_expanded_rows()
                         sel = view.get_selection()
                         model, treeiter = sel.get_selected()
-                        # TODO: the func should return True if the model changed
-                        # se we can refresh the view
+#                        debug(model[treeiter][0])
                         if f(model[treeiter]) is not None:
-                            try:
-                                value = model[treeiter][0]
-                                value.__class__.get(value.id)
-                            except:
-                                # the value must have been removed
-                                model.remove(treeiter)
+                            for obj in self.session:
+                                try:
+#                                    debug(obj)
+                                    self.session.refresh(obj)                                    
+                                except saexc.InvalidRequestError:
+#                                    debug('exception on refresh')
+                                    # find the object in the tree and remove it,
+                                    # this could get expensive if there are a
+                                    # lot of items in the tree                                    
+                                    for found in utils.search_tree_model(model, obj):
+#                                        debug('found %s: %s' % (found, model[found][0]))
+                                        model.remove(found)
                             self.results_view.collapse_all()
                             self.expand_to_all_refs(expanded_rows)         
-                            self.update_infobox()
-                        # TODO: maybe after the f is called we should always 
-                        # refresh the view and try to reexpand to path, if we
-                        # can't expand to path maybe we should at least expand
-                        # the parent before it was edited, i think this should 
-                        # catch most changes
+                            self.update_infobox()                            
 
                     item = gtk.MenuItem(label)                    
                     item.connect('activate', on_activate, func, model, path)

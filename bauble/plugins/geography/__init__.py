@@ -6,18 +6,14 @@ import os
 import bauble.paths as paths
 from bauble.plugins import plugins, BaublePlugin
 from bauble.plugins.geography.country import Country
-from bauble.plugins.geography.distribution import Continent, Region, Area, State, Place, KewRegion, \
-    Distribution, BotanicalCountry, BasicUnit
+from bauble.plugins.geography.distribution import Continent, Region, Area, \
+    State, Place, KewRegion, BotanicalCountry, BasicUnit
 from bauble.utils.log import log, debug
 
 
 class GeographyPlugin(BaublePlugin):
     
-#    tables = [Country, Continent, Region, Area, State, Place, KewRegion, \
-#        Distribution]
-    #editors = [DistributionEditor]
     tables = [Country, Continent, Region, BotanicalCountry, BasicUnit, Place]#, \
-#        Distribution]
     
     @classmethod
     def init(cls):
@@ -68,8 +64,10 @@ class GeographyPlugin(BaublePlugin):
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "geography", "default")
-        files = ['Country.txt', 'Continent.txt', 'Region.txt', 
-                 'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']        
+#        files = ['Country.txt', 'Continent.txt', 'Region.txt', 
+#                 'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']        
+        files = ['country.txt', 'continent.txt', 'region.txt', 
+                 'botanical_country.txt', 'basic_unit.txt', 'place.txt']        
         return [os.path.join(path, f) for f in files]
         
     
