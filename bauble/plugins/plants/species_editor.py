@@ -1012,21 +1012,26 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         '''
         '''
         def _populate():
+            self.view.widgets.sp_dist_combo.set_model(None)
             model = gtk.TreeStore(str)
-            model.append(None, ["Cultivated"])
-            session = create_session()
-            # TODO: could probably speed this up drastically with subqueries
-            # select region from region where region.continent_id in (select continent.id)
-            from bauble.plugins.geography.distribution import Continent
-            for continent in session.query(Continent).select():
-                p1 = model.append(None, [str(continent)])
-                for region in continent.regions:
-                    p2 = model.append(p1, [str(region)])
-                    for country in region.botanical_countries:
-                        p3 = model.append(p2, [str(country)])
-                        for unit in country.basic_units:
-                            if str(unit) != str(country):
-                                model.append(p3, [str(unit)])            
+            model.append(None, ["Cultivated"])            
+            from bauble.plugins.geography.distribution import continent_table, \
+                region_table, botanical_country_table, basic_unit_table
+            region_select = select([region_table.c.id, region_table.c.region], 
+                                   region_table.c.continent_id==bindparam('continent_id')).compile()
+            country_select = select([botanical_country_table.c.id, botanical_country_table.c.name], 
+                                    botanical_country_table.c.region_id==bindparam('region_id')).compile()
+            unit_select = select([basic_unit_table.c.name, basic_unit_table.c.id], 
+                                 basic_unit_table.c.botanical_country_id==bindparam('country_id')).compile()                        
+            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
+                p1 = model.append(None, [continent])
+                for region_id, region in region_select.execute(continent_id=continent_id):
+                    p2 = model.append(p1, [region])
+                    for country_id, country in country_select.execute(region_id=region_id):
+                        p3 = model.append(p2, [country])
+                        for unit, dummy in unit_select.execute(country_id=country_id):
+                            if unit != country:
+                                model.append(p3, [unit])
             self.view.widgets.sp_dist_combo.set_model(model)
             self.view.widgets.sp_dist_combo.set_sensitive(True)
             self.view.set_widget_value('sp_dist_combo', self.model.distribution)
