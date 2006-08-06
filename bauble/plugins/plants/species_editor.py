@@ -14,9 +14,9 @@ from bauble.plugins import tables, editors
 from bauble.editor import *
 from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
-    SpeciesSynonym, VernacularName
+from bauble.plugins.plants.genus import Genus, genus_table
+from bauble.plugins.plants.species_model import Species, species_table, \
+    SpeciesMeta, SpeciesSynonym, VernacularName
 from bauble.plugins.garden.accession import AccessionEditor
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
@@ -39,7 +39,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_GENUS = 1
     
-    widget_to_field_map = {'sp_genus_entry': 'genus',
+    widget_to_field_map = {'sp_genus_entry': 'genus_id',
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
@@ -55,7 +55,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     def __init__(self, model, view):                
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
-        self.init_genus_entry()
+        
         #self.init_infrasp_rank_combo()
         self.init_combos()
         self.init_fullname_widgets()
@@ -72,7 +72,14 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.refresh_view()        
         
         #self.view.widgets.sp_infra_rank_combo.connect('changed', self.on_infra_rank_changed)
-
+        # connect signals
+        def gen_get_completions(text):           
+            return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
+        def set_in_model(self, field, value):
+            setattr(self.model, field, value.id)
+        self.assign_completions_handler('sp_genus_entry', 'genus_id', 
+                                        gen_get_completions, 
+                                        set_func=set_in_model)
         self.assign_simple_handler('sp_species_entry', 'sp', StringOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank', StringOrNoneValidator())
         self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid', StringOrNoneValidator())
@@ -99,8 +106,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         # - if widgets is a tuple then at least one of the items has to not be None
         # - this assumes that when field is not None, if field is none then
         # sensitive widgets are set to false
-        states_dict = {'sp_hybrid_combo': ['genus'],
-                       'sp_species_entry': ['genus'],
+        states_dict = {'sp_hybrid_combo': ['genus_id'],
+                       'sp_species_entry': ['genus_id'],
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
@@ -139,8 +146,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
             
         
-    
-            
     def on_field_changed(self, model, field):
         '''
         rests the sensitivity on the ok buttons and the name widgets when 
@@ -153,6 +158,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
            or len(self.vern_presenter.problems) != 0 \
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.meta_presenter.problems) != 0:
+            sensitive = False
+        elif self.model.sp is None or self.model.genus_id is None:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
         self.refresh_sensitivity()
@@ -188,19 +195,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.model.default_vernacular_name = obj
         self.on_field_changed(self.model, 'default_vernacular_name')
         
-            
-    def init_genus_entry(self):
-        '''
-        initialize the genus entry
-        '''
-        genus_entry = self.view.widgets.sp_genus_entry
-        completion = genus_entry.get_completion()
-        completion.connect('match-selected', self.on_genus_match_selected)
-        if self.model.genus is not None:
-            self.idle_add_genus_completions(str(self.model.genus)[:2])
-        self.insert_genus_sid = genus_entry.connect('insert-text', 
-                                                self.on_genus_entry_insert)
-        genus_entry.connect('delete-text', self.on_genus_entry_delete)
  
         
     def init_combos(self):
@@ -255,7 +249,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
         if len(self.problems) > 0:
             s = '--'
-        elif self.model.genus == None:
+        elif self.model.genus_id == None:
             s = '--'
         else:
             # create an object that behaves like a Species and pass it to 
@@ -285,7 +279,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                     return d.iteritems()
                 
             values = attr_dict(d)
-            values.genus = self.model.genus
+            values.genus = self.session.load(Genus, self.model.genus_id)
             for key, value in values.iteritems():
                 if value is '':
                     values[key] = None                                        
@@ -299,94 +293,9 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                 values.infrasp_author = None
             elif values.infrasp_rank != 'cv.':
                 values.cv_group = None
-
-            s = '%s  -  %s' % (Family.str(self.model.genus.family, full_string=True),
+            s = '%s  -  %s' % (Family.str(values.genus.family, full_string=True),
                                Species.str(values, authors=True, markup=True))
         self.view.widgets.sp_fullname_label.set_markup(s)
-    
-    
-    def idle_add_genus_completions(self, text):
-        '''
-        adds completions to the genus entry according to text
-        
-        text -- the text to match against
-        '''
-        # TODO: it would be nice if we put the genus completions in a separate
-        # session so if we have to do anything like loop through the objects in 
-        # the session then it won't slow things down too much
-#        debug('idle_add_genus_competions: %s' % text)            
-        sr = self.session.query(Genus).select(Genus.c.genus.like('%s%%' % text))        
-        def _add_completion_callback(select):
-            model = gtk.ListStore(object)
-            for genus in select:  
-                model.append([genus])  
-            completion = self.view.widgets.sp_genus_entry.get_completion()
-            completion.set_model(model)
-        gobject.idle_add(_add_completion_callback, sr)
-    
-    
-    def on_genus_match_selected(self, completion, compl_model, iter):
-        '''
-        put the selected value in the model
-        '''                
-        genus = compl_model[iter][0]
-        debug('selected: %s' % str(genus))
-        entry = self.view.widgets.sp_genus_entry
-        entry.handler_block(self.insert_genus_sid)
-        entry.set_text(str(genus))
-        entry.handler_unblock(self.insert_genus_sid)
-        entry.set_position(-1)
-        self.remove_problem(self.PROBLEM_INVALID_GENUS, 
-                            self.view.widgets.sp_genus_entry)
-        self.session.save(genus)
-        self.model.genus = genus
-        self.refresh_fullname_label()
-        self.prev_text = str(genus)
-
-
-    def on_genus_entry_delete(self, entry, start, end, data=None):
-#        debug('on_species_delete: \'%s\'' % entry.get_text())        
-#        debug(self.model.genus)
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        if full_text == '' or (full_text == str(self.model.genus)):
-            return
-        self.add_problem(self.PROBLEM_INVALID_GENUS, 
-                         self.view.widgets.sp_genus_entry)
-        self.model.genus = None
-        
-    
-    def on_genus_entry_insert(self, entry, new_text, new_text_length, position, 
-                       data=None):
-#        debug('on_species_insert_text: \'%s\'' % new_text)
-#        debug('%s' % self.model)
-        if new_text == '':
-            # this is to workaround the problem of having a second 
-            # insert-text signal called with new_text = '' when there is a 
-            # custom renderer on the entry completion for this entry
-            # block the signal from here since it will call this same
-            # method again and resetting the species completions      
-            entry.handler_block(self.insert_genus_sid)
-            entry.set_text(self.prev_text)
-            entry.handler_unblock(self.insert_genus_sid)
-            return False # is this 'False' necessary, does it do anything?
-            
-        entry_text = entry.get_text()                
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        # this funny logic is so that completions are reset if the user
-        # paste multiple characters in the entry    
-        if len(new_text) == 1 and len(full_text) == 2:
-            self.idle_add_genus_completions(full_text)
-        elif new_text_length > 2:# and entry_text != '':
-            self.idle_add_genus_completions(full_text[:2])
-        self.prev_text = full_text
-        
-        if full_text != str(self.model.genus):
-            self.add_problem(self.PROBLEM_INVALID_GENUS, 
-                             self.view.widgets.sp_genus_entry)
-            self.model.genus = None
-#        debug('%s' % self.model)
     
     
     def start(self):
@@ -395,107 +304,21 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():                    
-            value = getattr(self.model, field)
+            if field is 'genus_id':
+                value = self.model.genus
+            else:
+                value = getattr(self.model, field)
 #            debug('%s, %s, %s' % (widget, field, value))            
 #            self.view.set_widget_value(widget, value, 
 #                                       default=self.defaults.get(field, None))             
             self.view.set_widget_value(widget, value)
         self.refresh_sensitivity()
-        debug(self.model.default_vernacular_name)
-        debug(self.model.default_vernacular_name_id)
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.meta_presenter.refresh_view()
             
     
-# TODO: what we should probably do is just create an interface that all
-# presenters expects so as long as it implements the interface then it doesn't
-# matter what the back looks like
-# NOTES: what about if the model is a list of items, then __get??__ doesn't
-# make sense
-#class ModelInterface:
-#    dirty = False
-#    def __getitem__(self, item):
-#        raise NotImplementedError()
-#    def __getattr__(self, item):
-#        raise NotImplementedError()
-# NOTES: this basically makes a gtk.ListStore act like a cross between a 
-# ListStore and a SQLObjectProxy
-
-
-#class ModelDecorator_OLD:
-#        # could use this to provide __iter__ and .dirty but that still doesn't 
-#        # solve the problem of how we determine what's dirty unless we set dirty
-#        # whenever add or remove is clicked
-#         
-#        def __init__(self, model, dirty=False):
-#            '''
-#            model: a tree view model
-#            '''
-#            self.model = model
-#            self.dirty = dirty
-#            self.removed = []
-#            self.session = object_session(model)
-#                
-#        def __iter__(self):    
-#            self.next_iter = self.model.get_iter_root()
-#            return self
-#        
-#            
-#        def __len__(self):
-#            return len(self.model)
-#    
-#        current_iter = None
-#        next_iter = None
-#        def next(self):
-#            '''
-#            '''
-#            self.current_iter = self.next_iter
-#            if self.current_iter is None:
-#                raise StopIteration
-#            v = self.model[self.current_iter][0]
-#            self.next_iter = self.model.iter_next(self.current_iter)
-#            return v
-#                
-#                
-#        def remove(self, item):
-#            '''
-#            @param item: the value to remove from the model, if item is a 
-#                gtk.TreeModelIter then remove only the item that item points to,
-#                else remove all items in the model that are the same as item
-#            '''            
-#            # if item is a TreeIter then remove only that value
-#            if isinstance(item, gtk.TreeIter):
-#                value = self.model[item][0]
-#                self.model.remove(item)
-#                #if isinstance(value, SQLObjectProxy) and value.isinstance:
-#                #    self.removed.append(value)
-#                #    self.dirty = True
-#                
-#            else:
-#                # search through the model for all occurences of item and 
-#                # remove them from the model and append them to self.removed    
-#                while 1:
-#                    row = utils.search_tree_model(self.model, item)
-#                    if row is None:
-#                        break
-#                    self.model.remove(row.iter)
-#                    # if is an instance then add to removed so we can delete it 
-#                    # from the database later
-#                    if isinstance(item, SQLObjectProxy) and item.isinstance:
-#                        self.removed.append(item)                    
-#                        self.dirty = True
-#            
-#            
-#        def append(self, item):
-#            '''
-#            @param item:
-#            '''
-#            self.dirty = True
-#            return self.model.append([item])
-            
-
-
+    
 class VernacularNamePresenter(GenericEditorPresenter):
     # TODO: change the background of the entries and desensitize the 
     # name/lang entries if the name conflicts with an existing vernacular
@@ -743,19 +566,28 @@ class SynonymsPresenter(GenericEditorPresenter):
     
     def __init__(self, model, view, session):
         '''
-        @param model: a list of SQLObject proxy objects
+        @param model: a Species.synonyms property
         @param view: see GenericEditorPresenter
-        @param defaults: see GenericEditorPresenter
+        @param session: 
         '''
         GenericEditorPresenter.__init__(self, model, view)
         self.session = session
         self.init_treeview(model)
-        #self.model = ModelDecorator(self.view.widgets.sp_syn_treeview.get_model())   
-        self.init_syn_entry()
-        self.insert_syn_sid = self.view.widgets.sp_syn_entry.connect('insert-text', 
-                                                self.on_syn_entry_insert)
-        self.view.widgets.sp_syn_entry.connect('delete-text', 
-                                                self.on_syn_entry_delete)
+        def sp_get_completions(text):           
+            genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
+            sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
+            return self.session.query(Species).select(sql) 
+        def set_in_model(self, field, value):
+            # don't set anything in the model, just set self.selected
+            sensitive = True
+            if value is None:
+                sensitive = False
+            self.view.widgets.sp_syn_add_button.set_sensitive(sensitive)
+            self.selected = value
+
+        self.assign_completions_handler('sp_syn_entry', 'synonym_id', 
+                                        sp_get_completions, 
+                                        set_func=set_in_model)
         self.selected = None
         self.view.widgets.sp_syn_add_button.connect('clicked', 
                                                     self.on_add_button_clicked)
@@ -802,17 +634,6 @@ class SynonymsPresenter(GenericEditorPresenter):
         return
         
         
-    def init_syn_entry(self):
-        '''
-        initializes the synonym entry
-        '''
-        completion = self.view.widgets.sp_syn_entry.get_completion()
-        completion.connect('match-selected', self.on_syn_match_selected)
-        #if self.model.synonym is not None:
-        #    genus = self.model.synonym.genus
-        #    self.idle_add_species_completions(str(genus)[:2])
-        
-        
     def on_add_button_clicked(self, button, data=None):
         '''
         adds the synonym from the synonym entry to the list of synonyms for 
@@ -825,13 +646,14 @@ class SynonymsPresenter(GenericEditorPresenter):
         tree_model.append([syn])
         self.selected = None
         entry = self.view.widgets.sp_syn_entry
-        entry.handler_block(self.insert_syn_sid)
+        # sid generated from GenericEditorPresenter.assign_completion_handler
+        entry.handler_block(self._insert_sp_syn_entry_sid) 
         entry.set_text('')
-        entry.set_position(-1)
-        entry.handler_unblock(self.insert_syn_sid)
+        entry.set_position(-1)        
+        entry.handler_unblock(self._insert_sp_syn_entry_sid)
+        self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
-        
         
 
     def on_remove_button_clicked(self, button, data=None):
@@ -857,106 +679,7 @@ class SynonymsPresenter(GenericEditorPresenter):
             expunge_or_delete(self.session, value)            
             self.view.set_accept_buttons_sensitive(True)
         debug(value in self.session)
-    
-    
-    def on_syn_match_selected(self, completion, compl_model, iter):
-        '''
-        put the selected value in the model
-        '''                
-        synonym = compl_model[iter][0]
-#        debug('selected: %s' % str(species))
-        entry = self.view.widgets.sp_syn_entry
-        entry.handler_block(self.insert_syn_sid)
-        entry.set_text(str(synonym))
-        entry.handler_unblock(self.insert_syn_sid)
-        entry.set_position(-1)
-        self.remove_problem(self.PROBLEM_INVALID_SYNONYM, 
-                            self.view.widgets.sp_syn_entry)
-        self.view.widgets.sp_syn_add_button.set_sensitive(True)
-        self.selected = synonym
-#        debug('%s' % self.model)
-        self.prev_text = str(synonym)
-        
-        
-    def on_syn_entry_delete(self, entry, start, end, data=None):
-        '''
-        '''
-#        debug('on_species_delete: \'%s\'' % entry.get_text())        
-#        debug(self.model.species)
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        if full_text == '' or (full_text == str(self.selected)):
-            self.remove_problem(self.PROBLEM_INVALID_SYNONYM, 
-                                self.view.widgets.sp_syn_entry)
-            return
-        self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
-                         self.view.widgets.sp_syn_entry)
-        self.view.widgets.sp_syn_add_button.set_sensitive(False)
-        self.selected = None
-        
-    
-    def on_syn_entry_insert(self, entry, new_text, new_text_length, position, 
-                            data=None):
-        '''
-        '''
-        # TODO: this is flawed since we can't get the index into the entry
-        # where the text is being inserted so if the user inserts text into 
-        # the middle of the string then this could break
-#        debug('on_species_insert_text: \'%s\'' % new_text)
-#        debug('%s' % self.model)
-        if new_text == '':
-            # this is to workaround the problem of having a second 
-            # insert-text signal called with new_text = '' when there is a 
-            # custom renderer on the entry completion for this entry
-            # block the signal from here since it will call this same
-            # method again and resetting the species completions            
-#            debug('new text is empty')
-            entry.handler_block(self.insert_syn_sid)
-            entry.set_text(self.prev_text)
-            entry.handler_unblock(self.insert_syn_sid)
-            return False # is this 'False' necessary, does it do anything?
-            
-        entry_text = entry.get_text()                
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        # this funny logic is so that completions are reset if the user
-        # paste multiple characters in the entry    
-        if len(new_text) == 1 and len(full_text) == 2:
-            self.idle_add_syn_completions(full_text)
-        elif new_text_length > 2:# and entry_text != '':
-            self.idle_add_syn_completions(full_text[:2])
-        self.prev_text = full_text
-        
-        if full_text != str(self.selected):
-            self.add_problem(self.PROBLEM_INVALID_SYNONYM, 
-                             self.view.widgets.sp_syn_entry)
-            self.view.widgets.sp_syn_add_button.set_sensitive(False)
-            self.selected = None
-#        debug('%s' % self.model)
 
-
-    def idle_add_syn_completions(self, text):
-        '''
-        '''
-#        debug('idle_add_species_competions: %s' % text)
-        parts = text.split(" ")
-        genus = parts[0]
-        #like_genus = sqlhub.processConnection.sqlrepr(_LikeQuoted('%s%%' % genus))
-        #sr = tables["Genus"].select('genus LIKE %s' % like_genus)
-        sr = self.session.query(Genus).select(Genus.c.genus.like('%s%%' % text))
-        def _add_completion_callback(select):        
-            n_sp = 0
-            model = gtk.ListStore(object)
-            for row in sr:    
-                if len(row.species) == 0: # give a bit of a speed up
-                    continue
-                n_sp += len(row.species)
-                for species in row.species:                
-                    model.append([species])
-            completion = self.view.widgets.sp_syn_entry.get_completion()
-            completion.set_model(model)
-        gobject.idle_add(_add_completion_callback, sr)
-    
     
     
 # TODO: there is no way to set the check buttons to None once they
@@ -1180,63 +903,57 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         else:
             raise ValueError('model_or_defaults argument must either be a '\
                              'dictionary or Species instance')
-
-        debug(model)
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        debug('%s: %s' % (type(self.model), self.model))
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
-        # keep parent and defaults around in case in start() we get
-        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
-        # editor
         self.parent = parent
+        self._committed = []
         
         
-    _committed = None
     def handle_response(self, response):
+        '''
+        @return: return a list if we want to tell start() to close the editor, 
+        the list should either be empty or the list of committed values, return 
+        None if we want to keep editing
+        '''
+        committed = []
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
                 self.commit_changes()
-                self._committed = self.model
+                committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                return False
+                return None
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
-                return False
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg):                
-            return True
-        elif not self.session.dirty:
-            return True
+                return None
+        elif not self.session.dirty or (self.session.dirty and utils.yes_no_dialog(not_ok_msg)):
+            return committed
         else:
-            return False
+            return None
         
-        
-#        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
             e = SpeciesEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = AccessionEditor(model_or_defaults={'species_id': self._committed.id},
+            e = AccessionEditor(model_or_defaults={'species_id': committed[0].id},
                                 parent=self.parent)
             more_committed = e.start()
                     
         if more_committed is not None:
-            self._committed = [self._committed]
             if isinstance(more_committed, list):
-                self._ommitted.extend(more_committed)
+                self._committed.extend(more_committed)
             else:
-                self._committed.append(more_committed)                
+                self._committed.append(more_committed)
         
-        return True
+        return committed
 
         
     def start(self):
@@ -1253,11 +970,12 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
-            if self.handle_response(response):
+            committed = self.handle_response(response)
+            if committed is not None:
                 break
             
         self.session.close() # cleanup session
-        return self._committed
+        return committed
     
     
     def commit_changes(self):

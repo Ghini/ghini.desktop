@@ -23,8 +23,8 @@
 # in its plugin module  throught the sqlmeta.addJoin method
 
 # TODO: need a way to add tables to the database base without creating a new
-# database completely, see sqlobject-admin, this also means to we need
-# a way to know whether this is the first time this plugin has been loaded
+# database completely, in case someone drops in a plugin we can create the 
+# needed tables
 
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
@@ -35,9 +35,6 @@ from sqlalchemy import *
 import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
-#from sqlobject import SQLObject, sqlmeta, DateTimeCol
-#from datetime import datetime
-
 
 plugins = {}
 views = {}
@@ -45,7 +42,6 @@ tools = {}
 editors = {}
 tables = {}
 
-            
 def init_plugins():
     """
     initialized all the plugins in plugins

@@ -236,7 +236,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
 #                debug('session dirty, committing')
             try:
                 self.commit_changes()
-                self._committed = self.model
+                self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
@@ -259,11 +259,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
             e = DonorEditor(parent=self.parent)
             more_committed = e.start()
         if more_committed is not None:
-            committed = [self._committed]
-            if isinstance(more_committed, list):
-                self._committed.extend(more_committed)
-            else:
-                self._committed.append(more_committed)                
+            self._committed.append(more_committed)
         
         return True        
 

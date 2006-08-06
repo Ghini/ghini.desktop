@@ -7,22 +7,12 @@
 
 import os, sys, re, copy, traceback
 import xml.sax.saxutils as saxutils
-import warnings
-import gtk
+import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.orm.properties import PropertyLoader
 from sqlalchemy.attributes import InstrumentedList
-#from sqlobject.sqlbuilder import *
-#from sqlobject import *
-#from sqlobject.constraints import BadValue, notNull
-#from sqlobject.joins import SOJoin, SOSingleJoin
-# for some reason if I do "from formencode import *" then i get 
-# sqlobject.sqlbuilder.NoDefault in some of my columns, i haven't looked into 
-# why but it must be some sort of scope/name conflict
 from formencode import *
-
-
 import bauble
 from bauble.plugins import BaubleEditor, BaubleTable, tables
 from bauble.prefs import prefs
@@ -462,9 +452,18 @@ class ModelDecorator(object):
 #    columns = property(_get_columns)
 
 
+def default_completion_cell_data_func(column, renderer, model, iter, data=None):
+    '''
+    the default completion cell data function for 
+    GenericEditorView.attach_completions
+    '''
+    v = model[iter][0]
+    renderer.set_property('markup', str(v))
+    
 def default_completion_match_func(completion, key_string, iter):
     '''
-    the default completion function, does a case-insensitive string 
+    the default completion match function for 
+    GenericEditorView.attach_completions, does a case-insensitive string 
     comparison of the the completions model[iter][0]
     '''
     value = completion.get_model()[iter][0]
@@ -552,7 +551,8 @@ class GenericEditorView:
         return True
     
 
-    def attach_completion(self, entry_name, cell_data_func, 
+    def attach_completion(self, entry_name, 
+                          cell_data_func=default_completion_cell_data_func, 
                           match_func=default_completion_match_func):
         '''
         @return: the completion attached to the entry
@@ -830,8 +830,10 @@ class GenericEditorPresenter:
         widget = self.view.widgets[widget_name]
         PROBLEM = hash(widget_name)
         insert_sid_name = '_insert_%s_sid' % widget_name
+#        insert_sid = None
+#        delete_sid = None
         def add_completions(text):
-            debug('add_completions(%s)' % text)
+#            debug('add_completions(%s)' % text)
             values = get_completions(text)
             def idle_callback(values):
                 model = gtk.ListStore(object)
@@ -875,8 +877,11 @@ class GenericEditorPresenter:
             if full_text == '' or (full_text == str(self.model[field])):
                 return
             self.add_problem(PROBLEM, widget)
-            setattr(self.model, field, None)            
-        def on_match_select(completion, compl_model, iter):            
+            #setattr(self.model, field, None)
+            debug(type(self.model))
+            debug('self.model[%s] = None' % field)
+            self.model[field] = None
+        def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
             debug('on_match_select: %s' % str(value))
             #entry = self.view.widgets.sp_genus_entry
@@ -893,10 +898,12 @@ class GenericEditorPresenter:
             #setattr(self.model, field, value)
             #setattr(self.model, field, value.id)
             set_func(self, field, value)
-            debug(getattr(self.model, field))
             self.prev_text = str(value)            
                     
         completion = widget.get_completion()
+        assert completion is not None, 'the gtk.Entry %s doesn\'t have a '\
+            'completion attached to it' % widget_name
+        
         completion.connect('match-selected', on_match_select)
         #if self.model.genus is not None:
         #    self.idle_add_genus_completions(str(self.model.genus)[:2])

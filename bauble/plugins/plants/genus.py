@@ -152,8 +152,9 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 
-mapper(Genus, genus_table,
-       properties = {'species': relation(Species, backref=backref('genus', lazy=False),
+mapper(Genus, genus_table,       
+#       properties = {'species': relation(Species, backref='genus',
+    properties = {'species': relation(Species, backref=backref('genus', lazy=True),
                                          order_by=['sp', 'infrasp_rank', 'infrasp']),
                      'synonyms': relation(GenusSynonym, backref='genus',
                                           primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id,
@@ -273,9 +274,8 @@ class GenusEditor(GenericModelViewPresenterEditor):
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.parent = parent
+        self._committed = []
         
-    
-    _committed = [] # TODO: shouldn't be class level
     
     def handle_response(self, response):
         '''
@@ -285,7 +285,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 self.commit_changes()
-                self._committed = [self.model]
+                self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
