@@ -102,7 +102,6 @@ def remove_callback(row):
         return
     
     try:
-        #session = object_session(value)
         session = create_session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
@@ -112,24 +111,6 @@ def remove_callback(row):
         utils.message_details_dialog(msg, traceback.format_exc(), 
                                      type=gtk.MESSAGE_ERROR)
     return True
-        
-#    if utils.yes_no_dialog(msg):
-#        from sqlobject.main import SQLObjectIntegrityError
-#        try:
-#            value.destroySelf()
-#            # since we are doing everything in a transaction, commit it
-#            sqlhub.processConnection.commit() 
-#            return True
-#        except SQLObjectIntegrityError, e:
-#            msg = "Could not delete '%s'. It is probably because '%s' "\
-#                  "still has children that refer to it.  See the Details for "\
-#                  " more information." % (s, s)
-#            utils.message_details_dialog(msg, str(e))
-#        except:
-#            msg = "Could not delete '%s'. It is probably because '%s' "\
-#                  "still has children that refer to it.  See the Details for "\
-#                  " more information." % (s, s)
-#            utils.message_details_dialog(msg, traceback.format_exc())
 
 
 acc_context_menu = [('Edit', edit_callback),

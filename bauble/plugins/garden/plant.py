@@ -32,27 +32,21 @@ def edit_callback(row):
 
 
 def remove_callback(row):
-    value = row[0]
+    value = row[0]    
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
-        
-    if utils.yes_no_dialog(msg):
-        from sqlobject.main import SQLObjectIntegrityError
-        try:
-            value.destroySelf()
-            # since we are doing everything in a transaction, commit it
-            sqlhub.processConnection.commit() 
-            return True
-        except SQLObjectIntegrityError, e:
-            msg = "Could not delete '%s'. It is probably because '%s' "\
-                  "still has children that refer to it.  See the Details for "\
-                  " more information." % (s, s)
-            utils.message_details_dialog(msg, str(e))
-        except:
-            msg = "Could not delete '%s'. It is probably because '%s' "\
-                  "still has children that refer to it.  See the Details for "\
-                  " more information." % (s, s)
-            utils.message_details_dialog(msg, traceback.format_exc())
+    if not utils.yes_no_dialog(msg):
+        return    
+    try:
+        session = create_session()
+        obj = session.load(value.__class__, value.id)
+        session.delete(obj)
+        session.flush()
+    except Exception, e:
+        msg = 'Could not delete.\nn%s' % str(e)        
+        utils.message_details_dialog(msg, traceback.format_exc(), 
+                                     type=gtk.MESSAGE_ERROR)
+    return True
 
 
 plant_context_menu = [('Edit', edit_callback),
