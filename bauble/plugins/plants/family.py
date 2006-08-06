@@ -220,28 +220,30 @@ class FamilyEditor(GenericModelViewPresenterEditor):
     
     def handle_response(self, response):
         '''
-        handle the response from self.presenter.start() in self.start()
+        @return: return a list if we want to tell start() to close the editor, 
+        the list should either be empty or the list of committed values, return 
+        None if we want to keep editing
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
+        committed = []
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                debug('committing')
                 self.commit_changes()
-                self._committed = [self.model]
+                committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                return False
+                return None
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
-                return False
+                return None
         elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
-            return True
+            return []
         else:
-            return False
+            return None
                 
         # respond to responses
         more_committed = None
@@ -250,16 +252,16 @@ class FamilyEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             e = GenusEditor(parent=self.parent, 
-                            model_or_defaults={'family_id': self._committed[0].id})
+                            model_or_defaults={'family_id': committed[0].id})
             more_committed = e.start()
-             
+                      
         if more_committed is not None:
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)
             else:
                 self._committed.append(more_committed)                
         
-        return True            
+        return committed            
         
     
     def start(self):
@@ -271,11 +273,12 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
-            if self.handle_response(response):
+            committed = self.handle_response(response)
+            if committed is not None:
                 break
             
         self.session.close() # cleanup session
-        return self._committed
+        return committed
 
 #class SO_Family(BaubleTable):
 #

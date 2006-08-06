@@ -11,7 +11,6 @@ import bauble.utils as utils
 import bauble.paths as paths
 
 
-
 def edit_callback(row):
     value = row[0]    
     # TODO: the select paramater can go away when we move FamilyEditor to the 
@@ -21,7 +20,6 @@ def edit_callback(row):
 
 
 def add_plant_callback(row):
-    from bauble.plugins.garden.plant import PlantEditor
     value = row[0]
     e = PlantEditor(defaults={'locationID': value})
     return e.start() != None
@@ -69,7 +67,8 @@ class Location(bauble.BaubleMapper):
     def __str__(self):
         return self.site
     
-from bauble.plugins.garden.plant import Plant    
+
+from bauble.plugins.garden.plant import Plant
 
 mapper(Location, location_table, order_by='site',
        properties={'plants': relation(Plant, backref='location')})
@@ -173,7 +172,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
 #                debug('session dirty, committing')
             try:
                 self.commit_changes()
-                self._committed = [self.model]
+                self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -196,7 +195,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             e = PlantEditor(parent=self.parent, 
-                            model_or_defaults={'location_id': self._committed.id})
+                            model_or_defaults={'location_id': self._committed[0].id})
             more_committed = e.start()
              
         if more_committed is not None:
@@ -222,23 +221,9 @@ class LocationEditor(GenericModelViewPresenterEditor):
             
         self.session.close() # cleanup session
         return self._committed
-    
+
+
 #
-# Location Editor
+# import here to avoid circular dependencies
 #
-#class LocationEditor(TreeViewEditorDialog):
-#
-#    visible_columns_pref = "editor.location.columns"
-#    column_width_pref = "editor.location.column_width"
-#    default_visible_list = ['site', 'description'] 
-#
-#    label = 'Location'
-#
-#    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
-#        TreeViewEditorDialog.__init__(self, Location, "Location Editor", 
-#                                      parent,select=select, defaults=defaults,
-#                                      **kwargs)
-#        # set headers
-#        titles = {"site": "Site",
-#                  "description": "Description"}
-#        self.columns.titles = titles
+from bauble.plugins.garden.plant import PlantEditor

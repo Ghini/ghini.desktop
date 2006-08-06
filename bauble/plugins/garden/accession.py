@@ -28,10 +28,7 @@ from bauble.types import Enum
 
 # TODO: there is a bug if you edit an existing accession and change the 
 # accession number but change it back to the original then it indicates the
-# number is invalid b/c it's a duplicate...maybe we can check the current value 
-# to see if the value to be changed is the same as the value in the row you
-# are currently editing, but only if the sqlobject proxy object has an instance
-# behind it
+# number is invalid b/c it's a duplicate
 
 
 def longitude_to_dms(decimal):
@@ -93,33 +90,46 @@ def edit_callback(row):
 def add_plants_callback(row):
     from bauble.plugins.garden.plant import PlantEditor
     value = row[0]
-    e = PlantEditor(defaults={'accessionID': value})
+    e = PlantEditor(model_or_defaults={'accession_id': value.id})
     return e.start() != None
 
 
 def remove_callback(row):
-    # TODO SA: still need to move this over
-    value = row[0]
+    value = row[0]    
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % s
+    if not utils.yes_no_dialog(msg):
+        return
+    
+    try:
+        #session = object_session(value)
+        session = create_session()
+        obj = session.load(value.__class__, value.id)
+        session.delete(obj)
+        session.flush()
+    except Exception, e:
+        msg = 'Could not delete.\nn%s' % str(e)        
+        utils.message_details_dialog(msg, traceback.format_exc(), 
+                                     type=gtk.MESSAGE_ERROR)
+    return True
         
-    if utils.yes_no_dialog(msg):
-        from sqlobject.main import SQLObjectIntegrityError
-        try:
-            value.destroySelf()
-            # since we are doing everything in a transaction, commit it
-            sqlhub.processConnection.commit() 
-            return True
-        except SQLObjectIntegrityError, e:
-            msg = "Could not delete '%s'. It is probably because '%s' "\
-                  "still has children that refer to it.  See the Details for "\
-                  " more information." % (s, s)
-            utils.message_details_dialog(msg, str(e))
-        except:
-            msg = "Could not delete '%s'. It is probably because '%s' "\
-                  "still has children that refer to it.  See the Details for "\
-                  " more information." % (s, s)
-            utils.message_details_dialog(msg, traceback.format_exc())
+#    if utils.yes_no_dialog(msg):
+#        from sqlobject.main import SQLObjectIntegrityError
+#        try:
+#            value.destroySelf()
+#            # since we are doing everything in a transaction, commit it
+#            sqlhub.processConnection.commit() 
+#            return True
+#        except SQLObjectIntegrityError, e:
+#            msg = "Could not delete '%s'. It is probably because '%s' "\
+#                  "still has children that refer to it.  See the Details for "\
+#                  " more information." % (s, s)
+#            utils.message_details_dialog(msg, str(e))
+#        except:
+#            msg = "Could not delete '%s'. It is probably because '%s' "\
+#                  "still has children that refer to it.  See the Details for "\
+#                  " more information." % (s, s)
+#            utils.message_details_dialog(msg, traceback.format_exc())
 
 
 acc_context_menu = [('Edit', edit_callback),
@@ -443,23 +453,8 @@ class AccessionEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.accession_dialog
         self.dialog.set_transient_for(parent)
-        # configure species_entry
-        completion = gtk.EntryCompletion()    
-        completion.set_match_func(self.species_completion_match_func)        
-        r = gtk.CellRendererText() # set up the completion renderer
-        completion.pack_start(r)
-        completion.set_cell_data_func(r, self.species_cell_data_func)        
-        #completion.set_text_column(0)    
-        completion.set_minimum_key_length(2)
-        # DONT DO INLINE COMPLETION, it can cause insert text to look up 
-        # new and unneccessary completions and doesn't put the species id
-        # in the model any way since on_species_selected isn't called
-        #completion.set_inline_completion(True) 
-        completion.set_popup_completion(True)                 
-        self.widgets.species_entry.set_completion(completion)
+        self.attach_completion('acc_species_entry')
         self.restore_state()
-        # TODO: set up automatic signal handling, all signals should be called
-        # on the presenter
         self.connect_dialog_close(self.widgets.accession_dialog)
         if sys.platform == 'win32':
             self.do_win32_fixes()
@@ -474,13 +469,13 @@ class AccessionEditorView(GenericEditorView):
             width = font_metrics.get_approximate_char_width()            
             return pango.PIXELS(width)
 
-        species_entry = self.widgets.species_entry
+        species_entry = self.widgets.acc_species_entry
         species_entry.set_size_request(get_char_width(species_entry)*20, -1)
         prov_combo = self.widgets.acc_prov_combo
         prov_combo.set_size_request(get_char_width(prov_combo)*20, -1)
         wild_prov_combo = self.widgets.acc_wild_prov_combo
         wild_prov_combo.set_size_request(get_char_width(wild_prov_combo)*12, -1)
-        source_combo = self.widgets.source_type_combo
+        source_combo = self.widgets.acc_source_type_combo
         source_combo.set_size_request(get_char_width(source_combo)*10, -1)
                 
         # TODO: we really don't need to do the rest of these until we know the 
@@ -559,10 +554,7 @@ class CollectionPresenter(GenericEditorPresenter):
     PROBLEM_BAD_LONGITUDE = 2
     PROBLEM_INVALID_DATE = 3
             
-#    def _get_column_validator(self, column):
-#        return self.model.columns[column].validator
-                
-        
+            
     def __init__(self, model, view, session):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
@@ -947,9 +939,6 @@ class DonationPresenter(GenericEditorPresenter):
         if edited is not None:
             self.refresh_view()
 
-
-
-        
             
     def combo_cell_data_func(self, cell, renderer, model, iter):
         v = model[iter][0]
@@ -1007,52 +996,46 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_date_entry': 'date',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
-                           'species_entry': 'species',
-                           'source_type_combo': 'source_type',
+                           'acc_species_entry': 'species_id',
+                           'acc_source_type_combo': 'source_type',
                            'acc_notes_textview': 'notes'}
     
     PROBLEM_INVALID_DATE = 3
-    PROBLEM_INVALID_SPECIES = 4
     PROBLEM_DUPLICATE_ACCESSION = 5
     
     def __init__(self, model, view):
         '''
-        model: should be an instance of class Accession
-        view: should be an instance of AccessionEditorView
+        @param model: an instance of class Accession
+        @param view: an instance of AccessionEditorView
         '''
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
         self._original_source = self.model.source
         self.current_source_box = None
         self.source_presenter = None  
-        # TODO: should we set these to the default value or leave them
-        # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-        self.init_species_entry()
-        
-        # TODO: the wild_prov_combo should only be set sensitive if
-        # prov_type == 'Wild' or maybe 'Propagule of wild cultivated plant'
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_source_expander()             
         self.refresh_view() # put model values in view    
-        # connect methods that watch for change now that we have 
-        # refreshed the view
-        #
-        # TODO: need alot of work on species entry, should change colors if
-        # a species isn't selected and one is selected but then if something
-        # changes then it should invalidate again
-        #
-        self.insert_species_sid = self.view.widgets.species_entry.connect('insert-text', 
-                                                self.on_species_entry_insert)
-        self.view.widgets.species_entry.connect('delete-text', 
-                                                self.on_species_entry_delete)
+
+        # connect signals
+        def sp_get_completions(text):           
+            genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
+            sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
+            return self.session.query(Species).select(sql) 
+        def set_in_model(self, field, value):
+            debug('set_in_model(%s, %s)' % (field, value))
+            setattr(self.model, field, value.id)
+        self.assign_completions_handler('acc_species_entry', 'species_id', 
+                                        sp_get_completions, 
+                                        set_func=set_in_model)
         self.view.widgets.acc_prov_combo.connect('changed', self.on_combo_changed, 
                                                  'prov_type')
         self.view.widgets.acc_wild_prov_combo.connect('changed', 
                                                       self.on_combo_changed,
                                                       'wild_prov_status')
-        #self.assign_simple_handler('acc_id_entry', 'acc_id')
+        # TODO: could probably replace this by just passing a valdator
+        # to assign_simple_handler
         self.view.widgets.acc_code_entry.connect('insert-text', 
                                                self.on_acc_code_entry_insert)
         self.view.widgets.acc_code_entry.connect('delete-text', 
@@ -1130,97 +1113,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                         
         self.model.date = dt
         
-        
-    # the previous value that was in the species entry, this is for a 
-    # workaround for how entry completion works
-    prev_species_text = ''
-        
-    def on_species_match_selected(self, completion, compl_model, iter):
-        '''
-        put the selected value in the model
-        '''                
-        species = compl_model[iter][0]
-#        debug('selected: %s' % str(species))
-        entry = self.view.widgets.species_entry
-        entry.handler_block(self.insert_species_sid)
-        entry.set_text(str(species))
-        entry.handler_unblock(self.insert_species_sid)
-        entry.set_position(-1)
-        self.remove_problem(self.PROBLEM_INVALID_SPECIES, 
-                            self.view.widgets.species_entry)
-        self.model.species = species
-#        debug('%s' % self.model)
-        self.prev_text = str(species)
-
-
-    def on_species_entry_delete(self, entry, start, end, data=None):
-#        debug('on_species_delete: \'%s\'' % entry.get_text())        
-#        debug(self.model.species)
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        if full_text == '' or (full_text == str(self.model.species)):
-            return
-        self.add_problem(self.PROBLEM_INVALID_SPECIES, 
-                         self.view.widgets.species_entry)
-        self.model.species = None
-        
-    
-    def on_species_entry_insert(self, entry, new_text, new_text_length, position, 
-                       data=None):
-        # TODO: this is flawed since we can't get the index into the entry
-        # where the text is being inserted so if the user inserts text into 
-        # the middle of the string then this could break
-#        debug('on_species_insert_text: \'%s\'' % new_text)
-#        debug('%s' % self.model)
-        if new_text == '':
-            # this is to workaround the problem of having a second 
-            # insert-text signal called with new_text = '' when there is a 
-            # custom renderer on the entry completion for this entry
-            # block the signal from here since it will call this same
-            # method again and resetting the species completions            
-            entry.handler_block(self.insert_species_sid)
-            entry.set_text(self.prev_text)
-            entry.handler_unblock(self.insert_species_sid)
-            return False # is this 'False' necessary, does it do anything?
-            
-        entry_text = entry.get_text()                
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        # this funny logic is so that completions are reset if the user
-        # paste multiple characters in the entry    
-        if len(new_text) == 1 and len(full_text) == 2:
-            self.idle_add_species_completions(full_text)
-        elif new_text_length > 2:# and entry_text != '':
-            self.idle_add_species_completions(full_text[:2])
-        self.prev_text = full_text
-        
-        if full_text != str(self.model.species):
-            self.add_problem(self.PROBLEM_INVALID_SPECIES, 
-                             self.view.widgets.species_entry)
-            self.model.species = None
-#        debug('%s' % self.model)
-            
-            
-    def init_species_entry(self):
-        completion = self.view.widgets.species_entry.get_completion()
-        completion.connect('match-selected', self.on_species_match_selected)
-        if self.model.species is not None:
-            genus = self.model['species'].genus
-            self.idle_add_species_completions(str(genus)[:2])
-        
-        
-    def idle_add_species_completions(self, text):
-        def _add_completion_callback(genus):
-            genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
-            sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-            species = self.session.query(Species).select(sql)
-            model = gtk.ListStore(object)
-            for s in species:
-                model.append([s])
-            completion = self.view.widgets.species_entry.get_completion()
-            completion.set_model(model)
-        gobject.idle_add(_add_completion_callback, text.split(" ")[0])
-        
     
     def on_field_changed(self, model, field):
 #        debug('on field changed: %s = %s' % (field, getattr(model, field)))
@@ -1257,13 +1149,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             else: 
                 self.view.widgets.altacc_entry.set_sensitive(False)
                 
+        # refresh the sensitivity of the accept buttons
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False
         elif self.source_presenter is not None:
             if len(self.source_presenter.problems) != 0:
                 sensitive = False
-                
+        elif self.model.code is None or self.model.species_id is None:
+            sensitive = False
+        elif field == 'source_type':
+            sensitive = False
         self.set_accept_buttons_sensitive(sensitive)
             
     
@@ -1283,6 +1179,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source box and setup the appropriate presenter
         '''
         source_type = combo.get_active_text()
+        source_type_changed = False
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
         # this helps keep a reference to the widgets so they don't get destroyed
@@ -1291,6 +1188,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
         # the source_type has changed
         if source_type != self.model.source_type:
+            source_type_changed = True
             if source_type is None:
                 self.model.source = None
             elif isinstance(self._original_source, tables[source_type]):
@@ -1318,10 +1216,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             for field in self.source_presenter.widget_to_field_map.values():            
                 self.source_presenter.model.add_notifier(field, self.on_field_changed)
             debug(self.model.source in self.session.dirty)
-        if self.model.source is None:
-            # turn the accept buttons on here b/c i don't know a better place to 
-            # do it
-            self.set_accept_buttons_sensitive(True)
+#        if self.model.source is None:
+#            # turn the accept buttons on here b/c i don't know a better place to 
+#            # do it
+#            #self.set_accept_buttons_sensitive(True)
+#            self.on_field_changed(self.model, 'source_type')
+#            pass
+        if source_type_changed:
+            self.on_field_changed(self.model, 'source_type')
         source_box.show_all()
         
 
@@ -1339,14 +1241,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         initialized the source expander contents
         '''
-        combo = self.view.widgets.source_type_combo
+        combo = self.view.widgets.acc_source_type_combo
         model = gtk.ListStore(str)        
         model.append(['Collection'])
         model.append(['Donation'])
         model.append([None])
         combo.set_model(model)
         combo.set_active(-1)
-        self.view.widgets.source_type_combo.connect('changed', 
+        self.view.widgets.acc_source_type_combo.connect('changed', 
                                             self.on_source_type_combo_changed)            
 #        self.view.dialog.show_all()
         
@@ -1360,10 +1262,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         get the values from the model and put them in the view
         '''
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            if field == 'species_id':
+                value = self.model.species
+            else:
+                value = self.model[field]
 #            debug('%s, model[%s] = %s' % (widget,field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
+            
             self.view.set_widget_value(widget, value)
             
         if self.model.prov_type in ['Wild']:
@@ -1411,6 +1317,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
         # editor
         self.parent = parent
+        self._committed = []
 #        '''
 #        model: either an Accession class or instance
 #        defaults: a dictionary of Accession field name keys with default
@@ -1426,8 +1333,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 #        self.parent = parent
 #        self.defaults = defaults 
         
-
-    _committed = None
     
     def handle_response(self, response):
         '''
@@ -1438,7 +1343,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 #                debug('session dirty, committing')
             try:
                 self.commit_changes()
-                self._committed = self.model
+                self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -1461,7 +1366,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             e = PlantEditor(parent=self.parent, 
-                            model_or_defaults={'accession_id': self._committed.id})
+                            model_or_defaults={'accession_id': self._committed[0].id})
             more_committed = e.start()
                     
         if more_committed is not None:
@@ -1528,8 +1433,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 
     def commit_changes(self):
         # TODO: call the source cleanup method
-        debug('commit_changes ---------------->')
-        debug(self.session)
+#        debug('commit_changes ---------------->')
+#        debug(self.session)
 #        for obj in self.session.new:
 #            debug(obj)
 #            if isinstance(obj, (Collection, Donation)) \
@@ -1542,14 +1447,15 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         elif isinstance(self.model.source, Donation):
             self.__cleanup_donation_model(self.model.source)
         
-        for obj in self.session:
-            debug('%s: %s\n%s,%s,%s' % (obj, repr(obj), \
-                                         obj in self.session.new, \
-                                         obj in self.session.dirty, \
-                                         obj in self.session.deleted))
-        debug(self.session.new)
-        debug(self.session.dirty)
-        debug(self.session.deleted)
+#        for obj in self.session:
+#            debug('%s: %s\n%s,%s,%s' % (obj, repr(obj), \
+#                                         obj in self.session.new, \
+#                                         obj in self.session.dirty, \
+#                                         obj in self.session.deleted))
+#        debug(self.session.new)
+#        debug(self.session.dirty)
+#        debug(self.session.deleted)
+
 #        debug('%s' % repr(self.model._collection))
 #        debug('%s' % repr(self.model._donation))
         self.session.flush()

@@ -116,8 +116,7 @@ class Plant(bauble.BaubleMapper):
         
         
         
-from bauble.plugins.garden.accession import Accession
-from bauble.plugins.garden.location import Location, LocationEditor
+
 
 #
 # setup mappers
@@ -268,7 +267,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         
         # connect signals
         def acc_get_completions(text):            
-            return self.session.query(Accession).select(Accession.c.acc_id.like('%s%%' % text))
+            return self.session.query(Accession).select(Accession.c.code.like('%s%%' % text))
         def format_acc(accession):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, value):
@@ -344,12 +343,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():            
             if field is 'accession_id':
-                self.view.set_widget_value(widget, self.model.accession)
+                value = self.model.accesssion
             elif field is 'location_id':
-                self.view.set_widget_value(widget, self.model.location)
+                value = self.model.location
             else:
                 value = self.model[field]
-                self.view.set_widget_value(widget, value)
+            self.view.set_widget_value(widget, value)
     
     def start(self):
         return self.view.start()
@@ -383,23 +382,16 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.parent = parent
+        self._committed = []
         
         
-    def commit_changes(self):
-#        debug('commit_changes')
-#        for obj in self.session:
-#            debug(obj)
-        super(PlantEditor, self).commit_changes()
-    
-    
-    _committed = [] # TODO: shouldn't be class level
     def handle_response(self, response):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
 #                debug('session dirty, committing')
             try:
                 self.commit_changes()
-                self._committed = self.model
+                self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
@@ -760,3 +752,7 @@ else:
                 self.notes.set_expanded(True)
                 self.notes.set_sensitive(True)
                 self.notes.update(row)
+
+
+from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.location import Location, LocationEditor
