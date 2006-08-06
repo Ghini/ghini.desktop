@@ -4,12 +4,41 @@
 import os, traceback
 import gtk
 from sqlalchemy import *
+from sqlalchemy.orm.session import object_session
 from bauble.plugins import BaublePlugin, BaubleTable, plugins, views, tables
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble
 from bauble.utils.log import debug
 
+
+def edit_callback(row):
+    value = row[0]
+    e = TagEditor(model_or_defaults=value)
+    return e.start() != None
+    
+    
+def remove_callback(row):
+    value = row[0]    
+    s = '%s: %s' % (value.__class__.__name__, str(value))
+    msg = "Are you sure you want to remove %s?" % s
+    if not utils.yes_no_dialog(msg):
+        return    
+    try:
+        session = create_session()
+        obj = session.load(value.__class__, value.id)
+        session.delete(obj)
+        session.flush()
+    except Exception, e:
+        msg = 'Could not delete.\nn%s' % str(e)        
+        utils.message_details_dialog(msg, traceback.format_exc(), 
+                                     type=gtk.MESSAGE_ERROR)
+    return True
+
+
+tag_context_menu = [('Edit', edit_callback),
+                      ('--', None),
+                      ('Remove', remove_callback)]
 
 class TagItemGUI:
     '''
@@ -20,6 +49,7 @@ class TagItemGUI:
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade')
         self.glade_xml = gtk.glade.XML(glade_file)
         self.dialog = self.glade_xml.get_widget('tag_item_dialog')
+        self.dialog.set_transient_for(bauble.app.gui.window)
         self.item_data_label = self.glade_xml.get_widget('items_data')
         self.item = item
         self.item_data_label.set_text(str(self.item))            
@@ -43,14 +73,25 @@ class TagItemGUI:
         d.run()
         name = entry.get_text()
         d.destroy()
-        if name is not "":
-            try: # name already exist
-                t = Tag.byTag(name)
-            except SQLObjectNotFound: # name doesn't exist
-                Tag(tag=name)
-                model = self.tag_tree.get_model()
-                model.append([False, name])
-                _reset_tags_menu()
+        
+        if name is not '' and tag_table.select(tag_table.c.tag==name).count().scalar() == 0:
+            debug('creating tag: %s' % name)
+            session = create_session()
+            session.save(Tag(tag=name))
+            session.flush()
+            model = self.tag_tree.get_model()
+            model.append([False, name])
+            _reset_tags_menu()
+#            nsp = species_query.count_by(genus_id = row.id)
+#            try: # name already exist
+#                create_session().load(Tag, name=name)
+#                #t = Tag.byTag(name)
+#            except Exception, e: # name doesn't exist
+#                debug(traceback.format_exc())
+#                Tag(tag=name)
+#                model = self.tag_tree.get_model()
+#                model.append([False, name])
+#                _reset_tags_menu()
             
 
     def on_toggled(self, renderer, path, data=None):
@@ -118,11 +159,18 @@ class TagItemGUI:
             
         # create the model    
         model = gtk.ListStore(bool, str)
-        item_tags = get_tags(self.item)
+        #item_tags = get_tags(self.item)
+        item_tags = get_tag_ids(self.item)
+        debug(item_tags)
         has_tag = False
-        for tag in Tag.select():
-            if tag in item_tags:
+        tag_query = create_session().query(Tag)        
+        #for tag in Tag.select():
+        for tag in tag_query.select():
+            debug(repr(tag))
+            #if tag in item_tags:
+            if tag.id in item_tags:
                 has_tag = True
+                debug(has_tag)
             model.append([has_tag, tag.tag])
             has_tag = False
         self.tag_tree.set_model(model)
@@ -143,9 +191,9 @@ class TagItemGUI:
 #
 tag_table = Table('tag',
                   Column('id', Integer, primary_key=True),
-                  Column('tag', Unicode(64), unique=True, nullable=True))
+                  Column('tag', Unicode(64), unique=True, nullable=False))
 
-class Tag(object):
+class Tag(bauble.BaubleMapper):
     def __str__(self):
         return self.tag
     
@@ -162,13 +210,14 @@ tagged_obj_table = Table('tagged_obj',
                          Column('obj_class', String(64)),
                          Column('tag_id', Integer, ForeignKey('tag.id')))
 
-class TaggedObj(object):
+class TaggedObj(bauble.BaubleMapper):
+    
     def __str__():
         return '%s: %s' % (self.obj_class.__name__, self.obj_id)
         
 mapper(TaggedObj, tagged_obj_table)
 mapper(Tag, tag_table,
-       properties={'objects': relation(TaggedObj, backref='tag')},
+       properties={'objects': relation(TaggedObj, backref='tag', private=True)},
        order_by='tag')
         
 #class Tag(BaubleTable):
@@ -213,24 +262,46 @@ def untag_object(name, so_obj):
             
        
 def tag_object(name, so_obj):     
-    try:
-        tag = Tag.byTag(name)
-    except SQLObjectNotFound:
-        tag = Tag(tag=name)
-        
+#    try:
+#        tag = Tag.byTag(name)
+#    except SQLObjectNotFound:
+#        tag = Tag(tag=name)
+    session = create_session()
+    tag = session.query(Tag).select_by(tag=name)[0]
     classname = so_obj.__class__.__name__
-    sr = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id, tag=tag)
-    if sr.count() == 0:
-        TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
+    #sr = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id, tag=tag)    
+    #if sr.count() == 0:
+    if tagged_obj_table.select(and_(tagged_obj_table.c.obj_class==classname,
+                                    tagged_obj_table.c.obj_id==so_obj.id, 
+                                    tagged_obj_table.c.tag_id==tag.id)).count().scalar() == 0:
+        debug('tagging object: %s, %s, %s' % (classname, so_obj.id, tag))
+        tagged_obj = TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
+        session.save(tagged_obj)
+        session.flush()
 
 
-def get_tags(so_obj):
+#def get_tags(so_obj):
+#    classname = so_obj.__class__.__name__
+#    #tagged_objs = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
+#    query = object_session(so_obj).query(TaggedObj)
+#    tagged_objs = query.select_by(obj_class=classname, obj_id=so_obj.id)    
+#    tags = []
+#    debug('get_tags(%s)' % so_obj)
+#    debug(tagged_objs)
+#    for obj in tagged_objs:
+#        debug(obj)
+#        tags.append(obj.tag)
+#    return tags
+
+def get_tag_ids(so_obj):
     classname = so_obj.__class__.__name__
-    tagged_objs = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
-    tags = []
+    query = object_session(so_obj).query(TaggedObj)
+    tagged_objs = query.select_by(obj_class=classname, obj_id=so_obj.id)    
+    ids = []
     for obj in tagged_objs:
-        tags.append(obj.tag)
-    return tags
+        ids.append(obj.tag.id)
+    return ids
+
     
 
 # this should create a table tag_plant or plant_tag something like that,
@@ -336,6 +407,9 @@ class TagPlugin(BaublePlugin):
             
             search_meta = SearchMeta("Tag", ["tag"], "tag")
             SearchView.register_search_meta("tag", search_meta)
+            
+            SearchView.view_meta["Tag"].set(children="plants",                                                   
+                                            context_menu=tag_context_menu)
             
             def get_objects(tag):                
                 kids = []
