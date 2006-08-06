@@ -13,7 +13,6 @@ import bauble.utils as utils
 from bauble.types import Enum
 from bauble.utils.log import debug
 
-
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
@@ -107,7 +106,7 @@ genus_table = Table('genus',
                     # this screws us up b/c you can now enter duplicate genera, somehow
                     # NOTE: we should at least warn the user that a duplicate is being entered
                     #genus = StringCol(length=50)    
-                    Column('genus', String(64), unique='genus_index'),                
+                    Column('genus', String(64), unique='genus_index', nullable=False),                
                     Column('hybrid', Enum(values=['H', 'x', '+', None], 
                                           empty_to_none=True), 
                                           unique='genus_index'),
@@ -121,13 +120,6 @@ genus_table = Table('genus',
                            nullable=False, unique='genus_index'))
     
 class Genus(bauble.BaubleMapper):
-    
-#    def __init__(self, genus, hybrid, author, qualifier, notes=None):
-#        self.genus = genus
-#        self.hybrid = hybrid
-#        self.author = author
-#        self.qualifier = qualifier
-#        self.notes = qualifier
         
     def __str__(self):
         if self.hybrid:
@@ -152,10 +144,6 @@ genus_synonym_table = Table('genus_synonym',
                                    ForeignKey('genus.id'), nullable=False))
 
 class GenusSynonym(bauble.BaubleMapper):
-    
-#    def __init__(self, genus_id, synonym_id):
-#        self.genus_id = genus_id
-#        self.synonym_id = synonym_id
         
     def __str__(self):        
         return '(%s)' % self.synonym
@@ -186,6 +174,7 @@ class GenusEditorView(GenericEditorView):
                                    parent=parent)
         self.widgets.genus_dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.genus_dialog)
+        self.attach_completion('gen_family_entry')
 
         
     def save_state(self):
@@ -206,7 +195,9 @@ class GenusEditorPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'gen_family_entry': 'family_id',
                            'gen_genus_entry': 'genus',
+                           'gen_author_entry': 'author',
                            'gen_hybrid_combo': 'hybrid',
+#                           'gen_qualifier_combo': 'qualifier'
                            'gen_notes_textview': 'notes'}
 
     
@@ -227,15 +218,26 @@ class GenusEditorPresenter(GenericEditorPresenter):
         def fam_get_completions(text):            
             return self.session.query(Family).select(Family.c.family.like('%s%%' % text))
         def set_in_model(self, field, value):
-            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value.id)
         self.assign_completions_handler('gen_family_entry', 'family_id', 
                                         fam_get_completions, set_func=set_in_model)        
+        self.assign_simple_handler('gen_genus_entry', 'genus')
+        self.assign_simple_handler('gen_hybrid_combo', 'hybrid')
+        self.assign_simple_handler('gen_author_entry', 'author')
+        #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
+        self.assign_simple_handler('gen_notes_textview', 'notes')
         
         
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            # TODO: it would be nice to have a generic way to accession the 
+            # foreign table from the foreign key
+#            if field.endswith('_id') and self.model.c[field].foreign_key is not None:                
+#                value = self.model[]
+            if field == 'family_id':
+                value = self.model.family
+            else:
+                value = self.model[field]
             self.view.set_widget_value(widget, value)        
 
     
@@ -282,7 +284,6 @@ class GenusEditor(GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                debug('committing')
                 self.commit_changes()
                 self._committed = [self.model]
             except SQLError, e:                
@@ -415,74 +416,6 @@ class GenusEditor(GenericModelViewPresenterEditor):
     #    def markup(self):
     #        return '%s (syn. of %f)' % (self.synonym, self.genus)
     
-#
-# editor
-#
-#class GenusEditor(TreeViewEditorDialog):
-#
-#    visible_columns_pref = "editor.genus.columns"
-#    column_width_pref = "editor.genus.column_width"
-#    default_visible_list = ['family', 'genus']
-#    
-#    label = 'Genus'
-#    
-#    def __init__(self, parent=None, select=None, defaults={}, **kwargs):
-#        TreeViewEditorDialog.__init__(self, tables["Genus"], "Genus Editor", 
-#                                      parent, select=select, defaults=defaults,
-#                                      **kwargs)
-#        titles = {'genus': 'Genus',
-#                  'author': 'Author',
-#                  'hybrid': 'Hybrid',
-#                  'familyID': 'Family',
-#                  'qualifier': 'Qualifier',
-#                  'notes': 'Notes',
-#                  'synonyms': 'Synonyms'}
-#        self.columns.titles = titles
-#        self.columns["familyID"].meta.get_completions = self.get_family_completions
-#        self.columns['synonyms'].meta.editor = editors["GenusSynonymEditor"]
-#
-#
-#    def get_family_completions(self, text):
-#        model = gtk.ListStore(str, object)
-#        sr = tables["Family"].select("family LIKE '"+text+"%'")
-#        for row in sr:            
-#            model.append([str(row), row])
-#        return model
-#
-#
-## 
-## GenusSynonymEditor
-##
-#class GenusSynonymEditor(TreeViewEditorDialog):
-#
-#    visible_columns_pref = "editor.genus_syn.columns"
-#    column_width_pref = "editor.genus_syn.column_width"
-#    default_visible_list = ['synonym']
-#    
-#    standalone = False
-#    label = 'Genus Synonym'
-#    
-#    def __init__(self, parent=None, select=None, defaults={}):
-#        TreeViewEditorDialog.__init__(self, tables["GenusSynonym"],
-#                                      "Genus Synonym Editor", 
-#                                      parent, select=select, defaults=defaults, 
-#                                      **kwargs)
-#        titles = {'synonymID': 'Synonym of Genus'}
-#                  
-#        # can't be edited as a standalone so the family should only be set by
-#        # the parent editor
-#        self.columns.pop('genusID')
-#        
-#        self.columns.titles = titles
-#        self.columns["synonymID"].meta.get_completions = self.get_genus_completions
-#
-#        
-#    def get_genus_completions(self, text):
-#        model = gtk.ListStore(str, object)
-#        sr = tables["Genus"].select("genus LIKE '"+text+"%'")
-#        for row in sr:
-#            model.append([str(row), row])
-#        return model
         
 #
 # infobox
