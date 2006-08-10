@@ -37,6 +37,7 @@ from bauble.utils.progressdialog import ProgressDialog
 
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
+QUOTE_CHAR = '"'
 
 class CSVImporter:
 
@@ -109,8 +110,7 @@ class CSVImporter:
             yield timeout
             gtasklet.get_event()
             f = file(filename, "rb")
-            #reader = csv.DictReader(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-            reader = csv.DictReader(f, quotechar='"', quoting=QUOTE_STYLE)
+            reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             if table.count().scalar() and not force:
                 msg = "The %s table already contains some data. If two rows "\
                       "have the same id in the import file and the database "\
@@ -137,7 +137,16 @@ class CSVImporter:
                     break  
                 def do(insert, values):
                     try:
-                        insert.execute(*values)
+                        # make a copy of each item in values, removing
+                        # all the empty strings                  
+                        # TODO: we should be able to speed this up
+                        def cleanup(row):
+                            clean = {}
+                            for key, val in row.iteritems():
+                                if val is not '':
+                                    clean[key] = val
+                            return clean
+                        insert.execute(map(cleanup, values))
                     except Exception, e:
                         debug(values)
                         self.__error = True
@@ -340,6 +349,9 @@ class CSVExporter:
                utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
                 return                
         bauble.app.set_busy(True)
+        replace = lambda s: s.replace('\n', '\\n')
+
+
 
         for table_name, table in default_metadata.tables.iteritems():
             log.info("exporting %s" % table_name)
@@ -348,10 +360,11 @@ class CSVExporter:
             # create the file if it contains no data, could be an option
             rows.append(table.c.keys()) # write col names
             for row in table.select().execute():
-                rows.append(row.values())
+                values = map(replace, row.values())
+                rows.append(values)
             f = file(filename_template % table_name, "wb")
             #writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-            writer = csv.writer(f, quotechar='"', quoting=QUOTE_STYLE)
+            writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             writer.writerows(rows)
             f.close()
 

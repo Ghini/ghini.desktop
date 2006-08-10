@@ -59,7 +59,7 @@ donor_table = Table('donor',
                                                       "Individual", # Individual
                                                       "Other", # Other
                                                       "Unknown",
-                                                      None])),
+                                                      None], empty_to_none=True)),
                     Column('address', Unicode),
                     Column('email', Unicode(128)),
                     Column('fax', Unicode(64)),
