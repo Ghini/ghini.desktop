@@ -422,8 +422,8 @@ else:
     from sqlalchemy.orm.session import object_session
     import bauble.paths as paths
     from bauble.plugins.plants.species_model import Species, species_table
-    from bauble.plugins.garden.accession import Accession
-    from bauble.plugins.garden.plant import Plant
+    from bauble.plugins.garden.accession import Accession, accession_table
+    from bauble.plugins.garden.plant import Plant, plant_table
     
     class GeneralGenusExpander(InfoExpander):
         '''
@@ -447,37 +447,32 @@ else:
             @param row: the row to get the values from
             '''
             self.set_widget_value('gen_name_data', str(row))
-            session = object_session(row)
-            
-            species_query = session.query(Species)            
-            species = species_query.table            
-            nsp = species_query.count_by(genus_id = row.id)
-            self.set_widget_value('gen_nsp_data', nsp)
             
             def get_unique_in_select(sel, col):
                 return select([sel.c[col]], distinct=True).count().scalar()
+            def count_select(sel):
+                return sel.count().scalar()
             
-            acc_query = session.query(Accession)
-            accession = acc_query.table                     
-            sp = select([species.c.id], species.c.genus_id==row.id)
-            acc = accession.select(accession.c.species_id.in_(sp))     
-            nacc = acc.count().scalar()
-            nacc_str = str(nacc)
-            if nacc > 0:
+            # get the number of species
+            sp_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
+            nsp = sp_ids.count().scalar()
+            self.set_widget_value('gen_nsp_data', nsp)
+                                    
+            # get number of accessions
+            acc = accession_table.select(accession_table.c.species_id.in_(sp_ids))     
+            nacc_str = str(count_select(acc))
+            if nacc_str != '0':
                 nsp_with_accessions = get_unique_in_select(acc, 'species_id')
                 nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-            
-            plant_query = session.query(Plant)
-            plant = plant_query.table
-            acc_ids = select([acc.c.id])
-            plants = plant.select(plant.c.accession_id.in_(acc_ids))
-            nplants = plants.count().scalar()
-            nplants_str = str(nplants)
-            if nplants > 0:
-                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
-                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)                        
-                
             self.set_widget_value('gen_nacc_data', nacc_str)
+            
+            # get number of plants
+            acc_ids = select([acc.c.id])
+            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = str(count_select(plants))
+            if nplants_str != '0':
+                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
             self.set_widget_value('gen_nplants_data', nplants_str)
                 
                 

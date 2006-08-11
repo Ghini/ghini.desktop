@@ -994,12 +994,8 @@ try:
 except ImportError:
     pass
 else:
-
-# TODO: add the vernacular names to the species infobox, maybe like
-# English: name1, name2
-# Spanish: name1
-# or
-# name1 (English), name2 (English), name3 (English), etc
+    from bauble.plugins.garden.accession import Accession, accession_table
+    from bauble.plugins.garden.plant import Plant, plant_table
     
 #    
 # Species infobox for SearchView
@@ -1101,13 +1097,6 @@ else:
             @param row: the row to get the values from
             '''
             self.set_widget_value('sp_name_data', row.markup(True))
-            self.set_widget_value('sp_nacc_data', len(row.accessions))
-            
-            #nplants = 0
-            #for acc in row.accessions:
-            #    nplants += len(acc.plants)
-            #nacc_data_str = '%s in %s plants' % (len(row.accessions), nplants)
-            #self.set_widget_value('nacc_data', nacc_data_str)
             
             if row.id_qual is not None:
                 self.widgets.sp_idqual_label.set_sensitive(True)
@@ -1124,19 +1113,20 @@ else:
                 self.set_widget_value('sp_phumans_check', meta.poison_humans)
                 self.set_widget_value('sp_panimals_check', meta.poison_animals)
             
-            nplants = 0
-            # TODO: could probably speed this up quite a bit with an sql query
-            # and sql max function
-            nacc_with_plants = 0
-            for acc in row.accessions:
-                if len(acc.plants) > 0:
-                    nacc_with_plants += 1
-                    nplants += len(acc.plants)
-                    
-            nplants_str = 0
-            if nacc_with_plants > 0:
-                nplants_str = '%s in %s accessions' % (nplants, nacc_with_plants)
-            self.set_widget_value('sp_nplants_data', nplants_str)    
+
+            acc_ids = select([accession_table.c.id], accession_table.c.species_id==row.id)
+            nacc = acc_ids.count().scalar()
+            self.set_widget_value('sp_nacc_data', nacc)
+            
+            def get_unique_in_select(sel, col):
+                return select([sel.c[col]], distinct=True).count().scalar()
+            
+            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = str(plants.count().scalar())
+            if nplants_str != '0':
+                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
+            self.set_widget_value('sp_nplants_data', nplants_str)
     
     
     

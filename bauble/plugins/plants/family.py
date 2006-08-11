@@ -424,55 +424,44 @@ else:
             
             @param row: the row to get the values from
             '''            
-            # TODO: see the way this is done in the GenusInfobox, i think it
-            # cleaner and probably a bit faster            
-            session = object_session(row)
+            def get_unique_in_select(sel, col):
+                return select([sel.c[col]], distinct=True).count().scalar()
+            def count_select(sel):
+                return sel.count().scalar()
+                        
             self.set_widget_value('fam_name_data', str(row))
             
-            ngen = session.query(Genus).count_by(family_id=row.id) 
-            self.set_widget_value('fam_ngen_data', ngen)
-                   
-            # get the number of species
+            # get the number of genera
             genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)
-            nsp = session.query(Species).count_by(species_table.c.genus_id.in_(genus_ids))              
-            nsp_str = str(nsp)
+            ngen = count_select(genus_ids)
+            self.set_widget_value('fam_ngen_data', ngen)
             
-            # get the unique genera from the species
-            if nsp > 0:                
-                all_species = select([species_table], species_table.c.genus_id.in_(genus_ids))
-                
-                # TODO: can these two lines be combined
-                gen_ids_in_sp = select([genus_table.c.id], genus_table.c.id==all_species.c.genus_id)
-                ngen_with_species = session.query(Genus).count_by(gen_ids_in_sp)        
+            # get the number of species
+            sp = species_table.select(species_table.c.genus_id.in_(genus_ids))
+            nsp_str = str(count_select(sp))
+            if nsp_str != '0': 
+                ngen_with_species = get_unique_in_select(sp, 'genus_id')
                 nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)            
-                                             
+            self.set_widget_value('fam_nsp_data', nsp_str)
+            
             # get the number of accessions
-            species_ids = select([species_table.c.id], 
-                                 species_table.c.genus_id.in_(genus_ids))
-            nacc = session.query(Accession).count_by(accession_table.c.species_id.in_(species_ids))
-            nacc_str = str(nacc)
-            if nacc > 0:
-                # get the unique species from the accessions
-                all_acc = select([accession_table], accession_table.c.species_id.in_(species_ids))            
-                sp_ids_in_acc = select([species_table.c.id], species_table.c.id==all_acc.c.species_id)
-                nsp_with_accessions = session.query(Species).count_by(sp_ids_in_acc)
+            species_ids = select([sp.c.id])
+            acc = accession_table.select(accession_table.c.species_id.in_(species_ids))
+            nacc_str = str(count_select(acc))
+            if nacc_str != '0':
+                nsp_with_accessions = get_unique_in_select(acc, 'species_id')
                 nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)            
+            self.set_widget_value('fam_nacc_data', nacc_str)
             
             # get the number of plants
-            acc_ids = select([accession_table.c.id],
-                             accession_table.c.species_id.in_(species_ids))
-            nplants = session.query(Plant).count_by(plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = str(nplants)
-            if nplants > 0:            
-                # get the unique accession from the plants
-                all_plants = select([plant_table], plant_table.c.accession_id.in_(acc_ids))
-                acc_ids_in_plants = select([accession_table.c.id], accession_table.c.id==all_plants.c.accession_id)
-                nacc_with_plants = session.query(Accession).count_by(acc_ids_in_plants)
-                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
-                        
-            self.set_widget_value('fam_nsp_data', nsp_str)
-            self.set_widget_value('fam_nacc_data', nacc_str)
+            acc_ids = select([acc.c.id])
+            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = str(count_select(plants))
+            if nplants_str != '0':
+                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
             self.set_widget_value('fam_nplants_data', nplants_str)
+
                 
                 
     class FamilyInfoBox(InfoBox):
