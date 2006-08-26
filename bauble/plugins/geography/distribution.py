@@ -1,11 +1,13 @@
 #
 # distribution.py
 # 
-# Description: the TDWG database for plant distributions version 2
+# Description: schema for the TDWG World Geographical Scheme for Recording Plant 
+#    Distributions, Edition 2
 #
 import os
 import gtk
 from sqlalchemy import *
+import bauble
 from bauble.editor import set_dict_value_from_widget, get_widget_value
 from bauble.editor import TableEditor
 
@@ -19,18 +21,35 @@ from bauble.editor import TableEditor
 # 3. other stuff...
 
 
-
-# FIXME: there are lots of problems with these tables
-# 1. in some tables there is a row with no real values, i think this means
-# from a cultivated source with no know origin but it should be verified and
-# more intuitive
-# 2. some row values that have default=None shouldn't, they are only set that
-# way so that the mystery row with no values will import correctly
-# 3. other stuff...
-
 # TODO: don't allow continent to be deleted if region exists, in general
 # fix cascading
 
+# TODO: i wonder if it would be possible to store this in one table
+# and remove some of the data we're not using
+
+# level: the rank, this combined with the parent_id would give it's 
+# exact place in the combo, e.g. level=0 would be the top level so
+# we could do 
+#for one in distribution_table.select(level=0):
+#    for two in distribution_table.select(level=0):
+# actually this way we really only need to know what is the top level
+# and everything else can follow from the parent
+class GeographyMapper(bauble.BaubleMapper):
+    
+    _subdivisions_field = None
+    def _get_subdivisions(self):
+        '''
+        return all objects considered inside this geographic region
+        according to self._subdivisions_field
+        '''    
+        if self._subdivisions_field is None:
+            return None
+        
+        # select and return the subvisions
+        return []
+        
+    subdivisions = property(_get_subdivisions)
+    
 
 #
 # place table (the gazetteer)
