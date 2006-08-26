@@ -52,20 +52,10 @@ class GeographyPlugin(BaublePlugin):
     @classmethod
     def create_tables(cls):
         super(GeographyPlugin, cls).create_tables()
-#        from bauble.plugins.imex_csv import CSVImporter
-#        csv = CSVImporter()        
-#        #path = os.path.dirname(__file__) + os.sep + 'default'
-#        path = os.path.join(paths.lib_dir(), "plugins", "geography", "default")
-#        files = ['Country.txt', 'Continent.txt', 'Region.txt', 
-#                 'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']
-#
-#        csv.start([path+os.sep+f for f in files])
 
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "geography", "default")
-#        files = ['Country.txt', 'Continent.txt', 'Region.txt', 
-#                 'BotanicalCountry.txt', 'BasicUnit.txt', 'Place.txt']        
         files = ['country.txt', 'continent.txt', 'region.txt', 
                  'botanical_country.txt', 'basic_unit.txt', 'place.txt']        
         return [os.path.join(path, f) for f in files]
