@@ -16,7 +16,7 @@ from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, genus_table
 from bauble.plugins.plants.species_model import Species, species_table, \
-    SpeciesMeta, SpeciesSynonym, VernacularName
+    SpeciesMeta, SpeciesSynonym, VernacularName, SpeciesDistribution
 from bauble.plugins.garden.accession import AccessionEditor
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
@@ -173,21 +173,11 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
                 
         for field in self.widget_to_field_map.values():         
-            #debug(field)               
             self.model.add_notifier(field, self.on_field_changed)
-            #add_notifier(self.model, field, self.on_field_changed)
-                        
-        #for field in self.synonyms_presenter.widget_to_field_map.values():            
-        #    self.model.add_notifier(field, self.on_field_changed)
-            
-        #for field in self.vern_presenter.widget_to_field_map.values():
-        #    self.model.add_notifier(field, self.on_field_changed)
             
         for field in self.meta_presenter.widget_to_field_map.values():
-            #pass
             self.meta_presenter.model.add_notifier(field, self.on_field_changed)
           
-        #self.vern_presenter.set_default_changed_notifier(self.on_field_changed)
         self.vern_presenter.set_default_changed_notifier(self.on_default_changed)
         
             
@@ -195,8 +185,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.model.default_vernacular_name = obj
         self.on_field_changed(self.model, 'default_vernacular_name')
         
- 
-        
+         
     def init_combos(self):
         '''
         initialize the infraspecific rank combo, the species hybrid combo,
@@ -704,13 +693,11 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         if model is None:
             assert(session is not None), 'you must pass either a session or model'
             sp_meta = SpeciesMeta()
-            #session.save(sp_meta)
         else:
             sp_meta = model                        
         
         GenericEditorPresenter.__init__(self, ModelDecorator(sp_meta), view)        
         self.session = session
-        debug(self.model)
         self.init_distribution_combo()
         # we need to call refresh view here first before setting the signal
         # handlers b/c SpeciesEditorPresenter will call refresh_view after
@@ -718,8 +705,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         self.refresh_view() 
         self.assign_simple_handler('sp_humanpoison_check', 'poison_humans')
         self.assign_simple_handler('sp_animalpoison_check', 'poison_animals')
-        self.assign_simple_handler('sp_food_check', 'food_plant')
-                
+        self.assign_simple_handler('sp_food_check', 'food_plant')                
         for field in self.widget_to_field_map.values():         
             self.model.add_notifier(field, self.on_field_changed)
     
@@ -727,39 +713,64 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
     def on_field_changed(self, model, field):
         # if any field changed then attach the current model to the sesion
         # if it hasn't been
+        debug(field)
         if not model in self.session:
             self.session.save(model)
         
-        
-    def init_distribution_combo(self):        
-        '''
-        '''
-        def _populate():
-            self.view.widgets.sp_dist_combo.set_model(None)
-            model = gtk.TreeStore(str)
-            model.append(None, ["Cultivated"])            
-            from bauble.plugins.geography.distribution import continent_table, \
-                region_table, botanical_country_table, basic_unit_table
-            region_select = select([region_table.c.id, region_table.c.region], 
-                                   region_table.c.continent_id==bindparam('continent_id')).compile()
-            country_select = select([botanical_country_table.c.id, botanical_country_table.c.name], 
-                                    botanical_country_table.c.region_id==bindparam('region_id')).compile()
-            unit_select = select([basic_unit_table.c.name, basic_unit_table.c.id], 
-                                 basic_unit_table.c.botanical_country_id==bindparam('country_id')).compile()                        
-            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
-                p1 = model.append(None, [continent])
-                for region_id, region in region_select.execute(continent_id=continent_id):
+    def init_distribution_combo(self):      
+        def populate():  
+            combo = self.view.widgets.sp_dist_combo
+            combo.set_model(None)
+            model = gtk.TreeStore(object)
+            # TODO: how do we handled "Cultivated" since we no longer save
+            # the distribution as just a string
+#            model.append(None, ["Cultivated"])
+            from bauble.plugins.geography.distribution import Continent, \
+                Region, BotanicalCountry, BasicUnit
+            for continent in self.session.query(Continent).select():
+                p1 = model.append(None, [continent])                
+                for region in self.session.query(Region).select_by(continent_id=continent.id):
                     p2 = model.append(p1, [region])
-                    for country_id, country in country_select.execute(region_id=region_id):
+                    for country in self.session.query(BotanicalCountry).select_by(region_id=region.id):
                         p3 = model.append(p2, [country])
-                        for unit, dummy in unit_select.execute(country_id=country_id):
-                            if unit != country:
-                                model.append(p3, [unit])
-            self.view.widgets.sp_dist_combo.set_model(model)
-            self.view.widgets.sp_dist_combo.set_sensitive(True)
+                        for unit in self.session.query(BasicUnit).select_by(botanical_country_id=country.id):
+                            if unit.name != country.name:
+                                model.append(p3, [unit])                    
+            combo.set_model(model)
+            combo.set_sensitive(True)
             self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-            self.assign_simple_handler('sp_dist_combo', 'distribution')
-        gobject.idle_add(_populate)
+            self.assign_simple_handler('sp_dist_combo', 'distribution')                    
+        gobject.idle_add(populate)
+        
+#    def init_distribution_combo(self):        
+#        '''
+#        '''
+#        def _populate():
+#            self.view.widgets.sp_dist_combo.set_model(None)
+#            model = gtk.TreeStore(str)
+#            model.append(None, ["Cultivated"])            
+#            from bauble.plugins.geography.distribution import continent_table, \
+#                region_table, botanical_country_table, basic_unit_table
+#            region_select = select([region_table.c.id, region_table.c.region], 
+#                                   region_table.c.continent_id==bindparam('continent_id')).compile()
+#            country_select = select([botanical_country_table.c.id, botanical_country_table.c.name], 
+#                                    botanical_country_table.c.region_id==bindparam('region_id')).compile()
+#            unit_select = select([basic_unit_table.c.name, basic_unit_table.c.id], 
+#                                 basic_unit_table.c.botanical_country_id==bindparam('country_id')).compile()                        
+#            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
+#                p1 = model.append(None, [continent])
+#                for region_id, region in region_select.execute(continent_id=continent_id):
+#                    p2 = model.append(p1, [region])
+#                    for country_id, country in country_select.execute(region_id=region_id):
+#                        p3 = model.append(p2, [country])
+#                        for unit, dummy in unit_select.execute(country_id=country_id):
+#                            if unit != country:
+#                                model.append(p3, [unit])
+#            self.view.widgets.sp_dist_combo.set_model(model)
+#            self.view.widgets.sp_dist_combo.set_sensitive(True)
+#            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
+#            self.assign_simple_handler('sp_dist_combo', 'distribution')
+#        gobject.idle_add(_populate)
     
         
         
@@ -792,13 +803,24 @@ class SpeciesEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
-        
+        self.init_distribution_combo()
         self.attach_completion('sp_genus_entry', self.genus_completion_cell_data_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.species_dialog)
         if sys.platform == 'win32':
             self.do_win32_fixes()
+        
+        
+    def init_distribution_combo(self):
+        def cell_data_func(column, renderer, model, iter, data=None):
+            v = model[iter][0]
+            renderer.set_property('text', '%s' % str(v))
+        combo = self.widgets.sp_dist_combo
+        combo.clear()        
+        r = gtk.CellRendererText()
+        combo.pack_start(r)
+        combo.set_cell_data_func(r, cell_data_func)
         
         
     def _get_window(self):
@@ -874,7 +896,7 @@ class SpeciesEditorView(GenericEditorView):
         return self.widgets.species_dialog.run()    
     
 
-# If a a mapped object that is attached to a session is passed into the 
+# f a a mapped object that is attached to a session is passed into the 
 # SpeciesEditor the we will use the same session that the mapped object is 
 # attached to. This could mean that we make changes the the object but if the 
 # editor is cancelled or closed then the changes will stay on the object without
