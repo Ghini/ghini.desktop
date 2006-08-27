@@ -9,6 +9,8 @@ import string
 from string import Template
 from bauble.utils.log import log, debug
 import xml.sax.saxutils
+import lxml.etree as etree
+from lxml.etree import Element, SubElement, ElementTree
 
 # TODO: also need ability to dump to darwin core, should consider just writing
 # an xsl transformation to do the conversion instead of writing more export
@@ -19,92 +21,73 @@ import xml.sax.saxutils
 # e.g. Units can have 1 to infinity Unit children whereas elements require
 # at least one and some can have at most one child
 
-class SQLObjectToABCD:
-    def __init__(so_class, parent):
-	pass
+# TODO: the code needs to reflect the fact that xml tags are case insensitive,
+# at the very least the parent.tag assertion should call a lower
 
-    def toABCD():
-	pass
+# TODO: for types that are enumerations only allow values from the 
+# enumeration in the text attribute
 
+# TODO: doesn't validate unless i write the dataset to a file and read it back 
+# in, it's most like some sort of namespace issue
 
-# temporary placeholder until lxml
-class Element: 
-    def __init__(tag):
-	Element.__init__(self, tag)
-
-# temporary placeholder
-class SubElement: 
-    def __init__(parent, tag):
-	SubElement.__init__(self, parent, tag)
-
-
-# it would be good if this could somehow incapsulate more than one tag but 
-# still stick to the element tree api so we could easily read and write the 
-# data
-class SpeciesToABCD(SubElement):
-    def __init__(self, species, parent):
-	pass
+def ABCDElement(parent, name, type=None, text=None, attrib={}):
+    el = SubElement(parent, name, attrib)
+    el.text = text
+    return el
     
-    def markup(self):
-	'''
-	<scientificname>
-	<fullscientificnamestring>
-	$name
-	</fullscientificnamestring>
-	</scientificname'''
-	return str(species)
-	
-
-class AccessionABCD:
-    def __init__(so_class, parent):
-	assert isinstance(parent, SpeciesABCD)
+def DataSets():
+    #return Element('{http://www.tdwg.org/schemas/abcd/2.06}DataSets')
+    return Element('DataSets', attrib={'xmlns': 'http://www.tdwg.org/schemas/abcd/2.06'})
+    
 
 
-class DataSets(Element):
-    def __init__(self):
-	# assert list of classes that can be children of ABCDRoot
-	# [DataSet]
-	Element.__init__(self, "DataSets")
+#
+# using a factory means less typos but also less flexibility
+#
+# {tagname: parents}
+element_map = {'DataSet': ['{http://www.tdwg.org/schemas/abcd/2.06}DataSets', 'DataSets'],
+                   'TechnicalContacts': ['DataSet'],
+                       'TechnicalContact': ['TechnicalContacts'],
+                   'ContentContacts': ['DataSet'],
+                       'ContentContact': ['ContentContacts'],
+                   'Name': ['TechnicalContact','ContentContact'],
+                   'Email': ['TechnicalContact','ContentContact'],
+               'Metadata': ['DataSet'],
+                   'Description': ['Metadata'],
+                   'Representation': ['Description'], # language attribute
+                       'Title': ['Representation'],
+                   'RevisionData': ['Metadata'],
+                       'DateModified': ['RevisionData'],                   
+               'Units': ['DataSet'],
+                   'Unit': ['Units'],
+                       'SourceInstitutionID': ['Unit'],
+                       'SourceID': ['Unit'],
+                       'UnitID': ['Unit'],
+                       'DateLastEdited': ['Unit'],                       
+                       'Identifications': ['Unit'],
+                           'Identification': ['Identifications'],
+                               'Result': ['Identification'],
+                                   'TaxonIdentified': ['Result'],
+                                       'HigherTaxa': ['TaxonIdentified'],
+                                       'HigherTaxon': ['HigherTaxa'],
+                                           'HigherTaxonName': ['HigherTaxon'],
+                                           'HigherTaxonRank': ['HigherTaxon'],
+                                   'ScientificName': ['TaxonIdentified'],
+                                       'FullScientificNameString': ['ScientificName'],
+                                       'NameAtomised': ['ScientificName'],
+                                           'Botanical': ['NameAtomised'],
+                                               'GenusOrMonomial': ['Botanical'],
+                                               'FirstEpithet': ['Botanical'],
+                                               'AuthorTeam': ['Botanical'],
+                                   
+                           }
 
-	def append(child):
-	    assert isinstance(child, DataSet)
+def ElementFactory(parent, name, **kwargs):
+    assert name in element_map, 'Unknown element: %s' % name
+    assert parent.tag in element_map[name], parent.tag
+    el = ABCDElement(parent, name, **kwargs)
+    return el
 
-class DataSet(SubElement):
-
-    def __init__(parent):
-	assert isinstance(parent [DataSets])
-	# possible children [DataSetGUID, TechnicalContacts, ContentContacts, 
-	# OtherProviders, Metadata, Units]
-
-
-class Units(SubElement):
-    def __init__(self, parent):
-	assert isinstance(parent, [DataSet])
-
-    def append(self, child):
-	# assert [Unit]
-	pass
-
-
-class Unit:
-    def append(self, child):
-	# assert [UnitGUID, SourceInstitutionID, SourceID, UnitID, 
-	# UnitIDNumeric, LastEditor, DateLastEdited, Owner, IPRStatements, 
-	# UnitContentContacts, SourceReference, UnitReferences, 
-	# Identifications, RecordBasis, KindOfUnit, SpecimenUnit, 
-	# ObservationUnit, CultureCollectionUnit, MycologicalUnit, 
-	# HerbariumUnit, BotanicalGardenUnit, PlantGeneticResourceUnit, 
-	# ZoologicalUnit, PaleontologicalUnit, MultiMediaObjects, 
-	# Associations, Assemblages, NamedCollectionsOrSurvey, Gathering, 
-	# CollectorsFieldNumber, MeasurementsOrFacts, Sex, Age, Sequences, 
-	# Notes, RecordURI, EAnnotations, UnitExtension
-	pass
-
-#datasets = ABCDDataSets()
-#ds = ABCDDataSet(datasets)
-#units = ABCDUnits(ds)
-#unit = ABCDUnit(units)
-#print datasets
 
 main_template_str = """<?xml version="1.0" encoding="utf-8"?>
 <datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
