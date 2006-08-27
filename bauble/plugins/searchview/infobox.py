@@ -46,6 +46,7 @@ class InfoExpander(gtk.Expander):
         '''
         gtk.Expander.__init__(self, label)
         self.vbox = gtk.VBox(False)
+        self.vbox.set_border_width(5)
         self.add(self.vbox)
         self.set_expanded(True)
         self.widgets = widgets

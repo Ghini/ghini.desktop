@@ -8,7 +8,7 @@ import bauble
 from bauble.editor import *
 import bauble.paths as paths
 from bauble.types import Enum
-from bauble.plugins.garden.source import Donation
+from bauble.plugins.garden.source import Donation, donation_table
 
 # TODO: need to make it so you can't delete Donors if they still have 
 # associated Donations
@@ -63,50 +63,20 @@ donor_table = Table('donor',
                     Column('address', Unicode),
                     Column('email', Unicode(128)),
                     Column('fax', Unicode(64)),
-                    Column('tel', Unicode(64)))
+                    Column('tel', Unicode(64)),
+                    Column('notes', Unicode),)
 
 class Donor(bauble.BaubleMapper):
     
     def __str__(self):
         return self.name
 
+# TODO: make sure that you can't delete the donor if donations exist, this
+# should have a test
 mapper(Donor, donor_table,
        properties={'donations': relation(Donation, 
                                          backref=backref('donor', uselist=False))},
        order_by='name')
-    
-#class Donor(BaubleTable):
-#
-#    class sqlmeta(BaubleTable.sqlmeta):
-#        defaultOrder = 'name'
-#    
-#    name = UnicodeCol(length=72, alternateID=True)
-#    donor_type = EnumCol(enumValues=('Expedition', # Expedition
-#                                     "Gene bank", # Gene bank
-#                                     "Botanic Garden or Arboretum", # Botanic Garden or Arboretum
-#                                     "Research/Field Station", # Other research, field or experimental station
-#                                     "Staff member", # Staff of the botanic garden to which record system applies
-#                                     "University Department", # University Department
-#                                     "Horticultural Association/Garden Club", # Horticultural Association or Garden Club
-#                                     "Municipal department", # Municipal department
-#                                     "Nursery/Commercial", # Nursery or other commercial establishment
-#                                     "Individual", # Individual
-#                                     "Other", # Other
-#                                     "Unknown",
-#                                     None),
-#                                      # Unknown
-#                          default=None)
-#                             
-#    donations = MultipleJoin('Donation', joinColumn='donor_id')
-#    
-#    # contact information
-#    address = UnicodeCol(default=None)
-#    email = UnicodeCol(default=None)
-#    fax = UnicodeCol(default=None)
-#    tel = UnicodeCol(default=None)
-#    
-#    def __str__(self):
-#        return self.name
 
 
 class DonorEditorView(GenericEditorView):
@@ -185,14 +155,13 @@ class DonorEditorPresenter(GenericEditorPresenter):
         return self.view.start()
 
 
-
+# TODO: need to create a widget to edit the notes
 class DonorEditor(GenericModelViewPresenterEditor):
     
     label = 'Donors'
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
     
-    #def __init__(self, model=Donor, defaults={}, parent=None, **kwargs):
     def __init__(self, model_or_defaults=None, parent=None):
         '''
         @param model: Donor or dictionary of values for Donor
@@ -210,9 +179,8 @@ class DonorEditor(GenericModelViewPresenterEditor):
                              'dictionary or Donor instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         self.parent = parent
-    
-    
-    _committed = None
+        self._committed = []
+
     
     def handle_response(self, response):
         '''
@@ -256,7 +224,6 @@ class DonorEditor(GenericModelViewPresenterEditor):
         self.presenter = DonorEditorPresenter(self.model, self.view)
         
         exc_msg = "Could not commit changes.\n"
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
@@ -277,10 +244,63 @@ except ImportError:
         pass
 else:
     class GeneralDonorExpander(InfoExpander):
-        # name, number of donations, address, email, fax, tel, type of donor
-        pass
+        '''
+        displays name, number of donations, address, email, fax, tel, 
+        type of donor
+        '''
+        def __init__(self, widgets):
+            InfoExpander.__init__(self, "Genera", widgets)
+            gen_box = self.widgets.don_gen_box
+            self.widgets.don_gen_window.remove(gen_box)
+            self.vbox.pack_start(gen_box)
+        
+                
+        def update(self, row):
+            self.set_widget_value('don_name_data', row.name)
+            self.set_widget_value('don_address_data', row.address)
+            self.set_widget_value('don_email_data', row.email)
+            self.set_widget_value('don_tel_data', row.tel)
+            self.set_widget_value('don_fax_data', row.fax)
+            
+            ndons = select([donation_table.c.id], 
+                           donation_table.c.donor_id==row.id).count().scalar()
+            self.set_widget_value('don_ndons_data', ndons)            
+    
+    
+    class NotesExpander(InfoExpander):
+        """
+        displays notes about the donor
+        """
+    
+        def __init__(self, widgets):
+            InfoExpander.__init__(self, "Notes", widgets)            
+            notes_box = self.widgets.don_notes_box
+            self.widgets.don_notes_window.remove(notes_box)
+            self.vbox.pack_start(notes_box)
+        
+            
+        def update(self, row):
+            if row.notes is None:
+                self.set_sensitive(False)
+                self.set_expanded(False)            
+            else:
+                # TODO: get expanded state from prefs
+                self.set_sensitive(True)
+                self.set_widget_value('don_notes_data', row.notes)       
     
     class DonorInfoBox(InfoBox):        
         
+        def __init__(self):
+            InfoBox.__init__(self)
+            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+                                "infoboxes.glade")
+            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))            
+            self.general = GeneralDonorExpander(self.widgets)
+            self.add_expander(self.general)
+            self.notes = NotesExpander(self.widgets)
+            self.add_expander(self.notes)
+            
         def update(self, row):
-            pass
+            self.general.update(row)
+            self.notes.update(row)
+            

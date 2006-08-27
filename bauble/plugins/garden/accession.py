@@ -808,16 +808,18 @@ class DonationPresenter(GenericEditorPresenter):
     def __init__(self, model, view, session):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)        
         self.session = session
-        self.refresh_view()        
-
-        # set up widgets and handlers
+        
+        # set up donor_combo
         donor_combo = self.view.widgets.donor_combo
         donor_combo.clear() # avoid gchararry/PyObject warning
         r = gtk.CellRendererText()                    
         donor_combo.pack_start(r)
         donor_combo.set_cell_data_func(r, self.combo_cell_data_func)        
-        self.view.widgets.donor_combo.connect('changed', self.on_donor_combo_changed)
+                
+        self.refresh_view()        
         
+        # assign handlers
+        donor_combo.connect('changed', self.on_donor_combo_changed)        
         self.assign_simple_handler('donid_entry', 'donor_acc')
         self.assign_simple_handler('donnotes_entry', 'notes')       
         don_date_entry = self.view.widgets.don_date_entry
@@ -828,6 +830,10 @@ class DonationPresenter(GenericEditorPresenter):
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
         
+        # if there is only one donor in the donor combo model and 
+        if self.model.donor is None and len(donor_combo.get_model()) == 1:
+            donor_combo.set_active(0)
+            
         
     def on_donor_combo_changed(self, combo, data=None):
         '''
@@ -878,21 +884,7 @@ class DonationPresenter(GenericEditorPresenter):
                                 self.view.widgets.don_date_entry)
         except:
             self.add_problem(self.PROBLEM_INVALID_DATE, 
-                             self.view.widgets.don_date_entry)
-#        if m is None:
-#            self.add_problem(self.PROBLEM_INVALID_DATE, 
-#                             self.view.widgets.don_date_entry)
-#        else:
-#            try:
-#                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-#                                        m.group('day')]]            
-#                dt = datetime(*ymd).date()
-#                self.remove_problem(self.PROBLEM_INVALID_DATE, 
-#                                 gets.don_date_entry)
-#            except:
-#                self.add_problem(self.PROBLEM_INVALID_DATE, 
-#                                 self.view.widgets.don_date_entry)
-                
+                             self.view.widgets.don_date_entry)                
         self.model.date = dt
 
         
@@ -934,17 +926,13 @@ class DonationPresenter(GenericEditorPresenter):
         donor_combo.set_model(model)        
         
         # TODO: what if there is a donor id in the source but the donor
-        # doesn't exist        
+        # doesn't exist
         for widget, field in self.widget_to_field_map.iteritems():            
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value)
-        
-        # only one to choose from
-        if len(model) == 1 and self.model['donor'] is None:
-            donor_combo.set_active(0)
             
         if self.model.donor is None:
             self.view.widgets.don_edit_button.set_sensitive(False)
