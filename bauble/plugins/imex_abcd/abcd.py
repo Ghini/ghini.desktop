@@ -212,7 +212,7 @@ def plants_to_abcd(plants):
         #id = string.strip(unicode(acc.acc_id) + '.' + str(p.plant_id))
         # TODO: what if someone doesn't want to use '.' to separate 
         # acc_id and plant_id
-        id = xml_safe(acc.acc_id + '.' + p.plant_id)
+        id = xml_safe(acc.code + '.' + p.code)
         
         f = family_template.substitute(family=xml_safe(str(acc.species.genus.family)))
         n = name_template.substitute(name=xml_safe(str(acc.species)))

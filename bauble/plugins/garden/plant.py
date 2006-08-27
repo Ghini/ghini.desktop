@@ -337,7 +337,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():            
             if field is 'accession_id':
-                value = self.model.accesssion
+                value = self.model.accession
             elif field is 'location_id':
                 value = self.model.location
             else:
