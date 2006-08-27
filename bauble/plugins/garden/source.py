@@ -2,6 +2,7 @@
 # source.py
 #
 
+from bauble import BaubleMapper
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 
@@ -18,7 +19,7 @@ donation_table = Table('donation',
                        Column('accession_id', Integer, 
                               ForeignKey('accession.id'), nullable=False))
 
-class Donation(object):
+class Donation(BaubleMapper):
         
     def __str__(self):
         return 'Donation from %s' % (self.donor or '<not set>')
@@ -49,7 +50,7 @@ collection_table = Table('collection',
                          Column('accession_id', Integer, 
                                 ForeignKey('accession.id'), nullable=False))
 
-class Collection(object):
+class Collection(BaubleMapper):
         
     def __str__(self):
         return 'Collection at %s' % (self.locale or '<not set>')
