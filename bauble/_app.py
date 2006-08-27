@@ -89,7 +89,7 @@ class BaubleApp(object):
                           
                           
     @classmethod
-    def open_database(cls, uri, name=None):        
+    def open_database(cls, uri, name=None):
         """
         open a database connection
         """

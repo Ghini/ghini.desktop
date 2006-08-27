@@ -12,7 +12,7 @@ import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
-from bauble.plugins import BaubleView, BaubleTable, tables, editors
+from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
 from pyparsing import *
 
