@@ -23,7 +23,7 @@ class BaubleApp(object):
     db_engine = None
 
     @staticmethod
-    def create_database():
+    def create_database(import_defaults=True):
         '''
         create new Bauble database at the current connection
         '''
@@ -42,15 +42,16 @@ class BaubleApp(object):
             default_metadata.drop_all()
             default_metadata.create_all()
             
-            for p in plugins.values():
-                default_filenames.extend(p.default_filenames())
-            
-            default_basenames = [os.path.basename(f) for f in default_filenames]                        
-            # import default data
-            if len(default_filenames) > 0:
-                from bauble.plugins.imex_csv import CSVImporter
-                csv = CSVImporter()    
-                csv.start(default_filenames)
+            if import_defaults:
+                for p in plugins.values():
+                    default_filenames.extend(p.default_filenames())
+                
+                default_basenames = [os.path.basename(f) for f in default_filenames]                        
+                # import default data
+                if len(default_filenames) > 0:
+                    from bauble.plugins.imex_csv import CSVImporter
+                    csv = CSVImporter()    
+                    csv.start(default_filenames)
             
             # add the version to the meta table
             meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
