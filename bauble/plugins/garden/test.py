@@ -66,6 +66,44 @@ conversion_test_data = (
 parse_lat_lon_data = ('17 21 59', '17 21.98333333', '17.36638889',
                       '50 19 32.59', '-50 19.543166', '-50.325719')
 
+class DonorTests(BaubleTestCase):
+    
+    def setUp(self):
+        super(DonorTests, self).setUp()
+        family_name = 'TestDonFamily'
+        genus_name = 'TestDonGenus'
+        sp_name = 'testdonspecies'
+        family_table.insert().execute(family=family_name)
+        family_id = select([family_table.c.id], family_table.c.family==family_name).scalar()
+        genus_table.insert().execute(genus=genus_name, family_id=family_id)
+        genus_id = select([genus_table.c.id], genus_table.c.genus==genus_name).scalar()
+        species_table.insert().execute(genus_id=genus_id, sp=sp_name)
+        species_id = select([species_table.c.id], species_table.c.sp==sp_name)
+        insert = accession_table.insert()        
+        insert.execute(species_id=species_id, code='TestDonCode')
+        donor_table.insert().execute(name='TestDonDonor')
+        
+    def test_delete_donor(self):
+        session = create_session()
+        acc = session.query(Accession).select_by(code='TestDonCode')[0]
+        donor = session.query(Donor).select_by(name='TestDonDonor')[0]
+        donation = Donation(donor_id=donor.id)
+        acc.source = donation
+        session.flush()
+        session.close()
+        
+        # do the rest in a new session
+        session = create_session()
+        donor = session.query(Donor).select_by(name='TestDonDonor')[0]
+        # shouldn't be allowed to delete donor if it has donations,
+        # what is happening here is that when deleting the donor the 
+        # corresponding donations.donor_id's are being be set to null which 
+        # isn't allowed by the scheme....is this the best we can do? or can we 
+        # get some sort of error when creating a dangling reference        
+        session.delete(donor)        
+        self.assertRaises(SQLError, session.flush)
+        
+        
 class AccessionTests(BaubleTestCase):
     
     def setUp(self):
@@ -196,6 +234,7 @@ class GardenTestSuite(unittest.TestSuite):
                                               'test_decimal_to_dms',
                                               'test_parse_lat_lon')))
        self.addTests(map(AccessionTests, ('test_set_source',)))
+       self.addTests(map(DonorTests, ('test_delete_donor',)))
     
        
 testsuite = GardenTestSuite

@@ -925,8 +925,6 @@ class DonationPresenter(GenericEditorPresenter):
         donor_combo = self.view.widgets.donor_combo
         donor_combo.set_model(model)        
         
-        # TODO: what if there is a donor id in the source but the donor
-        # doesn't exist
         for widget, field in self.widget_to_field_map.iteritems():            
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
