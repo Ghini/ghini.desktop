@@ -195,10 +195,10 @@ accession_table = Table('accession',
 
 def delete_or_expunge(session, obj):
     if obj in session.new:
-        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
+        #debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
     else:
-        debug('delete obj: %s -- %s' % (obj, repr(obj)))        
+        #debug('delete obj: %s -- %s' % (obj, repr(obj)))        
         session.delete(obj)        
 
 # TODO: need to incorporate the accession.source property into a test
@@ -216,17 +216,17 @@ class Accession(bauble.BaubleMapper):
             return self._donation
         raise AssertionError('unknown source_type in accession: %s' % self.source_type)    
     def _set_source(self, source):
-        debug('_set_source(%s): %s' % (source or 'None', repr(source)))
+        #debug('_set_source(%s): %s' % (source or 'None', repr(source)))
         session = object_session(self)
         old = self.source
         if source is None:
             del self.source
             return
-        debug(old in session.deleted)
+        #debug(old in session.deleted)
         if source is not self.source:
-            debug('deleting self.source')
+            #debug('deleting self.source')
             del self.source
-        debug(old in session.deleted)
+        #debug(old in session.deleted)
 #        if source is None:
 #            del self.source
 #            #self.source_type = None            
@@ -239,7 +239,7 @@ class Accession(bauble.BaubleMapper):
 #        if self.source in session:
 #            print 'self.source in session: %s' % self.source            
         self.source_type = source.__class__.__name__
-        debug(old in session.deleted)
+        #debug(old in session.deleted)
 #        bauble.app.db_engine.echo = True
 #        source.accession = self
         if isinstance(source, Collection):
@@ -248,11 +248,11 @@ class Accession(bauble.BaubleMapper):
             self._donation = source
         else: 
             AssertionError('unknown source type')
-        debug('SOURCE %s: %s' % (source, repr(source)))
-        session.save_or_update(source)
-        debug(old in session.new)
-        debug(old in session.deleted)
-        debug(old in session.dirty)
+        #debug('SOURCE %s: %s' % (source, repr(source)))
+        #session.save_or_update(source)
+        #debug(old in session.new)
+        #debug(old in session.deleted)
+        #debug(old in session.dirty)
 #        for obj in session:
 #            debug('%s: %s' % (obj, repr(obj)))
 #            debug(obj in session.new)
@@ -1055,8 +1055,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
-                            data=None):
-        
+                            data=None):        
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
