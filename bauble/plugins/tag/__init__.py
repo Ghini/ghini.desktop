@@ -5,7 +5,7 @@ import os, traceback
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
-from bauble.plugins import BaublePlugin, BaubleTable, plugins, views, tables
+from bauble.plugins import BaublePlugin, plugins, views, tables
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble

@@ -1,3 +1,6 @@
+#
+# plugin module
+#
 
 # plugins, tables, editors and views should inherit from
 # the appropriate classes
@@ -104,41 +107,71 @@ def _register(plugin_class):
         tools[l.__name__] = l
 
 
-def _find_plugins():
+def _find_plugin_names():
     modules = []
     path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
         pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-#        for f in zipfiles.keys():
-#            pass
-
-        x = [zipfiles[file][0] for file in zipfiles.keys() \
-	     if "bauble\\plugins" in file]
+        x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
-        rx = re.compile(s.encode('string_escape'))        
-        for filename in x:    
+        rx = re.compile(s.encode('string_escape'))
+        for filename in x:
             m = rx.match(filename)
             if m is not None:
                 modules.append('%s.%s' % (pkg, m.group(1)))
-                
-    else:                
-        # TODO: revert this back to make all plugins load
-        #for d in 'plants':                            
-        for d in os.listdir(path):        
-            full = path + os.sep + d                
-            if os.path.isdir(full) and os.path.exists(full + 
-						      os.sep + "__init__.py"):
+    else:
+        for d in os.listdir(path):
+            full = path + os.sep + d
+            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
                 modules.append(d)
+    return modules
+
+#def _find_plugin_modules():
+#    import imp
+#    modules = []
+#    path, name = os.path.split(__file__)
+#    if path.find("library.zip") != -1: # using py2exe
+#        pkg = "bauble.plugins"
+#        zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
+##        for f in zipfiles.keys():
+##            pass
+#
+#        x = [zipfiles[file][0] for file in zipfiles.keys() \
+#         if "bauble\\plugins" in file]
+#        s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
+#        rx = re.compile(s.encode('string_escape'))        
+#        for filename in x:    
+#            m = rx.match(filename)
+#            if m is not None:
+#                modules.append('%s.%s' % (pkg, m.group(1)))
+#                
+#    else:                
+#        for d in os.listdir(path):        
+#            full = path + os.sep + d                
+#            if os.path.isdir(full) and os.path.exists(full + 
+#                              os.sep + "__init__.py"):
+#                modules.append(d)
+#                
+#    found = []
+#    for m in modules:
+#        mod = __import__(m, globals(), locals(), ['plugins'])
+#        #if mod is not None:
+#        found.append(mod)
+#    return found
+
+
+def _find_plugins():
+    plugin_names = _find_plugin_names()
                 
     # import the modules and test if they provide a plugin to make sure 
     # they are plugin modules
     plugins = []
-    for m in modules:
+    for name in plugin_names:
         try:
-            mod = __import__(m, globals(), locals(), ['plugins'])
+            mod = __import__(name, globals(), locals(), ['plugins'])
         except Exception, e:
-            msg = "Could not import the %s module." % m#\n\n%s" % 
+            msg = "Could not import the %s module." % name
             utils.message_details_dialog(msg, str(traceback.format_exc()), 
 					 gtk.MESSAGE_ERROR)
 	    raise
@@ -158,18 +191,7 @@ def load():
 
     for p in plugins.values():
         p.register()  
-
-
-# TODO: use this as the metaclass for BaublePlugin to automatically make
-# any methods called init() to be classmethods
-class BaublePluginMeta(object):
-    
-    def __init__(self):
-        """
-        should use this as 
-        """
-        pass
-        
+   
         
 class BaublePlugin(object):
     tables = []
@@ -223,57 +245,9 @@ class BaublePlugin(object):
         '''
         return []
         
-        
-#from sqlalchemy import *
-#class BaubleTable(object):
-#    
-#    def __init__(self, table):
-#        debug(self.__class__)
-#        self.mapper = mapper(self.__class__, table)
-#    
-#    class sqlmeta:
-#        pass
-#        
-#    def markup(self):
-#        return str(self)
+    
+# TODO: is the code from here down still relevant???
 
-    
-# TODO: i don't think we use this anymore
-class BaubleTable(object):
-       
-    def __init__(self, **kw):        
-        super(BaubleTable, self).__init__(**kw)
-        
-
-    
-#class BaubleTable(SQLObject):
-#       
-#    def __init__(self, **kw):        
-#        super(BaubleTable, self).__init__(**kw)        
-#        self.values = {}
-#        
-#    def markup(self):
-#        return str(self)
-    
-    
-### i can't get this to work, i don't understand
-#    """
-#    This is the part to enable automatic updating of changed objects
-#    """
-#    _created = DateTimeCol(default=datetime.now(), dbName='_created')
-#    _updated = DateTimeCol(default=datetime.now(), dbName='_updated')
-#    def _SO_setValue(self, name, value, from_python, to_python):
-#        debug(name)
-#        if name == '_updated' :
-#            debug('_updating')
-#            SQLObject._SO_setValue(self, name, value, from_python, to_python)            
-#        else :
-#            self.set(**{name: value, '_updated' : datetime.now()})                
-
-    #values = {}
-    #@classmethod
-    #def _get_values
-    
 class BaubleEditor(object):
     pass
 
@@ -282,8 +256,6 @@ class BaubleView(gtk.VBox):
     
     def __init__(self, *args, **kwargs):
         super(BaubleView, self).__init__(self, *args, **kwargs)
-        #self.set_label('')
-        #self.set_shadow_type(gtk.SHADOW_NONE)
 
 
 class BaubleTool(object):
@@ -295,8 +267,5 @@ class BaubleTool(object):
         pass
 
     
-#def init_module():
-#    load()
-#init_module()
-#load()
+
     

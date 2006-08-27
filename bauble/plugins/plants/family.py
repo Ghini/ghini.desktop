@@ -109,7 +109,7 @@ class FamilySynonym(bauble.BaubleMapper):
         self.synonym_id
         
 from bauble.plugins.plants.genus import Genus, genus_table, GenusEditor
-from bauble.plugins.plants.genus import Species, species_table
+#from bauble.plugins.plants.genus import Species, species_table
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
 
@@ -393,7 +393,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 #
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander    
-except ImportError:
+except ImportError, e:    
     pass
 else:    
     import bauble.paths as paths

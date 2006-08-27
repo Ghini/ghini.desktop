@@ -14,7 +14,7 @@ from sqlalchemy.orm.properties import PropertyLoader
 from sqlalchemy.attributes import InstrumentedList
 from formencode import *
 import bauble
-from bauble.plugins import BaubleEditor, BaubleTable, tables
+from bauble.plugins import BaubleEditor, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
@@ -77,21 +77,6 @@ def commit_to_table(table, values):
 #        debug(table)
         table_instance = table(**values)
     return table_instance
-
-
-def set_dict_value_from_widget(dic, dict_key, glade_xml, widget_name,
-                               model_col=0, validator=lambda x: x):
-    w = glade_xml.get_widget(widget_name)
-    v = get_widget_value(glade_xml, widget_name, model_col)
-    
-    if v == "": 
-        v = None
-    elif isinstance(v, BaubleTable):
-        v = v.id
-        
-    if v is not None:
-        v = validator(v)
-        dic[dict_key] = v
         
 
 def get_widget_value(glade_xml, widget_name, column=0):
@@ -745,7 +730,8 @@ class GenericEditorPresenter:
         assign handlers to widgets to change fields in the model
         '''
         def _set_in_model(value, field=model_field):            
-#            debug('_set_in_model(%s, %s,)' % (value, field))
+#            debug('_set_in_model(%s, %s)' % (value, field))
+#            debug('type(value) = %s' % type(value))
             if validator is not None:
                 try:                    
                     value = validator.to_python(value, None)

@@ -23,12 +23,12 @@ class Enum(types.Unicode):
         if self.empty_to_none and value is '':
             value = None
         if value not in self.values:
-            raise exceptions.AssertionError('%s not in Enum.values' % value)
+            raise exceptions.AssertionError('"%s" not in Enum.values' % value)
         return super(Enum, self).convert_bind_param(value, engine)
         
         
     def convert_result_value(self, value, engine):
         if value not in self.values:
-            raise exceptions.AssertionError('%s not in Enum.values' % value)
+            raise exceptions.AssertionError('"%s" not in Enum.values' % value)
         return super(Enum, self).convert_result_value(value, engine)
     
