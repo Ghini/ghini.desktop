@@ -17,18 +17,11 @@ from lxml.etree import Element, SubElement, ElementTree
 # code, Darwin Core is a flat structure and from i understand doesn't have a 
 # sense of "unit"
 
-# TODO: need to also respect the number of children and element can have
-# e.g. Units can have 1 to infinity Unit children whereas elements require
-# at least one and some can have at most one child
-
 # TODO: the code needs to reflect the fact that xml tags are case insensitive,
 # at the very least the parent.tag assertion should call a lower
 
-# TODO: for types that are enumerations only allow values from the 
-# enumeration in the text attribute
-
 # TODO: doesn't validate unless i write the dataset to a file and read it back 
-# in, it's most like some sort of namespace issue
+# in, it's most likely some sort of namespace issue
 
 def ABCDElement(parent, name, type=None, text=None, attrib={}):
     el = SubElement(parent, name, attrib)
@@ -89,82 +82,82 @@ def ElementFactory(parent, name, **kwargs):
     return el
 
 
-main_template_str = """<?xml version="1.0" encoding="utf-8"?>
-<datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-          xsi:noNamespaceSchemaLocation="file:/home/brett/devel/ABCD/ABCD.xsd">
-    <dataset>
-        <units>
-            $units
-        </units>
-    </dataset>
-</datasets>
-"""
-main_template = Template(main_template_str)
-
-unit_template_str = """
-           <unit>
-                <unitid>$unitid</unitid>
-                <identifications>
-                    <identification>
-                    <result>
-                        <taxonidentified>
-                           <scientificname>
-                             $family
-                             $scientific_name
-                             $informal_names
-                             $distribution
-                           </scientificname>
-                         </taxonidentified>
-                    </result>
-                 </identification>
-                </identifications>
-            </unit>
-"""
-unit_template = Template(unit_template_str)
-
-
-family_template_str = """
-<highertaxa>
-    <highertaxon>
-        <highertaxonrank>familia</highertaxonrank>
-        <highertaxonname>$family</highertaxonname>
-     </highertaxon>                                    
-</highertaxa>
-"""
-family_template = Template(family_template_str)
-
-
-name_template_str = """
-<scientificname>
-  <fullscientificnamestring>
-    $name
-  </fullscientificnamestring>
-</scientificname>
-"""
-name_template = Template(name_template_str)
-
-
-# ***********
-# TODO: this is not a standard in ABCD but we need it to create the labels
-# if we could just return this abcd data instead of writing a file then 
-# we could add
-distribution_template_str = """
-<distribution>
-$distribution
-</distribution>
-"""
-distribution_template = Template(distribution_template_str)
-
-
+#main_template_str = """<?xml version="1.0" encoding="utf-8"?>
+#<datasets xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+#          xsi:noNamespaceSchemaLocation="file:/home/brett/devel/ABCD/ABCD.xsd">
+#    <dataset>
+#        <units>
+#            $units
+#        </units>
+#    </dataset>
+#</datasets>
+#"""
+#main_template = Template(main_template_str)
 #
-# i'm using informal name here for the vernacular name
+#unit_template_str = """
+#           <unit>
+#                <unitid>$unitid</unitid>
+#                <identifications>
+#                    <identification>
+#                    <result>
+#                        <taxonidentified>
+#                           <scientificname>
+#                             $family
+#                             $scientific_name
+#                             $informal_names
+#                             $distribution
+#                           </scientificname>
+#                         </taxonidentified>
+#                    </result>
+#                 </identification>
+#                </identifications>
+#            </unit>
+#"""
+#unit_template = Template(unit_template_str)
 #
-informal_name_str = """
-<informalnamestring>
-$informal_name
-</informalnamestring>
-"""
-informal_name_template = Template(informal_name_str)
+#
+#family_template_str = """
+#<highertaxa>
+#    <highertaxon>
+#        <highertaxonrank>familia</highertaxonrank>
+#        <highertaxonname>$family</highertaxonname>
+#     </highertaxon>                                    
+#</highertaxa>
+#"""
+#family_template = Template(family_template_str)
+#
+#
+#name_template_str = """
+#<scientificname>
+#  <fullscientificnamestring>
+#    $name
+#  </fullscientificnamestring>
+#</scientificname>
+#"""
+#name_template = Template(name_template_str)
+#
+#
+## ***********
+## TODO: this is not a standard in ABCD but we need it to create the labels
+## if we could just return this abcd data instead of writing a file then 
+## we could add
+#distribution_template_str = """
+#<distribution>
+#$distribution
+#</distribution>
+#"""
+#distribution_template = Template(distribution_template_str)
+#
+#
+##
+## i'm using informal name here for the vernacular name
+##
+#informal_name_str = """
+#<informalnamestring>
+#$informal_name
+#</informalnamestring>
+#"""
+#informal_name_template = Template(informal_name_str)
 
 
 
