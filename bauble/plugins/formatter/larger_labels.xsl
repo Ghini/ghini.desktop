@@ -2,8 +2,10 @@
 <xsl:stylesheet 
    xmlns:xsl="http://www.w3.org/1999/XSL/Transform"
    xmlns:fo="http://www.w3.org/1999/XSL/Format"
+   xmlns:abcd="http://www.tdwg.org/schemas/abcd/2.06"
    version="1.0">
-  <xsl:template match='units'>
+   
+  <xsl:template match="abcd:Units">
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
       <fo:layout-master-set>
 	<fo:simple-page-master master-name="letter"
@@ -19,7 +21,7 @@
       
       <fo:page-sequence master-reference="letter">
 	<fo:flow flow-name="xsl-region-body">
-	  <xsl:for-each select="unit">
+	  <xsl:for-each select="abcd:Unit">
 	    
 	    <!-- ** the label block ** -->        
 	    <fo:block-container margin=".5mm" keep-together="always" 
@@ -34,7 +36,7 @@
 			  margin-left="5mm" 
 			  margin-right="5mm"  font-size="20pt" 
 			  text-align="center">
-		  <xsl:value-of select=".//highertaxonname"/>
+		  <xsl:value-of select=".//abcd:HigherTaxonName"/>
 		</fo:block>
 	      </fo:block-container>
 	      
@@ -50,7 +52,7 @@
 			  font-weight="500"
 			  margin-left="2mm" margin-right="2mm" 
 			  text-align="center">
-		  <xsl:value-of select=".//fullscientificnamestring"/>
+		  <xsl:value-of select=".//abcd:FullScientificNameString"/>
 		  <!--
 		  <fo:inline space-end="6pt">
 		    <xsl:value-of select=".//genusormonomial"/>
@@ -69,7 +71,7 @@
 			  font-weight="bold" margin-left="5mm" 
 			  margin-right="5mm" font-size="22pt" 
 			  text-align="center">
-		  <xsl:value-of select=".//informalnamestring"/>
+		  <xsl:value-of select=".//abcd:InformalNameString"/>
 		</fo:block>
 	      </fo:block-container>
 	      
@@ -78,20 +80,22 @@
 				  bottom="0mm" left="2mm" width="50mm"> 
 		<fo:block font-family="Bitstream Vera Serif, serif"
 			  font-size="15pt" text-align="left">
-		  <xsl:value-of select="unitid"/>
+		  <xsl:value-of select="abcd:UnitId"/>
 		</fo:block>                
 	      </fo:block-container>
 	      
 	      <!-- ** Distribution ** -->
 	      <!-- border="solid orange 1px" -->
+	      <!--
 	      <fo:block-container absolute-position="absolute" top="52mm"
 				  bottom="0mm" left="50mm" right="2mm" 
 				  width="70mm">
 		<fo:block font-family="Bitstream Vera Serif, serif" 
 			  font-size="15pt" text-align="right">
-		  <xsl:value-of select=".//distribution"/>
+		  <xsl:value-of select=".//abcd:distribution"/>
 		</fo:block>
 	      </fo:block-container>
+	      -->
 	      
 	    </fo:block-container>
 	    
@@ -99,5 +103,6 @@
 	</fo:flow>
       </fo:page-sequence>
     </fo:root>
+    </xsl:template>
   </xsl:template>
 </xsl:stylesheet>
