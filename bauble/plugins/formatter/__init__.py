@@ -8,15 +8,20 @@
 # TODO: should make the search results sortable when clicking on the column 
 # headers
 
+# TODO: get the list of plants as an abcd lxml element tree and add 
+# distribution data as a custom element so that the abcd builder doesn't create
+# invalid abcd data
+
 import os, sys, traceback
 import gtk
+import lxml.etree as etree
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
 from bauble.utils.log import log, debug
-from bauble.plugins.imex_abcd import abcd
+import bauble.plugins.abcd as abcd
     
 formatters_list_pref = 'formatter.formatters'    
 formatters_default_pref = 'formatter.default'
@@ -141,8 +146,8 @@ class Formatter:
         @param filename: the output filename, if filename is None(the default) 
             then a random temporary file will be created
         '''
-        import libxml2
-        import libxslt
+        #import libxml2
+        #import libxslt
         import tempfile
         if filename is None:
             # no filename, create a temporary file            
@@ -162,14 +167,27 @@ class Formatter:
         #xslt_filename = os.path.dirname(__file__) + os.sep + 'label.xsl'
 #        debug(xslt_filename)
         # how come we don't have to free style_doc???
-        style_doc = libxml2.parseFile(stylesheet) 
-        style = libxslt.parseStylesheetDoc(style_doc)
-        doc = libxml2.parseDoc(abcd_data)
-        result = style.applyStylesheet(doc, None)
-        style.saveResultToFilename(fo_filename, result, 0)
-        style.freeStylesheet()
-        doc.freeDoc()
-        result.freeDoc()
+        
+        # TODO: i think we can do this directly with lxml
+        debug(stylesheet)
+        style_doc = etree.parse(stylesheet)
+        transform = etree.XSLT(style_doc)
+        debug(etree.tostring(abcd_data))
+        result = transform(abcd_data)
+        #debug(etree.tostring(transform))
+        debug(str(result))        
+        debug(fo_filename)
+        outfile = open(fo_filename, 'w')
+        outfile.write(unicode(result))
+        outfile.close()
+#        style_doc = libxml2.parseFile(stylesheet) 
+#        style = libxslt.parseStylesheetDoc(style_doc)
+#        doc = libxml2.parseDoc(abcd_data)
+#        result = style.applyStylesheet(doc, None)
+#        style.saveResultToFilename(fo_filename, result, 0)
+#        style.freeStylesheet()
+#        doc.freeDoc()
+#        result.freeDoc()
         
         # run the formatter to produce the pdf file, xep has to be on the
         # path
@@ -607,6 +625,8 @@ class FormatterTool(BaubleTool):
         
         bauble.app.set_busy(True)
         # extract the plants from the search results
+        # TODO: need to speed this up using custom queries, see the 
+        # family and genera infoboxes
         for row in model:
             value = row[0]
             if isinstance(value, tables["Family"]):
@@ -653,18 +673,24 @@ class FormatterPlugin(BaublePlugin):
     '''    
     tools = [FormatterTool]
     depends = ["ABCDImexPlugin"]
-        
-    try:
-        import libxml2
-    except ImportError: 
-        FormatterTool.enabled = False
-        debug(traceback.format_exc())
     
     try:
-        import libxslt
-    except ImportError:
+        import lxml
+    except ImportError: 
         FormatterTool.enabled = False
-        debug(traceback.format_exc())
+        debug(traceback.format_exc())        
+        
+#    try:
+#        import libxml2
+#    except ImportError: 
+#        FormatterTool.enabled = False
+#        debug(traceback.format_exc())
+#    
+#    try:
+#        import libxslt        
+#    except ImportError:
+#        FormatterTool.enabled = False
+#        debug(traceback.format_exc())
 
 plugin = FormatterPlugin        
     
