@@ -6,6 +6,7 @@ import imp, os, sys, re
 import bauble
 import gtk
 from bauble.utils.log import debug
+import xml
 
 #def search_tree_model(model, data, func=lambda row, data: row[0] == data):
 #    '''
@@ -59,9 +60,16 @@ class GladeWidgets(dict):
         parent = w.get_parent()
         if parent is not None:
             parent.remove(w)
+            
+            
+    def signal_autoconnect(self, handlers):
+        self.glade_xml.signal_autoconnect(handlers)
         
 
-
+def tree_model_has(tree, value):
+    return len(search_tree_model(tree, value)) > 0
+    
+    
 def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
     '''
     return a list of tree iters to all occurences of data in model
@@ -77,6 +85,14 @@ def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
                 results = [row.iter]
 #    debug(results)
     return results
+
+
+def combo_set_active_text(combo, value):
+    '''
+    does the same thing as set_combo_from_value but this looks more like a 
+    GTK+ method
+    '''
+    set_combo_from_value(combo, value)
 
 
 def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
@@ -271,6 +287,15 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     r = d.run()
     d.destroy()
     return r
+
+
+def xml_safe(ustr, encoding='utf-8'):    
+    '''
+    return a unicode string encoded to @param encoding that is safe for xml
+    output
+    '''
+    #return xml.sax.saxutils.escape(ustr).encode(encoding)
+    return xml.sax.saxutils.escape(unicode(ustr)).encode(encoding)
 
 
 def startfile(filename):
