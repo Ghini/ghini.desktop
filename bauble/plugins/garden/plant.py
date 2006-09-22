@@ -111,7 +111,7 @@ class Plant(bauble.BaubleMapper):
         
         
 
-
+from bauble.plugins.garden.accession import Accession
 #
 # setup mappers
 # 
@@ -266,8 +266,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, value):
             debug('set_in_model(%s, %s)' % (field, value))
-            setattr(self.model, field, value.id)
-        self.assign_completions_handler('plant_acc_entry', 'accession_id', 
+            #setattr(self.model, field, value.id)
+            setattr(self.model, field, value)
+        self.assign_completions_handler('plant_acc_entry', 'accession', 
                                         acc_get_completions, 
                                         set_func=set_in_model, 
                                         format_func=format_acc)
@@ -303,10 +304,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             combo.set_active(-1)
                     
-        
-        
-
-        
+                
     def init_location_combo(self):
         def cell_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
@@ -324,8 +322,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         combo.set_model(model)
         # TODO: if len of location == 1 then set the first item as active,
         # we should probably just always set the first item as active
-        
-        
+                
         
     def init_acc_entry(self):
         pass
@@ -394,6 +391,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
+                debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False

@@ -285,7 +285,7 @@ mapper(Accession, accession_table,
                      '_donation': relation(Donation, 
                                            primaryjoin=accession_table.c.id==donation_table.c.accession_id,
                                            backref='accession', private=True, uselist=False),
-                     'plants': relation(Plant, backref='accession', private=True),
+                     'plants': relation(Plant, cascade='all, delete-orphan', backref='accession'),
                      'verifications': relation(Verification, backref='accession', order_by='date',
                                                private=True)},
        order_by='code')
