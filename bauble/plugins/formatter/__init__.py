@@ -118,15 +118,15 @@ def get_all_plants(objs):
     return all_plants.values()
 
 
-def apply_stylesheet(stylesheet, xml):
-    '''
-    @param stylesheet: an ElementTree object that represents a valid XSL 
-    stylesheet
-    @param xml: and ElementTree object that represents the XML data to transform
-    @returns: 
-    '''
-    transform = etree.XSLT(stylesheet)
-    return transform(abcd_data)
+#def apply_stylesheet(stylesheet, xml):
+#    '''
+#    @param stylesheet: an ElementTree object that represents a valid XSL 
+#    stylesheet
+#    @param xml: and ElementTree object that represents the XML data to transform
+#    @returns: 
+#    '''
+#    transform = etree.XSLT(stylesheet)
+#    return transform(abcd_data)
     
 
 def default_formatter():
