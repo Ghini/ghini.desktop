@@ -17,13 +17,13 @@ from bauble.types import Enum
 
 def edit_callback(row):
     value = row[0]    
-    e = FamilyEditor(model_or_defaults=value)
+    e = FamilyEditor(model=value)
     return e.start() != None
 
 
 def add_genera_callback(row):
     value = row[0]
-    e = GenusEditor(model_or_defaults={'family_id': value.id})
+    e = GenusEditor(Genus(family=value))
     return e.start() != None
 
 
@@ -118,6 +118,8 @@ mapper(Family, family_table,
                                           primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
                                           backref='family'),
                      'genera': relation(Genus, backref='family')})
+#                     'genera': relation(Genus, cascade='all, delete-orphan',
+#                                        backref=backref('family', cascade='all'))})
 mapper(FamilySynonym, family_synonym_table)
     
     
@@ -192,21 +194,14 @@ class FamilyEditor(GenericModelViewPresenterEditor):
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
         
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model_or_defaults: Plant instance or default values
-        @param defaults: {}
-        @param parent: None
+        @param model: Family instance or None
+        @param parent: the parent window or None
         '''        
-        if isinstance(model_or_defaults, dict):
-            model = Family(**model_or_defaults)
-        elif model_or_defaults is None:
+        if model is None:
             model = Family()
-        elif isinstance(model_or_defaults, Family):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Family instance')
+
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -389,8 +384,11 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 
 
 #
-# infobox
+# Family infobox
 #
+
+# TODO: need to hook up the notes box
+
 try:
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander    
 except ImportError, e:    

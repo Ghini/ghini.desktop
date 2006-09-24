@@ -75,9 +75,14 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         # connect signals
         def gen_get_completions(text):           
             return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
+#        def set_in_model(self, field, value):
+#            setattr(self.model, field, value.id)
+#        self.assign_completions_handler('sp_genus_entry', 'genus_id', 
+#                                        gen_get_completions, 
+#                                        set_func=set_in_model)
         def set_in_model(self, field, value):
-            setattr(self.model, field, value.id)
-        self.assign_completions_handler('sp_genus_entry', 'genus_id', 
+            setattr(self.model, field, value)
+        self.assign_completions_handler('sp_genus_entry', 'genus', 
                                         gen_get_completions, 
                                         set_func=set_in_model)
         self.assign_simple_handler('sp_species_entry', 'sp', StringOrNoneValidator())
@@ -106,8 +111,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         # - if widgets is a tuple then at least one of the items has to not be None
         # - this assumes that when field is not None, if field is none then
         # sensitive widgets are set to false
-        states_dict = {'sp_hybrid_combo': ['genus_id'],
-                       'sp_species_entry': ['genus_id'],
+        states_dict = {'sp_hybrid_combo': [('genus_id', 'genus')],
+                       'sp_species_entry': [('genus_id', 'genus')],
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
@@ -159,7 +164,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.meta_presenter.problems) != 0:
             sensitive = False
-        elif self.model.sp is None or self.model.genus_id is None:
+        elif self.model.sp is None or (self.model.genus_id  or self.model.genus) is None:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
         self.refresh_sensitivity()
@@ -911,20 +916,14 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
     
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model_or_defaults: Species or dictionary of values for Species
-        @param parent: None
+        @param model: a species instance or None
+        @param parent: the parent window or None
         '''        
-        if isinstance(model_or_defaults, dict):
-            model = Species(**model_or_defaults)
-        elif model_or_defaults is None:
-            model = Species()            
-        elif isinstance(model_or_defaults, Species):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Species instance')
+        if model is None:
+            model = Species()
+            
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -962,7 +961,9 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         
         more_committed = None
         if response == self.RESPONSE_NEXT:
-            e = SpeciesEditor(parent=self.parent)
+            #e = SpeciesEditor(parent=self.parent)
+            e = SpeciesEditor(model=Species(self.model.genus), 
+                              parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             e = AccessionEditor(model_or_defaults={'species_id': committed[0].id},
