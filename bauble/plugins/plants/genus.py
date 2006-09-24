@@ -26,10 +26,7 @@ from bauble.utils.log import debug
 
 def edit_callback(row):
     value = row[0]
-    
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
-    e = GenusEditor(model_or_defaults=value)
+    e = GenusEditor(model=value)
     return e.start() != None
 
 
@@ -39,7 +36,7 @@ def add_species_callback(row):
     # call with genus_id instead of genus so the new species doesn't get bound
     # to the same session as genus
     # TODO: i wish there was a better way around this
-    e = SpeciesEditor(model_or_defaults={'genus_id': value.id})
+    e = SpeciesEditor(Species(genus=value))
     return e.start() != None
 
 
@@ -116,10 +113,12 @@ genus_table = Table('genus',
 class Genus(bauble.BaubleMapper):
         
     def __str__(self):
-        if self.hybrid:
+        if self.genus is None:
+            return repr(self)
+        elif self.hybrid:
             return '%s %s' % (self.hybrid, self.genus)
         else:
-            return self.genus
+            return str(self.genus)
     
     @staticmethod
     def str(genus, full_string=False):
@@ -127,8 +126,9 @@ class Genus(bauble.BaubleMapper):
         # standard as part of botanical nomenclature
         if full_string and genus.qualifier is not None:
             return '%s (%s)' % (str(genus), genus.qualifier)
-        else:
+        else:            
             return str(genus)
+        
         
 genus_synonym_table = Table('genus_synonym',
                             Column('id', Integer, primary_key=True),
@@ -137,22 +137,26 @@ genus_synonym_table = Table('genus_synonym',
                             Column('synonym_id', Integer, 
                                    ForeignKey('genus.id'), nullable=False))
 
+
 class GenusSynonym(bauble.BaubleMapper):
         
     def __str__(self):        
         return '(%s)' % self.synonym
 
+
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 
-mapper(Genus, genus_table,       
-#       properties = {'species': relation(Species, backref='genus',
-    properties = {'species': relation(Species, backref=backref('genus', lazy=True),
-                                         order_by=['sp', 'infrasp_rank', 'infrasp']),
-                     'synonyms': relation(GenusSynonym, backref='genus',
+
+genus_mapper = mapper(Genus, genus_table,       
+       properties = {'species': relation(Species, cascade='all, delete-orphan',
+                                         order_by=['sp', 'infrasp_rank', 'infrasp'],
+                                         backref='genus'),
+                                         #backref=backref('genus', lazy=True)),    
+                     'synonyms': relation(GenusSynonym,
                                           primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id,
-                                          order_by=['sp', 'infrasp_rank', 'infrasp'])},
+                                          backref='genus')},
        order_by=['genus', 'author'])
 
 mapper(GenusSynonym, genus_synonym_table)
@@ -212,9 +216,13 @@ class GenusEditorPresenter(GenericEditorPresenter):
         # connect signals
         def fam_get_completions(text):            
             return self.session.query(Family).select(Family.c.family.like('%s%%' % text))
+#        def set_in_model(self, field, value):
+#            setattr(self.model, field, value.id)
+#        self.assign_completions_handler('gen_family_entry', 'family_id', 
+#                                        fam_get_completions, set_func=set_in_model)        
         def set_in_model(self, field, value):
-            setattr(self.model, field, value.id)
-        self.assign_completions_handler('gen_family_entry', 'family_id', 
+            setattr(self.model, field, value)
+        self.assign_completions_handler('gen_family_entry', 'family', 
                                         fam_get_completions, set_func=set_in_model)        
         self.assign_simple_handler('gen_genus_entry', 'genus')
         self.assign_simple_handler('gen_hybrid_combo', 'hybrid')
@@ -226,9 +234,9 @@ class GenusEditorPresenter(GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             # TODO: it would be nice to have a generic way to accession the 
-            # foreign table from the foreign key
+            # foreign table from the foreign key, UPDATE: what??? does this mean
 #            if field.endswith('_id') and self.model.c[field].foreign_key is not None:                
-#                value = self.model[]
+#                value = self.model[]            
             if field == 'family_id':
                 value = self.model.family
             else:
@@ -244,27 +252,22 @@ class GenusEditor(GenericModelViewPresenterEditor):
     
     label = 'Genus'
     
-    # these have to correspond to the response values in the view
+    # these response values have to correspond to the response values in 
+    # the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
         
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model_or_defaults: Genus instance or default values
+        @param model: Genus instance or None
         @param parent: None
-        '''        
-        if isinstance(model_or_defaults, dict):
-            model = Genus(**model_or_defaults)
-        elif model_or_defaults is None:
+        '''         
+        if model is None:
             model = Genus()
-        elif isinstance(model_or_defaults, Genus):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Genus instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
+        
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
         self.parent = parent
@@ -298,11 +301,13 @@ class GenusEditor(GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
-            e = FamilyEditor(parent=self.parent)
+            model = Genus(family=self.model.family)
+            e = GenusEditor(model=model, parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = SpeciesEditor(parent=self.parent, 
-                            model_or_defaults={'genus_id': self._committed[0].id})
+#            e = SpeciesEditor(parent=self.parent, 
+#                              model_or_defaults={'genus_id': self._committed[0].id})
+            e = SpeciesEditor(model=Species(genus=self.model), parent=self.parent)                              
             more_committed = e.start()
              
         if more_committed is not None:
@@ -330,6 +335,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
+            
             
         self.session.close() # cleanup session
         return self._committed
