@@ -8,8 +8,6 @@ import os
 import gtk
 from sqlalchemy import *
 import bauble
-from bauble.editor import get_widget_value
-from bauble.editor import TableEditor
 
 
 # FIXME: there are lots of problems with these tables
