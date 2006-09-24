@@ -61,48 +61,48 @@ from bauble.utils.log import log, debug
 #            pass
             
 
-def commit_to_table(table, values):
-    '''
-    table: a SQLObject class
-    values: dictionary of values for table    
-    '''
-    table_instance = None
-    check_constraints(table, values)    
-    if 'id' in values:# updating row
-        table_instance = table.get(values["id"])                    
-        del values["id"]
-        table_instance.set(**values)
-    else: # creating new row
-#        debug(values)
-#        debug(table)
-        table_instance = table(**values)
-    return table_instance
+#def commit_to_table(table, values):
+#    '''
+#    table: a SQLObject class
+#    values: dictionary of values for table    
+#    '''
+#    table_instance = None
+#    check_constraints(table, values)    
+#    if 'id' in values:# updating row
+#        table_instance = table.get(values["id"])                    
+#        del values["id"]
+#        table_instance.set(**values)
+#    else: # creating new row
+##        debug(values)
+##        debug(table)
+#        table_instance = table(**values)
+#    return table_instance
         
 
-def get_widget_value(glade_xml, widget_name, column=0):
-    """
-    column is the column to use if the widget's value is a TreeModel
-    """
-    w = glade_xml.get_widget(widget_name)
-    if isinstance(w, gtk.Entry):
-        return w.get_text()
-    elif isinstance(w, gtk.TextView):
-        buffer = w.get_buffer()
-        start = buffer.get_start_iter()
-        end = buffer.get_end_iter()
-        return buffer.get_text(start, end)
-    elif isinstance(w, gtk.ComboBoxEntry) or isinstance(w, gtk.ComboBox):
-        v = None
-        i = w.get_active_iter()
-        if i is not None:
-            v = w.get_model().get_value(i, column)
-        return v
-    elif isinstance(w, gtk.CheckButton):
-        return w.get_active()
-    elif isinstance(w, gtk.Label):
-        return w.get_text()
-    raise ValueError("%s -- set_dict_value_from_widget: " \
-                     " ** unknown widget type: %s " % (__file__,str(type(w))))
+#def get_widget_value(glade_xml, widget_name, column=0):
+#    """
+#    column is the column to use if the widget's value is a TreeModel
+#    """
+#    w = glade_xml.get_widget(widget_name)
+#    if isinstance(w, gtk.Entry):
+#        return w.get_text()
+#    elif isinstance(w, gtk.TextView):
+#        buffer = w.get_buffer()
+#        start = buffer.get_start_iter()
+#        end = buffer.get_end_iter()
+#        return buffer.get_text(start, end)
+#    elif isinstance(w, gtk.ComboBoxEntry) or isinstance(w, gtk.ComboBox):
+#        v = None
+#        i = w.get_active_iter()
+#        if i is not None:
+#            v = w.get_model().get_value(i, column)
+#        return v
+#    elif isinstance(w, gtk.CheckButton):
+#        return w.get_active()
+#    elif isinstance(w, gtk.Label):
+#        return w.get_text()
+#    raise ValueError("%s -- set_dict_value_from_widget: " \
+#                     " ** unknown widget type: %s " % (__file__,str(type(w))))
     
 
 class StringOrNoneValidator(validators.FancyValidator):
@@ -638,7 +638,7 @@ class GenericEditorPresenter:
     the presenter of the Model View Presenter Pattern
     '''
     problem_color = gtk.gdk.color_parse('#FFDCDF')
-#    def __init__(self, model, view, defaults={}):
+
     def __init__(self, model, view):    
         '''
         @param model: an object instance mapped to an SQLAlchemy table
@@ -799,8 +799,10 @@ class GenericEditorPresenter:
                              'widget type not supported: %s' % type(widget))
     
     
-        # TODO: probably need a on_match_select in case we want to do anything after
+    # TODO: probably need a on_match_select in case we want to do anything after
     # the regular on_match_select
+    # TODO: assign ctrl-space to match on whatever is currently in the entry
+    # regardless of the length
     def assign_completions_handler(self, widget_name, field, 
                                    get_completions, 
                                    set_func=lambda self, f, v: setattr(self.model, f, v), 
@@ -864,12 +866,12 @@ class GenericEditorPresenter:
                 return
             self.add_problem(PROBLEM, widget)
             #setattr(self.model, field, None)
-            debug(type(self.model))
-            debug('self.model[%s] = None' % field)
+#            debug(type(self.model))
+ #           debug('self.model[%s] = None' % field)
             self.model[field] = None
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
-            debug('on_match_select: %s' % str(value))
+#            debug('on_match_select: %s' % str(value))
             #entry = self.view.widgets.sp_genus_entry
             
             #widget.handler_block(self.insert_genus_sid)
@@ -913,27 +915,52 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     standalone = True
     ok_responses = ()
     
-    #def __init__(self, model, defaults={}, parent=None):
     def __init__(self, model, parent=None):
         '''
         @param model: an instance of a object mapped to an SQLAlchemy Table
-        @param defaults: a dictionary of column names in the model and default 
-            values for the columns if not other value is specified
-        @param parent: the parent windows for th view
-        '''
+        @param parent: the parent windows for the view or None
+        '''                
+        # the editor does all of it's work in it's own session,
+        # so put a copy of the model in our session
         self.session = create_session(bind_to=bauble.app.db_engine)            
-        model_session = object_session(model)
-        if model_session:            
-            if model in model_session.new: # pending
-                model_session.expunge(model)
-                self.session.save(model)
+        obj_session = object_session(model)              
+        if obj_session is not None:
+            if model in obj_session.new:
+                # TODO: i would rather not touch the model's session, can we 
+                # just copy the model into the new session without removing it
+                # from the previous one
+                obj_session.expunge(model)
                 self.model = model
-            else:                
+            else:
                 self.model = self.session.load(model.__class__, model.id)
         else:
             self.model = model
-            self.session.save(self.model)
-
+        
+        
+        for name, prop in object_mapper(model).props.iteritems():
+#            debug('name: %s' % name)            
+            value = getattr(self.model, name)
+#            debug('value: %s' % repr(value))    
+            if value not in (None, []) and hasattr(value, '_instance_key'):
+                new_value = self.session.load(value.__class__, value.id)
+#                debug('new value: %s' % repr(new_value))                                
+                setattr(self.model, name, new_value)
+        
+        self.session.save_or_update(self.model)        
+            
+         #########   
+#        model_session = object_session(model)
+#        if model_session:            
+#            if model in model_session.new: # pending
+#                model_session.expunge(model)
+#                self.session.save(model)
+#                self.model = model
+#            else:                
+#                self.model = self.session.load(model.__class__, model.id)
+#        else:
+#            self.model = model
+#            self.session.save(self.model)
+        ########
     
     def assert_args(self, model, type_class, defaults):
         '''
@@ -949,54 +976,54 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         assert(not isinstance(model, type_class) or len(defaults.keys()) == 0)
         
 
-    def start(self, commit_transaction=True):    
-        '''
-        @param commit_transaction:
-        '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
-        exc_msg = "Could not commit changes.\n"
-        committed = None
-        while True:
-            response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
-            if response == gtk.RESPONSE_OK or response in self.ok_responses:
-                try:
-                    committed = self.commit_changes()                
-                except DontCommitException:
-                    continue
-                except BadValue, e:
-                    utils.message_dialog(saxutils.escape(str(e)),
-                                         gtk.MESSAGE_ERROR)
-                except CommitException, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                except Exception, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s' % str(e)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                 traceback.format_exc(),
-                                                 gtk.MESSAGE_ERROR)
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                else:
-                    break
-            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
-#                debug(self.model.dirty)
-                sqlhub.processConnection.rollback()
-                sqlhub.processConnection.begin()
-                self.model.dirty = False
-                break
-            elif not self.model.dirty:
-                break
-            
-        if commit_transaction:
-            sqlhub.processConnection.commit()
-
-        return committed
+#    def start(self, commit_transaction=True):    
+#        '''
+#        @param commit_transaction:
+#        '''
+#        not_ok_msg = 'Are you sure you want to lose your changes?'
+#        exc_msg = "Could not commit changes.\n"
+#        committed = None
+#        while True:
+#            response = self.presenter.start()
+#            self.view.save_state() # should view or presenter save state
+#            if response == gtk.RESPONSE_OK or response in self.ok_responses:
+#                try:
+#                    committed = self.commit_changes()          
+#                except DontCommitException:
+#                    continue
+#                except BadValue, e:
+#                    utils.message_dialog(saxutils.escape(str(e)),
+#                                         gtk.MESSAGE_ERROR)
+#                except CommitException, e:
+#                    debug(traceback.format_exc())
+#                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+#                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+#                                 traceback.format_exc(), gtk.MESSAGE_ERROR)
+#                    sqlhub.processConnection.rollback()
+#                    sqlhub.processConnection.begin()
+#                except Exception, e:
+#                    debug(traceback.format_exc())
+#                    exc_msg + ' \n %s' % str(e)
+#                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+#                                                 traceback.format_exc(),
+#                                                 gtk.MESSAGE_ERROR)
+#                    sqlhub.processConnection.rollback()
+#                    sqlhub.processConnection.begin()
+#                else:
+#                    break
+#            elif self.model.dirty and utils.yes_no_dialog(not_ok_msg):
+##                debug(self.model.dirty)
+#                sqlhub.processConnection.rollback()
+#                sqlhub.processConnection.begin()
+#                self.model.dirty = False
+#                break
+#            elif not self.model.dirty:
+#                break
+#            
+#        if commit_transaction:
+#            sqlhub.processConnection.commit()
+#
+#        return committed
 
 
    # TODO: it would probably be better to validate the values when 
@@ -1005,25 +1032,29 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     # TODO: this has alot of work arounds, i don't think sqlobject.contraints
     # are complete or well tested, maybe we should create our own contraint 
     # system or at least help to complete SQLObject's constraints
-    def _check_constraints(self, values):
-        '''
-        '''
-        return check_contraints(self.table, values)
+#    def _check_constraints(self, values):
+#        '''
+#        '''
+#        return check_contraints(self.table, values)
 
 
-    def _commit(self, values):
-        '''
-        '''
-        if self.model.isinstance:
-            table_class = self.model.so_object.__class__
-        else:
-            table_class = self.model.so_object
-        return commit_to_table(table_class, values)
+#    def _commit(self, values):
+#        '''
+#        '''
+#        if self.model.isinstance:
+#            table_class = self.model.so_object.__class__
+#        else:
+#            table_class = self.model.so_object
+#        return commit_to_table(table_class, values)
     
     
     def commit_changes(self):
         '''
         '''
+#        debug(self.session)
+#        debug(self.session.new)
+#        for obj in self.session.new:
+#            print str(obj)
         self.session.flush()
         return True
     
@@ -1040,192 +1071,192 @@ class GenericModelViewPresenterEditor(BaubleEditor):
 #
 # editor interface
 #
-class TableEditor(BaubleEditor):
-
-    standalone = True
-    
-    # the model parameter is only there to support the transition to the new
-    # editor interface
-    def __init__(self, table, select=None, defaults={}, parent=None, model=None):
-        '''
-        parent parameter added revision circa 242, allows
-        any editor extending this class the set it modality properly
-        '''
-        super(TableEditor, self).__init__()
-        self.defaults = copy.copy(defaults)
-        self.table = table
-        self.select = select                
-        self.parent = parent
-        self.__dirty = False
-        
-        
-    def start(self, commit_transaction=True): 
-        '''
-        required to implement, should return the values committed by this 
-        editor
-        '''
-        raise NotImplementedError
-
-
-    #
-    # dirty property
-    #
-    def _get_dirty(self):
-        return self.__dirty    
-    def _set_dirty(self, dirty):
-        self.__dirty = dirty        
-    dirty = property(_get_dirty, _set_dirty)
-
-
-    # TODO: it would probably be better to validate the values when 
-    # entering then into the interface instead of accepting any crap and 
-    # validating it on commit
-    # TODO: this has alot of work arounds, i don't think sqlobject.contraints
-    # are complete or well tested, maybe we should create our own contraint 
-    # system or at least help to complete SQLObject's constraints
-    def _check_constraints(self, values):
-        '''
-        '''
-        return check_contraints(self.table, values)
-
-
-    def _commit(self, values):       
-        '''
-        '''
-        return commit_to_table(self.table, values)
-    
-
-    def commit_changes(self):
-        '''
-        '''
-        raise NotImplementedError
-    
-
-
-class TableEditorDialog(TableEditor):
-    
-    def __init__(self, table, title="Table Editor",
-                 parent=None, select=None, 
-                 defaults={}, dialog=None):
-        '''
-        '''
-        super(TableEditorDialog, self).__init__(table, select, defaults)
-        if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
-
-        # allow the dialog to 
-        if dialog is None:
-            self.dialog = gtk.Dialog(title, parent, 
-                         gtk.DIALOG_MODAL | \
-                         gtk.DIALOG_DESTROY_WITH_PARENT,
-                         (gtk.STOCK_OK, gtk.RESPONSE_OK, 
-                          gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
-        else: 
-            self.dialog = dialog
-        self._values = []
-
-    
-    def _run(self):
-        '''
-        '''
-        # connect these here in case self.dialog is overwridden after the 
-        # construct is called    
-        self.dialog.connect('response', self.on_dialog_response)
-        self.dialog.connect('close', self.on_dialog_close_or_delete)
-        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-        '''
-        loops until return
-        '''
-        committed = None
-        not_ok_msg = 'Are you sure you want to lose your changes?'
-        exc_msg = "Could not commit changes.\n"
-        while True:
-            response = self.dialog.run()
-            self.save_state()
-            if response == gtk.RESPONSE_OK:
-                try:
-                    committed = self.commit_changes()
-                except BadValue, e:
-                    utils.message_dialog(saxutils.escape(str(e)),
-                                         gtk.MESSAGE_ERROR)
-                except CommitException, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                 traceback.format_exc(),
-                                                         gtk.MESSAGE_ERROR)
-                    self.reset_committed()
-                    self.reset_background()
-                    #set the flag to change the background color
-                    e.row[1] = True 
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                except Exception, e:
-                    debug(traceback.format_exc())
-                    exc_msg + ' \n %s' % str(e)
-                    utils.message_details_dialog(saxutils.escape(exc_msg), 
-                                                 traceback.format_exc(),
-                                                 gtk.MESSAGE_ERROR)
-                    self.reset_committed()
-                    self.reset_background()
-                    sqlhub.processConnection.rollback()
-                    sqlhub.processConnection.begin()
-                else:
-                    break
-            elif self.dirty and utils.yes_no_dialog(not_ok_msg):
-                sqlhub.processConnection.rollback()
-                sqlhub.processConnection.begin()
-                self.dirty = False
-                break
-            elif not self.dirty:
-                break
-        self.dialog.destroy()
-        return committed        
-
-        
-    def reset_committed(self):    
-        '''
-        reset all of the ModelRowDict.committed attributes in the view
-        '''
-        for row in self.view.get_model():
-            row[0].committed = False
-
-
-    def reset_background(self):
-        '''
-        turn off all background-set attributes
-        '''
-        for row in self.view.get_model():
-            row[1] = False
-
-
-    def on_dialog_response(self, dialog, response, *args):
-        # system-defined GtkDialog responses are always negative, in which
-        # case we want to hide it
-        #debug(dialog)
-        if response < 0:
-            self.dialog.hide()
-            #self.dialog.emit_stop_by_name('response')
-        #return response
-    
-    
-    def on_dialog_close_or_delete(self, widget, event=None):
-        self.dialog.hide()
-        return True
-            
-            
-    def start(self, commit_transaction=True):
-        # at the least should call self._run()
-        raise NotImplementedError('TableEditorDialog.start()')
-    
-
-    def save_state(self):
-        '''
-        save the state of the view by setting a value in the preferences
-        that will be called restored in restore_state        
-        e.g. prefs[pref_string] = pref_value 
-        '''
-        pass
+#class TableEditor(BaubleEditor):
+#
+#    standalone = True
+#    
+#    # the model parameter is only there to support the transition to the new
+#    # editor interface
+#    def __init__(self, table, select=None, defaults={}, parent=None, model=None):
+#        '''
+#        parent parameter added revision circa 242, allows
+#        any editor extending this class the set it modality properly
+#        '''
+#        super(TableEditor, self).__init__()
+#        self.defaults = copy.copy(defaults)
+#        self.table = table
+#        self.select = select                
+#        self.parent = parent
+#        self.__dirty = False
+#        
+#        
+#    def start(self, commit_transaction=True): 
+#        '''
+#        required to implement, should return the values committed by this 
+#        editor
+#        '''
+#        raise NotImplementedError
+#
+#
+#    #
+#    # dirty property
+#    #
+#    def _get_dirty(self):
+#        return self.__dirty    
+#    def _set_dirty(self, dirty):
+#        self.__dirty = dirty        
+#    dirty = property(_get_dirty, _set_dirty)
+#
+#
+#    # TODO: it would probably be better to validate the values when 
+#    # entering then into the interface instead of accepting any crap and 
+#    # validating it on commit
+#    # TODO: this has alot of work arounds, i don't think sqlobject.contraints
+#    # are complete or well tested, maybe we should create our own contraint 
+#    # system or at least help to complete SQLObject's constraints
+#    def _check_constraints(self, values):
+#        '''
+#        '''
+#        return check_contraints(self.table, values)
+#
+#
+#    def _commit(self, values):       
+#        '''
+#        '''
+#        return commit_to_table(self.table, values)
+#    
+#
+#    def commit_changes(self):
+#        '''
+#        '''
+#        raise NotImplementedError
+#    
+#
+#
+#class TableEditorDialog(TableEditor):
+#    
+#    def __init__(self, table, title="Table Editor",
+#                 parent=None, select=None, 
+#                 defaults={}, dialog=None):
+#        '''
+#        '''
+#        super(TableEditorDialog, self).__init__(table, select, defaults)
+#        if parent is None: # should we even allow a change in parent
+#            parent = bauble.app.gui.window
+#
+#        # allow the dialog to 
+#        if dialog is None:
+#            self.dialog = gtk.Dialog(title, parent, 
+#                         gtk.DIALOG_MODAL | \
+#                         gtk.DIALOG_DESTROY_WITH_PARENT,
+#                         (gtk.STOCK_OK, gtk.RESPONSE_OK, 
+#                          gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
+#        else: 
+#            self.dialog = dialog
+#        self._values = []
+#
+#    
+#    def _run(self):
+#        '''
+#        '''
+#        # connect these here in case self.dialog is overwridden after the 
+#        # construct is called    
+#        self.dialog.connect('response', self.on_dialog_response)
+#        self.dialog.connect('close', self.on_dialog_close_or_delete)
+#        self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
+#        '''
+#        loops until return
+#        '''
+#        committed = None
+#        not_ok_msg = 'Are you sure you want to lose your changes?'
+#        exc_msg = "Could not commit changes.\n"
+#        while True:
+#            response = self.dialog.run()
+#            self.save_state()
+#            if response == gtk.RESPONSE_OK:
+#                try:
+#                    committed = self.commit_changes()
+#                except BadValue, e:
+#                    utils.message_dialog(saxutils.escape(str(e)),
+#                                         gtk.MESSAGE_ERROR)
+#                except CommitException, e:
+#                    debug(traceback.format_exc())
+#                    exc_msg + ' \n %s\n%s' % (str(e), e.row)
+#                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+#                                 traceback.format_exc(),
+#                                                         gtk.MESSAGE_ERROR)
+#                    self.reset_committed()
+#                    self.reset_background()
+#                    #set the flag to change the background color
+#                    e.row[1] = True 
+#                    sqlhub.processConnection.rollback()
+#                    sqlhub.processConnection.begin()
+#                except Exception, e:
+#                    debug(traceback.format_exc())
+#                    exc_msg + ' \n %s' % str(e)
+#                    utils.message_details_dialog(saxutils.escape(exc_msg), 
+#                                                 traceback.format_exc(),
+#                                                 gtk.MESSAGE_ERROR)
+#                    self.reset_committed()
+#                    self.reset_background()
+#                    sqlhub.processConnection.rollback()
+#                    sqlhub.processConnection.begin()
+#                else:
+#                    break
+#            elif self.dirty and utils.yes_no_dialog(not_ok_msg):
+#                sqlhub.processConnection.rollback()
+#                sqlhub.processConnection.begin()
+#                self.dirty = False
+#                break
+#            elif not self.dirty:
+#                break
+#        self.dialog.destroy()
+#        return committed        
+#
+#        
+#    def reset_committed(self):    
+#        '''
+#        reset all of the ModelRowDict.committed attributes in the view
+#        '''
+#        for row in self.view.get_model():
+#            row[0].committed = False
+#
+#
+#    def reset_background(self):
+#        '''
+#        turn off all background-set attributes
+#        '''
+#        for row in self.view.get_model():
+#            row[1] = False
+#
+#
+#    def on_dialog_response(self, dialog, response, *args):
+#        # system-defined GtkDialog responses are always negative, in which
+#        # case we want to hide it
+#        #debug(dialog)
+#        if response < 0:
+#            self.dialog.hide()
+#            #self.dialog.emit_stop_by_name('response')
+#        #return response
+#    
+#    
+#    def on_dialog_close_or_delete(self, widget, event=None):
+#        self.dialog.hide()
+#        return True
+#            
+#            
+#    def start(self, commit_transaction=True):
+#        # at the least should call self._run()
+#        raise NotImplementedError('TableEditorDialog.start()')
+#    
+#
+#    def save_state(self):
+#        '''
+#        save the state of the view by setting a value in the preferences
+#        that will be called restored in restore_state        
+#        e.g. prefs[pref_string] = pref_value 
+#        '''
+#        pass
 
 
         
