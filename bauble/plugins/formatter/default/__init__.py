@@ -2,20 +2,28 @@
 # the default formatter module
 #
 
-import sys, os, tempfile
+import sys, os, tempfile, traceback
 import gtk
-import lxml.etree as etree
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.paths as paths
 import bauble.plugins.formatter as format_plugin
 import bauble.plugins.abcd as abcd
 
+
+
 # TODO: there's two ways to handle this settings box business, we can either
 # request the settings box from the plugin or we can pass the widget
 # to the plugin that the box is to be added to
 
+# TODO: if formatter chosen has any problems, i.e. the stylesheet file doesn't
+# exis,  it would be good to desensitize the ok button and show a message in
+# the status bar or something, then again we could wait until Ok is pressed 
+# until we check for errors since we can't check if the fo renderer doesn't 
+# exist
 
+# TODO: look for this on the path before starting anything and warn the use
+# so they have a clue why the formatter isn't working
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
 else:
@@ -145,5 +153,12 @@ class FormatterPlugin(object):
         
         utils.startfile(filename)
         
+
 # expose the formatter
-formatter = FormatterPlugin
+try:
+    import lxml.etree as etree
+except ImportError: 
+    utils.message_dialog('The <i>lxml</i> package is required for the default '\
+                         'formatter plugins')        
+else:
+    formatter = FormatterPlugin
