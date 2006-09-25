@@ -15,13 +15,13 @@ def edit_callback(row):
     value = row[0]    
     # TODO: the select paramater can go away when we move FamilyEditor to the 
     # new style editors    
-    e = LocationEditor(select=[value], model=value)
+    e = LocationEditor(value)
     return e.start() != None
 
 
 def add_plant_callback(row):
     value = row[0]
-    e = PlantEditor(defaults={'locationID': value})
+    e = PlantEditor(Plant(location=value))
     return e.start() != None
 
 
@@ -77,12 +77,13 @@ class LocationEditorView(GenericEditorView):
                                                       'plugins', 'garden', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.widgets.location_dialog.set_transient_for(parent)
+        self.dialog = self.widgets.location_dialog
+        self.dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.location_dialog)
 
             
     def start(self):
-        return self.widgets.location_dialog.run()    
+        return self.dialog.run()    
         
 
 class LocationEditorPresenter(GenericEditorPresenter):
@@ -135,21 +136,13 @@ class LocationEditor(GenericModelViewPresenterEditor):
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
         
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model_or_defaults: Location instance or default values
-        @param defaults: {}
-        @param parent: None
+        @param model: Location instance or None
+        @param parent: the parent widget or None
         '''        
-        if isinstance(model_or_defaults, dict):
-            model = Location(**model_or_defaults)
-        elif model_or_defaults is None:
+        if model is None:
             model = Location()
-        elif isinstance(model_or_defaults, Location):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Location instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -188,8 +181,9 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = PlantEditor(parent=self.parent, 
-                            model_or_defaults={'location_id': self._committed[0].id})
+            e = PlantEditor(Plant(location=self.model), self.parent)
+#            e = PlantEditor(parent=self.parent, 
+#                            model_or_defaults={'location_id': self._committed[0].id})
             more_committed = e.start()
              
         if more_committed is not None:
@@ -204,6 +198,12 @@ class LocationEditor(GenericModelViewPresenterEditor):
     def start(self):
         self.view = LocationEditorView(parent=self.parent)
         self.presenter = LocationEditorPresenter(self.model, self.view)
+
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
         
         exc_msg = "Could not commit changes.\n"
         committed = None

@@ -27,7 +27,7 @@ from bauble.types import Enum
 
 def edit_callback(row):
     value = row[0]    
-    e = PlantEditor(model_or_defaults=value)
+    e = PlantEditor(value)
     return e.start() != None
 
 
@@ -84,7 +84,7 @@ plant_table = Table('plant',
                                         'Vegetative Part',  'Tissue Culture', 
                                         'Other', None], empty_to_none=True)),
                     Column('acc_status', Enum(values=['Living accession', 
-                                                      'Dead', 'Transfered', 
+                                                      'Dead', 'Transferred', 
                                                       'Stored in dormant state', 
                                                       'Other', None], empty_to_none=True)),
                     Column('notes', Unicode),
@@ -194,8 +194,9 @@ class PlantEditorView(GenericEditorView):
                                                       'plugins', 'garden', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.widgets.plant_dialog.set_transient_for(parent)
-        self.connect_dialog_close(self.widgets.plant_dialog)
+        self.dialog = self.widgets.plant_dialog
+        self.dialog.set_transient_for(parent)
+        self.connect_dialog_close(self.dialog)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
@@ -211,7 +212,7 @@ class PlantEditorView(GenericEditorView):
 
             
     def start(self):
-        return self.widgets.plant_dialog.run()    
+        return self.dialog.run()    
         
 
 class ObjectIdValidator(validators.FancyValidator):
@@ -290,7 +291,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         if it is not None:
             location = combo.get_model()[it][0]         
         if cmd is 'edit':           
-            e = LocationEditor(model_or_defaults=location)
+            e = LocationEditor(location)
+            #e = LocationEditor(model_or_defaults=location)
         else:
             e = LocationEditor()
         e.start()
@@ -354,21 +356,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
     ok_responses = (RESPONSE_NEXT,)    
         
         
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model_or_defaults: Plant instance or default values
-        @param defaults: {}
+        @param model: Plant instance or None
         @param parent: None
         '''        
-        if isinstance(model_or_defaults, dict):
-            model = Plant(**model_or_defaults)
-        elif model_or_defaults is None:
+        if model is None:
             model = Plant()
-        elif isinstance(model_or_defaults, Plant):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Plant instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -435,6 +429,11 @@ class PlantEditor(GenericModelViewPresenterEditor):
             return
         self.view = PlantEditorView(parent=self.parent)
         self.presenter = PlantEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
         committed = None

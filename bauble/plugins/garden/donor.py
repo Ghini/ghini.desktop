@@ -15,7 +15,7 @@ from bauble.plugins.garden.source import Donation, donation_table
 
 def edit_callback(row):
     value = row[0]
-    e = DonorEditor(model_or_defaults=value)
+    e = DonorEditor(model=value)
     return e.start() != None
     
 def remove_callback(row):
@@ -86,7 +86,8 @@ class DonorEditorView(GenericEditorView):
                                                       'plugins', 'garden', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.connect_dialog_close(self.widgets.donor_dialog)
+        self.dialog = self.widgets.donor_dialog
+        self.connect_dialog_close(self.dialog)
         if sys.platform == 'win32':
             import pango
             combo = self.widgets.don_type_combo
@@ -99,7 +100,7 @@ class DonorEditorView(GenericEditorView):
             
         
     def start(self):
-        return self.widgets.donor_dialog.run()
+        return self.dialog.run()
 
 
 class DonorEditorPresenter(GenericEditorPresenter):
@@ -162,21 +163,13 @@ class DonorEditor(GenericModelViewPresenterEditor):
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
     
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model: Donor or dictionary of values for Donor
-        @param defaults: a dictionary of Donor field name keys with default
+        @param model: Donor instance or None
         @param values to enter in the model if none are give
         '''
-        if isinstance(model_or_defaults, dict):
-            model = Donor(**model_or_defaults)
-        elif model_or_defaults is None:
+        if model is None:
             model = Donor()
-        elif isinstance(model_or_defaults, Donor):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Donor instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         self.parent = parent
         self._committed = []
@@ -222,6 +215,11 @@ class DonorEditor(GenericModelViewPresenterEditor):
     def start(self):
         self.view = DonorEditorView(parent=self.parent)
         self.presenter = DonorEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)                
         
         exc_msg = "Could not commit changes.\n"
         while True:

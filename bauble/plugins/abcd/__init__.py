@@ -116,7 +116,7 @@ def plants_to_abcd(plants):
         # vernacular name identification
         # only include the default vernacular name, not all the vernacular names
         vernacular_name = plant.accession.species.default_vernacular_name
-        debug(vernacular_name)
+#        debug(vernacular_name)
         if vernacular_name is not None:
             identification = ElementFactory(identifications, 'Identification')
             result = ElementFactory(identification, 'Result')

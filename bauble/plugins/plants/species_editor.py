@@ -27,6 +27,11 @@ from bauble.plugins.garden.accession import AccessionEditor
 # TODO: ensure None is getting set in the model instead of empty strings, 
 # UPDATE: i think i corrected most of these but i still need to double check
 
+# TODO: should only populate the distribution combo if the species meta is 
+# expanded on start, and....
+# expander = gtk.expander_new_with_mnemonic("_More Options")
+# expander.connect("notify::expanded", expander_callback)
+
 def expunge_or_delete(session, instance):
     print instance in session.new
     if instance.id is None:
@@ -962,12 +967,13 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             #e = SpeciesEditor(parent=self.parent)
-            e = SpeciesEditor(model=Species(self.model.genus), 
-                              parent=self.parent)
+            #e = SpeciesEditor(model=Species(genus=self.model.genus), parent=self.parent)
+            e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = AccessionEditor(model_or_defaults={'species_id': committed[0].id},
-                                parent=self.parent)
+            #e = AccessionEditor(model_or_defaults={'species_id': committed[0].id},
+            #                    parent=self.parent)
+            e = AccessionEditor(Accession(species=self.model, parent=self.parent))
             more_committed = e.start()
                     
         if more_committed is not None:
@@ -987,6 +993,12 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             return
         self.view = SpeciesEditorView(parent=self.parent)
         self.presenter = SpeciesEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
         committed = None

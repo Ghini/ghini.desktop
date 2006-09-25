@@ -132,7 +132,8 @@ class FamilyEditorView(GenericEditorView):
                                                       'plugins', 'plants', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.widgets.family_dialog.set_transient_for(parent)
+        self.dialog = self.widgets.family_dialog
+        self.dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.family_dialog)
 
     def save_state(self):
@@ -146,7 +147,7 @@ class FamilyEditorView(GenericEditorView):
 
             
     def start(self):
-        return self.widgets.family_dialog.run()    
+        return self.dialog.run()    
         
 
 class FamilyEditorPresenter(GenericEditorPresenter):
@@ -242,8 +243,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
             e = FamilyEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = GenusEditor(parent=self.parent, 
-                            model_or_defaults={'family_id': committed[0].id})
+            e = GenusEditor(Genus(family=self.model), self.parent)
             more_committed = e.start()
                       
         if more_committed is not None:
@@ -258,6 +258,12 @@ class FamilyEditor(GenericModelViewPresenterEditor):
     def start(self):
         self.view = FamilyEditorView(parent=self.parent)
         self.presenter = FamilyEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
         committed = None
