@@ -652,7 +652,6 @@ class GenericEditorPresenter:
         widget_model_map = {}
         self.model = model
         self.view = view
-#        self.defaults = defaults
         self.problems = Problems()
 
 
@@ -962,18 +961,30 @@ class GenericModelViewPresenterEditor(BaubleEditor):
 #            self.session.save(self.model)
         ########
     
-    def assert_args(self, model, type_class, defaults):
+    def attach_response(self, dialog, response, keyname, mask):
         '''
-        to be called on the passed model and parameter and not on self.model
-        this would normally be called by a class extending this class before
-        GenericModelViewPresenterEditor.__init__() is called
+        attach a response to dialog when keyname and mask are pressed
         '''
-        # FIXME: this can cause the wrong error in issubclass if model
-        # is not and class type
-        # either an instance or class of type_class
-        assert(isinstance(model, type_class) or issubclass(model, type_class))
-        # can't have both defaults and a model instance
-        assert(not isinstance(model, type_class) or len(defaults.keys()) == 0)
+        def callback(widget, event):    
+#            debug(gtk.gdk.keyval_name(event.keyval))
+            if event.keyval == gtk.gdk.keyval_from_name(keyname) and (event.state & mask):
+                dialog.response(response)
+        dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
+        dialog.connect("key-press-event", callback)    
+    
+      
+#    def assert_args(self, model, type_class, defaults):
+#        '''
+#        to be called on the passed model and parameter and not on self.model
+#        this would normally be called by a class extending this class before
+#        GenericModelViewPresenterEditor.__init__() is called
+#        '''
+#        # FIXME: this can cause the wrong error in issubclass if model
+#        # is not and class type
+#        # either an instance or class of type_class
+#        assert(isinstance(model, type_class) or issubclass(model, type_class))
+#        # can't have both defaults and a model instance
+#        assert(not isinstance(model, type_class) or len(defaults.keys()) == 0)
         
 
 #    def start(self, commit_transaction=True):    
