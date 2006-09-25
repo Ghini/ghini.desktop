@@ -36,7 +36,7 @@ formatter_settings_expanded_pref = 'formatter.settings.expanded'
 # TODO: formatter tool menu item should have a drop down list so we can
 # quickly select a formatter
 
-def get_all_plants(objs):
+def get_all_plants(objs, acc_status=('Living accession',None)):
     from bauble.plugins.garden.plant import Plant, plant_table
     all_plants = {}
     session = create_session()
@@ -44,32 +44,45 @@ def get_all_plants(objs):
     
     def add_plants(plants):
         for p in plants:
-            if id not in all_plants:
+            if id not in all_plants and p.acc_status in acc_status:
                 all_plants[p.id] = p
     
-    def get_plants_from_accessions(accessions):
-        acc_ids = [acc.id for acc in accessions]
-        plants = plant_query.select(Plant.c.id.in_(acc_ids))
-        debug(plants)
-        return plants
+    def add_plants_from_accessions(accessions):
+        '''
+        add all plants from all accessions
+        '''
+#        genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
+#        sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
+#        return self.session.query(Species).select(sql) 
+        if False:
+            # TODO: i don't know why this doesn't work, tried with SA 2.8
+            debug(accessions)
+            acc_ids = [acc.id for acc in accessions]
+            debug(acc_ids)
+            #plants = plant_query.select(Plant.c.id.in_(acc_ids))
+            debug(plant_table.c.id.in_(acc_ids))
+            stmt = plant_table.select(plant_table.c.id.in_(acc_ids))
+            plants = plant_query.select(stmt)
+            debug(plants)
+            add_plants(p)
+        else:            
+            for p in [acc.plants for acc in accessions]:        
+                add_plants(p)
+
     
     for obj in objs:        
-        debug(obj)
         # extract the plants from the search results
         # TODO: need to speed this up using custom queries, see the 
         # family and genera infoboxes
         if isinstance(obj, tables["Family"]):
             for gen in obj.genera:
                 for sp in gen.species:
-                    p = get_plants_from_accessions(sp.accessions)
-                    add_plants(p)
+                    add_plants_from_accessions(sp.accessions)
         elif isinstance(obj, tables["Genus"]):
             for sp in obj.species:
-                p = get_plants_from_accessions(sp.accessions)
-                add_plants(p)
+                add_plants_from_accessions(sp.accessions)
         elif isinstance(obj, tables["Species"]):
-            p = get_plants_from_accessions(value.accessions)
-            add_plants(p)
+            add_plants_from_accessions(obj.accessions)            
         elif isinstance(obj, tables["Accession"]):
             debug(obj.plants)
             add_plants(obj.plants)
@@ -78,13 +91,11 @@ def get_all_plants(objs):
         elif isinstance(obj, tables["Location"]):
             add_plants(obj.plants)
         
-    debug('all_plants: %s' % all_plants)
     return all_plants.values()
 
 
 
 def _find_formatter_plugins():
-    print '_find_module_names'
     names = []
     path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
@@ -250,13 +261,13 @@ class FormatterDialogPresenter(object):
     
     def on_names_combo_changed(self, combo, *args):
         name = combo.get_active_text()
-        debug('--- on_names_combo_changed(%s)' % name)
+#        debug('--- on_names_combo_changed(%s)' % name)
         formatters = prefs[formatters_list_pref]        
         self.view.widgets.details_box.set_sensitive(name is not None)
         prefs[formatters_default_pref] = name # set the default to the new name
         try:
             title, settings = formatters[name]
-            debug('%s, %s' % (title, settings))
+#            debug('%s, %s' % (title, settings))
         except KeyError, e:
             debug(e)
             return
@@ -267,7 +278,7 @@ class FormatterDialogPresenter(object):
             debug(e)
             self.set_formatter_combo(-1)
             
-        debug('--- leaving on_names_combo_changed()')
+#        debug('--- leaving on_names_combo_changed()')
             
             
     def on_formatter_combo_changed(self, combo, *args):
@@ -275,13 +286,13 @@ class FormatterDialogPresenter(object):
         formatter_combo changed signal handler
         '''
         title = combo.get_active_text()                
-        debug('**** on_formatter_combo_changed(%s)' % title)
+#        debug('**** on_formatter_combo_changed(%s)' % title)
         name = self.view.widgets.names_combo.get_active_text()        
         try:
             saved_title, settings = prefs[formatters_list_pref][name]            
             if saved_title != title:
                 settings = {}                
-            debug('settings: %s' % settings)
+#            debug('settings: %s' % settings)
 #            # set the new formatter value in the preferences
 #            set_prefs_for(name, self.formatter_class_map[title])
 #            #prefs[formatters_list_pref][name] = title, settings
@@ -294,7 +305,8 @@ class FormatterDialogPresenter(object):
         if child is not None:
             expander.remove(child)
             
-        self.widgets.ok_button.set_sensitive(title is not None)
+        #self.widgets.ok_button.set_sensitive(title is not None)
+        self.view.widgets.ok_button.set_sensitive(title is not None)
         if title is None:
             return                    
         
@@ -310,7 +322,7 @@ class FormatterDialogPresenter(object):
         expander.set_expanded(box is not None)
         title = combo.get_active_text()        
         self.set_prefs_for(name, title, settings)
-        debug('**** leaving on_formatter_combo_changed')
+#        debug('**** leaving on_formatter_combo_changed')
             
     
     def init_formatter_combo(self):        
@@ -361,10 +373,10 @@ class FormatterDialogPresenter(object):
         title, dummy =  prefs[formatters_list_pref][name]
         box = self.view.widgets.settings_expander.get_child()
         formatters = prefs[formatters_list_pref]
-        debug('save_formatter_settings: %s: %s, %s' % (name, title, box.get_settings()))
+#        debug('save_formatter_settings: %s: %s, %s' % (name, title, box.get_settings()))
         formatters[name] = title, box.get_settings()
         prefs[formatters_list_pref] = formatters
-        debug(prefs[formatters_list_pref][name])
+#        debug(prefs[formatters_list_pref][name])
         
         
     def start(self):
@@ -373,7 +385,6 @@ class FormatterDialogPresenter(object):
         while True:
             response = self.view.start()
             if response == gtk.RESPONSE_OK:
-                debug('RESPONSE_OK')
                 # get format method
                 # save default
                 prefs[formatters_default_pref] = self.view.widgets.names_combo.get_active_text()                
