@@ -90,7 +90,7 @@ def edit_callback(row):
 def add_plants_callback(row):
     from bauble.plugins.garden.plant import PlantEditor
     value = row[0]
-    e = PlantEditor(model_or_defaults={'accession_id': value.id})
+    e = PlantEditor(Plant(accession=value))
     return e.start() != None
 
 
@@ -1261,21 +1261,14 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
         
         
-    def __init__(self, model_or_defaults=None, parent=None):
+    def __init__(self, model=None, parent=None):
         '''
-        @param model: Accession
-        @param defaults: {}
-        @param parent: None
+        @param model: Accession instance or None
+        @param parent: the parent widget
         '''        
-        if isinstance(model_or_defaults, dict):
-            model = Accession(**model_or_defaults)
-        elif model_or_defaults is None:
+
+        if model is None:
             model = Accession()
-        elif isinstance(model_or_defaults, Accession):
-            model = model_or_defaults
-        else:
-            raise ValueError('model_or_defaults argument must either be a '\
-                             'dictionary or Accession instance')
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
@@ -1331,8 +1324,9 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = PlantEditor(parent=self.parent, 
-                            model_or_defaults={'accession_id': self._committed[0].id})
+#            e = PlantEditor(parent=self.parent, 
+#                            model_or_defaults={'accession_id': self._committed[0].id})
+            e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
                     
         if more_committed is not None:
@@ -1354,6 +1348,12 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             return
         self.view = AccessionEditorView(parent=self.parent)
         self.presenter = AccessionEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
         committed = None

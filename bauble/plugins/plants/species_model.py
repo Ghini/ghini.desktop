@@ -51,7 +51,8 @@ def edit_callback(row):
 def add_accession_callback(row):
     from bauble.plugins.garden.accession import AccessionEditor
     value = row[0]
-    e = AccessionEditor(model_or_defaults={'species_id': value.id})
+    #e = AccessionEditor(model_or_defaults={'species_id': value.id})
+    e = AccessionEditor(Accession(species=value))
     return e.start() != None
 
 def remove_callback(row):

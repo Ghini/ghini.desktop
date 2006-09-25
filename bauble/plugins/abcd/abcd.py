@@ -13,6 +13,9 @@ import lxml.etree as etree
 from lxml.etree import Element, SubElement, ElementTree
 from bauble.utils import xml_safe
 
+# TODO: checkout the Genshi templating engine for generating code instead
+# of this funny map we're using
+
 # TODO: also need ability to dump to darwin core, should consider just writing
 # an xsl transformation to do the conversion instead of writing more export
 # code, Darwin Core is a flat structure and from i understand doesn't have a 
@@ -39,6 +42,7 @@ def DataSets():
     return Element('{http://www.tdwg.org/schemas/abcd/2.06}DataSets', nsmap=namespaces)
     #return Element('DataSets', attrib={'xmlns': 'http://www.tdwg.org/schemas/abcd/2.06'})
     
+
 
 
 #

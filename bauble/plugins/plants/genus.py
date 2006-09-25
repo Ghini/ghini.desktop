@@ -171,8 +171,9 @@ class GenusEditorView(GenericEditorView):
                                                       'plugins', 'plants', 
                                                       'editors.glade'),
                                    parent=parent)
-        self.widgets.genus_dialog.set_transient_for(parent)
-        self.connect_dialog_close(self.widgets.genus_dialog)
+        self.dialog = self.widgets.genus_dialog
+        self.dialog.set_transient_for(parent)
+        self.connect_dialog_close(self.dialog)
         self.attach_completion('gen_family_entry')
 
         
@@ -187,7 +188,7 @@ class GenusEditorView(GenericEditorView):
 
             
     def start(self):
-        return self.widgets.genus_dialog.run()    
+        return self.dialog.run()    
         
 
 class GenusEditorPresenter(GenericEditorPresenter):
@@ -305,9 +306,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
             e = GenusEditor(model=model, parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-#            e = SpeciesEditor(parent=self.parent, 
-#                              model_or_defaults={'genus_id': self._committed[0].id})
-            e = SpeciesEditor(model=Species(genus=self.model), parent=self.parent)                              
+            e = SpeciesEditor(Species(genus=self.model), self.parent)                              
             more_committed = e.start()
              
         if more_committed is not None:
@@ -327,6 +326,12 @@ class GenusEditor(GenericModelViewPresenterEditor):
             return
         self.view = GenusEditorView(parent=self.parent)
         self.presenter = GenusEditorPresenter(self.model, self.view)
+        
+        # add quick response keys
+        dialog = self.view.dialog        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
         
         exc_msg = "Could not commit changes.\n"
         committed = None
