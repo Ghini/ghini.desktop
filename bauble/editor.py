@@ -72,14 +72,20 @@ class ModelDecorator(object):
     creates notifiers and allows dict style access to our model
     '''
     
-    __locals__ = ['__notifiers', 'model', '__pause']
+    __locals__ = ['__notifiers', 'model', '__pause', '__dirty', 'dirty']
     
     def __init__(self, model):
         super(ModelDecorator, self).__init__(model)
+        super(ModelDecorator, self).__setattr__('__dirty', False)
         super(ModelDecorator, self).__setattr__('__notifiers', {})
         super(ModelDecorator, self).__setattr__('model', model)
         super(ModelDecorator, self).__setattr__('__pause', False)
 
+    
+    def _get_dirty(self):
+        return super(ModelDecorator, self).__getattribute__('__dirty')
+    dirty = property(_get_dirty)
+    
     
     def add_notifier(self, column, callback):
         notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
@@ -112,8 +118,9 @@ class ModelDecorator(object):
         
     def __set(self, name, value):
 #        debug('ModelDecorator.__set(%s, %s)' % (name, value))
-        model = super(ModelDecorator, self).__getattribute__('model')
+        model = super(ModelDecorator, self).__getattribute__('model')        
         setattr(model, name, value)
+        super(ModelDecorator, self).__setattr__('__dirty', True)
         if not super(ModelDecorator, self).__getattribute__('__pause'):            
             notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
             if name in notifiers:
@@ -217,15 +224,18 @@ class GenericEditorView:
         '''
         @return: the completion attached to the entry
         '''
-        self.widgets[entry_name]
+        # TODO: we should add a default ctrl-space to show the list of
+        # completions regardless of the length of the string
+        entry = self.widgets[entry_name]
         completion = gtk.EntryCompletion()
+        completion.set_popup_set_width(True)
         completion.set_match_func(match_func)        
         cell = gtk.CellRendererText() # set up the completion renderer
         completion.pack_start(cell)            
         completion.set_cell_data_func(cell, cell_data_func)
         completion.set_minimum_key_length(2)
         completion.set_popup_completion(True)        
-        self.widgets[entry_name].set_completion(completion)
+        self.widgets[entry_name].set_completion(completion)       
         return completion
     
     
@@ -329,7 +339,18 @@ class GenericEditorPresenter:
         self.view = view
         self.problems = Problems()
 
+    
+    # whether the presenter should be commited or not
+    def dirty(self):
+        '''
+        returns True or False depending on whether the presenter has changed 
+        anything that needs to be committed.  This doesn't 
+        necessarily imply that the session is not dirty nor is it required to
+        change back to True if the changes are committed.        
+        '''
+        raise NotImplementedError
 
+    
     def remove_problem(self, problem_id, problem_widgets):
         '''
         remove problem_id from self.problems and reset the background color
@@ -490,6 +511,25 @@ class GenericEditorPresenter:
             completion, the default is lambda x: str(x)
         '''
         widget = self.view.widgets[widget_name]
+
+        # TODO: this works with Ctrl-Space and all but i don't know how to pop up
+        # the completion
+#        def callback(w, event):                
+#            debug(gtk.gdk.keyval_name(event.keyval))
+#            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):                
+#                try:
+#                    c = w.get_completion() # just in case it's been deleted
+#                    for kid in c.get_children():
+#                        debug(kid)
+#                    debug('complete')
+#                    c.complete()
+#                    #c.insert_prefix()
+#                    debug('completd')
+#                except Exception, e:
+#                    debug(e)                    
+#        widget.add_events(gtk.gdk.KEY_PRESS_MASK)
+#        widget.connect("key-press-event", callback)
+        
         PROBLEM = hash(widget_name)
         insert_sid_name = '_insert_%s_sid' % widget_name
 #        insert_sid = None
@@ -513,22 +553,30 @@ class GenericEditorPresenter:
                 # custom renderer on the entry completion for this entry
                 # block the signal from here since it will call this same
                 # method again and resetting the species completions
-                #entry.handler_block(self.insert_genus_sid)
                 entry.handler_block(getattr(self, insert_sid_name))
                 entry.set_text(self.prev_text)
-                #entry.handler_unblock(self.insert_genus_sid)
                 entry.handler_unblock(getattr(self, insert_sid_name))
                 return False # is this 'False' necessary, does it do anything?                
             entry_text = entry.get_text()                
             cursor = entry.get_position()
             full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-            # this funny logic is so that completions are reset if the user
-            # paste multiple characters in the entry    
-            if len(new_text) == 1 and len(full_text) == 2:
-                add_completions(full_text)
-            elif new_text_length > 2:# and entry_text != '':
-                add_completions(full_text[:2])
-            self.prev_text = full_text
+            
+            debug('len(%s) = %s' % (full_text, len(full_text)))
+            #if widget.get_completion() is None and len(full_text) > 0:
+            
+            compl_model = widget.get_completion().get_model()
+            if (compl_model is None or len(compl_model) == 0) and len(full_text) > 0:            
+                add_completions(full_text[0])
+            elif len(full_text) == 1:
+                add_completions(full_text[0])
+                    
+#            # this funny logic is so that completions are reset if the user
+#            # paste multiple characters in the entry    
+#            if len(new_text) == 1 and len(full_text) == 2:
+#                add_completions(full_text)
+#            elif new_text_length > 2:# and entry_text != '':
+#                add_completions(full_text[:2])
+#            self.prev_text = full_text
             
             if full_text != str(getattr(self.model, field)):
                 self.add_problem(PROBLEM, widget)
@@ -538,6 +586,13 @@ class GenericEditorPresenter:
             full_text = text[:start] + text[end:]
             if full_text == '' or (full_text == str(self.model[field])):
                 return
+            
+            compl_model = widget.get_completion().get_model()
+            if (compl_model is None or len(compl_model) == 0) and len(full_text) > 0:            
+                add_completions(full_text[0])
+            elif len(full_text) == 1:
+                add_completions(full_text[0])
+                
             self.add_problem(PROBLEM, widget)
             #setattr(self.model, field, None)
 #            debug(type(self.model))
@@ -563,6 +618,7 @@ class GenericEditorPresenter:
             self.prev_text = str(value)            
                     
         completion = widget.get_completion()
+        
         assert completion is not None, 'the gtk.Entry %s doesn\'t have a '\
             'completion attached to it' % widget_name
         
@@ -572,6 +628,21 @@ class GenericEditorPresenter:
         sid = widget.connect('insert-text', on_insert_text)
         setattr(self, insert_sid_name, sid)
         widget.connect('delete-text', on_delete_text)
+    
+#        def callback(w, event):    
+#            debug(gtk.gdk.keyval_name(event.keyval))
+#            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):                
+#                try:
+#                    c = entry.get_completion() # just in case it's been deleted
+#                    debug('complete')
+#                    c.complete()
+#                    #c.insert_prefix()
+#                    debug('completd')
+#                except Exception, e:
+#                    debug(e)                    
+#        widget.add_events(gtk.gdk.KEY_PRESS_MASK)
+#        widget.connect("key-press-event", callback)        
+    
     
     def start(self):
         raise NotImplementedError
@@ -652,10 +723,12 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     def commit_changes(self):
         '''
         '''
-#        debug(self.session)
-#        debug(self.session.new)
+#        for obj in self.session.deleted:
+#            debug('deleted: %s' % obj)  
 #        for obj in self.session.new:
-#            print str(obj)
+#            debug('new: %s' % obj)            
+        for obj in self.session.dirty:
+            debug('dirty: %s' % obj)
         self.session.flush()
         return True
     
