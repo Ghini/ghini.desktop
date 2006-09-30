@@ -58,6 +58,7 @@ class BaubleApp(object):
                                                     value=str(bauble.version))
         except:
             msg = "Error creating tables. Your database may be corrupt."
+            debug(traceback.format_exc())
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
             # TODO: should be do a rollback here so that we return to the previous
