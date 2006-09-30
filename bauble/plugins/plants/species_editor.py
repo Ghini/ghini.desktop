@@ -991,8 +991,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
-                #debug(traceback.format_exc())
-                warning(traceback.format_exc())
+                debug(traceback.format_exc())
+                #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
