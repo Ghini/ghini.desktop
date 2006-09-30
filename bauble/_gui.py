@@ -287,9 +287,11 @@ class GUI:
         compare_labels = lambda x, y: cmp(x.label, y.label)
         for editor in sorted(editors.values(), cmp=compare_labels):
             if editor.standalone:
-                item = gtk.MenuItem(editor.label)
-                item.connect("activate", self.on_insert_menu_item_activate, 
-			     editor)
+                try:
+                    item = gtk.MenuItem(editor.mnemonic_label)
+                except AttributeError:
+                    item = gtk.MenuItem(editor.label)
+                item.connect("activate", self.on_insert_menu_item_activate, editor)
                 menu.append(item)
         return menu
     
