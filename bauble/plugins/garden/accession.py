@@ -187,17 +187,22 @@ accession_table = Table('accession',
                                                         None],
                                                 empty_to_none=True)),
                 Column('date', Date),
-                Column('source_type', String(10)), # Collection, Donation, None
+                #Column('source_type', String(10)), # Collection, Donation, None
+                Column('source_type', Enum(values=['Collection', 'Donation', None], empty_to_none=True)),
                 Column('notes', Unicode),
                 Column('species_id', Integer, ForeignKey('species.id'), nullable=False))
 
 
-def delete_or_expunge(session, obj):
+
+def delete_or_expunge(obj):
+    session = object_session(obj)
+#    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:
-        #debug('expunge obj: %s -- %s' % (obj, repr(obj)))
+#        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
+        del obj
     else:
-        #debug('delete obj: %s -- %s' % (obj, repr(obj)))        
+#        debug('delete obj: %s -- %s' % (obj, repr(obj)))        
         session.delete(obj)        
 
 
@@ -205,7 +210,6 @@ class Accession(bauble.BaubleMapper):
     
     def __str__(self): 
         return self.code
-    
     
     def _get_source(self):
         if self.source_type is None:
@@ -217,30 +221,20 @@ class Accession(bauble.BaubleMapper):
         raise AssertionError('unknown source_type in accession: %s' % self.source_type)    
     
     def _set_source(self, source):
-        #debug('_set_source(%s): %s' % (source or 'None', repr(source)))
-        session = object_session(self)
-        old = self.source
+        del self.source
         if source is None:
-            del self.source
-            return
-        if source is not self.source:
-            del self.source
+            self.source_type = None
+        else:
+            self.source_type = source.__class__.__name__
+            source.accession = self
         
-        self.source_type = source.__class__.__name__
-
-        if isinstance(source, Collection):
-            self._collection = source
-        elif isinstance(source, Donation):
-            self._donation = source
-        else: 
-            AssertionError('unknown source type')
-
-    def _del_source(self):                
-        session = object_session(self)
-        source = self.source
+    def _del_source(self):   
+#        debug('_del_source(%s)' % repr(self.source))
+        source = self.source        
         if source is not None:
-            delete_or_expunge(session, source)
-        self.source_type = None
+            source.accession = None
+            delete_or_expunge(source)
+        self.source_type = None        
                     
     source = property(_get_source, _set_source, _del_source)
 
@@ -484,8 +478,8 @@ class AccessionEditorView(GenericEditorView):
 class CollectionPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'collector_entry': 'collector',                           
-                           'coll_date_entry': 'coll_date',
-                           'collid_entry': 'coll_id',
+                           'coll_date_entry': 'date',
+                           'collid_entry': 'collectors_code',
                            'locale_entry': 'locale',
                            'lat_entry': 'latitude',
                            'lon_entry': 'longitude',
@@ -548,7 +542,7 @@ class CollectionPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'coll_date':                
+            if value is not None and field == 'date':                
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value)
 
@@ -594,7 +588,7 @@ class CollectionPresenter(GenericEditorPresenter):
     
     def _set_date_from_text(self, text):
         if text == '':
-            self.model.coll_date = None
+            self.model.date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE, 
                                 self.view.widgets.coll_date_entry)
             return
@@ -616,7 +610,7 @@ class CollectionPresenter(GenericEditorPresenter):
             except:
                 self.add_problem(self.PROBLEM_INVALID_DATE, 
                                     self.view.widgets.coll_date_entry)                
-        self.model.coll_date = dt
+        self.model.date = dt
         
         
     def on_east_west_radio_toggled(self, button, data=None):
@@ -1356,35 +1350,12 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 
 
     def commit_changes(self):
-        # TODO: call the source cleanup method
-#        debug('commit_changes ---------------->')
-#        debug(self.session)
-#        for obj in self.session.new:
-#            debug(obj)
-#            if isinstance(obj, (Collection, Donation)) \
-#              and obj not in self.session.new:
-#              #and obj not in self.session.deleted:
-#                debug('** setting accession: %s' % (repr(obj)))
-#                obj.accession = self.model
         if isinstance(self.model.source, Collection):
             self.__cleanup_collection_model(self.model.source)
         elif isinstance(self.model.source, Donation):
-            self.__cleanup_donation_model(self.model.source)
-        
-#        for obj in self.session:
-#            debug('%s: %s\n%s,%s,%s' % (obj, repr(obj), \
-#                                         obj in self.session.new, \
-#                                         obj in self.session.dirty, \
-#                                         obj in self.session.deleted))
-#        debug(self.session.new)
-#        debug(self.session.dirty)
-#        debug(self.session.deleted)
+            self.__cleanup_donation_model(self.model.source)        
+        return super(AccessionEditor, self).commit_changes()
 
-#        debug('%s' % repr(self.model._collection))
-#        debug('%s' % repr(self.model._donation))
-        self.session.flush()
-#        bauble.app.db_engine.echo = False
-        #return super(AccessionEditor, self).commit_changes()
 
  
 # import at the bottom to avoid circular dependencies
@@ -1485,8 +1456,8 @@ else:
             self.set_widget_value('elev_data', v)
             
             self.set_widget_value('coll_data', collection.collector)
-            self.set_widget_value('date_data', collection.coll_date)
-            self.set_widget_value('collid_data', collection.coll_id)
+            self.set_widget_value('date_data', collection.date)
+            self.set_widget_value('collid_data', collection.collectors_code)
             self.set_widget_value('habitat_data', collection.habitat)
             self.set_widget_value('collnotes_data', collection.notes)
             
