@@ -166,12 +166,13 @@ species_table = Table('species',
                                              empty_to_none=True)),
                       Column('notes', Unicode),
                       Column('genus_id', Integer, ForeignKey('genus.id'), 
-                             nullable=False),
-                      Column('default_vernacular_name_id', Integer))#, ForeignKey('vernacular_name.id')))
+                             nullable=False))
+#                      Column('default_vernacular_name_id', Integer, ForeignKey('vernacular_name.id')))
+#                      Column('default_vernacular_name_id', Integer))
+#                      Column('default_vernacular_name_id', Integer, ForeignKey('vernacular_name.id')))
 #                      ForeignKeyConstraint(['default_vernacular_name_id'],
 #                                           ['vernacular_name.id']))
-#                      Column('default_vernacular_name_id', Integer, 
-#                             ForeignKey('vernacular_name.id')))
+#                      Column('default_vernacular_name_id', Integer, ForeignKey('species.id')))
     
 class Species(bauble.BaubleMapper):    
             
@@ -188,15 +189,16 @@ class Species(bauble.BaubleMapper):
         #return self.__cached_str        
         return Species.str(self)
     
-    def _get_default_vernacular_name(self):
-        return object_session(self).query(VernacularName).get_by(id=self.default_vernacular_name_id)
-    def _set_default_vernacular_name(self, vn):
-        if not isinstance(vn, VernacularName):
-            raise AssertionError('_set_default_vernacular_name expects a '\
-                                 'VernacularName instance')
-        self.default_vernacular_name_id = vn.id
-    default_vernacular_name = property(_get_default_vernacular_name,
-                                       _set_default_vernacular_name)
+#    def _get_default_vernacular_name(self):
+#        return object_session(self).query(VernacularName).get_by(id=self.default_vernacular_name_id)
+#    def _set_default_vernacular_name(self, vn):
+#        if not isinstance(vn, VernacularName):
+#            raise AssertionError('_set_default_vernacular_name expects a '\
+#                                 'VernacularName instance')
+#        debug('_set_default_vernacular_name: %s' % vn)
+#        self.default_vernacular_name_id = vn.id
+#    default_vernacular_name = property(_get_default_vernacular_name,
+#                                       _set_default_vernacular_name)
     
     def markup(self, authors=False):
         '''
@@ -288,7 +290,7 @@ species_synonym_table = Table('species_synonym',
                               Column('synonym_id', Integer, 
                                      ForeignKey('species.id'), nullable=False))
     
-class SpeciesSynonym(object):
+class SpeciesSynonym(bauble.BaubleMapper):
     
     def __str__(self):
         #return '(%s)' % object_session(Species.get_by(id=self.species)
@@ -337,7 +339,7 @@ species_meta_table = Table('species_meta',
                            Column('species_id', Integer, 
                                   ForeignKey('species.id'), nullable=False))
                            
-class SpeciesMeta(object):    
+class SpeciesMeta(bauble.BaubleMapper):    
     
     def _get_distribution(self):
         if self._distribution is None:
@@ -383,7 +385,7 @@ vernacular_name_table = Table('vernacular_name',
                               Column('species_id', Integer, 
                                      ForeignKey('species.id'), unique='vn_index', nullable=False))
                                      
-class VernacularName(object):
+class VernacularName(bauble.BaubleMapper):
 
     def __init__(self, species_or_id=None, name=None, language=None):
         #assert(species is not None and name is not None)
@@ -397,6 +399,31 @@ class VernacularName(object):
     def __str__(self):
         return self.name
 
+
+''' 
+Default Vernacular Name table(default_vernacular_name)
+
+species_id:
+vernacular_name_id:
+'''
+default_vernacular_name_table = Table('default_vernacular_name',
+                                      Column('id', Integer, primary_key=True),
+                                      Column('species_id', Integer, 
+                                             ForeignKey('species.id'), unique='default_vn_index', nullable=False),
+                                      Column('vernacular_name_id', Integer, 
+                                             ForeignKey('vernacular_name.id'), unique='default_vn_index', nullable=False))
+
+class DefaultVernacularName(bauble.BaubleMapper):
+    
+    def _str_(self):
+        return str(self.vernacular_name)
+
+
+'''
+Species distrubtion table(species_distribution)
+
+
+'''
 #from bauble.plugins.geography.distribution import Distribution
 species_distribution_table = Table('species_distribution',
                            Column('id', Integer, primary_key=True),
@@ -420,12 +447,24 @@ class SpeciesDistribution(bauble.BaubleMapper):
     distribution = property(_get_distribution, _set_distribution)
     
     
+#
+# mappers
+#
 mapper(SpeciesDistribution, species_distribution_table)
 
 mapper(SpeciesSynonym, species_synonym_table,
        properties = {'synonym': relation(Species, uselist=False,
                                          primaryjoin = species_synonym_table.c.synonym_id==species_table.c.id)})
+
 mapper(VernacularName, vernacular_name_table)
+
+mapper(DefaultVernacularName, default_vernacular_name_table,
+       properties = {'species': relation(Species, 
+                                         primaryjoin=default_vernacular_name_table.c.species_id==species_table.c.id,
+                                         uselist=False)
+                     }
+       )
+
 mapper(SpeciesMeta, species_meta_table,
        properties = {'_distribution': relation(SpeciesDistribution, backref='species_meta',
                                               uselist=False, cascade='all, delete-orphan',
@@ -433,668 +472,33 @@ mapper(SpeciesMeta, species_meta_table,
                     })
 
 species_mapper = mapper(Species, species_table, 
-       properties = {'species_meta': relation(SpeciesMeta, backref='species', 
+       properties = {'species_meta': relation(SpeciesMeta, 
+                                              primaryjoin=species_table.c.id==species_meta_table.c.species_id,
+                                              backref='species', 
                                               uselist=False, cascade='all, delete-orphan'),
                      'synonyms': relation(SpeciesSynonym, 
-                                          primaryjoin = species_synonym_table.c.species_id==species_table.c.id,
+                                          primaryjoin=species_table.c.id==species_synonym_table.c.species_id,
                                           backref='species', 
                                           cascade='all, delete-orphan'),
                      'vernacular_names': relation(VernacularName, 
-                                                  primaryjoin=vernacular_name_table.c.species_id==species_table.c.id, 
-                                                  backref='species', 
+                                                  primaryjoin=species_table.c.id==vernacular_name_table.c.species_id, 
+                                                  backref=backref('species', uselist=False),
                                                   cascade='all, delete-orphan'),
-#                     'default_vernacular_name': relation(VernacularName, 
-#                                                         primaryjoin=species_table.c.default_vernacular_name_id==vernacular_name_table.c.id,
-#                                                         cascade='all, delete-orphan',
-#                                                         uselist=False),
+                     'default_vernacular_name': relation(VernacularName,
+                                                         secondary=default_vernacular_name_table,
+                                                         uselist=False), 
+                                                         #cascade='all, delete-orphan', # WARNING: do not enable this
+                                                         #backref=backref('species', uselist=False)), # WARNING: or this
                      },
-
        order_by=[species_table.c.sp, species_table.c.sp_author, 
                  species_table.c.infrasp_rank,species_table.c.infrasp])
 
-#species_mapper.add_property('synonyms', relation(SpeciesSynonym, 
-#         primaryjoin = species_synonym_table.c.species_id==species_table.c.id,
-#         backref='species'))
-
-
 try:
-    from bauble.plugins.garden.accession import Accession
-    species_mapper.add_property('accessions', relation(Accession, 
-                        backref=backref('species', uselist=False, lazy=False)))
+    # in case the garden plugin doesn't exist
+    from bauble.plugins.garden.accession import Accession, accession_table
+    species_mapper.add_property('accessions', 
+                                relation(Accession, primaryjoin=species_table.c.id==accession_table.c.species_id,
+                                         backref=backref('species', uselist=False, lazy=False)))
 except:
+    debug(traceback.format_exc())
     debug('Could not add accessions relation to species mapper')
-
-
-       
-##
-## Species table
-##
-#class Species2(BaubleTable):
-#    
-#    def __init__(self, **kw):
-#        super(Species, self).__init__(**kw)
-#        self.__cached_str = None
-#
-#    class mapping:
-#        #defaultOrder = 'sp'
-#        id = column(Integer, primary_key=True)
-#        # TODO: create an index from sp_hybrid, sp_qual, sp, sp_author, cv_group, 
-#        # isp, isp_author, isp_rank, genus
-#        #species_index = DatabaseIndex('genus', 'sp', 'sp_author', 'sp_hybrid', 
-#        #                             'sp_qual', 'cv_group', 'infrasp', 
-#        #                             'infrasp_author', 'infrasp_rank')
-#        sp = column(Unicode(40), nullable=False) # specific epithet
-#        #sp = StringCol(length=40, notNull=True)          
-#        
-#        sp_author = column(Unicode)
-#        #sp_author = UnicodeCol(default=None)  # species author    
-#        
-#        ''' 
-#        sp_hybrid
-#        ---------
-#        H -- A hybrid formula for an Interspecific hybrid
-#        x -- A Nothotaxon name for an Interspecific hybrid
-#        + -- An Interspecific graft hybrid or graft chimaera
-#        '''
-#        sp_hybrid = column(String)
-#        #sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
-#        
-#        '''
-#        sp_qual
-#        -------
-#        agg. -- An aggregate species
-#        s. lat. -- aggregrate species (sensu lato)
-#        s. str. -- segregate species (sensu stricto)
-#        '''
-#        sp_qual = column(String)
-##        sp_qual = EnumCol(enumValues=("agg.", "s. lat.", "s. str.", None), 
-##                          default=None)                                    
-#        
-#        # TODO: add trade_name for better support for cultivated plants
-#        # see http://www.hortax.org.uk/gardenplantsnames.html
-#        #trade_name = StringCol(length=50, default=None)    # cultivar group                        
-#        #trade_name = column(Unicode(64))
-#
-#    
-#        cv_group = column(Unicode(50))
-#        infrasp = column(Unicode(50))
-#        infrasp_author = column(Unicode(255))
-##        cv_group = StringCol(length=50, default=None)    # cultivar group                        
-##        infrasp = StringCol(length=30, default=None)         # intraspecific epithet
-##        infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
-#        '''
-#        infrasp_rank
-#        ------------
-#        subsp. -- subspecies
-#        var. -- variety
-#        subvar. -- sub variety
-#        f. -- form
-#        subf. -- subform
-#        cv. -- cultivar
-#        '''
-#        infrasp_rank = column(String)
-##        infrasp_rank = EnumCol(enumValues=("subsp.", "var.", "subvar.", "f.", 
-##                                           "subf.",  "cv.", None), default=None)    
-#        '''
-#        id_qual
-#        ---------
-#        aff. -- Akin to or bordering
-#        cf. -- compare with
-#        Incorrect -- Incorrect
-#        forsan -- Perhaps
-#        near -- Close to
-#        ? -- Questionable
-#        '''
-#        id_qual = column(String)
-##        id_qual = EnumCol(enumValues=("aff.", "cf.", "Incorrect", "forsan", "near", 
-##                                      "?", None), default=None)    
-#
-#        notes = column(Unicode)
-##        notes = UnicodeCol(default=None)
-#        
-#        # foreign keys
-#        #
-#        default_vernacular_name_id = column(Integer, foreign_key=ForeignKey('vernacular_name.id'))
-#        #default_vernacular_name = ForeignKey('VernacularName', default=None, cascade='null')
-#
-#        genus_id = column(Integer, foreign_key=ForeignKey('genus.id'), 
-#                          nullable=False)        
-#        #genus = ForeignKey('Genus', notNull=True, cascade=False)
-#        
-#    
-#        # joins
-#        #
-#        # hold meta information about this plant
-#        species_meta = one_to_one('SpeciesMeta', colname='species_id', 
-#                                  backref='species')
-#        #species_meta = SingleJoin('SpeciesMeta', joinColumn='species_id')
-#        
-#        synonyms = one_to_many('SpeciesSynonym', colname='species_id',
-#                               backref='species')
-#        #synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
-#        # it would be best to display the vernacular names in a dropdown list
-#        # with a way to add to the list    
-#        # FIXME: what happens to the value in default_vernacular_name if 
-#        # we delete the object that this foreign key points to, should somehow
-#        # get reset to None        
-#        vernacular_names = one_to_many('VernacularName', colname='species_id', 
-#                                       backref='species')
-#        #vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
-#        #accessions = MultipleJoin('Accessions', joinColumn='species_id')
-#        #images = MultipleJoin('Images', joinColumn='species_id')
-#        #references = MultipleJoin('Reference', joinColumn='species_id')
-#
-#        # TODO: this requires the accession table which is in a different 
-#        # plugin, will this cause a problem        
-#        accessions = one_to_many('Accession', colname='species_id', 
-#                                 backref='species')
-#                
-#    
-#    def __str__(self):
-#        '''
-#        returns a string representation of this speccies, 
-#        calls Species.str(self)
-#        '''
-#        # we'll cache the str(self) since building it is relatively heavy
-#        # TODO: we can't enable this until we can invalidated _cached_str in
-#        # cache self is changed
-#        #if self.__cached_str is None:
-#        #    self.__cached_str = Species.str(self)
-#        #return self.__cached_str        
-#        return Species.str(self)
-#    
-#    
-#    def markup(self, authors=False):
-#        '''
-#        returns this object as a string with markup
-#        
-#        @param authors: flag to toggle whethe the author names should be included
-#        '''
-#        return Species.str(self, authors, True)
-#    
-#    
-#    @staticmethod
-#    def str(species, authors=False, markup=False):
-#        '''
-#        returns a string for species
-#        
-#        @param species: the species object to get the values from
-#        @param authors: flags to toggle whether the author names should be included
-#        @param markup: flags to toggle whether the returned text is marked up to show
-#            italics on the epithets
-#        '''
-#        #genus = str(species.genus)
-#        # TODO: the Genus->Species one_to_many relationship should have created
-#        # a backref to genus in species but it doesn't seem to work
-#        genus = str(Genus.get_by(id=species.genus_id))
-#        sp = species.sp
-#        if markup:
-#            italic = "<i>%s</i>"            
-#            #genus = italic % species.genus
-#            genus = italic % genus
-#            if sp is not None: # shouldn't really be allowed
-#                sp = italic % species.sp
-#            # the infrasp italic is handled below
-#            escape = sax.escape
-#        else:
-#            italic = "%s"
-#            escape = lambda x: x
-#            
-#        author = None
-#        isp_author = None                        
-#        if authors:
-#            if species.sp_author:
-#                author = escape(species.sp_author)
-#            if species.infrasp_author:            
-#                isp_author = escape(species.infrasp_author)
-#                    
-#        if species.sp_hybrid: # is a hybrid
-#            if species.infrasp is not None:                    
-#                name = [s for s in [genus, sp, author, species.sp_hybrid, 
-#                                    species.infrasp, isp_author] if s is not None]
-#            else:
-#                name = [s for s in [genus, species.sp_hybrid, sp, author] if s is not None]
-#        else: # isn't a hybrid
-#            if species.cv_group:
-#                if species.infrasp is None:
-#                    cv = None
-#                    group = '%s Group' % species.cv_group
-#                else:
-#                    cv = "'%s'" % species.infrasp
-#                    group = '(%s Group)' % species.cv_group
-#                name = [s for s in [genus, sp, author, group, cv, isp_author] if s is not None]
-#            else:
-#                if species.infrasp is None:
-#                    isp = None
-#                    isp_rank = None
-#                else:
-#                    if species.infrasp_rank == 'cv.':
-#                        isp_rank = None                    
-#                        isp = "'%s'" % (species.infrasp or '')
-#                    else:
-#                        isp_rank = species.infrasp_rank
-#                        isp = italic % species.infrasp
-#                name = [s for s in [genus, sp, author, 
-#                                    isp_rank, isp, isp_author] if s is not None]
-#            
-#        
-#        if species.sp_qual is not None:
-#            name.append(species.sp_qual)
-#        return ' '.join(name)        
-#            
-#
-#
-#class SpeciesSynonym(BaubleTable):
-#    '''
-#    a table to hold species synonyms
-#    '''
-#    # deleting either of the species this synonym refers to makes
-#    # this synonym irrelevant
-#    species_id = column(Integer, foreign_key=ForeignKey('species.id'))
-#    synonym_id = column(Integer, foreign_key=ForeignKey('species.id'))
-##    species = ForeignKey('Species', default=None, cascade=True)
-##    synonym = ForeignKey('Species', cascade=True)
-#    
-#    
-#    
-#class SpeciesMeta(BaubleTable):
-#    '''
-#    a table to hold meta information abot a species, such as it's distributions
-#    and where it is edible or poisonous
-#    '''
-#    
-#    '''
-#    whether this plant is poisonous to humans
-#    '''
-#    poison_humans = unicode(Boolean)
-##    poison_humans = BoolCol(default=None)
-#    
-#    
-#    '''
-#    whether this plant is poisonous to animals
-#    '''
-#    poison_animals = unicode(Boolean)
-##    poison_animals = BoolCol(default=None)
-#    
-#    # TODO: poison_humans should imply food_plant false or whatever value
-#    # is meant to be in food_plant
-#    '''
-#    whether this plant is poisonous to considered edible
-#    '''
-#    food_plant = unicode(Boolean)
-##    food_plant = BoolCol(default=None)
-#    
-#    # TODO: create distribution table that holds one of each of the 
-#    # geography tables which will hold the plants distribution, this
-#    # distribution table could even be part of the geography module
-#
-#    # UPDATE: it might be better to do something like the source_type in the 
-#    # the accessions, do we need the distribution table if we're only
-#    # going to be holding one of the value from continent/region/etc, the only
-#    # exception is that we also need to hold a cultivated value and possible
-#    # something like "tropical", we can probably still use the distribution
-#    # table as long as setting to and from the distribution is handled silently
-#    #distribution = SingleJoin('Distribution', joinColumn='species_id', 
-#    #                           makeDefault=None)
-#    # right now we'll just include the string from one of the tdwg 
-#    # plant distribution tables though in the future it would be good
-#    # to have a SingleJoin to a distribution table so we get the extra
-#    # benefit of things like iso codes and hierarchial data, e.g. get
-#    # all plants from africa
-#    '''
-#    the plants natural distribution
-#    '''
-##    distribution = UnicodeCol(default=None)
-#    distribution = column(Unicode(255))
-#    
-#    # this should be set by the editor
-#    # FIXME: this could be dangerous and cause dangling meta information
-#    # - removing the species removes this meta info
-#    '''
-#    the species this meta information refers to
-#    '''    
-#    #species = ForeignKey('Species', default=None, cascade=True)
-#    species_id = column(Integer, foreign_key=ForeignKey('species.id'))
-#    
-#    
-#    def __str__(self):
-#        '''
-#        @returns: the string the representation of this meta info,
-#            e.g. Cultivated, Food, Poisonous, Poisonous to animals
-#        '''
-#        v = []
-#        if self.distribution is not None:
-#            v.append(self.distribution)
-#        if self.food_plant is not None and self.food_plant:
-#            v.append('Food')
-#        if self.poison_humans is not None and self.poison_humans:
-#            v.append('Poisonous')
-#        if self.poison_animals is not None and self.poison_animals:
-#            v.append('Poisonous to animals')            
-#        return ','.join(v)
-#        
-#        
-#        
-#class VernacularName(BaubleTable):
-#    '''
-#    a vernacular name for a species
-#    '''
-#    
-#    '''
-#    the vernacular name
-#    '''
-#    name = column(Unicode(64), index='vernname_index')
-##    name = UnicodeCol(length=64)
-#    
-#    '''
-#    language is free text and could include something like UK or US to identify
-#    the origin of the name
-#    '''
-#    language = column(Unicode(64), index='vernname_index')
-#    #language = UnicodeCol(length=64)    
-#    
-#    
-#    # default=None b/c the VernacularNameEditor can only be invoked from the 
-#    # SpeciesEditor and it should set this on commit
-#    '''
-#    a key to the species this vernacular name refers to
-#    '''
-#    #species = ForeignKey('Species', default=None, cascade=True)
-#    species_id = column(Integer, foreign_key=ForeignKey('species.id'), index='vernname_index')
-#
-##    index = DatabaseIndex('name', 'language', 'species', unique=True)
-#
-#    def __str__(self):
-#        return self.name
-
-#class Species(BaubleTable):
-#
-#    class sqlmeta(BaubleTable.sqlmeta):
-#        defaultOrder = 'sp'
-#    
-#    def __init__(self, **kw):
-#        super(Species, self).__init__(**kw)
-#        self.__cached_str = None
-#        
-#    # TODO: create an index from sp_hybrid, sp_qual, sp, sp_author, cv_group, 
-#    # isp, isp_author, isp_rank, genus
-#    #species_index = DatabaseIndex('genus', 'sp', 'sp_author', 'sp_hybrid', 
-#    #                             'sp_qual', 'cv_group', 'infrasp', 
-#    #                             'infrasp_author', 'infrasp_rank')
-#    sp = StringCol(length=40, notNull=True)          # specific epithet
-#    sp_author = UnicodeCol(default=None)  # species author    
-#    
-#    ''' 
-#    sp_hybrid
-#    ---------
-#    H -- A hybrid formula for an Interspecific hybrid
-#    x -- A Nothotaxon name for an Interspecific hybrid
-#    + -- An Interspecific graft hybrid or graft chimaera
-#    '''
-#    sp_hybrid = EnumCol(enumValues=("H", "x", "+",None), default=None)     
-#    
-#    '''
-#    sp_qual
-#    -------
-#    agg. -- An aggregate species
-#    s. lat. -- aggregrate species (sensu lato)
-#    s. str. -- segregate species (sensu stricto)
-#    '''
-#    sp_qual = EnumCol(enumValues=("agg.", "s. lat.", "s. str.", None), 
-#                      default=None)                                                
-#    
-#    # TODO: add trade_name for better support for cultivated plants
-#    # see http://www.hortax.org.uk/gardenplantsnames.html
-#    #trade_name = StringCol(length=50, default=None)    # cultivar group                        
-#    
-#    cv_group = StringCol(length=50, default=None)    # cultivar group                        
-#    infrasp = StringCol(length=30, default=None)         # intraspecific epithet
-#    infrasp_author = UnicodeCol(length=255, default=None) # intraspecific author
-#    '''
-#    infrasp_rank
-#    ------------
-#    subsp. -- subspecies
-#    var. -- variety
-#    subvar. -- sub variety
-#    f. -- form
-#    subf. -- subform
-#    cv. -- cultivar
-#    '''
-#    infrasp_rank = EnumCol(enumValues=("subsp.", "var.", "subvar.", "f.", 
-#                                       "subf.",  "cv.", None), default=None)    
-#    '''
-#    id_qual
-#    ---------
-#    aff. -- Akin to or bordering
-#    cf. -- compare with
-#    Incorrect -- Incorrect
-#    forsan -- Perhaps
-#    near -- Close to
-#    ? -- Questionable
-#    '''
-#    id_qual = EnumCol(enumValues=("aff.", "cf.", "Incorrect", "forsan", "near", 
-#                                  "?", None), default=None)    
-#    notes = UnicodeCol(default=None)
-#    
-#    # foreign keys
-#    #
-#    default_vernacular_name = ForeignKey('VernacularName', default=None, cascade='null')
-#    genus = ForeignKey('Genus', notNull=True, cascade=False)
-#    
-#
-#    # joins
-#    #
-#    # hold meta information about this plant
-#    species_meta = SingleJoin('SpeciesMeta', joinColumn='species_id')
-#    synonyms = MultipleJoin('SpeciesSynonym', joinColumn='species_id')
-#    # it would be best to display the vernacular names in a dropdown list
-#    # with a way to add to the list    
-#    # FIXME: what happens to the value in default_vernacular_name if 
-#    # we delete the object that this foreign key points to, should somehow
-#    # get reset to None
-#    vernacular_names = MultipleJoin('VernacularName', joinColumn='species_id')
-#    #accessions = MultipleJoin('Accessions', joinColumn='species_id')
-#    #images = MultipleJoin('Images', joinColumn='species_id')
-#    #references = MultipleJoin('Reference', joinColumn='species_id')
-#    
-#    def __str__(self):
-#        '''
-#        returns a string representation of this speccies, 
-#        calls Species.str(self)
-#        '''
-#        # we'll cache the str(self) since building it is relatively heavy
-#        # TODO: we can't enable this until we can invalidated _cached_str in
-#        # cache self is changed
-#        #if self.__cached_str is None:
-#        #    self.__cached_str = Species.str(self)
-#        #return self.__cached_str        
-#        return Species.str(self)
-#    
-#    
-#    def markup(self, authors=False):
-#        '''
-#        returns this object as a string with markup
-#        
-#        @param authors: flag to toggle whethe the author names should be included
-#        '''
-#        return Species.str(self, authors, True)
-#    
-#    
-#    @staticmethod
-#    def str(species, authors=False, markup=False):
-#        '''
-#        returns a string for species
-#        
-#        @param species: the species object to get the values from
-#        @param authors: flags to toggle whether the author names should be included
-#        @param markup: flags to toggle whether the returned text is marked up to show
-#            italics on the epithets
-#        '''
-#        genus = str(species.genus)
-#        sp = species.sp
-#        if markup:
-#            italic = "<i>%s</i>"            
-#            genus = italic % species.genus
-#            if sp is not None: # shouldn't really be allowed
-#                sp = italic % species.sp
-#            # the infrasp italic is handled below
-#            escape = sax.escape
-#        else:
-#            italic = "%s"
-#            escape = lambda x: x
-#            
-#        author = None
-#        isp_author = None                        
-#        if authors:
-#            if species.sp_author:
-#                author = escape(species.sp_author)
-#            if species.infrasp_author:            
-#                isp_author = escape(species.infrasp_author)
-#                    
-#        if species.sp_hybrid: # is a hybrid
-#            if species.infrasp is not None:                    
-#                name = [s for s in [genus, sp, author, species.sp_hybrid, 
-#                                    species.infrasp, isp_author] if s is not None]
-#            else:
-#                name = [s for s in [genus, species.sp_hybrid, sp, author] if s is not None]
-#        else: # isn't a hybrid
-#            if species.cv_group:
-#                if species.infrasp is None:
-#                    cv = None
-#                    group = '%s Group' % species.cv_group
-#                else:
-#                    cv = "'%s'" % species.infrasp
-#                    group = '(%s Group)' % species.cv_group
-#                name = [s for s in [genus, sp, author, group, cv, isp_author] if s is not None]
-#            else:
-#                if species.infrasp is None:
-#                    isp = None
-#                    isp_rank = None
-#                else:
-#                    if species.infrasp_rank == 'cv.':
-#                        isp_rank = None                    
-#                        isp = "'%s'" % (species.infrasp or '')
-#                    else:
-#                        isp_rank = species.infrasp_rank
-#                        isp = italic % species.infrasp
-#                name = [s for s in [genus, sp, author, 
-#                                    isp_rank, isp, isp_author] if s is not None]
-#            
-#        
-#        if species.sp_qual is not None:
-#            name.append(species.sp_qual)
-#        return ' '.join(name)        
-#            
-#
-#
-#class SpeciesSynonym(BaubleTable):
-#    '''
-#    a table to hold species synonyms
-#    '''
-#    # deleting either of the species this synonym refers to makes
-#    # this synonym irrelevant
-#    species = ForeignKey('Species', default=None, cascade=True)
-#    synonym = ForeignKey('Species', cascade=True)
-#    
-#    
-#    
-#class SpeciesMeta(BaubleTable):
-#    '''
-#    a table to hold meta information abot a species, such as it's distributions
-#    and where it is edible or poisonous
-#    '''
-#    
-#    '''
-#    whether this plant is poisonous to humans
-#    '''
-#    poison_humans = BoolCol(default=None)
-#    
-#    '''
-#    whether this plant is poisonous to animals
-#    '''
-#    poison_animals = BoolCol(default=None)
-#    
-#    # TODO: poison_humans should imply food_plant false or whatever value
-#    # is meant to be in food_plant
-#    '''
-#    whether this plant is poisonous to considered edible
-#    '''
-#    food_plant = BoolCol(default=None)
-#    
-#    # TODO: create distribution table that holds one of each of the 
-#    # geography tables which will hold the plants distribution, this
-#    # distribution table could even be part of the geography module
-#
-#    # UPDATE: it might be better to do something like the source_type in the 
-#    # the accessions, do we need the distribution table if we're only
-#    # going to be holding one of the value from continent/region/etc, the only
-#    # exception is that we also need to hold a cultivated value and possible
-#    # something like "tropical", we can probably still use the distribution
-#    # table as long as setting to and from the distribution is handled silently
-#    #distribution = SingleJoin('Distribution', joinColumn='species_id', 
-#    #                           makeDefault=None)
-#    # right now we'll just include the string from one of the tdwg 
-#    # plant distribution tables though in the future it would be good
-#    # to have a SingleJoin to a distribution table so we get the extra
-#    # benefit of things like iso codes and hierarchial data, e.g. get
-#    # all plants from africa
-#    '''
-#    the plants natural distribution
-#    '''
-#    distribution = UnicodeCol(default=None)
-#    
-#    # this should be set by the editor
-#    # FIXME: this could be dangerous and cause dangling meta information
-#    # - removing the species removes this meta info
-#    '''
-#    the species this meta information refers to
-#    '''    
-#    species = ForeignKey('Species', default=None, cascade=True)
-#    
-#    
-#    def __str__(self):
-#        '''
-#        @returns: the string the representation of this meta info,
-#            e.g. Cultivated, Food, Poisonous, Poisonous to animals
-#        '''
-#        v = []
-#        if self.distribution is not None:
-#            v.append(self.distribution)
-#        if self.food_plant is not None and self.food_plant:
-#            v.append('Food')
-#        if self.poison_humans is not None and self.poison_humans:
-#            v.append('Poisonous')
-#        if self.poison_animals is not None and self.poison_animals:
-#            v.append('Poisonous to animals')            
-#        return ','.join(v)
-#        
-#        
-#        
-#class VernacularName(BaubleTable):
-#    '''
-#    a vernacular name for a species
-#    '''
-#    
-#    '''
-#    the vernacular name
-#    '''
-#    name = UnicodeCol(length=64)
-#    
-#    '''
-#    language is free text and could include something like UK or US to identify
-#    the origin of the name
-#    '''
-#    language = UnicodeCol(length=64)    
-#    
-#    # default=None b/c the VernacularNameEditor can only be invoked from the 
-#    # SpeciesEditor and it should set this on commit
-#    '''
-#    a key to the species this vernacular name refers to
-#    '''
-#    species = ForeignKey('Species', default=None, cascade=True)
-#
-#    index = DatabaseIndex('name', 'language', 'species', unique=True)
-#
-#    def __str__(self):
-#        return self.name
-    

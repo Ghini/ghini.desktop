@@ -145,12 +145,14 @@ class GenusSynonym(bauble.BaubleMapper):
 
 
 from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.species_model import Species
+from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.plants.species_editor import SpeciesEditor
 
 
 genus_mapper = mapper(Genus, genus_table,       
-       properties = {'species': relation(Species, cascade='all, delete-orphan',
+       properties = {'species': relation(Species, 
+                                         primaryjoin=genus_table.c.id==species_table.c.genus_id,
+                                         cascade='all, delete-orphan',
                                          order_by=['sp', 'infrasp_rank', 'infrasp'],
                                          backref='genus'),
                                          #backref=backref('genus', lazy=True)),    
@@ -232,6 +234,10 @@ class GenusEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('gen_notes_textview', 'notes')
         
         
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             # TODO: it would be nice to have a generic way to accession the 
@@ -246,12 +252,27 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
     
     def start(self):
+        # TODO: this should return true or false to determine whether we
+        # need to commit our changes
+#        
+#        not_ok_msg = 'Are you sure you want to lose your changes?'
+#        while True:        
+#            response = self.view.start()
+#            if response == gtk.RESPONSE_OK:
+#                break
+#            elif response == gtk.RESPONSE_CANCEL and self.model.dirty:
+#                if utils.yes_no_dialog(not_ok_msg):
+#                    continue
+#                    
+#                
+#                
         return self.view.start()
     
     
 class GenusEditor(GenericModelViewPresenterEditor):
     
     label = 'Genus'
+    mnemonic_label = '_Genus'
     
     # these response values have to correspond to the response values in 
     # the view
@@ -282,8 +303,9 @@ class GenusEditor(GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                self.commit_changes()
-                self._committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -294,7 +316,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
             return False
@@ -306,7 +328,8 @@ class GenusEditor(GenericModelViewPresenterEditor):
             e = GenusEditor(model=model, parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = SpeciesEditor(Species(genus=self.model), self.parent)                              
+            sp = Species(genus=self.model)
+            e = SpeciesEditor(model=sp, parent=self.parent)
             more_committed = e.start()
              
         if more_committed is not None:
@@ -334,14 +357,11 @@ class GenusEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
         
         exc_msg = "Could not commit changes.\n"
-        committed = None
         while True:
-            response = self.presenter.start()
+            response = self.presenter.start()            
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
-                break
-            
-            
+                break                    
         self.session.close() # cleanup session
         return self._committed
         
