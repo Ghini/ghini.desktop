@@ -45,19 +45,22 @@ try:
     from sqlalchemy import *
     # TODO: check sqlalchemy version
 except ImportError:
-    msg = "SQLAlchemy not installed. Please install SQLObject from "\
+    msg = "SQLAlchemy not installed. Please install SQAlchemy from "\
           "http://www.sqlalchemy.org"
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
     raise
 
-try:
-    import sqlalchemy
-except ImportError:
-    msg = 'SQLAlchemy not installed. Please install SQLAlchemy from '\
-          'http://www.sqlalchemy.org'
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
-    raise
 
+# TODO: make this work, we get strange errors when using this, probably because
+# of the way table is implemented, with a singleton metaclass
+#
+#class BaubleTable(Table):
+#    
+#    def __init__(self, *args, **kwargs):
+#        # TODO: add _created
+#        super(BaubleTable, self).__init__(*args, **kwargs)
+#        super(BaubleTable, self).append_column(Column('_last_updated', DateTime, 
+#                                                      onupdate=func.current_timestamp()))
 
 class BaubleMapper(object):
     
