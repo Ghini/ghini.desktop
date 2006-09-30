@@ -13,8 +13,6 @@ import bauble.paths as paths
 
 def edit_callback(row):
     value = row[0]    
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
     e = LocationEditor(value)
     return e.start() != None
 
@@ -56,7 +54,6 @@ location_table = Table('location',
                        Column('description', Unicode))
                    
 
-# TODO: change location to site
 class Location(bauble.BaubleMapper):
     def __str__(self):
         return self.site
@@ -91,10 +88,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
     widget_to_field_map = {'loc_location_entry': 'site',
                            'loc_desc_textview': 'description'}
     
-#    PROBLEM_INVALID_DATE = 3
-#    PROBLEM_INVALID_SPECIES = 4
-#    PROBLEM_DUPLICATE_ACCESSION = 5
-    
     def __init__(self, model, view):
         '''
         model: should be an instance of class Accession
@@ -103,19 +96,18 @@ class LocationEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
 
-        # TODO: should we set these to the default value or leave them
-        # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-
         # initialize widgets
-
         self.refresh_view() # put model values in view            
         
         # connect signals
         self.assign_simple_handler('loc_location_entry', 'site')
         self.assign_simple_handler('loc_desc_textview', 'description')
         
-        
+    
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
@@ -129,6 +121,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 class LocationEditor(GenericModelViewPresenterEditor):
     
     label = 'Location'
+    mnemonic_label = '_Location'
     
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -156,9 +149,9 @@ class LocationEditor(GenericModelViewPresenterEditor):
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
-                self.commit_changes()
+                if self.presenter.dirty():
+                    self.commit_changes()
                 self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
@@ -170,7 +163,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
             return False
@@ -182,8 +175,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             e = PlantEditor(Plant(location=self.model), self.parent)
-#            e = PlantEditor(parent=self.parent, 
-#                            model_or_defaults={'location_id': self._committed[0].id})
             more_committed = e.start()
              
         if more_committed is not None:

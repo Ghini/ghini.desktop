@@ -165,32 +165,31 @@ verification_table = Table('verification',
                                   ForeignKey('accession.id')))
 
 
-class Verification(object):
+class Verification(bauble.BaubleMapper):
     pass
 
 
 accession_table = Table('accession',
-                        Column('id', Integer, primary_key=True),    
-                        Column('code', Unicode(20), nullable=False, unique='code_index'),                        
-                        Column('prov_type', Enum(values=['Wild', 
-                                                         "Propagule of cultivated wild plant", 
-                                                         "Not of wild source",
-                                                         "Insufficient Data", 
-                                                         "Unknown",
-                                                         None],
-                                                 empty_to_none=True)),
-                        Column('wild_prov_status', Enum(values=["Wild native",
-                                                                "Wild non-native",
-                                                                "Cultivated native",
-                                                                "Insufficient Data",
-                                                                "Unknown",
-                                                                None],
-                                                        empty_to_none=True)),
-                        Column('date', Date),
-                        Column('source_type', String(10)), # Collection, Donation, None
-                        Column('notes', Unicode),
-                        Column('species_id', Integer, ForeignKey('species.id'), 
-                               nullable=False))
+                Column('id', Integer, primary_key=True),                            
+                Column('code', Unicode(20), nullable=False, unique='code_index'),                        
+                Column('prov_type', Enum(values=['Wild', 
+                                                 "Propagule of cultivated wild plant", 
+                                                 "Not of wild source",
+                                                 "Insufficient Data", 
+                                                 "Unknown",
+                                                 None],
+                                         empty_to_none=True)),
+                Column('wild_prov_status', Enum(values=["Wild native",
+                                                        "Wild non-native",
+                                                        "Cultivated native",
+                                                        "Insufficient Data",
+                                                        "Unknown",
+                                                        None],
+                                                empty_to_none=True)),
+                Column('date', Date),
+                Column('source_type', String(10)), # Collection, Donation, None
+                Column('notes', Unicode),
+                Column('species_id', Integer, ForeignKey('species.id'), nullable=False))
 
 
 def delete_or_expunge(session, obj):
@@ -201,11 +200,12 @@ def delete_or_expunge(session, obj):
         #debug('delete obj: %s -- %s' % (obj, repr(obj)))        
         session.delete(obj)        
 
-# TODO: need to incorporate the accession.source property into a test
+
 class Accession(bauble.BaubleMapper):
     
     def __str__(self): 
         return self.code
+    
     
     def _get_source(self):
         if self.source_type is None:
@@ -215,6 +215,7 @@ class Accession(bauble.BaubleMapper):
         elif self.source_type == 'Donation':
             return self._donation
         raise AssertionError('unknown source_type in accession: %s' % self.source_type)    
+    
     def _set_source(self, source):
         #debug('_set_source(%s): %s' % (source or 'None', repr(source)))
         session = object_session(self)
@@ -222,52 +223,27 @@ class Accession(bauble.BaubleMapper):
         if source is None:
             del self.source
             return
-        #debug(old in session.deleted)
         if source is not self.source:
-            #debug('deleting self.source')
             del self.source
-        #debug(old in session.deleted)
-#        if source is None:
-#            del self.source
-#            #self.source_type = None            
-#            return         
-#        if source is not self.source:
-#            debug('deleting source')
-#            del self.source
-#        if source in session:
-#            print 'source in session: %s' % source
-#        if self.source in session:
-#            print 'self.source in session: %s' % self.source            
+        
         self.source_type = source.__class__.__name__
-        #debug(old in session.deleted)
-#        bauble.app.db_engine.echo = True
-#        source.accession = self
+
         if isinstance(source, Collection):
             self._collection = source
         elif isinstance(source, Donation):
             self._donation = source
         else: 
             AssertionError('unknown source type')
-        #debug('SOURCE %s: %s' % (source, repr(source)))
-        #session.save_or_update(source)
-        #debug(old in session.new)
-        #debug(old in session.deleted)
-        #debug(old in session.dirty)
-#        for obj in session:
-#            debug('%s: %s' % (obj, repr(obj)))
-#            debug(obj in session.new)
-#            debug(obj in session.deleted)
-#            debug(obj in session.dirty)
-#            debug('-----------')
+
     def _del_source(self):                
         session = object_session(self)
         source = self.source
         if source is not None:
             delete_or_expunge(session, source)
         self.source_type = None
-            
-        
+                    
     source = property(_get_source, _set_source, _del_source)
+
         
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
@@ -281,13 +257,16 @@ mapper(Accession, accession_table,
        properties = {
                      '_collection': relation(Collection, 
                                              primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-                                             backref='accession', private=True, uselist=False),
+                                             private=True, uselist=False, backref='accession'),
                      '_donation': relation(Donation, 
                                            primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-                                           backref='accession', private=True, uselist=False),
-                     'plants': relation(Plant, cascade='all, delete-orphan', backref='accession'),
-                     'verifications': relation(Verification, backref='accession', order_by='date',
-                                               private=True)},
+                                           private=True, uselist=False,
+                                           backref='accession'),
+                     'plants': relation(Plant, cascade='all, delete-orphan', 
+                                        backref='accession'),
+                     'verifications': relation(Verification, order_by='date',
+                                               private=True, 
+                                               backref='accession', )},
        order_by='code')
                                
 mapper(Verification, verification_table)
@@ -302,19 +281,6 @@ mapper(Verification, verification_table)
     # accession lineage, parent garden code and acc id ???
     #acc_lineage = StringCol(length=50, default=None)    
     #acctxt = StringCol(default=None) # ???
-    
-    #
-    # verification, a verification table would probably be better and then
-    # the accession could have a verification history with a previous
-    # verification id which could create a chain for the history,
-    # this would be necessary especially for herbarium records
-    #
-    #ver_level = StringCol(length=2, default=None) # verification level
-    #ver_name = StringCol(length=50, default=None) # verifier's name
-    #ver_date = DateTimeCol(default=None) # verification date
-    #ver_hist = StringCol(default=None)  # verification history
-    #ver_lit = StringCol(default=None) # verification lit
-    #ver_id = IntCol(default=None) # ?? # verifier's ID??
     
 
     # i don't think this is the red list status but rather the status
@@ -574,7 +540,10 @@ class CollectionPresenter(GenericEditorPresenter):
         self.east_toggle_signal_id = east_radio.connect('toggled', 
                                                    self.on_east_west_radio_toggled)
 
-
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
@@ -833,8 +802,12 @@ class DonationPresenter(GenericEditorPresenter):
         # if there is only one donor in the donor combo model and 
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
             donor_combo.set_active(0)
+    
             
-        
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def on_donor_combo_changed(self, combo, data=None):
         '''
         changed the sensitivity of the don_edit_button if the
@@ -1015,6 +988,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_change_notifier()
     
     
+    def dirty(self):
+        if self.source_presenter is None:
+            return self.model.dirty
+        return self.source_presenter.dirty() or self.model.dirty
+    
+    
     def on_acc_code_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):
         entry_text = entry.get_text()                
@@ -1099,11 +1078,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.acc_wild_prov_label.set_sensitive(prov_sensitive)
         
         if field == 'longitude' or field == 'latitude':
-#            source_model = self.source_presenter.model
-#            if source_model.latitude is not None and source_model.longitude is not None:
-#                self.view.widgets.geoacc_entry.set_sensitive(True)
-#            else:
-#                self.view.widgets.geoacc_entry.set_sensitive(False)
             if model.latitude is not None and model.longitude is not None:
                 self.view.widgets.geoacc_entry.set_sensitive(True)
             else:
@@ -1122,7 +1096,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         elif self.source_presenter is not None:
             if len(self.source_presenter.problems) != 0:
                 sensitive = False
-        elif self.model.code is None or self.model.species_id is None:
+        elif self.model.code is None or self.model.species is None:
             sensitive = False
         elif field == 'source_type':
             sensitive = False
@@ -1253,7 +1227,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 class AccessionEditor(GenericModelViewPresenterEditor):
     
-    label = 'Accessions'
+    label = 'Accession'
+    mnemonic_label = '_Accession'
     
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -1266,31 +1241,13 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         @param model: Accession instance or None
         @param parent: the parent widget
         '''        
-
         if model is None:
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.app.gui.window
-        # keep parent and defaults around in case in start() we get
-        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
-        # editor
         self.parent = parent
         self._committed = []
-#        '''
-#        model: either an Accession class or instance
-#        defaults: a dictionary of Accession field name keys with default
-#        values to enter in the model if none are give
-#        '''
-#        self.assert_args(model, Accession, defaults)
-#        GenericModelViewPresenterEditor.__init__(self, model, defaults, parent)
-#        if parent is None: # should we even allow a change in parent
-#            parent = bauble.app.gui.window
-#        # keep parent and defaults around in case in start() we get
-#        # RESPONSE_NEXT or RESPONSE_OK_AND_ADD we can pass them to the new 
-#        # editor
-#        self.parent = parent
-#        self.defaults = defaults 
         
     
     def handle_response(self, response):
@@ -1299,10 +1256,10 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
-                self.commit_changes()
-                self._committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -1310,10 +1267,11 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
+                debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
             return False

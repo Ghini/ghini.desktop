@@ -3,10 +3,9 @@
 #
 
 import os, sys
-from accession import *
 from bauble.plugins import BaublePlugin, plugins, tables
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    acc_context_menu, acc_markup_func
+    AccessionInfoBox, acc_context_menu, acc_markup_func
 from bauble.plugins.garden.location import Location, LocationEditor,\
     loc_context_menu
 from bauble.plugins.garden.plant import Plant, PlantHistory, PlantEditor, \

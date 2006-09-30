@@ -228,12 +228,9 @@ class ObjectIdValidator(validators.FancyValidator):
 class PlantEditorPresenter(GenericEditorPresenter):
     
     
-#    PROBLEM_INVALID_DATE = 3
-#    PROBLEM_INVALID_SPECIES = 4
-#    PROBLEM_DUPLICATE_ACCESSION = 5
     widget_to_field_map = {'plant_code_entry': 'code',
-                           'plant_acc_entry': 'accession_id',
-                           'plant_loc_combo': 'location_id',
+                           'plant_acc_entry': 'accession',
+                           'plant_loc_combo': 'location',
                            'plant_acc_type_combo': 'acc_type',
                            'plant_acc_status_combo': 'acc_status',
                            'plant_notes_textview': 'notes'}
@@ -252,11 +249,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # initialize widgets
         self.init_location_combo()
-#        self.init_acc_entry()
         self.init_enum_combo('plant_acc_status_combo', 'acc_status')
         self.init_enum_combo('plant_acc_type_combo', 'acc_type')
-        
-        
+                
 #        self.init_history_box()
         self.refresh_view() # put model values in view            
         
@@ -267,22 +262,49 @@ class PlantEditorPresenter(GenericEditorPresenter):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, value):
             debug('set_in_model(%s, %s)' % (field, value))
-            #setattr(self.model, field, value.id)
             setattr(self.model, field, value)
         self.assign_completions_handler('plant_acc_entry', 'accession', 
                                         acc_get_completions, 
                                         set_func=set_in_model, 
                                         format_func=format_acc)
-        self.assign_simple_handler('plant_code_entry', 'code')
-        #self.assign_simple_handler('plant_loc_combo', 'code')
+        self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
         self.assign_simple_handler('plant_notes_textview', 'notes')
-        self.assign_simple_handler('plant_loc_combo', 'location_id', ObjectIdValidator())
+        self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status', StringOrNoneValidator())
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type', StringOrNoneValidator())        
 
         self.view.widgets.plant_loc_add_button.connect('clicked', self.on_loc_button_clicked, 'add')
         self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
+        self.init_change_notifier()
         
+    def dirty(self):
+        return self.model.dirty
+    
+    
+    def init_change_notifier(self):
+        '''
+        for each widget register a signal handler to be notified when the
+        value in the widget changes, that way we can do things like sensitize
+        the ok button
+        '''
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+        
+        
+    def refresh_sensitivity(self):
+        def set_accept_buttons_sensitive(sensitive):
+            self.view.widgets.plant_ok_button.set_sensitive(sensitive)
+            self.view.widgets.plant_next_button.set_sensitive(sensitive)
+        sensitive = (self.model.accession is not None and \
+                     self.model.code is not None and \
+                     self.model.location is not None) and self.model.dirty
+        set_accept_buttons_sensitive(sensitive)
+        
+        
+    def on_field_changed(self, model, field):
+        #debug('on field changed: %s = %s' % (field, getattr(model, field)))        
+        self.refresh_sensitivity()
+                    
         
     def on_loc_button_clicked(self, button, cmd=None):
         location = None
@@ -292,7 +314,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             location = combo.get_model()[it][0]         
         if cmd is 'edit':           
             e = LocationEditor(location)
-            #e = LocationEditor(model_or_defaults=location)
         else:
             e = LocationEditor()
         e.start()
@@ -326,12 +347,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # we should probably just always set the first item as active
                 
         
-    def init_acc_entry(self):
-        pass
-    def init_type_and_status_combo(self):
-        pass
-    def init_history_box(self):
-        pass
+#    def init_acc_entry(self):
+#        pass
+#    def init_type_and_status_combo(self):
+#        pass
+#    def init_history_box(self):
+#        pass
     
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():            
@@ -342,14 +363,17 @@ class PlantEditorPresenter(GenericEditorPresenter):
             else:
                 value = self.model[field]
             self.view.set_widget_value(widget, value)
-    
+        self.refresh_sensitivity()
+        
+        
     def start(self):
         return self.view.start()
     
     
 class PlantEditor(GenericModelViewPresenterEditor):
     
-    label = 'Plants'
+    label = 'Plant'
+    mnemonic_label = '_Plant'
     
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -375,8 +399,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
 #                debug('session dirty, committing')
             try:
-                self.commit_changes()
-                self._committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
@@ -389,13 +414,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg):                
-            return True
-        elif not self.session.dirty:
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
-            return False
-        
+            return False        
         
 #        # respond to responses
         more_committed = None
@@ -406,7 +428,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if more_committed is not None:
             self._committed = [self._committed]
             if isinstance(more_committed, list):
-                self._ommitted.extend(more_committed)
+                self._committed.extend(more_committed)
             else:
                 self._committed.append(more_committed)                
         
@@ -419,14 +441,20 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # ask 'Would you like to do that now?'
         if self.session.query(Accession).count() == 0:        
             msg = 'You must first add or import at least one Accession into the '\
-                  'database before you can add plants.'
-            utils.message_dialog(msg)
-            return
-        if self.session.query(Location).count() == 0:        
+                  'database before you can add plants.\n\nWould you like to '\
+                  'open the Accession editor?'
+            if utils.yes_no_dialog(msg):
+                from bauble.plugins.garden.accession import AccessionEditor
+                e = AccessionEditor()
+                return e.start()
+        if self.session.query(Location).count() == 0:
             msg = 'You must first add or import at least one Location into the '\
-                  'database before you can add species.'
-            utils.message_dialog(msg)
-            return
+                  'database before you can add species.\n\nWould you like to '\
+                  'open the Location editor?'
+                  
+            if utils.yes_no_dialog(msg):
+               e = LocationEditor()
+               return e.start()
         self.view = PlantEditorView(parent=self.parent)
         self.presenter = PlantEditorPresenter(self.model, self.view)
         
