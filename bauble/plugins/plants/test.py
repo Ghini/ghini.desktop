@@ -10,6 +10,9 @@ from testbase import BaubleTestCase, log
 # - test schema cascading works for all tables in the plants module
 # - test unicode is working properly in the relevant fields, especially
 # in the Species.str function
+# - test the setting the default vernacular name on a species is working
+# and that delete vernacular names and default vernacular names does
+# proper  cascading
     
 class AttrDict(dict):
     

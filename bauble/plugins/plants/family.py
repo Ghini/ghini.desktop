@@ -173,8 +173,12 @@ class FamilyEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('fam_family_entry', 'family')
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
         self.assign_simple_handler('fam_notes_textview', 'notes')
+    
         
-        
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
@@ -188,6 +192,7 @@ class FamilyEditorPresenter(GenericEditorPresenter):
 class FamilyEditor(GenericModelViewPresenterEditor):
     
     label = 'Family'
+    mnemonic_label = '_Family'
     
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -216,26 +221,26 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         the list should either be empty or the list of committed values, return 
         None if we want to keep editing
         '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
-        committed = []
+        not_ok_msg = 'Are you sure you want to lose your changes?'        
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                self.commit_changes()
-                committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                return None
+                return False
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
-                return None
-        elif self.session.dirty and utils.yes_no_dialog(not_ok_msg) or not self.session.dirty:
-            return []
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+            return True
         else:
-            return None
+            return False
                 
         # respond to responses
         more_committed = None
@@ -252,7 +257,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
             else:
                 self._committed.append(more_committed)                
         
-        return committed            
+        return True            
         
     
     def start(self):
@@ -270,12 +275,10 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
-            committed = self.handle_response(response)
-            if committed is not None:
-                break
-            
+            if self.handle_response(response):
+                break            
         self.session.close() # cleanup session
-        return committed
+        return self._committed
 
 #class SO_Family(BaubleTable):
 #

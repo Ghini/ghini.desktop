@@ -70,10 +70,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.synonyms_presenter = SynonymsPresenter(self.model.synonyms, 
                                                     self.view, self.session)
         self.meta_presenter = SpeciesMetaPresenter(self.model.species_meta, 
-                                                   self.view, self.session)
-        
-        self.sub_presenters = (self.vern_presenter, self.synonyms_presenter, self.meta_presenter)
-        
+                                                   self.view, self.session)        
         self.refresh_view()        
         
         #self.view.widgets.sp_infra_rank_combo.connect('changed', self.on_infra_rank_changed)
@@ -102,6 +99,13 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('sp_notes_textview', 'notes', UnicodeOrNoneValidator())
         
         self.init_change_notifier()
+    
+    
+    def dirty(self):
+        debug('%s, %s, %s, %s' % (self.model.dirty, self.vern_presenter.dirty(),
+                                   self.synonyms_presenter.dirty(), self.meta_presenter.dirty()))
+        return self.model.dirty or self.vern_presenter.dirty() or \
+            self.synonyms_presenter.dirty() or self.meta_presenter.dirty()
     
     
     def refresh_sensitivity(self):
@@ -192,6 +196,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
             
     def on_default_changed(self, obj):
+        debug('on_default_changed: %s' % obj)
         self.model.default_vernacular_name = obj
         self.on_field_changed(self.model, 'default_vernacular_name')
         
@@ -323,14 +328,23 @@ class VernacularNamePresenter(GenericEditorPresenter):
     # name/lang entries if the name conflicts with an existing vernacular
     # name for this species
     
+    '''
+    in the VernacularNamePresenter we don't really use self.model, we more
+    rely on the model in the TreeView which are ModelDecorator objects wrapped
+    around VernacularNames objects
+    '''
+    
     def __init__(self, model, view, session):
         '''
         @param model: a list of VernacularName objects
-        @param view: see GenericEditorPresenter
+        @param view: 
+        @param session:
         '''
+        #GenericEditorPresenter.__init__(self, [ModelDecorator(m) for m in model], view)
         GenericEditorPresenter.__init__(self, model, view)
         self.session = session
         self.default = None
+        self._default_dirty = False
         self.init_treeview(model)
         self.view.widgets.sp_vern_add_button.connect('clicked', 
                                                   self.on_add_button_clicked)
@@ -344,6 +358,11 @@ class VernacularNamePresenter(GenericEditorPresenter):
         name_entry.connect('insert-text', self.on_entry_insert, 'vern_lang_entry')
         name_entry.connect('delete-text', self.on_entry_delete, 'vern_lang_entry')        
         
+        
+    
+    def dirty(self):
+        return self._default_dirty or (True in [row[0].dirty for row in self.treeview.get_model()])
+    
     
     def on_entry_insert(self, entry, new_text, new_text_length, position, 
                         other_widget_name):
@@ -382,9 +401,12 @@ class VernacularNamePresenter(GenericEditorPresenter):
         lang = self.view.widgets.vern_lang_entry.get_text()
         vn = VernacularName(name=name, language=lang)
         self.session.save(vn)
+        self._default_dirty = True
         tree_model = self.treeview.get_model()
-        it = tree_model.append([vn])        
+        self.model.append(vn) # append to self.model
+        it = tree_model.append([ModelDecorator(vn)]) # append to tree model
         if len(tree_model) == 1:            
+            debug('setting default: %s' % len(tree_model))
             self.default = gtk.TreeRowReference(tree_model, tree_model.get_path(it))
         self.view.widgets.sp_vern_add_button.set_sensitive(False)
         self.view.widgets.vern_name_entry.set_text('')
@@ -410,7 +432,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         if utils.yes_no_dialog(msg, parent=self.view.window):
             model.remove(model.get_iter(path))
             debug('delete value: %s' % value)
-            expunge_or_delete(self.session, value)
+            #expunge_or_delete(self.session, value)
+            vernacular_name = value.model
+            expunge_or_delete(self.session, vernacular_name)
+            self._default_dirty = True
             self.view.set_accept_buttons_sensitive(True)            
             # check if we removed the item designated as the default 
             # vernacular name and if so reset it to the first row in the model
@@ -447,12 +472,15 @@ class VernacularNamePresenter(GenericEditorPresenter):
             tree_model = self.treeview.get_model()
             self.default = gtk.TreeRowReference(tree_model, path)
             it = tree_model.get_iter(self.default.get_path())
-            debug(tree_model[it][0])
-            self.default_changed_callback(tree_model[it][0])
+#            debug(tree_model[it][0])
+            #self.default_changed_callback(tree_model[it][0])
+            self.default_changed_callback(tree_model[it][0].model)
+        self._default_dirty
         
     
     def init_treeview(self, model):
         '''
+        initialized the list of vernacular names
         '''
         self.treeview = self.view.widgets.vern_treeview
                 
@@ -515,9 +543,9 @@ class VernacularNamePresenter(GenericEditorPresenter):
         
         # TODO: why am i setting self.treeview.model and why does this work
         self.treeview.model = gtk.ListStore(object)
+        debug(self.model)
         for vn in self.model:
-            debug(vn)
-            self.treeview.model.append([vn])
+            self.treeview.model.append([ModelDecorator(vn)])
         self.treeview.set_model(self.treeview.model)
         
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -537,21 +565,30 @@ class VernacularNamePresenter(GenericEditorPresenter):
             utils.message_dialog(msg)
             first = tree_model.get_iter_first()
             value = tree_model[first][0]
+            debug('%s: %s' % (type(value), value))
+            debug('%s: %s' % (type(value.model), value.model))
+            debug('%s: %s' % (type(value.species), value.species))
             path = tree_model.get_path(first)
             self.default = gtk.TreeRowReference(tree_model, path)
-            value.species.default_vernacular_name = value
+            #value.species.default_vernacular_name = value
+            value.species.default_vernacular_name = value.model
+            debug('dvn: %s' % repr(value.species.default_vernacular_name))
             self.view.set_accept_buttons_sensitive(True)
+            self._default_dirty = True
             return
         elif default_vernacular_name is None:
             return
         
         # select the default_vernacular_name
+        debug('default_vern_name: %s' % default_vernacular_name)
         for row in tree_model:
             vn = row[0]
+            debug('row[0]: %s' % vn)
             if vn.id == default_vernacular_name.id:
                 path  = tree_model.get_path(row.iter)
                 self.default = gtk.TreeRowReference(tree_model, path)
-        if self.default is None:
+
+        if len(tree_model) > 0 and self.default is None:
             raise ValueError('couldn\'t set the default name: %s' % 
                              default_vernacular_name)
     
@@ -561,15 +598,14 @@ class VernacularNamePresenter(GenericEditorPresenter):
 class SynonymsPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_SYNONYM = 1
-    
-    
+        
     def __init__(self, model, view, session):
         '''
         @param model: a Species.synonyms property
         @param view: see GenericEditorPresenter
         @param session: 
         '''
-        GenericEditorPresenter.__init__(self, model, view)
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
         self.init_treeview(model)
         def sp_get_completions(text):           
@@ -593,6 +629,9 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.view.widgets.sp_syn_remove_button.connect('clicked', 
                                                     self.on_remove_button_clicked)
         
+    def dirty(self):
+        return self.model.dirty
+    
     
     def init_treeview(self, model):        
         '''
@@ -718,6 +757,10 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         self.assign_simple_handler('sp_food_check', 'food_plant')                
         for field in self.widget_to_field_map.values():         
             self.model.add_notifier(field, self.on_field_changed)
+    
+    
+    def dirty(self):
+        return self.model.dirty
     
     
     def on_field_changed(self, model, field):
@@ -906,16 +949,12 @@ class SpeciesEditorView(GenericEditorView):
         return self.widgets.species_dialog.run()    
     
 
-# f a a mapped object that is attached to a session is passed into the 
-# SpeciesEditor the we will use the same session that the mapped object is 
-# attached to. This could mean that we make changes the the object but if the 
-# editor is cancelled or closed then the changes will stay on the object without
-# being rolled back. If someone else using the same session at some point 
-# flushes the session then the changes that had earlier been cancelled would
-# then be committed.
+
 class SpeciesEditor(GenericModelViewPresenterEditor):
     
     label = 'Species'
+    mnemonic_label = '_Species'
+    
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
@@ -935,34 +974,35 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
         
-        
+
     def handle_response(self, response):
         '''
         @return: return a list if we want to tell start() to close the editor, 
         the list should either be empty or the list of committed values, return 
         None if we want to keep editing
         '''
-        committed = []
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                self.commit_changes()
-                committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                return None
+                return False
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
+                debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
-                return None
-        elif not self.session.dirty or (self.session.dirty and utils.yes_no_dialog(not_ok_msg)):
-            return committed
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():        
+            return True
         else:
-            return None
+            return False
         
         more_committed = None
         if response == self.RESPONSE_NEXT:
@@ -982,7 +1022,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             else:
                 self._committed.append(more_committed)
         
-        return committed
+        return True
 
         
     def start(self):
@@ -1001,24 +1041,24 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
-            committed = self.handle_response(response)
-            if committed is not None:
+            if self.handle_response(response):
                 break
-            
         self.session.close() # cleanup session
-        return committed
+        return self._committed
     
     
     def commit_changes(self):
         # TODO: the 'obj not in self.session.deleted' part is to work around
         # a bug in SA, i reckon this will get fixed at some point
+        # UPDATE: need to check into this again, 2006.09.28
+        debug('SpeciesEditor.commit_changes')
         for obj in self.session.new:
             if isinstance(obj, (VernacularName, SpeciesMeta, SpeciesSynonym)) \
               and obj not in self.session.deleted:
+                debug('setting species on %s -- %s' % (type(obj), str(obj)))
                 obj.species = self.model
         return super(SpeciesEditor, self).commit_changes()
 
