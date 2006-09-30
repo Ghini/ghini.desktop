@@ -77,11 +77,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         # connect signals
         def gen_get_completions(text):           
             return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
-#        def set_in_model(self, field, value):
-#            setattr(self.model, field, value.id)
-#        self.assign_completions_handler('sp_genus_entry', 'genus_id', 
-#                                        gen_get_completions, 
-#                                        set_func=set_in_model)
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('sp_genus_entry', 'genus', 
@@ -102,8 +97,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     
     def dirty(self):
-        debug('%s, %s, %s, %s' % (self.model.dirty, self.vern_presenter.dirty(),
-                                   self.synonyms_presenter.dirty(), self.meta_presenter.dirty()))
+#        debug('%s, %s, %s, %s' % (self.model.dirty, self.vern_presenter.dirty(),
+#                                   self.synonyms_presenter.dirty(), self.meta_presenter.dirty()))
         return self.model.dirty or self.vern_presenter.dirty() or \
             self.synonyms_presenter.dirty() or self.meta_presenter.dirty()
     
@@ -196,7 +191,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         
             
     def on_default_changed(self, obj):
-        debug('on_default_changed: %s' % obj)
+#        debug('on_default_changed: %s' % obj)
         self.model.default_vernacular_name = obj
         self.on_field_changed(self.model, 'default_vernacular_name')
         
@@ -406,7 +401,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         self.model.append(vn) # append to self.model
         it = tree_model.append([ModelDecorator(vn)]) # append to tree model
         if len(tree_model) == 1:            
-            debug('setting default: %s' % len(tree_model))
+#            debug('setting default: %s' % len(tree_model))
             self.default = gtk.TreeRowReference(tree_model, tree_model.get_path(it))
         self.view.widgets.sp_vern_add_button.set_sensitive(False)
         self.view.widgets.vern_name_entry.set_text('')
@@ -431,7 +426,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         msg = 'Are you sure you want to remove the vernacular name %s?' % value.name
         if utils.yes_no_dialog(msg, parent=self.view.window):
             model.remove(model.get_iter(path))
-            debug('delete value: %s' % value)
+#            debug('delete value: %s' % value)
             #expunge_or_delete(self.session, value)
             vernacular_name = value.model
             expunge_or_delete(self.session, vernacular_name)
@@ -543,7 +538,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         
         # TODO: why am i setting self.treeview.model and why does this work
         self.treeview.model = gtk.ListStore(object)
-        debug(self.model)
+#        debug(self.model)
         for vn in self.model:
             self.treeview.model.append([ModelDecorator(vn)])
         self.treeview.set_model(self.treeview.model)
@@ -565,14 +560,14 @@ class VernacularNamePresenter(GenericEditorPresenter):
             utils.message_dialog(msg)
             first = tree_model.get_iter_first()
             value = tree_model[first][0]
-            debug('%s: %s' % (type(value), value))
-            debug('%s: %s' % (type(value.model), value.model))
-            debug('%s: %s' % (type(value.species), value.species))
+#            debug('%s: %s' % (type(value), value))
+#            debug('%s: %s' % (type(value.model), value.model))
+#            debug('%s: %s' % (type(value.species), value.species))
             path = tree_model.get_path(first)
             self.default = gtk.TreeRowReference(tree_model, path)
             #value.species.default_vernacular_name = value
             value.species.default_vernacular_name = value.model
-            debug('dvn: %s' % repr(value.species.default_vernacular_name))
+#            debug('dvn: %s' % repr(value.species.default_vernacular_name))
             self.view.set_accept_buttons_sensitive(True)
             self._default_dirty = True
             return
@@ -580,10 +575,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
             return
         
         # select the default_vernacular_name
-        debug('default_vern_name: %s' % default_vernacular_name)
+#        debug('default_vern_name: %s' % default_vernacular_name)
         for row in tree_model:
             vn = row[0]
-            debug('row[0]: %s' % vn)
+#            debug('row[0]: %s' % vn)
             if vn.id == default_vernacular_name.id:
                 path  = tree_model.get_path(row.iter)
                 self.default = gtk.TreeRowReference(tree_model, path)
@@ -705,7 +700,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         path, col = tree.get_cursor()
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]      
-        debug('%s: %s' % (value, type(value)))
+#        debug('%s: %s' % (value, type(value)))
         s = Species.str(value.synonym, markup=True)
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
@@ -713,10 +708,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
             #self.session.delete(value)            
-            debug('%s: %s' % (value, type(value)))
+#            debug('%s: %s' % (value, type(value)))
             expunge_or_delete(self.session, value)            
             self.view.set_accept_buttons_sensitive(True)
-        debug(value in self.session)
+#        debug(value in self.session)
 
     
     
@@ -766,7 +761,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
     def on_field_changed(self, model, field):
         # if any field changed then attach the current model to the sesion
         # if it hasn't been
-        debug(field)
+#        debug(field)
         if not model in self.session:
             self.session.save(model)
         
@@ -1054,11 +1049,10 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         # TODO: the 'obj not in self.session.deleted' part is to work around
         # a bug in SA, i reckon this will get fixed at some point
         # UPDATE: need to check into this again, 2006.09.28
-        debug('SpeciesEditor.commit_changes')
         for obj in self.session.new:
             if isinstance(obj, (VernacularName, SpeciesMeta, SpeciesSynonym)) \
               and obj not in self.session.deleted:
-                debug('setting species on %s -- %s' % (type(obj), str(obj)))
+#                debug('setting species on %s -- %s' % (type(obj), str(obj)))
                 obj.species = self.model
         return super(SpeciesEditor, self).commit_changes()
 

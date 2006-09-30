@@ -41,9 +41,6 @@ from bauble.plugins import tables
 def edit_callback(row):
     value = row[0]
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    # TODO: the select paramater can go away when we move FamilyEditor to the 
-    # new style editors    
-    #e = SpeciesEditor(select=[value], model=value)
     e = SpeciesEditor(value)
     return e.start() != None
 
@@ -51,7 +48,6 @@ def edit_callback(row):
 def add_accession_callback(row):
     from bauble.plugins.garden.accession import AccessionEditor
     value = row[0]
-    #e = AccessionEditor(model_or_defaults={'species_id': value.id})
     e = AccessionEditor(Accession(species=value))
     return e.start() != None
 
