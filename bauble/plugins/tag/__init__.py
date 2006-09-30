@@ -11,6 +11,8 @@ import bauble.utils as utils
 import bauble
 from bauble.utils.log import debug
 
+# TODO: i wander if it's possible to add to a context menu for any object
+# that show's a submenu of all the tags on an object
 
 def edit_callback(row):
     value = row[0]
@@ -33,12 +35,15 @@ def remove_callback(row):
         msg = 'Could not delete.\nn%s' % str(e)        
         utils.message_details_dialog(msg, traceback.format_exc(), 
                                      type=gtk.MESSAGE_ERROR)
+        
+    # reinitialize the tag menu
+    _reset_tags_menu()
     return True
 
 
 tag_context_menu = [('Edit', edit_callback),
-                      ('--', None),
-                      ('Remove', remove_callback)]
+                    ('--', None),
+                    ('Remove', remove_callback)]
 
 class TagItemGUI:
     '''
@@ -75,24 +80,12 @@ class TagItemGUI:
         d.destroy()
         
         if name is not '' and tag_table.select(tag_table.c.tag==name).count().scalar() == 0:
-            debug('creating tag: %s' % name)
             session = create_session()
             session.save(Tag(tag=name))
             session.flush()
             model = self.tag_tree.get_model()
             model.append([False, name])
             _reset_tags_menu()
-#            nsp = species_query.count_by(genus_id = row.id)
-#            try: # name already exist
-#                create_session().load(Tag, name=name)
-#                #t = Tag.byTag(name)
-#            except Exception, e: # name doesn't exist
-#                debug(traceback.format_exc())
-#                Tag(tag=name)
-#                model = self.tag_tree.get_model()
-#                model.append([False, name])
-#                _reset_tags_menu()
-            
 
     def on_toggled(self, renderer, path, data=None):
         '''
@@ -159,18 +152,12 @@ class TagItemGUI:
             
         # create the model    
         model = gtk.ListStore(bool, str)
-        #item_tags = get_tags(self.item)
         item_tags = get_tag_ids(self.item)
-        debug(item_tags)
         has_tag = False
-        tag_query = create_session().query(Tag)        
-        #for tag in Tag.select():
+        tag_query = create_session().query(Tag)                
         for tag in tag_query.select():
-            debug(repr(tag))
-            #if tag in item_tags:
             if tag.id in item_tags:
                 has_tag = True
-                debug(has_tag)
             model.append([has_tag, tag.tag])
             has_tag = False
         self.tag_tree.set_model(model)
@@ -194,6 +181,7 @@ tag_table = Table('tag',
                   Column('tag', Unicode(64), unique=True, nullable=False))
 
 class Tag(bauble.BaubleMapper):
+    
     def __str__(self):
         return self.tag
     
@@ -220,29 +208,6 @@ mapper(Tag, tag_table,
        properties={'objects': relation(TaggedObj, backref='tag', private=True)},
        order_by='tag')
         
-#class Tag(BaubleTable):
-#
-#    class sqlmeta(BaubleTable.sqlmeta):
-#        orderBy = "tag"
-#
-#    tag = UnicodeCol(alternateID=True)
-#    objects = MultipleJoin('TaggedObj', joinColumn='tag_id')
-#    
-#    def __str__(self):
-#        return self.tag
-#
-#    def markup(self):
-#        return '%s Tag' % self.tag
-#    
-#    
-#class TaggedObj(BaubleTable):
-#    obj_id = IntCol()
-#    obj_class = StringCol(length=32)
-#    tag = ForeignKey('Tag', cascade=True)
-#    
-#    def __str__():
-#        return 'tagged_ibj'
-    
             
 def untag_object(name, so_obj):
     # TODO: should we loop through objects in a tag to delete
@@ -262,36 +227,16 @@ def untag_object(name, so_obj):
             
        
 def tag_object(name, so_obj):     
-#    try:
-#        tag = Tag.byTag(name)
-#    except SQLObjectNotFound:
-#        tag = Tag(tag=name)
     session = create_session()
     tag = session.query(Tag).select_by(tag=name)[0]
     classname = so_obj.__class__.__name__
-    #sr = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id, tag=tag)    
-    #if sr.count() == 0:
     if tagged_obj_table.select(and_(tagged_obj_table.c.obj_class==classname,
                                     tagged_obj_table.c.obj_id==so_obj.id, 
                                     tagged_obj_table.c.tag_id==tag.id)).count().scalar() == 0:
-        debug('tagging object: %s, %s, %s' % (classname, so_obj.id, tag))
         tagged_obj = TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
         session.save(tagged_obj)
         session.flush()
 
-
-#def get_tags(so_obj):
-#    classname = so_obj.__class__.__name__
-#    #tagged_objs = TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
-#    query = object_session(so_obj).query(TaggedObj)
-#    tagged_objs = query.select_by(obj_class=classname, obj_id=so_obj.id)    
-#    tags = []
-#    debug('get_tags(%s)' % so_obj)
-#    debug(tagged_objs)
-#    for obj in tagged_objs:
-#        debug(obj)
-#        tags.append(obj.tag)
-#    return tags
 
 def get_tag_ids(so_obj):
     classname = so_obj.__class__.__name__
@@ -402,23 +347,30 @@ class TagPlugin(BaublePlugin):
     @classmethod
     def init(cls):
         if "SearchViewPlugin" in plugins:
-            from bauble.plugins.searchview.search import SearchMeta
-            from bauble.plugins.searchview.search import SearchView
+            from bauble.plugins.searchview.search import SearchMeta, SearchView
             
             search_meta = SearchMeta("Tag", ["tag"], "tag")
             SearchView.register_search_meta("tag", search_meta)
             
-            SearchView.view_meta["Tag"].set(children="plants",                                                   
-                                            context_menu=tag_context_menu)
-            
             def get_objects(tag):                
                 kids = []
+                session = object_session(tag)
                 for obj in tag.objects:
-                    kids.append(eval('tables["%s"].get(%d)' \
-                                     % (obj.obj_class, obj.obj_id)))
+                    try:
+                        cls = tables[obj.obj_class]
+                        # TODO: if load raises an exception we should show
+                        # a message and remove the obj from the tag
+                        kids.append(session.load(cls, obj.obj_id))                    
+                    except Exception, e:
+                        msg = 'Could not the get object that this tag refers to. '\
+                        'Removing tag from object %s(%s).' % (obj.obj_class, obj.obj_id)
+                        utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_WARNING)
+                        session.delete(obj)
+                        debug(traceback.format_exc)
                 return kids
                                 
-            SearchView.view_meta["Tag"].set(get_objects, None, None)
+            SearchView.view_meta["Tag"].set(children=get_objects, 
+                                            context_menu=tag_context_menu)
         
             
     @classmethod
@@ -433,45 +385,26 @@ class TagPlugin(BaublePlugin):
         _reset_tags_menu() 
         
         
-        
+#class TagEditorView(GenericEditorView):
+#    pass
+#
+#class TagEditorPresenter(GenericEditorPresenter):
+#    pass
+#
+#class TagEditor(GenericModelViewPresenterEditor):
+#    
+#    # TODO: the tag editor allows tags to be added or removed from 
+#    # a single object
+#    def __init__(self, model=None, parent=None):
+#        '''
+#        @param model: Accession instance or None
+#        @param parent: the parent widget
+#        '''        
+#        if model is None:
+#            model = Tag()
+#        GenericModelViewPresenterEditor.__init__(self, model, parent)
+    
 plugin = TagPlugin
 
-
-#if __name__ == '__main__':
-#    # for testing
-#    sqlhub.processConnection = connectionForURI("sqlite:///tmp/test.sqlite")
-#    sqlhub.processConnection.getConnection()
-#
-#
-#    class Person(SQLObject):
-#        name = StringCol()
-#        def __str__(self):
-#            return self.name      	  	
-#
-#    class Donkey(SQLObject):
-#        name = StringCol()    
-#        def __str__(self):
-#            return self.name
-#        
-#    tables = [Person, Donkey, TagCategory, Tag, TagObjId, TagIntermediate]
-#    def create_tables():
-#        for t in tables:
-#            t.dropTable(True)
-#            t.createTable()
-#    create_tables()
-#    
-#    p = Person(name='Ted')
-#    tag_object('human', p)
-#    tag_object('hawaiin', p)
-#
-#    d = Donkey(name='Crapper')
-#    tag_object('hawaiin', d)
-#
-#    for t in get_tags(p):
-#        print str(t)
-#        print '----------------'
-#        for id in t.ids:
-#            print '-- ' + str(id)
-#        print '\n'
 
 
