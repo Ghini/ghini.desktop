@@ -130,6 +130,10 @@ class DonorEditorPresenter(GenericEditorPresenter):
         self.init_change_notifier()
 
     
+    def dirty(self):
+        return self.model.dirty
+    
+    
     def on_field_changed(self, model, field):
         self.view.widgets.don_ok_button.set_sensitive(True)
 
@@ -159,7 +163,8 @@ class DonorEditorPresenter(GenericEditorPresenter):
 # TODO: need to create a widget to edit the notes
 class DonorEditor(GenericModelViewPresenterEditor):
     
-    label = 'Donors'
+    label = 'Donor'
+    mnemonic_label = '_Donor'
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
     
@@ -181,10 +186,10 @@ class DonorEditor(GenericModelViewPresenterEditor):
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
-                self.commit_changes()
-                self._committed.append(self.model)
+                if self.presenter.dirty():
+                    self.commit_changes()
+                    self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % e.orig
@@ -196,7 +201,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif (self.session.dirty and utils.yes_no_dialog(not_ok_msg)) or not self.session.dirty:
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
             return False
