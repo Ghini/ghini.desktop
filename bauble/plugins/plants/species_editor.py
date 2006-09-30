@@ -44,7 +44,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     PROBLEM_INVALID_GENUS = 1
     
-    widget_to_field_map = {'sp_genus_entry': 'genus_id',
+    widget_to_field_map = {'sp_genus_entry': 'genus',
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
@@ -110,13 +110,14 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
         sensitive = []
         notsensitive = []
+        # TODO: make sure this is perfect
         # states_dict:
         # { field: [widget(s) whose sensitivity == fields is not None] }
         # - if widgets is a tuple then at least one of the items has to not be None
         # - this assumes that when field is not None, if field is none then
         # sensitive widgets are set to false
-        states_dict = {'sp_hybrid_combo': [('genus_id', 'genus')],
-                       'sp_species_entry': [('genus_id', 'genus')],
+        states_dict = {'sp_hybrid_combo': [('genus', 'genus')],
+                       'sp_species_entry': [('genus', 'genus')],
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
@@ -990,7 +991,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             except:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.'
-                debug(traceback.format_exc())
+                #debug(traceback.format_exc())
+                warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
