@@ -111,10 +111,7 @@ class CSVImporter:
 
         sorted_tables = []
         for table in default_metadata.table_iterator():
-            debug(table)
-            debug(table.name)                        
             try:
-                debug(filename_dict[table.name])
                 sorted_tables.append((table, filename_dict.pop(table.name)))
             except KeyError, e: # table.name in list of filenames
                 pass

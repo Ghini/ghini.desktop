@@ -108,7 +108,10 @@ genus_table = Table('genus',
                     Column('notes', Unicode),
                     #family = ForeignKey('Family', notNull=True, cascade=False)                    
                     Column('family_id', Integer, ForeignKey('family.id'), 
-                           nullable=False, unique='genus_index'))
+                           nullable=False, unique='genus_index'),
+                    Column('_created', DateTime, default=func.current_timestamp()),
+                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                           onupdate=func.current_timestamp()))
     
 class Genus(bauble.BaubleMapper):
         
@@ -135,7 +138,10 @@ genus_synonym_table = Table('genus_synonym',
                             Column('genus_id', Integer, ForeignKey('genus.id'), 
                                    nullable=False),
                             Column('synonym_id', Integer, 
-                                   ForeignKey('genus.id'), nullable=False))
+                                   ForeignKey('genus.id'), nullable=False),
+                            Column('_created', DateTime, default=func.current_timestamp()),
+                            Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                   onupdate=func.current_timestamp()))
 
 
 class GenusSynonym(bauble.BaubleMapper):

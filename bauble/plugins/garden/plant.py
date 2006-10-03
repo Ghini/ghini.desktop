@@ -66,7 +66,10 @@ plant_history_table = Table('plant_history',
                             Column('date', Date),
                             Column('description', Unicode),
                             Column('plant_id', Integer, ForeignKey('plant.id'),
-                                   nullable=False))
+                                   nullable=False),
+                            Column('_created', DateTime, default=func.current_timestamp()),
+                            Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                   onupdate=func.current_timestamp()))
 
 
 class PlantHistory(bauble.BaubleMapper):
@@ -91,7 +94,10 @@ plant_table = Table('plant',
                     Column('accession_id', Integer, ForeignKey('accession.id'), 
                            nullable=False, unique='plant_index'),
                     Column('location_id', Integer, ForeignKey('location.id'), 
-                           nullable=False))
+                           nullable=False),
+                    Column('_created', DateTime, default=func.current_timestamp()),
+                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                           onupdate=func.current_timestamp()))
 
 # TODO: configure the acc code and plant code separator, the default should
 # be '.'
