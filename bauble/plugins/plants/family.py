@@ -122,6 +122,7 @@ from bauble.plugins.garden.plant import Plant, plant_table
 mapper(Family, family_table,
        properties = {'synonyms': relation(FamilySynonym, 
                                           primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
+                                          cascade='all, delete-orphan',
                                           backref='family'),
                      'genera': relation(Genus, backref='family')})
 #                     'genera': relation(Genus, cascade='all, delete-orphan',

@@ -59,10 +59,10 @@ def remove_callback(row):
 
 
 genus_context_menu = [('Edit', edit_callback),
-                       ('--', None),
-                       ('Add species', add_species_callback),
-                       ('--', None),
-                       ('Remove', remove_callback)]
+                      ('--', None),
+                      ('Add species', add_species_callback),
+                      ('--', None),
+                      ('Remove', remove_callback)]
 
 
 def genus_markup_func(genus):
@@ -88,15 +88,13 @@ def genus_markup_func(genus):
     # entered
     
 genus_table = Table('genus',
-                    Column('id', Integer, primary_key=True),
-    
+                    Column('id', Integer, primary_key=True),    
                     # it is possible that there can be genera with the same name but 
                     # different authors and probably means that at different points in literature
                     # this name was used but is now a synonym even though it may not be a
                     # synonym for the same species,
                     # this screws us up b/c you can now enter duplicate genera, somehow
                     # NOTE: we should at least warn the user that a duplicate is being entered
-                    #genus = StringCol(length=50)    
                     Column('genus', String(64), unique='genus_index', nullable=False),                
                     Column('hybrid', Enum(values=['H', 'x', '+', None], 
                                           empty_to_none=True), 
@@ -106,7 +104,6 @@ genus_table = Table('genus',
                                              empty_to_none=True),
                                              unique='genus_index'),
                     Column('notes', Unicode),
-                    #family = ForeignKey('Family', notNull=True, cascade=False)                    
                     Column('family_id', Integer, ForeignKey('family.id'), 
                            nullable=False, unique='genus_index'),
                     Column('_created', DateTime, default=func.current_timestamp()),
@@ -137,8 +134,8 @@ genus_synonym_table = Table('genus_synonym',
                             Column('id', Integer, primary_key=True),
                             Column('genus_id', Integer, ForeignKey('genus.id'), 
                                    nullable=False),
-                            Column('synonym_id', Integer, 
-                                   ForeignKey('genus.id'), nullable=False),
+                            Column('synonym_id', Integer, ForeignKey('genus.id'), 
+                                   nullable=False),
                             Column('_created', DateTime, default=func.current_timestamp()),
                             Column('_last_updated', DateTime, default=func.current_timestamp(), 
                                    onupdate=func.current_timestamp()))
@@ -163,7 +160,8 @@ genus_mapper = mapper(Genus, genus_table,
                                          backref='genus'),
                                          #backref=backref('genus', lazy=True)),    
                      'synonyms': relation(GenusSynonym,
-                                          primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id,
+                                          primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
+                                          cascade='all, delete-orphan',
                                           backref='genus')},
        order_by=['genus', 'author'])
 

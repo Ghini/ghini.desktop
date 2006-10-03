@@ -112,7 +112,7 @@ class CSVImporter:
         sorted_tables = []
         for table in default_metadata.table_iterator():
             try:
-                sorted_tables.append((table, filename_dict.pop(table.name)))
+                sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
             except KeyError, e: # table.name in list of filenames
                 pass
             
@@ -123,6 +123,9 @@ class CSVImporter:
                    gtasklet.WaitForSignal(d, "close"))   
             response = gtasklet.get_event().signal_args[0]        
             d.destroy()
+            
+        #debug(sorted_tables)
+        #debug([t.name for t, f in sorted_tables])
             
         for table, filename in sorted_tables:
             log.info('importing %s table from %s' % (table.name, filename))                
@@ -168,7 +171,7 @@ class CSVImporter:
                             return clean
                         insert.execute(map(cleanup, values))
                     except Exception, e:
-                        debug(values)
+                        #debug(values)
                         self.__error = True
                         self.__error_exc = e
                         self.__error_traceback_str = traceback.format_exc()
@@ -181,8 +184,8 @@ class CSVImporter:
                 gtasklet.get_event()
 
         if self.__error:
-            debug(str(self.__error_exc))
-            debug(self.__error_traceback_str)
+            #debug(str(self.__error_exc))
+            #debug(self.__error_traceback_str)
             if hasattr(self.__error_exc, 'orig'):
                 msg = self.__error_exc.orig
             else:
