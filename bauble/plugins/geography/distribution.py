@@ -158,7 +158,8 @@ class Area(object):
         return self.area
     
 mapper(Area, area_table,
-       properties={'states': relation(State, backref='area')},
+       properties={'states': relation(State, cascade='all, delete-orphan',
+                                      backref='area')},
        order_by='area')
 
 
@@ -184,7 +185,8 @@ class BasicUnit(object):
         return self.name
 
 mapper(BasicUnit, basic_unit_table,
-       properties = {'places': relation(Place, backref='basic_unit')},
+       properties = {'places': relation(Place, cascade='all, delete-orphan',
+                                        backref='basic_unit')},
        order_by='name')
 
 
@@ -210,7 +212,8 @@ class BotanicalCountry(object):
     
 mapper(BotanicalCountry, botanical_country_table,       
        properties={'basic_units':
-                   relation(BasicUnit, backref='botanical_country')},
+                   relation(BasicUnit, cascade='all, delete-orphan',
+                            backref='botanical_country')},
        order_by='name')
 
 
@@ -235,7 +238,8 @@ class Region(object):
 
 mapper(Region, region_table,
        properties={'botanical_countries': 
-                   relation(BotanicalCountry, backref='region')},
+                   relation(BotanicalCountry, cascade='all, delete-orphan',
+                            backref='region')},
        order_by='region')
 
 
@@ -256,7 +260,8 @@ class Continent(object):
         return self.continent
     
 mapper(Continent, continent_table,
-       properties = {'regions': relation(Region, backref='continent')},
+       properties = {'regions': relation(Region, cascade='all, delete-orphan',
+                                         backref='continent')},
        order_by='continent')
 
 
