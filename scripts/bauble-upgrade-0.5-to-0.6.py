@@ -127,131 +127,25 @@ def migrate_accession(filename):
 
 
 def migrate_collection(filename):
-    # TODO: should check for bad dates but we don't have any collections with 
-    # dates so i won't bother
-    pass 
+    columns = ('id','accession_id','country_id','elevation','habitat','locale',
+               'notes','longitude','latitude','geo_accy','elevation_accy',
+               'coll_date','coll_id','collector')
+    rx = build_line_regex(columns)
+    outfile = open_outfile(camel_to_underscore(filename))
+    new_columns = ('id','accession_id','country_id','elevation','habitat','locale',
+               'notes','longitude','latitude','geo_accy','elevation_accy',
+               'date','collectors_code','collector')
+    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
+    line_template = build_line_template(new_columns)
+    for line in open(filename).readlines()[1:]:
+        line = line.strip()    
+        m = rx.match(line)
+        new_line = m.groupdict().copy()
+        new_line['date'] = new_line.pop('coll_date')
+        new_line['collectors_code'] = new_line.pop('coll_id')
+    outfile.write(line_template % new_line)
 
-
-#def migrate_donor(filename):
-#    columns = ["id","fax","tel","name","donor_type","address","email"]
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)
-#    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()
-#        if m['donor_type'] == '"NoneType"':
-#            new_line['donor_type'] = ''
-#        outfile.write(line_template % new_line)
-        
-        
-#def migrate_plant(filename):
-#    columns = ("id","accessionID","plant_id","notes","acc_type","locationID",
-#               "acc_status")
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)
-#    outfile.write(str(columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()
-#        if m['acc_type'] == '"<not set>"':
-#            new_line['acc_type'] = ''
-#        if m['acc_status'] == '"<not set>"':
-#            new_line['acc_status'] = ''
-#        outfile.write(line_template % new_line)
-#    
-#    
-#def migrate_donation(filename):
-#    columns = ["id","accessionID","notes","donor_acc","donorID"]
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)    
-#    new_columns = columns + ['date']
-#    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(new_columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()    
-#        new_line = m.copy()        
-#        new_line['date'] = '1900-01-01'
-#        outfile.write(line_template % new_line)
-#    
-#    
-#def migrate_family(filename):
-#    columns = ["id","notes","family"]
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)    
-#    new_columns = columns + ['qualifier']
-#    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(new_columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()        
-#        new_line['qualifier'] = '""'
-#        outfile.write(line_template % new_line)
-#        
-#        
-#def migrate_genus(filename):
-#    columns = ["id","familyID","notes","genus","hybrid","author"]
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)    
-#    new_columns = columns + ['qualifier']
-#    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(new_columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()        
-#        new_line['qualifier'] = '""'
-#        outfile.write(line_template % new_line)
-#        
-#        
-#def migrate_species(filename):
-#    columns = ["id","sp","default_vernacular_nameID","notes","isp","id_qual",
-#               "sp_author","isp_rank","isp_author","genusID","cv_group",
-#               "sp_qual","sp_hybrid"]
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)    
-#    new_columns = columns + ['infrasp', 'infrasp_rank', 'infrasp_author']
-#    new_columns.remove('isp')
-#    new_columns.remove('isp_rank')
-#    new_columns.remove('isp_author')
-#    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(new_columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()        
-#        new_line['infrasp'] = new_line.pop('isp')
-#        new_line['infrasp_rank'] = new_line.pop('isp_rank')
-#        new_line['infrasp_author'] = new_line.pop('isp_author')
-#        outfile.write(line_template % new_line)
-#        
-#        
-#def migrate_collection(filename):
-#    columns = ("id","accessionID","countryID","elevation","habitat",
-#               "collector2","locale","notes","longitude","latitude","geo_accy",
-#               "elevation_accy","coll_date","coll_id","collector")
-#    rx = build_line_regex(columns)
-#    outfile = open_outfile(filename)
-#    new_columns = columns[0:5] + columns[6:]
-#    outfile.write(str(new_columns)[1:-1].replace("'", '"').replace(' ', '')+'\n')
-#    line_template = build_line_template(new_columns)
-#    for line in open(filename).readlines()[1:]:
-#        line = line.strip()
-#        m = rx.match(line).groupdict()
-#        new_line = m.copy()
-#        collector2 = new_line.pop('collector2')[1:-1]
-#        if collector2 != '':        
-#            new_line['notes'] = '%s, removed %s from the collector2 field' % \
-#                                (new_line['notes'], collector2)
-#        outfile.write(line_template % new_line)
-
-            
+          
 def test():            
     '''
     test output data is correct
@@ -261,7 +155,9 @@ def test():
 
 migration_map = {'Accession.txt': migrate_accession,
                  'Donation.txt': migrate_donation,
+                 'Collection.txt': migrate_collection,
                  'Plant.txt': migrate_plant
+                 
                  }
 
 print 'migrating...'
