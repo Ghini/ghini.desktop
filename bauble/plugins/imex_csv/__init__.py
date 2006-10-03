@@ -46,30 +46,30 @@ class CSVImporter:
         self.__cancel = False # flag to cancel importing
         self.__pause = False  # flag to pause importing
 
-    @staticmethod
-    def sort_filenames(filenames):
-        '''
-        this is a mega hack so to to sort a list of filenames by
-        the order they should be imported, ideally we would have
-        a way to sort by dependency but that's more work, hopefully at some 
-        time we'll get around to it
-        '''
-        sortlist = ['Continent.txt',"Country.txt","Region.txt", 
-                    "BotanicalCountry.txt",
-                    "BasicUnit.txt", "Place.txt",
-                    "Location.txt","Family.txt","FamilySynonym.txt","Genus.txt",
-                    "GenusSynonym.txt","Species.txt","SpeciesMeta.txt",
-                    "SpeciesSynonym.txt","VernacularName.txt","Accession.txt",
-                    "Donor.txt","Donation.txt","Collection.txt","Plant.txt",
-                    'PlantHistory.txt', "Tag.txt","TaggedObj.txt"]
-
-        import copy
-        sorted_filenames = copy.copy(sortlist)
-        def compare_files(one, two):
-            one_file = os.path.basename(one)
-            two_file = os.path.basename(two)
-            return cmp(sortlist.index(one_file), sortlist.index(two_file))
-        return sorted(filenames, cmp=compare_files)
+#    @staticmethod
+#    def sort_filenames(filenames):
+#        '''
+#        this is a mega hack so to to sort a list of filenames by
+#        the order they should be imported, ideally we would have
+#        a way to sort by dependency but that's more work, hopefully at some 
+#        time we'll get around to it
+#        '''
+#        sortlist = ['Continent.txt',"Country.txt","Region.txt", 
+#                    "BotanicalCountry.txt",
+#                    "BasicUnit.txt", "Place.txt",
+#                    "Location.txt","Family.txt","FamilySynonym.txt","Genus.txt",
+#                    "GenusSynonym.txt","Species.txt","SpeciesMeta.txt",
+#                    "SpeciesSynonym.txt","VernacularName.txt","Accession.txt",
+#                    "Donor.txt","Donation.txt","Collection.txt","Plant.txt",
+#                    'PlantHistory.txt', "Tag.txt","TaggedObj.txt"]
+#
+#        import copy
+#        sorted_filenames = copy.copy(sortlist)
+#        def compare_files(one, two):
+#            one_file = os.path.basename(one)
+#            two_file = os.path.basename(two)
+#            return cmp(sortlist.index(one_file), sortlist.index(two_file))
+#        return sorted(filenames, cmp=compare_files)
 
 
     def _task_import_files(self, filenames, force, monitor_tasklet):
@@ -101,12 +101,35 @@ class CSVImporter:
                     ctr = 0
             yield chunk
         
-        for filename in filenames:
-            path, base = os.path.split(filename)
+ 
+        # sort the tables and filenames by dependency so we can import
+        filename_dict = {}
+        for f in filenames:            
+            path, base = os.path.split(f)
             table_name, ext = os.path.splitext(base)        
-            table = default_metadata.tables[table_name]
-            log.info('importing %s table from %s' % (table_name, filename))                
-            yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table_name))
+            filename_dict[table_name] = f
+
+        sorted_tables = []
+        for table in default_metadata.table_iterator():
+            debug(table)
+            debug(table.name)                        
+            try:
+                debug(filename_dict[table.name])
+                sorted_tables.append((table, filename_dict.pop(table.name)))
+            except KeyError, e: # table.name in list of filenames
+                pass
+            
+        if len(filename_dict) > 0:
+            msg = 'Could not match all filenames to table names.\n\n%s' % filename_dict
+            d = utils.create_yes_no_dialog(msg)
+            yield (gtasklet.WaitForSignal(d, "response"),
+                   gtasklet.WaitForSignal(d, "close"))   
+            response = gtasklet.get_event().signal_args[0]        
+            d.destroy()
+            
+        for table, filename in sorted_tables:
+            log.info('importing %s table from %s' % (table.name, filename))                
+            yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table.name))
             yield timeout
             gtasklet.get_event()
             f = file(filename, "rb")
@@ -117,7 +140,7 @@ class CSVImporter:
                       "then the file will not import "\
                       "correctly.\n\n<i>Would you like to drop the table in the "\
                       "database first. You will lose the data in your database "\
-                      "if you do this?</i>" % table_name                    
+                      "if you do this?</i>" % table.name                    
                 d = utils.create_yes_no_dialog(msg)
                 yield (gtasklet.WaitForSignal(d, "response"),
                        gtasklet.WaitForSignal(d, "close"))   
@@ -259,7 +282,7 @@ class CSVImporter:
         
         filenames -- the list of filenames to import from
         force -- import regardless if the table already has data
-        block -- don't return until importing is finished
+        block -- TODO: don't return until importing is finished
         """        
         error = False # return value
         bauble.app.set_busy(True)
@@ -271,13 +294,14 @@ class CSVImporter:
             return        
         
         #filenames = CSVImporter.sort_filenames(filenames)
-        filename = None   # these two are here in case we get an exception
-        table_name = None
+        #filename = None   # these two are here in case we get an exception
+        #table_name = None
         
         # TODO: use gobject main loop to block
 #        if block:
 #            gobject.mainloop()
-                
+            
+        # TODO: block doesn't work at all    
         if block:
             self.import_all_files(filenames)
         else:
