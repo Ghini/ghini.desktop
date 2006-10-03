@@ -17,7 +17,10 @@ donation_table = Table('donation',
                        Column('notes', Unicode),
                        Column('date', Date),
                        Column('accession_id', Integer, 
-                              ForeignKey('accession.id'), nullable=False))
+                              ForeignKey('accession.id'), nullable=False),
+                       Column('_created', DateTime, default=func.current_timestamp()),
+                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                              onupdate=func.current_timestamp()))
 
 class Donation(BaubleMapper):
         
@@ -45,7 +48,10 @@ collection_table = Table('collection',
                          Column('notes', Unicode),
                          Column('country_id', Integer, ForeignKey('country.id')),
                          Column('accession_id', Integer, 
-                                ForeignKey('accession.id'), nullable=False))
+                                ForeignKey('accession.id'), nullable=False),
+                         Column('_created', DateTime, default=func.current_timestamp()),
+                         Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                onupdate=func.current_timestamp()))
 
 class Collection(BaubleMapper):
         

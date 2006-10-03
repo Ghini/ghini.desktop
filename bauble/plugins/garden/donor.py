@@ -64,7 +64,10 @@ donor_table = Table('donor',
                     Column('email', Unicode(128)),
                     Column('fax', Unicode(64)),
                     Column('tel', Unicode(64)),
-                    Column('notes', Unicode),)
+                    Column('notes', Unicode),
+                    Column('_created', DateTime, default=func.current_timestamp()),
+                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                           onupdate=func.current_timestamp()))
 
 class Donor(bauble.BaubleMapper):
     

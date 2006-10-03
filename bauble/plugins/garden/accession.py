@@ -162,7 +162,10 @@ verification_table = Table('verification',
                            Column('literature', Unicode),
                            Column('level', String), # i don't know what this is
                            Column('accession_id', Integer, 
-                                  ForeignKey('accession.id')))
+                                  ForeignKey('accession.id')),
+                           Column('_created', DateTime, default=func.current_timestamp()),
+                           Column('_last_updated', DateTime, default=func.current_timestamp(),
+                                  onupdate=func.current_timestamp()))
 
 
 class Verification(bauble.BaubleMapper):
@@ -190,7 +193,10 @@ accession_table = Table('accession',
                 #Column('source_type', String(10)), # Collection, Donation, None
                 Column('source_type', Enum(values=['Collection', 'Donation', None], empty_to_none=True)),
                 Column('notes', Unicode),
-                Column('species_id', Integer, ForeignKey('species.id'), nullable=False))
+                Column('species_id', Integer, ForeignKey('species.id'), nullable=False),
+                Column('_created', DateTime, default=func.current_timestamp()),
+                Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                       onupdate=func.current_timestamp()))
 
 
 

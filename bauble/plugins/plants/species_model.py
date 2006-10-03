@@ -162,13 +162,10 @@ species_table = Table('species',
                                              empty_to_none=True)),
                       Column('notes', Unicode),
                       Column('genus_id', Integer, ForeignKey('genus.id'), 
-                             nullable=False))
-#                      Column('default_vernacular_name_id', Integer, ForeignKey('vernacular_name.id')))
-#                      Column('default_vernacular_name_id', Integer))
-#                      Column('default_vernacular_name_id', Integer, ForeignKey('vernacular_name.id')))
-#                      ForeignKeyConstraint(['default_vernacular_name_id'],
-#                                           ['vernacular_name.id']))
-#                      Column('default_vernacular_name_id', Integer, ForeignKey('species.id')))
+                             nullable=False),
+                      Column('_created', DateTime, default=func.current_timestamp()),
+                      Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                             onupdate=func.current_timestamp()))
     
 class Species(bauble.BaubleMapper):    
             
@@ -284,7 +281,10 @@ species_synonym_table = Table('species_synonym',
                               Column('species_id', Integer, 
                                      ForeignKey('species.id'), nullable=False),
                               Column('synonym_id', Integer, 
-                                     ForeignKey('species.id'), nullable=False))
+                                     ForeignKey('species.id'), nullable=False),
+                              Column('_created', DateTime, default=func.current_timestamp()),
+                              Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                     onupdate=func.current_timestamp()))
     
 class SpeciesSynonym(bauble.BaubleMapper):
     
@@ -333,7 +333,10 @@ species_meta_table = Table('species_meta',
                            #Column('distribution', Unicode(255)),
                            #Column('distribution_id', Integer, ForeignKey('distribution.id'),
                            Column('species_id', Integer, 
-                                  ForeignKey('species.id'), nullable=False))
+                                  ForeignKey('species.id'), nullable=False),
+                           Column('_created', DateTime, default=func.current_timestamp()),
+                           Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                  onupdate=func.current_timestamp()))
                            
 class SpeciesMeta(bauble.BaubleMapper):    
     
@@ -376,10 +379,11 @@ vernacular_name_table = Table('vernacular_name',
                               Column('id', Integer, primary_key=True),
                               Column('name', Unicode(128), unique='vn_index', nullable=False),
                               Column('language', Unicode(128), unique='vn_index'),
-#                              Column('species_id', Integer, ForeignKey('species.id')),
-#                              ForeignKeyConstraint(['species_id'], ['species.id']))
                               Column('species_id', Integer, 
-                                     ForeignKey('species.id'), unique='vn_index', nullable=False))
+                                     ForeignKey('species.id'), unique='vn_index', nullable=False),
+                              Column('_created', DateTime, default=func.current_timestamp()),
+                              Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                     onupdate=func.current_timestamp()))
                                      
 class VernacularName(bauble.BaubleMapper):
 
@@ -407,7 +411,10 @@ default_vernacular_name_table = Table('default_vernacular_name',
                                       Column('species_id', Integer, 
                                              ForeignKey('species.id'), unique='default_vn_index', nullable=False),
                                       Column('vernacular_name_id', Integer, 
-                                             ForeignKey('vernacular_name.id'), unique='default_vn_index', nullable=False))
+                                             ForeignKey('vernacular_name.id'), unique='default_vn_index', nullable=False),
+                                      Column('_created', DateTime, default=func.current_timestamp()),
+                                      Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                             onupdate=func.current_timestamp()))
 
 class DefaultVernacularName(bauble.BaubleMapper):
     
@@ -425,7 +432,10 @@ species_distribution_table = Table('species_distribution',
                            Column('id', Integer, primary_key=True),
                            Column('type', String(32)),
                            Column('type_id', Integer),
-                           Column('species_meta_id', Integer, ForeignKey('species_meta.id')))
+                           Column('species_meta_id', Integer, ForeignKey('species_meta.id')),
+                           Column('_created', DateTime, default=func.current_timestamp()),
+                           Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                  onupdate=func.current_timestamp()))
 #                     Column('parent_id', Integer, ForeignKey('distribution.id')),
 #                     Column('level', Integer),
 #                     Column('name', String(64)))

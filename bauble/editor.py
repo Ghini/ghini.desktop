@@ -532,8 +532,6 @@ class GenericEditorPresenter:
         
         PROBLEM = hash(widget_name)
         insert_sid_name = '_insert_%s_sid' % widget_name
-#        insert_sid = None
-#        delete_sid = None
         def add_completions(text):
 #            debug('add_completions(%s)' % text)
             values = get_completions(text)
@@ -545,8 +543,6 @@ class GenericEditorPresenter:
                 completion.set_model(model)
             gobject.idle_add(idle_callback, values)
         def on_insert_text(entry, new_text, new_text_length, position, data=None):
-            #debug('on_species_insert_text: \'%s\'' % new_text)
-            # debug('%s' % self.model)
             if new_text == '':
                 # this is to workaround the problem of having a second 
                 # insert-text signal called with new_text = '' when there is a 
@@ -561,9 +557,8 @@ class GenericEditorPresenter:
             cursor = entry.get_position()
             full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
             
-            debug('len(%s) = %s' % (full_text, len(full_text)))
-            #if widget.get_completion() is None and len(full_text) > 0:
-            
+            # TODO: need to improve completion logic for corner cases and for
+            # ctrl-space handling
             compl_model = widget.get_completion().get_model()
             if (compl_model is None or len(compl_model) == 0) and len(full_text) > 0:            
                 add_completions(full_text[0])
@@ -585,35 +580,22 @@ class GenericEditorPresenter:
             text = entry.get_text()
             full_text = text[:start] + text[end:]
             if full_text == '' or (full_text == str(self.model[field])):
-                return
-            
+                return            
             compl_model = widget.get_completion().get_model()
             if (compl_model is None or len(compl_model) == 0) and len(full_text) > 0:            
                 add_completions(full_text[0])
             elif len(full_text) == 1:
-                add_completions(full_text[0])
-                
+                add_completions(full_text[0])                
             self.add_problem(PROBLEM, widget)
-            #setattr(self.model, field, None)
-#            debug(type(self.model))
- #           debug('self.model[%s] = None' % field)
             self.model[field] = None
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
 #            debug('on_match_select: %s' % str(value))
-            #entry = self.view.widgets.sp_genus_entry
-            
-            #widget.handler_block(self.insert_genus_sid)
             widget.handler_block(getattr(self, insert_sid_name))
             widget.set_text(str(value))
-            #widget.handler_unblock(self.insert_genus_sid)
             widget.handler_unblock(getattr(self, insert_sid_name))
             widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
-            # TODO: temporarily disabled this when doing the set_func stuff
-            #self.session.save(value)
-            #setattr(self.model, field, value)
-            #setattr(self.model, field, value.id)
             set_func(self, field, value)
             self.prev_text = str(value)            
                     
@@ -623,29 +605,14 @@ class GenericEditorPresenter:
             'completion attached to it' % widget_name
         
         completion.connect('match-selected', on_match_select)
-        #if self.model.genus is not None:
-        #    self.idle_add_genus_completions(str(self.model.genus)[:2])
         sid = widget.connect('insert-text', on_insert_text)
         setattr(self, insert_sid_name, sid)
         widget.connect('delete-text', on_delete_text)
-    
-#        def callback(w, event):    
-#            debug(gtk.gdk.keyval_name(event.keyval))
-#            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):                
-#                try:
-#                    c = entry.get_completion() # just in case it's been deleted
-#                    debug('complete')
-#                    c.complete()
-#                    #c.insert_prefix()
-#                    debug('completd')
-#                except Exception, e:
-#                    debug(e)                    
-#        widget.add_events(gtk.gdk.KEY_PRESS_MASK)
-#        widget.connect("key-press-event", callback)        
-    
+
     
     def start(self):
         raise NotImplementedError
+    
     
     def refresh_view(self):
         # TODO: should i provide a generic implementation of this method
@@ -680,15 +647,11 @@ class GenericModelViewPresenterEditor(BaubleEditor):
                 self.model = self.session.load(model.__class__, model.id)
         else:
             self.model = model
-        
-        
+                
         for name, prop in object_mapper(model).props.iteritems():
-#            debug('name: %s' % name)            
             value = getattr(self.model, name)
-#            debug('value: %s' % repr(value))    
             if value not in (None, []) and hasattr(value, '_instance_key'):
                 new_value = self.session.load(value.__class__, value.id)
-#                debug('new value: %s' % repr(new_value))                                
                 setattr(self.model, name, new_value)
         
         self.session.save_or_update(self.model)        
@@ -723,12 +686,16 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     def commit_changes(self):
         '''
         '''
-#        for obj in self.session.deleted:
-#            debug('deleted: %s' % obj)  
-#        for obj in self.session.new:
-#            debug('new: %s' % obj)            
-        for obj in self.session.dirty:
-            debug('dirty: %s' % obj)
+#        for obj in self.session:
+#            if obj in self.session.new:
+#                debug('new: %s' % obj)
+#            elif obj in self.session.deleted:
+#                debug('deleted: %s' % obj)
+#            elif obj in self.session.dirty:
+#                debug('dirty: %s' % obj)
+#            else:
+#                debug('nowhere: %s' % obj)
+#            debug('%s' % repr(obj))
         self.session.flush()
         return True
     

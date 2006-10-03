@@ -70,7 +70,10 @@ place_table = Table('place',
                     Column('region_id', Integer, ForeignKey('region.id')),
                     Column('botanical_country_id', Integer, 
                            ForeignKey('botanical_country.id')),
-                    Column('basic_unit_id', Integer, ForeignKey('basic_unit.id')))
+                    Column('basic_unit_id', Integer, ForeignKey('basic_unit.id')),
+                    Column('_created', DateTime, default=func.current_timestamp()),
+                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                           onupdate=func.current_timestamp()))
 
 class Place(object):
 
@@ -90,7 +93,10 @@ kew_region_table = Table('kew_region',
                          Column('id', Integer, primary_key=True),
                          Column('code', Integer, unique=True, nullable=False),
                          Column('region', Unicode(64)),
-                         Column('subdiv', String(1)))
+                         Column('subdiv', String(1)),
+                         Column('_created', DateTime, default=func.current_timestamp()),
+                         Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                onupdate=func.current_timestamp()))
 
 class KewRegion(object):
     
@@ -116,7 +122,10 @@ state_table = Table('state',
                     Column('iso_code', String(8)),
                     Column('ed2_status', Unicode(64)),
                     Column('notes', Unicode),
-                    Column('area_id', Integer, ForeignKey('area.id')))
+                    Column('area_id', Integer, ForeignKey('area.id')),
+                    Column('_created', DateTime, default=func.current_timestamp()),
+                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                           onupdate=func.current_timestamp()))
 
 class State(object):
 
@@ -138,7 +147,10 @@ area_table = Table('area',
                    Column('iso_code', String(4)),
                    Column('ed2_status', Unicode(64)),
                    Column('notes', Unicode),
-                   Column('region_id', Integer, ForeignKey('region.id')))
+                   Column('region_id', Integer, ForeignKey('region.id')),
+                   Column('_created', DateTime, default=func.current_timestamp()),
+                   Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                          onupdate=func.current_timestamp()))
 
 class Area(object):
     
@@ -161,7 +173,10 @@ basic_unit_table = Table('basic_unit',
                          Column('ed2_status', Unicode(64)),
                          Column('notes', Unicode),
                          Column('botanical_country_id', Integer, 
-                                ForeignKey('botanical_country.id')))
+                                ForeignKey('botanical_country.id')),
+                         Column('_created', DateTime, default=func.current_timestamp()),
+                         Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                onupdate=func.current_timestamp()))
 
 class BasicUnit(object):
         
@@ -183,7 +198,10 @@ botanical_country_table = Table('botanical_country',
                                 Column('iso_code', String(4)),
                                 Column('ed2_status', Unicode(64)),
                                 Column('notes', Unicode),
-                                Column('region_id', Integer, ForeignKey('region.id')))
+                                Column('region_id', Integer, ForeignKey('region.id')),
+                                Column('_created', DateTime, default=func.current_timestamp()),
+                                Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                       onupdate=func.current_timestamp()))
 
 class BotanicalCountry(object):
     
@@ -205,7 +223,10 @@ region_table = Table('region',
                      Column('region', Unicode(64), nullable=False, unique=True),
                      Column('code', Integer, nullable=False, unique=True),
                      Column('iso_code', String(1)),
-                     Column('continent_id', Integer, ForeignKey('continent.id')))
+                     Column('continent_id', Integer, ForeignKey('continent.id')),
+                     Column('_created', DateTime, default=func.current_timestamp()),
+                     Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                            onupdate=func.current_timestamp()))
             
 class Region(object):
     
@@ -224,7 +245,10 @@ mapper(Region, region_table,
 continent_table = Table('continent',
                         Column('id', Integer, primary_key=True),
                         Column('continent', Unicode(24), nullable=False, unique=True) ,       
-                        Column('code', Integer, nullable=False, unique=True))
+                        Column('code', Integer, nullable=False, unique=True),
+                        Column('_created', DateTime, default=func.current_timestamp()),
+                        Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                               onupdate=func.current_timestamp()))
 
 class Continent(object):
     

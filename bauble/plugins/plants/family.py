@@ -71,7 +71,10 @@ family_table = Table('family',
                      Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
                                               empty_to_none=True),
                            unique='family_index'),
-                     Column('notes', Unicode))
+                     Column('notes', Unicode),
+                     Column('_created', DateTime, default=func.current_timestamp()),
+                     Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                            onupdate=func.current_timestamp()))
 
 family_synonym_table = Table('family_synonym',
                              Column('id', Integer, primary_key=True),
@@ -80,7 +83,10 @@ family_synonym_table = Table('family_synonym',
                                     nullable=False),
                              Column('synonym_id', Integer, 
                                     ForeignKey('family.id'), 
-                                    nullable=False))
+                                    nullable=False),
+                             Column('_created', DateTime, default=func.current_timestamp()),
+                             Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                    onupdate=func.current_timestamp()))
 
 class Family(bauble.BaubleMapper):
     

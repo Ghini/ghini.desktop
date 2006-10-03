@@ -51,7 +51,10 @@ loc_context_menu = [('Edit', edit_callback),
 location_table = Table('location',
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True),
-                       Column('description', Unicode))
+                       Column('description', Unicode),
+                       Column('_created', DateTime, default=func.current_timestamp()),
+                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                              onupdate=func.current_timestamp()))
                    
 
 class Location(bauble.BaubleMapper):
