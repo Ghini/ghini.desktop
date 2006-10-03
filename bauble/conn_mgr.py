@@ -25,8 +25,13 @@ from bauble.utils.log import log, debug
 
 class ConnectionManager:
     
-    def __init__(self, current_name=None):
-        self.current_name = None # this should get set in on_name_combo_changed        
+    def __init__(self, default=None):
+        '''
+        @param default: the name of the connection to select from the list
+        of connection names
+        '''
+        self.default_name = default
+        self.current_name = None
         
         
     def start(self):
@@ -41,7 +46,7 @@ class ConnectionManager:
               "connection." % 'Add'
             utils.message_dialog(msg)
         else:
-            self.set_active_connection_by_name(self.current_name)        
+            self.set_active_connection_by_name(self.default_name)
             self._dirty = False
         
         

@@ -196,7 +196,9 @@ class BaubleApp(object):
                 self.quit()
             if self.open_database(uri, conn_name):
                 break
-                                
+        # set the default connection
+        prefs[prefs.conn_default_pref] = conn_name
+        
         # now that we have a connection create the gui
         import bauble._gui as gui
         self.gui = gui.GUI()
