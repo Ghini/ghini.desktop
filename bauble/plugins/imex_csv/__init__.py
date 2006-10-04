@@ -19,6 +19,10 @@ from bauble.utils.progressdialog import ProgressDialog
 # tables and dump everything
 # *****************************
 
+# TODO: in _task_import_files we should really only be dropping tables if the 
+# tables exist and not showing up warning dialogs if we don't really need
+# to drop anything anyway
+
 
 # TODO: is there a way to validate that the unicode is unicode or has the 
 # proper encoding?
@@ -39,6 +43,7 @@ from bauble.utils.progressdialog import ProgressDialog
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 
+
 class CSVImporter:
 
     def __init__(self):
@@ -46,46 +51,23 @@ class CSVImporter:
         self.__cancel = False # flag to cancel importing
         self.__pause = False  # flag to pause importing
 
-#    @staticmethod
-#    def sort_filenames(filenames):
-#        '''
-#        this is a mega hack so to to sort a list of filenames by
-#        the order they should be imported, ideally we would have
-#        a way to sort by dependency but that's more work, hopefully at some 
-#        time we'll get around to it
-#        '''
-#        sortlist = ['Continent.txt',"Country.txt","Region.txt", 
-#                    "BotanicalCountry.txt",
-#                    "BasicUnit.txt", "Place.txt",
-#                    "Location.txt","Family.txt","FamilySynonym.txt","Genus.txt",
-#                    "GenusSynonym.txt","Species.txt","SpeciesMeta.txt",
-#                    "SpeciesSynonym.txt","VernacularName.txt","Accession.txt",
-#                    "Donor.txt","Donation.txt","Collection.txt","Plant.txt",
-#                    'PlantHistory.txt', "Tag.txt","TaggedObj.txt"]
-#
-#        import copy
-#        sorted_filenames = copy.copy(sortlist)
-#        def compare_files(one, two):
-#            one_file = os.path.basename(one)
-#            two_file = os.path.basename(two)
-#            return cmp(sortlist.index(one_file), sortlist.index(two_file))
-#        return sorted(filenames, cmp=compare_files)
-
 
     def _task_import_files(self, filenames, force, monitor_tasklet):
         '''
         a tasklet that import data into a Bauble database, this method should
         be run as a gtasklet task, see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
         
-        filenames -- the list of files names t
-        force -- causes the data to be imported regardless if there already 
+        @param filenames: the list of files names t
+        @param force: causes the data to be imported regardless if there already 
         the table already has something in it (TODO: this doesn't do anything yet)
-        monitor_tasklet -- the tasklet that monitors the progress of this task
+        @param monitor_tasklet: the tasklet that monitors the progress of this task
         and update the interface
         '''
+        # TODO: is the session even doing anything here since i'm dealing 
+        # directly with tables and not with mappers
         session = create_session()
         timeout = gtasklet.WaitForTimeout(12)
-        
+        bauble.app.db_engine.echo = True
         def chunk(iterable, n):
             '''
             return iterable in chunks of size n
@@ -100,8 +82,7 @@ class CSVImporter:
                     chunk = []
                     ctr = 0
             yield chunk
-        
- 
+
         # sort the tables and filenames by dependency so we can import
         filename_dict = {}
         for f in filenames:            
@@ -113,19 +94,16 @@ class CSVImporter:
         for table in default_metadata.table_iterator():
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
-            except KeyError, e: # table.name in list of filenames
+            except KeyError, e: # ---> table.name not in list of filenames
                 pass
             
         if len(filename_dict) > 0:
             msg = 'Could not match all filenames to table names.\n\n%s' % filename_dict
-            d = utils.create_yes_no_dialog(msg)
+            d = utils.create_message_dialog(msg)
             yield (gtasklet.WaitForSignal(d, "response"),
                    gtasklet.WaitForSignal(d, "close"))   
             response = gtasklet.get_event().signal_args[0]        
             d.destroy()
-            
-        #debug(sorted_tables)
-        #debug([t.name for t, f in sorted_tables])
             
         for table, filename in sorted_tables:
             log.info('importing %s table from %s' % (table.name, filename))                
@@ -134,7 +112,9 @@ class CSVImporter:
             gtasklet.get_event()
             f = file(filename, "rb")
             reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-            if table.count().scalar() and not force:
+            if not table.exists():
+                table.create()
+            elif table.count().scalar() > 0 and not force:
                 msg = "The %s table already contains some data. If two rows "\
                       "have the same id in the import file and the database "\
                       "then the file will not import "\
@@ -146,11 +126,46 @@ class CSVImporter:
                        gtasklet.WaitForSignal(d, "close"))   
                 response = gtasklet.get_event().signal_args[0]        
                 d.destroy()
-                if force or response == gtk.RESPONSE_YES:
-                    table.drop()
-                    table.create()
+                if force or response == gtk.RESPONSE_YES:                    
+                    try:
+                        deps = utils.find_dependent_tables(table)
+                        dep_names = [t.name for t in deps]
+                        debug('%s: %s' % (t.name, dep_names))
+                        if len(dep_names) > 0 and not force:
+                            msg = 'The following tables depend on the %s table. '\
+                                  'These tables will need to be dropped as well. '\
+                                  '\n\n%s\n\n' \
+                                  '<i>Would you like to continue?</i>' % (table.name, dep_names)                        
+                            d = utils.create_yes_no_dialog(msg)
+                            yield (gtasklet.WaitForSignal(d, "response"),
+                                   gtasklet.WaitForSignal(d, "close"))   
+                            response = gtasklet.get_event().signal_args[0]        
+                            d.destroy()
+                            if response == gtk.RESPONSE_YES:                                
+                                for d in reversed(deps):                                    
+                                    # drop the deps
+                                    debug('dropping %s' % d.name)
+                                    d.drop(checkfirst=True)
+                            else:
+                                self.__cancel = True                        
+                        if not self.__cancel:                            
+                            table.drop(checkfirst=True)
+                            debug('creating %s' % table.name)
+                            table.create()
+                            for d in deps: # recreate the deps
+                                d.create()
+                    except Exception, e:
+                        self.__error = True
+                        self.__error_exc = e
+                        debug(e)
+                        self.__error_traceback_str = traceback.format_exc()
+                        self.__cancel = True
+                        
+                if self.__cancel or self.__error:
+                    break
             
             insert = table.insert()
+            debug(insert)
             # chop the lines from reader into chunks
             for slice in chunk(reader, 127): 
                 while self.__pause:
@@ -168,6 +183,8 @@ class CSVImporter:
                             for key, val in row.iteritems():
                                 if val is not '':
                                     clean[key] = val
+#                            debug(row)
+                            debug(clean)
                             return clean
                         insert.execute(map(cleanup, values))
                     except Exception, e:
@@ -186,9 +203,9 @@ class CSVImporter:
         if self.__error:
             #debug(str(self.__error_exc))
             #debug(self.__error_traceback_str)
-            if hasattr(self.__error_exc, 'orig'):
+            try:
                 msg = self.__error_exc.orig
-            else:
+            except AttributeError, e: # no attribute orig
                 msg = self.__error_exc
             d = utils.create_message_details_dialog('Error:  %s' % msg,
                                                     self.__error_traceback_str,
@@ -225,14 +242,14 @@ class CSVImporter:
         import_task -- the task that this is monitoring
         total_lines -- the total number of lines in all the files we're importing
         '''
-        print('_task_monitor_progress')
+#        debug('_task_monitor_progress')
         self.__progress_dialog = ProgressDialog(title='Importing...')
         self.__progress_dialog.show_all()
         self.__progress_dialog.connect_cancel(self._cancel_import)
         bauble.app.set_busy(True)
         msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 
                                                    'update_filename'))
-        print('_task_monitor_progress 2')
+#        debug('_task_monitor_progress 2')
         nsteps = 0
         while True:
           yield msgwait
