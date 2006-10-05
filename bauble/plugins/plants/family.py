@@ -11,6 +11,7 @@ import bauble
 from bauble.editor import *
 from datetime import datetime
 import bauble.utils as utils
+import bauble.utils.sql as sql_utils
 from bauble.utils.log import debug
 from bauble.types import Enum
 
@@ -437,42 +438,35 @@ else:
             update the expander
             
             @param row: the row to get the values from
-            '''            
-            def get_unique_in_select(sel, col):
-                return select([sel.c[col]], distinct=True).count().scalar()
-            def count_select(sel):
-                return sel.count().scalar()
+            '''
                         
             self.set_widget_value('fam_name_data', str(row))
             
             # get the number of genera
             genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)
-            ngen = count_select(genus_ids)
+            ngen = sql_utils.count_select(genus_ids)
             self.set_widget_value('fam_ngen_data', ngen)
             
-            # get the number of species
-            sp = species_table.select(species_table.c.genus_id.in_(genus_ids))
-            nsp_str = str(count_select(sp))
+            # get the number of species            
+            species_ids = select([species_table.c.id], species_table.c.genus_id.in_(genus_ids))
+            nsp_str = str(sql_utils.count_select(species_ids))    
             if nsp_str != '0': 
-                ngen_with_species = get_unique_in_select(sp, 'genus_id')
+                ngen_with_species = sql_utils.count_distinct_whereclause(species_table.c.genus_id, species_table.c.genus_id.in_(genus_ids))
                 nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)            
             self.set_widget_value('fam_nsp_data', nsp_str)
             
             # get the number of accessions
-            species_ids = select([sp.c.id])
-            acc = accession_table.select(accession_table.c.species_id.in_(species_ids))
-            nacc_str = str(count_select(acc))
+            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))
+            nacc_str = str(sql_utils.count_select(acc_ids))
             if nacc_str != '0':
-                nsp_with_accessions = get_unique_in_select(acc, 'species_id')
+                nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
                 nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)            
             self.set_widget_value('fam_nacc_data', nacc_str)
             
             # get the number of plants
-            acc_ids = select([acc.c.id])
-            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = str(count_select(plants))
+            nplants_str = str(sql_utils.count(plant_table, plant_table.c.accession_id.in_(acc_ids)))
             if nplants_str != '0':
-                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
                 nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
             self.set_widget_value('fam_nplants_data', nplants_str)
 

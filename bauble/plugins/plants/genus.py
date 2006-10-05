@@ -10,6 +10,7 @@ from sqlalchemy.exceptions import SQLError
 import bauble
 from bauble.editor import *
 import bauble.utils as utils
+import bauble.utils.sql as sql_utils
 from bauble.types import Enum
 from bauble.utils.log import debug
 
@@ -482,31 +483,25 @@ else:
             @param row: the row to get the values from
             '''
             self.set_widget_value('gen_name_data', str(row))
-            
-            def get_unique_in_select(sel, col):
-                return select([sel.c[col]], distinct=True).count().scalar()
-            def count_select(sel):
-                return sel.count().scalar()
-            
+
             # get the number of species
-            sp_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
-            nsp = sp_ids.count().scalar()
+            species_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
+            nsp = sql_utils.count_select(species_ids)
             self.set_widget_value('gen_nsp_data', nsp)
                                     
             # get number of accessions
-            acc = accession_table.select(accession_table.c.species_id.in_(sp_ids))     
-            nacc_str = str(count_select(acc))
-            if nacc_str != '0':
-                nsp_with_accessions = get_unique_in_select(acc, 'species_id')
+            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))
+            nacc_str = sql_utils.count_select(acc_ids)
+            if nacc_str != '0':                
+                nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
                 nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
             self.set_widget_value('gen_nacc_data', nacc_str)
             
             # get number of plants
-            acc_ids = select([acc.c.id])
-            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = str(count_select(plants))
+            plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = str(sql_utils.count_select(plant_ids))
             if nplants_str != '0':
-                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
                 nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
             self.set_widget_value('gen_nplants_data', nplants_str)
                 

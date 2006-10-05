@@ -1205,11 +1205,11 @@ else:
                 self.set_widget_value('sp_food_check', meta.food_plant)
                 self.set_widget_value('sp_phumans_check', meta.poison_humans)
                 self.set_widget_value('sp_panimals_check', meta.poison_animals)
-            
-            acc_ids = select([accession_table.c.id], accession_table.c.species_id==row.id)
+                        
             nacc = sql_utils.count(accession_table, accession_table.c.species_id==row.id)
             self.set_widget_value('sp_nacc_data', nacc)
             
+            acc_ids = select([accession_table.c.id], accession_table.c.species_id==row.id)
             nplants_str = str(sql_utils.count(plant_table, plant_table.c.accession_id.in_(acc_ids)))
             if nplants_str != '0':                
                 nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
