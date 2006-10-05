@@ -9,6 +9,7 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import formencode.validators as validators
 import bauble.utils as utils
+import bauble.utils.sql as sql_utils
 import bauble.paths as paths
 from bauble.plugins import tables, editors
 from bauble.editor import *
@@ -16,7 +17,7 @@ from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, genus_table
 from bauble.plugins.plants.species_model import Species, species_table, \
-    SpeciesMeta, SpeciesSynonym, VernacularName, SpeciesDistribution
+    SpeciesMeta, SpeciesSynonym, VernacularName#, SpeciesDistribution
 from bauble.plugins.garden.accession import AccessionEditor
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
@@ -766,29 +767,50 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         if not model in self.session:
             self.session.save(model)
         
-    def init_distribution_combo(self):      
+    def init_distribution_combo(self):        
+#        def populate():  
+#            combo = self.view.widgets.sp_dist_combo
+#            combo.set_model(None)
+#            model = gtk.TreeStore(object)
+#            # TODO: how do we handled "Cultivated" since we no longer save
+#            # the distribution as just a string
+##            model.append(None, ["Cultivated"])
+#            from bauble.plugins.geography.distribution import Continent, \
+#                Region, BotanicalCountry, BasicUnit
+#            for continent in self.session.query(Continent).select():
+#                p1 = model.append(None, [continent])                
+#                for region in self.session.query(Region).select_by(continent_id=continent.id):
+#                    p2 = model.append(p1, [region])
+#                    for country in self.session.query(BotanicalCountry).select_by(region_id=region.id):
+#                        p3 = model.append(p2, [country])
+#                        for unit in self.session.query(BasicUnit).select_by(botanical_country_id=country.id):
+#                            if unit.name != country.name:
+#                                model.append(p3, [unit])                    
+#            combo.set_model(model)
+#            combo.set_sensitive(True)
+#            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
+#            self.assign_simple_handler('sp_dist_combo', 'distribution')       
         def populate():  
             combo = self.view.widgets.sp_dist_combo
             combo.set_model(None)
             model = gtk.TreeStore(object)
-            # TODO: how do we handled "Cultivated" since we no longer save
-            # the distribution as just a string
-#            model.append(None, ["Cultivated"])
-            from bauble.plugins.geography.distribution import Continent, \
-                Region, BotanicalCountry, BasicUnit
-            for continent in self.session.query(Continent).select():
-                p1 = model.append(None, [continent])                
-                for region in self.session.query(Region).select_by(continent_id=continent.id):
+            model.append(None, ["Cultivated"])
+            # TODO: i wonder if it would be faster to get all the data in one loop
+            # and populate the model in another
+            from bauble.plugins.geography.distribution import continent_table, \
+                region_table, botanical_country_table, basic_unit_table                
+            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
+                p1 = model.append(None, [continent])
+                for region_id, region in select([region_table.c.id, region_table.c.region], region_table.c.continent_id==continent_id).execute():
                     p2 = model.append(p1, [region])
-                    for country in self.session.query(BotanicalCountry).select_by(region_id=region.id):
+                    for country_id, country in select([botanical_country_table.c.id, botanical_country_table.c.name], botanical_country_table.c.region_id==region_id).execute():
                         p3 = model.append(p2, [country])
-                        for unit in self.session.query(BasicUnit).select_by(botanical_country_id=country.id):
-                            if unit.name != country.name:
-                                model.append(p3, [unit])                    
+                        for unit, in select([basic_unit_table.c.name], and_(basic_unit_table.c.botanical_country_id==country_id, basic_unit_table.c.name!=country)).execute():
+                            model.append(p3, [unit])
             combo.set_model(model)
             combo.set_sensitive(True)
             self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-            self.assign_simple_handler('sp_dist_combo', 'distribution')                    
+            self.assign_simple_handler('sp_dist_combo', 'distribution')                                 
         gobject.idle_add(populate)
         
 #    def init_distribution_combo(self):        
@@ -1184,18 +1206,13 @@ else:
                 self.set_widget_value('sp_phumans_check', meta.poison_humans)
                 self.set_widget_value('sp_panimals_check', meta.poison_animals)
             
-
             acc_ids = select([accession_table.c.id], accession_table.c.species_id==row.id)
-            nacc = acc_ids.count().scalar()
+            nacc = sql_utils.count(accession_table, accession_table.c.species_id==row.id)
             self.set_widget_value('sp_nacc_data', nacc)
             
-            def get_unique_in_select(sel, col):
-                return select([sel.c[col]], distinct=True).count().scalar()
-            
-            plants = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = str(plants.count().scalar())
-            if nplants_str != '0':
-                nacc_with_plants = get_unique_in_select(plants, 'accession_id')
+            nplants_str = str(sql_utils.count(plant_table, plant_table.c.accession_id.in_(acc_ids)))
+            if nplants_str != '0':                
+                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
                 nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
             self.set_widget_value('sp_nplants_data', nplants_str)
     

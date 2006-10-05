@@ -330,7 +330,7 @@ species_meta_table = Table('species_meta',
                            Column('poison_humans', Boolean),
                            Column('poison_animals', Boolean),
                            Column('food_plant', Boolean),
-                           #Column('distribution', Unicode(255)),
+                           Column('distribution', Unicode(255)),
                            #Column('distribution_id', Integer, ForeignKey('distribution.id'),
                            Column('species_id', Integer, 
                                   ForeignKey('species.id'), nullable=False),
@@ -340,17 +340,17 @@ species_meta_table = Table('species_meta',
                            
 class SpeciesMeta(bauble.BaubleMapper):    
     
-    def _get_distribution(self):
-        if self._distribution is None:
-            return None
-        return self._distribution.distribution
-    def _set_distribution(self, obj):
-        if self._distribution is None:
-            self._distribution = SpeciesDistribution()
-        self._distribution.distribution = obj
-    distribution = property(_get_distribution, _set_distribution)
-        
-    
+#    def _get_distribution(self):
+#        if self._distribution is None:
+#            return None
+#        return self._distribution.distribution
+#    def _set_distribution(self, obj):
+#        if self._distribution is None:
+#            self._distribution = SpeciesDistribution()
+#        self._distribution.distribution = obj
+#    distribution = property(_get_distribution, _set_distribution)
+#        
+#    
     def __str__(self):
         '''
         @returns: the string the representation of this meta info,
@@ -422,41 +422,41 @@ class DefaultVernacularName(bauble.BaubleMapper):
         return str(self.vernacular_name)
 
 
-'''
-Species distrubtion table(species_distribution)
-
-
-'''
-#from bauble.plugins.geography.distribution import Distribution
-species_distribution_table = Table('species_distribution',
-                           Column('id', Integer, primary_key=True),
-                           Column('type', String(32)),
-                           Column('type_id', Integer),
-                           Column('species_meta_id', Integer, ForeignKey('species_meta.id')),
-                           Column('_created', DateTime, default=func.current_timestamp()),
-                           Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                  onupdate=func.current_timestamp()))
-#                     Column('parent_id', Integer, ForeignKey('distribution.id')),
-#                     Column('level', Integer),
-#                     Column('name', String(64)))
-
-
-
-class SpeciesDistribution(bauble.BaubleMapper):
-    
-    def _get_distribution(self):
-        session = object_session(self)
-        return session.load(tables[self.type], self.type_id)
-    def _set_distribution(self, obj):
-        self.type = obj.__class__.__name__
-        self.type_id = obj.id
-    distribution = property(_get_distribution, _set_distribution)
-    
-    
+#'''
+#Species distrubtion table(species_distribution)
 #
-# mappers
 #
-mapper(SpeciesDistribution, species_distribution_table)
+#'''
+##from bauble.plugins.geography.distribution import Distribution
+#species_distribution_table = Table('species_distribution',
+#                           Column('id', Integer, primary_key=True),
+#                           Column('type', String(32)),
+#                           Column('type_id', Integer),
+#                           Column('species_meta_id', Integer, ForeignKey('species_meta.id')),
+#                           Column('_created', DateTime, default=func.current_timestamp()),
+#                           Column('_last_updated', DateTime, default=func.current_timestamp(), 
+#                                  onupdate=func.current_timestamp()))
+##                     Column('parent_id', Integer, ForeignKey('distribution.id')),
+##                     Column('level', Integer),
+##                     Column('name', String(64)))
+#
+#
+#
+#class SpeciesDistribution(bauble.BaubleMapper):
+#    
+#    def _get_distribution(self):
+#        session = object_session(self)
+#        return session.load(tables[self.type], self.type_id)
+#    def _set_distribution(self, obj):
+#        self.type = obj.__class__.__name__
+#        self.type_id = obj.id
+#    distribution = property(_get_distribution, _set_distribution)
+#    
+#    
+##
+## mappers
+##
+#mapper(SpeciesDistribution, species_distribution_table)
 
 mapper(SpeciesSynonym, species_synonym_table,
        properties = {'synonym': relation(Species, uselist=False,
@@ -472,10 +472,11 @@ mapper(DefaultVernacularName, default_vernacular_name_table,
        )
 
 mapper(SpeciesMeta, species_meta_table,
-       properties = {'_distribution': relation(SpeciesDistribution, backref='species_meta',
-                                              uselist=False, cascade='all, delete-orphan',
-                                              )
-                    })
+#       properties = {'_distribution': relation(SpeciesDistribution, backref='species_meta',
+#                                              uselist=False, cascade='all, delete-orphan',
+#                                              )
+#                    }
+       )
 
 species_mapper = mapper(Species, species_table, 
        properties = {'species_meta': relation(SpeciesMeta, 
