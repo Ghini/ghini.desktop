@@ -7,6 +7,7 @@ import bauble
 import gtk
 from bauble.utils.log import debug
 import xml
+from sqlalchemy import *
 
 # TODO: this util module might need to be split up if it gets much larger
 # we could have a utils.gtk and utils.sql
@@ -28,27 +29,77 @@ import xml
 #        result = search_tree_model(row.iterchildren(), data, func)    
 #    return result
 
+
+# TODO: use a custom TableCollection that only returns tables in collection 
+# on sort()
+class MyTableCollection(object):
+    def __init__(self):
+        self.tables = []
+    def add(self, table):
+        self.tables.append(table)
+        if hasattr(self, '_sorted'):
+            del self._sorted
+    def sort(self, reverse=False):
+        try:
+            sorted = self._sorted
+        except AttributeError, e:
+            self._sorted = self._do_sort()
+            sorted = self._sorted
+        if reverse:
+            x = sorted[:]
+            x.reverse()
+            return x
+        else:
+            return sorted
+            
+    def _do_sort(self):
+        import sqlalchemy.orm.topological
+        tuples = []
+        class TVisitor(schema.SchemaVisitor):
+            def visit_foreign_key(s, fkey):
+                parent_table = fkey.column.table
+                if parent_table in self.tables:
+                    child_table = fkey.parent.table
+                    tuples.append( ( parent_table, child_table ) )
+        vis = TVisitor()        
+        for table in self.tables:
+            table.accept_schema_visitor(vis)
+        sorter = sqlalchemy.orm.topological.QueueDependencySorter( tuples, self.tables )
+        head =  sorter.sort()
+        sequence = []
+        def to_sequence( node, seq=sequence):
+            seq.append( node.item )
+            for child in node.children:
+                to_sequence( child )
+        if head is not None:
+            to_sequence( head )
+        return sequence
+
 def find_dependent_tables(table, metadata=None):
     from sqlalchemy import default_metadata
     import sqlalchemy.sql_util as sql_util
     if metadata is None:
         metadata = default_metadata
     result = []
+#    debug('find_dependent_tables(%s)' % table.name)
     def _impl(t2):
         for name, t in metadata.tables.iteritems():  
             for c in t.c:
                 try:
                     if c.foreign_key.column.table == t2:
-                        if t not in result:
+                        if t not in result and t is not table:
                             result.append(t)
-                        _impl(t)
+#                            print 'finding dependencies for %s' % t.name
+                            _impl(t)
                 except AttributeError, e:
                     pass
     _impl(table)
     collection = sql_util.TableCollection()
+    collection = MyTableCollection()
     for r in result:
         collection.add(r)        
-    return collection.sort(False)
+    sorted = collection.sort(False)
+    return [s for s in sorted if s is not table]
 
 
 class GladeWidgets(dict):

@@ -15,8 +15,9 @@ class Enum(types.Unicode):
         self.empty_to_none = empty_to_none
         self.values = values
         # the length of the string/unicode column should be the longest string
-        # in values
-        super(Enum, self).__init__(len(max(values)))
+        # in values        
+        size = max([len(v) for v in values if v is not None])
+        super(Enum, self).__init__(size)
         
         
     def convert_bind_param(self, value, engine):

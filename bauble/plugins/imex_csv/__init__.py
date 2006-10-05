@@ -11,6 +11,7 @@ from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
 from bauble.utils.progressdialog import ProgressDialog
+import Queue
 
 # TODO: ****** important *****
 # right now exporting will only export those tables that are registered through
@@ -43,6 +44,20 @@ from bauble.utils.progressdialog import ProgressDialog
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 
+def chunk(iterable, n):
+    '''
+    return iterable in chunks of size n
+    '''
+    chunk = []
+    ctr = 0
+    for it in iterable:
+        chunk.append(it)            
+        ctr += 1
+        if ctr >= n:
+            yield chunk
+            chunk = []
+            ctr = 0
+    yield chunk
 
 class CSVImporter:
 
@@ -51,8 +66,8 @@ class CSVImporter:
         self.__cancel = False # flag to cancel importing
         self.__pause = False  # flag to pause importing
 
-
-    def _task_import_files(self, filenames, force, monitor_tasklet):
+        
+    def _task_import_files(self, filenames, force, monitor_tasklet):        
         '''
         a tasklet that import data into a Bauble database, this method should
         be run as a gtasklet task, see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
@@ -63,25 +78,28 @@ class CSVImporter:
         @param monitor_tasklet: the tasklet that monitors the progress of this task
         and update the interface
         '''
-        # TODO: is the session even doing anything here since i'm dealing 
-        # directly with tables and not with mappers
-        session = create_session()
+        # TODO: should check that if we're dropping a table because of a dependency
+        # that we expect that data to be imported in this same task, or at least
+        # let the user know that the table is empty
+
+        # TODO: if table exists but doesn't have anything in it then we don't
+        # drop/create it. this can be a problem if the table was created with
+        # a different schema, in theory this shouldn't happend but it's possible,
+        # would probably be better to just recreate the table anyway since it's 
+        # empty
         timeout = gtasklet.WaitForTimeout(12)
-        bauble.app.db_engine.echo = True
-        def chunk(iterable, n):
-            '''
-            return iterable in chunks of size n
-            '''
-            chunk = []
-            ctr = 0
-            for it in iterable:
-                chunk.append(it)            
-                ctr += 1
-                if ctr >= n:
-                    yield chunk
-                    chunk = []
-                    ctr = 0
-            yield chunk
+        que = Queue.Queue(0)
+        #bauble.app.db_engine.echo = True
+
+        def cleanup(row):
+            clean = {}
+            for key, val in row.iteritems():
+                if val is not '':
+                    clean[key] = val
+#                            debug(row)
+#                            debug(clean)
+            return clean
+
 
         # sort the tables and filenames by dependency so we can import
         filename_dict = {}
@@ -105,6 +123,7 @@ class CSVImporter:
             response = gtasklet.get_event().signal_args[0]        
             d.destroy()
             
+            
         for table, filename in sorted_tables:
             log.info('importing %s table from %s' % (table.name, filename))                
             yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table.name))
@@ -113,6 +132,7 @@ class CSVImporter:
             f = file(filename, "rb")
             reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             if not table.exists():
+#                debug('%s does not exist. creating.' % table.name)
                 table.create()
             elif table.count().scalar() > 0 and not force:
                 msg = "The %s table already contains some data. If two rows "\
@@ -130,29 +150,32 @@ class CSVImporter:
                     try:
                         deps = utils.find_dependent_tables(table)
                         dep_names = [t.name for t in deps]
-                        debug('%s: %s' % (t.name, dep_names))
+#                        debug('%s: %s' % (table.name, dep_names))
                         if len(dep_names) > 0 and not force:
                             msg = 'The following tables depend on the %s table. '\
                                   'These tables will need to be dropped as well. '\
-                                  '\n\n%s\n\n' \
-                                  '<i>Would you like to continue?</i>' % (table.name, dep_names)                        
+                                  '\n\n<b>%s</b>\n\n' \
+                                  '<i>Would you like to continue?</i>' % (table.name, ', '.join(dep_names))
                             d = utils.create_yes_no_dialog(msg)
                             yield (gtasklet.WaitForSignal(d, "response"),
                                    gtasklet.WaitForSignal(d, "close"))   
                             response = gtasklet.get_event().signal_args[0]        
                             d.destroy()
                             if response == gtk.RESPONSE_YES:                                
-                                for d in reversed(deps):                                    
-                                    # drop the deps
-                                    debug('dropping %s' % d.name)
+                                for d in reversed(deps):
+                                    # drop the deps in reverse order
+#                                    debug('dropping %s' % d.name)
                                     d.drop(checkfirst=True)
                             else:
                                 self.__cancel = True                        
-                        if not self.__cancel:                            
+                        if not self.__cancel:                
+#                            debug('dropping %s' % table.name)            
                             table.drop(checkfirst=True)
-                            debug('creating %s' % table.name)
+#                            debug('creating %s' % table.name)
                             table.create()
+                            #for d in reversed(deps): # recreate the deps
                             for d in deps: # recreate the deps
+#                                debug('creating %s' % d.name)
                                 d.create()
                     except Exception, e:
                         self.__error = True
@@ -165,41 +188,52 @@ class CSVImporter:
                     break
             
             insert = table.insert()
-            debug(insert)
-            # chop the lines from reader into chunks
+            #debug(insert)
+            # chop the lines from reader into chunks                 
+            def do_import():
+                try:                        
+                    # TODO: maybe we chould further chunk up the slice
+                    # to make it more responsive
+                    insert, values = que.get()
+                    insert.execute(map(cleanup, values))
+                except Queue.Empty, e:
+                    pass                
+                except Exception, e:
+                    debug(e)
+                    self.__error = True
+                    self.__error_exc = e
+                    debug(e)
+                    self.__error_traceback_str = traceback.format_exc()
+                    self.__cancel = True                            
             for slice in chunk(reader, 127): 
                 while self.__pause:
                     yield timeout
                     gtasklet.get_event()
                 if self.__cancel:
                     break  
-                def do(insert, values):
-                    try:
-                        # make a copy of each item in values, removing
-                        # all the empty strings                  
-                        # TODO: we should be able to speed this up
-                        def cleanup(row):
-                            clean = {}
-                            for key, val in row.iteritems():
-                                if val is not '':
-                                    clean[key] = val
-#                            debug(row)
-                            debug(clean)
-                            return clean
-                        insert.execute(map(cleanup, values))
-                    except Exception, e:
-                        #debug(values)
-                        self.__error = True
-                        self.__error_exc = e
-                        self.__error_traceback_str = traceback.format_exc()
-                        self.__cancel = True
                 if len(slice) > 0:
-                    gobject.idle_add(do, insert, slice)                    
+                    if False:                
+                        try:                        
+                            # TODO: maybe we chould further chunk up the slice
+                            # to make it more responsive
+                            insert.execute(map(cleanup, slice))
+    #                        v = ''
+    #                        for v in map(cleanup, slice):
+    #                            insert.execute(v)
+                        except Exception, e:
+                            debug(e)
+                            self.__error = True
+                            self.__error_exc = e
+                            debug(e)
+                            self.__error_traceback_str = traceback.format_exc()
+                            self.__cancel = True                
+                    else:
+                        que.put((insert, slice))
+                        gobject.idle_add(do_import)
                 yield gtasklet.Message('update_progress', 
                                        dest=monitor_tasklet, value=len(slice))
                 yield timeout
                 gtasklet.get_event()
-
         if self.__error:
             #debug(str(self.__error_exc))
             #debug(self.__error_traceback_str)
@@ -215,10 +249,8 @@ class CSVImporter:
                    gtasklet.WaitForSignal(d, "close"))
             gtasklet.get_event()
             d.destroy()
-        elif not self.__error and not self.__cancel:
-            session.flush()
-
-        session.close()
+        
+        #bauble.app.db_engine.echo = True
         yield gtasklet.Message('quit', dest=monitor_tasklet)
     
     
