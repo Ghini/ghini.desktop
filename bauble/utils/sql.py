@@ -12,3 +12,6 @@ def count(table, where_clause=None):
     if where_clause is not None:
         s.append_whereclause(where_clause)
     return s.scalar()
+
+def count_select(sel):
+    return sel.alias('sdasdasd').count().scalar()
