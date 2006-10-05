@@ -1201,10 +1201,17 @@ else:
             
             if row.species_meta is not None:
                 meta = row.species_meta
+                # set the sensitivity of the widgets before setting them
                 self.set_widget_value('sp_dist_data', meta.distribution)
-                self.set_widget_value('sp_food_check', meta.food_plant)
-                self.set_widget_value('sp_phumans_check', meta.poison_humans)
-                self.set_widget_value('sp_panimals_check', meta.poison_animals)
+                def set_meta(widget, value):                
+                    if value is None:
+                        self.widgets[widget].set_sensitive(False)
+                    else:
+                        self.widgets[widget].set_sensitive(True)
+                    self.set_widget_value(widget, meta.distribution)
+                set_meta('sp_food_check', meta.food_plant)
+                set_meta('sp_phumans_check', meta.poison_humans)
+                set_meta('sp_panimals_check', meta.poison_animals)
                         
             nacc = sql_utils.count(accession_table, accession_table.c.species_id==row.id)
             self.set_widget_value('sp_nacc_data', nacc)
