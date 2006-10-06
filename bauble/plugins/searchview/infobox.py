@@ -9,15 +9,6 @@ import bauble.paths as paths
 from bauble.utils.log import debug
 from bauble.plugins import tables
 
-# TODO: at some point all files using this method should use the one from
-# utils instead, we need to set some type of deprecation warning on using this
-# method and move it completely by 0.5.0
-def set_widget_value(glade_xml, widget_name, value, markup=True):
-    debug('DeprecationWarning: use set_widget_value from the utils modules')
-    utils.set_widget_value(glade_xml, widget_name, value, markup, default='--')
-
-# TODO: need some way to handle multiple join, maybe display some 
-# number automatically but after that then a scrollbar should appear
 
 # TODO: reset expander data on expand, the problem is that we don't keep the 
 # row around that was used to update the infoexpander, if we don't do this then 
