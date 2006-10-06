@@ -82,7 +82,7 @@
 										font-family="Bitstream Vera Serif, serif" font-size="15pt"
 										text-align="left">
 										<xsl:value-of
-											select="abcd:UnitId" />
+											select="abcd:UnitID" />
 									</fo:block>
 								</fo:block-container>
 

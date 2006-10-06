@@ -22,13 +22,20 @@ import bauble.plugins.abcd as abcd
 # until we check for errors since we can't check if the fo renderer doesn't 
 # exist
 
+# TODO: need to do something about errors and showing them to the user, e.g
+# if the stylesheet is invalid then currently there is nothing telling the user
+# that this is so
+
 # TODO: look for this on the path before starting anything and warn the use
 # so they have a clue why the formatter isn't working
+
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
 else:
     fop_cmd = 'fop'
     
+    
+# TODO: support FOray, see http://www.foray.org/
 renderers_map = {'Apache FOP': fop_cmd + \
                                ' -fo %(fo_filename)s -pdf %(out_filename)s',
                  'XEP': 'xep -fo %(fo_filename)s -pdf %(out_filename)s',
@@ -65,15 +72,17 @@ class SettingsBox(gtk.VBox):
         return a dict of settings from the settings box gui        
         '''
         return {'stylesheet': self.widgets.stylesheet_chooser.get_filename(),
-                'renderer': self.widgets.renderer_combo.get_active_text()}
+                'renderer': self.widgets.renderer_combo.get_active_text(),
+                'authors': self.widgets.author_check.get_active()}
         
     
     def update(self, settings={}):
-        debug('SettingsBox.update(%s)' % settings)
+#        debug('SettingsBox.update(%s)' % settings)
         try:
             self.widgets.stylesheet_chooser.set_filename(settings['stylesheet'])
             utils.combo_set_active_text(self.widgets.renderer_combo, 
                                         settings['renderer'])
+            self.widgets.author_check.set_active(settings['authors'])
         except KeyError, e:
             #debug('SettingsBox.update(): KeyError -- %s' % e)
             pass
@@ -115,18 +124,21 @@ class FormatterPlugin(object):
     
     @classmethod
     def format(cls, objs, **kwargs):
-        debug('format(%s)' % kwargs)
+#        debug('format(%s)' % kwargs)
         stylesheet = kwargs['stylesheet']
+        authors = kwargs['authors']
         fo_cmd = renderers_map[kwargs['renderer']]
+        
         plants = format_plugin.get_all_plants(objs)
-        debug(plants)
+#        debug(plants)
         if len(plants) == 0:
             utils.message_dialog('There are no plants in the search results.  '\
                                  'Please try another search.')
             return
 
-                
-        abcd_data = abcd.plants_to_abcd(plants)    
+        import lxml.etree as etree
+        abcd_data = abcd.plants_to_abcd(plants, authors=authors)    
+        #debug(etree.dump(abcd_data.getroot()))
         # TODO: add 
         # for each dataset
         #     for each unit

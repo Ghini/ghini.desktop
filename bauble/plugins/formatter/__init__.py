@@ -183,7 +183,7 @@ class FormatterDialogPresenter(object):
             combo.set_active(val)    
         else:
             utils.combo_set_active_text(combo, val)
-        #combo.emit('changed')        
+        combo.emit('changed')        
         
         
     def set_formatter_combo(self, val):
@@ -197,20 +197,20 @@ class FormatterDialogPresenter(object):
             combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)            
-        #combo.emit('changed')
+        combo.emit('changed')
         
         
     def set_prefs_for(self, name, formatter_title, settings):
         '''
         this will overwrite any other formatter settings with name
         '''
-        debug('set_prefs_for(%s, %s, %s)' % (name, formatter_title, settings))
+#        debug('set_prefs_for(%s, %s, %s)' % (name, formatter_title, settings))
         formatters = prefs[formatters_list_pref]
         try:
-            debug('%s, %s' % (formatter_title, settings))
+#            debug('%s, %s' % (formatter_title, settings))
             formatters[name] = formatter_title, settings
         except AttributeError, e:
-            debug(e)
+#            debug(e)
             formatters[name] = None, None            
         prefs[formatters_list_pref] = formatters
     
@@ -218,6 +218,7 @@ class FormatterDialogPresenter(object):
     def on_new_button_clicked(self, *args):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
+        # TOD0: make "Enter" in the entry fire the default response
         d = gtk.Dialog('', self.view.dialog,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -403,8 +404,8 @@ class FormatterDialogPresenter(object):
 class FormatterDialog(object):
     
     def __init__(self):        
-        view = FormatterDialogView()
-        self.presenter = FormatterDialogPresenter(view)
+        self.view = FormatterDialogView()
+        self.presenter = FormatterDialogPresenter(self.view)
 
 
     def start(self):
@@ -437,10 +438,10 @@ class FormatterTool(BaubleTool):
         try:
             dialog = FormatterDialog()
             formatter, settings = dialog.start()
-            assert formatter is not None, 'No formatter'
-            formatter.format([row[0] for row in model], **settings)
+            if formatter is not None: # cancel formatting
+                formatter.format([row[0] for row in model], **settings)
         except AssertionError, e:
-            utils.message_dialog(str(e), gtk.MESSAGE_ERROR)
+            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=dialog.view.dialog)
             debug(e)
         except Exception:
             debug(traceback.format_exc())
