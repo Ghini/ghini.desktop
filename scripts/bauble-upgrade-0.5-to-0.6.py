@@ -146,6 +146,11 @@ def migrate_collection(filename):
     outfile.write(line_template % new_line)
 
           
+def migrate_species_meta(filename):
+    # there seems to be a problem with at least on of the species meta not
+    # having a species_id, it's not really that important so i just say 
+    # we remove it
+    # TODO: what about the species distribution
 def test():            
     '''
     test output data is correct
@@ -156,8 +161,7 @@ def test():
 migration_map = {'Accession.txt': migrate_accession,
                  'Donation.txt': migrate_donation,
                  'Collection.txt': migrate_collection,
-                 'Plant.txt': migrate_plant
-                 
+                 'Plant.txt': migrate_plant                 
                  }
 
 print 'migrating...'

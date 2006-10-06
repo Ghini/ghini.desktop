@@ -325,15 +325,6 @@ def _reset_tags_menu():
     				     gtk.MESSAGE_ERROR)
     #	raise
             #debug('** maybe the tags table hasn\'t been created yet')
-         
-        # TODO: this was in the pre-SQLAlchemy version but I don't
-        # think the equivalent really needs to be here any more since we 
-        # aren't changeing the database, in fact we never were
-    	#sqlhub.processConnection.rollback()
-    	#sqlhub.processConnection.begin()
-	# FIXME: if we get here then the next we do with a transaction will 
-	# fail which means that and exception here makes the entire program 
-	# fail, we need to do something about this
 
     global _tags_menu_item
     if _tags_menu_item is None:

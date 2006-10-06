@@ -128,13 +128,12 @@ near -- Close to
         #species_index = DatabaseIndex('genus', 'sp', 'sp_author', 'sp_hybrid', 
         #                             'sp_qual', 'cv_group', 'infrasp', 
         #                             'infrasp_author', 'infrasp_rank')
-# TODO: add trade_name for better support for cultivated plants
-        # see http://www.hortax.org.uk/gardenplantsnames.html
-        #trade_name = StringCol(length=50, default=None)    # cultivar group                        
-        #trade_name = column(Unicode(64))
-# FIXME: what happens to the value in default_vernacular_name if 
-        # we delete the object that this foreign key points to, should somehow
-        # get reset to None....in general we need to fix cascading
+        
+# TODO: there is a trade_name column but there's no support yet for editing
+# the trade_name or for using the trade_name when building the string
+# for the species, for more information about trade_names see, 
+# http://www.hortax.org.uk/gardenplantsnames.html
+
 species_table = Table('species', 
                       Column('id', Integer, primary_key=True),
                       Column('sp', String(64), nullable=False, 
@@ -148,6 +147,7 @@ species_table = Table('species',
                                                      empty_to_none=True),
                              unique='species_index'),
                       Column('cv_group', Unicode(50), unique='species_index'),
+                      Column('trade_name', Unicode(64)), 
                       Column('infrasp', Unicode(50), unique='species_index'),
                       Column('infrasp_author', Unicode(255), 
                              unique='species_index'),
@@ -323,8 +323,7 @@ species_id: the species this meta information refers to
 #     to have a SingleJoin to a distribution table so we get the extra
 #     benefit of things like iso codes and hierarchial data, e.g. get
 #     all plants from africa
-# TODO: fix cascading
-#     species = ForeignKey('Species', default=None, cascade=True)
+
 species_meta_table = Table('species_meta',
                            Column('id', Integer, primary_key=True),
                            Column('poison_humans', Boolean),

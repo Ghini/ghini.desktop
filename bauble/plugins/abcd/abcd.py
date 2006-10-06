@@ -21,9 +21,6 @@ from bauble.utils import xml_safe
 # code, Darwin Core is a flat structure and from i understand doesn't have a 
 # sense of "unit"
 
-# TODO: the code needs to reflect the fact that xml tags are case insensitive,
-# at the very least the parent.tag assertion should call a lower
-
 # TODO: doesn't validate unless i write the dataset to a file and read it back 
 # in, it's most likely some sort of namespace issue
 

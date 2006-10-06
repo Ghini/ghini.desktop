@@ -43,21 +43,22 @@ donor_context_menu = [('Edit', edit_callback),
 
 # TODO: show list of donations given by donor if searching for the donor name
 # in the search view
-
+# TODO: the donor_type could be either be character codes or possible a foreign
+# key into another table
 donor_table = Table('donor',
                     Column('id', Integer, primary_key=True),
                     Column('name', Unicode(72), unique='donor_index'),
-                    Column('donor_type', Enum(values=['Expedition', # Expedition
-                                                      "Gene bank", # Gene bank
-                                                      "Botanic Garden or Arboretum", # Botanic Garden or Arboretum
-                                                      "Research/Field Station", # Other research, field or experimental station
-                                                      "Staff member", # Staff of the botanic garden to which record system applies
-                                                      "University Department", # University Department
-                                                      "Horticultural Association/Garden Club", # Horticultural Association or Garden Club
-                                                      "Municipal department", # Municipal department
-                                                      "Nursery/Commercial", # Nursery or other commercial establishment
-                                                      "Individual", # Individual
-                                                      "Other", # Other
+                    Column('donor_type', Enum(values=['Expedition',
+                                                      "Gene bank",
+                                                      "Botanic Garden or Arboretum", 
+                                                      "Research/Field Station",
+                                                      "Staff member",
+                                                      "University Department",
+                                                      "Horticultural Association/Garden Club",
+                                                      "Municipal department",
+                                                      "Nursery/Commercial",
+                                                      "Individual",
+                                                      "Other",
                                                       "Unknown",
                                                       None], empty_to_none=True)),
                     Column('address', Unicode),

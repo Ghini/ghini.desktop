@@ -22,9 +22,6 @@
 # access thing like plugins.tables[table_name] then stick with 
 # module level list of tables may make more sense
 
-# TODO: a plugin cannot change a table but can add joins to a table not
-# in its plugin module  throught the sqlmeta.addJoin method
-
 # TODO: need a way to add tables to the database base without creating a new
 # database completely, in case someone drops in a plugin we can create the 
 # needed tables
