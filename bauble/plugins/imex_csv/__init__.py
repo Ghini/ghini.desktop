@@ -92,6 +92,8 @@ class CSVImporter:
         # a different schema, in theory this shouldn't happend but it's possible,
         # would probably be better to just recreate the table anyway since it's 
         # empty
+        connection = bauble.app.db_engine.connect()
+        transaction = connection.begin()
         timeout = gtasklet.WaitForTimeout(12)
         que = Queue.Queue(0)
         #bauble.app.db_engine.echo = True
@@ -129,7 +131,12 @@ class CSVImporter:
             d.destroy()
             
             
+        # main import loop
         for table, filename in sorted_tables:
+            
+            if self.__cancel or self.__error:
+                    break
+            
             log.info('importing %s table from %s' % (table.name, filename))                
             yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table.name))
             yield timeout
@@ -138,8 +145,8 @@ class CSVImporter:
             reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             if not table.exists():
 #                debug('%s does not exist. creating.' % table.name)
-                table.create()
-            elif table.count().scalar() > 0 and not force:
+                table.create(connectable=connection)
+            elif table.count().scalar(connectable=connection) > 0 and not force:
                 msg = "The %s table already contains some data. If two rows "\
                       "have the same id in the import file and the database "\
                       "then the file will not import "\
@@ -170,18 +177,18 @@ class CSVImporter:
                                 for d in reversed(deps):
                                     # drop the deps in reverse order
 #                                    debug('dropping %s' % d.name)
-                                    d.drop(checkfirst=True)
+                                    d.drop(checkfirst=True, connectable=connection)
                             else:
                                 self.__cancel = True                        
                         if not self.__cancel:                
 #                            debug('dropping %s' % table.name)            
-                            table.drop(checkfirst=True)
+                            table.drop(checkfirst=True, connectable=connection)
 #                            debug('creating %s' % table.name)
-                            table.create()
+                            table.create(connectable=connection)
                             #for d in reversed(deps): # recreate the deps
                             for d in deps: # recreate the deps
 #                                debug('creating %s' % d.name)
-                                d.create()
+                                d.create(connectable=connection)
                     except Exception, e:
                         self.__error = True
                         self.__error_exc = e
@@ -189,7 +196,8 @@ class CSVImporter:
                         self.__error_traceback_str = traceback.format_exc()
                         self.__cancel = True
 
-                        
+                # done with main part of import for this table, check
+                # for errors or if the operation was cancelled
                 if self.__cancel or self.__error:
                     break
             
@@ -201,7 +209,8 @@ class CSVImporter:
                     # TODO: maybe we chould further chunk up the slice
                     # to make it more responsive
                     insert, values = que.get()
-                    insert.execute(map(cleanup, values))
+                    connection.execute(insert, map(cleanup, values))
+                    #insert.execute(map(cleanup, values))
                 except Queue.Empty, e:
                     pass                
                 except Exception, e:
@@ -240,9 +249,11 @@ class CSVImporter:
                                        dest=monitor_tasklet, value=len(slice))
                 yield timeout
                 gtasklet.get_event()
+                        
+            if self.__error or self.__cancel:
+                break            
             
             # set the sequence on a table to the max value
-            #if sqlobject.sqlhub.processConnection.dbName == "postgres":                        
             if bauble.app.db_engine.name in ['sqlite']: # don't need to do anything
                 pass
             elif bauble.app.db_engine.name is 'postgres':
@@ -255,12 +266,12 @@ class CSVImporter:
 #                        except:
 #                            pass
                 stmt = "SELECT max(id) FROM %s" % table.name
-                debug(stmt)
-                max = bauble.app.db_engine.execute(stmt).fetchone()[0]
+                #max = bauble.app.db_engine.execute(stmt).fetchone()[0]
+                max = connection.execute(stmt).fetchone()[0]
                 if max is not None:
-                    stmt = "SELECT setval('%s_id_seq', %d);" % \
-                          (table.name, max+1)
-                    bauble.app.db_engine.execute(stmt)
+                    stmt = "SELECT setval('%s_id_seq', %d);" % (table.name, max+1)
+                    connection.execute(stmt)
+                    #bauble.app.db_engine.execute(stmt)
             else:
                 msg = 'Could not set the next sequence value for the primary '\
                 'key on the "%s" table.  Importing into %s databases is not '\
@@ -286,6 +297,13 @@ class CSVImporter:
                    gtasklet.WaitForSignal(d, "close"))
             gtasklet.get_event()
             d.destroy()
+            
+        if self.__error or self.__cancel:
+            debug('rolling back')
+            transaction.rollback()
+        else:
+            debug('committing')
+            transaction.commit()
         
         #bauble.app.db_engine.echo = True
         yield gtasklet.Message('quit', dest=monitor_tasklet)
