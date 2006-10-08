@@ -49,7 +49,7 @@ def validate(root):
     return abcd_schema.validate(root)
 
 
-def plants_to_abcd(plants):
+def plants_to_abcd(plants, authors=True):
     '''
     @param plants: a list of bauble.plugins.garden.Plant object to convert
     to valid ABCD XML
@@ -85,7 +85,8 @@ def plants_to_abcd(plants):
         # TODO: get id divider from prefs/metadata
         divider = '.'
         # TODO: don't really understand the SourceID element
-        ElementFactory(unit, 'SourceID', text='Bauble') 
+        ElementFactory(unit, 'SourceID', text='Bauble')
+        debug(xml_safe('%s%s%s' % (plant.accession.code, divider, plant.code)))
         unit_id = ElementFactory(unit, 'UnitID',
                                  text = xml_safe('%s%s%s' % (plant.accession.code, 
                                                              divider, plant.code)))
@@ -105,7 +106,7 @@ def plants_to_abcd(plants):
                                            text='familia')
         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
         ElementFactory(scientific_name, 'FullScientificNameString', 
-                       text=Species.str(plant.accession.species, authors=True, markup=False))
+                       text=Species.str(plant.accession.species, authors=authors, markup=False))
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
         botanical = ElementFactory(name_atomised, 'Botanical')
         ElementFactory(botanical, 'GenusOrMonomial', text=xml_safe(plant.accession.species.genus))

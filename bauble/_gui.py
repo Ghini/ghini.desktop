@@ -367,7 +367,8 @@ class GUI:
         open the connection manager
         """
         from conn_mgr import ConnectionManager
-        cm = ConnectionManager()
+        default_conn = prefs[prefs.conn_default_pref]
+        cm = ConnectionManager(default_conn)
         name, uri = cm.start()
         if name is None:
             return

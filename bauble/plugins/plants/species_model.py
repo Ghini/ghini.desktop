@@ -162,7 +162,7 @@ species_table = Table('species',
                                              empty_to_none=True)),
                       Column('notes', Unicode),
                       Column('genus_id', Integer, ForeignKey('genus.id'), 
-                             nullable=False),
+                             nullable=False, unique='species_index'),
                       Column('_created', DateTime, default=func.current_timestamp()),
                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
                              onupdate=func.current_timestamp()))

@@ -24,6 +24,11 @@ import Queue
 # tables exist and not showing up warning dialogs if we don't really need
 # to drop anything anyway
 
+# TODO: after import we should clear the search results, and maybe
+# warn the user we are doing so
+
+# TODO: it might be way faster to transform the csv to a format that 
+# the database connection understands and use the databases import file statements
 
 # TODO: is there a way to validate that the unicode is unicode or has the 
 # proper encoding?
@@ -183,6 +188,7 @@ class CSVImporter:
                         debug(e)
                         self.__error_traceback_str = traceback.format_exc()
                         self.__cancel = True
+
                         
                 if self.__cancel or self.__error:
                     break
@@ -234,6 +240,37 @@ class CSVImporter:
                                        dest=monitor_tasklet, value=len(slice))
                 yield timeout
                 gtasklet.get_event()
+            
+            # set the sequence on a table to the max value
+            #if sqlobject.sqlhub.processConnection.dbName == "postgres":                        
+            if bauble.app.db_engine.name in ['sqlite']: # don't need to do anything
+                pass
+            elif bauble.app.db_engine.name is 'postgres':
+                # TOD0: maybe something like
+#                for col in table.c:
+#                    if col.type == Integer:
+#                        - get the max
+#                        try:
+#                            - set the sequence
+#                        except:
+#                            pass
+                stmt = "SELECT max(id) FROM %s" % table.name
+                debug(stmt)
+                max = bauble.app.db_engine.execute(stmt).fetchone()[0]
+                if max is not None:
+                    stmt = "SELECT setval('%s_id_seq', %d);" % \
+                          (table.name, max+1)
+                    bauble.app.db_engine.execute(stmt)
+            else:
+                msg = 'Could not set the next sequence value for the primary '\
+                'key on the "%s" table.  Importing into %s databases is not '\
+                'fully supported.  If you need this to work then please contact '\
+                'the developers of Bauble.  http://bauble.belizebotanic.org'
+                self.__error = True
+                self.__error_exc = msg
+                self.__cancel = True
+            
+                
         if self.__error:
             #debug(str(self.__error_exc))
             #debug(self.__error_traceback_str)
@@ -359,7 +396,10 @@ class CSVImporter:
                 # get the total number of lines for all the files
                 total_lines += len(file(filename).readlines())            
             monitor_task = gtasklet.run(self._task_monitor_progress(total_lines))
-            gtasklet.run(self._task_import_files(filenames, force, monitor_task))
+            try:
+                gtasklet.run(self._task_import_files(filenames, force, monitor_task))
+            except:
+                utils.message_dialog('Error: CSVImporter.start()')
       
         
     def _get_filenames(self):

@@ -28,6 +28,11 @@
 # maybe taked dumped text files, create a temporary sqlite database 
 # in memory and then dump new database files
 
+
+# TODO: *****
+# should check out Migrate for upgrading, http://erosson.com/migrate/
+#
+
 import os, re, glob, shutil
 
 OUT_PATH = 'new'

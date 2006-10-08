@@ -39,9 +39,11 @@ class BaubleApp(object):
         
         default_filenames = []
         try:
+#            default_metadata.engine.echo = True
             default_metadata.drop_all()
             default_metadata.create_all()
-            
+#            default_metadata.engine.echo = False
+                    
             if import_defaults:
                 for p in plugins.values():
                     default_filenames.extend(p.default_filenames())
@@ -56,8 +58,8 @@ class BaubleApp(object):
             # add the version to the meta table
             meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
                                                     value=str(bauble.version))
-        except:
-            msg = "Error creating tables. Your database may be corrupt."
+        except Exception, e:
+            msg = "Error creating tables. Your database may be corrupt.\n\n%s" % e
             debug(traceback.format_exc())
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
@@ -132,7 +134,7 @@ class BaubleApp(object):
                       % (bauble.version[0], bauble.version[1], \
                          bauble.version[2], db_version[0], db_version[1], \
                          db_version[2],)
-                utils.message_dialog(msg, gtk.MESSAGE_WARNING)       
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                             
             result = query.get_by(name=meta.CREATED_KEY)
             if result is None:            
