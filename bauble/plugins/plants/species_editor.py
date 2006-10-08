@@ -425,7 +425,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         # TODO: we need to do some some of 'unit of work' pattern in the model
         # decorator with a 'removed' list so we know which vernacular names
         # to delete from the database
-        msg = 'Are you sure you want to remove the vernacular name %s?' % value.name
+        msg = 'Are you sure you want to remove the vernacular name %s?' % utils.xml_safe(value.name)
         if utils.yes_no_dialog(msg, parent=self.view.window):
             model.remove(model.get_iter(path))
 #            debug('delete value: %s' % value)
@@ -706,7 +706,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         s = Species.str(value.synonym, markup=True)
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
-              '%s from the database.</i>' % (s, s)
+              '%s from the database.</i>' % (utils.xml_safe(s), utils.xml_safe(s))
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
             #self.session.delete(value)            
@@ -1007,12 +1007,12 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
-                msg = 'Error committing changes.\n\n%s' % e.orig
+                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
-            except:
+            except Exception, e:
                 msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.'
+                      'for more information.\n\n%s' % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 

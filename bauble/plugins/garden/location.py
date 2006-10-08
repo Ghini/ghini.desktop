@@ -26,7 +26,7 @@ def add_plant_callback(row):
 def remove_callback(row):
     value = row[0]    
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % s
+    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return    
     try:
@@ -157,12 +157,12 @@ class LocationEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                 self._committed.append(self.model)
             except SQLError, e:                
-                msg = 'Error committing changes.\n\n%s' % e.orig
+                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
-            except:
+            except Exception, e:
                 msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.'
+                      'for more information.\n\n%s' % utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
