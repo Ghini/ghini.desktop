@@ -169,8 +169,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
            or len(self.vern_presenter.problems) != 0 \
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.meta_presenter.problems) != 0:
-            sensitive = False
-        elif self.model.sp is None or (self.model.genus_id  or self.model.genus) is None:
+            sensitive = False        
+        elif self.model.sp is None or self.model.genus is None:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
         self.refresh_sensitivity()
