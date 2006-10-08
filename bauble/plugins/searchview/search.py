@@ -606,7 +606,7 @@ class SearchView(BaubleView):
             error_msg = 'Error in search string at column %s' % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
             debug(traceback.format_exc())
-            error_msg = '** Error: %s' % e
+            error_msg = '** Error: %s' % utils.xml_safe(e)
                     
         if len(results) == 0:
             model = gtk.ListStore(str)

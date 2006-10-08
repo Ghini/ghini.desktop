@@ -289,7 +289,7 @@ class CSVImporter:
                 msg = self.__error_exc.orig
             except AttributeError, e: # no attribute orig
                 msg = self.__error_exc
-            d = utils.create_message_details_dialog('Error:  %s' % msg,
+            d = utils.create_message_details_dialog('Error:  %s' % utils.xml_safe(msg),
                                                     self.__error_traceback_str,
                                                     type=gtk.MESSAGE_ERROR,
                                                     parent=self.__progress_dialog)

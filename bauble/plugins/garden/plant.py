@@ -34,7 +34,7 @@ def edit_callback(row):
 def remove_callback(row):
     value = row[0]    
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % s
+    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return    
     try:
@@ -373,9 +373,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 msg = 'Error committing changes.\n\n%s' % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
-            except:
+            except Exception, e:
                 msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.'
+                      'for more information.\n\n%s' % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)

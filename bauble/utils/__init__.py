@@ -388,7 +388,7 @@ def startfile(filename):
         try:
             os.startfile(filename)
         except WindowsError, e: # probably no file association
-            msg = "Could not open pdf file.\n\n%s" % str(e)
+            msg = "Could not open pdf file.\n\n%s" % xml_safe(e)
             message_dialog(msg)        
     elif sys.platform == 'linux2':
         # FIXME: need to determine if gnome or kde

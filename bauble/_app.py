@@ -57,7 +57,7 @@ class BaubleApp(object):
             meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
                                                     value=str(bauble.version))
         except Exception, e:
-            msg = "Error creating tables. Your database may be corrupt.\n\n%s" % e
+            msg = "Error creating tables. Your database may be corrupt.\n\n%s" % utils.xml_safe(e)
             debug(traceback.format_exc())
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
@@ -101,7 +101,7 @@ class BaubleApp(object):
             default_metadata.engine.connect() # test the connection
             cls.db_engine = default_metadata.engine
         except Exception, e:
-            msg = "Could not open connection.\n\n%s" % str(e)        
+            msg = "Could not open connection.\n\n%s" % utils.xml_safe(e)        
             debug(msg)
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)
@@ -140,7 +140,7 @@ class BaubleApp(object):
                       'timestamp for when it was created. This usually means '\
                       'that there was a problem when you created the '\
                       'database.  You like to try to create the database '\
-                      'again?' + warning
+                      'again? %s' % warning
                 if utils.yes_no_dialog(msg):
                     cls.create_database()
                     cls.conn_name = name
@@ -153,7 +153,7 @@ class BaubleApp(object):
             debug(traceback.format_exc())
             msg = "The database you have connected to is either empty or " \
                   "wasn't created using Bauble. Would you like to create a " \
-                  "create a database at this connection?" + warning
+                  "create a database at this connection? %s" % warning
             if utils.yes_no_dialog(msg):
                 cls.create_database()
                 cls.conn_name = name

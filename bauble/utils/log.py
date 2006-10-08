@@ -35,7 +35,7 @@ def _config_logger(name, level, format, propagate=False):
         global __yesyesiknow
         if not __yesyesiknow and not _main_is_frozen():
             msg = '** Could not open the default log file.\nPress any key to '\
-            'continue.\n\n%s' % str(e)
+            'continue.\n\n%s' % bauble.utils.xml_safe(e)
             utils.message_details_dialog(msg, traceback.format_exc())
             __yesyesiknow = True        
         handler = logging.StreamHandler()
