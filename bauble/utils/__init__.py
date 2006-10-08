@@ -283,7 +283,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, pa
             parent = None    
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
-    d.set_markup(xml_safe(msg))
+    d.set_markup(msg)
     d.show_all()
     return d
 
@@ -308,7 +308,7 @@ def create_yes_no_dialog(msg, parent=None):
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=gtk.MESSAGE_QUESTION,
                           buttons = gtk.BUTTONS_YES_NO)            
-    d.set_markup(xml_safe(msg))
+    d.set_markup(msg)
     d.show_all()
     return d
     
@@ -337,9 +337,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
         except:    
             parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                         parent=parent,type=type, buttons=buttons)        
-    #d.set_markup(msg)    
-    d.set_markup(xml_safe(msg))
+                         parent=parent,type=type, buttons=buttons)
+    d.set_markup(msg)
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
     text_view.set_editable(False)
@@ -359,7 +358,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     
     
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO, 
-                           buttons=gtk.BUTTONS_OK):    
+                           buttons=gtk.BUTTONS_OK):
     '''
     '''
     d = create_message_details_dialog(msg, details, type, buttons)
