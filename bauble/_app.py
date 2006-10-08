@@ -34,9 +34,7 @@ class BaubleApp(object):
         # make it more difficult to make the interface more responsive,
         # maybe we can use a dialog without the progress bar to show the status,
         # should probably work on the status bar to display this
-        bauble.app.set_busy(True)
-        # drop all tables
-        
+        bauble.app.set_busy(True)        
         default_filenames = []
         try:
 #            default_metadata.engine.echo = True

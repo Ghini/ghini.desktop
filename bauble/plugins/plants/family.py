@@ -39,8 +39,13 @@ def remove_callback(row):
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
         session.flush()
+#    except IntegrityError, e:
+#        msg = 'Could not delete %s.  Most like other object depend on this '\
+#        'one.\n\n%s' % str(e)        
+#        utils.message_details_dialog(msg, traceback.format_exc(), 
+#                                     type=gtk.MESSAGE_ERROR)
     except Exception, e:
-        msg = 'Could not delete.\nn%s' % str(e)        
+        msg = 'Could not delete.\n\n%s' % str(e)        
         utils.message_details_dialog(msg, traceback.format_exc(), 
                                      type=gtk.MESSAGE_ERROR)
     return True

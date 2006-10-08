@@ -408,6 +408,9 @@ class SearchView(BaubleView):
         results = []            
         session = create_session()
         if 'subdomain' in tokens and 'domain' in tokens: # a query expression    	        	
+             # FIXME *****: this doesn't work if the one of the dotted columns
+             # is not a backref, try searching for 
+             # gen where family_id.qualifier='test'
     	    #operator = OperatorValidator.to_python(tokens['operator'])
     	    #operator = tokens['operator']
             joins = None
@@ -420,14 +423,16 @@ class SearchView(BaubleView):
                 joins, col = subdomain[:index], subdomain[index+1:]
     	    else:
                 col = subdomain		
-            debug(joins)
-            debug(col)
+#            debug(joins)
+#            debug(col)
     	    if joins is None: # select from column in domain_table
                 # TODO: this is still fairly incomplete and doesn't allow
                 # different operators
                 query = session.query(domain_table)
                 results = query.select(domain_table.c[col]==values[0])
-                debug(results)
+#                debug(results)
+                
+                
 #                # get the validator for the column
 #                if col == 'id':
 #                    values_validator = formencode.validators.Int()
@@ -462,8 +467,7 @@ class SearchView(BaubleView):
                 # efficient because you only get the values from the 
                 # domain_table from the beginning instead of starting with
                 # all values in domain tables and narrowing down from there
-                # debug(eval('tables["%s"].%s.%s' % (domain_table.__name__, joins, col)))
-                
+                # debug(eval('tables["%s"].%s.%s' % (domain_table.__name__, joins, col)))                
                 joins = joins.split('.')
                 backrefs = []
                 next_class = domain_table
@@ -836,8 +840,11 @@ class SearchView(BaubleView):
     	# TODO: should probably fix this so you can right click on something
     	# that is not the selection, but get the path from where the click
     	# happened, make that that selection and then popup the menu,
-    	# see the pygtk FAQ about this at
+    	# see the pygtk FAQ about this at        
     	#http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
+        # TODO: SLOW -- it can be really slow if the the callback method changes
+        # the model(or what if it doesn't) and the view has to be refreshed from 
+        # a large dataset
         if event.button != 3: 
             return # if not right click then leave
         
