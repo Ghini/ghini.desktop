@@ -34,6 +34,11 @@ class BaubleApp(object):
         # make it more difficult to make the interface more responsive,
         # maybe we can use a dialog without the progress bar to show the status,
         # should probably work on the status bar to display this
+        # TODO: *** important ***
+        # this work should be done in a transaction, i think the best way to do
+        # this would be to pass a metadata or engine or connection object to
+        # the importer that holds the transaction we should work in
+        
         bauble.app.set_busy(True)        
         default_filenames = []
         try:
