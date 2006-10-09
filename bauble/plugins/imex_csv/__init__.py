@@ -64,6 +64,7 @@ def chunk(iterable, n):
             ctr = 0
     yield chunk
 
+
 class CSVImporter:
 
     def __init__(self):
@@ -72,10 +73,13 @@ class CSVImporter:
         self.__pause = False  # flag to pause importing
 
         
-    def _task_import_files(self, filenames, force, monitor_tasklet):        
+    def _task_import_files(self, filenames, force, metadata, monitor_tasklet):        
         '''
         a tasklet that import data into a Bauble database, this method should
         be run as a gtasklet task, see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
+        
+        this method takes an all or nothing approach, either we import 
+        everything in filesnames of we bail out
         
         @param filenames: the list of files names t
         @param force: causes the data to be imported regardless if there already 
@@ -92,21 +96,33 @@ class CSVImporter:
         # a different schema, in theory this shouldn't happend but it's possible,
         # would probably be better to just recreate the table anyway since it's 
         # empty
-        connection = bauble.app.db_engine.connect()
+        
+        # TODO: checking the number of rows in a database locks up when in a 
+        # transaction and causes the import the hang, i would rather only ask
+        # the user if they want drop the table if it isn't empty but i haven't
+        # figured out a way to do this in a transaction. the problem seems to
+        # be when table is in an inbetween state b/c it's been dropped in
+        # transaction as a dependency of another table so when we go to check if 
+        # it has rows it seems like the database is waiting for the transaction
+        # to finish and....LOCK
+        
+        # TODO: any dialogs opened in this method should have the progress
+        # dialog as it's parent
+        engine = metadata.engine
+        connection = engine.connect()
         transaction = connection.begin()
+        #timeout = gtasklet.WaitForTimeout(12)
         timeout = gtasklet.WaitForTimeout(12)
-        que = Queue.Queue(0)
-        #bauble.app.db_engine.echo = True
+        
+        self.__error_traceback_str = ''
+        self.__error_exc = 'Unknown Error.'
 
         def cleanup(row):
             clean = {}
             for key, val in row.iteritems():
                 if val is not '':
                     clean[key] = val
-#                            debug(row)
-#                            debug(clean)
             return clean
-
 
         # sort the tables and filenames by dependency so we can import
         filename_dict = {}
@@ -116,7 +132,7 @@ class CSVImporter:
             filename_dict[table_name] = f
 
         sorted_tables = []
-        for table in default_metadata.table_iterator():
+        for table in metadata.table_iterator():
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
             except KeyError, e: # ---> table.name not in list of filenames
@@ -129,40 +145,45 @@ class CSVImporter:
                    gtasklet.WaitForSignal(d, "close"))   
             response = gtasklet.get_event().signal_args[0]        
             d.destroy()
-            
-            
-        # main import loop
-        for table, filename in sorted_tables:
-            
-            if self.__cancel or self.__error:
-                    break
-            
-            log.info('importing %s table from %s' % (table.name, filename))                
-            yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table.name))
-            yield timeout
-            gtasklet.get_event()
-            f = file(filename, "rb")
-            reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
-            if not table.exists():
-#                debug('%s does not exist. creating.' % table.name)
-                table.create(connectable=connection)
-            elif table.count().scalar(connectable=connection) > 0 and not force:
-                msg = "The %s table already contains some data. If two rows "\
-                      "have the same id in the import file and the database "\
-                      "then the file will not import "\
-                      "correctly.\n\n<i>Would you like to drop the table in the "\
-                      "database first. You will lose the data in your database "\
-                      "if you do this?</i>" % table.name                    
-                d = utils.create_yes_no_dialog(msg)
-                yield (gtasklet.WaitForSignal(d, "response"),
-                       gtasklet.WaitForSignal(d, "close"))   
-                response = gtasklet.get_event().signal_args[0]        
-                d.destroy()
-                if force or response == gtk.RESPONSE_YES:                    
-                    try:
+        
+        created_tables = []
+        def add_to_created(names):
+            created_tables.extend([n for n in names if n not in created_tables])
+        
+        que = Queue.Queue(0)    
+        try:
+            # first do all the table creation/dropping
+            for table, filename in sorted_tables:
+               
+#                if self.__cancel or self.__error:
+#                    debug('break')
+#                    break
+                
+                log.info('importing %s table from %s' % (table.name, filename))                
+                yield gtasklet.Message('update_filename', dest=monitor_tasklet, value=(filename, table.name))
+                yield timeout
+                gtasklet.get_event()
+                
+                if not table.exists(engine=engine):
+                    debug('%s does not exist. creating.' % table.name)                
+                    table.create(connectable=connection)
+                    add_to_created(table.name)
+                #elif table.count().scalar(connectable=connection) > 0 and not force:
+                elif table.name not in created_tables:
+                    msg = 'The <b>%s</b> table already exists in the database and may '\
+                          'contain some data. If a row in the import file has '\
+                          'the same id as a row in the databse then the file '\
+                          'will not import correctly.\n\n<i>Would you like to '\
+                          'drop the table in the database first. You will lose '\
+                          'the data in your database if you do this?</i>' % table.name                                              
+                    d = utils.create_yes_no_dialog(msg)
+                    yield (gtasklet.WaitForSignal(d, "response"),
+                           gtasklet.WaitForSignal(d, "close"))   
+                    response = gtasklet.get_event().signal_args[0]        
+                    d.destroy()
+                    if force or response == gtk.RESPONSE_YES:
                         deps = utils.find_dependent_tables(table)
                         dep_names = [t.name for t in deps]
-#                        debug('%s: %s' % (table.name, dep_names))
                         if len(dep_names) > 0 and not force:
                             msg = 'The following tables depend on the %s table. '\
                                   'These tables will need to be dropped as well. '\
@@ -173,118 +194,117 @@ class CSVImporter:
                                    gtasklet.WaitForSignal(d, "close"))   
                             response = gtasklet.get_event().signal_args[0]        
                             d.destroy()
-                            if response == gtk.RESPONSE_YES:                                
-                                for d in reversed(deps):
-                                    # drop the deps in reverse order
-#                                    debug('dropping %s' % d.name)
-                                    d.drop(checkfirst=True, connectable=connection)
-                            else:
-                                self.__cancel = True                        
-                        if not self.__cancel:                
-#                            debug('dropping %s' % table.name)            
-                            table.drop(checkfirst=True, connectable=connection)
-#                            debug('creating %s' % table.name)
-                            table.create(connectable=connection)
-                            #for d in reversed(deps): # recreate the deps
-                            for d in deps: # recreate the deps
-#                                debug('creating %s' % d.name)
-                                d.create(connectable=connection)
-                    except Exception, e:
-                        self.__error = True
-                        self.__error_exc = e
-                        debug(e)
-                        self.__error_traceback_str = traceback.format_exc()
-                        self.__cancel = True
+                            if response is not gtk.RESPONSE_YES:
+                                debug('cancel')
+                                self.__cancel = True
+                                break
+                                                
+                            for d in reversed(deps):
+                                # drop the deps in reverse order
+                                d.drop(checkfirst=True, connectable=connection)                            
 
-                # done with main part of import for this table, check
-                # for errors or if the operation was cancelled
+                        table.drop(checkfirst=True, connectable=connection)
+                        table.create(connectable=connection)
+                        add_to_created([table.name])
+                        for d in deps: # recreate the deps
+                            d.create(connectable=connection)
+                        add_to_created(dep_names)
+
                 if self.__cancel or self.__error:
                     break
-            
-            insert = table.insert()
-            #debug(insert)
-            # chop the lines from reader into chunks                 
-            def do_import():
-                try:                        
-                    # TODO: maybe we chould further chunk up the slice
-                    # to make it more responsive
-                    insert, values = que.get()
-                    connection.execute(insert, map(cleanup, values))
+                
+                insert = table.insert()    
+                def do_import():
+                    try:                        
+                        # TODO: maybe we chould further chunk up the slice
+                        # to make it more responsive
+                        
+                        # this should never block since we add the value to the 
+                        # queue before we ever call this method but just in case,
+                        # the two scenarios are 1. values are added to the queue
+                        # but we get here and don't see anything and keep going
+                        # and effectively lose data, or 2. we block and we stay 
+                        # here forever and the app would stop responding, the 
+                        # second one sounds better since at least it doesn't lose 
+                        # data, maybe we could add a timeout to get and if we 
+                        # get here and don't get anything from the queue we can
+                        # at least rollback all our changes
+                        insert, values = que.get(block=True)
+                        connection.execute(insert, map(cleanup, values))
                     #insert.execute(map(cleanup, values))
-                except Queue.Empty, e:
-                    pass                
-                except Exception, e:
-                    debug(e)
-                    self.__error = True
-                    self.__error_exc = e
-                    debug(e)
-                    self.__error_traceback_str = traceback.format_exc()
-                    self.__cancel = True                            
-            for slice in chunk(reader, 127): 
-                while self.__pause:
+                    except Queue.Empty, e:
+    #                        debug('empty')
+                        pass
+                    except Exception, e:
+                        debug(e)
+                        raise
+                
+                f = file(filename, "rb")
+                reader = csv.DictReader(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+                for slice in chunk(reader, 173):
+                    while self.__pause:
+                        yield timeout
+                        gtasklet.get_event()
+                    if self.__cancel:
+                        break  
+                    if len(slice) > 0:
+                        if False:                
+                            connection.execute(insert, map(cleanup, slice))
+                            v = ''
+#                            for v in map(cleanup, slice):
+#                                debug(v)
+#                                connection.execute(insert, v)
+                        else:
+                            que.put((insert, slice), block=False)
+                            gobject.idle_add(do_import)
+                    yield gtasklet.Message('update_progress', 
+                                           dest=monitor_tasklet, value=len(slice))
                     yield timeout
                     gtasklet.get_event()
-                if self.__cancel:
-                    break  
-                if len(slice) > 0:
-                    if False:                
-                        try:                        
-                            # TODO: maybe we chould further chunk up the slice
-                            # to make it more responsive
-                            insert.execute(map(cleanup, slice))
-    #                        v = ''
-    #                        for v in map(cleanup, slice):
-    #                            insert.execute(v)
-                        except Exception, e:
-                            debug(e)
-                            self.__error = True
-                            self.__error_exc = e
-                            debug(e)
-                            self.__error_traceback_str = traceback.format_exc()
-                            self.__cancel = True                
-                    else:
-                        que.put((insert, slice))
-                        gobject.idle_add(do_import)
-                yield gtasklet.Message('update_progress', 
-                                       dest=monitor_tasklet, value=len(slice))
-                yield timeout
-                gtasklet.get_event()
-                        
-            if self.__error or self.__cancel:
-                break            
-            
-            # set the sequence on a table to the max value
-            if bauble.app.db_engine.name in ['sqlite']: # don't need to do anything
-                pass
-            elif bauble.app.db_engine.name is 'postgres':
-                # TOD0: maybe something like
-#                for col in table.c:
-#                    if col.type == Integer:
-#                        - get the max
-#                        try:
-#                            - set the sequence
-#                        except:
-#                            pass
-                stmt = "SELECT max(id) FROM %s" % table.name
-                #max = bauble.app.db_engine.execute(stmt).fetchone()[0]
-                max = connection.execute(stmt).fetchone()[0]
-                if max is not None:
-                    stmt = "SELECT setval('%s_id_seq', %d);" % (table.name, max+1)
-                    connection.execute(stmt)
-                    #bauble.app.db_engine.execute(stmt)
-            else:
-                msg = 'Could not set the next sequence value for the primary '\
-                'key on the "%s" table.  Importing into %s databases is not '\
-                'fully supported.  If you need this to work then please contact '\
-                'the developers of Bauble.  http://bauble.belizebotanic.org'
-                self.__error = True
-                self.__error_exc = msg
-                self.__cancel = True
+                            
+                if self.__error or self.__cancel:
+                    break            
+                
+                # set the sequence on a table to the max value            
+                if engine.name in ['sqlite']: # don't need to do anything
+                    pass
+                elif engine.name is 'postgres':
+                    # TOD0: maybe something like
+    #                for col in table.c:
+    #                    if col.type == Integer:
+    #                        - get the max
+    #                        try:
+    #                            - set the sequence
+    #                        except:
+    #                            pass
+                    try:
+                        stmt = "SELECT max(id) FROM %s" % table.name
+                        #max = bauble.app.db_engine.execute(stmt).fetchone()[0]
+                        max = connection.execute(stmt).fetchone()[0]
+                        if max is not None:
+                            stmt = "SELECT setval('%s_id_seq', %d);" % (table.name, max+1)
+                            connection.execute(stmt)
+                            #bauble.app.db_engine.execute(stmt)
+                    except Exception, e:
+                        debug(e)
+                else:
+                    msg = 'Could not set the next sequence value for the primary '\
+                    'key on the "%s" table.  Importing into %s databases is not '\
+                    'fully supported.  If you need this to work then please contact '\
+                    'the developers of Bauble.  http://bauble.belizebotanic.org'
+                    debug(msg)
+                    self.__error = True
+                    self.__error_exc = msg
+                    self.__cancel = True
+        except Exception, e:
+            debug(e)
+            self.__error = True            
+            self.__error_exc = utils.xml_safe(e)
+            self.__error_traceback_str = traceback.format_exc()            
+            self.__cancel = True            
             
                 
         if self.__error:
-            #debug(str(self.__error_exc))
-            #debug(self.__error_traceback_str)
             try:
                 msg = self.__error_exc.orig
             except AttributeError, e: # no attribute orig
@@ -299,13 +319,12 @@ class CSVImporter:
             d.destroy()
             
         if self.__error or self.__cancel:
-            debug('rolling back')
+#            debug('rolling back')
             transaction.rollback()
         else:
-            debug('committing')
+#            debug('committing')
             transaction.commit()
-        
-        #bauble.app.db_engine.echo = True
+        connection.close()        
         yield gtasklet.Message('quit', dest=monitor_tasklet)
     
     
@@ -413,11 +432,8 @@ class CSVImporter:
             for filename in filenames:
                 # get the total number of lines for all the files
                 total_lines += len(file(filename).readlines())            
-            monitor_task = gtasklet.run(self._task_monitor_progress(total_lines))
-            try:
-                gtasklet.run(self._task_import_files(filenames, force, monitor_task))
-            except:
-                utils.message_dialog('Error: CSVImporter.start()')
+            monitor_task = gtasklet.run(self._task_monitor_progress(total_lines))            
+            gtasklet.run(self._task_import_files(filenames, force, default_metadata, monitor_task))
       
         
     def _get_filenames(self):
