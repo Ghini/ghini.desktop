@@ -194,8 +194,7 @@ class CSVImporter:
                                    gtasklet.WaitForSignal(d, "close"))   
                             response = gtasklet.get_event().signal_args[0]        
                             d.destroy()
-                            if response is not gtk.RESPONSE_YES:
-                                debug('cancel')
+                            if response != gtk.RESPONSE_YES:
                                 self.__cancel = True
                                 break
                                                 
