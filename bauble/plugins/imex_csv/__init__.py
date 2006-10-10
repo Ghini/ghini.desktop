@@ -574,8 +574,12 @@ class CSVImportTool(BaubleTool):
     
     @classmethod
     def start(cls):
-        c = CSVImporter()
-        c.start()
+        msg = 'It is possible that importing data into this database could '\
+        'destroy or corrupt your existing data.\n\n<i>Would you like to '\
+        'continue?</i>'
+        if utils.yes_no_dialog(msg) == gtk.RESPONSE_YES:        
+            c = CSVImporter()        
+            c.start()
 
 
 class CSVExportTool(BaubleTool):
