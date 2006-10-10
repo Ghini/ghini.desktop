@@ -56,14 +56,14 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
 #        return self.session.query(Species).select(sql) 
         if False:
             # TODO: i don't know why this doesn't work, tried with SA 2.8
-            debug(accessions)
+#            debug(accessions)
             acc_ids = [acc.id for acc in accessions]
-            debug(acc_ids)
+#            debug(acc_ids)
             #plants = plant_query.select(Plant.c.id.in_(acc_ids))
-            debug(plant_table.c.id.in_(acc_ids))
+#            debug(plant_table.c.id.in_(acc_ids))
             stmt = plant_table.select(plant_table.c.id.in_(acc_ids))
             plants = plant_query.select(stmt)
-            debug(plants)
+#            debug(plants)
             add_plants(p)
         else:            
             for p in [acc.plants for acc in accessions]:        
@@ -84,7 +84,7 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
         elif isinstance(obj, tables["Species"]):
             add_plants_from_accessions(obj.accessions)            
         elif isinstance(obj, tables["Accession"]):
-            debug(obj.plants)
+#            debug(obj.plants)
             add_plants(obj.plants)
         elif isinstance(obj, tables["Plant"]):
             add_plants([obj])
@@ -337,7 +337,7 @@ class FormatterDialogPresenter(object):
         if plugins is None:
             plugins = []
         plugins.extend(_find_formatter_plugins())
-        debug(plugins)
+#        debug(plugins)
         model = gtk.ListStore(str)
         assert len(plugins) is not 0, 'No formatter plugins defined.'
 #        if :
@@ -441,8 +441,8 @@ class FormatterTool(BaubleTool):
             if formatter is not None: # cancel formatting
                 formatter.format([row[0] for row in model], **settings)
         except AssertionError, e:
-            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=dialog.view.dialog)
             debug(e)
+            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=dialog.view.dialog)            
         except Exception:
             debug(traceback.format_exc())
             utils.message_details_dialog('Formatting Error', 
