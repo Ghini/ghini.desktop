@@ -57,7 +57,7 @@ def plants_to_abcd(plants, authors=True):
     '''
     datasets = DataSets()
     ds = ElementFactory(datasets, 'DataSet')
-    tech_contacts = ElementFactory( ds, 'TechnicalContacts')
+    tech_contacts = ElementFactory(ds, 'TechnicalContacts')
     tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
     ElementFactory(tech_contact, 'Name', text='Brett')
     ElementFactory(tech_contact, 'Email', text='brett@belizebotanic.org')
@@ -86,7 +86,7 @@ def plants_to_abcd(plants, authors=True):
         divider = '.'
         # TODO: don't really understand the SourceID element
         ElementFactory(unit, 'SourceID', text='Bauble')
-        debug(xml_safe('%s%s%s' % (plant.accession.code, divider, plant.code)))
+#        debug(xml_safe('%s%s%s' % (plant.accession.code, divider, plant.code)))
         unit_id = ElementFactory(unit, 'UnitID',
                                  text = xml_safe('%s%s%s' % (plant.accession.code, 
                                                              divider, plant.code)))
