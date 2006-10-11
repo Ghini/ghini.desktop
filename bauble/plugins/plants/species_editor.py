@@ -794,7 +794,8 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
             combo = self.view.widgets.sp_dist_combo
             combo.set_model(None)
             model = gtk.TreeStore(object)
-            model.append(None, ["Cultivated"])
+            model.append(None, [''])
+            model.append(None, ['Cultivated'])            
             # TODO: i wonder if it would be faster to get all the data in one loop
             # and populate the model in another
             from bauble.plugins.geography.distribution import continent_table, \
@@ -810,7 +811,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
             combo.set_model(model)
             combo.set_sensitive(True)
             self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-            self.assign_simple_handler('sp_dist_combo', 'distribution')                                 
+            self.assign_simple_handler('sp_dist_combo', 'distribution', StringOrNoneValidator())
         gobject.idle_add(populate)
         
 #    def init_distribution_combo(self):        
@@ -1202,16 +1203,21 @@ else:
             if row.species_meta is not None:
                 meta = row.species_meta
                 # set the sensitivity of the widgets before setting them
-                self.set_widget_value('sp_dist_data', meta.distribution)
                 def set_meta(widget, value):                
                     if value is None:
                         self.widgets[widget].set_sensitive(False)
                     else:
                         self.widgets[widget].set_sensitive(True)
-                    self.set_widget_value(widget, meta.distribution)
+                    self.set_widget_value(widget, value)
+                set_meta('sp_dist_data', meta.distribution)
                 set_meta('sp_food_check', meta.food_plant)
                 set_meta('sp_phumans_check', meta.poison_humans)
                 set_meta('sp_panimals_check', meta.poison_animals)
+            else:
+                for w in ('sp_dist_data', 'sp_food_check', 'sp_phumans_check', 'sp_panimals_check'):
+                    self.set_widget_value(w, None)
+                    self.widgets[w].set_sensitive(False)
+                
                         
             nacc = sql_utils.count(accession_table, accession_table.c.species_id==row.id)
             self.set_widget_value('sp_nacc_data', nacc)
