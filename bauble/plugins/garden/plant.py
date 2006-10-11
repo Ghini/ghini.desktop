@@ -273,6 +273,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
                     
         
     def on_loc_button_clicked(self, button, cmd=None):
+        # TODO: if we add a new location we should set it as the default
+        # TODO: should we desensitize the "Ok and add plants" button
+        # if opening the editor from here
         location = None
         combo = self.view.widgets.plant_loc_combo
         it = combo.get_active_iter()
@@ -388,7 +391,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 #        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
-            e = PlantEditor(parent=self.parent)
+            e = PlantEditor(Plant(accession=self.model.accession), parent=self.parent)
             more_committed = e.start()
                     
         if more_committed is not None:
