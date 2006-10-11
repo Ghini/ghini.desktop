@@ -134,8 +134,6 @@ class Plant(bauble.BaubleMapper):
         return "%s.%s (%s)" % (self.accession, self.code, 
                                self.accession.species.markup())
         
-        
-        
 
 from bauble.plugins.garden.accession import Accession
 #
@@ -145,10 +143,6 @@ plant_mapper = mapper(Plant, plant_table,
        properties={'history': relation(PlantHistory, backref='plant')})
 mapper(PlantHistory, plant_history_table, order_by='date')
 
-
-
-
-   
 
     
 class PlantEditorView(GenericEditorView):
@@ -239,9 +233,20 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status', StringOrNoneValidator())
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type', StringOrNoneValidator())        
 
+        
+                
         self.view.widgets.plant_loc_add_button.connect('clicked', self.on_loc_button_clicked, 'add')
         self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
         self.init_change_notifier()
+        
+        # set default values for acc_status and acc_type        
+        if self.model.acc_type is None:
+            default_acc_type = 'Plant'
+            self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
+        if self.model.acc_status is None:
+            default_acc_status = 'Living accession'
+            self.view.set_widget_value('plant_acc_status_combo', default_acc_status)
+        
         
     def dirty(self):
         return self.model.dirty
@@ -531,7 +536,7 @@ else:
         def update(self, row):
             '''
             '''
-            # T.ODO: don't really need a location expander, could just
+            # TODO: don't really need a location expander, could just
             # use a label in the general section
             #loc = self.get_expander("Location")
             #loc.update(row.location)
