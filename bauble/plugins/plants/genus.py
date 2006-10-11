@@ -34,14 +34,15 @@ def edit_callback(row):
 def add_species_callback(row):
     from bauble.plugins.plants.species_editor import SpeciesEditor
     value = row[0]
-    # call with genus_id instead of genus so the new species doesn't get bound
-    # to the same session as genus
-    # TODO: i wish there was a better way around this
     e = SpeciesEditor(Species(genus=value))
     return e.start() != None
 
 
 def remove_callback(row):
+    # TODO: before removing we should get the object, find all the dependent 
+    # objects for the class and then find all the child objects that refer
+    # to the object to be removed and at least say something like, 
+    # '522 species refer to this object, do you still want to remove it'
     value = row[0]    
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
@@ -116,19 +117,12 @@ class Genus(bauble.BaubleMapper):
     def __str__(self):
         if self.genus is None:
             return repr(self)
-        elif self.hybrid:
-            return '%s %s' % (self.hybrid, self.genus)
         else:
-            return str(self.genus)
+            return ' '.join([s for s in [self.hybrid, self.genus, self.qualifier] if s is not None])
     
     @staticmethod
     def str(genus, full_string=False):
-        # TODO: should the qualifier be a standard part of the string, is it
-        # standard as part of botanical nomenclature
-        if full_string and genus.qualifier is not None:
-            return '%s (%s)' % (str(genus), genus.qualifier)
-        else:            
-            return str(genus)
+        return str(genus)
         
         
 genus_synonym_table = Table('genus_synonym',
