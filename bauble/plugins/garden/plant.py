@@ -187,6 +187,8 @@ class ObjectIdValidator(validators.FancyValidator):
 
 class PlantEditorPresenter(GenericEditorPresenter):
     
+    # TODO: check that the plant codes aren't duplicates and add a Problem
+    # to the widget if so
     
     widget_to_field_map = {'plant_code_entry': 'code',
                            'plant_acc_entry': 'accession',
@@ -195,6 +197,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_status_combo': 'acc_status',
                            'plant_notes_textview': 'notes'}
     
+    PROBLEM_DUPLICATE_PLANT_CODE = 5
+    
     def __init__(self, model, view):
         '''
         @model: should be an instance of Plant class
@@ -202,10 +206,20 @@ class PlantEditorPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
+        self._original_accession_id = self.model.accession_id
+#        debug('self._original_accession_id: %s' % self._original_accession_id)
+        self._original_code = self.model.code
 
         # TODO: should we set these to the default value or leave them
         # be and let the default be set when the row is created, i'm leaning
         # toward the second, its easier if it works this way
+        
+        # TODO: if the accession is changed in the entry we should set the 
+        # plant code to none or maybe just check that the plant code is still
+        # valid with this new accession and maybe add a problem if not, this should 
+        # possibly remove a problem on the id entry if the number was previously 
+        # invalid but now it is with the new accession, the easiest way to do 
+        # all this would be to set the plant code to none
 
         # initialize widgets
         self.init_location_combo()
@@ -227,14 +241,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                         acc_get_completions, 
                                         set_func=set_in_model, 
                                         format_func=format_acc)
-        self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
+        #self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
+                # TODO: could probably replace this by just passing a valdator
+        # to assign_simple_handler...UPDATE: but can the validator handle
+        # adding a problem to the widget
+        self.view.widgets.plant_code_entry.connect('insert-text', 
+                                               self.on_plant_code_entry_insert)
+        self.view.widgets.plant_code_entry.connect('delete-text', 
+                                               self.on_plant_code_entry_delete)
         self.assign_simple_handler('plant_notes_textview', 'notes')
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status', StringOrNoneValidator())
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type', StringOrNoneValidator())        
 
-        
-                
         self.view.widgets.plant_loc_add_button.connect('clicked', self.on_loc_button_clicked, 'add')
         self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
         self.init_change_notifier()
@@ -250,6 +269,45 @@ class PlantEditorPresenter(GenericEditorPresenter):
         
     def dirty(self):
         return self.model.dirty
+    
+    
+    def on_plant_code_entry_insert(self, entry, new_text, new_text_length, position, 
+                            data=None):
+        entry_text = entry.get_text()                
+        cursor = entry.get_position()
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+        self._set_plant_code_from_text(full_text)
+
+        
+    def on_plant_code_entry_delete(self, entry, start, end, data=None):
+        text = entry.get_text()
+        full_text = text[:start] + text[end:]
+        self._set_plant_code_from_text(full_text)
+                
+        
+    def _set_plant_code_from_text(self, text):                
+        count_plants = lambda acc_id, code: plant_table.select(and_(plant_table.c.accession_id==acc_id, plant_table.c.code==code)).alias('__dummy').count().scalar()            
+        # NOTE: we have to reference self.model.accession.id instead of 
+        # self.model.accession_id b/c setting the first doesn't set the second
+        def problem():
+            self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                             self.view.widgets.plant_code_entry)
+            self.model.code = None            
+            
+        if self._original_accession_id == self.model.accession.id:
+            if not text == self._original_code and count_plants(self.model.accession.id, text) > 0:
+                problem()
+                return
+        elif count_plants(self.model.accession.id, text) > 0:
+            problem()
+            return
+        
+        self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                            self.view.widgets.plant_code_entry)
+        if text is '':
+            self.model.code = None
+        else:
+            self.model.code = text
     
     
     def init_change_notifier(self):
