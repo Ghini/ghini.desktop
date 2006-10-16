@@ -951,6 +951,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
         self._original_source = self.model.source
+        self._original_code = self.model.code
         self.current_source_box = None
         self.source_presenter = None  
         self.init_enum_combo('acc_prov_combo', 'prov_type')
@@ -964,7 +965,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
             return self.session.query(Species).select(sql) 
         def set_in_model(self, field, value):
-            debug('set_in_model(%s, %s)' % (field, value))
+#            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value.id)
         self.assign_completions_handler('acc_species_entry', 'species_id', 
                                         sp_get_completions, 
@@ -975,7 +976,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                                       self.on_combo_changed,
                                                       'wild_prov_status')
         # TODO: could probably replace this by just passing a valdator
-        # to assign_simple_handler
+        # to assign_simple_handler...UPDATE: but can the validator handle
+        # adding a problem to the widget
         self.view.widgets.acc_code_entry.connect('insert-text', 
                                                self.on_acc_code_entry_insert)
         self.view.widgets.acc_code_entry.connect('delete-text', 
@@ -1009,13 +1011,15 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 
         
     def _set_acc_code_from_text(self, text):
-        if self.session.query(Accession).count_by(code=text) > 0:            
+        if text != self._original_code and self.session.query(Accession).count_by(code=text) > 0:            
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.model.code = None            
             return        
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_code_entry)
+        if text is '':
+            self.model.code = None
         self.model.code = text
             
         
@@ -1060,7 +1064,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, model, field):
-#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
+        #debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know

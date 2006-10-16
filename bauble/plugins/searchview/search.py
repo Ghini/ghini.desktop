@@ -876,10 +876,12 @@ class SearchView(BaubleView):
                         model, treeiter = sel.get_selected()
 #                        debug(model[treeiter][0])
                         if f(model[treeiter]) is not None:
+                            debug('refreshing objs in session')
                             for obj in self.session:
                                 try:
 #                                    debug(obj)
-                                    self.session.refresh(obj)                                    
+                                    #self.session.refresh(obj)
+                                    self.session.expire(obj)
                                 except saexc.InvalidRequestError:
 #                                    debug('exception on refresh')
                                     # find the object in the tree and remove it,
@@ -888,6 +890,7 @@ class SearchView(BaubleView):
                                     for found in utils.search_tree_model(model, obj):
 #                                        debug('found %s: %s' % (found, model[found][0]))
                                         model.remove(found)
+                            debug('-- objs refreshed')
                             self.results_view.collapse_all()
                             self.expand_to_all_refs(expanded_rows)         
                             self.update_infobox()                            
