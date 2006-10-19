@@ -7,7 +7,7 @@ import gtk.gdk, gobject
 from sqlalchemy import *
 import bauble
 import bauble.utils as utils
-from bauble.plugins import BaubleTool, BaublePlugin, plugins, tables
+from bauble.plugins import BaubleTool, BaublePlugin, plugins
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
 from bauble.utils.progressdialog import ProgressDialog
@@ -73,7 +73,7 @@ class CSVImporter:
         self.__pause = False  # flag to pause importing
 
 
-    def import_files(self, filenames, metadata, force):
+    def import_files(self, filenames, metadata, force):        
         transaction = None
         try:
             transaction = metadata.engine.connect().begin()
@@ -242,6 +242,7 @@ class CSVImporter:
                         # the values, e.g. when using chunk()
                         #cleaned = [dict([(k, v) for k,v in d.iteritems() if v is not '']) for d in [row for row in values]]
                         cleaned = dict([(k, v) for k,v in values.iteritems() if v is not ''])
+#                        debug('cleaned: %s' % cleaned)
                         connection.execute(insert, cleaned)
                     #insert.execute(map(cleanup, values))
                     except Queue.Empty, e:
@@ -281,47 +282,21 @@ class CSVImporter:
                     marker += 1
                             
                 if self.__error or self.__cancel:
-                    break            
+                    break
                 
-                # set the sequence on a table to the max value            
-                if engine.name in ['sqlite']: # don't need to do anything
-                    pass
-                elif engine.name is 'postgres':
-                    # TOD0: maybe something like
-    #                for col in table.c:
-    #                    if col.type == Integer:
-    #                        - get the max
-    #                        try:
-    #                            - set the sequence
-    #                        except:
-    #                            pass
-                    try:
-                        stmt = "SELECT max(id) FROM %s" % table.name
-                        #max = bauble.app.db_engine.execute(stmt).fetchone()[0]
-                        max = connection.execute(stmt).fetchone()[0]
-                        if max is not None:
-                            stmt = "SELECT setval('%s_id_seq', %d);" % (table.name, max+1)
-                            connection.execute(stmt)
-                            #bauble.app.db_engine.execute(stmt)
-                    except Exception, e:
-                        debug(e)
-                else:
-                    msg = 'Could not set the next sequence value for the primary '\
-                    'key on the "%s" table.  Importing into %s databases is not '\
-                    'fully supported.  If you need this to work then please contact '\
-                    'the developers of Bauble.  http://bauble.belizebotanic.org'
-                    debug(msg)
-                    self.__error = True
-                    self.__error_exc = msg
-                    self.__cancel = True
+            # loop till everything has been committed, is it possible
+            # for this to go on forever?
+            while not que.empty():
+                yield timeout
+                gtasklet.get_event()
+                
         except Exception, e:
             debug(e)
             self.__error = True            
             self.__error_exc = utils.xml_safe(e)
             self.__error_traceback_str = traceback.format_exc()            
-            self.__cancel = True            
-            
-                
+            self.__cancel = True
+                            
         if self.__error:
             try:
                 msg = self.__error_exc.orig
@@ -342,7 +317,42 @@ class CSVImporter:
         else:
             log.info('commiting import')
             transaction.commit()
-        connection.close()        
+            # set the sequence on a table to the max value                
+            if engine.name == 'postgres':
+                try:
+                    for table, filename in sorted_tables:                
+                    # TOD0: maybe something like
+    #                for col in table.c:
+    #                    if col.type == Integer:
+    #                        - get the max
+    #                        try:
+    #                            - set the sequence
+    #                        except:
+    #                            pass
+                    
+                        sequence_name = '%s_id_seq' % table.name
+                        stmt = "SELECT max(id) FROM %s" % table.name
+                        max = connection.execute(stmt).fetchone()[0]
+#                        debug(stmt)
+#                        debug('max: %s' % max)
+                        if max is not None:
+#                            debug(stmt)                            
+                            stmt = "SELECT setval('%s', %d);" % (sequence_name, max+1)
+                            connection.execute(stmt)
+                except Exception, e:
+                    debug(e)
+                    msg = 'Error: Could not set the value the for the sequence: %s' % sequence_name
+                    d = utils.create_message_details_dialog('Error:  %s' % utils.xml_safe(msg),
+                                                            str(e),
+                                                            type=gtk.MESSAGE_ERROR,
+                                                            parent=self.__progress_dialog)
+                    yield (gtasklet.WaitForSignal(d, "response"),
+                           gtasklet.WaitForSignal(d, "close"))
+                    gtasklet.get_event()
+                    d.destroy()
+
+                
+        #connection.close()        
         yield gtasklet.Message('quit', dest=monitor_tasklet)
     
     
@@ -436,6 +446,16 @@ class CSVImporter:
             bauble.app.set_busy(False)
             return        
         
+        if bauble.app.db_engine.name not in  ['sqlite', 'postgres']:
+            msg = 'The CSV Import plugin has not been tested with %s '\
+                  'databases. It\'s possible that it may work fine but we '\
+                  'can\'t offer an guarantees.  If you need this to work then '\
+                  'please contact the developers of Bauble.  '\
+                  'http://bauble.belizebotanic.org\n\n<i>Would you like to '\
+                  'continue?</i>'
+            if not utils.yes_no_dialog(msg):
+                return
+        
         self.import_files(filenames, default_metadata, force)
       
         
@@ -492,18 +512,24 @@ class CSVExporter:
         if not os.path.exists(path):
             raise ValueError("CSVExporter: path does not exist.\n" + path) 
 
-        filename_template = path + os.sep +"%s.txt"
+        filename_template = os.path.join(path, "%s.txt")
+        tables = default_metadata.tables        
         for name in tables.keys():
             filename = filename_template % name
-            if os.path.exists(filename) and not \
-               utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
+            debug(filename)
+            msg = 'Export file <b>%s</b> for <b>%s</b> table already exists.'\
+                  '\n\n<i>Would you like to continue?</i>' % (filename, name)
+            if os.path.exists(filename) and not utils.yes_no_dialog(msg):
                 return                
+            
         bauble.app.set_busy(True)
-        replace = lambda s: s.replace('\n', '\\n')
-
-
-
-        for table_name, table in default_metadata.tables.iteritems():
+        #replace = lambda s: s.replace('\n', '\\n')
+        def replace(s):
+            if isinstance(s, (str, unicode)):
+                s.replace('\n', '\\n')
+            return s
+        
+        for table_name, table in tables.iteritems():
             log.info("exporting %s" % table_name)
             rows = []
             # TODO: probably don't need to write out column names or even
@@ -513,60 +539,12 @@ class CSVExporter:
                 values = map(replace, row.values())
                 rows.append(values)
             f = file(filename_template % table_name, "wb")
-            #writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
             writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             writer.writerows(rows)
             f.close()
 
         bauble.app.set_busy(False)
-        
-        
-        
-#    def run(self, path):        
-#        if not os.path.exists(path):
-#            raise ValueError("CSVExporter: path does not exist.\n" + path) 
-#
-#        filename_template = path + os.sep +"%s.txt"
-#        for name in tables.keys():
-#            filename = filename_template % name
-#            if os.path.exists(filename) and not \
-#               utils.yes_no_dialog("%s exists, do you want to continue?" % filename):
-#                return                
-#        bauble.app.set_busy(True)
-#        #rows = []
-#        #rows_append = rows.append
-#        for table_name, table in tables.iteritems():
-#            print "exporting " + table_name
-#            #progress.pulse()
-#            col_dict = {}
-#            header = ['id']
-#            for name, col in table.sqlmeta.columns.iteritems():
-#                if name.endswith('ID'):
-#                    header.append('%s_id' % name[:-2])
-#                else:
-#                    header.append(name)
-#
-#            col_dict = table.sqlmeta.columns
-#            
-#            rows = []
-#            # TODO: probably don't need to write out column names or even
-#            # create the file if it contains no data, could be an option
-#            # TODO: this is slow as dirt
-#            #rows.append(["id"] + col_dict.keys()[:]) # write col names
-#            rows.append(header) # write col names
-#            rows_append = rows.append
-#            for row in table.select():                                
-#                values = []
-#                values.append(row.id) # id is always first
-#                map(lambda col: values.append(getattr(row, col)), col_dict)
-#                rows_append(values)
-#            f = file(filename_template % table_name, "wb")
-#            writer = csv.writer(f, quotechar='"', quoting=csv.QUOTE_NONNUMERIC)
-#            writer.writerows(rows)
-#        f.close()
-#        bauble.app.set_busy(False)
-#        #bauble.app.gui.window.window.set_cursor(None)
-#        #progress.destroy()
+
             
 #
 # plugin classes
