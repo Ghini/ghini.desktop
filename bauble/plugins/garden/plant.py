@@ -101,7 +101,7 @@ None: no information, unknown)
 # TODO: change plant_id to plant_code, or just code
 plant_table = Table('plant', 
                     Column('id', Integer, primary_key=True),
-                    Column('code', Unicode, nullable=False, unique='plant_index'),
+                    Column('code', Unicode, nullable=False),
                     Column('acc_type', 
                            Enum(values=['Plant', 'Seed/Spore', 
                                         'Vegetative Part',  'Tissue Culture', 
@@ -112,12 +112,13 @@ plant_table = Table('plant',
                                                       'Other', None], empty_to_none=True)),
                     Column('notes', Unicode),
                     Column('accession_id', Integer, ForeignKey('accession.id'), 
-                           nullable=False, unique='plant_index'),
+                           nullable=False),
                     Column('location_id', Integer, ForeignKey('location.id'), 
                            nullable=False),
                     Column('_created', DateTime, default=func.current_timestamp()),
                     Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                           onupdate=func.current_timestamp()))
+                           onupdate=func.current_timestamp()),
+                    UniqueConstraint('code', 'accession_id', name='plant_index'))
 
 # TODO: configure the acc code and plant code separator, the default should
 # be '.'

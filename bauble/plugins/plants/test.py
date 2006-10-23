@@ -1,8 +1,12 @@
 import os, sys, unittest
-from sqlobject import *
+from sqlalchemy import *
 import bauble
 from bauble.plugins import plugins, tables
-from bauble.plugins.plants.species_model import Species
+from bauble.plugins.plants.species_model import Species, species_table, \
+    VernacularName, vernacular_name_table
+from bauble.plugins.plants.family import family_table
+from bauble.plugins.plants.genus import genus_table
+
 from testbase import BaubleTestCase, log
 #
 # TODO: things to create tests for
@@ -131,7 +135,7 @@ class PlantTestCase(BaubleTestCase):
 #    def tearDown(self):
 #        pass
     
-class SpeciesTestCase(PlantTestCase):
+class SpeciesTests(PlantTestCase):
     
     def testString(self):
         '''
@@ -161,11 +165,48 @@ class SpeciesTestCase(PlantTestCase):
             log.info('-- %s\n  %s == %s' % (name_dict, name, s))
             assert(name == s)
             
+    def setUp(self):
+        super(SpeciesTests, self).setUp()
+        family_name = 'TestVernFamily'
+        genus_name = 'TestVernGenus'
+        sp_name = 'testvernspecies'
+        family_table.insert().execute(family=family_name)
+        family_id = select([family_table.c.id], family_table.c.family==family_name).scalar()
+        genus_table.insert().execute(genus=genus_name, family_id=family_id)
+        genus_id = select([genus_table.c.id], genus_table.c.genus==genus_name).scalar()
+        species_table.insert().execute(genus_id=genus_id, sp=sp_name)
+        species_id = select([species_table.c.id], species_table.c.sp==sp_name)
+        
+        
+    def testVernacularName(self):    
+        '''
+        test creating verncular names, attaching them to the species, setting
+        the species.default_vernacular_name and then deleting them
+        '''
+        session = create_session()
+        sp_query = session.query(Species)
+        sp_name = 'testvernspecies'
+        sp = sp_query.select(species_table.c.sp==sp_name)[0]
+        vernacular_name_table.insert().execute(species_id=sp.id, name='TestVernName', language='TestVernLanguage')
+        vn = session.query(VernacularName).select(vernacular_name_table.c.name=='TestVernName')[0]
+        session.save(vn)
+        sp.vernacular_names.append(vn)
+        session.flush()
+        sp.default_vernacular_name = vn
+        session.flush()        
+        del sp.default_vernacular_name
+        session.flush()        
+        session.delete(vn)
+        session.flush()
+        session.expire(sp) # this expire() has to be here or it will fail
+        assert sp.default_vernacular_name is None, 'default vernacular name is not None'
+        session.flush()
+    
         
 class PlantTestSuite(unittest.TestSuite):
    def __init__(self):
-       unittest.TestSuite.__init__(self, map(SpeciesTestCase,
-                                             ("testString",)))
+       unittest.TestSuite.__init__(self, map(SpeciesTests,
+                                             ('testString','testVernacularName')))
 
 testsuite = PlantTestSuite
 

@@ -174,7 +174,7 @@ class Verification(bauble.BaubleMapper):
 
 accession_table = Table('accession',
                 Column('id', Integer, primary_key=True),                            
-                Column('code', Unicode(20), nullable=False, unique='code_index'),                        
+                Column('code', Unicode(20), nullable=False, unique=True),
                 Column('prov_type', Enum(values=['Wild', 
                                                  "Propagule of cultivated wild plant", 
                                                  "Not of wild source",

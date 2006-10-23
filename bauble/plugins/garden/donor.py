@@ -47,7 +47,7 @@ donor_context_menu = [('Edit', edit_callback),
 # key into another table
 donor_table = Table('donor',
                     Column('id', Integer, primary_key=True),
-                    Column('name', Unicode(72), unique='donor_index'),
+                    Column('name', Unicode(72), unique=True),
                     Column('donor_type', Enum(values=['Expedition',
                                                       "Gene bank",
                                                       "Botanic Garden or Arboretum", 

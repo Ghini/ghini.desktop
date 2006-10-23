@@ -67,15 +67,14 @@ def family_markup_func(family):
 #
 family_table = Table('family',
                      Column('id', Integer, primary_key=True),
-                     Column('family', String(45), unique='family_index', 
-                            nullable=False),
+                     Column('family', String(45), nullable=False, index=True),
                      Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
-                                              empty_to_none=True),
-                           unique='family_index'),
+                                              empty_to_none=True)),
                      Column('notes', Unicode),
                      Column('_created', DateTime, default=func.current_timestamp()),
                      Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                            onupdate=func.current_timestamp()))
+                            onupdate=func.current_timestamp()),
+                     UniqueConstraint('family', 'qualifier', name='family_index'))
 
 family_synonym_table = Table('family_synonym',
                              Column('id', Integer, primary_key=True),
