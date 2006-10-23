@@ -11,7 +11,7 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.orm.properties import PropertyLoader
-from sqlalchemy.attributes import InstrumentedList
+#from sqlalchemy.attributes import InstrumentedList
 from formencode import *
 import bauble
 from bauble.plugins import BaubleEditor, tables
@@ -127,7 +127,9 @@ class ModelDecorator(object):
                 for callback in notifiers[name]:
                     callback(model, name)
         
-        
+    
+    def __cmp__(self, other):
+        return self.model == other
         
     def __setattr__(self, name, value):
         self.__set(name, value)        
@@ -501,7 +503,8 @@ class GenericEditorPresenter:
     def assign_completions_handler(self, widget_name, field, 
                                    get_completions, 
                                    set_func=lambda self, f, v: setattr(self.model, f, v), 
-                                   format_func=lambda x: str(x)):
+                                   format_func=lambda x: str(x),
+                                   model=None):
         '''
         @param widget_name: the name of the widget in self.view.widgets
         @param field: the name of the field to set in the model
@@ -509,9 +512,12 @@ class GenericEditorPresenter:
             the default is lambda self, f, v: setattr(self.model, f, v)
         @param format_func: the func to call to format the value in the 
             completion, the default is lambda x: str(x)
+        @param model: the model to set for the completions, if None then 
+        use self.model
         '''
         widget = self.view.widgets[widget_name]
-
+        if model is None:
+            model = self.model
         # TODO: this works with Ctrl-Space and all but i don't know how to pop up
         # the completion
 #        def callback(w, event):                
@@ -536,11 +542,11 @@ class GenericEditorPresenter:
 #            debug('add_completions(%s)' % text)
             values = get_completions(text)
             def idle_callback(values):
-                model = gtk.ListStore(object)
+                completion_model = gtk.ListStore(object)
                 for v in values:
-                    model.append([v])
+                    completion_model.append([v])
                 completion = widget.get_completion()
-                completion.set_model(model)
+                completion.set_model(completion_model)
             gobject.idle_add(idle_callback, values)
         def on_insert_text(entry, new_text, new_text_length, position, data=None):
             if new_text == '':
@@ -573,13 +579,15 @@ class GenericEditorPresenter:
 #                add_completions(full_text[:2])
 #            self.prev_text = full_text
             
-            if full_text != str(getattr(self.model, field)):
+            # i think this is making sure the value in the entry was chosen
+            # from the popup, i.e. set in the model
+            if full_text != str(getattr(model, field)):
                 self.add_problem(PROBLEM, widget)
-                setattr(self.model, field, None)                
+                setattr(model, field, None)                
         def on_delete_text(entry, start, end, data=None):
             text = entry.get_text()
             full_text = text[:start] + text[end:]
-            if full_text == '' or (full_text == str(self.model[field])):
+            if full_text == '' or (full_text == str(model[field])):
                 return            
             compl_model = widget.get_completion().get_model()
             if (compl_model is None or len(compl_model) == 0) and len(full_text) > 0:            
@@ -587,7 +595,7 @@ class GenericEditorPresenter:
             elif len(full_text) == 1:
                 add_completions(full_text[0])                
             self.add_problem(PROBLEM, widget)
-            self.model[field] = None
+            model[field] = None
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
 #            debug('on_match_select: %s' % str(value))
@@ -696,7 +704,10 @@ class GenericModelViewPresenterEditor(BaubleEditor):
 #            else:
 #                debug('nowhere: %s' % obj)
 #            debug('%s' % repr(obj))
+#        import logging
+#        logging.getLogger('sqlalchemy').setLevel(logging.INFO)
         self.session.flush()
+#        logging.getLogger('sqlalchemy').setLevel(1)
         return True
     
 
