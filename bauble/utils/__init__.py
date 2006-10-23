@@ -30,50 +30,6 @@ from sqlalchemy import *
 #    return result
 
 
-# TODO: use a custom TableCollection that only returns tables in collection 
-# on sort()
-class MyTableCollection(object):
-    def __init__(self):
-        self.tables = []
-    def add(self, table):
-        self.tables.append(table)
-        if hasattr(self, '_sorted'):
-            del self._sorted
-    def sort(self, reverse=False):
-        try:
-            sorted = self._sorted
-        except AttributeError, e:
-            self._sorted = self._do_sort()
-            sorted = self._sorted
-        if reverse:
-            x = sorted[:]
-            x.reverse()
-            return x
-        else:
-            return sorted
-            
-    def _do_sort(self):
-        import sqlalchemy.orm.topological
-        tuples = []
-        class TVisitor(schema.SchemaVisitor):
-            def visit_foreign_key(s, fkey):
-                parent_table = fkey.column.table
-                if parent_table in self.tables:
-                    child_table = fkey.parent.table
-                    tuples.append( ( parent_table, child_table ) )
-        vis = TVisitor()        
-        for table in self.tables:
-            table.accept_schema_visitor(vis)
-        sorter = sqlalchemy.orm.topological.QueueDependencySorter( tuples, self.tables )
-        head =  sorter.sort()
-        sequence = []
-        def to_sequence( node, seq=sequence):
-            seq.append( node.item )
-            for child in node.children:
-                to_sequence( child )
-        if head is not None:
-            to_sequence( head )
-        return sequence
 
 def find_dependent_tables(table, metadata=None):
     from sqlalchemy import default_metadata
@@ -95,7 +51,6 @@ def find_dependent_tables(table, metadata=None):
                     pass
     _impl(table)
     collection = sql_util.TableCollection()
-    collection = MyTableCollection()
     for r in result:
         collection.add(r)        
     sorted = collection.sort(False)
