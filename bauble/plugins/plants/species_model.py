@@ -3,6 +3,7 @@
 #
 
 import traceback
+import gtk
 import xml.sax.saxutils as sax
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
@@ -123,11 +124,6 @@ near -- Close to
 ? -- Questionable
 
 '''
-# TODO: create an index from sp_hybrid, sp_qual, sp, sp_author, cv_group, 
-        # isp, isp_author, isp_rank, genus
-        #species_index = DatabaseIndex('genus', 'sp', 'sp_author', 'sp_hybrid', 
-        #                             'sp_qual', 'cv_group', 'infrasp', 
-        #                             'infrasp_author', 'infrasp_rank')
         
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
@@ -136,37 +132,36 @@ near -- Close to
 
 species_table = Table('species', 
                       Column('id', Integer, primary_key=True),
-                      Column('sp', String(64), nullable=False, 
-                             unique='species_index'),
-                      Column('sp_author', Unicode(128), unique='species_index'),
+                      Column('sp', String(64), nullable=False, index=True),
+                      Column('sp_author', Unicode(128)),
                       Column('sp_hybrid', Enum(values=['x', '+', 'H', None],
-                                               empty_to_none=True), 
-                             unique='species_index'),
+                                               empty_to_none=True)),
                       Column('sp_qual', Enum(values=['agg.', 's. lat.', 
                                                      's. str.', None], 
-                                                     empty_to_none=True),
-                             unique='species_index'),
-                      Column('cv_group', Unicode(50), unique='species_index'),
+                                                     empty_to_none=True)),
+                      Column('cv_group', Unicode(50)),
                       Column('trade_name', Unicode(64)), 
-                      Column('infrasp', Unicode(50), unique='species_index'),
-                      Column('infrasp_author', Unicode(255), 
-                             unique='species_index'),
+                      Column('infrasp', Unicode(50)),
+                      Column('infrasp_author', Unicode(255)),
                       #Column('infrasp_rank', String(8), unique='species_index'),
                       Column('infrasp_rank', Enum(values=['subsp.', 'var.', 
                                                           'subvar.', 'f.', 
                                                           'subf.', 'cv.', None],
-                                                  empty_to_none=True), 
-                                                  unique='species_index'),
+                                                  empty_to_none=True)),
                       Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect', 
                                              'forsan', 'near', '?', None],
                                              empty_to_none=True)),
                       Column('notes', Unicode),
                       Column('genus_id', Integer, ForeignKey('genus.id'), 
-                             nullable=False, unique='species_index'),
+                             nullable=False),
                       Column('_created', DateTime, default=func.current_timestamp()),
                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                             onupdate=func.current_timestamp()))
-    
+                             onupdate=func.current_timestamp()),
+                      UniqueConstraint('sp', 'sp_author', 'sp_hybrid', 'sp_qual',
+                                      'cv_group', 'trade_name', 'infrasp', 
+                                      'infrasp_author', 'infrasp_rank', 
+                                      'genus_id', name='species_index'))
+
 class Species(bauble.BaubleMapper):    
             
     def __str__(self):
@@ -289,8 +284,7 @@ species_synonym_table = Table('species_synonym',
 class SpeciesSynonym(bauble.BaubleMapper):
     
     def __str__(self):
-        #return '(%s)' % object_session(Species.get_by(id=self.species)
-        return str(self.species)
+        return str(self.synonym)
     
 
 
@@ -376,13 +370,14 @@ species_id: key to the species this vernacular name refers to
 ''' 
 vernacular_name_table = Table('vernacular_name',
                               Column('id', Integer, primary_key=True),
-                              Column('name', Unicode(128), unique='vn_index', nullable=False),
-                              Column('language', Unicode(128), unique='vn_index'),
+                              Column('name', Unicode(128), nullable=False),
+                              Column('language', Unicode(128)),
                               Column('species_id', Integer, 
-                                     ForeignKey('species.id'), unique='vn_index', nullable=False),
+                                     ForeignKey('species.id'), nullable=False),
                               Column('_created', DateTime, default=func.current_timestamp()),
                               Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                     onupdate=func.current_timestamp()))
+                                     onupdate=func.current_timestamp()),
+                              UniqueConstraint('name', 'language', 'species_id', name='vn_index'))
                                      
 class VernacularName(bauble.BaubleMapper):
 
@@ -408,17 +403,22 @@ vernacular_name_id:
 default_vernacular_name_table = Table('default_vernacular_name',
                                       Column('id', Integer, primary_key=True),
                                       Column('species_id', Integer, 
-                                             ForeignKey('species.id'), unique='default_vn_index', nullable=False),
+                                             ForeignKey('species.id'), nullable=False),
                                       Column('vernacular_name_id', Integer, 
-                                             ForeignKey('vernacular_name.id'), unique='default_vn_index', nullable=False),
+                                             ForeignKey('vernacular_name.id'), nullable=False),
                                       Column('_created', DateTime, default=func.current_timestamp()),
                                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                             onupdate=func.current_timestamp()))
+                                             onupdate=func.current_timestamp()),
+                                      UniqueConstraint('species_id', 'vernacular_name_id', name='default_vn_index'))
 
 class DefaultVernacularName(bauble.BaubleMapper):
     
-    def _str_(self):
-        return str(self.vernacular_name)
+    def __init__(self, species=None, vernacular_name=None):
+        self.species = species
+        self.vernacular_name = vernacular_name
+        
+    def __str__(self):
+        return '%s (default)' % str(self.vernacular_name)
 
 
 #'''
@@ -459,14 +459,16 @@ class DefaultVernacularName(bauble.BaubleMapper):
 
 mapper(SpeciesSynonym, species_synonym_table,
        properties = {'synonym': relation(Species, uselist=False,
-                                         primaryjoin = species_synonym_table.c.synonym_id==species_table.c.id)})
-
+                                         primaryjoin=species_synonym_table.c.synonym_id==species_table.c.id),
+                     'species': relation(Species, uselist=False, 
+                                         primaryjoin=species_synonym_table.c.species_id==species_table.c.id)
+                     })
 mapper(VernacularName, vernacular_name_table)
 
 mapper(DefaultVernacularName, default_vernacular_name_table,
-       properties = {'species': relation(Species, 
-                                         primaryjoin=default_vernacular_name_table.c.species_id==species_table.c.id,
-                                         uselist=False)
+       properties = {'vernacular_name': relation(VernacularName,
+                                                 primaryjoin=default_vernacular_name_table.c.vernacular_name_id==vernacular_name_table.c.id,
+                                                 uselist=False)
                      }
        )
 
@@ -480,21 +482,20 @@ mapper(SpeciesMeta, species_meta_table,
 species_mapper = mapper(Species, species_table, 
        properties = {'species_meta': relation(SpeciesMeta, 
                                               primaryjoin=species_table.c.id==species_meta_table.c.species_id,
-                                              backref='species', 
-                                              uselist=False, cascade='all, delete-orphan'),
+                                              # TODO: why does this not work??? since 0.3????
+                                              # cascade='all, delete-orphan', 
+                                              uselist=False, 
+                                              backref=backref('species', uselist=False)),
                      'synonyms': relation(SpeciesSynonym, 
                                           primaryjoin=species_table.c.id==species_synonym_table.c.species_id,                                          
-                                          cascade='all, delete-orphan',
-                                          backref='species'),
+                                          cascade='all, delete-orphan'),
                      'vernacular_names': relation(VernacularName, 
                                                   primaryjoin=species_table.c.id==vernacular_name_table.c.species_id, 
                                                   cascade='all, delete-orphan',
                                                   backref=backref('species', uselist=False)),
-                     'default_vernacular_name': relation(VernacularName,
-                                                         secondary=default_vernacular_name_table,
-                                                         uselist=False), 
-                                                         #cascade='all, delete-orphan', # WARNING: do not enable this
-                                                         #backref=backref('species', uselist=False)), # WARNING: or this
+                     'default_vernacular_name': relation(DefaultVernacularName, uselist=False, cascade='all, delete-orphan', 
+                                                         lazy=False, backref='species')
+
                      },
        order_by=[species_table.c.sp, species_table.c.sp_author, 
                  species_table.c.infrasp_rank,species_table.c.infrasp])

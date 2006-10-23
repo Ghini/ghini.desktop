@@ -91,26 +91,27 @@ def genus_markup_func(genus):
     
 genus_table = Table('genus',
                     Column('id', Integer, primary_key=True),    
-                    # it is possible that there can be genera with the same name but 
-                    # different authors and probably means that at different points in literature
-                    # this name was used but is now a synonym even though it may not be a
-                    # synonym for the same species,
-                    # this screws us up b/c you can now enter duplicate genera, somehow
-                    # NOTE: we should at least warn the user that a duplicate is being entered
-                    Column('genus', String(64), unique='genus_index', nullable=False),                
+                    # it is possible that there can be genera with the same name 
+                    # but different authors and probably means that at different 
+                    # points in literature this name was used but is now a 
+                    # synonym even though it may not be a synonym for the same 
+                    # species, this screws us up b/c you can now enter duplicate 
+                    # genera, somehow
+                    # NOTE: we should at least warn the user that a duplicate is 
+                    # being entered
+                    Column('genus', String(64), nullable=False, index=True),                
                     Column('hybrid', Enum(values=['H', 'x', '+', None], 
-                                          empty_to_none=True), 
-                                          unique='genus_index'),
-                    Column('author', Unicode(255), unique='genus_index'),
+                                          empty_to_none=True)),
+                    Column('author', Unicode(255)),
                     Column('qualifier', Enum(values=['s. lat.', 's. str', None],
-                                             empty_to_none=True),
-                                             unique='genus_index'),
+                                             empty_to_none=True)),
                     Column('notes', Unicode),
                     Column('family_id', Integer, ForeignKey('family.id'), 
-                           nullable=False, unique='genus_index'),
+                           nullable=False),
                     Column('_created', DateTime, default=func.current_timestamp()),
                     Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                           onupdate=func.current_timestamp()))
+                           onupdate=func.current_timestamp()),
+                    UniqueConstraint('genus', 'hybrid', 'author', 'family_id', name='genus_index'))
     
 class Genus(bauble.BaubleMapper):
         
