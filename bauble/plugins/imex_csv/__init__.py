@@ -176,7 +176,7 @@ class CSVImporter:
                 yield timeout
                 gtasklet.get_event()
                 
-                if not table.exists(engine=engine):
+                if not table.exists(connectable=engine):
                     debug('%s does not exist. creating.' % table.name)                
                     table.create(connectable=connection)
                     add_to_created(table.name)
