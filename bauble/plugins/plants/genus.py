@@ -134,7 +134,8 @@ genus_synonym_table = Table('genus_synonym',
                                    nullable=False),
                             Column('_created', DateTime, default=func.current_timestamp()),
                             Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                   onupdate=func.current_timestamp()))
+                                   onupdate=func.current_timestamp()),
+                            UniqueConstraint('genus_id', 'synonym_id', name='genus_synonym_index'))
 
 
 class GenusSynonym(bauble.BaubleMapper):
@@ -161,7 +162,12 @@ genus_mapper = mapper(Genus, genus_table,
                                           backref='genus')},
        order_by=['genus', 'author'])
 
-mapper(GenusSynonym, genus_synonym_table)
+mapper(GenusSynonym, genus_synonym_table,
+       properties = {'synonym': relation(Genus, uselist=False,
+                                         primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id),
+                     'genus': relation(Genus, uselist=False, 
+                                        primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id)
+                     })
             
     
 class GenusEditorView(GenericEditorView):

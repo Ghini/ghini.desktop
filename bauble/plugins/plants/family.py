@@ -86,7 +86,8 @@ family_synonym_table = Table('family_synonym',
                                     nullable=False),
                              Column('_created', DateTime, default=func.current_timestamp()),
                              Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                    onupdate=func.current_timestamp()))
+                                    onupdate=func.current_timestamp()),
+                             UniqueConstraint('family_id', 'synonym_id', name='family_synonym_index'))
 
 class Family(bauble.BaubleMapper):
     
@@ -110,9 +111,12 @@ class FamilySynonym(bauble.BaubleMapper):
     # - here default=None b/c this can only be edited as a sub editor of,
     # Family, thoughwe have to be careful this doesn't create a dangling record
     # with no parent
-    def __init__(self, family_id, synonym_id):
-        self.family_id
-        self.synonym_id
+    def __init__(self, family=None, synonym=None):
+        self.family = family
+        self.synonym = synonym
+        
+    def __str__(self):
+        return Family.str(self.synonym, full_string=True)
         
 from bauble.plugins.plants.genus import Genus, genus_table, GenusEditor
 #from bauble.plugins.plants.genus import Species, species_table
@@ -127,7 +131,12 @@ mapper(Family, family_table,
                      'genera': relation(Genus, backref='family')})
 #                     'genera': relation(Genus, cascade='all, delete-orphan',
 #                                        backref=backref('family', cascade='all'))})
-mapper(FamilySynonym, family_synonym_table)
+mapper(FamilySynonym, family_synonym_table,
+       properties = {'synonym': relation(Family, uselist=False,
+                                         primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id),
+                     'family': relation(Family, uselist=False, 
+                                        primaryjoin=family_synonym_table.c.family_id==family_table.c.id)
+                     })
     
     
 class FamilyEditorView(GenericEditorView):
@@ -141,8 +150,15 @@ class FamilyEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.family_dialog
         self.dialog.set_transient_for(parent)
+        self.attach_completion('fam_syn_entry', self.syn_cell_data_func)
         self.connect_dialog_close(self.widgets.family_dialog)
 
+    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
+        '''
+        '''
+        v = model[iter][0]
+        renderer.set_property('text', str(v))
+        
     def save_state(self):
         prefs[self.syn_expanded_pref] = \
             self.widgets.fam_syn_expander.get_expanded()    
@@ -152,6 +168,11 @@ class FamilyEditorView(GenericEditorView):
         expanded = prefs.get(self.syn_expanded_pref, True)
         self.widgets.fam_syn_expander.set_expanded(expanded)        
 
+    def _get_window(self):
+        '''
+        '''
+        return self.widgets.family_dialog    
+    window = property(_get_window)
             
     def start(self):
         return self.dialog.run()    
@@ -174,6 +195,8 @@ class FamilyEditorPresenter(GenericEditorPresenter):
         # initialize widgets
         self.init_enum_combo('fam_qualifier_combo', 'qualifier')
 
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)
+
         self.refresh_view() # put model values in view            
         
         # connect signals
@@ -183,7 +206,7 @@ class FamilyEditorPresenter(GenericEditorPresenter):
     
         
     def dirty(self):
-        return self.model.dirty
+        return self.model.dirty or self.synonyms_presenter.dirty()
     
     
     def refresh_view(self):
@@ -195,7 +218,144 @@ class FamilyEditorPresenter(GenericEditorPresenter):
     def start(self):
         return self.view.start()
     
+ 
+#
+# TODO: you shouldn't be able to set a plant as a synonym of itself
+#
+class SynonymsPresenter(GenericEditorPresenter):
     
+    PROBLEM_INVALID_SYNONYM = 1
+    
+    # TODO: if you add a species and then immediately remove then you get an
+    # error, something about the synonym not being in the session
+        
+    def __init__(self, family, view, session):
+        '''
+        @param model: Family instance
+        @param view: see GenericEditorPresenter
+        @param session: 
+        '''
+        GenericEditorPresenter.__init__(self, ModelDecorator(family), view)
+        self.session = session
+        self.init_treeview()
+        
+        # use completions_model as a dummy object for completions, we'll create
+        # seperate SpeciesSynonym models on add
+        completions_model = FamilySynonym()
+        def fam_get_completions(text):           
+            return self.session.query(Family).select(family_table.c.family.like('%s%%' % text))
+        def set_in_model(self, field, value):
+            # don't set anything in the model, just set self.selected
+            sensitive = True
+            if value is None:
+                sensitive = False
+            self.view.widgets.fam_syn_add_button.set_sensitive(sensitive)
+            self._added = value
+
+        self.assign_completions_handler('fam_syn_entry', 'synonym',
+                                        fam_get_completions, 
+                                        set_func=set_in_model,
+                                        model=completions_model)
+#        self.selected = None
+        self._added = None
+        self.view.widgets.fam_syn_add_button.connect('clicked', 
+                                                    self.on_add_button_clicked)
+        self.view.widgets.fam_syn_remove_button.connect('clicked', 
+                                                    self.on_remove_button_clicked)
+        self.__dirty = False
+        
+        
+    def dirty(self):
+        return self.model.dirty or self.__dirty
+    
+    
+    def init_treeview(self):        
+        '''
+        initialize the gtk.TreeView
+        '''
+        self.treeview = self.view.widgets.fam_syn_treeview        
+        def _syn_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', str(v))
+            # just added so change the background color to indicate its new
+            if v.id is None:
+                cell.set_property('foreground', 'blue')
+            else:
+                cell.set_property('foreground', None)
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn('Synonym', cell)
+        col.set_cell_data_func(cell, _syn_data_func)
+        self.treeview.append_column(col)
+        
+        tree_model = gtk.ListStore(object)
+        for syn in self.model.synonyms:
+            tree_model.append([syn])
+        self.treeview.set_model(tree_model)        
+        self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
+    
+    
+    def on_tree_cursor_changed(self, tree, data=None):
+        '''
+        '''
+        path, column = tree.get_cursor()
+        self.view.widgets.fam_syn_remove_button.set_sensitive(True)
+
+    
+    def refresh_view(self):
+        '''
+        doesn't do anything
+        '''
+        return
+        
+        
+    def on_add_button_clicked(self, button, data=None):
+        '''
+        adds the synonym from the synonym entry to the list of synonyms for 
+            this species
+        '''        
+        syn = FamilySynonym()
+        syn.synonym = self._added        
+        #self.session.save(syn)
+        self.model.synonyms.append(syn)
+        tree_model = self.treeview.get_model()
+        tree_model.append([syn])
+        self._added = None
+        entry = self.view.widgets.fam_syn_entry
+        # sid generated from GenericEditorPresenter.assign_completion_handler
+        entry.handler_block(self._insert_fam_syn_entry_sid) 
+        entry.set_text('')
+        entry.set_position(-1)        
+        entry.handler_unblock(self._insert_fam_syn_entry_sid)
+        self.view.widgets.fam_syn_add_button.set_sensitive(False)
+        self.view.widgets.fam_syn_add_button.set_sensitive(False)
+        #self.view.set_accept_buttons_sensitive(True)
+        self.__dirty = True
+        
+
+    def on_remove_button_clicked(self, button, data=None):
+        '''
+        removes the currently selected synonym from the list of synonyms for
+        this species
+        '''
+        # TODO: maybe we should only ask 'are you sure' if the selected value
+        # is an instance, this means it will be deleted from the database        
+        tree = self.view.widgets.fam_syn_treeview
+        path, col = tree.get_cursor()
+        tree_model = tree.get_model()
+        value = tree_model[tree_model.get_iter(path)][0]      
+#        debug('%s: %s' % (value, type(value)))
+        s = Family.str(value.synonym, full_string=True)
+        msg = 'Are you sure you want to remove %s as a synonym to the ' \
+              'current family?\n\n<i>Note: This will not remove the family '\
+              '%s from the database.</i>' % (s, s)
+        if utils.yes_no_dialog(msg, parent=self.view.window):            
+            tree_model.remove(tree_model.get_iter(path))
+            self.model.synonyms.remove(value)
+#            delete_or_expunge(value)            
+            #self.view.set_accept_buttons_sensitive(True)
+            self.__dirty = True
+            
+               
 class FamilyEditor(GenericModelViewPresenterEditor):
     
     label = 'Family'
