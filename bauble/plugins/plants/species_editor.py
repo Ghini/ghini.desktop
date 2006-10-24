@@ -573,7 +573,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         
     def __init__(self, model, view, session):
         '''
-        @param model: a Species.synonyms property
+        @param model: a Species instance
         @param view: see GenericEditorPresenter
         @param session: 
         '''

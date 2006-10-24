@@ -279,7 +279,8 @@ species_synonym_table = Table('species_synonym',
                                      ForeignKey('species.id'), nullable=False),
                               Column('_created', DateTime, default=func.current_timestamp()),
                               Column('_last_updated', DateTime, default=func.current_timestamp(), 
-                                     onupdate=func.current_timestamp()))
+                                     onupdate=func.current_timestamp()),
+                              UniqueConstraint('species_id', 'synonym_id', name='species_synonym_index'))
     
 class SpeciesSynonym(bauble.BaubleMapper):
     
@@ -418,7 +419,8 @@ class DefaultVernacularName(bauble.BaubleMapper):
         self.vernacular_name = vernacular_name
         
     def __str__(self):
-        return '%s (default)' % str(self.vernacular_name)
+        return str(self.vernacular_name)
+        #return '%s (default)' % str(self.vernacular_name)
 
 
 #'''
