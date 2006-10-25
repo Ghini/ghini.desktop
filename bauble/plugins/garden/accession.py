@@ -813,7 +813,7 @@ class DonationPresenter(GenericEditorPresenter):
         changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
         '''
-        debug('on_donor_combo_changed')
+#        debug('on_donor_combo_changed')
         i = combo.get_active_iter()
         if i is None:
             return
@@ -1064,7 +1064,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, model, field):
-        #debug('on field changed: %s = %s' % (field, getattr(model, field)))
+        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
@@ -1072,14 +1072,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         prov_sensitive = True                    
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
-            if model.prov_type in ['Wild']:
+            if model.prov_type == 'Wild':
                 model.wild_prov_status = wild_prov_combo.get_active_text()
             else:
                 # remove the value in the model from the wild_prov_combo                
                 prov_sensitive = False
                 model.wild_prov_status = None
-        wild_prov_combo.set_sensitive(prov_sensitive)
-        self.view.widgets.acc_wild_prov_label.set_sensitive(prov_sensitive)
+            wild_prov_combo.set_sensitive(prov_sensitive)
+            self.view.widgets.acc_wild_prov_label.set_sensitive(prov_sensitive)
         
         if field == 'longitude' or field == 'latitude':
             if model.latitude is not None and model.longitude is not None:
@@ -1145,7 +1145,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if self.current_source_box is not None:
             self.view.widgets.remove_parent(self.current_source_box)
         if source_type is not None:
-            debug(source_type)
+#            debug(source_type)
             self.current_source_box = box_map[source_type]
             self.view.widgets.remove_parent(self.current_source_box)
             source_box.pack_start(self.current_source_box, expand=False, 
@@ -1159,7 +1159,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             # initialize model change notifiers    
             for field in self.source_presenter.widget_to_field_map.values():            
                 self.source_presenter.model.add_notifier(field, self.on_field_changed)
-            debug(self.model.source in self.session.dirty)
+#            debug(self.model.source in self.session.dirty)
 #        if self.model.source is None:
 #            # turn the accept buttons on here b/c i don't know a better place to 
 #            # do it
@@ -1215,8 +1215,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             
             self.view.set_widget_value(widget, value)
-            
-        if self.model.prov_type in ['Wild']:
+
+        if self.model.prov_type == 'Wild':
             self.view.widgets.acc_wild_prov_combo.set_sensitive(True)
             self.view.widgets.acc_wild_prov_label.set_sensitive(True)
         else:
