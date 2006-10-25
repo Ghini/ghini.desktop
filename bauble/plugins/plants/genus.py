@@ -116,14 +116,17 @@ genus_table = Table('genus',
 class Genus(bauble.BaubleMapper):
         
     def __str__(self):
-        if self.genus is None:
-            return repr(self)
-        else:
-            return ' '.join([s for s in [self.hybrid, self.genus, self.qualifier] if s is not None])
+        return Genus.str(self)
+
     
     @staticmethod
-    def str(genus, full_string=False):
-        return str(genus)
+    def str(genus):
+        if genus.genus is None:
+            return repr(genus)
+        else:
+            return ' '.join([s for s in [genus.hybrid, genus.genus, genus.qualifier] if s is not None])
+
+        
         
         
 genus_synonym_table = Table('genus_synonym',
@@ -141,7 +144,8 @@ genus_synonym_table = Table('genus_synonym',
 class GenusSynonym(bauble.BaubleMapper):
         
     def __str__(self):        
-        return '(%s)' % self.synonym
+        return str(self.synonym)
+        #return '(%s)' % self.synonym
 
 
 from bauble.plugins.plants.family import Family
@@ -155,7 +159,6 @@ genus_mapper = mapper(Genus, genus_table,
                                          cascade='all, delete-orphan',
                                          order_by=['sp', 'infrasp_rank', 'infrasp'],
                                          backref='genus'),
-                                         #backref=backref('genus', lazy=True)),    
                      'synonyms': relation(GenusSynonym,
                                           primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
                                           cascade='all, delete-orphan',
@@ -182,6 +185,7 @@ class GenusEditorView(GenericEditorView):
         self.dialog = self.widgets.genus_dialog
         self.dialog.set_transient_for(parent)
         self.connect_dialog_close(self.dialog)
+        self.attach_completion('gen_syn_entry')#, self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
 
         
@@ -194,6 +198,11 @@ class GenusEditorView(GenericEditorView):
         expanded = prefs.get(self.syn_expanded_pref, True)
         self.widgets.gen_syn_expander.set_expanded(expanded)
 
+    def _get_window(self):
+        '''
+        '''
+        return self.widgets.family_dialog    
+    window = property(_get_window)
             
     def start(self):
         return self.dialog.run()    
@@ -219,7 +228,7 @@ class GenusEditorPresenter(GenericEditorPresenter):
         
         # initialize widgets
         self.init_enum_combo('gen_hybrid_combo', 'hybrid')
-        
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)                
         self.refresh_view() # put model values in view
         
         # connect signals
@@ -241,7 +250,7 @@ class GenusEditorPresenter(GenericEditorPresenter):
         
         
     def dirty(self):
-        return self.model.dirty
+        return self.model.dirty or self.synonyms_presenter.dirty()
     
     
     def refresh_view(self):
@@ -274,7 +283,144 @@ class GenusEditorPresenter(GenericEditorPresenter):
 #                
         return self.view.start()
     
+
+#
+# TODO: you shouldn't be able to set a family as a synonym of itself
+#
+class SynonymsPresenter(GenericEditorPresenter):
     
+    PROBLEM_INVALID_SYNONYM = 1
+    
+    # TODO: if you add a species and then immediately remove then you get an
+    # error, something about the synonym not being in the session
+        
+    def __init__(self, genus, view, session):
+        '''
+        @param model: Genus instance
+        @param view: see GenericEditorPresenter
+        @param session: 
+        '''
+        GenericEditorPresenter.__init__(self, ModelDecorator(genus), view)
+        self.session = session
+        self.init_treeview()
+        
+        # use completions_model as a dummy object for completions, we'll create
+        # seperate SpeciesSynonym models on add
+        completions_model = GenusSynonym()
+        def gen_get_completions(text):           
+            return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
+        def set_in_model(self, field, value):
+            # don't set anything in the model, just set self.selected
+            sensitive = True
+            if value is None:
+                sensitive = False
+            self.view.widgets.gen_syn_add_button.set_sensitive(sensitive)
+            self._added = value
+
+        self.assign_completions_handler('gen_syn_entry', 'synonym',
+                                        gen_get_completions, 
+                                        set_func=set_in_model,
+                                        model=completions_model)
+#        self.selected = None
+        self._added = None
+        self.view.widgets.gen_syn_add_button.connect('clicked', 
+                                                    self.on_add_button_clicked)
+        self.view.widgets.gen_syn_remove_button.connect('clicked', 
+                                                    self.on_remove_button_clicked)
+        self.__dirty = False
+        
+        
+    def dirty(self):
+        return self.model.dirty or self.__dirty
+    
+    
+    def init_treeview(self):        
+        '''
+        initialize the gtk.TreeView
+        '''
+        self.treeview = self.view.widgets.gen_syn_treeview        
+        def _syn_data_func(column, cell, model, iter, data=None):
+            v = model[iter][0]
+            cell.set_property('text', str(v))
+            # just added so change the background color to indicate its new
+            if v.id is None:
+                cell.set_property('foreground', 'blue')
+            else:
+                cell.set_property('foreground', None)
+        cell = gtk.CellRendererText()
+        col = gtk.TreeViewColumn('Synonym', cell)
+        col.set_cell_data_func(cell, _syn_data_func)
+        self.treeview.append_column(col)
+        
+        tree_model = gtk.ListStore(object)
+        for syn in self.model.synonyms:
+            tree_model.append([syn])
+        self.treeview.set_model(tree_model)        
+        self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
+    
+    
+    def on_tree_cursor_changed(self, tree, data=None):
+        '''
+        '''
+        path, column = tree.get_cursor()
+        self.view.widgets.gen_syn_remove_button.set_sensitive(True)
+
+    
+    def refresh_view(self):
+        '''
+        doesn't do anything
+        '''
+        return
+        
+        
+    def on_add_button_clicked(self, button, data=None):
+        '''
+        adds the synonym from the synonym entry to the list of synonyms for 
+            this species
+        '''        
+        syn = GenusSynonym()
+        syn.synonym = self._added        
+        #self.session.save(syn)
+        self.model.synonyms.append(syn)
+        tree_model = self.treeview.get_model()
+        tree_model.append([syn])
+        self._added = None
+        entry = self.view.widgets.gen_syn_entry
+        # sid generated from GenericEditorPresenter.assign_completion_handler
+        entry.handler_block(self._insert_gen_syn_entry_sid) 
+        entry.set_text('')
+        entry.set_position(-1)        
+        entry.handler_unblock(self._insert_gen_syn_entry_sid)
+        self.view.widgets.gen_syn_add_button.set_sensitive(False)
+        self.view.widgets.gen_syn_add_button.set_sensitive(False)
+        #self.view.set_accept_buttons_sensitive(True)
+        self.__dirty = True
+        
+
+    def on_remove_button_clicked(self, button, data=None):
+        '''
+        removes the currently selected synonym from the list of synonyms for
+        this species
+        '''
+        # TODO: maybe we should only ask 'are you sure' if the selected value
+        # is an instance, this means it will be deleted from the database        
+        tree = self.view.widgets.gen_syn_treeview
+        path, col = tree.get_cursor()
+        tree_model = tree.get_model()
+        value = tree_model[tree_model.get_iter(path)][0]      
+#        debug('%s: %s' % (value, type(value)))
+        s = Genus.str(value.synonym)
+        msg = 'Are you sure you want to remove %s as a synonym to the ' \
+              'current genus?\n\n<i>Note: This will not remove the genus '\
+              '%s from the database.</i>' % (s, s)
+        if utils.yes_no_dialog(msg, parent=self.view.window):            
+            tree_model.remove(tree_model.get_iter(path))
+            self.model.synonyms.remove(value)
+#            delete_or_expunge(value)            
+            #self.view.set_accept_buttons_sensitive(True)
+            self.__dirty = True
+            
+
 class GenusEditor(GenericModelViewPresenterEditor):
     
     label = 'Genus'

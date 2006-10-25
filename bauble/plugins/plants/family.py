@@ -97,11 +97,11 @@ class Family(bauble.BaubleMapper):
         return Family.str(self)
 
     @staticmethod
-    def str(family, full_string=False):
-        if full_string and family.qualifier is not None:
-            return '%s (%s)' % (family.family, family.qualifier)
-        else:
-            return family.family            
+    def str(family):
+        if family.family is None:
+            return repr(family)
+        else:            
+            return ' '.join([s for s in [family.family, family.qualifier] if s is not None])
     
     
 class FamilySynonym(bauble.BaubleMapper):
@@ -116,7 +116,7 @@ class FamilySynonym(bauble.BaubleMapper):
         self.synonym = synonym
         
     def __str__(self):
-        return Family.str(self.synonym, full_string=True)
+        return Family.str(self.synonym)
         
 from bauble.plugins.plants.genus import Genus, genus_table, GenusEditor
 #from bauble.plugins.plants.genus import Species, species_table
@@ -129,8 +129,6 @@ mapper(Family, family_table,
                                           cascade='all, delete-orphan',
                                           backref='family'),
                      'genera': relation(Genus, backref='family')})
-#                     'genera': relation(Genus, cascade='all, delete-orphan',
-#                                        backref=backref('family', cascade='all'))})
 mapper(FamilySynonym, family_synonym_table,
        properties = {'synonym': relation(Family, uselist=False,
                                          primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id),
@@ -150,14 +148,14 @@ class FamilyEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.family_dialog
         self.dialog.set_transient_for(parent)
-        self.attach_completion('fam_syn_entry', self.syn_cell_data_func)
+        self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
         self.connect_dialog_close(self.widgets.family_dialog)
 
-    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
-        '''
-        '''
-        v = model[iter][0]
-        renderer.set_property('text', str(v))
+#    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
+#        '''
+#        '''
+#        v = model[iter][0]
+#        renderer.set_property('text', Family.str(v, full_string=True))
         
     def save_state(self):
         prefs[self.syn_expanded_pref] = \
@@ -194,9 +192,7 @@ class FamilyEditorPresenter(GenericEditorPresenter):
 
         # initialize widgets
         self.init_enum_combo('fam_qualifier_combo', 'qualifier')
-
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)
-
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)        
         self.refresh_view() # put model values in view            
         
         # connect signals
@@ -220,7 +216,7 @@ class FamilyEditorPresenter(GenericEditorPresenter):
     
  
 #
-# TODO: you shouldn't be able to set a plant as a synonym of itself
+# TODO: you shouldn't be able to set a family as a synonym of itself
 #
 class SynonymsPresenter(GenericEditorPresenter):
     
@@ -344,7 +340,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]      
 #        debug('%s: %s' % (value, type(value)))
-        s = Family.str(value.synonym, full_string=True)
+        s = Family.str(value.synonym)
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current family?\n\n<i>Note: This will not remove the family '\
               '%s from the database.</i>' % (s, s)
