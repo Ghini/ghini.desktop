@@ -250,9 +250,10 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
         resets the fullname label according to values in the model
         '''
+        debug('refresh fullname label')
         if len(self.problems) > 0:
             s = '--'
-        elif self.model.genus_id == None:
+        elif self.model.genus == None:
             s = '--'
         else:
             # create an object that behaves like a Species and pass it to 
@@ -282,7 +283,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                     return d.iteritems()
                 
             values = attr_dict(d)
-            values.genus = self.session.load(Genus, self.model.genus_id)
+            values.genus = self.model.genus
             for key, value in values.iteritems():
                 if value is '':
                     values[key] = None                                        
@@ -296,7 +297,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                 values.infrasp_author = None
             elif values.infrasp_rank != 'cv.':
                 values.cv_group = None
-            s = '%s  -  %s' % (Family.str(values.genus.family, full_string=True),
+            s = '%s  -  %s' % (Family.str(values.genus.family),
                                Species.str(values, authors=True, markup=True))
         self.view.widgets.sp_fullname_label.set_markup(s)
     
@@ -908,8 +909,8 @@ class SpeciesEditorView(GenericEditorView):
         '''
         v = model[iter][0]
         renderer.set_property('text', '%s (%s)' % \
-                              (Genus.str(v, full_string=True), 
-                               Family.str(v.family, full_string=True)))
+                              (Genus.str(v), 
+                               Family.str(v.family)))
         
         
     def syn_cell_data_func(self, column, renderer, model, iter, 
