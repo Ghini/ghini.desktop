@@ -58,7 +58,7 @@ family_context_menu = [('Edit', edit_callback),
 def family_markup_func(family):
     '''
     '''
-    return str(family)
+    return '<b>%s</b>' % family
 
 
 

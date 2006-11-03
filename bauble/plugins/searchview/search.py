@@ -18,8 +18,6 @@ from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
 from pyparsing import *
 
-#from earthenware.gui.pgtk.easygrid import EasyGrid
-
 #
 # NOTE: to add a new search domain do:
 #
@@ -74,6 +72,8 @@ from pyparsing import *
 
 # TODO: try this syntax for AND and OR queries, this should make it easy
 #a=Entries.select(AND(Entries.q.aCount==3,Entries.q.alpha==myalpha))
+
+# TODO: create a set of commands from the search entry, e.g. :help or :config
 
 class SearchParser:
 
@@ -764,7 +764,7 @@ class SearchView(BaubleView):
             cell.set_property('markup', func(value))
         except:
             try:
-                cell.set_property('markup', str(value))
+                cell.set_property('markup', '<b>%s</b>\n<small>(%s)</small>' % (value, type(value).__name__))
             except TypeError, saexc.InvalidRequestError: 
                 # remove it from the results list if we can't 
                 # display, most like it was removed from the database

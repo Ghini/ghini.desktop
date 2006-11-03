@@ -60,6 +60,33 @@ import bauble
         #333**3,00*33,00*TCS*TCS-AB*2,00*A*Orient**
 # TODO: should synonym be a key into this table
 # NOTE: Mansel I. and Manu'a don't have continents ???
+
+def region_markup_func(region):
+                if region.continent is None:
+                    return '<b>%s</b>' % region
+                else:
+                    return '<b>%s</b>\n<small>%s</small>' % (region, region.continent)
+
+def botanicalcountry_markup_func(bc):
+    if bc.region is None:
+        return '<b%s</b>' % bc
+    else:
+        return '<b%s</b>\n<small>%s</small>' % (bc, bc.region)
+
+
+def basicunit_markup_func(bu):
+    if bu.botanical_country is None:
+        return '<b>%s</b>' % bu
+    else:
+        return '<b>%s</b>\n<small>%s</small>' % (bu, bu.botanical_country)
+
+
+def place_markup_func(place):
+    if place.basic_unit is None:
+        return '<b>%s</b>' % place
+    else:
+        return '<b>%s</b>\n<small>%s</small>' % (place, place.basic_unit)
+
 place_table = Table('place',
                     Column('id', Integer, primary_key=True),
                     Column('place', Unicode(64)),
