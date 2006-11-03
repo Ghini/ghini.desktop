@@ -250,7 +250,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
         resets the fullname label according to values in the model
         '''
-        debug('refresh fullname label')
         if len(self.problems) > 0:
             s = '--'
         elif self.model.genus == None:
@@ -1246,4 +1245,10 @@ else:
             #self.ref.value = row.references
             #ref = self.get_expander("References")
             #ref.set_values(row.references)
+    
+    
+    # it's easier just to put this here instead of playing around with imports
+    class VernacularNameInfoBox(SpeciesInfoBox):
+        def update(self, row):
+            super(VernacularNameInfoBox, self).update(row.species)
         

@@ -57,8 +57,7 @@ plant_context_menu = [('Edit', edit_callback),
 def plant_markup_func(plant):
     '''
     '''
-    return '%s (%s)' % (str(plant), 
-                        plant.accession.species.markup(authors=False))
+    return '<b>%s</b>\n<small>%s</small>' % (str(plant), plant.accession.species.markup(authors=False))
 
 
 plant_history_table = Table('plant_history',
@@ -389,12 +388,12 @@ class PlantEditorPresenter(GenericEditorPresenter):
     
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():            
-            if field is 'accession_id':
-                value = self.model.accession
-            elif field is 'location_id':
-                value = self.model.location
-            else:
-                value = self.model[field]
+#            if field is 'accession_id':
+#                value = self.model.accession
+#            elif field is 'location_id':
+#                value = self.model.location
+#            else:
+            value = self.model[field]
             self.view.set_widget_value(widget, value)
         self.refresh_sensitivity()
         
@@ -510,13 +509,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
         
 try:
     import os
-#    from xml.sax.saxutils import escape
     import bauble.paths as paths
     from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError:
-    # TODO: this should probably be handled a bit more robustly
-    class PlantInfoBox: 
-        pass
+except ImportError, e:
+    debug('plant.py: %s' % e)
+    class PlantInfoBox:
+        def update(self, *args):
+            pass
 else:
     
     class GeneralPlantExpander(InfoExpander):

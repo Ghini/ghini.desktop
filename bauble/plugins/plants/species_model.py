@@ -40,7 +40,10 @@ from bauble.plugins import tables
 # markup for the search result should have be formatted like Name (Genus sp.)
 
 def edit_callback(row):
-    value = row[0]
+    if isinstance(row, Species):
+        value = row
+    else: # TreeModelRow
+        value = row[0]
     from bauble.plugins.plants.species_editor import SpeciesEditor
     e = SpeciesEditor(value)
     return e.start() != None
@@ -48,12 +51,18 @@ def edit_callback(row):
 
 def add_accession_callback(row):
     from bauble.plugins.garden.accession import AccessionEditor
-    value = row[0]
+    if isinstance(row, Species):
+        value = row
+    else: # TreeModelRow
+        value = row[0]
     e = AccessionEditor(Accession(species=value))
     return e.start() != None
 
 def remove_callback(row):
-    value = row[0]    
+    if isinstance(row, Species):
+        value = row
+    else: # TreeModelRow
+        value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
@@ -69,6 +78,7 @@ def remove_callback(row):
                                      type=gtk.MESSAGE_ERROR)
     return True
     
+    
 
 species_context_menu = [('Edit', edit_callback),
                        ('--', None),
@@ -76,19 +86,36 @@ species_context_menu = [('Edit', edit_callback),
                        ('--', None),
                        ('Remove', remove_callback)]
 
+def call_on_species(func): 
+    return lambda row: func(row[0].species)
+
+vernname_context_menu = [('Edit', call_on_species(edit_callback)),
+                          ('--', None),
+                          ('Add accession', call_on_species(add_accession_callback)),]
+#                          ('--', None)]
+#                          ('Remove', call_on_species(remove_callback))]
 
 def species_markup_func(species):
     '''
-    '''    
-    return species.markup(authors=False)
-    debug(repr(species))
-    #debug(species.genus)
-    debug(species.relations)
-    debug(species.c)    
-    #return '%s %s' % (species.genus_id, species.sp)
-    #debug(Genus.get_by(id=species.genus_id))
-    return '%s %s' % (Genus.get_by(id=species.genus_id), species.sp)
+    '''
+    if len(species.vernacular_names) > 0:
+        substring = '%s -- %s' % (species.genus.family, \
+                                  ', '.join([str(v) for v in species.vernacular_names]))
+    else:
+        substring = '%s' % species.genus.family
+    return '<b>%s</b>\n<small>%s</small>' % (species.markup(authors=False), substring)
 
+
+def vernname_get_children(vernname):
+    '''
+    '''
+    return vernname.species.accessions
+
+
+def vernname_markup_func(vernname):
+    '''
+    '''    
+    return '<b>%s</b>\n<small>%s</small>' % (str(vernname), vernname.species.markup(authors=False))
 
 ''' 
 Species table (species)

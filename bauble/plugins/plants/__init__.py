@@ -23,8 +23,10 @@ from bauble.plugins.plants.family import Family, FamilyEditor, FamilySynonym, \
 from bauble.plugins.plants.genus import Genus, GenusSynonym, GenusEditor, \
     GenusInfoBox, genus_context_menu, genus_markup_func
 from bauble.plugins.plants.species_model import Species, SpeciesMeta, \
-    SpeciesSynonym, VernacularName, species_context_menu, species_markup_func
-from bauble.plugins.plants.species_editor import SpeciesEditor, SpeciesInfoBox
+    SpeciesSynonym, VernacularName, species_context_menu, species_markup_func,\
+    vernname_get_children, vernname_markup_func, vernname_context_menu
+from bauble.plugins.plants.species_editor import SpeciesEditor, SpeciesInfoBox,\
+    VernacularNameInfoBox
 
 
 class PlantsPlugin(BaublePlugin):
@@ -68,7 +70,11 @@ class PlantsPlugin(BaublePlugin):
             SearchView.register_search_meta("vernacular", search_meta)
             SearchView.register_search_meta("vern", search_meta)
             SearchView.register_search_meta("common", search_meta)
-            
+            SearchView.view_meta['VernacularName'].set(children=vernname_get_children,
+                                                       infobox=VernacularNameInfoBox,
+                                                       context_menu=vernname_context_menu,
+                                                       markup_func=vernname_markup_func
+                                                       )
             # TODO: this needs some work, what should we be able to do
             # when a vernacular name is returned, should we just return the 
             # species

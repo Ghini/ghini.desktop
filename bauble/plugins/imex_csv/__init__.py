@@ -516,7 +516,7 @@ class CSVExporter:
         tables = default_metadata.tables        
         for name in tables.keys():
             filename = filename_template % name
-            debug(filename)
+#            debug(filename)
             msg = 'Export file <b>%s</b> for <b>%s</b> table already exists.'\
                   '\n\n<i>Would you like to continue?</i>' % (filename, name)
             if os.path.exists(filename) and not utils.yes_no_dialog(msg):

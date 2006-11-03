@@ -3,7 +3,7 @@
 #
 
 import re, traceback
-import gtk, gobject
+import gtk, gobject, pango
 from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
 from sqlalchemy.orm.attributes import InstrumentedList
@@ -909,9 +909,12 @@ class SearchView(BaubleView):
         self.results_view = gtk.TreeView() # will be a select results row    
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
-        self.results_view.set_fixed_height_mode(True)
+        #self.results_view.set_fixed_height_mode(True)
+        #self.results_view.set_fixed_height_mode(False)
         
         renderer = gtk.CellRendererText()
+        renderer.set_fixed_height_from_font(2)
+        renderer.set_property('ellipsize', pango.ELLIPSIZE_END)
         column = gtk.TreeViewColumn("Name", renderer)
         column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
         column.set_cell_data_func(renderer, self.cell_data_func)

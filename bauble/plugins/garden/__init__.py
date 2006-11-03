@@ -5,13 +5,14 @@
 import os, sys
 from bauble.plugins import BaublePlugin, plugins, tables
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    AccessionInfoBox, acc_context_menu, acc_markup_func
+    AccessionInfoBox, acc_context_menu, acc_markup_func, SourceInfoBox
 from bauble.plugins.garden.location import Location, LocationEditor,\
-    loc_context_menu
+    LocationInfoBox, loc_context_menu, loc_markup_func
 from bauble.plugins.garden.plant import Plant, PlantHistory, PlantEditor, \
     PlantInfoBox, plant_context_menu, plant_markup_func
 #from reference import Reference, ReferenceEditor
-from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.source import Donation, Collection, \
+    source_markup_func
 from bauble.plugins.garden.donor import Donor, DonorEditor, DonorInfoBox, \
     donor_context_menu
 
@@ -52,7 +53,9 @@ class GardenPlugin(BaublePlugin):
             SearchView.register_search_meta("location", search_meta)
             SearchView.register_search_meta("loc", search_meta)            
             SearchView.view_meta["Location"].set(children="plants",
-                                                 context_menu=loc_context_menu)
+                                                 infobox=LocationInfoBox,
+                                                 context_menu=loc_context_menu,
+                                                 markup_func=loc_markup_func)
 
             search_meta = SearchMeta('Plant', ["code"], "code")
             SearchView.register_search_meta('plant', search_meta)
@@ -66,6 +69,11 @@ class GardenPlugin(BaublePlugin):
             SearchView.view_meta["Donor"].set(children="donations", 
                                               infobox=DonorInfoBox,
                                               context_menu=donor_context_menu)
+
+            SearchView.view_meta['Donation'].set(infobox=SourceInfoBox,
+                                                 markup_func=source_markup_func)
+            SearchView.view_meta['Collection'].set(infobox=SourceInfoBox,
+                                                 markup_func=source_markup_func)
 
             # done here b/c the Species table is not part of this plugin
             SearchView.view_meta["Species"].child = "accessions"
