@@ -967,8 +967,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             return self.session.query(Species).select(sql) 
         def set_in_model(self, field, value):
 #            debug('set_in_model(%s, %s)' % (field, value))
-            setattr(self.model, field, value.id)
-        self.assign_completions_handler('acc_species_entry', 'species_id', 
+            setattr(self.model, field, value)
+        self.assign_completions_handler('acc_species_entry', 'species', 
                                         sp_get_completions, 
                                         set_func=set_in_model)
         self.view.widgets.acc_prov_combo.connect('changed', self.on_combo_changed, 
@@ -1065,7 +1065,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         
     
     def on_field_changed(self, model, field):
-        debug('on field changed: %s = %s' % (field, getattr(model, field)))
+#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
