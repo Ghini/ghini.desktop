@@ -29,6 +29,7 @@ class GeographyPlugin(BaublePlugin):
             
             search_meta = SearchMeta("Region", ["region"], "region")
             SearchView.register_search_meta("region", search_meta)
+            SearchView.view_meta["Region"].set(markup_func=lambda region: '%s\n<small>%s</small>' % (region, region.continent))
             
 #            search_meta = SearchMeta("Area", ["area"], "area")
 #            SearchView.register_search_meta("area", search_meta)
@@ -38,12 +39,17 @@ class GeographyPlugin(BaublePlugin):
             
             search_meta = SearchMeta("BotanicalCountry", ["name"], "name")
             SearchView.register_search_meta("bot_country", search_meta)
+            SearchView.view_meta["BotanicalCountry"].set(markup_func=lambda bc: '%s\n<small>%s</small>' % (bc, bc.region))
                                 
             search_meta = SearchMeta("BasicUnit", ["name"], "name")
             SearchView.register_search_meta("basic", search_meta)
+            SearchView.view_meta["BasicUnit"].set(markup_func=lambda bu: '%s\n<small>%s</small>' % (bu, bu.botanical_country))
             
+            # TODO: not all places have basic units and  can display
+            # 'None' in the markup
             search_meta = SearchMeta("Place", ["place"], "place")
             SearchView.register_search_meta("place", search_meta)
+            SearchView.view_meta["Place"].set(markup_func=lambda place: '%s\n<small>%s</small>' % (place, place.basic_unit))
             
 #            search_meta = SearchMeta("KewRegion", ["region"], "region")
 #            SearchView.register_search_meta("kewregion", search_meta)

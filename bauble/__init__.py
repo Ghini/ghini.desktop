@@ -54,7 +54,7 @@ except ImportError:
 # set SQLAlchemy logging level
 import logging
 #logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
-logging.getLogger('sqlalchemy').setLevel(100)
+logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 # TODO: make this work, we get strange errors when using this, probably because
 # of the way table is implemented, with a singleton metaclass

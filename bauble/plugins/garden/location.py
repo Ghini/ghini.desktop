@@ -48,6 +48,13 @@ loc_context_menu = [('Edit', edit_callback),
                     ('Remove', remove_callback)]
 
 
+def loc_markup_func(location):
+    if location.description is not None:        
+        return '%s\n<small>%s</small>' % (str(location), location.description)
+    else:
+        return str(location)
+
+
 location_table = Table('location',
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True),
@@ -211,6 +218,87 @@ class LocationEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
+try:
+    import os
+    import bauble.paths as paths
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+except ImportError, e:
+    debug('plant.py: %s' % e)
+    class PlantInfoBox:
+        def update(self, *args):
+            pass
+else:
+    
+    class GeneralLocationExpander(InfoExpander):
+        """
+        general expander for the PlantInfoBox        
+        """
+        
+        def __init__(self, widgets):
+            '''
+            '''
+            InfoExpander.__init__(self, "General", widgets)
+            general_box = self.widgets.loc_gen_box
+            self.widgets.remove_parent(general_box)
+            self.vbox.pack_start(general_box)
+        
+        
+        def update(self, row):
+            '''
+            '''
+            self.set_widget_value('loc_site_data', str(row.site))
+            session = object_session(row)
+            nplants = session.query(Plant).count_by(location_id=row.id)
+            self.set_widget_value('loc_nplants_data', nplants)
+
+
+    class DescriptionExpander(InfoExpander):
+        """
+        the location description
+        """
+            
+        def __init__(self, widgets):      
+            InfoExpander.__init__(self, "Descripion", widgets)                            
+            descr_box = self.widgets.loc_descr_box
+            self.widgets.remove_parent(descr_box)
+            self.vbox.pack_start(descr_box)
+        
+        
+        def update(self, row):
+            '''
+            '''
+            if row.description is None:
+                self.set_expanded(False)
+                self.set_sensitive(False)
+            else:
+                self.set_expanded(True)
+                self.set_sensitive(True)
+                self.set_widget_value('loc_descr_data', str(row.description))
+
+
+    class LocationInfoBox(InfoBox):
+        """
+        an InfoBox for a Location table row
+        """
+        
+        def __init__(self):
+            '''
+            '''
+            InfoBox.__init__(self)
+            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", "infoboxes.glade")
+            self.widgets = utils.GladeWidgets(glade_file)
+            self.general = GeneralLocationExpander(self.widgets)
+            self.add_expander(self.general)                    
+            
+            self.description = DescriptionExpander(self.widgets)
+            self.add_expander(self.description)
+            
+        
+        def update(self, row):
+            '''
+            '''
+            self.general.update(row)
+            self.description.update(row)
 #
 # import here to avoid circular dependencies
 #

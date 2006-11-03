@@ -9,6 +9,7 @@ from bauble.editor import *
 import bauble.paths as paths
 from bauble.types import Enum
 from bauble.plugins.garden.source import Donation, donation_table
+import bauble.utils.sql as sql_utils
 
 # TODO: need to make it so you can't delete Donors if they still have 
 # associated Donations
@@ -243,12 +244,13 @@ class DonorEditor(GenericModelViewPresenterEditor):
 
         
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander, \
-        set_widget_value
-except ImportError:
+    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+except ImportError, e:
     # TODO: this should probably be handled a bit more robustly
+    debug('donor.py: %s' % e)
     class DonorInfoBox:
-        pass
+        def update(self, *args):
+            pass
 else:
     class GeneralDonorExpander(InfoExpander):
         '''
@@ -258,7 +260,7 @@ else:
         def __init__(self, widgets):
             InfoExpander.__init__(self, "Genera", widgets)
             gen_box = self.widgets.don_gen_box
-            self.widgets.don_gen_window.remove(gen_box)
+            self.widgets.remove_parent(gen_box)
             self.vbox.pack_start(gen_box)
         
                 
@@ -269,8 +271,8 @@ else:
             self.set_widget_value('don_tel_data', row.tel)
             self.set_widget_value('don_fax_data', row.fax)
             
-            ndons = select([donation_table.c.id], 
-                           donation_table.c.donor_id==row.id).count().scalar()
+            donation_ids = select([donation_table.c.id], donation_table.c.donor_id==row.id)
+            ndons = sql_utils.count_select(donation_ids)
             self.set_widget_value('don_ndons_data', ndons)            
     
     
@@ -282,7 +284,7 @@ else:
         def __init__(self, widgets):
             InfoExpander.__init__(self, "Notes", widgets)            
             notes_box = self.widgets.don_notes_box
-            self.widgets.don_notes_window.remove(notes_box)
+            self.widgets.remove_parent(notes_box)
             self.vbox.pack_start(notes_box)
         
             
@@ -294,6 +296,7 @@ else:
                 # TODO: get expanded state from prefs
                 self.set_sensitive(True)
                 self.set_widget_value('don_notes_data', row.notes)       
+    
     
     class DonorInfoBox(InfoBox):        
         

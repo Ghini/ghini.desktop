@@ -32,21 +32,21 @@ import bauble
 #    for two in distribution_table.select(level=0):
 # actually this way we really only need to know what is the top level
 # and everything else can follow from the parent
-class GeographyMapper(bauble.BaubleMapper):
-    
-    _subdivisions_field = None
-    def _get_subdivisions(self):
-        '''
-        return all objects considered inside this geographic region
-        according to self._subdivisions_field
-        '''    
-        if self._subdivisions_field is None:
-            return None
-        
-        # select and return the subvisions
-        return []
-        
-    subdivisions = property(_get_subdivisions)
+#class GeographyMapper(bauble.BaubleMapper):
+#    
+#    _subdivisions_field = None
+#    def _get_subdivisions(self):
+#        '''
+#        return all objects considered inside this geographic region
+#        according to self._subdivisions_field
+#        '''    
+#        if self._subdivisions_field is None:
+#            return None
+#        
+#        # select and return the subvisions
+#        return []
+#        
+#    subdivisions = property(_get_subdivisions)
     
 
 #

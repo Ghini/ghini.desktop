@@ -6,6 +6,12 @@ from bauble import BaubleMapper
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 
+# TODO: a donation or collection string should include the accession
+# number, at least in the search results and should use the accession infobox
+# as well
+
+def source_markup_func(source):
+    return '%s (%s)' % (source.accession, source)
 
 # TODO: don't allow donor to be deleted if donor still has donations
 # TODO: maybe change donor_acc to donor_code
@@ -61,7 +67,4 @@ class Collection(BaubleMapper):
 
 mapper(Donation, donation_table)
 mapper(Collection, collection_table)
-
-
-
 

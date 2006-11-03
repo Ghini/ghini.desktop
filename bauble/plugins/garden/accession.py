@@ -122,7 +122,7 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    return '%s (%s)' % (str(acc), acc.species.markup(authors=False))
+    return '<b>%s</b>\n<small>%s</small>' % (str(acc), acc.species.markup(authors=False))
 
 
 
@@ -251,7 +251,7 @@ class Accession(bauble.BaubleMapper):
 
 from bauble.plugins.garden.source import Donation, donation_table, \
     Collection, collection_table
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table    
 
 mapper(Accession, accession_table,
        properties = {
@@ -263,7 +263,8 @@ mapper(Accession, accession_table,
                                            private=True, uselist=False,
                                            backref='accession'),
                      'plants': relation(Plant, cascade='all, delete-orphan', 
-                                        backref='accession'),
+                                        order_by=plant_table.c.code,
+                                        backref='accession', ),
                      'verifications': relation(Verification, order_by='date',
                                                private=True, 
                                                backref='accession', )},
@@ -1409,7 +1410,8 @@ else:
             self.set_widget_value('name_data', 
                                   '%s\n%s' % (row.species.markup(True), row.code))
             session = object_session(row)
-            nplants = session.query(Plant).count_by(accession_id=row.id)            
+            # TODO: could this be sped up, does it matter?
+            nplants = session.query(Plant).count_by(accession_id=row.id)
             self.set_widget_value('nplants_data', nplants)
             self.set_widget_value('prov_data', row.prov_type, False)
             
@@ -1554,5 +1556,9 @@ else:
             # TODO: should test if the source should be expanded from the prefs
             self.source.update(row.source)
 
-
+    
+    # it's easier just to put this here instead of playing around with imports
+    class SourceInfoBox(AccessionInfoBox):
+        def update(self, row):
+            super(SourceInfoBox, self).update(row.accession)
 
