@@ -94,23 +94,30 @@ class ConnectionManager:
         
         search for the supported database python modules are in PYTHONPATH,
         we don't import them here so we don't waste memory
-        """
-        from imp import find_module
-        
+        """        
         if self._supported_dbtypes != None:
             return self._supported_dbtypes
         self._supported_dbtypes = {}
         i = 0    
-        if find_module('pysqlite2'):
+        try:
+            import pysqlite2
             self._supported_dbtypes['SQLite'] = i
             i += 1
-        if find_module('psycopg2'):
+        except ImportError, e:
+            debug(e)
+        try:
+            import psycopg2
             self._supported_dbtypes['Postgres'] = i
             i += 1
-        if find_module('MySQLdb'):
+        except ImportError, e:
+            debug(e)
+        try:
+            import MySQLdb
             self._supported_dbtypes['MySQL'] = i
             i += 1
-            
+        except ImportError, e:
+            debug(e)
+
         return self._supported_dbtypes
 
         
@@ -121,6 +128,13 @@ class ConnectionManager:
     
         
     def create_gui(self):
+        if self.supported_dbtypes is None or len(self.supported_dbtypes) == 0:
+            msg = "No Python database connectors installed.\n"\
+                  "Please consult the documentation for the "\
+                  "prerequesites for installing Bauble."
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            raise Exception(msg)
+        
         glade_path = os.path.join(paths.lib_dir(), "conn_mgr.glade")        
         self.glade_xml = gtk.glade.XML(glade_path)
         
@@ -140,14 +154,7 @@ class ConnectionManager:
         logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
         logo.set_from_file(logo_path)
         
-        self.params_box = None
-        if self.supported_dbtypes is None:
-            msg = "No Python database connectors installed.\n"\
-                  "Please consult the documentation for the "\
-                  "prerequesites for installing Bauble."
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            raise Exception(msg)
-        
+        self.params_box = None            
         self.expander_box = self.glade_xml.get_widget('expander_box')
         
         self.type_combo = self.glade_xml.get_widget('type_combo')

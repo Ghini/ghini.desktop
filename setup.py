@@ -6,6 +6,15 @@
 from distutils.core import setup    
 import os, sys, glob
 
+# TODO: to include pygtk and gtk in the dist 
+# see http://py2exe.org/index.cgi/Py2exeAndPyGTK
+
+# TODO: use an icon for the exe
+# http://py2exe.org/index.cgi/CustomIcons
+
+# TODO: alot of this work doesn't have to be done if we're not using py2exe,
+# we could either create another module to import when create a exe or just
+# use an ifdef
 def get_version():
     '''
     returns the bauble version combined with the subversion revision number
@@ -31,8 +40,19 @@ plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
-# packaged to be included in the py2exe library.zip
-py2exe_includes = ['encodings'] + gtk_pkgs + plugins_pkgs
+def get_sqlalchemy_includes():
+    includes = []
+    from imp import find_module
+    file, path, descr = find_module('sqlalchemy')
+    for dir, subdir, files in os.walk(path):
+        submod = dir[len(path)+1:]
+        includes.append('sqlalchemy.%s' % submod)
+        if submod in ('mods', 'ext', 'databases'):
+            includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
+    return includes
+
+py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
+                   'encodings'] + gtk_pkgs + plugins_pkgs + get_sqlalchemy_includes()
 
 # get all the package data
 plugin_data = {}
@@ -52,6 +72,7 @@ for pattern in data_patterns:
             plugin_data[p] += [f[len(package_dir):] for f in files]            
 
 bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg']}
+#package_data = {'pysqlite2': ['*.pyd']}
 package_data = {}
 package_data.update(bauble_package_data)
 package_data.update(plugin_data)

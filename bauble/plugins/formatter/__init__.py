@@ -14,10 +14,11 @@
 # rename the top level module to 'report' or something and report plugins
 # could then be called 'formatters'
 
-import os, sys, traceback
+import os, sys, traceback, re
 import gtk
 from sqlalchemy import *
 import lxml.etree as etree
+import lxml._elementpath # put this here sp py2exe picks it up
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths

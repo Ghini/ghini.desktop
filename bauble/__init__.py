@@ -29,6 +29,7 @@ if not main_is_frozen():
 else: # main is frozen
    # put library.zip first in the path when using py2exe so libxml2 gets 
    # imported correctly, 
+   print 'main is frozen'
    zipfile = sys.path[-1]
    sys.path.insert(0,zipfile)
 
@@ -43,6 +44,8 @@ if not os.path.exists(paths.user_dir()):
 
 try:
     from sqlalchemy import *
+#    from sqlalchemy.databases import sqlite
+    
     # TODO: check sqlalchemy version
 except ImportError:
     msg = "SQLAlchemy not installed. Please install SQAlchemy from "\
