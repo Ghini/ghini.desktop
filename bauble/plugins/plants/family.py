@@ -46,8 +46,6 @@ def remove_callback(row):
     return True
 
 
-
-
 family_context_menu = [('Edit', edit_callback),
                        ('--', None),
                        ('Add genera', add_genera_callback),
@@ -59,7 +57,6 @@ def family_markup_func(family):
     '''
     '''
     return '<b>%s</b>' % family
-
 
 
 #
@@ -150,6 +147,7 @@ class FamilyEditorView(GenericEditorView):
         self.dialog.set_transient_for(parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
         self.connect_dialog_close(self.widgets.family_dialog)
+        self.restore_state()
 
 #    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
 #        '''
@@ -158,8 +156,7 @@ class FamilyEditorView(GenericEditorView):
 #        renderer.set_property('text', Family.str(v, full_string=True))
         
     def save_state(self):
-        prefs[self.syn_expanded_pref] = \
-            self.widgets.fam_syn_expander.get_expanded()    
+        prefs[self.syn_expanded_pref] = self.widgets.fam_syn_expander.get_expanded()    
 
         
     def restore_state(self):
