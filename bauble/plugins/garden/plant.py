@@ -351,7 +351,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         e.start()
         self.init_location_combo()
         
-        debug(location)
+#        debug(location)
         if location is not None:
             self.session.refresh(location)
             new = self.session.get(Location, location.id)
