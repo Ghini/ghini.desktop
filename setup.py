@@ -6,15 +6,16 @@
 from distutils.core import setup    
 import os, sys, glob
 
-def get_version():    
+def get_version():
     '''
     returns the bauble version combined with the subversion revision number
     '''
     from bauble import version_str as version
-    from svn import repos, fs, core
+    #from svn import repos, fs, core
     import xml.dom.minidom
-    stdout = os.popen('svn info %s --xml' % os.getcwd(), 'r')
-    dom = xml.dom.minidom.parseString(stdout.read())
+    stdin, stdout = os.popen4('svn info "%s" --xml' % os.getcwd())
+    svninfo = stdout.read()
+    dom = xml.dom.minidom.parseString(svninfo)
     el = dom.getElementsByTagName("commit")
     revision = el[0].getAttribute('revision')
     return '%s.r%s' % (version, revision)
@@ -24,17 +25,14 @@ version = get_version()
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
-sqlobject_pkgs = ['firebird', 'include', 'inheritance', 'mysql', 'postgres', 
-                  'sqlite', 'sybase', 'maxdb', 'util', 'manager']
 
-plugins = ['garden','gbif','geography','imex_abcd','imex_csv','imex_mysql',
-            'formatter','plants','searchview', 'tag']
+plugins = ['garden','geography','abcd','imex_csv','formatter','plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
 # packaged to be included in the py2exe library.zip
-py2exe_includes = gtk_pkgs + plugins_pkgs + ["encodings"]
+py2exe_includes = ['encodings'] + gtk_pkgs + plugins_pkgs
 
 # get all the package data
 plugin_data = {}
@@ -68,7 +66,6 @@ if sys.platform == "win32":
             "compressed": 1,
             "optimize": 2,
             "includes": py2exe_includes,
-                #"packages": ["encodings"],# "pysqlite2"],
             "dll_excludes": ["iconv.dll", "intl.dll",
                 "libatk-1.0-0.dll", "libgdk_pixbuf-2.0-0.dll",
                 "libgdk-win32-2.0-0.dll", "libglib-2.0-0.dll",
@@ -120,9 +117,9 @@ setup(name="Bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-#      install_requires=["FormEncode==0.2.2", "SQLObject==0.7",
-#                        "pysqlite==2.0.4"],
-#                        "PyGTK>=2.6"],# pygtk is not supported using distutils
+      install_requires=["FormEncode>=0.4", "SQLAlchemy>=0.3.0",
+                        "pysqlite==2.3.2",
+                        "PyGTK>=2.8.6"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
       
       # metadata

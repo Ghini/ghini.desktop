@@ -102,11 +102,11 @@ class BaubleApp(object):
         """
         #debug(uri) # ** WARNING: this can print your passwd
         try:
-            global_connect(uri)            
+            global_connect(uri)
             default_metadata.engine.connect() # test the connection
             cls.db_engine = default_metadata.engine
         except Exception, e:
-            msg = "Could not open connection.\n\n%s" % utils.xml_safe(e)        
+            msg = "Could not open connection.\n\n%s" % utils.xml_safe(e)
             debug(msg)
             utils.message_details_dialog(msg, traceback.format_exc(), 
                                          gtk.MESSAGE_ERROR)

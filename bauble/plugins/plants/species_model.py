@@ -102,8 +102,8 @@ def species_markup_func(species):
         substring = '%s -- %s' % (species.genus.family, \
                                   ', '.join([str(v) for v in species.vernacular_names]))
     else:
-        substring = '%s' % species.genus.family
-    return '<b>%s</b>\n<small>%s</small>' % (species.markup(authors=False), substring)
+        substring = '%s' % species.genus.family    
+    return species.markup(authors=False), substring
 
 
 def vernname_get_children(vernname):
@@ -115,7 +115,8 @@ def vernname_get_children(vernname):
 def vernname_markup_func(vernname):
     '''
     '''    
-    return '<b>%s</b>\n<small>%s</small>' % (str(vernname), vernname.species.markup(authors=False))
+    return str(vernname), vernname.species.markup(authors=False)
+    
 
 ''' 
 Species table (species)

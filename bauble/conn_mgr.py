@@ -374,9 +374,7 @@ class ConnectionManager:
  
     def parameters_to_uri(self, params):
         if params['type'].lower() == "sqlite":
-            #uri = "sqlite:///" + params["file"]
-            filename = params["file"].replace(":", "|")
-            filename = filename.replace("\\", "/")
+	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
         
