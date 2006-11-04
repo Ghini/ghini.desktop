@@ -13,7 +13,7 @@
 Name "Bauble"
 
 ; this should be the Bauble version number combined with the subversion revision
-!define version "0.5.3.r341"
+!define version "0.6.0"
 !define src_dir "../dist"
 Outfile "bauble-${version}-setup.exe"
  
