@@ -122,7 +122,7 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    return '<b>%s</b>\n<small>%s</small>' % (str(acc), acc.species.markup(authors=False))
+    return str(acc), acc.species.markup(authors=False)
 
 
 

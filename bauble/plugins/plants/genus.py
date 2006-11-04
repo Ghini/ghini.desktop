@@ -70,7 +70,7 @@ genus_context_menu = [('Edit', edit_callback),
 def genus_markup_func(genus):
     '''
     '''
-    return '<b>%s</b>\n<small>%s</small>' % (str(genus), str(genus.family))
+    return str(genus), str(genus.family)
 
     '''
     hybrid: indicates whether the name in the Genus Name field refers to an 

@@ -27,10 +27,12 @@ class GeographyPlugin(BaublePlugin):
             
             search_meta = SearchMeta("Continent", ["continent"], "continent")
             SearchView.register_search_meta("continent", search_meta)                    
+            SearchView.view_meta["Continent"].set(children='regions')
 
             search_meta = SearchMeta("Region", ["region"], "region")
             SearchView.register_search_meta("region", search_meta)
-            SearchView.view_meta["Region"].set(markup_func=region_markup_func)
+            SearchView.view_meta["Region"].set(children='botanical_countries',
+                                               markup_func=region_markup_func)
             
 #            search_meta = SearchMeta("Area", ["area"], "area")
 #            SearchView.register_search_meta("area", search_meta)
@@ -40,15 +42,17 @@ class GeographyPlugin(BaublePlugin):
 
             search_meta = SearchMeta("BotanicalCountry", ["name"], "name")
             SearchView.register_search_meta("bot_country", search_meta)
-            SearchView.view_meta["BotanicalCountry"].set(botanicalcountry_markup_func)
+            SearchView.view_meta["BotanicalCountry"].set(children='basic_units',
+                                                         markup_func=botanicalcountry_markup_func)
                                             
             search_meta = SearchMeta("BasicUnit", ["name"], "name")
             SearchView.register_search_meta("basic", search_meta)
-            SearchView.view_meta["BasicUnit"].set(markup_func=basicunit_markup_func)        
+            SearchView.view_meta["BasicUnit"].set(children='places',
+                                                  markup_func=basicunit_markup_func)        
             
             search_meta = SearchMeta("Place", ["place"], "place")
             SearchView.register_search_meta("place", search_meta)
-            SearchView.view_meta["Place"].set(place_markup_func)
+            SearchView.view_meta["Place"].set(markup_func=place_markup_func)
             
 #            search_meta = SearchMeta("KewRegion", ["region"], "region")
 #            SearchView.register_search_meta("kewregion", search_meta)

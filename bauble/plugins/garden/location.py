@@ -50,7 +50,7 @@ loc_context_menu = [('Edit', edit_callback),
 
 def loc_markup_func(location):
     if location.description is not None:        
-        return '%s\n<small>%s</small>' % (str(location), location.description)
+        return str(location), str(location.description)
     else:
         return str(location)
 

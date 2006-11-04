@@ -62,30 +62,31 @@ import bauble
 # NOTE: Mansel I. and Manu'a don't have continents ???
 
 def region_markup_func(region):
-                if region.continent is None:
-                    return '<b>%s</b>' % region
-                else:
-                    return '<b>%s</b>\n<small>%s</small>' % (region, region.continent)
+    if region.continent is None:
+        return region
+    else:
+        return region, region.continent
 
 def botanicalcountry_markup_func(bc):
     if bc.region is None:
-        return '<b%s</b>' % bc
+        return bc
     else:
-        return '<b%s</b>\n<small>%s</small>' % (bc, bc.region)
+        return bc, bc.region
 
 
 def basicunit_markup_func(bu):
     if bu.botanical_country is None:
-        return '<b>%s</b>' % bu
+        return bu
     else:
-        return '<b>%s</b>\n<small>%s</small>' % (bu, bu.botanical_country)
+        return bu, bu.botanical_country
 
 
 def place_markup_func(place):
     if place.basic_unit is None:
-        return '<b>%s</b>' % place
+        return place
     else:
-        return '<b>%s</b>\n<small>%s</small>' % (place, place.basic_unit)
+        return place, place.basic_unit
+
 
 place_table = Table('place',
                     Column('id', Integer, primary_key=True),

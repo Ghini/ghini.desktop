@@ -57,7 +57,7 @@ plant_context_menu = [('Edit', edit_callback),
 def plant_markup_func(plant):
     '''
     '''
-    return '<b>%s</b>\n<small>%s</small>' % (str(plant), plant.accession.species.markup(authors=False))
+    return str(plant), plant.accession.species.markup(authors=False)
 
 
 plant_history_table = Table('plant_history',

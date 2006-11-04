@@ -75,6 +75,14 @@ from pyparsing import *
 
 # TODO: create a set of commands from the search entry, e.g. :help or :config
 
+# use different formatting template for the result view depending on the
+# platform
+_mainstr_tmpl = '<b>%s</b>'
+if sys.platform == 'win32':
+    _substr_tmpl = '%s'
+else:
+    _substr_tmpl = '<small>%s</small>'
+
 class SearchParser:
 
     # TODO: if the search language doesn't change we could make this 
@@ -561,6 +569,7 @@ class SearchView(BaubleView):
         results = []
         error_msg = None
         self.session.clear() # clear out any old search results
+        bold = '<b>%s</b>'
         try:
     	    tokens = self.parser.parse_string(text)	    
             if 'domain' in tokens and tokens.domain not in self.domain_map:
@@ -575,9 +584,9 @@ class SearchView(BaubleView):
         if len(results) == 0:
             model = gtk.ListStore(str)
             if error_msg is not None:
-                model.append([error_msg])
+                model.append([bold % error_msg])
             else:
-                model.append(["Couldn't find anything"])
+                model.append([bold % 'Couldn\'t find anything'])
             statusbar.pop(sbcontext_id)            
             self.results_view.set_model(model)            
             set_cursor(None)
@@ -759,16 +768,25 @@ class SearchView(BaubleView):
     def cell_data_func(self, coll, cell, model, iter):    
         value = model[iter][0]
         table_name = value.__class__.__name__
-        func = self.view_meta[table_name].markup_func        
-        try:        
-            cell.set_property('markup', func(value))
-        except:
+        
+        if isinstance(value, str):
+            cell.set_property('markup', value)
+        else:
             try:
-                cell.set_property('markup', '<b>%s</b>\n<small>(%s)</small>' % (value, type(value).__name__))
-            except TypeError, saexc.InvalidRequestError: 
-                # remove it from the results list if we can't 
-                # display, most like it was removed from the database
-#                cell.set_property('text', '<bad value>')
+                func = self.view_meta[table_name].markup_func
+                if func is not None:
+                    r = func(value)
+                    if isinstance(r, (list,tuple)):
+                        main, substr = r                        
+                    else:
+                        main = r
+                        substr = '(%s)' % type(value).__name__
+                else:
+                    main = str(value)
+                    substr = '(%s)' % type(value).__name__
+                cell.set_property('markup', '%s\n%s' % (_mainstr_tmpl % main, 
+                                                        _substr_tmpl % substr))
+            except saexc.InvalidRequestError, e:
                 def remove():                    
                     treeview_model = self.results_view.get_model()
                     self.results_view.set_model(None)
@@ -776,7 +794,7 @@ class SearchView(BaubleView):
                         treeview_model.remove(found)
                     self.results_view.set_model(treeview_model)
                 gobject.idle_add(remove)
-     
+
 
     def on_entry_key_press(self, widget, event, data=None):
         '''

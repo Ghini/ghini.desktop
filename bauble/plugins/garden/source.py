@@ -11,7 +11,7 @@ from sqlalchemy.orm.session import object_session
 # as well
 
 def source_markup_func(source):
-    return '%s (%s)' % (source.accession, source)
+    return source.accession, source
 
 # TODO: don't allow donor to be deleted if donor still has donations
 # TODO: maybe change donor_acc to donor_code
