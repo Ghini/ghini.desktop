@@ -225,9 +225,17 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.init_location_combo()
         self.init_enum_combo('plant_acc_status_combo', 'acc_status')
         self.init_enum_combo('plant_acc_type_combo', 'acc_type')
-                
+                                     
 #        self.init_history_box()
         self.refresh_view() # put model values in view            
+        
+        # set default values for acc_status and acc_type        
+        if self.model.acc_type is None:
+            default_acc_type = 'Plant'
+            self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
+        if self.model.acc_status is None:
+            default_acc_status = 'Living accession'
+            self.view.set_widget_value('plant_acc_status_combo', default_acc_status)   
         
         # connect signals
         def acc_get_completions(text):            
@@ -258,15 +266,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
         self.init_change_notifier()
         
-        # set default values for acc_status and acc_type        
-        if self.model.acc_type is None:
-            default_acc_type = 'Plant'
-            self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
-        if self.model.acc_status is None:
-            default_acc_status = 'Living accession'
-            self.view.set_widget_value('plant_acc_status_combo', default_acc_status)
-        
-        
+       
     def dirty(self):
         return self.model.dirty
     
@@ -331,7 +331,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         
         
     def on_field_changed(self, model, field):
-        #debug('on field changed: %s = %s' % (field, getattr(model, field)))        
+#        debug('on field changed: %s = %s' % (field, getattr(model, field)))        
         self.refresh_sensitivity()
                     
         
