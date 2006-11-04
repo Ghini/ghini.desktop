@@ -553,23 +553,23 @@ class SearchView(BaubleView):
         '''
         search the database using text
         '''
+                
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
         self.entry.set_text(text)
-        self._search_text = text            
-        
-        # clear the old model
+        self._search_text = text      
         set_cursor = bauble.app.gui.window.window.set_cursor
-        set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-        #bauble.app.set_busy(True)
+        set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))      
+        
+        # clear the old model    
         self.results_view.set_model(None)      
         statusbar = bauble.app.gui.statusbar        
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         results = []
         error_msg = None
         self.session.clear() # clear out any old search results
-        bold = '<b>%s</b>'
+        bold = '<b>%s</b>'        
         try:
     	    tokens = self.parser.parse_string(text)	    
             if 'domain' in tokens and tokens.domain not in self.domain_map:
@@ -590,13 +590,11 @@ class SearchView(BaubleView):
             statusbar.pop(sbcontext_id)            
             self.results_view.set_model(model)            
             set_cursor(None)
-            #bauble.app.set_busy(False)
         else:
             def populate_callback():
                 self.populate_results(results)
                 statusbar.push(sbcontext_id, "%s results" % len(results))  
                 set_cursor(None)
-                #bauble.app.set_busy(False)
             if len(results) > 2000:
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you want to '\
@@ -605,8 +603,8 @@ class SearchView(BaubleView):
                     gobject.idle_add(populate_callback)
                 else:
                     set_cursor(None)
-            else:
-	    		gobject.idle_add(populate_callback)
+            else:                
+                gobject.idle_add(populate_callback)
         
 
     def remove_children(self, model, parent):
