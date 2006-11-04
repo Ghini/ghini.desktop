@@ -177,11 +177,13 @@ class CSVImporter:
                 gtasklet.get_event()
                 
                 if not table.exists(connectable=engine):
-                    debug('%s does not exist. creating.' % table.name)                
+                    #debug('%s does not exist. creating.' % table.name)                
+                    log.info('%s does not exist. creating.' % table.name)
                     table.create(connectable=connection)
                     add_to_created(table.name)
                 #elif table.count().scalar(connectable=connection) > 0 and not force:
                 elif table.name not in created_tables:
+#                    debug('table.name not in created tables')
                     msg = 'The <b>%s</b> table already exists in the database and may '\
                           'contain some data. If a row in the import file has '\
                           'the same id as a row in the databse then the file '\
@@ -194,6 +196,7 @@ class CSVImporter:
                     response = gtasklet.get_event().signal_args[0]        
                     d.destroy()
                     if force or response == gtk.RESPONSE_YES:
+#                        debug('response == YES')
                         deps = utils.find_dependent_tables(table)
                         dep_names = [t.name for t in deps]
                         if len(dep_names) > 0 and not force:
@@ -210,15 +213,23 @@ class CSVImporter:
                                 self.__cancel = True
                                 break
                                                 
+#                            debug('drop in reverse')
+                            # there is a bug here when importing the same table
+                            # back to back, see https://launchpad.net/products/bauble/+bug/70309
                             for d in reversed(deps):
                                 # drop the deps in reverse order
-                                d.drop(checkfirst=True, connectable=connection)                            
+#                                debug('d: %s' % d)
+                                d.drop(checkfirst=True, connectable=connection)
+#                                debug('---')
+#                            debug('dropped')
 
                         table.drop(checkfirst=True, connectable=connection)
                         table.create(connectable=connection)
+#                        debug('created')
                         add_to_created([table.name])
                         for d in deps: # recreate the deps
                             d.create(connectable=connection)
+#                        debug('created deps')
                         add_to_created(dep_names)
 
                 if self.__cancel or self.__error:
@@ -263,6 +274,7 @@ class CSVImporter:
                 update_every = 11
                 # TODO: maybe to speed this up we could build all the inserts
                 # and then do an execute_many
+#                debug('slice it')
                 for slice in reader:                
                     while self.__pause:
                         yield timeout
