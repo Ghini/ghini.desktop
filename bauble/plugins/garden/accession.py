@@ -392,7 +392,9 @@ def get_source(row):
         
 class AccessionEditorView(GenericEditorView):
     
-    source_expanded_pref = 'editor.accesssion.source.expanded'
+    expanders_pref_map = {'acc_notes_expander': 'editor.accession.notes.expanded', 
+                          'acc_source_expander': 'editor.accession.source.expanded'}
+    
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
@@ -445,15 +447,31 @@ class AccessionEditorView(GenericEditorView):
         
         # fixes for donation editor        
 
-    
-    def save_state(self):
-        prefs[self.source_expanded_pref] = \
-            self.widgets.source_expander.get_expanded()
         
-        
+    def save_state(self):        
+        '''
+        save the current state of the gui to the preferences
+        '''
+        for expander, pref in self.expanders_pref_map.iteritems():
+            prefs[pref] = self.widgets[expander].get_expanded()
+
+
     def restore_state(self):
-        expanded = prefs.get(self.source_expanded_pref, True)
-        self.widgets.source_expander.set_expanded(expanded)
+        '''
+        restore the state of the gui from the preferences
+        '''
+        for expander, pref in self.expanders_pref_map.iteritems():
+            expanded = prefs.get(pref, True)
+            self.widgets[expander].set_expanded(expanded)
+            
+#    def save_state(self):
+#        prefs[self.source_expanded_pref] = \
+#            self.widgets.source_expander.get_expanded()
+#        
+#        
+#    def restore_state(self):
+#        expanded = prefs.get(self.source_expanded_pref, True)
+#        self.widgets.source_expander.set_expanded(expanded)
 
             
     def start(self):
@@ -941,6 +959,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_source_type_combo': 'source_type',
                            'acc_notes_textview': 'notes'}
     
+    
     PROBLEM_INVALID_DATE = 3
     PROBLEM_DUPLICATE_ACCESSION = 5
     
@@ -1080,7 +1099,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 prov_sensitive = False
                 model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
-            self.view.widgets.acc_wild_prov_label.set_sensitive(prov_sensitive)
+            self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
         
         if field == 'longitude' or field == 'latitude':
             if model.latitude is not None and model.longitude is not None:
@@ -1142,15 +1161,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 self.model.source = tables[source_type]()
                                 
         # replace source box contents with our new box
-        source_box = self.view.widgets.source_box
+        #source_box = self.view.widgets.source_box
+        source_box_parent = self.view.widgets.source_box_parent
         if self.current_source_box is not None:
             self.view.widgets.remove_parent(self.current_source_box)
         if source_type is not None:
 #            debug(source_type)
             self.current_source_box = box_map[source_type]
             self.view.widgets.remove_parent(self.current_source_box)
-            source_box.pack_start(self.current_source_box, expand=False, 
-                                  fill=True)
+            #source_box.pack_start(self.current_source_box, expand=False, 
+            #                      fill=True)
+            source_box_parent.add(self.current_source_box)
         else:
             self.current_source_box = None
         
@@ -1169,7 +1190,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #            pass
         if source_type_changed:
             self.on_field_changed(self.model, 'source_type')
-        source_box.show_all()
+        #source_box.show_all()
         
 
         
@@ -1219,10 +1240,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         if self.model.prov_type == 'Wild':
             self.view.widgets.acc_wild_prov_combo.set_sensitive(True)
-            self.view.widgets.acc_wild_prov_label.set_sensitive(True)
+            self.view.widgets.acc_wild_prov_frame.set_sensitive(True)
         else:
             self.view.widgets.acc_wild_prov_combo.set_sensitive(False)
-            self.view.widgets.acc_wild_prov_label.set_sensitive(False)
+            self.view.widgets.acc_wild_prov_frame.set_sensitive(False)
 
                 
     def start(self):

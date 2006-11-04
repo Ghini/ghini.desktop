@@ -176,6 +176,8 @@ mapper(GenusSynonym, genus_synonym_table,
 class GenusEditorView(GenericEditorView):
     
     syn_expanded_pref = 'editor.genus.synonyms.expanded'
+    expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded', 
+                          'gen_notes_expander': 'editor.genus.notes.expanded'}
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
@@ -187,16 +189,33 @@ class GenusEditorView(GenericEditorView):
         self.connect_dialog_close(self.dialog)
         self.attach_completion('gen_syn_entry')#, self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
+        self.restore_state()
 
-        
-    def save_state(self):
-        prefs[self.syn_expanded_pref] = \
-            self.widgets.gen_syn_expander.get_expanded()    
 
-        
+    def save_state(self):        
+        '''
+        save the current state of the gui to the preferences
+        '''
+        for expander, pref in self.expanders_pref_map.iteritems():
+            prefs[pref] = self.widgets[expander].get_expanded()
+
+
     def restore_state(self):
-        expanded = prefs.get(self.syn_expanded_pref, True)
-        self.widgets.gen_syn_expander.set_expanded(expanded)
+        '''
+        restore the state of the gui from the preferences
+        '''
+        for expander, pref in self.expanders_pref_map.iteritems():
+            expanded = prefs.get(pref, True)
+            self.widgets[expander].set_expanded(expanded)
+                    
+#    def save_state(self):
+#        prefs[self.syn_expanded_pref] = \
+#            self.widgets.gen_syn_expander.get_expanded()    
+#
+#        
+#    def restore_state(self):
+#        expanded = prefs.get(self.syn_expanded_pref, True)
+#        self.widgets.gen_syn_expander.set_expanded(expanded)
 
     def _get_window(self):
         '''
