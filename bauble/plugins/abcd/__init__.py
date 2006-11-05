@@ -4,6 +4,7 @@
 
 import os,csv
 import gtk.gdk
+from sqlalchemy import *
 import lxml.etree as etree
 import lxml._elementpath # put this here sp py2exe picks it up
 from lxml.etree import Element, SubElement, ElementTree
@@ -14,8 +15,7 @@ from bauble.utils import xml_safe
 from bauble.plugins import BaublePlugin, BaubleTool, plugins
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
 from bauble.plugins.plants.species_model import Species
-
-#import bauble.plugins.abcd.abcd
+from bauble.plugins.garden.plant import Plant
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -41,7 +41,7 @@ def validate(root):
     validate root against ABCD 2.06 schema
     @param root: root of an XML tree to validate against
     @type root: an lxml.etree.Element
-    @returns: True or False depending if root validate correctly
+    @returns: True or False depending if root validates correctly
     '''
     schema_file = os.path.join(paths.lib_dir(), 'plugins',
             'abcd','abcd_2.06.xsd')
@@ -60,12 +60,17 @@ def plants_to_abcd(plants, authors=True):
     ds = ElementFactory(datasets, 'DataSet')
     tech_contacts = ElementFactory(ds, 'TechnicalContacts')
     tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
-    ElementFactory(tech_contact, 'Name', text='Brett')
-    ElementFactory(tech_contact, 'Email', text='brett@belizebotanic.org')
+    
+    # TODO: need to include contact information in bauble meta when 
+    # creating a new database
+    contact_name = 'Noone'
+    contact_email = 'noone@nowhere.com'
+    ElementFactory(tech_contact, 'Name', text=contact_name)
+    ElementFactory(tech_contact, 'Email', text=contact_email)
     cont_contacts = ElementFactory(ds, 'ContentContacts')
     cont_contact = ElementFactory(cont_contacts, 'ContentContact')
-    ElementFactory(cont_contact, 'Name', text='Brett')
-    ElementFactory(cont_contact, 'Email', text='brett@belizebotanic.org')
+    ElementFactory(cont_contact, 'Name', text=contact_name)
+    ElementFactory(cont_contact, 'Email', text=contact_email)
     metadata = ElementFactory(ds, 'Metadata', )
     description = ElementFactory(metadata, 'Description')
     representation = ElementFactory(description, 'Representation', attrib={'language': 'en'})
@@ -81,7 +86,8 @@ def plants_to_abcd(plants, authors=True):
     for plant in plants:
         unit = ElementFactory(units, 'Unit')
         # TODO: get SourceInstitutionID from the prefs/metadata
-        ElementFactory(unit, 'SourceInstitutionID', text='BBG')
+        institution = 'NoInstitution'
+        ElementFactory(unit, 'SourceInstitutionID', text=institution)
         
         # TODO: get id divider from prefs/metadata
         divider = '.'
@@ -101,7 +107,6 @@ def plants_to_abcd(plants, authors=True):
         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
         higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName', 
-                                           #text=xml_safe(plant.accession.species.genus.family))
                                            text=xml_safe(unicode(plant.accession.species.genus.family)))
         higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank', 
                                            text='familia')
@@ -143,15 +148,7 @@ def plants_to_abcd(plants, authors=True):
     return ElementTree(datasets)
 
 
-class ABCDImporter:
 
-    def start(self, filenames=None):
-        pass
-        
-    def run(self, filenames):
-        pass
-        
-    
 class ABCDExporter:
     
     def start(self, filename=None, plants=None):
@@ -178,23 +175,28 @@ class ABCDExporter:
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            plants = plugins.tables["Plant"].select()
-        data = plants_to_abcd(plants)
-        # TODO: this needs to be changed to support the lxml XMLWriter
-        raise NotImplementedError
-        
-        #f = open(filename, "w")
-        #f.write(data)
-        #f.close()
+            session = create_session()
+            plants = session.query(Plant).select()
+            #plants = plugins.tables["Plant"].select()
+        data = plants_to_abcd(plants)        
+        data.write_c14n(filename)
         
         
-class ABCDImportTool(BaubleTool):
-    category = "Import"
-    label = "ABCD"
+#class ABCDImporter:
+#
+#    def start(self, filenames=None):
+#        pass
+#        
+#    def run(self, filenames):
+#        pass
 
-    @classmethod
-    def start(cls):
-        ABCDImporter().start()
+#class ABCDImportTool(BaubleTool):
+#    category = "Import"
+#    label = "ABCD"
+#
+#    @classmethod
+#    def start(cls):
+#        ABCDImporter().start()
     
     
 class ABCDExportTool(BaubleTool):
@@ -203,6 +205,10 @@ class ABCDExportTool(BaubleTool):
     
     @classmethod
     def start(cls):
+        msg = 'The ABCD Exporter is not fully implemented. At the moment it '\
+              'will export the plants in the database but will not include ' \
+              'source information such as collection and donation data'
+        utils.message_dialog(msg)
         ABCDExporter().start()
     
 
