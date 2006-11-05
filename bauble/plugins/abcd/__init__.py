@@ -5,6 +5,7 @@
 import os,csv
 import gtk.gdk
 import lxml.etree as etree
+import lxml._elementpath # put this here sp py2exe picks it up
 from lxml.etree import Element, SubElement, ElementTree
 import bauble.paths as paths
 import bauble.utils as utils
