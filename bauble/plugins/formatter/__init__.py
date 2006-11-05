@@ -2,17 +2,12 @@
 # formatter module
 # 
 #
-#
-# TODO: should make the search results sortable when clicking on the column 
-# headers
-
-# TODO: get the list of plants as an abcd lxml element tree and add 
-# distribution data as a custom element so that the abcd builder doesn't create
-# invalid abcd data
 
 # TODO: all these formatter names are getting confusing, we should probably 
 # rename the top level module to 'report' or something and report plugins
 # could then be called 'formatters'
+
+# TODO: need to make it so formatter plugins work if they are zipped up
 
 import os, sys, traceback, re
 import gtk
@@ -29,13 +24,9 @@ import bauble.plugins.abcd as abcd
 
 formatters_list_pref = 'formatter.formatters'  # name: formatter_class, formatter_kwargs
 formatters_modules_pref = 'formatter.modules'
-formatters_default_pref = 'formatter.default'
+formatters_default_pref = 'formatter.default' # the default formatter to select on start
 formatter_settings_expanded_pref = 'formatter.settings.expanded'
 
-# TODO: need to make it so formatter plugins work if they are zipped up
-
-# TODO: formatter tool menu item should have a drop down list so we can
-# quickly select a formatter
 
 def get_all_plants(objs, acc_status=('Living accession',None)):
     from bauble.plugins.garden.plant import Plant, plant_table
@@ -69,7 +60,6 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
         else:            
             for p in [acc.plants for acc in accessions]:        
                 add_plants(p)
-
     
     for obj in objs:        
         # extract the plants from the search results
@@ -131,6 +121,48 @@ def _find_formatter_plugins():
     
 
 
+class SettingsBox(gtk.VBox):
+    '''
+    the interface to use for the settings box, formatter modules should
+    implement this interface and return it from the formatters's get_settings
+    method
+    '''
+    def __init__(self):
+        super(SettingsBox, self).__init__()
+    
+    def get_settings(self):
+        raise NotImplementerError
+    
+    def update(self, settings={}):
+        raise NotImplementerError
+
+
+
+class FormatterPlugin(object):
+    '''
+    formatter modules should implement this interface
+    NOTE: the title class attribute must be a unique string
+    '''
+        
+    title = ''
+    
+    @staticmethod
+    def get_settings_box():
+        '''
+        return a class the implement gtk.Box that should hold the gui for
+        the formatter modules
+        '''
+        raise NotImplementedError
+    
+    @staticmethod
+    def format(selfobjs, **kwargs):
+        '''
+        called when the use clicks on OK, this is the worker
+        '''
+        raise NotImplementedError
+    
+
+
 class FormatterDialogView(object):
     
     def __init__(self):
@@ -167,7 +199,7 @@ class FormatterDialogPresenter(object):
         try:
             self.set_names_combo(default)
         except Exception, e:
-            debug(e)
+#            debug(e)
             self.set_names_combo(0)
                 
                 
@@ -180,6 +212,8 @@ class FormatterDialogPresenter(object):
         @param val: either an integer index or a string value in the combo
         '''
         combo = self.view.widgets.names_combo
+        if combo.get_model() is None:
+            return
         if isinstance(val, int):
             combo.set_active(val)    
         else:
@@ -207,13 +241,11 @@ class FormatterDialogPresenter(object):
         '''
 #        debug('set_prefs_for(%s, %s, %s)' % (name, formatter_title, settings))
         formatters = prefs[formatters_list_pref]
-        try:
-#            debug('%s, %s' % (formatter_title, settings))
-            formatters[name] = formatter_title, settings
-        except AttributeError, e:
-#            debug(e)
-            formatters[name] = None, None            
+        if formatters is None:
+            formatters = {}
+        formatters[name] = formatter_title, settings
         prefs[formatters_list_pref] = formatters
+#        debug(prefs[formatters_list_pref])        
     
                 
     def on_new_button_clicked(self, *args):
@@ -231,25 +263,24 @@ class FormatterDialogPresenter(object):
         entry = gtk.Entry()
         d.vbox.pack_start(entry)    
         d.show_all()
+        names_model = self.view.widgets.names_combo.get_model()
         while True:
             if d.run() == gtk.RESPONSE_ACCEPT:
                 name = entry.get_text()
                 if name == '':
                     continue
-                elif utils.tree_model_has(self.view.widgets.names_combo.get_model(), 
-                                          name):
+                elif names_model is not None and utils.tree_model_has(names_model, name):
                     utils.message_dialog('%s already exists' % name)
                     continue
                 else:
                     self.set_prefs_for(entry.get_text(), None, {})
-                    break
+                    self.populate_names_combo()
+                    utils.combo_set_active_text(self.view.widgets.names_combo, name)
+                    break                
             else:
-                break
-                
+                break                        
         d.destroy()
-        self.populate_names_combo()
-        utils.combo_set_active_text(self.view.widgets.names_combo, name)
-            
+                    
     
     def on_remove_button_clicked(self, *args):
         formatters = prefs[formatters_list_pref]
@@ -262,6 +293,9 @@ class FormatterDialogPresenter(object):
 
     
     def on_names_combo_changed(self, combo, *args):
+        if combo.get_model() is None:
+            return
+            
         name = combo.get_active_text()
 #        debug('--- on_names_combo_changed(%s)' % name)
         formatters = prefs[formatters_list_pref]        
@@ -270,14 +304,14 @@ class FormatterDialogPresenter(object):
         try:
             title, settings = formatters[name]
 #            debug('%s, %s' % (title, settings))
-        except KeyError, e:
-            debug(e)
+        except (KeyError, TypeError), e:
+            #debug(e)
             return
         
         try:
             self.set_formatter_combo(title)
         except Exception, e:
-            debug(e)
+#            debug(e)
             self.set_formatter_combo(-1)
             
 #        debug('--- leaving on_names_combo_changed()')
@@ -362,11 +396,17 @@ class FormatterDialogPresenter(object):
             combo.set_model(model)
         except AttributeError, e:
             # no formatters
-            debug(e)
+#            debug(e)
             pass
         
         
-    def init_names_combo(self):                
+    def init_names_combo(self):      
+        formatters = prefs[formatters_list_pref]  
+        if formatters is None or len(formatters) == 0:
+            msg = 'No formatters found. To create a new formatter click the '\
+                  '"New" button.'
+            utils.message_dialog(msg, parent=self.view.dialog)              
+            self.view.widgets.names_combo.set_model(None)
         self.populate_names_combo()
         
 
@@ -436,11 +476,17 @@ class FormatterTool(BaubleTool):
         # extract the plants from the search results
         # TODO: need to speed this up using custom queries, see the 
         # family and genera infoboxes            
-        try:
-            dialog = FormatterDialog()
-            formatter, settings = dialog.start()
-            if formatter is not None: # cancel formatting
-                formatter.format([row[0] for row in model], **settings)
+        ok = False
+        try:            
+            while True:
+                dialog = FormatterDialog()
+                formatter, settings = dialog.start()
+                if formatter is None:
+                    break
+                ok = formatter.format([row[0] for row in model], **settings)                
+                if ok:
+                    break
+                        
         except AssertionError, e:
             debug(e)
             utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=dialog.view.dialog)            
