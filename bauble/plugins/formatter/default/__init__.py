@@ -8,30 +8,15 @@ from sqlalchemy import *
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.paths as paths
-import bauble.plugins.formatter as format_plugin
+import bauble.plugins.formatter as formatter_plugin
 import bauble.plugins.abcd as abcd
 from bauble.plugins.garden.plant import Plant, plant_table
 from bauble.plugins.garden.accession import accession_table
 
-
-
-# TODO: there's two ways to handle this settings box business, we can either
-# request the settings box from the plugin or we can pass the widget
-# to the plugin that the box is to be added to
-
-# TODO: if formatter chosen has any problems, i.e. the stylesheet file doesn't
-# exis,  it would be good to desensitize the ok button and show a message in
-# the status bar or something, then again we could wait until Ok is pressed 
-# until we check for errors since we can't check if the fo renderer doesn't 
-# exist
-
-# TODO: need to do something about errors and showing them to the user, e.g
-# if the stylesheet is invalid then currently there is nothing telling the user
-# that this is so
-
-# TODO: look for this on the path before starting anything and warn the use
+# TODO: look for renderers on the path before starting anything and warn the use
 # so they have a clue why the formatter isn't working
-
+# No PDF renders installed. For a free renderer download Apache FOP at 
+# http://... If you do have a PDF renderer installed make sure it is on the path.
 if sys.platform == "win32":
     fop_cmd = 'fop.bat'
 else:
@@ -56,18 +41,17 @@ class SettingsBoxPresenter:
             model.append([name])            
         self.widgets.renderer_combo.set_model(model)
 
-    
 
-class SettingsBox(gtk.VBox):
+class DefaultFormatterSettingsBox(formatter_plugin.SettingsBox):
     
-    def __init__(self, *args):
-        super(SettingsBox, self).__init__(*args)
+    def __init__(self, formatter_dialog=None, *args):
+        super(DefaultFormatterSettingsBox, self).__init__(*args)
         # TODO: should somehow find where this is installed
         self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(), 
                                "plugins", "formatter", 'default', 'gui.glade'))
         self.widgets.remove_parent(self.widgets.settings_box)
         self.pack_start(self.widgets.settings_box)
-        presenter = SettingsBoxPresenter(self.widgets)
+        self.presenter = SettingsBoxPresenter(self.widgets)
         
         
     def get_settings(self):
@@ -77,8 +61,8 @@ class SettingsBox(gtk.VBox):
         return {'stylesheet': self.widgets.stylesheet_chooser.get_filename(),
                 'renderer': self.widgets.renderer_combo.get_active_text(),
                 'authors': self.widgets.author_check.get_active()}
-        
     
+        
     def update(self, settings={}):
 #        debug('SettingsBox.update(%s)' % settings)
         try:
@@ -95,48 +79,37 @@ class SettingsBox(gtk.VBox):
             pass
 
 
-#class FormatterSettings(object):
-#    
-#    _box = None    
-#    
-#    @classmethod
-#    def get_box(cls):
-#        if cls._box is None:            
-#            cls._box = SettingsBox()
-#        return cls._box
-#    
-#    @classmethod
-#    def update(cls, settings={}):
-#        print settings
-        
-        
-class FormatterPlugin(object):
+
+_settings_box = DefaultFormatterSettingsBox()
+class DefaultFormatterPlugin(formatter_plugin.FormatterPlugin):
     
     title = 'Default'
     
-    @classmethod
-    def get_settings_box(cls):
-        # TODO: can we somehow make this static so we don't have to recreate
-        # it everytime, the main problem with this is guess is that the widgets
-        # get destroyed when there aren't any more references to them
-        #if cls._settings_box is None:
-        #    cls._settings_box = SettingsBox()
-        #return cls._settings_box
-        return SettingsBox()    
-
+    @staticmethod
+    def get_settings_box():
+        return DefaultFormatterSettingsBox()    
     
-    @classmethod
-    def format(cls, objs, **kwargs):
-#        debug('format(%s)' % kwargs)
+    @staticmethod
+    def format(objs, **kwargs):
+#        debug('format(%s)' % kwargs)        
         stylesheet = kwargs['stylesheet']
         authors = kwargs['authors']
-        fo_cmd = renderers_map[kwargs['renderer']]
+        renderer = kwargs['renderer']
+        error_msg = None
+        if not stylesheet:
+            error_msg = 'Please select a stylesheet.'
+        elif not renderer:        
+            error_msg = 'Please select a a renderer'        
+        if error_msg is not None:
+            utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
+            return False            
         
-        plants = format_plugin.get_all_plants(objs)
+        fo_cmd = renderers_map[renderer]
+        plants = formatter_plugin.get_all_plants(objs)
         if len(plants) == 0:
             utils.message_dialog('There are no plants in the search results.  '\
                                  'Please try another search.')
-            return
+            return False
         
         abcd_data = abcd.plants_to_abcd(plants, authors=authors)                
         
@@ -181,6 +154,7 @@ class FormatterPlugin(object):
         os.system(fo_cmd)        
         
         utils.startfile(filename)
+        return True
         
 
 # expose the formatter
@@ -190,4 +164,4 @@ except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the default '\
                          'formatter plugins')        
 else:
-    formatter = FormatterPlugin
+    formatter = DefaultFormatterPlugin
