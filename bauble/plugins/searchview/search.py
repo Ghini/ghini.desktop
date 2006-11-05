@@ -628,13 +628,21 @@ class SearchView(BaubleView):
         row = model.get_value(iter, 0)
         view.collapse_row(path)
         self.remove_children(model, iter)
-
-        table_name = type(row).__name__
-        kids = self.view_meta[table_name].get_children(row)
-        if len(kids) == 0:
+        
+        try:
+            table_name = type(row).__name__
+            kids = self.view_meta[table_name].get_children(row)
+            if len(kids) == 0:
+                return True
+        except saexc.InvalidRequestError, e:
+#            debug(e)
+            model = self.results_view.get_model()
+            for found in utils.search_tree_model(model, row):
+                model.remove(found)
             return True
-        self.append_children(model, iter, kids, True)
-        return False
+        else:
+            self.append_children(model, iter, kids, True)
+            return False
         
                     
     def query_table(self, table_name, values):
@@ -784,7 +792,7 @@ class SearchView(BaubleView):
                     substr = '(%s)' % type(value).__name__
                 cell.set_property('markup', '%s\n%s' % (_mainstr_tmpl % main, 
                                                         _substr_tmpl % substr))
-            except saexc.InvalidRequestError, e:
+            except (saexc.InvalidRequestError, TypeError), e:
                 def remove():                    
                     treeview_model = self.results_view.get_model()
                     self.results_view.set_model(None)

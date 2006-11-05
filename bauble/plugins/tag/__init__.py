@@ -41,8 +41,8 @@ def remove_callback(row):
     return True
 
 
-tag_context_menu = [('Edit', edit_callback),
-                    ('--', None),
+tag_context_menu = [#('Edit', edit_callback),
+                    #('--', None),
                     ('Remove', remove_callback)]
 
 class TagItemGUI:
@@ -191,6 +191,32 @@ class Tag(bauble.BaubleMapper):
     def markup(self):
         return '%s Tag' % self.tag
     
+    def _get_objects(self):
+        kids = []
+        self_session = object_session(self)
+        session = create_session(self)
+        for obj in self._objects:
+            try:
+                cls = tables[obj.obj_class]
+                kids.append(self_session.load(cls, obj.obj_id))
+            except Exception, e:
+#                msg = 'Could not get the object that this tag refers to. '\
+#                'Removing tag from object %s(%s).' % (obj.obj_class, obj.obj_id)
+#                utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_WARNING)
+                session.delete(obj)
+                debug(traceback.format_exc)
+        session.flush()
+        return kids
+    objects = property(_get_objects)
+
+#    def untag_object(self, obj):
+#        pass
+#    
+#    def tag_object(self, obj):
+#        pass
+#
+
+    
 #
 # tagged_obj table
 #
@@ -211,7 +237,9 @@ class TaggedObj(bauble.BaubleMapper):
         
 mapper(TaggedObj, tagged_obj_table)
 mapper(Tag, tag_table,
-       properties={'objects': relation(TaggedObj, backref='tag', private=True)},
+       properties={'_objects': relation(TaggedObj, 
+                                        cascade='all, delete-orphan',
+                                        backref='tag', private=True)},
        order_by='tag')
         
             
@@ -220,19 +248,28 @@ def untag_object(name, so_obj):
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
     tag = None
-    try:
-        tag = Tag.byTag(name)
-    except SQLObjectNotFound:
+    session = create_session()
+    try:        
+        tag = session.query(Tag).select(tag_table.c.tag==name)[0]
+        debug('tag: %s' % tag)
+    except Exception, e:
+        debug(traceback.format_exc())
+        debug('untag_object: %s' % e)
         return
-    for obj in tag.objects:
+    for obj in tag._objects:
         # x = obj
         # y = so_obj
         same = lambda x, y:x.obj_class==y.__class__.__name__ and x.obj_id==y.id        
         if same(obj, so_obj):
-            obj.destroySelf()
+            o = session.load(type(obj), obj.id)
+            session.delete(o)
+    session.flush()
+            #obj.destroySelf()
             
        
 def tag_object(name, so_obj):     
+    '''
+    '''
     session = create_session()
     tag = session.query(Tag).select_by(tag=name)[0]
     classname = so_obj.__class__.__name__
@@ -244,25 +281,19 @@ def tag_object(name, so_obj):
         session.flush()
 
 
-def get_tag_ids(so_obj):
-    classname = so_obj.__class__.__name__
-    query = object_session(so_obj).query(TaggedObj)
-    tagged_objs = query.select_by(obj_class=classname, obj_id=so_obj.id)    
+def get_tag_ids(obj):
+    '''
+    return a list of id's for tags associated with so_obj
+    '''
+    classname = obj.__class__.__name__
+    query = object_session(obj).query(TaggedObj)
+    tagged_objs = query.select_by(obj_class=classname, obj_id=obj.id)
     ids = []
     for obj in tagged_objs:
         ids.append(obj.tag.id)
     return ids
 
     
-
-# this should create a table tag_plant or plant_tag something like that,
-# but what if we want to dump the database and keep these relations
-
-# also, this wouldn't really be useful unless we could tag multiple types
-# of items like species, accessions, plants but how do you we do joins on
-# multiple types unless we have a PlantTag, AccessionTag and SpeciesTag
-# we could manage 
-
 def _on_add_tag_activated(*args):
     # get the selection from the search view
     # TODO: would be better if we could set the sensitivity of the menu
@@ -344,32 +375,14 @@ class TagPlugin(BaublePlugin):
     @classmethod
     def init(cls):
         if "SearchViewPlugin" in plugins:
-            from bauble.plugins.searchview.search import SearchMeta, SearchView
-            
+            from bauble.plugins.searchview.search import SearchMeta, SearchView            
             search_meta = SearchMeta("Tag", ["tag"], "tag")
             SearchView.register_search_meta("tag", search_meta)
-            
-            def get_objects(tag):                
-                kids = []
-                session = object_session(tag)
-                for obj in tag.objects:
-                    try:
-                        cls = tables[obj.obj_class]
-                        # TODO: if load raises an exception we should show
-                        # a message and remove the obj from the tag
-                        kids.append(session.load(cls, obj.obj_id))                    
-                    except Exception, e:
-                        msg = 'Could not the get object that this tag refers to. '\
-                        'Removing tag from object %s(%s).' % (obj.obj_class, obj.obj_id)
-                        utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_WARNING)
-                        session.delete(obj)
-                        debug(traceback.format_exc)
-                return kids
-                                
-            SearchView.view_meta["Tag"].set(children=get_objects, 
+            SearchView.register_search_meta("tags", search_meta)                                
+            SearchView.view_meta["Tag"].set(children='objects', 
                                             context_menu=tag_context_menu)
-        
-            
+
+
     @classmethod
     def create_tables(cls):
         super(TagPlugin, cls).create_tables()
