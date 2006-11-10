@@ -207,21 +207,20 @@ class GenusEditorView(GenericEditorView):
         for expander, pref in self.expanders_pref_map.iteritems():
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
-                    
-#    def save_state(self):
-#        prefs[self.syn_expanded_pref] = \
-#            self.widgets.gen_syn_expander.get_expanded()    
-#
-#        
-#    def restore_state(self):
-#        expanded = prefs.get(self.syn_expanded_pref, True)
-#        self.widgets.gen_syn_expander.set_expanded(expanded)
+                        
 
     def _get_window(self):
         '''
         '''
         return self.widgets.family_dialog    
     window = property(_get_window)
+    
+    
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.gen_ok_button.set_sensitive(sensitive)
+        self.widgets.gen_ok_and_add_button.set_sensitive(sensitive)
+        self.widgets.gen_next_button.set_sensitive(sensitive)
+    
             
     def start(self):
         return self.dialog.run()    
@@ -229,7 +228,7 @@ class GenusEditorView(GenericEditorView):
 
 class GenusEditorPresenter(GenericEditorPresenter):
     
-    widget_to_field_map = {'gen_family_entry': 'family_id',
+    widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'genus',
                            'gen_author_entry': 'author',
                            'gen_hybrid_combo': 'hybrid',
@@ -266,6 +265,17 @@ class GenusEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('gen_author_entry', 'author')
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
         self.assign_simple_handler('gen_notes_textview', 'notes')
+        
+        # for each widget register a signal handler to be notified when the
+        # value in the widget changes, that way we can do things like sensitize
+        # the ok button
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+    
+    
+    def on_field_changed(self, model, field):
+        if self.model.family is not None:
+            self.view.set_accept_buttons_sensitive(True)
         
         
     def dirty(self):
@@ -656,9 +666,9 @@ else:
             self.set_widget_value('gen_nsp_data', nsp)
                                     
             # get number of accessions
-            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))
-            nacc_str = sql_utils.count_select(acc_ids)
-            if nacc_str != '0':                
+            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))        
+            nacc_str = str(sql_utils.count_select(acc_ids))
+            if nacc_str != '0':
                 nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
                 nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
             self.set_widget_value('gen_nacc_data', nacc_str)

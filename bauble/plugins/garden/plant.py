@@ -233,15 +233,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
 #        self.init_history_box()
         self.refresh_view() # put model values in view            
         
-        # set default values for acc_status and acc_type        
+        # set default values for acc_status and acc_type    
         if self.model.id is None and self.model.acc_type is None:
             default_acc_type = 'Plant'
             self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
-            self.model.acc_type = default_acc_type
+            self.model._set('acc_type', default_acc_type, dirty=False)
         if self.model.id is None and self.model.acc_status is None:
             default_acc_status = 'Living accession'
             self.view.set_widget_value('plant_acc_status_combo', default_acc_status)   
-            self.model.acc_status = default_acc_status
+            self.model._set('acc_status', default_acc_status, dirty=False)
             
         
         # connect signals
@@ -250,7 +250,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         def format_acc(accession):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, value):
-            debug('set_in_model(%s, %s)' % (field, value))
+#            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value)
         self.assign_completions_handler('plant_acc_entry', 'accession', 
                                         acc_get_completions, 

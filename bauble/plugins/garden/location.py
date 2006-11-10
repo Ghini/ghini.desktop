@@ -88,7 +88,13 @@ class LocationEditorView(GenericEditorView):
         self.dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.location_dialog)
 
-            
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.loc_ok_button.set_sensitive(sensitive)
+        self.widgets.loc_ok_and_add_button.set_sensitive(sensitive)
+        self.widgets.loc_next_button.set_sensitive(sensitive)
+
+        
     def start(self):
         return self.dialog.run()    
         
@@ -112,6 +118,16 @@ class LocationEditorPresenter(GenericEditorPresenter):
         # connect signals
         self.assign_simple_handler('loc_location_entry', 'site')
         self.assign_simple_handler('loc_desc_textview', 'description')
+        
+        # for each widget register a signal handler to be notified when the
+        # value in the widget changes, that way we can do things like sensitize
+        # the ok button
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+    
+    
+    def on_field_changed(self, model, field):
+        self.view.set_accept_buttons_sensitive(True)
         
     
     def dirty(self):

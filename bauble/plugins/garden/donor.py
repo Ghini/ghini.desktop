@@ -103,6 +103,11 @@ class DonorEditorView(GenericEditorView):
             new_width = pango.PIXELS(width) * 20
             combo.set_size_request(new_width, -1)
             
+            
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.don_ok_button.set_sensitive(sensitive)
+        self.widgets.don_next_button.set_sensitive(sensitive)
+        
         
     def start(self):
         return self.dialog.run()
@@ -132,26 +137,19 @@ class DonorEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
         
-        self.init_change_notifier()
+        # for each widget register a signal handler to be notified when the
+        # value in the widget changes, that way we can do things like sensitize
+        # the ok button
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+    
+    
+    def on_field_changed(self, model, field):
+        self.view.set_accept_buttons_sensitive(True)        
 
     
     def dirty(self):
         return self.model.dirty
-    
-    
-    def on_field_changed(self, model, field):
-        self.view.widgets.don_ok_button.set_sensitive(True)
-
-
-    def init_change_notifier(self):
-        '''
-        for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can do things like sensitize
-        the ok button
-        '''
-        for widget, field in self.widget_to_field_map.iteritems():            
-            w = self.view.widgets[widget]
-            self.model.add_notifier(field, self.on_field_changed)
 
 
     def refresh_view(self):

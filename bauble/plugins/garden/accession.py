@@ -1431,7 +1431,9 @@ else:
             self.set_widget_value('name_data', 
                                   '%s\n%s' % (row.species.markup(True), row.code))
             session = object_session(row)
-            # TODO: could this be sped up, does it matter?
+            # TODO: it would be nice if we did something like 13 Living, 2 Dead,
+            # 6 Unknown, etc
+            # TODO: could this be sped up, does it matter?            
             nplants = session.query(Plant).count_by(accession_id=row.id)
             self.set_widget_value('nplants_data', nplants)
             self.set_widget_value('prov_data', row.prov_type, False)

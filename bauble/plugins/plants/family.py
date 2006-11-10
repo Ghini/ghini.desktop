@@ -149,11 +149,6 @@ class FamilyEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.family_dialog)
         self.restore_state()
 
-#    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
-#        '''
-#        '''
-#        v = model[iter][0]
-#        renderer.set_property('text', Family.str(v, full_string=True))
         
     def save_state(self):
         prefs[self.syn_expanded_pref] = self.widgets.fam_syn_expander.get_expanded()    
@@ -163,12 +158,20 @@ class FamilyEditorView(GenericEditorView):
         expanded = prefs.get(self.syn_expanded_pref, True)
         self.widgets.fam_syn_expander.set_expanded(expanded)        
 
+
     def _get_window(self):
         '''
         '''
         return self.widgets.family_dialog    
     window = property(_get_window)
+        
             
+    def set_accept_buttons_sensitive(self, sensitive):
+        self.widgets.fam_ok_button.set_sensitive(sensitive)
+        self.widgets.fam_ok_and_add_button.set_sensitive(sensitive)
+        self.widgets.fam_next_button.set_sensitive(sensitive)
+        
+        
     def start(self):
         return self.dialog.run()    
         
@@ -196,8 +199,18 @@ class FamilyEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('fam_family_entry', 'family')
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
         self.assign_simple_handler('fam_notes_textview', 'notes')
-    
         
+        # for each widget register a signal handler to be notified when the
+        # value in the widget changes, that way we can do things like sensitize
+        # the ok button
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+    
+    
+    def on_field_changed(self, model, field):
+        self.view.set_accept_buttons_sensitive(True)
+        
+
     def dirty(self):
         return self.model.dirty or self.synonyms_presenter.dirty()
     
