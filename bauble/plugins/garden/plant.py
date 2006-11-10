@@ -57,7 +57,11 @@ plant_context_menu = [('Edit', edit_callback),
 def plant_markup_func(plant):
     '''
     '''
-    return str(plant), plant.accession.species.markup(authors=False)
+    if plant.acc_status == 'Dead':
+        color = '<span foreground="#666666">%s</span>'
+        return color % str(plant), color % plant.accession.species.markup(authors=False)
+    else:
+        return str(plant), plant.accession.species.markup(authors=False)
 
 
 plant_history_table = Table('plant_history',
@@ -230,12 +234,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view            
         
         # set default values for acc_status and acc_type        
-        if self.model.acc_type is None:
+        if self.model.id is None and self.model.acc_type is None:
             default_acc_type = 'Plant'
             self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
-        if self.model.acc_status is None:
+            self.model.acc_type = default_acc_type
+        if self.model.id is None and self.model.acc_status is None:
             default_acc_status = 'Living accession'
             self.view.set_widget_value('plant_acc_status_combo', default_acc_status)   
+            self.model.acc_status = default_acc_status
+            
         
         # connect signals
         def acc_get_completions(text):            
