@@ -1,7 +1,13 @@
 Bauble 
 ============
 
-All code contained as part of the Buable package is licenced under the GNU GPL
+At it's heart Bauble is a framework for creating database applications.  In
+it's distributed form Bauble is an application to manage plant records and 
+specifically living collections.  It is used by Belize Botanic Gardens to 
+manage their live collections.  Include by default is RBG Kew's Family list
+from 1992 and a list of commonly used Genera(from where?).  
+
+All code contained as part of the Buable package is licenced under the GNU GPL.
 
 
 
@@ -11,35 +17,48 @@ Requirements:
 For building:
 -------------
 
-Linux
--------
-Python 2.4
-SQLObject>=0.7.1b1
-FormEncode>=0.5.1
-psycopg2>=2.0.2, get windows version from http://www.stickpeople.com/projects/python/win-psycopg/index.html
-pygtk>=2.8
-pysqlite>=2.3.1 (Ubuntu only has 2.0.5)
+	Linux
+	-------
+		Python 2.4
+		SQLAlchemy>=0.3.0
+		FormEncode>=0.5.1
+		pygtk>=2.8
+		A DB Connector:
+			pysqlite >= 2.3.2
+			psycopg2 >= 2.0.5 
+			mysql-python (http://sourceforge.net/projects/mysql-python/)
+	
+	Windows
+	-------
+		Python 2.4
+		SQLAlchemy>=0.3.0
+		FormEncode>=0.5.1
+		Gtk+ >= 2.8.18 (gladewin32.sourceforge.net)
+		pygtk >= 2.8 from http://www.pcpm.ucl.ac.be/~gustin/win32_ports/
+		py2exe >= 0.6.5
 
-Windows
--------
-Python 2.4
-easy_install -U SQLObject>=0.7.1b1
-easy_install -U FormEncode>=0.5.1
-psycopg2>=2.0.2 from from http://www.stickpeople.com/projects/python/win-psycopg/index.html
-Gtk+ >= 2.8.18 from gladewin32.sourceforge.net
-pygtk >= 2.8 from http://www.pcpm.ucl.ac.be/~gustin/win32_ports/
-py2exe >= 0.6.5
-pysqlite>=2.3.1
-
-http://sourceforge.net/projects/mysql-python/
+		A DB Connector:
+			pysqlite>=2.3.1
+			psycopg2>=2.0.5 (http://www.stickpeople.com/projects/python/win-psycopg/index.html)
+			mysql-python (http://sourceforge.net/projects/mysql-python/)
 
 
-
-Downloading:
--------------	
-You can download the latest version of Bauble from 
-http://bauble.belizebotanic.org
 
 Installation:
 -------------
-python setup.py install
+
+	Linux
+	-----
+	1. Download one of the Bauble archives 
+	   from http://bauble.belizebotanic.org.
+	2. Extract the archive to a directory.
+	3. Change to the Bauble directory where you extract the archive.
+	4. Type "python setup.py install" on the command line
+	5. To run Bauble type bauble on the command line.
+	
+	Windows
+	-------
+	1. Download the bauble-<version>-.exe file from 
+	   http://bauble.belizebotanic.org
+	2. Double click on the file when it finishes downloading.
+	3. Run Bauble from the Start menu.
