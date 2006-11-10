@@ -116,12 +116,13 @@ class ModelDecorator(object):
             return super(ModelDecorator, self).__getattribute__(name)
         
         
-    def __set(self, name, value):
-#        debug('ModelDecorator.__set(%s, %s)' % (name, value))
+    def _set(self, name, value, dirty=True):
+#        debug('ModelDecorator._set(%s, %s)' % (name, value))
         model = super(ModelDecorator, self).__getattribute__('model')        
         setattr(model, name, value)
-        super(ModelDecorator, self).__setattr__('__dirty', True)
-        if not super(ModelDecorator, self).__getattribute__('__pause'):            
+        super(ModelDecorator, self).__setattr__('__dirty', dirty)
+        if name not in super(ModelDecorator, self).__getattribute__('__locals__') and \
+          not super(ModelDecorator, self).__getattribute__('__pause'):            
             notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
             if name in notifiers:
                 for callback in notifiers[name]:
@@ -132,13 +133,13 @@ class ModelDecorator(object):
         return self.model == other
         
     def __setattr__(self, name, value):
-        self.__set(name, value)        
+        self._set(name, value)        
 
     def __getitem__(self, name):
         return getattr(self.model, name)
 
     def __setitem__(self, name, value):
-        self.__set(name, value)        
+        self._set(name, value)        
           
     def __str__(self):
         return str(self.model)
