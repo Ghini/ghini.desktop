@@ -411,6 +411,7 @@ class SearchView(BaubleView):
         self.entry.set_text('')
         self.results_view.set_model(None)
         self.set_infobox_from_row(None)
+        self.session.clear()
 
 
     def refresh_search(self):
@@ -557,6 +558,7 @@ class SearchView(BaubleView):
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
+        self.session.clear()
         self.entry.set_text(text)
         self._search_text = text      
         set_cursor = bauble.app.gui.window.window.set_cursor

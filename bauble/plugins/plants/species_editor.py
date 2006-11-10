@@ -250,9 +250,15 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         '''
         resets the fullname label according to values in the model
         '''
+        # TODO: i saw this not working once but then it started working again
+        # when i restarted before i could debug it so somewhere there's a 
+        # bug in hiding
+#        debug('refresh_fullname_label')
         if len(self.problems) > 0:
+#            debug('len(self.problems) > 0')
             s = '--'
         elif self.model.genus == None:
+#            debug('self.model.genus == None')
             s = '--'
         else:
             # create an object that behaves like a Species and pass it to 

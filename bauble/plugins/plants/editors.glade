@@ -274,8 +274,9 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkButton" id="okbutton3">
+              <widget class="GtkButton" id="fam_ok_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_default">True</property>
                 <property name="label" context="yes">gtk-ok</property>
                 <property name="use_stock">True</property>
@@ -286,8 +287,9 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkButton" id="button2">
+              <widget class="GtkButton" id="fam_ok_and_add_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_default">True</property>
                 <property name="label" translatable="yes" context="yes">OK and Add Genera</property>
                 <property name="use_underline">True</property>
@@ -298,8 +300,9 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkButton" id="button7">
+              <widget class="GtkButton" id="fam_next_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="response_id">22</property>
@@ -686,8 +689,9 @@
               </widget>
             </child>
             <child>
-              <widget class="GtkButton" id="okbutton2">
+              <widget class="GtkButton" id="gen_ok_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_default">True</property>
                 <property name="label" context="yes">gtk-ok</property>
                 <property name="use_stock">True</property>
@@ -698,8 +702,9 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkButton" id="button5">
+              <widget class="GtkButton" id="gen_ok_and_add_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_default">True</property>
                 <property name="label" translatable="yes" context="yes">OK and Add Species</property>
                 <property name="use_underline">True</property>
@@ -710,8 +715,9 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkButton" id="button8">
+              <widget class="GtkButton" id="gen_next_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="can_focus">True</property>
                 <property name="can_default">True</property>
                 <property name="response_id">22</property>
@@ -1282,15 +1288,23 @@
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
-                                  <widget class="GtkLabel" id="label39">
+                                  <widget class="GtkLabel" id="label37">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes" context="yes">Language</property>
+                                    <property name="label" translatable="yes" context="yes">Vernacular name</property>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="vern_name_entry">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
@@ -1308,22 +1322,14 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="vern_name_entry">
-                                    <property name="visible">True</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label37">
+                                  <widget class="GtkLabel" id="label39">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes" context="yes">Vernacular name</property>
+                                    <property name="label" translatable="yes" context="yes">Language</property>
                                   </widget>
                                   <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>

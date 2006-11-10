@@ -66,6 +66,14 @@ body{
     color: #c03600;
     text-decoration: none;
 }
+#content a.ss{
+    color: white;
+    text-decoration: none;
+}
+
+.ss-div {
+	margin-bottom: 4em;
+}
 
 #content a:hover{
     text-decoration: underline;
