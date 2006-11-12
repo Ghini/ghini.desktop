@@ -333,6 +333,15 @@ species_id: the species this meta information refers to
 #     geography tables which will hold the plants distribution, this
 #     distribution table could even be part of the geography module
 
+# TODO: i now think the best way to handle distribution is to just
+# have a distribution table and a species can have more than
+# one distributions so that if there are two distributions the 
+# string could be PlaceOne to PlaceTwo and if there are more than two
+# it could return PlaceOne,PlaceTwo,PlaceThree, etc.....could have 
+# species.distribution to return the string for the distribution and
+# species.distributions to return the list of places, or maybe something
+# not so confusing
+
 # UPDATE: it might be better to do something like the source_type in the 
 #     the accessions, do we need the distribution table if we're only
 #     going to be holding one of the value from continent/region/etc, the only
