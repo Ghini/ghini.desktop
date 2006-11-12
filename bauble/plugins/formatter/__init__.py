@@ -489,7 +489,7 @@ class FormatterTool(BaubleTool):
                         
         except AssertionError, e:
             debug(e)
-            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=dialog.view.dialog)            
+            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=self.view.dialog)            
         except Exception:
             debug(traceback.format_exc())
             utils.message_details_dialog('Formatting Error', 
