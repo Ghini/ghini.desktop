@@ -22,14 +22,15 @@ def get_version():
     returns the bauble version combined with the subversion revision number
     '''
     from bauble import version_str as version
-    #from svn import repos, fs, core
-    import xml.dom.minidom
-    stdin, stdout = os.popen4('svn info "%s" --xml' % os.getcwd())
-    svninfo = stdout.read()
-    dom = xml.dom.minidom.parseString(svninfo)
-    el = dom.getElementsByTagName("commit")
-    revision = el[0].getAttribute('revision')
-    return '%s.r%s' % (version, revision)
+    return version
+#    #from svn import repos, fs, core
+#    import xml.dom.minidom
+#    stdin, stdout = os.popen4('svn info "%s" --xml' % os.getcwd())
+#    svninfo = stdout.read()
+#    dom = xml.dom.minidom.parseString(svninfo)
+#    el = dom.getElementsByTagName("commit")
+#    revision = el[0].getAttribute('revision')
+#    return '%s.r%s' % (version, revision)
     
 version = get_version()
 
