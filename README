@@ -4,8 +4,10 @@ Bauble
 At it's heart Bauble is a framework for creating database applications.  In
 it's distributed form Bauble is an application to manage plant records and 
 specifically living collections.  It is used by Belize Botanic Gardens to 
-manage their live collections.  Include by default is RBG Kew's Family list
-from 1992 and a list of commonly used Genera(from where?).  
+manage their live collections.  Included by default is RBG Kew's Family and 
+Genera list from Vascular Plant Families and Genera compiled by R. K. Brummitt
+and published by the Royal Botanic Gardens, Kew in 1992 used by permission 
+from RBG Kew.
 
 All code contained as part of the Buable package is licenced under the GNU GPL.
 
@@ -13,35 +15,23 @@ All code contained as part of the Buable package is licenced under the GNU GPL.
 
 Requirements:
 -------------
+Bauble requires the following packages to run.  The installer for Windows comes 
+with everything already built in except for GTK+ and the optional XSL->PDF 
+renderer which is need to use the formatter plugin.
 
-For building:
--------------
+Python 2.4 (not tested with other versions but they may work as well)
+SQLAlchemy>=0.3.0
+FormEncode>=0.6
+pygtk>=2.8
+lxml>=1.1
+At least one of the following database connectors:
+    pysqlite >= 2.3.2
+	psycopg2 >= 2.0.5 
+    mysql-python >= 1.2.1 
 
-	Linux
-	-------
-		Python 2.4
-		SQLAlchemy>=0.3.0
-		FormEncode>=0.5.1
-		pygtk>=2.8
-		A DB Connector:
-			pysqlite >= 2.3.2
-			psycopg2 >= 2.0.5 
-			mysql-python (http://sourceforge.net/projects/mysql-python/)
-	
-	Windows
-	-------
-		Python 2.4
-		SQLAlchemy>=0.3.0
-		FormEncode>=0.5.1
-		Gtk+ >= 2.8.18 (gladewin32.sourceforge.net)
-		pygtk >= 2.8 from http://www.pcpm.ucl.ac.be/~gustin/win32_ports/
-		py2exe >= 0.6.5
-
-		A DB Connector:
-			pysqlite>=2.3.1
-			psycopg2>=2.0.5 (http://www.stickpeople.com/projects/python/win-psycopg/index.html)
-			mysql-python (http://sourceforge.net/projects/mysql-python/)
-
+To use the formatter plugin you will also need to install an XSL->PDF renderer. For
+a free renderer check out Apache FOP (>=.92beta) at 
+http://xmlgraphics.apache.org/fop/
 
 
 Installation:

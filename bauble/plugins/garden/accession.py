@@ -9,7 +9,6 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
-import formencode.validators as validators
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
@@ -272,106 +271,6 @@ mapper(Accession, accession_table,
                                
 mapper(Verification, verification_table)
 
-    # these probably belong in separate tables with a single join
-    #cultv_info = StringCol(default=None)      # cultivation information
-    #prop_info = StringCol(default=None)       # propogation information
-    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
-       # propagation history ???
-    #prop_history = StringCol(length=11, default=None)
-
-    # accession lineage, parent garden code and acc id ???
-    #acc_lineage = StringCol(length=50, default=None)    
-    #acctxt = StringCol(default=None) # ???
-    
-
-    # i don't think this is the red list status but rather the status
-    # of this accession in some sort of conservation program
-    #consv_status = StringCol(default=None) # conservation status, free text
-    
-    
-
-    
-#class Accession(BaubleTable):
-#
-#    class sqlmeta(BaubleTable.sqlmeta):
-#	       defaultOrder = 'acc_id'
-#
-#    acc_id = UnicodeCol(length=20, notNull=True, alternateID=True)
-#        
-#    prov_type = EnumCol(enumValues=("Wild", # Wild,
-#                                    "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
-#                                    "Not of wild source", # Not of wild source
-#                                    "Insufficient Data", # Insufficient data
-#                                    "Unknown",
-#                                    None),
-#                        default=None)
-#
-#    # wild provenance status, wild native, wild non-native, cultivated native
-#    wild_prov_status = EnumCol(enumValues=("Wild native", # Endemic found within it indigineous range
-#                                           "Wild non-native", # Propagule of wild plant in cultivation
-#                                           "Cultivated native", # Not of wild source
-#                                           "Insufficient Data", # Insufficient data
-#                                           "Unknown",
-#                                           None),
-#                               default=None)
-#    
-#    # date accessioned
-#    date = DateCol(notNull=True)
-#    
-#    # indicates wherewe should get the source information from either of those 
-#    # columns
-#    source_type = EnumCol(enumValues=('Collection', 'Donation', None),
-#                          default=None)                   
-#    notes = UnicodeCol(default=None)    
-#    
-#    # foriegn keys
-#    #
-#    species = ForeignKey('Species', notNull=True, cascade=False)    
-#    
-#    # joins
-#    #
-#    _collection = SingleJoin('Collection', joinColumn='accession_id')
-#    _donation = SingleJoin('Donation', joinColumn='accession_id', makeDefault=None)
-#    plants = MultipleJoin("Plant", joinColumn='accession_id')    
-#    
-#    
-#    # these probably belong in separate tables with a single join
-#    #cultv_info = StringCol(default=None)      # cultivation information
-#    #prop_info = StringCol(default=None)       # propogation information
-#    #acc_uses = StringCol(default=None)        # accessions uses, why diff than taxon uses?
-#       # propagation history ???
-#    #prop_history = StringCol(length=11, default=None)
-#
-#    # accession lineage, parent garden code and acc id ???
-#    #acc_lineage = StringCol(length=50, default=None)    
-#    #acctxt = StringCol(default=None) # ???
-#    
-#    #
-#    # verification, a verification table would probably be better and then
-#    # the accession could have a verification history with a previous
-#    # verification id which could create a chain for the history,
-#    # this would be necessary especially for herbarium records
-#    #
-#    #ver_level = StringCol(length=2, default=None) # verification level
-#    #ver_name = StringCol(length=50, default=None) # verifier's name
-#    #ver_date = DateTimeCol(default=None) # verification date
-#    #ver_hist = StringCol(default=None)  # verification history
-#    #ver_lit = StringCol(default=None) # verification lit
-#    #ver_id = IntCol(default=None) # ?? # verifier's ID??
-#    
-#
-#    # i don't think this is the red list status but rather the status
-#    # of this accession in some sort of conservation program
-#    #consv_status = StringCol(default=None) # conservation status, free text
-#    
-#    
-#    def __str__(self): 
-#        return self.acc_id
-#    
-#    def markup(self):
-#        return '%s (%s)' % (self.acc_id, self.species.markup())
-
-
 
 def get_source(row):
     # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
@@ -464,15 +363,6 @@ class AccessionEditorView(GenericEditorView):
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
             
-#    def save_state(self):
-#        prefs[self.source_expanded_pref] = \
-#            self.widgets.source_expander.get_expanded()
-#        
-#        
-#    def restore_state(self):
-#        expanded = prefs.get(self.source_expanded_pref, True)
-#        self.widgets.source_expander.set_expanded(expanded)
-
             
     def start(self):
         return self.widgets.accession_dialog.run()    
