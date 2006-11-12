@@ -6,6 +6,8 @@
 from distutils.core import setup    
 import os, sys, glob
 
+import sys
+
 # TODO: to include pygtk and gtk in the dist 
 # see http://py2exe.org/index.cgi/Py2exeAndPyGTK
 
@@ -40,19 +42,22 @@ plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
-def get_sqlalchemy_includes():
-    includes = []
-    from imp import find_module
-    file, path, descr = find_module('sqlalchemy')
-    for dir, subdir, files in os.walk(path):
-        submod = dir[len(path)+1:]
-        includes.append('sqlalchemy.%s' % submod)
-        if submod in ('mods', 'ext', 'databases'):
-            includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
-    return includes
-
-py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
-                   'encodings'] + gtk_pkgs + plugins_pkgs + get_sqlalchemy_includes()
+if sys.argv[1] == 'py2exe':
+    def get_sqlalchemy_includes():
+        includes = []
+        from imp import find_module
+        file, path, descr = find_module('sqlalchemy')
+        for dir, subdir, files in os.walk(path):
+            submod = dir[len(path)+1:]
+            includes.append('sqlalchemy.%s' % submod)
+            if submod in ('mods', 'ext', 'databases'):
+                includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
+        return includes
+    
+    py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
+                       'encodings'] + gtk_pkgs + plugins_pkgs + get_sqlalchemy_includes()
+else:
+    py2exe_includes = []
 
 # get all the package data
 plugin_data = {}
