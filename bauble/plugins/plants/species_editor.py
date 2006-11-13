@@ -38,7 +38,7 @@ def delete_or_expunge(obj):
     session = object_session(obj)
     if session is None:
         return # no session, don't need to delete or expunge
-    debug('delete_or_expunge: %s' % obj)
+#    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:
 #        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
@@ -439,7 +439,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
             first = tree_model.get_iter_first()
             if first is not None:
                 path = tree_model.get_path(tree_model.get_iter_first())                    
-                default = DefaultVernacularName(vernacular_name=tree_model[first][0].model)
+                default = DefaultVernacularName(vernacular_name=tree_model[first][0].model)                
                 self.model.default_vernacular_name = default
         delete_or_expunge(value.model)        
         self.view.set_accept_buttons_sensitive(True)           
@@ -450,17 +450,22 @@ class VernacularNamePresenter(GenericEditorPresenter):
         '''
         default column callback
         '''
-        # TODO: there is a bug here that if the object set as the default
-        # is a pending object without an id then the default_vernacular_name_id
-        # will get reset to None since the object doesn't have an idea, the 
-        # correct way to fix this is to make default_vernacular_name_id a proper
-        # ForeignKey but right now SQLAlchemy complains about circular 
-        # references
+        # FIXME: there's a bug if you add a new vernacular, set it as the default,
+        # set the default back to the previous default and then hit ok, you should
+        # reliably get "duplicate key violates unique constraint "default_vn_index"
 #        debug('on_default_toggled')        
         active = cell.get_property('active')
         if not active: # then it's becoming active ???
              tree_model = self.treeview.get_model()             
-             it = tree_model.get_iter(path)
+             it = tree_model.get_iter(path)             
+             old_default = self.model.default_vernacular_name
+#             debug('old_default: %s,%s(%s)' % (old_default.id,old_default,type(old_default)))
+             self.model.default_vernacular_name = None
+             delete_or_expunge(old_default)
+#             if old_default.id is None:
+#                 debug('not hasattr(id)')
+                 #del old_default
+#             debug('old default in session: %s' % (old_default in self.session))
              default = DefaultVernacularName(vernacular_name=tree_model[it][0].model)
              self.model.default_vernacular_name = default
         self.__dirty = True
