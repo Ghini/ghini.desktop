@@ -456,8 +456,8 @@ class DefaultVernacularName(bauble.BaubleMapper):
         self.vernacular_name = vernacular_name
         
     def __str__(self):
-        return str(self.vernacular_name)
-        #return '%s (default)' % str(self.vernacular_name)
+        #return str(self.vernacular_name)
+        return '%s (default)' % str(self.vernacular_name)
 
 
 #'''
