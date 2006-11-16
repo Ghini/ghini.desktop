@@ -643,7 +643,7 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         '''                
         # the editor does all of it's work in it's own session,
         # so put a copy of the model in our session
-        self.session = create_session(bind_to=bauble.app.db_engine)            
+        self.session = create_session(bind_to=bauble.app.db_engine)#, echo_uow=True)
         obj_session = object_session(model)              
         if obj_session is not None:
             if model in obj_session.new:
@@ -695,6 +695,7 @@ class GenericModelViewPresenterEditor(BaubleEditor):
     def commit_changes(self):
         '''
         '''
+        
 #        for obj in self.session:
 #            if obj in self.session.new:
 #                debug('new: %s' % obj)

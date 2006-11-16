@@ -38,7 +38,8 @@ version = get_version()
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden','geography','abcd','imex_csv','formatter','plants','searchview', 'tag']
+plugins = ['garden','geography','abcd','imex_csv','formatter', 
+           'formatter.default', 'plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
