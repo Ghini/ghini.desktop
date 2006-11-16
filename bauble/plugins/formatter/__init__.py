@@ -87,6 +87,7 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
 
 
 def _find_formatter_plugins():
+    # TODO: the library.zip part doesn't work
     names = []
     path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
