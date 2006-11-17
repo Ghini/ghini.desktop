@@ -8,6 +8,10 @@ import os, sys, glob
 
 import sys
 
+USING_PY2EXE = False
+if sys.argv[1] == 'py2exe':
+    USING_PY2EXE = True
+
 # TODO: to include pygtk and gtk in the dist 
 # see http://py2exe.org/index.cgi/Py2exeAndPyGTK
 
@@ -44,7 +48,7 @@ plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
-if sys.argv[1] == 'py2exe':
+if USING_PY2EXE:
     def get_sqlalchemy_includes():
         includes = []
         from imp import find_module
@@ -72,7 +76,9 @@ for pattern in data_patterns:
         extra_path = pattern[:pattern.find(os.sep)]
     for p in plugins_pkgs:
         package_dir = p.replace('.',os.sep) + '/'
+#        print 'package_dir: %s' % package_dir
         files = glob.glob('%s%s' % (package_dir, pattern))        
+#        print ' -- files: %s' % files
         if len(files) != 0:
             if p not in plugin_data:
                 plugin_data[p] = []
@@ -87,7 +93,7 @@ package_data.update(plugin_data)
 #
 # generate the data files for py2exe, why can't it just use package_data?
 #
-if sys.platform == "win32":
+if USING_PY2EXE:
     import py2exe    
     opts = {
         "py2exe": {
