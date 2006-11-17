@@ -4,7 +4,7 @@
 
 import imp, os, sys, re
 import bauble
-import gtk
+import gtk, gtk.glade
 from bauble.utils.log import debug
 import xml
 from sqlalchemy import *
