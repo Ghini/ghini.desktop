@@ -747,7 +747,7 @@ class SearchView(BaubleView):
                 kids = self.view_meta[s.__class__.__name__].get_children(s)
                 if len(kids) > 0:                
                     model.append(p, ['-'])        
-            else:
+            elif self.view_meta[s.__class__.__name__].children is not None:
                 model.append(p, ['-'])             
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)	
