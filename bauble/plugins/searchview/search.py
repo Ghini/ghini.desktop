@@ -251,6 +251,7 @@ class SearchView(BaubleView):
                 '''
                 if self.children is None:
                     return []
+                    #return None
                 tablename = so_instance.__class__.__name__            
                 if callable(self.children):
                     return self.children(so_instance)
@@ -643,7 +644,7 @@ class SearchView(BaubleView):
                 model.remove(found)
             return True
         else:
-            self.append_children(model, iter, kids, True)
+            self.append_children(model, iter, kids)
             return False
         
                     
@@ -743,7 +744,7 @@ class SearchView(BaubleView):
         for s in select:
             p = model.append(None, [s])            
             if check_for_kids:
-                kids = self.view_meta[s.__class__.__name__].get_children(s)            
+                kids = self.view_meta[s.__class__.__name__].get_children(s)
                 if len(kids) > 0:                
                     model.append(p, ['-'])        
             else:
@@ -753,22 +754,19 @@ class SearchView(BaubleView):
         self.results_view.thaw_child_notify()
 	        
     
-    def append_children(self, model, parent, kids, have_kids):
+    def append_children(self, model, parent, kids):
         '''
         append object to a parent iter in the model        
         
         @param model: the model the append to
         @param parent:  the parent iter
         @param kids: a list of kids to append
-        @param have_kids: whether we should add a dummy indicator that the appended
-            kids have kides        
         @return: the model with the kids appended
         '''
-        if parent is None:
-            raise Exception("need a parent")
+        assert parent is not None, "append_children(): need a parent"
         for k in kids:
             i = model.append(parent, [k])
-            if have_kids:
+            if self.view_meta[k.__class__.__name__].children is not None:
                 model.append(i, ["_dummy"])
         return model
        
