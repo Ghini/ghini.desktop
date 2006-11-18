@@ -286,7 +286,8 @@ class DontCommitException(Exception):
     
 class Problems:
         
-        _problems = []
+        def __init__(self):            
+            self._problems = []
         
         def add(self, problem):
             '''

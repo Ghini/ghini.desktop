@@ -993,6 +993,9 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         the list should either be empty or the list of committed values, return 
         None if we want to keep editing
         '''
+        # TODO: need to do a __cleanup_model before the commit to do things
+        # like remove the insfraspecific information that's attached to the 
+        # model if the infraspecific rank is None
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
@@ -1136,7 +1139,26 @@ else:
                 # TODO: get expanded state from prefs
                 self.set_expanded(True)
         
-    
+        
+        
+    class NotesExpander(InfoExpander):
+        
+        def __init__(self, widgets):
+            InfoExpander.__init__(self, "Notes", widgets)
+            notes_box = self.widgets.sp_notes_box
+            self.widgets.remove_parent(notes_box)
+            self.vbox.pack_start(notes_box)
+            
+                        
+        def update(self, row):
+            if row.notes is None:
+                self.set_expanded(False)
+                self.set_sensitive(False)
+            else:
+                self.set_expanded(True)
+                self.set_sensitive(True)
+                self.set_widget_value('sp_notes_data', row.notes)
+            
     
     class GeneralSpeciesExpander(InfoExpander):
         '''
@@ -1233,6 +1255,8 @@ else:
             self.add_expander(self.vernacular)
             self.synonyms = SynonymsExpander(self.widgets)
             self.add_expander(self.synonyms)
+            self.notes = NotesExpander(self.widgets)
+            self.add_expander(self.notes)
             
             #self.ref = ReferenceExpander()
             #self.ref.set_expanded(True)
@@ -1252,6 +1276,7 @@ else:
             self.general.update(row)
             self.vernacular.update(row)
             self.synonyms.update(row)
+            self.notes.update(row)
             #self.ref.update(row.references)
             #self.ref.value = row.references
             #ref = self.get_expander("References")
