@@ -3,6 +3,7 @@
 #
 
 import os, traceback
+import xml
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
@@ -120,15 +121,17 @@ class Genus(bauble.BaubleMapper):
 
     
     @staticmethod
-    def str(genus):
+    def str(genus, author=False):
         if genus.genus is None:
             return repr(genus)
-        else:
+        elif not author:
             return ' '.join([s for s in [genus.hybrid, genus.genus, genus.qualifier] if s is not None])
+        else:
+            return ' '.join([s for s in [genus.hybrid, genus.genus, 
+                                         genus.qualifier, 
+                                         xml.sax.saxutils.escape(genus.author)] if s is not None])
 
-        
-        
-        
+                
 genus_synonym_table = Table('genus_synonym',
                             Column('id', Integer, primary_key=True),
                             Column('genus_id', Integer, ForeignKey('genus.id'), 
@@ -583,7 +586,7 @@ else:
             
             @param row: the row to get the values from
             '''
-            self.set_widget_value('gen_name_data', str(row))
+            self.set_widget_value('gen_name_data', Genus.str(row, author=True))
 
             # get the number of species
             species_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
