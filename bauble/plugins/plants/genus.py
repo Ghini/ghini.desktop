@@ -537,8 +537,14 @@ class GenusEditor(GenericModelViewPresenterEditor):
         # add quick response keys
         dialog = self.view.dialog        
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
+    
+        # set default focus
+        if self.model.family is None:
+            self.view.widgets.gen_family_entry.grab_focus()
+        else:
+            self.view.widgets.gen_genus_entry.grab_focus()
         
         exc_msg = "Could not commit changes.\n"
         while True:

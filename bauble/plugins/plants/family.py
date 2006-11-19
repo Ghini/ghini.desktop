@@ -440,7 +440,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         # add quick response keys
         dialog = self.view.dialog
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
         exc_msg = "Could not commit changes.\n"
