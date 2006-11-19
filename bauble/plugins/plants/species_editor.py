@@ -1049,8 +1049,14 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         # add quick response keys
         dialog = self.view.dialog        
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'a', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
+        
+        # set default focus
+        if self.model.genus is None:
+            self.view.widgets.sp_genus_entry.grab_focus()
+        else:
+            self.view.widgets.sp_species_entry.grab_focus()
         
         exc_msg = "Could not commit changes.\n"
         while True:

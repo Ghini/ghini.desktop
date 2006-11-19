@@ -502,6 +502,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
         
+        # set default focus
+        if self.model.accession is None:
+            self.view.widgets.plant_acc_entry.grab_focus()
+        else:
+            self.view.widgets.plant_code_entry.grab_focus()
+        
         exc_msg = "Could not commit changes.\n"
         committed = None
         while True:
