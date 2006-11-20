@@ -29,6 +29,8 @@ from bauble.types import Enum
 # accession number but change it back to the original then it indicates the
 # number is invalid b/c it's a duplicate
 
+# TODO: make sure an accessions source record is being deleted when the
+# accession is being deleted, and create a test for the same thing
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
@@ -263,7 +265,7 @@ mapper(Accession, accession_table,
                                            backref='accession'),
                      'plants': relation(Plant, cascade='all, delete-orphan', 
                                         order_by=plant_table.c.code,
-                                        backref='accession', ),
+                                        backref='accession'),
                      'verifications': relation(Verification, order_by='date',
                                                private=True, 
                                                backref='accession', )},
@@ -845,7 +847,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_date_entry': 'date',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
-                           'acc_species_entry': 'species_id',
+                           'acc_species_entry': 'species',
                            'acc_source_type_combo': 'source_type',
                            'acc_notes_textview': 'notes'}
     
