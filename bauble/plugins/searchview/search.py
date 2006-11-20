@@ -75,6 +75,8 @@ from pyparsing import *
 
 # TODO: create a set of commands from the search entry, e.g. :help or :config
 
+# TODO: select first result in list on succesful search
+
 # use different formatting template for the result view depending on the
 # platform
 _mainstr_tmpl = '<b>%s</b>'
