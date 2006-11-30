@@ -18,6 +18,8 @@
 				<fo:flow flow-name="xsl-region-body">
 					<xsl:for-each select="abcd:DataSet">
 						<fo:table table-layout="fixed" inline-progression-dimension="100%">
+							<fo:table-column column-width="proportional-column-width(1)"/>
+							<fo:table-column column-width="proportional-column-width(3)"/>
 							<fo:table-header border="1pt solor #B7B7B7" background-color="#B7B7B7">
 								<fo:table-row>
 									<fo:table-cell>
