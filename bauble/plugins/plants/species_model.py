@@ -291,10 +291,11 @@ class Species(bauble.BaubleMapper):
                         isp = italic % species.infrasp
                 name = [s for s in [genus, sp, author, 
                                     isp_rank, isp, isp_author] if s is not None]
-            
-        
+                    
         if species.sp_qual is not None:
             name.append(species.sp_qual)
+        if species.id_qual is not None:
+            name.append('(%s)' % species.id_qual)
         return ' '.join(name)        
     
 
