@@ -1036,6 +1036,14 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         
         return True
 
+
+    def commit_changes(self):
+        if self.model.sp_hybrid is None and self.model.infrasp_rank is None:
+            self.model.infrasp = None
+            self.model.infrasp_author = None
+            self.model.cv_group = None
+        super(SpeciesEditor, self).commit_changes()
+        
         
     def start(self):
         if self.session.query(Genus).count() == 0:        
