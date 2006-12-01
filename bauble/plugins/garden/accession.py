@@ -236,7 +236,6 @@ class Accession(bauble.BaubleMapper):
             source.accession = self
         
     def _del_source(self):   
-#        debug('_del_source(%s)' % repr(self.source))
         source = self.source        
         if source is not None:
             source.accession = None
@@ -258,11 +257,10 @@ mapper(Accession, accession_table,
        properties = {
                      '_collection': relation(Collection, 
                                              primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-                                             private=True, uselist=False, backref='accession'),
+                                             cascade='all', uselist=False, backref='accession'),
                      '_donation': relation(Donation, 
                                            primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-                                           private=True, uselist=False,
-                                           backref='accession'),
+                                           cascade='all', uselist=False, backref='accession'),
                      'plants': relation(Plant, cascade='all, delete-orphan', 
                                         order_by=plant_table.c.code,
                                         backref='accession'),
@@ -895,7 +893,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.acc_code_entry.connect('delete-text', 
                                                self.on_acc_code_entry_delete)
         self.assign_simple_handler('acc_notes_textview', 'notes')
-        
+                
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
@@ -933,7 +931,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if text is '':
             self.model.code = None
         self.model.code = text
-            
+
         
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
                             data=None):        
@@ -950,17 +948,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._set_acc_date_from_text(full_text)
         
 
-    # TODO: there is a funny bug here if you enter the date 1/1/1900
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
     
     def _set_acc_date_from_text(self, text):
+        if text == '':
+            self.model.date = None
+            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                                self.view.widgets.coll_date_entry)
+            return
+            
         m = self._date_regex.match(text)
         dt = None # datetime
-        if text == '':
-            # accession date can't be None
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.acc_date_entry)
-            self.model.date = dt
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                     m.group('day')]]
@@ -1039,6 +1037,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
         # this helps keep a reference to the widgets so they don't get destroyed
+        # TODO: if source_type is set and self.model.source is None then create
+        # a new empty source object and attach it to the model
         box_map = {'Donation': self.view.widgets.donation_box, 
                    'Collection': self.view.widgets.collection_box}
         
@@ -1073,17 +1073,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             # initialize model change notifiers    
             for field in self.source_presenter.widget_to_field_map.values():            
                 self.source_presenter.model.add_notifier(field, self.on_field_changed)
-#            debug(self.model.source in self.session.dirty)
-#        if self.model.source is None:
-#            # turn the accept buttons on here b/c i don't know a better place to 
-#            # do it
-#            #self.set_accept_buttons_sensitive(True)
-#            self.on_field_changed(self.model, 'source_type')
-#            pass
         if source_type_changed:
             self.on_field_changed(self.model, 'source_type')
-        #source_box.show_all()
-        
 
         
     def set_accept_buttons_sensitive(self, sensitive):        
@@ -1283,7 +1274,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         if isinstance(self.model.source, Collection):
             self.__cleanup_collection_model(self.model.source)
         elif isinstance(self.model.source, Donation):
-            self.__cleanup_donation_model(self.model.source)        
+            self.__cleanup_donation_model(self.model.source)
         return super(AccessionEditor, self).commit_changes()
 
 
