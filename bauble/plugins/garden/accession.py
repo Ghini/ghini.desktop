@@ -954,7 +954,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if text == '':
             self.model.date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE, 
-                                self.view.widgets.coll_date_entry)
+                                self.view.widgets.acc_date_entry)
             return
             
         m = self._date_regex.match(text)
