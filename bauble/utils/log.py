@@ -14,8 +14,11 @@ def _main_is_frozen():
 def _default_handler():
     import bauble.paths as paths
     if _main_is_frozen():        
+        # TODO: should make sure we can open this file and it's writeable
         filename = os.path.join(paths.user_dir(), 'bauble.log')
         handler = logging.FileHandler(filename, 'w+')
+        sys.stdout = open(filename, 'w+')
+        sys.stderr = open(filename, 'w+')
     else:             
         handler = logging.StreamHandler()
     return handler
