@@ -94,16 +94,16 @@ class GUI:
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
-        if sys.platform == 'win32':
-            # TODO: need and svg pixbuf loaded for windows
-            filename = os.path.join(paths.lib_dir(), "images", "icon24.png")
-            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-            self.window.set_icon(pixbuf)
-        else:
+#        if sys.platform == 'win32':
+#            # TODO: need and svg pixbuf loaded for windows
+#            filename = os.path.join(paths.lib_dir(), "images", "icon24.png")
+#            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+#            self.window.set_icon(pixbuf)
+#        else:
             # TODO: need a svg pixbuf loaded for windows
-            filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
-            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-            self.window.set_icon(pixbuf)
+        filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
+        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        self.window.set_icon(pixbuf)
     
         # top level vbox for menu, content, status bar
         main_vbox = gtk.VBox()
