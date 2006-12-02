@@ -418,7 +418,7 @@ class CollectionPresenter(GenericEditorPresenter):
         
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
-        self.assign_simple_handler('collid_entry', 'coll_id')
+        self.assign_simple_handler('collid_entry', 'collectors_code')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
                                    IntOrNoneStringValidator())
         self.assign_simple_handler('alt_entry', 'elevation', 
