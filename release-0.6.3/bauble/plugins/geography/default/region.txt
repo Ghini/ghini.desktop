@@ -1,0 +1,53 @@
+"continent_id","iso_code","region","code","id"
+4,"","Malesia","42",27
+4,"","Papuasia","43",28
+6,"","Southwestern Pacific","60",31
+6,"","South-Central Pacific","61",32
+6,"","Northwestern Pacific","62",33
+6,"","North-Central Pacific","63",34
+8,"","Northern South America","82",47
+8,"","Western South America","83",48
+8,"","Central America","80",45
+8,"","Caribbean","81",46
+8,"","Brazil","84",49
+8,"","Southern South America","85",50
+2,"","Northeast Tropical Africa","24",10
+2,"","East Tropical Africa","25",11
+2,"","South Tropical Africa","26",12
+2,"","Southern Africa","27",13
+2,"","Northern Africa","20",6
+2,"","Macaronesia","21",7
+2,"","West Tropical Africa","22",8
+2,"","West-Central Tropical Africa","23",9
+2,"","Middle Atlantic Ocean","28",14
+2,"","Western Indian Ocean","29",15
+4,"","Indian Subcontinent","40",25
+4,"","Indo-China","41",26
+5,"","New Zealand","51",30
+7,"","South-Central U.S.A.","77",42
+7,"","Southwestern U.S.A.","76",41
+7,"","Northeastern U.S.A.","75",40
+3,"","Eastern Asia","38",24
+7,"","Northwestern U.S.A.","73",38
+7,"","Eastern Canada","72",37
+7,"","Western Canada","71",36
+7,"","Subarctic America","70",35
+9,"","Antarctic Continent","91",52
+9,"","Subantarctic Islands","90",51
+7,"","Mexico","79",44
+7,"","Southeastern U.S.A.","78",43
+1,"","Middle Europe","11",2
+1,"","Northern Europe","10",1
+1,"","Southeastern Europe","13",4
+1,"","Southwestern Europe","12",3
+1,"","Eastern Europe","14",5
+3,"","Caucasus","33",19
+3,"","Middle Asia","32",18
+3,"","Russian Far East","31",17
+3,"","Siberia","30",16
+3,"","Mongolia","37",23
+3,"","China","36",22
+3,"","Arabian Peninsula","35",21
+3,"","Western Asia","34",20
+7,"","North-Central U.S.A.","74",39
+5,"","Australia","50",29

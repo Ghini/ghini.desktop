@@ -1,0 +1,88 @@
+* {
+    font-family: sans-serif;
+}
+
+#header{
+/*    background: #f0f0f0; */
+    border-top: #d2d2d2 solid 1px;
+/*    border-bottom: #d2d2d2 solid 1px; */
+    height: 75px;
+    top: 0;
+    left: 0;
+    right: 0;
+    padding: 10px;
+    text-align: center;	
+}
+
+#header a{
+/*    color: #747474; */
+    text-decoration: none;
+}
+
+#header a:hover{
+    text-decoration: underline;
+    
+}
+
+#logo{
+    border: none;
+}
+
+body{
+    margin: 0px; 
+/*    color: #747474;*/
+    background: #f0f0f0;
+    color: #333333;
+    font: 10pt/14pt sans-serif;
+}
+
+#content{
+    background: white;
+/*    border-left: #d2d2d2 solid 1px;*/
+/*    border-right: #d2d2d2 solid 1px;*/
+    border: #d2d2d2 solid 1px; 
+    padding: 15px;
+    margin-left: 100px;
+    margin-right: 100px;
+}
+
+#content h1, h2{
+    clear: left;
+    color: #747474;
+    text-transform: capitalize;
+    font: bold 16pt/20pt sans-serif;
+}
+
+#content h1 a, #content h1 a:link, #content h1 a:hover {
+	color: #747474;
+ 	text-decoration: none;
+}
+
+#content h3{
+    color: #747474;
+}
+
+#content a{
+    color: #c03600;
+    text-decoration: none;
+}
+#content a.ss{
+    color: white;
+    text-decoration: none;
+}
+
+.ss-div {
+	margin-bottom: 4em;
+}
+
+#content a:hover{
+    text-decoration: underline;
+}
+
+.screenshot a {
+	border: none;
+}
+
+.screenshot img {
+	border: none;
+}
