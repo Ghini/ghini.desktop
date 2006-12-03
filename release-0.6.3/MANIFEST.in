@@ -1,0 +1,9 @@
+#include bauble/lib/win32/*.*
+#include bauble/lib/fpconst.py
+#include bauble/*.ui
+# TODO: should i include everything in the scripts directory
+recursive-include bauble *.ui *.py *.glade *.txt *.xsl
+#recursive-include debian *.*
+recursive-include bauble/images *.*
+recursive-include bauble/pixmaps *.*
+include README LICENSE CHANGES
