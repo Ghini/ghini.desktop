@@ -66,7 +66,7 @@ class TagItemGUI:
         '''
         create a new tag name
         '''
-        d = gtk.Dialog("Enter a connection name", None,
+        d = gtk.Dialog("Enter a tag name", None,
                        gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
@@ -79,7 +79,7 @@ class TagItemGUI:
         name = entry.get_text()
         d.destroy()
         
-        if name is not '' and tag_table.select(tag_table.c.tag==name).count().scalar() == 0:
+        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').count().scalar() == 0:
             session = create_session()
             session.save(Tag(tag=name))
             session.flush()
@@ -275,7 +275,7 @@ def tag_object(name, so_obj):
     classname = so_obj.__class__.__name__
     if tagged_obj_table.select(and_(tagged_obj_table.c.obj_class==classname,
                                     tagged_obj_table.c.obj_id==so_obj.id, 
-                                    tagged_obj_table.c.tag_id==tag.id)).count().scalar() == 0:
+                                    tagged_obj_table.c.tag_id==tag.id)).alias('__dummy').count().scalar() == 0:
         tagged_obj = TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
         session.save(tagged_obj)
         session.flush()

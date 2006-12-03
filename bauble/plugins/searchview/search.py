@@ -30,9 +30,10 @@ from pyparsing import *
 # - GBIF search results, probably have to look up specific institutions
 # - search Lifemapper for distributions maps
 # - give list of references and images and make then clickable if they are uris
+# - show location of a plant in the garden map
 
 # TODO: could push the search map into the table modules so each table can
-# have its own search map thens this module doesn't have to know about all the 
+# have its own search map then this module doesn't have to know about all the 
 # tables, it only has to query the tables module for the search map for all 
 # tables, could also do something similar to domain map and child expand
 # map
@@ -76,6 +77,16 @@ from pyparsing import *
 # TODO: create a set of commands from the search entry, e.g. :help or :config
 
 # TODO: select first result in list on succesful search
+
+# TODO: should push the search intro into the toplevel bauble module and gui
+# and have other plugins register commands(:somecmd) or domains (somedomain=)
+# with bauble so that they are called when the entry reaches one of the commands
+# or domains
+
+# TODO: should we provide a way to change the results view from list to icon 
+# and provide an icon type to each type that can be returned and then you could
+# double click on an icon to open the children of that type
+
 
 # use different formatting template for the result view depending on the
 # platform
@@ -910,6 +921,63 @@ class SearchView(BaubleView):
         '''
         view.expand_row(path, False)
             
+#    class GoBar:
+#        def __init__(self, callback):
+#            pass
+#        
+#        def register_keyword(self, keyword, callback):
+#            '''
+#            if entry matches keyword= or :keyword then
+#            call the registered callback for the keyword
+#            '''
+#            # TODO: this means that 'acc where...' would have to become
+#            # 'sql=acc where...'
+#        def on_entry_key_press(self, widget, event, data=None):
+#            '''
+#            match the keyword and call callback
+#            '''
+#            keyname = gtk.gdk.keyval_name(event.keyval)
+#            text = self.combo.entry.get_text()
+#            if keyname == "Return":
+#                self.save_text(text)
+#                self.callback(text)
+#                #self.search_button.emit("clicked")
+#        
+#        def on_button_activate(self, *args):
+#            '''
+#            match the keyword and call callback
+#            '''
+#            pass    
+            
+#    class SearchBar:
+#        
+#        def __init__(self, callback):
+#            '''
+#            @param callback: the callback to be called with the active text
+#            '''
+#            self.combo = gtk.combo_box_entry_new_text()
+#            self.combo.entry.connect("key_press_event", self.on_entry_key_press)
+#            self.search_button = gtk.Button('Search')
+#            self.callback = callback
+#        
+#        def get_text(self):
+#            return 
+#        
+#        def clear(self):
+#            pass
+#        
+#        def save_text(self, text):
+#            pass
+#            
+#        def on_entry_key_press(self, widget, event, data=None):
+#            '''
+#            '''
+#            keyname = gtk.gdk.keyval_name(event.keyval)
+#            text = self.combo.entry.get_text()
+#            if keyname == "Return":
+#                self.save_text(text)
+#                self.callback(text)
+#                #self.search_button.emit("clicked")
 
     def create_gui(self):
         '''
@@ -918,6 +986,7 @@ class SearchView(BaubleView):
         self.content_box = gtk.VBox()  
                   
         # create the entry and search button
+        #self.search_bar = SearchBar()
         self.entry = gtk.Entry()
     	#self.combo_entry = gtk.combo_box_entry_new_text()
     	#self.entry = combo_entry.entry

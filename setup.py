@@ -140,13 +140,13 @@ for p in all_packages:
 #print '------- package directories --------\n' + str(all_package_dirs)
 #print '------- packages data--------\n' + str(package_data)
 
-setup(name="Bauble",
+setup(name="bauble",
       version=version,
       console=["scripts/bauble"],
       windows=["scripts/bauble"],          
       scripts=["scripts/bauble"], # for setuptools?
       options=opts,
-      dist_dir='dist/Bauble-%s' % version, # distribution directory
+      dist_dir='dist/bauble-%s' % version, # distribution directory
       packages = all_packages,
       package_dir = all_package_dirs,
       package_data = package_data,
