@@ -20,6 +20,8 @@ import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug
 
+# TODO: create a generic date entry that can take a mask for the date format
+# see the date entries for the accession and accession source presenters
 
 class StringOrNoneValidator(validators.FancyValidator):
     
