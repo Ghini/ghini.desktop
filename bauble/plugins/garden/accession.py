@@ -318,18 +318,21 @@ class AccessionEditorView(GenericEditorView):
             width = font_metrics.get_approximate_char_width()            
             return pango.PIXELS(width)
 
+        def width_func(widget, col, multiplier=1.3):
+            return int(round(get_char_width(widget)*accession_table.c[col].type.length*multiplier))
         species_entry = self.widgets.acc_species_entry
         species_entry.set_size_request(get_char_width(species_entry)*20, -1)
         prov_combo = self.widgets.acc_prov_combo
-        prov_combo.set_size_request(get_char_width(prov_combo)*20, -1)
+        prov_combo.set_size_request(width_func(prov_combo, 'prov_type', 1.1), -1)
         wild_prov_combo = self.widgets.acc_wild_prov_combo
-        wild_prov_combo.set_size_request(get_char_width(wild_prov_combo)*12, -1)
+        wild_prov_combo.set_size_request(width_func(wild_prov_combo, 'wild_prov_status'), -1)
         source_combo = self.widgets.acc_source_type_combo
-        source_combo.set_size_request(get_char_width(source_combo)*10, -1)
+        source_combo.set_size_request(width_func(source_combo, 'source_type'), -1)
                 
-        # TODO: we really don't need to do the rest of these until we know the 
-        # which source box is going to be opened, could connect to the boxes 
-        # realized or focused signals or something along those lines
+        # TODO: we really don't need to do the the fixes for the source 
+        # presenters until we know the which source box is going to be opened, 
+        # could connect to the boxes realized or focused signals or something 
+        # along those lines
         
         # fix the widgets in the collection editor
         lat_entry = self.widgets.lat_entry
