@@ -165,8 +165,32 @@ class PlantEditorView(GenericEditorView):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func)
-        
+        if sys.platform == 'win32':
+            self.do_win32_fixes()
     
+    def do_win32_fixes(self):
+        # these width functions are copied from accession.py and could probably 
+        # go in the utils
+        import pango
+        def get_char_width(widget):
+            context = widget.get_pango_context()        
+            font_metrics = context.get_metrics(context.get_font_description(), 
+                                               context.get_language())        
+            width = font_metrics.get_approximate_char_width()            
+            return pango.PIXELS(width)
+
+        def width_func(widget, col, multiplier=1.3):
+            return int(round(get_char_width(widget)*plant_table.c[col].type.length*multiplier))
+        
+        # TODO: need to find the longest location name for the location combo 
+        # and possibly recalculate the width(up to some max) if a new location
+        # is added
+        acc_type_combo = self.widgets.plant_acc_type_combo
+        acc_type_combo.set_size_request(width_func(acc_type_combo, 'acc_type'), -1)
+        acc_status_combo = self.widgets.plant_acc_status_combo
+        acc_status_combo.set_size_request(width_func(acc_status_combo, 'acc_status'), -1)
+        
+        
     def save_state(self):
         pass
     
