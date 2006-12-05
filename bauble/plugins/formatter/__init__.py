@@ -60,11 +60,17 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
         else:            
             for p in [acc.plants for acc in accessions]:        
                 add_plants(p)
-    
+
+    # append the objects from the tag
+    for obj in objs:        
+        if isinstance(obj, tables['Tag']):
+            objs.extend(obj.objects)
+
     for obj in objs:        
         # extract the plants from the search results
         # TODO: need to speed this up using custom queries, see the 
         # family and genera infoboxes
+                    
         if isinstance(obj, tables["Family"]):
             for gen in obj.genera:
                 for sp in gen.species:
