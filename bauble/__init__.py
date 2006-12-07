@@ -15,7 +15,7 @@ import imp, os, sys
 # releaselevel are integers; the release level is 'alpha', 'beta', 
 # 'candidate', or 'final'. The version_info value corresponding to the Python 
 # version 2.0 is (2, 0, 0, 'final', 0). New in version 2.0. 
-version = (0,6,4)
+version = (0,7.0)
 version_str = '%s.%s.%s' % (version)
 
 def main_is_frozen():
