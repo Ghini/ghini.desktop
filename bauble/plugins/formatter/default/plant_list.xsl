@@ -8,7 +8,7 @@
 		<fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
 			<fo:layout-master-set>
 				<fo:simple-page-master master-name="letter"
-					page-height="8.5in" page-width="11in" margin-top="0.5in"
+					page-height="11in" page-width="8.5in" margin-top="0.5in"
 					margin-bottom="0.5in" margin-left="0.5in" margin-right="0.5in">
 					<fo:region-body/>
 				</fo:simple-page-master>
@@ -36,14 +36,14 @@
 							</fo:table-header>
 							<fo:table-body>
 								<xsl:for-each select=".//abcd:Unit">
-									<fo:table-row>
-										<fo:table-cell border="1pt solid black" padding=".25em">
+									<fo:table-row height=".1in">
+										<fo:table-cell border="1pt solid black" padding=".02em">
 											<fo:block>
 												<xsl:value-of
 													select="abcd:UnitID" />
 											</fo:block>
 										</fo:table-cell>
-										<fo:table-cell border="1pt solid black" padding=".25em">
+										<fo:table-cell border="1pt solid black" padding=".02em">
 											<fo:block>
 												<xsl:value-of
 													select=".//abcd:FullScientificNameString" />
@@ -54,7 +54,13 @@
 							</fo:table-body>
 						</fo:table>
 					</xsl:for-each>
-				</fo:flow>
+					<fo:block id="last-black"/>
+					<fo:block-container absolute-position="absolute" top="10in" bottom="10.5in">
+						<fo:block text-align="center">
+							<fo:page-number/> of <fo:page-number-citation ref-id="last-block"/>
+						</fo:block>
+					</fo:block-container>
+				</fo:flow>				
 			</fo:page-sequence>
 		</fo:root>
 	</xsl:template>
