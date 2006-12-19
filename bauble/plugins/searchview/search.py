@@ -109,10 +109,10 @@ class SearchParser:
     	domain = Word(alphanums).setResultsName('domain')
     	quotes = Word('"\'')    
         
-    	value_str_chars = alphanums + '*;.'
+    	value_str_chars = alphanums + '*;._-'
     	value_str = Word(value_str_chars)
     	quoted_value_str = Optional(quotes).suppress() + \
-    	    Word(value_str_chars+' ') + Optional(quotes).suppress()
+    	    Word(value_str_chars+' ,') + Optional(quotes).suppress()
     	_values = delimitedList(value_str | quoted_value_str)
     	values = Group(_values).setResultsName('values')
     	
