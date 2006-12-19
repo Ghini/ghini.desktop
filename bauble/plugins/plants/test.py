@@ -196,7 +196,9 @@ class SpeciesTests(PlantTestCase):
         session.flush()        
         del sp.default_vernacular_name
         session.flush()        
-        session.delete(vn)
+        assert sp.default_vernacular_name not in session
+        assert vn not in session
+        #session.delete(vn) # give and InvalidRequestError
         session.flush()
         session.expire(sp) # this expire() has to be here or it will fail
         assert sp.default_vernacular_name is None, 'default vernacular name is not None'
