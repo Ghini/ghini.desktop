@@ -11,6 +11,7 @@ from bauble.plugins import plugins, tools, views, editors
 from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
+from bauble.i18n import *
 
 # TODO: ProgressBar idea stub
 # - i would like to have a progress bar on the status bar or just popup above 

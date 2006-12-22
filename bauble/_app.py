@@ -13,6 +13,7 @@ from bauble.utils.log import debug
 import datetime
 import bauble
 import bauble.meta as meta
+from bauble.i18n import *
 
 DEBUG_SQL = False
 
@@ -62,7 +63,8 @@ class BaubleApp(object):
             meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
                                                     value=str(bauble.version))
         except Exception, e:
-            msg = "Error creating tables. Your database may be corrupt.\n\n%s" % utils.xml_safe(e)
+            msg = _('Error creating tables. Your database may be corrupt.'\
+                    '\n\n%s"') % utils.xml_safe(e)
             debug(traceback.format_exc())
             utils.message_details_dialog(msg, traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
@@ -120,8 +122,9 @@ class BaubleApp(object):
         # make sure the version information matches or if the bauble
         # table doesn't exists then this may not be a bauble created 
         # database
-        warning = "\n\n<i>Warning: If a database does already exists at this "\
-                  "connection, creating a new database could corrupt it.</i>"
+        warning = _('\n\n<i>Warning: If a database does already exists at ' \
+                    'this connection, creating a new database could corrupt '\
+                    'it.</i>')
         session = create_session()
         query = session.query(meta.BaubleMetaTable)
         try:            
@@ -129,23 +132,22 @@ class BaubleApp(object):
             if result is not None:            
                 db_version = eval(result.value)            
             if result is not None and db_version[0:2] != bauble.version[0:2]:# compare major and minor
-                msg = 'You are using Bauble version %d.%d.%d while the '\
+                msg = _('You are using Bauble version %(version)s while the '\
                       'database you have connected to was created with '\
-                      'version %d.%d.%d\n\nSome things might not work as '\
+                      'version %(db_version)s\n\nSome things might not work as '\
                       'or some of your data may become unexpectedly '\
-                      'corrupted.'\
-                      % (bauble.version[0], bauble.version[1], \
-                         bauble.version[2], db_version[0], db_version[1], \
-                         db_version[2],)
+                      'corrupted.') % \
+                      {'version': bauble.version_str, 
+                       'db_version': '%d.%d.%d' % (db_version[0:2])}
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                             
             result = query.get_by(name=meta.CREATED_KEY)
             if result is None:            
-                msg = 'The database you have connected to does not have a '\
-                      'timestamp for when it was created. This usually means '\
-                      'that there was a problem when you created the '\
-                      'database.  You like to try to create the database '\
-                      'again? %s' % warning
+                msg = _('The database you have connected to does not have a '\
+                        'timestamp for when it was created. This usually means '\
+                        'that there was a problem when you created the '\
+                        'database.  You like to try to create the database '\
+                        'again? %s') % warning
                 if utils.yes_no_dialog(msg):
                     cls.create_database()
                     cls.conn_name = name
@@ -156,9 +158,9 @@ class BaubleApp(object):
                         
         except Exception:
             debug(traceback.format_exc())
-            msg = "The database you have connected to is either empty or " \
-                  "wasn't created using Bauble. Would you like to create a " \
-                  "create a database at this connection? %s" % warning
+            msg = _('The database you have connected to is either empty or ' \
+                    'wasn\'t created using Bauble. Would you like to create a ' \
+                    'create a database at this connection? %s') % warning
             if utils.yes_no_dialog(msg):
                 cls.create_database()
                 cls.conn_name = name
