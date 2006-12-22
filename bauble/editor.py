@@ -19,6 +19,7 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug
+from bauble.i18n import *
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -63,8 +64,10 @@ class FloatOrNoneStringValidator(validators.FancyValidator):
         try:
             return float(value)
         except:
-            raise validators.Invalid('expected a float in column %s, got %s '\
-                                     'instead' % (self.name, type(value)), value, state)
+            raise validators.Invalid(_('expected a float in column %(name)s, '\
+                                       'got %(type)s instead') % \
+                                       ({'name': self.name, 'type': type(value)}), 
+                                         value, state)
 
 #
 # decorates and delegates to a SA mapped object
@@ -155,6 +158,7 @@ def default_completion_cell_data_func(column, renderer, model, iter, data=None):
     '''
     v = model[iter][0]
     renderer.set_property('markup', str(v))
+    
     
 def default_completion_match_func(completion, key_string, iter):
     '''
@@ -444,7 +448,7 @@ class GenericEditorPresenter:
             setattr(self.model, field, value)
             
         widget = self.view.widgets[widget_name]
-        assert widget is not None, 'no widget with name %s' % widget_name
+        assert widget is not None, _('no widget with name %s') % widget_name
             
         if isinstance(widget, gtk.Entry):            
             def insert(entry, new_text, new_text_length, position):

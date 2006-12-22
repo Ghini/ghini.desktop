@@ -28,15 +28,15 @@ def user_dir():
         if 'APPDATA' in os.environ:
             dir = os.path.join(os.environ["APPDATA"], "Bauble")
         else:
-            raise Exception("Could not get path for user settings: no "\
-                            "APPDATA variable")
+            raise Exception(_('Could not get path for user settings: no ' \
+                              'APPDATA variable'))
     elif sys.platform == "linux2":
         if 'HOME' in os.environ:
             dir = os.path.join(os.environ["HOME"], ".bauble")
         else:
-            raise Exception("Could not get path for user settings: "\
-                            "no HOME variable")
+            raise Exception(_('Could not get path for user settings: '\
+                              'no HOME variable'))
     else:
-        raise Exception("Could not get path to user settings: " \
-                        "unsupported platform")    
+        raise Exception(_('Could not get path to user settings: ' \
+                          'unsupported platform'))    
     return dir

@@ -35,6 +35,7 @@ from sqlalchemy import *
 import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
+from bauble.i18n import *
 
 plugins = {}
 views = {}
@@ -66,8 +67,9 @@ def _register(plugin_class):
     #log.info("registering " + plugin_name)
     for dependency in plugin_class.depends:            
         if dependency not in plugins:
-            msg = "Can't load plugin %s. This plugin depends on %s but "\
-                  "%s doesn't exist" %(plugin_name, dependency, dependency)
+            msg = _('Can\'t load plugin %(plugin)s. This plugin depends on the '\
+                    '%(dependency)s plugin but %(dependency)s doesn\'t exist') \
+                    % ({'plugin': plugin_name, 'dependency': dependency})
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             plugins.pop(plugin_name)
             return
@@ -85,22 +87,25 @@ def _register(plugin_class):
     # add editors
     for e in plugin_class.editors:
         if not issubclass(e, BaubleEditor):
-            raise TypeError('%s table from plugin %s is not an instance of '\
-                            'BaubleEditor' % (e, plugin_name))
+            raise TypeError(_('%(editor)s editor from plugin %(plugin)s is not '\
+                              'an instance of BaubleEditor') % \
+                              {'editor': e, 'plugin': plugin_name})
         editors[e.__name__] = e
     
     # add views
     for v in plugin_class.views:
         if not issubclass(v, BaubleView):
-            raise TypeError('%s table from plugin %s is not an instance of '\
-                            'BaubleView' % (v, plugin_name))        
+            raise TypeError(_('%(view)s view from plugin %(plugin)s is not '\
+                              'an instance of BaubleView') % \
+                              {'view': v, 'plugin': plugin_name})
         views[v.__name__] = v
     
     # add tools
     for l in plugin_class.tools:    
         if not issubclass(l, BaubleTool):
-            raise TypeError('%s table from plugin %s is not an instance of '\
-                            'BaubleTool' % (l, plugin_name))                
+            raise TypeError(_('%(tool)s tool from plugin %(plugin)s is not an '\
+                            'instance of BaubleTool') % \
+                            {'tool': l, 'plugin': plugin_name})
         tools[l.__name__] = l
 
 
@@ -111,7 +116,7 @@ def _find_plugin_names():
         pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
         x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
-        s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
+        s = os.path.join('.+?', pkg, '(.+?)', '__init__.py[oc]')
         rx = re.compile(s.encode('string_escape'))
         for filename in x:
             m = rx.match(filename)
@@ -120,7 +125,7 @@ def _find_plugin_names():
     else:
         for d in os.listdir(path):
             full = path + os.sep + d
-            if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
+            if os.path.isdir(full) and os.path.exists(os.path.join(full, "__init__.py")):
                 modules.append(d)
     return modules
 
@@ -168,7 +173,7 @@ def _find_plugins():
         try:
             mod = __import__(name, globals(), locals(), ['plugins'])
         except Exception, e:
-            msg = "Could not import the %s module." % name
+            msg = _("Could not import the %s module.") % name
             utils.message_details_dialog(msg, str(traceback.format_exc()), 
 					 gtk.MESSAGE_ERROR)
 	    raise

@@ -10,6 +10,7 @@ import utils
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug
+from bauble.i18n import *
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -41,9 +42,9 @@ class ConnectionManager:
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
         conn_list = prefs[prefs.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
-            msg = "You don't have any connections in your connection list.\n"\
-              "Close this message and click on '%s' to create a new "\
-              "connection." % 'Add'
+            msg = _('You don\'t have any connections in your connection '\
+                    'list.\nClose this message and click on "Add" to create '\
+                    'a new connection.')
             utils.message_dialog(msg)
         else:
             self.set_active_connection_by_name(self.default_name)
@@ -57,8 +58,8 @@ class ConnectionManager:
             name = self._get_connection_name()
             uri = self._get_connection_uri()                    
         if name is None and response == gtk.RESPONSE_OK:
-            msg = 'You have to choose or create a new connection before '\
-                  'you can connect to the database.'
+            msg = _('You have to choose or create a new connection before '\
+                    'you can connect to the database.')
             utils.message_dialog(msg)
             name, uri = self.start()
         self.dialog.destroy()

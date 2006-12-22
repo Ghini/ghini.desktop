@@ -5,6 +5,7 @@
 import imp, os, sys
 import bauble.paths as paths
 
+
 # major, minor, revision 
 # should be updated for each release of bauble
 
@@ -48,14 +49,15 @@ sys.path.append(paths.lib_dir())
 if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
+from bauble.i18n import *
 try:
     from sqlalchemy import *
 #    from sqlalchemy.databases import sqlite
     
     # TODO: check sqlalchemy version
 except ImportError:
-    msg = "SQLAlchemy not installed. Please install SQAlchemy from "\
-          "http://www.sqlalchemy.org"
+    msg = _('SQLAlchemy not installed. Please install SQAlchemy from' \
+            'http://www.sqlalchemy.org')
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
     raise
 
