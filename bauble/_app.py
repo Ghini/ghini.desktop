@@ -130,7 +130,7 @@ class BaubleApp(object):
         try:            
             result = query.get_by(name=meta.VERSION_KEY)
             if result is not None:            
-                db_version = eval(result.value)            
+                db_version = eval(result.value)           
             if result is not None and db_version[0:2] != bauble.version[0:2]:# compare major and minor
                 msg = _('You are using Bauble version %(version)s while the '\
                       'database you have connected to was created with '\
@@ -210,22 +210,7 @@ class BaubleApp(object):
         
         # now that we have a connection create the gui
         import bauble._gui as gui
-        self.gui = gui.GUI()
-        
-        # load the last view open from the prefs
-        v = prefs[self.gui.current_view_pref]
-        if v is None: # default view is the search view            
-            v = str(views["SearchView"])
-    
-        view_set = False
-        for name, view in views.iteritems():
-            if v == str(view):
-                self.gui.set_current_view(view)
-                view_set = True
-                # TODO: if this view can't be shown then default to SearchView
-                
-        if not view_set:
-            self.gui.set_current_view(views["SearchView"])
+        self.gui = gui.GUI()        
         
         bauble.plugins.start_plugins()
         gtk.main()

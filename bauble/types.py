@@ -30,6 +30,6 @@ class Enum(types.Unicode):
         
     def convert_result_value(self, value, engine):
         if value not in self.values:
-            raise exceptions.AssertionError(_('"%s" not in Enum.values') % value))
+            raise exceptions.AssertionError(_('"%s" not in Enum.values') % value)
         return super(Enum, self).convert_result_value(value, engine)
     
