@@ -22,6 +22,15 @@ class BaubleApp(object):
     conn_name = None
     gui = None
     db_engine = None
+    command_map = {}
+
+
+    @classmethod
+    def register_command(cls, cmd, callback):
+        if cmd in cls.command_map:
+            raise KeyError('The "%s" command has already been registered')
+        cls.command_map[cmd] = callback
+
 
     @staticmethod
     def create_database(import_defaults=True):

@@ -75,6 +75,8 @@ from bauble.i18n import *
 #        '''
 #        self.cancel_button.connect('clicked', callback, task)
 
+
+
 class CommandHandler:
     
     def __init__(self):
@@ -99,18 +101,16 @@ class GUI:
         self.widgets.menu_box.pack_start(menubar)
                     
                     
-        label = gtk.Label()
-        label.set_markup('<big>Welcome to Bauble.</big>')
-        self.widgets.view_box.pack_start(label)
+#        label = gtk.Label()
+#        label.set_markup('<big>Welcome to Bauble.</big>')
+#        self.widgets.view_box.pack_start(label)
+        image = gtk.Image()
+        image.set_from_file(os.path.join(paths.lib_dir(), 'images', 
+                                         'bauble_logo.png'))
+        self.widgets.view_box.pack_start(image)
         self.widgets.view_box.show_all()
-#        buffer = gtk.TextBuffer()
-#        buffer.set_text('Welcome to Bauble')
-#        default_view = gtk.TextView()
-#        default_view.set_buffer(buffer)
-#        self.widgets.view_box.pack_start(default_view)
-#        self.widgets.view_box.show_all()
 
-
+        
     def __get_title(self):
         return '%s %s - %s' % ('Bauble', bauble.version_str, 
                                bauble.app.conn_name)
