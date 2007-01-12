@@ -1,0 +1,111 @@
+Plan plugin system
+
+What it should do?
+- The plugin directory should be customizable
+- Dropping a package in the plugin directory should check if the package exposes
+and implementation of the Plugin interface
+- should plugins have a "type" maybe if we have a more specific interface 
+wrap the generic plugin interface we would know the type of plugin, say the
+ToolPlugin interface wraps plugin interface so we know to add the ToolPlugin
+to the tool menu
+- should be able to delete the plugins directory and still have the Bauble
+start correctly, this means we need to change the way the plugins are started
+so we should remove __init__.py from plugins/
+- after checking all the plugins we should check each plugins list of 
+dependencies and make sure that can we loaded, if not we should present an
+error and list the names of the plugins that could be loaded an why they 
+couldn't, could control this with a PluginDependencyError exception
+- it would probably be easier if plugins depended only on plugins and not things
+like tables and other crap
+- don't need tables b/c the are now included in sqlalchemy.default_metadata
+- what about the formatter plugins, should they just duplicate this stuff and 
+have their separate way of doing plugins or should we just provide a 
+FormatterPlugin interface the implements Plugin and go about business as usual
+- each module should be able to provide more than one plugin
+- how should we build the insert menu, should we have a EditorPlugin class
+that provides an editor and we then know that it should go in the insert menu
+- need a way to add tables to the database base without creating a new
+database completely, in case someone drops in a plugin we can create the 
+needed tables
+- need to be able to check if this is the plugins first run, might have to keep 
+a plugin registry so we know what been initialized and what hasn't, probably
+have to have a setup or create method for newly created plugins
+- and what about a path for upgrading tables from one version of a plugin
+to the next, versioning makes things start to get really complicated, **SQLite
+doesn't allow column drop and alter, see http://erosson.com/migrate/docs/index.html
+- allow plugin versioning and allow plugins to depends on specific version
+of other plugins
+- ability to customize the plugin directory, maybe we could set this in the 
+config file with a default location if that fails
+
+def register_command(cmd, callback):
+	'''
+	@param cmd: the cmd to register, to be called from the bauble entry with
+	cmd=parameters
+	@param callback: the method to be called when cmd is matched, signature 
+	us callback(parameters)
+	'''
+	bauble.command_entry.register_command(cmd, callback)
+
+
+class PluginError(Exception):
+	pass
+	
+class PluginInitError(PluginError):
+	pass
+	
+
+#
+# a static class that intializes a plugin
+#
+class Plugin:
+
+	'''
+	label should be a unique string from other plugins, if not a Plugin
+	error will be raised
+	'''
+	label = ''
+	
+	# this could just be a list of module names instead of plugin class name
+	# to make uniqueness easier, e.g. 'org.belizebotanic.bauble.garden'
+	depends = [] # a list of plugins this plugin depends on
+	
+	@staticmethod
+	def init():
+		register_command()
+	
+
+class ToolPlugin(Plugin):
+
+	category = ''
+	
+	@staticmethod
+	def init():
+		register_command()
+		
+class FormatterPlugin(Plugin):
+
+    '''
+    formatter modules should implement this interface
+    NOTE: the title class attribute must be a unique string
+    '''
+        
+    title = ''
+    
+    @staticmethod
+    def get_settings_box():
+        '''
+        return a class that implement gtk.Box that should hold the gui for
+        the formatter modules
+        '''
+        raise NotImplementedError
+    
+    @staticmethod
+    def format(selfobjs, **kwargs):
+        '''
+        called when the use clicks on OK, this is the worker
+        '''
+        raise NotImplementedError
+	
+	
+	

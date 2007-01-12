@@ -12,7 +12,7 @@ from bauble.utils.log import debug
 # are opened with a different version then the user will know and possible
 # migrate pref version though i don't think the prefs  format will change much
 
-default_filename = 'config'
+default_filename = 'config-0.7'
 default_prefs_file = os.path.join(paths.user_dir(), default_filename)
 #if sys.platform == "win32":
 #    if 'APPDATA' in os.environ:
