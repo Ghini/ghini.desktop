@@ -1,3 +1,9 @@
+0.7.0
+-------
+- More robust and cleaned up plugin interface
+- Translatable
+
+
 0.6.0 (changes since 0.5.3)
 -------
 - Now uses SQLAlchemy instead of SQLObject as the database ORM.

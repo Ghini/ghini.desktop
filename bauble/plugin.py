@@ -2,26 +2,6 @@
 # plugin module
 #
 
-# plugins, tables, editors and views should inherit from
-# the appropriate classes
-
-# TODO: need to consider 
-# first initialization so we know whether to add joins to table, this 
-# might mean we have to keep a cache of what has been initialized and what
-# hasn't, or possibly just create a .initialized file in the module 
-# directory to indicate that the plugin has been intialized, though this 
-# means we would have to have write permission to the plugin directory 
-# which could be problematic, a file with a list of initialized plugins 
-# would be best i reckon and then we can just grep the file for the plugin
-# name
-
-# TODO: we could just have a provides=[] list instead of a different
-# list for each of tables, editors, blah, blah, then we could just
-# test the parent class of what it provides to know what to do with 
-# it, this might be getting too abstract, and since we will want to
-# access thing like plugins.tables[table_name] then stick with 
-# module level list of tables may make more sense
-
 # TODO: need a way to add tables to the database base without creating a new
 # database completely, in case someone drops in a plugin we can create the 
 # needed tables
@@ -38,10 +18,10 @@ from bauble.utils.log import log, debug
 from bauble.i18n import *
 
 plugins = {}
-views = {}
-tools = {}
-editors = {}
-tables = {}
+#views = {}
+#tools = {}
+#editors = {}
+#tables = {}
 
 def init_plugins():
     """
@@ -159,8 +139,8 @@ def _find_plugins():
         except Exception, e:
             msg = _("Could not import the %s module.") % name
             utils.message_details_dialog(msg, str(traceback.format_exc()), 
-					 gtk.MESSAGE_ERROR)
-	    raise
+                     gtk.MESSAGE_ERROR)
+        raise
             #continue
         if hasattr(mod, "plugin"):                 
             plugins.append(mod.plugin)
