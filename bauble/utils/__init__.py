@@ -1,13 +1,15 @@
-    #
+#
 # utils module
 #
 
 import imp, os, sys, re
 import bauble
+import bauble.paths as paths
 import gtk, gtk.glade
 from bauble.utils.log import debug
-import xml
-from sqlalchemy import *
+import xml.sax.saxutils as saxutils
+
+default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
 
 # TODO: this util module might need to be split up if it gets much larger
 # we could have a utils.gtk and utils.sql
@@ -231,15 +233,22 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
     '''
     '''
+    icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window
+            icon = bauble.app.icon
         except:
-            parent = None    
+            parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=type, buttons=buttons)
+    d.set_title('Bauble')
     d.set_markup(msg)
-    d.show_all()
+    if d.get_icon() is None:
+        pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
+        d.set_icon(pixbuf)
+        d.set_property('skip-taskbar-hint', False)    
+    d.show_all()    
     return d
 
 
@@ -255,15 +264,22 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=No
 def create_yes_no_dialog(msg, parent=None):
     '''
     '''
+    icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window
+            icon = bauble.app.icon
         except:
             parent = None    
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                           parent=parent, type=gtk.MESSAGE_QUESTION,
                           buttons = gtk.BUTTONS_YES_NO)            
+    d.set_title('Bauble')
     d.set_markup(msg)
+    if d.get_icon() is None:
+        pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
+        d.set_icon(pixbuf)
+        d.set_property('skip-taskbar-hint', False)    
     d.show_all()
     return d
     
@@ -286,13 +302,16 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_OK, parent=None):
     '''
     '''
+    icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.app.gui.window    
+            icon = bauble.app.icon
         except:    
             parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                          parent=parent,type=type, buttons=buttons)
+    d.set_title('Bauble')
     d.set_markup(msg)
     expand = gtk.Expander("Details")    
     text_view = gtk.TextView()
@@ -308,6 +327,10 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.vbox.pack_start(expand)
     ok_button = d.action_area.get_children()[0]
     d.set_focus(ok_button)
+    if d.get_icon() is None:
+        pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
+        d.set_icon(pixbuf)
+        d.set_property('skip-taskbar-hint', False)    
     d.show_all()
     return d
     
@@ -329,7 +352,8 @@ def xml_safe(ustr, encoding='utf-8'):
     '''
     #return xml.sax.saxutils.escape(ustr).encode(encoding)
     # TODO: encodings.string_escape to escape string as well
-    return xml.sax.saxutils.escape(unicode(ustr)).encode(encoding)
+    #return xml.sax.saxutils.escape(unicode(ustr)).encode(encoding)
+    return saxutils.escape(unicode(ustr)).encode(encoding)
 
 
 def startfile(filename):
