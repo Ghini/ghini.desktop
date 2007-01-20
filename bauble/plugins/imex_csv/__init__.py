@@ -7,7 +7,7 @@ import gtk.gdk, gobject
 from sqlalchemy import *
 import bauble
 import bauble.utils as utils
-from bauble.plugins import BaubleTool, BaublePlugin, plugins
+import bauble.pluginmgr as plugin
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
 from bauble.utils.progressdialog import ProgressDialog
@@ -391,7 +391,7 @@ class CSVImporter:
         self.__progress_dialog = ProgressDialog(title='Importing...')
         self.__progress_dialog.show_all()
         self.__progress_dialog.connect_cancel(self._cancel_import)
-        bauble.app.set_busy(True)
+        bauble.set_busy(True)
         msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 
                                                    'update_filename'))
         nsteps = 0
@@ -399,7 +399,7 @@ class CSVImporter:
           yield msgwait
           msg = gtasklet.get_event()
           if msg.name == "quit":
-              bauble.app.set_busy(False) 
+              bauble.set_busy(False) 
               self.__progress_dialog.destroy()
           elif msg.name == 'update_progress':
               nsteps += msg.value
@@ -450,15 +450,15 @@ class CSVImporter:
         # TODO: this block paramameter was meant to be used so we could import
         # from the command line but it never got implemented
         error = False # return value
-        bauble.app.set_busy(True)
+        bauble.set_busy(True)
                 
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None:
-            bauble.app.set_busy(False)
+            bauble.set_busy(False)
             return        
         
-        if bauble.app.db_engine.name not in  ['sqlite', 'postgres']:
+        if bauble.db_engine.name not in  ['sqlite', 'postgres']:
             msg = 'The CSV Import plugin has not been tested with %s '\
                   'databases. It\'s possible that it may work fine but we '\
                   'can\'t offer an guarantees.  If you need this to work then '\
@@ -534,7 +534,7 @@ class CSVExporter:
             if os.path.exists(filename) and not utils.yes_no_dialog(msg):
                 return                
             
-        bauble.app.set_busy(True)
+        bauble.set_busy(True)
         #replace = lambda s: s.replace('\n', '\\n')
         def replace(s):
             if isinstance(s, (str, unicode)):
@@ -555,14 +555,14 @@ class CSVExporter:
             writer.writerows(rows)
             f.close()
 
-        bauble.app.set_busy(False)
+        bauble.set_busy(False)
 
             
 #
 # plugin classes
 #
 
-class CSVImportTool(BaubleTool):
+class CSVImportTool(plugin.Tool):
     category = "Import"
     label = "Comma Separated Value"
     
@@ -576,7 +576,7 @@ class CSVImportTool(BaubleTool):
             c.start()
 
 
-class CSVExportTool(BaubleTool):
+class CSVExportTool(plugin.Tool):
     category = "Export"
     label = "Comma Separated Value"
     
@@ -585,7 +585,7 @@ class CSVExportTool(BaubleTool):
         c = CSVExporter()
         c.start()
 
-class CSVImexPlugin(BaublePlugin):
+class CSVImexPlugin(plugin.Plugin):
     tools = [CSVImportTool, CSVExportTool]
 
 plugin = CSVImexPlugin
