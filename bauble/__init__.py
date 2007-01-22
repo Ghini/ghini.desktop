@@ -216,7 +216,7 @@ def set_busy(busy):
 
 
 
-def main():
+def main(uri=None):
     
     # initialize threading
     gtk.gdk.threads_init() 
@@ -224,33 +224,36 @@ def main():
     
     # declare module level variables
     global prefs, conn_name, db_engine, gui, default_icon
+    conn_name = None
     gui = None
-    
+        
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
     
     # intialize the user preferences
     prefs.init() 
             
     # open default database
-    from bauble.conn_mgr import ConnectionManager
-    default_conn = prefs[prefs.conn_default_pref]
-    uri = None
-    while True:                    
-        if uri is None or conn_name is None:
-            cm = ConnectionManager(default_conn)            
-            conn_name, uri = cm.start()
-        if conn_name is None:
-            quit()
-        try:
-            open_database(uri, conn_name)
-            break
-        except db.DatabaseError, e:
-            msg = _('Would you like to create a new Bauble database at the '
-                    'current connection?\n\n<i>Warning: If there is already a '
-                    'database at this connection any existing data will be '
-                    'destroyed!</i>')
-            if utils.yes_no_dialog(msg):
-                create_database()
+    if uri is None:
+        from bauble.connmgr import ConnectionManager
+        default_conn = prefs[prefs.conn_default_pref]
+        while True:                    
+            if uri is None or conn_name is None:
+                cm = ConnectionManager(default_conn)            
+                conn_name, uri = cm.start()
+            if conn_name is None:
+                quit()
+            try:
+                open_database(uri, conn_name)
+                break
+            except db.DatabaseError, e:
+                msg = _('Would you like to create a new Bauble database at the '
+                        'current connection?\n\n<i>Warning: If there is already a '
+                        'database at this connection any existing data will be '
+                        'destroyed!</i>')
+                if utils.yes_no_dialog(msg):
+                    create_database()
+    else:
+        open_database(uri, None)
                 
     
     # create_database creates all tables registered with the default metadata

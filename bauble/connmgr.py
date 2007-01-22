@@ -1,5 +1,5 @@
 #
-# conn_mgr.py
+# connmgr.py
 #
 
 import os, sys, copy, traceback
@@ -137,7 +137,7 @@ class ConnectionManager:
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise Exception(msg)
         
-        glade_path = os.path.join(paths.lib_dir(), "conn_mgr.glade")        
+        glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")        
         self.glade_xml = gtk.glade.XML(glade_path)
         
         self.dialog = self.glade_xml.get_widget('main_dialog')
