@@ -9,6 +9,10 @@
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
 
+# TODO: create a test plugin that we can use for various tests, so we
+# can do things like test that the plugin system works, test the tasks
+# with a dialog counter and a way to run all tests
+
 import os
 import sys
 import traceback
@@ -145,13 +149,15 @@ def init(auto_setup=False):
             debug('default_filenames: %s' % default_filenames)
             def reg(): 
                 for p in not_registered: 
+#                    debug('registry add: %s' % p.__name__)
                     registry.add(RegistryEntry(name=p.__name__, version='0.0'))                            
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter            
                 csv = CSVImporter()
                 debug('queue import task')
-                bauble.task.queue(csv.import_task, reg)
+                #bauble.task.queue(csv.import_task, reg)
                 debug('-- queued')
+                reg()
             else:
                 reg()
                 
