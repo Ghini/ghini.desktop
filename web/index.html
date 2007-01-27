@@ -29,7 +29,7 @@
 			<h1>About Bauble</h1>
 			<p>
 				Bauble is a software application to help you (yes you) manage a 
-				collection of biodiversity specimens. It is intended 
+				collection of botanical specimens. It is intended 
 				to be used by botanic gardens, herbaria, arboreta, etc. to 
 				manage their collection information. It is a 
 				<a href="http://opensource.org">open</a>, 
@@ -43,31 +43,12 @@
 			  			 alt="bauble screenshot link"/>
 				</a>	
 			</div>
-	     
-			<h1>Goals</h1>
-	     
-			<ul>
-				<li>
-					Intuitive - the interface for Bauble is designed to be simple 
-				  	and elegant but no less functional.
-				</li>
-				<li>
-					Extensible - developers and institutions should be able to 
-				  	extend the application to customize it to their needs.
-				</li>
-				<li>
-					Connected - ideally Bauble will easily access relevant 
-					information online, such as connecting to
-					<a href="http://www.gbif.org">GBIF</a> to look up information 
-					on a species.
-				</li>
-				<li>
-					more, more, more...
-				</li>
-			</ul>
-	     
+
 			<h1>Features</h1>
 			<ul>
+				<li>
+					Bauble is designed to be simple, elegant and intuitive. 
+				</li>
 				<li>
 					Bauble is free. Bauble is licensed under the 
 					<a href="http://www.fsf.org/licensing/licenses/gpl.html">GPL</a> 
@@ -96,11 +77,11 @@
 				<li>
 					Bauble can generate reports through an 
 					<a href="http://www.w3.org/TR/xsl/">XSL</a> formatter backend.  
-					There is no fancy report designer but there is a GUI that allows
-					you to pass the results of a search through an XSL formatter. This
-					allows you to layout your data any way you wish and save it in a 
-					just about any format you can imagine including PDF, 
-					XML, or HTML.
+					There is no fancy report designer but there is a interface 
+					that allows you to pass the results of a search through an 
+					XSL formatter. This allows you to layout your data any way 
+					you wish and save it in a just about any format you can 
+					imagine including PDF, XML, or HTML.
 				</li>
 				<li>
 					Bauble is transaction safe. All database queries and updates are 
@@ -119,42 +100,10 @@
 					create collections of records organized the way you want with names
 					you give them.
 				</li>
+				<li>
+					....and lots more.
+				</li>
 	     	</ul>
-	     
-	     
-		     <h1>The future</h1>
-		     <p>
-				Bauble will continue to become more reliable, secure and stable.  We 
-				also plan to implement the following features sometime in the future.
-		     </p>
-			<ul>
-				<li>
-					Because Bauble is being developed at 
-					<a href="http://www.belizebotanic.org">Belize Botanic Gardens</a> 
-					it's primary focus is towards botanical collections. With
-					help from others we would like to extend the scope of Bauble to 
-					handle other collection types that might be needed for herbaria,
-					zoos, arboreta, etc.
-				</li>
-				<li>
-					User rights - We plan on making it possible to define user and 
-					group permission on a Bauble database so that an administrator can
-					easily give different permission to individual users. e.g. Some 
-					people could change data while others could only view it.
-				</li>
-				<li>
-					Improve the tools - It would be nice to have a good collection of 
-					tools bundled with Bauble that can do a variety of things
-					such as create labels and reports, and ....
-				</li>
-				<li>
-					 Other languages support - make it possible to translate Bauble into 
-					 other languages and support entering non-Latin characters.
-				</li>
-				<li>
-					more...
-				</li>
-			</ul>
 		      
 			<h1>Documentation</h1>
 			<ul>
@@ -211,8 +160,8 @@
 		     <h3>Installers</h3>	  
 		     <p>
 		     	<b>Windows</b> - 
-				<a href="http://bauble.belizebotanic.org/files/bauble-0.6.3-setup.exe">
-				bauble-0.6.3-setup.exe</a> 
+				<a href="http://bauble.belizebotanic.org/files/bauble-0.6.5-setup.exe">
+				bauble-0.6.5-setup.exe</a> 
 				<br/>
 				This is a basic Windows installer. It doesn't do much else than
 				extract the contents to a directory and creates some links
@@ -239,14 +188,14 @@
 				<a href="http://www.pysqlite.org">SQLite</a> database connector.
 			</p>
 		    <p>
-				<a href="http://bauble.belizebotanic.org/files/Bauble-0.6.3.zip">
-				   Bauble-0.6.3.zip</a>
+				<a href="http://bauble.belizebotanic.org/files/bauble-0.6.5.zip">
+				   bauble-0.6.5.zip</a>
 				<br/>
-				<a href="http://bauble.belizebotanic.org/files/Bauble-0.6.3.tar.gz">
-				   Bauble-0.6.3.tar.gz</a>
+				<a href="http://bauble.belizebotanic.org/files/bauble-0.6.5.tar.gz">
+				   bauble-0.6.5.tar.gz</a>
 				<br/>
-				<a href="http://bauble.belizebotanic.org/files/Bauble-0.6.3.tar.bz2">
-				   Bauble-0.6.3.tar.bz2</a>
+				<a href="http://bauble.belizebotanic.org/files/bauble-0.6.5.tar.bz2">
+				   bauble-0.6.5.tar.bz2</a>
 			</p>
 			
 			<p>You can checkout the latest source code from the 
@@ -278,18 +227,6 @@
 					Biodiversity affects our entire world and everything that relies on 
 					it to live. To help protect such a fragile system the management 
 					of information related to biodiversity should not be restricted.  
-				</li>
-				<li>
-					<strong>Why are there so many prerequisites for installing this 
-					  software?</strong>
-					<br/>
-					On Linux, the platform where the software is developed and primarily 
-					used, the prerequisites tend to come preinstalled. It's more of a 
-					hassle for Windows users (but not much).  We assume that anyone 
-					setting up a new collection database is relatively computer savvy 
-					and that installing the prerequisites won't be too much trouble. In 
-					the future we may bundle SQLObject and an SQLite driver and connector
-					with the software so it works out of the box.
 				</li>
 				<li>
 					<strong>I found a bug. What can I do about it?</strong>
