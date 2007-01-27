@@ -3,10 +3,13 @@
 #
 # Description: manage long running tasks
 #
+import gobject
 import bauble
 import bauble.utils.gtasklet as gtasklet
 from bauble.utils.log import debug
 import Queue
+
+_task_queue = Queue.Queue(0)
 
 # TODO: after some specified time the status bar should be cleared but not
 # too soon, maybe 30 seconds or so but only once the queue is empty, anytime
@@ -33,84 +36,75 @@ import Queue
 # - eask task should be independent of the others
 # - ability to pass custom message names and callback that should be called 
 # when those message are sent
-# should we have a global function that manages the progress bar and state or
-# should the progress updater just  be a tasklet itself that starts
-# another tasklet and waits for it to give up control to update the progress and
-# then we know exactly when it finishes execution
+# - may have to pass the task itself to the quit message so we know which task
+# has quit, if not the task then we need a way to identify the task
 
+# TODO: in general we need to be conscious of what is run in a generator 
+# context and what isn't
 
-def _update_progress(percent=None):
-    if not hasattr(bauble, 'gui') or (bauble.gui is None or bauble.gui.progressbar):
-        return
-    if percent is None:
-        bauble.gui.widgets.progressbar.pulse()
-    else:
-        bauble.gui.widgets.progressbar.set_fraction(percent)
-        
-            
+# TODO: instead of sending the quit message we could just have a task that waits 
+# for the the current task to finish and call the callback when it finishes
+# so then it doesn't matter how it exits or send the quit message 
 
-def _task_monitor(nsteps=None, callback=None):
-    '''        
-    @param nsteps: total number of steps to complete task
-    '''
-#    self.__progress_dialog = ProgressDialog(title='Importing...')
-#    self.__progress_dialog.show_all()
-#    self.__progress_dialog.connect_cancel(self._cancel_import)
-    msgwait = gtasklet.WaitForMessages(accept=("quit", "update_progress", 
-                                               'update_filename'))
-    #if nsteps is None:
-    #    bauble.gui.widgets.progressbar.pulse()
-    _update_progress(nsteps)
-    steps_so_far = 0
-    while True:
-      yield msgwait
-      msg = gtasklet.get_event()      
-      if msg.name == 'update_progress':
-          steps_so_far += msg.value
-          if nsteps is not None:
-              percent = float(steps_so_far)/floar(nsteps)
-              if 0 < percent < 1.0: # avoid warning
-                  _update_progress(percent)
-                  #bauble.gui.widgets.progressbar.set_fraction(percent)
-              self.__progress_dialog.pb.set_text('%s / %s' % (steps_so_far, nsteps))
-          else:
-              _update_progress()
-              #bauble.gui.widgets.progressbar.pulse()
-      if msg.name == "quit":
-          debug('_task_progress.quit')
-          if callback is not None:
-              callback(msg.value)
-          #bauble.set_busy(False) 
-          #self.__progress_dialog.destroy()
-#      elif msg.name == 'update_progress':
-#          nsteps += msg.value
-#          percent = float(nsteps)/float(total_lines)
-#          if 0 < percent < 1.0: # avoid warning
-#              self.__progress_dialog.pb.set_fraction(percent)
-#          self.__progress_dialog.pb.set_text('%s of %s records' % (nsteps, total_lines))
-#      elif msg.name == 'update_filename':
-#          filename, table_name = msg.value  
-#          msg = 'Importing data into %s table from\n%s' % (table_name, filename)
-#          self.__progress_dialog.set_message(msg)
-#      elif msg.name == 'insert_error':
-#          CSVImporter.__cancel = True
-#          utils.message_dialog('insert error')
+# TODO: do we need a timeout function that regulary check the queue or just 
+# accept that everytime something is queue the task manager keeps running all
+# the tasks in the queue until it's empty, the next queueed task would then 
+# start the process again
 
-
-
-#def queue_task(task, nsteps, increments, callback, *args):
-def queue(task, callback, nsteps, *args):
-    '''
-    @param task: the task to queue
-    @param nsteps: the number of steps to complete the task
-    @param increments: number of increments to do nsteps in
-    @param callback: the function to call when the task is finished
-    @param args: the arguments to pass to the task
-    '''
-    monitor = gtasklet.run(_task_monitor(nsteps, callback=callback))
-    gtasklet.run(task(monitor, *args))
-
-
+# callback -- 
+# - it seems the only good way to do callbacks is if the callback itself is
+# a tasklet, you just have to keep this in mind in case you want to open
+# dialogs or anything else that might conflict with a tasklet
+# - maybe we could indicate what type of callback we should call, a method or
+# another tasklet
 
 def push_message(context_id, msg):
     return bauble.gui.widgets.statusbar.push(context_id, msg)
+
+_flushing = False
+
+def flush():
+    '''
+    flush out the task queue
+    '''
+    global _flushing
+    if _flushing:
+        return
+    
+    def internal():
+        global _flushing
+        _flushing = True
+        while not _task_queue.empty():
+            bauble.gui.progressbar.set_pulse_step(0)
+            bauble.gui.progressbar.set_fraction(0)
+            tasklet, callback, args = _task_queue.get()
+            _current_task = gtasklet.run(tasklet(*args))      
+            yield gtasklet.WaitForTasklet(_current_task)
+            gtasklet.get_event()
+            #yield gtasklet.run(callback())
+            callback()
+            
+        bauble.gui.progressbar.set_pulse_step(0)
+        bauble.gui.progressbar.set_fraction(0)
+        _flushing = False
+        
+    gtasklet.run(internal())
+
+
+
+def queue(task, callback, *args):
+    '''
+    @param task: the task to queue
+    @param callback: the function to call when the task is finished
+    @param args: the arguments to pass to the task
+    
+    NOTE: callback haven't been implemented
+    '''
+    # TODO: the problem with callbacks is that they are run in the context
+    # of the generator so terrible things start to happen with things
+    # like dialog boxes run in the callback
+    _task_queue.put((task, callback, args))
+    flush()
+
+
+
