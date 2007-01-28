@@ -7,7 +7,8 @@ import gtk, gobject
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins import plugins, tools, views, editors
+import bauble.pluginmgr as pluginmgr
+#from bauble.plugins import plugins, tools, views, editors
 from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
@@ -89,6 +90,7 @@ class GUI:
         self.glade = gtk.glade.XML(glade_path)
         self.widgets = utils.GladeWidgets(self.glade)        
         self.window = self.widgets.main_window
+        self.window.hide()
         
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)
@@ -99,7 +101,7 @@ class GUI:
         
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
-                    
+        
                     
 #        label = gtk.Label()
 #        label.set_markup('<big>Welcome to Bauble.</big>')
@@ -110,11 +112,53 @@ class GUI:
         self.widgets.view_box.pack_start(image)
         self.widgets.view_box.show_all()
 
+        # add a progress bar to the statusbar
+        #vbox = gtk.VBox(True, 0)        
+        #self.widgets.statusbar.pack_start(vbox, False, True, 0)
+        #self.progressbar = gtk.ProgressBar()
+        #vbox.pack_start(self.progressbar, False, False, 0)        
+        #self.widgets.statusbar.pack_start(self.progress, False, True, 0)
+        #self.progressbar.set_size_request(-1, 10)
+        #vbox.show_all()
         
+        # add a progressbar to the status bar
+        # Warning: this relies on gtk.Statusbar internals and could break in 
+        # future versions of gtk
+        statusbar = self.widgets.statusbar
+        
+        # remove label from frame
+        frame = statusbar.get_children()[0]
+        label = frame.get_children()[0]        
+        frame.remove(label)
+        
+        # replace label with hbox and put label and progress bar in hbox
+        hbox = gtk.HBox(False, 5)
+        frame.add(hbox)
+        hbox.pack_start(label, True, True, 0)        
+        vbox = gtk.VBox(True, 0)
+        hbox.pack_end(vbox, False, True, 0)
+        self.progressbar = gtk.ProgressBar() 
+        vbox.pack_start(self.progressbar, False, False, 0)        
+        self.progressbar.set_size_request(-1, 10)
+        
+        hbox.show_all()
+        
+
     def __get_title(self):
-        return '%s %s - %s' % ('Bauble', bauble.version_str, 
-                               bauble.app.conn_name)
+        if bauble.conn_name is None:
+            return '%s %s' % ('Bauble', bauble.version_str)
+        else:
+            return '%s %s - %s' % ('Bauble', bauble.version_str, 
+                                   bauble.conn_name)
     title = property(__get_title)
+
+
+    def set_busy(self, busy):
+        self.window.set_sensitive(not busy)
+        if busy:
+            self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+        else:
+            self.window.window.set_cursor(None)
 
 
     def create_main_menu(self):
@@ -181,36 +225,41 @@ class GUI:
     def build_insert_menu(self):
         menu = gtk.Menu()
         compare_labels = lambda x, y: cmp(x.label, y.label)
-        for editor in sorted(editors.values(), cmp=compare_labels):
-            if editor.standalone:
-                try:
-                    item = gtk.MenuItem(editor.mnemonic_label)
-                except AttributeError:
-                    item = gtk.MenuItem(editor.label)
-                item.connect("activate", self.on_insert_menu_item_activate, editor)
-                menu.append(item)
+        # TODO: iter through plugins and build this from those that
+        # have issubclass(EditorPlugin)
+#        for editor in sorted(editors.values(), cmp=compare_labels):
+#            if editor.standalone:
+#                try:
+#                    item = gtk.MenuItem(editor.mnemonic_label)
+#                except AttributeError:
+#                    item = gtk.MenuItem(editor.label)
+#                item.connect("activate", self.on_insert_menu_item_activate, editor)
+#                menu.append(item)
         return menu
     
     
     def build_tools_menu(self):        
+        # TODO: should probably sort the entries so there's some type of 
+        # expected order to the menu 
         menu = gtk.Menu()
         submenus = {}
-        for tool in tools.values():
-
-            item = gtk.MenuItem(tool.label)
-            item.connect("activate", self.on_tools_menu_item_activate, tool)
-            if tool.category is None: # not category
-                menu.append(item)
-            else:
-                if tool.category not in submenus: # create new category
-                    category_menu_item = gtk.MenuItem(tool.category)
-                    category_menu = gtk.Menu()
-                    category_menu_item.set_submenu(category_menu)
-                    menu.prepend(category_menu_item)
-                    submenus[tool.category] = category_menu
-                submenus[tool.category].append(item)
-            if not tool.enabled:
-                item.set_sensitive(False)
+        #for tool in tools.values():
+        for p in pluginmgr.plugins:
+            for tool in p.tools:
+                item = gtk.MenuItem(tool.label)
+                item.connect("activate", self.on_tools_menu_item_activate, tool)
+                if tool.category is None: # not category
+                    menu.append(item)
+                else:
+                    if tool.category not in submenus: # create new category
+                        category_menu_item = gtk.MenuItem(tool.category)
+                        category_menu = gtk.Menu()
+                        category_menu_item.set_submenu(category_menu)
+                        menu.prepend(category_menu_item)
+                        submenus[tool.category] = category_menu
+                    submenus[tool.category].append(item)
+                if not tool.enabled:
+                    item.set_sensitive(False)
         return menu
         
         
@@ -252,7 +301,7 @@ class GUI:
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
-            bauble.app.create_database()
+            bauble.create_database()
         
                 
     def on_file_menu_open(self, widget, data=None):        
@@ -266,7 +315,7 @@ class GUI:
         if name is None:
             return
 
-        if bauble.app.open_database(uri, name) is not None:
+        if bauble.open_database(uri, name) is not None:
             self.window.set_title(self.title)
             
 
@@ -278,7 +327,7 @@ class GUI:
         
         
     def on_quit(self, widget, data=None):
-        bauble.app.quit()
+        bauble.quit()
 
 
 #class GUI_old:
