@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.4 on Sat Jan 20 17:18:48 2007 by brett@licuala-->
+<!--Generated with glade3 3.1.4 on Sun Jan 28 13:24:12 2007 by brett@licuala-->
 <glade-interface>
   <widget class="GtkWindow" id="main_window">
     <property name="visible">True</property>
@@ -65,6 +65,7 @@
           <packing>
             <property name="expand">False</property>
             <property name="fill">False</property>
+            <property name="padding">2</property>
             <property name="position">1</property>
           </packing>
         </child>
@@ -82,15 +83,6 @@
         <child>
           <widget class="GtkStatusbar" id="statusbar">
             <property name="visible">True</property>
-            <child>
-              <widget class="GtkProgressBar" id="progressbar2">
-                <property name="visible">True</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="position">1</property>
-              </packing>
-            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
