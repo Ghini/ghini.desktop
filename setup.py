@@ -110,7 +110,7 @@ if USING_PY2EXE:
         }
     }
     globs= []
-    for pattern in ('default%s*.txt'%os.sep, '*.ui', '*.glade', '*.xsl'):
+    for pattern in data_patterns:
         # glob for pattern in each of the package directories
         i = pattern.rfind(os.sep)
         extra_path = ""
@@ -153,7 +153,7 @@ setup(name="bauble",
       data_files = py2exe_data_files,
       install_requires=["FormEncode>=0.4", "SQLAlchemy>=0.3.0",
                         "pysqlite==2.3.2",
-                        "PyGTK>=2.8.6"],# pygtk is not supported using distutils
+                        "PyGTK>=2.8.6", "simplejson"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
       
       # metadata
