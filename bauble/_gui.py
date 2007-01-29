@@ -13,7 +13,7 @@ from bauble.prefs import prefs, PreferencesMgr
 import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
 from bauble.i18n import *
-
+from bauble.utils.pyparsing import *
 # TODO: ProgressBar idea stub
 # - i would like to have a progress bar on the status bar or just popup above 
 # the status bar when there is a task
@@ -77,12 +77,6 @@ from bauble.i18n import *
 #        self.cancel_button.connect('clicked', callback, task)
 
 
-
-class CommandHandler:
-    
-    def __init__(self):
-        pass
-
 class GUI:
         
     def __init__(self):
@@ -102,6 +96,11 @@ class GUI:
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
         
+        main_entry = self.widgets.main_entry
+        main_entry.connect('key_press_event', self.on_main_entry_key_press)
+        
+        go_button = self.widgets.go_button
+        go_button.connect('clicked', self.on_go_button_clicked)
                     
 #        label = gtk.Label()
 #        label.set_markup('<big>Welcome to Bauble.</big>')
@@ -125,9 +124,12 @@ class GUI:
         # Warning: this relies on gtk.Statusbar internals and could break in 
         # future versions of gtk
         statusbar = self.widgets.statusbar
+        statusbar.set_spacing(10)
+        statusbar.set_has_resize_grip(True)
         
         # remove label from frame
         frame = statusbar.get_children()[0]
+        #frame.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FF0000'))
         label = frame.get_children()[0]        
         frame.remove(label)
         
@@ -143,7 +145,37 @@ class GUI:
         
         hbox.show_all()
         
+        
+    def on_main_entry_key_press(self, widget, event, data=None):
+        '''
+        '''
+        keyname = gtk.gdk.keyval_name(event.keyval)
+        if keyname == "Return":
+            self.widgets.go_button.emit("clicked")
+            
+    cmd = StringStart() + ':' + Word(alphanums + '-_').setResultsName('cmd')
+    arg = restOfLine.setResultsName('arg')
+    parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
+    def on_go_button_clicked(self, widget):
+        '''
+        '''
+        text = self.widgets.main_entry.get_text()
+        tokens = self.parser.parseString(text)
+        cmd = None
+        arg = None
+        try:
+            cmd = tokens['cmd']
+        except KeyError, e:
+            pass
+        
+        try:
+            arg = tokens['arg']            
+        except KeyError, e:
+            pass
+        
+        bauble.command_handler(cmd, arg)
 
+            
     def __get_title(self):
         if bauble.conn_name is None:
             return '%s %s' % ('Bauble', bauble.version_str)
@@ -159,6 +191,19 @@ class GUI:
             self.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
         else:
             self.window.window.set_cursor(None)
+
+
+    def set_view(self, view=None):
+        '''
+        set the view, if view is None then remove any views currently set
+        
+        @param view: default=None
+        '''
+        view_box = self.widgets.view_box
+        for kids in view_box.get_children():
+            view_box.remove(kids)
+        view_box.pack_start(view, True, True, 0)            
+        view.show_all()
 
 
     def create_main_menu(self):

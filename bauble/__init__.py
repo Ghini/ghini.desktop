@@ -214,7 +214,37 @@ def set_busy(busy):
     else:
         gui.window.window.set_cursor(None)
 
+last_handler = None
 
+def command_handler(cmd, arg):
+    # TODO: if the handler doesn't provide a view we should keep the old
+    # view around so it doesn't get reset....i guess we should always keep a
+    # reference to the handler that provides the current view so it doesn't
+    # get cleaned up and we don't lost state
+#    debug('command_handler(%s, %s)' % (cmd, arg))    
+    global last_handler
+    debug('last_handler: %s' % last_handler)
+    handler_cls = None
+    try:
+        handler_cls = pluginmgr.commands[cmd]    
+    except KeyError, e:
+        if cmd is None:
+            utils.message_dialog('No default handler registered')
+        else:
+            utils.message_dialog('No command handler for %s' % cmd)
+        return
+
+    if not isinstance(last_handler, handler_cls):
+        #handler = handler_cls(arg)
+        handler = handler_cls()
+        view = handler.get_view()        
+        if view is not None:
+            gui.set_view(view)
+        #else:
+        #    gui.set_view(None)
+        last_handler = handler        
+    last_handler(arg)
+            
 
 def main(uri=None):
     
@@ -224,8 +254,7 @@ def main(uri=None):
     
     # declare module level variables
     global prefs, conn_name, db_engine, gui, default_icon
-    conn_name = None
-    gui = None
+    gui = conn_name = None
         
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
     
@@ -255,6 +284,9 @@ def main(uri=None):
     else:
         open_database(uri, None)
                 
+    # set the default command handler
+    import bauble.view as view
+    bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
     
     # create_database creates all tables registered with the default metadata
     # so the pluginmgr should be loaded after the database is created so
