@@ -9,9 +9,6 @@
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
 
-# TODO: create a test plugin that we can use for various tests, so we
-# can do things like test that the plugin system works, test the tasks
-# with a dialog counter and a way to run all tests
 
 import os
 import sys
@@ -30,22 +27,8 @@ import simplejson as json
 
 plugins = []
 plugins_dict = {}
+commands = {}
 
-def register_command(cmd, callback):
-    '''
-    @param cmd: the cmd to register, to be called from the bauble entry with
-    cmd=parameters
-    @param callback: the method to be called when cmd is matched, signature 
-    us callback(parameters)
-    '''
-    bauble.command_entry.register_command(cmd, callback)
-
-    
-def setup(plugin):
-    '''
-    do any setup/installation for plugin
-    '''
-    pass
 
 def create(path=None):
     '''
@@ -61,7 +44,6 @@ def create(path=None):
         csv = CSVImporter()    
         csv.start(default_filenames)
     
-
 
 def load(path=None):
     '''
@@ -99,25 +81,12 @@ def load(path=None):
         debug(e)
         raise
 
-#    try:        
-#        registry = Registry()
-#    except RegistryEmptyError:
-#        Registry.create()
-#        registry = Registry()
-#
-#    
-#    for p in __sorted_plugins:
-#        if p.__name__ not in registry:
-#            registry.add(RegistryEntry(name=p.__name__, version='0.0'))
-#    registry.save()
-#    debug(str(registry))
-#    not_registered = []
-#    #print 'found: %s' % found
-#    for p in found:
-#        name = '%s.%s' % (p.__module__, p.__name__)
-#        if name not in registry:
-#            not_registered.append(p)
-#    return not_registered
+    # register commands
+    for plugin in found:
+        for cmd in plugin.commands:
+            debug('registering command: %s -- %s' % (cmd.command, cmd))
+            commands[cmd.command] = cmd
+
     return []
     
     
@@ -159,49 +128,13 @@ def init(auto_setup=False):
                 debug('-- queued')
                 reg()
             else:
-                reg()
-                
+                reg()                
 #            debug('adding to registry: %s' % p.__name__)
-            
-            
-    
-    registry.save()
-    
+    registry.save()    
     for entry in registry:
-#        debug(entry)
         plugins_dict[entry.name].init()
     
-#    registry = None
-#    try:        
-#        registry = Registry()
-#    except RegistryEmptyError:
-#        Registry.create()
-#        registry = Registry()
-#        
-#    not_registered = []
-#    print 'found: %s' % found
-#    for p in found:
-#        name = '%s.%s' % (p.__module__, p.__name__)
-#        if name not in registry:
-#            not_registered.append(p)
-#                
-#    return not_registered
-#    for p in found:
-#        plugins[p.__name__] = p
-#        if p.__name__ in registry:
-#            print '%s already in registry' % p.__name__            
-#        else:
-#            print 'adding %s to registry' % p.__name__
-#            registry[p.__name__] = p
-        
-#class PluginError(Exception):
-#    pass
-#    
-#class PluginInitError(PluginError):
-#    pass
 
-#class PluginRegistryError(PluginError):
-#    pass
 class RegistryEmptyError(Exception):
     pass
 
@@ -359,10 +292,11 @@ class Plugin(object):
         e.g dict('cmd', lambda x: handler)
     '''
     tables = []
-    editors = []
+    commands = []
+#    editors = []
     tools = []
     depends = []
-    cmds = {}
+#    cmds = {}
 
     @classmethod
     def __init__(cls):        
@@ -384,9 +318,9 @@ class Plugin(object):
 #        it is the last thing run before gtk.main() starts to loop
 #        '''
 
-    @classmethod
-    def register(cls):
-        _register(cls)
+#    @classmethod
+#    def register(cls):
+#        _register(cls)
     
 
 #    @classmethod
@@ -446,17 +380,34 @@ class Tool(object):
     def start(cls):
         pass
 
+class View(gtk.VBox):
     
-#class ToolPlugin(Plugin):
-#
-#    category = ''
-#    
-#    @classmethod
-#    def init(cls):
-#        super(cls, Plugin).init()        
-#        '''
-#        '''
-#        
+    def __init__(self, *args, **kwargs):
+        '''
+        if a class extends this View and provides it's own __init__ it *must*
+        call it's parent (this) __init__
+        '''
+        super(View, self).__init__(*args, **kwargs)
+
+    
+class CommandHandler(object):
+    
+    command = None
+    
+    def get_view(self):
+        '''
+        return the  view for this command handler
+        '''
+        return None
+    
+    def __call__(self, arg):
+        '''
+        do what this command handler does
+        
+        @param arg:
+        '''
+        raise NotImplementedError
+
 #class FormatterPlugin(Plugin):
 #
 #    '''
@@ -481,56 +432,6 @@ class Tool(object):
 #        '''
 #        raise NotImplementedError
 
-
-
-#def init_plugins():
-#    """
-#    initialized all the plugins in plugins
-#    """
-#    load()
-#    for p in plugins.values():
-#        p.init()
-#    
-#    
-#def start_plugins():
-#    '''
-#    start of the plugins
-#    '''
-#    for p in plugins.values():
-#        p.start()
-        
-        
-def _register(plugin_class):        
-    # check dependencies
-    plugin_name = plugin_class.__name__
-    #if not bauble.main_is_frozen():
-    #log.info("registering " + plugin_name)
-    for dependency in plugin_class.depends:            
-        if dependency not in plugins:
-            msg = _('Can\'t load plugin %(plugin)s. This plugin depends on the '\
-                    '%(dependency)s plugin but %(dependency)s doesn\'t exist') \
-                    % ({'plugin': plugin_name, 'dependency': dependency})
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            plugins.pop(plugin_name)
-            return
-                    
-    plugins[plugin_name] = plugin_class
-    
-#    # add tables
-#    for t in plugin_class.tables:
-#        tables[t.__name__] = t
-#    
-#    # add tools
-#    for l in plugin_class.tools:    
-#        if not issubclass(l, BaubleTool):
-#            raise TypeError(_('%(tool)s tool from plugin %(plugin)s is not an '\
-#                            'instance of BaubleTool') % \
-#                            {'tool': l, 'plugin': plugin_name})
-#        tools[l.__name__] = l
-#        
-#    # add cmds
-#    for cmd, cb in plugin_class.cmds.iteritems():
-#        bauble.app.register_command(cmd, cb)
 
 
 def _find_module_names(path):
@@ -599,15 +500,6 @@ def _find_plugins(path):
             plugins.append(mod.plugin)
     return plugins
 
-
-#class BaubleEditor(object):
-#    pass
-#
-#        
-#class BaubleView(gtk.VBox):
-#    
-#    def __init__(self, *args, **kwargs):
-#        super(BaubleView, self).__init__(self, *args, **kwargs)
 
 #
 # This implementation of topological sort was taken directly from...
