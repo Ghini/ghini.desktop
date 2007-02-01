@@ -142,10 +142,10 @@ class GUI:
         frame.add(hbox)
         hbox.pack_start(label, True, True, 0)        
         vbox = gtk.VBox(True, 0)
-        hbox.pack_end(vbox, False, True, 0)
+        hbox.pack_end(vbox, False, True, 15)
         self.progressbar = gtk.ProgressBar() 
-        vbox.pack_start(self.progressbar, False, False, 0)        
-        self.progressbar.set_size_request(-1, 10)        
+        vbox.pack_start(self.progressbar, False, False, 0)
+        self.progressbar.set_size_request(-1, 10)
         vbox.show()
         hbox.show()
         
