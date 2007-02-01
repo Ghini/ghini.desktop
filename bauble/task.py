@@ -58,8 +58,29 @@ _task_queue = Queue.Queue(0)
 # - maybe we could indicate what type of callback we should call, a method or
 # another tasklet
 
-def push_message(context_id, msg):
-    return bauble.gui.widgets.statusbar.push(context_id, msg)
+# TODO: if we passed some custom class to the tasklet instead of a method then
+# the class could have some interface like a cancel() method that tells the
+# task to cancel itself
+
+__message_ids = []
+
+def set_message(msg):
+    global _context_id
+    try:
+        _context_id
+    except NameError, e: # context_id not defined
+        debug('***** creating context_id')
+        _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
+    msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
+    __message_ids.append(msg_id)
+    return msg_id
+    
+
+def clear_messages():
+    global _context_id, __message_ids
+    
+    for id in __message_ids:
+        bauble.gui.widgets.statusbar.remove(_context_id, id)
 
 _flushing = False
 
@@ -74,18 +95,25 @@ def flush():
     def internal():
         global _flushing
         _flushing = True
+        bauble.set_busy(True)
+        
         while not _task_queue.empty():
+            bauble.gui.progressbar.show()
             bauble.gui.progressbar.set_pulse_step(0)
             bauble.gui.progressbar.set_fraction(0)
             tasklet, callback, args = _task_queue.get()
+#            debug('gtasklet.run(%s, %s)' % (tasklet, args))
             _current_task = gtasklet.run(tasklet(*args))      
             yield gtasklet.WaitForTasklet(_current_task)
             gtasklet.get_event()
             #yield gtasklet.run(callback())
-            callback()
-            
+            if callback is not None:
+                callback()
+        bauble.set_busy(False)
         bauble.gui.progressbar.set_pulse_step(0)
         bauble.gui.progressbar.set_fraction(0)
+        clear_messages()
+        bauble.gui.progressbar.hide()
         _flushing = False
         
     gtasklet.run(internal())
@@ -99,7 +127,7 @@ def queue(task, callback, *args):
     @param args: the arguments to pass to the task
     
     NOTE: callback haven't been implemented
-    '''
+    '''    
     # TODO: the problem with callbacks is that they are run in the context
     # of the generator so terrible things start to happen with things
     # like dialog boxes run in the callback
