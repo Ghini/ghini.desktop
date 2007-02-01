@@ -99,6 +99,16 @@ from bauble.plugins.searchview.pyparsing import *
 # TODO: make the search result do their thing in a task so we can keep state and
 # pulse the progressbar for large result sets
 
+
+# TODO: it might make it easier to do some of the fancier searchs on properties
+# using advanced property overriding, see...
+# http://www.sqlalchemy.org/docs/adv_datamapping.myt#advdatamapping_properties_overriding
+
+# TODO: it does seem like it would be better to use properties instead of 
+# columns names for searches, it would allow us to be more expressive and could
+# probably avoid some of the trickery on deciding the top, we would just trust
+# that the property returns what we need
+
 # use different formatting template for the result view depending on the
 # platform
 _mainstr_tmpl = '<b>%s</b>'
@@ -703,18 +713,15 @@ class SearchView(pluginmgr.View):
         if values[0] in ('*', 'all'):            
             return query.select()
 
-        # select like
-        if bauble.db_engine.name == 'postgres':
-            #s = query.select(or_(*[table.c[columns[0]].op('ILIKE')('%%%s%%' % v) for v in values]))
-            s = query.select(or_(*[table.c[columns[0]].op('ILIKE')('%%%s%%' % v) for v in values]))
-        else:            
-            #debug('v2: %s' % [v for v in values])
-            #debug('cols: %s' % columns)
-            #stuff = [table.c[columns[0]].like('%%%s%%' % v) for v in values]
-            #debug('stuff: %s' % stuff)
-            s = query.select(or_(*[table.c[columns[0]].like('%%%s%%' % v) for v in values]))            
-            #s = query.select(table.c[columns[0]].like('%%%s%%' % values[0]))
-        return s
+        # make searches in postgres case-insensitive, i don't think other 
+        # databases support a case-insensitive like operator
+        if bauble.db_engine.name == 'postgres': 
+            like = lambda col, val: table.c[col].op('ILIKE')('%%%s%%' % val)
+        else:
+            like = lambda col, val: table.c[col].like('%%%s%%' % val)
+                    
+        cv = [(c,v) for c in columns for v in values]
+        return query.select(or_(*[like(c, v) for c,v in cv]))
         
                         
 
