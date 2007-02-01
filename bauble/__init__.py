@@ -87,9 +87,6 @@ from bauble.utils.log import debug
 from bauble.i18n import *
 from bauble.error import *
 import bauble.pluginmgr
-#from bauble._app import BaubleApp
-#app = BaubleApp()
-
 from bauble.prefs import prefs
 
 
@@ -180,15 +177,16 @@ def create_database(import_defaults=True):
     try:
         db.create()
         # create for each of the plugins
-#        if import_defaults:
-#            for p in plugins.values():
-#                default_filenames.extend(p.default_filenames())                
-#            default_basenames = [os.path.basename(f) for f in default_filenames]                        
-#            # import default data
-#            if len(default_filenames) > 0:
-#                from bauble.plugins.imex_csv import CSVImporter
-#                csv = CSVImporter()    
-#                csv.start(default_filenames)
+        default_filenames = []
+        if import_defaults:
+            for p in pluginmgr.plugins:
+                default_filenames.extend(p.default_filenames())                
+            default_basenames = [os.path.basename(f) for f in default_filenames]                        
+            # import default data
+            if len(default_filenames) > 0:
+                from bauble.plugins.imex_csv import CSVImporter
+                csv = CSVImporter()    
+                csv.start(default_filenames)
     except Exception, e:
         msg = _('Error creating tables. Your database may be corrupt.'\
                 '\n\n%s"') % utils.xml_safe(e)
@@ -209,6 +207,7 @@ def set_busy(busy):
     if gui is None:
         return
     gui.window.set_sensitive(not busy)
+    gui.widgets.statusbar.set_sensitive(True) # the statusbar needs to show busy state
     if busy:
         gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
     else:

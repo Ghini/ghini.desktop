@@ -98,6 +98,10 @@ class GUI:
         
         main_entry = self.widgets.main_entry
         main_entry.connect('key_press_event', self.on_main_entry_key_press)
+        accel_group = gtk.AccelGroup()
+        main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
+                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+        self.window.add_accel_group(accel_group)
         
         go_button = self.widgets.go_button
         go_button.connect('clicked', self.on_go_button_clicked)
@@ -141,10 +145,9 @@ class GUI:
         hbox.pack_end(vbox, False, True, 0)
         self.progressbar = gtk.ProgressBar() 
         vbox.pack_start(self.progressbar, False, False, 0)        
-        self.progressbar.set_size_request(-1, 10)
-        
-        hbox.show_all()
-        
+        self.progressbar.set_size_request(-1, 10)        
+        vbox.show()
+        hbox.show()
         
     def on_main_entry_key_press(self, widget, event, data=None):
         '''
