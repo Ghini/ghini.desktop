@@ -3,14 +3,6 @@
 #
 # Description: the default view
 #
-
-from bauble.utils.log import debug
-import bauble.pluginmgr as pluginmgr
-
-#
-# search.py
-#
-
 import re, traceback
 import gtk, gobject, pango
 from sqlalchemy import *
@@ -19,6 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 import formencode
 import bauble
+import bauble.pluginmgr as pluginmgr
 import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
@@ -57,17 +50,7 @@ from bauble.plugins.searchview.pyparsing import *
 # TODO: provide a way to pin down the infobox so that changing the selection
 # in the results_view doesn't change the values in the infobox
 
-# TODO: make the search entry a combo. clicking on the combo button
-# pops up the previous X searches. the up and down arrows cycle through the 
-# search history. the histories should be stored separately per connection, 
-# possible in the BaubleMeta table. the X number of search to remember and 
-# saving the searches per connection should be configurable
-
 # TODO: search won't work on a unicode col. e.g. try 'acc where notes='test''
-
-# TODO: improve error reporting, especially when there is an error in the
-# search string or if there aren't any results
-# e.g. 'Can't find 'values' in table 'Table'
 
 # TODO: on some search errors the connection gets invalidated, this 
 # happened to me on 'loc where site=test'
@@ -77,20 +60,7 @@ from bauble.plugins.searchview.pyparsing import *
 # TODO: it would be good to be able to search using the SIMILAR TO operator
 # but we need to designate a way to show that value is a regular expression
 
-# TODO: support '%' at from and end of string to do fuzzy searches, should
-# really support any standard sql regex syntax like ?*, etc...
-
-# TODO: try this syntax for AND and OR queries, this should make it easy
-#a=Entries.select(AND(Entries.q.aCount==3,Entries.q.alpha==myalpha))
-
-# TODO: create a set of commands from the search entry, e.g. :help or :config
-
 # TODO: select first result in list on succesful search
-
-# TODO: should push the search intro into the toplevel bauble module and gui
-# and have other plugins register commands(:somecmd) or domains (somedomain=)
-# with bauble so that they are called when the entry reaches one of the commands
-# or domains
 
 # TODO: should we provide a way to change the results view from list to icon 
 # and provide an icon type to each type that can be returned and then you could
@@ -98,7 +68,6 @@ from bauble.plugins.searchview.pyparsing import *
 
 # TODO: make the search result do their thing in a task so we can keep state and
 # pulse the progressbar for large result sets
-
 
 # TODO: it might make it easier to do some of the fancier searchs on properties
 # using advanced property overriding, see...
@@ -118,42 +87,86 @@ else:
     _substr_tmpl = '<small>%s</small>'
 
 class SearchParser:
-
-    # TODO: if the search language doesn't change we could make this 
-    # a static class, the only reason we wouldn't is if we made the values
-    # in self.domain_map keywords
-
-    def __init__(self):    
-        '''
-        the constructor
-        '''
-        domain = Word(alphanums).setResultsName('domain')
-        quotes = Word('"\'')    
-        
-        value_str_chars = alphanums + '*;._-'
-        value_str = Word(value_str_chars)
-        quoted_value_str = Optional(quotes).suppress() + \
-            Word(value_str_chars+' ,') + Optional(quotes).suppress()
-        _values = delimitedList(value_str | quoted_value_str)
-        values = Group(_values).setResultsName('values')
-        
-        operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
-        expression = domain + operator + values + StringEnd()
+    '''
+    This class parses three distinct types of string. They can beL
+        1. Value or a list of values: val1, val2, val3
+        2. An expression where the domain is a search domain registered
+           with the search meta: domain=something and val2=somethingelse,asdasd
+        3. A query like: domain where col1=something and col2=somethingelse,asdasd
+    '''    
     
-        subdomain = Word(alphanums + '._').setResultsName('subdomain')
-        query_expression = (subdomain + operator + \
-                    values).setResultsName('query')
-    
-        query = domain + CaselessKeyword("where").suppress() + subdomain + \
-            operator + values + StringEnd()
-    
-        self.statement = (query | expression | (values + StringEnd()))
+    def __init__(self):        
+        quotes = Word('"\'')            
+        domain = Word(alphas, alphanums)
         
-
+        and_ = CaselessKeyword("and")
+        or_ = CaselessKeyword("or")
+        in_ = CaselessKeyword("in")
+        like = CaselessKeyword('like')
+        ilike = CaselessKeyword('ilike') # should provide a warning on non-postgres database
+        contains = CaselessKeyword("contains") # TODO: does like('%%%s%%')
+        
+        valuechars = alphanums + '*;._-%'
+        quoted_value = quotes.suppress() + Word(valuechars+' ') + quotes.suppress()
+        value = Word(valuechars)# | quoted_value
+        delimited_values = delimitedList(Word(valuechars))
+        values = delimitedList(value | quoted_value)#.setResultsName('values')  
+        
+        binop = oneOf('= == != <> < <= > >= not')#.setResultsName('operator') 
+        domain_expression = domain + (binop | like | ilike) + values
+            
+        identifier = Word(alphas, alphanums + "._")#.setName("identifier")
+        where = CaselessKeyword('where')
+        where_condition = Group(identifier + (binop|like|ilike) + values)
+        where_expression = where.suppress() + where_condition + ZeroOrMore((and_ | or_) + where_condition)
+        query = domain + Group(where_expression)#.setResultsName('expression')
+            
+        self.statement = (query.setResultsName('query') | \
+                          domain_expression.setResultsName('expression') | \
+                          (values + StringEnd()).setResultsName('values'))
+        
     def parse_string(self, text):
         '''
         '''
         return self.statement.parseString(text)
+        
+#class SearchParser:
+#
+#    # TODO: if the search language doesn't change we could make this 
+#    # a static class, the only reason we wouldn't is if we made the values
+#    # in self.domain_map keywords
+#
+#    def __init__(self):    
+#        '''
+#        the constructor
+#        '''
+#        domain = Word(alphanums).setResultsName('domain')
+#        quotes = Word('"\'')    
+#        
+#        value_str_chars = alphanums + '*;._-'
+#        value_str = Word(value_str_chars)
+#        quoted_value_str = Optional(quotes).suppress() + \
+#            Word(value_str_chars+' ,') + Optional(quotes).suppress()
+#        _values = delimitedList(value_str | quoted_value_str)
+#        values = Group(_values).setResultsName('values')
+#        
+#        operator = oneOf('= == != <> < <= > >=').setResultsName('operator')
+#        expression = domain + operator + values + StringEnd()
+#    
+#        subdomain = Word(alphanums + '._').setResultsName('subdomain')
+#        query_expression = (subdomain + operator + \
+#                    values).setResultsName('query')
+#    
+#        query = domain + CaselessKeyword("where").suppress() + subdomain + \
+#            operator + values + StringEnd()
+#    
+#        self.statement = (query | expression | (values + StringEnd()))
+#        
+#
+#    def parse_string(self, text):
+#        '''
+#        '''
+#        return self.statement.parseString(text)
     
 
 
@@ -210,16 +223,11 @@ class PythonOperatorValidator(OperatorValidator):
                '<>': '!=',
                }
                     
-
-# TODO: be tolerant of the first value of the Searchmeta constructor,
-# allow, mapped object or table_names or table
-
 class SearchMeta:
     
-#    def __init__(self, table_name, column_names, sort_column=None, 
     def __init__(self, mapper, columns, context_menu=None, markup_func=None):
         """
-        @param table_name: the name of the table this meta refers to
+        @param mapper: a Mapper object
         @param columns: the names of the table columns that will be search
         @parem context_menu:
         @param markup_func:
@@ -228,14 +236,7 @@ class SearchMeta:
         assert isinstance(columns, list), 'SearchMeta.__init__: '\
                                           'columns argument must be a list'
         self.columns = columns
-#        self.properties = properties
-        
-        # TODO: if the the column is a join then it will sort by the id of the
-        # joined objects rather than the values of the objects, we should check
-        # if any of the columns passed are joins and handle them properly with
-        # and AND() or something
-        #self.sort_column = sort_column 
-        
+
 
 
 class SearchView(pluginmgr.View):
@@ -276,7 +277,6 @@ class SearchView(pluginmgr.View):
                     is called            
                 '''
                 self.children = children
-#                self.editor = editor
                 self.infobox = infobox
                 self.context_menu_desc = context_menu
                 self.markup_func = markup_func
@@ -305,6 +305,7 @@ class SearchView(pluginmgr.View):
             
     view_meta = ViewMeta()
     
+    
     @classmethod
     def register_search_meta(cls, domain, search_meta):        
         '''
@@ -312,10 +313,11 @@ class SearchView(pluginmgr.View):
         @param search_meta: the meta information to register with the domain
         '''
         table_name = search_meta.mapper.local_table.name
-        cls.domain_map[domain] = table_name
+        #cls.domain_map[domain] = table_name
+        cls.domain_map[domain] = search_meta.mapper
         cls.search_metas[table_name] = search_meta
   
-  
+    
     def __init__(self):
         '''
         the constructor
@@ -354,8 +356,7 @@ class SearchView(pluginmgr.View):
         except Exception, e:
             debug('SearchView.update_infobox: %s' % e)
             self.set_infobox_from_row(None)
-            
-            
+                        
     
     def set_infobox_from_row(self, row):
         '''
@@ -456,136 +457,208 @@ class SearchView(pluginmgr.View):
     def refresh_search(self):
         self.search_text = self.search_text        
 
+    condition_map = {'and': and_, 
+                     'or': or_}
     
-    def _get_search_results_from_tokens(self, tokens):
-        '''
-        take list of tokens from parser.parseString() and return search
-        results for them
-        '''
-#        debug('_get_search_results_from_tokens(%s)' % tokens)
-        results = []            
-        #session = create_session()
-        if 'subdomain' in tokens and 'domain' in tokens: # a query expression                    
-             # FIXME *****: this doesn't work if the one of the dotted columns
-             # is not a backref, try searching for 
-             # gen where family_id.qualifier='test'
-            #operator = OperatorValidator.to_python(tokens['operator'])
-            #operator = tokens['operator']
-            joins = None
-            col = None
-            values = tokens['values']
-            domain_table = tables[self.domain_map[tokens['domain']]]            
-            subdomain = tokens['subdomain']            
-            index = subdomain.rfind('.')            
-            if index != -1:
-                joins, col = subdomain[:index], subdomain[index+1:]
+    def _get_search_results_from_tokens(self, tokens):        
+        # TODO: need to support joins so that queries like
+        # species where genus=Maxillaria and sp=aciantha would return
+        # the species Maxillaria aciantha        
+        # TODO: need to support 'or'ing values for queries and expression
+#        debug('tokens: %s' % tokens)
+        results = []        
+        if 'query' in tokens:      
+            domain = str(tokens[0])
+            try:
+                mapping = self.domain_map[domain]
+            except KeyError, e:
+                raise KeyError('Unknown domain: %s' % domain)
+                
+            query = self.session.query(mapping)
+            table = mapping.local_table
+            
+            #debug('domain: %s' % domain)
+            expression = tokens[1]
+            #'test=val and test=val and test=val or test=val'
+            #'test=val and (test=val or test=val)
+            #debug('expression: %s' % expression)            
+            col, cond, val = expression[0]
+            assert col in table.c, 'Unknown column \'%s\' on table \'%s\'' % (col, table.name)
+            prev_expr = table.c[col].op(cond)(val)
+            debug((col, cond, val))            
+            ops = expression[1:][::2]
+            ex = expression[1:][1::2]            
+            for op, [col, cond, val] in zip(ops, ex):
+                assert col in table.c, 'Unknown column \'%s\' on table \'%s\'' % (col, table.name)
+#                debug('%s, %s, %s, %s' % (op, col, cond, val))
+                prev_expr = self.condition_map[op](prev_expr, table.c[col].op(cond)(val))            
+#            debug('expr: %s -- %s' % (prev_expr, repr(prev_expr)))        
+            results = query.select(prev_expr)
+#            debug('s: %s' % results)
+
+        elif 'expression' in tokens:
+            domain, cond, val = tokens['expression']
+#            debug('expression: %s, %s, %s' % (domain, cond, val))
+            mapping = self.domain_map[domain]
+            search_meta = self.search_metas[mapping.local_table.name]
+            query = self.session.query(mapping)
+            if cond == 'ilike' and bauble.db_engine.name != 'postgres':
+                utils.message_dialog('The ilike operator is only supported ' \
+                                     'on PostgreSQL database. You are ' \
+                                     'connected to a %s database' \
+                                     % bauble.db_engine.name, gtk.MESSAGE_WARNING)
+                return []            
+            # select everything
+            if val in ('*', 'all'):            
+                results = query.select()
             else:
-                col = subdomain        
-            debug('joins: %s' % joins)
-            debug('col: %s' % col)
-            if joins is None: # select from column in domain_table
-                # TODO: this is still fairly incomplete and doesn't allow
-                # different operators
-                query = self.session.query(domain_table)
-                results = query.select(domain_table.c[col]==values[0])
-#                debug(results)
-                
-                
-#                # get the validator for the column
-#                if col == 'id':
-#                    values_validator = formencode.validators.Int()
-#                elif col in domain_table.sqlmeta.columns:
-#                    values_validator = \
-#                    domain_table.sqlmeta.columns[col].validator()
-#                else:
-#                    raise KeyError('"%s" not a column in table "%s"' % \
-#                                   (col, domain_table.__name__))
-#                #v = values_validator.to_python(','.join(values), None)
-#                v = values_validator.from_python(','.join(values), None)
-#                if not isinstance(v, int):
-#                    # quote if not an int
-#                    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
-#                #db_type = sqlobject.sqlhub.processConnection.dbName
-#                db_type = bauble.app.db_engine.name
-#                debug(db_type)
-#                operator = tokens['operator']
-#                sql_operator= SQLOperatorValidator(db_type).to_python(operator)                
-#                debug(domain_table)
-#                stmt = "%s.%s %s %s" % (domain_table,
-#                                        col, sql_operator, v)
-#                debug(stmt)
-#                results += domain_table.select(stmt)
-            else: 
-                # resolve the joins and select from the last join in the list
-                # TODO: would it be possible to do this backwards. if we could
-                # get the type of the table of the last join on the list of 
-                # subdomains we could then query this table for the value in 
-                # col, this would allow us to walk up the list of joins until
-                # we get to the top. it seems like this way would be alot more
-                # efficient because you only get the values from the 
-                # domain_table from the beginning instead of starting with
-                # all values in domain tables and narrowing down from there
-                # UPDATE: can we do this reliably if one the subdomains is 
-                # a mapped property, i.e. relation and not a column
-                # debug(eval('tables["%s"].%s.%s' % (domain_table.__name__, joins, col)))                
-                joins = joins.split('.')
-                backrefs = []
-                next_class = domain_table
-                for j in joins:          
-                    if isinstance(next_class, Mapper):
-                        relation = next_class.props[j]
-                    else:
-                        relation = class_mapper(next_class).props[j]
-                    
-                    backrefs.append(relation.backref.key)
-                    next_class = relation.argument
-                last_class = next_class
-                debug('backrefs: %s' % backrefs)
-                debug('last_class: %s' % last_class)
-                
-                debug('last_class.c: %s' % last_class.c)
-                if isinstance(last_class, Mapper):
-                    bottom_results = self.query_table(last_class.mapped_table, values[0])
-                else:
-                    bottom_results = self.session.query(last_class).select(last_class.c[col] == values[0])            
-                    
-                debug('bottom_results: %s' % bottom_results)
-                # now walk back up
-                for r in bottom_results: 
-                    upper = None
-                    for backref in backrefs:
-                        try:
-                            upper = upper.__getattribute__(backref)
-                        except:
-                            upper = r.__getattribute__(backref)
-                    if upper is None: 
-                        # shouldn't ever get here
-                        raise ValueError('couldn\'t walk up back references')
-                    #debug(type(upper))
-                    if isinstance(upper, (list, tuple, InstrumentedList)):
-                        map(self.session.save, upper)
-                        if len(upper) > 0:
-                            debug('extend: %s' % upper)
-                            results.extend(upper)                    
-                    else:
-                        debug('append upper: %s' % upper)
-                        self.session.save(upper)
-                        results.append(upper)
-        elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
-            # a general expression
-            #values = ','.join(tokens['values']) # can values not be in tokens?
-            values= tokens['values']
-#            debug(values)        
-            table_name = self.domain_map[tokens['domain']]
-            results += self.query_table(table_name, values)#[:]
-        elif 'values' in tokens: # a list of values
-            values = tokens['values']
-            debug('list of values in tokens: %s' % values)
-            for table_name in self.search_metas.keys():
-                results += self.query_table(table_name, values)[:]
-        else:
-            raise error.BaubleError('invalid tokens')
+                for col in search_meta.columns:
+                    results.extend(query.select(mapping.c[col].op(cond)(val)))
+        else:            
+            debug('is an value')
+            # make searches in postgres case-insensitive, i don't think other 
+            # databases support a case-insensitive like operator
+            if bauble.db_engine.name == 'postgres': 
+                like = lambda table, col, val: table.c[col].op('ILIKE')('%%%s%%' % val)
+            else:
+                like = lambda table, col, val: table.c[col].like('%%%s%%' % val)
+                                
+            for meta in self.search_metas.values():
+                mapping = meta.mapper
+                q = self.session.query(mapping)
+                cv = [(c,v) for c in meta.columns for v in tokens]
+                results.extend(q.select(or_(*[like(mapping, c, v) for c,v in cv])))        
         return results
+    
+#    def _get_search_results_from_tokens_old(self, tokens):
+#        '''
+#        take list of tokens from parser.parseString() and return search
+#        results for them
+#        '''
+##        debug('_get_search_results_from_tokens(%s)' % tokens)
+#        results = []            
+#        #session = create_session()
+#        if 'subdomain' in tokens and 'domain' in tokens: # a query expression                    
+#             # FIXME *****: this doesn't work if the one of the dotted columns
+#             # is not a backref, try searching for 
+#             # gen where family_id.qualifier='test'
+#            #operator = OperatorValidator.to_python(tokens['operator'])
+#            #operator = tokens['operator']
+#            joins = None
+#            col = None
+#            values = tokens['values']
+#            domain_table = tables[self.domain_map[tokens['domain']]]            
+#            subdomain = tokens['subdomain']            
+#            index = subdomain.rfind('.')            
+#            if index != -1:
+#                joins, col = subdomain[:index], subdomain[index+1:]
+#            else:
+#                col = subdomain        
+#            debug('joins: %s' % joins)
+#            debug('col: %s' % col)
+#            if joins is None: # select from column in domain_table
+#                # TODO: this is still fairly incomplete and doesn't allow
+#                # different operators
+#                query = self.session.query(domain_table)
+#                results = query.select(domain_table.c[col]==values[0])
+##                debug(results)
+#                
+#                
+##                # get the validator for the column
+##                if col == 'id':
+##                    values_validator = formencode.validators.Int()
+##                elif col in domain_table.sqlmeta.columns:
+##                    values_validator = \
+##                    domain_table.sqlmeta.columns[col].validator()
+##                else:
+##                    raise KeyError('"%s" not a column in table "%s"' % \
+##                                   (col, domain_table.__name__))
+##                #v = values_validator.to_python(','.join(values), None)
+##                v = values_validator.from_python(','.join(values), None)
+##                if not isinstance(v, int):
+##                    # quote if not an int
+##                    v = sqlobject.sqlhub.processConnection.sqlrepr(_LikeQuoted(v))
+##                #db_type = sqlobject.sqlhub.processConnection.dbName
+##                db_type = bauble.app.db_engine.name
+##                debug(db_type)
+##                operator = tokens['operator']
+##                sql_operator= SQLOperatorValidator(db_type).to_python(operator)                
+##                debug(domain_table)
+##                stmt = "%s.%s %s %s" % (domain_table,
+##                                        col, sql_operator, v)
+##                debug(stmt)
+##                results += domain_table.select(stmt)
+#            else: 
+#                # resolve the joins and select from the last join in the list
+#                # TODO: would it be possible to do this backwards. if we could
+#                # get the type of the table of the last join on the list of 
+#                # subdomains we could then query this table for the value in 
+#                # col, this would allow us to walk up the list of joins until
+#                # we get to the top. it seems like this way would be alot more
+#                # efficient because you only get the values from the 
+#                # domain_table from the beginning instead of starting with
+#                # all values in domain tables and narrowing down from there
+#                # UPDATE: can we do this reliably if one the subdomains is 
+#                # a mapped property, i.e. relation and not a column
+#                # debug(eval('tables["%s"].%s.%s' % (domain_table.__name__, joins, col)))                
+#                joins = joins.split('.')
+#                backrefs = []
+#                next_class = domain_table
+#                for j in joins:          
+#                    if isinstance(next_class, Mapper):
+#                        relation = next_class.props[j]
+#                    else:
+#                        relation = class_mapper(next_class).props[j]
+#                    
+#                    backrefs.append(relation.backref.key)
+#                    next_class = relation.argument
+#                last_class = next_class
+#                debug('backrefs: %s' % backrefs)
+#                debug('last_class: %s' % last_class)
+#                
+#                debug('last_class.c: %s' % last_class.c)
+#                if isinstance(last_class, Mapper):
+#                    bottom_results = self.query_table(last_class.mapped_table, values[0])
+#                else:
+#                    bottom_results = self.session.query(last_class).select(last_class.c[col] == values[0])            
+#                    
+#                debug('bottom_results: %s' % bottom_results)
+#                # now walk back up
+#                for r in bottom_results: 
+#                    upper = None
+#                    for backref in backrefs:
+#                        try:
+#                            upper = upper.__getattribute__(backref)
+#                        except:
+#                            upper = r.__getattribute__(backref)
+#                    if upper is None: 
+#                        # shouldn't ever get here
+#                        raise ValueError('couldn\'t walk up back references')
+#                    #debug(type(upper))
+#                    if isinstance(upper, (list, tuple, InstrumentedList)):
+#                        map(self.session.save, upper)
+#                        if len(upper) > 0:
+#                            debug('extend: %s' % upper)
+#                            results.extend(upper)                    
+#                    else:
+#                        debug('append upper: %s' % upper)
+#                        self.session.save(upper)
+#                        results.append(upper)
+#        elif 'domain' in tokens and tokens['domain'] in self.domain_map: 
+#            # a general expression
+#            #values = ','.join(tokens['values']) # can values not be in tokens?
+#            values= tokens['values']
+##            debug(values)        
+#            table_name = self.domain_map[tokens['domain']]
+#            results += self.query_table(table_name, values)#[:]
+#        elif 'values' in tokens: # a list of values
+#            values = tokens['values']
+#            debug('list of values in tokens: %s' % values)
+#            for table_name in self.search_metas.keys():
+#                results += self.query_table(table_name, values)[:]
+#        else:
+#            raise error.BaubleError('invalid tokens')
+#        return results
         
         
     nresults_statusbar_context = 'searchview.nresults'
@@ -615,11 +688,8 @@ class SearchView(pluginmgr.View):
         bold = '<b>%s</b>'        
         try:
             tokens = self.parser.parse_string(text)
-            debug('tokens: %s' % tokens)
-            if 'domain' in tokens and tokens.domain not in self.domain_map:
-                raise SyntaxError("Unknown search domain: %s" % tokens.domain)
             results = self._get_search_results_from_tokens(tokens)
-            debug('results: %s' % results)
+#            debug('results: %s' % results)
         except ParseException, err:
             error_msg = 'Error in search string at column %s' % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
@@ -691,37 +761,38 @@ class SearchView(pluginmgr.View):
             return False
         
                     
-    def query_table(self, table_name, values):
-        '''
-        query the table table_name for values which are 'OR'ed together    
-        
-        @param table_name: the table_name should be registered in search_meta
-        @param svalues: list of values to query table_name
-        '''
-        if table_name not in self.search_metas:
-            raise ValueError("SearchView.query: no search meta for domain ", 
-                              domain)
-        search_meta = self.search_metas[table_name]
-#        table = search_meta.table
-#        columns = search_meta.columns
+#    def query_table(self, table_name, values):
+#        '''
+#        query the table table_name for values which are 'OR'ed together    
+#        
+#        @param table_name: the table_name should be registered in search_meta
+#        @param svalues: list of values to query table_name
+#        '''
+#        if table_name not in self.search_metas:
+#            raise ValueError("SearchView.query: no search meta for domain ", 
+#                              domain)
+#        search_meta = self.search_metas[table_name]
+##        table = search_meta.table
+##        columns = search_meta.columns
+##        query = self.session.query(table)
+#        table = search_meta.mapper
 #        query = self.session.query(table)
-        table = search_meta.mapper
-        query = self.session.query(table)
-        columns = search_meta.columns
-        
-        # select everything
-        if values[0] in ('*', 'all'):            
-            return query.select()
-
-        # make searches in postgres case-insensitive, i don't think other 
-        # databases support a case-insensitive like operator
-        if bauble.db_engine.name == 'postgres': 
-            like = lambda col, val: table.c[col].op('ILIKE')('%%%s%%' % val)
-        else:
-            like = lambda col, val: table.c[col].like('%%%s%%' % val)
-                    
-        cv = [(c,v) for c in columns for v in values]
-        return query.select(or_(*[like(c, v) for c,v in cv]))
+#        columns = search_meta.columns
+#        
+#        
+#        # select everything
+#        if values[0] in ('*', 'all'):            
+#            return query.select()
+#
+#        # make searches in postgres case-insensitive, i don't think other 
+#        # databases support a case-insensitive like operator
+#        if bauble.db_engine.name == 'postgres': 
+#            like = lambda col, val: table.c[col].op('ILIKE')('%%%s%%' % val)
+#        else:
+#            like = lambda col, val: table.c[col].like('%%%s%%' % val)
+#                    
+#        cv = [(c,v) for c in columns for v in values]
+#        return query.select(or_(*[like(c, v) for c,v in cv]))
         
                         
 
@@ -957,85 +1028,12 @@ class SearchView(pluginmgr.View):
         '''
         view.expand_row(path, False)
             
-#    class GoBar:
-#        def __init__(self, callback):
-#            pass
-#        
-#        def register_keyword(self, keyword, callback):
-#            '''
-#            if entry matches keyword= or :keyword then
-#            call the registered callback for the keyword
-#            '''
-#            # TODO: this means that 'acc where...' would have to become
-#            # 'sql=acc where...'
-#        def on_entry_key_press(self, widget, event, data=None):
-#            '''
-#            match the keyword and call callback
-#            '''
-#            keyname = gtk.gdk.keyval_name(event.keyval)
-#            text = self.combo.entry.get_text()
-#            if keyname == "Return":
-#                self.save_text(text)
-#                self.callback(text)
-#                #self.search_button.emit("clicked")
-#        
-#        def on_button_activate(self, *args):
-#            '''
-#            match the keyword and call callback
-#            '''
-#            pass    
-            
-#    class SearchBar:
-#        
-#        def __init__(self, callback):
-#            '''
-#            @param callback: the callback to be called with the active text
-#            '''
-#            self.combo = gtk.combo_box_entry_new_text()
-#            self.combo.entry.connect("key_press_event", self.on_entry_key_press)
-#            self.search_button = gtk.Button('Search')
-#            self.callback = callback
-#        
-#        def get_text(self):
-#            return 
-#        
-#        def clear(self):
-#            pass
-#        
-#        def save_text(self, text):
-#            pass
-#            
-#        def on_entry_key_press(self, widget, event, data=None):
-#            '''
-#            '''
-#            keyname = gtk.gdk.keyval_name(event.keyval)
-#            text = self.combo.entry.get_text()
-#            if keyname == "Return":
-#                self.save_text(text)
-#                self.callback(text)
-#                #self.search_button.emit("clicked")
+
 
     def create_gui(self):
         '''
         create the interface
-        '''
-        #self.content_box = gtk.VBox()  
-                  
-        # create the entry and search button
-        #self.search_bar = SearchBar()
-        #self.entry = gtk.Entry()
-        #self.combo_entry = gtk.combo_box_entry_new_text()
-        #self.entry = combo_entry.entry
-        #self.entry.connect("key_press_event", self.on_entry_key_press)
-        
-        #self.search_button = gtk.Button("Search")
-        #self.search_button.connect("clicked", self.on_search_button_clicked)
-                
-        #entry_box = gtk.HBox() # hold the search entry and search_button
-        #entry_box.pack_start(self.entry, True, True, 5)
-        #entry_box.pack_end(self.search_button, False, False, 5)
-        #self.content_box.pack_start(entry_box, False, False, 5)
-        
+        '''       
         # create the results view and info box
         self.results_view = gtk.TreeView() # will be a select results row    
         self.results_view.set_headers_visible(False)
@@ -1069,52 +1067,8 @@ class SearchView(pluginmgr.View):
         # is created when a row in the results is selected
         self.pane = gtk.HPaned()
         self.pane.pack1(sw, True, False)
-        #pane_box = gtk.HBox(False)
-        #pane_box.pack_start(self.pane, True, True)
-        #self.content_box.pack_start(self.pane, True, True)
-        
-        # add the GBIFView 
-        # create the expander but don't create the GBIFView object unless
-        # it's expanded, should later remove the view or at least disable
-        # it if the expander is collapsed
-        
-        # ** temporarily remove the gbif expander
-        #self.gbif_expand = gtk.Expander("Online Search")
-        #self.gbif_expand.connect("activate", self.on_activate_gbif_expand)
-        #self.gbif_expand.set_expanded(False)
-        #vpane = gtk.VPaned()
-        #vpane.pack1(pane_box, True, True)
-        #vpane.pack2(self.gbif_expand, True, True)
-        #self.content_box.pack_start(vpane, True, True)
-        
-        #self.content_box.pack_start(pane_box)
-        #self.content_box.pack_start(self.pane)        
-        #self.add(self.content_box)
         self.pack_start(self.pane)
-
-        # add accelerators
-#        accel_group = gtk.AccelGroup()
-#        self.entry.add_accelerator("grab-focus", accel_group, ord('L'),
-#                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-#        bauble.app.gui.window.add_accel_group(accel_group)
         self.show_all()
-        
-
-#    def on_activate_gbif_expand(self, expander, data=None):
-#        '''
-#        '''
-#        expanded = expander.get_expanded()
-#        gbif = expander.get_child()
-#        # this is fired before the expanded state is set so we should assume
-#        # that if this is fired the opposite is being done. e.g. if it is 
-#        # activate and is currently expanded we should assume it us being
-#        # collapsed
-#        if not expanded and gbif is None:
-#            gbif = views.views.GBIFView(bauble)
-#            expander.add(gbif)
-#        elif gbif is not None:
-#            expander.remove(gbif)
-            
         
     # TODO: should i or should i not delete everything that is a child
     # of the row when it is collapsed, this would save memory but
@@ -1125,8 +1079,6 @@ class SearchView(pluginmgr.View):
 #        '''
 #        pass
        
-
-
 
 # TODO: this should act like the search view and called when no other
 # commands are matched from the command entry
