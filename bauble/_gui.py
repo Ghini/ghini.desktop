@@ -254,7 +254,7 @@ class GUI:
         
         # TODO: why does't using the tools menu from the ui manager work
         self.add_menu("_Insert", self.build_insert_menu())
-        self.add_menu("Tools", self.build_tools_menu())
+        self.add_menu("_Tools", self.build_tools_menu())
         
         return self.menubar
     
@@ -290,22 +290,39 @@ class GUI:
         # TODO: should probably sort the entries so there's some type of 
         # expected order to the menu 
         menu = gtk.Menu()
-        submenus = {}
-        #for tool in tools.values():
+        tools = []
+        tools = {'__root': []}
+        # categorize the tools into a dict
         for p in pluginmgr.plugins:
             for tool in p.tools:
-                item = gtk.MenuItem(tool.label)
-                item.connect("activate", self.on_tools_menu_item_activate, tool)
-                if tool.category is None: # not category
-                    menu.append(item)
+                if tool.category is not None:
+                    try:
+                        tools[tool.category].append(tool)
+                    except KeyError, e:
+                        tools[tool.category] = []
+                        tools[tool.category].append(tool)
                 else:
-                    if tool.category not in submenus: # create new category
-                        category_menu_item = gtk.MenuItem(tool.category)
-                        category_menu = gtk.Menu()
-                        category_menu_item.set_submenu(category_menu)
-                        menu.prepend(category_menu_item)
-                        submenus[tool.category] = category_menu
-                    submenus[tool.category].append(item)
+                    tools['__root'].append(tool)
+
+        # add the tools with not category to the root menu
+        root_tools = sorted(tools.pop('__root'))
+        for t in root_tools:
+            item = gtk.MenuItem(t.label)
+            item.connect("activate", self.on_tools_menu_item_activate, tool)
+            menu.append(item)
+            if not t.enabled:
+                item.set_sensitive(False)
+
+        # create submenus for the categories and add the tools 
+        for category in sorted(tools.keys()):
+            submenu = gtk.Menu()
+            submenu_item = gtk.MenuItem(category)
+            submenu_item.set_submenu(submenu)
+            menu.append(submenu_item)
+            for tool in sorted(tools[category], cmp=lambda x, y: cmp(x.label, y.label)):            
+                item = gtk.MenuItem(tool.label)
+                item.connect("activate", self.on_tools_menu_item_activate,tool)
+                submenu.append(item)
                 if not tool.enabled:
                     item.set_sensitive(False)
         return menu
