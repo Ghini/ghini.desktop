@@ -7,7 +7,6 @@ import gtk
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.utils.log import debug
-from bauble.plugins import tables
 
 
 # TODO: reset expander data on expand, the problem is that we don't keep the 
