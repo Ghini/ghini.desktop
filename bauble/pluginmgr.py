@@ -31,19 +31,27 @@ plugins_dict = {}
 commands = {}
 
 
-def create(path=None):
-    '''
-    create all the plugin tables, insert their default values
-    '''
-    default_filenames = []
-    for p in plugins.values():
-        default_filenames.extend(p.default_filenames())                
-    default_basenames = [os.path.basename(f) for f in default_filenames]                        
-    # import default data
-    if len(default_filenames) > 0:
-        from bauble.plugins.imex_csv import CSVImporter
-        csv = CSVImporter()    
-        csv.start(default_filenames)
+## def create_tables(plugins=None):
+##     '''
+##     drop tables from the plugins, create new ones and import their default
+##     values
+
+##     @param plugins: create tables for specific plugins, default=None which
+##     means create tables for all plugins
+##     '''
+##     debug('entered pluginmgr.create_tables()')
+##     default_filenames = []
+##     tables.drop
+##     for p in plugins.values():
+##         tables.extend(p.tables)
+##         default_filenames.extend(p.default_filenames())                
+##     default_basenames = [os.path.basename(f) for f in default_filenames]                        
+##     # import default data
+##     if len(default_filenames) > 0:
+##         from bauble.plugins.imex_csv import CSVImporter
+##         csv = CSVImporter()    
+##         csv.start(default_filenames)
+##     debug('leaving pluginmgr.create_tables()')
     
 
 def load(path=None):
@@ -59,7 +67,6 @@ def load(path=None):
     if path is None:
         path = os.path.join(paths.lib_dir(), 'plugins')    
     found = _find_plugins(path)        
-#    debug('found: %s' % found)
     depends = []
     for plugin in found:
         plugins_dict[plugin.__name__] = plugin
@@ -77,7 +84,6 @@ def load(path=None):
         import utils.toposort
         plugins = utils.toposort.topological_sort(found, depends)
         plugins.reverse()
-#        debug('__sorted: %s' % plugins)
     except Exception, e:
         debug(e)
         raise
@@ -85,7 +91,6 @@ def load(path=None):
     # register commands
     for plugin in found:
         for cmd in plugin.commands:
-#            debug('registering command: %s -- %s' % (cmd.command, cmd))
             commands[cmd.command] = cmd
 
     return []
@@ -96,42 +101,34 @@ def init(auto_setup=False):
     initialize the module in order of dependencies
     '''
     global plugins
-    registry = Registry()
-#    debug('registry: %s' % str(registry))
-#    debug(plugins)
+    try:
+        registry = Registry()
+    except RegistryEmptyError:
+        Registry.create()
+        registry = Registry()
+
+    # find the plugins that haven't been registered
     not_registered = []
     for p in plugins:
         if p not in registry:
-#            debug('%s not in registry' % p.__name__)
             not_registered.append(p)
-            
-#    debug('NOT: %s' % not_registered)
+
     if len(not_registered) > 0:
-        msg = _('The following plugins were not previously registered with '\
-                'the database, would you like to install the now? '\
-                '\n\n%s' % ', '.join([p.__name__ for p in not_registered]))
+        msg = _('The following plugins were found but are not registered: '\
+                '\n\n%s\n\n<i>Would you like to install them now?</i>'\
+                 % ', '.join([p.__name__ for p in not_registered]))
         default_filenames = []
         if auto_setup or utils.yes_no_dialog(msg):            
             for p in not_registered:
-#                debug('%s: %s' % (p.__name__, p.default_filenames()))
-                default_filenames.extend(p.default_filenames())                
-#                default_basenames = [os.path.basename(f) for f in default_filenames]                
-            debug('default_filenames: %s' % default_filenames)
-            def reg(): 
-                for p in not_registered: 
-#                    debug('registry add: %s' % p.__name__)
-                    registry.add(RegistryEntry(name=p.__name__, version='0.0'))                            
+                default_filenames.extend(p.default_filenames())
+                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter            
                 csv = CSVImporter()
-                debug('queue import task')
-                #bauble.task.queue(csv.import_task, reg)
-                debug('-- queued')
-                reg()
+                csv.start(default_filenames, callback=registry.save)
             else:
-                reg()                
-#            debug('adding to registry: %s' % p.__name__)
-    registry.save()    
+                registry.save()                
+    #registry.save()    
     for entry in registry:
         plugins_dict[entry.name].init()
     

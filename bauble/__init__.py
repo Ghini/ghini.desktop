@@ -61,7 +61,6 @@ except ImportError:
 
 # set SQLAlchemy logging level
 import logging
-#logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 # TODO: make this work, we get strange errors when using this, probably because
@@ -157,51 +156,37 @@ def open_database(uri, name=None):
 
 
 def create_database(import_defaults=True):
-    '''
-    create new Bauble database at the current connection
-    '''
-    # TODO: when creating a database there shouldn't be any errors
-    # on import since we are importing from the default values, we should
-    # just force the import and send everything in the database at once
-    # instead of using slices, this would make it alot faster but it may 
-    # make it more difficult to make the interface more responsive,
-    # maybe we can use a dialog without the progress bar to show the status,
-    # should probably work on the status bar to display this
-    # TODO: *** important ***
-    # this work should be done in a transaction, i think the best way to do
-    # this would be to pass a metadata or engine or connection object to
-    # the importer that holds the transaction we should work in
-    
-    import bauble.db as db
-#    bauble.app.set_busy(True)
-    try:
-        db.create()
-        # create for each of the plugins
-        default_filenames = []
-        if import_defaults:
-            for p in pluginmgr.plugins:
-                default_filenames.extend(p.default_filenames())                
-            default_basenames = [os.path.basename(f) for f in default_filenames]                        
-            # import default data
-            if len(default_filenames) > 0:
-                from bauble.plugins.imex_csv import CSVImporter
-                csv = CSVImporter()    
-                csv.start(default_filenames)
-    except Exception, e:
-        msg = _('Error creating tables. Your database may be corrupt.'\
-                '\n\n%s"') % utils.xml_safe(e)
-        debug(traceback.format_exc())
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
-        # TODO: should be do a rollback here so that we return to the previous
-        # database state, we would first need a begiin at the beginning of 
-        # this method for it to work correction i think
-        # UPDATE: this wouldn't work since csv.start() doesn't block, need 
-        # another way to handle the transaction, maybe pass it the csv start
-        # and tell it to commit when it's done. that not good though.    
-#    bauble.app.set_busy(False)
-        
+   '''
+   create new Bauble database at the current connection
+   '''
+   # TODO: when creating a database there shouldn't be any errors
+   # on import since we are importing from the default values, we should
+   # just force the import and send everything in the database at once
+   # instead of using slices, this would make it alot faster but it may 
+   # make it more difficult to make the interface more responsive,
+   # maybe we can use a dialog without the progress bar to show the status,
+   # should probably work on the status bar to display this
 
+   # TODO: **** important ***
+   # TODO: this should be done in a transaction or maybe the transaction
+   # should be pushed into db.create()
+   # UPDATE: this wouldn't work since csv.start() doesn't block, need 
+   # another way to handle the transaction, maybe pass it the csv start
+   # and tell it to commit when it's done. that not good though....
+   # UPDATE: maybe if we could pass a nested transaction to csv.start and
+   # then if the import transaction fails then we can rollback any
+   # changes we make here#     
+   import bauble.db as db
+   try:
+      db.create()
+   except Exception, e:
+      msg = _('Error creating tables. Your database may be corrupt.'\
+              '\n\n%s') % utils.xml_safe(e)
+      debug(traceback.format_exc())
+      utils.message_details_dialog(msg, traceback.format_exc(),
+                                   gtk.MESSAGE_ERROR)
+
+        
 def set_busy(busy):
     global gui
     if gui is None:
@@ -212,6 +197,7 @@ def set_busy(busy):
         gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
     else:
         gui.window.window.set_cursor(None)
+
 
 last_handler = None
 
@@ -274,10 +260,10 @@ def main(uri=None):
                 open_database(uri, conn_name)
                 break
             except db.DatabaseError, e:
-                msg = _('Would you like to create a new Bauble database at the '
-                        'current connection?\n\n<i>Warning: If there is already a '
-                        'database at this connection any existing data will be '
-                        'destroyed!</i>')
+                msg = _('Would you like to create a new Bauble database at ' \
+                        'the current connection?\n\n<i>Warning: If there is '\
+                        'already a database at this connection any existing '\
+                        'data will be destroyed!</i>')
                 if utils.yes_no_dialog(msg):
                     create_database()
     else:
@@ -286,6 +272,10 @@ def main(uri=None):
     # set the default command handler
     import bauble.view as view
     bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
+
+    # now that we have a connection create the gui
+    import bauble._gui as _gui
+    gui = _gui.GUI()
     
     # create_database creates all tables registered with the default metadata
     # so the pluginmgr should be loaded after the database is created so
@@ -294,11 +284,8 @@ def main(uri=None):
     bauble.pluginmgr.init()
         
     # set the default connection
-    prefs[prefs.conn_default_pref] = conn_name
-        
-    # now that we have a connection create the gui
-    import bauble._gui as _gui
-    gui = _gui.GUI()
+    prefs[prefs.conn_default_pref] = conn_name        
+
     gui.window.show()
     gtk.main()
     gtk.gdk.threads_leave()
