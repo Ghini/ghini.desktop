@@ -3,11 +3,11 @@
 #
 
 import sys
-from bauble.plugins import BaublePlugin, plugins
+import bauble.pluginmgr as plugin
 
-class SearchViewPlugin(BaublePlugin):
+class SearchViewPlugin(plugin.Plugin):
     label = 'Search'
-    description = ''    
+    description = ''
         
     from bauble.plugins.searchview.search import SearchView
     views = [SearchView]

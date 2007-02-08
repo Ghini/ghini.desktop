@@ -14,9 +14,9 @@ import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.plugins.searchview.infobox import InfoBox
-from bauble.plugins import BaubleView, tables, editors
+#from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
-from pyparsing import *
+from bauble.plugins.searchview.pyparsing import *
 
 #
 # NOTE: to add a new search domain do:
@@ -192,28 +192,30 @@ class PythonOperatorValidator(OperatorValidator):
 
 class SearchMeta:
     
-    def __init__(self, table_name, column_names, sort_column=None, 
-                 context_menu=None, markup_func=None):
+#    def __init__(self, table_name, column_names, sort_column=None, 
+    def __init__(self, mapper, properties, context_menu=None, markup_func=None):
         """
         @param table_name: the name of the table this meta refers to
-        @param column_names: the names of the table columns that will be search
-        @param sort: column to sort on, can use -column for descending order, this
-            should also work if you do ["col1", "col2"]
-        """        
-        self.table = tables[table_name]
-        if type(column_names) is not list:
-            raise ValueError("SearchMeta.__init__: column_names must be a list")
-        self.columns = column_names
+        @param properties: the names of the table columns that will be search
+        @parem context_menu:
+        @param markup_func:
+        """
+        self.mapper = class_mapper(mapper)
+        assert isinstance(properties, list), 'SearchMeta.__init__: '\
+                                             'properties must be a list'
+        #self.columns = column_names
+        self.properties = properties
         
         # TODO: if the the column is a join then it will sort by the id of the
         # joined objects rather than the values of the objects, we should check
         # if any of the columns passed are joins and handle them properly with
         # and AND() or something
-        self.sort_column = sort_column 
+        #self.sort_column = sort_column 
         
 
 
-class SearchView(BaubleView):
+#class SearchView(BaubleView):
+class SearchView(object):
     '''
     1. all search parameters are by default ANDed together unless two of the
     same class are give and then they are ORed, e.g. fam=... fam=... will
@@ -286,7 +288,7 @@ class SearchView(BaubleView):
         @param domain: a shorthand for for queries for this class
         @param search_meta: the meta information to register with the domain
         '''
-        table_name = search_meta.table.__name__
+        table_name = search_meta.mapper.local_table.name
         cls.domain_map[domain] = table_name
         cls.search_metas[table_name] = search_meta
   
