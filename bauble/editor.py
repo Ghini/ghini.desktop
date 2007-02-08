@@ -14,7 +14,6 @@ from sqlalchemy.orm.properties import PropertyLoader
 #from sqlalchemy.attributes import InstrumentedList
 from formencode import *
 import bauble
-from bauble.plugins import BaubleEditor, tables
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
@@ -637,7 +636,7 @@ class GenericEditorPresenter:
     
     
 
-class GenericModelViewPresenterEditor(BaubleEditor):
+class GenericModelViewPresenterEditor(object):
 
     label = ''
     standalone = True
@@ -650,7 +649,7 @@ class GenericModelViewPresenterEditor(BaubleEditor):
         '''                
         # the editor does all of it's work in it's own session,
         # so put a copy of the model in our session
-        self.session = create_session(bind_to=bauble.app.db_engine)#, echo_uow=True)
+        self.session = create_session(bind_to=bauble.db_engine)#, echo_uow=True)
         obj_session = object_session(model)              
         if obj_session is not None:
             if model in obj_session.new:

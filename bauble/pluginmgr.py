@@ -9,6 +9,7 @@
 # TODO: if a plugin is removed then a dialog should be popped
 # up to ask if you want to remove the joins
 
+# TODO: need a way to register editors with the insert menu
 
 import os
 import sys
@@ -84,7 +85,7 @@ def load(path=None):
     # register commands
     for plugin in found:
         for cmd in plugin.commands:
-            debug('registering command: %s -- %s' % (cmd.command, cmd))
+#            debug('registering command: %s -- %s' % (cmd.command, cmd))
             commands[cmd.command] = cmd
 
     return []
@@ -96,7 +97,7 @@ def init(auto_setup=False):
     '''
     global plugins
     registry = Registry()
-    debug('registry: %s' % str(registry))
+#    debug('registry: %s' % str(registry))
 #    debug(plugins)
     not_registered = []
     for p in plugins:

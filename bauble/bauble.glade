@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.4 on Wed Feb  7 17:40:36 2007 by brett@licuala-->
+<!--Generated with glade3 3.1.4 on Wed Feb  7 18:21:03 2007 by brett@licuala-->
 <glade-interface>
   <widget class="GtkWindow" id="main_window">
     <property name="visible">True</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
-      <widget class="GtkVBox" id="vbox2">
+      <widget class="GtkVBox" id="top_box">
         <property name="visible">True</property>
         <child>
           <widget class="GtkVBox" id="main_box">

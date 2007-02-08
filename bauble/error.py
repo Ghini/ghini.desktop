@@ -6,7 +6,7 @@
 # TODO: should I make everything extend from BaubleException
 
 class BaubleError(Exception):
-     def __init__(self, msg):
+     def __init__(self, msg=None):
          self.msg = msg
      def __str__(self):
          return self.msg    
