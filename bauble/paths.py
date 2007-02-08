@@ -17,7 +17,7 @@ def main_dir():
 
 def lib_dir():
     if bauble.main_is_frozen():
-       dir = main_dir() + os.sep + 'bauble'
+       dir = os.path.join(main_dir(), 'bauble')
     else:
         dir = os.path.dirname(__file__)
     return dir
