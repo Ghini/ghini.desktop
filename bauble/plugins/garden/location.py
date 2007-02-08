@@ -1,5 +1,5 @@
 #
-# Locations table definition
+# location.py
 #
 
 from sqlalchemy import *
@@ -59,8 +59,10 @@ location_table = Table('location',
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True),
                        Column('description', Unicode),
-                       Column('_created', DateTime, default=func.current_timestamp()),
-                       Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                       Column('_created', DateTime,
+                              default=func.current_timestamp()),
+                       Column('_last_updated', DateTime,
+                              default=func.current_timestamp(), 
                               onupdate=func.current_timestamp()))
                    
 
@@ -218,9 +220,12 @@ class LocationEditor(GenericModelViewPresenterEditor):
 
         # add quick response keys
         dialog = self.view.dialog        
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
         
         exc_msg = "Could not commit changes.\n"
         committed = None
@@ -301,7 +306,8 @@ else:
             '''
             '''
             InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", "infoboxes.glade")
+            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                      "infoboxes.glade")
             self.widgets = utils.GladeWidgets(glade_file)
             self.general = GeneralLocationExpander(self.widgets)
             self.add_expander(self.general)                    

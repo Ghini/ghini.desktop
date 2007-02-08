@@ -174,29 +174,38 @@ class Verification(bauble.BaubleMapper):
 
 
 accession_table = Table('accession',
-                Column('id', Integer, primary_key=True),                            
-                Column('code', Unicode(20), nullable=False, unique=True),
-                Column('prov_type', Enum(values=['Wild', 
-                                                 "Propagule of cultivated wild plant", 
-                                                 "Not of wild source",
-                                                 "Insufficient Data", 
-                                                 "Unknown",
-                                                 None],
-                                         empty_to_none=True)),
-                Column('wild_prov_status', Enum(values=["Wild native",
-                                                        "Wild non-native",
-                                                        "Cultivated native",
-                                                        "Insufficient Data",
-                                                        "Unknown",
-                                                        None],
-                                                empty_to_none=True)),
+                        Column('id', Integer, primary_key=True),
+                        Column('code', Unicode(20), nullable=False,
+                               unique=True),
+                        Column('prov_type',
+                               Enum(values=['Wild', 
+                                            'Propagule of cultivated wild plant', 
+                                            "Not of wild source",
+                                            "Insufficient Data", 
+                                            "Unknown",
+                                            None],
+                                    empty_to_none=True)),
+                        Column('wild_prov_status',
+                               Enum(values=["Wild native",
+                                            "Wild non-native",
+                                            "Cultivated native",
+                                            "Insufficient Data",
+                                            "Unknown",
+                                            None],
+                                    empty_to_none=True)),
                 Column('date', Date),
                 #Column('source_type', String(10)), # Collection, Donation, None
                 Column('source_type', Enum(values=['Collection', 'Donation', None], empty_to_none=True)),
                 Column('notes', Unicode),
-                Column('species_id', Integer, ForeignKey('species.id'), nullable=False),
+                # id_qual new in 0.7
+                Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect', 
+                                               'forsan', 'near', '?', None],
+                                       empty_to_none=True)),
+                Column('species_id', Integer, ForeignKey('species.id'),
+                       nullable=False),
                 Column('_created', DateTime, default=func.current_timestamp()),
-                Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                Column('_last_updated', DateTime,
+                       default=func.current_timestamp(), 
                        onupdate=func.current_timestamp()))
 
 
@@ -1157,7 +1166,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
+            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
         
