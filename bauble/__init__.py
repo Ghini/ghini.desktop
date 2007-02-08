@@ -206,8 +206,8 @@ def set_busy(busy):
     global gui
     if gui is None:
         return
-    gui.window.set_sensitive(not busy)
-    gui.widgets.statusbar.set_sensitive(True) # the statusbar needs to show busy state
+    # main_box is everything but the statusbar
+    gui.widgets.main_box.set_sensitive(not busy)
     if busy:
         gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
     else:
