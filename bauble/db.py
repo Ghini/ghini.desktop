@@ -1,3 +1,4 @@
+import os
 import datetime
 from sqlalchemy import *
 import bauble
@@ -7,9 +8,15 @@ from bauble.i18n import *
 from bauble.error import *
 
 def create():
-    '''
+    """
     create new Bauble database at the current connection
-    '''
+
+    this will drop _all_ the tables at the connection that are registered with
+    the metadata
+
+    NOTE: since we can only drop tables that are registered with the database
+    then its possible that some tables won\'t be dropped
+    """
     # TODO: when creating a database there shouldn't be any errors
     # on import since we are importing from the default values, we should
     # just force the import and send everything in the database at once
@@ -22,12 +29,11 @@ def create():
     # this would be to pass a metadata or engine or connection object to
     # the importer that holds the transaction we should work in    
     default_filenames = []
-    meta.bauble_meta_table.drop(checkfirst=True)
-    meta.bauble_meta_table.create()
-    pluginmgr.Registry.create()
-    pluginmgr.init(auto_setup=True)
-    #default_metadata.drop_all()
-    #default_metadata.create_all()
+    default_metadata.drop_all()
+    default_metadata.create_all()
+
+    # create the plugin registry and import the default data
+    pluginmgr.init(True) 
     meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY, 
                                             value=str(bauble.version))
     meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,

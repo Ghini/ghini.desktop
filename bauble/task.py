@@ -65,11 +65,12 @@ _task_queue = Queue.Queue(0)
 __message_ids = []
 
 def set_message(msg):
+    if bauble.gui is None or bauble.gui.widgets is None:
+        return
     global _context_id
     try:
         _context_id
     except NameError, e: # context_id not defined
-        debug('***** creating context_id')
         _context_id = bauble.gui.widgets.statusbar.get_context_id('__task')
     msg_id = bauble.gui.widgets.statusbar.push(_context_id, msg)
     __message_ids.append(msg_id)
@@ -77,8 +78,9 @@ def set_message(msg):
     
 
 def clear_messages():
-    global _context_id, __message_ids
-    
+    if bauble.gui is None or bauble.gui.widgets is None:
+        return
+    global _context_id, __message_ids    
     for id in __message_ids:
         bauble.gui.widgets.statusbar.remove(_context_id, id)
 
@@ -95,25 +97,26 @@ def flush():
     def internal():
         global _flushing
         _flushing = True
-        bauble.set_busy(True)
-        
+        bauble.set_busy(True)        
         while not _task_queue.empty():
-            bauble.gui.progressbar.show()
-            bauble.gui.progressbar.set_pulse_step(0)
-            bauble.gui.progressbar.set_fraction(0)
+            if bauble.gui is not None:
+                bauble.gui.progressbar.show()
+                bauble.gui.progressbar.set_pulse_step(1.0)
+                bauble.gui.progressbar.set_fraction(0)
             tasklet, callback, args = _task_queue.get()
-#            debug('gtasklet.run(%s, %s)' % (tasklet, args))
             _current_task = gtasklet.run(tasklet(*args))      
             yield gtasklet.WaitForTasklet(_current_task)
             gtasklet.get_event()
+            debug('type(callback) = %s' % type(callback))
             #yield gtasklet.run(callback())
             if callback is not None:
                 callback()
         bauble.set_busy(False)
-        bauble.gui.progressbar.set_pulse_step(0)
-        bauble.gui.progressbar.set_fraction(0)
         clear_messages()
-        bauble.gui.progressbar.hide()
+        if bauble.gui is not None:
+            bauble.gui.progressbar.set_pulse_step(0)
+            bauble.gui.progressbar.set_fraction(0)
+            bauble.gui.progressbar.hide()                    
         _flushing = False
         
     gtasklet.run(internal())
@@ -121,18 +124,15 @@ def flush():
 
 
 def queue(task, callback, *args):
-    '''
+    """
     @param task: the task to queue
     @param callback: the function to call when the task is finished
     @param args: the arguments to pass to the task
     
-    NOTE: callback haven't been implemented
-    '''    
+    NOTE: callbacks haven't been implemented
+    """
     # TODO: the problem with callbacks is that they are run in the context
     # of the generator so terrible things start to happen with things
     # like dialog boxes run in the callback
     _task_queue.put((task, callback, args))
     flush()
-
-
-
