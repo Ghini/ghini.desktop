@@ -273,7 +273,8 @@ def main(uri=None):
     import bauble.view as view
     bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
 
-    # now that we have a connection create the gui
+    # now that we have a connection create the gui, start before the plugins
+    # are initialized in case they have to do anything like add a menu
     import bauble._gui as _gui
     gui = _gui.GUI()
     
@@ -286,6 +287,6 @@ def main(uri=None):
     # set the default connection
     prefs[prefs.conn_default_pref] = conn_name        
 
-    gui.window.show()
+    gui.show()
     gtk.main()
     gtk.gdk.threads_leave()

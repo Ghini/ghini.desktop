@@ -9,14 +9,14 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs, PreferencesMgr
-import bauble.plugins.searchview.search
 from bauble.utils.log import log, debug
 from bauble.i18n import *
 from bauble.utils.pyparsing import *
+from bauble.view import SearchView
 
 
 
-class GUI:
+class GUI(object):
         
     def __init__(self):
         glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
@@ -87,6 +87,12 @@ class GUI:
         self.progressbar.set_size_request(-1, 10)
         vbox.show()
         hbox.show()
+
+
+    def show(self):
+        self.build_tools_menu()
+        self.window.show()
+
         
     def on_main_entry_key_press(self, widget, event, data=None):
         '''
@@ -94,6 +100,7 @@ class GUI:
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname == "Return":
             self.widgets.go_button.emit("clicked")
+
             
     cmd = StringStart() + ':' + Word(alphanums + '-_').setResultsName('cmd')
     arg = restOfLine.setResultsName('arg')
@@ -148,15 +155,22 @@ class GUI:
         view.show_all()
 
 
+    def get_view(self):
+        '''
+        return the current view in the view box
+        '''
+        return self.widgets.view_box.get_children()[0]
+
+
     def create_main_menu(self):
         """
         get the main menu from the UIManager XML description, add its actions
         and return the menubar
         """
-        ui_manager = gtk.UIManager()
+        self.ui_manager = gtk.UIManager()
         
         # add accel group
-        self.accel_group = ui_manager.get_accel_group()
+        self.accel_group = self.ui_manager.get_accel_group()
         self.window.add_accel_group(self.accel_group)
 
         # TODO: get rid of new, open, and just have a connection
@@ -164,41 +178,55 @@ class GUI:
         
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
-        menu_actions.add_actions([("file", None, "_File"), 
-                                  ("file_new", gtk.STOCK_NEW, "_New", None, 
+        menu_actions.add_actions([("file", None, _("_File")), 
+                                  ("file_new", gtk.STOCK_NEW, _("_New"), None, 
                                    None, self.on_file_menu_new), 
-                                  ("file_open", gtk.STOCK_OPEN, "_Open", None, 
-                                   None, self.on_file_menu_open), 
-                                  ("file_quit", gtk.STOCK_QUIT, "_Quit", None, 
-                                   None, self.on_quit), 
-                                  ("edit", None, "_Edit"), 
-                                  ("edit_cut", gtk.STOCK_CUT, "_Cut", None, 
+                                  ("file_open", gtk.STOCK_OPEN, _("_Open"),
+                                   None, None, self.on_file_menu_open), 
+                                  ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
+                                   None, None, self.on_quit), 
+                                  ("edit", None, _("_Edit")), 
+                                  ("edit_cut", gtk.STOCK_CUT, _("_Cut"), None, 
                                    None, self.on_edit_menu_cut), 
-                                  ("edit_copy", gtk.STOCK_COPY, "_Copy", None, 
-                                   None, self.on_edit_menu_copy), 
-                                  ("edit_paste", gtk.STOCK_PASTE, "_Paste", 
+                                  ("edit_copy", gtk.STOCK_COPY, _("_Copy"),
+                                   None, None, self.on_edit_menu_copy), 
+                                  ("edit_paste", gtk.STOCK_PASTE, _("_Paste"), 
                                    None, None, self.on_edit_menu_paste), 
-                                  ("edit_preferences", None , "_Preferences", 
-                                   "<control>P", None, self.on_edit_menu_prefs), 
-                                  ("tools", None, "_Tools"),
+                                  ("edit_preferences", None,_("_Preferences"), 
+                                   "<control>P", None,self.on_edit_menu_prefs),
+                                  ("insert", None, _("_Insert")),
+                                  ("tools", None, _("_Tools")),
                                   ])
-        ui_manager.insert_action_group(menu_actions, 0)
+        self.ui_manager.insert_action_group(menu_actions, 0)
 
         # load ui
-        ui_filename = paths.lib_dir() + os.sep + "bauble.ui"
-        ui_manager.add_ui_from_file(ui_filename)
+        ui_filename = os.path.join(paths.lib_dir(), 'bauble.ui')
+        self.ui_manager.add_ui_from_file(ui_filename)
 
         # get menu bar from ui manager
-        self.menubar = ui_manager.get_widget("/MenuBar")
-        
-        # TODO: why does't using the tools menu from the ui manager work
-        self.add_menu("_Insert", self.build_insert_menu())
-        self.add_menu("_Tools", self.build_tools_menu())
-        
+        self.menubar = self.ui_manager.get_widget("/MenuBar")
+
+        def clear_menu(path):
+            # clear out the insert an tools menus
+            menu = self.ui_manager.get_widget(path)
+            submenu = menu.get_submenu()
+            for c in submenu.get_children():
+                submenu.remove(c)
+            menu.show()
+        clear_menu('/ui/MenuBar/insert_menu')
+        clear_menu('/ui/MenuBar/tools_menu')
+
         return self.menubar
     
 
     def add_menu(self, name, menu, index=-1):
+        '''
+        add a menu to the menubar
+
+        @param name:
+        @param menu:
+        @param index:
+        '''
         menu_item = gtk.MenuItem(name)
         menu_item.set_submenu(menu)
         # we'll just append them for now but really we should
@@ -208,27 +236,36 @@ class GUI:
         self.menubar.show_all()
         return menu_item
 
+
+    __insert_menu_cache = {}
+    def add_to_insert_menu(self, editor, label):
+        """
+        add an editor to the insert menu
         
-    def build_insert_menu(self):
-        menu = gtk.Menu()
-        compare_labels = lambda x, y: cmp(x.label, y.label)
-        # TODO: iter through plugins and build this from those that
-        # have issubclass(EditorPlugin)
-#        for editor in sorted(editors.values(), cmp=compare_labels):
-#            if editor.standalone:
-#                try:
-#                    item = gtk.MenuItem(editor.mnemonic_label)
-#                except AttributeError:
-#                    item = gtk.MenuItem(editor.label)
-#                item.connect("activate", self.on_insert_menu_item_activate, editor)
-#                menu.append(item)
-        return menu
-    
-    
-    def build_tools_menu(self):        
-        # TODO: should probably sort the entries so there's some type of 
-        # expected order to the menu 
-        menu = gtk.Menu()
+        @param editor: the editor to add to the menu
+        @param label: the label for the menu item
+        """
+        menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
+        submenu = menu.get_submenu()
+        item = gtk.MenuItem(label)
+        item.connect('activate', self.on_insert_menu_item_activate, editor)
+        submenu.append(item)
+        self.__insert_menu_cache[label] = item
+        item.show()
+        # sort items
+        i = 0
+        for label in sorted(self.__insert_menu_cache.keys()):
+            submenu.reorder_child(self.__insert_menu_cache[label], i)
+            i+=1
+
+
+    def build_tools_menu(self):
+        """
+        build the tools menu from the tools provided by the plugins
+        """
+        topmenu = self.ui_manager.get_widget('/ui/MenuBar/tools_menu')
+        menu = topmenu.get_submenu()
+        menu.show()
         tools = []
         tools = {'__root': []}
         # categorize the tools into a dict
@@ -247,6 +284,7 @@ class GUI:
         root_tools = sorted(tools.pop('__root'))
         for t in root_tools:
             item = gtk.MenuItem(t.label)
+            item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
             if not t.enabled:
@@ -264,6 +302,7 @@ class GUI:
                 submenu.append(item)
                 if not tool.enabled:
                     item.set_sensitive(False)
+        menu.show_all()
         return menu
         
         
@@ -272,11 +311,12 @@ class GUI:
         
         
     def on_insert_menu_item_activate(self, widget, editor):
-        view = self.get_current_view()
-        expanded_rows = view.get_expanded_rows()
+        view = self.get_view()
+        if isinstance(view, SearchView):
+            expanded_rows = view.get_expanded_rows()
         e = editor()
         committed = e.start()
-        if committed is not None:
+        if committed is not None and isinstance(view, SearchView):
             view.results_view.collapse_all()
             view.expand_to_all_refs(expanded_rows)                        
             

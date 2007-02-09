@@ -130,7 +130,12 @@ def init(auto_setup=False):
                 registry.save()                
     #registry.save()    
     for entry in registry:
-        plugins_dict[entry.name].init()
+        try:
+            plugins_dict[entry.name].init()
+        except KeyError, e:
+            from bauble.utils.log import warning
+            warning(_("Couldn't initialize %s.") % entry.name)
+            warning(e)
     
 
 class RegistryEmptyError(Exception):
