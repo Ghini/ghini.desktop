@@ -3,7 +3,7 @@
 #
 # Description: the default view
 #
-import re, traceback
+import sys, re, traceback
 import gtk, gobject, pango
 from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
@@ -15,10 +15,9 @@ import bauble.pluginmgr as pluginmgr
 import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
-from bauble.plugins.searchview.infobox import InfoBox
 #from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
-from bauble.plugins.searchview.pyparsing import *
+from bauble.utils.pyparsing import *
 
 #
 # NOTE: to add a new search domain do:
@@ -86,14 +85,133 @@ if sys.platform == 'win32':
 else:
     _substr_tmpl = '<small>%s</small>'
 
+
+# TODO: reset expander data on expand, the problem is that we don't keep the 
+# row around that was used to update the infoexpander, if we don't do this then 
+# we can't update unless the search view updates us, this means that the search
+# view would have to register on_expanded on each info expander in the infobox
+
+# what to display if the value in the database is None
+DEFAULT_VALUE='--'
+
+class InfoExpander(gtk.Expander):
+    """
+    an abstract class that is really just a generic expander with a vbox    
+    to extend this you just have to implement the update() method
+    """
+    # TODO: we should be able to make this alot more generic
+    # and get information from sources other than table columns
+    def __init__(self, label, widgets=None):
+        """
+        the constructor
+
+        @param label: the name of this info expander, this is displayed on the 
+        expander's expander
+        @param glade_xml: a gtk.glade.XML instace where can find the expanders 
+        widgets
+        """
+        gtk.Expander.__init__(self, label)
+        self.vbox = gtk.VBox(False)
+        self.vbox.set_border_width(5)
+        self.add(self.vbox)
+        self.set_expanded(True)
+        self.widgets = widgets
+        
+              
+    def set_widget_value(self, widget_name, value, markup=True, default=None):
+        '''
+        a shorthand for L{utils.set_widget_value}
+        TODO: how do i link the docs to reference utils.set_widget_value
+        '''
+        utils.set_widget_value(self.widgets.glade_xml, widget_name, value,
+                               markup, default)
+        
+        
+    def update(self, value):
+        '''
+        should be implement
+        '''
+        raise NotImplementedError("InfoExpander.update(): not implemented")
+
+   
+# should we have a specific expander for those that use glade
+class GladeInfoExpander(gtk.Expander):
+    pass
+    
+    
+class InfoBox(gtk.ScrolledWindow):
+    """
+    a VBox with a bunch of InfoExpanders
+    """
+    
+    def __init__(self):
+        gtk.ScrolledWindow.__init__(self)
+        self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
+        self.vbox = gtk.VBox()
+        self.vbox.set_spacing(10)
+        viewport = gtk.Viewport()
+        viewport.add(self.vbox)
+        self.add(viewport)
+        
+        self.expanders = {}
+    
+    
+    def add_expander(self, expander):
+        '''
+        add an expander to the list of exanders in this infobox
+        
+        @type expander: InfoExpander
+        @param expander: the expander to add to this infobox
+        '''
+        self.vbox.pack_start(expander, False, False)
+        self.expanders[expander.get_property("label")] = expander
+        
+        sep = gtk.HSeparator()
+        self.vbox.pack_start(sep, False, False)
+    
+    
+    def get_expander(self, label):
+        """
+        returns an expander by the expander's label name
+        
+        @param label: the name of the expander to return
+        @returns: returns an expander by the expander's label name
+        """
+        if label in self.expanders:
+            return self.expanders[label]
+        else: return None
+    
+    
+    def remove_expander(self, label):
+        """
+        remove expander from the infobox by the expander's label bel
+        
+        @param label: the name of th expander to remove
+        @return: return the expander that was removed from the infobox
+        """
+        if label in self.expanders:
+            return self.vbox.remove(self.expanders[label])
+    
+    
+    def update(self, row):
+        """
+        updates the infobox with values from row
+        
+        @param row: the mapper instance to use to update this infobox,
+        this is passed to each of the infoexpanders in turn
+        """
+        # TODO: should we just iter over the expanders and update them all
+        raise NotImplementedError
+
+
 class SearchParser:
-    '''
+    """
     This class parses three distinct types of string. They can beL
         1. Value or a list of values: val1, val2, val3
         2. An expression where the domain is a search domain registered
            with the search meta: domain=something and val2=somethingelse,asdasd
         3. A query like: domain where col1=something and col2=somethingelse,asdasd
-    '''    
+    """
     
     def __init__(self):        
         quotes = Word('"\'')            
@@ -118,9 +236,10 @@ class SearchParser:
         identifier = Word(alphas, alphanums + "._")#.setName("identifier")
         where = CaselessKeyword('where')
         where_condition = Group(identifier + (binop|like|ilike) + values)
-        where_expression = where.suppress() + where_condition + ZeroOrMore((and_ | or_) + where_condition)
+        where_expression = where.suppress() + where_condition + \
+                           ZeroOrMore((and_ | or_) + where_condition)
         query = domain + Group(where_expression)#.setResultsName('expression')
-            
+        
         self.statement = (query.setResultsName('query') | \
                           domain_expression.setResultsName('expression') | \
                           (values + StringEnd()).setResultsName('values'))
@@ -214,11 +333,11 @@ class SQLOperatorValidator(OperatorValidator):
 
 
 class PythonOperatorValidator(OperatorValidator):
-    '''
+    """
     convert accepted parse operators to python operators
     NOTE: this operator validator is only for python operators and doesn't
     do convert operators that may be specific to the database type
-    '''
+    """
     to_operator_map = {'=': '==', 
                '<>': '!=',
                }
@@ -270,11 +389,11 @@ class SearchView(pluginmgr.View):
                 @param children: where to find the children for this type, 
                     can be a callable of the form C{children(row)}
                 @param infobox: the infobox for this type
-                @param context_menu: a dict describing the context menu used when the
-                    user right clicks on this type
-                @param markup_func: the function to call to markup search results of 
-                    this type, if markup_func is None the instances __str__() function 
-                    is called            
+                @param context_menu: a dict describing the context menu used
+                when the user right clicks on this type
+                @param markup_func: the function to call to markup search
+                results of this type, if markup_func is None the instances
+                __str__() function is called            
                 '''
                 self.children = children
                 self.infobox = infobox
@@ -282,20 +401,17 @@ class SearchView(pluginmgr.View):
                 self.markup_func = markup_func
         
         
-            def get_children(self, so_instance):
+            def get_children(self, obj):
                 '''
-                @param so_instance: get the children from so_instance according
-                    to self.children
+                @param obj: get the children from obj according to self.children
                 '''
                 if self.children is None:
                     return []
-                    #return None
-                tablename = so_instance.__class__.__name__            
                 if callable(self.children):
-                    return self.children(so_instance)
+                    return self.children(obj)
 
                 # TODO: need to get in the default sort order
-                return getattr(so_instance, self.children)
+                return getattr(obj, self.children)
         
             
         def __getitem__(self, item):
@@ -313,7 +429,6 @@ class SearchView(pluginmgr.View):
         @param search_meta: the meta information to register with the domain
         '''
         table_name = search_meta.mapper.local_table.name
-        #cls.domain_map[domain] = table_name
         cls.domain_map[domain] = search_meta.mapper
         cls.search_metas[table_name] = search_meta
   
@@ -372,17 +487,16 @@ class SearchView(pluginmgr.View):
                 self.pane.remove(self.infobox)
             return
 
-        table_name = type(row).__name__
         new_infobox = None
-        
+        selected_type = type(row)
         # check if we've already created an infobox of this type,
         # if not create one and put it in self.infobox_cache
-        if table_name in self.infobox_cache.keys():
-            new_infobox = self.infobox_cache[table_name]
-        elif table_name in self.view_meta and \
-          self.view_meta[table_name].infobox is not None:
-            new_infobox = self.view_meta[table_name].infobox()
-            self.infobox_cache[table_name] = new_infobox        
+        if selected_type in self.infobox_cache.keys():
+            new_infobox = self.infobox_cache[selected_type]
+        elif selected_type in self.view_meta and \
+          self.view_meta[selected_type].infobox is not None:
+            new_infobox = self.view_meta[selected_type].infobox()
+            self.infobox_cache[selected_type] = new_infobox        
                 
         # remove any old infoboxes connected to the pane
         if self.infobox is not None and \
@@ -396,6 +510,7 @@ class SearchView(pluginmgr.View):
             self.infobox.update(row)
             self.pane.pack2(self.infobox, False, True)
             self.pane.show_all()
+            
 
 
     def get_selected(self):
@@ -679,7 +794,6 @@ class SearchView(pluginmgr.View):
         
         # clear the old model    
         self.results_view.set_model(None)      
-        #statusbar = bauble.app.gui.statusbar        
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         results = []
@@ -724,10 +838,10 @@ class SearchView(pluginmgr.View):
         
 
     def remove_children(self, model, parent):
-        '''
+        """
         remove all children of some parent in the model, reverse
         iterate through them so you don't invalidate the iter
-        '''
+        """
         while model.iter_has_child(parent):            
             nkids = model.iter_n_children(parent)
             child = model.iter_nth_child(parent, nkids-1)
@@ -743,11 +857,9 @@ class SearchView(pluginmgr.View):
         model = view.get_model()
         row = model.get_value(iter, 0)
         view.collapse_row(path)
-        self.remove_children(model, iter)
-        
+        self.remove_children(model, iter)        
         try:
-            table_name = type(row).__name__
-            kids = self.view_meta[table_name].get_children(row)
+            kids = self.view_meta[type(row)].get_children(row)
             if len(kids) == 0:
                 return True
         except saexc.InvalidRequestError, e:
@@ -862,12 +974,13 @@ class SearchView(pluginmgr.View):
         model.set_default_sort_func(lambda *args: -1) 
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         for s in select:
-            p = model.append(None, [s])            
+            p = model.append(None, [s])
+            selected_type = type(s)
             if check_for_kids:
-                kids = self.view_meta[s.__class__.__name__].get_children(s)
+                kids = self.view_meta[selected_type].get_children(s)
                 if len(kids) > 0:                
                     model.append(p, ['-'])        
-            elif self.view_meta[s.__class__.__name__].children is not None:
+            elif self.view_meta[selected_type].children is not None:
                 model.append(p, ['-'])             
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)    
@@ -886,20 +999,20 @@ class SearchView(pluginmgr.View):
         assert parent is not None, "append_children(): need a parent"
         for k in kids:
             i = model.append(parent, [k])
-            if self.view_meta[k.__class__.__name__].children is not None:
+            if self.view_meta[type(k)].children is not None:
                 model.append(i, ["_dummy"])
         return model
        
     
     def cell_data_func(self, coll, cell, model, iter):    
         value = model[iter][0]
-        table_name = value.__class__.__name__
+#        table_name = value.__class__.__name__
         
         if isinstance(value, str):
             cell.set_property('markup', value)
         else:
             try:
-                func = self.view_meta[table_name].markup_func
+                func = self.view_meta[type(value)].markup_func
                 if func is not None:
                     r = func(value)
                     if isinstance(r, (list,tuple)):
@@ -965,8 +1078,8 @@ class SearchView(pluginmgr.View):
         # see the pygtk FAQ about this at        
         #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         # TODO: SLOW -- it can be really slow if the the callback method changes
-        # the model(or what if it doesn't) and the view has to be refreshed from 
-        # a large dataset
+        # the model(or what if it doesn't) and the view has to be refreshed
+        # from a large dataset
         if event.button != 3: 
             return # if not right click then leave
         
@@ -974,21 +1087,18 @@ class SearchView(pluginmgr.View):
         model, i = sel.get_selected()
         if model == None:
             return # nothing to pop up a context menu on
-        value = model[i][0]
-        
-        path = model.get_path(i) # get the path to pass to the callback
-        
-        table_name = value.__class__.__name__
-        if self.view_meta[table_name].context_menu_desc is None:            
+        value = model[i][0]        
+        selected_type = type(value)
+        if self.view_meta[selected_type].context_menu_desc is None:            
             # no context menu
             return        
         
         menu = None
         try:
-            menu = self.context_menu_cache[table_name]
+            menu = self.context_menu_cache[selected_type]
         except:
             menu = gtk.Menu()
-            for label, func in self.view_meta[table_name].context_menu_desc:
+            for label, func in self.view_meta[selected_type].context_menu_desc:
                 if label == '--':
                     menu.add(gtk.SeparatorMenuItem())
                 else:
@@ -1013,10 +1123,11 @@ class SearchView(pluginmgr.View):
                             self.expand_to_all_refs(expanded_rows)         
                             self.update_infobox()                            
 
-                    item = gtk.MenuItem(label)                    
+                    item = gtk.MenuItem(label)
+                    path = model.get_path(i)
                     item.connect('activate', on_activate, func, model, path)
                     menu.add(item)
-            self.context_menu_cache[table_name] = menu
+            self.context_menu_cache[selected_type] = menu
         
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
@@ -1093,7 +1204,6 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
     command = None
  
     def get_view(self):
-        #self.view = DefaultView()
         self.view = SearchView()
         return self.view
     
