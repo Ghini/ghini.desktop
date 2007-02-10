@@ -11,7 +11,7 @@ import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
 from bauble.types import Enum
-from bauble.plugins import tables
+from bauble.plugins.geography import *
 
 # ***** supported names
 # Genus sp
@@ -28,7 +28,8 @@ from bauble.plugins import tables
 # Genux sp x sp2 [infrasp_rank] infrasp
 # Genus sp infrasp_rank infrasp 'cv' 
 # eg Rudbeckia fulgida var. sullivantii 'Goldsturm',
-# we can't support this without more infrasp and infrasp_rank fields, like BGRecorder
+# we can't support this without more infrasp and infrasp_rank fields,
+# like BGRecorder
 
 # ***** are these even valid
 # Genus x sp sp_author
@@ -91,7 +92,8 @@ def call_on_species(func):
 
 vernname_context_menu = [('Edit', call_on_species(edit_callback)),
                           ('--', None),
-                          ('Add accession', call_on_species(add_accession_callback)),]
+                          ('Add accession',
+                           call_on_species(add_accession_callback)),]
 #                          ('--', None)]
 #                          ('Remove', call_on_species(remove_callback))]
 
@@ -101,8 +103,9 @@ def species_markup_func(species):
     # TODO: add (syn) after species name if there are species synonyms that
     # refer to the id of this plant
     if len(species.vernacular_names) > 0:
-        substring = '%s -- %s' % (species.genus.family, \
-                                  ', '.join([str(v) for v in species.vernacular_names]))
+        substring = '%s -- %s' % \
+                    (species.genus.family, \
+                     ', '.join([str(v) for v in species.vernacular_names]))
     else:
         substring = '%s' % species.genus.family    
     return species.markup(authors=False), substring
@@ -173,24 +176,23 @@ species_table = Table('species',
                       Column('trade_name', Unicode(64)), 
                       Column('infrasp', Unicode(50)),
                       Column('infrasp_author', Unicode(255)),
-                      #Column('infrasp_rank', String(8), unique='species_index'),
                       Column('infrasp_rank', Enum(values=['subsp.', 'var.', 
                                                           'subvar.', 'f.', 
-                                                          'subf.', 'cv.', None],
+                                                         'subf.', 'cv.', None],
                                                   empty_to_none=True)),
-                      Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect', 
-                                             'forsan', 'near', '?', None],
-                                             empty_to_none=True)),
                       Column('notes', Unicode),
                       Column('genus_id', Integer, ForeignKey('genus.id'), 
                              nullable=False),
-                      Column('_created', DateTime, default=func.current_timestamp()),
-                      Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                      Column('_created', DateTime,
+                             default=func.current_timestamp()),
+                      Column('_last_updated', DateTime,
+                             default=func.current_timestamp(), 
                              onupdate=func.current_timestamp()),
-                      UniqueConstraint('sp', 'sp_author', 'sp_hybrid', 'sp_qual',
-                                      'cv_group', 'trade_name', 'infrasp', 
-                                      'infrasp_author', 'infrasp_rank', 
-                                      'genus_id', name='species_index'))
+                      UniqueConstraint('sp', 'sp_author', 'sp_hybrid',
+                                       'sp_qual', 'cv_group', 'trade_name',
+                                       'infrasp', 'infrasp_author',
+                                       'infrasp_rank', 'genus_id',
+                                       name='species_index'))
 
 class Species(bauble.BaubleMapper):    
             
@@ -206,6 +208,21 @@ class Species(bauble.BaubleMapper):
         #    self.__cached_str = Species.str(self)
         #return self.__cached_str        
         return Species.str(self)
+
+    def distribution_str(self):
+        if self.distribution is None:
+            return ''
+        else:
+            ','.join(self.distributon)
+        
+
+    def _get_distribution(self):
+        debug('entered Species._get_distribution()')
+        dist = self._distribution
+        debug('dist: %s' % dist)
+        return [d.distribution for d in dist]
+    distribution = property(_get_distribution)
+
     
 #    def _get_default_vernacular_name(self):
 #        return object_session(self).query(VernacularName).get_by(id=self.default_vernacular_name_id)
@@ -233,9 +250,10 @@ class Species(bauble.BaubleMapper):
         returns a string for species
         
         @param species: the species object to get the values from
-        @param authors: flags to toggle whether the author names should be included
-        @param markup: flags to toggle whether the returned text is marked up to show
-            italics on the epithets
+        @param authors: flags to toggle whether the author names should be
+        included
+        @param markup: flags to toggle whether the returned text is marked up
+        to show italics on the epithets
         '''
         #genus = str(species.genus)
         # TODO: the Genus->Species one_to_many relationship should have created
@@ -266,9 +284,11 @@ class Species(bauble.BaubleMapper):
         if species.sp_hybrid: # is a hybrid
             if species.infrasp is not None:                    
                 name = [s for s in [genus, sp, author, species.sp_hybrid, 
-                                    species.infrasp, isp_author] if s is not None]
+                                    species.infrasp, isp_author] \
+                        if s is not None]
             else:
-                name = [s for s in [genus, species.sp_hybrid, sp, author] if s is not None]
+                name = [s for s in [genus, species.sp_hybrid, sp, author] \
+                        if s is not None]
         else: # isn't a hybrid
             if species.cv_group:
                 if species.infrasp is None:
@@ -277,7 +297,8 @@ class Species(bauble.BaubleMapper):
                 else:
                     cv = "'%s'" % species.infrasp
                     group = '(%s Group)' % species.cv_group
-                name = [s for s in [genus, sp, author, group, cv, isp_author] if s is not None]
+                name = [s for s in [genus, sp, author, group, cv, isp_author] \
+                        if s is not None]
             else:
                 if species.infrasp is None:
                     isp = None
@@ -294,8 +315,6 @@ class Species(bauble.BaubleMapper):
                     
         if species.sp_qual is not None:
             name.append(species.sp_qual)
-        if species.id_qual is not None:
-            name.append('(%s)' % species.id_qual)
         return ' '.join(name)        
     
 
@@ -308,10 +327,13 @@ species_synonym_table = Table('species_synonym',
                                      ForeignKey('species.id'), nullable=False),
                               Column('synonym_id', Integer, 
                                      ForeignKey('species.id'), nullable=False),
-                              Column('_created', DateTime, default=func.current_timestamp()),
-                              Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                              Column('_created', DateTime,
+                                     default=func.current_timestamp()),
+                              Column('_last_updated', DateTime,
+                                     default=func.current_timestamp(), 
                                      onupdate=func.current_timestamp()),
-                              UniqueConstraint('species_id', 'synonym_id', name='species_synonym_index'))
+                              UniqueConstraint('species_id', 'synonym_id',
+                                               name='species_synonym_index'))
     
 class SpeciesSynonym(bauble.BaubleMapper):
     
@@ -320,7 +342,7 @@ class SpeciesSynonym(bauble.BaubleMapper):
     
 
 
-'''
+"""
 a table to hold meta information abot a species, such as it's distributions
 and where it is edible or poisonous
 
@@ -329,7 +351,7 @@ poison_animals: whether this plant is poisonous to animals
 edible: whether this plant is considered edible
 distribution: the natural distribution of this plant, string from TDWG WGS...
 species_id: the species this meta information refers to
-'''
+"""
 # TODO: poison_humans should imply food_plant false or whatever value
 #     is meant to be in food_plant
 # TODO: create distribution table that holds one of each of the 
@@ -415,10 +437,13 @@ vernacular_name_table = Table('vernacular_name',
                               Column('language', Unicode(128)),
                               Column('species_id', Integer, 
                                      ForeignKey('species.id'), nullable=False),
-                              Column('_created', DateTime, default=func.current_timestamp()),
-                              Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                              Column('_created', DateTime,
+                                     default=func.current_timestamp()),
+                              Column('_last_updated', DateTime,
+                                     default=func.current_timestamp(), 
                                      onupdate=func.current_timestamp()),
-                              UniqueConstraint('name', 'language', 'species_id', name='vn_index'))
+                              UniqueConstraint('name', 'language', 'species_id',
+                                               name='vn_index'))
                                      
 class VernacularName(bauble.BaubleMapper):
 
@@ -444,13 +469,19 @@ vernacular_name_id:
 default_vernacular_name_table = Table('default_vernacular_name',
                                       Column('id', Integer, primary_key=True),
                                       Column('species_id', Integer, 
-                                             ForeignKey('species.id'), nullable=False),
+                                             ForeignKey('species.id'),
+                                             nullable=False),
                                       Column('vernacular_name_id', Integer, 
-                                             ForeignKey('vernacular_name.id'), nullable=False),
-                                      Column('_created', DateTime, default=func.current_timestamp()),
-                                      Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                                             ForeignKey('vernacular_name.id'),
+                                             nullable=False),
+                                      Column('_created', DateTime,
+                                             default=func.current_timestamp()),
+                                      Column('_last_updated', DateTime,
+                                             default=func.current_timestamp(), 
                                              onupdate=func.current_timestamp()),
-                                      UniqueConstraint('species_id', 'vernacular_name_id', name='default_vn_index'))
+                                      UniqueConstraint('species_id',
+                                                       'vernacular_name_id',
+                                                       name='default_vn_index'))
 
 class DefaultVernacularName(bauble.BaubleMapper):
     
@@ -470,6 +501,63 @@ class DefaultVernacularName(bauble.BaubleMapper):
 #
 #'''
 ##from bauble.plugins.geography.distribution import Distribution
+
+# TODO: what about if type_id is none then we just treat type as a string,
+# then we could put random string in the species_distribution....this
+# is pretty messy
+
+species_distribution_table = Table('species_distribution',
+                                   Column('id', Integer, primary_key=True),
+                                   Column('dist', String(64)),
+                                   Column('type_id', Integer),
+                                   Column('species_id', Integer,
+                                          ForeignKey('species.id')),
+                                   Column('_created', DateTime,
+                                          default=func.current_timestamp()),
+                                   Column('_last_updated', DateTime,
+                                          default=func.current_timestamp(), 
+                                          onupdate=func.current_timestamp()))
+
+class SpeciesDistribution(bauble.BaubleMapper):    
+    
+    mapper_map = {'region': Region,
+                  'area': Area,
+                  'continent': Continent,
+                  'basic_unit': BasicUnit,
+                  'botanical_country': BotanicalCountry,
+                  'place': Place}
+
+    def __init__(self, dist=None):
+        super(SpeciesDistribution, self).__init__()
+        self.distribution = dist
+        
+
+    def _get_distribution(self):
+        session = object_session(self)
+        if self.type_id is None:
+            return self.dist
+        else:
+            return session.load(self.mapper_map[self.dist], self.type_id)
+            #return session.load(tables[self.dist], self.type_id)
+    def _set_distribution(self, dist):
+        debug('SpeciesDistribut._set_distribution(%s)' % dist)
+        if dist is None:
+            self.dist = None
+            self.type_id = None
+        elif isinstance(dist, str):
+            self.dist = dist
+            self.type_id = None
+        else:            
+            self.dist = object_mapper(dist).local_table.name
+            self.type_id = dist.id
+        debug('%s, %s' % (self.dist, self.type_id))
+    distribution = property(_get_distribution, _set_distribution)
+
+    def __str__(self):
+        session = object_session(self)
+        return str(session.load(mapper_map[self.type], self.type_id))
+
+                                          
 #species_distribution_table = Table('species_distribution',
 #                           Column('id', Integer, primary_key=True),
 #                           Column('type', String(32)),
@@ -500,21 +588,29 @@ class DefaultVernacularName(bauble.BaubleMapper):
 ##
 #mapper(SpeciesDistribution, species_distribution_table)
 
+# map species synonym
 mapper(SpeciesSynonym, species_synonym_table,
-       properties = {'synonym': relation(Species, uselist=False,
-                                         primaryjoin=species_synonym_table.c.synonym_id==species_table.c.id),
-                     'species': relation(Species, uselist=False, 
-                                         primaryjoin=species_synonym_table.c.species_id==species_table.c.id)
-                     })
+    properties = {'synonym':
+                  relation(Species, uselist=False,
+                           primaryjoin=species_synonym_table.c.synonym_id==species_table.c.id),
+                  'species':
+                  relation(Species, uselist=False, 
+                           primaryjoin=species_synonym_table.c.species_id==species_table.c.id)
+                  })
+
+# map vernaculuar name 
 mapper(VernacularName, vernacular_name_table)
 
+# map default vernacular name
 mapper(DefaultVernacularName, default_vernacular_name_table,
-       properties = {'vernacular_name': relation(VernacularName,
-                                                 primaryjoin=default_vernacular_name_table.c.vernacular_name_id==vernacular_name_table.c.id,
-                                                 uselist=False)
-                     }
+   properties = {'vernacular_name':
+                 relation(VernacularName,
+                          primaryjoin=default_vernacular_name_table.c.vernacular_name_id==vernacular_name_table.c.id,
+                          uselist=False)
+                 }
        )
 
+# map species meta
 mapper(SpeciesMeta, species_meta_table,
 #       properties = {'_distribution': relation(SpeciesDistribution, backref='species_meta',
 #                                              uselist=False, cascade='all, delete-orphan',
@@ -522,33 +618,45 @@ mapper(SpeciesMeta, species_meta_table,
 #                    }
        )
 
-species_mapper = mapper(Species, species_table, 
-       properties = {'species_meta': relation(SpeciesMeta, 
-                                              primaryjoin=species_table.c.id==species_meta_table.c.species_id,
-                                              # TODO: why does this not work??? since 0.3????
-                                              # cascade='all, delete-orphan', 
-                                              uselist=False, 
-                                              backref=backref('species', uselist=False)),
-                     'synonyms': relation(SpeciesSynonym, 
-                                          primaryjoin=species_table.c.id==species_synonym_table.c.species_id,                                          
-                                          cascade='all, delete-orphan'),
-                     'vernacular_names': relation(VernacularName, 
-                                                  primaryjoin=species_table.c.id==vernacular_name_table.c.species_id, 
-                                                  cascade='all, delete-orphan',
-                                                  backref=backref('species', uselist=False)),
-                     'default_vernacular_name': relation(DefaultVernacularName, uselist=False, cascade='all, delete-orphan', 
-                                                         lazy=False, backref='species')
+# map species distribution
+mapper(SpeciesDistribution, species_distribution_table)
 
+# map species
+species_mapper = mapper(Species, species_table, 
+   properties = {'species_meta':
+                 relation(SpeciesMeta, 
+                          primaryjoin=species_table.c.id == species_meta_table.c.species_id,
+                          # TODO: why does this not work??? since 0.3????
+                          # cascade='all, delete-orphan', 
+                          uselist=False, 
+                          backref=backref('species',uselist=False)),
+                 'synonyms':
+                 relation(SpeciesSynonym, 
+                          primaryjoin=species_table.c.id==species_synonym_table.c.species_id,                                          
+                          cascade='all, delete-orphan'),
+                 'vernacular_names':
+                 relation(VernacularName, 
+                          primaryjoin=species_table.c.id==vernacular_name_table.c.species_id, 
+                          cascade='all, delete-orphan',
+                          backref=backref('species', uselist=False)),
+                 'default_vernacular_name':
+                 relation(DefaultVernacularName, uselist=False,
+                          cascade='all, delete-orphan', lazy=False,
+                          backref='species'),
+                 '_distribution':
+                 relation(SpeciesDistribution,
+                          cascade='all, delete-orphan', backref='species')
                      },
-       order_by=[species_table.c.sp, species_table.c.sp_author, 
-                 species_table.c.infrasp_rank,species_table.c.infrasp])
+    order_by=[species_table.c.sp, species_table.c.sp_author, 
+              species_table.c.infrasp_rank,species_table.c.infrasp])
 
 try:
     # in case the garden plugin doesn't exist
     from bauble.plugins.garden.accession import Accession, accession_table
     species_mapper.add_property('accessions', 
-                                relation(Accession, primaryjoin=species_table.c.id==accession_table.c.species_id,
-                                         backref=backref('species', uselist=False, lazy=False)))
+        relation(Accession,
+                 primaryjoin=species_table.c.id==accession_table.c.species_id,
+                 backref=backref('species', uselist=False, lazy=False)))
 except:
     debug(traceback.format_exc())
     debug('Could not add accessions relation to species mapper')

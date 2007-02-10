@@ -15,6 +15,8 @@ import bauble.utils.sql as sql_utils
 from bauble.types import Enum
 from bauble.utils.log import debug
 
+
+
 # TODO: should be a higher_taxon column that holds values into 
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
@@ -399,9 +401,9 @@ class SynonymsPresenter(GenericEditorPresenter):
 
     
     def refresh_view(self):
-        '''
+        """
         doesn't do anything
-        '''
+        """
         return
         
         
@@ -475,7 +477,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         
         if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
+            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
         
@@ -560,74 +562,74 @@ class GenusEditor(GenericModelViewPresenterEditor):
 #
 # infobox
 #
-try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError:
-    pass
-else:    
-    from sqlalchemy.orm.session import object_session
-    import bauble.paths as paths
-    from bauble.plugins.plants.species_model import Species, species_table
-    from bauble.plugins.garden.accession import Accession, accession_table
-    from bauble.plugins.garden.plant import Plant, plant_table
-    
-    class GeneralGenusExpander(InfoExpander):
-        '''
-        expander to present general information about a genus
-        '''
-    
-        def __init__(self, widgets):
-            '''
-            the constructor
-            '''
-            InfoExpander.__init__(self, "General", widgets)
-            general_box = self.widgets.gen_general_box
-            self.widgets.remove_parent(general_box)
-            self.vbox.pack_start(general_box)
-            
-            
-        def update(self, row):
-            '''
-            update the expander
-            
-            @param row: the row to get the values from
-            '''
-            self.set_widget_value('gen_name_data', Genus.str(row, author=True))
+from bauble.view import InfoBox, InfoExpander
+from sqlalchemy.orm.session import object_session
+import bauble.paths as paths
+from bauble.plugins.plants.species_model import Species, species_table
+from bauble.plugins.garden.accession import Accession, accession_table
+from bauble.plugins.garden.plant import Plant, plant_table
 
-            # get the number of species
-            species_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
-            nsp = sql_utils.count_select(species_ids)
-            self.set_widget_value('gen_nsp_data', nsp)
-                                    
-            # get number of accessions
-            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))        
-            nacc_str = str(sql_utils.count_select(acc_ids))
-            if nacc_str != '0':
-                nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-                nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-            self.set_widget_value('gen_nacc_data', nacc_str)
-            
-            # get number of plants
-            plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = str(sql_utils.count_select(plant_ids))
-            if nplants_str != '0':
-                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
-            self.set_widget_value('gen_nplants_data', nplants_str)
-                
-                
-    class GenusInfoBox(InfoBox):
-        """
-        - number of taxon in number of accessions
-        - references
-        """
-        def __init__(self):
-            InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
-                                      'infoboxes.glade')            
-            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
-            self.general = GeneralGenusExpander(self.widgets)
-            self.add_expander(self.general)
-        
-        def update(self, row):
+class GeneralGenusExpander(InfoExpander):
+    '''
+    expander to present general information about a genus
+    '''
+
+    def __init__(self, widgets):
+        '''
+        the constructor
+        '''
+        InfoExpander.__init__(self, "General", widgets)
+        general_box = self.widgets.gen_general_box
+        self.widgets.remove_parent(general_box)
+        self.vbox.pack_start(general_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get the values from
+        '''
+        self.set_widget_value('gen_name_data', Genus.str(row, author=True))
+
+        # get the number of species
+        species_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
+        nsp = sql_utils.count_select(species_ids)
+        self.set_widget_value('gen_nsp_data', nsp)
+
+        # get number of accessions
+        acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))        
+        nacc_str = str(sql_utils.count_select(acc_ids))
+        if nacc_str != '0':
+            nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
+            nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
+        self.set_widget_value('gen_nacc_data', nacc_str)
+
+        # get number of plants
+        plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
+        nplants_str = str(sql_utils.count_select(plant_ids))
+        if nplants_str != '0':
+            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
+        self.set_widget_value('gen_nplants_data', nplants_str)
+
+
+class GenusInfoBox(InfoBox):
+    """
+    - number of taxon in number of accessions
+    - references
+    """
+    def __init__(self):
+        InfoBox.__init__(self)
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
+                                  'infoboxes.glade')            
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        self.general = GeneralGenusExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
             self.general.update(row)
+
+__all__ = ['genus_table', 'Genus', 'genus_synonym_table', 'GenusSynonym', 
+           'GenusEditor', 'GenusInfoBox', 'genus_context_menu', 
+           'genus_markup_func']
