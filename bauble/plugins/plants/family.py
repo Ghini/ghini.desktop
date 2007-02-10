@@ -16,6 +16,7 @@ from bauble.utils.log import debug
 from bauble.types import Enum
 
 
+
 def edit_callback(row):
     value = row[0]    
     e = FamilyEditor(model=value)
@@ -308,9 +309,9 @@ class SynonymsPresenter(GenericEditorPresenter):
 
     
     def refresh_view(self):
-        '''
+        """
         doesn't do anything
-        '''
+        """
         return
         
         
@@ -383,7 +384,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
+            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
     
@@ -457,90 +458,91 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 #
 # Family infobox
 #
+from bauble.view import InfoBox, InfoExpander    
+import bauble.paths as paths
+from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.species_model import Species, species_table
+from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.plant import Plant
 
-# TODO: need to hook up the notes box
+class GeneralFamilyExpander(InfoExpander):
+    '''
+    generic information about an family like number of genus, species,
+    accessions and plants
+    '''
 
-try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander    
-except ImportError, e:    
-    pass
-else:    
-    import bauble.paths as paths
-    from bauble.plugins.plants.genus import Genus
-    from bauble.plugins.plants.species_model import Species, species_table
-    from bauble.plugins.garden.accession import Accession
-    from bauble.plugins.garden.plant import Plant
-    
-    class GeneralFamilyExpander(InfoExpander):
+    def __init__(self, widgets):
         '''
-        generic information about an family like number of genus, species,
-        accessions and plants
+        the constructor
         '''
-    
-        def __init__(self, widgets):
-            '''
-            the constructor
-            '''
-            InfoExpander.__init__(self, "General", widgets)
-            general_box = self.widgets.fam_general_box
-            self.widgets.remove_parent(general_box)                
-            self.vbox.pack_start(general_box)
-            
-            
-        def update(self, row):
-            '''
-            update the expander
-            
-            @param row: the row to get the values from
-            '''
-                        
-            self.set_widget_value('fam_name_data', str(row))
-            
-            # get the number of genera
-            genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)
-            ngen = sql_utils.count_select(genus_ids)
-            self.set_widget_value('fam_ngen_data', ngen)
-            
-            # get the number of species            
-            species_ids = select([species_table.c.id], species_table.c.genus_id.in_(genus_ids))
-            nsp_str = str(sql_utils.count_select(species_ids))    
-            if nsp_str != '0': 
-                ngen_with_species = sql_utils.count_distinct_whereclause(species_table.c.genus_id, species_table.c.genus_id.in_(genus_ids))
-                nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)            
-            self.set_widget_value('fam_nsp_data', nsp_str)
-            
-            # get the number of accessions
-            acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))
-            nacc_str = str(sql_utils.count_select(acc_ids))
-            if nacc_str != '0':
-                nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-                nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)            
-            self.set_widget_value('fam_nacc_data', nacc_str)
-            
-            # get the number of plants
-            nplants_str = str(sql_utils.count(plant_table, plant_table.c.accession_id.in_(acc_ids)))
-            if nplants_str != '0':
-                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
-            self.set_widget_value('fam_nplants_data', nplants_str)
+        InfoExpander.__init__(self, "General", widgets)
+        general_box = self.widgets.fam_general_box
+        self.widgets.remove_parent(general_box)                
+        self.vbox.pack_start(general_box)
 
-                
-                
-    class FamilyInfoBox(InfoBox):
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get the values from
+        '''
+
+        self.set_widget_value('fam_name_data', str(row))
+
+        # get the number of genera
+        genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)
+        ngen = sql_utils.count_select(genus_ids)
+        self.set_widget_value('fam_ngen_data', ngen)
+
+        # get the number of species            
+        species_ids = select([species_table.c.id],
+                             species_table.c.genus_id.in_(genus_ids))
+        nsp_str = str(sql_utils.count_select(species_ids))    
+        if nsp_str != '0': 
+            ngen_with_species = sql_utils.count_distinct_whereclause(species_table.c.genus_id, species_table.c.genus_id.in_(genus_ids))
+            nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)            
+        self.set_widget_value('fam_nsp_data', nsp_str)
+
+        # get the number of accessions
+        acc_ids = select([accession_table.c.id],
+                         accession_table.c.species_id.in_(species_ids))
+        nacc_str = str(sql_utils.count_select(acc_ids))
+        if nacc_str != '0':
+            nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
+            nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)            
+        self.set_widget_value('fam_nacc_data', nacc_str)
+
+        # get the number of plants
+        nplants_str = str(sql_utils.count(plant_table,
+                                          plant_table.c.accession_id.in_(acc_ids)))
+        if nplants_str != '0':
+            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
+        self.set_widget_value('fam_nplants_data', nplants_str)
+
+
+
+class FamilyInfoBox(InfoBox):
+    '''
+    '''
+
+    def __init__(self):
         '''
         '''
-        
-        def __init__(self):
-            '''
-            '''
-            InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
-                                      'infoboxes.glade')            
-            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
-            self.general = GeneralFamilyExpander(self.widgets)
-            self.add_expander(self.general)
-        
-        def update(self, row):
-            '''
-            '''
-            self.general.update(row)
+        InfoBox.__init__(self)
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
+                                  'infoboxes.glade')            
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        self.general = GeneralFamilyExpander(self.widgets)
+        self.add_expander(self.general)
+
+    def update(self, row):
+        '''
+        '''
+        self.general.update(row)
+            
+
+__all__ = ['family_table', 'Family', 'FamilyEditor', 'family_synonym_table',
+           'FamilySynonym', 'FamilyInfoBox', 'family_context_menu', 
+           'family_markup_func']

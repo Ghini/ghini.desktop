@@ -11,13 +11,12 @@ import formencode.validators as validators
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
 import bauble.paths as paths
-from bauble.plugins import tables, editors
 from bauble.editor import *
 from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, genus_table
 from bauble.plugins.plants.species_model import Species, species_table, \
-    SpeciesMeta, SpeciesSynonym, VernacularName, DefaultVernacularName#, SpeciesDistribution
+    SpeciesMeta, SpeciesSynonym, VernacularName, DefaultVernacularName, SpeciesDistribution
 from bauble.plugins.garden.accession import AccessionEditor
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
@@ -60,25 +59,25 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                            'sp_infra_entry': 'infrasp',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_infra_author_entry': 'infrasp_author',
-                           'sp_idqual_combo': 'id_qual',
                            'sp_spqual_combo': 'sp_qual',
                            'sp_notes_textview': 'notes'}
     
     
     def __init__(self, model, view):                
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
-        self.session = object_session(model)
-        
-        #self.init_infrasp_rank_combo()
+        self.session = object_session(model)    
         self.init_combos()
         self.init_fullname_widgets()
-
-        self.vern_presenter = VernacularNamePresenter(self.model, self.view, self.session)
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)
-        self.meta_presenter = SpeciesMetaPresenter(self.model.model, self.view, self.session)        
+        self.vern_presenter = VernacularNamePresenter(self.model, self.view,
+                                                      self.session)
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
+                                                    self.session)
+        self.meta_presenter = SpeciesMetaPresenter(self.model.model,
+                                                   self.view, self.session)
+        self.dist_presenter = DistributionPresenter(self.model.model,
+                                                    self.view, self.session)
         self.refresh_view()        
         
-        #self.view.widgets.sp_infra_rank_combo.connect('changed', self.on_infra_rank_changed)
         # connect signals
         def gen_get_completions(text):           
             return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
@@ -87,16 +86,24 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.assign_completions_handler('sp_genus_entry', 'genus', 
                                         gen_get_completions, 
                                         set_func=set_in_model)
-        self.assign_simple_handler('sp_species_entry', 'sp', StringOrNoneValidator())
-        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank', StringOrNoneValidator())
-        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid', StringOrNoneValidator())
-        self.assign_simple_handler('sp_infra_entry', 'infrasp', StringOrNoneValidator())
-        self.assign_simple_handler('sp_cvgroup_entry', 'cv_group', UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author', UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_idqual_combo', 'id_qual', StringOrNoneValidator()) 
-        self.assign_simple_handler('sp_spqual_combo', 'sp_qual', StringOrNoneValidator())
-        self.assign_simple_handler('sp_author_entry', 'sp_author', UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_notes_textview', 'notes', UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_species_entry', 'sp',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('sp_infra_entry', 'infrasp',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('sp_author_entry', 'sp_author',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_notes_textview', 'notes',
+                                   UnicodeOrNoneValidator())
         
         self.init_change_notifier()
     
@@ -105,7 +112,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 #        debug('%s, %s, %s, %s' % (self.model.dirty, self.vern_presenter.dirty(),
 #                                   self.synonyms_presenter.dirty(), self.meta_presenter.dirty()))
         return self.model.dirty or self.vern_presenter.dirty() or \
-            self.synonyms_presenter.dirty() or self.meta_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.meta_presenter.dirty() or \
+            self.dist_presenter.dirty()
     
     
     def refresh_sensitivity(self):
@@ -197,24 +205,23 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             self.model.add_notifier(field, self.on_field_changed)
             
         for field in self.meta_presenter.widget_to_field_map.values():
-            self.meta_presenter.model.add_notifier(field, self.on_field_changed)
+            self.meta_presenter.model.add_notifier(field,self.on_field_changed)
         
          
     def init_combos(self):
         '''
         initialize the infraspecific rank combo, the species hybrid combo,
-        the species idqualifier combo and the species qualifier combo    
+        the species qualifier combo    
         '''        
-        combos = ['sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_idqual_combo', 
+        combos = ['sp_infra_rank_combo', 'sp_hybrid_combo',
                   'sp_spqual_combo']
-        #combos = ['sp_idqual_combo', 'sp_spqual_combo']
         for combo_name in combos:
             combo = self.view.widgets[combo_name]
             combo.clear()
             r = gtk.CellRendererText()
             combo.pack_start(r, True)
             combo.add_attribute(r, 'text', 0)
-            column = self.model.c[self.widget_to_field_map[combo_name]]            
+            column = self.model.c[self.widget_to_field_map[combo_name]]
             for enum in sorted(column.type.values):
                 if enum == None:
                     combo.append_text('')
@@ -241,7 +248,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         def on_changed(*args):
             self.refresh_fullname_label()
         for widget_name in ['sp_infra_rank_combo', 'sp_hybrid_combo', 
-                            'sp_idqual_combo', 'sp_spqual_combo']:
+                            'sp_spqual_combo']:
             w = self.view.widgets[widget_name]
             w.connect_after('changed', on_changed)
                     
@@ -324,19 +331,168 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
+        self.dist_presenter.refresh_view()
         self.meta_presenter.refresh_view()
+        
             
     
+class DistributionPresenter(GenericEditorPresenter):
+    """
+    """
+    def __init__(self, species, view, session):
+        '''
+        @param model: a list of VernacularName objects
+        @param view: 
+        @param session:
+        '''
+        debug('DistributionPresenter.__init__')
+        GenericEditorPresenter.__init__(self, species, view)
+        self.session = session
+        self.__dirty = False
+        #add_button = gtk.MenuToolButton(gtk.STOCK_ADD)        
+        #self.view.widgets.sp_dist_toolbar.insert(add_button, 0)
+        self.add_menu = gtk.Menu()
+        self.add_menu.attach_to_widget(self.view.widgets.sp_dist_add_button,
+                                       None)
+        self.view.widgets.sp_dist_add_button.connect('button-press-event',
+                                                    self.on_add_button_pressed)
+        self.view.widgets.sp_dist_remove_button.connect('clicked', 
+                                                 self.on_remove_button_clicked)
+        self.init_add_button()
+
+
+    def on_menu_activate(self, widget, dist, id=None):
+         debug('activated: %s' % self.session.query(dist).load(id))
+         d = SpeciesDistribution()
+         self.session.save(d)         
+         if isinstance(dist, str):
+             d.distribution = dist
+         else:
+             d.distribution = self.session.query(dist).load(id)
+         debug('d.distribution: ' % d.distribution)
+         self.model._distribution.append(d)         
+         self.__dirty = True
+         self.view.set_accept_buttons_sensitive(True)
+         debug(self.model.distribution)
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def refresh_view(self):
+        debug('SpeciesDistribution.refresh_view()')
+        distribution = self.model.distribution
+        debug(distribution)
+        #for 
+
     
+    def init_add_button(self):
+        '''
+        populate the add button, the work is done in an idle function
+        '''
+        self.view.widgets.sp_dist_add_button.set_sensitive(False)    
+        def __populate():            
+            combo = self.view.widgets.sp_dist_combo
+            combo.set_model(None)
+            item = gtk.MenuItem('Cultivated')
+            self.add_menu.append(item)
+            from bauble.plugins.geography.distribution import \
+                 Continent, continent_table, Region, region_table, \
+                 BotanicalCountry, botanical_country_table, \
+                 BasicUnit, basic_unit_table
+            
+            cont_query = self.session.query(Continent)
+            region_query = self.session.query(Region)
+            bc_query = self.session.query(BotanicalCountry)
+            unit_query = self.session.query(BasicUnit)
+
+            def __submenu(parent, name, mapper, id):
+                item = gtk.MenuItem(name)
+                parent.append(item)
+                submenu = gtk.Menu()
+                item.set_submenu(submenu)
+                sel_item = gtk.MenuItem(name)
+                sel_item.connect('activate', self.on_menu_activate,
+                                 Continent, id)
+                submenu.append(sel_item)
+                submenu.append(gtk.SeparatorMenuItem())
+                return submenu                                 
+
+            # pre-create the select statements
+            continent_select = select([continent_table.c.id,
+                                       continent_table.c.continent])
+            region_select = select([region_table.c.id,
+                                    region_table.c.region],
+                        region_table.c.continent_id==bindparam('continent_id'))
+            country_select = select([botanical_country_table.c.id,
+                                     botanical_country_table.c.name],
+                                    botanical_country_table.c.region_id==\
+                                    bindparam('region_id'))
+            unit_select = select([basic_unit_table.c.id,
+                                  basic_unit_table.c.name],
+                               and_(basic_unit_table.c.botanical_country_id== \
+                                    bindparam('country_id'),
+                                    basic_unit_table.c.name!= \
+                                    bindparam('country')))
+            unit_select_count = select([basic_unit_table.c.id,
+                                  basic_unit_table.c.name],
+                               and_(basic_unit_table.c.botanical_country_id== \
+                                    bindparam('country_id'),
+                                    basic_unit_table.c.name!= \
+                                    bindparam('country'))).count()
+
+            # create the menus
+            for continent_id, continent in continent_select.execute():
+                region_menu = __submenu(self.add_menu, continent,
+                                        Continent, continent_id)
+                for region_id, region in \
+                        region_select.execute(continent_id=continent_id):
+                    country_menu = __submenu(region_menu, region,
+                                             Region, region_id)
+                    for country_id, country in \
+                        country_select.execute(region_id=region_id):
+                        n = unit_select_count.execute(country_id=country_id,
+                                                      country=country).scalar()
+                        # don't create a submeny if this
+                        # botanical_country doesn't have any basic_unit's
+                        if n > 0: 
+                            unit_menu = __submenu(country_menu, country,
+                                                  BotanicalCountry, country_id)
+                            for unit_id, unit in \
+                                    unit_select.execute(country_id=country_id,
+                                                        country=country):
+                                item = gtk.MenuItem(unit)
+                                unit_menu.append(item)
+                        else:
+                            item = gtk.MenuItem(country)
+                            item.connect('activate', self.on_menu_activate,
+                                         BotanicalCountry, country_id)
+                            country_menu.append(item)
+            self.add_menu.show_all()
+            self.view.widgets.sp_dist_add_button.set_sensitive(True)
+            return
+        gobject.idle_add(__populate)
+
+
+    def on_add_button_pressed(self, button, event):
+        self.add_menu.popup(None, None, None, event.button, event.time)
+
+
+    def on_remove_button_clicked(self, *args):
+        pass
+
+
+
 class VernacularNamePresenter(GenericEditorPresenter):
     # TODO: change the background of the entries and desensitize the 
     # name/lang entries if the name conflicts with an existing vernacular
     # name for this species
-    '''
+    """
     in the VernacularNamePresenter we don't really use self.model, we more
     rely on the model in the TreeView which are ModelDecorator objects wrapped
     around VernacularNames objects
-    '''
+    """
     
     def __init__(self, species, view, session):
         '''
@@ -351,14 +507,18 @@ class VernacularNamePresenter(GenericEditorPresenter):
         self.view.widgets.sp_vern_add_button.connect('clicked', 
                                                   self.on_add_button_clicked)
         self.view.widgets.sp_vern_remove_button.connect('clicked', 
-                                                  self.on_remove_button_clicked)
+                                                 self.on_remove_button_clicked)
         lang_entry = self.view.widgets.vern_lang_entry
-        lang_entry.connect('insert-text', self.on_entry_insert, 'vern_name_entry')
-        lang_entry.connect('delete-text', self.on_entry_delete, 'vern_name_entry')
+        lang_entry.connect('insert-text', self.on_entry_insert,
+                           'vern_name_entry')
+        lang_entry.connect('delete-text', self.on_entry_delete,
+                           'vern_name_entry')
         
         name_entry = self.view.widgets.vern_name_entry
-        name_entry.connect('insert-text', self.on_entry_insert, 'vern_lang_entry')
-        name_entry.connect('delete-text', self.on_entry_delete, 'vern_lang_entry')        
+        name_entry.connect('insert-text', self.on_entry_insert,
+                           'vern_lang_entry')
+        name_entry.connect('delete-text', self.on_entry_delete,
+                           'vern_lang_entry')        
         
     
     def dirty(self):        
@@ -419,13 +579,14 @@ class VernacularNamePresenter(GenericEditorPresenter):
         removes the currently selected vernacular name from the view
         '''        
         # TODO: maybe we should only ask 'are you sure' if the selected value
-        # is an instance, this means it will be deleted from the database        
+        # is an instance, this means it will be deleted from the database
         tree = self.view.widgets.vern_treeview
         path, col = tree.get_cursor()        
         tree_model = tree.get_model()        
         value = tree_model[tree_model.get_iter(path)][0]      
 
-        msg = 'Are you sure you want to remove the vernacular name %s?' % utils.xml_safe(value.name)
+        msg = 'Are you sure you want to remove the vernacular name %s?' \
+              % utils.xml_safe(value.name)
         if not utils.yes_no_dialog(msg, parent=self.view.window):
             return
         
@@ -450,9 +611,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         '''
         default column callback
         '''
-        # FIXME: there's a bug if you add a new vernacular, set it as the default,
-        # set the default back to the previous default and then hit ok, you should
-        # reliably get "duplicate key violates unique constraint "default_vn_index"
+        # FIXME: there's a bug if you add a new vernacular, set it as the
+        # default, set the default back to the previous default and then hit
+        # ok, you should reliably get "duplicate key violates unique
+        # constraint "default_vn_index"
 #        debug('on_default_toggled')        
         active = cell.get_property('active')
         if not active: # then it's becoming active ???
@@ -660,9 +822,9 @@ class SynonymsPresenter(GenericEditorPresenter):
 
     
     def refresh_view(self):
-        '''
+        """
         doesn't do anything
-        '''
+        """
         return
         
         
@@ -747,7 +909,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
         self.refresh_view() 
         self.assign_simple_handler('sp_humanpoison_check', 'poison_humans')
         self.assign_simple_handler('sp_animalpoison_check', 'poison_animals')
-        self.assign_simple_handler('sp_food_check', 'food_plant')                
+        self.assign_simple_handler('sp_food_check', 'food_plant')
         for field in self.widget_to_field_map.values():         
             self.model.add_notifier(field, self.on_field_changed)
 
@@ -784,7 +946,8 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
 #            combo.set_sensitive(True)
 #            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
 #            self.assign_simple_handler('sp_dist_combo', 'distribution')       
-        def populate():  
+        def populate():
+            return
             combo = self.view.widgets.sp_dist_combo
             combo.set_model(None)
             model = gtk.TreeStore(object)
@@ -851,8 +1014,7 @@ class SpeciesMetaPresenter(GenericEditorPresenter):
 
 class SpeciesEditorView(GenericEditorView):
     
-    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded', 
-                          'sp_qual_expander': 'editor.species.qual.expanded',
+    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded',
                           'sp_meta_expander': 'editor.species.meta.expanded'}
     
     
@@ -869,7 +1031,8 @@ class SpeciesEditorView(GenericEditorView):
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
         self.init_distribution_combo()
-        self.attach_completion('sp_genus_entry', self.genus_completion_cell_data_func)
+        self.attach_completion('sp_genus_entry',
+                               self.genus_completion_cell_data_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.species_dialog)
@@ -982,7 +1145,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
+            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
         
@@ -990,8 +1153,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
     def handle_response(self, response):
         '''
         @return: return a list if we want to tell start() to close the editor, 
-        the list should either be empty or the list of committed values, return 
-        None if we want to keep editing
+        the list should either be empty or the list of committed values,
+        return None if we want to keep editing
         '''
         # TODO: need to do a __cleanup_model before the commit to do things
         # like remove the insfraspecific information that's attached to the 
@@ -1004,18 +1167,19 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:                
                 exc = traceback.format_exc()
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = 'Error committing changes.\n\n%s'% utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = 'Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s' % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():        
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():        
             return True
         else:
             return False
@@ -1025,7 +1189,8 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = AccessionEditor(Accession(species=self.model, parent=self.parent))
+            e = AccessionEditor(Accession(species=self.model,
+                                          parent=self.parent))
             more_committed = e.start()
                     
         if more_committed is not None:
@@ -1056,9 +1221,12 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         
         # add quick response keys
         dialog = self.view.dialog        
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)        
         
         # set default focus
         if self.model.genus is None:
@@ -1076,229 +1244,224 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         return self._committed
 
     
-try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError:
-    pass
-else:
-    from bauble.plugins.garden.accession import Accession, accession_table
-    from bauble.plugins.garden.plant import Plant, plant_table
-    
+
+from bauble.view import InfoBox, InfoExpander
+from bauble.plugins.garden.accession import Accession, accession_table
+from bauble.plugins.garden.plant import Plant, plant_table
+
 #    
 # Species infobox for SearchView
 #
-    class VernacularExpander(InfoExpander):
+class VernacularExpander(InfoExpander):
+    '''
+    the constructor
+    '''
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Vernacular Names", widgets)
+        vernacular_box = self.widgets.sp_vernacular_box
+        self.widgets.remove_parent(vernacular_box)
+        self.vbox.pack_start(vernacular_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get thevalues from
+        '''
+        if len(row.vernacular_names) == 0:
+            self.set_sensitive(False)
+            self.set_expanded(False)
+        else:                
+            names = []
+            for vn in row.vernacular_names:
+                #if vn == row.default_vernacular_name:
+                if row.default_vernacular_name is not None \
+                       and vn == row.default_vernacular_name.vernacular_name:
+                    names.insert(0, '%s - %s (default)' % \
+                                 (vn.name, vn.language))
+                else:
+                    names.append('%s - %s' % \
+                                 (vn.name, vn.language))
+            self.set_widget_value('sp_vernacular_data', '\n'.join(names))
+            self.set_sensitive(True)
+            # TODO: get expanded state from prefs
+            self.set_expanded(True) 
+
+
+
+class SynonymsExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Synonyms", widgets)
+        synonyms_box = self.widgets.sp_synonyms_box
+        self.widgets.remove_parent(synonyms_box)
+        self.vbox.pack_start(synonyms_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get thevalues from
+        '''
+        #debug(row.synonyms)
+        if len(row.synonyms) == 0:
+            self.set_sensitive(False)
+            self.set_expanded(False)
+        else:
+            synonyms = []
+            for syn in row.synonyms:
+                s = Species.str(syn.synonym, markup=True, authors=True)
+                synonyms.append(s)
+            self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
+            self.set_sensitive(True)
+            # TODO: get expanded state from prefs
+            self.set_expanded(True)
+
+
+
+class NotesExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Notes", widgets)
+        notes_box = self.widgets.sp_notes_box
+        self.widgets.remove_parent(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        if row.notes is None:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+        else:
+            self.set_expanded(True)
+            self.set_sensitive(True)
+            self.set_widget_value('sp_notes_data', row.notes)
+
+
+class GeneralSpeciesExpander(InfoExpander):
+    '''
+    expander to present general information about a species
+    '''
+
+    def __init__(self, widgets):
         '''
         the constructor
         '''
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Vernacular Names", widgets)
-            vernacular_box = self.widgets.sp_vernacular_box
-            self.widgets.remove_parent(vernacular_box)
-            self.vbox.pack_start(vernacular_box)
-            
-            
-        def update(self, row):
-            '''
-            update the expander
-            
-            @param row: the row to get thevalues from
-            '''
-            if len(row.vernacular_names) == 0:
-                self.set_sensitive(False)
-                self.set_expanded(False)
-            else:                
-                names = []
-                for vn in row.vernacular_names:
-                    #if vn == row.default_vernacular_name:
-                    if row.default_vernacular_name is not None and vn == row.default_vernacular_name.vernacular_name:
-                        names.insert(0, '%s - %s (default)' % \
-                                     (vn.name, vn.language))
-                    else:
-                        names.append('%s - %s' % \
-                                     (vn.name, vn.language))
-                self.set_widget_value('sp_vernacular_data', '\n'.join(names))
-                self.set_sensitive(True)
-                # TODO: get expanded state from prefs
-                self.set_expanded(True) 
-        
-        
-            
-    class SynonymsExpander(InfoExpander):
-        
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Synonyms", widgets)
-            synonyms_box = self.widgets.sp_synonyms_box
-            self.widgets.remove_parent(synonyms_box)
-            self.vbox.pack_start(synonyms_box)
-            
-            
-        def update(self, row):
-            '''
-            update the expander
-            
-            @param row: the row to get thevalues from
-            '''
-            #debug(row.synonyms)
-            if len(row.synonyms) == 0:
-                self.set_sensitive(False)
-                self.set_expanded(False)
-            else:
-                synonyms = []
-                for syn in row.synonyms:
-                    s = Species.str(syn.synonym, markup=True, authors=True)
-                    synonyms.append(s)
-                self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
-                self.set_sensitive(True)
-                # TODO: get expanded state from prefs
-                self.set_expanded(True)
-        
-        
-        
-    class NotesExpander(InfoExpander):
-        
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Notes", widgets)
-            notes_box = self.widgets.sp_notes_box
-            self.widgets.remove_parent(notes_box)
-            self.vbox.pack_start(notes_box)
-            
-                        
-        def update(self, row):
-            if row.notes is None:
-                self.set_expanded(False)
-                self.set_sensitive(False)
-            else:
-                self.set_expanded(True)
-                self.set_sensitive(True)
-                self.set_widget_value('sp_notes_data', row.notes)
-            
-    
-    class GeneralSpeciesExpander(InfoExpander):
-        '''
-        expander to present general information about a species
-        '''
-    
-        def __init__(self, widgets):
-            '''
-            the constructor
-            '''
-            InfoExpander.__init__(self, "General", widgets)
-            general_box = self.widgets.sp_general_box
-            self.widgets.remove_parent(general_box)
-            self.vbox.pack_start(general_box)
-            
-            # make the check buttons read only
-            def on_enter(button, *args):
-                button.emit_stop_by_name("enter-notify-event")
-                return True
-            self.widgets.sp_food_check.connect('enter-notify-event', on_enter)
-            self.widgets.sp_phumans_check.connect('enter-notify-event', on_enter)
-            self.widgets.sp_panimals_check.connect('enter-notify-event', on_enter)
+        InfoExpander.__init__(self, "General", widgets)
+        general_box = self.widgets.sp_general_box
+        self.widgets.remove_parent(general_box)
+        self.vbox.pack_start(general_box)
 
-        
-        def update(self, row):
-            '''
-            update the expander
-            
-            @param row: the row to get the values from
-            '''
-            self.set_widget_value('sp_name_data', row.markup(True))
-            
-            if row.id_qual is not None:
-                self.widgets.sp_idqual_label.set_sensitive(True)
-                self.widgets.sp_idqual_data.set_sensitive(True) 
-                self.set_widget_value('sp_idqual_data', row.id_qual)
-            else:
-                self.widgets.sp_idqual_label.set_sensitive(False)
-                self.widgets.sp_idqual_data.set_sensitive(False)
-            
-            if row.species_meta is not None:
-                meta = row.species_meta
-                # set the sensitivity of the widgets before setting them
-                def set_meta(widget, value):                
-                    if value is None:
-                        self.widgets[widget].set_sensitive(False)
-                    else:
-                        self.widgets[widget].set_sensitive(True)
-                    self.set_widget_value(widget, value)
-                set_meta('sp_dist_data', meta.distribution)
-                set_meta('sp_food_check', meta.food_plant)
-                set_meta('sp_phumans_check', meta.poison_humans)
-                set_meta('sp_panimals_check', meta.poison_animals)
-            else:
-                for w in ('sp_dist_data', 'sp_food_check', 'sp_phumans_check', 'sp_panimals_check'):
-                    self.set_widget_value(w, None)
-                    self.widgets[w].set_sensitive(False)
-                
-                        
-            nacc = sql_utils.count(accession_table, accession_table.c.species_id==row.id)
-            self.set_widget_value('sp_nacc_data', nacc)
-            
-            acc_ids = select([accession_table.c.id], accession_table.c.species_id==row.id)
-            nplants_str = str(sql_utils.count(plant_table, plant_table.c.accession_id.in_(acc_ids)))
-            if nplants_str != '0':                
-                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-                nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
-            self.set_widget_value('sp_nplants_data', nplants_str)
-    
-    
-    
-    class SpeciesInfoBox(InfoBox):
+        # make the check buttons read only
+        def on_enter(button, *args):
+            button.emit_stop_by_name("enter-notify-event")
+            return True
+        self.widgets.sp_food_check.connect('enter-notify-event', on_enter)
+        self.widgets.sp_phumans_check.connect('enter-notify-event', on_enter)
+        self.widgets.sp_panimals_check.connect('enter-notify-event', on_enter)
+
+
+    def update(self, row):
         '''
-        - general info, fullname, common name, num of accessions and clones
-        - poisonous to humans
-        - poisonous to animals
-        - food plant
-        - origin/distribution
+        update the expander
+
+        @param row: the row to get the values from
         '''
-        
-        # others to consider: reference, images, redlist status
-        
-        def __init__(self):
-            ''' 
-            the constructor
-            '''
-            InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
-                                      'infoboxes.glade')            
-            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
-            self.general = GeneralSpeciesExpander(self.widgets)
-            self.add_expander(self.general)
-            self.vernacular = VernacularExpander(self.widgets)
-            self.add_expander(self.vernacular)
-            self.synonyms = SynonymsExpander(self.widgets)
-            self.add_expander(self.synonyms)
-            self.notes = NotesExpander(self.widgets)
-            self.add_expander(self.notes)
-            
-            #self.ref = ReferenceExpander()
-            #self.ref.set_expanded(True)
-            #self.add_expander(self.ref)
-            
-            #img = ImagesExpander()
-            #img.set_expanded(True)
-            #self.add_expander(img)
-            
-            
-        def update(self, row):
-            '''
-            update the expanders in this infobox
-            
-            @param row: the row to get the values from
-            '''
-            self.general.update(row)
-            self.vernacular.update(row)
-            self.synonyms.update(row)
-            self.notes.update(row)
-            #self.ref.update(row.references)
-            #self.ref.value = row.references
-            #ref = self.get_expander("References")
-            #ref.set_values(row.references)
-    
-    
-    # it's easier just to put this here instead of playing around with imports
-    class VernacularNameInfoBox(SpeciesInfoBox):
-        def update(self, row):
-            super(VernacularNameInfoBox, self).update(row.species)
-        
+        self.set_widget_value('sp_name_data', row.markup(True))
+
+        if row.species_meta is not None:
+            meta = row.species_meta
+            # set the sensitivity of the widgets before setting them
+            def set_meta(widget, value):                
+                if value is None:
+                    self.widgets[widget].set_sensitive(False)
+                else:
+                    self.widgets[widget].set_sensitive(True)
+                self.set_widget_value(widget, value)
+            set_meta('sp_dist_data', meta.distribution)
+            set_meta('sp_food_check', meta.food_plant)
+            set_meta('sp_phumans_check', meta.poison_humans)
+            set_meta('sp_panimals_check', meta.poison_animals)
+        else:
+            for w in ('sp_dist_data', 'sp_food_check', 'sp_phumans_check', 'sp_panimals_check'):
+                self.set_widget_value(w, None)
+                self.widgets[w].set_sensitive(False)
+
+
+        nacc = sql_utils.count(accession_table,
+                               accession_table.c.species_id==row.id)
+        self.set_widget_value('sp_nacc_data', nacc)
+
+        acc_ids = select([accession_table.c.id],
+                         accession_table.c.species_id==row.id)
+        nplants_str = str(sql_utils.count(plant_table,
+                                          plant_table.c.accession_id.in_(acc_ids)))
+        if nplants_str != '0':                
+            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = '%s in %s accessions' % \
+                          (nplants_str, nacc_with_plants)
+        self.set_widget_value('sp_nplants_data', nplants_str)
+
+
+
+class SpeciesInfoBox(InfoBox):
+    '''
+    - general info, fullname, common name, num of accessions and clones
+    - poisonous to humans
+    - poisonous to animals
+    - food plant
+    - origin/distribution
+    '''
+
+    # others to consider: reference, images, redlist status
+
+    def __init__(self):
+        ''' 
+        the constructor
+        '''
+        InfoBox.__init__(self)
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants', 
+                                  'infoboxes.glade')            
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        self.general = GeneralSpeciesExpander(self.widgets)
+        self.add_expander(self.general)
+        self.vernacular = VernacularExpander(self.widgets)
+        self.add_expander(self.vernacular)
+        self.synonyms = SynonymsExpander(self.widgets)
+        self.add_expander(self.synonyms)
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
+
+        #self.ref = ReferenceExpander()
+        #self.ref.set_expanded(True)
+        #self.add_expander(self.ref)
+
+        #img = ImagesExpander()
+        #img.set_expanded(True)
+        #self.add_expander(img)
+
+
+    def update(self, row):
+        '''
+        update the expanders in this infobox
+
+        @param row: the row to get the values from
+        '''
+        debug('SpeciesInfoBox.update(%s)' % str(row))
+        self.general.update(row)
+        self.vernacular.update(row)
+        self.synonyms.update(row)
+        self.notes.update(row)
+        #self.ref.update(row.references)
+        #self.ref.value = row.references
+        #ref = self.get_expander("References")
+        #ref.set_values(row.references)
+
+
+# it's easier just to put this here instead of playing around with imports
+class VernacularNameInfoBox(SpeciesInfoBox):
+    def update(self, row):
+        super(VernacularNameInfoBox, self).update(row.species)
+
