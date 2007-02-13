@@ -16,7 +16,9 @@ from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, genus_table
 from bauble.plugins.plants.species_model import Species, species_table, \
-    SpeciesMeta, SpeciesSynonym, VernacularName, DefaultVernacularName, SpeciesDistribution
+     SpeciesSynonym, VernacularName, DefaultVernacularName, \
+     SpeciesDistribution, species_distribution_table, Geography, \
+     geography_table
 from bauble.plugins.garden.accession import AccessionEditor
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
@@ -27,10 +29,6 @@ from bauble.plugins.garden.accession import AccessionEditor
 # TODO: ensure None is getting set in the model instead of empty strings, 
 # UPDATE: i think i corrected most of these but i still need to double check
 
-# TODO: should only populate the distribution combo if the species meta is 
-# expanded on start, and....
-# expander = gtk.expander_new_with_mnemonic("_More Options")
-# expander.connect("notify::expanded", expander_callback)
 
 # take from accession.py
 def delete_or_expunge(obj):
@@ -44,8 +42,8 @@ def delete_or_expunge(obj):
         del obj
     else:
 #        debug('delete obj: %s -- %s' % (obj, repr(obj)))        
-        session.delete(obj)         
-            
+        session.delete(obj)    
+    
 
 class SpeciesEditorPresenter(GenericEditorPresenter):
     
@@ -72,8 +70,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                                                       self.session)
         self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
                                                     self.session)
-        self.meta_presenter = SpeciesMetaPresenter(self.model.model,
-                                                   self.view, self.session)
         self.dist_presenter = DistributionPresenter(self.model.model,
                                                     self.view, self.session)
         self.refresh_view()        
@@ -109,11 +105,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     
     
     def dirty(self):
-#        debug('%s, %s, %s, %s' % (self.model.dirty, self.vern_presenter.dirty(),
-#                                   self.synonyms_presenter.dirty(), self.meta_presenter.dirty()))
         return self.model.dirty or self.vern_presenter.dirty() or \
-            self.synonyms_presenter.dirty() or self.meta_presenter.dirty() or \
-            self.dist_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.dist_presenter.dirty()
     
     
     def refresh_sensitivity(self):
@@ -186,7 +179,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         if len(self.problems) != 0 \
            or len(self.vern_presenter.problems) != 0 \
            or len(self.synonyms_presenter.problems) != 0 \
-           or len(self.meta_presenter.problems) != 0:
+           or len(self.dist_presenter.problems) != 0:
             sensitive = False        
         elif self.model.sp is None or self.model.genus is None:
             sensitive = False
@@ -204,8 +197,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         for field in self.widget_to_field_map.values():         
             self.model.add_notifier(field, self.on_field_changed)
             
-        for field in self.meta_presenter.widget_to_field_map.values():
-            self.meta_presenter.model.add_notifier(field,self.on_field_changed)
         
          
     def init_combos(self):
@@ -332,155 +323,152 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
-        self.meta_presenter.refresh_view()
         
             
     
 class DistributionPresenter(GenericEditorPresenter):
     """
     """
+
+    # TODO: build the species distribution menu on the first run of the editor
+    # and save the ui xml to the users ~/.bauble directory and then
+    # in the future we can check that the versions are the same and use the
+    # cached menu
+    
     def __init__(self, species, view, session):
         '''
         @param model: a list of VernacularName objects
         @param view: 
         @param session:
         '''
-        debug('DistributionPresenter.__init__')
         GenericEditorPresenter.__init__(self, species, view)
         self.session = session
         self.__dirty = False
-        #add_button = gtk.MenuToolButton(gtk.STOCK_ADD)        
-        #self.view.widgets.sp_dist_toolbar.insert(add_button, 0)
         self.add_menu = gtk.Menu()
         self.add_menu.attach_to_widget(self.view.widgets.sp_dist_add_button,
                                        None)
+        self.remove_menu = gtk.Menu()
+        self.remove_menu.attach_to_widget(self.view.widgets.sp_dist_remove_button,
+                                          None)                
         self.view.widgets.sp_dist_add_button.connect('button-press-event',
                                                     self.on_add_button_pressed)
-        self.view.widgets.sp_dist_remove_button.connect('clicked', 
-                                                 self.on_remove_button_clicked)
+        self.view.widgets.sp_dist_remove_button.connect('button-press-event', 
+                                                 self.on_remove_button_pressed)
         self.init_add_button()
 
 
-    def on_menu_activate(self, widget, dist, id=None):
-         debug('activated: %s' % self.session.query(dist).load(id))
-         d = SpeciesDistribution()
-         self.session.save(d)         
-         if isinstance(dist, str):
-             d.distribution = dist
-         else:
-             d.distribution = self.session.query(dist).load(id)
-         debug('d.distribution: ' % d.distribution)
-         self.model._distribution.append(d)         
-         self.__dirty = True
-         self.view.set_accept_buttons_sensitive(True)
-         debug(self.model.distribution)
+    def refresh_view(self):
+        # TODO: keep a list of new ones that have been added and make them
+        # blue when displaying them so we know what's changed
+        label = self.view.widgets.sp_dist_label
+        s = ', '.join([str(d) for d in self.model.distribution])
+        label.set_text(s)
+
+
+    def on_add_button_pressed(self, button, event):
+        if self.add_menu is None:
+            init_add_menu()
+        self.add_menu.popup(None, None, None, event.button, event.time)
+
+        
+    def on_remove_button_pressed(self, button, event):
+        debug('on_remove_button_pressed')
+        # clear the menu
+        for c in self.remove_menu.get_children():
+            self.remove_menu.remove(c)
+        # add distributions to menu
+        for dist in self.model.distribution:
+            debug('adding %s to remove_button' % str(dist))
+            item = gtk.MenuItem(str(dist))
+            item.connect('activate', self.on_activate_remove_menu_item, dist)
+            self.remove_menu.append(item)
+        self.remove_menu.show_all()
+        self.remove_menu.popup(None, None, None, event.button, event.time)
+        
+            
+    def on_activate_add_menu_item(self, widget, id=None):
+        from bauble.plugins.plants.species_model import Geography
+        geo = self.session.query(Geography).load(id)
+        # check that this geography isn't already in the distributions
+        if geo in [d.geography for d in self.model.distribution]:
+            debug('%s already in %s' % (geo, self.model))
+            return
+        dist = SpeciesDistribution(geography=geo)
+        self.model.distribution.append(dist)
+        debug([str(d) for d in self.model.distribution])
+        self.__dirty = True
+        self.refresh_view()
+        self.view.set_accept_buttons_sensitive(True)
+
+
+    def on_activate_remove_menu_item(self, widget, dist):
+        self.model.distribution.remove(dist)
+        delete_or_expunge(dist)
+        self.refresh_view()
+        self.__dirty = True
+        self.view.set_accept_buttons_sensitive(True)
 
 
     def dirty(self):
         return self.__dirty
 
 
-    def refresh_view(self):
-        debug('SpeciesDistribution.refresh_view()')
-        distribution = self.model.distribution
-        debug(distribution)
-        #for 
-
-    
     def init_add_button(self):
-        '''
-        populate the add button, the work is done in an idle function
-        '''
-        self.view.widgets.sp_dist_add_button.set_sensitive(False)    
-        def __populate():            
-            combo = self.view.widgets.sp_dist_combo
-            combo.set_model(None)
-            item = gtk.MenuItem('Cultivated')
-            self.add_menu.append(item)
-            from bauble.plugins.geography.distribution import \
-                 Continent, continent_table, Region, region_table, \
-                 BotanicalCountry, botanical_country_table, \
-                 BasicUnit, basic_unit_table
-            
-            cont_query = self.session.query(Continent)
-            region_query = self.session.query(Region)
-            bc_query = self.session.query(BotanicalCountry)
-            unit_query = self.session.query(BasicUnit)
+        self.view.widgets.sp_dist_add_button.set_sensitive(False)
+        from bauble.plugins.plants.species_model import geography_table
+        select_kids = select([geography_table.c.id, geography_table.c.name],
+                           geography_table.c.parent_id==bindparam('parent_id'))
+        count_kids = select([geography_table.c.id],
+                            geography_table.c.parent_id==bindparam('parent_id')).count()
+        has_kids = lambda parent_id: \
+                   count_kids.execute(parent_id=parent_id).scalar()
+        get_kids = lambda parent_id: \
+                   select_kids.execute(parent_id=parent_id)
+        def build_menu(id, name):
+            item = gtk.MenuItem(name)
+            if not has_kids(id):
+                return item
 
-            def __submenu(parent, name, mapper, id):
-                item = gtk.MenuItem(name)
-                parent.append(item)
-                submenu = gtk.Menu()
-                item.set_submenu(submenu)
-                sel_item = gtk.MenuItem(name)
-                sel_item.connect('activate', self.on_menu_activate,
-                                 Continent, id)
-                submenu.append(sel_item)
-                submenu.append(gtk.SeparatorMenuItem())
-                return submenu                                 
-
-            # pre-create the select statements
-            continent_select = select([continent_table.c.id,
-                                       continent_table.c.continent])
-            region_select = select([region_table.c.id,
-                                    region_table.c.region],
-                        region_table.c.continent_id==bindparam('continent_id'))
-            country_select = select([botanical_country_table.c.id,
-                                     botanical_country_table.c.name],
-                                    botanical_country_table.c.region_id==\
-                                    bindparam('region_id'))
-            unit_select = select([basic_unit_table.c.id,
-                                  basic_unit_table.c.name],
-                               and_(basic_unit_table.c.botanical_country_id== \
-                                    bindparam('country_id'),
-                                    basic_unit_table.c.name!= \
-                                    bindparam('country')))
-            unit_select_count = select([basic_unit_table.c.id,
-                                  basic_unit_table.c.name],
-                               and_(basic_unit_table.c.botanical_country_id== \
-                                    bindparam('country_id'),
-                                    basic_unit_table.c.name!= \
-                                    bindparam('country'))).count()
-
-            # create the menus
-            for continent_id, continent in continent_select.execute():
-                region_menu = __submenu(self.add_menu, continent,
-                                        Continent, continent_id)
-                for region_id, region in \
-                        region_select.execute(continent_id=continent_id):
-                    country_menu = __submenu(region_menu, region,
-                                             Region, region_id)
-                    for country_id, country in \
-                        country_select.execute(region_id=region_id):
-                        n = unit_select_count.execute(country_id=country_id,
-                                                      country=country).scalar()
-                        # don't create a submeny if this
-                        # botanical_country doesn't have any basic_unit's
-                        if n > 0: 
-                            unit_menu = __submenu(country_menu, country,
-                                                  BotanicalCountry, country_id)
-                            for unit_id, unit in \
-                                    unit_select.execute(country_id=country_id,
-                                                        country=country):
-                                item = gtk.MenuItem(unit)
-                                unit_menu.append(item)
+            kids_added = False
+            submenu = gtk.Menu()
+            # removes two levels of kids with the same name, there must be a
+            # better way to do this but i got tired of thinking about it
+            for kid_id, kid_name in get_kids(id):
+                if kid_name == name:
+                    for gk_id, gk_name in get_kids(kid_id):
+                        if gk_name == kid_name:
+                            for gk2_id, gk2_name in get_kids(gk_id):
+                                submenu.append(build_menu(gk2_id, gk2_name))
+                                kids_added = True
                         else:
-                            item = gtk.MenuItem(country)
-                            item.connect('activate', self.on_menu_activate,
-                                         BotanicalCountry, country_id)
-                            country_menu.append(item)
+                            submenu.append(build_menu(gk_id, gk_name))
+                            kids_added = True                        
+                else:
+                    submenu.append(build_menu(kid_id, kid_name))
+                    kids_added = True
+
+            if kids_added:
+                sel_item = gtk.MenuItem(name)
+                submenu.insert(sel_item, 0)
+                submenu.insert(gtk.SeparatorMenuItem(), 1)
+                item.set_submenu(submenu)
+                sel_item.connect('activate', self.on_activate_add_menu_item,id)
+            else:
+                item.connect('activate', self.on_activate_add_menu_item, id)
+            return item
+
+        def populate():
+            sel = select([geography_table.c.id, geography_table.c.name],
+                         geography_table.c.parent_id==None)
+            for geo_id, geo_name in sel.execute():
+                self.add_menu.append(build_menu(geo_id, geo_name))
             self.add_menu.show_all()
             self.view.widgets.sp_dist_add_button.set_sensitive(True)
-            return
-        gobject.idle_add(__populate)
+        gobject.idle_add(populate)    
+
+    
 
 
-    def on_add_button_pressed(self, button, event):
-        self.add_menu.popup(None, None, None, event.button, event.time)
-
-
-    def on_remove_button_clicked(self, *args):
-        pass
 
 
 
@@ -874,142 +862,7 @@ class SynonymsPresenter(GenericEditorPresenter):
 #            delete_or_expunge(value)            
             self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
-    
-    
-# TODO: there is no way to set the check buttons to None once they
-# have been set and the inconsistent state doesn't convey None that
-# well, the only other option I know of is to use Yes/No/None combos
-# instead of checks
-        
 
-class SpeciesMetaPresenter(GenericEditorPresenter):    
-    
-    widget_to_field_map = {'sp_dist_combo': 'distribution',
-                           'sp_humanpoison_check': 'poison_humans',
-                           'sp_animalpoison_check': 'poison_animals',
-                           'sp_food_check': 'food_plant'}
-        
-    def __init__(self, species, view, session):
-        '''
-        @param species: a Species object
-        @param view: the view
-        @param session: the session to save the model to, can be different than 
-        that session the model is bound to
-        '''        
-        self.species = species
-        meta = self.species.species_meta
-        if meta is None:
-            meta = SpeciesMeta()
-        GenericEditorPresenter.__init__(self, ModelDecorator(meta), view)
-        self.session = session
-        self.init_distribution_combo()
-        # we need to call refresh view here first before setting the signal
-        # handlers b/c SpeciesEditorPresenter will call refresh_view after
-        # these are assigned causing the the model to appear dirty
-        self.refresh_view() 
-        self.assign_simple_handler('sp_humanpoison_check', 'poison_humans')
-        self.assign_simple_handler('sp_animalpoison_check', 'poison_animals')
-        self.assign_simple_handler('sp_food_check', 'food_plant')
-        for field in self.widget_to_field_map.values():         
-            self.model.add_notifier(field, self.on_field_changed)
-
-    
-    def dirty(self):
-        return self.model.dirty
-
-    
-    def on_field_changed(self, model, field):
-        if self.species.species_meta is None:
-            self.species.species_meta = model
-
-        
-    def init_distribution_combo(self):        
-#        def populate():  
-#            combo = self.view.widgets.sp_dist_combo
-#            combo.set_model(None)
-#            model = gtk.TreeStore(object)
-#            # TODO: how do we handled "Cultivated" since we no longer save
-#            # the distribution as just a string
-##            model.append(None, ["Cultivated"])
-#            from bauble.plugins.geography.distribution import Continent, \
-#                Region, BotanicalCountry, BasicUnit
-#            for continent in self.session.query(Continent).select():
-#                p1 = model.append(None, [continent])                
-#                for region in self.session.query(Region).select_by(continent_id=continent.id):
-#                    p2 = model.append(p1, [region])
-#                    for country in self.session.query(BotanicalCountry).select_by(region_id=region.id):
-#                        p3 = model.append(p2, [country])
-#                        for unit in self.session.query(BasicUnit).select_by(botanical_country_id=country.id):
-#                            if unit.name != country.name:
-#                                model.append(p3, [unit])                    
-#            combo.set_model(model)
-#            combo.set_sensitive(True)
-#            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-#            self.assign_simple_handler('sp_dist_combo', 'distribution')       
-        def populate():
-            return
-            combo = self.view.widgets.sp_dist_combo
-            combo.set_model(None)
-            model = gtk.TreeStore(object)
-            model.append(None, [''])
-            model.append(None, ['Cultivated'])            
-            # TODO: i wonder if it would be faster to get all the data in one loop
-            # and populate the model in another
-            from bauble.plugins.geography.distribution import continent_table, \
-                region_table, botanical_country_table, basic_unit_table                
-            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
-                p1 = model.append(None, [continent])
-                for region_id, region in select([region_table.c.id, region_table.c.region], region_table.c.continent_id==continent_id).execute():
-                    p2 = model.append(p1, [region])
-                    for country_id, country in select([botanical_country_table.c.id, botanical_country_table.c.name], botanical_country_table.c.region_id==region_id).execute():
-                        p3 = model.append(p2, [country])
-                        for unit, in select([basic_unit_table.c.name], and_(basic_unit_table.c.botanical_country_id==country_id, basic_unit_table.c.name!=country)).execute():
-                            model.append(p3, [unit])
-            combo.set_model(model)
-            combo.set_sensitive(True)
-            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-            self.assign_simple_handler('sp_dist_combo', 'distribution', StringOrNoneValidator())
-        gobject.idle_add(populate)
-        
-#    def init_distribution_combo(self):        
-#        '''
-#        '''
-#        def _populate():
-#            self.view.widgets.sp_dist_combo.set_model(None)
-#            model = gtk.TreeStore(str)
-#            model.append(None, ["Cultivated"])            
-#            from bauble.plugins.geography.distribution import continent_table, \
-#                region_table, botanical_country_table, basic_unit_table
-#            region_select = select([region_table.c.id, region_table.c.region], 
-#                                   region_table.c.continent_id==bindparam('continent_id')).compile()
-#            country_select = select([botanical_country_table.c.id, botanical_country_table.c.name], 
-#                                    botanical_country_table.c.region_id==bindparam('region_id')).compile()
-#            unit_select = select([basic_unit_table.c.name, basic_unit_table.c.id], 
-#                                 basic_unit_table.c.botanical_country_id==bindparam('country_id')).compile()                        
-#            for continent_id, continent in select([continent_table.c.id, continent_table.c.continent]).execute():
-#                p1 = model.append(None, [continent])
-#                for region_id, region in region_select.execute(continent_id=continent_id):
-#                    p2 = model.append(p1, [region])
-#                    for country_id, country in country_select.execute(region_id=region_id):
-#                        p3 = model.append(p2, [country])
-#                        for unit, dummy in unit_select.execute(country_id=country_id):
-#                            if unit != country:
-#                                model.append(p3, [unit])
-#            self.view.widgets.sp_dist_combo.set_model(model)
-#            self.view.widgets.sp_dist_combo.set_sensitive(True)
-#            self.view.set_widget_value('sp_dist_combo', self.model.distribution)
-#            self.assign_simple_handler('sp_dist_combo', 'distribution')
-#        gobject.idle_add(_populate)
-    
-        
-        
-    def refresh_view(self):
-        '''
-        '''
-        for widget, field in self.widget_to_field_map.iteritems():
-            value = getattr(self.model, field)
-            self.view.set_widget_value(widget, value)
-            
     
 
 class SpeciesEditorView(GenericEditorView):
@@ -1030,26 +883,13 @@ class SpeciesEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
-        self.init_distribution_combo()
         self.attach_completion('sp_genus_entry',
                                self.genus_completion_cell_data_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.species_dialog)
         if sys.platform == 'win32':
-            self.do_win32_fixes()
-        
-        
-    def init_distribution_combo(self):
-        def cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
-            renderer.set_property('text', '%s' % str(v))
-        combo = self.widgets.sp_dist_combo
-        combo.clear()        
-        r = gtk.CellRendererText()
-        combo.pack_start(r)
-        combo.set_cell_data_func(r, cell_data_func)
-        
+            self.do_win32_fixes()        
         
     def _get_window(self):
         '''
@@ -1142,8 +982,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         '''        
         if model is None:
             model = Species()
-            
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        super(SpeciesEditor, self).__init__(model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.gui.window
         self.parent = parent
@@ -1358,9 +1197,6 @@ class GeneralSpeciesExpander(InfoExpander):
         def on_enter(button, *args):
             button.emit_stop_by_name("enter-notify-event")
             return True
-        self.widgets.sp_food_check.connect('enter-notify-event', on_enter)
-        self.widgets.sp_phumans_check.connect('enter-notify-event', on_enter)
-        self.widgets.sp_panimals_check.connect('enter-notify-event', on_enter)
 
 
     def update(self, row):
@@ -1370,26 +1206,6 @@ class GeneralSpeciesExpander(InfoExpander):
         @param row: the row to get the values from
         '''
         self.set_widget_value('sp_name_data', row.markup(True))
-
-        if row.species_meta is not None:
-            meta = row.species_meta
-            # set the sensitivity of the widgets before setting them
-            def set_meta(widget, value):                
-                if value is None:
-                    self.widgets[widget].set_sensitive(False)
-                else:
-                    self.widgets[widget].set_sensitive(True)
-                self.set_widget_value(widget, value)
-            set_meta('sp_dist_data', meta.distribution)
-            set_meta('sp_food_check', meta.food_plant)
-            set_meta('sp_phumans_check', meta.poison_humans)
-            set_meta('sp_panimals_check', meta.poison_animals)
-        else:
-            for w in ('sp_dist_data', 'sp_food_check', 'sp_phumans_check', 'sp_panimals_check'):
-                self.set_widget_value(w, None)
-                self.widgets[w].set_sensitive(False)
-
-
         nacc = sql_utils.count(accession_table,
                                accession_table.c.species_id==row.id)
         self.set_widget_value('sp_nacc_data', nacc)
