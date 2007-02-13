@@ -29,7 +29,7 @@ class PlantsPlugin(pluginmgr.Plugin):
     
     tables = [family_table, family_synonym_table, genus_table, 
               genus_synonym_table, species_table, species_synonym_table, 
-              species_meta_table, vernacular_name_table]
+              vernacular_name_table]
     
     @classmethod
     def init(cls):            
@@ -86,7 +86,8 @@ class PlantsPlugin(pluginmgr.Plugin):
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['family.txt', 'family_synonym.txt', 'genus.txt', 'genus_synonym.txt']
+        files = ['family.txt', 'family_synonym.txt', 'genus.txt',
+                 'genus_synonym.txt', 'geography.txt']
         return [os.path.join(path, f) for f in files]
 
 
