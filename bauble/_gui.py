@@ -216,6 +216,7 @@ class GUI(object):
         clear_menu('/ui/MenuBar/insert_menu')
         clear_menu('/ui/MenuBar/tools_menu')
 
+        self.insert_menu= self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         return self.menubar
     
 

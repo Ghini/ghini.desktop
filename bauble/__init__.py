@@ -227,9 +227,20 @@ def command_handler(cmd, arg):
             gui.set_view(view)
         #else:
         #    gui.set_view(None)
-        last_handler = handler        
-    last_handler(arg)
-            
+        last_handler = handler
+    try:
+       last_handler(arg)
+    except Exception, e:       
+       utils.message_details_dialog(str(e), traceback.format_exc(),
+                                    gtk.MESSAGE_ERROR)
+
+
+try:
+   # TODO: this should really only be set once but for some reason its being
+   # reset, 
+   gui
+except NameError:
+   gui=None
 
 def main(uri=None):
     
@@ -239,7 +250,7 @@ def main(uri=None):
     
     # declare module level variables
     global prefs, conn_name, db_engine, gui, default_icon
-    gui = conn_name = None
+    gui = conn_name = db_engine = None
         
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
     

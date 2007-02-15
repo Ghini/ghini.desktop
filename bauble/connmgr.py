@@ -142,17 +142,12 @@ class ConnectionManager:
         
         self.dialog = self.glade_xml.get_widget('main_dialog')
         #icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
-        #pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.app.icon)
         pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
         self.dialog.set_icon(pixbuf)
         
-        #if bauble.app.gui is not None and bauble.app.gui.window is not None:
-        #    self.dialog.set_transient_for(bauble.app.gui.window)
         if bauble.gui is not None and bauble.gui.window is not None:
             self.dialog.set_transient_for(bauble.gui.window)        
-            #if not bauble.app.gui.window.get_property('visible'):
             if not bauble.gui.window.get_property('visible'):
-#                debug('skip False')
                 self.dialog.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
                 self.dialog.set_property('skip-taskbar-hint', False)
         

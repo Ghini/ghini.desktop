@@ -32,6 +32,19 @@ def create():
     default_metadata.drop_all()
     default_metadata.create_all()
 
+    # TODO: clearing the insert menu probably shouldn't be here and should
+    # probably be pushed into bauble.create_database, the problem is at the
+    # moment the data is imported in the pluginmgr.init method so we would
+    # have to separate table creations from the init menu
+
+    # clear the insert menu
+    if bauble.gui is not None and hasattr(bauble.gui, 'insert_menu'):
+        menu = bauble.gui.insert_menu
+        submenu = menu.get_submenu()
+        for c in submenu.get_children():
+            submenu.remove(c)
+        menu.show()
+
     # create the plugin registry and import the default data
     pluginmgr.init(True) 
     meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY, 
