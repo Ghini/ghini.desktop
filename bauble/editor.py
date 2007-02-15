@@ -509,7 +509,8 @@ class GenericEditorPresenter:
     # regardless of the length
     def assign_completions_handler(self, widget_name, field, 
                                    get_completions, 
-                                   set_func=lambda self, f, v: setattr(self.model, f, v), 
+                                   set_func=lambda self, f, v: \
+                                      setattr(self.model, f, v), 
                                    format_func=lambda x: str(x),
                                    model=None):
         '''
@@ -555,7 +556,8 @@ class GenericEditorPresenter:
                 completion = widget.get_completion()
                 completion.set_model(completion_model)
             gobject.idle_add(idle_callback, values)
-        def on_insert_text(entry, new_text, new_text_length, position, data=None):
+        def on_insert_text(entry, new_text, new_text_length, position,
+                           data=None):
             if new_text == '':
                 # this is to workaround the problem of having a second 
                 # insert-text signal called with new_text = '' when there is a 
@@ -605,13 +607,14 @@ class GenericEditorPresenter:
             model[field] = None
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
-#            debug('on_match_select: %s' % str(value))
+            debug('on_match_select: %s' % str(value))
             widget.handler_block(getattr(self, insert_sid_name))
             widget.set_text(str(value))
             widget.handler_unblock(getattr(self, insert_sid_name))
             widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             set_func(self, field, value)
+            debug('set prev text')
             self.prev_text = str(value)            
                     
         completion = widget.get_completion()

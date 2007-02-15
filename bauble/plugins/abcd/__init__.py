@@ -12,7 +12,7 @@ import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.utils import xml_safe
-from bauble.plugins import BaublePlugin, BaubleTool, plugins
+import bauble.pluginmgr as plugin
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
@@ -199,7 +199,7 @@ class ABCDExporter:
 #        ABCDImporter().start()
     
     
-class ABCDExportTool(BaubleTool):
+class ABCDExportTool(plugin.Tool):
     category = "Export"
     label = "ABCD"
     
@@ -212,7 +212,7 @@ class ABCDExportTool(BaubleTool):
         ABCDExporter().start()
     
 
-class ABCDImexPlugin(BaublePlugin):
+class ABCDImexPlugin(plugin.Plugin):
     #tools = [ABCDImportTool, ABCDExportTool]
     tools = [ABCDExportTool]
     depends = ["PlantsPlugin"]

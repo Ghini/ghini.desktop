@@ -76,13 +76,16 @@ def load(path=None):
             try:
                 depends.append((plugin, plugins_dict[dep]))
             except KeyError:
+                msg = _('The %s plugin depends on the %s plugin but the %s '\
+                        'plugin wasn\'t found.') % (plugin.__name__,
+                                                    dep, dep)
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                 # TODO: do something, we get here if a plugin requests another
                 # plugin as a dependency but the plugin that is a dependency 
                 # wasn't found
                 raise
     try:
-        import utils.toposort
-        plugins = utils.toposort.topological_sort(found, depends)
+        plugins = topological_sort(found, depends)
         plugins.reverse()
     except Exception, e:
         debug(e)
@@ -113,6 +116,16 @@ def init(auto_setup=False):
         if p not in registry:
             not_registered.append(p)
 
+    def save_and_init():
+        registry.save()
+        for entry in registry:
+            try:
+                plugins_dict[entry.name].init()
+            except KeyError, e:
+                from bauble.utils.log import warning
+                warning(_("Couldn't initialize %s.") % entry.name)
+                warning(e)
+
     if len(not_registered) > 0:
         msg = _('The following plugins were found but are not registered: '\
                 '\n\n%s\n\n<i>Would you like to install them now?</i>'\
@@ -125,17 +138,13 @@ def init(auto_setup=False):
             if len(default_filenames) > 0:
                 from bauble.plugins.imex_csv import CSVImporter            
                 csv = CSVImporter()
-                csv.start(default_filenames, callback=registry.save)
-            else:
-                registry.save()                
-    #registry.save()    
-    for entry in registry:
-        try:
-            plugins_dict[entry.name].init()
-        except KeyError, e:
-            from bauble.utils.log import warning
-            warning(_("Couldn't initialize %s.") % entry.name)
-            warning(e)
+                csv.start(default_filenames, callback=save_and_init)
+#            else:
+#                registry.save()                
+    else:
+        save_and_init()
+    
+
     
 
 class RegistryEmptyError(Exception):
