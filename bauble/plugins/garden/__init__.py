@@ -3,6 +3,8 @@
 #
 
 import os, sys
+import bauble
+from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView, SearchMeta
 from bauble.plugins.garden.accession import accession_table, Accession, \
@@ -25,10 +27,6 @@ from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
 
 class GardenPlugin(pluginmgr.Plugin):
 
-    editors = [AccessionEditor, LocationEditor, PlantEditor, DonorEditor]
-
-#    tables = [Accession, Location, Plant, Donor, Donation, Collection,
-#              PlantHistory]
     tables = [accession_table, location_table, plant_table, donor_table,
               donation_table, collection_table, plant_history_table]
     
@@ -69,8 +67,14 @@ class GardenPlugin(pluginmgr.Plugin):
 
         # done here b/c the Species table is not part of this plugin
         SearchView.view_meta[Species].child = "accessions"
+
+        if bauble.gui is not None:
+            bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
+            bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
+            bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
+            #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
     
     
-    depends = ("PlantsPlugin","GeographyPlugin")
+    depends = ["PlantsPlugin"]
 
 plugin = GardenPlugin

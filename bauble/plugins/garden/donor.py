@@ -241,74 +241,68 @@ class DonorEditor(GenericModelViewPresenterEditor):
     
 
         
-try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError, e:
-    # TODO: this should probably be handled a bit more robustly
-    debug('donor.py: %s' % e)
-    class DonorInfoBox:
-        def update(self, *args):
-            pass
-else:
-    class GeneralDonorExpander(InfoExpander):
-        '''
-        displays name, number of donations, address, email, fax, tel, 
-        type of donor
-        '''
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Genera", widgets)
-            gen_box = self.widgets.don_gen_box
-            self.widgets.remove_parent(gen_box)
-            self.vbox.pack_start(gen_box)
-        
-                
-        def update(self, row):
-            self.set_widget_value('don_name_data', row.name)
-            self.set_widget_value('don_address_data', row.address)
-            self.set_widget_value('don_email_data', row.email)
-            self.set_widget_value('don_tel_data', row.tel)
-            self.set_widget_value('don_fax_data', row.fax)
-            
-            donation_ids = select([donation_table.c.id], donation_table.c.donor_id==row.id)
-            ndons = sql_utils.count_select(donation_ids)
-            self.set_widget_value('don_ndons_data', ndons)            
-    
-    
-    class NotesExpander(InfoExpander):
-        """
-        displays notes about the donor
-        """
-    
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Notes", widgets)            
-            notes_box = self.widgets.don_notes_box
-            self.widgets.remove_parent(notes_box)
-            self.vbox.pack_start(notes_box)
-        
-            
-        def update(self, row):
-            if row.notes is None:
-                self.set_sensitive(False)
-                self.set_expanded(False)            
-            else:
-                # TODO: get expanded state from prefs
-                self.set_sensitive(True)
-                self.set_widget_value('don_notes_data', row.notes)       
-    
-    
-    class DonorInfoBox(InfoBox):        
-        
-        def __init__(self):
-            InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
-                                "infoboxes.glade")
-            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))            
-            self.general = GeneralDonorExpander(self.widgets)
-            self.add_expander(self.general)
-            self.notes = NotesExpander(self.widgets)
-            self.add_expander(self.notes)
-            
-        def update(self, row):
-            self.general.update(row)
-            self.notes.update(row)
-            
+
+from bauble.view import InfoBox, InfoExpander
+
+class GeneralDonorExpander(InfoExpander):
+    '''
+    displays name, number of donations, address, email, fax, tel, 
+    type of donor
+    '''
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Genera", widgets)
+        gen_box = self.widgets.don_gen_box
+        self.widgets.remove_parent(gen_box)
+        self.vbox.pack_start(gen_box)
+
+
+    def update(self, row):
+        self.set_widget_value('don_name_data', row.name)
+        self.set_widget_value('don_address_data', row.address)
+        self.set_widget_value('don_email_data', row.email)
+        self.set_widget_value('don_tel_data', row.tel)
+        self.set_widget_value('don_fax_data', row.fax)
+
+        donation_ids = select([donation_table.c.id], donation_table.c.donor_id==row.id)
+        ndons = sql_utils.count_select(donation_ids)
+        self.set_widget_value('don_ndons_data', ndons)            
+
+
+class NotesExpander(InfoExpander):
+    """
+    displays notes about the donor
+    """
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Notes", widgets)            
+        notes_box = self.widgets.don_notes_box
+        self.widgets.remove_parent(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        if row.notes is None:
+            self.set_sensitive(False)
+            self.set_expanded(False)            
+        else:
+            # TODO: get expanded state from prefs
+            self.set_sensitive(True)
+            self.set_widget_value('don_notes_data', row.notes)       
+
+
+class DonorInfoBox(InfoBox):        
+
+    def __init__(self):
+        InfoBox.__init__(self)
+        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+                            "infoboxes.glade")
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))            
+        self.general = GeneralDonorExpander(self.widgets)
+        self.add_expander(self.general)
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
+
+    def update(self, row):
+        self.general.update(row)
+        self.notes.update(row)
+
