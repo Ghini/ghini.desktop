@@ -11,7 +11,8 @@ import bauble
 import bauble.utils as utils
 from bauble.utils.log import log, debug
 from bauble.types import Enum
-from bauble.plugins.geography import *
+from bauble.plugins.plants.geography import Geography, geography_table
+
 
 # ***** supported names
 # Genus sp
@@ -414,27 +415,6 @@ class DefaultVernacularName(bauble.BaubleMapper):
         #return '%s (default)' % str(self.vernacular_name)
 
 
-#'''
-#Species distrubtion table(species_distribution)
-#
-#
-#'''
-##from bauble.plugins.geography.distribution import Distribution
-
-geography_table = Table('geography',
-                        Column('id', Integer, primary_key=True),
-                        Column('name', String(255), nullable=False),
-                        Column('tdwg_code', String(5)),
-                        Column('iso_code', String(6)),
-                        Column('parent_id', Integer,
-                               ForeignKey('geography.id')),
-                        Column('_created', DateTime,
-                               default=func.current_timestamp()),
-                        Column('_last_updated', DateTime,
-                               default=func.current_timestamp(), 
-                               onupdate=func.current_timestamp()))
-
-
 species_distribution_table = Table('species_distribution',
                                    Column('id', Integer, primary_key=True),
                                    Column('geography_id', Integer,
@@ -458,14 +438,6 @@ class SpeciesDistribution(bauble.BaubleMapper):
         
     def __str__(self):
         return str(self.geography)
-
-
-
-class Geography(bauble.BaubleMapper):
-    
-    def __str__(self):
-        return str(self.name)
-
 
 ##
 ## mappers
@@ -501,17 +473,7 @@ mapper(SpeciesDistribution, species_distribution_table,
                           primaryjoin=species_distribution_table.c.geography_id==geography_table.c.id,
                           uselist=False)})
 
-# Geography mapper
-Geography.mapper = mapper(Geography, geography_table,
-    properties = {'children':
-                  relation(Geography,
-                           primaryjoin=geography_table.c.parent_id==geography_table.c.id,
-                           cascade='all',
-#                           order_by='name',
-                           backref=backref("parent",
-                                           remote_side=[geography_table.c.id])
-                           )},
-    order_by=[geography_table.c.name])
+
 
 
 # map species
