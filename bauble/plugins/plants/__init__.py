@@ -22,6 +22,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
+from bauble.plugins.plants.geography import *
 from bauble.view import SearchView, SearchMeta
 
 
@@ -29,7 +30,7 @@ class PlantsPlugin(pluginmgr.Plugin):
     
     tables = [family_table, family_synonym_table, genus_table, 
               genus_synonym_table, species_table, species_synonym_table, 
-              vernacular_name_table]
+              vernacular_name_table, geography_table]
     
     @classmethod
     def init(cls):            
@@ -70,8 +71,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         # species
         # TODO: for the infobox somehow we need to show the species infobox
 ##         SearchView.view_meta["VernacularName"].set(context_menu=vern_context_menu, 
-##                                                    markup_func=vern_markup_func)
-        
+##                                                    markup_func=vern_markup_func)        
         bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
         bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
         bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
