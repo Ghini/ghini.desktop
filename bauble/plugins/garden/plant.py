@@ -59,7 +59,8 @@ def plant_markup_func(plant):
     '''
     if plant.acc_status == 'Dead':
         color = '<span foreground="#666666">%s</span>'
-        return color % str(plant), color % plant.accession.species.markup(authors=False)
+        return color % str(plant), \
+               color % plant.accession.species.markup(authors=False)
     else:
         return str(plant), plant.accession.species.markup(authors=False)
 
@@ -70,8 +71,10 @@ plant_history_table = Table('plant_history',
                             Column('description', Unicode),
                             Column('plant_id', Integer, ForeignKey('plant.id'),
                                    nullable=False),
-                            Column('_created', DateTime, default=func.current_timestamp()),
-                            Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                            Column('_created', DateTime,
+                                   default=func.current_timestamp()),
+                            Column('_last_updated', DateTime,
+                                   default=func.current_timestamp(), 
                                    onupdate=func.current_timestamp()))
 
 
@@ -111,17 +114,21 @@ plant_table = Table('plant',
                                         'Other', None], empty_to_none=True)),
                     Column('acc_status', Enum(values=['Living accession', 
                                                       'Dead', 'Transferred', 
-                                                      'Stored in dormant state', 
-                                                      'Other', None], empty_to_none=True)),
+                                                     'Stored in dormant state',
+                                                      'Other', None],
+                                              empty_to_none=True)),
                     Column('notes', Unicode),
-                    Column('accession_id', Integer, ForeignKey('accession.id'), 
+                    Column('accession_id', Integer, ForeignKey('accession.id'),
                            nullable=False),
                     Column('location_id', Integer, ForeignKey('location.id'), 
                            nullable=False),
-                    Column('_created', DateTime, default=func.current_timestamp()),
-                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                    Column('_created', DateTime,
+                           default=func.current_timestamp()),
+                    Column('_last_updated', DateTime,
+                           default=func.current_timestamp(), 
                            onupdate=func.current_timestamp()),
-                    UniqueConstraint('code', 'accession_id', name='plant_index'))
+                    UniqueConstraint('code', 'accession_id',
+                                     name='plant_index'))
 
 # TODO: configure the acc code and plant code separator, the default should
 # be '.'
@@ -264,7 +271,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.model._set('acc_type', default_acc_type, dirty=False)
         if self.model.id is None and self.model.acc_status is None:
             default_acc_status = 'Living accession'
-            self.view.set_widget_value('plant_acc_status_combo', default_acc_status)   
+            self.view.set_widget_value('plant_acc_status_combo',
+                                       default_acc_status)   
             self.model._set('acc_status', default_acc_status, dirty=False)
             
         
@@ -290,11 +298,17 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                                self.on_plant_code_entry_delete)
         self.assign_simple_handler('plant_notes_textview', 'notes')
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
-        self.assign_simple_handler('plant_acc_status_combo', 'acc_status', StringOrNoneValidator())
-        self.assign_simple_handler('plant_acc_type_combo', 'acc_type', StringOrNoneValidator())        
+        self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
+                                   StringOrNoneValidator())
+        self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
+                                   StringOrNoneValidator())        
 
-        self.view.widgets.plant_loc_add_button.connect('clicked', self.on_loc_button_clicked, 'add')
-        self.view.widgets.plant_loc_edit_button.connect('clicked', self.on_loc_button_clicked, 'edit')
+        self.view.widgets.plant_loc_add_button.connect('clicked',
+                                                       self.on_loc_button_clicked,
+                                                       'add')
+        self.view.widgets.plant_loc_edit_button.connect('clicked',
+                                                        self.on_loc_button_clicked,
+                                                        'edit')
         self.init_change_notifier()
         
        
@@ -452,7 +466,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             model = Plant()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
-            parent = bauble.app.gui.window
+            parent = bauble.gui.window
         self.parent = parent
         self._committed = []
         
@@ -544,41 +558,35 @@ class PlantEditor(GenericModelViewPresenterEditor):
         return self._committed
         
         
-try:
-    import os
-    import bauble.paths as paths
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
-except ImportError, e:
-    debug('plant.py: %s' % e)
-    class PlantInfoBox:
-        def update(self, *args):
-            pass
-else:
+
+import os
+import bauble.paths as paths
+from bauble.view  import InfoBox, InfoExpander
     
-    class GeneralPlantExpander(InfoExpander):
-        """
-        general expander for the PlantInfoBox        
-        """
-        
-        def __init__(self, widgets):
-            '''
-            '''
-            InfoExpander.__init__(self, "General", widgets)
-            general_box = self.widgets.general_box
-            self.widgets.remove_parent(general_box)
-            self.vbox.pack_start(general_box)
-        
-        
-        def update(self, row):
-            '''
-            '''
-            self.set_widget_value('name_data', 
-                 '%s\n%s' % (row.accession.species.markup(True), str(row)))            
-            self.set_widget_value('location_data',row.location.site)
-            self.set_widget_value('status_data',
-                             row.acc_status, False)
-            self.set_widget_value('type_data',
-                             row.acc_type, False)
+class GeneralPlantExpander(InfoExpander):
+    """
+    general expander for the PlantInfoBox        
+    """
+
+    def __init__(self, widgets):
+        '''
+        '''
+        InfoExpander.__init__(self, "General", widgets)
+        general_box = self.widgets.general_box
+        self.widgets.remove_parent(general_box)
+        self.vbox.pack_start(general_box)
+
+
+    def update(self, row):
+        '''
+        '''
+        self.set_widget_value('name_data', 
+             '%s\n%s' % (row.accession.species.markup(True), str(row)))            
+        self.set_widget_value('location_data',row.location.site)
+        self.set_widget_value('status_data',
+                         row.acc_status, False)
+        self.set_widget_value('type_data',
+                              row.acc_type, False)
 #            utils.set_widget_value(self.glade_xml, 'name_data', 
 #                 '%s\n%s' % (row.accession.species.markup(True), str(row)))            
 #            utils.set_widget_value(self.glade_xml, 'location_data',row.location.site)
@@ -588,62 +596,62 @@ else:
 #                             row.acc_type, False)
             
             
-    class NotesExpander(InfoExpander):
-        """
-        the plants notes
-        """
-            
-        def __init__(self, widgets):
-            '''
-            '''
-            InfoExpander.__init__(self, "Notes", widgets)
-            notes_box = self.widgets.notes_box
-            self.widgets.remove_parent(notes_box)
-            self.vbox.pack_start(notes_box)
-        
-        
-        def update(self, row):
-            '''
-            '''
-            self.set_widget_value('notes_data', row.notes)
-        
+class NotesExpander(InfoExpander):
+    """
+    the plants notes
+    """
 
-    class PlantInfoBox(InfoBox):
-        """
-        an InfoBox for a Plants table row
-        """
-        
-        def __init__(self):
-            '''
-            '''
-            InfoBox.__init__(self)
-            #loc = LocationExpander()
-            #loc.set_expanded(True)
-            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", "plant_infobox.glade")
-            self.widgets = utils.GladeWidgets(glade_file)
-            self.general = GeneralPlantExpander(self.widgets)
-            self.add_expander(self.general)                    
-            
-            self.notes = NotesExpander(self.widgets)
-            self.add_expander(self.notes)
-            
-        
-        def update(self, row):
-            '''
-            '''
-            # TODO: don't really need a location expander, could just
-            # use a label in the general section
-            #loc = self.get_expander("Location")
-            #loc.update(row.location)
-            self.general.update(row)
-            
-            if row.notes is None:
-                self.notes.set_expanded(False)
-                self.notes.set_sensitive(False)
-            else:
-                self.notes.set_expanded(True)
-                self.notes.set_sensitive(True)
-                self.notes.update(row)
+    def __init__(self, widgets):
+        '''
+        '''
+        InfoExpander.__init__(self, "Notes", widgets)
+        notes_box = self.widgets.notes_box
+        self.widgets.remove_parent(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        '''
+        '''
+        self.set_widget_value('notes_data', row.notes)
+
+
+class PlantInfoBox(InfoBox):
+    """
+    an InfoBox for a Plants table row
+    """
+
+    def __init__(self):
+        '''
+        '''
+        InfoBox.__init__(self)
+        #loc = LocationExpander()
+        #loc.set_expanded(True)
+        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", "plant_infobox.glade")
+        self.widgets = utils.GladeWidgets(glade_file)
+        self.general = GeneralPlantExpander(self.widgets)
+        self.add_expander(self.general)                    
+
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
+
+
+    def update(self, row):
+        '''
+        '''
+        # TODO: don't really need a location expander, could just
+        # use a label in the general section
+        #loc = self.get_expander("Location")
+        #loc.update(row.location)
+        self.general.update(row)
+
+        if row.notes is None:
+            self.notes.set_expanded(False)
+            self.notes.set_sensitive(False)
+        else:
+            self.notes.set_expanded(True)
+            self.notes.set_sensitive(True)
+            self.notes.update(row)
 
 
 from bauble.plugins.garden.accession import Accession

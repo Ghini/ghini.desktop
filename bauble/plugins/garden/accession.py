@@ -1300,7 +1300,7 @@ from bauble.plugins.garden.donor import Donor, DonorEditor
 # infobox for searchview
 #
 try:
-    from bauble.plugins.searchview.infobox import InfoBox, InfoExpander
+    from bauble.view import InfoBox, InfoExpander
 except ImportError:    
     pass
 else:
