@@ -64,6 +64,17 @@ debug_logger = _config_logger('bauble.debug', logging.DEBUG,
 			     '%(filename)s(%(lineno)d): %(message)s')
 debug = debug_logger.debug
 
+# warning logger
+warning_logger = _config_logger('bauble.warning', logging.WARNING,
+			     '%(filename)s(%(lineno)d): %(message)s')
+warning = warning_logger.warning
+
+
+# error logger
+error_logger = _config_logger('bauble.error', logging.ERROR,
+			     '%(filename)s(%(lineno)d): %(message)s')
+error = error_logger.error
+
 
 class log:
 

@@ -15,7 +15,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
-#from bauble.plugins import BaubleView, tables, editors
 from bauble.utils.log import debug
 from bauble.utils.pyparsing import *
 
@@ -87,9 +86,10 @@ else:
 
 
 # TODO: reset expander data on expand, the problem is that we don't keep the 
-# row around that was used to update the infoexpander, if we don't do this then 
-# we can't update unless the search view updates us, this means that the search
-# view would have to register on_expanded on each info expander in the infobox
+# row around that was used to update the infoexpander, if we don't do this
+# then we can't update unless the search view updates us, this means that
+# the search view would have to register on_expanded on each info expander
+# in the infobox
 
 # what to display if the value in the database is None
 DEFAULT_VALUE='--'
@@ -210,7 +210,8 @@ class SearchParser:
         1. Value or a list of values: val1, val2, val3
         2. An expression where the domain is a search domain registered
            with the search meta: domain=something and val2=somethingelse,asdasd
-        3. A query like: domain where col1=something and col2=somethingelse,asdasd
+        3. A query like:
+           domain where col1=something and col2=somethingelse,asdasd
     """
     
     def __init__(self):        
@@ -221,14 +222,16 @@ class SearchParser:
         or_ = CaselessKeyword("or")
         in_ = CaselessKeyword("in")
         like = CaselessKeyword('like')
-        ilike = CaselessKeyword('ilike') # should provide a warning on non-postgres database
+        # should provide a warning on non-postgres database
+        ilike = CaselessKeyword('ilike') 
         contains = CaselessKeyword("contains") # TODO: does like('%%%s%%')
         
         valuechars = alphanums + '*;._-%'
-        quoted_value = quotes.suppress() + Word(valuechars+' ') + quotes.suppress()
+        quoted_value = quotes.suppress() + Word(valuechars+' ') + \
+                       quotes.suppress()
         value = Word(valuechars)# | quoted_value
         delimited_values = delimitedList(Word(valuechars))
-        values = delimitedList(value | quoted_value)#.setResultsName('values')  
+        values = delimitedList(value | quoted_value)#.setResultsName('values')
         
         binop = oneOf('= == != <> < <= > >= not')#.setResultsName('operator') 
         domain_expression = domain + (binop | like | ilike) + values
@@ -598,13 +601,15 @@ class SearchView(pluginmgr.View):
             #'test=val and (test=val or test=val)
             #debug('expression: %s' % expression)            
             col, cond, val = expression[0]
-            assert col in table.c, 'Unknown column \'%s\' on table \'%s\'' % (col, table.name)
+            assert col in table.c, \
+                   _('Unknown column "%s" on table "%s"') % (col, table.name)
             prev_expr = table.c[col].op(cond)(val)
             debug((col, cond, val))            
             ops = expression[1:][::2]
             ex = expression[1:][1::2]            
             for op, [col, cond, val] in zip(ops, ex):
-                assert col in table.c, 'Unknown column \'%s\' on table \'%s\'' % (col, table.name)
+                assert col in table.c, \
+                       _('Unknown column "%s" on table "%s"') %(col,table.name)
 #                debug('%s, %s, %s, %s' % (op, col, cond, val))
                 prev_expr = self.condition_map[op](prev_expr, table.c[col].op(cond)(val))            
 #            debug('expr: %s -- %s' % (prev_expr, repr(prev_expr)))        
@@ -621,7 +626,8 @@ class SearchView(pluginmgr.View):
                 utils.message_dialog('The ilike operator is only supported ' \
                                      'on PostgreSQL database. You are ' \
                                      'connected to a %s database' \
-                                     % bauble.db_engine.name, gtk.MESSAGE_WARNING)
+                                     % bauble.db_engine.name,
+                                     gtk.MESSAGE_WARNING)
                 return []            
             # select everything
             if val in ('*', 'all'):            
@@ -630,7 +636,7 @@ class SearchView(pluginmgr.View):
                 for col in search_meta.columns:
                     results.extend(query.select(mapping.c[col].op(cond)(val)))
         else:            
-            debug('is an value')
+#            debug('is an value')
             # make searches in postgres case-insensitive, i don't think other 
             # databases support a case-insensitive like operator
             if bauble.db_engine.name == 'postgres': 
@@ -782,7 +788,6 @@ class SearchView(pluginmgr.View):
         '''
         search the database using text
         '''                
-        debug('SearchView.search(%s)' % text)
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from 
         # outside the class so the entry and search results match
@@ -826,8 +831,8 @@ class SearchView(pluginmgr.View):
 #                set_cursor(None)
             if len(results) > 2000:
                 msg = 'This query returned %s results.  It may take a '\
-                        'long time to get all the data. Are you sure you want to '\
-                        'continue?' % len(results)
+                        'long time to get all the data. Are you sure you '\
+                        'want to continue?' % len(results)
                 if utils.yes_no_dialog(msg):                    
                     gobject.idle_add(populate_callback)
                 else:
@@ -1113,9 +1118,9 @@ class SearchView(pluginmgr.View):
 #                                    obj.id
                                 except saexc.InvalidRequestError:
 #                                    debug('exception on refresh')
-                                    # find the object in the tree and remove it,
-                                    # this could get expensive if there are a
-                                    # lot of items in the tree                                    
+                                    # find the object in the tree and remove
+                                    # it, this could get expensive if there
+                                    # are a lot of items in the tree
                                     for found in utils.search_tree_model(model, obj):
 #                                        debug('found %s: %s' % (found, model[found][0]))
                                         model.remove(found)
@@ -1139,7 +1144,6 @@ class SearchView(pluginmgr.View):
         '''
         view.expand_row(path, False)
             
-
 
     def create_gui(self):
         '''
@@ -1208,5 +1212,4 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
         return self.view
     
     def __call__(self, arg):
-        debug('DefaultCommandHandler.__call__(%s)' % arg)
         self.view.search(arg)
