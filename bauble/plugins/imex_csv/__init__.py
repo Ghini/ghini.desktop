@@ -2,16 +2,16 @@
 # csv import/export
 #
 
-import os, sys, csv, traceback, itertools
+import os, csv, traceback
 import gtk.gdk, gobject
 from sqlalchemy import *
 import bauble
+from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as plugin
 import bauble.task
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
-from bauble.utils.progressdialog import ProgressDialog
 import Queue
 
 # TODO: ****** important *****
@@ -389,13 +389,14 @@ class CSVImporter:
         
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
-                """
-                only make the ok button sensitive if the selection is a file
-                """
-                f = filechooser.get_preview_filename()
-                if f is None: return
-                ok = filechooser.action_area.get_children()[1]
-                ok.set_sensitive(os.path.isfile(f))
+            """
+            only make the ok button sensitive if the selection is a file
+            """
+            f = filechooser.get_preview_filename()
+            if f is None:
+                return
+            ok = filechooser.action_area.get_children()[1]
+            ok.set_sensitive(os.path.isfile(f))
         fc = gtk.FileChooserDialog("Choose file(s) to import...",
                                   None,    
                                   gtk.FILE_CHOOSER_ACTION_OPEN,

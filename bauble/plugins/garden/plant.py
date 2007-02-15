@@ -537,8 +537,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
         
         # add quick response keys
         dialog = self.view.dialog        
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)        
         
         # set default focus
         if self.model.accession is None:
