@@ -4,12 +4,15 @@
 import os, traceback
 import gtk
 from sqlalchemy import *
+from sqlalchemy.exceptions import SQLError
 from sqlalchemy.orm.session import object_session
-from bauble.plugins import BaublePlugin, plugins, views, tables
+import bauble
+import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils
-import bauble
-from bauble.utils.log import debug
+from bauble.utils.log import debug, warning
+from bauble.view import SearchView
+
 
 # TODO: i wander if it's possible to add to a context menu for any object
 # that show's a submenu of all the tags on an object
@@ -51,10 +54,11 @@ class TagItemGUI:
     '''
     # TODO: close on 'escape'
     def __init__(self, item):
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag', 'tag.glade')
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag',
+                                  'tag.glade')
         self.glade_xml = gtk.glade.XML(glade_file)
         self.dialog = self.glade_xml.get_widget('tag_item_dialog')
-        self.dialog.set_transient_for(bauble.app.gui.window)
+        self.dialog.set_transient_for(bauble.gui.window)
         self.item_data_label = self.glade_xml.get_widget('items_data')
         self.item = item
         self.item_data_label.set_text(str(self.item))            
@@ -72,7 +76,8 @@ class TagItemGUI:
         d.set_default_response(gtk.RESPONSE_ACCEPT)
         d.set_default_size(250,-1)
         entry = gtk.Entry()
-        entry.connect("activate", lambda entry: d.response(gtk.RESPONSE_ACCEPT))
+        entry.connect("activate",
+                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
         d.show_all()
         d.run()
@@ -86,6 +91,7 @@ class TagItemGUI:
             model = self.tag_tree.get_model()
             model.append([False, name])
             _reset_tags_menu()
+            
 
     def on_toggled(self, renderer, path, data=None):
         '''
@@ -131,7 +137,7 @@ class TagItemGUI:
             t.destroySelf()
             model.remove(iter)
             _reset_tags_menu()
-            view = bauble.app.gui.get_current_view()
+            view = bauble.gui.get_current_view()
             view.refresh_search()
     
     
@@ -179,9 +185,41 @@ class TagItemGUI:
 tag_table = Table('tag',
                   Column('id', Integer, primary_key=True),
                   Column('tag', Unicode(64), unique=True, nullable=False),
-                  Column('_created', DateTime, default=func.current_timestamp()),
-                  Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                  Column('_created', DateTime,
+                         default=func.current_timestamp()),
+                  Column('_last_updated', DateTime,
+                         default=func.current_timestamp(), 
                          onupdate=func.current_timestamp()))
+
+
+# TODO: maybe we shouldn't remove the obj from the tag if we can't find it,
+# it doesn't really hurt to have it there and in case the table is available
+# at the moment doesn't mean it won't be there later
+
+def get_tagged_objects(tag):
+    session = None
+    if isinstance(tag, Tag):
+        t = tag
+        session = object_session(t)
+    else:
+        session = create_session()
+        t = session.query(Tag).select(tag_table.c.tag==tag)[0]
+    from bauble.view import SearchView
+    kids = []
+    for obj in t._objects:
+        try:
+            obj_class = str(obj.obj_class)            
+            mapper = SearchView.search_metas[obj_class].mapper
+            kids.append(session.load(mapper, obj.obj_id))
+        except KeyError, e:
+            warning('KeyError -- tag.get_tagged_objects(%s): %s' % (tag, e))
+            continue
+        except SQLError, e:
+            warning('SQLError -- tag.get_tagged_objects(%s): %s' % (tag, e))
+            continue
+    return kids
+
+    
 
 class Tag(bauble.BaubleMapper):
     
@@ -192,29 +230,8 @@ class Tag(bauble.BaubleMapper):
         return '%s Tag' % self.tag
     
     def _get_objects(self):
-        kids = []
-        self_session = object_session(self)
-        session = create_session(self)
-        for obj in self._objects:
-            try:
-                cls = tables[obj.obj_class]
-                kids.append(self_session.load(cls, obj.obj_id))
-            except Exception, e:
-#                msg = 'Could not get the object that this tag refers to. '\
-#                'Removing tag from object %s(%s).' % (obj.obj_class, obj.obj_id)
-#                utils.message_details_dialog(msg, traceback.format_exc(), gtk.MESSAGE_WARNING)
-                session.delete(obj)
-                debug(traceback.format_exc)
-        session.flush()
-        return kids
+        return get_tagged_objects(self)    
     objects = property(_get_objects)
-
-#    def untag_object(self, obj):
-#        pass
-#    
-#    def tag_object(self, obj):
-#        pass
-#
 
     
 #
@@ -226,8 +243,10 @@ tagged_obj_table = Table('tagged_obj',
                          Column('obj_id', Integer),
                          Column('obj_class', String(64)),
                          Column('tag_id', Integer, ForeignKey('tag.id')),
-                         Column('_created', DateTime, default=func.current_timestamp()),
-                         Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                         Column('_created', DateTime,
+                                default=func.current_timestamp()),
+                         Column('_last_updated', DateTime,
+                                default=func.current_timestamp(), 
                                 onupdate=func.current_timestamp()))
 
 class TaggedObj(bauble.BaubleMapper):
@@ -243,48 +262,53 @@ mapper(Tag, tag_table,
        order_by='tag')
         
             
-def untag_object(name, so_obj):
+def untag_object(name, obj):
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
-    # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=so_obj.id)
+    # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
     tag = None
     session = create_session()
     try:        
         tag = session.query(Tag).select(tag_table.c.tag==name)[0]
-        debug('tag: %s' % tag)
     except Exception, e:
         debug(traceback.format_exc())
-        debug('untag_object: %s' % e)
         return
-    for obj in tag._objects:
-        # x = obj
-        # y = so_obj
-        same = lambda x, y:x.obj_class==y.__class__.__name__ and x.obj_id==y.id        
-        if same(obj, so_obj):
-            o = session.load(type(obj), obj.id)
+    for kid in tag._objects:
+        # x = kid
+        # y = obj
+        same = lambda x, y: \
+               x.obj_class==y.__class__.__name__ and x.obj_id==y.id        
+        if same(kids, obj):
+            o = session.load(type(kid), kid.id)
             session.delete(o)
     session.flush()
-            #obj.destroySelf()
             
        
-def tag_object(name, so_obj):     
+def tag_object(name, obj):     
     '''
+    @param name: the tag name
+    @param obj: the object to tag
     '''
-    session = create_session()
-    tag = session.query(Tag).select_by(tag=name)[0]
-    classname = so_obj.__class__.__name__
-    if tagged_obj_table.select(and_(tagged_obj_table.c.obj_class==classname,
-                                    tagged_obj_table.c.obj_id==so_obj.id, 
-                                    tagged_obj_table.c.tag_id==tag.id)).alias('__dummy').count().scalar() == 0:
-        tagged_obj = TaggedObj(obj_class=classname, obj_id=so_obj.id, tag=tag)
+    debug('tag_object(%s)' % obj)
+    #session = create_session()
+    session = object_session(obj)
+    tag = session.query(Tag).select_by(tag=name)[0]    
+    #obj_class = object_mapper(obj).__class__
+    obj_class = obj.__class__.__name__
+    debug('class: %s(%s)' % (obj_class, type(obj_class)))
+    if tagged_obj_table.select(\
+        and_(tagged_obj_table.c.obj_class==obj_class,
+             tagged_obj_table.c.obj_id==obj.id, 
+             tagged_obj_table.c.tag_id==tag.id)).count().scalar() == 0:
+        tagged_obj = TaggedObj(obj_class=obj_class, obj_id=obj.id, tag=tag)
         session.save(tagged_obj)
         session.flush()
 
 
 def get_tag_ids(obj):
-    '''
-    return a list of id's for tags associated with so_obj
-    '''
+    """
+    return a list of id's for tags associated with obj
+    """
     classname = obj.__class__.__name__
     query = object_session(obj).query(TaggedObj)
     tagged_objs = query.select_by(obj_class=classname, obj_id=obj.id)
@@ -300,8 +324,9 @@ def _on_add_tag_activated(*args):
     # item depending on if something was selected in the search view, this
     # means we need to add more hooks to the search view or include the
     # tag plugin into the search view
-    view = bauble.app.gui.get_current_view()
-    if 'SearchView' in views and isinstance(view, views['SearchView']):
+    
+    view = bauble.gui.get_view()
+    if isinstance(view, SearchView):
         items = view.get_selected() # right
         if len(items) == 0:
             msg = 'Nothing selected'
@@ -315,14 +340,14 @@ def _on_add_tag_activated(*args):
         # tag but not all of them
         tagitem = TagItemGUI(items[0]) 
         tagitem.start()
-    else:
-        msg = 'Not a SearchView'
-        utils.message_dialog(msg)
+    #lse:
+        #ig = 'Not a SearchView'
+        #tils.message_dialog(msg)
     
     
 def _tag_menu_item_activated(widget, tag_name):
-    view = bauble.app.gui.get_current_view()
-    if 'SearchView' in views and isinstance(view, views['SearchView']):
+    view = bauble.gui.get_view()
+    if isinstance(view, SearchView):
         view.search('tag=%s' % tag_name)
     
     
@@ -334,8 +359,8 @@ def _reset_tags_menu():
     add_tag_item.connect('activate', _on_add_tag_activated)
     accel_group = gtk.AccelGroup()
     add_tag_item.add_accelerator("activate", accel_group, ord('T'),
-                                   gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
-    bauble.app.gui.window.add_accel_group(accel_group)        
+                                 gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
+    bauble.gui.window.add_accel_group(accel_group)        
     tags_menu.append(add_tag_item)
         
     #manage_tag_item = gtk.MenuItem('Manage Tags')
@@ -359,7 +384,7 @@ def _reset_tags_menu():
 
     global _tags_menu_item
     if _tags_menu_item is None:
-        _tags_menu_item = bauble.app.gui.add_menu("Tags", tags_menu)
+        _tags_menu_item = bauble.gui.add_menu("Tags", tags_menu)
     else:
         _tags_menu_item.remove_submenu()
         _tags_menu_item.set_submenu(tags_menu)
@@ -367,27 +392,26 @@ def _reset_tags_menu():
         
 
 
-class TagPlugin(BaublePlugin):
+class TagPlugin(pluginmgr.Plugin):
     
-    tables = [Tag, TaggedObj]
-    depends = ('SearchViewPlugin',)
+    tables = [tag_table, tagged_obj_table]
     
     @classmethod
     def init(cls):
-        if "SearchViewPlugin" in plugins:
-            from bauble.plugins.searchview.search import SearchMeta, SearchView            
-            search_meta = SearchMeta("Tag", ["tag"], "tag")
-            SearchView.register_search_meta("tag", search_meta)
-            SearchView.register_search_meta("tags", search_meta)                                
-            SearchView.view_meta["Tag"].set(children='objects', 
-                                            context_menu=tag_context_menu)
+        from bauble.view import SearchMeta, SearchView
+        search_meta = SearchMeta(Tag, ["tag"], "tag")
+        SearchView.register_search_meta("tag", search_meta)
+        SearchView.register_search_meta("tags", search_meta)
+        SearchView.view_meta[Tag].set(children='objects', 
+                                      context_menu=tag_context_menu)
+        _reset_tags_menu()
 
 
-    @classmethod
-    def create_tables(cls):
-        super(TagPlugin, cls).create_tables()
-        if bauble.app.gui is not None:
-            _reset_tags_menu() 
+##     @classmethod
+##     def create_tables(cls):
+##         super(TagPlugin, cls).create_tables()
+##         if bauble.gui is not None:
+##             _reset_tags_menu() 
         
         
     @classmethod
@@ -415,6 +439,5 @@ class TagPlugin(BaublePlugin):
 #        GenericModelViewPresenterEditor.__init__(self, model, parent)
     
 plugin = TagPlugin
-
 
 
