@@ -406,7 +406,8 @@ class SearchView(pluginmgr.View):
         
             def get_children(self, obj):
                 '''
-                @param obj: get the children from obj according to self.children
+                @param obj: get the children from obj according to
+                self.children
                 '''
                 if self.children is None:
                     return []
@@ -433,7 +434,8 @@ class SearchView(pluginmgr.View):
         '''
         table_name = search_meta.mapper.local_table.name
         cls.domain_map[domain] = search_meta.mapper
-        cls.search_metas[table_name] = search_meta
+        # look up by name of mapped class
+        cls.search_metas[search_meta.mapper.class_.__name__] = search_meta
   
     
     def __init__(self):
@@ -620,7 +622,7 @@ class SearchView(pluginmgr.View):
             domain, cond, val = tokens['expression']
 #            debug('expression: %s, %s, %s' % (domain, cond, val))
             mapping = self.domain_map[domain]
-            search_meta = self.search_metas[mapping.local_table.name]
+            search_meta = self.search_metas[mapping.__class__.__name__]
             query = self.session.query(mapping)
             if cond == 'ilike' and bauble.db_engine.name != 'postgres':
                 utils.message_dialog('The ilike operator is only supported ' \
@@ -640,9 +642,11 @@ class SearchView(pluginmgr.View):
             # make searches in postgres case-insensitive, i don't think other 
             # databases support a case-insensitive like operator
             if bauble.db_engine.name == 'postgres': 
-                like = lambda table, col, val: table.c[col].op('ILIKE')('%%%s%%' % val)
+                like = lambda table, col, val: \
+                       table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
-                like = lambda table, col, val: table.c[col].like('%%%s%%' % val)
+                like = lambda table, col, val: \
+                       table.c[col].like('%%%s%%' % val)
                                 
             for meta in self.search_metas.values():
                 mapping = meta.mapper

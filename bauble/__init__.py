@@ -5,19 +5,10 @@
 import imp, os, sys
 import bauble.paths as paths
 
-# major, minor, revision 
-# should be updated for each release of bauble
-
-# this is from the python docs, we should probably have something similar
-# for bauble so we can do release candidate and beta releases
-# version_info 
-# A tuple containing the five components of the version number: 
-# major, minor, micro, releaselevel, and serial. All values except 
-# releaselevel are integers; the release level is 'alpha', 'beta', 
-# 'candidate', or 'final'. The version_info value corresponding to the Python 
-# version 2.0 is (2, 0, 0, 'final', 0). New in version 2.0. 
+# major, minor, revision version tuple
 version = (0,7,0)
-version_str = '%s.%s.%s' % (version)
+version_str = '.'.join([str(v) for v in version])
+
 
 def main_is_frozen():
    return (hasattr(sys, "frozen") or # new py2exe
@@ -34,9 +25,10 @@ else: # main is frozen
    sys.path.insert(0,zipfile)
    # put the bundled gtk at the beginning of the path to make it the 
    # preferred version
-   os.environ['PATH'] = '%s%s%s%s%s%s' % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
-                                          os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
-                                          os.pathsep, os.environ['PATH'])
+   os.environ['PATH'] = '%s%s%s%s%s%s' \
+                 % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
+                    os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
+                    os.pathsep, os.environ['PATH'])
    
 import gtk
 import bauble.utils as utils
@@ -82,7 +74,7 @@ class BaubleMapper(object):
 
 
 import traceback
-from bauble.utils.log import debug
+from bauble.utils.log import debug, warning
 from bauble.i18n import *
 from bauble.error import *
 import bauble.pluginmgr
@@ -124,12 +116,13 @@ def open_database(uri, name=None):
         utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         raise
     except db.VersionError, e:
+       # TODO: pretty print db_version
         msg = _('You are using Bauble version %(version)s while the '\
                 'database you have connected to was created with '\
                 'version %(db_version)s\n\nSome things might not work as '\
                 'or some of your data may become unexpectedly '\
                 'corrupted.') % {'version': bauble.version_str, 
-                                 'db_version': '%s' % (e.version)}
+                                 'db_version': '%s' % e.version}
         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         raise
     except db.RegistryError:
@@ -208,7 +201,7 @@ def command_handler(cmd, arg):
     # get cleaned up and we don't lost state
 #    debug('command_handler(%s, %s)' % (cmd, arg))    
     global last_handler
-    debug('last_handler: %s' % last_handler)
+#    debug('last_handler: %s' % last_handler)
     handler_cls = None
     try:
         handler_cls = pluginmgr.commands[cmd]    
@@ -270,6 +263,9 @@ def main(uri=None):
             try:
                 open_database(uri, conn_name)
                 break
+            except db.VersionError, e:
+               warning(e)
+               break            
             except db.DatabaseError, e:
                 msg = _('Would you like to create a new Bauble database at ' \
                         'the current connection?\n\n<i>Warning: If there is '\

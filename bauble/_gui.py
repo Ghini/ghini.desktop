@@ -281,14 +281,14 @@ class GUI(object):
                 else:
                     tools['__root'].append(tool)
 
-        # add the tools with not category to the root menu
+        # add the tools with no category to the root menu
         root_tools = sorted(tools.pop('__root'))
-        for t in root_tools:
-            item = gtk.MenuItem(t.label)
+        for tool in root_tools:
+            item = gtk.MenuItem(tool.label)
             item.show()
             item.connect("activate", self.on_tools_menu_item_activate, tool)
             menu.append(item)
-            if not t.enabled:
+            if not tool.enabled:
                 item.set_sensitive(False)
 
         # create submenus for the categories and add the tools 
@@ -308,6 +308,7 @@ class GUI(object):
         
         
     def on_tools_menu_item_activate(self, widget, tool):
+        debug('on_tools_menu_item_activate(%s)' % tool)
         tool.start()
         
         
@@ -353,7 +354,7 @@ class GUI(object):
         """
         open the connection manager
         """
-        from conn_mgr import ConnectionManager
+        from connmgr import ConnectionManager
         default_conn = prefs[prefs.conn_default_pref]
         cm = ConnectionManager(default_conn)
         name, uri = cm.start()

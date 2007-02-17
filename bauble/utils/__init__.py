@@ -236,8 +236,8 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, pa
     icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
-            parent = bauble.app.gui.window
-            icon = bauble.app.icon
+            parent = bauble.gui.window
+            icon = bauble.default_icon
         except:
             parent = None
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -267,8 +267,8 @@ def create_yes_no_dialog(msg, parent=None):
     icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
-            parent = bauble.app.gui.window
-            icon = bauble.app.icon
+            parent = bauble.gui.window
+            icon = bauble.default_icon
         except:
             parent = None    
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -305,10 +305,12 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     icon = default_icon
     if parent is None:
         try: # this might get called before bauble has started
-            parent = bauble.app.gui.window    
-            icon = bauble.app.icon
+            parent = bauble.gui.window    
+            icon = bauble.default_icon
         except:    
             parent = None
+
+            
     d = gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                          parent=parent,type=type, buttons=buttons)
     d.set_title('Bauble')
@@ -330,7 +332,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     if d.get_icon() is None:
         pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
         d.set_icon(pixbuf)
-        d.set_property('skip-taskbar-hint', False)    
+        d.set_property('skip-taskbar-hint', False)        
+        
     d.show_all()
     return d
     
