@@ -46,7 +46,7 @@ class VernacularName(object):
 mapper(Species, species_table,
        properties = {'vn': relation(VernacularName, lazy=False,
                                      backref=backref('species'))})
-mapper(Genus, genus_table,
+genus_mapper = mapper(Genus, genus_table,
        properties = {'species': relation(Species, lazy=False,
                                          backref=backref('genus'))})#, order_by=['sp'])})
 mapper(VernacularName, vernacular_name_table)
