@@ -62,6 +62,10 @@ _task_queue = Queue.Queue(0)
 # the class could have some interface like a cancel() method that tells the
 # task to cancel itself
 
+# TODO: catch the quit or closes signals and see if there are any running tasks
+# and send then the task cancel signal so they can ask the user if they
+# really wan't to cancel the task
+
 __message_ids = []
 
 def set_message(msg):

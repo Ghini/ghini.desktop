@@ -37,7 +37,7 @@ class BaubleTestCase(unittest.TestCase):
         prefs.init()
         plugins.init_plugins()
         global_connect(uri)
-        bauble.app.create_database(False)
+        bauble.create_database(False)
         self.session = create_session()
 
     
