@@ -37,13 +37,13 @@
 							<fo:table-body>
 								<xsl:for-each select=".//abcd:Unit">
 									<fo:table-row height=".1in">
-										<fo:table-cell border="1pt solid black" padding=".02em">
+										<fo:table-cell border="1pt solid black" padding=".05em">
 											<fo:block>
 												<xsl:value-of
 													select="abcd:UnitID" />
 											</fo:block>
 										</fo:table-cell>
-										<fo:table-cell border="1pt solid black" padding=".02em">
+										<fo:table-cell border="1pt solid black" padding=".05em">
 											<fo:block>
 												<xsl:value-of
 													select=".//abcd:FullScientificNameString" />
