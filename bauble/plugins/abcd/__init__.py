@@ -12,7 +12,7 @@ import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.utils import xml_safe
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
@@ -107,21 +107,26 @@ def plants_to_abcd(plants, authors=True):
         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
         higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName', 
-                                           text=xml_safe(unicode(plant.accession.species.genus.family)))
+                  text=xml_safe(unicode(plant.accession.species.genus.family)))
         higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank', 
                                            text='familia')
         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
         ElementFactory(scientific_name, 'FullScientificNameString', 
-                       text=Species.str(plant.accession.species, authors=authors, markup=False))
+                       text=Species.str(plant.accession.species,
+                                        authors=authors, markup=False))
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
         botanical = ElementFactory(name_atomised, 'Botanical')
-        ElementFactory(botanical, 'GenusOrMonomial', text=xml_safe(plant.accession.species.genus))
-        ElementFactory(botanical, 'FirstEpithet', text=xml_safe(plant.accession.species.sp))
+        ElementFactory(botanical, 'GenusOrMonomial',
+                       text=xml_safe(plant.accession.species.genus))
+        ElementFactory(botanical, 'FirstEpithet',
+                       text=xml_safe(plant.accession.species.sp))
         # TODO: handle more complex names
-        ElementFactory(botanical, 'AuthorTeam', text=(xml_safe(plant.accession.species.sp_author)))
+        ElementFactory(botanical, 'AuthorTeam',
+                       text=(xml_safe(plant.accession.species.sp_author)))
         
         # vernacular name identification
-        # only include the default vernacular name, not all the vernacular names
+        # only include the default vernacular name, not all the
+        # vernacular names
         vernacular_name = plant.accession.species.default_vernacular_name
 #        debug(vernacular_name)
         if vernacular_name is not None:
@@ -199,7 +204,7 @@ class ABCDExporter:
 #        ABCDImporter().start()
     
     
-class ABCDExportTool(plugin.Tool):
+class ABCDExportTool(pluginmgr.Tool):
     category = "Export"
     label = "ABCD"
     
@@ -212,10 +217,10 @@ class ABCDExportTool(plugin.Tool):
         ABCDExporter().start()
     
 
-class ABCDImexPlugin(plugin.Plugin):
-    #tools = [ABCDImportTool, ABCDExportTool]
+class ABCDImexPlugin(pluginmgr.Plugin):
     tools = [ABCDExportTool]
     depends = ["PlantsPlugin"]
+    
 plugin = ABCDImexPlugin
             
             

@@ -16,8 +16,11 @@ class TestTask:
     
     def task(self):
         timeout = gtasklet.WaitForTimeout(100)
+        bauble.gui.progressbar.set_pulse_step(.1)
+        msg = ''
         for i in range(1, 10):
-            debug(i)
+            msg = '%s...%s' % (msg, i)
+            bauble.task.set_message(msg)
             bauble.gui.progressbar.pulse()
             yield timeout
             gtasklet.get_event()

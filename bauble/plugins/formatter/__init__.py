@@ -15,12 +15,13 @@ from sqlalchemy import *
 import lxml.etree as etree
 import lxml._elementpath # put this here sp py2exe picks it up
 import bauble
+from bauble.i18n import *
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
-from bauble.plugins import BaublePlugin, BaubleTool, plugins, tables
+import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import log, debug
-import bauble.plugins.abcd as abcd
+#import bauble.plugins.abcd as abcd
 
 formatters_list_pref = 'formatter.formatters'  # name: formatter_class, formatter_kwargs
 formatters_modules_pref = 'formatter.modules'
@@ -129,11 +130,11 @@ def _find_formatter_plugins():
 
 
 class SettingsBox(gtk.VBox):
-    '''
+    """
     the interface to use for the settings box, formatter modules should
     implement this interface and return it from the formatters's get_settings
     method
-    '''
+    """
     def __init__(self):
         super(SettingsBox, self).__init__()
     
@@ -176,7 +177,7 @@ class FormatterDialogView(object):
         self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),  
                                    "plugins", "formatter", 'formatter.glade'))
         self.dialog = self.widgets.formatter_dialog
-        self.dialog.set_transient_for(bauble.app.gui.window)
+        self.dialog.set_transient_for(bauble.gui.window)
         
         
     def start(self):
@@ -461,7 +462,7 @@ class FormatterDialog(object):
     
     
     
-class FormatterTool(BaubleTool):    
+class FormatterTool(pluginmgr.Tool):    
     
     label = "Formatter"
     
@@ -470,16 +471,17 @@ class FormatterTool(BaubleTool):
         '''
         '''    
         # get the select results from the search view
-        import bauble
-        view = bauble.app.gui.get_current_view()        
-                        
-        # TODO: this assumes a bit too much about SearchView's internal workings
+        from bauble.view import SearchView
+        view = bauble.gui.get_view()
+        if not isinstance(view, SearchView):
+            utils.message_dialog(_('Search for something first.'))
+            
         model = view.results_view.get_model()
         if model is None:
-            utils.message_dialog("Search for something first.")
+            utils.message_dialog(_('Search for something first.'))
             return
         
-        bauble.app.set_busy(True)
+        bauble.set_busy(True)
         # extract the plants from the search results
         # TODO: need to speed this up using custom queries, see the 
         # family and genera infoboxes            
@@ -490,28 +492,28 @@ class FormatterTool(BaubleTool):
                 formatter, settings = dialog.start()
                 if formatter is None:
                     break
-                ok = formatter.format([row[0] for row in model], **settings)                
+                ok = formatter.format([row[0] for row in model], **settings)
                 if ok:
                     break
                         
         except AssertionError, e:
             debug(e)
-            utils.message_dialog(str(e), gtk.MESSAGE_ERROR, parent=self.view.dialog)            
+            utils.message_dialog(str(e), gtk.MESSAGE_ERROR,
+                                 parent=self.view.dialog)            
         except Exception:
             debug(traceback.format_exc())
             utils.message_details_dialog('Formatting Error', 
                                      traceback.format_exc(), gtk.MESSAGE_ERROR)
-        bauble.app.set_busy(False)       
+        bauble.set_busy(False)       
         return
 
 
-
-class FormatterPlugin(BaublePlugin):
+class FormatterPlugin(pluginmgr.Plugin):
     '''
     '''    
     tools = [FormatterTool]
     
         
 
-plugin = FormatterPlugin        
+#plugin = FormatterPlugin
     

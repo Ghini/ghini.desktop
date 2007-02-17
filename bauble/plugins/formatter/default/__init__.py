@@ -111,7 +111,7 @@ class DefaultFormatterPlugin(formatter_plugin.FormatterPlugin):
                                  'Please try another search.')
             return False
         
-        abcd_data = abcd.plants_to_abcd(plants, authors=authors)                
+        abcd_data = abcd.plants_to_abcd(plants, authors=authors)
         
         # this adds a "distribution" tag from the species meta, we
         # use this when generating labels but it should be able to be safely 
