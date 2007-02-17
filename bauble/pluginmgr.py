@@ -16,42 +16,20 @@ import sys
 import traceback
 import re
 import shelve
+import inspect
 import gtk
 from sqlalchemy import *
 import bauble
 import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
-from bauble.utils.log import log, debug
+from bauble.utils.log import log, debug, warning
 from bauble.i18n import *
 import simplejson as json
 
 plugins = []
 plugins_dict = {}
 commands = {}
-
-
-## def create_tables(plugins=None):
-##     '''
-##     drop tables from the plugins, create new ones and import their default
-##     values
-
-##     @param plugins: create tables for specific plugins, default=None which
-##     means create tables for all plugins
-##     '''
-##     debug('entered pluginmgr.create_tables()')
-##     default_filenames = []
-##     tables.drop
-##     for p in plugins.values():
-##         tables.extend(p.tables)
-##         default_filenames.extend(p.default_filenames())                
-##     default_basenames = [os.path.basename(f) for f in default_filenames]                        
-##     # import default data
-##     if len(default_filenames) > 0:
-##         from bauble.plugins.imex_csv import CSVImporter
-##         csv = CSVImporter()    
-##         csv.start(default_filenames)
-##     debug('leaving pluginmgr.create_tables()')
     
 
 def load(path=None):
@@ -71,14 +49,13 @@ def load(path=None):
     for plugin in found:
         plugins_dict[plugin.__name__] = plugin
     
-    for plugin in found:
-        for dep in plugin.depends:
+    for p in found:
+        for dep in p.depends:
             try:
-                depends.append((plugin, plugins_dict[dep]))
+                depends.append((p, plugins_dict[dep]))
             except KeyError:
                 msg = _('The %s plugin depends on the %s plugin but the %s '\
-                        'plugin wasn\'t found.') % (plugin.__name__,
-                                                    dep, dep)
+                        'plugin wasn\'t found.') % (p.__name__, dep, dep)
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                 # TODO: do something, we get here if a plugin requests another
                 # plugin as a dependency but the plugin that is a dependency 
@@ -116,13 +93,13 @@ def init(auto_setup=False):
         if p not in registry:
             not_registered.append(p)
 
-    def save_and_init():
+    def save_and_init():        
         registry.save()
         for entry in registry:
+            debug('entry: %s' % entry)
             try:
                 plugins_dict[entry.name].init()
             except KeyError, e:
-                from bauble.utils.log import warning
                 warning(_("Couldn't initialize %s.") % entry.name)
                 warning(e)
 
@@ -139,11 +116,10 @@ def init(auto_setup=False):
                 from bauble.plugins.imex_csv import CSVImporter            
                 csv = CSVImporter()
                 csv.start(default_filenames, callback=save_and_init)
-#            else:
-#                registry.save()                
+            else:
+                save_and_init()
     else:
         save_and_init()
-    
 
     
 
@@ -175,9 +151,11 @@ class Registry(dict):
             entries = json.loads(result.value)
             for e in entries:
                 self.entries[e['name']] = RegistryEntry.create(e)
+
         
     def __str__(self):
         return str(self.entries.values())
+
     
     @staticmethod
     def create():
@@ -234,7 +212,8 @@ class Registry(dict):
         @param entry: the RegistryEntry to add to the registry
         '''
         if entry in self.entries.keys():
-            raise KeyError('%s already exists in the plugin registry' % entry.name)
+            raise KeyError('%s already exists in the plugin registry' % \
+                           entry.name)
         self.entries[entry.name] = entry
                         
     
@@ -305,10 +284,8 @@ class Plugin(object):
     '''
     tables = []
     commands = []
-#    editors = []
     tools = []
     depends = []
-#    cmds = {}
 
     @classmethod
     def __init__(cls):        
@@ -354,27 +331,6 @@ class Plugin(object):
         '''
         return []
     
-    
-##
-## a static class that intializes a plugin
-##
-#class Plugin:
-#
-#    '''
-#    label should be a unique string from other plugins, if not a Plugin
-#    error will be raised
-#    '''
-#    label = ''
-#    
-#    # this could just be a list of module names instead of plugin class name
-#    # to make uniqueness easier, e.g. 'org.belizebotanic.bauble.garden'
-#    depends = [] # a list of plugins this plugin depends on
-#    
-#    enabled = False
-#    
-#    @classmethod
-#    def init(cls):
-#        register_command()    
         
     
 class EditorPlugin(Plugin):
@@ -383,6 +339,8 @@ class EditorPlugin(Plugin):
     implement the Editor interface
     '''
     editors = []
+
+
     
 class Tool(object):
     category = None
@@ -391,6 +349,8 @@ class Tool(object):
     @classmethod
     def start(cls):
         pass
+
+
 
 class View(gtk.VBox):
     
@@ -401,7 +361,8 @@ class View(gtk.VBox):
         '''
         super(View, self).__init__(*args, **kwargs)
 
-    
+
+
 class CommandHandler(object):
     
     command = None
@@ -420,30 +381,6 @@ class CommandHandler(object):
         '''
         raise NotImplementedError
 
-#class FormatterPlugin(Plugin):
-#
-#    '''
-#    formatter modules should implement this interface
-#    NOTE: the title class attribute must be a unique string
-#    '''
-#        
-#    title = ''
-#    
-#    @staticmethod
-#    def get_settings_box():
-#        '''
-#        return a class that implement gtk.Box that should hold the gui for
-#        the formatter modules
-#        '''
-#        raise NotImplementedError
-#    
-#    @staticmethod
-#    def format(selfobjs, **kwargs):
-#        '''
-#        called when the use clicks on OK, this is the worker
-#        '''
-#        raise NotImplementedError
-
 
 
 def _find_module_names(path):
@@ -455,8 +392,10 @@ def _find_module_names(path):
     #path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
         pkg = "bauble.plugins"
-        zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
-        x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins" in file]
+        zipfiles = __import__(pkg, globals(), locals(),
+                              [pkg]).__loader__._files 
+        x = [zipfiles[file][0] \
+             for file in zipfiles.keys() if "bauble\\plugins" in file]
         s = os.path.join('.+?', pkg, '(.+?)', '__init__.py[oc]')
         rx = re.compile(s.encode('string_escape'))
         for filename in x:
@@ -465,9 +404,9 @@ def _find_module_names(path):
                 modules.append('%s.%s' % (pkg, m.group(1)))
     else:
         for d in os.listdir(path):
-            #full = path + os.sep + d
             full = os.path.join(path, d)            
-            if os.path.isdir(full) and os.path.exists(os.path.join(full, "__init__.py")):
+            if os.path.isdir(full) and \
+                   os.path.exists(os.path.join(full, '__init__.py')):
                 modules.append(d)
     return modules
 
@@ -488,28 +427,52 @@ def _find_plugins(path):
     fp, path, desc = imp.find_module('plugins', bauble_module.__path__)    
     plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
 #    fp.close()
+
+    def isPlugin(p):
+        return inspect.isclass(p) and issubclass(p, Plugin)
     
     for name in plugin_names:
         # Fast path: see if the module has already been imported.
-#        if name in sys.modules:
-#            mod = sys.modules[name]
-        if False:
-            pass
+        if name in sys.modules:
+            mod = sys.modules[name]
         else:
             try:
                 fp, path, desc = imp.find_module(name, plugin_module.__path__)
-                mod = imp.load_module('bauble.plugins.%s' % name, fp, path, desc)
+#                debug('importing bauble.plugins.%s' % name)
+#                debug(fp)
+#                debug(path)
+#                debug(desc)
+                mod = imp.load_module('bauble.plugins.%s' % name, fp, path,
+                                      desc)
             except Exception, e:
                 msg = _("Could not import the %s module.\n\n%s" % (name, e))
                 utils.message_details_dialog(msg, str(traceback.format_exc()), 
                          gtk.MESSAGE_ERROR)
 #                if fp is not None:
 #                    fp.close()
-                raise        
-#        debug('mod.name: %s' % mod)        
-        if hasattr(mod, "plugin"):
-#            debug('plugin: %s' % mod.plugin)
-            plugins.append(mod.plugin)
+                raise
+            
+#        debug('mod.name: %s' % mod)
+        if not hasattr(mod, "plugin"):
+#            debug('no plugin')
+            continue
+
+        # if mod.plugin is a function it should return a plugin or list of
+        # plugins
+        if inspect.isfunction(mod.plugin):
+            mod_plugin = mod.plugin()
+        else:
+            mod_plugin = mod.plugin
+        
+        if isinstance(mod_plugin, (list, tuple)):
+            for p in mod_plugin:
+                if isPlugin(p):
+                    plugins.append(p)
+        elif isPlugin(mod_plugin):
+            plugins.append(mod_plugin)
+        else:
+            warning(_('%s.plugin is not an instance of pluginmgr.Plugin'\
+                      % mod.__name__))            
     return plugins
 
 
@@ -522,9 +485,10 @@ def topological_sort(items, partial_order):
     Perform topological sort. 
     
     @param items: a list of items to be sorted. 
-    @param partial_order: a list of pairs. If pair (a,b) is in it, it means that 
-    item a should appear before item b. Returns a list of the items in one of 
-    the possible orders, or None if partial_order contains a loop. """  
+    @param partial_order: a list of pairs. If pair (a,b) is in it, it means
+    that item a should appear before item b. Returns a list of the items in
+    one of the possible orders, or None if partial_order contains a loop.
+    """  
     def add_node(graph, node): 
         """Add a node to the graph if not already exists."""  
         if not graph.has_key(node): 
