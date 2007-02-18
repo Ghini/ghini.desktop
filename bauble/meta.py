@@ -1,6 +1,7 @@
 #
 # meta.py
 #
+from datetime import datetime
 from sqlalchemy import *
 
 VERSION_KEY='version'
@@ -11,16 +12,16 @@ bauble_meta_table = Table('bauble',
                           Column('id', Integer, primary_key=True),
                           Column('name', Unicode(64), unique=True),
                           Column('value', Unicode),
-                          Column('_created', DateTime,
+                          Column('_created', DateTime(True),
                                  default=func.current_timestamp()),
-                          Column('_last_updated', DateTime,
+                          Column('_last_updated', DateTime(True),
                                  default=func.current_timestamp(), 
-                                 onupdate=func.current_timestamp()))
+                                 onupdate=func.current_timestamp())) 
         
 class BaubleMeta(object):
     
-    version = 'version'
-    created = 'created'
+##     version = 'version'
+##     created = 'created'
     
     def __init__(self, name=None, value=None):
         self.name = name
