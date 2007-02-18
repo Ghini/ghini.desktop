@@ -42,8 +42,8 @@ version = get_version()
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden','geography','abcd','imex_csv','formatter', 
-           'formatter.default', 'plants','searchview', 'tag']
+plugins = ['garden','abcd','imex_csv','report', 
+           'report.default', 'plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
@@ -151,7 +151,7 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["FormEncode>=0.4", "SQLAlchemy>=0.3.0",
+      install_requires=["FormEncode>=0.4", "SQLAlchemy>=0.3.4",
                         "pysqlite==2.3.2",
                         "PyGTK>=2.8.6", "simplejson"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
