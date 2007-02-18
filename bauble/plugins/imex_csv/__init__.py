@@ -35,6 +35,11 @@ import Queue
 
 # TODO: implement exporting csv from a select statement
 
+# TODO: need better error handling on import, right now it catches the
+# exception and shows a dialog but when you close the dialog the task
+# bar isn't cleared
+
+
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 

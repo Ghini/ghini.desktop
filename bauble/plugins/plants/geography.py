@@ -1,14 +1,15 @@
 #
 # geography.py
 #
+from datetime import datetime
 from sqlalchemy import *
 import bauble
 
 geography_table = Table('geography',
                         Column('id', Integer, primary_key=True),
                         Column('name', String(255), nullable=False),
-                        Column('tdwg_code', String(5)),
-                        Column('iso_code', String(6)),
+                        Column('tdwg_code', String(6)),
+                        Column('iso_code', String(7)),
                         Column('parent_id', Integer,
                                ForeignKey('geography.id')),
                         Column('_created', DateTime,

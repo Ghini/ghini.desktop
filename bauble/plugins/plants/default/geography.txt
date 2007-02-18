@@ -1,444 +1,1127 @@
 "id","name","tdwg_code","iso_code","parent_id"
-2467,"Southwest Caribbean","2031",,372
-1778,"Krasnoyarsk","1200",,733
-64,"Argentina Northeast","AGE","AR",59
-66,"Argentina Northwest","AGW","AR",59
+1,"Europe","1,00",,
+2,"Africa","2,00",,
+3,"Asia-Temperate","3,00",,
+4,"Asia-Tropical","4,00",,
+5,"Australasia","5,00",,
+6,"Pacific","6,00",,
+7,"Northern America","7,00",,
+8,"Southern America","8,00",,
+9,"Antarctic","9,00",,
+10,"Northern Europe","10,00","",1
+11,"Middle Europe","11,00","",1
+12,"Southwestern Europe","12,00","",1
+13,"Southeastern Europe","13,00","",1
+14,"Eastern Europe","14,00","",1
+15,"Northern Africa","20,00","",2
+16,"Macaronesia","21,00","",2
+17,"West Tropical Africa","22,00","",2
+18,"West-Central Tropical Africa","23,00","",2
+19,"Northeast Tropical Africa","24,00","",2
+20,"East Tropical Africa","25,00","",2
+21,"South Tropical Africa","26,00","",2
+22,"Southern Africa","27,00","",2
+23,"Middle Atlantic Ocean","28,00","",2
+24,"Western Indian Ocean","29,00","",2
+25,"Siberia","30,00","",3
+26,"Russian Far East","31,00","",3
+27,"Middle Asia","32,00","",3
+28,"Caucasus","33,00","",3
+29,"Western Asia","34,00","",3
+30,"Arabian Peninsula","35,00","",3
+31,"China","36,00","",3
+32,"Mongolia","37,00","",3
+33,"Eastern Asia","38,00","",3
+34,"Indian Subcontinent","40,00","",4
+35,"Indo-China","41,00","",4
+36,"Malesia","42,00","",4
+37,"Papuasia","43,00","",4
+38,"Australia","50,00","",5
+39,"New Zealand","51,00","",5
+40,"Southwestern Pacific","60,00","",6
+41,"South-Central Pacific","61,00","",6
+42,"Northwestern Pacific","62,00","",6
+43,"North-Central Pacific","63,00","",6
+44,"Subarctic America","70,00","",7
+45,"Western Canada","71,00","",7
+46,"Eastern Canada","72,00","",7
 47,"Northwestern U.S.A.","73,00","",7
+48,"North-Central U.S.A.","74,00","",7
+49,"Northeastern U.S.A.","75,00","",7
+50,"Southwestern U.S.A.","76,00","",7
+51,"South-Central U.S.A.","77,00","",7
+52,"Southeastern U.S.A.","78,00","",7
+53,"Mexico","79,00","",7
+54,"Central America","80,00","",8
+55,"Caribbean","81,00","",8
+56,"Northern South America","82,00","",8
+57,"Western South America","83,00","",8
+58,"Brazil","84,00","",8
+59,"Southern South America","85,00","",8
+60,"Subantarctic Islands","90,00","",9
+61,"Antarctic Continent","91,00","",9
+62,"Alberta","ABT","CA",45
+63,"Afghanistan","AFG","AF",29
+64,"Argentina Northeast","AGE","AR",59
 65,"Argentina South","AGS","AR",59
-1090,"Agalega","345",,769
-1091,"Aginsky Buryat","346",,615
-1092,"Agrihan","347",,789
+66,"Argentina Northwest","AGW","AR",59
+67,"Alabama","ALA","US",52
+68,"Albania","ALB","AL",13
+69,"Aldabra","ALD","SC",24
+70,"Algeria","ALG","DZ",15
+71,"Altay","ALT","RU",25
+72,"Aleutian Is.","ALU","US",44
+73,"Amur","AMU","RU",26
+74,"Andaman Is.","AND","",35
+75,"Angola","ANG","AO",21
+76,"Antarctica","ANT","AQ",61
+77,"Arizona","ARI","US",50
+78,"Arkansas","ARK","US",52
+79,"Aruba","ARU","AW",55
+80,"Ascension","ASC","SH",23
+81,"Alaska","ASK","US",44
+82,"Amsterdam-St.Paul Is.","ASP","TF",60
+83,"Assam","ASS","IN",34
+84,"Antipodean Is.","ATP","NZ",39
+85,"Austria","AUT","",11
+86,"Azores","AZO","PT",16
+87,"Bahamas","BAH","BS",55
+88,"Baleares","BAL","ES",12
+89,"Bangladesh","BAN","BD",34
+90,"Benin","BEN","BJ",17
+91,"Bermuda","BER","BM",55
+92,"Belgium","BGM","",11
+93,"Bismarck Archipelago","BIS","PG",37
+94,"Burkina","BKN","BF",17
+95,"Belarus","BLR","RU",14
+96,"Baltic States","BLT","",14
+97,"Belize","BLZ","BZ",54
+98,"Bolivia","BOL","BO",57
+99,"Borneo","BOR","",36
+100,"Botswana","BOT","BW",22
+101,"Bouvet I.","BOU","BV",60
+102,"British Columbia","BRC","CA",45
+103,"Buryatiya","BRY","RU",25
+104,"Bulgaria","BUL","BG",13
+105,"Burundi","BUR","BI",18
+106,"Brazil West-Central","BZC","BR",58
+107,"Brazil Northeast","BZE","BR",58
+108,"Brazil Southeast","BZL","BR",58
+109,"Brazil North","BZN","BR",58
+110,"Brazil South","BZS","BR",58
+111,"Cabinda","CAB","AO",18
+112,"Central African Republic","CAF","CF",18
+113,"California","CAL","US",50
+114,"Cayman Is.","CAY","KY",55
+115,"Cambodia","CBD","KH",35
+116,"Chagos Archipelago","CGS","IO",24
+117,"Chad","CHA","TD",19
+118,"China South-Central","CHC","CN",31
+119,"Hainan","CHH","CN",31
+120,"Inner Mongolia","CHI","CN",31
+121,"Manchuria","CHM","CN",31
+122,"China North-Central","CHN","CN",31
+123,"Qinghai","CHQ","CN",31
+124,"China Southeast","CHS","",31
+125,"Tibet","CHT","CN",31
+126,"Xinjiang","CHX","CN",31
+127,"Cocos (Keeling) Is.","CKI","CC",36
+128,"Chile Central","CLC","CL",59
+129,"Colombia","CLM","CO",57
+130,"Chile North","CLN","CL",59
+131,"Chile South","CLS","CL",59
+132,"Cameroon","CMN","CM",18
+133,"Connecticut","CNT","US",49
+134,"Canary Is.","CNY","ES",16
+135,"Colorado","COL","US",47
+136,"Comoros","COM","",24
+137,"Congo","CON","CG",18
+138,"Cook Is.","COO","CK",41
+139,"Corse","COR","FR",12
+140,"Costa Rica","COS","CR",54
+141,"Central American Pacific Is.","CPI","",54
+142,"Cape Provinces","CPP","ZA",22
+143,"Caprivi Strip","CPV","NA",22
+144,"Caroline Is.","CRL","",42
+145,"Crozet Is.","CRZ","TF",60
+146,"Chita","CTA","RU",25
+147,"Chatham Is.","CTM","NZ",39
+148,"Cuba","CUB","CU",55
+149,"Cape Verde","CVI","CV",16
+150,"Cyprus","CYP","CY",29
+151,"Czechoslovakia","CZE","CS",11
+152,"Delaware","DEL","US",52
+153,"Denmark","DEN","DK",10
+154,"Djibouti","DJI","DJ",19
+155,"Dominican Republic","DOM","DO",55
+156,"Desventurados Is.","DSV","CL",59
+157,"East Aegean Is.","EAI","GR",29
+158,"Easter Is.","EAS","CL",41
+159,"Ecuador","ECU","EC",57
+160,"Egypt","EGY","EG",15
+161,"East Himalaya","EHM","",34
+162,"El Salvador","ELS","SV",54
+163,"Equatorial Guinea","EQG","GQ",18
+164,"Eritrea","ERI","ER",19
+165,"Ethiopia","ETH","ET",19
+166,"Falkland Is.","FAL","FK",60
+167,"Fiji","FIJ","FJ",40
+168,"Finland","FIN","FI",10
+169,"Florida","FLA","US",52
+170,"Føroyar","FOR","FO",10
+171,"France","FRA","",12
+172,"French Guiana","FRG","GF",56
+173,"Gabon","GAB","GA",18
+174,"Galápagos","GAL","EC",57
+175,"Gambia, The","GAM","GM",17
+176,"Georgia","GEO","US",52
+177,"Germany","GER","DE",11
+178,"Gulf of Guinea Is.","GGI","",18
+179,"Ghana","GHA","GH",17
+180,"Gilbert Is.","GIL","KI",40
+181,"Guinea-Bissau","GNB","GW",17
+182,"Greenland","GNL","GL",44
+183,"Great Britain","GRB","UK",10
+184,"Greece","GRC","GR",13
+185,"Gulf States","GST","",30
+186,"Guatemala","GUA","GT",54
+187,"Guinea","GUI","GN",17
+188,"Guyana","GUY","GY",56
+189,"Haiti","HAI","",55
+190,"Hawaii","HAW","",43
+191,"Howland-Baker Is.","HBI","UM",40
+192,"Heard-McDonald Is.","HMD","HM",60
+193,"Honduras","HON","HN",54
+194,"Hungary","HUN","HU",11
+195,"Iceland","ICE","IS",10
+196,"Idaho","IDA","US",47
+197,"Illinois","ILL","US",48
+198,"India","IND","IN",34
+199,"Indiana","INI","US",49
+200,"Iowa","IOW","US",48
+201,"Ireland","IRE","",10
+202,"Irkutsk","IRK","RU",25
+203,"Iran","IRN","IR",29
+204,"Iraq","IRQ","IQ",29
+205,"Italy","ITA","",13
+206,"Ivory Coast","IVO","CI",17
+207,"Jamaica","JAM","JM",55
+208,"Japan","JAP","JP",33
+209,"Jawa","JAW","ID",36
+210,"Juan Fernández Is.","JNF","CL",59
+211,"Kamchatka","KAM","RU",26
+212,"Kansas","KAN","US",48
+213,"Kazakhstan","KAZ","KZ",27
+214,"Kerguelen","KEG","TF",60
+215,"Kenya","KEN","KE",20
+216,"Kermadec Is.","KER","NZ",39
+217,"Kirgizistan","KGZ","KG",27
+218,"Khabarovsk","KHA","RU",26
+219,"Korea","KOR","",33
+220,"Krasnoyarsk","KRA","RU",25
+221,"Kriti","KRI","GR",13
+222,"Krym","KRY","UA",14
+223,"Kentucky","KTY","US",52
+224,"Kuril Is.","KUR","RU",26
+225,"Kuwait","KUW","KW",30
+226,"Kazan-retto","KZN","JP",33
+227,"Labrador","LAB","CA",46
+228,"Laos","LAO","LA",35
+229,"Liberia","LBR","LR",17
+230,"Lebanon-Syria","LBS","",29
+231,"Libya","LBY","LY",15
+232,"Laccadive Is.","LDV","IN",34
+233,"Leeward Is.","LEE","",55
+234,"Lesotho","LES","LS",22
+235,"Line Is.","LIN","",41
+236,"Louisiana","LOU","US",52
+237,"Lesser Sunda Is.","LSI","",36
+238,"Magadan","MAG","RU",26
+239,"Maine","MAI","US",49
+240,"Manitoba","MAN","CA",45
+241,"Macquarie Is.","MAQ","AU",60
+242,"Masachusettes","MAS","US",49
+243,"Mauritius","MAU","MU",24
+244,"Mozambique Channel Is.","MCI","RE",24
+245,"Marcus I.","MCS","JP",42
+246,"Madagascar","MDG","MG",24
+247,"Madeira","MDR","PT",16
+248,"Maldives","MDV","MV",34
+249,"Michigan","MIC","US",49
+250,"Minnesota","MIN","US",48
+251,"Mali","MLI","ML",17
+252,"Malawi","MLW","MW",21
+253,"Malaya","MLY","",36
+254,"Montana","MNT","US",47
+255,"Maluku","MOL","ID",36
+256,"Mongolia","MON","MN",32
+257,"Morocco","MOR","",15
+258,"Mozambique","MOZ","MZ",21
+259,"Marion-Prince Edward Is.","MPE","ZA",60
+260,"Marianas","MRN","",42
+261,"Marquesas","MRQ","PF",41
+262,"Marshall Is.","MRS","MH",42
+263,"Maryland","MRY","US",52
+264,"Mississippi","MSI","US",52
+265,"Missouri","MSO","US",48
+266,"Mauritania","MTN","MR",17
+267,"Mexico Central","MXC","MX",53
+268,"Mexico Northeast","MXE","MX",53
+269,"Mexico Gulf","MXG","MX",53
+270,"Mexican Pacific Is.","MXI","MX",53
+271,"Mexico Northwest","MXN","MX",53
+272,"Mexico Southwest","MXS","MX",53
+273,"Mexico Southeast","MXT","MX",53
+274,"Myanmar","MYA","MM",35
+275,"Namibia","NAM","ZA",22
+276,"KwaZulu-Natal","NAT","ZA",22
+277,"New Brunswick","NBR","CA",46
+278,"North Carolina","NCA","US",52
+279,"Nicobar Is.","NCB","IN",35
+280,"North Caucasus","NCS","RU",28
+281,"North Dakota","NDA","US",48
+282,"Nebraska","NEB","US",48
+283,"Nepal","NEP","NP",34
+284,"Netherlands","NET","NL",11
+285,"Nevada","NEV","US",50
+286,"Norfolk Is.","NFK","",38
+287,"Newfoundland","NFL","",46
+288,"Nigeria","NGA","NG",17
+289,"Niger","NGR","NE",17
+290,"Nicaragua","NIC","NI",54
+291,"Netherlands Antilles","NLA","AN",55
+292,"Nansei-shoto","NNS","JP",33
+293,"Norway","NOR","NO",10
+294,"Nauru","NRU","NR",40
+295,"Nova Scotia","NSC","CA",46
+296,"New South Wales","NSW","AU",38
+297,"Northern Territory","NTA","AU",38
+298,"Niue","NUE","NU",40
+299,"Nunavut","NUN","CA",44
+300,"New Caledonia","NWC","NC",40
+301,"New Guinea","NWG","",37
+302,"New Hampshire","NWH","US",49
+303,"New Jersey","NWJ","US",49
+304,"New Mexico","NWM","US",51
+305,"Northwest Territories","NWT","CA",44
+306,"New York","NWY","US",49
+307,"New Zealand North","NZN","NZ",39
+308,"New Zealand South","NZS","NZ",39
+309,"Free State","OFS","ZA",22
+310,"Ogasawara-shoto","OGA","JP",33
+311,"Ohio","OHI","US",49
+312,"Oklahoma","OKL","US",48
+313,"Oman","OMA","OM",30
+314,"Ontario","ONT","CA",46
+315,"Oregon","ORE","US",47
+316,"Pakistan","PAK","PK",34
+317,"Palestine","PAL","",29
+318,"Panamá","PAN","PA",54
+319,"Paraguay","PAR","PY",59
+320,"Prince Edward I.","PEI","CA",46
+321,"Pennsylvania","PEN","US",49
+322,"Peru","PER","PE",57
+323,"Philippines","PHI","PH",36
+324,"Phoenix Is.","PHX","KI",40
+325,"Pitcairn Is.","PIT","PN",41
+326,"Poland","POL","PL",11
+327,"Portugal","POR","PT",12
+328,"Primorye","PRM","RU",26
+329,"Puerto Rico","PUE","PR",55
+330,"Queensland","QLD","AU",38
+331,"Québec","QUE","CA",46
+332,"Réunion","REU","RE",24
+333,"Rhode I.","RHO","US",49
+334,"Rodrigues","ROD","MU",24
+335,"Romania","ROM","RO",13
+336,"Central European Russia","RUC","RU",14
+337,"East European Russia","RUE","RU",14
+338,"North European Russia","RUN","RU",14
+339,"South European Russia","RUS","",14
+340,"Northwest European Russia","RUW","RU",14
+341,"Rwanda","RWA","RW",18
+342,"Sakhalin","SAK","RU",26
+343,"Samoa","SAM","",40
+344,"Sardegna","SAR","IT",12
+345,"Saskatchewan","SAS","CA",45
+346,"Saudi Arabia","SAU","SA",30
+347,"South Carolina","SCA","US",52
+348,"Society Is.","SCI","PF",41
+349,"South China Sea","SCS","",35
+350,"Santa Cruz Is.","SCZ","SB",40
+351,"South Dakota","SDA","US",48
+352,"Selvagens","SEL","PT",16
+353,"Senegal","SEN","SN",17
+354,"Seychelles","SEY","SC",24
+355,"South Georgia","SGE","GS",60
+356,"Sicilia","SIC","",13
+357,"Sierra Leone","SIE","SL",17
+358,"Sinai","SIN","EG",29
+359,"South Australia","SOA","AU",38
+360,"Socotra","SOC","YE",19
+361,"Solomon Is.","SOL","",37
+362,"Somalia","SOM","SO",19
+363,"Spain","SPA","",12
+364,"Sri Lanka","SRL","LK",34
+365,"South Sandwich Is.","SSA","GS",60
+366,"St.Helena","STH","SH",23
+367,"Sudan","SUD","SD",19
+368,"Sulawesi","SUL","ID",36
+369,"Sumatera","SUM","ID",36
+370,"Suriname","SUR","SR",56
+371,"Svalbard","SVA","SJ",10
+372,"Southwest Caribbean","SWC","",55
+373,"Sweden","SWE","SE",10
+374,"Switzerland","SWI","CH",11
+375,"Swaziland","SWZ","SZ",22
+376,"Taiwan","TAI","TW",33
+377,"Tanzania","TAN","TZ",20
+378,"Tasmania","TAS","AU",38
+379,"Turks-Caicos Is.","TCI","TC",55
+380,"Transcaucasus","TCS","",28
+381,"Tristan da Cunha","TDC","SH",60
+382,"Tennessee","TEN","US",52
+383,"Texas","TEX","US",51
+384,"Thailand","THA","TH",35
+385,"Turkmenistan","TKM","TM",27
+386,"Togo","TOG","TG",17
+387,"Tokelau-Manihiki","TOK","",40
+388,"Tonga","TON","TO",40
+389,"Trinidad-Tobago","TRT","TT",55
+390,"Tuamotu","TUA","PF",41
+391,"Tubuai Is.","TUB","PF",41
+392,"Turkey-in-Europe","TUE","TR",13
+393,"Tunisia","TUN","TN",15
+394,"Turkey","TUR","TR",29
+395,"Tuvalu","TUV","TV",40
+396,"Tuva","TVA","RU",25
+397,"Northern Provinces","TVL","ZA",22
+398,"Tadzhikistan","TZK","TJ",27
+399,"Uganda","UGA","UG",20
+400,"Ukraine","UKR","",14
+401,"Uruguay","URU","UY",59
+402,"Utah","UTA","US",50
+403,"Uzbekistan","UZB","UZ",27
+404,"Vanuatu","VAN","VU",40
+405,"Venezuela","VEN","VE",56
+406,"Vermont","VER","US",49
+407,"Victoria","VIC","AU",38
+408,"Vietnam","VIE","VN",35
+409,"Venezuelan Antilles","VNA","VE",55
+410,"Virginia","VRG","US",52
+411,"Wake I.","WAK","UM",42
+412,"Wallis-Futuna Is.","WAL","WF",40
+413,"Washington","WAS","US",47
+414,"Western Australia","WAU","AU",38
+415,"District of Columbia","WDC","US",52
+416,"West Himalaya","WHM","",34
+417,"Windward Is.","WIN","",55
+418,"Wisconsin","WIS","US",48
+419,"Western Sahara","WSA","EH",15
+420,"West Siberia","WSB","RU",25
+421,"West Virginia","WVA","US",49
+422,"Wyoming","WYO","US",47
+423,"Christmas I.","XMS","CX",36
+424,"Yakutskiya","YAK","RU",25
+425,"Yemen","YEM","YE",30
+426,"Yugoslavia","YUG","YU",13
+427,"Yukon","YUK","CA",44
+428,"Zaire","ZAI","CD",18
+429,"Zambia","ZAM","ZM",21
+430,"Zimbabwe","ZIM","ZW",21
+431,"Alberta","ABT-OO","CA",62
+432,"Afghanistan","AFG-OO","AF",63
+433,"Buenos Aires","AGE-BA","AR",64
+434,"Chaco","AGE-CH","AR",64
+435,"Corrientes","AGE-CN","AR",64
+436,"Córdoba","AGE-CO","AR",64
+437,"Argentina Distrito Federal","AGE-DF","AR",64
+438,"Entre Ríos","AGE-ER","AR",64
+439,"Formosa","AGE-FO","AR",64
+440,"La Pampa","AGE-LP","AR",64
+441,"Misiones","AGE-MI","AR",64
+442,"Chubut","AGS-CB","AR",65
+443,"Neuquén","AGS-NE","AR",65
+444,"Rio Negro","AGS-RN","AR",65
+445,"Santa Cruz","AGS-SC","AR",65
+446,"Santa Fé","AGS-SF","AR",65
+447,"Tierra del Fuego (Argentina)","AGS-TF","AR",65
+448,"Catamarca","AGW-CA","AR",66
+449,"Jujuy","AGW-JU","AR",66
+450,"La Rioja","AGW-LR","AR",66
+451,"Mendoza","AGW-ME","AR",66
+452,"Salta","AGW-SA","AR",66
+453,"Santiago del Estero","AGW-SE","AR",66
+454,"San Juan","AGW-SJ","AR",66
+455,"San Luis","AGW-SL","AR",66
+456,"Tucuman","AGW-TU","AR",66
+457,"Alabama","ALA-OO","US",67
+458,"Albania","ALB-OO","AL",68
+459,"Aldabra","ALD-OO","SC",69
+460,"Algeria","ALG-OO","DZ",70
+461,"Altay","ALT-OO","RU",71
+462,"Aleutian Is.","ALU-OO","US",72
+463,"Amur","AMU-OO","RU",73
+464,"Andaman Is.","AND-AN","IN",74
+465,"Coco Is.","AND-CO","BU",74
+466,"Angola","ANG-OO","AO",75
+467,"Antarctica","ANT-OO","AQ",76
+468,"Arizona","ARI-OO","US",77
+469,"Arkansas","ARK-OO","US",78
+470,"Aruba","ARU-OO","AW",79
+471,"Ascension","ASC-OO","SH",80
+472,"Alaska","ASK-OO","US",81
+473,"Amsterdam-St.Paul Is.","ASP-OO","TF",82
+474,"Assam","ASS-AS","IN",83
+475,"Manipur","ASS-MA","IN",83
+476,"Meghalaya","ASS-ME","IN",83
+477,"Mizoram","ASS-MI","IN",83
+478,"Nagaland","ASS-NA","IN",83
+479,"Tripura","ASS-TR","IN",83
+480,"Antipodean Is.","ATP-OO","NZ",84
+481,"Austria","AUT-AU","AT",85
+482,"Liechtenstein","AUT-LI","LI",85
+483,"Açôres","AZO-OO","PT",86
+484,"Bahamas","BAH-OO","BS",87
+485,"Baleares","BAL-OO","ES",88
+486,"Bangladesh","BAN-OO","BD",89
+487,"Benin","BEN-OO","BJ",90
+488,"Bermuda","BER-OO","BM",91
+489,"Belgium","BGM-BE","BE",92
+490,"Luxembourg","BGM-LU","LU",92
+491,"Bismarck Archipelago","BIS-OO","PG",93
+492,"Burkina","BKN-OO","BF",94
+493,"Belarus","BLR-OO","RU",95
+494,"Estonia","BLT-ES","EE",96
+495,"Kaliningrad","BLT-KA","RU",96
+496,"Latvia","BLT-LA","RU",96
+497,"Lithuania","BLT-LI","LT",96
+498,"Belize","BLZ-OO","BZ",97
+499,"Bolivia","BOL-OO","BO",98
+500,"Brunei","BOR-BR","BN",99
+501,"Kalimantan","BOR-KA","ID",99
+502,"Sabah","BOR-SB","MY",99
+503,"Sarawak","BOR-SR","MY",99
+504,"Botswana","BOT-OO","BW",100
+505,"Bouvet I.","BOU-OO","BV",101
+506,"British Columbia","BRC-OO","CA",102
+507,"Buryatiya","BRY-OO","RU",103
+508,"Bulgaria","BUL-OO","BG",104
+509,"Burundi","BUR-OO","BI",105
+510,"Brazilia Distrito Federal","BZC-DF","BR",106
+511,"Goiás","BZC-GO","BR",106
+512,"Mato Grosso do Sul","BZC-MS","BR",106
+513,"Mato Grosso","BZC-MT","BR",106
+514,"Alagoas","BZE-AL","BR",107
+515,"Bahia","BZE-BA","BR",107
+516,"Ceará","BZE-CE","BR",107
+517,"Fernando de Noronha","BZE-FN","BR",107
+518,"Maranhao","BZE-MA","BR",107
+519,"Paraíba","BZE-PB","BR",107
+520,"Pernambuco","BZE-PE","BR",107
+521,"Piauí","BZE-PI","BR",107
+522,"Rio Grande do Norte","BZE-RN","BR",107
+523,"Sergipe","BZE-SE","BR",107
+524,"Espirito Santo","BZL-ES","BR",108
+525,"Minas Gerais","BZL-MG","BR",108
+526,"Rio de Janeiro","BZL-RJ","BR",108
+527,"São Paulo","BZL-SP","BR",108
+528,"Trindade","BZL-TR","BR",108
+529,"Acre","BZN-AC","BR",109
+530,"Amazonas","BZN-AM","BR",109
+531,"Amapá","BZN-AP","BR",109
+532,"Pará","BZN-PA","BR",109
+533,"Roraima","BZN-RM","BR",109
+534,"Rondônia","BZN-RO","BR",109
+535,"Tocantins","BZN-TO","BR",109
+536,"Paraná","BZS-PR","BR",110
+537,"Rio Grande do Sul","BZS-RS","BR",110
+538,"Santa Catarina","BZS-SC","BR",110
+539,"Cabinda","CAB-OO","AO",111
+540,"Central African Republic","CAF-OO","CF",112
+541,"California","CAL-OO","US",113
+542,"Cayman Is.","CAY-OO","KY",114
+543,"Cambodia","CBD-OO","KH",115
+544,"Chagos Archipelago","CGS-OO","IO",116
+545,"Chad","CHA-OO","TD",117
+546,"Guizhou","CHC-GZ","CN",118
+547,"Hubei","CHC-HU","CN",118
+548,"Sichuan","CHC-SC","CN",118
+549,"Yunnan","CHC-YN","CN",118
+550,"Hainan","CHH-OO","CN",119
+551,"Nei Mongol","CHI-NM","CN",120
+552,"Ningxia","CHI-NX","CN",120
+553,"Heilongjiang","CHM-HJ","CN",121
+554,"Jilin","CHM-JL","CN",121
+555,"Liaoning","CHM-LN","CN",121
+556,"Beijing","CHN-BJ","CN",122
+557,"Gansu","CHN-GS","CN",122
+558,"Hebei","CHN-HB","CN",122
+559,"Shaanxi","CHN-SA","CN",122
+560,"Shandong","CHN-SD","CN",122
+561,"Shanxi","CHN-SX","CN",122
+562,"Tianjin","CHN-TJ","CN",122
+563,"Qinghai","CHQ-OO","CN",123
+564,"Anhui","CHS-AH","CN",124
+565,"Fujian","CHS-FJ","CN",124
+566,"Guangdong","CHS-GD","CN",124
+567,"Guangxi","CHS-GX","CN",124
+568,"Henan","CHS-HE","CN",124
+569,"Hong Kong","CHS-HK","HK",124
+570,"Hunan","CHS-HN","CN",124
+571,"Jiangsu","CHS-JS","CN",124
+572,"Jiangxi","CHS-JX","CN",124
+573,"Kin-Men","CHS-KI","TW",124
+574,"Macau","CHS-MA","MO",124
+575,"Ma-tsu-Pai-chúan","CHS-MP","TW",124
+576,"Shanghai","CHS-SH","CN",124
+577,"Zhejiang","CHS-ZJ","CN",124
+578,"Tibet","CHT-OO","CN",125
+579,"Xinjiang","CHX-OO","CN",126
+580,"Cocos (Keeling) Is.","CKI-OO","CC",127
+581,"Biobío","CLC-BI","CL",128
+582,"Coquimbo","CLC-CO","CL",128
+583,"La Araucania","CLC-LA","CL",128
+584,"Maule","CLC-MA","CL",128
+585,"O'Higgins","CLC-OH","CL",128
+586,"Santiago","CLC-SA","CL",128
+587,"Valparaíso","CLC-VA","CL",128
+588,"Colombia","CLM-OO","CO",129
+589,"Antofagasta","CLN-AN","CL",130
+590,"Atacama","CLN-AT","CL",130
+591,"Tarapaca","CLN-TA","CL",130
+592,"Aisén","CLS-AI","CL",131
+593,"Los Lagos","CLS-LL","CL",131
+594,"Magellanes","CLS-MG","CL",131
+595,"Cameroon","CMN-OO","CM",132
+596,"Connecticut","CNT-OO","US",133
+597,"Canary Is.","CNY-OO","ES",134
+598,"Colorado","COL-OO","US",135
+599,"Comoros","COM-CO","KM",136
+600,"Mayotte","COM-MA","YT",136
+601,"Congo","CON-OO","CG",137
+602,"Cook Is.","COO-OO","CK",138
+603,"Corse","COR-OO","FR",139
+604,"Costa Rica","COS-OO","CR",140
+605,"Clipperton I.","CPI-CL","PF",141
+606,"Cocos I.","CPI-CO","CR",141
+607,"Malpelo I.","CPI-MA","CO",141
+608,"Eastern Cape Province","CPP-EC","ZA",142
+609,"Northern Cape Province","CPP-NC","ZA",142
+610,"Western Cape Province","CPP-WC","ZA",142
+611,"Caprivi Strip","CPV-OO","NA",143
+612,"Micronesia Federated States","CRL-MF","FM",144
+613,"Palau","CRL-PA","PW",144
+614,"Crozet Is.","CRZ-OO","TF",145
+615,"Chita","CTA-OO","RU",146
+616,"Chatham Is.","CTM-OO","NZ",147
+617,"Cuba","CUB-OO","CU",148
+618,"Cape Verde","CVI-OO","CV",149
+619,"Cyprus","CYP-OO","CY",150
+620,"Czech Republic","CZE-CZ","SK",151
+621,"Slovakia","CZE-SK","CZ",151
+622,"Delaware","DEL-OO","US",152
+623,"Denmark","DEN-OO","DK",153
+624,"Djibouti","DJI-OO","DJ",154
+625,"Dominican Republic","DOM-OO","DO",155
+626,"Desventurados Is.","DSV-OO","CL",156
+627,"East Aegean Is.","EAI-OO","GR",157
+628,"Easter Is.","EAS-OO","CL",158
+629,"Ecuador","ECU-OO","EC",159
+630,"Egypt","EGY-OO","EG",160
+631,"Arunachal Pradesh","EHM-AP","IN",161
+632,"Bhutan","EHM-BH","BT",161
+633,"Darjiling","EHM-DJ","IN",161
+634,"Sikkim","EHM-SI","IN",161
+635,"El Salvador","ELS-OO","SV",162
+636,"Equatorial Guinea","EQG-OO","GQ",163
+637,"Eritrea","ERI-OO","ER",164
+638,"Ethiopia","ETH-OO","ET",165
+639,"Falkland Is.","FAL-OO","FK",166
+640,"Fiji","FIJ-OO","FJ",167
+641,"Finland","FIN-OO","FI",168
+642,"Florida","FLA-OO","US",169
+643,"Føroyar","FOR-OO","FO",170
+644,"Channel Is.","FRA-CI","UK",171
+645,"France","FRA-FR","FR",171
+646,"Monaco","FRA-MO","MC",171
+647,"French Guiana","FRG-OO","GF",172
+648,"Gabon","GAB-OO","GA",173
+649,"Galápagos","GAL-OO","EC",174
+650,"Gambia, The","GAM-OO","GM",175
+651,"Georgia","GEO-OO","US",176
+652,"Germany","GER-OO","DE",177
+653,"Annobón","GGI-AN","GQ",178
+654,"Bioko","GGI-BI","GQ",178
+655,"Principe","GGI-PR","ST",178
+656,"São Tomé","GGI-ST","ST",178
+657,"Ghana","GHA-OO","GH",179
+658,"Gilbert Is.","GIL-OO","KI",180
+659,"Guinea-Bissau","GNB-OO","GW",181
+660,"Greenland","GNL-OO","GL",182
+661,"Great Britain","GRB-OO","UK",183
+662,"Greece","GRC-OO","GR",184
+663,"Bahrain","GST-BA","BH",185
+664,"Qatar","GST-QA","QA",185
+665,"United Arab Emirates","GST-UA","AE",185
+666,"Guatemala","GUA-OO","GT",186
+667,"Guinea","GUI-OO","GN",187
+668,"Guyana","GUY-OO","GY",188
+669,"Haiti","HAI-HA","HT",189
+670,"Navassa I.","HAI-NI","PR",189
+671,"Hawaiian Is.","HAW-HI","US",190
+672,"Johnston I.","HAW-JI","UM",190
+673,"Midway Is.","HAW-MI","UM",190
+674,"Howland-Baker Is.","HBI-OO","UM",191
+675,"Heard-McDonald Is.","HMD-OO","HM",192
+676,"Honduras","HON-OO","HN",193
+677,"Hungary","HUN-OO","HU",194
+678,"Iceland","ICE-OO","IS",195
+679,"Idaho","IDA-OO","US",196
+680,"Illinois","ILL-OO","US",197
+681,"Andhra Pradesh","IND-AP","IN",198
+682,"Bihar","IND-BI","IN",198
+683,"Chandigarh","IND-CH","IN",198
+684,"Dadra-Nagar-Haveli","IND-DD","IN",198
+685,"Delhi","IND-DE","IN",198
+686,"Diu","IND-DI","IN",198
+687,"Daman","IND-DM","IN",198
+688,"Goa","IND-GO","IN",198
+689,"Gujarat","IND-GU","IN",198
+690,"Haryana","IND-HA","IN",198
+691,"Kerala","IND-KE","IN",198
+692,"Karaikal","IND-KL","IN",198
+693,"Karnataka","IND-KT","IN",198
+694,"Mahé","IND-MH","IN",198
+695,"Madhya Pradesh","IND-MP","IN",198
+696,"Maharashtra","IND-MR","IN",198
+697,"Orissa","IND-OR","IN",198
+698,"Pondicherry","IND-PO","IN",198
+699,"Punjab","IND-PU","IN",198
+700,"Rajasthan","IND-RA","IN",198
+701,"Tamil Nadu","IND-TN","IN",198
+702,"Uttar Pradesh","IND-UP","IN",198
+703,"West Bengal","IND-WB","IN",198
+704,"Yanam","IND-YA","IN",198
+705,"Indiana","INI-OO","US",199
+706,"Iowa","IOW-OO","US",200
+707,"Ireland","IRE-IR","IE",201
+708,"Northern Ireland","IRE-NI","UK",201
+709,"Irkutsk","IRK-OO","RU",202
+710,"Iran","IRN-OO","IR",203
+711,"Iraq","IRQ-OO","IQ",204
+712,"Italy","ITA-IT","IT",205
+713,"San Marino","ITA-SM","SM",205
+714,"Vatican City","ITA-VC","VA",205
+715,"Ivory Coast","IVO-OO","CI",206
+716,"Jamaica","JAM-OO","JM",207
+717,"Hokkaido","JAP-HK","JP",208
+718,"Honshu","JAP-HN","JP",208
+719,"Kyushu","JAP-KY","JP",208
+720,"Shikoku","JAP-SH","JP",208
+721,"Jawa","JAW-OO","ID",209
+722,"Juan Fernández Is.","JNF-OO","CL",210
+723,"Kamchatka","KAM-OO","RU",211
+724,"Kansas","KAN-OO","US",212
+725,"Kazakhstan","KAZ-OO","KZ",213
+726,"Kerguelen","KEG-OO","TF",214
+727,"Kenya","KEN-OO","KE",215
+728,"Kermadec Is.","KER-OO","NZ",216
+729,"Kirgizistan","KGZ-OO","KG",217
+730,"Khabarovsk","KHA-OO","RU",218
+731,"North Korea","KOR-NK","KP",219
+732,"South Korea","KOR-SK","KR",219
+733,"Krasnoyarsk","KRA-OO","RU",220
+734,"Kriti","KRI-OO","GR",221
+735,"Krym","KRY-OO","UA",222
+736,"Kentucky","KTY-OO","US",223
+737,"Kuril Is.","KUR-OO","RU",224
+738,"Kuwait","KUW-OO","KW",225
+739,"Kazan-retto","KZN-OO","JP",226
+740,"Labrador","LAB-OO","CA",227
+741,"Laos","LAO-OO","LA",228
+742,"Liberia","LBR-OO","LR",229
+743,"Lebanon","LBS-LB","LB",230
+744,"Syria","LBS-SY","SY",230
+745,"Libya","LBY-OO","LY",231
+746,"Laccadive Is.","LDV-OO","IN",232
+747,"Antigua-Barbuda","LEE-AB","AG",233
+748,"Anguilla","LEE-AG","AI",233
+749,"Aves I.","LEE-AV","VE",233
+750,"British Virgin Is.","LEE-BV","VG",233
+751,"Guadeloupe","LEE-GU","GP",233
+752,"Montserrat","LEE-MO","MS",233
+753,"Netherlands Leeward Is.","LEE-NL","AN",233
+754,"St.Kitts-Nevis","LEE-SK","KN",233
+755,"St.Martin-St.Barthélémy","LEE-SM","GP",233
+756,"Virgin Is.","LEE-VI","VI",233
+757,"Lesotho","LES-OO","LS",234
+758,"Kiribati Line Is.","LIN-KI","KI",235
+759,"U.S. Line Is.","LIN-US","UM",235
+760,"Louisiana","LOU-OO","US",236
+761,"Bali","LSI-BA","ID",237
+762,"East Timor","LSI-ET","TP",237
+763,"Lesser Sunda Is.","LSI-LS","ID",237
+764,"Magadan","MAG-OO","RU",238
+765,"Maine","MAI-OO","US",239
+766,"Manitoba","MAN-OO","CA",240
+767,"Macquarie Is.","MAQ-OO","AU",241
+768,"Masachusettes","MAS-OO","US",242
+769,"Mauritius","MAU-OO","MU",243
+770,"Mozambique Channel Is.","MCI-OO","RE",244
+771,"Marcus I.","MCS-OO","JP",245
+772,"Madagascar","MDG-OO","MG",246
+773,"Madeira","MDR-OO","PT",247
+774,"Maldives","MDV-OO","MV",248
+775,"Michigan","MIC-OO","US",249
+776,"Minnesota","MIN-OO","US",250
+777,"Mali","MLI-OO","ML",251
+778,"Malawi","MLW-OO","MW",252
+779,"Peninsular Malaysia","MLY-PM","MY",253
+780,"Singapore","MLY-SI","SG",253
+781,"Montana","MNT-OO","US",254
+782,"Maluku","MOL-OO","ID",255
+783,"Mongolia","MON-OO","MN",256
+784,"Morocco","MOR-MO","MA",257
+785,"Spanish North African Territories","MOR-SP","ES",257
+786,"Mozambique","MOZ-OO","MZ",258
+787,"Marion-Prince Edward Is.","MPE-OO","ZA",259
+788,"Guam","MRN-GU","GU",260
+789,"Northern Marianas","MRN-NM","MP",260
+790,"Marquesas","MRQ-OO","PF",261
+791,"Marshall Is.","MRS-OO","MH",262
+792,"Maryland","MRY-OO","US",263
+793,"Mississippi","MSI-OO","US",264
+794,"Missouri","MSO-OO","US",265
+795,"Mauritania","MTN-OO","MR",266
+796,"Mexico Distrito Federal","MXC-DF","MX",267
+797,"México State","MXC-ME","MX",267
+798,"Morelos","MXC-MO","MX",267
+799,"Puebla","MXC-PU","MX",267
+800,"Tlaxcala","MXC-TL","MX",267
+801,"Aguascalientes","MXE-AG","MX",268
+802,"Coahuila","MXE-CO","MX",268
+803,"Chihuahua","MXE-CU","MX",268
+804,"Durango","MXE-DU","MX",268
+805,"Guanajuato","MXE-GU","MX",268
+806,"Hidalgo","MXE-HI","MX",268
+807,"Nuevo León","MXE-NL","MX",268
+808,"Querétaro","MXE-QU","MX",268
+809,"San Luis Potosí","MXE-SL","MX",268
+810,"Tamaulipas","MXE-TA","MX",268
+811,"Zacatecas","MXE-ZA","MX",268
+812,"Veracruz","MXG-VC","MX",269
+813,"Guadalupe I.","MXI-GU","MX",270
+814,"Rocas Alijos","MXI-RA","MX",270
+815,"Revillagigedo Is.","MXI-RG","MX",270
+816,"Baja California","MXN-BC","MX",271
+817,"Baja California Sur","MXN-BS","MX",271
+818,"Sinaloa","MXN-SI","MX",271
+819,"Sonora","MXN-SO","MX",271
+820,"Colima","MXS-CL","MX",272
+821,"Guerrero","MXS-GR","MX",272
+822,"Jalisco","MXS-JA","MX",272
+823,"Michoacán","MXS-MI","MX",272
+824,"Nayarit","MXS-NA","MX",272
+825,"Oaxaca","MXS-OA","MX",272
+826,"Campeche","MXT-CA","MX",273
+827,"Chiapas","MXT-CI","MX",273
+828,"Quintana Roo","MXT-QR","MX",273
+829,"Tabasco","MXT-TB","MX",273
+830,"Yucatán","MXT-YU","MX",273
+831,"Myanmar","MYA-OO","MM",274
+832,"Namibia","NAM-OO","ZA",275
+833,"KwaZulu-Natal","NAT-OO","ZA",276
+834,"New Brunswick","NBR-OO","CA",277
+835,"North Carolina","NCA-OO","US",278
+836,"Nicobar Is.","NCB-OO","IN",279
+837,"Dagestan","NCS-DA","RU",280
+838,"Kabardino-Balkariya","NCS-KB","RU",280
+839,"Karacheyevo-Cherkessiya","NCS-KC","RU",280
+840,"Krasnodar","NCS-KR","RU",280
+841,"Severo-Osetiya","NCS-SO","RU",280
+842,"Stavropol","NCS-ST","RU",280
+843,"North Dakota","NDA-OO","US",281
+844,"Nebraska","NEB-OO","US",282
+845,"Nepal","NEP-OO","NP",283
+846,"Netherlands","NET-OO","NL",284
+847,"Nevada","NEV-OO","US",285
+848,"Lord Howe I.","NFK-LH","AU",286
+849,"Norfolk I.","NFK-NI","NF",286
+850,"Newfoundland","NFL-NE","CA",287
+851,"St.Pierre-Miquelon","NFL-SP","PM",287
+852,"Nigeria","NGA-OO","NG",288
+853,"Niger","NGR-OO","NE",289
+854,"Nicaragua","NIC-OO","NI",290
+855,"Bonaire","NLA-BO","AN",291
+856,"Curaçao","NLA-CU","AN",291
+857,"Nansei-shoto","NNS-OO","JP",292
+858,"Norway","NOR-OO","NO",293
+859,"Nauru","NRU-OO","NR",294
+860,"Nova Scotia","NSC-OO","CA",295
+861,"Australian Capital Territory","NSW-CT","AU",296
+862,"New South Wales","NSW-NS","AU",296
+863,"Northern Territory","NTA-OO","AU",297
+864,"Niue","NUE-OO","NU",298
+865,"Nunavut","NUN-OO","CA",299
+866,"New Caledonia","NWC-OO","NC",300
+867,"Irian Jaya","NWG-IJ","ID",301
+868,"Papua New Guinea","NWG-PN","PG",301
+869,"New Hampshire","NWH-OO","US",302
+870,"New Jersey","NWJ-OO","US",303
+871,"New Mexico","NWM-OO","US",304
+872,"Northwest Territories","NWT-OO","CA",305
+873,"New York","NWY-OO","US",306
+874,"New Zealand North","NZN-OO","NZ",307
+875,"New Zealand South","NZS-OO","NZ",308
+876,"Free State","OFS-OO","ZA",309
+877,"Ogasawara-shoto","OGA-OO","JP",310
+878,"Ohio","OHI-OO","US",311
+879,"Oklahoma","OKL-OO","US",312
+880,"Oman","OMA-OO","OM",313
+881,"Ontario","ONT-OO","CA",314
+882,"Oregon","ORE-OO","US",315
+883,"Pakistan","PAK-OO","PK",316
+884,"Israel","PAL-IS","IL",317
+885,"Jordan","PAL-JO","JO",317
+886,"Panamá","PAN-OO","PA",318
+887,"Paraguay","PAR-OO","PY",319
+888,"Prince Edward I.","PEI-OO","CA",320
+889,"Pennsylvania","PEN-OO","US",321
+890,"Peru","PER-OO","PE",322
+891,"Philippines","PHI-OO","PH",323
+892,"Phoenix Is.","PHX-OO","KI",324
+893,"Pitcairn Is.","PIT-OO","PN",325
+894,"Poland","POL-OO","PL",326
+895,"Portugal","POR-OO","PT",327
+896,"Primorye","PRM-OO","RU",328
+897,"Puerto Rico","PUE-OO","PR",329
+898,"Coral Sea Is. Territory","QLD-CS","AU",330
+899,"Queensland","QLD-QU","AU",330
+900,"Québec","QUE-OO","CA",331
+901,"Réunion","REU-OO","RE",332
+902,"Rhode I.","RHO-OO","US",333
+903,"Rodrigues","ROD-OO","MU",334
+904,"Romania","ROM-OO","RO",335
+905,"Central European Russia","RUC-OO","RU",336
+906,"East European Russia","RUE-OO","RU",337
+907,"North European Russia","RUN-OO","RU",338
+908,"South European Russia","RUS-OO","RU",339
+909,"Northwest European Russia","RUW-OO","RU",340
+910,"Rwanda","RWA-OO","RW",341
+911,"Sakhalin","SAK-OO","RU",342
+912,"American Samoa","SAM-AS","AS",343
+913,"Samoa","SAM-WS","WS",343
+914,"Sardegna","SAR-OO","IT",344
+915,"Saskatchewan","SAS-OO","CA",345
+916,"Saudi Arabia","SAU-OO","SA",346
+917,"South Carolina","SCA-OO","US",347
+918,"Society Is.","SCI-OO","PF",348
+919,"Paracel Is.","SCS-PI","PI",349
+920,"Spratly Is.","SCS-SI","SI",349
+921,"Santa Cruz Is.","SCZ-OO","SB",350
+922,"South Dakota","SDA-OO","US",351
+923,"Selvagens","SEL-OO","PT",352
+924,"Senegal","SEN-OO","SN",353
+925,"Seychelles","SEY-OO","SC",354
+926,"South Georgia","SGE-OO","GS",355
+927,"Malta","SIC-MA","MT",356
+928,"Sicilia","SIC-SI","IT",356
+929,"Sierra Leone","SIE-OO","SL",357
+930,"Sinai","SIN-OO","EG",358
+931,"South Australia","SOA-OO","AU",359
+932,"Socotra","SOC-OO","YE",360
+933,"North Solomons","SOL-NO","PG",361
+934,"South Solomons","SOL-SO","SB",361
+935,"Somalia","SOM-OO","SO",362
+936,"Andorra","SPA-AN","AD",363
+937,"Gilbraltar","SPA-GI","GI",363
+938,"Spain","SPA-SP","ES",363
+939,"Sri Lanka","SRL-OO","LK",364
+940,"South Sandwich Is.","SSA-OO","GS",365
+941,"St.Helena","STH-OO","SH",366
+942,"Sudan","SUD-OO","SD",367
+943,"Sulawesi","SUL-OO","ID",368
+944,"Sumatera","SUM-OO","ID",369
+945,"Surinam","SUR-OO","SR",370
+946,"Svalbard","SVA-OO","SJ",371
+947,"Colombian Caribbean Is.","SWC-CC","CO",372
+948,"Honduran Caribbean Is.","SWC-HC","HN",372
+949,"Nicaraguan Caribbean Is.","SWC-NC","NI",372
+950,"Sweden","SWE-OO","SE",373
+951,"Switzerland","SWI-OO","CH",374
+952,"Swaziland","SWZ-OO","SZ",375
+953,"Taiwan","TAI-OO","TW",376
+954,"Tanzania","TAN-OO","TZ",377
+955,"Tasmania","TAS-OO","AU",378
+956,"Turks-Caicos Is.","TCI-OO","TC",379
+957,"Abkhaziya","TCS-AB","GE",380
+958,"Adzhariya","TCS-AD","GE",380
+959,"Armenia","TCS-AR","AM",380
+960,"Azerbaijan","TCS-AZ","AZ",380
+961,"Georgia","TCS-GR","GE",380
+962,"Nakhichevan","TCS-NA","AZ",380
+963,"Nagorno Karabakh","TCS-NK","AZ",380
+964,"Tristan da Cunha","TDC-OO","SH",381
+965,"Tennessee","TEN-OO","US",382
+966,"Texas","TEX-OO","US",383
+967,"Thailand","THA-OO","TH",384
+968,"Turkmenistan","TKM-OO","TM",385
+969,"Togo","TOG-OO","TG",386
+970,"Manihiki Is.","TOK-MA","CK",387
+971,"Swains I.","TOK-SW","AS",387
+972,"Tokelau","TOK-TO","TK",387
+973,"Tonga","TON-OO","TO",388
+974,"Trinidad-Tobago","TRT-OO","TT",389
+975,"Tuamotu","TUA-OO","PF",390
+976,"Tubuai Is.","TUB-OO","PF",391
+977,"Turkey-in-Europe","TUE-OO","TR",392
+978,"Tunisia","TUN-OO","TN",393
+979,"Turkey","TUR-OO","TR",394
+980,"Tuvalu","TUV-OO","TV",395
+981,"Tuva","TVA-OO","RU",396
+982,"Gauteng","TVL-GA","ZA",397
+983,"Mpumalanga","TVL-MP","ZA",397
+984,"Northern Province","TVL-NP","ZA",397
+985,"North-West Province","TVL-NW","ZA",397
+986,"Tadzhikistan","TZK-OO","TJ",398
+987,"Uganda","UGA-OO","UG",399
+988,"Moldova","UKR-MO","MD",400
+989,"Ukraine","UKR-UK","UA",400
+990,"Uruguay","URU-OO","UY",401
+991,"Utah","UTA-OO","US",402
+992,"Uzbekistan","UZB-OO","UZ",403
+993,"Vanuatu","VAN-OO","VU",404
+994,"Venezuela","VEN-OO","VE",405
+995,"Vermont","VER-OO","US",406
+996,"Victoria","VIC-OO","AU",407
+997,"Vietnam","VIE-OO","VN",408
+998,"Venezuelan Antilles","VNA-OO","VE",409
+999,"Virginia","VRG-OO","US",410
+1000,"Wake I.","WAK-OO","UM",411
+1001,"Wallis-Futuna Is.","WAL-OO","WF",412
+1002,"Washington","WAS-OO","US",413
+1003,"Ashmore-Cartier Is.","WAU-AC","AU",414
+1004,"Western Australia","WAU-WA","AU",414
+1005,"District of Columbia","WDC-OO","US",415
+1006,"Himachal Pradesh","WHM-HP","IN",416
+1007,"Jammu-Kashmir","WHM-JK","IN",416
+1008,"Uttaranchal","WHM-UT","IN",416
+1009,"Barbados","WIN-BA","BB",417
+1010,"Dominica","WIN-DO","DM",417
+1011,"Grenada","WIN-GR","GD",417
+1012,"Martinique","WIN-MA","MQ",417
+1013,"St.Lucia","WIN-SL","LC",417
+1014,"St.Vincent","WIN-SV","VC",417
+1015,"Wisconsin","WIS-OO","US",418
+1016,"Western Sahara","WSA-OO","EH",419
+1017,"West Siberia","WSB-OO","RU",420
+1018,"West Virginia","WVA-OO","US",421
+1019,"Wyoming","WYO-OO","US",422
+1020,"Christmas I.","XMS-OO","CX",423
+1021,"Yakutskiya","YAK-OO","RU",424
+1022,"North Yemen","YEM-NY","YE",425
+1023,"South Yemen","YEM-SY","YE",425
+1024,"Bosnia-Herzegovina","YUG-BH","YU",426
+1025,"Croatia","YUG-CR","HR",426
+1026,"Kosovo","YUG-KO","YU",426
+1027,"Macedonia","YUG-MA","MK",426
+1028,"Montenegro","YUG-MN","YU",426
+1029,"Serbia","YUG-SE","YU",426
+1030,"Slovenia","YUG-SL","SL",426
+1031,"Yukon","YUK-OO","CA",427
+1032,"Zaire","ZAI-OO","CD",428
+1033,"Zambia","ZAM-OO","ZM",429
+1034,"Zimbabwe","ZIM-OO","ZW",430
+1035,"Jharkhand","IND-JK","IN",198
+1036,"Chattisgarh","IND-CT","IN",198
+1037,"Chechnya","NCS-CH","RU",280
+1038,"Ingushetiya","NCS-IN","RU",280
+1039,"Chongqing","CHC-CQ","CN",118
+1040,"Afghanistan","2",,432
+1041,"Åland Is.","4",,641
+1042,"Albania","5",,458
+1043,"Aleutian Is.","6",,462
+1044,"Algeria","7",,460
+1045,"American Samoa","8",,912
+1046,"Andorra","9",,936
+1047,"Angola","10",,466
+1048,"Anguilla","11",,748
+1049,"Antigua-Barbuda","12",,747
+1050,"Armeniya","14",,959
+1051,"Aruba","15",,470
+1052,"Ascension","16",,471
+1053,"Ashmore and Cartier Is.","17",,1003
+1054,"Australian Antarctic Territory","19",,467
+1055,"Austria","20",,481
+1056,"Azores","22",,483
+1057,"Bahamas","23",,484
+1058,"Bahrain","24",,663
+1059,"Bangladesh","26",,486
+1060,"Barbados","27",,1009
+1061,"Belgium","29",,489
+1062,"Belize","30",,498
+1063,"Benin","32",,487
+1064,"Bermuda","33",,488
+1065,"Bhutan","34",,632
+1066,"Bioko","35",,654
+1067,"Bolivia","36",,499
+1068,"Bonaire","37",,855
+1069,"Bophutatswana","39",,22
+1070,"Borneo","40",,99
+1071,"Botswana","42",,504
+1072,"Bougainville","43",,933
+1073,"British Antarctic Territory","45",,467
+1074,"British Indian Ocean Territory","46",,544
+1075,"Brunei","47",,500
+1076,"Bulgaria","48",,508
+1077,"Burkina","49",,492
+1078,"Burundi","51",,509
+1079,"Cambodia","52",,543
+1080,"Abemama","332",,658
+1081,"Acklins I.","335",,484
+1082,"Açôres","336",,483
+1083,"Acre","337",,529
+1084,"Actaeon Group","338",,975
+1085,"Addu Atoll","339",,774
 1086,"Aden","340",,1023
 1087,"Admiralty Is.","341",,491
 1088,"Adygeysk","342",,840
 1089,"Adzhariya","343",,958
-363,"Spain","SPA","",12
+1090,"Agalega","345",,769
+1091,"Aginsky Buryat","346",,615
+1092,"Agrihan","347",,789
 1093,"Aguascalientes","348",,801
-765,"Maine","MAI-OO","US",239
-241,"Macquarie Is.","MAQ","AU",60
-242,"Masachusettes","MAS","US",49
-243,"Mauritius","MAU","MU",24
-2706,"West Berlin","2318",,652
-2704,"Wenman I.","2316",,649
-2705,"West Bengal","2317",,703
-2703,"Washington","2314",,1002
-672,"Johnston I.","HAW-JI","UM",190
-1623,"Hon Panjang","1007",,997
-2699,"Walpole I.","2310",,866
-922,"South Dakota","SDA-OO","US",351
-210,"Juan Fernández Is.","JNF","CL",59
-238,"Magadan","MAG","RU",26
-239,"Maine","MAI","US",49
-3,"Asia-Temperate","3,00",,
-2159,"Pagan","1655",,789
-240,"Manitoba","MAN","CA",45
-90,"Benin","BEN","BJ",17
-2558,"Terceira","2147",,483
-945,"Surinam","SUR-OO","SR",370
-629,"Ecuador","ECU-OO","EC",159
-91,"Bermuda","BER","BM",55
-557,"Gansu","CHN-GS","CN",122
-2263,"Queen Mary Land","1780",,467
-2557,"Teraina","2146",,758
-25,"Siberia","30,00","",3
-801,"Aguascalientes","MXE-AG","MX",268
-2527,"Tabuaeran","2109",,758
-237,"Lesser Sunda Is.","LSI","",36
-471,"Ascension","ASC-OO","SH",80
-2660,"Vancouver I.","2268",,506
-2661,"Vanikoro I.","2269",,921
-538,"Santa Catarina","BZS-SC","BR",110
-2654,"Uttar Pradesh","2262",,702
-2655,"Utupua I.","2263",,921
-2652,"Ustica","2260",,928
-2653,"Utah","2261",,991
-993,"Vanuatu","VAN-OO","VU",404
-1719,"Karkaralong Is.","1131",,943
-2656,"Uvea","2264",,1001
-2657,"Uzbekistan","2265",,992
-2809,"Uoshima","2442",,720
-2810,"Omi-shoto","2443",,720
-2807,"Nako-jima","2440",,720
-910,"Rwanda","RWA-OO","RW",341
-620,"Czech Republic","CZE-CZ","SK",151
-2814,"Ya-shima","2447",,718
-2811,"Inno-shima","2444",,718
-2812,"Hakata-shima","2445",,720
-2815,"Hime-shima","2448",,719
-2816,"Naga-shima","2449",,718
-936,"Andorra","SPA-AN","AD",363
-183,"Great Britain","GRB","UK",10
-184,"Greece","GRC","GR",13
-591,"Tarapaca","CLN-TA","CL",130
-809,"San Luis Potosí","MXE-SL","MX",268
-2475,"St.Brandon","2046",,769
-2474,"St.Barthélémy","2044",,755
-2472,"Sri Lanka","2042",,939
-2473,"St.Anne I.","2043",,925
-2471,"Spratly Is.","2040",,920
-2476,"St.Croix","2048",,756
-2570,"Thira","2159",,662
-547,"Hubei","CHC-HU","CN",118
-1789,"Kwajalein","1213",,791
-146,"Chita","CTA","RU",25
-147,"Chatham Is.","CTM","NZ",39
-1620,"Himachal Pradesh","1001",,1006
-416,"West Himalaya","WHM","",34
-568,"Henan","CHS-HE","CN",124
-1619,"Hierro","1000",,597
-694,"Mahé","IND-MH","IN",198
-916,"Saudi Arabia","SAU-OO","SA",346
-2267,"Quintana Roo","1786",,828
-907,"North European Russia","RUN-OO","RU",338
-695,"Madhya Pradesh","IND-MP","IN",198
-696,"Maharashtra","IND-MR","IN",198
-2133,"Ofu","1623",,912
-2132,"Oeno I.","1622",,893
-2438,"Sirna","1993",,662
-2437,"Sint Maarten","1992",,753
-2137,"Oki","1627",,718
-2136,"Ohio","1626",,878
-2135,"O'Higgins","1625",,585
-2134,"Ogasawara-shoto","1624",,877
-2442,"Snake I.","1999",,748
-2441,"Smolensk","1998",,905
-2139,"Okinawa","1629",,857
-2138,"Okina Daito","1628",,857
-1029,"Serbia","YUG-SE","YU",426
-315,"Oregon","ORE","US",47
-1030,"Slovenia","YUG-SL","SL",426
-614,"Crozet Is.","CRZ-OO","TF",145
-1919,"Mari","1376",,906
-1269,"British Columbia","557",,506
-1268,"British Cameroons South","556",,595
-1264,"Brazil West-Central","551",,106
-1263,"Brazil Southeast","550",,108
-1266,"Bristow I.","553",,868
-1265,"Brazilia Distrito Federal","552",,510
-2028,"Namibia","1502",,832
-1975,"Middleton Reef","1439",,848
-1777,"Krasnodar","1199",,840
-1776,"Kozu-shima","1198",,718
-33,"Eastern Asia","38,00","",3
-525,"Minas Gerais","BZL-MG","BR",108
-1769,"Korea, Republic of","1191",,732
-1768,"Korea, People's Democratic Republic of","1190",,731
-1771,"Kos","1193",,627
-577,"Zhejiang","CHS-ZJ","CN",124
-1773,"Kosrae","1195",,612
-1772,"Kosovo","1194",,1026
-1775,"Koufonisi","1197",,734
-1774,"Kostroma","1196",,905
-495,"Kaliningrad","BLT-KA","RU",96
-2242,"Prince of Wales I.","1759",,899
-2241,"Prince of Wales I.","1757",,872
-2240,"Prince of Wales I.","1756",,472
-2239,"Prince Edward I.","1755",,787
-2238,"Prince Edward I.","1754",,888
-2237,"Primorye","1753",,896
-314,"Ontario","ONT","CA",46
-2235,"Preparis I.","1750",,465
-1756,"Kita Iwo","1177",,739
-1755,"Kita Daito","1176",,857
-1754,"Kirov","1175",,906
-1753,"Kiritimati","1173",,758
-596,"Connecticut","CNT-OO","US",133
-1758,"Kithira","1179",,662
-1757,"Kitalo","1178",,739
-603,"Corse","COR-OO","FR",139
-1622,"Hokkaido","1005",,717
-1847,"Long I.","1285",,868
-1846,"Lombok","1284",,763
-1849,"Lopevi","1287",,993
-1621,"Hiva Oa","1004",,790
-1843,"Little Coco I.","1281",,465
-1842,"Little Cayman","1280",,542
-1845,"Loma-i-Viti Is.","1283",,640
-1844,"Little Inagua","1282",,484
-1850,"Lord Howe I.","1289",,848
-1809,"Latvia","1241",,496
-2097,"Nizhny Novgorod","1579",,905
-2096,"Niutao","1578",,980
-1373,"Condore Is.","689",,997
-1372,"Con Son","688",,997
-743,"Lebanon","LBS-LB","LB",230
-2091,"Nissan","1573",,933
-1369,"Colorado","684",,598
-1371,"Comoros","687",,599
-1237,"Bequia","516",,1014
-1366,"Colombian Caribbean Is.","681",,947
-1365,"Colombia","680",,588
-1368,"Colón Archipelago","683",,649
-1367,"Colón I.","682",,886
-1895,"Maldives","1348",,774
-961,"Georgia","TCS-GR","GE",380
-1796,"La Rioja","1224",,450
-812,"Veracruz","MXG-VC","MX",269
-42,"Northwestern Pacific","62,00","",6
-725,"Kazakhstan","KAZ-OO","KZ",213
-586,"Santiago","CLC-SA","CL",128
-342,"Sakhalin","SAK","RU",26
-343,"Samoa","SAM","",40
-328,"Primorye","PRM","RU",26
-1792,"La Desirade","1220",,751
-1143,"Annobón","407",,653
-1142,"Annam","406",,997
-1916,"Marchena I.","1373",,649
-1141,"Anhui","404",,564
-1918,"Margarita I.","1375",,998
-1917,"Marcus I.","1374",,771
-1920,"Marianas","1377",,260
-1140,"Anegada","400",,750
-345,"Saskatchewan","SAS","CA",45
-344,"Sardegna","SAR","IT",12
-1890,"Malaita","1342",,934
-346,"Saudi Arabia","SAU","SA",30
-470,"Aruba","ARU-OO","AW",79
-117,"Chad","CHA","TD",19
-118,"China South-Central","CHC","CN",31
-263,"Maryland","MRY","US",52
-119,"Hainan","CHH","CN",31
-209,"Jawa","JAW","ID",36
-2559,"Terengganu","2148",,779
-121,"Manchuria","CHM","CN",31
-122,"China North-Central","CHN","CN",31
-262,"Marshall Is.","MRS","MH",42
-123,"Qinghai","CHQ","CN",31
-260,"Marianas","MRN","",42
-124,"China Southeast","CHS","",31
-125,"Tibet","CHT","CN",31
-2236,"Pribilov Is.","1751",,472
-126,"Xinjiang","CHX","CN",31
-430,"Zimbabwe","ZIM","ZW",21
-479,"Tripura","ASS-TR","IN",83
-1727,"Keewatin","1140",,865
-1122,"Amboyna Cay","379",,920
-1121,"Ambon","378",,782
-1114,"Altay","371",,461
-1116,"Amami O-shima","373",,857
-1115,"Altayskiy Kray","372",,461
-1118,"Amazonas","375",,530
-1117,"Amapá","374",,531
-1120,"Ambitle I.","377",,933
-1119,"Ambergris Cays","376",,956
-2701,"Washington DC","2312",,1005
-888,"Prince Edward I.","PEI-OO","CA",320
-1133,"Anatom","392",,993
-1132,"Anatahan","391",,789
-1131,"Anambas Is.","390",,501
-1137,"Andipsara","397",,627
-1136,"Andikithira","396",,662
-1135,"Andhra Pradesh","395",,681
-1134,"Andaman Is.","394",,464
-723,"Kamchatka","KAM-OO","RU",211
-1138,"Andros","398",,484
-792,"Maryland","MRY-OO","US",263
-2698,"Wallis-Futuna Is.","2309",,1001
-1814,"Laysan I.","1247",,671
-929,"Sierra Leone","SIE-OO","SL",357
-29,"Western Asia","34,00","",3
-2690,"Voronezh","2301",,905
-2689,"Voriai Sporadhes","2300",,662
-2692,"Vrangelya Ostrova","2303",,764
-385,"Turkmenistan","TKM","TM",27
-2694,"Wake I.","2305",,1000
-2693,"Waigeo","2304",,867
-2696,"Walfish Bay","2307",,832
-2695,"Wales","2306",,661
-291,"Netherlands Antilles","NLA","AN",55
-192,"Heard-McDonald Is.","HMD","HM",60
-1813,"Laut Kecil Is.","1246",,501
-63,"Afghanistan","AFG","AF",29
-549,"Yunnan","CHC-YN","CN",118
-2720,"Windward Is.","2336",,417
-1816,"Lebanon-Syria","1249",,230
-2666,"Vatoa Is.","2275",,640
-2665,"Vatican City","2274",,714
-2668,"Vavau Is.","2277",,973
-2667,"Vatulele","2276",,640
-2663,"Vamua Levu","2271",,640
-2662,"Vanua Lava","2270",,993
-798,"Morelos","MXC-MO","MX",267
-658,"Gilbert Is.","GIL-OO","KI",180
-2670,"Venezuela","2279",,994
-34,"Indian Subcontinent","40,00","",4
-481,"Austria","AUT-AU","AT",85
-933,"North Solomons","SOL-NO","PG",361
-1815,"Lebanon","1248",,743
-365,"South Sandwich Is.","SSA","GS",60
-2825,"Dogo","2459",,718
-2824,"Dozen","2458",,718
-2821,"Rishiri-to","2455",,717
-2823,"Oki Is.","2457",,718
-977,"Turkey-in-Europe","TUE-OO","TR",392
-2228,"Poland","1734",,894
-2817,"Koshiki-jima","2450",,719
-2820,"Rebun-to","2453",,717
-2819,"Iki","2452",,719
-2323,"Saba","1862",,753
-563,"Qinghai","CHQ-OO","CN",123
-422,"Wyoming","WYO","US",47
-2478,"St.John","2051",,756
-299,"Nunavut","NUN","CA",44
-2480,"St.Kitts-Nevis","2053",,754
-2479,"St.Kilda","2052",,661
-2482,"St.Lawrence I.","2055",,472
-1909,"Manitoba","1366",,766
-2484,"St.Martin-St.Barthélémy","2057",,755
-873,"New York","NWY-OO","US",306
-785,"Spanish North African Territories","MOR-SP","ES",257
-2485,"St.Martin","2058",,755
-610,"Western Cape Province","CPP-WC","ZA",142
-2027,"Nakhichevan","1500",,962
-159,"Ecuador","ECU","EC",57
-1630,"Howland-Baker Is.","1017",,674
-2031,"Nansei-Shoto","1506",,857
-2124,"Nukulaelae","1609",,980
-1910,"Manra","1367",,892
-1340,"China South-east","650",,124
-2466,"Southampton I.","2029",,865
-676,"Honduras","HON-OO","HN",193
-2568,"The Gambia","2157",,650
-424,"Yakutskiya","YAK","RU",25
-863,"Northern Territory","NTA-OO","AU",297
-1907,"Manihiki Is.","1364",,970
-298,"Niue","NUE","NU",40
-394,"Turkey","TUR","TR",29
-395,"Tuvalu","TUV","TV",40
-2116,"Novosibirsk","1601",,1017
-393,"Tunisia","TUN","TN",15
-2115,"Novgorod","1600",,909
-390,"Tuamotu","TUA","PF",41
-391,"Tubuai Is.","TUB","PF",41
-618,"Cape Verde","CVI-OO","CV",149
-2776,"Lindsay Is.","2405",,934
-2422,"Shortland Is.","1973",,934
-171,"France","FRA","",12
-2421,"Shikotan","1972",,737
-915,"Saskatchewan","SAS-OO","CA",345
-2420,"Shikoku","1971",,720
-472,"Alaska","ASK-OO","US",81
-1797,"Labrador","1225",,740
-573,"Kin-Men","CHS-KI","TW",124
-1905,"Mangareva","1362",,975
-150,"Cyprus","CYP","CY",29
-2417,"Shepherd I.","1968",,993
-2418,"Shetland Is.","1969",,661
-2130,"Oaxaca","1618",,825
-2131,"Obi Is.","1619",,782
-2129,"Oahu","1617",,671
-2128,"Nupani I.","1614",,921
-327,"Portugal","POR","PT",12
-2127,"Nukuoro","1613",,612
-2125,"Nukumanu Is.","1610",,933
-2415,"Shantarskiye Ostrova","1963",,730
-326,"Poland","POL","PL",11
-1906,"Manihiki","1363",,970
-807,"Nuevo León","MXE-NL","MX",268
-15,"Northern Africa","20,00","",2
-1795,"La Pampa","1223",,440
-909,"Northwest European Russia","RUW-OO","RU",340
-1903,"Manchuria","1360",,121
-2251,"Puerto Rico","1768",,897
-23,"Middle Atlantic Ocean","28,00","",2
-1794,"La Palma","1222",,597
-1031,"Yukon","YUK-OO","CA",427
-2245,"Providence group","1762",,459
-2246,"Providence I.","1763",,459
-2243,"Princess Elizabeth Land","1760",,467
-2244,"Principe","1761",,655
-2249,"Pskov","1766",,909
-194,"Hungary","HUN","HU",11
-2247,"Providencia I.","1764",,947
-2248,"Psara","1765",,627
-1729,"Kemerovo","1142",,1017
-1730,"Kentucky","1143",,736
-583,"La Araucania","CLC-LA","CL",128
-1728,"Kelantan","1141",,779
-1732,"Kerala","1146",,691
-1733,"Kerguelen","1147",,726
-666,"Guatemala","GUA-OO","GT",186
-1734,"Kérkira","1148",,662
-1735,"Kermadec Is.","1149",,728
-127,"Cocos (Keeling) Is.","CKI","CC",36
-855,"Bonaire","NLA-BO","AN",291
-514,"Alagoas","BZE-AL","BR",107
-317,"Palestine","PAL","",29
-318,"Panamá","PAN","PA",54
-2066,"New Providence","1546",,484
-865,"Nunavut","NUN-OO","CA",299
-1374,"Congo","690",,601
-2065,"New Mexico","1545",,871
-1377,"Coquimbo","696",,582
-1378,"Coral Sea Is. Territory","697",,898
-2061,"New Hampshire","1540",,869
-1376,"Cook Is.","695",,602
-1379,"Córdoba","698",,436
-2067,"New South Wales","1548",,862
-2068,"New South Wales","1549",,296
-1257,"Bounty I.","543",,480
-1256,"Bornholm","540",,623
-2760,"Zufar","2382",,880
-1259,"Bozcaada","546",,979
-1260,"Brazil North","547",,109
-453,"Santiago del Estero","AGW-SE","AR",66
-2264,"Queensland","1781",,899
-454,"San Juan","AGW-SJ","AR",66
-1261,"Brazil Northeast","548",,107
-1262,"Brazil South","549",,110
-2265,"Queensland","1782",,330
-668,"Guyana","GUY-OO","GY",188
-455,"San Luis","AGW-SL","AR",66
-627,"East Aegean Is.","EAI-OO","GR",157
-2762,"African Is.","2387",,459
-1429,"Diu","766",,686
-22,"Southern Africa","27,00","",2
-2266,"Querétaro","1785",,808
-970,"Manihiki Is.","TOK-MA","CK",387
-1007,"Jammu-Kashmir","WHM-JK","IN",416
-1427,"Disappointment Is.","764",,975
-2268,"Quita Sueño","1787",,947
-2658,"Vaitupu","2266",,980
-905,"Central European Russia","RUC-OO","RU",336
-661,"Great Britain","GRB-OO","UK",183
-2659,"Valparaíso","2267",,587
-1150,"Aoga-shima","414",,718
-1151,"Arab Emirates","415",,665
-1152,"Aranuka","417",,658
-1146,"Antipodean Is.","410",,480
-1147,"Antipodes Is.","411",,480
-1148,"Antofagasta","412",,589
-1149,"Aoba","413",,993
-1927,"Maro Reef","1385",,671
-1928,"Marotiri","1387",,976
-1153,"Argentina Northeast","418",,64
-1154,"Argentina Northwest","419",,66
-1925,"Marion I.","1382",,787
-19,"Northeast Tropical Africa","24,00","",2
-621,"Slovakia","CZE-SK","CZ",151
-630,"Egypt","EGY-OO","EG",160
-2400,"Seram","1947",,782
-2808,"Kurahashi-jima","2441",,718
-2813,"Heigun-to","2446",,718
-1016,"Western Sahara","WSA-OO","EH",419
-439,"Formosa","AGE-FO","AR",64
-105,"Burundi","BUR","BI",18
-966,"Texas","TEX-OO","US",383
-1821,"Leros","1255",,627
-1112,"Alor Is.","368",,763
-1113,"Alphonse I.","369",,459
-1110,"Alexander I.","366",,467
-1111,"Alofi","367",,1001
-1108,"Alejandro Selkirk I.","364",,722
-1109,"Alexander Archipelago","365",,472
-1106,"Alderney","362",,644
-1107,"Alegranza","363",,597
+1094,"Aisén","350",,592
+1095,"Aitutaki","351",,602
+1096,"Al Fujayrah","352",,665
+1097,"Al Manamah","353",,663
+1098,"Alabama","354",,457
+1099,"Alagoas","355",,514
+1100,"Alamagan","356",,789
+1101,"Alaska","357",,472
+1102,"Alberta","358",,431
+1103,"Alboran","359",,938
 1104,"Albuquerque Cay","360",,947
 1105,"Aldabra I.","361",,459
-2257,"Purdy Is.","1774",,491
-2260,"Québec","1777",,900
+1106,"Alderney","362",,644
+1107,"Alegranza","363",,597
+1108,"Alejandro Selkirk I.","364",,722
+1109,"Alexander Archipelago","365",,472
+1110,"Alexander I.","366",,467
+1111,"Alofi","367",,1001
+1112,"Alor Is.","368",,763
+1113,"Alphonse I.","369",,459
+1114,"Altay","371",,461
+1115,"Altayskiy Kray","372",,461
+1116,"Amami O-shima","373",,857
+1117,"Amapá","374",,531
+1118,"Amazonas","375",,530
+1119,"Ambergris Cays","376",,956
+1120,"Ambitle I.","377",,933
+1121,"Ambon","378",,782
+1122,"Amboyna Cay","379",,920
 1123,"Ambrym","380",,993
-1005,"District of Columbia","WDC-OO","US",415
 1124,"Amindivi Is.","382",,746
 1125,"Amirante group","383",,459
 1126,"Amorgos","384",,662
@@ -446,718 +1129,198 @@
 1128,"Amsterdam-St.Paul Is.","386",,473
 1129,"Amur","387",,463
 1130,"Anafi","389",,662
-678,"Iceland","ICE-OO","IS",195
-2253,"Pukapuka","1770",,975
-258,"Mozambique","MOZ","MZ",21
-671,"Hawaiian Is.","HAW-HI","US",190
-257,"Morocco","MOR","",15
-850,"Newfoundland","NFL-NE","CA",287
-1676,"Jalpaiguri","1076",,703
-256,"Mongolia","MON","MN",32
-255,"Maluku","MOL","ID",36
-1717,"Karaikal","1129",,692
-868,"Papua New Guinea","NWG-PN","PG",301
-2290,"Revillagigedo Is.","1814",,815
-2597,"Tonga","2190",,973
-2598,"Tongareva","2191",,970
-2599,"Tongatapu Is.","2192",,973
-2600,"Tonkin","2193",,997
-2601,"Tori-shima","2194",,718
-2602,"Torres Is.","2195",,993
-2603,"Tortola","2196",,750
-2604,"Tortuga, La","2197",,998
-2605,"Transcaucasus","2198",,380
-165,"Ethiopia","ETH","ET",19
-975,"Tuamotu","TUA-OO","PF",390
-2606,"Transkei","2200",,608
-793,"Mississippi","MSI-OO","US",264
-2608,"Tregosse Islets","2203",,898
-2609,"Trindade","2205",,528
-2610,"Trinidad","2206",,974
-2611,"Trinidad-Tobago","2207",,974
-2612,"Tripura","2208",,479
-2613,"Tristan da Cunha","2209",,964
-397,"Northern Provinces","TVL","ZA",22
-410,"Virginia","VRG","US",52
-396,"Tuva","TVA","RU",25
-2796,"West Himalaya","2428",,416
-2797,"East Himalaya","2429",,161
-826,"Campeche","MXT-CA","MX",273
-1752,"Kiribati Line Is.","1171",,758
-808,"Querétaro","MXE-QU","MX",268
-2791,"Free State","2422",,876
-2792,"KwaZulu Natal","2423",,833
-827,"Chiapas","MXT-CI","MX",273
-2794,"Kumaon","2425",,1008
-364,"Sri Lanka","SRL","LK",34
-2176,"Pará","1674",,532
-1530,"Genovesa I.","901",,649
-2177,"Paracel Is.","1675",,919
-924,"Senegal","SEN-OO","SN",353
-544,"Chagos Archipelago","CGS-OO","IO",116
-1458,"Eleuthera","802",,484
-381,"Tristan da Cunha","TDC","SH",60
-2173,"Pandora Bank","1670",,921
-2311,"Rose I.","1842",,912
-2070,"New Zealand North","1551",,874
-2310,"Roraima","1841",,533
-904,"Romania","ROM-OO","RO",335
-1690,"Jost van Dyke","1094",,750
-796,"Mexico Distrito Federal","MXC-DF","MX",267
-604,"Costa Rica","COS-OO","CR",140
-551,"Nei Mongol","CHI-NM","CN",120
-236,"Louisiana","LOU","US",52
-50,"Southwestern U.S.A.","76,00","",7
-1687,"Jilin","1090",,554
-980,"Tuvalu","TUV-OO","TV",395
-552,"Ningxia","CHI-NX","CN",120
-1688,"Johnston I.","1091",,672
-704,"Yanam","IND-YA","IN",198
-2291,"Rhode I.","1815",,902
-2287,"Remire","1811",,459
-2288,"Rennell I.","1812",,934
-2289,"Réunion","1813",,901
-2804,"Ie-shima","2437",,718
-2317,"Round I.","1848",,769
-1741,"Khios","1155",,627
-1740,"Khanty-Mansi","1154",,1017
-697,"Orissa","IND-OR","IN",198
-1694,"Jujuy","1099",,449
-2542,"Tanna","2128",,993
-2575,"Tibet-Qinghai","2165",,125
-728,"Kermadec Is.","KER-OO","NZ",216
-1012,"Martinique","WIN-MA","MQ",417
-559,"Shaanxi","CHN-SA","CN",122
-2123,"Nukufetau","1608",,980
-560,"Shandong","CHN-SD","CN",122
-2426,"Sicily","1979",,928
-2425,"Sicilia","1978",,356
-820,"Colima","MXS-CL","MX",272
-720,"Shikoku","JAP-SH","JP",208
-2118,"Nueva Esparta","1603",,998
-2117,"Novosibirskiye Ostrova","1602",,1021
-2120,"Nuguria Is.","1605",,933
-2119,"Nuevo León","1604",,807
-2122,"Nuku Hiva","1607",,790
-2121,"Nui","1606",,980
-1464,"Enderbury I.","809",,892
-1463,"Emae","808",,993
-940,"South Sandwich Is.","SSA-OO","GS",365
-293,"Norway","NOR","NO",10
-1459,"Elizabeth Reef","803",,848
-561,"Shanxi","CHN-SX","CN",122
-1457,"Elephant I.","801",,467
-1456,"Elba","800",,712
-1462,"Elobey Grande","807",,636
-1461,"Ellsworth I.","806",,467
-1460,"Ellesmere I.","804",,872
-415,"District of Columbia","WDC","US",52
-2258,"Qatar","1775",,664
-1028,"Montenegro","YUG-MN","YU",426
-853,"Niger","NGR-OO","NE",289
-2259,"Qinghai","1776",,123
-1683,"Jawa","1084",,721
-311,"Ohio","OHI","US",49
-2256,"Punjab","1773",,883
-2255,"Punjab","1772",,699
-200,"Iowa","IOW","US",48
-883,"Pakistan","PAK-OO","PK",316
-2262,"Queen Elizabeth Is.","1779",,872
-2261,"Queen Charlotte Is.","1778",,506
-1027,"Macedonia","YUG-MA","MK",426
-952,"Swaziland","SWZ-OO","SZ",375
-571,"Jiangsu","CHS-JS","CN",124
-840,"Krasnodar","NCS-KR","RU",280
-572,"Jiangxi","CHS-JX","CN",124
-1742,"Khristiana","1157",,662
-1737,"Khakassiya","1151",,733
-1736,"Khabarovsk","1150",,730
-1739,"Khamili","1153",,662
-1738,"Khalki","1152",,627
-838,"Kabardino-Balkariya","NCS-KB","RU",280
-839,"Karacheyevo-Cherkessiya","NCS-KC","RU",280
-730,"Khabarovsk","KHA-OO","RU",218
-875,"New Zealand South","NZS-OO","NZ",308
-2069,"New York","1550",,873
-2072,"Newfoundland I.","1553",,850
-2071,"New Zealand South","1552",,875
-2074,"Ngatik","1555",,612
-2073,"Newfoundland","1554",,287
-2076,"Nicaragua","1557",,854
-2075,"Nias","1556",,944
-2078,"Nicholson I.","1559",,864
-2077,"Nicaraguan Caribbean Is.","1558",,949
-1078,"Burundi","51",,509
-1079,"Cambodia","52",,543
-1254,"Bonerate Is.","536",,943
-1253,"Bombom I.","534",,655
-1252,"Boigu I.","533",,899
-45,"Western Canada","71,00","",7
-1250,"Blanquilla Is.","531",,998
-930,"Sinai","SIN-OO","EG",358
-1681,"Japan","1081",,208
-1255,"Bora-Bora","538",,918
-2423,"Sichuan","1976",,548
-14,"Eastern Europe","14,00","",1
-882,"Oregon","ORE-OO","US",315
-1957,"Melville I.","1418",,863
-348,"Society Is.","SCI","PF",41
-772,"Madagascar","MDG-OO","MG",246
-347,"South Carolina","SCA","US",52
-1162,"Aru Is.","429",,867
-1161,"Arorae","428",,658
-655,"Principe","GGI-PR","ST",178
-1938,"Matthew Is.","1399",,866
-350,"Santa Cruz Is.","SCZ","SB",40
-1156,"Aride I.","421",,925
+1131,"Anambas Is.","390",,501
+1132,"Anatahan","391",,789
+1133,"Anatom","392",,993
+1134,"Andaman Is.","394",,464
+1135,"Andhra Pradesh","395",,681
+1136,"Andikithira","396",,662
+1137,"Andipsara","397",,627
+1138,"Andros","398",,484
+1139,"Andros","399",,662
+1140,"Anegada","400",,750
+1141,"Anhui","404",,564
+1142,"Annam","406",,997
+1143,"Annobón","407",,653
+1144,"Antarctica","408",,467
+1145,"Antigua","409",,747
+1146,"Antipodean Is.","410",,480
+1147,"Antipodes Is.","411",,480
+1148,"Antofagasta","412",,589
+1149,"Aoba","413",,993
+1150,"Aoga-shima","414",,718
+1151,"Arab Emirates","415",,665
+1152,"Aranuka","417",,658
+1153,"Argentina Northeast","418",,64
+1154,"Argentina Northwest","419",,66
 1155,"Argentina South","420",,65
-1158,"Arkansas","423",,469
+1156,"Aride I.","421",,925
 1157,"Arizona","422",,468
-1160,"Armathia","425",,734
+1158,"Arkansas","423",,469
 1159,"Arkhangelsk","424",,907
-349,"South China Sea","SCS","",35
-1251,"Bohol","532",,891
-582,"Coquimbo","CLC-CO","CL",128
-10,"Northern Europe","10,00","",1
-1249,"Bjørnøya","530",,946
-856,"Curaçao","NLA-CU","AN",291
-662,"Greece","GRC-OO","GR",184
-1002,"Washington","WAS-OO","US",413
-517,"Fernando de Noronha","BZE-FN","BR",107
-259,"Marion-Prince Edward Is.","MPE","ZA",60
-1749,"Kingman Reef","1166",,759
-969,"Togo","TOG-OO","TG",386
-367,"Sudan","SUD","SD",19
-1878,"Magellanes","1323",,594
-369,"Sumatera","SUM","ID",36
-368,"Sulawesi","SUL","ID",36
-483,"Açôres","AZO-OO","PT",86
-991,"Utah","UTA-OO","US",402
-370,"Suriname","SUR","SR",56
-382,"Tennessee","TEN","US",52
-277,"New Brunswick","NBR","CA",46
-383,"Texas","TEX","US",51
-2419,"Shikine-jima","1970",,718
-1883,"Maine","1328",,765
-485,"Baleares","BAL-OO","ES",88
-2591,"Togo","2183",,969
-1017,"West Siberia","WSB-OO","RU",420
-2589,"Tocantins","2181",,535
-2588,"Tobi","2180",,613
-2594,"Tokuno-shima","2187",,857
-2593,"Tokara-retto","2185",,857
-2592,"Tok-to","2184",,718
-2596,"Tomsk","2189",,1017
-2595,"Tolokiwa I.","2188",,491
-2616,"Truk","2213",,612
-2615,"Tromelin I.","2211",,901
-2614,"Trobriand Is.","2210",,868
-2619,"Tubuai I.","2217",,976
-2618,"Tuamotu","2216",,975
-103,"Buryatiya","BRY","RU",25
-724,"Kansas","KAN-OO","US",212
-2621,"Tukangbesi Is.","2219",,943
-2620,"Tucumán","2218",,456
-431,"Alberta","ABT-OO","CA",62
-901,"Réunion","REU-OO","RE",332
-2631,"Tutuila","2230",,912
-226,"Kazan-retto","KZN","JP",33
-541,"California","CAL-OO","US",113
-2806,"Yashiro-jima","2439",,718
-2805,"Te-shima","2438",,720
-2800,"Chile Central","2433",,128
-2799,"Tokelau-Manihiki","2432",,387
-2798,"Tokelau","2431",,972
-1875,"Maewo","1320",,993
-2803,"Shodo-shoto","2436",,720
-2802,"Awaji-shoto","2435",,718
-2313,"Rossel I.","1844",,868
-690,"Haryana","IND-HA","IN",198
-46,"Eastern Canada","72,00","",7
-788,"Guam","MRN-GU","GU",260
-1039,"Chongqing","CHC-CQ","CN",118
-157,"East Aegean Is.","EAI","GR",29
-1004,"Western Australia","WAU-WA","AU",414
-813,"Guadalupe I.","MXI-GU","MX",270
-2738,"Yapen","2357",,867
-158,"Easter Is.","EAS","CL",41
-1000,"Wake I.","WAK-OO","UM",411
-665,"United Arab Emirates","GST-UA","AE",185
-951,"Switzerland","SWI-OO","CH",374
-193,"Honduras","HON","HN",54
-556,"Beijing","CHN-BJ","CN",122
-1003,"Ashmore-Cartier Is.","WAU-AC","AU",414
-2284,"Ratak chain","1807",,791
-2283,"Rasa-shima","1806",,857
-2282,"Rarotonga","1804",,602
-2281,"Raroia","1803",,975
-2280,"Rapa-Iti","1802",,976
-2286,"Redonda","1809",,747
-2285,"Rawaki","1808",,892
-13,"Southeastern Europe","13,00","",1
-2401,"Serbia","1948",,1029
-2064,"New Jersey","1544",,870
-28,"Caucasus","33,00","",3
-2395,"Selangor","1942",,779
-2396,"Selvagens","1943",,923
-2394,"Seal I.","1940",,671
-2399,"Sepanjang","1946",,721
-2048,"Nei Mongol","1526",,551
-2397,"Senegal","1944",,924
-2398,"Senkaku-gunto","1945",,857
-39,"New Zealand","51,00","",5
-1465,"Enderby Land","810",,467
-432,"Afghanistan","AFG-OO","AF",63
-1467,"Enggano","812",,944
-780,"Singapore","MLY-SI","SG",253
-1469,"Entre Ríos","815",,438
-1470,"Equatorial Guinea","817",,636
-2436,"Sint Eustatius","1991",,753
-404,"Vanuatu","VAN","VU",40
-2046,"Negeri Sembilan","1522",,779
-1818,"Leeward Is.","1251",,233
-2017,"Mururoa","1490",,975
-1936,"Mato Grosso","1397",,513
-2019,"Mussau","1492",,491
-2020,"Mustique","1493",,1014
-1830,"Liechtenstein","1267",,482
-2022,"Myojin-jima","1495",,718
-2023,"Nagaland","1496",,478
-1935,"Masachusettes","1396",,768
-167,"Fiji","FIJ","FJ",40
-49,"Northeastern U.S.A.","75,00","",7
-168,"Finland","FIN","FI",10
-1934,"Masalembu Besar","1395",,721
-852,"Nigeria","NGA-OO","NG",288
-2199,"Pennsylvania","1700",,889
-649,"Galápagos","GAL-OO","EC",174
-2200,"Pentecost I.","1702",,993
-2201,"Penza","1703",,905
-2202,"Perak","1704",,779
-2203,"Perim","1705",,1023
-2204,"Perlas Is.","1706",,886
-2205,"Perlis","1707",,779
-2206,"Perm","1708",,906
-73,"Amur","AMU","RU",26
-460,"Algeria","ALG-OO","DZ",70
-1933,"Maryland","1392",,792
-1932,"Martinique","1391",,1012
-1931,"Martin Vas Is.","1390",,528
-1716,"Karacheyevo-Cherkessiya","1128",,839
-132,"Cameroon","CMN","CM",18
-764,"Magadan","MAG-OO","RU",238
-581,"Biobío","CLC-BI","CL",128
-2514,"Swallow Is.","2093",,921
-1710,"Kangean Is.","1120",,721
-1711,"Kaniet Is.","1121",,491
-1712,"Kansas","1122",,724
-2513,"Swains I.","2092",,971
-1713,"Kanton I.","1124",,892
-1714,"Kapingamaringi","1125",,612
-1715,"Kara-Kalpakiya","1127",,992
-1244,"Bird I.","524",,925
-1245,"Bird I.","525",,749
-1246,"Birnie I.","527",,892
+1160,"Armathia","425",,734
+1161,"Arorae","428",,658
+1162,"Aru Is.","429",,867
+1163,"Arunachal Pradesh","431",,631
+1164,"Ash Shariquah","432",,665
+1165,"Ashmore Reef","433",,1003
+1166,"Asia Is.","434",,867
+1167,"Assam","435",,474
+1168,"Assumption I.","436",,459
+1169,"Astakidha","437",,662
+1170,"Astipalaia","438",,662
+1171,"Astove I.","439",,459
+1172,"Astrakhan","440",,908
+1173,"Asuncion","441",,789
+1174,"Ata","442",,973
+1175,"Atacama","443",,590
+1176,"Atafu","444",,972
+1177,"Atiu","445",,602
+1178,"Atol das Rocas","446",,517
+1179,"Auckland I.","447",,480
+1180,"Aunuu","448",,912
+1181,"Australian Capital Territory","450",,861
+1182,"Avarau","451",,602
+1183,"Aves I.","452",,749
+1184,"Aves, Islas Las","453",,998
+1185,"Avgo","454",,662
+1186,"Avgo","455",,734
+1187,"Ayios Evstratios","456",,662
+1188,"Ayu Is.","457",,867
+1189,"Az Zuqur I.","458",,1023
+1190,"Azerbaydzhan","460",,960
+1191,"Babar Is.","462",,763
+1192,"Babase I.","463",,933
+1193,"Babelthaup","464",,613
+1194,"Badu I.","465",,899
+1195,"Baffin I.","466",,872
+1196,"Bahawalpur","467",,883
+1197,"Bahia","468",,515
+1198,"Bahia Is.","469",,948
+1199,"Bahia Isabel","470",,649
+1200,"Baja California","472",,816
+1201,"Baja California Sur","473",,817
+1202,"Baja Nuevo","474",,947
+1203,"Baker I.","475",,674
+1204,"Balabac","476",,891
+1205,"Baleares","477",,485
+1206,"Bali","478",,761
+1207,"Ball's Pyramid","479",,848
+1208,"Balleny Is.","480",,467
+1209,"Baltic States","481",,96
+1210,"Baltistan","482",,1007
+1211,"Baluchistan","483",,883
+1212,"Banaba","484",,658
+1213,"Banda Is.","485",,782
+1214,"Banggai Is.","486",,943
+1215,"Bangka","487",,944
+1216,"Banks I.","488",,899
+1217,"Banks Is.","489",,993
+1218,"Barat Daya Is.","490",,763
+1219,"Barbuda","491",,747
+1220,"Barotseland","492",,1033
+1221,"Barren I.","493",,464
+1222,"Bashkiriya","494",,906
+1223,"Bassas da India","496",,770
+1224,"Basse Terre","497",,751
+1225,"Batan Is.","499",,891
+1226,"Bathurst I.","500",,863
+1227,"Bawean","501",,721
+1228,"Becerro Cays","503",,948
+1229,"Bechuanaland, British","505",,609
+1230,"Beijing","506",,558
+1231,"Belau Is.","507",,613
+1232,"Belep I.","508",,866
+1233,"Belgorod","511",,905
+1234,"Belitung","512",,944
+1235,"Bellona","513",,934
+1236,"Belarus","514",,493
+1237,"Bequia","516",,1014
+1238,"Beveridge Reef","517",,864
+1239,"Biak","519",,867
 1240,"Bihar","520",,682
 1241,"Bikini","521",,791
 1242,"Bimini Is.","522",,484
 1243,"Biobío","523",,581
-2062,"New Hanover","1541",,491
-1629,"Howland I.","1016",,674
-948,"Honduran Caribbean Is.","SWC-HC","HN",372
+1244,"Bird I.","524",,925
+1245,"Bird I.","525",,749
+1246,"Birnie I.","527",,892
 1247,"Bishop and Clerk Is.","528",,767
 1248,"Bismark Archipelago","529",,491
-1627,"Honshu","1012",,718
-1628,"Hoorn Is.","1013",,1001
-1803,"Lanai","1234",,671
-1804,"Langkawi","1235",,779
-1805,"Langkesi Is.","1236",,943
-1806,"Lanzarote","1237",,597
-1801,"Lampedusa","1231",,928
-1802,"Lan Hsu","1233",,953
-156,"Desventurados Is.","DSV","CL",59
-1807,"Laos","1238",,741
-925,"Seychelles","SEY-OO","SC",354
-341,"Rwanda","RWA","RW",18
-448,"Catamarca","AGW-CA","AR",66
-149,"Cape Verde","CVI","CV",16
-2841,"Chattisgarh","2488",,1036
-35,"Indo-China","41,00","",4
-1034,"Zimbabwe","ZIM-OO","ZW",430
-567,"Guangxi","CHS-GX","CN",124
-497,"Lithuania","BLT-LI","LT",96
-566,"Guangdong","CHS-GD","CN",124
-771,"Marcus I.","MCS-OO","JP",245
-199,"Indiana","INI","US",49
-1170,"Astipalaia","438",,662
-1171,"Astove I.","439",,459
-198,"India","IND","IN",34
-1169,"Astakidha","437",,662
-1166,"Asia Is.","434",,867
-1167,"Assam","435",,474
-1164,"Ash Shariquah","432",,665
-312,"Oklahoma","OKL","US",48
-1163,"Arunachal Pradesh","431",,631
-155,"Dominican Republic","DOM","DO",55
-876,"Free State","OFS-OO","ZA",309
-971,"Swains I.","TOK-SW","AS",387
-938,"Spain","SPA-SP","ES",363
-976,"Tubuai Is.","TUB-OO","PF",391
-1412,"Dauan I.","747",,899
+1249,"Bjørnøya","530",,946
+1250,"Blanquilla Is.","531",,998
+1251,"Bohol","532",,891
+1252,"Boigu I.","533",,899
+1253,"Bombom I.","534",,655
+1254,"Bonerate Is.","536",,943
+1255,"Bora-Bora","538",,918
+1256,"Bornholm","540",,623
+1257,"Bounty I.","543",,480
+1258,"Bouvet I.","544",,505
+1259,"Bozcaada","546",,979
+1260,"Brazil North","547",,109
+1261,"Brazil Northeast","548",,107
+1262,"Brazil South","549",,110
+1263,"Brazil Southeast","550",,108
+1264,"Brazil West-Central","551",,106
+1265,"Brazilia Distrito Federal","552",,510
+1266,"Bristow I.","553",,868
 1267,"British Cameroons North","555",,852
-437,"Argentina Distrito Federal","AGE-DF","AR",64
-463,"Amur","AMU-OO","RU",73
-2413,"Shandong","1960",,560
-400,"Ukraine","UKR","",14
-4,"Asia-Tropical","4,00",,
-85,"Austria","AUT","",11
-2643,"Ullung do","2246",,732
-319,"Paraguay","PAR","PY",59
-982,"Gauteng","TVL-GA","ZA",397
-329,"Puerto Rico","PUE","PR",55
-474,"Assam","ASS-AS","IN",83
-2830,"Yome-jima","2464",,877
-2831,"Yonakuni","2465",,857
-482,"Liechtenstein","AUT-LI","LI",85
-2832,"Fukue","2466",,719
-657,"Ghana","GHA-OO","GH",179
-1615,"Hermanos, Los","996",,998
-89,"Bangladesh","BAN","BD",34
-2826,"Gaja-jima","2460",,857
-88,"Baleares","BAL","ES",12
-219,"Korea","KOR","",33
-164,"Eritrea","ERI","ER",19
-87,"Bahamas","BAH","BS",55
-1609,"Helen Reef","990",,613
-2828,"Kita-io-jima","2462",,739
-2629,"Turtle I.","2228",,898
-2630,"Turtle I.","2229",,1004
-2627,"Turks Is.","2226",,956
-2628,"Turks-Caicos Is.","2227",,956
-2626,"Turkmenistan","2224",,968
-2829,"Minami-io-jima","2463",,739
-2624,"Turkey","2222",,979
-2625,"Turkey-in-Europe","2223",,977
-2622,"Tula","2220",,908
-2623,"Tunisia","2221",,978
-800,"Tlaxcala","MXC-TL","MX",267
-1655,"Voriai","1051",,662
-2193,"Peloponnisos","1693",,662
-366,"St.Helena","STH","SH",23
-670,"Navassa I.","HAI-NI","PR",189
-2511,"Svalbard","2089",,946
-2506,"Sumisu-jima","2082",,718
-733,"Krasnoyarsk","KRA-OO","RU",220
-2504,"Sumba","2080",,763
-280,"North Caucasus","NCS","RU",28
-2509,"Suvorov I.","2086",,970
-2510,"Suwanose-jima","2087",,857
-2508,"Surinam","2085",,945
-467,"Antarctica","ANT-OO","AQ",76
-2778,"Slovakia","2408",,621
-2414,"Shanghai","1961",,571
-278,"North Carolina","NCA","US",52
-330,"Queensland","QLD","AU",38
-1770,"Koryanskiy","1192",,723
-235,"Line Is.","LIN","",41
-2302,"Rockall","1832",,661
-2303,"Rhodos","1833",,627
-2300,"Roca Catedral","1830",,626
-2301,"Rocas Alijos","1831",,814
-2306,"Romania","1836",,904
-2307,"Roncador Cay","1837",,947
-2304,"Rodrigues","1834",,903
-787,"Marion-Prince Edward Is.","MPE-OO","ZA",259
-2308,"Ronde","1838",,1011
-2309,"Rondônia","1839",,534
-531,"Amapá","BZN-AP","BR",109
-2565,"Texas","2154",,966
-2566,"Thailand","2155",,967
-2567,"Thasos","2156",,662
-32,"Mongolia","37,00","",3
-2561,"Terre de Bas","2150",,751
-791,"Marshall Is.","MRS-OO","MH",262
-2563,"Testigos, Los","2152",,998
-2564,"Tetiaroa","2153",,918
-1558,"Great Coco I.","933",,465
-1557,"Great Camanoe","932",,750
-1556,"Great Britain","931",,661
-1555,"Great Abaco","930",,484
-1562,"Green Is.","937",,933
-529,"Acre","BZN-AC","BR",109
-1560,"Great Inagua","935",,484
-1559,"Great Exuma","934",,484
-508,"Bulgaria","BUL-OO","BG",104
-2408,"Severnaya Zemlya","1955",,733
-2407,"Sete Pedras Is.","1954",,656
-2410,"Seychelles","1957",,925
-2409,"Severo-Osetiya","1956",,841
-2404,"Sermata Is.","1951",,763
-2403,"Sergipe","1950",,523
-2406,"Serranilla Bank","1953",,947
-879,"Oklahoma","OKL-OO","US",312
-2299,"Robinson Crusoe I.","1829",,722
-2412,"Shag Rocks","1959",,926
-2411,"Shaanxi","1958",,559
-1542,"Gonave I.","916",,669
-913,"Samoa","SAM-WS","WS",343
-823,"Michoacán","MXS-MI","MX",272
-212,"Kansas","KAN","US",48
-211,"Kamchatka","KAM","RU",26
-1477,"Eua","828",,973
-333,"Rhode I.","RHO","US",49
-1475,"Estonia","825",,494
-213,"Kazakhstan","KAZ","KZ",27
-1476,"Ethiopia","827",,638
-501,"Kalimantan","BOR-KA","ID",99
-1471,"Erromango","820",,993
-1473,"Espírito Santo","823",,524
-1472,"Espanola I.","822",,649
-2675,"Victoria","2284",,996
-2057,"New Britain","1536",,491
-2779,"Slovenia","2409",,1030
-776,"Minnesota","MIN-OO","US",250
-2012,"Mozambique","1483",,786
-2011,"Moscow","1482",,905
-2010,"Mortlock I.","1480",,612
-702,"Uttar Pradesh","IND-UP","IN",198
-2013,"Mozambique Channel Is.","1484",,770
-968,"Turkmenistan","TKM-OO","TM",385
-2016,"Murray I.","1489",,899
-2015,"Murmansk","1488",,907
-1454,"Eiao","797",,790
-1453,"Egypt","796",,630
-1452,"Egadi Is.","795",,928
-1451,"Efate","794",,993
-1450,"Ecuador","793",,629
-1449,"Eastern I.","792",,673
-1026,"Kosovo","YUG-KO","YU",426
-1447,"Easter I.","790",,628
-399,"Uganda","UGA","UG",20
-2214,"Phu Quoc","1718",,997
-2782,"Penon de Alhucemas","2413",,785
-1455,"El Salvador","799",,635
-1833,"Limnos","1270",,662
-2781,"Penon de Velez de la Gomera","2412",,785
-61,"Antarctic Continent","91,00","",9
-2784,"Eastern Cape Province","2415",,608
-450,"La Rioja","AGW-LR","AR",66
-1835,"Lingga Is.","1272",,944
-565,"Fujian","CHS-FJ","CN",124
-1726,"Kedah","1138",,779
-2786,"Northern Province","2417",,984
-1721,"Kárpathos","1133",,734
-1720,"Karnataka","1132",,693
-870,"New Jersey","NWJ-OO","US",303
-1718,"Karelia","1130",,907
-1725,"Kazan-retto","1137",,739
-1724,"Kazakhstan","1136",,725
-1723,"Kauai","1135",,671
-1722,"Kasos","1134",,734
-569,"Hong Kong","CHS-HK","HK",124
-2788,"Gauteng","2419",,982
-570,"Hunan","CHS-HN","CN",124
-2487,"St.Matthias Is.","2061",,491
-1840,"Lisianski I.","1277",,671
-628,"Easter Is.","EAS-OO","CL",158
-1038,"Ingushetiya","NCS-IN","RU",280
-1239,"Biak","519",,867
-2560,"Terra Adelie","2149",,467
-1624,"Honduran Caribbean Is.","1009",,948
-1233,"Belgorod","511",,905
-1235,"Bellona","513",,934
-1234,"Belitung","512",,944
-674,"Howland-Baker Is.","HBI-OO","UM",191
-1236,"Belarus","514",,493
-1238,"Beveridge Reef","517",,864
-151,"Czechoslovakia","CZE","CS",11
-1799,"Laccadive Is.","1227",,746
-1798,"Labuan","1226",,502
-1317,"Central American Pacific Is.","621",,141
+1268,"British Cameroons South","556",,595
+1269,"British Columbia","557",,506
+1270,"British Somaliland","561",,935
+1271,"British Virgin Is.","562",,750
+1272,"Bryansk","564",,905
+1273,"Buenos Aires","565",,433
+1274,"Bugio","567",,773
+1275,"Buka","568",,933
+1276,"Bunguran Is.","569",,501
+1277,"Bunguran Selatan Is.","570",,501
+1278,"Buru","572",,782
+1279,"Buryatiya","573",,507
+1280,"Byelorussiya","575",,493
+1281,"Cabinda","576",,539
+1282,"Cabras Is.","578",,656
+1283,"Cabrera","579",,485
+1284,"Cagayan Is.","580",,891
+1285,"Caicos Is.","581",,956
+1286,"Cajones Cays","582",,948
+1287,"Calamian Is.","583",,891
+1288,"California","584",,541
+1289,"Cambodge","585",,543
+1290,"Cameroon","586",,595
+1291,"Campbell I.","588",,480
+1292,"Campeche","589",,826
+1293,"Canary Is.","591",,597
+1294,"Canouan","592",,1014
+1295,"Cape Province","595",,142
+1296,"Cape Verde","596",,618
+1297,"Caprivi Strip","597",,611
+1298,"Caratasca Cays","598",,948
+1299,"Cargados Carajos","599",,769
+1300,"Caroco Is.","600",,655
+1301,"Caroline I.","601",,758
+1302,"Caroline Is.","602",,144
+1303,"Carriacao","604",,1011
+1304,"Cartier Is.","605",,1003
+1305,"Cat I.","606",,484
+1306,"Catamarca","607",,448
+1307,"Cato","608",,898
+1308,"Caucasus, North","610",,280
+1309,"Cay Sal Bank","611",,484
+1310,"Cayenne","612",,647
+1311,"Cayman Brac","613",,542
+1312,"Cayman Is.","614",,542
+1313,"Ceará","615",,516
+1314,"Cebu","616",,891
+1315,"Cedros I.","617",,816
 1316,"Central African Republic","620",,540
-1320,"Chad","627",,545
-1319,"Chaco","626",,434
-1793,"La Digue I.","1221",,925
+1317,"Central American Pacific Is.","621",,141
 1318,"Ceuta","624",,785
-1322,"Chandigarh","629",,683
+1319,"Chaco","626",,434
+1320,"Chad","627",,545
 1321,"Chagos Archipelago","628",,544
-1800,"Ladakh","1228",,1007
-84,"Antipodean Is.","ATP","NZ",39
-2056,"New Brunswick","1535",,834
-2440,"Skopelos Kaloyeroi","1996",,662
-354,"Seychelles","SEY","SC",24
-1040,"Afghanistan","2",,432
-353,"Senegal","SEN","SN",17
-352,"Selvagens","SEL","PT",16
-673,"Midway Is.","HAW-MI","UM",190
-129,"Colombia","CLM","CO",57
-130,"Chile North","CLN","CL",59
-172,"French Guiana","FRG","GF",56
-128,"Chile Central","CLC","CL",59
-1848,"Long I.","1286",,484
-131,"Chile South","CLS","CL",59
-1048,"Anguilla","11",,748
-1047,"Angola","10",,466
-1049,"Antigua-Barbuda","12",,747
-1051,"Aruba","15",,470
-1050,"Armeniya","14",,959
-1053,"Ashmore and Cartier Is.","17",,1003
-1052,"Ascension","16",,471
-1054,"Australian Antarctic Territory","19",,467
-636,"Equatorial Guinea","EQG-OO","GQ",163
-2379,"São Tomé","1922",,656
-756,"Virgin Is.","LEE-VI","VI",233
-337,"East European Russia","RUE","RU",14
-374,"Switzerland","SWI","CH",11
-372,"Southwest Caribbean","SWC","",55
-373,"Sweden","SWE","SE",10
-375,"Swaziland","SWZ","SZ",22
-648,"Gabon","GAB-OO","GA",173
-866,"New Caledonia","NWC-OO","NC",300
-2055,"Nevis","1534",,754
-548,"Sichuan","CHC-SC","CN",118
-251,"Mali","MLI","ML",17
-1478,"Europa I.","830",,770
-252,"Malawi","MLW","MW",21
-2090,"Nishino-shima","1572",,877
-1482,"Fais","836",,612
-253,"Malaya","MLY","",36
-2089,"Ninigo Is.","1571",,491
-2639,"Ubangui","2239",,540
-438,"Entre Ríos","AGE-ER","AR",64
-1370,"Comoros","686",,136
-2590,"Tofua","2182",,973
-2632,"Tuva","2231",,981
-2095,"Niulakita","1577",,980
-2634,"Tuvinskaya A.S.S.R.","2233",,981
-2633,"Tuvalu","2232",,980
-2636,"Tyumen","2235",,1017
-2635,"Tver","2234",,905
-2638,"Ua Huka","2237",,790
-2094,"Niue","1576",,864
-2093,"Niuatoputapu","1575",,973
-2092,"Niuafoou","1574",,973
-294,"Nauru","NRU","NR",40
-1485,"Falkland Is.","839",,639
-2516,"Swan Is.","2095",,948
-2515,"Swallow Reef","2094",,920
-2518,"Swaziland","2097",,952
-2517,"Swat","2096",,883
-2512,"Sverdlovsk","2090",,1017
-650,"Gambia, The","GAM-OO","GM",175
-1035,"Jharkhand","IND-JK","IN",198
-2520,"Switzerland","2099",,951
-2519,"Sweden","2098",,950
-588,"Colombia","CLM-OO","CO",129
-1861,"Lusancay Is.","1303",,868
-926,"South Georgia","SGE-OO","GS",355
-189,"Haiti","HAI","",55
-163,"Equatorial Guinea","EQG","GQ",18
-190,"Hawaii","HAW","",43
-425,"Yemen","YEM","YE",30
-2298,"Roatan","1828",,948
-2296,"Rio Grande do Sul","1825",,537
-2295,"Rio Grande do Norte","1824",,522
-2297,"Rio Negro","1827",,444
-2293,"Rimatara","1821",,976
-2292,"Riau Is.","1820",,944
-2294,"Rio de Janeiro","1822",,526
-1553,"Grand Cayman","928",,542
-1554,"Grande Terre","929",,751
-2556,"Tennessee","2145",,965
-2555,"Tengah Is.","2144",,943
-2554,"Tenerife","2143",,597
-2783,"Northern Cape Province","2414",,609
-2553,"Tenasserim","2141",,831
-2785,"Western Cape Province","2416",,610
-1545,"Gotland","920",,950
-1546,"Gough I.","921",,964
-1547,"Gozo","922",,927
-1548,"Graciosa","923",,483
-1549,"Graciosa","924",,597
-1550,"Graham Land","925",,467
-1551,"Gran Canaria","926",,597
-1225,"Batan Is.","499",,891
-24,"Western Indian Ocean","29,00","",2
-600,"Mayotte","COM-MA","YT",136
-2378,"São Pedro e São Paulo","1921",,517
-543,"Cambodia","CBD-OO","KH",115
-2380,"Sarangani Is.","1923",,891
-2381,"Saratov","1924",,908
-2382,"Sarawak","1925",,503
-2383,"Sardegna","1926",,914
-2384,"Saria","1928",,734
-2385,"Sarigan","1929",,789
-1480,"Evvoia","832",,662
-833,"KwaZulu-Natal","NAT-OO","ZA",276
-1479,"Evenki","831",,733
-580,"Cocos (Keeling) Is.","CKI-OO","CC",127
-1483,"Fakaofo","837",,972
-1481,"Faial","835",,483
-1484,"Fakarava","838",,975
-834,"New Brunswick","NBR-OO","CA",277
-746,"Laccadive Is.","LDV-OO","IN",232
-774,"Maldives","MDV-OO","MV",248
-232,"Laccadive Is.","LDV","IN",34
-16,"Macaronesia","21,00","",2
-170,"Føroyar","FOR","FO",10
-864,"Niue","NUE-OO","NU",298
-623,"Denmark","DEN-OO","DK",153
-646,"Monaco","FRA-MO","MC",171
-2434,"Sind","1987",,883
-2053,"Neuquén","1532",,443
-1442,"E.S.E., Cayos del","784",,947
-1443,"Eaglestone Reef","785",,1001
-818,"Sinaloa","MXN-SI","MX",271
-1445,"East Germany","787",,652
-819,"Sonora","MXN-SO","MX",271
-601,"Congo","CON-OO","CG",137
-2222,"Pitcairn","1728",,893
-1441,"Dzungaria","783",,579
-2220,"Pins, Ile des","1726",,866
-102,"British Columbia","BRC","CA",45
-2219,"Pinipel I.","1724",,933
-578,"Tibet","CHT-OO","CN",125
-1446,"East Timor","789",,762
-2216,"Pico","1720",,483
-2217,"Pinang","1721",,779
-684,"Dadra-Nagar-Haveli","IND-DD","IN",198
-685,"Delhi","IND-DE","IN",198
-510,"Brazilia Distrito Federal","BZC-DF","BR",106
-687,"Daman","IND-DM","IN",198
-686,"Diu","IND-DI","IN",198
-140,"Costa Rica","COS","CR",54
-139,"Corse","COR","FR",12
-20,"East Tropical Africa","25,00","",2
-197,"Illinois","ILL","US",48
-322,"Peru","PER","PE",57
-321,"Pennsylvania","PEN","US",49
-320,"Prince Edward I.","PEI","CA",46
-653,"Annobón","GGI-AN","GQ",178
-136,"Comoros","COM","",24
-135,"Colorado","COL","US",47
-138,"Cook Is.","COO","CK",41
-137,"Congo","CON","CG",18
-1914,"Mapia I.","1371",,867
-2104,"North Solomons","1588",,933
-2105,"North Yemen","1589",,1022
-1913,"Manus Is.","1370",,491
-2098,"Nomuka","1580",,973
-2099,"Norfolk I.","1581",,849
-2102,"North Dakota","1586",,843
-2103,"North Korea","1587",,731
-2100,"North Carolina","1584",,835
-2101,"North Caucasus","1585",,280
-1915,"Maranhão","1372",,518
-1232,"Belep I.","508",,866
-1230,"Beijing","506",,558
-1231,"Belau Is.","507",,613
-1639,"Idaho","1030",,679
-1229,"Bechuanaland, British","505",,609
-1644,"Iliodhromia","1036",,662
-1228,"Becerro Cays","503",,948
-1226,"Bathurst I.","500",,863
-1227,"Bawean","501",,721
+1322,"Chandigarh","629",,683
 1323,"Channel Is.","630",,644
 1324,"Channel Is.","631",,541
 1325,"Charcot I.","632",,467
@@ -1166,768 +1329,195 @@
 1328,"Cheju Do","636",,732
 1329,"Chelyabinsk","638",,1017
 1330,"Cherry I.","639",,921
-1790,"Kyushu","1218",,719
-1552,"Grand Bahama","927",,484
-1444,"East Aegean Is.","786",,627
-1922,"Marie Byrd Land","1379",,467
-1921,"Marias Is.","1378",,824
-1440,"Durango","780",,804
-414,"Western Australia","WAU","AU",38
-2801,"Sado I.","2434",,718
-413,"Washington","WAS","US",47
-751,"Guadeloupe","LEE-GU","GP",233
-338,"North European Russia","RUN","RU",14
-451,"Mendoza","AGW-ME","AR",66
-336,"Central European Russia","RUC","RU",14
-2223,"Pitcairn Is.","1729",,893
-783,"Mongolia","MON-OO","MN",256
-1701,"Kalaotoa","1106",,943
-1702,"Kalimantan","1107",,501
-1699,"Kahoolawe","1104",,671
-1700,"Kai Is.","1105",,782
-1697,"Kabardino-Balkariya","1102",,838
-1145,"Antigua","409",,747
-1695,"Juventud, Isla de la","1100",,617
-1696,"Kabara","1101",,640
-339,"South European Russia","RUS","",14
-1144,"Antarctica","408",,467
-1992,"Mizoram","1458",,477
-340,"Northwest European Russia","RUW","RU",14
-1703,"Kalimnos","1108",,627
-2088,"Ningxia","1570",,552
-858,"Norway","NOR-OO","NO",293
-2218,"Pingelap","1723",,612
-181,"Guinea-Bissau","GNB","GW",17
-2787,"North West Province","2418",,985
-773,"Madeira","MDR-OO","PT",247
-182,"Greenland","GNL","GL",44
-584,"Maule","CLC-MA","CL",128
-57,"Western South America","83,00","",8
-2424,"Sicilia","1977",,928
-844,"Nebraska","NEB-OO","US",282
-295,"Nova Scotia","NSC","CA",46
-955,"Tasmania","TAS-OO","AU",378
-987,"Uganda","UGA-OO","UG",399
-120,"Inner Mongolia","CHI","CN",31
-744,"Syria","LBS-SY","SY",230
-638,"Ethiopia","ETH-OO","ET",165
-296,"New South Wales","NSW","AU",38
-949,"Nicaraguan Caribbean Is.","SWC-NC","NI",372
-576,"Shanghai","CHS-SH","CN",124
-402,"Utah","UTA","US",50
-2550,"Taveuni","2137",,640
-204,"Iraq","IRQ","IQ",29
-261,"Marquesas","MRQ","PF",41
-202,"Irkutsk","IRK","RU",25
-208,"Japan","JAP","JP",33
-203,"Iran","IRN","IR",29
-201,"Ireland","IRE","",10
-1605,"Heard I.","985",,675
-2676,"Vieques I.","2285",,897
-587,"Valparaíso","CLC-VA","CL",128
-17,"West Tropical Africa","22,00","",2
-828,"Quintana Roo","MXT-QR","MX",273
-459,"Aldabra","ALD-OO","SC",69
-207,"Jamaica","JAM","JM",55
-351,"South Dakota","SDA","US",48
-612,"Micronesia Federated States","CRL-MF","FM",144
-656,"São Tomé","GGI-ST","ST",178
-191,"Howland-Baker Is.","HBI","UM",40
-99,"Borneo","BOR","",36
-100,"Botswana","BOT","BW",22
-101,"Bouvet I.","BOU","BV",60
-275,"Namibia","NAM","ZA",22
-98,"Bolivia","BOL","BO",57
-2551,"Tawitawi","2138",,891
-894,"Poland","POL-OO","PL",326
-675,"Heard-McDonald Is.","HMD-OO","HM",192
-2552,"Taymyr","2139",,733
-769,"Mauritius","MAU-OO","MU",243
-1033,"Zambia","ZAM-OO","ZM",429
-713,"San Marino","ITA-SM","SM",205
-1041,"Åland Is.","4",,641
-2836,"Central European Russia","2475",,336
-476,"Meghalaya","ASS-ME","IN",83
-475,"Manipur","ASS-MA","IN",83
-21,"South Tropical Africa","26,00","",2
-477,"Mizoram","ASS-MI","IN",83
-371,"Svalbard","SVA","SJ",10
-1563,"Greenland","938",,660
-738,"Kuwait","KUW-OO","KW",225
-937,"Gilbraltar","SPA-GI","GI",363
-2769,"Kalmykyia","2396",,908
-2770,"Mamanuca Is.","2397",,640
-2767,"Zemlya Frantsa-Iosifa","2394",,1017
-2768,"Johor","2395",,779
-2766,"Kefallinia","2393",,662
-2764,"Bendel Province, Nigeria","2390",,852
-2765,"Islas las Aves","2391",,998
-6,"Pacific","6,00",,
-2771,"Ile des Pins","2398",,866
-2772,"Isla de Juventud","2399",,617
-767,"Macquarie Is.","MAQ-OO","AU",241
-462,"Aleutian Is.","ALU-OO","US",72
-169,"Florida","FLA","US",52
-2320,"Rwanda","1859",,910
-2318,"Rurutu","1851",,976
-2319,"Russell Is.","1852",,934
-973,"Tonga","TON-OO","TO",388
-1014,"St.Vincent","WIN-SV","VC",417
-464,"Andaman Is.","AND-AN","IN",74
-2580,"Timor","2172",,763
-2581,"Tinhosa I.","2173",,655
-2578,"Tikopia I.","2170",,921
-2579,"Tilos","2171",,627
-1013,"St.Lucia","WIN-SL","LC",417
-2585,"To-shima","2177",,718
-2582,"Tinian","2174",,789
-2583,"Tinos","2175",,662
-1541,"Gomera","915",,597
-1543,"Gonzalez I.","917",,626
-421,"West Virginia","WVA","US",49
-1538,"Goa","911",,688
-1540,"Gokçeada","913",,977
-1539,"Goiás","912",,511
-550,"Hainan","CHH-OO","CN",119
-1962,"Merit I.","1423",,613
-693,"Karnataka","IND-KT","IN",198
-2389,"Savaii","1933",,913
-2388,"Saudi Arabia","1932",,916
-2387,"Saskatchewan","1931",,915
-2386,"Sark","1930",,644
-2391,"Scotland","1937",,661
-692,"Karaikal","IND-KL","IN",198
-2393,"Seal Cays","1939",,956
-2392,"Scott I.","1938",,467
-389,"Trinidad-Tobago","TRT","TT",55
-691,"Kerala","IND-KE","IN",198
-816,"Baja California","MXN-BC","MX",271
-1491,"Fatu Hiva","847",,790
-1490,"Farquhar I.","846",,459
-1489,"Faraulep","845",,612
-607,"Malpelo I.","CPI-MA","CO",141
-1487,"Farallon de Medinilla","843",,789
-1486,"Fangatau","840",,975
-825,"Oaxaca","MXS-OA","MX",272
-2,"Africa","2,00",,
-1492,"Fauro","848",,934
-540,"Central African Republic","CAF-OO","CF",112
-652,"Germany","GER-OO","DE",177
-703,"West Bengal","IND-WB","IN",198
-2231,"Portugal","1739",,895
-2230,"Porto Santo","1738",,773
+1331,"Chesterfield Is.","640",,866
+1332,"Chiapas","641",,827
+1333,"Chichijima","642",,877
+1334,"Chihuahua","643",,803
+1335,"Chilcott I.","644",,898
+1336,"Chile North","645",,130
+1337,"Chile South","646",,131
+1338,"China North-central","648",,122
+1339,"China South-central","649",,118
+1340,"China South-east","650",,124
+1341,"Chita","652",,615
+1342,"Chitral","654",,883
+1343,"Chittagong","655",,486
+1344,"Choiseul","656",,934
+1345,"Chongqing","657",,548
+1346,"Christmas I.","658",,1020
+1347,"Christmas I.","659",,758
+1348,"Chubut","660",,442
+1349,"Chukota","661",,764
+1350,"Chuvashiya","663",,905
+1351,"Ciskei","664",,608
+1352,"Clarence I.","666",,467
+1353,"Clipperton I.","667",,605
+1354,"Coahuila","668",,802
+1355,"Coats I.","669",,865
+1356,"Coche I.","670",,998
+1357,"Cochin Chine","671",,997
+1358,"Cochons, Isle aux","673",,614
+1359,"Coco I., Great","674",,465
+1360,"Coco Is.","675",,465
+1361,"Cocos (Keeling) Is.","676",,580
+1362,"Cocos I.","677",,606
+1363,"Cöetivy","678",,459
+1364,"Colima","679",,820
+1365,"Colombia","680",,588
+1366,"Colombian Caribbean Is.","681",,947
+1367,"Colón I.","682",,886
+1368,"Colón Archipelago","683",,649
+1369,"Colorado","684",,598
+1370,"Comoros","686",,136
+1371,"Comoros","687",,599
+1372,"Con Son","688",,997
+1373,"Condore Is.","689",,997
+1374,"Congo","690",,601
+1375,"Connecticut","693",,596
+1376,"Cook Is.","695",,602
+1377,"Coquimbo","696",,582
+1378,"Coral Sea Is. Territory","697",,898
+1379,"Córdoba","698",,436
+1380,"Coringa Is.","701",,898
+1381,"Corisco I.","702",,636
+1382,"Coronation I.","704",,467
+1383,"Corrientes","705",,435
+1384,"Corse","706",,603
+1385,"Corvo","708",,483
+1386,"Cosmoledo","710",,459
+1387,"Costa Rica","711",,604
+1388,"Cozumel I.","714",,828
+1389,"Crab I.","715",,897
+1390,"Croatia","719",,1025
+1391,"Crooked I.","720",,484
+1392,"Crozet Is.","721",,614
+1393,"Cuba","722",,617
+1394,"Cubagua","723",,998
+1395,"Culebra I.","724",,897
+1396,"Culpepper I.","725",,649
+1397,"Curaçao","726",,856
+1398,"Curtis I.","727",,728
+1399,"Cyprus","729",,619
 1400,"Czechoslovakia","730",,151
-2225,"Platte Is.","1731",,459
-2224,"Pitt I.","1730",,616
-2227,"Poivre","1733",,459
-2226,"Pohnpei","1732",,612
-1403,"Dadra","733",,684
-2229,"Pondicherry","1736",,698
-43,"North-Central Pacific","63,00","",6
+1401,"D'Arros I.","731",,459
 1402,"D'Entrecastaux Is.","732",,868
-1417,"Deserta Grande","753",,773
-1416,"Denmark","752",,623
+1403,"Dadra","733",,684
+1404,"Dadra-Nagar-Haveli","734",,684
+1405,"Dagestan","735",,837
+1406,"Dahlak Is.","737",,637
+1407,"Daito Is.","739",,857
+1408,"Daman","740",,687
+1409,"Darjiling","744",,633
+1410,"Darsa I.","745",,932
+1411,"Daru I.","746",,868
+1412,"Dauan I.","747",,899
+1413,"Delaware","748",,622
+1414,"Delhi","749",,685
 1415,"Denis I.","751",,925
-1421,"Dhilos","757",,662
-1420,"Desventurados Is.","756",,626
-1419,"Desroches I.","755",,459
+1416,"Denmark","752",,623
+1417,"Deserta Grande","753",,773
 1418,"Desirade, La","754",,751
+1419,"Desroches I.","755",,459
+1420,"Desventurados Is.","756",,626
+1421,"Dhilos","757",,662
 1422,"Dhodekanisos","758",,627
-2110,"Norway","1595",,858
-1641,"Ikaria","1032",,627
-2112,"Nottingham I.","1597",,872
-2111,"Norwegian Antarctic Territory","1596",,467
-2107,"Northern Marianas","1591",,789
-2106,"Northern Ireland","1590",,708
-2108,"Northern Territory","1593",,863
-162,"El Salvador","ELS","SV",54
-2114,"Novaya Zemlya","1599",,1017
-2113,"Nova Scotia","1598",,860
-1635,"Hunter Is.","1025",,866
-1634,"Hungary","1024",,677
-1636,"Huon I.","1026",,866
-233,"Leeward Is.","LEE","",55
-1633,"Hunan","1023",,570
-1707,"Kamchatka","1115",,723
-1638,"Iceland","1029",,678
-1032,"Zaire","ZAI-OO","CD",428
-1645,"Illinois","1037",,680
-234,"Lesotho","LES","LS",22
-1642,"Iles du Vent","1034",,918
-779,"Peninsular Malaysia","MLY-PM","MY",253
-1643,"Iles sous le Vent","1035",,918
-2753,"Zafora","2373",,662
-1304,"Cartier Is.","605",,1003
-1303,"Carriacao","604",,1011
-1306,"Catamarca","607",,448
-1305,"Cat I.","606",,484
-1301,"Caroline I.","601",,758
-1300,"Caroco Is.","600",,655
-1302,"Caroline Is.","602",,144
-1783,"Kurgan","1205",,1017
-1782,"Kure I.","1204",,673
-1785,"Kuria Muria Is.","1207",,880
-1784,"Kuria","1206",,658
-1779,"Kriti","1201",,734
-1307,"Cato","608",,898
-1781,"Kuchino-shima","1203",,857
-1780,"Krym","1202",,735
-412,"Wallis-Futuna Is.","WAL","WF",40
-1198,"Bahia Is.","469",,948
-1139,"Andros","399",,662
-848,"Lord Howe I.","NFK-LH","AU",286
-2773,"Ra's al Khaymah","2400",,665
-2443,"Snares I.","2000",,875
-677,"Hungary","HUN-OO","HU",194
-1982,"Minicoy Is.","1447",,746
-1704,"Kaliningrad","1110",,495
-1706,"Kamaran Is.","1113",,1023
-1705,"Kaluga","1112",,905
-1042,"Albania","5",,458
-1978,"Milos","1442",,662
-1977,"Mikura-jima","1441",,718
-1708,"Kamodo","1116",,763
-1709,"Kangaroo I.","1119",,931
-355,"South Georgia","SGE","GS",60
-1897,"Mallorca","1351",,485
-1983,"Minnesota","1448",,776
-911,"Sakhalin","SAK-OO","RU",342
-133,"Connecticut","CNT","US",49
-1791,"La Araucania","1219",,583
-917,"South Carolina","SCA-OO","US",347
-2697,"Wallis Is.","2308",,1001
-843,"North Dakota","NDA-OO","US",281
-2774,"Tanger","2401",,784
-195,"Iceland","ICE","IS",10
-778,"Malawi","MLW-OO","MW",252
-906,"East European Russia","RUE-OO","RU",337
-1217,"Banks Is.","489",,993
-1216,"Banks I.","488",,899
-1215,"Bangka","487",,944
-1214,"Banggai Is.","486",,943
-1213,"Banda Is.","485",,782
-1212,"Banaba","484",,658
-1211,"Baluchistan","483",,883
-1210,"Baltistan","482",,1007
-1209,"Baltic States","481",,96
-1208,"Balleny Is.","480",,467
-880,"Oman","OMA-OO","OM",313
-763,"Lesser Sunda Is.","LSI-LS","ID",237
-643,"Føroyar","FOR-OO","FO",170
-1025,"Croatia","YUG-CR","HR",426
-962,"Nakhichevan","TCS-NA","AZ",380
-1958,"Mendoza","1419",,451
-963,"Nagorno Karabakh","TCS-NK","AZ",380
-878,"Ohio","OHI-OO","US",311
-478,"Nagaland","ASS-NA","IN",83
-2691,"Vostok I.","2302",,758
-356,"Sicilia","SIC","",13
-427,"Yukon","YUK","CA",44
-357,"Sierra Leone","SIE","SL",17
-358,"Sinai","SIN","EG",29
-426,"Yugoslavia","YUG","YU",13
-378,"Tasmania","TAS","AU",38
-594,"Magellanes","CLS-MG","CL",131
-469,"Arkansas","ARK-OO","US",78
-377,"Tanzania","TAN","TZ",20
-376,"Taiwan","TAI","TW",33
-972,"Tokelau","TOK-TO","TK",387
-154,"Djibouti","DJI","DJ",19
-443,"Neuquén","AGS-NE","AR",65
-180,"Gilbert Is.","GIL","KI",40
-954,"Tanzania","TAN-OO","TZ",377
-36,"Malesia","42,00","",4
-635,"El Salvador","ELS-OO","SV",162
-53,"Mexico","79,00","",7
-186,"Guatemala","GUA","GT",54
-555,"Liaoning","CHM-LN","CN",121
-187,"Guinea","GUI","GN",17
-444,"Rio Negro","AGS-RN","AR",65
-188,"Guyana","GUY","GY",56
-468,"Arizona","ARI-OO","US",77
-884,"Israel","PAL-IS","IL",317
-1988,"Missouri","1454",,794
-1989,"Mitre I.","1455",,921
-602,"Cook Is.","COO-OO","CK",138
-532,"Pará","BZN-PA","BR",109
-1990,"Miyake-jima","1456",,718
-2759,"Zimbabwe","2381",,1034
-2758,"Zhejiang","2380",,577
-2761,"Zululand","2383",,833
-1991,"Miyako","1457",,857
-981,"Tuva","TVA-OO","RU",396
-824,"Nayarit","MXS-NA","MX",272
-2763,"Arabian Peninsula","2389",,30
-1984,"Misiones","1450",,441
-1698,"Kadavu","1103",,640
-2833,"Okushiri-to","2467",,717
-1986,"Misool","1452",,867
-97,"Belize","BLZ","BZ",54
-96,"Baltic States","BLT","",14
-287,"Newfoundland","NFL","",46
-286,"Norfolk Is.","NFK","",38
-95,"Belarus","BLR","RU",14
-2402,"Sergeya Kirova Ostrova","1949",,733
-1531,"Georgia","903",,651
-1529,"Gaza Strip","900",,884
-595,"Cameroon","CMN-OO","CM",132
-1534,"Gibraltar","906",,937
-1535,"Gilbert Is.","907",,658
-1532,"Germany","904",,652
-1533,"Ghana","905",,657
-2312,"Ross Dependency","1843",,467
-2036,"Nassau I.","1511",,970
-1536,"Gilgit","908",,1007
-1537,"Glorieuses Is.","909",,770
-2316,"Rotuma","1847",,640
-2315,"Rota","1846",,789
-2314,"Rostov","1845",,908
-1993,"Moa I.","1459",,899
-2577,"Tierra del Fuego (Chile)","2169",,594
-2576,"Tierra del Fuego (Argentina)","2168",,447
-811,"Zacatecas","MXE-ZA","MX",268
-2572,"Three Kings Is.","2161",,874
-2571,"Thitu Is.","2160",,920
-2574,"Tianjin","2163",,558
-2573,"Thursday I.","2162",,899
-8,"Southern America","8,00",,
-709,"Irkutsk","IRK-OO","RU",202
-928,"Sicilia","SIC-SI","IT",356
-452,"Salta","AGW-SA","AR",66
-2543,"Tanzania","2129",,954
-332,"Réunion","REU","RE",24
-2367,"Santa Cruz","1908",,445
-2368,"Santa Fé","1909",,446
-2365,"Santa Cruz I.","1906",,649
-2366,"Santa Cruz Is.","1907",,921
-2363,"Santa Catarina","1904",,538
-2364,"Santa Cruz I.","1905",,541
-2361,"Sangir Is.","1902",,943
-2362,"Santa Catalina I.","1903",,541
-2360,"Sand I.","1900",,673
+1423,"Dia","760",,734
+1424,"Diamond Islets","761",,898
+1425,"Diego Garcia","762",,544
+1426,"Disappearing I.","763",,671
+1427,"Disappointment Is.","764",,975
+1428,"District of Columbia","765",,1005
+1429,"Diu","766",,686
+1430,"Djibouti","767",,624
+1431,"Dog I.","768",,748
+1432,"Dominica","770",,1010
+1433,"Dominican Republic","771",,625
+1434,"Dongsha Qundao","772",,566
+1435,"Dubayy","775",,665
+1436,"Ducie I.","776",,893
+1437,"Duff Is.","777",,921
+1438,"Duke of Gloucester Is.","778",,975
+1439,"Duke of York Is.","779",,491
+1440,"Durango","780",,804
+1441,"Dzungaria","783",,579
+1442,"E.S.E., Cayos del","784",,947
+1443,"Eaglestone Reef","785",,1001
+1444,"East Aegean Is.","786",,627
+1445,"East Germany","787",,652
+1446,"East Timor","789",,762
+1447,"Easter I.","790",,628
+1448,"Easter Is.","791",,628
+1449,"Eastern I.","792",,673
+1450,"Ecuador","793",,629
+1451,"Efate","794",,993
+1452,"Egadi Is.","795",,928
+1453,"Egypt","796",,630
+1454,"Eiao","797",,790
+1455,"El Salvador","799",,635
+1456,"Elba","800",,712
+1457,"Elephant I.","801",,467
+1458,"Eleuthera","802",,484
+1459,"Elizabeth Reef","803",,848
+1460,"Ellesmere I.","804",,872
+1461,"Ellsworth I.","806",,467
+1462,"Elobey Grande","807",,636
+1463,"Emae","808",,993
+1464,"Enderbury I.","809",,892
+1465,"Enderby Land","810",,467
+1466,"Enewetak","811",,791
+1467,"Enggano","812",,944
+1468,"England","813",,661
+1469,"Entre Ríos","815",,438
+1470,"Equatorial Guinea","817",,636
+1471,"Erromango","820",,993
+1472,"Espanola I.","822",,649
+1473,"Espírito Santo","823",,524
+1474,"Espiritu Santo","824",,993
+1475,"Estonia","825",,494
+1476,"Ethiopia","827",,638
+1477,"Eua","828",,973
+1478,"Europa I.","830",,770
+1479,"Evenki","831",,733
+1480,"Evvoia","832",,662
+1481,"Faial","835",,483
+1482,"Fais","836",,612
+1483,"Fakaofo","837",,972
+1484,"Fakarava","838",,975
+1485,"Falkland Is.","839",,639
+1486,"Fangatau","840",,975
+1487,"Farallon de Medinilla","843",,789
+1488,"Farasan Is.","844",,916
+1489,"Faraulep","845",,612
+1490,"Farquhar I.","846",,459
+1491,"Fatu Hiva","847",,790
+1492,"Fauro","848",,934
+1493,"Feni Is.","850",,933
+1494,"Fernando de Noronha","851",,517
+1495,"Fiji","853",,640
 1496,"Finland","854",,641
 1497,"Flat I.","855",,769
 1498,"Flint I.","856",,758
 1499,"Flores","857",,483
-1493,"Feni Is.","850",,933
-1494,"Fernando de Noronha","851",,517
-1495,"Fiji","853",,640
 1500,"Flores","858",,763
 1501,"Florida","859",,642
-1043,"Aleutian Is.","6",,462
-1838,"Lipetsk","1275",,905
-664,"Qatar","GST-QA","QA",185
-406,"Vermont","VER","US",49
-644,"Channel Is.","FRA-CI","UK",171
-1466,"Enewetak","811",,791
-405,"Venezuela","VEN","VE",56
-806,"Hidalgo","MXE-HI","MX",268
-1468,"England","813",,661
-2664,"Vanuatu","2272",,993
-997,"Vietnam","VIE-OO","VN",408
-331,"Québec","QUE","CA",46
-1408,"Daman","740",,687
-114,"Cayman Is.","CAY","KY",55
-1409,"Darjiling","744",,633
-1410,"Darsa I.","745",,932
-1411,"Daru I.","746",,868
-737,"Kuril Is.","KUR-OO","RU",224
-1413,"Delaware","748",,622
-1414,"Delhi","749",,685
-2669,"Venda","2278",,397
-735,"Krym","KRY-OO","UA",222
-2278,"Rangiroa","1798",,975
-113,"California","CAL","US",50
-111,"Cabinda","CAB","AO",18
-112,"Central African Republic","CAF","CF",18
-1654,"Ionioi Nisoi","1050",,662
-755,"St.Martin-St.Barthélémy","LEE-SM","GP",233
-1656,"Iowa","1052",,706
-1657,"Iran","1053",,710
-1658,"Iraq","1054",,711
-1659,"Ireland","1055",,707
-1660,"Ireland","1056",,201
-754,"St.Kitts-Nevis","LEE-SK","KN",233
-1661,"Irian Jaya","1058",,867
-1662,"Iriomote","1059",,857
-2195,"P'eng-hu Lieh-tao","1696",,953
-2196,"Penida","1697",,761
-2194,"Pemba I.","1694",,954
-2192,"Pelagie Is.","1692",,928
-493,"Belarus","BLR-OO","RU",95
-2191,"Pedro Cays","1690",,716
-2273,"Raivavae","1792",,976
-994,"Venezuela","VEN-OO","VE",405
-647,"French Guiana","FRG-OO","GF",172
-2272,"Raiatea","1791",,918
-2197,"Pennisular Malaysia","1698",,779
-2198,"Penju Is.","1699",,782
-1841,"Lithuania","1278",,497
-2271,"Ragged I.","1790",,484
-749,"Aves I.","LEE-AV","VE",233
-698,"Pondicherry","IND-PO","IN",198
-392,"Turkey-in-Europe","TUE","TR",13
-1310,"Cayenne","612",,647
-1311,"Cayman Brac","613",,542
-1308,"Caucasus, North","610",,280
-1309,"Cay Sal Bank","611",,484
-1314,"Cebu","616",,891
-1315,"Cedros I.","617",,816
-1312,"Cayman Is.","614",,542
-1313,"Ceará","615",,516
-747,"Antigua-Barbuda","LEE-AB","AG",233
-1019,"Wyoming","WYO-OO","US",422
-748,"Anguilla","LEE-AG","AI",233
-1386,"Cosmoledo","710",,459
-699,"Punjab","IND-PU","IN",198
-2018,"Muscat","1491",,880
-2002,"Montenegro","1472",,1028
-2003,"Montserrat","1473",,752
-2000,"Mono I.","1470",,934
-2001,"Montana","1471",,781
-2006,"Mordoviya","1476",,905
-2007,"Morelos","1477",,798
-2004,"Moorea","1474",,918
-2005,"Morant Cays","1475",,716
-2021,"Myanmar","1494",,831
-2008,"Morocco","1478",,784
-2009,"Morocco","1479",,257
-310,"Ogasawara-shoto","OGA","JP",33
-1862,"Luxembourg","1304",,490
-1863,"Luzon","1305",,891
-1864,"Ma-tsu-Pai-chúan","1306",,575
-1865,"Macau","1307",,574
-1859,"Loyauté Is.","1301",,866
-1860,"Lucipara Is.","1302",,782
-250,"Minnesota","MIN","US",48
-362,"Somalia","SOM","SO",19
-249,"Michigan","MIC","US",49
-2024,"Nagar Haveli","1497",,684
-1866,"Macauley I.","1309",,728
-2025,"Nagorno Karabakh","1498",,963
-179,"Ghana","GHA","GH",17
-2026,"Nakano-shima","1499",,857
-1222,"Bashkiriya","494",,906
-1223,"Bassas da India","496",,770
-1224,"Basse Terre","497",,751
-1218,"Barat Daya Is.","490",,763
-1219,"Barbuda","491",,747
-1220,"Barotseland","492",,1033
-1221,"Barren I.","493",,464
-1058,"Bahrain","24",,663
-1059,"Bangladesh","26",,486
-1060,"Barbados","27",,1009
-1055,"Austria","20",,481
-1056,"Azores","22",,483
-1057,"Bahamas","23",,484
-484,"Bahamas","BAH-OO","BS",87
-1061,"Belgium","29",,489
-2822,"Izu Is.","2456",,718
-489,"Belgium","BGM-BE","BE",92
-2818,"Goto-retto","2451",,719
-401,"Uruguay","URU","UY",59
-992,"Uzbekistan","UZB-OO","UZ",403
-914,"Sardegna","SAR-OO","IT",344
-2336,"Salvador, El","1875",,635
-2207,"Pernambuco","1709",,520
-486,"Bangladesh","BAN-OO","BD",89
-2334,"Sala y Gomez","1873",,628
-1664,"Isabela I.","1062",,649
-288,"Nigeria","NGA","NG",17
-887,"Paraguay","PAR-OO","PY",319
-289,"Niger","NGR","NE",17
-799,"Puebla","MXC-PU","MX",267
-1044,"Algeria","7",,460
-974,"Trinidad-Tobago","TRT-OO","TT",389
-2679,"Vietnam, South","2288",,997
-2680,"Virgin Gorda","2289",,750
-2477,"St.Helena","2050",,941
-2671,"Venezuelan Antilles","2280",,998
-2672,"Veracruz","2281",,812
-2673,"Vereker Banks","2282",,566
-2674,"Vermont","2283",,995
-31,"China","36,00","",3
-989,"Ukraine","UKR-UK","UA",400
-2677,"Vietnam","2286",,997
-2678,"Vietnam, North","2287",,997
-2169,"Panamá","1666",,886
-1596,"Haiti","973",,189
-2168,"Palmyra I.","1665",,759
-2481,"St.Kitts","2054",,754
-679,"Idaho","IDA-OO","US",196
-891,"Philippines","PHI-OO","PH",323
-2483,"St.Lucia","2056",,1013
-2757,"Zanzibar","2378",,954
-889,"Pennsylvania","PEN-OO","US",321
-2754,"Zaire","2374",,1032
-2755,"Zakinthos","2375",,662
-2756,"Zambia","2376",,1033
-2750,"Yukon","2370",,1031
-2751,"Yunnan","2371",,549
-2752,"Zacatecas","2372",,811
-593,"Los Lagos","CLS-LL","CL",131
-1685,"Jiangsu","1087",,571
-988,"Moldova","UKR-MO","MD",400
-805,"Guanajuato","MXE-GU","MX",268
-1023,"South Yemen","YEM-SY","YE",425
-2337,"Salvage Is.","1876",,923
-2338,"Samana Cay","1877",,484
-2335,"Salta","1874",,452
-990,"Uruguay","URU-OO","UY",401
-2333,"Sakishima-gunto","1872",,857
-1600,"Hao","979",,975
-2331,"Sakala","1870",,721
-2332,"Sakhalin","1871",,911
-908,"South European Russia","RUS-OO","RU",339
-2339,"Samar","1878",,891
-2340,"Samara","1879",,906
-1599,"Hanish al Kabir","977",,1023
-1598,"Halmahera","976",,782
-1597,"Hall I.","975",,612
-465,"Coco Is.","AND-CO","BU",74
-1595,"Haiti","972",,669
-1594,"Hainan","971",,550
-1593,"Hahajima","970",,877
-689,"Gujarat","IND-GU","IN",198
-1680,"Jan Mayen I.","1080",,946
-44,"Subarctic America","70,00","",7
-688,"Goa","IND-GO","IN",198
-2536,"Tambelan Is.","2119",,501
-511,"Goiás","BZC-GO","BR",106
-2528,"Tadzhikistan","2110",,986
-651,"Georgia","GEO-OO","US",176
-2530,"Tahaa","2112",,918
-2531,"Tahiti","2113",,918
-2532,"Taiwan","2114",,953
-2533,"Talaud Is.","2116",,943
-2534,"Tamana","2117",,658
-885,"Jordan","PAL-JO","JO",317
-446,"Santa Fé","AGS-SF","AR",65
-445,"Santa Cruz","AGS-SC","AR",65
-2376,"Sao Jorge","1919",,483
-2529,"Tafahi","2111",,973
-2370,"Santa Maria","1911",,483
-2369,"Santa Isabel","1910",,934
-2372,"Santa Maria I.","1913",,649
-2371,"Santa Maria I.","1912",,993
-2373,"Santa Rosa I.","1914",,541
-2375,"Santiago del Estero","1917",,453
-2374,"Santiago","1916",,586
-215,"Kenya","KEN","KE",20
-254,"Montana","MNT","US",47
-214,"Kerguelen","KEG","TF",60
 1502,"Florida Is.","860",,934
-1505,"Formosa","863",,953
-1504,"Formosa","862",,439
-795,"Mauritania","MTN-OO","MR",266
-1506,"Føroyar","864",,643
-1508,"France","867",,171
-1507,"France","866",,645
-2462,"South Sandwich Is.","2024",,940
-2463,"South Shetland Is.","2025",,467
-2464,"South Solomons","2026",,934
-2458,"South Dakota","2020",,922
-2459,"South Georgia","2021",,926
-2460,"South Korea","2022",,732
-2461,"South Orkney Is.","2023",,467
-934,"South Solomons","SOL-SO","SB",361
-2465,"South Yemen","2028",,1023
-216,"Kermadec Is.","KER","NZ",39
-1344,"Choiseul","656",,934
-1516,"Funafuti","883",,980
-1515,"Fujian","881",,565
-1519,"Gabon","886",,648
-1518,"Futuna","885",,993
-1517,"Futuna","884",,1001
-860,"Nova Scotia","NSC-OO","CA",295
-2029,"Namonuito","1503",,612
-896,"Primorye","PRM-OO","RU",328
-790,"Marquesas","MRQ-OO","PF",261
-857,"Nansei-shoto","NNS-OO","JP",292
-2221,"Pinta I.","1727",,649
-995,"Vermont","VER-OO","US",406
-846,"Netherlands","NET-OO","NL",284
-912,"American Samoa","SAM-AS","AS",343
-1437,"Duff Is.","777",,921
-1436,"Ducie I.","776",,893
-1433,"Dominican Republic","771",,625
-1432,"Dominica","770",,1010
-1434,"Dongsha Qundao","772",,566
-881,"Ontario","ONT-OO","CA",314
-1439,"Duke of York Is.","779",,491
-633,"Darjiling","EHM-DJ","IN",161
-457,"Alabama","ALA-OO","US",67
-60,"Subantarctic Islands","90,00","",9
-1648,"Inamba-jima","1042",,718
-1647,"Inagua Is.","1041",,484
-1646,"Inaccessible I.","1040",,964
-1652,"Inner Mongolia","1047",,120
-1651,"Inhaca I.","1046",,786
-1650,"Indiana","1044",,705
-1653,"Ioinianisia","1048",,662
-722,"Juan Fernández Is.","JNF-OO","CL",210
-2183,"Paros","1681",,662
-2182,"Parece Vela","1680",,739
-2184,"Parry Is.","1682",,872
-2186,"Patmos","1685",,627
-2185,"Patagonia","1684",,65
-2188,"Paumotu","1687",,975
-2187,"Patos I.","1686",,994
-2190,"Pedra da Gale","1689",,655
-2189,"Peale I.","1688",,1000
-1832,"Likhoma Is.","1269",,778
-1831,"Lihir Is.","1268",,491
-608,"Eastern Cape Province","CPP-EC","ZA",142
-1355,"Coats I.","669",,865
-1354,"Coahuila","668",,802
-1353,"Clipperton I.","667",,605
-1352,"Clarence I.","666",,467
-1825,"Leti Is.","1261",,763
-1351,"Ciskei","664",,608
-1350,"Chuvashiya","663",,905
-1829,"Libya","1266",,745
-1349,"Chukota","661",,764
-1348,"Chubut","660",,442
-507,"Buryatiya","BRY-OO","RU",103
-1008,"Uttaranchal","WHM-UT","IN",416
-849,"Norfolk I.","NFK-NI","NF",286
-2721,"Windward Is.","2337",,480
-2030,"Nan-sha","1504",,920
-1999,"Mongolia, Inner","1468",,120
-1996,"Mona I.","1465",,897
-1045,"American Samoa","8",,912
-1998,"Mongolia","1467",,783
-1997,"Monaco","1466",,646
-1995,"Molokai","1463",,671
-1631,"Huahine","1019",,918
-1872,"Madeira","1317",,773
-1871,"Madagascar","1316",,772
-1870,"MacRobertson Land","1315",,467
-1869,"Macquarie Is.","1314",,767
-1868,"Mackenzie","1313",,872
-1867,"Macedonia","1311",,1027
-1509,"Franklin","868",,872
-841,"Severo-Osetiya","NCS-SO","RU",280
-1874,"Madura","1319",,721
-1873,"Madhya Pradesh","1318",,695
-309,"Free State","OFS","ZA",22
-842,"Stavropol","NCS-ST","RU",280
-986,"Tadzhikistan","TZK-OO","TJ",398
-323,"Philippines","PHI","PH",36
-429,"Zambia","ZAM","ZM",21
-428,"Zaire","ZAI","CD",18
-1625,"Honduras","1010",,676
-761,"Bali","LSI-BA","ID",237
-1626,"Hong Kong","1011",,569
 1503,"Formentera","861",,485
-324,"Phoenix Is.","PHX","KI",40
-276,"KwaZulu-Natal","NAT","ZA",22
-1015,"Wisconsin","WIS-OO","US",418
-835,"North Carolina","NCA-OO","US",278
-177,"Germany","GER","DE",11
-380,"Transcaucasus","TCS","",28
-701,"Tamil Nadu","IND-TN","IN",198
-379,"Turks-Caicos Is.","TCI","TC",55
-176,"Georgia","GEO","US",52
-613,"Palau","CRL-PA","PW",144
-786,"Mozambique","MOZ-OO","MZ",258
-829,"Tabasco","MXT-TB","MX",273
-2034,"Nanusa Is.","1509",,943
-1885,"Maiz Is.","1330",,949
-1887,"Makatea","1333",,975
-1886,"Majuro","1332",,791
-2711,"Western Australia","2326",,1004
-74,"Andaman Is.","AND","",35
-75,"Angola","ANG","AO",21
-1786,"Kuril Is.","1208",,737
-947,"Colombian Caribbean Is.","SWC-CC","CO",372
-2709,"West Siberia","2324",,1017
-760,"Louisiana","LOU-OO","US",236
-76,"Antarctica","ANT","AQ",61
-456,"Tucuman","AGW-TU","AR",66
-52,"Southeastern U.S.A.","78,00","",7
-2714,"Western Samoa","2329",,913
-2827,"Io-jima","2461",,739
-2688,"Vologda","2299",,907
-2687,"Volgograd","2298",,908
-2684,"Viti Levu","2293",,640
-2683,"Virginia","2292",,999
-2682,"Virgin Is.","2291",,750
-2681,"Virgin Is.","2290",,756
-447,"Tierra del Fuego (Argentina)","AGS-TF","AR",65
-2686,"Vojvodina","2296",,1029
-2685,"Vladimir","2295",,905
-27,"Middle Asia","32,00","",3
-12,"Southwestern Europe","12,00","",1
-2045,"Necker I.","1521",,671
-1009,"Barbados","WIN-BA","BB",417
-2748,"Yugo-Osetiya","2368",,961
-534,"Rondônia","BZN-RO","BR",109
-2746,"Young I.","2366",,467
-533,"Roraima","BZN-RM","BR",109
-2744,"Yianisadhes","2364",,734
-2743,"Yevreysk","2363",,730
-2742,"Yemen, People's Democratic Republic of","2362",,1023
-2741,"Yemen","2361",,425
-946,"Svalbard","SVA-OO","SJ",371
-639,"Falkland Is.","FAL-OO","FK",166
-222,"Krym","KRY","UA",14
-281,"North Dakota","NDA","US",48
-2126,"Nukunono","1612",,972
-1022,"North Yemen","YEM-NY","YE",425
-2322,"Ryukyu Is.","1861",,857
-2321,"Ryazan","1860",,905
-2324,"Sabah","1863",,502
-221,"Kriti","KRI","GR",13
-2326,"Sable I.","1865",,860
-2325,"Sabalana Is.","1864",,943
-2328,"Saibai I.","1867",,899
-2327,"Sable I.","1866",,866
-2330,"Saipan","1869",,789
-2329,"Saintes, Iles des","1868",,751
-220,"Krasnoyarsk","KRA","RU",25
-496,"Latvia","BLT-LA","RU",96
-423,"Christmas I.","XMS","CX",36
-1588,"Gunungapi","964",,782
-1589,"Guyana","965",,668
-1590,"Ha'apai Is.","967",,973
-1584,"Gujarat","960",,689
-1585,"Gulf of Guinea Is.","961",,178
-1586,"Gulf States","962",,185
-1587,"Gunners Quoin","963",,769
-411,"Wake I.","WAK","UM",42
-1591,"Habomai-shoto","968",,737
-1592,"Hachijo-jima","969",,718
-48,"North-Central U.S.A.","74,00","",7
-2526,"Table I.","2108",,465
-598,"Colorado","COL-OO","US",135
-2522,"Syria","2102",,744
-2521,"Sylhet","2101",,486
-2525,"Tabiteuea","2107",,658
-2524,"Tabasco","2106",,829
-2523,"Tabar Is.","2105",,491
-419,"Western Sahara","WSA","EH",15
-420,"West Siberia","WSB","RU",25
-1067,"Bolivia","36",,499
-927,"Malta","SIC-MA","MT",356
-491,"Bismarck Archipelago","BIS-OO","PG",93
-956,"Turks-Caicos Is.","TCI-OO","TC",379
-1332,"Chiapas","641",,827
-1514,"Fuerteventura","878",,597
-1808,"Las Aves Is.","1240",,998
-1513,"Frigate I.","877",,925
-1512,"French Morocco","874",,784
-1511,"French Guiana","872",,647
-1811,"Laughlan Is.","1243",,868
+1504,"Formosa","862",,439
+1505,"Formosa","863",,953
+1506,"Føroyar","864",,643
+1507,"France","866",,645
+1508,"France","867",,171
+1509,"Franklin","868",,872
 1510,"French Cameroons","870",,595
-1810,"Lau Is.","1242",,640
-500,"Brunei","BOR-BR","BN",99
-2468,"Spain","2032",,938
-837,"Dagestan","NCS-DA","RU",280
-1046,"Andorra","9",,936
-2054,"Nevada","1533",,847
-418,"Wisconsin","WIS","US",48
-1812,"Laurie I.","1244",,467
+1511,"French Guiana","872",,647
+1512,"French Morocco","874",,784
+1513,"Frigate I.","877",,925
+1514,"Fuerteventura","878",,597
+1515,"Fujian","881",,565
+1516,"Funafuti","883",,980
+1517,"Futuna","884",,1001
+1518,"Futuna","885",,993
+1519,"Gabon","886",,648
 1520,"Gaidhouronisi","890",,734
 1521,"Galápagos","891",,649
 1522,"Gambia, The","892",,650
@@ -1937,68 +1527,426 @@
 1526,"Gardner Pinnacles","897",,671
 1527,"Gavdhopoula","898",,734
 1528,"Gavdhos","899",,734
-1337,"Chile South","646",,131
-2211,"Philippines","1715",,891
-1168,"Assumption I.","436",,459
-1338,"China North-central","648",,122
-862,"New South Wales","NSW-NS","AU",296
-797,"México State","MXC-ME","MX",267
-1892,"Malawi","1344",,778
-589,"Antofagasta","CLN-AN","CL",130
-2058,"New Caledonia","1537",,866
-1165,"Ashmore Reef","433",,1003
-590,"Atacama","CLN-AT","CL",130
-2416,"Shanxi","1965",,561
-2269,"Rabi","1788",,640
-2270,"Raeffsky Is.","1789",,975
-1431,"Dog I.","768",,748
-524,"Espirito Santo","BZL-ES","BR",108
-1425,"Diego Garcia","762",,544
-1426,"Disappearing I.","763",,671
-1423,"Dia","760",,734
-1424,"Diamond Islets","761",,898
-564,"Anhui","CHS-AH","CN",124
-1430,"Djibouti","767",,624
-944,"Sumatera","SUM-OO","ID",369
-1428,"District of Columbia","765",,1005
-1085,"Addu Atoll","339",,774
-1678,"Jamaica","1078",,716
-1679,"Jammu-Kashmir","1079",,1007
-86,"Azores","AZO","PT",16
-1677,"Jaluit","1077",,791
-1674,"Iwo Jima","1074",,739
-1675,"Jalisco","1075",,822
-1673,"Ivory Coast","1073",,715
+1529,"Gaza Strip","900",,884
+1530,"Genovesa I.","901",,649
+1531,"Georgia","903",,651
+1532,"Germany","904",,652
+1533,"Ghana","905",,657
+1534,"Gibraltar","906",,937
+1535,"Gilbert Is.","907",,658
+1536,"Gilgit","908",,1007
+1537,"Glorieuses Is.","909",,770
+1538,"Goa","911",,688
+1539,"Goiás","912",,511
+1540,"Gokçeada","913",,977
+1541,"Gomera","915",,597
+1542,"Gonave I.","916",,669
+1543,"Gonzalez I.","917",,626
+1544,"Gorno-Badakhshan","919",,986
+1545,"Gotland","920",,950
+1546,"Gough I.","921",,964
+1547,"Gozo","922",,927
+1548,"Graciosa","923",,483
+1549,"Graciosa","924",,597
+1550,"Graham Land","925",,467
+1551,"Gran Canaria","926",,597
+1552,"Grand Bahama","927",,484
+1553,"Grand Cayman","928",,542
+1554,"Grande Terre","929",,751
+1555,"Great Abaco","930",,484
+1556,"Great Britain","931",,661
+1557,"Great Camanoe","932",,750
+1558,"Great Coco I.","933",,465
+1559,"Great Exuma","934",,484
+1560,"Great Inagua","935",,484
+1561,"Greece","936",,662
+1562,"Green Is.","937",,933
+1563,"Greenland","938",,660
+1564,"Grenada","940",,1011
+1565,"Grenadines of Grenada","941",,1011
+1566,"Grenadines of St.Vincent","942",,1014
+1567,"Gruziya","943",,961
+1568,"Guadalcanal","944",,934
+1569,"Guadeloupe","945",,751
+1570,"Guadelupe I.","946",,813
+1571,"Guam","947",,788
+1572,"Guana I.","948",,750
+1573,"Guanaja","949",,948
+1574,"Guanajuato","950",,805
+1575,"Guangdong","951",,566
+1576,"Guangxi","952",,567
+1577,"Guangzhou","953",,566
+1578,"Guatemala","954",,666
+1579,"Guernsey","955",,644
+1580,"Guerrero","956",,821
+1581,"Guinea","957",,667
+1582,"Guinea-Bissau","958",,659
+1583,"Guizhou","959",,546
+1584,"Gujarat","960",,689
+1585,"Gulf of Guinea Is.","961",,178
+1586,"Gulf States","962",,185
+1587,"Gunners Quoin","963",,769
+1588,"Gunungapi","964",,782
+1589,"Guyana","965",,668
+1590,"Ha'apai Is.","967",,973
+1591,"Habomai-shoto","968",,737
+1592,"Hachijo-jima","969",,718
+1593,"Hahajima","970",,877
+1594,"Hainan","971",,550
+1595,"Haiti","972",,669
+1596,"Haiti","973",,189
+1597,"Hall I.","975",,612
+1598,"Halmahera","976",,782
+1599,"Hanish al Kabir","977",,1023
+1600,"Hao","979",,975
+1601,"Haryana","980",,690
+1602,"Hawai'i","982",,190
+1603,"Hawai'i","983",,671
+1604,"Hawai'ian Is.","984",,671
+1605,"Heard I.","985",,675
+1606,"Heard-McDonald Is.","986",,675
+1607,"Hebei","987",,558
+1608,"Heilongjiang","988",,553
+1609,"Helen Reef","990",,613
+1610,"Henan","991",,568
+1611,"Henderson I.","992",,893
+1612,"Herzegovina","993",,1024
+1613,"Hereheretue","994",,975
+1614,"Herm","995",,644
+1615,"Hermanos, Los","996",,998
+1616,"Hermit Is.","997",,491
+1617,"Hervey I.","998",,602
+1618,"Hidalgo","999",,806
+1619,"Hierro","1000",,597
+1620,"Himachal Pradesh","1001",,1006
+1621,"Hiva Oa","1004",,790
+1622,"Hokkaido","1005",,717
+1623,"Hon Panjang","1007",,997
+1624,"Honduran Caribbean Is.","1009",,948
+1625,"Honduras","1010",,676
+1626,"Hong Kong","1011",,569
+1627,"Honshu","1012",,718
+1628,"Hoorn Is.","1013",,1001
+1629,"Howland I.","1016",,674
+1630,"Howland-Baker Is.","1017",,674
+1631,"Huahine","1019",,918
+1632,"Hubei","1020",,547
+1633,"Hunan","1023",,570
+1634,"Hungary","1024",,677
+1635,"Hunter Is.","1025",,866
+1636,"Huon I.","1026",,866
+1637,"Ibiza","1028",,485
+1638,"Iceland","1029",,678
+1639,"Idaho","1030",,679
+1640,"Ifni","1031",,784
+1641,"Ikaria","1032",,627
+1642,"Iles du Vent","1034",,918
+1643,"Iles sous le Vent","1035",,918
+1644,"Iliodhromia","1036",,662
+1645,"Illinois","1037",,680
+1646,"Inaccessible I.","1040",,964
+1647,"Inagua Is.","1041",,484
+1648,"Inamba-jima","1042",,718
+1649,"India","1043",,198
+1650,"Indiana","1044",,705
+1651,"Inhaca I.","1046",,786
+1652,"Inner Mongolia","1047",,120
+1653,"Ioinianisia","1048",,662
+1654,"Ionioi Nisoi","1050",,662
+1655,"Voriai","1051",,662
+1656,"Iowa","1052",,706
+1657,"Iran","1053",,710
+1658,"Iraq","1054",,711
+1659,"Ireland","1055",,707
+1660,"Ireland","1056",,201
+1661,"Irian Jaya","1058",,867
+1662,"Iriomote","1059",,857
+1663,"Irkutsk","1060",,709
+1664,"Isabela I.","1062",,649
+1665,"Ishigaki","1063",,857
+1666,"Isle of Man","1064",,661
+1667,"Isle of Pines","1065",,866
+1668,"Israel","1066",,884
+1669,"Italian Somaliland","1068",,935
+1670,"Italy","1069",,205
 1671,"Italy","1070",,712
 1672,"Ivanovo","1071",,905
-2180,"Paraná","1678",,536
-2181,"Parang","1679",,721
-274,"Myanmar","MYA","MM",35
-752,"Montserrat","LEE-MO","MS",233
-2178,"Paraguay","1676",,887
-2179,"Paraíba","1677",,519
-325,"Pitcairn Is.","PIT","PN",41
-2174,"Pantelleria","1672",,928
-2175,"Papua New Guinea","1673",,868
-931,"South Australia","SOA-OO","AU",359
+1673,"Ivory Coast","1073",,715
+1674,"Iwo Jima","1074",,739
+1675,"Jalisco","1075",,822
+1676,"Jalpaiguri","1076",,703
+1677,"Jaluit","1077",,791
+1678,"Jamaica","1078",,716
+1679,"Jammu-Kashmir","1079",,1007
+1680,"Jan Mayen I.","1080",,946
+1681,"Japan","1081",,208
+1682,"Jarvis I.","1082",,759
+1683,"Jawa","1084",,721
+1684,"Jersey","1085",,644
+1685,"Jiangsu","1087",,571
+1686,"Jiangxi","1088",,572
+1687,"Jilin","1090",,554
+1688,"Johnston I.","1091",,672
+1689,"Jordan","1093",,885
+1690,"Jost van Dyke","1094",,750
 1691,"Juan Fernández Is.","1095",,722
 1692,"Juan de Nova","1096",,770
 1693,"Judge and Clerk Is.","1097",,767
-1363,"Cöetivy","678",,459
-1364,"Colima","679",,820
-1689,"Jordan","1093",,885
-1359,"Coco I., Great","674",,465
-1360,"Coco Is.","675",,465
-1361,"Cocos (Keeling) Is.","676",,580
-1362,"Cocos I.","677",,606
-1356,"Coche I.","670",,998
-1357,"Cochin Chine","671",,997
-1358,"Cochons, Isle aux","673",,614
-998,"Venezuelan Antilles","VNA-OO","VE",409
-700,"Rajasthan","IND-RA","IN",198
-599,"Comoros","COM-CO","KM",136
-473,"Amsterdam-St.Paul Is.","ASP-OO","TF",82
-832,"Namibia","NAM-OO","ZA",275
+1694,"Jujuy","1099",,449
+1695,"Juventud, Isla de la","1100",,617
+1696,"Kabara","1101",,640
+1697,"Kabardino-Balkariya","1102",,838
+1698,"Kadavu","1103",,640
+1699,"Kahoolawe","1104",,671
+1700,"Kai Is.","1105",,782
+1701,"Kalaotoa","1106",,943
+1702,"Kalimantan","1107",,501
+1703,"Kalimnos","1108",,627
+1704,"Kaliningrad","1110",,495
+1705,"Kaluga","1112",,905
+1706,"Kamaran Is.","1113",,1023
+1707,"Kamchatka","1115",,723
+1708,"Kamodo","1116",,763
+1709,"Kangaroo I.","1119",,931
+1710,"Kangean Is.","1120",,721
+1711,"Kaniet Is.","1121",,491
+1712,"Kansas","1122",,724
+1713,"Kanton I.","1124",,892
+1714,"Kapingamaringi","1125",,612
+1715,"Kara-Kalpakiya","1127",,992
+1716,"Karacheyevo-Cherkessiya","1128",,839
+1717,"Karaikal","1129",,692
+1718,"Karelia","1130",,907
+1719,"Karkaralong Is.","1131",,943
+1720,"Karnataka","1132",,693
+1721,"Kárpathos","1133",,734
+1722,"Kasos","1134",,734
+1723,"Kauai","1135",,671
+1724,"Kazakhstan","1136",,725
+1725,"Kazan-retto","1137",,739
+1726,"Kedah","1138",,779
+1727,"Keewatin","1140",,865
+1728,"Kelantan","1141",,779
+1729,"Kemerovo","1142",,1017
+1730,"Kentucky","1143",,736
+1731,"Kenya","1144",,727
+1732,"Kerala","1146",,691
+1733,"Kerguelen","1147",,726
+1734,"Kérkira","1148",,662
+1735,"Kermadec Is.","1149",,728
+1736,"Khabarovsk","1150",,730
+1737,"Khakassiya","1151",,733
+1738,"Khalki","1152",,627
+1739,"Khamili","1153",,662
+1740,"Khanty-Mansi","1154",,1017
+1741,"Khios","1155",,627
+1742,"Khristiana","1157",,662
+1743,"Kikai-shima","1160",,857
+1744,"Kikladhes","1161",,662
+1745,"Kilinailau","1162",,933
+1746,"Kin-Men","1163",,573
+1747,"King George Is.","1164",,975
+1748,"King George V Land","1165",,467
+1749,"Kingman Reef","1166",,759
+1750,"Kingsmill Is.","1167",,658
+1751,"Kirgizistan","1169",,729
+1752,"Kiribati Line Is.","1171",,758
+1753,"Kiritimati","1173",,758
+1754,"Kirov","1175",,906
+1755,"Kita Daito","1176",,857
+1756,"Kita Iwo","1177",,739
+1757,"Kitalo","1178",,739
+1758,"Kithira","1179",,662
+1759,"Kittery I.","1180",,671
+1760,"Ko Way","1181",,997
+1761,"Kobisho","1182",,857
+1762,"Koch Bihar","1183",,703
+1763,"Kodiak I.","1184",,472
+1764,"Komandor Is.","1185",,723
+1765,"Komba","1186",,763
+1766,"Komi","1187",,907
+1767,"Korea","1189",,219
+1768,"Korea, People's Democratic Republic of","1190",,731
+1769,"Korea, Republic of","1191",,732
+1770,"Koryanskiy","1192",,723
+1771,"Kos","1193",,627
+1772,"Kosovo","1194",,1026
+1773,"Kosrae","1195",,612
+1774,"Kostroma","1196",,905
+1775,"Koufonisi","1197",,734
+1776,"Kozu-shima","1198",,718
+1777,"Krasnodar","1199",,840
+1778,"Krasnoyarsk","1200",,733
+1779,"Kriti","1201",,734
+1780,"Krym","1202",,735
+1781,"Kuchino-shima","1203",,857
+1782,"Kure I.","1204",,673
+1783,"Kurgan","1205",,1017
+1784,"Kuria","1206",,658
+1785,"Kuria Muria Is.","1207",,880
+1786,"Kuril Is.","1208",,737
+1787,"Kursk","1209",,905
+1788,"Kuwait","1211",,738
+1789,"Kwajalein","1213",,791
+1790,"Kyushu","1218",,719
+1791,"La Araucania","1219",,583
+1792,"La Desirade","1220",,751
+1793,"La Digue I.","1221",,925
+1794,"La Palma","1222",,597
+1795,"La Pampa","1223",,440
+1796,"La Rioja","1224",,450
+1797,"Labrador","1225",,740
+1798,"Labuan","1226",,502
+1799,"Laccadive Is.","1227",,746
+1800,"Ladakh","1228",,1007
+1801,"Lampedusa","1231",,928
+1802,"Lan Hsu","1233",,953
+1803,"Lanai","1234",,671
+1804,"Langkawi","1235",,779
+1805,"Langkesi Is.","1236",,943
+1806,"Lanzarote","1237",,597
+1807,"Laos","1238",,741
+1808,"Las Aves Is.","1240",,998
+1809,"Latvia","1241",,496
+1810,"Lau Is.","1242",,640
+1811,"Laughlan Is.","1243",,868
+1812,"Laurie I.","1244",,467
+1813,"Laut Kecil Is.","1246",,501
+1814,"Laysan I.","1247",,671
+1815,"Lebanon","1248",,743
+1816,"Lebanon-Syria","1249",,230
+1817,"Leeward I.","1250",,480
+1818,"Leeward Is.","1251",,233
+1819,"Leeward Is.","1252",,918
+1820,"Leningrad","1254",,909
+1821,"Leros","1255",,627
+1822,"Lesotho","1257",,757
+1823,"Lesser Sunda Is.","1259",,763
+1824,"Lesvos","1260",,627
+1825,"Leti Is.","1261",,763
+1826,"Levitha","1262",,662
+1827,"Liaoning","1264",,555
+1828,"Liberia","1265",,742
+1829,"Libya","1266",,745
+1830,"Liechtenstein","1267",,482
+1831,"Lihir Is.","1268",,491
+1832,"Likhoma Is.","1269",,778
+1833,"Limnos","1270",,662
+1834,"Line Is.","1271",,235
+1835,"Lingga Is.","1272",,944
+1836,"Linosa","1273",,928
+1837,"Lipari Is.","1274",,928
+1838,"Lipetsk","1275",,905
+1839,"Lipsoi","1276",,627
+1840,"Lisianski I.","1277",,671
+1841,"Lithuania","1278",,497
+1842,"Little Cayman","1280",,542
+1843,"Little Coco I.","1281",,465
+1844,"Little Inagua","1282",,484
+1845,"Loma-i-Viti Is.","1283",,640
+1846,"Lombok","1284",,763
+1847,"Long I.","1285",,868
+1848,"Long I.","1286",,484
+1849,"Lopevi","1287",,993
+1850,"Lord Howe I.","1289",,848
+1851,"Los Hermanos Is.","1291",,998
+1852,"Los Lagos","1292",,593
+1853,"Los Roques Is.","1293",,998
+1854,"Los Testigos Is.","1294",,998
+1855,"Louisa Reef","1296",,920
+1856,"Louisiade Archipelago","1297",,868
+1857,"Louisiana","1298",,760
+1858,"Low Archipelago","1299",,975
+1859,"Loyauté Is.","1301",,866
+1860,"Lucipara Is.","1302",,782
+1861,"Lusancay Is.","1303",,868
+1862,"Luxembourg","1304",,490
+1863,"Luzon","1305",,891
+1864,"Ma-tsu-Pai-chúan","1306",,575
+1865,"Macau","1307",,574
+1866,"Macauley I.","1309",,728
+1867,"Macedonia","1311",,1027
+1868,"Mackenzie","1313",,872
+1869,"Macquarie Is.","1314",,767
+1870,"MacRobertson Land","1315",,467
+1871,"Madagascar","1316",,772
+1872,"Madeira","1317",,773
+1873,"Madhya Pradesh","1318",,695
+1874,"Madura","1319",,721
+1875,"Maewo","1320",,993
+1876,"Mafia I.","1321",,954
+1877,"Magadan","1322",,764
+1878,"Magellanes","1323",,594
+1879,"Maharashtra","1324",,696
+1880,"Mahé","1325",,694
+1881,"Mahé","1326",,925
+1882,"Maiana","1327",,658
+1883,"Maine","1328",,765
+1884,"Maio","1329",,918
+1885,"Maiz Is.","1330",,949
+1886,"Majuro","1332",,791
+1887,"Makatea","1333",,975
+1888,"Makedhonia","1334",,662
+1889,"Makemo","1336",,975
+1890,"Malaita","1342",,934
+1891,"Malakula","1343",,993
+1892,"Malawi","1344",,778
+1893,"Malaya","1345",,253
+1894,"Malden I.","1347",,758
+1895,"Maldives","1348",,774
+1896,"Mali","1349",,777
+1897,"Mallorca","1351",,485
+1898,"Maloelap","1352",,791
+1899,"Malpelo I.","1353",,607
+1900,"Malta","1354",,927
+1901,"Maluku","1355",,782
+1902,"Man, Isle of","1358",,661
+1903,"Manchuria","1360",,121
+1904,"Mangaia","1361",,602
+1905,"Mangareva","1362",,975
+1906,"Manihiki","1363",,970
+1907,"Manihiki Is.","1364",,970
+1908,"Manipur","1365",,475
+1909,"Manitoba","1366",,766
+1910,"Manra","1367",,892
+1911,"Mansel I.","1368",,865
+1912,"Manu'a","1369",,912
+1913,"Manus Is.","1370",,491
+1914,"Mapia I.","1371",,867
+1915,"Maranhão","1372",,518
+1916,"Marchena I.","1373",,649
+1917,"Marcus I.","1374",,771
+1918,"Margarita I.","1375",,998
+1919,"Mari","1376",,906
+1920,"Marianas","1377",,260
+1921,"Marias Is.","1378",,824
+1922,"Marie Byrd Land","1379",,467
+1923,"Marie Galante","1380",,751
+1924,"Marie Louise I.","1381",,459
+1925,"Marion I.","1382",,787
+1926,"Marion-Prince Edward Is.","1383",,787
+1927,"Maro Reef","1385",,671
+1928,"Marotiri","1387",,976
+1929,"Marquesas","1388",,790
+1930,"Marshall Is.","1389",,791
+1931,"Martin Vas Is.","1390",,528
+1932,"Martinique","1391",,1012
+1933,"Maryland","1392",,792
+1934,"Masalembu Besar","1395",,721
+1935,"Masachusettes","1396",,768
+1936,"Mato Grosso","1397",,513
+1937,"Mato Grosso do Sul","1398",,512
+1938,"Matthew Is.","1399",,866
+1939,"Maug Is.","1400",,789
+1940,"Maui","1401",,671
+1941,"Mauke","1402",,602
+1942,"Maule","1403",,584
+1943,"Maupiti","1404",,918
+1944,"Mauritania","1405",,795
+1945,"Mauritius","1406",,769
+1946,"Mayaguana","1407",,484
+1947,"Mayotte","1408",,600
+1948,"Mayreau","1409",,1014
 1949,"Mbengga","1410",,640
 1950,"McDonald I.","1411",,675
 1951,"McKean I.","1412",,892
@@ -2007,726 +1955,189 @@
 1954,"Mehetia","1415",,918
 1955,"Melaka","1416",,779
 1956,"Melilla","1417",,785
-1877,"Magadan","1322",,764
-1435,"Dubayy","775",,665
-902,"Rhode I.","RHO-OO","US",333
-1876,"Mafia I.","1321",,954
-1881,"Mahé","1326",,925
-1882,"Maiana","1327",,658
-1879,"Maharashtra","1324",,696
-1880,"Mahé","1325",,694
-859,"Nauru","NRU-OO","NR",294
-1884,"Maio","1329",,918
-667,"Guinea","GUI-OO","GN",187
-659,"Guinea-Bissau","GNB-OO","GW",181
-152,"Delaware","DEL","US",52
-153,"Denmark","DEN","DK",10
-305,"Northwest Territories","NWT","CA",44
-2052,"Netherlands Leeward Is.","1531",,753
-306,"New York","NWY","US",49
-1822,"Lesotho","1257",,757
-1820,"Leningrad","1254",,909
-301,"New Guinea","NWG","",37
-1819,"Leeward Is.","1252",,918
-597,"Canary Is.","CNY-OO","ES",134
-1817,"Leeward I.","1250",,480
-300,"New Caledonia","NWC","NC",40
-624,"Djibouti","DJI-OO","DJ",154
-304,"New Mexico","NWM","US",51
-302,"New Hampshire","NWH","US",49
-58,"Brazil","84,00","",8
-303,"New Jersey","NWJ","US",49
-1823,"Lesser Sunda Is.","1259",,763
-721,"Jawa","JAW-OO","ID",209
-1438,"Duke of Gloucester Is.","778",,975
-2014,"Muko-jima","1486",,877
-490,"Luxembourg","BGM-LU","LU",92
-54,"Central America","80,00","",8
-983,"Mpumalanga","TVL-MP","ZA",397
-2495,"Stewart I.","2070",,875
-768,"Masachusettes","MAS-OO","US",242
-2650,"United Arab Emirates","2253",,665
-206,"Ivory Coast","IVO","CI",17
-637,"Eritrea","ERI-OO","ER",164
-225,"Kuwait","KUW","KW",30
-282,"Nebraska","NEB","US",48
-224,"Kuril Is.","KUR","RU",26
-285,"Nevada","NEV","US",50
-284,"Netherlands","NET","NL",11
-283,"Nepal","NEP","NP",34
-950,"Sweden","SWE-OO","SE",373
-509,"Burundi","BUR-OO","BI",105
-94,"Burkina","BKN","BF",17
-609,"Northern Cape Province","CPP-NC","ZA",142
-869,"New Hampshire","NWH-OO","US",302
-1649,"India","1043",,198
-729,"Kirgizistan","KGZ-OO","KG",217
-615,"Chita","CTA-OO","RU",146
-726,"Kerguelen","KEG-OO","TF",214
-248,"Maldives","MDV","MV",34
-2739,"Yaroslavl","2358",,905
-2740,"Yasawa Is.","2359",,640
-2733,"Yaku-shima","2352",,719
-2734,"Yakutskiya","2353",,1021
-2732,"Xizang","2351",,563
-2737,"Yap","2356",,612
-442,"Chubut","AGS-CB","AR",65
-2735,"Yamalo-Nenets","2354",,1017
-2736,"Yanam","2355",,704
-625,"Dominican Republic","DOM-OO","DO",155
-2358,"San Salvador","1898",,649
-2359,"Sanak I.","1899",,462
-2354,"San Marino","1894",,713
-2355,"San Miguel I.","1895",,541
-2356,"San Nicolas I.","1896",,541
-2357,"San Salvador","1897",,484
-2350,"San Felix I.","1890",,626
-2351,"San Juan","1891",,454
-2352,"San Luis","1892",,455
-2353,"San Luis Potosí","1893",,809
-1583,"Guizhou","959",,546
-1582,"Guinea-Bissau","958",,659
-2547,"Tartariya","2134",,906
-2548,"Tau","2135",,912
-2546,"Tasmania","2133",,955
-2544,"Tarapacá","2130",,591
-2545,"Tarawa","2131",,658
-1575,"Guangdong","951",,566
-681,"Andhra Pradesh","IND-AP","IN",198
-1577,"Guangzhou","953",,566
-1576,"Guangxi","952",,567
-1579,"Guernsey","955",,644
-1578,"Guatemala","954",,666
-1581,"Guinea","957",,667
-1580,"Guerrero","956",,821
-645,"France","FRA-FR","FR",171
-2252,"Pukapuka","1769",,970
-903,"Rodrigues","ROD-OO","MU",334
-498,"Belize","BLZ-OO","BZ",97
-40,"Southwestern Pacific","60,00","",6
-2724,"Wisconsin","2340",,1015
-719,"Kyushu","JAP-KY","JP",208
-710,"Iran","IRN-OO","IR",203
-217,"Kirgizistan","KGZ","KG",27
-2250,"Puebla","1767",,799
-2445,"Socotra","2002",,932
-2446,"Sofu-gan","2003",,718
-654,"Bioko","GGI-BI","GQ",178
-2444,"Society Is.","2001",,918
-2448,"Solor Is.","2006",,763
-2449,"Somalia","2007",,935
-2447,"Solomon Is.","2005",,361
-2450,"Somaliland, British","2009",,935
-141,"Central American Pacific Is.","CPI","",54
-458,"Albania","ALB-OO","AL",68
-750,"British Virgin Is.","LEE-BV","VG",233
-680,"Illinois","ILL-OO","US",197
-166,"Falkland Is.","FAL","FK",60
-142,"Cape Provinces","CPP","ZA",22
-143,"Caprivi Strip","CPV","NA",22
-1731,"Kenya","1144",,727
-449,"Jujuy","AGW-JU","AR",66
-499,"Bolivia","BOL-OO","BO",98
-2503,"Sumatera","2078",,944
-1826,"Levitha","1262",,662
-1544,"Gorno-Badakhshan","919",,986
-2279,"Raoul I.","1799",,728
-1824,"Lesvos","1260",,627
-1390,"Croatia","719",,1025
-2274,"Rajasthan","1793",,700
-632,"Bhutan","EHM-BH","BT",161
-1389,"Crab I.","715",,897
-1388,"Cozumel I.","714",,828
-605,"Clipperton I.","CPI-CL","PF",141
-2277,"Ralik chain","1796",,791
-1387,"Costa Rica","711",,604
-606,"Cocos I.","CPI-CO","CR",141
-2498,"Stromboli","2073",,928
-1828,"Liberia","1265",,742
-161,"East Himalaya","EHM","",34
-2586,"Tobago","2178",,974
-1670,"Italy","1069",,205
-1669,"Italian Somaliland","1068",,935
-228,"Laos","LAO","LA",35
-1663,"Irkutsk","1060",,709
-1665,"Ishigaki","1063",,857
-897,"Puerto Rico","PUE-OO","PR",329
-1667,"Isle of Pines","1065",,866
-1666,"Isle of Man","1064",,661
-227,"Labrador","LAB","CA",46
-1668,"Israel","1066",,884
-2172,"Pandaidori Is.","1669",,867
-2171,"Panay","1668",,891
-2170,"Panamá Canal Zone","1667",,886
-2047,"Negros","1525",,891
-1037,"Chechnya","NCS-CH","RU",280
-2167,"Palliser Is.","1663",,975
-2166,"Palestine","1662",,317
-2165,"Palawan","1661",,891
-2164,"Palau Is.","1660",,613
-1293,"Canary Is.","591",,597
-1684,"Jersey","1085",,644
-1294,"Canouan","592",,1014
-1295,"Cape Province","595",,142
-1682,"Jarvis I.","1082",,759
-1297,"Caprivi Strip","597",,611
-1296,"Cape Verde","596",,618
-1299,"Cargados Carajos","599",,769
-1298,"Caratasca Cays","598",,948
-1686,"Jiangxi","1088",,572
-705,"Indiana","INI-OO","US",199
-2469,"Spain","2033",,363
-836,"Nicobar Is.","NCB-OO","IN",279
-757,"Lesotho","LES-OO","LS",234
-316,"Pakistan","PAK","PK",34
-1948,"Mayreau","1409",,1014
-1947,"Mayotte","1408",,600
-2049,"Nepal","1527",,845
-1942,"Maule","1403",,584
-1941,"Mauke","1402",,602
-1940,"Maui","1401",,671
-1939,"Maug Is.","1400",,789
-1946,"Mayaguana","1407",,484
-1945,"Mauritius","1406",,769
-1944,"Mauritania","1405",,795
-1943,"Maupiti","1404",,918
-494,"Estonia","BLT-ES","EE",96
-1180,"Aunuu","448",,912
-1375,"Connecticut","693",,596
-1175,"Atacama","443",,590
-1174,"Ata","442",,973
-1173,"Asuncion","441",,789
-1172,"Astrakhan","440",,908
-1179,"Auckland I.","447",,480
-1178,"Atol das Rocas","446",,517
-1177,"Atiu","445",,602
-1176,"Atafu","444",,972
-642,"Florida","FLA-OO","US",169
-2044,"Nebraska","1520",,844
-817,"Baja California Sur","MXN-BS","MX",271
-2063,"New Ireland","1543",,491
-1069,"Bophutatswana","39",,22
-115,"Cambodia","CBD","KH",35
-1064,"Bermuda","33",,488
-1063,"Benin","32",,487
-273,"Mexico Southeast","MXT","MX",53
-1062,"Belize","30",,498
-1068,"Bonaire","37",,855
-272,"Mexico Southwest","MXS","MX",53
-1066,"Bioko","35",,654
-1065,"Bhutan","34",,632
-271,"Mexico Northwest","MXN","MX",53
-1331,"Chesterfield Is.","640",,866
-1334,"Chihuahua","643",,803
-1333,"Chichijima","642",,877
-1336,"Chile North","645",,130
-1335,"Chilcott I.","644",,898
-867,"Irian Jaya","NWG-IJ","ID",301
-270,"Mexican Pacific Is.","MXI","MX",53
-1339,"China South-central","649",,118
-269,"Mexico Gulf","MXG","MX",53
-268,"Mexico Northeast","MXE","MX",53
-267,"Mexico Central","MXC","MX",53
-2060,"New Guinea","1539",,301
-2059,"New Georgia","1538",,934
-110,"Brazil South","BZS","BR",58
-1084,"Actaeon Group","338",,975
-1081,"Acklins I.","335",,484
-1083,"Acre","337",,529
-1082,"Açôres","336",,483
-37,"Papuasia","43,00","",4
-978,"Tunisia","TUN-OO","TN",393
-1080,"Abemama","332",,658
-522,"Rio Grande do Norte","BZE-RN","BR",107
-107,"Brazil Northeast","BZE","BR",58
-106,"Brazil West-Central","BZC","BR",58
-109,"Brazil North","BZN","BR",58
-108,"Brazil Southeast","BZL","BR",58
-918,"Society Is.","SCI-OO","PF",348
-545,"Chad","CHA-OO","TD",117
-246,"Madagascar","MDG","MG",24
-592,"Aisén","CLS-AI","CL",131
-851,"St.Pierre-Miquelon","NFL-SP","PM",287
-247,"Madeira","MDR","PT",16
-178,"Gulf of Guinea Is.","GGI","",18
-2535,"Tamaulipas","2118",,810
-872,"Northwest Territories","NWT-OO","CA",305
-996,"Victoria","VIC-OO","AU",407
-1258,"Bouvet I.","544",,505
-1488,"Farasan Is.","844",,916
-1899,"Malpelo I.","1353",,607
-1001,"Wallis-Futuna Is.","WAL-OO","WF",412
-70,"Algeria","ALG","DZ",15
-69,"Aldabra","ALD","SC",24
-854,"Nicaragua","NIC-OO","NI",290
-68,"Albania","ALB","AL",13
-67,"Alabama","ALA","US",52
-297,"Northern Territory","NTA","AU",38
-71,"Altay","ALT","RU",25
-72,"Aleutian Is.","ALU","US",44
-1898,"Maloelap","1352",,791
-714,"Vatican City","ITA-VC","VA",205
-387,"Tokelau-Manihiki","TOK","",40
-388,"Tonga","TON","TO",40
-920,"Spratly Is.","SCS-SI","SI",349
-553,"Heilongjiang","CHM-HJ","CN",121
-386,"Togo","TOG","TG",17
-2728,"Wotje","2344",,791
-2730,"Wyoming","2347",,1019
-2729,"Wuvulu I.","2346",,491
-2725,"Witu Is.","2341",,491
-1020,"Christmas I.","XMS-OO","CX",423
-2727,"Woodlark I.","2343",,868
-2726,"Woleai","2342",,612
-611,"Caprivi Strip","CPV-OO","NA",143
-2731,"Xinjiang","2349",,579
-822,"Jalisco","MXS-JA","MX",272
-634,"Sikkim","EHM-SI","IN",161
-1010,"Dominica","WIN-DO","DM",417
-308,"New Zealand South","NZS","NZ",39
-2050,"Netherlands","1528",,846
-223,"Kentucky","KTY","US",52
-62,"Alberta","ABT","CA",45
-2349,"San Cristobal","1889",,934
-2348,"San Cristobal","1888",,649
-2347,"San Clemente I.","1887",,541
-2346,"San Andrés I.","1886",,947
-2345,"San Ambrosio I.","1885",,626
-2344,"Samothraki","1884",,662
-307,"New Zealand North","NZN","NZ",39
-2342,"Samoa","1881",,343
-2341,"Samhah I.","1880",,932
-2538,"Tamil Nadu","2121",,701
-2051,"Netherlands Antilles","1529",,291
-2539,"Tanega","2123",,857
-941,"St.Helena","STH-OO","SH",366
-2540,"Tanga Is.","2124",,491
-1572,"Guana I.","948",,750
-1573,"Guanaja","949",,948
-1570,"Guadelupe I.","946",,813
-1571,"Guam","947",,788
-1568,"Guadalcanal","944",,934
-1569,"Guadeloupe","945",,751
-1566,"Grenadines of St.Vincent","942",,1014
-1567,"Gruziya","943",,961
-1564,"Grenada","940",,1011
-1565,"Grenadines of Grenada","941",,1011
-2780,"Islas Chafarinas","2410",,785
-160,"Egypt","EGY","EG",15
-682,"Bihar","IND-BI","IN",198
-708,"Northern Ireland","IRE-NI","UK",201
-1901,"Maluku","1355",,782
-631,"Arunachal Pradesh","EHM-AP","IN",161
-230,"Lebanon-Syria","LBS","",29
-229,"Liberia","LBR","LR",17
-528,"Trindade","BZL-TR","BR",108
-1985,"Miskito Cays","1451",,949
-231,"Libya","LBY","LY",15
-741,"Laos","LAO-OO","LA",228
-1900,"Malta","1354",,927
-2457,"South China Sea","2019",,349
-2456,"South Carolina","2018",,917
-2454,"Sonsorol","2014",,613
-2455,"South Australia","2017",,931
-2451,"Somaliland, Italian","2011",,935
-2453,"Sonora","2013",,819
-2452,"Sombrero","2012",,748
-558,"Hebei","CHN-HB","CN",122
-718,"Honshu","JAP-HN","JP",208
-711,"Iraq","IRQ-OO","IQ",204
-717,"Hokkaido","JAP-HK","JP",208
-784,"Morocco","MOR-MO","MA",257
-407,"Victoria","VIC","AU",38
-1987,"Mississippi","1453",,793
-408,"Vietnam","VIE","VN",35
-2254,"Pulo Ana","1771",,613
-804,"Durango","MXE-DU","MX",268
-535,"Tocantins","BZN-TO","BR",109
-732,"South Korea","KOR-SK","KR",219
-536,"Paraná","BZS-PR","BR",110
-716,"Jamaica","JAM-OO","JM",207
-1385,"Corvo","708",,483
-1382,"Coronation I.","704",,467
-1383,"Corrientes","705",,435
-1024,"Bosnia-Herzegovina","YUG-BH","YU",426
-900,"Québec","QUE-OO","CA",331
-1380,"Coringa Is.","701",,898
-1381,"Corisco I.","702",,636
-26,"Russian Far East","31,00","",3
-18,"West-Central Tropical Africa","23,00","",2
-504,"Botswana","BOT-OO","BW",100
-2390,"Savu","1934",,763
-2162,"Pakistan East","1658",,486
-2163,"Palau","1659",,613
-1929,"Marquesas","1388",,790
-2158,"Osumi-shoto","1651",,719
-2160,"Pahang","1656",,779
-2161,"Pakistan","1657",,883
-1930,"Marshall Is.","1389",,791
-1290,"Cameroon","586",,595
-2433,"Sinaloa","1986",,818
-1288,"California","584",,541
-1289,"Cambodge","585",,543
-1286,"Cajones Cays","582",,948
-1287,"Calamian Is.","583",,891
-1284,"Cagayan Is.","580",,891
-1285,"Caicos Is.","581",,956
-56,"Northern South America","82,00","",8
-2431,"Simi","1984",,627
-1291,"Campbell I.","588",,480
-1292,"Campeche","589",,826
-2432,"Sinai","1985",,930
-2429,"Silhouette I.","1982",,925
-2430,"Simeulue","1983",,944
-1973,"Micronesia Federated States","1436",,612
-1971,"Michigan","1434",,775
-1972,"Michoacán","1435",,823
-1969,"Mexico Southwest","1432",,272
-1970,"México State","1433",,797
-1967,"Mexico Northwest","1430",,271
-1968,"Mexico Southeast","1431",,273
-1923,"Marie Galante","1380",,751
-2428,"Sikkim","1981",,634
-1974,"Middle I.","1438",,964
-1924,"Marie Louise I.","1381",,459
-877,"Ogasawara-shoto","OGA-OO","JP",310
-1926,"Marion-Prince Edward Is.","1383",,787
-1189,"Az Zuqur I.","458",,1023
-1896,"Mali","1349",,777
-518,"Maranhao","BZE-MA","BR",107
-1181,"Australian Capital Territory","450",,861
-1182,"Avarau","451",,602
-1183,"Aves I.","452",,749
-1184,"Aves, Islas Las","453",,998
-1185,"Avgo","454",,662
-1186,"Avgo","455",,734
-1187,"Ayios Evstratios","456",,662
-1188,"Ayu Is.","457",,867
-2435,"Singapore","1988",,780
-461,"Altay","ALT-OO","RU",71
-83,"Assam","ASS","IN",34
-82,"Amsterdam-St.Paul Is.","ASP","TF",60
-2343,"Samos","1882",,627
-80,"Ascension","ASC","SH",23
-1345,"Chongqing","657",,548
-1342,"Chitral","654",,883
-1343,"Chittagong","655",,486
-1341,"Chita","652",,615
-2032,"Nanumanga","1507",,980
-59,"Southern South America","85,00","",8
-81,"Alaska","ASK","US",44
-777,"Mali","MLI-OO","ML",251
-2033,"Nanumea","1508",,980
-539,"Cabinda","CAB-OO","AO",111
-1346,"Christmas I.","658",,1020
-1347,"Christmas I.","659",,758
-2537,"Tambov","2120",,905
-1018,"West Virginia","WVA-OO","US",421
-116,"Chagos Archipelago","CGS","IO",24
-313,"Oman","OMA","OM",30
-2541,"Tanimbar Is.","2127",,763
-2637,"U.S. Line Is.","2236",,759
-1827,"Liaoning","1264",,555
-2155,"Orona","1647",,892
-967,"Thailand","THA-OO","TH",384
-205,"Italy","ITA","",13
-742,"Liberia","LBR-OO","LR",229
-2507,"Sunda","2083",,763
-55,"Caribbean","81,00","",8
-734,"Kriti","KRI-OO","GR",221
-2505,"Sumbawa","2081",,763
-921,"Santa Cruz Is.","SCZ-OO","SB",350
-480,"Antipodean Is.","ATP-OO","NZ",84
-433,"Buenos Aires","AGE-BA","AR",64
-745,"Libya","LBY-OO","LY",231
-466,"Angola","ANG-OO","AO",75
-893,"Pitcairn Is.","PIT-OO","PN",325
-874,"New Zealand North","NZN-OO","NZ",307
-663,"Bahrain","GST-BA","BH",185
-93,"Bismarck Archipelago","BIS","PG",37
-1937,"Mato Grosso do Sul","1398",,512
-38,"Australia","50,00","",5
-943,"Sulawesi","SUL-OO","ID",368
-523,"Sergipe","BZE-SE","BR",107
-871,"New Mexico","NWM-OO","US",304
-440,"La Pampa","AGE-LP","AR",64
-279,"Nicobar Is.","NCB","IN",35
-2715,"Wetar","2330",,763
-2716,"White Russia","2332",,493
-2717,"Wilkes I.","2333",,1000
-2718,"Wilkes Land","2334",,467
-2719,"Willis Is.","2335",,898
-244,"Mozambique Channel Is.","MCI","RE",24
-2109,"Northwest Territories","1594",,305
-2722,"Windward Is.","2338",,918
-2723,"Winslow Reef","2339",,892
-979,"Turkey","TUR-OO","TR",394
-619,"Cyprus","CYP-OO","CY",150
-2439,"Skiros","1995",,662
-245,"Marcus I.","MCS","JP",42
-503,"Sarawak","BOR-SR","MY",99
-861,"Australian Capital Territory","NSW-CT","AU",296
-92,"Belgium","BGM","",11
-1788,"Kuwait","1211",,738
-502,"Sabah","BOR-SB","MY",99
-409,"Venezuelan Antilles","VNA","VE",55
-1891,"Malakula","1343",,993
-2840,"Jharkhand","2487",,1035
-802,"Coahuila","MXE-CO","MX",268
-2839,"Northwest European Russia","2480",,909
-2645,"Umboi","2248",,491
-2646,"Umm Al-Qaywayn","2249",,665
-803,"Chihuahua","MXE-CU","MX",268
-2642,"Ukraine","2245",,989
-398,"Tadzhikistan","TZK","TJ",27
-2644,"Ulyanovsk","2247",,905
-2640,"Udmurtiya","2241",,906
-2641,"Uganda","2242",,987
-1614,"Herm","995",,644
-1613,"Hereheretue","994",,975
-1616,"Hermit Is.","997",,491
-727,"Kenya","KEN-OO","KE",215
-1610,"Henan","991",,568
-766,"Manitoba","MAN-OO","CA",240
-1612,"Herzegovina","993",,1024
-1611,"Henderson I.","992",,893
-2377,"São Paulo","1920",,527
-1618,"Hidalgo","999",,806
-1617,"Hervey I.","998",,602
-919,"Paracel Is.","SCS-PI","PI",349
-715,"Ivory Coast","IVO-OO","CI",206
-669,"Haiti","HAI-HA","HT",189
-384,"Thailand","THA","TH",35
-1632,"Hubei","1020",,547
-1021,"Yakutskiya","YAK-OO","RU",424
-1893,"Malaya","1345",,253
-290,"Nicaragua","NIC","NI",54
-1011,"Grenada","WIN-GR","GD",417
-2493,"Starbuck I.","2068",,758
-2494,"Stavropol","2069",,842
-1766,"Komi","1187",,907
-2486,"St.Matthew I.","2060",,472
-1888,"Makedhonia","1334",,662
-2488,"St.Paul I.","2062",,473
-2489,"St.Pierre","2064",,459
-2490,"St.Pierre-Miquelon","2065",,851
-2491,"St.Thomas","2066",,756
-2492,"St.Vincent","2067",,1014
-145,"Crozet Is.","CRZ","TF",60
-512,"Mato Grosso do Sul","BZC-MS","BR",106
-513,"Mato Grosso","BZC-MT","BR",106
-1637,"Ibiza","1028",,485
-794,"Missouri","MSO-OO","US",265
-831,"Myanmar","MYA-OO","MM",274
-740,"Labrador","LAB-OO","CA",227
-144,"Caroline Is.","CRL","",42
-1894,"Malden I.","1347",,758
-30,"Arabian Peninsula","35,00","",3
-579,"Xinjiang","CHX-OO","CN",126
-506,"British Columbia","BRC-OO","CA",102
-821,"Guerrero","MXS-GR","MX",272
-935,"Somalia","SOM-OO","SO",362
-923,"Selvagens","SEL-OO","PT",352
-683,"Chandigarh","IND-CH","IN",198
-707,"Ireland","IRE-IR","IE",201
-1994,"Moldova","1462",,988
-1036,"Chattisgarh","IND-CT","IN",198
-2153,"Orkney Is.","1644",,661
-527,"São Paulo","BZL-SP","BR",108
-2154,"Oroluk","1646",,612
-2150,"Orel","1641",,905
-2149,"Oregon","1640",,882
-2152,"Orissa","1643",,697
-2151,"Orenburg","1642",,906
-2305,"Rolas Is.","1835",,656
-2157,"O-shima","1649",,718
-2156,"O-shima","1648",,857
-789,"Northern Marianas","MRN-NM","MP",260
-1747,"King George Is.","1164",,975
-1283,"Cabrera","579",,485
-1282,"Cabras Is.","578",,656
-1279,"Buryatiya","573",,507
-1278,"Buru","572",,782
-1277,"Bunguran Selatan Is.","570",,501
-1281,"Cabinda","576",,539
-1280,"Byelorussiya","575",,493
-1787,"Kursk","1209",,905
-736,"Kentucky","KTY-OO","US",223
-1960,"Mentawai Is.","1421",,944
+1957,"Melville I.","1418",,863
+1958,"Mendoza","1419",,451
 1959,"Menorca","1420",,485
-1834,"Line Is.","1271",,235
+1960,"Mentawai Is.","1421",,944
 1961,"Mergui Archipelago","1422",,831
+1962,"Merit I.","1423",,613
 1963,"Mexican Pacific Is.","1425",,270
 1964,"Mexico Central","1427",,267
-2777,"Czech Republic","2407",,620
-1966,"Mexico Northeast","1429",,268
 1965,"Mexico Distrito Federal","1428",,796
-984,"Northern Province","TVL-NP","ZA",397
-985,"North-West Province","TVL-NW","ZA",397
-1401,"D'Arros I.","731",,459
-516,"Ceará","BZE-CE","BR",107
-585,"O'Higgins","CLC-OH","CL",128
-530,"Amazonas","BZN-AM","BR",109
-1405,"Dagestan","735",,837
-1404,"Dadra-Nagar-Haveli","734",,684
-1406,"Dahlak Is.","737",,637
-1407,"Daito Is.","739",,857
-2775,"Uruguay","2402",,990
-2562,"Terre de Haut","2151",,751
-815,"Revillagigedo Is.","MXI-RG","MX",270
-1902,"Man, Isle of","1358",,661
-814,"Rocas Alijos","MXI-RA","MX",270
-1197,"Bahia","468",,515
-1194,"Badu I.","465",,899
-1193,"Babelthaup","464",,613
-1196,"Bahawalpur","467",,883
-1195,"Baffin I.","466",,872
-1190,"Azerbaydzhan","460",,960
-1192,"Babase I.","463",,933
-1191,"Babar Is.","462",,763
-1,"Europe","1,00",,
-1836,"Linosa","1273",,928
-964,"Tristan da Cunha","TDC-OO","SH",381
-2569,"The Netherlands","2158",,846
-731,"North Korea","KOR-NK","KP",219
-1561,"Greece","936",,662
-753,"Netherlands Leeward Is.","LEE-NL","AN",233
-2043,"Near I.","1519",,462
-2042,"Ndeni I.","1518",,921
-2039,"Navassa I.","1515",,670
-2038,"Nauru","1514",,859
-2041,"Nayarit","1517",,824
-2040,"Naxos","1516",,662
-1837,"Lipari Is.","1274",,928
-2035,"Narcondom I.","1510",,464
-2037,"Natuna Is.","1513",,501
-441,"Misiones","AGE-MI","AR",64
-521,"Piauí","BZE-PI","BR",107
-770,"Mozambique Channel Is.","MCI-OO","RE",244
-1393,"Cuba","722",,617
-519,"Paraíba","BZE-PB","BR",107
-520,"Pernambuco","BZE-PE","BR",107
-359,"South Australia","SOA","AU",38
-360,"Socotra","SOC","YE",19
-932,"Socotra","SOC-OO","YE",360
-886,"Panamá","PAN-OO","PA",318
-622,"Delaware","DEL-OO","US",152
-361,"Solomon Is.","SOL","",37
-759,"U.S. Line Is.","LIN-US","UM",235
-175,"Gambia, The","GAM","GM",17
-174,"Galápagos","GAL","EC",57
-1839,"Lipsoi","1276",,627
-616,"Chatham Is.","CTM-OO","NZ",147
-173,"Gabon","GAB","GA",18
-515,"Bahia","BZE-BA","BR",107
-266,"Mauritania","MTN","MR",17
-79,"Aruba","ARU","AW",55
-898,"Coral Sea Is. Territory","QLD-CS","AU",330
-1101,"Alaska","357",,472
-1100,"Alamagan","356",,789
-1099,"Alagoas","355",,514
-1098,"Alabama","354",,457
-1097,"Al Manamah","353",,663
-1096,"Al Fujayrah","352",,665
-1095,"Aitutaki","351",,602
-1094,"Aisén","350",,592
-77,"Arizona","ARI","US",50
-78,"Arkansas","ARK","US",52
-2549,"Tauu Is.","2136",,933
-1103,"Alboran","359",,938
-1102,"Alberta","358",,431
-185,"Gulf States","GST","",30
-2405,"Serrana Bank","1952",,947
-51,"South-Central U.S.A.","77,00","",7
-403,"Uzbekistan","UZB","UZ",27
-810,"Tamaulipas","MXE-TA","MX",268
-554,"Jilin","CHM-JL","CN",121
-9,"Antarctic","9,00",,
-2708,"West Kazakhstan","2322",,908
-2707,"West Germany","2320",,652
-2712,"Western Australia","2327",,414
-104,"Bulgaria","BUL","BG",13
-2710,"West Virginia","2325",,1018
-1981,"Mindoro","1446",,891
-660,"Greenland","GNL-OO","GL",182
-2713,"Western Sahara","2328",,1016
-1980,"Mindanao","1445",,891
-1979,"Minas Gerais","1444",,525
-218,"Khabarovsk","KHA","RU",26
-292,"Nansei-shoto","NNS","JP",33
-11,"Middle Europe","11,00","",1
-626,"Desventurados Is.","DSV-OO","CL",156
+1966,"Mexico Northeast","1429",,268
+1967,"Mexico Northwest","1430",,271
+1968,"Mexico Southeast","1431",,273
+1969,"Mexico Southwest","1432",,272
+1970,"México State","1433",,797
+1971,"Michigan","1434",,775
+1972,"Michoacán","1435",,823
+1973,"Micronesia Federated States","1436",,612
+1974,"Middle I.","1438",,964
+1975,"Middleton Reef","1439",,848
 1976,"Midway Is.","1440",,673
-617,"Cuba","CUB-OO","CU",148
+1977,"Mikura-jima","1441",,718
+1978,"Milos","1442",,662
+1979,"Minas Gerais","1444",,525
+1980,"Mindanao","1445",,891
+1981,"Mindoro","1446",,891
+1982,"Minicoy Is.","1447",,746
+1983,"Minnesota","1448",,776
+1984,"Misiones","1450",,441
+1985,"Miskito Cays","1451",,949
+1986,"Misool","1452",,867
+1987,"Mississippi","1453",,793
+1988,"Missouri","1454",,794
+1989,"Mitre I.","1455",,921
+1990,"Miyake-jima","1456",,718
+1991,"Miyako","1457",,857
+1992,"Mizoram","1458",,477
+1993,"Moa I.","1459",,899
+1994,"Moldova","1462",,988
+1995,"Molokai","1463",,671
+1996,"Mona I.","1465",,897
+1997,"Monaco","1466",,646
+1998,"Mongolia","1467",,783
+1999,"Mongolia, Inner","1468",,120
+2000,"Mono I.","1470",,934
+2001,"Montana","1471",,781
+2002,"Montenegro","1472",,1028
+2003,"Montserrat","1473",,752
+2004,"Moorea","1474",,918
+2005,"Morant Cays","1475",,716
+2006,"Mordoviya","1476",,905
+2007,"Morelos","1477",,798
+2008,"Morocco","1478",,784
+2009,"Morocco","1479",,257
+2010,"Mortlock I.","1480",,612
+2011,"Moscow","1482",,905
+2012,"Mozambique","1483",,786
+2013,"Mozambique Channel Is.","1484",,770
+2014,"Muko-jima","1486",,877
+2015,"Murmansk","1488",,907
+2016,"Murray I.","1489",,899
+2017,"Mururoa","1490",,975
+2018,"Muscat","1491",,880
+2019,"Mussau","1492",,491
+2020,"Mustique","1493",,1014
+2021,"Myanmar","1494",,831
+2022,"Myojin-jima","1495",,718
+2023,"Nagaland","1496",,478
+2024,"Nagar Haveli","1497",,684
+2025,"Nagorno Karabakh","1498",,963
+2026,"Nakano-shima","1499",,857
+2027,"Nakhichevan","1500",,962
+2028,"Namibia","1502",,832
+2029,"Namonuito","1503",,612
+2030,"Nan-sha","1504",,920
+2031,"Nansei-Shoto","1506",,857
+2032,"Nanumanga","1507",,980
+2033,"Nanumea","1508",,980
+2034,"Nanusa Is.","1509",,943
+2035,"Narcondom I.","1510",,464
+2036,"Nassau I.","1511",,970
+2037,"Natuna Is.","1513",,501
+2038,"Nauru","1514",,859
+2039,"Navassa I.","1515",,670
+2040,"Naxos","1516",,662
+2041,"Nayarit","1517",,824
+2042,"Ndeni I.","1518",,921
+2043,"Near I.","1519",,462
+2044,"Nebraska","1520",,844
+2045,"Necker I.","1521",,671
+2046,"Negeri Sembilan","1522",,779
+2047,"Negros","1525",,891
+2048,"Nei Mongol","1526",,551
+2049,"Nepal","1527",,845
+2050,"Netherlands","1528",,846
+2051,"Netherlands Antilles","1529",,291
+2052,"Netherlands Leeward Is.","1531",,753
+2053,"Neuquén","1532",,443
+2054,"Nevada","1533",,847
+2055,"Nevis","1534",,754
+2056,"New Brunswick","1535",,834
+2057,"New Britain","1536",,491
+2058,"New Caledonia","1537",,866
+2059,"New Georgia","1538",,934
+2060,"New Guinea","1539",,301
+2061,"New Hampshire","1540",,869
+2062,"New Hanover","1541",,491
+2063,"New Ireland","1543",,491
+2064,"New Jersey","1544",,870
+2065,"New Mexico","1545",,871
+2066,"New Providence","1546",,484
+2067,"New South Wales","1548",,862
+2068,"New South Wales","1549",,296
+2069,"New York","1550",,873
+2070,"New Zealand North","1551",,874
+2071,"New Zealand South","1552",,875
+2072,"Newfoundland I.","1553",,850
+2073,"Newfoundland","1554",,287
+2074,"Ngatik","1555",,612
+2075,"Nias","1556",,944
+2076,"Nicaragua","1557",,854
+2077,"Nicaraguan Caribbean Is.","1558",,949
+2078,"Nicholson I.","1559",,864
 2079,"Nicobar Is.","1560",,836
 2080,"Niger","1561",,853
-1640,"Ifni","1031",,784
-899,"Queensland","QLD-QU","AU",330
-782,"Maluku","MOL-OO","ID",255
+2081,"Nigeria","1562",,852
 2082,"Nightingale I.","1563",,964
-2427,"Sierra Leone","1980",,929
 2083,"Nihoa","1564",,671
-436,"Córdoba","AGE-CO","AR",64
-435,"Corrientes","AGE-CN","AR",64
-434,"Chaco","AGE-CH","AR",64
 2084,"Nii-jima","1565",,718
-758,"Kiribati Line Is.","LIN-KI","KI",235
 2085,"Niihua","1566",,671
-2651,"Ust-Ordinskiy Buryat","2259",,709
 2086,"Nikumaroro","1567",,892
-487,"Benin","BEN-OO","BJ",90
-2649,"Union","2252",,1014
-2648,"Union Is.","2251",,972
-2647,"Unimak I.","2250",,462
-2838,"North European Russia","2477",,907
-2837,"East European Russia","2476",,906
-1608,"Heilongjiang","988",,553
-2835,"Eritrea","2474",,637
-2834,"Ukraine","2473",,400
-505,"Bouvet I.","BOU-OO","BV",101
-1602,"Hawai'i","982",,190
-1603,"Hawai'i","983",,671
-1601,"Haryana","980",,690
-1606,"Heard-McDonald Is.","986",,675
-1607,"Hebei","987",,558
-1604,"Hawai'ian Is.","984",,671
-5,"Australasia","5,00",,
-1574,"Guanajuato","950",,805
-562,"Tianjin","CHN-TJ","CN",122
-2584,"Tlaxcala","2176",,800
-1889,"Makemo","1336",,975
-781,"Montana","MNT-OO","US",254
-546,"Guizhou","CHC-GZ","CN",118
-335,"Romania","ROM","RO",13
-845,"Nepal","NEP-OO","NP",283
-334,"Rodrigues","ROD","MU",24
-706,"Iowa","IOW-OO","US",200
-640,"Fiji","FIJ-OO","FJ",167
-2497,"Stoltenhoff I.","2072",,964
-2496,"Stewart Is.","2071",,934
-526,"Rio de Janeiro","BZL-RJ","BR",108
-2502,"Sulu Is.","2077",,891
-2501,"Sulawesi","2076",,943
-2500,"Sula Is.","2075",,782
-2499,"Sudan","2074",,942
-895,"Portugal","POR-OO","PT",327
-999,"Virginia","VRG-OO","US",410
-2607,"Treasury Is.","2202",,934
-2702,"Washington I.","2313",,758
-1474,"Espiritu Santo","824",,993
-134,"Canary Is.","CNY","ES",16
-2276,"Rakahanga","1795",,970
-847,"Nevada","NEV-OO","US",285
-537,"Rio Grande do Sul","BZS-RS","BR",110
-542,"Cayman Is.","CAY-OO","KY",114
-574,"Macau","CHS-MA","MO",124
-2275,"Rajaswaree Reef","1794",,459
-2700,"Walvis Bay","2311",,832
-775,"Michigan","MIC-OO","US",249
-2470,"Spitsbergen","2038",,946
-953,"Taiwan","TAI-OO","TW",376
-575,"Ma-tsu-Pai-chúan","CHS-MP","TW",124
-196,"Idaho","IDA","US",47
+2087,"Nikunau","1568",,658
+2088,"Ningxia","1570",,552
+2089,"Ninigo Is.","1571",,491
+2090,"Nishino-shima","1572",,877
+2091,"Nissan","1573",,933
+2092,"Niuafoou","1574",,973
+2093,"Niuatoputapu","1575",,973
+2094,"Niue","1576",,864
+2095,"Niulakita","1577",,980
+2096,"Niutao","1578",,980
+2097,"Nizhny Novgorod","1579",,905
+2098,"Nomuka","1580",,973
+2099,"Norfolk I.","1581",,849
+2100,"North Carolina","1584",,835
+2101,"North Caucasus","1585",,280
+2102,"North Dakota","1586",,843
+2103,"North Korea","1587",,731
+2104,"North Solomons","1588",,933
+2105,"North Yemen","1589",,1022
+2106,"Northern Ireland","1590",,708
+2107,"Northern Marianas","1591",,789
+2108,"Northern Territory","1593",,863
+2109,"Northwest Territories","1594",,305
+2110,"Norway","1595",,858
+2111,"Norwegian Antarctic Territory","1596",,467
+2112,"Nottingham I.","1597",,872
+2113,"Nova Scotia","1598",,860
+2114,"Novaya Zemlya","1599",,1017
+2115,"Novgorod","1600",,909
+2116,"Novosibirsk","1601",,1017
+2117,"Novosibirskiye Ostrova","1602",,1021
+2118,"Nueva Esparta","1603",,998
+2119,"Nuevo León","1604",,807
+2120,"Nuguria Is.","1605",,933
+2121,"Nui","1606",,980
+2122,"Nuku Hiva","1607",,790
+2123,"Nukufetau","1608",,980
+2124,"Nukulaelae","1609",,980
+2125,"Nukumanu Is.","1610",,933
+2126,"Nukunono","1612",,972
+2127,"Nukuoro","1613",,612
+2128,"Nupani I.","1614",,921
+2129,"Oahu","1617",,671
+2130,"Oaxaca","1618",,825
+2131,"Obi Is.","1619",,782
+2132,"Oeno I.","1622",,893
+2133,"Ofu","1623",,912
+2134,"Ogasawara-shoto","1624",,877
+2135,"O'Higgins","1625",,585
+2136,"Ohio","1626",,878
+2137,"Oki","1627",,718
+2138,"Okina Daito","1628",,857
+2139,"Okinawa","1629",,857
 2140,"Okinoeraba-shima","1630",,857
 2141,"Oklahoma","1631",,879
 2142,"Olosega","1632",,912
@@ -2735,109 +2146,698 @@
 2145,"Onotoa","1635",,658
 2146,"Ontario","1636",,881
 2147,"Ontong Java","1637",,934
-762,"East Timor","LSI-ET","TP",237
 2148,"Orchila I.","1639",,998
-492,"Burkina","BKN-OO","BF",94
-2617,"Tsushima","2215",,719
-890,"Peru","PER-OO","PE",322
-1384,"Corse","706",,603
-1275,"Buka","568",,933
-1276,"Bunguran Is.","569",,501
-2749,"Yugoslavia","2369",,426
-1270,"British Somaliland","561",,935
-1271,"British Virgin Is.","562",,750
-1272,"Bryansk","564",,905
-1273,"Buenos Aires","565",,433
-1274,"Bugio","567",,773
-2747,"Yucatán","2367",,830
-965,"Tennessee","TEN-OO","US",382
-148,"Cuba","CUB","CU",55
-41,"South-Central Pacific","61,00","",6
-2745,"Yonaguni","2365",,857
-2587,"Tobago I.","2179",,750
-1767,"Korea","1189",,219
-1765,"Komba","1186",,763
-417,"Windward Is.","WIN","",55
-1763,"Kodiak I.","1184",,472
-1764,"Komandor Is.","1185",,723
-1761,"Kobisho","1182",,857
-1762,"Koch Bihar","1183",,703
-1759,"Kittery I.","1180",,671
-1760,"Ko Way","1181",,997
-1397,"Curaçao","726",,856
-1398,"Curtis I.","727",,728
-1395,"Culebra I.","724",,897
-1396,"Culpepper I.","725",,649
-739,"Kazan-retto","KZN-OO","JP",226
-1394,"Cubagua","723",,998
-1391,"Crooked I.","720",,484
-1392,"Crozet Is.","721",,614
-488,"Bermuda","BER-OO","BM",91
+2149,"Oregon","1640",,882
+2150,"Orel","1641",,905
+2151,"Orenburg","1642",,906
+2152,"Orissa","1643",,697
+2153,"Orkney Is.","1644",,661
+2154,"Oroluk","1646",,612
+2155,"Orona","1647",,892
+2156,"O-shima","1648",,857
+2157,"O-shima","1649",,718
+2158,"Osumi-shoto","1651",,719
+2159,"Pagan","1655",,789
+2160,"Pahang","1656",,779
+2161,"Pakistan","1657",,883
+2162,"Pakistan East","1658",,486
+2163,"Palau","1659",,613
+2164,"Palau Is.","1660",,613
+2165,"Palawan","1661",,891
+2166,"Palestine","1662",,317
+2167,"Palliser Is.","1663",,975
+2168,"Palmyra I.","1665",,759
+2169,"Panamá","1666",,886
+2170,"Panamá Canal Zone","1667",,886
+2171,"Panay","1668",,891
+2172,"Pandaidori Is.","1669",,867
+2173,"Pandora Bank","1670",,921
+2174,"Pantelleria","1672",,928
+2175,"Papua New Guinea","1673",,868
+2176,"Pará","1674",,532
+2177,"Paracel Is.","1675",,919
+2178,"Paraguay","1676",,887
+2179,"Paraíba","1677",,519
+2180,"Paraná","1678",,536
+2181,"Parang","1679",,721
+2182,"Parece Vela","1680",,739
+2183,"Paros","1681",,662
+2184,"Parry Is.","1682",,872
+2185,"Patagonia","1684",,65
+2186,"Patmos","1685",,627
+2187,"Patos I.","1686",,994
+2188,"Paumotu","1687",,975
+2189,"Peale I.","1688",,1000
+2190,"Pedra da Gale","1689",,655
+2191,"Pedro Cays","1690",,716
+2192,"Pelagie Is.","1692",,928
+2193,"Peloponnisos","1693",,662
+2194,"Pemba I.","1694",,954
+2195,"P'eng-hu Lieh-tao","1696",,953
+2196,"Penida","1697",,761
+2197,"Pennisular Malaysia","1698",,779
+2198,"Penju Is.","1699",,782
+2199,"Pennsylvania","1700",,889
+2200,"Pentecost I.","1702",,993
+2201,"Penza","1703",,905
+2202,"Perak","1704",,779
+2203,"Perim","1705",,1023
+2204,"Perlas Is.","1706",,886
+2205,"Perlis","1707",,779
+2206,"Perm","1708",,906
+2207,"Pernambuco","1709",,520
+2208,"Peru","1711",,890
+2209,"Peter I Oy","1713",,467
+2210,"Petite Terre, Isles de la","1714",,751
+2211,"Philippines","1715",,891
+2212,"Phillip I.","1716",,849
+2213,"Phoenix Is.","1717",,892
+2214,"Phu Quoc","1718",,997
+2215,"Piauí","1719",,521
+2216,"Pico","1720",,483
+2217,"Pinang","1721",,779
+2218,"Pingelap","1723",,612
+2219,"Pinipel I.","1724",,933
+2220,"Pins, Ile des","1726",,866
+2221,"Pinta I.","1727",,649
+2222,"Pitcairn","1728",,893
+2223,"Pitcairn Is.","1729",,893
+2224,"Pitt I.","1730",,616
+2225,"Platte Is.","1731",,459
+2226,"Pohnpei","1732",,612
+2227,"Poivre","1733",,459
+2228,"Poland","1734",,894
+2229,"Pondicherry","1736",,698
+2230,"Porto Santo","1738",,773
+2231,"Portugal","1739",,895
+2232,"Portuguese Congo","1740",,466
 2233,"Possession I.","1745",,614
 2234,"Praslin I.","1747",,925
-2232,"Portuguese Congo","1740",,466
-1399,"Cyprus","729",,619
-960,"Azerbaijan","TCS-AZ","AZ",380
-1748,"King George V Land","1165",,467
-830,"Yucatán","MXT-YU","MX",273
-1750,"Kingsmill Is.","1167",,658
-1743,"Kikai-shima","1160",,857
-1744,"Kikladhes","1161",,662
-1745,"Kilinailau","1162",,933
-1746,"Kin-Men","1163",,573
-959,"Armenia","TCS-AR","AM",380
-1751,"Kirgizistan","1169",,729
-265,"Missouri","MSO","US",48
-264,"Mississippi","MSI","US",52
-957,"Abkhaziya","TCS-AB","GE",380
-712,"Italy","ITA-IT","IT",205
-958,"Adzhariya","TCS-AD","GE",380
-892,"Phoenix Is.","PHX-OO","KI",324
-1076,"Bulgaria","48",,508
-1077,"Burkina","49",,492
-1074,"British Indian Ocean Territory","46",,544
-1075,"Brunei","47",,500
-1073,"British Antarctic Territory","45",,467
-1071,"Botswana","42",,504
-1072,"Bougainville","43",,933
-1070,"Borneo","40",,99
-2087,"Nikunau","1568",,658
+2235,"Preparis I.","1750",,465
+2236,"Pribilov Is.","1751",,472
+2237,"Primorye","1753",,896
+2238,"Prince Edward I.","1754",,888
+2239,"Prince Edward I.","1755",,787
+2240,"Prince of Wales I.","1756",,472
+2241,"Prince of Wales I.","1757",,872
+2242,"Prince of Wales I.","1759",,899
+2243,"Princess Elizabeth Land","1760",,467
+2244,"Principe","1761",,655
+2245,"Providence group","1762",,459
+2246,"Providence I.","1763",,459
+2247,"Providencia I.","1764",,947
+2248,"Psara","1765",,627
+2249,"Pskov","1766",,909
+2250,"Puebla","1767",,799
+2251,"Puerto Rico","1768",,897
+2252,"Pukapuka","1769",,970
+2253,"Pukapuka","1770",,975
+2254,"Pulo Ana","1771",,613
+2255,"Punjab","1772",,699
+2256,"Punjab","1773",,883
+2257,"Purdy Is.","1774",,491
+2258,"Qatar","1775",,664
+2259,"Qinghai","1776",,123
+2260,"Québec","1777",,900
+2261,"Queen Charlotte Is.","1778",,506
+2262,"Queen Elizabeth Is.","1779",,872
+2263,"Queen Mary Land","1780",,467
+2264,"Queensland","1781",,899
+2265,"Queensland","1782",,330
+2266,"Querétaro","1785",,808
+2267,"Quintana Roo","1786",,828
+2268,"Quita Sueño","1787",,947
+2269,"Rabi","1788",,640
+2270,"Raeffsky Is.","1789",,975
+2271,"Ragged I.","1790",,484
+2272,"Raiatea","1791",,918
+2273,"Raivavae","1792",,976
+2274,"Rajasthan","1793",,700
+2275,"Rajaswaree Reef","1794",,459
+2276,"Rakahanga","1795",,970
+2277,"Ralik chain","1796",,791
+2278,"Rangiroa","1798",,975
+2279,"Raoul I.","1799",,728
+2280,"Rapa-Iti","1802",,976
+2281,"Raroia","1803",,975
+2282,"Rarotonga","1804",,602
+2283,"Rasa-shima","1806",,857
+2284,"Ratak chain","1807",,791
+2285,"Rawaki","1808",,892
+2286,"Redonda","1809",,747
+2287,"Remire","1811",,459
+2288,"Rennell I.","1812",,934
+2289,"Réunion","1813",,901
+2290,"Revillagigedo Is.","1814",,815
+2291,"Rhode I.","1815",,902
+2292,"Riau Is.","1820",,944
+2293,"Rimatara","1821",,976
+2294,"Rio de Janeiro","1822",,526
+2295,"Rio Grande do Norte","1824",,522
+2296,"Rio Grande do Sul","1825",,537
+2297,"Rio Negro","1827",,444
+2298,"Roatan","1828",,948
+2299,"Robinson Crusoe I.","1829",,722
+2300,"Roca Catedral","1830",,626
+2301,"Rocas Alijos","1831",,814
+2302,"Rockall","1832",,661
+2303,"Rhodos","1833",,627
+2304,"Rodrigues","1834",,903
+2305,"Rolas Is.","1835",,656
+2306,"Romania","1836",,904
+2307,"Roncador Cay","1837",,947
+2308,"Ronde","1838",,1011
+2309,"Rondônia","1839",,534
+2310,"Roraima","1841",,533
+2311,"Rose I.","1842",,912
+2312,"Ross Dependency","1843",,467
+2313,"Rossel I.","1844",,868
+2314,"Rostov","1845",,908
+2315,"Rota","1846",,789
+2316,"Rotuma","1847",,640
+2317,"Round I.","1848",,769
+2318,"Rurutu","1851",,976
+2319,"Russell Is.","1852",,934
+2320,"Rwanda","1859",,910
+2321,"Ryazan","1860",,905
+2322,"Ryukyu Is.","1861",,857
+2323,"Saba","1862",,753
+2324,"Sabah","1863",,502
+2325,"Sabalana Is.","1864",,943
+2326,"Sable I.","1865",,860
+2327,"Sable I.","1866",,866
+2328,"Saibai I.","1867",,899
+2329,"Saintes, Iles des","1868",,751
+2330,"Saipan","1869",,789
+2331,"Sakala","1870",,721
+2332,"Sakhalin","1871",,911
+2333,"Sakishima-gunto","1872",,857
+2334,"Sala y Gomez","1873",,628
+2335,"Salta","1874",,452
+2336,"Salvador, El","1875",,635
+2337,"Salvage Is.","1876",,923
+2338,"Samana Cay","1877",,484
+2339,"Samar","1878",,891
+2340,"Samara","1879",,906
+2341,"Samhah I.","1880",,932
+2342,"Samoa","1881",,343
+2343,"Samos","1882",,627
+2344,"Samothraki","1884",,662
+2345,"San Ambrosio I.","1885",,626
+2346,"San Andrés I.","1886",,947
+2347,"San Clemente I.","1887",,541
+2348,"San Cristobal","1888",,649
+2349,"San Cristobal","1889",,934
+2350,"San Felix I.","1890",,626
+2351,"San Juan","1891",,454
+2352,"San Luis","1892",,455
+2353,"San Luis Potosí","1893",,809
+2354,"San Marino","1894",,713
+2355,"San Miguel I.","1895",,541
+2356,"San Nicolas I.","1896",,541
+2357,"San Salvador","1897",,484
+2358,"San Salvador","1898",,649
+2359,"Sanak I.","1899",,462
+2360,"Sand I.","1900",,673
+2361,"Sangir Is.","1902",,943
+2362,"Santa Catalina I.","1903",,541
+2363,"Santa Catarina","1904",,538
+2364,"Santa Cruz I.","1905",,541
+2365,"Santa Cruz I.","1906",,649
+2366,"Santa Cruz Is.","1907",,921
+2367,"Santa Cruz","1908",,445
+2368,"Santa Fé","1909",,446
+2369,"Santa Isabel","1910",,934
+2370,"Santa Maria","1911",,483
+2371,"Santa Maria I.","1912",,993
+2372,"Santa Maria I.","1913",,649
+2373,"Santa Rosa I.","1914",,541
+2374,"Santiago","1916",,586
+2375,"Santiago del Estero","1917",,453
+2376,"Sao Jorge","1919",,483
+2377,"São Paulo","1920",,527
+2378,"São Pedro e São Paulo","1921",,517
+2379,"São Tomé","1922",,656
+2380,"Sarangani Is.","1923",,891
+2381,"Saratov","1924",,908
+2382,"Sarawak","1925",,503
+2383,"Sardegna","1926",,914
+2384,"Saria","1928",,734
+2385,"Sarigan","1929",,789
+2386,"Sark","1930",,644
+2387,"Saskatchewan","1931",,915
+2388,"Saudi Arabia","1932",,916
+2389,"Savaii","1933",,913
+2390,"Savu","1934",,763
+2391,"Scotland","1937",,661
+2392,"Scott I.","1938",,467
+2393,"Seal Cays","1939",,956
+2394,"Seal I.","1940",,671
+2395,"Selangor","1942",,779
+2396,"Selvagens","1943",,923
+2397,"Senegal","1944",,924
+2398,"Senkaku-gunto","1945",,857
+2399,"Sepanjang","1946",,721
+2400,"Seram","1947",,782
+2401,"Serbia","1948",,1029
+2402,"Sergeya Kirova Ostrova","1949",,733
+2403,"Sergipe","1950",,523
+2404,"Sermata Is.","1951",,763
+2405,"Serrana Bank","1952",,947
+2406,"Serranilla Bank","1953",,947
+2407,"Sete Pedras Is.","1954",,656
+2408,"Severnaya Zemlya","1955",,733
+2409,"Severo-Osetiya","1956",,841
+2410,"Seychelles","1957",,925
+2411,"Shaanxi","1958",,559
+2412,"Shag Rocks","1959",,926
+2413,"Shandong","1960",,560
+2414,"Shanghai","1961",,571
+2415,"Shantarskiye Ostrova","1963",,730
+2416,"Shanxi","1965",,561
+2417,"Shepherd I.","1968",,993
+2418,"Shetland Is.","1969",,661
+2419,"Shikine-jima","1970",,718
+2420,"Shikoku","1971",,720
+2421,"Shikotan","1972",,737
+2422,"Shortland Is.","1973",,934
+2423,"Sichuan","1976",,548
+2424,"Sicilia","1977",,928
+2425,"Sicilia","1978",,356
+2426,"Sicily","1979",,928
+2427,"Sierra Leone","1980",,929
+2428,"Sikkim","1981",,634
+2429,"Silhouette I.","1982",,925
+2430,"Simeulue","1983",,944
+2431,"Simi","1984",,627
+2432,"Sinai","1985",,930
+2433,"Sinaloa","1986",,818
+2434,"Sind","1987",,883
+2435,"Singapore","1988",,780
+2436,"Sint Eustatius","1991",,753
+2437,"Sint Maarten","1992",,753
+2438,"Sirna","1993",,662
+2439,"Skiros","1995",,662
+2440,"Skopelos Kaloyeroi","1996",,662
+2441,"Smolensk","1998",,905
+2442,"Snake I.","1999",,748
+2443,"Snares I.","2000",,875
+2444,"Society Is.","2001",,918
+2445,"Socotra","2002",,932
+2446,"Sofu-gan","2003",,718
+2447,"Solomon Is.","2005",,361
+2448,"Solor Is.","2006",,763
+2449,"Somalia","2007",,935
+2450,"Somaliland, British","2009",,935
+2451,"Somaliland, Italian","2011",,935
+2452,"Sombrero","2012",,748
+2453,"Sonora","2013",,819
+2454,"Sonsorol","2014",,613
+2455,"South Australia","2017",,931
+2456,"South Carolina","2018",,917
+2457,"South China Sea","2019",,349
+2458,"South Dakota","2020",,922
+2459,"South Georgia","2021",,926
+2460,"South Korea","2022",,732
+2461,"South Orkney Is.","2023",,467
+2462,"South Sandwich Is.","2024",,940
+2463,"South Shetland Is.","2025",,467
+2464,"South Solomons","2026",,934
+2465,"South Yemen","2028",,1023
+2466,"Southampton I.","2029",,865
+2467,"Southwest Caribbean","2031",,372
+2468,"Spain","2032",,938
+2469,"Spain","2033",,363
+2470,"Spitsbergen","2038",,946
+2471,"Spratly Is.","2040",,920
+2472,"Sri Lanka","2042",,939
+2473,"St.Anne I.","2043",,925
+2474,"St.Barthélémy","2044",,755
+2475,"St.Brandon","2046",,769
+2476,"St.Croix","2048",,756
+2477,"St.Helena","2050",,941
+2478,"St.John","2051",,756
+2479,"St.Kilda","2052",,661
+2480,"St.Kitts-Nevis","2053",,754
+2481,"St.Kitts","2054",,754
+2482,"St.Lawrence I.","2055",,472
+2483,"St.Lucia","2056",,1013
+2484,"St.Martin-St.Barthélémy","2057",,755
+2485,"St.Martin","2058",,755
+2486,"St.Matthew I.","2060",,472
+2487,"St.Matthias Is.","2061",,491
+2488,"St.Paul I.","2062",,473
+2489,"St.Pierre","2064",,459
+2490,"St.Pierre-Miquelon","2065",,851
+2491,"St.Thomas","2066",,756
+2492,"St.Vincent","2067",,1014
+2493,"Starbuck I.","2068",,758
+2494,"Stavropol","2069",,842
+2495,"Stewart I.","2070",,875
+2496,"Stewart Is.","2071",,934
+2497,"Stoltenhoff I.","2072",,964
+2498,"Stromboli","2073",,928
+2499,"Sudan","2074",,942
+2500,"Sula Is.","2075",,782
+2501,"Sulawesi","2076",,943
+2502,"Sulu Is.","2077",,891
+2503,"Sumatera","2078",,944
+2504,"Sumba","2080",,763
+2505,"Sumbawa","2081",,763
+2506,"Sumisu-jima","2082",,718
+2507,"Sunda","2083",,763
+2508,"Surinam","2085",,945
+2509,"Suvorov I.","2086",,970
+2510,"Suwanose-jima","2087",,857
+2511,"Svalbard","2089",,946
+2512,"Sverdlovsk","2090",,1017
+2513,"Swains I.","2092",,971
+2514,"Swallow Is.","2093",,921
+2515,"Swallow Reef","2094",,920
+2516,"Swan Is.","2095",,948
+2517,"Swat","2096",,883
+2518,"Swaziland","2097",,952
+2519,"Sweden","2098",,950
+2520,"Switzerland","2099",,951
+2521,"Sylhet","2101",,486
+2522,"Syria","2102",,744
+2523,"Tabar Is.","2105",,491
+2524,"Tabasco","2106",,829
+2525,"Tabiteuea","2107",,658
+2526,"Table I.","2108",,465
+2527,"Tabuaeran","2109",,758
+2528,"Tadzhikistan","2110",,986
+2529,"Tafahi","2111",,973
+2530,"Tahaa","2112",,918
+2531,"Tahiti","2113",,918
+2532,"Taiwan","2114",,953
+2533,"Talaud Is.","2116",,943
+2534,"Tamana","2117",,658
+2535,"Tamaulipas","2118",,810
+2536,"Tambelan Is.","2119",,501
+2537,"Tambov","2120",,905
+2538,"Tamil Nadu","2121",,701
+2539,"Tanega","2123",,857
+2540,"Tanga Is.","2124",,491
+2541,"Tanimbar Is.","2127",,763
+2542,"Tanna","2128",,993
+2543,"Tanzania","2129",,954
+2544,"Tarapacá","2130",,591
+2545,"Tarawa","2131",,658
+2546,"Tasmania","2133",,955
+2547,"Tartariya","2134",,906
+2548,"Tau","2135",,912
+2549,"Tauu Is.","2136",,933
+2550,"Taveuni","2137",,640
+2551,"Tawitawi","2138",,891
+2552,"Taymyr","2139",,733
+2553,"Tenasserim","2141",,831
+2554,"Tenerife","2143",,597
+2555,"Tengah Is.","2144",,943
+2556,"Tennessee","2145",,965
+2557,"Teraina","2146",,758
+2558,"Terceira","2147",,483
+2559,"Terengganu","2148",,779
+2560,"Terra Adelie","2149",,467
+2561,"Terre de Bas","2150",,751
+2562,"Terre de Haut","2151",,751
+2563,"Testigos, Los","2152",,998
+2564,"Tetiaroa","2153",,918
+2565,"Texas","2154",,966
+2566,"Thailand","2155",,967
+2567,"Thasos","2156",,662
+2568,"The Gambia","2157",,650
+2569,"The Netherlands","2158",,846
+2570,"Thira","2159",,662
+2571,"Thitu Is.","2160",,920
+2572,"Three Kings Is.","2161",,874
+2573,"Thursday I.","2162",,899
+2574,"Tianjin","2163",,558
+2575,"Tibet-Qinghai","2165",,125
+2576,"Tierra del Fuego (Argentina)","2168",,447
+2577,"Tierra del Fuego (Chile)","2169",,594
+2578,"Tikopia I.","2170",,921
+2579,"Tilos","2171",,627
+2580,"Timor","2172",,763
+2581,"Tinhosa I.","2173",,655
+2582,"Tinian","2174",,789
+2583,"Tinos","2175",,662
+2584,"Tlaxcala","2176",,800
+2585,"To-shima","2177",,718
+2586,"Tobago","2178",,974
+2587,"Tobago I.","2179",,750
+2588,"Tobi","2180",,613
+2589,"Tocantins","2181",,535
+2590,"Tofua","2182",,973
+2591,"Togo","2183",,969
+2592,"Tok-to","2184",,718
+2593,"Tokara-retto","2185",,857
+2594,"Tokuno-shima","2187",,857
+2595,"Tolokiwa I.","2188",,491
+2596,"Tomsk","2189",,1017
+2597,"Tonga","2190",,973
+2598,"Tongareva","2191",,970
+2599,"Tongatapu Is.","2192",,973
+2600,"Tonkin","2193",,997
+2601,"Tori-shima","2194",,718
+2602,"Torres Is.","2195",,993
+2603,"Tortola","2196",,750
+2604,"Tortuga, La","2197",,998
+2605,"Transcaucasus","2198",,380
+2606,"Transkei","2200",,608
+2607,"Treasury Is.","2202",,934
+2608,"Tregosse Islets","2203",,898
+2609,"Trindade","2205",,528
+2610,"Trinidad","2206",,974
+2611,"Trinidad-Tobago","2207",,974
+2612,"Tripura","2208",,479
+2613,"Tristan da Cunha","2209",,964
+2614,"Trobriand Is.","2210",,868
+2615,"Tromelin I.","2211",,901
+2616,"Truk","2213",,612
+2617,"Tsushima","2215",,719
+2618,"Tuamotu","2216",,975
+2619,"Tubuai I.","2217",,976
+2620,"Tucumán","2218",,456
+2621,"Tukangbesi Is.","2219",,943
+2622,"Tula","2220",,908
+2623,"Tunisia","2221",,978
+2624,"Turkey","2222",,979
+2625,"Turkey-in-Europe","2223",,977
+2626,"Turkmenistan","2224",,968
+2627,"Turks Is.","2226",,956
+2628,"Turks-Caicos Is.","2227",,956
+2629,"Turtle I.","2228",,898
+2630,"Turtle I.","2229",,1004
+2631,"Tutuila","2230",,912
+2632,"Tuva","2231",,981
+2633,"Tuvalu","2232",,980
+2634,"Tuvinskaya A.S.S.R.","2233",,981
+2635,"Tver","2234",,905
+2636,"Tyumen","2235",,1017
+2637,"U.S. Line Is.","2236",,759
+2638,"Ua Huka","2237",,790
+2639,"Ubangui","2239",,540
+2640,"Udmurtiya","2241",,906
+2641,"Uganda","2242",,987
+2642,"Ukraine","2245",,989
+2643,"Ullung do","2246",,732
+2644,"Ulyanovsk","2247",,905
+2645,"Umboi","2248",,491
+2646,"Umm Al-Qaywayn","2249",,665
+2647,"Unimak I.","2250",,462
+2648,"Union Is.","2251",,972
+2649,"Union","2252",,1014
+2650,"United Arab Emirates","2253",,665
+2651,"Ust-Ordinskiy Buryat","2259",,709
+2652,"Ustica","2260",,928
+2653,"Utah","2261",,991
+2654,"Uttar Pradesh","2262",,702
+2655,"Utupua I.","2263",,921
+2656,"Uvea","2264",,1001
+2657,"Uzbekistan","2265",,992
+2658,"Vaitupu","2266",,980
+2659,"Valparaíso","2267",,587
+2660,"Vancouver I.","2268",,506
+2661,"Vanikoro I.","2269",,921
+2662,"Vanua Lava","2270",,993
+2663,"Vamua Levu","2271",,640
+2664,"Vanuatu","2272",,993
+2665,"Vatican City","2274",,714
+2666,"Vatoa Is.","2275",,640
+2667,"Vatulele","2276",,640
+2668,"Vavau Is.","2277",,973
+2669,"Venda","2278",,397
+2670,"Venezuela","2279",,994
+2671,"Venezuelan Antilles","2280",,998
+2672,"Veracruz","2281",,812
+2673,"Vereker Banks","2282",,566
+2674,"Vermont","2283",,995
+2675,"Victoria","2284",,996
+2676,"Vieques I.","2285",,897
+2677,"Vietnam","2286",,997
+2678,"Vietnam, North","2287",,997
+2679,"Vietnam, South","2288",,997
+2680,"Virgin Gorda","2289",,750
+2681,"Virgin Is.","2290",,756
+2682,"Virgin Is.","2291",,750
+2683,"Virginia","2292",,999
+2684,"Viti Levu","2293",,640
+2685,"Vladimir","2295",,905
+2686,"Vojvodina","2296",,1029
+2687,"Volgograd","2298",,908
+2688,"Vologda","2299",,907
+2689,"Voriai Sporadhes","2300",,662
+2690,"Voronezh","2301",,905
+2691,"Vostok I.","2302",,758
+2692,"Vrangelya Ostrova","2303",,764
+2693,"Waigeo","2304",,867
+2694,"Wake I.","2305",,1000
+2695,"Wales","2306",,661
+2696,"Walfish Bay","2307",,832
+2697,"Wallis Is.","2308",,1001
+2698,"Wallis-Futuna Is.","2309",,1001
+2699,"Walpole I.","2310",,866
+2700,"Walvis Bay","2311",,832
+2701,"Washington DC","2312",,1005
+2702,"Washington I.","2313",,758
+2703,"Washington","2314",,1002
+2704,"Wenman I.","2316",,649
+2705,"West Bengal","2317",,703
+2706,"West Berlin","2318",,652
+2707,"West Germany","2320",,652
+2708,"West Kazakhstan","2322",,908
+2709,"West Siberia","2324",,1017
+2710,"West Virginia","2325",,1018
+2711,"Western Australia","2326",,1004
+2712,"Western Australia","2327",,414
+2713,"Western Sahara","2328",,1016
+2714,"Western Samoa","2329",,913
+2715,"Wetar","2330",,763
+2716,"White Russia","2332",,493
+2717,"Wilkes I.","2333",,1000
+2718,"Wilkes Land","2334",,467
+2719,"Willis Is.","2335",,898
+2720,"Windward Is.","2336",,417
+2721,"Windward Is.","2337",,480
+2722,"Windward Is.","2338",,918
+2723,"Winslow Reef","2339",,892
+2724,"Wisconsin","2340",,1015
+2725,"Witu Is.","2341",,491
+2726,"Woleai","2342",,612
+2727,"Woodlark I.","2343",,868
+2728,"Wotje","2344",,791
+2729,"Wuvulu I.","2346",,491
+2730,"Wyoming","2347",,1019
+2731,"Xinjiang","2349",,579
+2732,"Xizang","2351",,563
+2733,"Yaku-shima","2352",,719
+2734,"Yakutskiya","2353",,1021
+2735,"Yamalo-Nenets","2354",,1017
+2736,"Yanam","2355",,704
+2737,"Yap","2356",,612
+2738,"Yapen","2357",,867
+2739,"Yaroslavl","2358",,905
+2740,"Yasawa Is.","2359",,640
+2741,"Yemen","2361",,425
+2742,"Yemen, People's Democratic Republic of","2362",,1023
+2743,"Yevreysk","2363",,730
+2744,"Yianisadhes","2364",,734
+2745,"Yonaguni","2365",,857
+2746,"Young I.","2366",,467
+2747,"Yucatán","2367",,830
+2748,"Yugo-Osetiya","2368",,961
+2749,"Yugoslavia","2369",,426
+2750,"Yukon","2370",,1031
+2751,"Yunnan","2371",,549
+2752,"Zacatecas","2372",,811
+2753,"Zafora","2373",,662
+2754,"Zaire","2374",,1032
+2755,"Zakinthos","2375",,662
+2756,"Zambia","2376",,1033
+2757,"Zanzibar","2378",,954
+2758,"Zhejiang","2380",,577
+2759,"Zimbabwe","2381",,1034
+2760,"Zufar","2382",,880
+2761,"Zululand","2383",,833
+2762,"African Is.","2387",,459
+2763,"Arabian Peninsula","2389",,30
+2764,"Bendel Province, Nigeria","2390",,852
+2765,"Islas las Aves","2391",,998
+2766,"Kefallinia","2393",,662
+2767,"Zemlya Frantsa-Iosifa","2394",,1017
+2768,"Johor","2395",,779
+2769,"Kalmykyia","2396",,908
+2770,"Mamanuca Is.","2397",,640
+2771,"Ile des Pins","2398",,866
+2772,"Isla de Juventud","2399",,617
+2773,"Ra's al Khaymah","2400",,665
+2774,"Tanger","2401",,784
+2775,"Uruguay","2402",,990
+2776,"Lindsay Is.","2405",,934
+2777,"Czech Republic","2407",,620
+2778,"Slovakia","2408",,621
+2779,"Slovenia","2409",,1030
+2780,"Islas Chafarinas","2410",,785
+2781,"Penon de Velez de la Gomera","2412",,785
+2782,"Penon de Alhucemas","2413",,785
+2783,"Northern Cape Province","2414",,609
+2784,"Eastern Cape Province","2415",,608
+2785,"Western Cape Province","2416",,610
+2786,"Northern Province","2417",,984
+2787,"North West Province","2418",,985
+2788,"Gauteng","2419",,982
 2789,"Mpumalanga","2420",,983
-1857,"Louisiana","1298",,760
-1858,"Low Archipelago","1299",,975
 2790,"Northern Provinces","2421",,397
-1852,"Los Lagos","1292",,593
-1853,"Los Roques Is.","1293",,998
-2081,"Nigeria","1562",,852
-1851,"Los Hermanos Is.","1291",,998
-1855,"Louisa Reef","1296",,920
-1856,"Louisiade Archipelago","1297",,868
-1854,"Los Testigos Is.","1294",,998
-7,"Northern America","7,00",,
-2209,"Peter I Oy","1713",,467
-1006,"Himachal Pradesh","WHM-HP","IN",416
+2791,"Free State","2422",,876
+2792,"KwaZulu Natal","2423",,833
 2793,"Garhwal","2424",,1008
-1904,"Mangaia","1361",,602
-2208,"Peru","1711",,890
-942,"Sudan","SUD-OO","SD",367
-641,"Finland","FIN-OO","FI",168
+2794,"Kumaon","2425",,1008
 2795,"Uttaranchal","2426",,1008
-2213,"Phoenix Is.","1717",,892
-939,"Sri Lanka","SRL-OO","LK",364
-2212,"Phillip I.","1716",,849
-1448,"Easter Is.","791",,628
-2210,"Petite Terre, Isles de la","1714",,751
-1200,"Baja California","472",,816
-1201,"Baja California Sur","473",,817
-1199,"Bahia Isabel","470",,649
-1908,"Manipur","1365",,475
-1204,"Balabac","476",,891
-1205,"Baleares","477",,485
-1202,"Baja Nuevo","474",,947
-1203,"Baker I.","475",,674
-1206,"Bali","478",,761
-1207,"Ball's Pyramid","479",,848
-2215,"Piauí","1719",,521
-1911,"Mansel I.","1368",,865
-1912,"Manu'a","1369",,912
+2796,"West Himalaya","2428",,416
+2797,"East Himalaya","2429",,161
+2798,"Tokelau","2431",,972
+2799,"Tokelau-Manihiki","2432",,387
+2800,"Chile Central","2433",,128
+2801,"Sado I.","2434",,718
+2802,"Awaji-shoto","2435",,718
+2803,"Shodo-shoto","2436",,720
+2804,"Ie-shima","2437",,718
+2805,"Te-shima","2438",,720
+2806,"Yashiro-jima","2439",,718
+2807,"Nako-jima","2440",,720
+2808,"Kurahashi-jima","2441",,718
+2809,"Uoshima","2442",,720
+2810,"Omi-shoto","2443",,720
+2811,"Inno-shima","2444",,718
+2812,"Hakata-shima","2445",,720
+2813,"Heigun-to","2446",,718
+2814,"Ya-shima","2447",,718
+2815,"Hime-shima","2448",,719
+2816,"Naga-shima","2449",,718
+2817,"Koshiki-jima","2450",,719
+2818,"Goto-retto","2451",,719
+2819,"Iki","2452",,719
+2820,"Rebun-to","2453",,717
+2821,"Rishiri-to","2455",,717
+2822,"Izu Is.","2456",,718
+2823,"Oki Is.","2457",,718
+2824,"Dozen","2458",,718
+2825,"Dogo","2459",,718
+2826,"Gaja-jima","2460",,857
+2827,"Io-jima","2461",,739
+2828,"Kita-io-jima","2462",,739
+2829,"Minami-io-jima","2463",,739
+2830,"Yome-jima","2464",,877
+2831,"Yonakuni","2465",,857
+2832,"Fukue","2466",,719
+2833,"Okushiri-to","2467",,717
+2834,"Ukraine","2473",,400
+2835,"Eritrea","2474",,637
+2836,"Central European Russia","2475",,336
+2837,"East European Russia","2476",,906
+2838,"North European Russia","2477",,907
+2839,"Northwest European Russia","2480",,909
+2840,"Jharkhand","2487",,1035
+2841,"Chattisgarh","2488",,1036
 2842,"Cultivated",,,
