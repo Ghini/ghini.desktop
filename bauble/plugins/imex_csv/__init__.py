@@ -21,6 +21,15 @@ import Queue
 # tables and dump everything
 # *****************************
 
+# # TODO: ****** important *****
+# there is still a bug where bauble locks up if you try to import twice in a
+# row
+
+# TODO: i've also had a problem with bad insert statements, e.g. importing a
+# geography table after creating a new database and it doesn't use the
+# 'name' column in the insert so there is an error, if  you then import the
+# same table immediately after then everything seems to work fine
+
 # TODO: in _task_import_files we should really only be dropping tables if the 
 # tables exist and not showing up warning dialogs if we don't really need
 # to drop anything anyway
