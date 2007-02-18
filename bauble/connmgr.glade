@@ -20,7 +20,6 @@
               <widget class="GtkImage" id="logo_image">
                 <property name="visible">True</property>
                 <property name="pixbuf">bauble_logo.png</property>
-                <property name="stock">gtk-missing-image</property>
               </widget>
               <packing>
                 <property name="expand">False</property>

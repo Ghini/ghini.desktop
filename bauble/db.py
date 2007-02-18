@@ -53,7 +53,7 @@ def create():
     meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY, 
                                             value=str(bauble.version))
     meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
-                                            value=str(datetime.datetime.now()))
+                                           value=str(datetime.datetime.now()))
 
 class DatabaseError(BaubleError):
     pass
@@ -67,8 +67,10 @@ class TimestampError(DatabaseError):
 class RegistryError(DatabaseError):
     pass
 
-class VersionError(DatabaseError):    
+class VersionError(DatabaseError):
+    
     def __init__(self, version):
+        super(VersionError, self).__init__()
         self.version = version
 
 
@@ -116,7 +118,7 @@ def open(uri):
     if result is None:
         raise VersionError(None)    
     elif eval(result.value)[0:2] != bauble.version[0:2]:
-        raise VersionError(result)        
+        raise VersionError(result.value)        
     
 #    # check that the database we connected has a "registry" in the bauble
 #    # meta table

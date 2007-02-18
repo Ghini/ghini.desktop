@@ -474,8 +474,6 @@ mapper(SpeciesDistribution, species_distribution_table,
                           uselist=False)})
 
 
-
-
 # map species
 species_mapper = mapper(Species, species_table, 
    properties = {'synonyms':
