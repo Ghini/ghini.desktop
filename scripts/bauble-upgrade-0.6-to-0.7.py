@@ -1,17 +1,12 @@
 #!/usr/bin/env python
 
-# How to use this scripts to upgrade your version of Bauble from 
-# 0.5.x to 0.6.x
-# 1. connect to existing database with version 0.5.x of Bauble
-# 2. from the Bauble menu select Tools\Export\Comma Separated Values
-# 3. selected a directory to create the backup files
-# 4. from the command line cd to the directory where the backup files are
-# 5. run this script, the converted files are in the new/ directory
-# 6. connect to the new database with Bauble 0.5.x
-# 7. from the Bauble menu select File\New
-# 8. from the Bauble menu select Tools\Import\Comma Separated Values
-# 9. select all the files from the new/ directory, click OK
-# 10. check that the values in the database are correct
+# this script needs both a connections to a database created with bauble 0.6.x
+# and the csv files exported from the same database, it will create a directory
+# called 0.7 in the same directory as the exported csv files with the new
+# converted files...you will also need the default geography data to have
+# functioning database
+
+
 
 # What has changed from 0.6->0.7 ?
 # ------------------
@@ -34,16 +29,21 @@ import csv
 
 parser = OptionParser()
 parser.add_option('-c', '--conn', dest='conn', help='the db connection uri',
-                  metavar='CONN')
+                   metavar='CONN')
 (options, args) = parser.parse_args()
 
 if options.conn is None:
     parser.error('a database uri is required')
 
 # a directory full of CSV text files exported from Bauble 0.6
-src_path = args[0]
-if not os.path.exists(src_path):
-    parser.error('%s does not exist' % src_path)
+src_path = None
+print args
+if len(args) == 0:
+    src_path = os.getcwd()
+else:
+    src_path = args[0]
+    if not os.path.exists(src_path):
+        parser.error('%s does not exist' % src_path)
 
 # where to put the new files
 dst_path = os.path.join(src_path, '0.7')
