@@ -59,9 +59,9 @@ location_table = Table('location',
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True),
                        Column('description', Unicode),
-                       Column('_created', DateTime,
+                       Column('_created', DateTime(True),
                               default=func.current_timestamp()),
-                       Column('_last_updated', DateTime,
+                       Column('_last_updated', DateTime(True),
                               default=func.current_timestamp(), 
                               onupdate=func.current_timestamp()))
                    

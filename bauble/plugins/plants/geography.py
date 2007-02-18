@@ -12,9 +12,9 @@ geography_table = Table('geography',
                         Column('iso_code', String(7)),
                         Column('parent_id', Integer,
                                ForeignKey('geography.id')),
-                        Column('_created', DateTime,
+                        Column('_created', DateTime(True),
                                default=func.current_timestamp()),
-                        Column('_last_updated', DateTime,
+                        Column('_last_updated', DateTime(True),
                                default=func.current_timestamp(), 
                                onupdate=func.current_timestamp()))
 

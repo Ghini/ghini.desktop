@@ -185,9 +185,9 @@ class TagItemGUI:
 tag_table = Table('tag',
                   Column('id', Integer, primary_key=True),
                   Column('tag', Unicode(64), unique=True, nullable=False),
-                  Column('_created', DateTime,
+                  Column('_created', DateTime(True),
                          default=func.current_timestamp()),
-                  Column('_last_updated', DateTime,
+                  Column('_last_updated', DateTime(True),
                          default=func.current_timestamp(), 
                          onupdate=func.current_timestamp()))
 
@@ -243,9 +243,9 @@ tagged_obj_table = Table('tagged_obj',
                          Column('obj_id', Integer),
                          Column('obj_class', String(64)),
                          Column('tag_id', Integer, ForeignKey('tag.id')),
-                         Column('_created', DateTime,
+                         Column('_created', DateTime(True),
                                 default=func.current_timestamp()),
-                         Column('_last_updated', DateTime,
+                         Column('_last_updated', DateTime(True),
                                 default=func.current_timestamp(), 
                                 onupdate=func.current_timestamp()))
 

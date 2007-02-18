@@ -26,6 +26,7 @@ import bauble.utils as utils
 from bauble.utils.log import log, debug, warning
 from bauble.i18n import *
 import simplejson as json
+import logging
 
 plugins = []
 plugins_dict = {}
@@ -81,6 +82,7 @@ def init(auto_setup=False):
     initialize the module in order of dependencies
     '''
     global plugins
+    registry = None
     try:
         registry = Registry()
     except RegistryEmptyError:
@@ -117,8 +119,10 @@ def init(auto_setup=False):
                 csv = CSVImporter()
                 csv.start(default_filenames, callback=save_and_init)
             else:
+                debug('not defaults - save and init')
                 save_and_init()
     else:
+        debug('not not registered - save and init')
         save_and_init()
 
     
@@ -167,18 +171,22 @@ class Registry(dict):
         session = create_session()
         session.save(obj)
         session.flush()
-        session.close()
     
     
     def save(self):
         '''
         save the state of the registry object to the database
         '''
+        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         dumped = json.dumps(self.entries.values())
         obj = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
         obj.value = dumped
+        debug('obj: %s=%s' % (obj.name, obj.value))
+        self.session.echo_uow = True
         self.session.flush()
         self.session.close()
+        self.session.echo_uow = False
+        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
         
         
     def __iter__(self):

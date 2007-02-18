@@ -89,32 +89,35 @@ def genus_markup_func(genus):
     s. str. segregate family (sensu stricto)
     '''
     
-    # TODO: we should at least warn the user that a duplicate genus name is being 
-    # entered
+    # TODO: we should at least warn the user that a duplicate genus name is
+    # being entered
     
 genus_table = Table('genus',
                     Column('id', Integer, primary_key=True),    
-                    # it is possible that there can be genera with the same name 
-                    # but different authors and probably means that at different 
-                    # points in literature this name was used but is now a 
-                    # synonym even though it may not be a synonym for the same 
-                    # species, this screws us up b/c you can now enter duplicate 
-                    # genera, somehow
-                    # NOTE: we should at least warn the user that a duplicate is 
-                    # being entered
-                    Column('genus', String(64), nullable=False, index=True),                
+                    # it is possible that there can be genera with the same
+                    # name but different authors and probably means that at
+                    # different points in literature this name was used but
+                    # is now a synonym even though it may not be a synonym
+                    # for the same species, this screws us up b/c you can
+                    # now enter duplicate genera, somehow
+                    # NOTE: we should at least warn the user that a duplicate
+                    # is being entered
+                    Column('genus', String(64), nullable=False, index=True),
                     Column('hybrid', Enum(values=['H', 'x', '+', None], 
                                           empty_to_none=True)),
                     Column('author', Unicode(255)),
-                    Column('qualifier', Enum(values=['s. lat.', 's. str', None],
-                                             empty_to_none=True)),
+                    Column('qualifier',Enum(values=['s. lat.', 's. str', None],
+                                            empty_to_none=True)),
                     Column('notes', Unicode),
                     Column('family_id', Integer, ForeignKey('family.id'), 
                            nullable=False),
-                    Column('_created', DateTime, default=func.current_timestamp()),
-                    Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                    Column('_created', DateTime(True),
+                           default=func.current_timestamp()),
+                    Column('_last_updated', DateTime(True),
+                           default=func.current_timestamp(), 
                            onupdate=func.current_timestamp()),
-                    UniqueConstraint('genus', 'hybrid', 'author', 'family_id', name='genus_index'))
+                    UniqueConstraint('genus', 'hybrid', 'author',
+                                     'family_id', name='genus_index'))
     
 class Genus(bauble.BaubleMapper):
         
@@ -136,14 +139,17 @@ class Genus(bauble.BaubleMapper):
                 
 genus_synonym_table = Table('genus_synonym',
                             Column('id', Integer, primary_key=True),
-                            Column('genus_id', Integer, ForeignKey('genus.id'), 
+                            Column('genus_id', Integer, ForeignKey('genus.id'),
                                    nullable=False),
-                            Column('synonym_id', Integer, ForeignKey('genus.id'), 
-                                   nullable=False),
-                            Column('_created', DateTime, default=func.current_timestamp()),
-                            Column('_last_updated', DateTime, default=func.current_timestamp(), 
+                            Column('synonym_id', Integer,
+                                   ForeignKey('genus.id'), nullable=False),
+                            Column('_created', DateTime(True),
+                                   default=func.current_timestamp()),
+                            Column('_last_updated', DateTime(True),
+                                   default=func.current_timestamp(), 
                                    onupdate=func.current_timestamp()),
-                            UniqueConstraint('genus_id', 'synonym_id', name='genus_synonym_index'))
+                            UniqueConstraint('genus_id', 'synonym_id',
+                                             name='genus_synonym_index'))
 
 
 class GenusSynonym(bauble.BaubleMapper):
@@ -159,29 +165,32 @@ from bauble.plugins.plants.species_editor import SpeciesEditor
 
 
 genus_mapper = mapper(Genus, genus_table,       
-       properties = {'species': relation(Species, 
-                                         primaryjoin=genus_table.c.id==species_table.c.genus_id,
-                                         cascade='all, delete-orphan',
-                                         order_by=['sp', 'infrasp_rank', 'infrasp'],
-                                         backref='genus'),
-                     'synonyms': relation(GenusSynonym,
-                                          primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
-                                          cascade='all, delete-orphan',
-                                          backref='genus')},
-       order_by=['genus', 'author'])
+    properties = {'species':
+                  relation(Species, 
+                           primaryjoin=genus_table.c.id==species_table.c.genus_id,
+                           cascade='all, delete-orphan',
+                           order_by=['sp', 'infrasp_rank', 'infrasp'],
+                           backref='genus'),
+                  'synonyms':
+                  relation(GenusSynonym,
+                           primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
+                           cascade='all, delete-orphan',
+                           backref='genus')},
+    order_by=['genus', 'author'])
 
 mapper(GenusSynonym, genus_synonym_table,
-       properties = {'synonym': relation(Genus, uselist=False,
-                                         primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id),
-                     'genus': relation(Genus, uselist=False, 
-                                        primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id)
-                     })
+    properties = {'synonym':
+                  relation(Genus, uselist=False,
+                           primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id),
+                  'genus': relation(Genus, uselist=False, 
+                                    primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id)
+                  })
             
     
 class GenusEditorView(GenericEditorView):
     
     syn_expanded_pref = 'editor.genus.synonyms.expanded'
-    expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded', 
+    expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
                           'gen_notes_expander': 'editor.genus.notes.expanded'}
 
     def __init__(self, parent=None):
@@ -251,7 +260,8 @@ class GenusEditorPresenter(GenericEditorPresenter):
         
         # initialize widgets
         self.init_enum_combo('gen_hybrid_combo', 'hybrid')
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)                
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
+                                                    self.session)
         self.refresh_view() # put model values in view
         
         # connect signals
@@ -264,7 +274,8 @@ class GenusEditorPresenter(GenericEditorPresenter):
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('gen_family_entry', 'family', 
-                                        fam_get_completions, set_func=set_in_model)        
+                                        fam_get_completions,
+                                        set_func=set_in_model)        
         self.assign_simple_handler('gen_genus_entry', 'genus')
         self.assign_simple_handler('gen_hybrid_combo', 'hybrid')
         self.assign_simple_handler('gen_author_entry', 'author')
@@ -289,10 +300,6 @@ class GenusEditorPresenter(GenericEditorPresenter):
     
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            # TODO: it would be nice to have a generic way to accession the 
-            # foreign table from the foreign key, UPDATE: what??? does this mean
-#            if field.endswith('_id') and self.model.c[field].foreign_key is not None:                
-#                value = self.model[]            
             if field == 'family_id':
                 value = self.model.family
             else:
@@ -437,7 +444,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         this species
         '''
         # TODO: maybe we should only ask 'are you sure' if the selected value
-        # is an instance, this means it will be deleted from the database        
+        # is an instance, this means it will be deleted from the database
         tree = self.view.widgets.gen_syn_treeview
         path, col = tree.get_cursor()
         tree_model = tree.get_model()
@@ -493,16 +500,19 @@ class GenusEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:                
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = 'Error committing changes.\n\n%s' % \
+                      utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = 'Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s' % utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() \
+                 and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
             return True
         else:
             return False
@@ -538,9 +548,12 @@ class GenusEditor(GenericModelViewPresenterEditor):
         
         # add quick response keys
         dialog = self.view.dialog        
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
     
         # set default focus
         if self.model.family is None:
@@ -593,12 +606,14 @@ class GeneralGenusExpander(InfoExpander):
         self.set_widget_value('gen_name_data', Genus.str(row, author=True))
 
         # get the number of species
-        species_ids = select([species_table.c.id], species_table.c.genus_id==row.id)
+        species_ids = select([species_table.c.id],
+                             species_table.c.genus_id==row.id)
         nsp = sql_utils.count_select(species_ids)
         self.set_widget_value('gen_nsp_data', nsp)
 
         # get number of accessions
-        acc_ids = select([accession_table.c.id], accession_table.c.species_id.in_(species_ids))        
+        acc_ids = select([accession_table.c.id],
+                         accession_table.c.species_id.in_(species_ids))        
         nacc_str = str(sql_utils.count_select(acc_ids))
         if nacc_str != '0':
             nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
@@ -610,7 +625,8 @@ class GeneralGenusExpander(InfoExpander):
         nplants_str = str(sql_utils.count_select(plant_ids))
         if nplants_str != '0':
             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)            
+            nplants_str = '%s in %s accessions' % (nplants_str,
+                                                   nacc_with_plants)
         self.set_widget_value('gen_nplants_data', nplants_str)
 
 

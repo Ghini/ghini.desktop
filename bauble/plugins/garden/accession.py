@@ -164,8 +164,10 @@ verification_table = Table('verification',
                            Column('level', String), # i don't know what this is
                            Column('accession_id', Integer, 
                                   ForeignKey('accession.id')),
-                           Column('_created', DateTime, default=func.current_timestamp()),
-                           Column('_last_updated', DateTime, default=func.current_timestamp(),
+                           Column('_created', DateTime(True),
+                                  default=func.current_timestamp()),
+                           Column('_last_updated', DateTime(True),
+                                  default=func.current_timestamp(),
                                   onupdate=func.current_timestamp()))
 
 
@@ -203,8 +205,9 @@ accession_table = Table('accession',
                                        empty_to_none=True)),
                 Column('species_id', Integer, ForeignKey('species.id'),
                        nullable=False),
-                Column('_created', DateTime, default=func.current_timestamp()),
-                Column('_last_updated', DateTime,
+                Column('_created', DateTime(True),
+                       default=func.current_timestamp()),
+                Column('_last_updated', DateTime(True),
                        default=func.current_timestamp(), 
                        onupdate=func.current_timestamp()))
 
