@@ -41,7 +41,7 @@ class ConnectionManager:
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
         self.dialog.connect('delete-event', self.on_dialog_close_or_delete)
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         if conn_list is None or len(conn_list.keys()) == 0:
             msg = _('You don\'t have any connections in your connection '\
                     'list.\nClose this message and click on "Add" to create '\
@@ -190,7 +190,7 @@ class ConnectionManager:
         assert hasattr(self, "name_combo")
         i = 0
         active = 0
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         if conn_list is None: 
             return
         for conn in conn_list:
@@ -206,10 +206,10 @@ class ConnectionManager:
         if we restrict the user to only removing the current connection
         then it saves us the trouble of having to iter through the model
         """
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         if name in conn_list:#conn_list.has_key(name):
             del conn_list[name]
-            prefs[prefs.conn_list_pref] = conn_list
+            prefs[bauble.conn_list_pref] = conn_list
             
         model = self.name_combo.get_model()        
         for i in range(0, len(model)):
@@ -264,16 +264,16 @@ class ConnectionManager:
     def save_current_to_prefs(self):
         if self.current_name is None:
             return
-        #if not bauble.prefs.has_key(bauble.prefs.conn_list_pref):
-        if prefs.conn_list_pref not in prefs:
-            prefs[prefs.conn_list_pref] = {}
+        #if not bauble.prefs.has_key(bauble.bauble.conn_list_pref):
+        if bauble.conn_list_pref not in prefs:
+            prefs[bauble.conn_list_pref] = {}
         params = copy.copy(self.params_box.get_parameters())
         params["type"] = self.type_combo.get_active_text()
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         if conn_list is None:
             conn_list = {}
         conn_list[self.current_name] = params
-        prefs[prefs.conn_list_pref] = conn_list
+        prefs[bauble.conn_list_pref] = conn_list
         prefs.save()
 
 
@@ -283,7 +283,7 @@ class ConnectionManager:
         """
         if name is None: # in case no name selected, can happen on first run
             return True
-        conn_list = prefs[prefs.conn_list_pref]        
+        conn_list = prefs[bauble.conn_list_pref]        
         if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
@@ -304,7 +304,7 @@ class ConnectionManager:
         if name is None:
             return
 
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:            
             if self.current_name not in conn_list:
@@ -352,7 +352,7 @@ class ConnectionManager:
         
         # if the type changed but is the same type of the connection
         # in the name entry then set the prefs
-        conn_list = prefs[prefs.conn_list_pref]
+        conn_list = prefs[bauble.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
             if name in conn_list and len(self.old_params.keys()) == 0:

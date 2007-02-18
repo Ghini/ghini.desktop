@@ -109,41 +109,43 @@ def open_database(uri, name=None):
                 'this connection, creating a new database could corrupt '\
                 'it.</i>')
     try:
-        db_engine = db.open(uri)    
+        db_engine = db.open(uri)
     except db.MetaTableError, e:
-        msg = _('The database you connected to connected to wasn\'t created '\
-                'with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
+       msg = _('The database you connected to connected to wasn\'t created '\
+               'with Bauble.')
+       utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+       raise
     except db.VersionError, e:
        # TODO: pretty print db_version
-        msg = _('You are using Bauble version %(version)s while the '\
-                'database you have connected to was created with '\
-                'version %(db_version)s\n\nSome things might not work as '\
-                'or some of your data may become unexpectedly '\
-                'corrupted.') % {'version': bauble.version_str, 
-                                 'db_version': '%s' % e.version}
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-        raise
+       #debug('e.version: %s' % str(e.version))
+       #debug('e.version: %s' % type(e.version))
+       msg = _('You are using Bauble version %(version)s while the '\
+               'database you have connected to was created with '\
+               'version %(db_version)s\n\nSome things might not work as '\
+               'or some of your data may become unexpectedly '\
+               'corrupted.') % {'version': bauble.version_str, 
+                                'db_version': '%s.%s.%s' % eval(e.version)}
+       utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+       raise
     except db.RegistryError:
-        msg = _('Could not get the plugin registry from the database. '\
-                'Most likely this is because the database you have '\
-                'connected to wasn\'t created with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
+       msg = _('Could not get the plugin registry from the database. '\
+               'Most likely this is because the database you have '\
+               'connected to wasn\'t created with Bauble.')
+       utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+       raise
     except db.TimestampError:
-        msg = _('The database you have connected to does not have a '\
-                'timestamp for when it was created. This usually means '\
-                'that there was a problem when you created the '\
-                'database or the database you connected to wasn\'t'\
-                'created with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
+       msg = _('The database you have connected to does not have a '\
+               'timestamp for when it was created. This usually means '\
+               'that there was a problem when you created the '\
+               'database or the database you connected to wasn\'t'\
+               'created with Bauble.')
+       utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+       raise
     except Exception, e:
-        msg = _('There was an error connecting to the database.\n\n ** %s' % \
-                str(utils.xml_safe(e)))
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
+       msg = _('There was an error connecting to the database.\n\n ** %s' % \
+               str(utils.xml_safe(e)))
+       utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+       raise
         
     return db_engine
 
@@ -235,6 +237,10 @@ try:
 except NameError:
    gui=None
 
+
+conn_default_pref = "conn.default"
+conn_list_pref = "conn.list"    
+
 def main(uri=None):
     
     # initialize threading
@@ -253,7 +259,7 @@ def main(uri=None):
     # open default database
     if uri is None:
         from bauble.connmgr import ConnectionManager
-        default_conn = prefs[prefs.conn_default_pref]
+        default_conn = prefs[conn_default_pref]
         while True:                    
             if uri is None or conn_name is None:
                 cm = ConnectionManager(default_conn)            
@@ -275,7 +281,11 @@ def main(uri=None):
                     create_database()
     else:
         open_database(uri, None)
-                
+
+    # save any changes made in the conn manager before anything else has
+    # chance to crash
+    prefs.save()
+    
     # set the default command handler
     import bauble.view as view
     bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
@@ -292,7 +302,7 @@ def main(uri=None):
     bauble.pluginmgr.init()
         
     # set the default connection
-    prefs[prefs.conn_default_pref] = conn_name        
+    prefs[conn_default_pref] = conn_name        
 
     gui.show()
     gtk.main()

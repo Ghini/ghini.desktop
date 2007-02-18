@@ -8,12 +8,11 @@ import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.prefs import prefs, PreferencesMgr
+from bauble.prefs import prefs#, PreferencesMgr
 from bauble.utils.log import log, debug
 from bauble.i18n import *
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView
-
 
 
 class GUI(object):
@@ -192,8 +191,10 @@ class GUI(object):
                                    None, None, self.on_edit_menu_copy), 
                                   ("edit_paste", gtk.STOCK_PASTE, _("_Paste"), 
                                    None, None, self.on_edit_menu_paste), 
-                                  ("edit_preferences", None,_("_Preferences"), 
-                                   "<control>P", None,self.on_edit_menu_prefs),
+##                                   ("edit_preferences", None,
+##                                    _("_Preferences"), 
+##                                    "<control>P", None,
+##                                    self.on_edit_menu_prefs),
                                   ("insert", None, _("_Insert")),
                                   ("tools", None, _("_Tools")),
                                   ])
@@ -322,12 +323,11 @@ class GUI(object):
             view.results_view.collapse_all()
             view.expand_to_all_refs(expanded_rows)                        
             
-            
-        
-    def on_edit_menu_prefs(self, widget, data=None):
-        p = PreferencesMgr()
-        p.run()
-        p.destroy()
+                    
+##     def on_edit_menu_prefs(self, widget, data=None):
+##         p = PreferencesMgr()
+##         p.run()
+##         p.destroy()
 
         
     def on_edit_menu_cut(self, widget, data=None):
