@@ -419,7 +419,7 @@ class DistributionPresenter(GenericEditorPresenter):
         select_kids = select([geography_table.c.id, geography_table.c.name],
                            geography_table.c.parent_id==bindparam('parent_id'))
         count_kids = select([geography_table.c.id],
-                            geography_table.c.parent_id==bindparam('parent_id')).count()
+                            geography_table.c.parent_id==bindparam('parent_id')).alias('__dummy').count()
         has_kids = lambda parent_id: \
                    count_kids.execute(parent_id=parent_id).scalar()
         get_kids = lambda parent_id: \
