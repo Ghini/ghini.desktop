@@ -7,20 +7,13 @@ import gtk
 from sqlalchemy import *
 import bauble
 from bauble.utils.log import debug
-#debug('1: %s' % bauble)
 import bauble.utils as utils
-#debug('2: %s' % bauble)
-#debug('3: %s' % bauble)
 import bauble.paths as paths
-debug('4: %s' % bauble)
 from bauble.plugins.garden.plant import Plant, plant_table
-debug('5: %s' % bauble)
 from bauble.plugins.garden.accession import accession_table
-debug('6: %s' % bauble)
 
 #import bauble.plugins.abcd as abcd
 from bauble.plugins.abcd import plants_to_abcd
-debug('7: %s' % bauble)
 
 # i don't understand why import bauble.plugins.report as report doesn't work,
 # it probably has something to do with the fact that we import the plugins 
@@ -145,7 +138,13 @@ class DefaultFormatterPlugin(FormatterPlugin):
                               plant_table.c.accession_id==acc_id).scalar()
             session = create_session()
             plant = session.get(Plant, plant_id)
-
+            sp = plant.accession.species
+            debug(sp.distribution)
+            debug(sp.distribution_str())
+            if sp.distribution is not None:
+                etree.SubElement(el, 'distribution').text = \
+                                     sp.distribution_str()
+            #    etree.SubElement(el, 'distribution').text = ','.join(dist)
             # TODO: need to change this to use new species_distribution
 ##             meta = plant.accession.species.species_meta
 ##             if meta is not None:

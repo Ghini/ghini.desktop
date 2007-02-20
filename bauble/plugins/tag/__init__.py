@@ -84,7 +84,7 @@ class TagItemGUI:
         name = entry.get_text()
         d.destroy()
         
-        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').count().scalar() == 0:
+        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
             session = create_session()
             session.save(Tag(tag=name))
             session.flush()
@@ -299,7 +299,7 @@ def tag_object(name, obj):
     if tagged_obj_table.select(\
         and_(tagged_obj_table.c.obj_class==obj_class,
              tagged_obj_table.c.obj_id==obj.id, 
-             tagged_obj_table.c.tag_id==tag.id)).count().scalar() == 0:
+             tagged_obj_table.c.tag_id==tag.id)).alias('__dummy').count().scalar() == 0:
         tagged_obj = TaggedObj(obj_class=obj_class, obj_id=obj.id, tag=tag)
         session.save(tagged_obj)
         session.flush()

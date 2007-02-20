@@ -210,31 +210,14 @@ class Species(bauble.BaubleMapper):
         #return self.__cached_str        
         return Species.str(self)
 
-##     def distribution_str(self):
-##         if self.distribution is None:
-##             return ''
-##         else:
-##             ','.join(self.distributon)
-        
 
-##     def _get_distribution(self):
-##         debug('entered Species._get_distribution()')
-##         dist = self._distribution
-##         debug('dist: %s' % dist)
-##         return [d.distribution for d in dist]
-##     distribution = property(_get_distribution)
-
-    
-#    def _get_default_vernacular_name(self):
-#        return object_session(self).query(VernacularName).get_by(id=self.default_vernacular_name_id)
-#    def _set_default_vernacular_name(self, vn):
-#        if not isinstance(vn, VernacularName):
-#            raise AssertionError('_set_default_vernacular_name expects a '\
-#                                 'VernacularName instance')
-#        debug('_set_default_vernacular_name: %s' % vn)
-#        self.default_vernacular_name_id = vn.id
-#    default_vernacular_name = property(_get_default_vernacular_name,
-#                                       _set_default_vernacular_name)
+    def distribution_str(self):
+        if self.distribution is None:
+            return ''
+        else:
+            dist = ['%s' % d for d in self.distribution]
+            return ', '.join(sorted(dist))
+             
     
     def markup(self, authors=False):
         '''
@@ -491,8 +474,8 @@ species_mapper = mapper(Species, species_table,
                           backref='species'),
                  'distribution':
                  relation(SpeciesDistribution,
-                          cascade='all, delete-orphan'),
-                          #backref=backref('species', uselist=False))
+                          cascade='all, delete-orphan',
+                          backref=backref('species', uselist=False))
                  },
     order_by=[species_table.c.sp, species_table.c.sp_author, 
               species_table.c.infrasp_rank,species_table.c.infrasp])

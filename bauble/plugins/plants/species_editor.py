@@ -417,7 +417,8 @@ class DistributionPresenter(GenericEditorPresenter):
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
         from bauble.plugins.plants.species_model import geography_table
         select_kids = select([geography_table.c.id, geography_table.c.name],
-                           geography_table.c.parent_id==bindparam('parent_id'))
+                        geography_table.c.parent_id==bindparam('parent_id'),
+                        order_by=[geography_table.c.name])
         count_kids = select([geography_table.c.id],
                             geography_table.c.parent_id==bindparam('parent_id')).alias('__dummy').count()
         has_kids = lambda parent_id: \
