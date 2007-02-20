@@ -328,9 +328,9 @@ class Problems:
             
     
 class GenericEditorPresenter:
-    '''
+    """
     the presenter of the Model View Presenter Pattern
-    '''
+    """
     problem_color = gtk.gdk.color_parse('#FFDCDF')
 
     def __init__(self, model, view):    
@@ -351,23 +351,23 @@ class GenericEditorPresenter:
     
     # whether the presenter should be commited or not
     def dirty(self):
-        '''
+        """
         returns True or False depending on whether the presenter has changed 
         anything that needs to be committed.  This doesn't 
         necessarily imply that the session is not dirty nor is it required to
         change back to True if the changes are committed.        
-        '''
+        """
         raise NotImplementedError
 
     
     def remove_problem(self, problem_id, problem_widgets):
-        '''
+        """
         remove problem_id from self.problems and reset the background color
         of the widget(s) in problem_widgets
         
         @param problem_id:
         @param problem_widgets:
-        '''
+        """
         self.problems.remove(problem_id)
         if isinstance(problem_widgets, (tuple, list)):
             for w in problem_widgets:
@@ -381,7 +381,7 @@ class GenericEditorPresenter:
             
             
     def add_problem(self, problem_id, problem_widgets=None):
-        '''
+        """
         add problem_id to self.problems and change the background of widget(s) 
         in problem_widgets
         problem_widgets: either a widget or list of widgets whose background
@@ -389,7 +389,7 @@ class GenericEditorPresenter:
         
         @param problem_id:
         @param problem_widgets:
-        '''
+        """
         self.problems.add(problem_id)
         if isinstance(problem_widgets, (tuple, list)):
             for w in problem_widgets:
@@ -400,8 +400,13 @@ class GenericEditorPresenter:
             problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
+
     
     def init_enum_combo(self, widget_name, field):
+        """
+        initialize a gtk.ComboBox widget with name widget_name from enum values
+        in self.model.field
+        """
         combo = self.view.widgets[widget_name]        
         model = gtk.ListStore(str)
         for enum in sorted(self.model.c[field].type.values):

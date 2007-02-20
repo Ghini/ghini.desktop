@@ -181,7 +181,7 @@ accession_table = Table('accession',
                                unique=True),
                         Column('prov_type',
                                Enum(values=['Wild', 
-                                            'Propagule of cultivated wild plant', 
+                                          'Propagule of cultivated wild plant',
                                             "Not of wild source",
                                             "Insufficient Data", 
                                             "Unknown",
@@ -196,8 +196,8 @@ accession_table = Table('accession',
                                             None],
                                     empty_to_none=True)),
                 Column('date', Date),
-                #Column('source_type', String(10)), # Collection, Donation, None
-                Column('source_type', Enum(values=['Collection', 'Donation', None], empty_to_none=True)),
+                Column('source_type', Enum(values=['Collection', 'Donation',
+                                                   None], empty_to_none=True)),
                 Column('notes', Unicode),
                 # id_qual new in 0.7
                 Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect', 
@@ -237,7 +237,8 @@ class Accession(bauble.BaubleMapper):
             return self._collection
         elif self.source_type == 'Donation':
             return self._donation
-        raise AssertionError('unknown source_type in accession: %s' % self.source_type)    
+        raise AssertionError('unknown source_type in accession: %s' % \
+                             self.source_type)    
     
     def _set_source(self, source):
         del self.source
@@ -335,11 +336,14 @@ class AccessionEditorView(GenericEditorView):
         species_entry = self.widgets.acc_species_entry
         species_entry.set_size_request(get_char_width(species_entry)*20, -1)
         prov_combo = self.widgets.acc_prov_combo
-        prov_combo.set_size_request(width_func(prov_combo, 'prov_type', 1.1), -1)
+        prov_combo.set_size_request(width_func(prov_combo, 'prov_type', 1.1),
+                                    -1)
         wild_prov_combo = self.widgets.acc_wild_prov_combo
-        wild_prov_combo.set_size_request(width_func(wild_prov_combo, 'wild_prov_status'), -1)
+        wild_prov_combo.set_size_request(width_func(wild_prov_combo,
+                                                    'wild_prov_status'), -1)
         source_combo = self.widgets.acc_source_type_combo
-        source_combo.set_size_request(width_func(source_combo, 'source_type'), -1)
+        source_combo.set_size_request(width_func(source_combo, 'source_type'),
+                                      -1)
                 
         # TODO: we really don't need to do the the fixes for the source 
         # presenters until we know the which source box is going to be opened, 
@@ -857,6 +861,7 @@ def SourcePresenterFactory(model, view, session):
 class AccessionEditorPresenter(GenericEditorPresenter):
     
     widget_to_field_map = {'acc_code_entry': 'code',
+                           'acc_id_qual_combo': 'id_qual',
                            'acc_date_entry': 'date',
                            'acc_prov_combo': 'prov_type',
                            'acc_wild_prov_combo': 'wild_prov_status',
@@ -881,12 +886,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.source_presenter = None  
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
+        self.init_enum_combo('acc_id_qual_combo', 'id_qual')
         self.init_source_expander()             
         self.refresh_view() # put model values in view    
 
         # connect signals
         def sp_get_completions(text):           
-            genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
+            genus_ids = select([genus_table.c.id],
+                               genus_table.c.genus.like('%s%%' % text))
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
             return self.session.query(Species).select(sql) 
         def set_in_model(self, field, value):
@@ -895,7 +902,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_completions_handler('acc_species_entry', 'species', 
                                         sp_get_completions, 
                                         set_func=set_in_model)
-        self.view.widgets.acc_prov_combo.connect('changed', self.on_combo_changed, 
+        self.view.widgets.acc_prov_combo.connect('changed',
+                                                 self.on_combo_changed, 
                                                  'prov_type')
         self.view.widgets.acc_wild_prov_combo.connect('changed', 
                                                       self.on_combo_changed,
@@ -912,6 +920,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
+
+        self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
+                                   StringOrNoneValidator())
         self.init_change_notifier()        
     
     
@@ -948,8 +959,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.model.code = text
 
         
-    def on_acc_date_entry_insert(self, entry, new_text, new_text_length, position, 
-                            data=None):        
+    def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
+                                 position, data=None):        
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -1185,17 +1196,20 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:                
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = 'Error committing changes.\n\n%s' % \
+                      utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = 'Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s' % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() \
+                 and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
             return True
         else:
             return False
@@ -1206,8 +1220,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-#            e = PlantEditor(parent=self.parent, 
-#                            model_or_defaults={'accession_id': self._committed[0].id})
             e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
                     
@@ -1224,8 +1236,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     def start(self):
         from bauble.plugins.plants.species_model import Species
         if self.session.query(Species).count() == 0:        
-            msg = 'You must first add or import at least one species into the '\
-                  'database before you can add accessions.'
+            msg = 'You must first add or import at least one species into '\
+                  'the database before you can add accessions.'
             utils.message_dialog(msg)
             return
         self.view = AccessionEditorView(parent=self.parent)
@@ -1233,9 +1245,12 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         
         # add quick response keys
         dialog = self.view.dialog        
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)        
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)        
         
         # set the default focus
         if self.model.species is None:
@@ -1333,10 +1348,11 @@ else:
             '''
             '''
             self.set_widget_value('name_data', 
-                                  '%s\n%s' % (row.species.markup(True), row.code))
+                                  '%s\n%s' % (row.species.markup(True),
+                                              row.code))
             session = object_session(row)
-            # TODO: it would be nice if we did something like 13 Living, 2 Dead,
-            # 6 Unknown, etc
+            # TODO: it would be nice if we did something like 13 Living,
+            # 2 Dead, 6 Unknown, etc
             # TODO: could this be sped up, does it matter?            
             nplants = session.query(Plant).count_by(accession_id=row.id)
             self.set_widget_value('nplants_data', nplants)
@@ -1386,7 +1402,7 @@ else:
                 dir, deg, min, sec = longitude_to_dms(collection.longitude)
                 s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
                     (collection.longitude, dir, deg, min, sec, geo_accy)
-                self.set_widget_value('lon_data', s)                                
+                self.set_widget_value('lon_data', s)
             
             v = collection.elevation
 
@@ -1404,7 +1420,8 @@ else:
         def update_donations(self, donation):
             #self.set_widget_value('donor_data', donation.donor)
             session = object_session(donation)
-            self.set_widget_value('donor_data', session.load(Donor, donation.donor_id))
+            self.set_widget_value('donor_data',
+                                  session.load(Donor, donation.donor_id))
             self.set_widget_value('donid_data', donation.donor_acc)
             self.set_widget_value('donnotes_data', donation.notes)
         
