@@ -441,6 +441,8 @@ class DistributionPresenter(GenericEditorPresenter):
         def build_menu(id, name):
             item = gtk.MenuItem(name)
             if not has_kids(id):
+                if item.get_submenu() is None:
+                    item.connect('activate', self.on_activate_add_menu_item,id)
                 return item
 
             kids_added = False
@@ -475,7 +477,7 @@ class DistributionPresenter(GenericEditorPresenter):
             # TODO: this is pretty fast though it would be nice to put it
             # in a tasklet it doesn't block the editor when it first opens
             # TODO: sort kids before adding them to the menu
-            for geo_id, geo_name in geos_hash[None]:
+            for geo_id, geo_name in geos_hash[None]:                
                 self.add_menu.append(build_menu(geo_id, geo_name))
             self.add_menu.show_all()
             self.view.widgets.sp_dist_add_button.set_sensitive(True)
