@@ -30,7 +30,6 @@ Geography.mapper = mapper(Geography, geography_table,
                   relation(Geography,
                            primaryjoin=geography_table.c.parent_id==geography_table.c.id,
                            cascade='all',
-#                           order_by='name',
                            backref=backref("parent",
                                            remote_side=[geography_table.c.id])
                            )},
