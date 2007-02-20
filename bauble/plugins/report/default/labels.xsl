@@ -6,6 +6,7 @@
   
   <xsl:template match="abcd:DataSets">    
     <fo:root xmlns:fo="http://www.w3.org/1999/XSL/Format">
+
       <fo:layout-master-set>
 	<fo:simple-page-master master-name="letter"
 			       page-height="8.5in" 
@@ -17,6 +18,7 @@
 	  <fo:region-body column-count="2" column-gap="0" />
 	</fo:simple-page-master>
       </fo:layout-master-set>      
+
       <fo:page-sequence master-reference="letter">
 	<fo:flow flow-name="xsl-region-body">
 	  <xsl:for-each select="abcd:DataSet">
