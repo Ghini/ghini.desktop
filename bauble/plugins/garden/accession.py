@@ -304,8 +304,10 @@ def get_source(row):
         
 class AccessionEditorView(GenericEditorView):
     
-    expanders_pref_map = {'acc_notes_expander': 'editor.accession.notes.expanded', 
-                          'acc_source_expander': 'editor.accession.source.expanded'}
+    expanders_pref_map = {'acc_notes_expander':
+                          'editor.accession.notes.expanded', 
+                          'acc_source_expander':
+                          'editor.accession.source.expanded'}
     
 
     def __init__(self, parent=None):
@@ -1062,7 +1064,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source_type_changed = False
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
-        # this helps keep a reference to the widgets so they don't get destroyed
+        # this helps keep a reference to the widgets so they don't get
+        # destroyed
         # TODO: if source_type is set and self.model.source is None then create
         # a new empty source object and attach it to the model
         box_map = {'Donation': self.view.widgets.donation_box, 
@@ -1071,12 +1074,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # the source_type has changed
         if source_type != self.model.source_type:
             source_type_changed = True
+            new_source = None
+            debug(source_type)
+            if source_type == 'Collection':
+                new_source = Collection
+            elif source_type == 'Donation':
+                new_source = Donation
+            elif source_type != None:
+                raise ValueError('unknown source type: %s' % source_type)
             if source_type is None:
                 self.model.source = None
-            elif isinstance(self._original_source, tables[source_type]):
+            elif isinstance(self._original_source, new_source):
                 self.model.source = self._original_source
             else:              
-                self.model.source = tables[source_type]()
+                self.model.source = new_source()
                                 
         # replace source box contents with our new box
         #source_box = self.view.widgets.source_box

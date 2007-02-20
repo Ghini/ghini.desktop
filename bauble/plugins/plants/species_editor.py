@@ -154,15 +154,16 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             else:
                 self.view.widgets[widget].set_sensitive(False)        
         
-        # turn off the infraspecific rank combo if the hybrid value in the model
-        # is not None, this has to be called before the conditional that
+        # turn off the infraspecific rank combo if the hybrid value in the
+        # model is not None, this has to be called before the conditional that
         # sets the sp_cvgroup_entry
         if self.model.sp_hybrid is not None:
             self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
         
         # infraspecific rank has to be a cultivar for the cultivar group entry
         # to be sensitive
-        if self.model.infrasp_rank == 'cv.' and self.view.widgets['sp_infra_rank_combo'].get_property('sensitive'):
+        if self.model.infrasp_rank == 'cv.' \
+               and self.view.widgets['sp_infra_rank_combo'].get_property('sensitive'):
             self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
         else:
             self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
@@ -424,7 +425,7 @@ class DistributionPresenter(GenericEditorPresenter):
         has_kids = lambda parent_id: \
                    count_kids.execute(parent_id=parent_id).scalar()
         get_kids = lambda parent_id: \
-                   select_kids.execute(parent_id=parent_id)
+                   select_kids.execute(parent_id=parent_id).fetchall()
         def build_menu(id, name):
             item = gtk.MenuItem(name)
             if not has_kids(id):
@@ -459,12 +460,15 @@ class DistributionPresenter(GenericEditorPresenter):
             return item
 
         def populate():
+            import logging
+#            logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
             sel = select([geography_table.c.id, geography_table.c.name],
                          geography_table.c.parent_id==None)
             for geo_id, geo_name in sel.execute():
                 self.add_menu.append(build_menu(geo_id, geo_name))
             self.add_menu.show_all()
             self.view.widgets.sp_dist_add_button.set_sensitive(True)
+#            logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
         gobject.idle_add(populate)    
 
     
