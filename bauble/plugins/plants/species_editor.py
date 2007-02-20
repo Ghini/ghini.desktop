@@ -417,15 +417,27 @@ class DistributionPresenter(GenericEditorPresenter):
     def init_add_button(self):
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
         from bauble.plugins.plants.species_model import geography_table
-        select_kids = select([geography_table.c.id, geography_table.c.name],
-                        geography_table.c.parent_id==bindparam('parent_id'),
-                        order_by=[geography_table.c.name])
-        count_kids = select([geography_table.c.id],
-                            geography_table.c.parent_id==bindparam('parent_id')).alias('__dummy').count()
-        has_kids = lambda parent_id: \
-                   count_kids.execute(parent_id=parent_id).scalar()
-        get_kids = lambda parent_id: \
-                   select_kids.execute(parent_id=parent_id).fetchall()
+        geos = select([geography_table.c.id, geography_table.c.name,
+                           geography_table.c.parent_id]).execute().fetchall()
+        geos_hash = {}
+        for g in geos:
+            try:
+                geos_hash[g[2]].append((g[0], g[1]))
+            except KeyError:
+                geos_hash[g[2]] = [(g[0], g[1])]
+        
+        def get_kids(pid):
+            try:
+                return geos_hash[pid]
+            except KeyError:
+                return []
+
+        def has_kids(pid):
+            try:
+                return len(geos_hash[pid]) > 0
+            except KeyError:
+                return False
+        
         def build_menu(id, name):
             item = gtk.MenuItem(name)
             if not has_kids(id):
@@ -460,20 +472,14 @@ class DistributionPresenter(GenericEditorPresenter):
             return item
 
         def populate():
-            import logging
-#            logging.getLogger('sqlalchemy.engine').setLevel(logging.DEBUG)
-            sel = select([geography_table.c.id, geography_table.c.name],
-                         geography_table.c.parent_id==None)
-            for geo_id, geo_name in sel.execute():
+            # TODO: this is pretty fast though it would be nice to put it
+            # in a tasklet it doesn't block the editor when it first opens
+            # TODO: sort kids before adding them to the menu
+            for geo_id, geo_name in geos_hash[None]:
                 self.add_menu.append(build_menu(geo_id, geo_name))
             self.add_menu.show_all()
             self.view.widgets.sp_dist_add_button.set_sensitive(True)
-#            logging.getLogger('sqlalchemy.engine').setLevel(logging.WARNING)
         gobject.idle_add(populate)    
-
-    
-
-
 
 
 
