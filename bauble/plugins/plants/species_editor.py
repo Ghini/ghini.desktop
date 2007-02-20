@@ -229,9 +229,9 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             self.refresh_fullname_label()                
         def on_delete(entry, *args):
             self.refresh_fullname_label()
-        for widget_name in ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
-                            'sp_infra_entry', 'sp_cvgroup_entry', 
-                            'sp_infra_author_entry']:
+        for widget_name in ['sp_genus_entry', 'sp_species_entry',
+                            'sp_author_entry', 'sp_infra_entry',
+                            'sp_cvgroup_entry', 'sp_infra_author_entry']:
             w = self.view.widgets[widget_name]
             w.connect_after('insert-text', on_insert)
             w.connect_after('delete-text', on_delete)
@@ -263,7 +263,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             # Species.str
             d = {}
             d.update(zip(self.model.c.keys(), 
-                          [getattr(self.model, k) for k in self.model.c.keys()]))            
+                        [getattr(self.model, k) for k in self.model.c.keys()]))
             
             class attr_dict(object):
                 def __init__(self, d):
@@ -1214,22 +1214,21 @@ class GeneralSpeciesExpander(InfoExpander):
         acc_ids = select([accession_table.c.id],
                          accession_table.c.species_id==row.id)
         nplants_str = str(sql_utils.count(plant_table,
-                                          plant_table.c.accession_id.in_(acc_ids)))
+                                    plant_table.c.accession_id.in_(acc_ids)))
         if nplants_str != '0':                
             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
             nplants_str = '%s in %s accessions' % \
                           (nplants_str, nacc_with_plants)
         self.set_widget_value('sp_nplants_data', nplants_str)
 
+        self.set_widget_value('sp_dist_data', row.distribution_str())
+
 
 
 class SpeciesInfoBox(InfoBox):
     '''
-    - general info, fullname, common name, num of accessions and clones
-    - poisonous to humans
-    - poisonous to animals
-    - food plant
-    - origin/distribution
+    general info, fullname, common name, num of accessions and clones,
+    distribution
     '''
 
     # others to consider: reference, images, redlist status
