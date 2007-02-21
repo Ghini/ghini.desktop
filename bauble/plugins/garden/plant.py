@@ -381,22 +381,18 @@ class PlantEditorPresenter(GenericEditorPresenter):
                     
         
     def on_loc_button_clicked(self, button, cmd=None):
-        # TODO: if we add a new location we should set it as the default
-        # TODO: should we desensitize the "Ok and add plants" button
-        # if opening the editor from here
         location = None
         combo = self.view.widgets.plant_loc_combo
         it = combo.get_active_iter()
         if it is not None:
             location = combo.get_model()[it][0]         
         if cmd is 'edit':           
-            e = LocationEditor(location)
+            e = LocationEditor(location, parent=self.view.dialog)
         else:
-            e = LocationEditor()
+            e = LocationEditor(parent=self.view.dialog)
         e.start()
         self.init_location_combo()
         
-#        debug(location)
         if location is not None:
             self.session.refresh(location)
             new = self.session.get(Location, location.id)
@@ -404,7 +400,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             combo.set_active(-1)
                     
-                
+
     def init_location_combo(self):
         def cell_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
@@ -417,7 +413,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         combo.pack_start(renderer, True)
         combo.set_cell_data_func(renderer, cell_data_func)        
         model = gtk.ListStore(object)
-        for loc in locations:
+        
+        locs = sorted([l for l in locations], key=utils.natsort_key)
+        for loc in locs:
             model.append([loc])
         combo.set_model(model)
         # TODO: if len of location == 1 then set the first item as active,
@@ -517,18 +515,17 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # TODO: should really open the accession and location editors here, and
         # ask 'Would you like to do that now?'
         if self.session.query(Accession).count() == 0:        
-            msg = 'You must first add or import at least one Accession into the '\
-                  'database before you can add plants.\n\nWould you like to '\
-                  'open the Accession editor?'
+            msg = 'You must first add or import at least one Accession into '\
+                  'the database before you can add plants.\n\nWould you like '\
+                  'to open the Accession editor?'
             if utils.yes_no_dialog(msg):
                 from bauble.plugins.garden.accession import AccessionEditor
                 e = AccessionEditor()
                 return e.start()
         if self.session.query(Location).count() == 0:
-            msg = 'You must first add or import at least one Location into the '\
-                  'database before you can add species.\n\nWould you like to '\
-                  'open the Location editor?'
-                  
+            msg = 'You must first add or import at least one Location into '\
+                  'the database before you can add species.\n\nWould you '\
+                  'like to open the Location editor?'                  
             if utils.yes_no_dialog(msg):
                e = LocationEditor()
                return e.start()

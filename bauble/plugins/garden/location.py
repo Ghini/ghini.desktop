@@ -90,10 +90,15 @@ class LocationEditorView(GenericEditorView):
         self.dialog.set_transient_for(parent)
         self.connect_dialog_close(self.widgets.location_dialog)
 
+        self.use_ok_and_add = True
+        if parent != bauble.gui.window:
+            self.use_ok_and_add = False
+
 
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.loc_ok_button.set_sensitive(sensitive)
-        self.widgets.loc_ok_and_add_button.set_sensitive(sensitive)
+        self.widgets.loc_ok_and_add_button.set_sensitive(self.use_ok_and_add \
+                                                         and sensitive)
         self.widgets.loc_next_button.set_sensitive(sensitive)
 
         
@@ -165,7 +170,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Location()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        if parent is None: # should we even allow a change in parent
+        if parent is None:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
@@ -182,16 +187,19 @@ class LocationEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                 self._committed.append(self.model)
             except SQLError, e:                
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = 'Error committing changes.\n\n%s' % \
+                      utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = 'Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s' % utils.xml_safe(e)
                 utils.message_details_dialog(msg, traceback.format_exc(), 
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() \
+                 and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
             return True
         else:
             return False
@@ -217,7 +225,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
     def start(self):
         self.view = LocationEditorView(parent=self.parent)
         self.presenter = LocationEditorPresenter(self.model, self.view)
-
+        
         # add quick response keys
         dialog = self.view.dialog        
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
