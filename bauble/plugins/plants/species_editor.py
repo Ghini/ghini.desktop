@@ -393,11 +393,11 @@ class DistributionPresenter(GenericEditorPresenter):
         geo = self.session.query(Geography).load(id)
         # check that this geography isn't already in the distributions
         if geo in [d.geography for d in self.model.distribution]:
-            debug('%s already in %s' % (geo, self.model))
+#            debug('%s already in %s' % (geo, self.model))
             return
         dist = SpeciesDistribution(geography=geo)
         self.model.distribution.append(dist)
-        debug([str(d) for d in self.model.distribution])
+#        debug([str(d) for d in self.model.distribution])
         self.__dirty = True
         self.refresh_view()
         self.view.set_accept_buttons_sensitive(True)
@@ -428,8 +428,7 @@ class DistributionPresenter(GenericEditorPresenter):
                 geos_hash[g[2]] = [(g[0], g[1])]
 
         for kids in geos_hash.values():
-            kids.sort(key=itemgetter(1))
-
+            kids.sort(key=itemgetter(1)) # sort by name
         
         def get_kids(pid):
             try:
@@ -1291,7 +1290,6 @@ class SpeciesInfoBox(InfoBox):
 
         @param row: the row to get the values from
         '''
-        debug('SpeciesInfoBox.update(%s)' % str(row))
         self.general.update(row)
         self.vernacular.update(row)
         self.synonyms.update(row)

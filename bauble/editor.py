@@ -612,14 +612,14 @@ class GenericEditorPresenter:
             model[field] = None
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]
-            debug('on_match_select: %s' % str(value))
+#            debug('on_match_select: %s' % str(value))
             widget.handler_block(getattr(self, insert_sid_name))
             widget.set_text(str(value))
             widget.handler_unblock(getattr(self, insert_sid_name))
             widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             set_func(self, field, value)
-            debug('set prev text')
+#            debug('set prev text')
             self.prev_text = str(value)            
                     
         completion = widget.get_completion()

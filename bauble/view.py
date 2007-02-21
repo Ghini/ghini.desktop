@@ -620,9 +620,9 @@ class SearchView(pluginmgr.View):
 
         elif 'expression' in tokens:
             domain, cond, val = tokens['expression']
-#            debug('expression: %s, %s, %s' % (domain, cond, val))
-            mapping = self.domain_map[domain]
-            search_meta = self.search_metas[mapping.__class__.__name__]
+##            debug('expression: %s, %s, %s' % (domain, cond, val))
+            mapping = self.domain_map[domain]            
+            search_meta = self.search_metas[mapping.class_.__name__]
             query = self.session.query(mapping)
             if cond == 'ilike' and bauble.db_engine.name != 'postgres':
                 utils.message_dialog('The ilike operator is only supported ' \
