@@ -360,12 +360,12 @@ def xml_safe(ustr, encoding='utf-8'):
 
 
 def startfile(filename):
-    '''
+    """
     @param filename: the name of the file to execute
     
     opens a file with it's associated application, should work on win32 and
     linux/gnome for now
-    '''
+    """
     if sys.platform == 'win32':
         try:
             os.startfile(filename)
@@ -376,6 +376,25 @@ def startfile(filename):
         # FIXME: need to determine if gnome or kde
         os.system("gnome-open " + filename)
     else:
-        raise Exception("bauble.utils.startfile(): can't open file:" + filename)
-   
+        raise Exception("bauble.utils.startfile(): can't open file: %s" \
+                        % filename)
+
+def natsort_key(obj):
+    """
+    a key getter for sort and sorted function
+
+    the sorting is done on return value of obj.__str__() so we can sort
+    objects as well, i don't know if this will cause problems with unicode
+    """
+    item = str(obj)
+    chunks = re.split('(\d+(?:\.\d+)?)', item)
+    for ii in range(len(chunks)):
+        if chunks[ii] and chunks[ii][0] in '0123456789':
+            if '.' in chunks[ii]: numtype = float
+            else: numtype = int
+            # wrap in tuple with '0' to explicitly specify numbers come first
+            chunks[ii] = (0, numtype(chunks[ii]))
+        else:
+            chunks[ii] = (1, chunks[ii])
+    return (chunks, item)
    
