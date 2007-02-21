@@ -3,6 +3,7 @@
 #
 import os
 import xml.sax.saxutils as sax
+from operator import itemgetter
 import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
@@ -425,6 +426,10 @@ class DistributionPresenter(GenericEditorPresenter):
                 geos_hash[g[2]].append((g[0], g[1]))
             except KeyError:
                 geos_hash[g[2]] = [(g[0], g[1])]
+
+        for kids in geos_hash.values():
+            kids.sort(key=itemgetter(1))
+
         
         def get_kids(pid):
             try:
@@ -474,11 +479,20 @@ class DistributionPresenter(GenericEditorPresenter):
             return item
 
         def populate():
-            # TODO: this is pretty fast though it would be nice to put it
-            # in a tasklet it doesn't block the editor when it first opens
-            # TODO: sort kids before adding them to the menu
-            for geo_id, geo_name in geos_hash[None]:                
+            """
+            add geography value to the menu, any top level items that don't
+            have any kids are appended to the bottom of the menu
+            """
+            no_kids = []
+            for geo_id, geo_name in geos_hash[None]:
+                if geo_id not in  geos_hash.keys():
+                    no_kids.append((geo_id, geo_name))
+                else:                    
+                    self.add_menu.append(build_menu(geo_id, geo_name))
+
+            for geo_id, geo_name in sorted(no_kids):
                 self.add_menu.append(build_menu(geo_id, geo_name))
+                
             self.add_menu.show_all()
             self.view.widgets.sp_dist_add_button.set_sensitive(True)
         gobject.idle_add(populate)    
