@@ -346,13 +346,16 @@ class PythonOperatorValidator(OperatorValidator):
                }
                     
 class SearchMeta:
-    
-    def __init__(self, mapper, columns, context_menu=None, markup_func=None):
+
+    # TODO: *args was put here for backwards compatibility,
+    # the context_menu and markup_func seem to have been pushed out
+    # we need to make changes in any plugins that still use this interface
+    # or pass in extra arguments...i think some of the extra args in the
+    # plugins was probably for the sort column
+    def __init__(self, mapper, columns, *args):#, context_menu=None, markup_func=None):
         """
         @param mapper: a Mapper object
         @param columns: the names of the table columns that will be search
-        @parem context_menu:
-        @param markup_func:
         """
         self.mapper = class_mapper(mapper)
         assert isinstance(columns, list), 'SearchMeta.__init__: '\

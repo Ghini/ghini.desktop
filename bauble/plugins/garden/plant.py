@@ -376,7 +376,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         
         
     def on_field_changed(self, model, field):
-#        debug('on field changed: %s = %s' % (field, getattr(model, field)))        
+#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         self.refresh_sensitivity()
                     
         

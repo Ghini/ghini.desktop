@@ -63,9 +63,15 @@ class PlantsPlugin(pluginmgr.Plugin):
         SearchView.register_search_meta("vern", search_meta)
         SearchView.register_search_meta("common", search_meta)
         SearchView.view_meta[VernacularName].set(children=vernname_get_children,
-                                                 infobox=VernacularNameInfoBox,
-                                                 context_menu=vernname_context_menu,
-                                                 markup_func=vernname_markup_func)
+                                            infobox=VernacularNameInfoBox,
+                                            context_menu=vernname_context_menu,
+                                            markup_func=vernname_markup_func)
+
+        search_meta = SearchMeta(Geography, ['name'])
+        SearchView.register_search_meta('geography', search_meta)
+        SearchView.register_search_meta('geo', search_meta)
+        SearchView.view_meta[Geography].set(children=get_species_in_geography)
+                                            
         # TODO: this needs some work, what should we be able to do
         # when a vernacular name is returned, should we just return the 
         # species
