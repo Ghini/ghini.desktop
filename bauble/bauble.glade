@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.4 on Wed Feb  7 18:21:03 2007 by brett@licuala-->
+<!--Generated with glade3 3.1.5 on Wed Feb 21 17:30:24 2007 by brett@licuala-->
 <glade-interface>
   <widget class="GtkWindow" id="main_window">
     <property name="visible">True</property>
@@ -33,6 +33,7 @@
                     <child>
                       <widget class="GtkComboBoxEntry" id="main_comboentry">
                         <property name="visible">True</property>
+                        <property name="items" translatable="yes">--</property>
                         <child internal-child="entry">
                           <widget class="GtkEntry" id="main_entry">
                             <property name="visible">True</property>

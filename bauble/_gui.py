@@ -16,7 +16,10 @@ from bauble.view import SearchView
 
 
 class GUI(object):
-        
+
+    entry_history_pref = 'bauble.history'
+    history_size = 12
+    
     def __init__(self):
         glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.glade = gtk.glade.XML(glade_path)
@@ -33,7 +36,8 @@ class GUI(object):
         
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
-        
+
+        self.populate_main_entry()
         main_entry = self.widgets.main_entry
         main_entry.connect('key_press_event', self.on_main_entry_key_press)
         accel_group = gtk.AccelGroup()
@@ -44,24 +48,12 @@ class GUI(object):
         go_button = self.widgets.go_button
         go_button.connect('clicked', self.on_go_button_clicked)
                     
-#        label = gtk.Label()
-#        label.set_markup('<big>Welcome to Bauble.</big>')
-#        self.widgets.view_box.pack_start(label)
         image = gtk.Image()
         image.set_from_file(os.path.join(paths.lib_dir(), 'images', 
                                          'bauble_logo.png'))
         self.widgets.view_box.pack_start(image)
         self.widgets.view_box.show_all()
 
-        # add a progress bar to the statusbar
-        #vbox = gtk.VBox(True, 0)        
-        #self.widgets.statusbar.pack_start(vbox, False, True, 0)
-        #self.progressbar = gtk.ProgressBar()
-        #vbox.pack_start(self.progressbar, False, False, 0)        
-        #self.widgets.statusbar.pack_start(self.progress, False, True, 0)
-        #self.progressbar.set_size_request(-1, 10)
-        #vbox.show_all()
-        
         # add a progressbar to the status bar
         # Warning: this relies on gtk.Statusbar internals and could break in 
         # future versions of gtk
@@ -106,8 +98,9 @@ class GUI(object):
     parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
     def on_go_button_clicked(self, widget):
         '''
-        '''
+        '''        
         text = self.widgets.main_entry.get_text()
+        self.add_to_history(text)
         tokens = self.parser.parseString(text)
         cmd = None
         arg = None
@@ -123,6 +116,41 @@ class GUI(object):
         
         bauble.command_handler(cmd, arg)
 
+
+    def add_to_history(self, text, index=0):        
+        history = prefs.get(self.entry_history_pref, [])
+        debug('history: %s' % history)
+        while len(history) >= self.history_size-1:
+            history.pop()
+        history.insert(index, text)
+        prefs[self.entry_history_pref] = history
+        self.populate_main_entry()
+
+
+    def populate_main_entry(self):
+        history = prefs[self.entry_history_pref]
+        main_combo = self.widgets.main_comboentry
+        model = main_combo.get_model()
+        model.clear()
+        completion = self.widgets.main_entry.get_completion()        
+        if completion is None:
+            completion = gtk.EntryCompletion()
+            completion.set_text_column(0)
+            self.widgets.main_entry.set_completion(completion)
+            compl_model = gtk.ListStore(str)
+            completion.set_model(compl_model)
+            completion.set_popup_completion(False)
+            completion.set_inline_completion(True)
+            completion.set_minimum_key_length(2)
+        else:
+            compl_model = completion.get_model()
+        
+        for herstory in history:            
+            main_combo.append_text(herstory)
+            compl_model.append([herstory])
+        main_combo.set_model(model)
+        
+                    
             
     def __get_title(self):
         if bauble.conn_name is None:
