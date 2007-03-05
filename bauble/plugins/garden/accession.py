@@ -17,6 +17,8 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 from bauble.types import Enum
+from bauble.view import InfoBox, InfoExpander
+from bauble.plugins.garden.donor import Donor
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -267,19 +269,21 @@ from bauble.plugins.garden.source import Donation, donation_table, \
 from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table    
 
 mapper(Accession, accession_table,
-       properties = {
-                     '_collection': relation(Collection, 
-                                             primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-                                             cascade='all', uselist=False, backref='accession'),
-                     '_donation': relation(Donation, 
-                                           primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-                                           cascade='all', uselist=False, backref='accession'),
-                     'plants': relation(Plant, cascade='all, delete-orphan', 
-                                        order_by=plant_table.c.code,
-                                        backref='accession'),
-                     'verifications': relation(Verification, order_by='date',
-                                               private=True, 
-                                               backref='accession', )},
+    properties = {'_collection':
+                  relation(Collection, 
+                           primaryjoin=accession_table.c.id==collection_table.c.accession_id,
+                           cascade='all', uselist=False, backref='accession'),
+                  '_donation':
+                  relation(Donation, 
+                           primaryjoin=accession_table.c.id==donation_table.c.accession_id,
+                           cascade='all', uselist=False, backref='accession'),
+                  'plants':
+                  relation(Plant, cascade='all, delete-orphan', 
+                           order_by=plant_table.c.code,
+                           backref='accession'),
+                  'verifications':
+                  relation(Verification, order_by='date', private=True, 
+                           backref='accession', )},
        order_by='code')
                                
 mapper(Verification, verification_table)
@@ -334,7 +338,8 @@ class AccessionEditorView(GenericEditorView):
             return pango.PIXELS(width)
 
         def width_func(widget, col, multiplier=1.3):
-            return int(round(get_char_width(widget)*accession_table.c[col].type.length*multiplier))
+            return int(round(get_char_width(widget) * \
+                             accession_table.c[col].type.length*multiplier))
         species_entry = self.widgets.acc_species_entry
         species_entry.set_size_request(get_char_width(species_entry)*20, -1)
         prov_combo = self.widgets.acc_prov_combo
@@ -389,7 +394,8 @@ class AccessionEditorView(GenericEditorView):
         return self.widgets.accession_dialog.run()    
         
         
-    def species_completion_match_func(self, completion, key_string, iter, data=None):        
+    def species_completion_match_func(self, completion, key_string, iter,
+                                      data=None):        
         '''
         the only thing this does different is it make the match case insensitve
         '''
@@ -413,7 +419,7 @@ class AccessionEditorView(GenericEditorView):
 # the altitude entry
 class CollectionPresenter(GenericEditorPresenter):
     
-    widget_to_field_map = {'collector_entry': 'collector',                           
+    widget_to_field_map = {'collector_entry': 'collector',
                            'coll_date_entry': 'date',
                            'collid_entry': 'collectors_code',
                            'locale_entry': 'locale',
@@ -465,10 +471,10 @@ class CollectionPresenter(GenericEditorPresenter):
         # groups as north/east
         north_radio = self.view.widgets.north_radio
         self.north_toggle_signal_id = north_radio.connect('toggled', 
-                                                          self.on_north_south_radio_toggled)        
+                                            self.on_north_south_radio_toggled)
         east_radio = self.view.widgets.east_radio        
         self.east_toggle_signal_id = east_radio.connect('toggled', 
-                                                   self.on_east_west_radio_toggled)
+                                            self.on_east_west_radio_toggled)
 
     def dirty(self):
         return self.model.dirty
@@ -545,7 +551,7 @@ class CollectionPresenter(GenericEditorPresenter):
                                     self.view.widgets.coll_date_entry)
             except:
                 self.add_problem(self.PROBLEM_INVALID_DATE, 
-                                    self.view.widgets.coll_date_entry)                
+                                    self.view.widgets.coll_date_entry)
         self.model.date = dt
         
         
@@ -705,7 +711,7 @@ class DonationPresenter(GenericEditorPresenter):
     PROBLEM_INVALID_DATE = 3
     
     def __init__(self, model, view, session):
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)        
+        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
         
         # set up donor_combo
@@ -731,6 +737,7 @@ class DonationPresenter(GenericEditorPresenter):
         
         # if there is only one donor in the donor combo model and 
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
+            donor('set_active(0)')
             donor_combo.set_active(0)
     
             
@@ -739,17 +746,17 @@ class DonationPresenter(GenericEditorPresenter):
     
     
     def on_donor_combo_changed(self, combo, data=None):
-        '''
+        '''        
         changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
         '''
-#        debug('on_donor_combo_changed')
+        debug('on_donor_combo_changed')
         i = combo.get_active_iter()
         if i is None:
             return
         value = combo.get_model()[i][0]
-        self.model.donor = value
-        if isinstance(value, tables['Donor']):
+        self.model.donor = value        
+        if isinstance(value, Donor):
             self.view.widgets.don_edit_button.set_sensitive(True)
         else:
             self.view.widgets.don_edit_button.set_sensitive(False)
@@ -822,8 +829,12 @@ class DonationPresenter(GenericEditorPresenter):
                 
            
     def refresh_view(self):
+        debug('DonationPresenter.refresh_view')
+        
+        # populate the donor combo
         model = gtk.ListStore(object)        
         for value in self.session.query(Donor).select():
+            debug(value)
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
         donor_combo.set_model(model)        
@@ -847,7 +858,7 @@ def SourcePresenterFactory(model, view, session):
     elif isinstance(model, Donation):
         return DonationPresenter(model, view, session)
     else:
-        raise ValueError('unknown source type: %s' % source_type)
+        raise ValueError('unknown source type: %s' % type(model))
 
 
 # TODO: pick one or a combination of the following
@@ -934,8 +945,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         return self.source_presenter.dirty() or self.model.dirty
     
     
-    def on_acc_code_entry_insert(self, entry, new_text, new_text_length, position, 
-                            data=None):
+    def on_acc_code_entry_insert(self, entry, new_text, new_text_length,
+                                 position, data=None):
         entry_text = entry.get_text()                
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -949,7 +960,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 
         
     def _set_acc_code_from_text(self, text):
-        if text != self._original_code and self.session.query(Accession).count_by(code=text) > 0:            
+        if text != self._original_code \
+               and self.session.query(Accession).count_by(code=text) > 0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.model.code = None            
@@ -1013,7 +1025,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             if model.prov_type == 'Wild':
                 model.wild_prov_status = wild_prov_combo.get_active_text()
             else:
-                # remove the value in the model from the wild_prov_combo                
+                # remove the value in the model from the wild_prov_combo
                 prov_sensitive = False
                 model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
@@ -1062,6 +1074,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         source_type = combo.get_active_text()
         source_type_changed = False
+#        debug('on_source_type_combo_changed(%s)' % source_type)
+
+        if source_type is None:
+            if self.model.source is not None:
+                self.model.source = None
+            return
+        
         # FIXME: Donation and Collection shouldn't be hardcoded so that it 
         # can be translated
         # this helps keep a reference to the widgets so they don't get
@@ -1070,46 +1089,52 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # a new empty source object and attach it to the model
         box_map = {'Donation': self.view.widgets.donation_box, 
                    'Collection': self.view.widgets.collection_box}
+        source_class_map = {'Donation': Donation,
+                            'Collection': Collection}
         
-        # the source_type has changed
+        # the source_type has changed from what it originally was
         if source_type != self.model.source_type:
             source_type_changed = True
             new_source = None
-            debug(source_type)
-            if source_type == 'Collection':
-                new_source = Collection
-            elif source_type == 'Donation':
-                new_source = Donation
-            elif source_type != None:
-                raise ValueError('unknown source type: %s' % source_type)
-            if source_type is None:
-                self.model.source = None
-            elif isinstance(self._original_source, new_source):
-                self.model.source = self._original_source
-            else:              
-                self.model.source = new_source()
-                                
+            try:
+                new_source = source_class_map[source_type]()
+            except KeyError, e:
+                debug('unknown source type: %s' % e)
+                raise
+            if isinstance(new_source, type(self._original_source)):
+                self.model.source == self._original_source
+            else:
+                self.model.source = new_source
+        elif source_type is not None and self.model.source is None:
+            # the source type is set but there is no corresponding model.source
+            try:
+                self.model.source = source_class_map[source_type]()
+            except KeyError, e:
+                debug('unknown source type: %s' % e)
+                raise
+
+            
         # replace source box contents with our new box
         #source_box = self.view.widgets.source_box
         source_box_parent = self.view.widgets.source_box_parent
         if self.current_source_box is not None:
             self.view.widgets.remove_parent(self.current_source_box)
         if source_type is not None:
-#            debug(source_type)
             self.current_source_box = box_map[source_type]
             self.view.widgets.remove_parent(self.current_source_box)
-            #source_box.pack_start(self.current_source_box, expand=False, 
-            #                      fill=True)
             source_box_parent.add(self.current_source_box)
         else:
             self.current_source_box = None
-        
+
         if self.model.source is not None:
             self.source_presenter = \
-                SourcePresenterFactory(self.model.source, self.view, self.session)
+                           SourcePresenterFactory(self.model.source, self.view,
+                                                  self.session)
             # initialize model change notifiers    
-            for field in self.source_presenter.widget_to_field_map.values():            
-                self.source_presenter.model.add_notifier(field, self.on_field_changed)
+            for field in self.source_presenter.widget_to_field_map.values():
+                self.source_presenter.model.add_notifier(field,
+                                                         self.on_field_changed)
+                
         if source_type_changed:
             self.on_field_changed(self.model, 'source_type')
 
@@ -1135,7 +1160,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         combo.set_model(model)
         combo.set_active(-1)
         self.view.widgets.acc_source_type_combo.connect('changed', 
-                                            self.on_source_type_combo_changed)            
+                                            self.on_source_type_combo_changed)
 #        self.view.dialog.show_all()
         
         
@@ -1328,135 +1353,126 @@ from bauble.plugins.garden.donor import Donor, DonorEditor
 #
 # infobox for searchview
 #
-try:
-    from bauble.view import InfoBox, InfoExpander
-except ImportError:    
-    pass
-else:
-    import os
-    import bauble.paths as paths
-    from bauble.plugins.garden.plant import Plant
-    
-    
-    # TODO: i don't think this shows all field of an accession, like the 
-    # accuracy values
-    class GeneralAccessionExpander(InfoExpander):
-        """
-        generic information about an accession like
-        number of clones, provenance type, wild provenance type, speciess
-        """
-    
-        def __init__(self, widgets):
-            '''
-            '''
-            InfoExpander.__init__(self, "General", widgets)
-            general_box = self.widgets.general_box
-            self.widgets.general_window.remove(general_box)
-            self.vbox.pack_start(general_box)
-        
-        
-        def update(self, row):
-            '''
-            '''
-            self.set_widget_value('name_data', 
-                                  '%s\n%s' % (row.species.markup(True),
-                                              row.code))
-            session = object_session(row)
-            # TODO: it would be nice if we did something like 13 Living,
-            # 2 Dead, 6 Unknown, etc
-            # TODO: could this be sped up, does it matter?            
-            nplants = session.query(Plant).count_by(accession_id=row.id)
-            self.set_widget_value('nplants_data', nplants)
-            self.set_widget_value('prov_data', row.prov_type, False)
-            
-            
-    class NotesExpander(InfoExpander):
-        """
-        the accession's notes
-        """
-    
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, "Notes", widgets)            
-            notes_box = self.widgets.notes_box
-            self.widgets.notes_window.remove(notes_box)
-            self.vbox.pack_start(notes_box)
-        
-        
-        def update(self, row):
-            self.set_widget_value('notes_data', row.notes)            
-    
-    
-    class SourceExpander(InfoExpander):
-        
-        def __init__(self, widgets):
-            InfoExpander.__init__(self, 'Source', widgets)
-            self.curr_box = None
-        
-        
-        def update_collections(self, collection):
-            
-            self.set_widget_value('loc_data', collection.locale)
-            
-            geo_accy = collection.geo_accy
-            if geo_accy is None:
-                geo_accy = ''
-            else: 
-                geo_accy = '(+/- %sm)' % geo_accy
-            
-            if collection.latitude is not None:
-                dir, deg, min, sec = latitude_to_dms(collection.latitude)
-                s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
-                    (collection.latitude, dir, deg, min, sec, geo_accy)
-                self.set_widget_value('lat_data', s)
 
-            if collection.longitude is not None:
-                dir, deg, min, sec = longitude_to_dms(collection.longitude)
-                s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
-                    (collection.longitude, dir, deg, min, sec, geo_accy)
-                self.set_widget_value('lon_data', s)
-            
-            v = collection.elevation
+# TODO: i don't think this shows all field of an accession, like the 
+# accuracy values
+class GeneralAccessionExpander(InfoExpander):
+    """
+    generic information about an accession like
+    number of clones, provenance type, wild provenance type, speciess
+    """
 
-            if collection.elevation_accy is not None:
-                v = '%s (+/- %sm)' % (v, collection.elevation_accy)
-            self.set_widget_value('elev_data', v)
-            
-            self.set_widget_value('coll_data', collection.collector)
-            self.set_widget_value('date_data', collection.date)
-            self.set_widget_value('collid_data', collection.collectors_code)
-            self.set_widget_value('habitat_data', collection.habitat)
-            self.set_widget_value('collnotes_data', collection.notes)
-            
-                
-        def update_donations(self, donation):
-            #self.set_widget_value('donor_data', donation.donor)
-            session = object_session(donation)
-            self.set_widget_value('donor_data',
-                                  session.load(Donor, donation.donor_id))
-            self.set_widget_value('donid_data', donation.donor_acc)
-            self.set_widget_value('donnotes_data', donation.notes)
-        
-        
-        def update(self, value):        
-            if self.curr_box is not None:
-                self.vbox.remove(self.curr_box)
-                    
-            if value is None:
-                self.set_expanded(False)
-                self.set_sensitive(False)
-                return
-                    
-            # TODO: i guess we are losing the references here to box map
-            # and so the widgets are getting destroyed, somehow we need to make
-            # this persistent, maybe make it class level
-            box_map = {Collection: (self.widgets.collections_box, 
-                                    self.update_collections),
-                       Donation: (self.widgets.donations_box, 
-                                  self.update_donations)}
-            box, update = box_map[value.__class__]
-            self.widgets.remove_parent(box)
-            self.curr_box = box
-            update(value)        
+    def __init__(self, widgets):
+        '''
+        '''
+        InfoExpander.__init__(self, "General", widgets)
+        general_box = self.widgets.general_box
+        self.widgets.general_window.remove(general_box)
+        self.vbox.pack_start(general_box)
+
+
+    def update(self, row):
+        '''
+        '''
+        self.set_widget_value('name_data', 
+                              '%s\n%s' % (row.species.markup(True),
+                                          row.code))
+        session = object_session(row)
+        # TODO: it would be nice if we did something like 13 Living,
+        # 2 Dead, 6 Unknown, etc
+        # TODO: could this be sped up, does it matter?            
+        nplants = session.query(Plant).count_by(accession_id=row.id)
+        self.set_widget_value('nplants_data', nplants)
+        self.set_widget_value('prov_data', row.prov_type, False)
+
+
+class NotesExpander(InfoExpander):
+    """
+    the accession's notes
+    """
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, "Notes", widgets)            
+        notes_box = self.widgets.notes_box
+        self.widgets.notes_window.remove(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        self.set_widget_value('notes_data', row.notes)            
+
+
+class SourceExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, 'Source', widgets)
+        self.curr_box = None
+
+
+    def update_collections(self, collection):
+
+        self.set_widget_value('loc_data', collection.locale)
+
+        geo_accy = collection.geo_accy
+        if geo_accy is None:
+            geo_accy = ''
+        else: 
+            geo_accy = '(+/- %sm)' % geo_accy
+
+        if collection.latitude is not None:
+            dir, deg, min, sec = latitude_to_dms(collection.latitude)
+            s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+                (collection.latitude, dir, deg, min, sec, geo_accy)
+            self.set_widget_value('lat_data', s)
+
+        if collection.longitude is not None:
+            dir, deg, min, sec = longitude_to_dms(collection.longitude)
+            s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+                (collection.longitude, dir, deg, min, sec, geo_accy)
+            self.set_widget_value('lon_data', s)
+
+        v = collection.elevation
+
+        if collection.elevation_accy is not None:
+            v = '%s (+/- %sm)' % (v, collection.elevation_accy)
+        self.set_widget_value('elev_data', v)
+
+        self.set_widget_value('coll_data', collection.collector)
+        self.set_widget_value('date_data', collection.date)
+        self.set_widget_value('collid_data', collection.collectors_code)
+        self.set_widget_value('habitat_data', collection.habitat)
+        self.set_widget_value('collnotes_data', collection.notes)
+
+
+    def update_donations(self, donation):
+        #self.set_widget_value('donor_data', donation.donor)
+        session = object_session(donation)
+        self.set_widget_value('donor_data',
+                              session.load(Donor, donation.donor_id))
+        self.set_widget_value('donid_data', donation.donor_acc)
+        self.set_widget_value('donnotes_data', donation.notes)
+
+
+    def update(self, value):        
+        if self.curr_box is not None:
+            self.vbox.remove(self.curr_box)
+
+        if value is None:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+            return
+
+        # TODO: i guess we are losing the references here to box map
+        # and so the widgets are getting destroyed, somehow we need to make
+        # this persistent, maybe make it class level
+        box_map = {Collection: (self.widgets.collections_box, 
+                                self.update_collections),
+                   Donation: (self.widgets.donations_box, 
+                              self.update_donations)}
+        box, update = box_map[value.__class__]
+        self.widgets.remove_parent(box)
+        self.curr_box = box
+        update(value)        
 #            if isinstance(value, Collection):            
 #                #box = self.widgets.collections_box
 #                self.widgets.remove_parent(box)
@@ -1470,50 +1486,50 @@ else:
 #            else:
 #                msg = "Unknown type for source: " + str(type(value))
 #                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            
-            self.vbox.pack_start(self.curr_box)            
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            
-    
-    class AccessionInfoBox(InfoBox):
-        """
-        - general info
-        - source
-        """
-        def __init__(self):
-            InfoBox.__init__(self)
-            glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
-                                "acc_infobox.glade")
-            self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
-            
-            self.general = GeneralAccessionExpander(self.widgets)
-            self.add_expander(self.general)
-            
-            self.source = SourceExpander(self.widgets)
-            self.add_expander(self.source)
-            
-            self.notes = NotesExpander(self.widgets)
-            self.add_expander(self.notes)
-    
-    
-        def update(self, row):
-            self.general.update(row)
-            
-            if row.notes is None:
-                self.notes.set_expanded(False)
-                self.notes.set_sensitive(False)
-            else:
-                self.notes.set_expanded(True)
-                self.notes.set_sensitive(True)
-                self.notes.update(row)
-            
-            # TODO: should test if the source should be expanded from the prefs
-            self.source.update(row.source)
 
-    
-    # it's easier just to put this here instead of playing around with imports
-    class SourceInfoBox(AccessionInfoBox):
-        def update(self, row):
-            super(SourceInfoBox, self).update(row.accession)
+        self.vbox.pack_start(self.curr_box)            
+        self.set_expanded(True)
+        self.set_sensitive(True)
+
+
+class AccessionInfoBox(InfoBox):
+    """
+    - general info
+    - source
+    """
+    def __init__(self):
+        InfoBox.__init__(self)
+        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+                            "acc_infobox.glade")
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+
+        self.general = GeneralAccessionExpander(self.widgets)
+        self.add_expander(self.general)
+
+        self.source = SourceExpander(self.widgets)
+        self.add_expander(self.source)
+
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
+
+
+    def update(self, row):
+        self.general.update(row)
+
+        if row.notes is None:
+            self.notes.set_expanded(False)
+            self.notes.set_sensitive(False)
+        else:
+            self.notes.set_expanded(True)
+            self.notes.set_sensitive(True)
+            self.notes.update(row)
+
+        # TODO: should test if the source should be expanded from the prefs
+        self.source.update(row.source)
+
+
+# it's easier just to put this here instead of playing around with imports
+class SourceInfoBox(AccessionInfoBox):
+    def update(self, row):
+        super(SourceInfoBox, self).update(row.accession)
 
