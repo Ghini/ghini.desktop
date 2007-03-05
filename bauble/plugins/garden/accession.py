@@ -12,6 +12,7 @@ from sqlalchemy.exceptions import SQLError
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
+from bauble.i18n import *
 from bauble.editor import *
 from bauble.utils.log import debug
 from bauble.prefs import prefs
@@ -305,7 +306,15 @@ def get_source(row):
         raise ValueError('unknown source type: ' + str(row.source_type))
     
 
-        
+accession_editor_tooltips = \
+    {'acc_species_entry':
+     _("The accession's species completed from the "\
+       "species table"),
+     'acc_code_entry':
+     _("The accession ID must be a unique code and is the most common way of "
+       "refering to this accession")
+    }
+
 class AccessionEditorView(GenericEditorView):
     
     expanders_pref_map = {'acc_notes_expander':
@@ -326,7 +335,14 @@ class AccessionEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.accession_dialog)
         if sys.platform == 'win32':
             self.do_win32_fixes()
-    
+        self.set_tooltips()
+
+    def set_tooltips(self):
+        self.tooltips = gtk.Tooltips()
+        for name, tip in accession_editor_tooltips.iteritems():
+            debug('tt: %s, %s' % (name, tip))
+            self.tooltips.set_tip(self.widgets[name], tip)
+        self.tooltips.enable()
     
     def do_win32_fixes(self):
         import pango
