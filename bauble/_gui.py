@@ -383,13 +383,14 @@ class GUI(object):
         open the connection manager
         """
         from connmgr import ConnectionManager
-        default_conn = prefs[prefs.conn_default_pref]
+        default_conn = prefs[bauble.conn_default_pref]
         cm = ConnectionManager(default_conn)
         name, uri = cm.start()
         if name is None:
             return
 
         if bauble.open_database(uri, name) is not None:
+            bauble.conn_name = name
             self.window.set_title(self.title)
             
 
