@@ -9,6 +9,7 @@ from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
 from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
+from sqlalchemy.ext.selectresults import SelectResults, SelectResultsExt
 import formencode
 import bauble
 from bauble.i18n import *
@@ -204,6 +205,8 @@ class InfoBox(gtk.ScrolledWindow):
         # TODO: should we just iter over the expanders and update them all
         raise NotImplementedError
 
+
+
 class SearchParser:
     """
     This class parses three distinct types of string. They can beL
@@ -216,7 +219,8 @@ class SearchParser:
     
     def __init__(self):
         quotes = Word('"\'')            
-        value_word = Word(alphanums, alphas + '%')
+        #value_word = Word(alphanums, alphas + '%.')
+        value_word = Word(alphanums + '%.')
         value = (value_word | quotedString)
         value_list = OneOrMore(value)
 
@@ -230,7 +234,7 @@ class SearchParser:
         where_token = CaselessKeyword('where')
         and_token = CaselessKeyword('and')
         or_token = CaselessKeyword('or')
-        identifier = Group(delimitedList(Word(alphas, alphanums), '.'))
+        identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
         ident_expression = Group(identifier + binop + value)
         logop = and_token | or_token
         query_expressions = ident_expression + \
@@ -406,6 +410,45 @@ class SearchMeta:
                                           'columns argument must be a list'
         self.columns = columns
 
+
+class ResultSet:
+
+    def __init__(self):            
+        self._results = []
+
+
+    def append(self, results):
+        self._results.append(results)
+
+
+    def __len__(self):
+        return self.count()
+
+
+    def count(self):
+        ctr = 0
+        for r in self._results:
+            if isinstance(r, SelectResults):
+                ctr += r.count()
+            else:
+                ctr += len(r)
+        return ctr
+
+
+    def __iter__(self):
+        self.__iter = iter(self._results)
+        self.__curr = None
+        return self
+
+
+    def next(self):
+        if self.__curr is None:
+            self.__curr = iter(self.__iter.next())
+            
+        try:
+            return self.__curr.next()
+        except StopIteration:
+            self.__curr = iter(self.__iter.next())
 
 
 class SearchView(pluginmgr.View):
@@ -624,13 +667,18 @@ class SearchView(pluginmgr.View):
     def refresh_search(self):
         self.search_text = self.search_text        
 
+
     condition_map = {'and': and_, 
                      'or': or_}
 
 
     def _resolve_identifiers(self, parent, identifiers):
+        '''
+        results the types of identifiers starting from parent where the
+        first item in the identifiers list is either a property or column
+        of parent
+        '''
         def get_prop(parent, name):
-            debug('%s, %s' % (parent, name))
             try:
                 return parent.properties[name].argument
             except (KeyError, AttributeError):
@@ -651,95 +699,69 @@ class SearchView(pluginmgr.View):
         for i in xrange(1, len(identifiers)):
             parent = props[i-1]
             if isinstance(parent, Column):
-                debug(parent)
                 get_prop(parent, identifiers[i])
             else:
-                debug(parent)
-                debug(class_mapper(parent))
                 props.append(get_prop(class_mapper(parent), identifiers[i]))
         return props
 
 
-    def _build_join_statement(self, mapping, identifiers, cond, val):
+    def _build_select(self, mapping, identifiers, cond, val):
+        '''
+        return a sqlalchemy.ext.selectresults
+        '''
         # if the last item in identifiers is a column then create an
         # and statement doing applying cond to val,
         # else get the search meta for the last item in identifiers
         # and build the and_ statement by or'ing the columns in search
         # meta together against val
-        from sqlalchemy.ext.selectresults import SelectResults, \
-             SelectResultsExt
-        debug(identifiers)
         query = self.session.query(mapping)
         sr = SelectResults(query)
         table = query.table
-#        stmt = None
         resolved = self._resolve_identifiers(mapping, identifiers)
         last = resolved[-1]
-        debug(sr._clause)
         if isinstance(last, Column):
             if len(identifiers) > 1:
                 # if it's a join then get the search meta columns
                 # else just search on the column
                 for i in identifiers[:-1]:
-                    debug(i)
                     sr = sr.join_to(i)                
                 filter_col = resolved[-2].c[identifiers[-1]]
-                debug(filter_col)
             else:
                 filter_col = table.c[identifiers[-1]]
-            debug(filter_col.op(cond)(val))
             sr = sr.select(filter_col.op(cond)(val))
         else:
-            debug('not a column')                
-            #for i in identifiers[:-1]:
             for i in identifiers:
-                debug(i)
-                debug(i)
-                debug(type)
                 sr = sr.join_to(i)
             cols = self.search_metas[last.__name__].columns
             if cols > 1:                                
-                ors = [last.c[c].op(cond)(val) for c in cols]                
-                debug(['%s' % o for o in ors])
-                debug(or_(*ors))
+                ors = [last.c[c].op(cond)(val) for c in cols]
                 filter_clause = or_(*ors)
             else:
                 filter_clause = last.c[c].op(cond)(val)
-            #sr = sr.select(or_(*ors))
-            debug(filter_clause)
             sr = sr.select(filter_clause)
-
-        sr.compile()
-#        debug(str(sr))
-        debug('----- clause ----- \n %s' % sr._clause)
-#        debug(sr._query)
+#        sr.compile()
+#        debug('----- clause ----- \n %s' % sr._clause)
         return sr
         
         
     def _get_results_from_query(self, tokens):
-        print 'query: %s' % tokens['query']
-        results = []
+        '''
+        get results from search query in the form
+        domain where ident=value...
+
+        @return: an sqlalchemy.ext.selectresults object
+        '''
+        debug('query: %s' % tokens['query'])
+
         domain, expr = tokens['query']
-        print ' domain: %s' % domain
         mapping = self.domain_map[domain]
-        debug(mapping.class_.__name__)
         search_meta = self.search_metas[mapping.class_.__name__]
-        query = self.session.query(mapping)
         expr_iter = iter(expr)
-        # species.accession.plant.id
-        # select genus from species where genus.species_id == species.id and species.accession_id==
-        query = self.session.query(mapping)
-        stmt = None
+        select = None
         for e in expr_iter:
-            print '  %s' % e
             ident, cond, val = e
-            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
-            # resolve identifier
-            #identifiers = self._resolve_identifiers(mapping, ident)
-            #stmt = self._build_join_statement(query, identifiers, cond, val)
-            #stmt = self._build_join_statement(query, ident, cond, val)
-            stmt = self._build_join_statement(mapping, ident, cond, val)
-#            debug(identifiers)
+#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
+            select = self._build_select(mapping, ident, cond, val)
             op = None
             try:
                 op = expr_iter.next()
@@ -748,11 +770,15 @@ class SearchView(pluginmgr.View):
             else:
                 print '   op: %s' % op
 
-        results = stmt.list()
-        return results
-        
+        return select
+
+                
     def _get_search_results_from_tokens(self, tokens):
-        results = []
+        '''
+        return the search results depending on how tokens was parsed
+        '''
+#        results = []
+        results = ResultSet()
         if 'values' in tokens:
 #            debug('is an value')
             # make searches in postgres case-insensitive, i don't think other 
@@ -762,13 +788,19 @@ class SearchView(pluginmgr.View):
                        table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
                 like = lambda table, col, val: \
-                       table.c[col].like('%%%s%%' % val)
-                                
+                       table.c[col].like('%%%s%%' % val)                
             for meta in self.search_metas.values():
                 mapping = meta.mapper
                 q = self.session.query(mapping)
+                sr = SelectResults(q)
                 cv = [(c,v) for c in meta.columns for v in tokens]
-                results.extend(q.select(or_(*[like(mapping, c, v) for c,v in cv])))                    
+                #results.extend(q.select(or_(*[like(mapping, c, v) \
+                #                              for c,v in cv])))
+                sr = sr.select(or_(*[like(mapping, c, v) \
+                                     for c,v in cv]))
+                results.append(sr)
+                #results.append(q.select(or_(*[like(mapping, c, v) \
+                #                              for c,v in cv])))
         elif 'expression' in tokens:
             print 'expr: %s' % tokens['expression']                        
             for domain, cond, val in tokens['expression']:                
@@ -784,7 +816,8 @@ class SearchView(pluginmgr.View):
                             'connected to a %s database.') \
                             % bauble.db_engine.name
                     utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-                    return []
+                    return results
+                    #return []
                 
                 if cond in ('contains', 'icontains', 'has', 'ihas'):
                     val = '%%%s%%' % val
@@ -794,14 +827,19 @@ class SearchView(pluginmgr.View):
                         cond = 'like'
                         
                 # select everything
+                sr = SelectResults(query)
                 if val == '*':
-                    results = query.select()
+                    #results = query.select()
+                    results.append(sr)
                 else:
                     for col in search_meta.columns:
                         debug(col)
-                        results.extend(query.select(mapping.c[col].op(cond)(val)))
+                        #results.extend(query.select(mapping.c[col].op(cond)(val)))
+                        results.append(query.select(mapping.c[col].op(cond)(val)))
+                        #sr = sr.select(mapping.c[col].op(cond)(val))
+                        #results.append(sr)
         elif 'query' in tokens:
-            return self._get_results_from_query(tokens)
+            results.append(self._get_results_from_query(tokens))
                     
         return results
         
@@ -1056,9 +1094,10 @@ class SearchView(pluginmgr.View):
         else:
             def populate_callback():
                 self.populate_results(results)
-                statusbar.push(sbcontext_id, "%s results" % len(results))  
+                #statusbar.push(sbcontext_id, "%s results" % len(results))
+                statusbar.push(sbcontext_id, "%s results" % len(results))
 #                set_cursor(None)
-            if len(results) > 2000:
+            if len(results) > 2000:    
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you '\
                         'want to continue?' % len(results)
@@ -1311,9 +1350,9 @@ class SearchView(pluginmgr.View):
         # happened, make that that selection and then popup the menu,
         # see the pygtk FAQ about this at        
         #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
-        # TODO: SLOW -- it can be really slow if the the callback method changes
-        # the model(or what if it doesn't) and the view has to be refreshed
-        # from a large dataset
+        # TODO: SLOW -- it can be really slow if the the callback method
+        # changes the model(or what if it doesn't) and the view has to be
+        # refreshed from a large dataset
         if event.button != 3: 
             return # if not right click then leave
         
