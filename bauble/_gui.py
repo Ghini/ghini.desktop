@@ -110,7 +110,7 @@ class GUI(object):
             pass
         
         try:
-            arg = tokens['arg']            
+            arg = tokens['arg']
         except KeyError, e:
             pass
         
@@ -119,7 +119,7 @@ class GUI(object):
 
     def add_to_history(self, text, index=0):        
         history = prefs.get(self.entry_history_pref, [])
-        debug('history: %s' % history)
+#        debug('history: %s' % history)
         while len(history) >= self.history_size-1:
             history.pop()
         history.insert(index, text)

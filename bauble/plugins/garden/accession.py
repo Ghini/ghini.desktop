@@ -285,7 +285,7 @@ mapper(Accession, accession_table,
                   'verifications':
                   relation(Verification, order_by='date', private=True, 
                            backref='accession', )},
-       order_by='code')
+       )#order_by='code')
                                
 mapper(Verification, verification_table)
 

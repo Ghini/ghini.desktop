@@ -11,6 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 import formencode
 import bauble
+from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.error as error
 import bauble.utils as utils
@@ -64,8 +65,8 @@ from bauble.utils.pyparsing import *
 # and provide an icon type to each type that can be returned and then you could
 # double click on an icon to open the children of that type
 
-# TODO: make the search result do their thing in a task so we can keep state and
-# pulse the progressbar for large result sets
+# TODO: make the search result do their thing in a task so we can keep state
+# and pulse the progressbar for large result sets
 
 # TODO: it might make it easier to do some of the fancier searchs on properties
 # using advanced property overriding, see...
@@ -203,7 +204,6 @@ class InfoBox(gtk.ScrolledWindow):
         # TODO: should we just iter over the expanders and update them all
         raise NotImplementedError
 
-
 class SearchParser:
     """
     This class parses three distinct types of string. They can beL
@@ -214,43 +214,87 @@ class SearchParser:
            domain where col1=something and col2=somethingelse,asdasd
     """
     
-    def __init__(self):        
+    def __init__(self):
         quotes = Word('"\'')            
+        value_word = Word(alphanums, alphas + '%')
+        value = (value_word | quotedString)
+        value_list = OneOrMore(value)
+
+        binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
+                      'icontains ihas')
+        
         domain = Word(alphas, alphanums)
+        domain_expression = Group(domain + binop + value) \
+                          | Group(domain + Literal('=') + Literal('*'))
+
+        where_token = CaselessKeyword('where')
+        and_token = CaselessKeyword('and')
+        or_token = CaselessKeyword('or')
+        identifier = Group(delimitedList(Word(alphas, alphanums), '.'))
+        ident_expression = Group(identifier + binop + value)
+        logop = and_token | or_token
+        query_expressions = ident_expression + \
+                            ZeroOrMore(logop + ident_expression)
+        domain_query = domain + where_token.suppress() + \
+                       Group(query_expressions)
         
-        and_ = CaselessKeyword("and")
-        or_ = CaselessKeyword("or")
-        in_ = CaselessKeyword("in")
-        like = CaselessKeyword('like')
-        # should provide a warning on non-postgres database
-        ilike = CaselessKeyword('ilike') 
-        contains = CaselessKeyword("contains") # TODO: does like('%%%s%%')
-        
-        valuechars = alphanums + '*;._-%'
-        quoted_value = quotes.suppress() + Word(valuechars+' ') + \
-                       quotes.suppress()
-        value = Word(valuechars)# | quoted_value
-        delimited_values = delimitedList(Word(valuechars))
-        values = delimitedList(value | quoted_value)#.setResultsName('values')
-        
-        binop = oneOf('= == != <> < <= > >= not')#.setResultsName('operator') 
-        domain_expression = domain + (binop | like | ilike) + values
-            
-        identifier = Word(alphas, alphanums + "._")#.setName("identifier")
-        where = CaselessKeyword('where')
-        where_condition = Group(identifier + (binop|like|ilike) + values)
-        where_expression = where.suppress() + where_condition + \
-                           ZeroOrMore((and_ | or_) + where_condition)
-        query = domain + Group(where_expression)#.setResultsName('expression')
-        
-        self.statement = (query.setResultsName('query') | \
-                          domain_expression.setResultsName('expression') | \
-                          (values + StringEnd()).setResultsName('values'))
+        self.statement = (domain_query).setResultsName('query')+StringEnd() | \
+                         (domain_expression + \
+                          StringEnd()).setResultsName('expression') | \
+                         value_list.setResultsName('values') + StringEnd()
         
     def parse_string(self, text):
         '''
         '''
         return self.statement.parseString(text)
+
+## class SearchParser:
+##     """
+##     This class parses three distinct types of string. They can beL
+##         1. Value or a list of values: val1, val2, val3
+##         2. An expression where the domain is a search domain registered
+##            with the search meta: domain=something and val2=somethingelse,asdasd
+##         3. A query like:
+##            domain where col1=something and col2=somethingelse,asdasd
+##     """
+    
+##     def __init__(self):        
+##         quotes = Word('"\'')            
+##         domain = Word(alphas, alphanums)
+        
+##         and_ = CaselessKeyword("and")
+##         or_ = CaselessKeyword("or")
+##         in_ = CaselessKeyword("in")
+##         like = CaselessKeyword('like')
+##         # should provide a warning on non-postgres database
+##         ilike = CaselessKeyword('ilike') 
+##         contains = CaselessKeyword("contains") # TODO: does like('%%%s%%')
+        
+##         valuechars = alphanums + '*;._-%'
+##         quoted_value = quotes.suppress() + Word(valuechars+' ') + \
+##                        quotes.suppress()
+##         value = Word(valuechars)# | quoted_value
+##         delimited_values = delimitedList(Word(valuechars))
+##         values = delimitedList(value | quoted_value)#.setResultsName('values')
+        
+##         binop = oneOf('= == != <> < <= > >= not')#.setResultsName('operator') 
+##         domain_expression = domain + (binop | like | ilike) + values
+            
+##         identifier = Word(alphas, alphanums + "._")#.setName("identifier")
+##         where = CaselessKeyword('where')
+##         where_condition = Group(identifier + (binop|like|ilike) + values)
+##         where_expression = where.suppress() + where_condition + \
+##                            ZeroOrMore((and_ | or_) + where_condition)
+##         query = domain + Group(where_expression)#.setResultsName('expression')
+        
+##         self.statement = (query.setResultsName('query') | \
+##                           domain_expression.setResultsName('expression') | \
+##                           (values + StringEnd()).setResultsName('values'))
+        
+##     def parse_string(self, text):
+##         '''
+##         '''
+##         return self.statement.parseString(text)
         
 #class SearchParser:
 #
@@ -582,65 +626,134 @@ class SearchView(pluginmgr.View):
 
     condition_map = {'and': and_, 
                      'or': or_}
-    
-    def _get_search_results_from_tokens(self, tokens):        
-        # TODO: need to support joins so that queries like
-        # species where genus=Maxillaria and sp=aciantha would return
-        # the species Maxillaria aciantha        
-        # TODO: need to support 'or'ing values for queries and expression
-#        debug('tokens: %s' % tokens)
-        results = []        
-        if 'query' in tokens:      
-            domain = str(tokens[0])
-            try:
-                mapping = self.domain_map[domain]
-            except KeyError, e:
-                raise KeyError('Unknown domain: %s' % domain)
-                
-            query = self.session.query(mapping)
-            table = mapping.local_table
-            
-            #debug('domain: %s' % domain)
-            expression = tokens[1]
-            #'test=val and test=val and test=val or test=val'
-            #'test=val and (test=val or test=val)
-            #debug('expression: %s' % expression)            
-            col, cond, val = expression[0]
-            assert col in table.c, \
-                   _('Unknown column "%s" on table "%s"') % (col, table.name)
-            prev_expr = table.c[col].op(cond)(val)
-            debug((col, cond, val))            
-            ops = expression[1:][::2]
-            ex = expression[1:][1::2]            
-            for op, [col, cond, val] in zip(ops, ex):
-                assert col in table.c, \
-                       _('Unknown column "%s" on table "%s"') %(col,table.name)
-#                debug('%s, %s, %s, %s' % (op, col, cond, val))
-                prev_expr = self.condition_map[op](prev_expr, table.c[col].op(cond)(val))            
-#            debug('expr: %s -- %s' % (prev_expr, repr(prev_expr)))        
-            results = query.select(prev_expr)
-#            debug('s: %s' % results)
 
-        elif 'expression' in tokens:
-            domain, cond, val = tokens['expression']
-##            debug('expression: %s, %s, %s' % (domain, cond, val))
-            mapping = self.domain_map[domain]            
-            search_meta = self.search_metas[mapping.class_.__name__]
-            query = self.session.query(mapping)
-            if cond == 'ilike' and bauble.db_engine.name != 'postgres':
-                utils.message_dialog('The ilike operator is only supported ' \
-                                     'on PostgreSQL database. You are ' \
-                                     'connected to a %s database' \
-                                     % bauble.db_engine.name,
-                                     gtk.MESSAGE_WARNING)
-                return []            
-            # select everything
-            if val in ('*', 'all'):            
-                results = query.select()
+
+    def _resolve_identifiers(self, parent, identifiers):
+        def get_prop(parent, name):
+            debug('%s, %s' % (parent, name))
+            try:
+                return parent.properties[name].argument
+            except (KeyError, AttributeError):
+                pass
+
+            try:
+                return parent.c[name]
+            except KeyError:
+                if isinstance(parent, Mapper):
+                    parent_name = parent.local_table
+                else:
+                    parent_name = parent.__name__
+                raise ValueError('no column named %s in %s' % \
+                                 (name, parent_name))
+
+        props = []
+        props.append(get_prop(parent, identifiers[0]))
+        for i in xrange(1, len(identifiers)):
+            parent = props[i-1]
+            if isinstance(parent, Column):
+                debug(parent)
+                get_prop(parent, identifiers[i])
             else:
-                for col in search_meta.columns:
-                    results.extend(query.select(mapping.c[col].op(cond)(val)))
-        else:            
+                debug(parent)
+                debug(class_mapper(parent))
+                props.append(get_prop(class_mapper(parent), identifiers[i]))
+        return props
+
+
+    def _build_join_statement(self, mapping, identifiers, cond, val):
+        # if the last item in identifiers is a column then create an
+        # and statement doing applying cond to val,
+        # else get the search meta for the last item in identifiers
+        # and build the and_ statement by or'ing the columns in search
+        # meta together against val
+        from sqlalchemy.ext.selectresults import SelectResults, \
+             SelectResultsExt
+        debug(identifiers)
+        query = self.session.query(mapping)
+        sr = SelectResults(query)
+        table = query.table
+#        stmt = None
+        resolved = self._resolve_identifiers(mapping, identifiers)
+        last = resolved[-1]
+        debug(sr._clause)
+        if isinstance(last, Column):
+            if len(identifiers) > 1:
+                # if it's a join then get the search meta columns
+                # else just search on the column
+                for i in identifiers[:-1]:
+                    debug(i)
+                    sr = sr.join_to(i)                
+                filter_col = resolved[-2].c[identifiers[-1]]
+                debug(filter_col)
+            else:
+                filter_col = table.c[identifiers[-1]]
+            debug(filter_col.op(cond)(val))
+            sr = sr.select(filter_col.op(cond)(val))
+        else:
+            debug('not a column')                
+            #for i in identifiers[:-1]:
+            for i in identifiers:
+                debug(i)
+                debug(i)
+                debug(type)
+                sr = sr.join_to(i)
+            cols = self.search_metas[last.__name__].columns
+            if cols > 1:                                
+                ors = [last.c[c].op(cond)(val) for c in cols]                
+                debug(['%s' % o for o in ors])
+                debug(or_(*ors))
+                filter_clause = or_(*ors)
+            else:
+                filter_clause = last.c[c].op(cond)(val)
+            #sr = sr.select(or_(*ors))
+            debug(filter_clause)
+            sr = sr.select(filter_clause)
+
+        sr.compile()
+#        debug(str(sr))
+        debug('----- clause ----- \n %s' % sr._clause)
+#        debug(sr._query)
+        return sr
+        
+        
+    def _get_results_from_query(self, tokens):
+        print 'query: %s' % tokens['query']
+        results = []
+        domain, expr = tokens['query']
+        print ' domain: %s' % domain
+        mapping = self.domain_map[domain]
+        debug(mapping.class_.__name__)
+        search_meta = self.search_metas[mapping.class_.__name__]
+        query = self.session.query(mapping)
+        expr_iter = iter(expr)
+        # species.accession.plant.id
+        # select genus from species where genus.species_id == species.id and species.accession_id==
+        query = self.session.query(mapping)
+        stmt = None
+        for e in expr_iter:
+            print '  %s' % e
+            ident, cond, val = e
+            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
+            # resolve identifier
+            #identifiers = self._resolve_identifiers(mapping, ident)
+            #stmt = self._build_join_statement(query, identifiers, cond, val)
+            #stmt = self._build_join_statement(query, ident, cond, val)
+            stmt = self._build_join_statement(mapping, ident, cond, val)
+#            debug(identifiers)
+            op = None
+            try:
+                op = expr_iter.next()
+            except StopIteration:
+                print 'stop'
+            else:
+                print '   op: %s' % op
+
+        results = stmt.list()
+        return results
+        
+    def _get_search_results_from_tokens(self, tokens):
+        results = []
+        if 'values' in tokens:
 #            debug('is an value')
             # make searches in postgres case-insensitive, i don't think other 
             # databases support a case-insensitive like operator
@@ -655,8 +768,117 @@ class SearchView(pluginmgr.View):
                 mapping = meta.mapper
                 q = self.session.query(mapping)
                 cv = [(c,v) for c in meta.columns for v in tokens]
-                results.extend(q.select(or_(*[like(mapping, c, v) for c,v in cv])))        
+                results.extend(q.select(or_(*[like(mapping, c, v) for c,v in cv])))                    
+        elif 'expression' in tokens:
+            print 'expr: %s' % tokens['expression']                        
+            for domain, cond, val in tokens['expression']:                
+                mapping = self.domain_map[domain]
+                debug(mapping.class_.__name__)
+                search_meta = self.search_metas[mapping.class_.__name__]
+                query = self.session.query(mapping)
+                if cond in ('ilike', 'icontains') and \
+                       bauble.db_engine.name != 'postgres':
+                    msg = _('The <i>ilike</i> and <i>icontains</i> '\
+                            'operators are only ' \
+                            'supported on PostgreSQL databases. You are ' \
+                            'connected to a %s database.') \
+                            % bauble.db_engine.name
+                    utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+                    return []
+                
+                if cond in ('contains', 'icontains', 'has', 'ihas'):
+                    val = '%%%s%%' % val
+                    if cond in ('icontains', 'ihas'):
+                        cond = 'ilike'
+                    else:
+                        cond = 'like'
+                        
+                # select everything
+                if val == '*':
+                    results = query.select()
+                else:
+                    for col in search_meta.columns:
+                        debug(col)
+                        results.extend(query.select(mapping.c[col].op(cond)(val)))
+        elif 'query' in tokens:
+            return self._get_results_from_query(tokens)
+                    
         return results
+        
+##     def _get_search_results_from_tokens(self, tokens):        
+##         # TODO: need to support joins so that queries like
+##         # species where genus=Maxillaria and sp=aciantha would return
+##         # the species Maxillaria aciantha        
+##         # TODO: need to support 'or'ing values for queries and expression
+## #        debug('tokens: %s' % tokens)
+##         results = []        
+##         if 'query' in tokens:      
+##             domain = str(tokens[0])
+##             try:
+##                 mapping = self.domain_map[domain]
+##             except KeyError, e:
+##                 raise KeyError('Unknown domain: %s' % domain)
+                
+##             query = self.session.query(mapping)
+##             table = mapping.local_table
+            
+##             #debug('domain: %s' % domain)
+##             expression = tokens[1]
+##             #'test=val and test=val and test=val or test=val'
+##             #'test=val and (test=val or test=val)
+##             #debug('expression: %s' % expression)            
+##             col, cond, val = expression[0]
+##             assert col in table.c, \
+##                    _('Unknown column "%s" on table "%s"') % (col, table.name)
+##             prev_expr = table.c[col].op(cond)(val)
+##             debug((col, cond, val))            
+##             ops = expression[1:][::2]
+##             ex = expression[1:][1::2]            
+##             for op, [col, cond, val] in zip(ops, ex):
+##                 assert col in table.c, \
+##                        _('Unknown column "%s" on table "%s"') %(col,table.name)
+## #                debug('%s, %s, %s, %s' % (op, col, cond, val))
+##                 prev_expr = self.condition_map[op](prev_expr, table.c[col].op(cond)(val))            
+## #            debug('expr: %s -- %s' % (prev_expr, repr(prev_expr)))        
+##             results = query.select(prev_expr)
+## #            debug('s: %s' % results)
+
+##         elif 'expression' in tokens:
+##             domain, cond, val = tokens['expression']
+## ##            debug('expression: %s, %s, %s' % (domain, cond, val))
+##             mapping = self.domain_map[domain]            
+##             search_meta = self.search_metas[mapping.class_.__name__]
+##             query = self.session.query(mapping)
+##             if cond == 'ilike' and bauble.db_engine.name != 'postgres':
+##                 utils.message_dialog('The ilike operator is only supported ' \
+##                                      'on PostgreSQL database. You are ' \
+##                                      'connected to a %s database' \
+##                                      % bauble.db_engine.name,
+##                                      gtk.MESSAGE_WARNING)
+##                 return []            
+##             # select everything
+##             if val in ('*', 'all'):            
+##                 results = query.select()
+##             else:
+##                 for col in search_meta.columns:
+##                     results.extend(query.select(mapping.c[col].op(cond)(val)))
+##         else:            
+## #            debug('is an value')
+##             # make searches in postgres case-insensitive, i don't think other 
+##             # databases support a case-insensitive like operator
+##             if bauble.db_engine.name == 'postgres': 
+##                 like = lambda table, col, val: \
+##                        table.c[col].op('ILIKE')('%%%s%%' % val)
+##             else:
+##                 like = lambda table, col, val: \
+##                        table.c[col].like('%%%s%%' % val)
+                                
+##             for meta in self.search_metas.values():
+##                 mapping = meta.mapper
+##                 q = self.session.query(mapping)
+##                 cv = [(c,v) for c in meta.columns for v in tokens]
+##                 results.extend(q.select(or_(*[like(mapping, c, v) for c,v in cv])))        
+##         return results
     
 #    def _get_search_results_from_tokens_old(self, tokens):
 #        '''
