@@ -74,7 +74,8 @@ class Location(bauble.BaubleMapper):
 from bauble.plugins.garden.plant import Plant
 
 mapper(Location, location_table, order_by='site',
-       properties={'plants': relation(Plant, backref='location')})
+       properties={'plants': relation(Plant, backref=backref('location',
+                                                             uselist=False))})
     
 
 class LocationEditorView(GenericEditorView):
