@@ -19,21 +19,21 @@ class GUI(object):
 
     entry_history_pref = 'bauble.history'
     history_size = 12
-    
+
     def __init__(self):
         glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
         self.glade = gtk.glade.XML(glade_path)
-        self.widgets = utils.GladeWidgets(self.glade)        
+        self.widgets = utils.GladeWidgets(self.glade)
         self.window = self.widgets.main_window
         self.window.hide()
-        
+
         self.window.set_default_size(800, 600)
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
         filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
         pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
         self.window.set_icon(pixbuf)
-        
+
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
 
@@ -44,36 +44,32 @@ class GUI(object):
         main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
                                    gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
         self.window.add_accel_group(accel_group)
-        
+
         go_button = self.widgets.go_button
         go_button.connect('clicked', self.on_go_button_clicked)
-                    
-        image = gtk.Image()
-        image.set_from_file(os.path.join(paths.lib_dir(), 'images', 
-                                         'bauble_logo.png'))
-        self.widgets.view_box.pack_start(image)
-        self.widgets.view_box.show_all()
+
+        self.set_default_view()
 
         # add a progressbar to the status bar
-        # Warning: this relies on gtk.Statusbar internals and could break in 
+        # Warning: this relies on gtk.Statusbar internals and could break in
         # future versions of gtk
         statusbar = self.widgets.statusbar
         statusbar.set_spacing(10)
         statusbar.set_has_resize_grip(True)
-        
+
         # remove label from frame
         frame = statusbar.get_children()[0]
         #frame.modify_bg(gtk.STATE_NORMAL, gtk.gdk.color_parse('#FF0000'))
-        label = frame.get_children()[0]        
+        label = frame.get_children()[0]
         frame.remove(label)
-        
+
         # replace label with hbox and put label and progress bar in hbox
         hbox = gtk.HBox(False, 5)
         frame.add(hbox)
-        hbox.pack_start(label, True, True, 0)        
+        hbox.pack_start(label, True, True, 0)
         vbox = gtk.VBox(True, 0)
         hbox.pack_end(vbox, False, True, 15)
-        self.progressbar = gtk.ProgressBar() 
+        self.progressbar = gtk.ProgressBar()
         vbox.pack_start(self.progressbar, False, False, 0)
         self.progressbar.set_size_request(-1, 10)
         vbox.show()
@@ -84,7 +80,7 @@ class GUI(object):
         self.build_tools_menu()
         self.window.show()
 
-        
+
     def on_main_entry_key_press(self, widget, event, data=None):
         '''
         '''
@@ -92,13 +88,13 @@ class GUI(object):
         if keyname == "Return":
             self.widgets.go_button.emit("clicked")
 
-            
+
     cmd = StringStart() + ':' + Word(alphanums + '-_').setResultsName('cmd')
     arg = restOfLine.setResultsName('arg')
     parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
     def on_go_button_clicked(self, widget):
         '''
-        '''        
+        '''
         text = self.widgets.main_entry.get_text()
         self.add_to_history(text)
         tokens = self.parser.parseString(text)
@@ -108,16 +104,16 @@ class GUI(object):
             cmd = tokens['cmd']
         except KeyError, e:
             pass
-        
+
         try:
             arg = tokens['arg']
         except KeyError, e:
             pass
-        
+
         bauble.command_handler(cmd, arg)
 
 
-    def add_to_history(self, text, index=0):        
+    def add_to_history(self, text, index=0):
         history = prefs.get(self.entry_history_pref, [])
 #        debug('history: %s' % history)
         while len(history) >= self.history_size-1:
@@ -132,7 +128,7 @@ class GUI(object):
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
         model.clear()
-        completion = self.widgets.main_entry.get_completion()        
+        completion = self.widgets.main_entry.get_completion()
         if completion is None:
             completion = gtk.EntryCompletion()
             completion.set_text_column(0)
@@ -144,19 +140,19 @@ class GUI(object):
             completion.set_minimum_key_length(2)
         else:
             compl_model = completion.get_model()
-        
-        for herstory in history:            
+
+        for herstory in history:
             main_combo.append_text(herstory)
             compl_model.append([herstory])
         main_combo.set_model(model)
-        
-                    
-            
+
+
+
     def __get_title(self):
         if bauble.conn_name is None:
             return '%s %s' % ('Bauble', bauble.version_str)
         else:
-            return '%s %s - %s' % ('Bauble', bauble.version_str, 
+            return '%s %s - %s' % ('Bauble', bauble.version_str,
                                    bauble.conn_name)
     title = property(__get_title)
 
@@ -169,16 +165,24 @@ class GUI(object):
             self.window.window.set_cursor(None)
 
 
+    def set_default_view(self):
+        image = gtk.Image()
+        image.set_from_file(os.path.join(paths.lib_dir(), 'images',
+                                         'bauble_logo.png'))
+        self.widgets.main_entry.set_text('')
+        self.set_view(image)
+
+
     def set_view(self, view=None):
         '''
         set the view, if view is None then remove any views currently set
-        
+
         @param view: default=None
         '''
         view_box = self.widgets.view_box
         for kids in view_box.get_children():
             view_box.remove(kids)
-        view_box.pack_start(view, True, True, 0)            
+        view_box.pack_start(view, True, True, 0)
         view.show_all()
 
 
@@ -195,32 +199,32 @@ class GUI(object):
         and return the menubar
         """
         self.ui_manager = gtk.UIManager()
-        
+
         # add accel group
         self.accel_group = self.ui_manager.get_accel_group()
         self.window.add_accel_group(self.accel_group)
 
         # TODO: get rid of new, open, and just have a connection
         # menu item
-        
+
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
-        menu_actions.add_actions([("file", None, _("_File")), 
-                                  ("file_new", gtk.STOCK_NEW, _("_New"), None, 
-                                   None, self.on_file_menu_new), 
+        menu_actions.add_actions([("file", None, _("_File")),
+                                  ("file_new", gtk.STOCK_NEW, _("_New"), None,
+                                   None, self.on_file_menu_new),
                                   ("file_open", gtk.STOCK_OPEN, _("_Open"),
-                                   None, None, self.on_file_menu_open), 
+                                   None, None, self.on_file_menu_open),
                                   ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
-                                   None, None, self.on_quit), 
-                                  ("edit", None, _("_Edit")), 
-                                  ("edit_cut", gtk.STOCK_CUT, _("_Cut"), None, 
-                                   None, self.on_edit_menu_cut), 
+                                   None, None, self.on_quit),
+                                  ("edit", None, _("_Edit")),
+                                  ("edit_cut", gtk.STOCK_CUT, _("_Cut"), None,
+                                   None, self.on_edit_menu_cut),
                                   ("edit_copy", gtk.STOCK_COPY, _("_Copy"),
-                                   None, None, self.on_edit_menu_copy), 
-                                  ("edit_paste", gtk.STOCK_PASTE, _("_Paste"), 
-                                   None, None, self.on_edit_menu_paste), 
+                                   None, None, self.on_edit_menu_copy),
+                                  ("edit_paste", gtk.STOCK_PASTE, _("_Paste"),
+                                   None, None, self.on_edit_menu_paste),
 ##                                   ("edit_preferences", None,
-##                                    _("_Preferences"), 
+##                                    _("_Preferences"),
 ##                                    "<control>P", None,
 ##                                    self.on_edit_menu_prefs),
                                   ("insert", None, _("_Insert")),
@@ -247,7 +251,7 @@ class GUI(object):
 
         self.insert_menu= self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         return self.menubar
-    
+
 
     def add_menu(self, name, menu, index=-1):
         '''
@@ -271,7 +275,7 @@ class GUI(object):
     def add_to_insert_menu(self, editor, label):
         """
         add an editor to the insert menu
-        
+
         @param editor: the editor to add to the menu
         @param label: the label for the menu item
         """
@@ -320,13 +324,13 @@ class GUI(object):
             if not tool.enabled:
                 item.set_sensitive(False)
 
-        # create submenus for the categories and add the tools 
+        # create submenus for the categories and add the tools
         for category in sorted(tools.keys()):
             submenu = gtk.Menu()
             submenu_item = gtk.MenuItem(category)
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
-            for tool in sorted(tools[category], cmp=lambda x, y: cmp(x.label, y.label)):            
+            for tool in sorted(tools[category], cmp=lambda x, y: cmp(x.label, y.label)):
                 item = gtk.MenuItem(tool.label)
                 item.connect("activate", self.on_tools_menu_item_activate,tool)
                 submenu.append(item)
@@ -334,13 +338,13 @@ class GUI(object):
                     item.set_sensitive(False)
         menu.show_all()
         return menu
-        
-        
+
+
     def on_tools_menu_item_activate(self, widget, tool):
         debug('on_tools_menu_item_activate(%s)' % tool)
         tool.start()
-        
-        
+
+
     def on_insert_menu_item_activate(self, widget, editor):
         view = self.get_view()
         if isinstance(view, SearchView):
@@ -349,36 +353,37 @@ class GUI(object):
         committed = e.start()
         if committed is not None and isinstance(view, SearchView):
             view.results_view.collapse_all()
-            view.expand_to_all_refs(expanded_rows)                        
-            
-                    
+            view.expand_to_all_refs(expanded_rows)
+
+
 ##     def on_edit_menu_prefs(self, widget, data=None):
 ##         p = PreferencesMgr()
 ##         p.run()
 ##         p.destroy()
 
-        
+
     def on_edit_menu_cut(self, widget, data=None):
         pass
 
-    
+
     def on_edit_menu_copy(self, widget, data=None):
         pass
 
-    
+
     def on_edit_menu_paste(self, widget, data=None):
         pass
 
-        
-    def on_file_menu_new(self, widget, date=None):        
+
+    def on_file_menu_new(self, widget, date=None):
         msg = "If a database already exists at this connection then creating "\
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
             bauble.create_database()
-        
-                
-    def on_file_menu_open(self, widget, data=None):        
+        self.set_default_view()
+
+
+    def on_file_menu_open(self, widget, data=None):
         """
         open the connection manager
         """
@@ -392,14 +397,15 @@ class GUI(object):
         if bauble.open_database(uri, name) is not None:
             bauble.conn_name = name
             self.window.set_title(self.title)
-            
+            self.set_default_view()
+
 
     def save_state(self):
         """
         this is usually called from bauble.py when it shuts down
-        """        
+        """
         prefs.save()
-        
-        
+
+
     def on_quit(self, widget, data=None):
         bauble.quit()
