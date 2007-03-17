@@ -88,6 +88,11 @@ else:
     _substr_tmpl = '<small>%s</small>'
 
 
+import gc
+gc.enable()
+#gc.set_debug(gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_INSTANCES|gc.DEBUG_OBJECTS)
+#gc.set_debug(gc.DEBUG_LEAK)
+
 # TODO: reset expander data on expand, the problem is that we don't keep the
 # row around that was used to update the infoexpander, if we don't do this
 # then we can't update unless the search view updates us, this means that
@@ -325,7 +330,7 @@ class SearchMeta:
         self.columns = columns
 
 
-class ResultSet:
+class ResultSet(object):
 
     def __init__(self, results=None):
         if results is None:
@@ -692,7 +697,7 @@ class SearchView(pluginmgr.View):
             print 'expr: %s' % tokens['expression']
             for domain, cond, val in tokens['expression']:
                 mapping = self.domain_map[domain]
-                debug(mapping.class_.__name__)
+#                debug(mapping.class_.__name__)
                 search_meta = self.search_metas[mapping.class_.__name__]
                 query = self.session.query(mapping)
                 # TODO: should probably create a normalize_cond() method
@@ -700,9 +705,8 @@ class SearchView(pluginmgr.View):
                 if cond in ('ilike', 'icontains') and \
                        bauble.db_engine.name != 'postgres':
                     msg = _('The <i>ilike</i> and <i>icontains</i> '\
-                            'operators are only ' \
-                            'supported on PostgreSQL databases. You are ' \
-                            'connected to a %s database.') \
+                            'operators are only supported on PostgreSQL ' \
+                            'databases. You are connected to a %s database.') \
                             % bauble.db_engine.name
                     utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                     return results
@@ -728,6 +732,25 @@ class SearchView(pluginmgr.View):
 
     nresults_statusbar_context = 'searchview.nresults'
 
+    @staticmethod
+    def dump_garbage():
+        """
+        show us what's the garbage about
+        """
+
+        # force collection
+        print "\nGARBAGE:"
+        gc.collect()
+
+        print "\nGARBAGE OBJECTS:"
+        for x in gc.garbage:
+            s = str(x)
+            if len(s) > 80:
+                s = s[:80]
+            print type(x),"\n  ", s
+
+
+
     def search(self, text):
         '''
         search the database using text
@@ -738,8 +761,12 @@ class SearchView(pluginmgr.View):
         debug('SearchView.search(%s)' % text)
         self.session.clear()
 
-        # clear the old model
-        self.results_view.set_model(None)
+        model = self.results_view.get_model()
+        if model is not None:
+            model.clear() # is this necessary
+            self.results_view.set_model(None)
+        #utils.clear_model(self.results_view)
+
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
         results = []
@@ -767,7 +794,6 @@ class SearchView(pluginmgr.View):
         else:
             def populate_callback():
                 self.populate_results(results)
-                #statusbar.push(sbcontext_id, "%s results" % len(results))
                 statusbar.push(sbcontext_id, "%s results" % len(results))
             debug(len(results))
             if len(results) > 2000:
