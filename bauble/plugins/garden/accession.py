@@ -28,7 +28,7 @@ from bauble.plugins.garden.donor import Donor
 
 # FIXME: time.mktime can't handle dates before 1970 on win32
 
-# TODO: there is a bug if you edit an existing accession and change the 
+# TODO: there is a bug if you edit an existing accession and change the
 # accession number but change it back to the original then it indicates the
 # number is invalid b/c it's a duplicate
 
@@ -37,11 +37,11 @@ from bauble.plugins.garden.donor import Donor
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
-    
+
 def latitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'lat')
 
-# TODO: should get the precision from the values passed in, 
+# TODO: should get the precision from the values passed in,
 # e.g. if seconds was passed in as an integer there is no reason
 # to keep 6 decimal places for precision
 def dms_to_decimal(dir, deg, min, sec):
@@ -54,32 +54,32 @@ def dms_to_decimal(dir, deg, min, sec):
     else:
         assert(abs(deg) > 0 and abs(deg) <= 90)
     assert(abs(min) > 0 and abs(min) < 60)
-    assert(abs(sec) > 0 and abs(sec) < 60)    
+    assert(abs(sec) > 0 and abs(sec) < 60)
     dec = (abs(sec)/3600.0) + (abs(min)/60.0) + abs(deg)
     #dec = (((abs(sec)/60.0) + abs(min)) /60.0) + abs(deg)
     if dir in ('W', 'S'):
         dec = -dec
     return dec
-    
+
 
 def decimal_to_dms(decimal, long_or_lat):
     '''
     long_or_lat: should be either "long" or "lat"
-    
+
     returns dir, degrees, minutes seconds
     seconds rounded to two decimal points
     '''
-    
+
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
     dir = dir_map[long_or_lat][0]
     if decimal < 0:
         dir = dir_map[long_or_lat][1]
-    
+
     dec = abs(decimal)
     d = abs(int(dec))
-    m = abs((dec-d)*60)        
-    s = abs((int(m)-m) * 60)    
+    m = abs((dec-d)*60)
+    s = abs((int(m)-m) * 60)
     ROUND_TO=2
     #return dir, int(d), int(m), round(s,ROUND_TO)
     return dir, int(d), int(m), s
@@ -99,12 +99,12 @@ def add_plants_callback(row):
 
 
 def remove_callback(row):
-    value = row[0]    
+    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
-    
+
     try:
         session = create_session()
         obj = session.load(value.__class__, value.id)
@@ -112,7 +112,7 @@ def remove_callback(row):
         session.flush()
     except Exception, e:
         msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
-        utils.message_details_dialog(msg, traceback.format_exc(), 
+        utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
 
@@ -126,7 +126,7 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    return str(acc), acc.species.markup(authors=False)
+    return str(acc), '%s %s' % (acc.species.markup(authors=False), acc.id_qual)
 
 
 
@@ -165,7 +165,7 @@ verification_table = Table('verification',
                            Column('date', Date),
                            Column('literature', Unicode),
                            Column('level', String), # i don't know what this is
-                           Column('accession_id', Integer, 
+                           Column('accession_id', Integer,
                                   ForeignKey('accession.id')),
                            Column('_created', DateTime(True),
                                   default=func.current_timestamp()),
@@ -183,10 +183,10 @@ accession_table = Table('accession',
                         Column('code', Unicode(20), nullable=False,
                                unique=True),
                         Column('prov_type',
-                               Enum(values=['Wild', 
+                               Enum(values=['Wild',
                                           'Propagule of cultivated wild plant',
                                             "Not of wild source",
-                                            "Insufficient Data", 
+                                            "Insufficient Data",
                                             "Unknown",
                                             None],
                                     empty_to_none=True)),
@@ -203,7 +203,7 @@ accession_table = Table('accession',
                                                    None], empty_to_none=True)),
                 Column('notes', Unicode),
                 # id_qual new in 0.7
-                Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect', 
+                Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect',
                                                'forsan', 'near', '?', None],
                                        empty_to_none=True)),
                 Column('species_id', Integer, ForeignKey('species.id'),
@@ -211,7 +211,7 @@ accession_table = Table('accession',
                 Column('_created', DateTime(True),
                        default=func.current_timestamp()),
                 Column('_last_updated', DateTime(True),
-                       default=func.current_timestamp(), 
+                       default=func.current_timestamp(),
                        onupdate=func.current_timestamp()))
 
 
@@ -224,15 +224,15 @@ def delete_or_expunge(obj):
         session.expunge(obj)
         del obj
     else:
-#        debug('delete obj: %s -- %s' % (obj, repr(obj)))        
-        session.delete(obj)        
+#        debug('delete obj: %s -- %s' % (obj, repr(obj)))
+        session.delete(obj)
 
 
 class Accession(bauble.BaubleMapper):
-    
-    def __str__(self): 
+
+    def __str__(self):
         return self.code
-    
+
     def _get_source(self):
         if self.source_type is None:
             return None
@@ -241,8 +241,8 @@ class Accession(bauble.BaubleMapper):
         elif self.source_type == 'Donation':
             return self._donation
         raise AssertionError('unknown source_type in accession: %s' % \
-                             self.source_type)    
-    
+                             self.source_type)
+
     def _set_source(self, source):
         del self.source
         if source is None:
@@ -250,43 +250,43 @@ class Accession(bauble.BaubleMapper):
         else:
             self.source_type = source.__class__.__name__
             source.accession = self
-        
-    def _del_source(self):   
-        source = self.source        
+
+    def _del_source(self):
+        source = self.source
         if source is not None:
             source.accession = None
             delete_or_expunge(source)
-        self.source_type = None        
-                    
+        self.source_type = None
+
     source = property(_get_source, _set_source, _del_source)
 
-        
+
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
 
 
 from bauble.plugins.garden.source import Donation, donation_table, \
     Collection, collection_table
-from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table    
+from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table
 
 mapper(Accession, accession_table,
     properties = {'_collection':
-                  relation(Collection, 
+                  relation(Collection,
                            primaryjoin=accession_table.c.id==collection_table.c.accession_id,
                            cascade='all', uselist=False, backref='accession'),
                   '_donation':
-                  relation(Donation, 
+                  relation(Donation,
                            primaryjoin=accession_table.c.id==donation_table.c.accession_id,
                            cascade='all', uselist=False, backref='accession'),
                   'plants':
-                  relation(Plant, cascade='all, delete-orphan', 
+                  relation(Plant, cascade='all, delete-orphan',
                            order_by=plant_table.c.code,
                            backref='accession'),
                   'verifications':
-                  relation(Verification, order_by='date', private=True, 
+                  relation(Verification, order_by='date', private=True,
                            backref='accession', )},
        )#order_by='code')
-                               
+
 mapper(Verification, verification_table)
 
 
@@ -304,7 +304,7 @@ def get_source(row):
         return row._collection
     else:
         raise ValueError('unknown source type: ' + str(row.source_type))
-    
+
 
 accession_editor_tooltips = \
     {'acc_species_entry':
@@ -316,16 +316,16 @@ accession_editor_tooltips = \
     }
 
 class AccessionEditorView(GenericEditorView):
-    
+
     expanders_pref_map = {'acc_notes_expander':
-                          'editor.accession.notes.expanded', 
+                          'editor.accession.notes.expanded',
                           'acc_source_expander':
                           'editor.accession.source.expanded'}
-    
+
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
-                                                      'plugins', 'garden', 
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
+                                                      'plugins', 'garden',
                                                       'editors.glade'),
                                    parent=parent)
         self.dialog = self.widgets.accession_dialog
@@ -337,20 +337,22 @@ class AccessionEditorView(GenericEditorView):
             self.do_win32_fixes()
         self.set_tooltips()
 
+
     def set_tooltips(self):
         self.tooltips = gtk.Tooltips()
         for name, tip in accession_editor_tooltips.iteritems():
-            debug('tt: %s, %s' % (name, tip))
+#            debug('tt: %s, %s' % (name, tip))
             self.tooltips.set_tip(self.widgets[name], tip)
         self.tooltips.enable()
-    
+
+
     def do_win32_fixes(self):
         import pango
         def get_char_width(widget):
-            context = widget.get_pango_context()        
-            font_metrics = context.get_metrics(context.get_font_description(), 
-                                               context.get_language())        
-            width = font_metrics.get_approximate_char_width()            
+            context = widget.get_pango_context()
+            font_metrics = context.get_metrics(context.get_font_description(),
+                                               context.get_language())
+            width = font_metrics.get_approximate_char_width()
             return pango.PIXELS(width)
 
         def width_func(widget, col, multiplier=1.3):
@@ -367,12 +369,12 @@ class AccessionEditorView(GenericEditorView):
         source_combo = self.widgets.acc_source_type_combo
         source_combo.set_size_request(width_func(source_combo, 'source_type'),
                                       -1)
-                
-        # TODO: we really don't need to do the the fixes for the source 
-        # presenters until we know the which source box is going to be opened, 
-        # could connect to the boxes realized or focused signals or something 
+
+        # TODO: we really don't need to do the the fixes for the source
+        # presenters until we know the which source box is going to be opened,
+        # could connect to the boxes realized or focused signals or something
         # along those lines
-        
+
         # fix the widgets in the collection editor
         lat_entry = self.widgets.lat_entry
         lat_entry.set_size_request(get_char_width(lat_entry)*8, -1)
@@ -380,16 +382,16 @@ class AccessionEditorView(GenericEditorView):
         lon_entry.set_size_request(get_char_width(lon_entry)*8, -1)
         locale_entry = self.widgets.locale_entry
         locale_entry.set_size_request(get_char_width(locale_entry)*30, -1)
-        
+
         lat_dms_label = self.widgets.lat_dms_label
         lat_dms_label.set_size_request(get_char_width(lat_dms_label)*7, -1)
         lon_dms_label = self.widgets.lon_dms_label
         lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
-        
-        # fixes for donation editor        
 
-        
-    def save_state(self):        
+        # fixes for donation editor
+
+
+    def save_state(self):
         '''
         save the current state of the gui to the preferences
         '''
@@ -404,28 +406,28 @@ class AccessionEditorView(GenericEditorView):
         for expander, pref in self.expanders_pref_map.iteritems():
             expanded = prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
-            
-            
+
+
     def start(self):
-        return self.widgets.accession_dialog.run()    
-        
-        
+        return self.widgets.accession_dialog.run()
+
+
     def species_completion_match_func(self, completion, key_string, iter,
-                                      data=None):        
+                                      data=None):
         '''
         the only thing this does different is it make the match case insensitve
         '''
         value = completion.get_model()[iter][0]
-        return str(value).lower().startswith(key_string.lower())         
+        return str(value).lower().startswith(key_string.lower())
 
 
     def species_cell_data_func(self, column, renderer, model, iter, data=None):
         v = model[iter][0]
         renderer.set_property('text', str(v))
-        
 
 
-# TODO: should have a label next to lat/lon entry to show what value will be 
+
+# TODO: should have a label next to lat/lon entry to show what value will be
 # stored in the database, might be good to include both DMS and the float
 # so the user can see both no matter what is in the entry. it could change in
 # time as the user enters data in the entry
@@ -434,7 +436,7 @@ class AccessionEditorView(GenericEditorView):
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
 class CollectionPresenter(GenericEditorPresenter):
-    
+
     widget_to_field_map = {'collector_entry': 'collector',
                            'coll_date_entry': 'date',
                            'collid_entry': 'collectors_code',
@@ -446,39 +448,39 @@ class CollectionPresenter(GenericEditorPresenter):
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
                            'coll_notes_textview': 'notes'}
-    
+
     # TODO: could make the problems be tuples of an id and description to
     # be displayed in a dialog or on a label ala eclipse
     PROBLEM_BAD_LATITUDE = 1
     PROBLEM_BAD_LONGITUDE = 2
     PROBLEM_INVALID_DATE = 3
-            
-            
+
+
     def __init__(self, model, view, session):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
-        self.refresh_view()    
-        
+        self.refresh_view()
+
         self.assign_simple_handler('collector_entry', 'collector')
         self.assign_simple_handler('locale_entry', 'locale')
         self.assign_simple_handler('collid_entry', 'collectors_code')
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
                                    IntOrNoneStringValidator())
-        self.assign_simple_handler('alt_entry', 'elevation', 
+        self.assign_simple_handler('alt_entry', 'elevation',
                                    FloatOrNoneStringValidator())
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
                                    FloatOrNoneStringValidator())
         self.assign_simple_handler('habitat_textview', 'habitat')
         self.assign_simple_handler('coll_notes_textview', 'notes')
-        
+
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
         lat_entry.connect('delete-text', self.on_lat_entry_delete)
-        
+
         lon_entry = self.view.widgets.lon_entry
         lon_entry.connect('insert-text', self.on_lon_entry_insert)
         lon_entry.connect('delete-text', self.on_lon_entry_delete)
-        
+
         coll_date_entry = self.view.widgets.coll_date_entry
         coll_date_entry.connect('insert-text', self.on_date_entry_insert)
         coll_date_entry.connect('delete-text', self.on_date_entry_delete)
@@ -486,21 +488,21 @@ class CollectionPresenter(GenericEditorPresenter):
         # don't need to connection to south/west since they are in the same
         # groups as north/east
         north_radio = self.view.widgets.north_radio
-        self.north_toggle_signal_id = north_radio.connect('toggled', 
+        self.north_toggle_signal_id = north_radio.connect('toggled',
                                             self.on_north_south_radio_toggled)
-        east_radio = self.view.widgets.east_radio        
-        self.east_toggle_signal_id = east_radio.connect('toggled', 
+        east_radio = self.view.widgets.east_radio
+        self.east_toggle_signal_id = east_radio.connect('toggled',
                                             self.on_east_west_radio_toggled)
 
     def dirty(self):
         return self.model.dirty
-    
-    
+
+
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'date':                
+            if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value)
 
@@ -520,61 +522,61 @@ class CollectionPresenter(GenericEditorPresenter):
                 self.view.widgets.west_radio.set_active(True)
             else:
                 self.view.widgets.east_radio.set_active(True)
-                
+
         if self.model.elevation == None:
             self.view.widgets.altacc_entry.set_sensitive(False)
-        
+
         if self.model.latitude is None or self.model.longitude is None:
             self.view.widgets.geoacc_entry.set_sensitive(False)
-            
-            
-    def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
+
+
+    def on_date_entry_insert(self, entry, new_text, new_text_length, position,
                             data=None):
-        entry_text = entry.get_text()                
+        entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         self._set_date_from_text(full_text)
-        
+
 
     def on_date_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_date_from_text(full_text)
-        
+
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-    
+
     def _set_date_from_text(self, text):
         if text == '':
             self.model.date = None
-            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+            self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.coll_date_entry)
             return
-        
+
         dt = None # datetime
         m = self._date_regex.match(text)
         if m is None:
-            self.add_problem(self.PROBLEM_INVALID_DATE, 
+            self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.coll_date_entry)
         else:
 #            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
 #                                    m.group('day')))
             try:
                 ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]            
+                                        m.group('day')]]
                 dt = datetime(*ymd).date()
-                self.remove_problem(self.PROBLEM_INVALID_DATE, 
+                self.remove_problem(self.PROBLEM_INVALID_DATE,
                                     self.view.widgets.coll_date_entry)
             except:
-                self.add_problem(self.PROBLEM_INVALID_DATE, 
+                self.add_problem(self.PROBLEM_INVALID_DATE,
                                     self.view.widgets.coll_date_entry)
         self.model.date = dt
-        
-        
+
+
     def on_east_west_radio_toggled(self, button, data=None):
         direction = self._get_lon_direction()
         entry = self.view.widgets.lon_entry
-        lon_text = entry.get_text()    
+        lon_text = entry.get_text()
         if lon_text == '':
             return
         if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
@@ -582,18 +584,18 @@ class CollectionPresenter(GenericEditorPresenter):
         elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
             entry.set_text(lon_text[1:])
 
-                
+
     def on_north_south_radio_toggled(self, button, data=None):
         direction = self._get_lat_direction()
         entry = self.view.widgets.lat_entry
         lat_text = entry.get_text()
         if lat_text == '':
-            return        
+            return
         if direction == 'S' and lat_text[0] != '-' and len(lat_text) > 2:
             entry.set_text('-%s' % lat_text)
         elif direction == 'N' and lat_text[0] == '-' and len(lat_text) > 2:
             entry.set_text(lat_text[1:])
-    
+
 
     # TODO: need to write a test for this method
     @staticmethod
@@ -624,30 +626,30 @@ class CollectionPresenter(GenericEditorPresenter):
         elif self.view.widgets.south_radio.get_active():
             return 'S'
         raise ValueError('North/South radio buttons in a confused state')
-            
-            
+
+
     def _get_lon_direction(self):
         if self.view.widgets.east_radio.get_active():
             return 'E'
         elif self.view.widgets.west_radio.get_active():
             return 'W'
         raise ValueError('East/West radio buttons in a confused state')
-    
-    
-    def on_lat_entry_insert(self, entry, new_text, new_text_length, position, 
+
+
+    def on_lat_entry_insert(self, entry, new_text, new_text_length, position,
                             data=None):
-        entry_text = entry.get_text()                
+        entry_text = entry.get_text()
         cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]       
+        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         self._set_latitude_from_text(full_text)
-        
+
 
     def on_lat_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_latitude_from_text(full_text)
-            
-            
+
+
     def _set_latitude_from_text(self, text):
         latitude = None
         dms_string = ''
@@ -661,29 +663,29 @@ class CollectionPresenter(GenericEditorPresenter):
                 self.view.widgets.north_radio.handler_unblock(self.north_toggle_signal_id)
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
-                #u"\N{DEGREE SIGN}"                
+                #u"\N{DEGREE SIGN}"
                 dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
-        except:         
+        except:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
-            self.add_problem(self.PROBLEM_BAD_LATITUDE, 
+            self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
         else:
-            self.remove_problem(self.PROBLEM_BAD_LATITUDE, 
+            self.remove_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
-                    
+
         self.model['latitude'] = latitude
         self.view.widgets.lat_dms_label.set_text(dms_string)
-        
-        
-    def on_lon_entry_insert(self, entry, new_text, new_text_length, position, 
+
+
+    def on_lon_entry_insert(self, entry, new_text, new_text_length, position,
                             data=None):
-        entry_text = entry.get_text()                
+        entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         self._set_longitude_from_text(full_text)
- 
- 
+
+
     def on_lon_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
@@ -702,67 +704,67 @@ class CollectionPresenter(GenericEditorPresenter):
                     self.view.widgets.east_radio.set_active(True)
                 self.view.widgets.east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
-                longitude = CollectionPresenter._parse_lat_lon(direction, text)            
+                longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
         except:
 #            debug(traceback.format_exc())
-            bg_color = gtk.gdk.color_parse("red")            
-            self.add_problem(self.PROBLEM_BAD_LONGITUDE, 
+            bg_color = gtk.gdk.color_parse("red")
+            self.add_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
         else:
-            self.remove_problem(self.PROBLEM_BAD_LONGITUDE, 
+            self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
-            
+
         self.model['longitude'] = longitude
         self.view.widgets.lon_dms_label.set_text(dms_string)
-    
-    
+
+
 # TODO: make the donor_combo insensitive if the model is empty
 class DonationPresenter(GenericEditorPresenter):
-    
+
     widget_to_field_map = {'donor_combo': 'donor',
                            'donid_entry': 'donor_acc',
                            'donnotes_entry': 'notes',
-                           'don_date_entry': 'date'}    
+                           'don_date_entry': 'date'}
     PROBLEM_INVALID_DATE = 3
-    
+
     def __init__(self, model, view, session):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
-        
+
         # set up donor_combo
         donor_combo = self.view.widgets.donor_combo
         donor_combo.clear() # avoid gchararry/PyObject warning
-        r = gtk.CellRendererText()                    
+        r = gtk.CellRendererText()
         donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)        
-                
-        self.refresh_view()        
-        
+        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
+
+        self.refresh_view()
+
         # assign handlers
-        donor_combo.connect('changed', self.on_donor_combo_changed)        
+        donor_combo.connect('changed', self.on_donor_combo_changed)
         self.assign_simple_handler('donid_entry', 'donor_acc')
-        self.assign_simple_handler('donnotes_entry', 'notes')       
+        self.assign_simple_handler('donnotes_entry', 'notes')
         don_date_entry = self.view.widgets.don_date_entry
         don_date_entry.connect('insert-text', self.on_date_entry_insert)
         don_date_entry.connect('delete-text', self.on_date_entry_delete)
-        self.view.widgets.don_new_button.connect('clicked', 
+        self.view.widgets.don_new_button.connect('clicked',
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
                                                   self.on_don_edit_clicked)
-        
-        # if there is only one donor in the donor combo model and 
+
+        # if there is only one donor in the donor combo model and
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
             donor('set_active(0)')
             donor_combo.set_active(0)
-    
-            
+
+
     def dirty(self):
         return self.model.dirty
-    
-    
+
+
     def on_donor_combo_changed(self, combo, data=None):
-        '''        
+        '''
         changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
         '''
@@ -771,50 +773,50 @@ class DonationPresenter(GenericEditorPresenter):
         if i is None:
             return
         value = combo.get_model()[i][0]
-        self.model.donor = value        
+        self.model.donor = value
         if isinstance(value, Donor):
             self.view.widgets.don_edit_button.set_sensitive(True)
         else:
             self.view.widgets.don_edit_button.set_sensitive(False)
-        
-        
-    def on_date_entry_insert(self, entry, new_text, new_text_length, position, 
+
+
+    def on_date_entry_insert(self, entry, new_text, new_text_length, position,
                             data=None):
-        entry_text = entry.get_text()                
+        entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         self._set_date_from_text(full_text)
-        
+
 
     def on_date_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_date_from_text(full_text)
-        
+
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-    def _set_date_from_text(self, text):        
+    def _set_date_from_text(self, text):
         if text == '':
             self.model.date = None
-            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+            self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.don_date_entry)
             return
-        
+
         m = self._date_regex.match(text)
         dt = None # datetime
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                    m.group('day')]]            
+                                    m.group('day')]]
             dt = datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+            self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.don_date_entry)
         except:
-            self.add_problem(self.PROBLEM_INVALID_DATE, 
-                             self.view.widgets.don_date_entry)                
+            self.add_problem(self.PROBLEM_INVALID_DATE,
+                             self.view.widgets.don_date_entry)
         self.model.date = dt
 
-        
-        
+
+
     def on_don_new_clicked(self, button, data=None):
         '''
         create a new donor, setting the current donor on donor_combo
@@ -824,8 +826,8 @@ class DonationPresenter(GenericEditorPresenter):
         if donor is not None:
             self.refresh_view()
             self.view.set_widget_value('donor_combo', donor)
-        
-        
+
+
     def on_don_edit_clicked(self, button, data=None):
         '''
         edit currently selected donor
@@ -838,37 +840,37 @@ class DonationPresenter(GenericEditorPresenter):
         if edited is not None:
             self.refresh_view()
 
-            
+
     def combo_cell_data_func(self, cell, renderer, model, iter):
         v = model[iter][0]
-        renderer.set_property('text', str(v))        
-                
-           
+        renderer.set_property('text', str(v))
+
+
     def refresh_view(self):
         debug('DonationPresenter.refresh_view')
-        
+
         # populate the donor combo
-        model = gtk.ListStore(object)        
+        model = gtk.ListStore(object)
         for value in self.session.query(Donor).select():
             debug(value)
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
-        donor_combo.set_model(model)        
-        
-        for widget, field in self.widget_to_field_map.iteritems():            
+        donor_combo.set_model(model)
+
+        for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value)
-            
+
         if self.model.donor is None:
             self.view.widgets.don_edit_button.set_sensitive(False)
         else:
             self.view.widgets.don_edit_button.set_sensitive(True)
 
 
-def SourcePresenterFactory(model, view, session):    
+def SourcePresenterFactory(model, view, session):
     if isinstance(model, Collection):
         return CollectionPresenter(model, view, session)
     elif isinstance(model, Donation):
@@ -888,7 +890,7 @@ def SourcePresenterFactory(model, view, session):
 # in fact it should give a message dialog and ask if you would like
 # to enter some species now, or maybe import some
 class AccessionEditorPresenter(GenericEditorPresenter):
-    
+
     widget_to_field_map = {'acc_code_entry': 'code',
                            'acc_id_qual_combo': 'id_qual',
                            'acc_date_entry': 'date',
@@ -897,11 +899,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_species_entry': 'species',
                            'acc_source_type_combo': 'source_type',
                            'acc_notes_textview': 'notes'}
-    
-    
+
+
     PROBLEM_INVALID_DATE = 3
     PROBLEM_DUPLICATE_ACCESSION = 5
-    
+
     def __init__(self, model, view):
         '''
         @param model: an instance of class Accession
@@ -912,130 +914,130 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._original_source = self.model.source
         self._original_code = self.model.code
         self.current_source_box = None
-        self.source_presenter = None  
+        self.source_presenter = None
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
-        self.init_source_expander()             
-        self.refresh_view() # put model values in view    
+        self.init_source_expander()
+        self.refresh_view() # put model values in view
 
         # connect signals
-        def sp_get_completions(text):           
+        def sp_get_completions(text):
             genus_ids = select([genus_table.c.id],
                                genus_table.c.genus.like('%s%%' % text))
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-            return self.session.query(Species).select(sql) 
+            return self.session.query(Species).select(sql)
         def set_in_model(self, field, value):
 #            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value)
-        self.assign_completions_handler('acc_species_entry', 'species', 
-                                        sp_get_completions, 
+        self.assign_completions_handler('acc_species_entry', 'species',
+                                        sp_get_completions,
                                         set_func=set_in_model)
         self.view.widgets.acc_prov_combo.connect('changed',
-                                                 self.on_combo_changed, 
+                                                 self.on_combo_changed,
                                                  'prov_type')
-        self.view.widgets.acc_wild_prov_combo.connect('changed', 
+        self.view.widgets.acc_wild_prov_combo.connect('changed',
                                                       self.on_combo_changed,
                                                       'wild_prov_status')
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
         # adding a problem to the widget
-        self.view.widgets.acc_code_entry.connect('insert-text', 
+        self.view.widgets.acc_code_entry.connect('insert-text',
                                                self.on_acc_code_entry_insert)
-        self.view.widgets.acc_code_entry.connect('delete-text', 
+        self.view.widgets.acc_code_entry.connect('delete-text',
                                                self.on_acc_code_entry_delete)
         self.assign_simple_handler('acc_notes_textview', 'notes')
-                
+
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    StringOrNoneValidator())
-        self.init_change_notifier()        
-    
-    
+        self.init_change_notifier()
+
+
     def dirty(self):
         if self.source_presenter is None:
             return self.model.dirty
         return self.source_presenter.dirty() or self.model.dirty
-    
-    
+
+
     def on_acc_code_entry_insert(self, entry, new_text, new_text_length,
                                  position, data=None):
-        entry_text = entry.get_text()                
+        entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         self._set_acc_code_from_text(full_text)
 
-        
+
     def on_acc_code_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_acc_code_from_text(full_text)
-                
-        
+
+
     def _set_acc_code_from_text(self, text):
         if text != self._original_code \
                and self.session.query(Accession).count_by(code=text) > 0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
-            self.model.code = None            
-            return        
+            self.model.code = None
+            return
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_code_entry)
         if text is '':
             self.model.code = None
         self.model.code = text
 
-        
+
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
-                                 position, data=None):        
-        entry_text = entry.get_text()                
+                                 position, data=None):
+        entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
 #        debug('acc:date_insert: %s' % full_text)
         self._set_acc_date_from_text(full_text)
-        
+
 
     def on_acc_date_entry_delete(self, entry, start, end, data=None):
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_acc_date_from_text(full_text)
-        
+
 
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-    
+
     def _set_acc_date_from_text(self, text):
         if text == '':
             self.model.date = None
-            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+            self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
             return
-            
+
         m = self._date_regex.match(text)
         dt = None # datetime
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                     m.group('day')]]
             dt = datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE, 
+            self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
         except:
 #            debug(traceback.format_exc())
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.acc_date_entry)
-                        
+
         self.model.date = dt
-        
-    
+
+
     def on_field_changed(self, model, field):
 #        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
-        prov_sensitive = True                    
+        prov_sensitive = True
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
             if model.prov_type == 'Wild':
@@ -1046,19 +1048,19 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
             self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
-        
+
         if field == 'longitude' or field == 'latitude':
             if model.latitude is not None and model.longitude is not None:
                 self.view.widgets.geoacc_entry.set_sensitive(True)
             else:
                 self.view.widgets.geoacc_entry.set_sensitive(False)
-            
+
         if field == 'elevation':
-            if model.elevation is not None:            
+            if model.elevation is not None:
                 self.view.widgets.altacc_entry.set_sensitive(True)
-            else: 
+            else:
                 self.view.widgets.altacc_entry.set_sensitive(False)
-                
+
         # refresh the sensitivity of the accept buttons
         sensitive = True
         if len(self.problems) != 0:
@@ -1071,8 +1073,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         elif field == 'source_type':
             sensitive = False
         self.set_accept_buttons_sensitive(sensitive)
-            
-    
+
+
     def init_change_notifier(self):
         '''
         for each widget register a signal handler to be notified when the
@@ -1081,8 +1083,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
-        
-    
+
+
     def on_source_type_combo_changed(self, combo, data=None):
         '''
         change which one of donation_box/collection_box is packed into
@@ -1096,18 +1098,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             if self.model.source is not None:
                 self.model.source = None
             return
-        
-        # FIXME: Donation and Collection shouldn't be hardcoded so that it 
+
+        # FIXME: Donation and Collection shouldn't be hardcoded so that it
         # can be translated
         # this helps keep a reference to the widgets so they don't get
         # destroyed
         # TODO: if source_type is set and self.model.source is None then create
         # a new empty source object and attach it to the model
-        box_map = {'Donation': self.view.widgets.donation_box, 
+        box_map = {'Donation': self.view.widgets.donation_box,
                    'Collection': self.view.widgets.collection_box}
         source_class_map = {'Donation': Donation,
                             'Collection': Collection}
-        
+
         # the source_type has changed from what it originally was
         if source_type != self.model.source_type:
             source_type_changed = True
@@ -1129,7 +1131,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 debug('unknown source type: %s' % e)
                 raise
 
-            
+
         # replace source box contents with our new box
         #source_box = self.view.widgets.source_box
         source_box_parent = self.view.widgets.source_box_parent
@@ -1146,40 +1148,40 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.source_presenter = \
                            SourcePresenterFactory(self.model.source, self.view,
                                                   self.session)
-            # initialize model change notifiers    
+            # initialize model change notifiers
             for field in self.source_presenter.widget_to_field_map.values():
                 self.source_presenter.model.add_notifier(field,
                                                          self.on_field_changed)
-                
+
         if source_type_changed:
             self.on_field_changed(self.model, 'source_type')
 
-        
-    def set_accept_buttons_sensitive(self, sensitive):        
+
+    def set_accept_buttons_sensitive(self, sensitive):
         '''
         set the sensitivity of all the accept/ok buttons for the editor dialog
         '''
         self.view.widgets.acc_ok_button.set_sensitive(sensitive)
         self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
         self.view.widgets.acc_next_button.set_sensitive(sensitive)
-        
-        
-    def init_source_expander(self):        
+
+
+    def init_source_expander(self):
         '''
         initialized the source expander contents
         '''
         combo = self.view.widgets.acc_source_type_combo
-        model = gtk.ListStore(str)        
+        model = gtk.ListStore(str)
         model.append(['Collection'])
         model.append(['Donation'])
         model.append([None])
         combo.set_model(model)
         combo.set_active(-1)
-        self.view.widgets.acc_source_type_combo.connect('changed', 
+        self.view.widgets.acc_source_type_combo.connect('changed',
                                             self.on_source_type_combo_changed)
 #        self.view.dialog.show_all()
-        
-        
+
+
     def on_combo_changed(self, combo, field):
         self.model[field] = combo.get_active_text()
 
@@ -1196,7 +1198,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 #            debug('%s, model[%s] = %s' % (widget,field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
-            
+
             self.view.set_widget_value(widget, value)
 
         if self.model.prov_type == 'Wild':
@@ -1206,28 +1208,28 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.view.widgets.acc_wild_prov_combo.set_sensitive(False)
             self.view.widgets.acc_wild_prov_frame.set_sensitive(False)
 
-                
+
     def start(self):
         return self.view.start()
-        
-        
+
+
 
 class AccessionEditor(GenericModelViewPresenterEditor):
-    
+
     label = 'Accession'
     mnemonic_label = '_Accession'
-    
+
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
-    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
-        
-        
+    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+
+
     def __init__(self, model=None, parent=None):
         '''
         @param model: Accession instance or None
         @param parent: the parent widget
-        '''        
+        '''
         if model is None:
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
@@ -1235,8 +1237,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
-        
-    
+
+
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -1247,7 +1249,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except SQLError, e:                
+            except SQLError, e:
                 msg = 'Error committing changes.\n\n%s' % \
                       utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -1256,7 +1258,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 msg = 'Unknown error when committing changes. See the '\
                       'details for more information.\n\n%s' % utils.xml_safe(e)
                 debug(traceback.format_exc())
-                utils.message_details_dialog(msg, traceback.format_exc(), 
+                utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() \
@@ -1265,7 +1267,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             return True
         else:
             return False
-                
+
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
@@ -1274,42 +1276,42 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         elif response == self.RESPONSE_OK_AND_ADD:
             e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
-                    
+
         if more_committed is not None:
             committed = [self._committed]
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)
             else:
-                self._committed.append(more_committed)                
-        
-        return True        
+                self._committed.append(more_committed)
 
-    
+        return True
+
+
     def start(self):
         from bauble.plugins.plants.species_model import Species
-        if self.session.query(Species).count() == 0:        
+        if self.session.query(Species).count() == 0:
             msg = 'You must first add or import at least one species into '\
                   'the database before you can add accessions.'
             utils.message_dialog(msg)
             return
         self.view = AccessionEditorView(parent=self.parent)
         self.presenter = AccessionEditorPresenter(self.model, self.view)
-        
+
         # add quick response keys
-        dialog = self.view.dialog        
+        dialog = self.view.dialog
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
                              gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)        
-        
+                             gtk.gdk.CONTROL_MASK)
+
         # set the default focus
         if self.model.species is None:
             self.view.widgets.acc_species_entry.grab_focus()
         else:
             self.view.widgets.acc_code_entry.grab_focus()
-        
+
         exc_msg = "Could not commit changes.\n"
         committed = None
         while True:
@@ -1317,35 +1319,35 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
-            
+
         self.session.close() # cleanup session
         return self._committed
 
-    
-    
+
+
     @staticmethod
     def __cleanup_donation_model(model):
         '''
         '''
         return model
-    
-    
+
+
     @staticmethod
     def __cleanup_collection_model(model):
         '''
         '''
         # TODO: we should raise something besides commit ValueError
-        # so we can give a meaningful response        
+        # so we can give a meaningful response
         if model.latitude is not None or model.longitude is not None:
             if (model.latitude is not None and model.longitude is None) or \
                 (model.longitude is not None and model.latitude is None):
                 msg = 'model must have both latitude and longitude or neither'
                 raise ValueError(msg)
             elif model.latitude is None and model.longitude is None:
-                model.geo_accy = None # don't save 
+                model.geo_accy = None # don't save
         else:
-            model.geo_accy = None # don't save                 
-            
+            model.geo_accy = None # don't save
+
         # reset the elevation accuracy if the elevation is None
         if model.elevation is None:
             model.elevation_accy = None
@@ -1360,17 +1362,17 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         return super(AccessionEditor, self).commit_changes()
 
 
- 
+
 # import at the bottom to avoid circular dependencies
 from bauble.plugins.plants.genus import Genus, genus_table
 from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.garden.donor import Donor, DonorEditor
-       
+
 #
 # infobox for searchview
 #
 
-# TODO: i don't think this shows all field of an accession, like the 
+# TODO: i don't think this shows all field of an accession, like the
 # accuracy values
 class GeneralAccessionExpander(InfoExpander):
     """
@@ -1390,13 +1392,14 @@ class GeneralAccessionExpander(InfoExpander):
     def update(self, row):
         '''
         '''
-        self.set_widget_value('name_data', 
-                              '%s\n%s' % (row.species.markup(True),
-                                          row.code))
+        self.set_widget_value('name_data',
+                              '%s %s\n%s' % (row.species.markup(True),
+                                             row.id_qual,
+                                             row.code))
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,
         # 2 Dead, 6 Unknown, etc
-        # TODO: could this be sped up, does it matter?            
+        # TODO: could this be sped up, does it matter?
         nplants = session.query(Plant).count_by(accession_id=row.id)
         self.set_widget_value('nplants_data', nplants)
         self.set_widget_value('prov_data', row.prov_type, False)
@@ -1408,14 +1411,14 @@ class NotesExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)            
+        InfoExpander.__init__(self, "Notes", widgets)
         notes_box = self.widgets.notes_box
         self.widgets.notes_window.remove(notes_box)
         self.vbox.pack_start(notes_box)
 
 
     def update(self, row):
-        self.set_widget_value('notes_data', row.notes)            
+        self.set_widget_value('notes_data', row.notes)
 
 
 class SourceExpander(InfoExpander):
@@ -1432,7 +1435,7 @@ class SourceExpander(InfoExpander):
         geo_accy = collection.geo_accy
         if geo_accy is None:
             geo_accy = ''
-        else: 
+        else:
             geo_accy = '(+/- %sm)' % geo_accy
 
         if collection.latitude is not None:
@@ -1469,7 +1472,7 @@ class SourceExpander(InfoExpander):
         self.set_widget_value('donnotes_data', donation.notes)
 
 
-    def update(self, value):        
+    def update(self, value):
         if self.curr_box is not None:
             self.vbox.remove(self.curr_box)
 
@@ -1481,29 +1484,29 @@ class SourceExpander(InfoExpander):
         # TODO: i guess we are losing the references here to box map
         # and so the widgets are getting destroyed, somehow we need to make
         # this persistent, maybe make it class level
-        box_map = {Collection: (self.widgets.collections_box, 
+        box_map = {Collection: (self.widgets.collections_box,
                                 self.update_collections),
-                   Donation: (self.widgets.donations_box, 
+                   Donation: (self.widgets.donations_box,
                               self.update_donations)}
         box, update = box_map[value.__class__]
         self.widgets.remove_parent(box)
         self.curr_box = box
-        update(value)        
-#            if isinstance(value, Collection):            
+        update(value)
+#            if isinstance(value, Collection):
 #                #box = self.widgets.collections_box
 #                self.widgets.remove_parent(box)
 #                self.curr_box = box
-#                self.update_collections(value)        
+#                self.update_collections(value)
 #            elif isinstance(value, Donation):
 #                box = self.widgets.donations_box
 #                self.widgets.remove_parent(box)
 #                self.curr_box = box
-#                self.update_donations(value)            
+#                self.update_donations(value)
 #            else:
 #                msg = "Unknown type for source: " + str(type(value))
 #                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
-        self.vbox.pack_start(self.curr_box)            
+        self.vbox.pack_start(self.curr_box)
         self.set_expanded(True)
         self.set_sensitive(True)
 
@@ -1515,7 +1518,7 @@ class AccessionInfoBox(InfoBox):
     """
     def __init__(self):
         InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
                             "acc_infobox.glade")
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
 
