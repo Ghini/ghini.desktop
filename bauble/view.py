@@ -761,11 +761,7 @@ class SearchView(pluginmgr.View):
         debug('SearchView.search(%s)' % text)
         self.session.clear()
 
-        model = self.results_view.get_model()
-        if model is not None:
-            model.clear() # is this necessary
-            self.results_view.set_model(None)
-        #utils.clear_model(self.results_view)
+        utils.clear_model(self.results_view)
 
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
@@ -856,8 +852,7 @@ class SearchView(pluginmgr.View):
             will be check on expansion
         '''
         results = []
-        model = self.results_view.get_model()
-        self.results_view.set_model(None) # temporarily remove the model
+        utils.clear_model(self.results_view)
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
@@ -916,8 +911,8 @@ class SearchView(pluginmgr.View):
             except (saexc.InvalidRequestError, TypeError), e:
                 def remove():
                     treeview_model = self.results_view.get_model()
-                    self.results_view.set_model(None)
-                    for found in utils.search_tree_model(treeview_model, value):
+                    self.results_view.set_model(None) # detach model
+                    for found in utils.search_tree_model(treeview_model,value):
                         treeview_model.remove(found)
                     self.results_view.set_model(treeview_model)
                 gobject.idle_add(remove)

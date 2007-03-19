@@ -2,7 +2,7 @@
 # report module
 #
 
-# TODO: all these  names are getting confusing, we should probably 
+# TODO: all these  names are getting confusing, we should probably
 # rename the top level module to 'report' or something and report plugins
 # could then be called 'formatters'
 
@@ -27,7 +27,7 @@ config_list_pref = 'report.configs'
 #report_modules_pref = 'report.modules'
 
 # the default report generator to select on start
-default_config_pref = 'report.default' 
+default_config_pref = 'report.default'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 
@@ -36,19 +36,19 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
     all_plants = {}
     session = create_session()
     plant_query = session.query(Plant)
-    
+
     def add_plants(plants):
         for p in plants:
             if id not in all_plants and p.acc_status in acc_status:
                 all_plants[p.id] = p
-    
+
     def add_plants_from_accessions(accessions):
         '''
         add all plants from all accessions
         '''
 #        genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
 #        sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-#        return self.session.query(Species).select(sql) 
+#        return self.session.query(Species).select(sql)
         if False:
             # TODO: i don't know why this doesn't work, tried with SA 2.8
 #            debug(accessions)
@@ -60,20 +60,20 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
             plants = plant_query.select(stmt)
 #            debug(plants)
             add_plants(p)
-        else:            
-            for p in [acc.plants for acc in accessions]:        
+        else:
+            for p in [acc.plants for acc in accessions]:
                 add_plants(p)
 
     # append the objects from the tag
     try:
         from bauble.plugins.tag import Tag
-        
-        for obj in objs:        
+
+        for obj in objs:
             if isinstance(obj, Tag):
                 objs.extend(obj.objects)
     except ImportError:
         pass
-##        if isinstance(obj, global_metadata.tables['Tag']):        
+##        if isinstance(obj, global_metadata.tables['Tag']):
 ##           objs.extend(obj.objects)
 
     # TODO: it would be better if getting the plants from the different
@@ -82,9 +82,9 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
     # view meta or at least something along those lines
     from bauble.plugins.plants import Family, Genus, Species
     from bauble.plugins.garden import Accession, Plant, Location
-    for obj in objs:        
+    for obj in objs:
         # extract the plants from the search results
-        # TODO: need to speed this up using custom queries, see the 
+        # TODO: need to speed this up using custom queries, see the
         # family and genera infoboxes
         debug('obj: %s' % obj)
         if isinstance(obj, Family):
@@ -95,7 +95,7 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
             for sp in obj.species:
                 add_plants_from_accessions(sp.accessions)
         elif isinstance(obj, Species):
-            add_plants_from_accessions(obj.accessions)            
+            add_plants_from_accessions(obj.accessions)
         elif isinstance(obj, Accession):
 #            debug(obj.plants)
             add_plants(obj.plants)
@@ -103,7 +103,7 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
             add_plants([obj])
         elif isinstance(obj, Location):
             add_plants(obj.plants)
-        
+
     return all_plants.values()
 
 
@@ -114,7 +114,7 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
 ##     path, name = os.path.split(__file__)
 ##     if path.find("library.zip") != -1: # using py2exe
 ##         pkg = "bauble.plugins.formatter"
-##         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files 
+##         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files
 ##         x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins\\formatter" in file]
 ##         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
 ##         rx = re.compile(s.encode('string_escape'))
@@ -127,21 +127,21 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
 ##             full = path + os.sep + d
 ##             if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
 ##                 names.append(d)
-                
+
 ##     plugins = []
 ##     for name in names:
 ##         try:
 ##             mod = __import__(name, globals(), locals(), ['formatter'])
 ##         except Exception, e:
 ##             msg = "Could not import the %s module." % name
-##             utils.message_details_dialog(msg, str(traceback.format_exc()), 
+##             utils.message_details_dialog(msg, str(traceback.format_exc()),
 ##                      gtk.MESSAGE_ERROR)
 ##             raise
 ##         if hasattr(mod, "formatter"):
-##             plugins.append(mod.formatter)    
-                
-##     return plugins 
-    
+##             plugins.append(mod.formatter)
+
+##     return plugins
+
 
 
 class SettingsBox(gtk.VBox):
@@ -152,10 +152,10 @@ class SettingsBox(gtk.VBox):
     """
     def __init__(self):
         super(SettingsBox, self).__init__()
-    
+
     def get_settings(self):
         raise NotImplementerError
-    
+
     def update(self, settings={}):
         raise NotImplementerError
 
@@ -167,10 +167,10 @@ class FormatterPlugin(pluginmgr.Plugin):
     reports with the ReportToolPlugin
 
     NOTE: the title class attribute must be a unique string
-    '''    
-        
+    '''
+
     title = ''
-    
+
     @staticmethod
     def get_settings_box():
         '''
@@ -178,35 +178,35 @@ class FormatterPlugin(pluginmgr.Plugin):
         the formatter
         '''
         raise NotImplementedError
-    
+
     @staticmethod
     def format(selfobjs, **kwargs):
         '''
         called when the use clicks on OK, this is the worker
         '''
         raise NotImplementedError
-    
+
 
 
 class ReportToolDialogView(object):
-    
+
     def __init__(self):
-        self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),  
+        self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
                                    "plugins", "report", 'report.glade'))
         self.dialog = self.widgets.report_dialog
         self.dialog.set_transient_for(bauble.gui.window)
-        
-        
+
+
     def start(self):
         return self.dialog.run()
-        
-        
-        
-class ReportToolDialogPresenter(object):    
-    
+
+
+
+class ReportToolDialogPresenter(object):
+
     formatter_class_map = {} # title->class map
-    
-    def __init__(self, view):    
+
+    def __init__(self, view):
         self.view = view
         self.init_names_combo()
         self.init_formatter_combo()
@@ -220,8 +220,8 @@ class ReportToolDialogPresenter(object):
         self.view.widgets.formatter_combo.connect('changed',
                                                self.on_formatter_combo_changed)
         self.view.widgets.ok_button.set_sensitive(False)
-        
-        # set the names combo to the default, on_names_combo_changes should 
+
+        # set the names combo to the default, on_names_combo_changes should
         # do the rest of the work
         combo = self.view.widgets.names_combo
         default = prefs[default_config_pref]
@@ -247,12 +247,12 @@ class ReportToolDialogPresenter(object):
             self.view.widgets.details_box.set_sensitive(False)
             return
         if isinstance(val, int):
-            combo.set_active(val)    
+            combo.set_active(val)
         else:
             utils.combo_set_active_text(combo, val)
-        combo.emit('changed')        
-        
-        
+        combo.emit('changed')
+
+
     def set_formatter_combo(self, val):
         """
         set the formatter combo to val and emit the 'changed' signal,
@@ -263,10 +263,10 @@ class ReportToolDialogPresenter(object):
         if isinstance(val, int):
             combo.set_active(val)
         else:
-            utils.combo_set_active_text(combo, val)            
+            utils.combo_set_active_text(combo, val)
         combo.emit('changed')
-        
-        
+
+
     def set_prefs_for(self, name, formatter_title, settings):
         '''
         this will overwrite any other report settings with name
@@ -277,9 +277,9 @@ class ReportToolDialogPresenter(object):
             formatters = {}
         formatters[name] = formatter_title, settings
         prefs[config_list_pref] = formatters
-#        debug(prefs[config_list_pref])        
-    
-                
+#        debug(prefs[config_list_pref])
+
+
     def on_new_button_clicked(self, *args):
         # TODO: don't set the OK button as sensitive in the name dialog
         # if the name already exists
@@ -287,13 +287,13 @@ class ReportToolDialogPresenter(object):
         d = gtk.Dialog('', self.view.dialog,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))    
+                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
         d.vbox.set_spacing(10)
         label = gtk.Label('Enter a name for the new formatter')
         label.set_padding(10, 10)
-        d.vbox.pack_start(label)    
+        d.vbox.pack_start(label)
         entry = gtk.Entry()
-        d.vbox.pack_start(entry)    
+        d.vbox.pack_start(entry)
         d.show_all()
         names_model = self.view.widgets.names_combo.get_model()
         while True:
@@ -310,12 +310,12 @@ class ReportToolDialogPresenter(object):
                     self.populate_names_combo()
                     utils.combo_set_active_text(self.view.widgets.names_combo,
                                                 name)
-                    break                
+                    break
             else:
-                break                        
+                break
         d.destroy()
-                    
-    
+
+
     def on_remove_button_clicked(self, *args):
         formatters = prefs[config_list_pref]
         names_combo = self.view.widgets.names_combo
@@ -325,17 +325,17 @@ class ReportToolDialogPresenter(object):
         self.populate_names_combo()
         names_combo.set_active(0)
 
-    
+
     def on_names_combo_changed(self, combo, *args):
         debug('on_names_combo.changed()')
         if combo.get_model() is None:
             print ' -- model = None'
             self.view.widgets.details_box.set_sensitive(False)
             return
-        
+
         name = combo.get_active_text()
         debug('--- on_names_combo_changed(%s)' % name)
-        formatters = prefs[config_list_pref]        
+        formatters = prefs[config_list_pref]
         self.view.widgets.details_box.set_sensitive(name is not None)
         prefs[default_config_pref] = name # set the default to the new name
         try:
@@ -344,28 +344,28 @@ class ReportToolDialogPresenter(object):
         except (KeyError, TypeError), e:
             #debug(e)
             return
-        
+
         try:
             self.set_formatter_combo(title)
         except Exception, e:
 #            debug(e)
             self.set_formatter_combo(-1)
         self.view.widgets.details_box.set_sensitive(True)
-            
+
 #        debug('--- leaving on_names_combo_changed()')
-            
-            
+
+
     def on_formatter_combo_changed(self, combo, *args):
         '''
         formatter_combo changed signal handler
         '''
-        title = combo.get_active_text()                
+        title = combo.get_active_text()
 #        debug('**** on_formatter_combo_changed(%s)' % title)
-        name = self.view.widgets.names_combo.get_active_text()        
+        name = self.view.widgets.names_combo.get_active_text()
         try:
-            saved_title, settings = prefs[config_list_pref][name]            
+            saved_title, settings = prefs[config_list_pref][name]
             if saved_title != title:
-                settings = {}                
+                settings = {}
 #            debug('settings: %s' % settings)
 #            # set the new formatter value in the preferences
 #            set_prefs_for(name, self.formatter_class_map[title])
@@ -373,38 +373,38 @@ class ReportToolDialogPresenter(object):
         except KeyError, e:
             debug(e)
             return
-        
+
         expander = self.view.widgets.settings_expander
         child = expander.get_child()
         if child is not None:
             expander.remove(child)
-            
+
         #self.widgets.ok_button.set_sensitive(title is not None)
         self.view.widgets.ok_button.set_sensitive(title is not None)
         if title is None:
-            return                    
-        
+            return
+
         cls = self.formatter_class_map[title]
         box = cls.get_settings_box()
         if box is not None:
             box.update(settings)
             expander.add(box)
-            box.show_all()            
-        expander.set_sensitive(box is not None)     
-        # TODO: should probably remember expanded state, 
+            box.show_all()
+        expander.set_sensitive(box is not None)
+        # TODO: should probably remember expanded state,
         # see formatter_settings_expander_pref
         expander.set_expanded(box is not None)
-        title = combo.get_active_text()        
+        title = combo.get_active_text()
         self.set_prefs_for(name, title, settings)
 #        debug('**** leaving on_formatter_combo_changed')
-            
-    
-    def init_formatter_combo(self):        
+
+
+    def init_formatter_combo(self):
         plugins = []
         for p in pluginmgr.plugins:
             if issubclass(p, FormatterPlugin):
                 plugins.append(p)
-        
+
         # we should always have at least the default formatter
         model = gtk.ListStore(str)
         #assert len(plugins) is not 0, 'No formatter plugins defined.'
@@ -412,14 +412,14 @@ class ReportToolDialogPresenter(object):
             utils.message_dialog('No formatter plugins defined',
                                  gtk.MESSAGE_WARNING)
             return
-            
+
         for item in plugins:
             title = item.title
-            self.formatter_class_map[title] = item            
+            self.formatter_class_map[title] = item
             model.append([item.title])
-        self.view.widgets.formatter_combo.set_model(model)        
-        
-        
+        self.view.widgets.formatter_combo.set_model(model)
+
+
     def populate_names_combo(self):
         '''
         populates the combo with the list of configuration names
@@ -430,8 +430,8 @@ class ReportToolDialogPresenter(object):
         if configs is None:
             debug('configs is None')
             self.view.widgets.details_box.set_sensitive(False)
-            combo.set_model(None)
-            return        
+            utils.clear_model(combo)
+            return
         try:
             model = gtk.ListStore(str)
             for cfg in configs.keys():
@@ -442,10 +442,10 @@ class ReportToolDialogPresenter(object):
             # no formatters
             debug(e)
             pass
-        
-        
-    def init_names_combo(self):      
-##         formatters = prefs[config_list_pref]  
+
+
+    def init_names_combo(self):
+##         formatters = prefs[config_list_pref]
 ##         if formatters is None or len(formatters) == 0:
 ##             #msg = 'No formatters found. To create a new formatter click the '\
 ##             #      '"New" button.'
@@ -454,10 +454,10 @@ class ReportToolDialogPresenter(object):
 ##             self.view.widgets.names_combo.set_model(None)
 #        self.view.widgets.names_combo.set_model(None)
         self.populate_names_combo()
-        
+
 
     def save_formatter_settings(self):
-        name = self.view.widgets.names_combo.get_active_text()        
+        name = self.view.widgets.names_combo.get_active_text()
         title, dummy =  prefs[config_list_pref][name]
         box = self.view.widgets.settings_expander.get_child()
         formatters = prefs[config_list_pref]
@@ -465,8 +465,8 @@ class ReportToolDialogPresenter(object):
         formatters[name] = title, box.get_settings()
         prefs[config_list_pref] = formatters
 #        debug(prefs[config_list_pref][name])
-        
-        
+
+
     def start(self):
         formatter = None
         settings = None
@@ -478,7 +478,7 @@ class ReportToolDialogPresenter(object):
                 prefs[default_config_pref] = \
                              self.view.widgets.names_combo.get_active_text()
                 self.save_formatter_settings()
-                name = self.view.widgets.names_combo.get_active_text()        
+                name = self.view.widgets.names_combo.get_active_text()
                 title, settings =  prefs[config_list_pref][name]
                 formatter = self.formatter_class_map[title]
                 break
@@ -486,47 +486,47 @@ class ReportToolDialogPresenter(object):
                 break
         self.view.dialog.destroy()
         return formatter, settings
-        
-    
-     
+
+
+
 class ReportToolDialog(object):
-    
-    def __init__(self):        
+
+    def __init__(self):
         self.view = ReportToolDialogView()
         self.presenter = ReportToolDialogPresenter(self.view)
 
 
     def start(self):
         return self.presenter.start()
-    
-    
-    
-class ReportTool(pluginmgr.Tool):    
-    
+
+
+
+class ReportTool(pluginmgr.Tool):
+
     label = "Report"
-    
+
     @classmethod
-    def start(self):        
+    def start(self):
         '''
-        '''    
+        '''
         # get the select results from the search view
         from bauble.view import SearchView
         view = bauble.gui.get_view()
         if not isinstance(view, SearchView):
             utils.message_dialog(_('Search for something first.'))
             return
-            
+
         model = view.results_view.get_model()
         if model is None:
             utils.message_dialog(_('Search for something first.'))
             return
-        
+
         bauble.set_busy(True)
         # extract the plants from the search results
-        # TODO: need to speed this up using custom queries, see the 
-        # family and genera infoboxes            
+        # TODO: need to speed this up using custom queries, see the
+        # family and genera infoboxes
         ok = False
-        try:            
+        try:
             while True:
                 dialog = ReportToolDialog()
                 formatter, settings = dialog.start()
@@ -535,16 +535,16 @@ class ReportTool(pluginmgr.Tool):
                 ok = formatter.format([row[0] for row in model], **settings)
                 if ok:
                     break
-                        
+
         except AssertionError, e:
             debug(e)
             utils.message_dialog(str(e), gtk.MESSAGE_ERROR,
-                                 parent=self.view.dialog)            
+                                 parent=self.view.dialog)
         except Exception:
             debug(traceback.format_exc())
-            utils.message_details_dialog('Formatting Error', 
+            utils.message_details_dialog('Formatting Error',
                                      traceback.format_exc(), gtk.MESSAGE_ERROR)
-        bauble.set_busy(False)       
+        bauble.set_busy(False)
         return
 
 
@@ -554,10 +554,10 @@ class ReportToolPlugin(pluginmgr.Plugin):
     '''
     tools = [ReportTool]
 
-    
+
 
 def plugin():
-    from bauble.plugins.report.default import DefaultFormatterPlugin    
+    from bauble.plugins.report.default import DefaultFormatterPlugin
     return [ReportToolPlugin, DefaultFormatterPlugin]
 #plugin = [ReportToolPlugin]
 
