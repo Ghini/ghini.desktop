@@ -122,6 +122,29 @@ def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
     return results
 
 
+
+def clear_model(obj_with_model, ridiculous=False):
+    '''
+    and and remove the model on an object
+    '''
+    model = obj_with_model.get_model()
+    if model is None:
+        return
+    if not ridiculous:
+        model.clear()
+    else:
+        ncols = model.get_n_columns()
+        def del_cb(model, path, iter, data=None):
+            for c in xrange(0, ncols):
+                v =  model.get_value(iter, c)
+                del v
+            del iter
+        model.foreach(del_cb)
+    del model
+    model = None
+    obj_with_model.set_model(None)
+
+
 def combo_set_active_text(combo, value):
     '''
     does the same thing as set_combo_from_value but this looks more like a
