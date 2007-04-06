@@ -16,7 +16,7 @@ import Queue
 
 # TODO: ****** important *****
 # right now exporting will only export those tables that are registered through
-# plugins and won't *see* the other tables that aren't part of any plugin 
+# plugins and won't *see* the other tables that aren't part of any plugin
 # or attached to and SA metadata object, we really should try to get all the
 # tables and dump everything
 # *****************************
@@ -30,14 +30,14 @@ import Queue
 # 'name' column in the insert so there is an error, if  you then import the
 # same table immediately after then everything seems to work fine
 
-# TODO: in _task_import_files we should really only be dropping tables if the 
+# TODO: in _task_import_files we should really only be dropping tables if the
 # tables exist and not showing up warning dialogs if we don't really need
 # to drop anything anyway
 
 # TODO: after import we should clear the search results, and maybe
 # warn the user we are doing so
 
-# TODO: it might be way faster to transform the csv to a format that 
+# TODO: it might be way faster to transform the csv to a format that
 # the database connection understands and use the databases import file statements
 
 # TODO: allow importing/exporting to be customizable, ability to set quoting
@@ -47,7 +47,6 @@ import Queue
 # TODO: need better error handling on import, right now it catches the
 # exception and shows a dialog but when you close the dialog the task
 # bar isn't cleared
-
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
@@ -59,7 +58,7 @@ def chunk(iterable, n):
     chunk = []
     ctr = 0
     for it in iterable:
-        chunk.append(it)            
+        chunk.append(it)
         ctr += 1
         if ctr >= n:
             yield chunk
@@ -83,12 +82,12 @@ class CSVImporter:
         except Exception, e:
             msg = 'Error connecting to database.\n\n%s' % utils.xml_safe(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            return        
+            return
 
-        # sort the tables and filenames by dependency so we can 
+        # sort the tables and filenames by dependency so we can
         # drop/create/import them in the proper order
         filename_dict = {}
-        for f in filenames:            
+        for f in filenames:
             path, base = os.path.split(f)
             table_name, ext = os.path.splitext(base)
             if table_name in filename_dict:
@@ -104,31 +103,31 @@ class CSVImporter:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
             except KeyError, e: # ---> table.name not in list of filenames
                 pass
-            
+
         if len(filename_dict) > 0:
             msg = 'Could not match all filenames to table names.\n\n%s' % \
                   filename_dict
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
-            
+
         total_lines = 0
         for filename in filenames:
             #get the total number of lines for all the files
-            total_lines += len(file(filename).readlines())            
-         
-        bauble.task.queue(self.__import_task, callback, transaction,
-                          sorted_tables, force)            
+            total_lines += len(file(filename).readlines())
 
-        
+        bauble.task.queue(self.__import_task, callback, transaction,
+                          sorted_tables, force)
+
+
     def __import_task(self, transaction, sorted_tables, force):
         """
         a tasklet that import data into a Bauble database, this method should
         be run as a gtasklet task,
         see http://www.gnome.org/~gjc/gtasklet/gtasklets.html
-        
-        this method takes an all or nothing approach, either we import 
+
+        this method takes an all or nothing approach, either we import
         everything in filesnames of we bail out
-        
+
         @param filenames: the list of files names t
         @param force: causes the data to be imported regardless if the table
         already has something in it (TODO: this doesn't do anything yet)
@@ -146,43 +145,43 @@ class CSVImporter:
         # a different schema, in theory this shouldn't happend but it's
         # possible, would probably be better to just recreate the table anyway
         # since it's empty
-        
-        # TODO: checking the number of rows in a database locks up when in a 
+
+        # TODO: checking the number of rows in a database locks up when in a
         # transaction and causes the import the hang, i would rather only ask
         # the user if they want drop the table if it isn't empty but i haven't
         # figured out a way to do this in a transaction. the problem seems to
         # be when table is in an inbetween state b/c it's been dropped in
         # transaction as a dependency of another table so when we go to check
         # if it has rows it seems like the database is waiting for the
-        # transaction to finish and....LOCK        
-        
-        timeout = gtasklet.WaitForTimeout(3)        
+        # transaction to finish and....LOCK
+
+        timeout = gtasklet.WaitForTimeout(3)
         self.__error_traceback_str = ''
         self.__error_exc = 'Unknown Error.'
-        
+
         created_tables = []
         def add_to_created(names):
             created_tables.extend([n for n in names if n not in created_tables])
-        
-        que = Queue.Queue(0)    
+
+        que = Queue.Queue(0)
         total_lines = 0
         for table, filename in sorted_tables:
             #get the total number of lines for all the files
-            total_lines += len(file(filename).readlines())   
+            total_lines += len(file(filename).readlines())
         steps_so_far = 0
-            
+
         try:
             # first do all the table creation/dropping
-            for table, filename in sorted_tables:               
+            for table, filename in sorted_tables:
 #                if self.__cancel or self.__error:
 #                    debug('break')
 #                    break
                 msg = 'importing %s table from %s' % (table.name, filename)
-                log.info(msg)                
+                log.info(msg)
                 bauble.task.set_message(msg)
                 yield timeout
                 gtasklet.get_event()
-                
+
                 if not table.exists(connectable=engine):
                     #debug('%s does not exist. creating.' % table.name)
                     log.info('%s does not exist. creating.' % table.name)
@@ -200,8 +199,8 @@ class CSVImporter:
                             table.name
                     d = utils.create_yes_no_dialog(msg)
                     yield (gtasklet.WaitForSignal(d, "response"),
-                           gtasklet.WaitForSignal(d, "close"))   
-                    response = gtasklet.get_event().signal_args[0]        
+                           gtasklet.WaitForSignal(d, "close"))
+                    response = gtasklet.get_event().signal_args[0]
                     d.destroy()
                     if force or response == gtk.RESPONSE_YES:
                         deps = utils.find_dependent_tables(table)
@@ -214,8 +213,8 @@ class CSVImporter:
                                   % (table.name, ', '.join(dep_names))
                             d = utils.create_yes_no_dialog(msg)
                             yield (gtasklet.WaitForSignal(d, "response"),
-                                   gtasklet.WaitForSignal(d, "close"))   
-                            response = gtasklet.get_event().signal_args[0]        
+                                   gtasklet.WaitForSignal(d, "close"))
+                            response = gtasklet.get_event().signal_args[0]
                             d.destroy()
                             if response != gtk.RESPONSE_YES:
                                 self.__cancel = True
@@ -236,8 +235,8 @@ class CSVImporter:
 
                 if self.__cancel or self.__error:
                     break
-                
-                insert = table.insert()    
+
+                insert = table.insert()
                 def do_import():
                     try:
                         # this should never block since we add the value to
@@ -245,14 +244,14 @@ class CSVImporter:
                         # in case, the two scenarios are 1. values are added
                         # to the queue but we get here and don't see anything
                         # and keep going and effectively lose data, or 2. we
-                        # block and we stay 
-                        # here forever and the app would stop responding, the 
+                        # block and we stay
+                        # here forever and the app would stop responding, the
                         # second one sounds better since at least it doesn't
                         # lose data, maybe we could add a timeout to get and
                         # if we get here and don't get anything from the
                         # queue we can at least rollback all our changes
                         insert, values = que.get(block=True)
-                        # this is how to do this for list of dictionaries for 
+                        # this is how to do this for list of dictionaries for
                         # the values, e.g. when using chunk()
                         #cleaned = [dict([(k, v) for k,v in d.iteritems() if v is not '']) for d in [row for row in values]]
                         cleaned = dict([(k, v) for k,v in values.iteritems() if v is not ''])
@@ -268,20 +267,20 @@ class CSVImporter:
                         self.__cancel = True
                         self.__error_exc = utils.xml_safe(e)
                         self.__error_traceback_str = traceback.format_exc()
-                
-                f = file(filename, "rb")                
+
+                f = file(filename, "rb")
                 reader = csv.DictReader(f, quotechar=QUOTE_CHAR,
                                         quoting=QUOTE_STYLE)
                 update_every = 11
                 # TODO: maybe to speed this up we could build all the inserts
                 # and then do an execute_many
 #                debug('slice it')
-                for slice in reader:                
+                for slice in reader:
                     while self.__pause:
                         yield timeout
                         gtasklet.get_event()
                     if self.__cancel:
-                        break  
+                        break
                     if len(slice) > 0:
                         que.put((insert, slice), block=False)
                         gobject.idle_add(do_import)
@@ -292,23 +291,23 @@ class CSVImporter:
                             bauble.gui.progressbar.set_fraction(percent)
                     yield timeout
                     gtasklet.get_event()
-                            
+
                 if self.__error or self.__cancel:
                     break
-                
+
             # loop till everything has been committed, is it possible
             # for this to go on forever?
             while not que.empty():
                 yield timeout
                 gtasklet.get_event()
-                
+
         except Exception, e:
             debug(e)
-            self.__error = True            
+            self.__error = True
             self.__error_exc = utils.xml_safe(e)
-            self.__error_traceback_str = traceback.format_exc()            
+            self.__error_traceback_str = traceback.format_exc()
             self.__cancel = True
-                            
+
         if self.__error:
             try:
                 msg = self.__error_exc.orig
@@ -322,17 +321,17 @@ class CSVImporter:
                    gtasklet.WaitForSignal(d, "close"))
             gtasklet.get_event()
             d.destroy()
-            
+
         if self.__error or self.__cancel:
             log.info('rolling back import')
             transaction.rollback()
         else:
             log.info('commiting import')
             transaction.commit()
-            # set the sequence on a table to the max value                
+            # set the sequence on a table to the max value
             if engine.name == 'postgres':
                 try:
-                    for table, filename in sorted_tables:                
+                    for table, filename in sorted_tables:
                     # TOD0: maybe something like
     #                for col in table.c:
     #                    if col.type == Integer:
@@ -341,7 +340,7 @@ class CSVImporter:
     #                            - set the sequence
     #                        except:
     #                            pass
-                    
+
                         sequence_name = '%s_id_seq' % table.name
                         stmt = "SELECT max(id) FROM %s" % table.name
                         max = connection.execute(stmt).fetchone()[0]
@@ -361,8 +360,8 @@ class CSVImporter:
                            gtasklet.WaitForSignal(d, "close"))
                     gtasklet.get_event()
                     d.destroy()
-    
-    
+
+
     def _cancel_import(self, *args):
         '''
         called by the progress dialog to cancel the current import
@@ -373,12 +372,12 @@ class CSVImporter:
         if utils.yes_no_dialog(msg, parent=self.__progress_dialog):
             self.__cancel = True
         self.__pause = False
-                            
-            
+
+
     def start(self, filenames=None, force=False, callback=None):
         """
         the simplest way to import, no threads, nothing
-        
+
         filenames -- the list of filenames to import from
         force -- import regardless if the table already has data
         """
@@ -388,7 +387,7 @@ class CSVImporter:
         if filenames is None:
             filenames = self._get_filenames()
         if filenames is None: # no filenames selected
-            return 
+            return
         if bauble.db_engine.name not in  ['sqlite', 'postgres']:
             msg = 'The CSV Import plugin has not been tested with %s '\
                   'databases. It\'s possible that it may work fine but we '\
@@ -397,10 +396,10 @@ class CSVImporter:
                   'http://bauble.belizebotanic.org\n\n<i>Would you like to '\
                   'continue?</i>'
             if not utils.yes_no_dialog(msg):
-                return        
+                return
         self.import_files(filenames, default_metadata, force, callback)
-      
-        
+
+
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """
@@ -412,7 +411,7 @@ class CSVImporter:
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
         fc = gtk.FileChooserDialog("Choose file(s) to import...",
-                                  None,    
+                                  None,
                                   gtk.FILE_CHOOSER_ACTION_OPEN,
                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                    gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT))
@@ -421,23 +420,23 @@ class CSVImporter:
         r = fc.run()
         if r != gtk.RESPONSE_ACCEPT:
             fc.destroy()
-            return None        
+            return None
         filenames = fc.get_filenames()
         fc.destroy()
         return filenames
 
-        
+
     def on_response(self, widget, response, data=None):
         debug('on_response')
         debug(response)
-        
-                
+
+
 # TODO: right now only tables that are registered with the metadata are
 # registered, we need to make sure that all the tables are exported and not
 # just the ones that we know about at the time of export...need to get a list
 # of tables from postgres, mysql and sqlite
 class CSVExporter:
-        
+
     def start(self, path=None):
         if path == None:
             d = gtk.FileChooserDialog("Select a directory", None,
@@ -451,10 +450,10 @@ class CSVExporter:
                 return
 
         if not os.path.exists(path):
-            raise ValueError("CSVExporter: path does not exist.\n" + path) 
+            raise ValueError("CSVExporter: path does not exist.\n" + path)
         bauble.task.queue(self.__export_task, None, path)
 
-    def __export_task(self, path):        
+    def __export_task(self, path):
 #        if not os.path.exists(path):
 #            raise ValueError("CSVExporter: path does not exist.\n" + path)
         filename_template = os.path.join(path, "%s.txt")
@@ -470,8 +469,8 @@ class CSVExporter:
                       (filename, name)
                 d = utils.create_yes_no_dialog(msg)
                 yield (gtasklet.WaitForSignal(d, "response"),
-                       gtasklet.WaitForSignal(d, "close"))   
-                response = gtasklet.get_event().signal_args[0]        
+                       gtasklet.WaitForSignal(d, "close"))
+                response = gtasklet.get_event().signal_args[0]
                 d.destroy()
                 if response != gtk.RESPONSE_YES:
                     debug('return')
@@ -503,14 +502,14 @@ class CSVExporter:
 
             # create empty files with only the column names
             if len(results) == 0:
-                write_csv(filename, [table.c.keys()]) 
+                write_csv(filename, [table.c.keys()])
                 yield timeout
                 gtasklet.get_event()
                 continue
-            
+
             rows = []
             rows.append(table.c.keys()) # append col names
-            ctr = 0    
+            ctr = 0
             for row in results:
                 values = map(replace, row.values())
                 rows.append(values)
@@ -532,7 +531,7 @@ class CSVImportCommandHandler(plugin.CommandHandler):
         importer.start(arg)
 
 
-class CSVExportCommandHandler(plugin.CommandHandler):    
+class CSVExportCommandHandler(plugin.CommandHandler):
 
     command = 'excsv'
 
@@ -542,7 +541,7 @@ class CSVExportCommandHandler(plugin.CommandHandler):
         debug('starting')
         exporter.start(arg)
         debug('started')
-        
+
 #
 # plugin classes
 #
@@ -557,14 +556,14 @@ class CSVImportTool(plugin.Tool):
         'destroy or corrupt your existing data.\n\n<i>Would you like to '\
         'continue?</i>'
         if utils.yes_no_dialog(msg):
-            c = CSVImporter()        
+            c = CSVImporter()
             c.start()
 
 
 class CSVExportTool(plugin.Tool):
     category = "Export"
     label = "Comma Separated Value"
-    
+
     @classmethod
     def start(cls):
         c = CSVExporter()
@@ -574,7 +573,10 @@ class CSVImexPlugin(plugin.Plugin):
     tools = [CSVImportTool, CSVExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler]
 
-plugin = CSVImexPlugin
+#plugin = CSVImexPlugin
+
+
+
 
 # TODO: importing from the command line isn't finished, i think the only thing
 # that really need to be done for it to work is to create a gobject.mainloop()
@@ -588,27 +590,27 @@ plugin = CSVImexPlugin
 #    # TODO: need to pass in a database connection string
 #    # postgres://bbg:garden@ceiba.test
 #
-#    # TODO: ****** i think the only reason this isn't working is because of using the 
-#    # connection manager so we can either 1. figure out how to use the connection 
-#    # manager from a tasklet or 2. don't use the connection manager and get 
+#    # TODO: ****** i think the only reason this isn't working is because of using the
+#    # connection manager so we can either 1. figure out how to use the connection
+#    # manager from a tasklet or 2. don't use the connection manager and get
 #    # connection paramaters from the command line including the passwd
-#    
+#
 #    import sys
 #    from sqlobject import sqlhub, connectionForURI
 #    from bauble.conn_mgr import ConnectionManager#Dialog
 #    from bauble.prefs import prefs
 #    from optparse import OptionParser
 #    parser = OptionParser()
-#    parser.add_option('--force', dest='force', action='store_true', 
+#    parser.add_option('--force', dest='force', action='store_true',
 #                      default=False, help='force import')
 #    parser.add_option('-c', '--connection', dest='conn',
 #                      help='named connection from prefs')
 #    options, args = parser.parse_args()
-#        
+#
 #    if len(args) == 0:
 #        print '** Error: need a list of files to import'
 #        return
-#    
+#
 #    prefs.init() # intialize the preferences
 #
 #    if options.conn is None:
@@ -617,13 +619,13 @@ plugin = CSVImexPlugin
 #        conn_name, uri = cm.start()
 #        if conn_name is None: return
 #    else:
-#        params = prefs[prefs.conn_list_pref][options.conn]            
+#        params = prefs[prefs.conn_list_pref][options.conn]
 #        uri = ConnectionManager().parameters_to_uri(params)
-#    
-#    sqlhub.processConnection = connectionForURI(uri)    
+#
+#    sqlhub.processConnection = connectionForURI(uri)
 #    sqlhub.processConnection.getConnection()
-#    sqlhub.processConnection = sqlhub.processConnection.transaction()    
-#    
+#    sqlhub.processConnection = sqlhub.processConnection.transaction()
+#
 #    if not options.force:
 #        msg = 'Importing to this connection (%s) will destroy any existing data '\
 #              ' in the database. Are you sure this is what you want to do? ' % uri
@@ -632,15 +634,15 @@ plugin = CSVImexPlugin
 #            return
 ##        if not utils.yes_no_dialog(msg):
 ##            return
-#        
+#
 #    # check that the database version are the same
 #    from bauble._app import BaubleApp
 #    BaubleApp.open_database(uri)
-#        
+#
 #    bauble.plugins.load()
 #    importer = CSVImporter()
 #    print 'importing....'
-#    importer.start(args, force=options.force)    
+#    importer.start(args, force=options.force)
 #    sqlhub.processConnection.commit()
 #    print '...finished importing'
 

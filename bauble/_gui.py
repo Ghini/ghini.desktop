@@ -380,7 +380,9 @@ class GUI(object):
               "this is what you want to do?</i>"
         if utils.yes_no_dialog(msg):
             bauble.create_database()
+        pluginmgr.init()
         self.set_default_view()
+
 
 
     def on_file_menu_open(self, widget, data=None):

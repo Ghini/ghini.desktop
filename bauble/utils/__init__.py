@@ -34,6 +34,9 @@ default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
 
 
 def find_dependent_tables(table, metadata=None):
+    '''
+    return a list of tables that depend on table
+    '''
     from sqlalchemy import default_metadata
     import sqlalchemy.sql_util as sql_util
     if metadata is None:
@@ -73,12 +76,14 @@ class GladeWidgets(dict):
         else:
             self.glade_xml = glade_xml
 
+
     def __getitem__(self, name):
         '''
         @param name:
         '''
         # TODO: raise a key error if there is no widget
         return self.glade_xml.get_widget(name)
+
 
     def __getattr__(self, name):
         '''
@@ -201,7 +206,8 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 
     w = glade_xml.get_widget(widget_name)
     if value is None:  # set the value from the default
-        if isinstance(w,(gtk.Label, gtk.TextView, gtk.Entry)) and default is None:
+        if isinstance(w,(gtk.Label, gtk.TextView, gtk.Entry)) \
+               and default is None:
             value = ''
         else:
             value = default
@@ -253,7 +259,8 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 # are going to be passed to one of these dialogs should be escaped before
 # coming through
 
-def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
+def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                          parent=None):
     '''
     '''
     icon = default_icon

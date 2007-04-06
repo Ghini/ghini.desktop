@@ -10,8 +10,7 @@ import bauble.paths as paths
 
 __all__ = ["_"]
 
-DIR = paths.lib_dir()
 locale.setlocale(locale.LC_ALL, '')
-gettext.bindtextdomain('bauble', DIR)
+gettext.bindtextdomain('bauble', paths.locale_dir())
 gettext.textdomain('bauble')
 _ = gettext.gettext

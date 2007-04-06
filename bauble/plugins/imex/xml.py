@@ -1,6 +1,8 @@
 #
 # XML import/export plugin
 #
+# Description: handle import and exporting from a simple XML format
+#
 import os, csv, traceback
 import gtk.gdk, gobject
 from sqlalchemy import *
@@ -12,7 +14,6 @@ import bauble.task
 from bauble.utils import xml_safe
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
-import Queue
 
 # <tableset>
 # <table name="tablename">
@@ -27,6 +28,10 @@ import Queue
 
 
 # TODO: single file or one file per table
+
+# TODO: would probably be best to make the default data files stored as zipped
+# xml files and then when we want to create a new database we unzip them,
+# transform them into csv files and then use the database specific file loader
 
 def ElementFactory(parent, name, **kwargs):
     try:
@@ -73,11 +78,13 @@ class XMLExporter:
         d.run()
         d.hide()
 
+
     def on_dialog_response(self, dialog, response, filename, one_file):
         debug('on_dialog_response(%s, %s)' % (filename, one_file))
         if response == gtk.RESPONSE_ACCEPT:
             self.__export_task(filename, one_file)
         dialog.destroy()
+
 
     def __export_task(self, path, one_file=True):
         tables = default_metadata.tables
@@ -113,11 +120,11 @@ class XMLExporter:
                     # TODO: can figure out why this keeps crashing
                     tree.write(filename, encoding='utf8', xml_declaration=True)
 
-
         if not one_file:
             tree = etree.ElementTree(tableset_el)
             filename = os.path.join(path, 'bauble.xml')
             tree.write(filename, encoding='utf8', xml_declaration=True)
+
 
 
 class XMLExportCommandHandler(plugin.CommandHandler):
@@ -132,7 +139,9 @@ class XMLExportCommandHandler(plugin.CommandHandler):
         debug('started')
 
 
+
 class XMLExportTool(plugin.Tool):
+
     category = "Export"
     label = "XML"
 
@@ -140,6 +149,7 @@ class XMLExportTool(plugin.Tool):
     def start(cls):
         c = XMLExporter()
         c.start()
+
 
 
 class XMLImexPlugin(plugin.Plugin):
@@ -153,5 +163,4 @@ except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
                          'XML Import/Exporter plugin')
 else:
-#    plugin = XMLImexPlugin
-    pass
+    plugin = XMLImexPlugin

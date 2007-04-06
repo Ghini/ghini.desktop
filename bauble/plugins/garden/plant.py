@@ -1,11 +1,12 @@
 #
-# Plants table definition
+# plant.py
 #
 
 import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+from bauble.i18n import *
 from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -34,7 +35,7 @@ def edit_callback(row):
 def remove_callback(row):
     value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -43,7 +44,7 @@ def remove_callback(row):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -105,10 +106,9 @@ Other: Other, possible see notes for more information
 None: no information, unknown)
 '''
 
-# TODO: change plant_id to plant_code, or just code
 plant_table = Table('plant',
                     Column('id', Integer, primary_key=True),
-                    Column('code', Unicode, nullable=False),
+                    Column('code', Unicode(6), nullable=False),
                     Column('acc_type',
                            Enum(values=['Plant', 'Seed/Spore',
                                         'Vegetative Part',  'Tissue Culture',
@@ -176,6 +176,7 @@ class PlantEditorView(GenericEditorView):
         if sys.platform == 'win32':
             self.do_win32_fixes()
 
+
     def do_win32_fixes(self):
         # these width functions are copied from accession.py and could probably
         # go in the utils
@@ -188,15 +189,18 @@ class PlantEditorView(GenericEditorView):
             return pango.PIXELS(width)
 
         def width_func(widget, col, multiplier=1.3):
-            return int(round(get_char_width(widget)*plant_table.c[col].type.length*multiplier))
+            return int(round(get_char_width(widget) * \
+                             plant_table.c[col].type.length*multiplier))
 
         # TODO: need to find the longest location name for the location combo
         # and possibly recalculate the width(up to some max) if a new location
         # is added
         acc_type_combo = self.widgets.plant_acc_type_combo
-        acc_type_combo.set_size_request(width_func(acc_type_combo, 'acc_type'), -1)
+        acc_type_combo.set_size_request(width_func(acc_type_combo, 'acc_type'),
+                                        -1)
         acc_status_combo = self.widgets.plant_acc_status_combo
-        acc_status_combo.set_size_request(width_func(acc_status_combo, 'acc_status'), -1)
+        acc_status_combo.set_size_request(width_func(acc_status_combo,
+                                                     'acc_status'), -1)
 
 
     def save_state(self):
@@ -252,10 +256,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # TODO: if the accession is changed in the entry we should set the
         # plant code to none or maybe just check that the plant code is still
-        # valid with this new accession and maybe add a problem if not, this should
-        # possibly remove a problem on the id entry if the number was previously
-        # invalid but now it is with the new accession, the easiest way to do
-        # all this would be to set the plant code to none
+        # valid with this new accession and maybe add a problem if not, this
+        # should possibly remove a problem on the id entry if the number was
+        # previously invalid but now it is with the new accession, the easiest
+        # way to do all this would be to set the plant code to none
 
         # initialize widgets
         self.init_location_combo()
@@ -268,7 +272,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             default_acc_type = 'Plant'
-            self.view.set_widget_value('plant_acc_type_combo', default_acc_type)
+            self.view.set_widget_value('plant_acc_type_combo',default_acc_type)
             self.model._set('acc_type', default_acc_type, dirty=False)
         if self.model.id is None and self.model.acc_status is None:
             default_acc_status = 'Living accession'
@@ -305,11 +309,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                    StringOrNoneValidator())
 
         self.view.widgets.plant_loc_add_button.connect('clicked',
-                                                       self.on_loc_button_clicked,
-                                                       'add')
+                                                    self.on_loc_button_clicked,
+                                                    'add')
         self.view.widgets.plant_loc_edit_button.connect('clicked',
-                                                        self.on_loc_button_clicked,
-                                                        'edit')
+                                                    self.on_loc_button_clicked,
+                                                    'edit')
         self.init_change_notifier()
 
 
@@ -317,8 +321,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         return self.model.dirty
 
 
-    def on_plant_code_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
+    def on_plant_code_entry_insert(self, entry, new_text, new_text_length,
+                                   position, data=None):
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -341,7 +345,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.model.code = None
 
         if self._original_accession_id == self.model.accession.id:
-            if not text == self._original_code and count_plants(self.model.accession.id, text) > 0:
+            if not text == self._original_code \
+                   and count_plants(self.model.accession.id, text) > 0:
                 problem()
                 return
         elif count_plants(self.model.accession.id, text) > 0:
@@ -471,7 +476,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
 
     def handle_response(self, response):
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
 #                debug('session dirty, committing')
             try:
@@ -480,12 +485,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:
                 exc = traceback.format_exc()
-                msg = 'Error committing changes.\n\n%s' % e.orig
+                msg = _('Error committing changes.\n\n%s') % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = _('Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s') \
+                      % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
@@ -498,7 +504,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
 #        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
-            e = PlantEditor(Plant(accession=self.model.accession), parent=self.parent)
+            e = PlantEditor(Plant(accession=self.model.accession),
+                            parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

@@ -5,12 +5,16 @@
 import os, sys
 import bauble
 
+# TODO: we could just have setup or whatever create a file in the lib
+# directory that tells us where all the other directories are but how do we
+# know where the lib directory is
+
 def main_dir():
    if bauble.main_is_frozen():
        dir = os.path.dirname(sys.executable)
-   else: 
+   else:
       dir = os.path.dirname(sys.argv[0])
-   if dir == "": 
+   if dir == "":
        dir = os.curdir
    return dir
 
@@ -22,7 +26,14 @@ def lib_dir():
         dir = os.path.dirname(__file__)
     return dir
 
-    
+def locale_dir():
+   if sys.platform == 'win32':
+      return os.path.join(lib_dir(), 'po')
+   else:
+      # TODO: need to get the share directory where the locale files were
+      # installed
+      return os.path.join(lib_dir(), 'po')
+
 def user_dir():
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
@@ -38,5 +49,5 @@ def user_dir():
                               'no HOME variable'))
     else:
         raise Exception(_('Could not get path to user settings: ' \
-                          'unsupported platform'))    
+                          'unsupported platform'))
     return dir
