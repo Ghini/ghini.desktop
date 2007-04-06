@@ -3,7 +3,7 @@
 #     use_setuptools()
 #     from setuptools import setup
 # except ImportError:
-from distutils.core import setup    
+from distutils.core import setup
 import os, sys, glob
 
 import sys
@@ -12,7 +12,7 @@ USING_PY2EXE = False
 if sys.argv[1] == 'py2exe':
     USING_PY2EXE = True
 
-# TODO: to include pygtk and gtk in the dist 
+# TODO: to include pygtk and gtk in the dist
 # see http://py2exe.org/index.cgi/Py2exeAndPyGTK
 
 # TODO: use an icon for the exe
@@ -22,9 +22,9 @@ if sys.argv[1] == 'py2exe':
 # we could either create another module to import when create a exe or just
 # use an ifdef
 def get_version():
-    '''
+    """
     returns the bauble version combined with the subversion revision number
-    '''
+    """
     from bauble import version_str as version
     return version
 #    #from svn import repos, fs, core
@@ -35,14 +35,14 @@ def get_version():
 #    el = dom.getElementsByTagName("commit")
 #    revision = el[0].getAttribute('revision')
 #    return '%s.r%s' % (version, revision)
-    
+
 version = get_version()
 
 # TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden','abcd','imex_csv','report', 
+plugins = ['garden','abcd','imex_csv','report',
            'report.default', 'plants','searchview', 'tag']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
@@ -59,7 +59,7 @@ if USING_PY2EXE:
             if submod in ('mods', 'ext', 'databases'):
                 includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
         return includes
-    
+
     py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
                        'encodings'] + gtk_pkgs + plugins_pkgs + get_sqlalchemy_includes()
 else:
@@ -77,12 +77,12 @@ for pattern in data_patterns:
     for p in plugins_pkgs:
         package_dir = p.replace('.',os.sep) + '/'
 #        print 'package_dir: %s' % package_dir
-        files = glob.glob('%s%s' % (package_dir, pattern))        
+        files = glob.glob('%s%s' % (package_dir, pattern))
 #        print ' -- files: %s' % files
         if len(files) != 0:
             if p not in plugin_data:
                 plugin_data[p] = []
-            plugin_data[p] += [f[len(package_dir):] for f in files]            
+            plugin_data[p] += [f[len(package_dir):] for f in files]
 
 bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg']}
 #package_data = {'pysqlite2': ['*.pyd']}
@@ -94,7 +94,7 @@ package_data.update(plugin_data)
 # generate the data files for py2exe, why can't it just use package_data?
 #
 if USING_PY2EXE:
-    import py2exe    
+    import py2exe
     opts = {
         "py2exe": {
             "compressed": 1,
@@ -116,26 +116,26 @@ if USING_PY2EXE:
         extra_path = ""
         if i != -1:
             extra_path = pattern[:pattern.find(os.sep)]
-        globs += [(p.replace('.',os.sep) + os.sep + extra_path, 
+        globs += [(p.replace('.',os.sep) + os.sep + extra_path,
                   glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
-                 for p in plugins_pkgs]    
+                 for p in plugins_pkgs]
     py2exe_data_files = [p for p in globs if len(p[1]) != 0]
     py2exe_data_files += [('', ('README', 'LICENSE', 'CHANGES')),
                           ('bauble', ('bauble/bauble.ui',
                                       'bauble/conn_mgr.glade')),
-                          ('bauble/images', 
+                          ('bauble/images',
                            glob.glob('bauble/images/*.png')+\
                            glob.glob('bauble/images/*.svg')),
                           ('bauble/pixmaps',
-                           glob.glob('bauble/pixmaps/*.png'))] 
+                           glob.glob('bauble/pixmaps/*.png'))]
 else:
     opts=None
     py2exe_data_files = None
-    
+
 all_package_dirs = {}
-for p in all_packages:    
+for p in all_packages:
     all_package_dirs[p] = p.replace('.', os.sep)
-    
+
 #print '------- packages --------\n' + str(all_packages)
 #print '------- package directories --------\n' + str(all_package_dirs)
 #print '------- packages data--------\n' + str(package_data)
@@ -143,7 +143,7 @@ for p in all_packages:
 setup(name="bauble",
       version=version,
       console=["scripts/bauble"],
-      windows=["scripts/bauble"],          
+      windows=["scripts/bauble"],
       scripts=["scripts/bauble"], # for setuptools?
       options=opts,
       dist_dir='dist/bauble-%s' % version, # distribution directory
@@ -155,7 +155,7 @@ setup(name="bauble",
                         "pysqlite==2.3.2",
                         "PyGTK>=2.8.6", "simplejson"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
-      
+
       # metadata
       author="Brett",
       author_email="brett@belizebotanic.org",
@@ -165,4 +165,4 @@ setup(name="bauble",
       keywords="database biodiversity botanic collection",
       url="http://bauble.belizebotanic.org",
 #      download_url="http://bauble.belizebotanic.org/files/bauble-0.1.tar.gz"
-     )            
+     )
