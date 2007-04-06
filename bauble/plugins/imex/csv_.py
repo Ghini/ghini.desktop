@@ -118,7 +118,7 @@ class CSVImporter(object):
             connection = engine.contextual_connect()
             transaction = connection.begin()
         except Exception, e:
-            msg = 'Error connecting to database.\n\n%s' % utils.xml_safe(e)
+            msg = _('Error connecting to database.\n\n%s') % utils.xml_safe(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -129,8 +129,9 @@ class CSVImporter(object):
             path, base = os.path.split(f)
             table_name, ext = os.path.splitext(base)
             if table_name in filename_dict:
-                msg = 'More than one file given to import into table '\
-                      '<b>%s</b>: %s, %s' % filename_dict[table_name], f
+                msg = _('More than one file given to import into table '\
+                        '<b>%s</b>: %s, %s') % (table_name,
+                                                filename_dict[table_name], f)
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return
             filename_dict[table_name] = f
@@ -144,8 +145,8 @@ class CSVImporter(object):
                 pass
 
         if len(filename_dict) > 0:
-            msg = 'Could not match all filenames to table names.\n\n%s' % \
-                  filename_dict
+            msg = _('Could not match all filenames to table names.\n\n%s') \
+                  % filename_dict
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -155,7 +156,7 @@ class CSVImporter(object):
             total_lines += len(file(filename).readlines())
 
         self.__error_traceback_str = ''
-        self.__error_exc = 'Unknown Error.'
+        self.__error_exc = _('Unknown Error.')
 
         created_tables = []
         def add_to_created(names):
@@ -175,7 +176,8 @@ class CSVImporter(object):
 #                if self.__cancel or self.__error:
 #                    debug('break')
 #                    break
-                msg = 'importing %s table from %s' % (table.name, filename)
+                msg = _('importing %(table)s table from %(filename)s') \
+                        % {'table': table.name, 'filename': filename}
                 log.info(msg)
                 bauble.task.set_message(msg)
                 yield # allow update
@@ -280,10 +282,10 @@ class CSVImporter(object):
                 msg = self.__error_exc.orig
             except AttributeError, e: # no attribute orig
                 msg = self.__error_exc
-            utils.message_details_dialog('Error:  %s' % \
-                                                    utils.xml_safe(msg),
-                                                    self.__error_traceback_str,
-                                                    type=gtk.MESSAGE_ERROR)
+            utils.message_details_dialog(_('Error:  %s') % \
+                                         utils.xml_safe(msg),
+                                         self.__error_traceback_str,
+                                         type=gtk.MESSAGE_ERROR)
 
         if self.__error or self.__cancel:
             log.info('rolling back import')
@@ -313,8 +315,8 @@ class CSVImporter(object):
                             connection.execute(stmt)
                 except Exception, e:
                     debug(e)
-                    msg = 'Error: Could not set the value the for the '\
-                          'sequence: %s' % sequence_name
+                    msg = _('Error: Could not set the value the for the '\
+                            'sequence: %s') % sequence_name
                     utils.message_details_dialog(_('Error:  %s' \
                                                    % utils.xml_safe(msg)),
                                                  str(e),
@@ -332,8 +334,8 @@ class CSVImporter(object):
         '''
         called by the progress dialog to cancel the current import
         '''
-        msg = 'Are you sure you want to cancel importing?\n\n<i>All changes '\
-              'so far will be rolled back.</i>'
+        msg = _('Are you sure you want to cancel importing?\n\n<i>All '
+                'changes so far will be rolled back.</i>')
         self.__pause = True
         if utils.yes_no_dialog(msg, parent=self.__progress_dialog):
             self.__cancel = True
@@ -351,7 +353,7 @@ class CSVImporter(object):
                 return
             ok = filechooser.action_area.get_children()[1]
             ok.set_sensitive(os.path.isfile(f))
-        fc = gtk.FileChooserDialog("Choose file(s) to import...",
+        fc = gtk.FileChooserDialog(_("Choose file(s) to import..."),
                                   None,
                                   gtk.FILE_CHOOSER_ACTION_OPEN,
                                   (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
@@ -377,7 +379,7 @@ class CSVExporter:
 
     def start(self, path=None):
         if path == None:
-            d = gtk.FileChooserDialog("Select a directory", None,
+            d = gtk.FileChooserDialog(_("Select a directory"), None,
                                       gtk.FILE_CHOOSER_ACTION_SELECT_FOLDER,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                       gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -388,7 +390,7 @@ class CSVExporter:
                 return
 
         if not os.path.exists(path):
-            raise ValueError("CSVExporter: path does not exist.\n" + path)
+            raise ValueError(_("CSVExporter: path does not exist.\n%s" % path))
 
         def on_error(exc):
             utils.message_dialog(str(exc))
@@ -410,9 +412,10 @@ class CSVExporter:
         for name in tables.keys():
             filename = filename_template % name
             if os.path.exists(filename):
-                msg = 'Export file <b>%s</b> for <b>%s</b> table already '\
-                      'exists.\n\n<i>Would you like to continue?</i>' % \
-                      (filename, name)
+                msg = _('Export file <b>%(filename)s</b> for '\
+                        '<b>%(table)s</b> table already exists.\n\n<i>Would '\
+                        'you like to continue?</i>') \
+                        % {'filename': filename, 'table': name}
                 if utils.yes_no_dialog(msg):
                     return
 
@@ -433,7 +436,8 @@ class CSVExporter:
             steps_so_far+=1
             fraction = float(steps_so_far)/float(ntables)
             bauble.gui.progressbar.set_fraction(fraction)
-            msg = 'exporting %s table to %s' % (table_name, filename)
+            msg = _('exporting %(table)s table to %(filename)s') \
+                    % {'table': table_name, 'filename': filename}
             bauble.task.set_message(msg)
             log.info("exporting %s" % table_name)
 
@@ -489,22 +493,22 @@ class CSVExportCommandHandler(plugin.CommandHandler):
 #
 
 class CSVImportTool(plugin.Tool):
-    category = "Import"
-    label = "Comma Separated Value"
+    category = _('Import')
+    label = _('Comma Separated Value')
 
     @classmethod
     def start(cls):
-        msg = 'It is possible that importing data into this database could '\
-        'destroy or corrupt your existing data.\n\n<i>Would you like to '\
-        'continue?</i>'
+        msg = _('It is possible that importing data into this database could '\
+                'destroyed or corrupt your existing data.\n\n<i>Would you '\
+                'like to continue?</i>')
         if utils.yes_no_dialog(msg):
             c = CSVImporter()
             c.start()
 
 
 class CSVExportTool(plugin.Tool):
-    category = "Export"
-    label = "Comma Separated Value"
+    category = _('Export')
+    label = _('Comma Separated Value')
 
     @classmethod
     def start(cls):
