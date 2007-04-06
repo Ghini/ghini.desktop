@@ -17,20 +17,20 @@ def main_is_frozen():
 
 import pygtk
 if not main_is_frozen():
-   pygtk.require("2.0")     
+   pygtk.require("2.0")
 else: # main is frozen
-   # put library.zip first in the path when using py2exe so libxml2 gets 
-   # imported correctly, 
+   # put library.zip first in the path when using py2exe so libxml2 gets
+   # imported correctly,
    zipfile = sys.path[-1]
    sys.path.insert(0,zipfile)
-   # put the bundled gtk at the beginning of the path to make it the 
+   # put the bundled gtk at the beginning of the path to make it the
    # preferred version
    os.environ['PATH'] = '%s%s%s%s%s%s' \
                  % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
                     os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
                     os.pathsep, os.environ['PATH'])
-   
-import gtk
+
+import gtk, gobject
 import bauble.utils as utils
 
 # make sure we look in the lib path for modules
@@ -47,7 +47,7 @@ try:
 except ImportError:
     msg = _('SQLAlchemy not installed. Please install SQAlchemy from ' \
             'http://www.sqlalchemy.org')
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)    
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
     raise
 
 
@@ -59,15 +59,15 @@ logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 # of the way table is implemented, with a singleton metaclass
 #
 #class BaubleTable(Table):
-#    
+#
 #    def __init__(self, *args, **kwargs):
 #        # TODO: add _created
 #        super(BaubleTable, self).__init__(*args, **kwargs)
-#        super(BaubleTable, self).append_column(Column('_last_updated', DateTime, 
+#        super(BaubleTable, self).append_column(Column('_last_updated', DateTime,
 #                                                      onupdate=func.current_timestamp()))
 
 class BaubleMapper(object):
-    
+
     def __init__(self, **kwargs):
         for attr, value in kwargs.iteritems():
             setattr(self, attr, value)
@@ -83,7 +83,7 @@ from bauble.prefs import prefs
 
 def save_state():
     # in case we quit before the gui is created
-    global gui, prefs    
+    global gui, prefs
     if gui is not None:
         gui.save_state()
     prefs.save()
@@ -97,7 +97,7 @@ def quit():
         sys.exit(1)
 
 
-def open_database(uri, name=None):    
+def open_database(uri, name=None):
     '''
     open a database connection
     '''
@@ -110,6 +110,14 @@ def open_database(uri, name=None):
                 'it.</i>')
     try:
         db_engine = db.open(uri)
+    except Exception, e:
+       msg = _('The database you connected to wasn\'t created with Bauble.')
+       utils.message_details_dialog(msg, traceback.format_exc(),
+                                    gtk.MESSAGE_ERROR)
+       raise
+
+    try:
+       db.verify(db_engine)
     except db.MetaTableError, e:
        msg = _('The database you connected to connected to wasn\'t created '\
                'with Bauble.')
@@ -123,7 +131,7 @@ def open_database(uri, name=None):
                'database you have connected to was created with '\
                'version %(db_version)s\n\nSome things might not work as '\
                'or some of your data may become unexpectedly '\
-               'corrupted.') % {'version': bauble.version_str, 
+               'corrupted.') % {'version': bauble.version_str,
                                 'db_version': '%s.%s.%s' % eval(e.version)}
        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
        raise
@@ -146,7 +154,7 @@ def open_database(uri, name=None):
                str(utils.xml_safe(e)))
        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
        raise
-        
+
     return db_engine
 
 
@@ -157,7 +165,7 @@ def create_database(import_defaults=True):
    # TODO: when creating a database there shouldn't be any errors
    # on import since we are importing from the default values, we should
    # just force the import and send everything in the database at once
-   # instead of using slices, this would make it alot faster but it may 
+   # instead of using slices, this would make it alot faster but it may
    # make it more difficult to make the interface more responsive,
    # maybe we can use a dialog without the progress bar to show the status,
    # should probably work on the status bar to display this
@@ -165,12 +173,12 @@ def create_database(import_defaults=True):
    # TODO: **** important ***
    # TODO: this should be done in a transaction or maybe the transaction
    # should be pushed into db.create()
-   # UPDATE: this wouldn't work since csv.start() doesn't block, need 
+   # UPDATE: this wouldn't work since csv.start() doesn't block, need
    # another way to handle the transaction, maybe pass it the csv start
    # and tell it to commit when it's done. that not good though....
    # UPDATE: maybe if we could pass a nested transaction to csv.start and
    # then if the import transaction fails then we can rollback any
-   # changes we make here#     
+   # changes we make here#
    import bauble.db as db
    try:
       db.create()
@@ -181,7 +189,7 @@ def create_database(import_defaults=True):
       utils.message_details_dialog(msg, traceback.format_exc(),
                                    gtk.MESSAGE_ERROR)
 
-        
+
 def set_busy(busy):
     global gui
     if gui is None:
@@ -201,12 +209,12 @@ def command_handler(cmd, arg):
     # view around so it doesn't get reset....i guess we should always keep a
     # reference to the handler that provides the current view so it doesn't
     # get cleaned up and we don't lost state
-#    debug('command_handler(%s, %s)' % (cmd, arg))    
+#    debug('command_handler(%s, %s)' % (cmd, arg))
     global last_handler
 #    debug('last_handler: %s' % last_handler)
     handler_cls = None
     try:
-        handler_cls = pluginmgr.commands[cmd]    
+        handler_cls = pluginmgr.commands[cmd]
     except KeyError, e:
         if cmd is None:
             utils.message_dialog('No default handler registered')
@@ -217,7 +225,7 @@ def command_handler(cmd, arg):
     if not isinstance(last_handler, handler_cls):
         #handler = handler_cls(arg)
         handler = handler_cls()
-        view = handler.get_view()        
+        view = handler.get_view()
         if view is not None:
             gui.set_view(view)
         #else:
@@ -225,85 +233,181 @@ def command_handler(cmd, arg):
         last_handler = handler
     try:
        last_handler(arg)
-    except Exception, e:       
+    except Exception, e:
        utils.message_details_dialog(str(e), traceback.format_exc(),
                                     gtk.MESSAGE_ERROR)
 
 
 try:
    # TODO: this should really only be set once but for some reason its being
-   # reset, 
+   # reset,
    gui
 except NameError:
    gui=None
 
 
 conn_default_pref = "conn.default"
-conn_list_pref = "conn.list"    
+conn_list_pref = "conn.list"
 
 def main(uri=None):
-    
-    # initialize threading
-    gtk.gdk.threads_init() 
-    gtk.gdk.threads_enter()
-    
-    # declare module level variables
-    global prefs, conn_name, db_engine, gui, default_icon
-    gui = conn_name = db_engine = None
-        
-    default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
-    
-    # intialize the user preferences
-    prefs.init() 
-            
-    # open default database
-    if uri is None:
-        from bauble.connmgr import ConnectionManager
-        default_conn = prefs[conn_default_pref]
-        while True:                    
-            if uri is None or conn_name is None:
-                cm = ConnectionManager(default_conn)            
-                conn_name, uri = cm.start()
+
+   # initialize threading
+   gtk.gdk.threads_init()
+   gtk.gdk.threads_enter()
+
+   # declare module level variables
+   global prefs, conn_name, db_engine, gui, default_icon
+   gui = conn_name = db_engine = None
+
+   default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
+
+   # intialize the user preferences
+   prefs.init()
+
+   # load the plugins
+   bauble.pluginmgr.load()
+
+
+   open_exc = None
+   # open default database
+   if uri is None:
+      from bauble.connmgr import ConnectionManager
+      default_conn = prefs[conn_default_pref]
+      while True:
+         if uri is None or conn_name is None:
+            cm = ConnectionManager(default_conn)
+            conn_name, uri = cm.start()
             if conn_name is None:
-                quit()
+               quit()
             try:
-                open_database(uri, conn_name)
-                break
+               open_database(uri, conn_name)
+               break
             except db.VersionError, e:
                warning(e)
-               break            
+               break
             except db.DatabaseError, e:
-                msg = _('Would you like to create a new Bauble database at ' \
-                        'the current connection?\n\n<i>Warning: If there is '\
-                        'already a database at this connection any existing '\
-                        'data will be destroyed!</i>')
-                if utils.yes_no_dialog(msg):
-                    create_database()
-    else:
-        open_database(uri, None)
+               debug(e)
+               traceback.format_exc()
+               open_exc = e
+               break
+##                 msg = _('Would you like to create a new Bauble database at ' \
+##                         'the current connection?\n\n<i>Warning: If there is '\
+##                         'already a database at this connection any existing '\
+##                         'data will be destroyed!</i>')
+##                 if utils.yes_no_dialog(msg):
+##                     create_database()
+   else:
+      open_database(uri, None)
 
-    # save any changes made in the conn manager before anything else has
-    # chance to crash
-    prefs.save()
-    
-    # set the default command handler
-    import bauble.view as view
-    bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
+   # save any changes made in the conn manager before anything else has
+   # chance to crash
+   prefs.save()
 
-    # now that we have a connection create the gui, start before the plugins
-    # are initialized in case they have to do anything like add a menu
-    import bauble._gui as _gui
-    gui = _gui.GUI()
-    
-    # create_database creates all tables registered with the default metadata
-    # so the pluginmgr should be loaded after the database is created so
-    # we don't inadvertantly create tables from the plugins
-    bauble.pluginmgr.load()
-    bauble.pluginmgr.init()
-        
-    # set the default connection
-    prefs[conn_default_pref] = conn_name        
+   # set the default command handler
+   import bauble.view as view
+   bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
 
-    gui.show()
-    gtk.main()
-    gtk.gdk.threads_leave()
+   # now that we have a connection create the gui, start before the plugins
+   # are initialized in case they have to do anything like add a menu
+   import bauble._gui as _gui
+   gui = _gui.GUI()
+
+   def _post_loop():
+      gtk.gdk.threads_enter()
+      try:
+
+         if isinstance(open_exc, db.DatabaseError):
+            msg = _('Would you like to create a new Bauble database at ' \
+                    'the current connection?\n\n<i>Warning: If there is '\
+                    'already a database at this connection any existing '\
+                    'data will be destroyed!</i>')
+            if utils.yes_no_dialog(msg):
+               create_database()
+      except Exception, e:
+         utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
+      else:
+         # create_database creates all tables registered with the default metadata
+         # so the pluginmgr should be loaded after the database is created so
+         # we don't inadvertantly create tables from the plugins
+         debug('calling pluginmg.init()')
+         bauble.pluginmgr.init()
+         # set the default connection
+         prefs[conn_default_pref] = conn_name
+      debug('leaving _post_loop')
+      gtk.gdk.threads_leave()
+   gobject.idle_add(_post_loop)
+   #_post_loop()
+
+   gui.show()
+   gtk.main()
+   gtk.gdk.threads_leave()
+
+
+## def main2(uri=None):
+
+##     # initialize threading
+##     gtk.gdk.threads_init()
+##     gtk.gdk.threads_enter()
+
+##     # declare module level variables
+##     global prefs, conn_name, db_engine, gui, default_icon
+##     gui = conn_name = db_engine = None
+
+##     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
+
+##     # intialize the user preferences
+##     prefs.init()
+
+##     # load the plugins
+##     bauble.pluginmgr.load()
+
+##     # open default database
+##     if uri is None:
+##         from bauble.connmgr import ConnectionManager
+##         default_conn = prefs[conn_default_pref]
+##         while True:
+##             if uri is None or conn_name is None:
+##                 cm = ConnectionManager(default_conn)
+##                 conn_name, uri = cm.start()
+##             if conn_name is None:
+##                 quit()
+##             try:
+##                 open_database(uri, conn_name)
+##                 break
+##             except db.VersionError, e:
+##                warning(e)
+##                break
+##             except db.DatabaseError, e:
+##                 msg = _('Would you like to create a new Bauble database at ' \
+##                         'the current connection?\n\n<i>Warning: If there is '\
+##                         'already a database at this connection any existing '\
+##                         'data will be destroyed!</i>')
+##                 if utils.yes_no_dialog(msg):
+##                     create_database()
+##     else:
+##         open_database(uri, None)
+
+##     # save any changes made in the conn manager before anything else has
+##     # chance to crash
+##     prefs.save()
+
+##     # set the default command handler
+##     import bauble.view as view
+##     bauble.pluginmgr.commands[None] = view.DefaultCommandHandler
+
+##     # now that we have a connection create the gui, start before the plugins
+##     # are initialized in case they have to do anything like add a menu
+##     import bauble._gui as _gui
+##     gui = _gui.GUI()
+
+##     # create_database creates all tables registered with the default metadata
+##     # so the pluginmgr should be loaded after the database is created so
+##     # we don't inadvertantly create tables from the plugins
+##     bauble.pluginmgr.init()
+
+##     # set the default connection
+##     prefs[conn_default_pref] = conn_name
+
+##     gui.show()
+##     gtk.main()
+##     gtk.gdk.threads_leave()

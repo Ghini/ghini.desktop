@@ -702,6 +702,12 @@ class SearchView(pluginmgr.View):
                 query = self.session.query(mapping)
                 # TODO: should probably create a normalize_cond() method
                 # to convert things like contains and has into like conditions
+
+                # TODO: i think that sqlite uses case insensitve like, there
+                # is a pragma to change this so maybe we could send that
+                # command first to handle case sensitive and insensitive
+                # queries
+
                 if cond in ('ilike', 'icontains') and \
                        bauble.db_engine.name != 'postgres':
                     msg = _('The <i>ilike</i> and <i>icontains</i> '\
@@ -1055,7 +1061,7 @@ class SearchView(pluginmgr.View):
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         sw.add(self.results_view)
-        
+
         # pane to split the results view and the infobox, the infobox
         # is created when a row in the results is selected
         self.pane = gtk.HPaned()

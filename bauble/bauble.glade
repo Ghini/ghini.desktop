@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.5 on Wed Feb 21 17:30:24 2007 by brett@licuala-->
+<!--Generated with glade3 3.2.0 on Fri Mar 23 12:08:19 2007 by brett@licuala-->
 <glade-interface>
   <widget class="GtkWindow" id="main_window">
     <property name="visible">True</property>
+    <property name="title" translatable="yes">Bauble</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
