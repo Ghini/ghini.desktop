@@ -44,6 +44,7 @@ def _run_task(func, *args, **kwargs):
     except StopIteration:
         pass
 
+
 __message_ids = []
 
 def set_message(msg):
@@ -66,6 +67,7 @@ def clear_messages():
     for id in __message_ids:
         bauble.gui.widgets.statusbar.remove(_context_id, id)
 
+
 _flushing = False
 
 def flush():
@@ -83,10 +85,16 @@ def flush():
             bauble.gui.progressbar.show()
             bauble.gui.progressbar.set_pulse_step(1.0)
             bauble.gui.progressbar.set_fraction(0)
-        func, callback, args = _task_queue.get()
-        _run_task(func, *args)
-        if callback is not None:
-            callback
+        func, on_quit, on_error, args = _task_queue.get()
+        try:
+            _run_task(func, *args)
+            if on_quit is not None:
+                on_quit()
+        except Exception, e:
+            if on_error is not None:
+                on_error(e)
+            else:
+                raise
     bauble.set_busy(False)
     clear_messages()
     if bauble.gui is not None:
@@ -97,11 +105,11 @@ def flush():
 
 
 
-def queue(task, callback, *args):
+def queue(task, on_quit, on_error, *args):
     """
     @param task: the task to queue
     @param callback: the function to call when the task is finished
     @param args: the arguments to pass to the task
     """
-    _task_queue.put((task, callback, args))
+    _task_queue.put((task, on_quit, on_error, args))
     flush()

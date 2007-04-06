@@ -28,7 +28,7 @@ else: # main is frozen
    os.environ['PATH'] = '%s%s%s%s%s%s' \
                  % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
                     os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
-                    os.pathsep, os.environ['PATH'])
+                   os.pathsep, os.environ['PATH'])
 
 import gtk, gobject
 import bauble.utils as utils
@@ -45,7 +45,7 @@ try:
     from sqlalchemy import *
     # TODO: check sqlalchemy version
 except ImportError:
-    msg = _('SQLAlchemy not installed. Please install SQAlchemy from ' \
+    msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
             'http://www.sqlalchemy.org')
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
     raise
@@ -119,8 +119,7 @@ def open_database(uri, name=None):
     try:
        db.verify(db_engine)
     except db.MetaTableError, e:
-       msg = _('The database you connected to connected to wasn\'t created '\
-               'with Bauble.')
+       msg = _('The database you connected to wasn\'t created with Bauble.')
        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
        raise
     except db.VersionError, e:

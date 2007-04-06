@@ -29,10 +29,6 @@ import bauble.utils.gtasklet as gtasklet
 
 # TODO: single file or one file per table
 
-# TODO: would probably be best to make the default data files stored as zipped
-# xml files and then when we want to create a new database we unzip them,
-# transform them into csv files and then use the database specific file loader
-
 def ElementFactory(parent, name, **kwargs):
     try:
         text = kwargs.pop('text')

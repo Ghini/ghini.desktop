@@ -27,7 +27,6 @@ from bauble.utils.log import log, debug, warning
 from bauble.i18n import *
 import simplejson as json
 import logging
-import bauble.utils.tasklet as tasklet
 
 # TODO: we need to clarify what's in plugins, should we be looking in plugins
 # or the registry for plugins, should only registered plugins be in plugins?
@@ -36,23 +35,6 @@ plugins = []
 plugins_dict = {}
 commands = {}
 
-
-## def install(plugins_to_install, force=False):
-##     def quit(task, retval):
-##         debug('quit = True')
-## #        debug('gtk.main_level(): %s' % gtk.main_level())
-##         gtk.main_quit()
-##     #task = _install(plugins_to_install, force)
-##     task = tasklet.run(_install(plugins_to_install, force))
-##     task.add_join_callback(quit)
-## #    debug('gtk.main_level(): %s' % gtk.main_level())
-##     gtk.main()
-##     debug('leaving install')
-##     return True
-
-
-
-#@tasklet.task
 def install(plugins_to_install, force=False):
     """
     @param plugins_to_install: a list of plugins to install, if None then
@@ -98,14 +80,6 @@ def install(plugins_to_install, force=False):
             debug('commiting in pluginmgr.install()')
             transaction.commit()
 
-##         task = tasklet.run(csv.run(filenames=default_filenames,
-##                                    metadata=default_metadata,
-##                                    force=force))
-##         yield task # wait for task to complete
-
-##         tasklet.get_event()
-#        debug('tasklet returned')
-
 
 
 def load(path=None):
@@ -130,8 +104,10 @@ def load(path=None):
             try:
                 depends.append((p, plugins_dict[dep]))
             except KeyError:
-                msg = _('The %s plugin depends on the %s plugin but the %s '\
-                        'plugin wasn\'t found.') % (p.__name__, dep, dep)
+                msg = _('The %(plugin)s plugin depends on the '\
+                        '%(other_plugin)s  plugin but the %(other_plugin)s '\
+                        'plugin wasn\'t found.' \
+                        % {'plugin': p.__name__, 'other_plugin': dep})
                 utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                 # TODO: do something, we get here if a plugin requests another
                 # plugin as a dependency but the plugin that is a dependency
@@ -157,92 +133,17 @@ def init():
     call init() for each of the plugins in the registry,
     this should be called after we have a connection to the database
     """
-    debug('entered pluginmgr.init()')
+#    debug('entered pluginmgr.init()')
     registry = Registry()
-    debug(str(registry))
+#    debug(str(registry))
     for entry in registry:
-        debug('entry: %s' % entry)
+#        debug('entry: %s' % entry)
         try:
             plugins_dict[entry.name].init()
         except KeyError, e:
             warning(_("Couldn't initialize %s.") % entry.name)
             warning(e)
-    debug('leaving pluginmgr.init()')
-
-
-
-#def create_registry():
-#    Registry.create()
-#    return Registry()
-
-
-@tasklet.task
-def init_old(auto_setup=False):
-    task = _init_task(auto_setup)
-    yield tasklet.WaitForTasklet(task)
-    debug('leaving pluginmgr.init()')
-
-@tasklet.task
-def _init_task(auto_setup=False):
-    '''
-    initialize the module in order of dependencies
-    '''
-    debug('entered pluginmgr.init()')
-    global plugins
-    registry = None
-    try:
-        registry = Registry()
-    except RegistryEmptyError:
-        Registry.create()
-        registry = Registry()
-
-    # find the plugins that haven't been registered
-    not_registered = []
-    for p in plugins:
-        if p not in registry:
-            not_registered.append(p)
-
-    def save_and_init():
-        registry.save()
-        for entry in registry:
-#            debug('entry: %s' % entry)
-            try:
-                plugins_dict[entry.name].init()
-            except KeyError, e:
-                warning(_("Couldn't initialize %s.") % entry.name)
-                warning(e)
-
-    debug('not registered: %s' % \
-          ', '.join([p.__name__ for p in not_registered]))
-    if len(not_registered) > 0:
-        msg = _('The following plugins were found but are not registered: '\
-                '\n\n%s\n\n<i>Would you like to install them now?</i>'\
-                 % ', '.join([p.__name__ for p in not_registered]))
-        default_filenames = []
-        if auto_setup or utils.yes_no_dialog(msg):
-            for p in not_registered:
-                default_filenames.extend(p.default_filenames())
-                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
-            if len(default_filenames) > 0:
-                from bauble.plugins.imex.csv_ import CSVImporter
-                csv = CSVImporter()
-                debug('starting import')
-                #csv.start(filenames=default_filenames,
-                #          metadata=default_metadata,
-                #          force=True, block=True)
-                #csv.start(default_filenames,callback=save_and_init,force=True)
-                tasklet = tasklet.run(csv.run(filenames=default_filenames,
-                                               metadata=default_metadata))
-                yield tasklet.WaitForTasklet(tasklet)
-                debug('tasklet returned')
-                save_and_init()
-            else:
-                debug('not defaults - save and init')
-                save_and_init()
-    else:
-        debug('not not registered - save and init')
-        save_and_init()
-    debug('leaving pluginmgr._init_task')
+#    debug('leaving pluginmgr.init()')
 
 
 
@@ -572,7 +473,8 @@ def _find_plugins(path):
                 mod = imp.load_module('bauble.plugins.%s' % name, fp, path,
                                       desc)
             except Exception, e:
-                msg = _("Could not import the %s module.\n\n%s" % (name, e))
+                msg = _('Could not import the %(module)s module.\n\n'\
+                        '%(error)s' % {'module': name, 'error': e})
                 utils.message_details_dialog(msg, str(traceback.format_exc()),
                          gtk.MESSAGE_ERROR)
 #                if fp is not None:

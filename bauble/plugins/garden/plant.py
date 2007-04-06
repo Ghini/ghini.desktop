@@ -1,6 +1,8 @@
 #
 # plant.py
 #
+# Description:
+#
 
 import gtk, gobject
 from sqlalchemy import *
@@ -15,13 +17,6 @@ from bauble.types import Enum
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
 # sense the acc_id may not be set when setting the plant_id
-
-# TODO: should probably make acc_status required since whether a plant is
-# living or dead is pretty important
-
-# TODO: need a way to search plants by the full accession number,
-# e.g. 2004.0011.02 would return a specific plant, probably need to be
-# able to set a callback function like the children field of the view meta
 
 # TODO: might be worthwhile to have a label or textview next to the location
 # combo that shows the description of the currently selected location
@@ -131,8 +126,8 @@ plant_table = Table('plant',
                     UniqueConstraint('code', 'accession_id',
                                      name='plant_index'))
 
-# TODO: configure the acc code and plant code separator, the default should
-# be '.'
+
+
 class Plant(bauble.BaubleMapper):
 
     def __str__(self):
@@ -192,9 +187,6 @@ class PlantEditorView(GenericEditorView):
             return int(round(get_char_width(widget) * \
                              plant_table.c[col].type.length*multiplier))
 
-        # TODO: need to find the longest location name for the location combo
-        # and possibly recalculate the width(up to some max) if a new location
-        # is added
         acc_type_combo = self.widgets.plant_acc_type_combo
         acc_type_combo.set_size_request(width_func(acc_type_combo, 'acc_type'),
                                         -1)
@@ -227,8 +219,6 @@ class ObjectIdValidator(validators.FancyValidator):
 
 class PlantEditorPresenter(GenericEditorPresenter):
 
-    # TODO: check that the plant codes aren't duplicates and add a Problem
-    # to the widget if so
 
     widget_to_field_map = {'plant_code_entry': 'code',
                            'plant_acc_entry': 'accession',
@@ -247,19 +237,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
-#        debug('self._original_accession_id: %s' % self._original_accession_id)
         self._original_code = self.model.code
-
-        # TODO: should we set these to the default value or leave them
-        # be and let the default be set when the row is created, i'm leaning
-        # toward the second, its easier if it works this way
-
-        # TODO: if the accession is changed in the entry we should set the
-        # plant code to none or maybe just check that the plant code is still
-        # valid with this new accession and maybe add a problem if not, this
-        # should possibly remove a problem on the id entry if the number was
-        # previously invalid but now it is with the new accession, the easiest
-        # way to do all this would be to set the plant code to none
 
         # initialize widgets
         self.init_location_combo()
@@ -294,7 +272,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                         set_func=set_in_model,
                                         format_func=format_acc)
         #self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
-                # TODO: could probably replace this by just passing a valdator
+        # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
         # adding a problem to the widget
         self.view.widgets.plant_code_entry.connect('insert-text',

@@ -308,8 +308,7 @@ def get_source(row):
 
 accession_editor_tooltips = \
     {'acc_species_entry':
-     _("The accession's species completed from the "\
-       "species table"),
+     _("The accession's species completed from the species table"),
      'acc_code_entry':
      _("The accession ID must be a unique code and is the most common way of "
        "refering to this accession")

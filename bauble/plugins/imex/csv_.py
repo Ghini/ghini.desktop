@@ -515,11 +515,6 @@ class CSVExportTool(plugin.Tool):
         c = CSVExporter()
         c.start()
 
-## class CSVImexPlugin(plugin.Plugin):
-##     tools = [CSVImportTool, CSVExportTool]
-##     commands = [CSVExportCommandHandler, CSVImportCommandHandler]
-
-## plugin = CSVImexPlugin
 
 # TODO: importing from the command line isn't finished, i think the only thing
 # that really need to be done for it to work is to create a gobject.mainloop()
