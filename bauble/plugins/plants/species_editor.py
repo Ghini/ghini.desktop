@@ -36,13 +36,10 @@ def delete_or_expunge(obj):
     session = object_session(obj)
     if session is None:
         return # no session, don't need to delete or expunge
-#    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:
-#        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
         del obj
     else:
-#        debug('delete obj: %s -- %s' % (obj, repr(obj)))
         session.delete(obj)
 
 
@@ -195,10 +192,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         value in the widget changes, that way we can w things like sensitize
         the ok button
         '''
-
         for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
-
 
 
     def init_combos(self):
@@ -776,26 +771,25 @@ class SynonymsPresenter(GenericEditorPresenter):
                                genus_table.c.genus.like('%s%%' % text))
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
             return self.session.query(Species).select(sql)
+
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected
             sensitive = True
             if value is None:
                 sensitive = False
             self.view.widgets.sp_syn_add_button.set_sensitive(sensitive)
-            #completions_model.synonym = value
             self._added = value
-#            self.selected = value
 
         self.assign_completions_handler('sp_syn_entry', 'synonym',
                                         sp_get_completions,
                                         set_func=set_in_model,
                                         model=completions_model)
-#        self.selected = None
+
         self._added = None
         self.view.widgets.sp_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
         self.view.widgets.sp_syn_remove_button.connect('clicked',
-                                                    self.on_remove_button_clicked)
+                                                self.on_remove_button_clicked)
         self.__dirty = False
 
 
@@ -948,9 +942,8 @@ class SpeciesEditorView(GenericEditorView):
         '''
         '''
         v = model[iter][0]
-        renderer.set_property('text', '%s (%s)' % \
-                              (Genus.str(v),
-                               Family.str(v.family)))
+        renderer.set_property('text', '%s (%s)' % (Genus.str(v),
+                                                   Family.str(v.family)))
 
 
     def syn_cell_data_func(self, column, renderer, model, iter,

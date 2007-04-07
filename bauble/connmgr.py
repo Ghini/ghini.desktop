@@ -151,7 +151,6 @@ class ConnectionManager:
         self.widgets = utils.GladeWidgets(glade_path)
 
         self.dialog = self.widgets.main_dialog
-        #icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
         pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
         self.dialog.set_icon(pixbuf)
 
@@ -175,9 +174,9 @@ class ConnectionManager:
 
         self.type_combo = self.widgets.type_combo
         # test for different supported database types, this doesn't necessarily
-        # mean these database connections have been tested but if someone
-        # tries one and it doesn't work then hopefully they'll let us know
-        #self.type_combo.set_model(gtk.ListStore(str))
+        # mean these database connections have been tested to work with all
+        # the features of bauble but if someone tries one and it doesn't
+        # work then hopefully they'll let us know
         self.type_combo.remove_text(0) # remove dummy '--'
         for dbtype, index in self.supported_dbtypes.iteritems():
             self.type_combo.insert_text(index, dbtype)
@@ -284,11 +283,9 @@ class ConnectionManager:
         conn_list = prefs[bauble.conn_list_pref]
         if conn_list is None:
             conn_list = {}
-        debug(settings)
         conn_list[self.current_name] = settings
         prefs[bauble.conn_list_pref] = conn_list
         prefs.save()
-        debug(prefs[bauble.conn_list_pref])
 
 
     def compare_prefs_to_saved(self, name):
@@ -301,12 +298,8 @@ class ConnectionManager:
         if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
-        debug('stored_params')
-        #params = copy.copy(self.params_box.get_parameters())
         params = copy.copy(self.params_box.get_prefs())
         params["type"] = self.type_combo.get_active_text()
-        debug(params)
-        debug(stored_params)
         return params == stored_params
 
 
@@ -319,7 +312,6 @@ class ConnectionManager:
             return
 
         conn_list = prefs[bauble.conn_list_pref]
-        #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:
             if self.current_name not in conn_list:
                 msg = _("Do you want to save %s?") % self.current_name
@@ -340,7 +332,6 @@ class ConnectionManager:
             # TODO: there could be a problem here if the db type is in the
             # connection list but is not supported any more
 	    self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
-            debug('call refresh_view')
 	    self.params_box.refresh_view(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
@@ -370,16 +361,9 @@ class ConnectionManager:
         conn_list = prefs[bauble.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
-            #debug(name)
-            #debug(self.old_params)
-            #debug(conn_list[name])
-            #if name in conn_list and len(self.old_params.keys()) == 0:
-            if name in conn_list:# and len(self.old_params) == 0:
-                debug('call refresh_view')
+            if name in conn_list:
                 self.params_box.refresh_view(conn_list[name])
             elif len(self.old_params.keys()) != 0:
-                debug('call refresh_view')
-                debug('old params: %s' % self.old_params)
                 self.params_box.refresh_view(self.old_params)
 
         self.expander_box.pack_start(self.params_box, False, False)
@@ -515,7 +499,6 @@ class CMParamsBox(gtk.Table):
         '''
         refresh the widget values from prefs
         '''
-        debug(prefs)
     	try:
     	    self.db_entry.set_text(prefs["db"])
     	    self.host_entry.set_text(prefs["host"])
@@ -571,12 +554,10 @@ class SQLiteParamsBox(CMParamsBox):
             d['file'] = os.path.join(paths.user_dir(), '%s.db' % fixed)
         else:
             d['file'] = self.file_entry.get_text()
-        debug(d)
         return d
 
 
     def refresh_view(self, prefs):
-        debug(prefs)
     	try:
             self.default_check.set_active(prefs['default'])
     	    self.file_entry.set_text(prefs['file'])

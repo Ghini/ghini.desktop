@@ -101,7 +101,7 @@ def add_plants_callback(row):
 def remove_callback(row):
     value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
 
@@ -111,7 +111,7 @@ def remove_callback(row):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -126,8 +126,8 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    return str(acc), '%s %s' % (acc.species.markup(authors=False), acc.id_qual)
-
+    sp = [acc.species.markup(authors=False), acc.id_qual]
+    return str(acc), ' '.join([s for s in sp if s is not None])
 
 
 
@@ -270,21 +270,22 @@ from bauble.plugins.garden.source import Donation, donation_table, \
 from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table
 
 mapper(Accession, accession_table,
-    properties = {'_collection':
-                  relation(Collection,
-                           primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-                           cascade='all', uselist=False, backref='accession'),
-                  '_donation':
-                  relation(Donation,
-                           primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-                           cascade='all', uselist=False, backref='accession'),
-                  'plants':
-                  relation(Plant, cascade='all, delete-orphan',
-                           order_by=plant_table.c.code,
-                           backref='accession'),
-                  'verifications':
-                  relation(Verification, order_by='date', private=True,
-                           backref='accession', )},
+       properties = {
+    '_collection':
+    relation(Collection,
+             primaryjoin=accession_table.c.id==collection_table.c.accession_id,
+             cascade='all', uselist=False, backref='accession'),
+    '_donation':
+    relation(Donation,
+             primaryjoin=accession_table.c.id==donation_table.c.accession_id,
+             cascade='all', uselist=False, backref='accession'),
+    'plants':
+    relation(Plant, cascade='all, delete-orphan',
+             order_by=plant_table.c.code,
+             backref='accession'),
+    'verifications':
+    relation(Verification, order_by='date', private=True,
+             backref='accession', )},
        )#order_by='code')
 
 mapper(Verification, verification_table)
@@ -303,7 +304,7 @@ def get_source(row):
     elif row.source_type == tables['Collection'].__name__:
         return row._collection
     else:
-        raise ValueError('unknown source type: ' + str(row.source_type))
+        raise ValueError(_('unknown source type: %s') % str(row.source_type))
 
 
 accession_editor_tooltips = \
@@ -614,7 +615,7 @@ class CollectionPresenter(GenericEditorPresenter):
 #            debug(bits)
             dec = dms_to_decimal(direction, *map(float, bits))
         else:
-            raise ValueError('_parse_lat_lon -- incorrect format: %s' % \
+            raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') % \
                              text)
         return dec
 
@@ -624,7 +625,7 @@ class CollectionPresenter(GenericEditorPresenter):
             return 'N'
         elif self.view.widgets.south_radio.get_active():
             return 'S'
-        raise ValueError('North/South radio buttons in a confused state')
+        raise ValueError(_('North/South radio buttons in a confused state'))
 
 
     def _get_lon_direction(self):
@@ -632,7 +633,7 @@ class CollectionPresenter(GenericEditorPresenter):
             return 'E'
         elif self.view.widgets.west_radio.get_active():
             return 'W'
-        raise ValueError('East/West radio buttons in a confused state')
+        raise ValueError(_('East/West radio buttons in a confused state'))
 
 
     def on_lat_entry_insert(self, entry, new_text, new_text_length, position,
@@ -926,9 +927,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                genus_table.c.genus.like('%s%%' % text))
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
             return self.session.query(Species).select(sql)
+
         def set_in_model(self, field, value):
-#            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value)
+
         self.assign_completions_handler('acc_species_entry', 'species',
                                         sp_get_completions,
                                         set_func=set_in_model)
@@ -1178,7 +1180,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         combo.set_active(-1)
         self.view.widgets.acc_source_type_combo.connect('changed',
                                             self.on_source_type_combo_changed)
-#        self.view.dialog.show_all()
 
 
     def on_combo_changed(self, combo, field):
@@ -1194,7 +1195,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 value = self.model.species
             else:
                 value = self.model[field]
-#            debug('%s, model[%s] = %s' % (widget,field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
 
@@ -1215,8 +1215,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 class AccessionEditor(GenericModelViewPresenterEditor):
 
-    label = 'Accession'
-    mnemonic_label = '_Accession'
+    label = _('Accession')
+    mnemonic_label = _('_Accession')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -1249,13 +1249,14 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:
-                msg = 'Error committing changes.\n\n%s' % \
+                msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the '\
-                      'details for more information.\n\n%s' % utils.xml_safe(e)
+                msg = _('Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s') \
+                      % utils.xml_safe(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
@@ -1289,8 +1290,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
     def start(self):
         from bauble.plugins.plants.species_model import Species
         if self.session.query(Species).count() == 0:
-            msg = 'You must first add or import at least one species into '\
-                  'the database before you can add accessions.'
+            msg = _('You must first add or import at least one species into '\
+                  'the database before you can add accessions.')
             utils.message_dialog(msg)
             return
         self.view = AccessionEditorView(parent=self.parent)
@@ -1311,7 +1312,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         else:
             self.view.widgets.acc_code_entry.grab_focus()
 
-        exc_msg = "Could not commit changes.\n"
+        exc_msg = _("Could not commit changes.\n")
         committed = None
         while True:
             response = self.presenter.start()
@@ -1340,7 +1341,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         if model.latitude is not None or model.longitude is not None:
             if (model.latitude is not None and model.longitude is None) or \
                 (model.longitude is not None and model.latitude is None):
-                msg = 'model must have both latitude and longitude or neither'
+                msg = _('model must have both latitude and longitude or '\
+                        'neither')
                 raise ValueError(msg)
             elif model.latitude is None and model.longitude is None:
                 model.geo_accy = None # don't save
@@ -1382,7 +1384,7 @@ class GeneralAccessionExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.general_window.remove(general_box)
         self.vbox.pack_start(general_box)
@@ -1410,7 +1412,7 @@ class NotesExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)
+        InfoExpander.__init__(self, _("Notes"), widgets)
         notes_box = self.widgets.notes_box
         self.widgets.notes_window.remove(notes_box)
         self.vbox.pack_start(notes_box)
@@ -1423,7 +1425,7 @@ class NotesExpander(InfoExpander):
 class SourceExpander(InfoExpander):
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, 'Source', widgets)
+        InfoExpander.__init__(self, _('Source'), widgets)
         self.curr_box = None
 
 
@@ -1491,20 +1493,6 @@ class SourceExpander(InfoExpander):
         self.widgets.remove_parent(box)
         self.curr_box = box
         update(value)
-#            if isinstance(value, Collection):
-#                #box = self.widgets.collections_box
-#                self.widgets.remove_parent(box)
-#                self.curr_box = box
-#                self.update_collections(value)
-#            elif isinstance(value, Donation):
-#                box = self.widgets.donations_box
-#                self.widgets.remove_parent(box)
-#                self.curr_box = box
-#                self.update_donations(value)
-#            else:
-#                msg = "Unknown type for source: " + str(type(value))
-#                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-
         self.vbox.pack_start(self.curr_box)
         self.set_expanded(True)
         self.set_sensitive(True)

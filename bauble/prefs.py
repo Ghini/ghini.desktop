@@ -32,10 +32,10 @@ general_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_general.png')
 security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
 
 config_version_pref = 'bauble.config.version'
-config_version = bauble.version[0], bauble.version[1] 
+config_version = bauble.version[0], bauble.version[1]
 
 ## class PreferencesMgr(gtk.Dialog):
-    
+
 ##     def __init__(self):
 ##         gtk.Dialog.__init__(self, "Preferences", None,
 ##                    gtk.DIALOG_MODAL | gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -47,15 +47,15 @@ config_version = bauble.version[0], bauble.version[1]
 
 ##     def create_gui(self):
 ##         model = gtk.ListStore(str, gtk.gdk.Pixbuf)
-        
+
 ##         #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_general.png")
 ##         pixbuf = gtk.gdk.pixbuf_new_from_file(general_prefs_icon)
 ##         model.append(["General", pixbuf])
-        
+
 ##         #pixbuf = gtk.gdk.pixbuf_new_from_file("images/prefs_security.png")
 ##         pixbuf = gtk.gdk.pixbuf_new_from_file(security_prefs_icon)
 ##         model.append(["Security", pixbuf])
-        
+
 ##         self.icon_view = gtk.IconView(model)
 ##         self.icon_view.set_text_column(0)
 ##         self.icon_view.set_pixbuf_column(1)
@@ -65,12 +65,12 @@ config_version = bauble.version[0], bauble.version[1]
 ##         self.icon_view.set_columns(1) # this isn't in the pygtk docs
 ##         self.icon_view.set_item_width(-1)
 ##         self.icon_view.set_size_request(72, -1)
-        
+
 ##         self.content_box = gtk.HBox(False)
 ##         self.content_box.pack_start(self.icon_view, fill=True, expand=False)
 ##         self.icon_view.select_path((0,)) # select a category, will create frame
 ##         self.show_all()
-##         self.vbox.pack_start(self.content_box)        
+##         self.vbox.pack_start(self.content_box)
 ##         self.resize(640, 480)
 ##         self.show_all()
 
@@ -87,34 +87,34 @@ config_version = bauble.version[0], bauble.version[1]
 ##         if category == "General":
 ##             self.current_frame = self.create_general_frame()
 ##         elif category == "Security":
-##             self.current_frame = self.create_security_frame()    
+##             self.current_frame = self.create_security_frame()
 ##         self.content_box.pack_end(self.current_frame, fill=True, expand=True)
 ##         self.show_all()
-        
-        
+
+
 ##     def create_general_frame(self):
 ##         frame = gtk.Frame("General")
 ##         box = gtk.VBox(False)
 ##         box.pack_start(gtk.Label("Nothing to see here. Move on."))
 ##         frame.add(box)
-##         return frame        
+##         return frame
 
 
 ##     def create_security_frame(self):
-##         frame = gtk.Frame("Security")        
+##         frame = gtk.Frame("Security")
 ##         box = gtk.VBox(False)
 ##         box.pack_start(gtk.Label("Nothing to see here. Move on."))
 ##         frame.add(box)
-##         return frame        
+##         return frame
 
 
 from ConfigParser import ConfigParser
 
 class _prefs(dict):
-    
+
     def __init__(self, filename=default_prefs_file):
         self._filename = filename
-    
+
 
     def init(self):
         '''
@@ -124,16 +124,14 @@ class _prefs(dict):
         head, tail = os.path.split(self._filename)
         if not os.path.exists(head):
             os.makedirs(head)
-            
+
         self.config = ConfigParser()
 
         # set the version if the file doesn't exist
-        
+
         if not os.path.exists(self._filename):
-            debug('path doesn\'t exists')
             self[config_version_pref] = config_version
         else:
-            debug('reading %s' % self._filename)
             self.config.read(self._filename)
         version = self[config_version_pref]
         if version is None:
@@ -155,7 +153,7 @@ class _prefs(dict):
         if value is None:
             return default
         return value
-        
+
 
     def __getitem__(self, key):
         section, option = _prefs._parse_key(key)
@@ -165,7 +163,7 @@ class _prefs(dict):
             return None
         else:
             i = self.config.get(section, option)
-            eval_chars = '{[(' 
+            eval_chars = '{[('
             if i[0] in eval_chars: # then the value is a dict, list or tuple
                 return eval(i)
             elif i == 'True' or i == 'False':
@@ -173,14 +171,14 @@ class _prefs(dict):
             return i
             #return self.config.get(section, option)
 
-        
+
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)
         if not self.config.has_section(section):
             self.config.add_section(section)
         self.config.set(section, option, str(value))
 
-        
+
     def __contains__(self, key):
         section, option = _prefs._parse_key(key)
         if self.config.has_section(section) and \
@@ -188,12 +186,12 @@ class _prefs(dict):
             return True
         return False
 
-    
+
     def save(self):
         f = open(self._filename, "w+")
         self.config.write(f)
         f.close()
-                
+
 
 #    def __del__(self, item):
 #        """
@@ -202,10 +200,10 @@ class _prefs(dict):
 #        #if has section: remove option
 #        # if n_option in section == -
 #        #     remove section
-#        
+#
 #        pass
 
-            
+
 prefs = _prefs()
 
 
