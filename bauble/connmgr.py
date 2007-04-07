@@ -28,7 +28,7 @@ from bauble.i18n import *
 # TODO: allow connecting to a database first to see if the database even,
 # exists will probably have to connected using python's dbapi first and
 # if the database doesn't exist then we can create it, set some permissions,
-# close the connection and then open it using SQLAlhemy
+# close the connection and then open it using SQLAlchemy
 
 class ConnectionManager:
 
@@ -39,6 +39,11 @@ class ConnectionManager:
         '''
         self.default_name = default
         self.current_name = None
+
+        # old_params is used to cache the parameter values for when the param
+        # box changes but we want to keep the values, e.g. when the type
+        # changes
+        self.old_params = {}
 
 
     def start(self):
@@ -77,8 +82,8 @@ class ConnectionManager:
             self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
              response == gtk.RESPONSE_DELETE_EVENT:
-            if not self.compare_params_to_saved(self.current_name):
-                msg="Do you want to save your changes?"
+            if not self.compare_prefs_to_saved(self.current_name):
+                msg = _("Do you want to save your changes?")
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
 
@@ -136,9 +141,9 @@ class ConnectionManager:
 
     def create_gui(self):
         if self.supported_dbtypes is None or len(self.supported_dbtypes) == 0:
-            msg = "No Python database connectors installed.\n"\
-                  "Please consult the documentation for the "\
-                  "prerequesites for installing Bauble."
+            msg = _("No Python database connectors installed.\n"\
+                    "Please consult the documentation for the "\
+                    "prerequesites for installing Bauble.")
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise Exception(msg)
 
@@ -225,10 +230,13 @@ class ConnectionManager:
 
 
     def on_remove_button_clicked(self, button, data=None):
-        # TODO: do you want to delete all data associated with this connection?
-        msg = 'Are you sure you want to remove "%s"?\n\n' \
+        """
+        remove the connection from connection list, this does not affect
+        the database or it's data
+        """
+        msg = _('Are you sure you want to remove "%s"?\n\n' \
               '<i>Note: This only removes the connection to the database '\
-              'and does not affect the database or it\'s data</i>' \
+              'and does not affect the database or it\'s data</i>') \
               % self.current_name
 
         if not utils.yes_no_dialog(msg):
@@ -239,7 +247,7 @@ class ConnectionManager:
 
 
     def on_add_button_clicked(self, button, data=None):
-        d = gtk.Dialog("Enter a connection name", self.dialog,
+        d = gtk.Dialog(_("Enter a connection name"), self.dialog,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                        (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.set_default_response(gtk.RESPONSE_ACCEPT)
@@ -262,7 +270,7 @@ class ConnectionManager:
             #self.type_combo.set_active(0)
 
 
-    def set_info_label(self, msg="Choose a connection"):
+    def set_info_label(self, msg=_("Choose a connection")):
         self.info_label.set_text(msg)
 
 
@@ -283,7 +291,7 @@ class ConnectionManager:
         debug(prefs[bauble.conn_list_pref])
 
 
-    def compare_params_to_saved(self, name):
+    def compare_prefs_to_saved(self, name):
         """
         name is the name of the connection in the prefs
         """
@@ -293,14 +301,14 @@ class ConnectionManager:
         if conn_list is None or name not in conn_list:
             return False
         stored_params = conn_list[name]
-        params = copy.copy(self.params_box.get_parameters())
+        debug('stored_params')
+        #params = copy.copy(self.params_box.get_parameters())
+        params = copy.copy(self.params_box.get_prefs())
         params["type"] = self.type_combo.get_active_text()
+        debug(params)
+        debug(stored_params)
         return params == stored_params
 
-
-    # old_params caches the parameter values for when the param box changes
-    # but we want to keep the values, e.g. when the type changes
-    old_params = {}
 
     def on_changed_name_combo(self, combo, data=None):
         """
@@ -314,15 +322,15 @@ class ConnectionManager:
         #if self.params_box is not None and self.current_name is not None:
         if self.current_name is not None:
             if self.current_name not in conn_list:
-                msg = "Do you want to save %s?" % self.current_name
+                msg = _("Do you want to save %s?") % self.current_name
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
                 else:
                     self.remove_connection(self.current_name)
 		    #combo.set_active_iter(active_iter)
                     self.current_name = None
-            elif not self.compare_params_to_saved(self.current_name):
-                msg = "Do you want to save your changes to %s ?" \
+            elif not self.compare_prefs_to_saved(self.current_name):
+                msg = _("Do you want to save your changes to %s ?") \
                       % self.current_name
                 if utils.yes_no_dialog(msg):
                     self.save_current_to_prefs()
@@ -332,8 +340,8 @@ class ConnectionManager:
             # TODO: there could be a problem here if the db type is in the
             # connection list but is not supported any more
 	    self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
-            debug('call set_prefs')
-	    self.params_box.set_prefs(conn_list[name])
+            debug('call refresh_view')
+	    self.params_box.refresh_view(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
             self.type_combo.emit("changed") # in case 0 was already active
@@ -354,7 +362,7 @@ class ConnectionManager:
             self.params_box = None
             return
 
-        # get the selected type
+        # get parameters box for the dbtype
         self.params_box = CMParamsBoxFactory.createParamsBox(dbtype, self)
 
         # if the type changed but is the same type of the connection
@@ -362,18 +370,23 @@ class ConnectionManager:
         conn_list = prefs[bauble.conn_list_pref]
         if conn_list is not None:
             name = self.name_combo.get_active_text()
-            if name in conn_list and len(self.old_params.keys()) == 0:
-                debug('call set_prefs')
-                self.params_box.set_prefs(conn_list[name])
+            #debug(name)
+            #debug(self.old_params)
+            #debug(conn_list[name])
+            #if name in conn_list and len(self.old_params.keys()) == 0:
+            if name in conn_list:# and len(self.old_params) == 0:
+                debug('call refresh_view')
+                self.params_box.refresh_view(conn_list[name])
             elif len(self.old_params.keys()) != 0:
-                debug('call set_prefs')
-                self.params_box.set_prefs(self.old_params)
+                debug('call refresh_view')
+                debug('old params: %s' % self.old_params)
+                self.params_box.refresh_view(self.old_params)
 
         self.expander_box.pack_start(self.params_box, False, False)
         self.dialog.show_all()
 
 
-    def get_passwd(self, title="Enter your password", before_main=False):
+    def get_passwd(self, title=_("Enter your password"), before_main=False):
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
         d = gtk.Dialog(title, self.dialog,
@@ -385,7 +398,8 @@ class ConnectionManager:
         d.set_default_size(250,-1)
         entry = gtk.Entry()
         entry.set_visibility(False)
-        entry.connect("activate", lambda entry: d.response(gtk.RESPONSE_ACCEPT))
+        entry.connect("activate",
+                      lambda entry: d.response(gtk.RESPONSE_ACCEPT))
         d.vbox.pack_start(entry)
         d.show_all()
         d.run()
@@ -435,10 +449,10 @@ class ConnectionManager:
         used right now
         """
         if self.name_combo.get_active_text() == "":
-            return False, "Please choose a name for this connection"
+            return False, _("Please choose a name for this connection")
         params = self.params_box
         if params["user"] == "":
-            return False, "Please choose a user name for this connection"
+            return False, _("Please choose a user name for this connection")
 
 
 class CMParamsBox(gtk.Table):
@@ -452,26 +466,26 @@ class CMParamsBox(gtk.Table):
 
     def create_gui(self):
         label_alignment = (0.0, 0.5)
-        label = gtk.Label("Database: ")
+        label = gtk.Label(_("Database: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 0, 1)
         self.db_entry = gtk.Entry()
         self.attach(self.db_entry, 1, 2, 0, 1)
 
-        label = gtk.Label("Host: ")
+        label = gtk.Label(_("Host: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 1, 2)
         self.host_entry = gtk.Entry()
         self.host_entry.set_text("localhost")
         self.attach(self.host_entry, 1, 2, 1, 2)
 
-        label = gtk.Label("User: ")
+        label = gtk.Label(_("User: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 2, 3)
         self.user_entry = gtk.Entry()
         self.attach(self.user_entry, 1, 2, 2, 3)
 
-        label = gtk.Label("Password: ")
+        label = gtk.Label(_("Password: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 3, 4)
         self.passwd_check = gtk.CheckButton()
@@ -479,10 +493,16 @@ class CMParamsBox(gtk.Table):
 
 
     def get_prefs(self):
+        '''
+        see get_prefs
+        '''
         return self.get_parameters()
 
 
     def get_parameters(self):
+        '''
+        return only those preferences that are used to build the connection uri
+        '''
         d = {}
         d["db"] = self.db_entry.get_text()
         d["host"] = self.host_entry.get_text()
@@ -491,7 +511,11 @@ class CMParamsBox(gtk.Table):
         return d
 
 
-    def set_prefs(self, prefs):
+    def refresh_view(self, prefs):
+        '''
+        refresh the widget values from prefs
+        '''
+        debug(prefs)
     	try:
     	    self.db_entry.set_text(prefs["db"])
     	    self.host_entry.set_text(prefs["host"])
@@ -517,7 +541,7 @@ class SQLiteParamsBox(CMParamsBox):
                         self.file_box.set_sensitive(not button.get_active()))
 
         label_alignment = (0.0, 0.5)
-        label = gtk.Label("Filename: ")
+        label = gtk.Label(_("Filename: "))
         label.set_alignment(*label_alignment)
         self.attach(label, 0, 1, 1, 2)
 
@@ -551,7 +575,7 @@ class SQLiteParamsBox(CMParamsBox):
         return d
 
 
-    def set_prefs(self, prefs):
+    def refresh_view(self, prefs):
         debug(prefs)
     	try:
             self.default_check.set_active(prefs['default'])
@@ -562,7 +586,7 @@ class SQLiteParamsBox(CMParamsBox):
 
 
     def on_activate_browse_button(self, widget, data=None):
-        d = gtk.FileChooserDialog("Choose a file...", None,
+        d = gtk.FileChooserDialog(_("Choose a file..."), None,
                                   action=gtk.FILE_CHOOSER_ACTION_SAVE,
                                   buttons=(gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                   gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -571,9 +595,7 @@ class SQLiteParamsBox(CMParamsBox):
         d.destroy()
 
 
-#
-# is this factory really necessary??
-#
+
 class CMParamsBoxFactory:
 
     def __init__(self):
