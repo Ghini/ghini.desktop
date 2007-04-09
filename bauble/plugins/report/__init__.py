@@ -25,9 +25,9 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 
 def get_all_plants(objs, acc_status=None, session=None):
     """
-    @param objs:
-    @param acc_status
-    @param session
+    @param objs: a list of object to search through for Plant instances
+    @param acc_status: only return thost plants whose acc_status matches
+    @param session: the session that the returned plants should be attached to
     """
     if acc_status is None:
         acc_status = 'Living accession',None
@@ -72,9 +72,6 @@ def get_all_plants(objs, acc_status=None, session=None):
     from bauble.plugins.garden import Accession, Plant, Location
     for obj in objs:
         # extract the plants from the search results
-        # TODO: need to speed this up using custom queries, see the
-        # family and genera infoboxes
-        debug('obj: %s' % obj)
         if isinstance(obj, Family):
             for gen in obj.genera:
                 for sp in gen.species:
@@ -381,14 +378,14 @@ class ReportToolDialogPresenter(object):
         configs = prefs[config_list_pref]
         combo = self.view.widgets.names_combo
         if configs is None:
-            debug('configs is None')
+#            debug('configs is None')
             self.view.widgets.details_box.set_sensitive(False)
             utils.clear_model(combo)
             return
         try:
             model = gtk.ListStore(str)
             for cfg in configs.keys():
-                debug('cfg: %s' % cfg)
+#                debug('cfg: %s' % cfg)
                 model.append([cfg])
             combo.set_model(model)
         except AttributeError, e:
@@ -513,6 +510,5 @@ class ReportToolPlugin(pluginmgr.Plugin):
 def plugin():
     from bauble.plugins.report.default import DefaultFormatterPlugin
     return [ReportToolPlugin, DefaultFormatterPlugin]
-#plugin = [ReportToolPlugin]
 
 
