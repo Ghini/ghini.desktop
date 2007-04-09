@@ -1,15 +1,9 @@
 #
-# report module
+# __init__.py -- report module
 #
 
-# TODO: all these  names are getting confusing, we should probably
-# rename the top level module to 'report' or something and report plugins
-# could then be called 'formatters'
-
-# TODO: need to make it so formatter plugins work if they are zipped up
-
 import os, sys, traceback, re
-import gtk
+import gobject, gtk
 from sqlalchemy import *
 import lxml.etree as etree
 import lxml._elementpath # put this here sp py2exe picks it up
@@ -24,17 +18,26 @@ from bauble.utils.log import log, debug
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
 
-#report_modules_pref = 'report.modules'
-
 # the default report generator to select on start
 default_config_pref = 'report.default'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 
-def get_all_plants(objs, acc_status=('Living accession',None)):
+def get_all_plants(objs, acc_status=None, session=None):
+    """
+    @param objs:
+    @param acc_status
+    @param session
+    """
+    if acc_status is None:
+        acc_status = 'Living accession',None
+
+    if session is None:
+        session = create_session()
+
     from bauble.plugins.garden.plant import Plant, plant_table
     all_plants = {}
-    session = create_session()
+
     plant_query = session.query(Plant)
 
     def add_plants(plants):
@@ -42,45 +45,30 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
             if id not in all_plants and p.acc_status in acc_status:
                 all_plants[p.id] = p
 
+
     def add_plants_from_accessions(accessions):
         '''
         add all plants from all accessions
         '''
-#        genus_ids = select([genus_table.c.id], genus_table.c.genus.like('%s%%' % text))
-#        sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-#        return self.session.query(Species).select(sql)
-        if False:
-            # TODO: i don't know why this doesn't work, tried with SA 2.8
-#            debug(accessions)
-            acc_ids = [acc.id for acc in accessions]
-#            debug(acc_ids)
-            #plants = plant_query.select(Plant.c.id.in_(acc_ids))
-#            debug(plant_table.c.id.in_(acc_ids))
-            stmt = plant_table.select(plant_table.c.id.in_(acc_ids))
-            plants = plant_query.select(stmt)
-#            debug(plants)
-            add_plants(p)
-        else:
-            for p in [acc.plants for acc in accessions]:
-                add_plants(p)
+        acc_ids = [acc.id for acc in accessions]
+        stmt = plant_table.select(plant_table.c.accession_id.in_(*acc_ids))
+        plants = plant_query.select(stmt)
+        add_plants(plants)
 
     # append the objects from the tag
     try:
         from bauble.plugins.tag import Tag
-
         for obj in objs:
             if isinstance(obj, Tag):
                 objs.extend(obj.objects)
     except ImportError:
         pass
-##        if isinstance(obj, global_metadata.tables['Tag']):
-##           objs.extend(obj.objects)
 
     # TODO: it would be better if getting the plants from the different
     # types wasn't hardcoded in here, it would be better if we could
     # just register a type and how to get that types children similar to the
     # view meta or at least something along those lines
-    from bauble.plugins.plants import Family, Genus, Species
+    from bauble.plugins.plants import Family, Genus, Species, VernacularName
     from bauble.plugins.garden import Accession, Plant, Location
     for obj in objs:
         # extract the plants from the search results
@@ -96,8 +84,9 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
                 add_plants_from_accessions(sp.accessions)
         elif isinstance(obj, Species):
             add_plants_from_accessions(obj.accessions)
+        elif isinstance(obj, VernacularName):
+            add_plants_from_accessions(obj.species.accessions)
         elif isinstance(obj, Accession):
-#            debug(obj.plants)
             add_plants(obj.plants)
         elif isinstance(obj, Plant):
             add_plants([obj])
@@ -105,42 +94,6 @@ def get_all_plants(objs, acc_status=('Living accession',None)):
             add_plants(obj.plants)
 
     return all_plants.values()
-
-
-
-## def _find_formatter_plugins():
-##     # TODO: the library.zip part doesn't work
-##     names = []
-##     path, name = os.path.split(__file__)
-##     if path.find("library.zip") != -1: # using py2exe
-##         pkg = "bauble.plugins.formatter"
-##         zipfiles = __import__(pkg, globals(), locals(), [pkg]).__loader__._files
-##         x = [zipfiles[file][0] for file in zipfiles.keys() if "bauble\\plugins\\formatter" in file]
-##         s = '.+?' + os.sep + pkg + os.sep + '(.+?)' + os.sep + '__init__.py[oc]'
-##         rx = re.compile(s.encode('string_escape'))
-##         for filename in x:
-##             m = rx.match(filename)
-##             if m is not None:
-##                 names.append('%s.%s' % (pkg, m.group(1)))
-##     else:
-##         for d in os.listdir(path):
-##             full = path + os.sep + d
-##             if os.path.isdir(full) and os.path.exists(full + os.sep + "__init__.py"):
-##                 names.append(d)
-
-##     plugins = []
-##     for name in names:
-##         try:
-##             mod = __import__(name, globals(), locals(), ['formatter'])
-##         except Exception, e:
-##             msg = "Could not import the %s module." % name
-##             utils.message_details_dialog(msg, str(traceback.format_exc()),
-##                      gtk.MESSAGE_ERROR)
-##             raise
-##         if hasattr(mod, "formatter"):
-##             plugins.append(mod.formatter)
-
-##     return plugins
 
 
 
@@ -327,20 +280,16 @@ class ReportToolDialogPresenter(object):
 
 
     def on_names_combo_changed(self, combo, *args):
-        debug('on_names_combo.changed()')
         if combo.get_model() is None:
-            print ' -- model = None'
             self.view.widgets.details_box.set_sensitive(False)
             return
 
         name = combo.get_active_text()
-        debug('--- on_names_combo_changed(%s)' % name)
         formatters = prefs[config_list_pref]
         self.view.widgets.details_box.set_sensitive(name is not None)
         prefs[default_config_pref] = name # set the default to the new name
         try:
             title, settings = formatters[name]
-#            debug('%s, %s' % (title, settings))
         except (KeyError, TypeError), e:
             #debug(e)
             return
@@ -352,15 +301,19 @@ class ReportToolDialogPresenter(object):
             self.set_formatter_combo(-1)
         self.view.widgets.details_box.set_sensitive(True)
 
-#        debug('--- leaving on_names_combo_changed()')
-
 
     def on_formatter_combo_changed(self, combo, *args):
         '''
         formatter_combo changed signal handler
         '''
+        self.view.widgets.ok_button.set_sensitive(False)
+        gobject.idle_add(self._formatter_combo_changed_idle, combo)
+
+    def _formatter_combo_changed_idle(self, combo):
         title = combo.get_active_text()
-#        debug('**** on_formatter_combo_changed(%s)' % title)
+        # main loop never has a chance to change sensitivity, maybe we could
+        # do some of this in idle function
+        #
         name = self.view.widgets.names_combo.get_active_text()
         try:
             saved_title, settings = prefs[config_list_pref][name]
@@ -396,7 +349,7 @@ class ReportToolDialogPresenter(object):
         expander.set_expanded(box is not None)
         title = combo.get_active_text()
         self.set_prefs_for(name, title, settings)
-#        debug('**** leaving on_formatter_combo_changed')
+        self.view.widgets.ok_button.set_sensitive(True)
 
 
     def init_formatter_combo(self):
@@ -522,9 +475,6 @@ class ReportTool(pluginmgr.Tool):
             return
 
         bauble.set_busy(True)
-        # extract the plants from the search results
-        # TODO: need to speed this up using custom queries, see the
-        # family and genera infoboxes
         ok = False
         try:
             while True:
@@ -538,11 +488,15 @@ class ReportTool(pluginmgr.Tool):
 
         except AssertionError, e:
             debug(e)
-            utils.message_dialog(str(e), gtk.MESSAGE_ERROR,
-                                 parent=self.view.dialog)
+            parent = None
+            if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
+                parent = self.view.dialog
+
+            utils.message_details_dialog(str(e), traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR, parent=parent)
         except Exception:
             debug(traceback.format_exc())
-            utils.message_details_dialog('Formatting Error',
+            utils.message_details_dialog(_('Formatting Error'),
                                      traceback.format_exc(), gtk.MESSAGE_ERROR)
         bauble.set_busy(False)
         return

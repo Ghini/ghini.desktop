@@ -53,8 +53,11 @@ plant_context_menu = [('Edit', edit_callback),
 def plant_markup_func(plant):
     '''
     '''
-    sp_str = '%s %s' %  (plant.accession.species.markup(authors=False),
-                         plant.accession.id_qual)
+    if plant.accession.id_qual is None:
+        sp_str = plant.accession.species.markup(authors=False)
+    else:
+        sp_str = '%s %s' % (plant.accession.species.markup(authors=False),
+                            plant.accession.id_qual)
     if plant.acc_status == 'Dead':
         color = '<span foreground="#666666">%s</span>'
         return color % str(plant), sp_str
@@ -567,7 +570,7 @@ class GeneralPlantExpander(InfoExpander):
         '''
         self.set_widget_value('name_data',
              '%s %s\n%s' % (row.accession.species.markup(True),
-                            row.accession.id_qual, str(row)))
+                            row.accession.id_qual or '', str(row)))
         self.set_widget_value('location_data',row.location.site)
         self.set_widget_value('status_data',
                          row.acc_status, False)
