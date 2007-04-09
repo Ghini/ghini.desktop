@@ -126,8 +126,14 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    sp = [acc.species.markup(authors=False), acc.id_qual]
-    return str(acc), ' '.join([s for s in sp if s is not None])
+    #sp = [acc.species.markup(authors=False), acc.id_qual]
+    #return str(acc), ' '.join([s for s in sp if s is not None])
+    if acc.id_qual is None:
+        sp_str = acc.species.markup(authors=False)
+    else:
+        sp_str = '%s %s' % (acc.species.markup(authors=False),
+                            acc.id_qual)
+    return str(acc), sp_str
 
 
 

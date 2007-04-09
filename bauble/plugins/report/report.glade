@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.1.5 on Sat Feb 17 12:48:25 2007 by brett@licuala
+<!--Generated with glade3 3.2.0 on Mon Apr  9 14:41:56 2007 by brett@licuala
 	Version: 3.0.1
 	Date: Sun Sep 24 10:04:22 2006
 	User: brett
@@ -156,6 +156,7 @@
             <child>
               <widget class="GtkButton" id="ok_button">
                 <property name="visible">True</property>
+                <property name="sensitive">False</property>
                 <property name="label" context="yes">gtk-ok</property>
                 <property name="use_stock">True</property>
                 <property name="response_id">-5</property>

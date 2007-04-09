@@ -797,7 +797,6 @@ class SearchView(pluginmgr.View):
             def populate_callback():
                 self.populate_results(results)
                 statusbar.push(sbcontext_id, "%s results" % len(results))
-            debug(len(results))
             if len(results) > 2000:
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you '\

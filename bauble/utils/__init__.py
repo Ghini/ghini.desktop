@@ -282,7 +282,8 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
     return d
 
 
-def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK, parent=None):
+def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
+                   parent=None):
     '''
     '''
     d = create_message_dialog(msg, type, buttons, parent)
@@ -369,10 +370,10 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 
 
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
-                           buttons=gtk.BUTTONS_OK):
+                           buttons=gtk.BUTTONS_OK, parent=None):
     '''
     '''
-    d = create_message_details_dialog(msg, details, type, buttons)
+    d = create_message_details_dialog(msg, details, type, buttons, parent)
     r = d.run()
     d.destroy()
     return r
