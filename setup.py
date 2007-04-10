@@ -151,7 +151,7 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["FormEncode>=0.4", "SQLAlchemy>=0.3.4",
+      install_requires=["FormEncode>=0.7", "SQLAlchemy>=0.3.6",
                         "pysqlite==2.3.2",
                         "PyGTK>=2.8.6", "simplejson"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"

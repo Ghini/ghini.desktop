@@ -31,7 +31,7 @@ class TestTask:
 
     def start(self):
         def callback(*args):
-            debug('entered callback')
+            #debug('entered callback')
             for i in xrange(0, 100):
                 pass
             msg = 'task finished'

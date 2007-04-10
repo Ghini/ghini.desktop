@@ -141,9 +141,10 @@ class GUI(object):
         else:
             compl_model = completion.get_model()
 
-        for herstory in history:
-            main_combo.append_text(herstory)
-            compl_model.append([herstory])
+	if history is not None:
+	    for herstory in history:
+		main_combo.append_text(herstory)
+		compl_model.append([herstory])
         main_combo.set_model(model)
 
 
