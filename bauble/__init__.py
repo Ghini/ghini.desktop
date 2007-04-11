@@ -21,19 +21,22 @@ else: # main is frozen
    # put library.zip first in the path when using py2exe so libxml2 gets
    # imported correctly,
    zipfile = sys.path[-1]
-   sys.path.insert(0,zipfile)
+   sys.path.insert(0, zipfile)
    # put the bundled gtk at the beginning of the path to make it the
    # preferred version
    os.environ['PATH'] = '%s%s%s%s%s%s' \
                  % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
                     os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
-                   os.pathsep, os.environ['PATH'])
-
+                    os.pathsep, os.environ['PATH'])
+   
 import gtk, gobject
 import bauble.utils as utils
 
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
+
+sys.stderr.write('sys.path: %s' % sys.path)
+sys.stderr.write('PATH: %s' % os.environ['PATH'])
 
 # create the user directory
 if not os.path.exists(paths.user_dir()):

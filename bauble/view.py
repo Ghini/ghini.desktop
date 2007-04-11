@@ -11,7 +11,7 @@ from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.ext.selectresults import SelectResults, SelectResultsExt
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
-import formencode
+#import formencode
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -259,22 +259,22 @@ class SearchParser:
         return self.statement.parseString(text)
 
 
-class OperatorValidator(formencode.FancyValidator):
+class OperatorValidator(object):#formencode.FancyValidator):
 
     to_operator_map = {}
 
-    def _to_python(self, value, state=None):
+    def to_python(self, value, state=None):
         if value in self.to_operator_map:
             return self.to_operator_map[value]
         else:
             return value
 
 
-    def _from_python(self, value, state=None):
+    def from_python(self, value, state=None):
         return value
 
 
-class SQLOperatorValidator(OperatorValidator):
+class SQLOperatorValidator(object):#OperatorValidator):
 
     def __init__(self, db_type, *args, **kwargs):
         super(SQLOperatorValidator, self).__init__(*args, **kwargs)
@@ -302,7 +302,7 @@ class SQLOperatorValidator(OperatorValidator):
               }
 
 
-class PythonOperatorValidator(OperatorValidator):
+class PythonOperatorValidator(object):#OperatorValidator):
     """
     convert accepted parse operators to python operators
     NOTE: this operator validator is only for python operators and doesn't

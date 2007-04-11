@@ -419,17 +419,21 @@ def _find_module_names(path):
     modules = []
     #path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
+	debug('library.zip')
         pkg = "bauble.plugins"
         zipfiles = __import__(pkg, globals(), locals(),
                               [pkg]).__loader__._files
+	debug(zipfiles)
         x = [zipfiles[file][0] \
              for file in zipfiles.keys() if "bauble\\plugins" in file]
+	debug(x)
         s = os.path.join('.+?', pkg, '(.+?)', '__init__.py[oc]')
         rx = re.compile(s.encode('string_escape'))
         for filename in x:
             m = rx.match(filename)
             if m is not None:
                 modules.append('%s.%s' % (pkg, m.group(1)))
+	debug(modules)
     else:
         for d in os.listdir(path):
             full = os.path.join(path, d)
@@ -446,14 +450,17 @@ def _find_plugins(path):
     # import the modules and test if they provide a plugin to make sure
     # they are plugin modules
     plugins = []
-    import imp
-
-    fp, path, desc = imp.find_module('bauble')
-    bauble_module = imp.load_module('bauble', fp, path, desc)
+    
+    if bauble.main_is_frozen():
+	import zipimport as imp
+    else:
+	import imp
+	fp, path, desc = imp.find_module('bauble')
+	bauble_module = imp.load_module('bauble', fp, path, desc)
 #    fp.close()
-    search_path = [os.path.join(p, 'plugins') for p in bauble_module.__path__]
-    fp, path, desc = imp.find_module('plugins', bauble_module.__path__)
-    plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
+	search_path = [os.path.join(p, 'plugins') for p in bauble_module.__path__]
+	fp, path, desc = imp.find_module('plugins', bauble_module.__path__)
+	plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
 #    fp.close()
 
     def isPlugin(p):

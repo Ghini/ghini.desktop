@@ -8,7 +8,6 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
-import formencode.validators as validators
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
 import bauble.paths as paths
