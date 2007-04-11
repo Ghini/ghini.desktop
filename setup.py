@@ -42,8 +42,8 @@ version = get_version()
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden','abcd','imex_csv','report',
-           'report.default', 'plants','searchview', 'tag']
+plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag', 
+	   'imex']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
@@ -122,7 +122,8 @@ if USING_PY2EXE:
     py2exe_data_files = [p for p in globs if len(p[1]) != 0]
     py2exe_data_files += [('', ('README', 'LICENSE', 'CHANGES')),
                           ('bauble', ('bauble/bauble.ui',
-                                      'bauble/conn_mgr.glade')),
+				      'bauble/bauble.glade',
+                                      'bauble/connmgr.glade')),
                           ('bauble/images',
                            glob.glob('bauble/images/*.png')+\
                            glob.glob('bauble/images/*.svg')),

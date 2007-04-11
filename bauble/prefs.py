@@ -128,7 +128,6 @@ class _prefs(dict):
         self.config = ConfigParser()
 
         # set the version if the file doesn't exist
-
         if not os.path.exists(self._filename):
             self[config_version_pref] = config_version
         else:
@@ -136,7 +135,8 @@ class _prefs(dict):
         version = self[config_version_pref]
         if version is None:
             warning('%s has no config version pref' % self._filename)
-            warning('seting the config version to %s.%s' % (config_version))
+            warning('setting the config version to %s.%s' % (config_version))
+	    self[config_version_pref] = config_version
 
 
     @staticmethod

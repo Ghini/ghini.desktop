@@ -11,7 +11,7 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.orm.properties import PropertyLoader
-from formencode import *
+#from formencode import *
 import bauble
 from bauble.prefs import prefs
 import bauble.utils as utils
@@ -22,23 +22,23 @@ from bauble.i18n import *
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
 
-class StringOrNoneValidator(validators.FancyValidator):
+class StringOrNoneValidator(object):#(validators.FancyValidator):
 
-    def _to_python(self, value, state):
+    def to_python(self, value, state):
         if value is u'':
             return None
         return str(value)
 
 
-class UnicodeOrNoneValidator(validators.FancyValidator):
+class UnicodeOrNoneValidator(object):#validators.FancyValidator):
 
-    def _to_python(self, value, state):
+    def to_python(self, value, state):
         if value is '':
             return None
         return unicode(value, 'utf-8')
 
 
-class IntOrNoneStringValidator(validators.FancyValidator):
+class IntOrNoneStringValidator(object):#validators.FancyValidator):
 
     def _to_python(self, value, state):
         if value is None or (isinstance(value, str) and value == ''):
@@ -53,9 +53,9 @@ class IntOrNoneStringValidator(validators.FancyValidator):
                                      value, state)
 
 
-class FloatOrNoneStringValidator(validators.FancyValidator):
+class FloatOrNoneStringValidator(object):#validators.FancyValidator):
 
-    def _to_python(self, value, state):
+    def to_python(self, value, state):
         if value is None or (isinstance(value, str) and value == ''):
             return None
         elif isinstance(value, (int, long, float)):
