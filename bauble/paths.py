@@ -3,14 +3,21 @@
 #
 
 import os, sys
-import bauble
+#import bauble
 
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we
 # know where the lib directory is
 
+def main_is_frozen():
+   import imp
+   return (hasattr(sys, "frozen") or # new py2exe
+           hasattr(sys, "importers") or # old py2exe
+           imp.is_frozen("__main__")) # tools/freeze
+
 def main_dir():
-   if bauble.main_is_frozen():
+   #if bauble.main_is_frozen():
+   if main_is_frozen():
        dir = os.path.dirname(sys.executable)
    else:
       dir = os.path.dirname(sys.argv[0])
@@ -20,7 +27,8 @@ def main_dir():
 
 
 def lib_dir():
-    if bauble.main_is_frozen():
+    #if bauble.main_is_frozen():
+    if main_is_frozen():
        dir = os.path.join(main_dir(), 'bauble')
     else:
         dir = os.path.dirname(__file__)

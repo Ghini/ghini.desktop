@@ -450,18 +450,20 @@ def _find_plugins(path):
     # import the modules and test if they provide a plugin to make sure
     # they are plugin modules
     plugins = []
-    
+
     if bauble.main_is_frozen():
 	import zipimport as imp
     else:
 	import imp
-	fp, path, desc = imp.find_module('bauble')
-	bauble_module = imp.load_module('bauble', fp, path, desc)
-#    fp.close()
-	search_path = [os.path.join(p, 'plugins') for p in bauble_module.__path__]
-	fp, path, desc = imp.find_module('plugins', bauble_module.__path__)
-	plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
-#    fp.close()
+
+    search_path = [os.path.join(p, 'plugins') for p in bauble.__path__]
+    fp, path, desc = imp.find_module('plugins', bauble.__path__)
+    try:
+        __exc = None
+        plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
+    finally:
+        if fp:
+            fp.close()
 
     def isPlugin(p):
         return inspect.isclass(p) and issubclass(p, Plugin)
@@ -473,10 +475,6 @@ def _find_plugins(path):
         else:
             try:
                 fp, path, desc = imp.find_module(name, plugin_module.__path__)
-#                debug('importing bauble.plugins.%s' % name)
-#                debug(fp)
-#                debug(path)
-#                debug(desc)
                 mod = imp.load_module('bauble.plugins.%s' % name, fp, path,
                                       desc)
             except Exception, e:
@@ -484,13 +482,11 @@ def _find_plugins(path):
                         '%(error)s' % {'module': name, 'error': e})
                 utils.message_details_dialog(msg, str(traceback.format_exc()),
                          gtk.MESSAGE_ERROR)
-#                if fp is not None:
-#                    fp.close()
-                raise
+            finally:
+                if fp:
+                    fp.close()
 
-#        debug('mod.name: %s' % mod)
         if not hasattr(mod, "plugin"):
-#            debug('no plugin')
             continue
 
         # if mod.plugin is a function it should return a plugin or list of

@@ -210,9 +210,9 @@ class PlantEditorView(GenericEditorView):
         return self.dialog.run()
 
 
-class ObjectIdValidator(validators.FancyValidator):
+class ObjectIdValidator(object):#(validators.FancyValidator):
 
-    def _to_python(self, value, state):
+    def to_python(self, value, state):
         return value.id
 #        try:
 #
