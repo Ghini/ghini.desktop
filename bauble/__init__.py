@@ -28,15 +28,15 @@ else: # main is frozen
                  % (os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'bin'),
                     os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
                     os.pathsep, os.environ['PATH'])
-   
+
 import gtk, gobject
 import bauble.utils as utils
 
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
 
-sys.stderr.write('sys.path: %s' % sys.path)
-sys.stderr.write('PATH: %s' % os.environ['PATH'])
+sys.stderr.write('sys.path: %s\n' % sys.path)
+sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
 
 # create the user directory
 if not os.path.exists(paths.user_dir()):
@@ -246,7 +246,6 @@ conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
 def main(uri=None):
-
    # initialize threading
    gtk.gdk.threads_init()
    gtk.gdk.threads_enter()
