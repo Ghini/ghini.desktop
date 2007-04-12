@@ -453,11 +453,11 @@ def _find_plugins(path):
     # import the modules and test if they provide a plugin to make sure
     # they are plugin modules
     def load_module(module_name, path):
-        '''
+        """
         @param module_name: the name of the module to load
         @param path: the path where to look for the module
         return a module regardless of whether it's a directory or a zipfile
-        '''
+        """
 #        debug(module_name)
 #        debug(path)
         if bauble.main_is_frozen():
@@ -465,7 +465,7 @@ def _find_plugins(path):
             try:
                 zimporter = zimp.zipimporter(path)
                 return zimporter.load_module(module_name)
-            except zimp.ZipImportError, e:                
+            except zimp.ZipImportError, e:
                 debug(e)
                 return None
         else:
@@ -477,7 +477,7 @@ def _find_plugins(path):
                 mod = imp.load_module(module_name, f, p, d)
             finally:
                 if f:
-                    f.close()        
+                    f.close()
             return mod
 
     plugins = []
@@ -499,7 +499,7 @@ def _find_plugins(path):
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
-                utils.message_details_dialog(msg, 
+                utils.message_details_dialog(msg,
                                              str(traceback.format_exc()),
                                              gtk.MESSAGE_ERROR)
 
