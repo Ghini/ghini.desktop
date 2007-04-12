@@ -42,7 +42,7 @@ version = get_version()
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag', 
+plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
 	   'imex']
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
@@ -152,9 +152,8 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["FormEncode>=0.7", "SQLAlchemy>=0.3.6",
-                        "pysqlite==2.3.2",
-                        "PyGTK>=2.8.6", "simplejson"],# pygtk is not supported using distutils
+      install_requires=["SQLAlchemy>=0.3.6", "pysqlite==2.3.2",
+                        "PyGTK>=2.10", "simplejson"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
 
       # metadata
@@ -165,5 +164,5 @@ setup(name="bauble",
       license="GPL",
       keywords="database biodiversity botanic collection",
       url="http://bauble.belizebotanic.org",
-#      download_url="http://bauble.belizebotanic.org/files/bauble-0.1.tar.gz"
+#      download_url="http://bauble.belizebotanic.org/#download"
      )
