@@ -34,6 +34,7 @@ def lib_dir():
         dir = os.path.dirname(__file__)
     return dir
 
+
 def locale_dir():
    if sys.platform == 'win32':
       return os.path.join(lib_dir(), 'po')
@@ -41,6 +42,7 @@ def locale_dir():
       # TODO: need to get the share directory where the locale files were
       # installed
       return os.path.join(lib_dir(), 'po')
+
 
 def user_dir():
     if sys.platform == "win32":
