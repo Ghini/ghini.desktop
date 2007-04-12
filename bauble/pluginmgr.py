@@ -93,7 +93,10 @@ def load(path=None):
     '''
     global plugins
     if path is None:
-        path = os.path.join(paths.lib_dir(), 'plugins')
+        if bauble.main_is_frozen():
+            path = os.path.join(paths.lib_dir(), 'library.zip')
+        else:
+            path = os.path.join(paths.lib_dir(), 'plugins')
     found = _find_plugins(path)
     depends = []
     for plugin in found:
@@ -444,47 +447,61 @@ def _find_module_names(path):
 
 
 def _find_plugins(path):
-
+#    debug('_find_plugins(%s)' % path)
     plugin_names = _find_module_names(path)
 
     # import the modules and test if they provide a plugin to make sure
     # they are plugin modules
+    def load_module(module_name, path):
+        '''
+        @param module_name: the name of the module to load
+        @param path: the path where to look for the module
+        return a module regardless of whether it's a directory or a zipfile
+        '''
+#        debug(module_name)
+#        debug(path)
+        if bauble.main_is_frozen():
+            import zipimport as zimp
+            try:
+                zimporter = zimp.zipimporter(path)
+                return zimporter.load_module(module_name)
+            except zimp.ZipImportError, e:                
+                debug(e)
+                return None
+        else:
+            mod = None
+            import imp
+            last_name = module_name.split('.')[-1]
+            f, p, d = imp.find_module(last_name, [path])
+            try:
+                mod = imp.load_module(module_name, f, p, d)
+            finally:
+                if f:
+                    f.close()        
+            return mod
+
     plugins = []
 
-    if bauble.main_is_frozen():
-	import zipimport as imp
-    else:
-	import imp
-
-    search_path = [os.path.join(p, 'plugins') for p in bauble.__path__]
-    fp, path, desc = imp.find_module('plugins', bauble.__path__)
-    try:
-        __exc = None
-        plugin_module = imp.load_module('bauble.plugins', fp, path, desc)
-    finally:
-        if fp:
-            fp.close()
+    bauble_mod = sys.modules['bauble']
+    plugin_module = load_module('bauble.plugins', bauble_mod.__path__[0])
 
     def isPlugin(p):
         return inspect.isclass(p) and issubclass(p, Plugin)
 
+    fp = mod = None
     for name in plugin_names:
         # Fast path: see if the module has already been imported.
         if name in sys.modules:
             mod = sys.modules[name]
         else:
             try:
-                fp, path, desc = imp.find_module(name, plugin_module.__path__)
-                mod = imp.load_module('bauble.plugins.%s' % name, fp, path,
-                                      desc)
+                mod = load_module(name, plugin_module .__path__[0])
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
-                utils.message_details_dialog(msg, str(traceback.format_exc()),
-                         gtk.MESSAGE_ERROR)
-            finally:
-                if fp:
-                    fp.close()
+                utils.message_details_dialog(msg, 
+                                             str(traceback.format_exc()),
+                                             gtk.MESSAGE_ERROR)
 
         if not hasattr(mod, "plugin"):
             continue
