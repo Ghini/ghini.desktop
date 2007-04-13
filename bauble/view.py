@@ -783,6 +783,7 @@ class SearchView(pluginmgr.View):
         self.session.clear()
 
         utils.clear_model(self.results_view)
+        self.set_infobox_from_row(None)
 
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
@@ -811,6 +812,8 @@ class SearchView(pluginmgr.View):
             def populate_callback():
                 self.populate_results(results)
                 statusbar.push(sbcontext_id, "%s results" % len(results))
+                # select first item in list
+                self.results_view.set_cursor(0)
             if len(results) > 2000:
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you '\
