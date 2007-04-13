@@ -18,13 +18,13 @@ species_table = Table('species',
 #                         ForeignKey('vernacular_name.id')))
 
 
-                    
+
 
 vernacular_name_table = Table('vernacular_name',
                               Column('id', Integer, primary_key=True),
                               Column('name', Unicode(128)),
                               Column('language', Unicode(128)),
-                              Column('species_id', Integer, 
+                              Column('species_id', Integer,
                                      ForeignKey('species.id')))
 
 genus_table = Table('genus',
@@ -38,12 +38,12 @@ class Genus(object):
 class Species(object):
     def __str__(self):
         return '%s %s' % (self.genus, self.sp)
-        
+
 class VernacularName(object):
     def __str__(self):
         return self.name
-    
-mapper(Species, species_table,
+
+species_mapper = mapper(Species, species_table,
        properties = {'vn': relation(VernacularName, lazy=False,
                                      backref=backref('species'))})
 genus_mapper = mapper(Genus, genus_table,
