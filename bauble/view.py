@@ -11,7 +11,6 @@ from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.ext.selectresults import SelectResults, SelectResultsExt
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
-#import formencode
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -575,14 +574,14 @@ class SearchView(pluginmgr.View):
                      parent_name = parent.__name__
                 raise ValueError('no column named %s in %s' % \
                                  (name, parent_name))
-            debug(prop)
+#            debug(prop)
             if isinstance(prop, ColumnProperty):
                 # this way we don't have to support or screw around with
                 # column properties that use more than one column
-                debug(parent.c[name])
+#                debug(parent.c[name])
                 return parent.c[name]
             elif isinstance(prop, PropertyLoader):
-                debug(prop.argument)
+#                debug(prop.argument)
                 if isinstance(prop.argument, Mapper):
                     return prop.argument.class_
                 else:
@@ -598,7 +597,7 @@ class SearchView(pluginmgr.View):
                 get_prop(parent, identifiers[i])
             else:
                 props.append(get_prop(class_mapper(parent), identifiers[i]))
-        debug(props)
+#        debug(props)
         return props
 
 
@@ -648,24 +647,40 @@ class SearchView(pluginmgr.View):
 
         @return: an sqlalchemy.ext.selectresults object
         '''
-        debug('query: %s' % tokens['query'])
+#        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
         mapping = self.domain_map[domain]
         search_meta = self.search_metas[mapping.class_.__name__]
         expr_iter = iter(expr)
-        select = None
+        select = prev_select = None
+        op = None
+        query = self.session.query(mapping)
         for e in expr_iter:
             ident, cond, val = e
-            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
+#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
             select = self._build_select(mapping, ident, cond, val)
-            op = None
+            if op is not None:
+                # TODO: i'm not sure how elegant building the queries like
+                # this is when we have to 'op' then together but it seems to
+                # work on most of the queries statements that i've tried
+                prop = mapping.props[ident[0]]
+                if isinstance(prop, ColumnProperty):
+                    select = prev_select.select(and_(select._clause))
+                else:
+                    if prop.is_backref:
+                        prop = prop.select_mapper.props[prop.backref.key]
+                    # TODO: i haven't tested this for multiple columns on the
+                    # remote side
+                    for col in prop.remote_side:
+                        ids = [s.id for s in select]
+                        select = prev_select.select(mapping.local_table.c['id'].in_(*ids))
             try:
                 op = expr_iter.next()
+                prev_select = select
             except StopIteration:
-                print 'stop'
-            else:
-                print '   op: %s' % op
+                pass
 
+#        debug(str(select._clause))
         return select
 
 
@@ -764,7 +779,7 @@ class SearchView(pluginmgr.View):
         # set the text in the entry even though in most cases the entry already
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
-        debug('SearchView.search(%s)' % text)
+#        debug('SearchView.search(%s)' % text)
         self.session.clear()
 
         utils.clear_model(self.results_view)
@@ -778,13 +793,12 @@ class SearchView(pluginmgr.View):
         try:
             tokens = self.parser.parse_string(text)
             results = self._get_search_results_from_tokens(tokens)
-#            debug('results: %s' % results)
+            #debug('results: %s' % results)
         except ParseException, err:
             error_msg = 'Error in search string at column %s' % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
             debug(traceback.format_exc())
             error_msg = '** Error: %s' % utils.xml_safe(e)
-
         if len(results) == 0:
             model = gtk.ListStore(str)
             if error_msg is not None:
@@ -861,6 +875,9 @@ class SearchView(pluginmgr.View):
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
+#        import logging
+#        logger = logging.getLogger('sqlalchemy.engine')
+#        logger.setLevel(logging.INFO)
         for s in select:
             p = model.append(None, [s])
             selected_type = type(s)
@@ -873,6 +890,7 @@ class SearchView(pluginmgr.View):
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
+#        logger.setLevel(logging.ERROR)
 
 
     def append_children(self, model, parent, kids):
