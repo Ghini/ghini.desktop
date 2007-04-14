@@ -477,13 +477,13 @@ class SearchView(pluginmgr.View):
         sets the infobox according to the currently selected row
         or remove the infobox is nothing is selected
         '''
-        sel = self.results_view.get_selection() # get the selected row
-        model, it = sel.get_selected()
-        value = None
-        if it is not None:
-            value = model[it][0]
+        values = self.get_selected_values()
+#        debug(values)
+        if values is None or len(values) > 1:
+#            debug('infobox=None')
+            self.set_infobox_from_row(None)
         try:
-            self.set_infobox_from_row(value)
+            self.set_infobox_from_row(values[0])
         except Exception, e:
             debug('SearchView.update_infobox: %s' % e)
             self.set_infobox_from_row(None)
@@ -528,16 +528,14 @@ class SearchView(pluginmgr.View):
             self.pane.show_all()
 
 
-
-    def get_selected(self):
+    def get_selected_values(self):
         '''
         return all the selected rows
         '''
         model, rows = self.results_view.get_selection().get_selected_rows()
-        selected = []
-        for row in rows:
-            selected.append(model[row][0])
-        return selected
+        if model is None:
+            return None
+        return [model[row][0] for row in rows]
 
 
     def on_results_view_select_row(self, view):
@@ -546,12 +544,6 @@ class SearchView(pluginmgr.View):
         the type of the row selected
         '''
         self.update_infobox()
-
-        # check that the gbif view is expanded
-        # if it is then pass the selected row to gbif
-        #if self.gbif_expand.get_expanded():
-        #    gbif = self.gbif_expand.get_child()
-        #    gbif.search(value)
 
 
     condition_map = {'and': and_,
@@ -599,7 +591,6 @@ class SearchView(pluginmgr.View):
                 props.append(get_prop(class_mapper(parent), identifiers[i]))
 #        debug(props)
         return props
-
 
 
     def _build_select(self, mapping, identifiers, cond, val):
@@ -769,7 +760,6 @@ class SearchView(pluginmgr.View):
             if len(s) > 80:
                 s = s[:80]
             print type(x),"\n  ", s
-
 
 
     def search(self, text):
@@ -992,12 +982,10 @@ class SearchView(pluginmgr.View):
         if event.button != 3:
             return # if not right click then leave
 
-        sel = view.get_selection()
-        model, i = sel.get_selected()
-        if model == None:
-            return # nothing to pop up a context menu on
-        value = model[i][0]
-        selected_type = type(value)
+        values = self.get_selected_values()
+        if values is None or len(values) > 1:
+            return
+        selected_type = type(values[0])
         if self.view_meta[selected_type].context_menu_desc is None:
             # no context menu
             return
@@ -1011,30 +999,28 @@ class SearchView(pluginmgr.View):
                 if label == '--':
                     menu.add(gtk.SeparatorMenuItem())
                 else:
-                    def on_activate(item, f, model, iter):
+                    #def on_activate(item, f, model, iter):
+                    def on_activate(item, f, value):
+                        self.results_view.get_model()
                         expanded_rows = self.get_expanded_rows()
-                        sel = view.get_selection()
-                        model, treeiter = sel.get_selected()
-                        if f(model[treeiter]) is not None:
+                        if f(value) is not None:
                             for obj in self.session:
                                 try:
                                     self.session.expire(obj)
-#                                    obj.id
                                 except saexc.InvalidRequestError:
 #                                    debug('exception on refresh')
                                     # find the object in the tree and remove
                                     # it, this could get expensive if there
                                     # are a lot of items in the tree
-                                    for found in utils.search_tree_model(model, obj):
+                                    for found in utils.search_tree_model(model,
+                                                                         obj):
 #                                        debug('found %s: %s' % (found, model[found][0]))
                                         model.remove(found)
                             self.results_view.collapse_all()
                             self.expand_to_all_refs(expanded_rows)
                             self.update_infobox()
-
                     item = gtk.MenuItem(label)
-                    path = model.get_path(i)
-                    item.connect('activate', on_activate, func, model, path)
+                    item.connect('activate', on_activate, func, values[0])
                     menu.add(item)
             self.context_menu_cache[selected_type] = menu
 
@@ -1059,6 +1045,10 @@ class SearchView(pluginmgr.View):
         self.results_view.set_rules_hint(True)
         #self.results_view.set_fixed_height_mode(True)
         #self.results_view.set_fixed_height_mode(False)
+
+        selection = self.results_view.get_selection()
+        selection.set_mode(gtk.SELECTION_MULTIPLE)
+        self.results_view.set_rubber_banding(True)
 
         renderer = gtk.CellRendererText()
         renderer.set_fixed_height_from_font(2)
