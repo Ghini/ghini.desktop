@@ -30,7 +30,7 @@ def get_all_plants(objs, acc_status=None, session=None):
     @param session: the session that the returned plants should be attached to
     """
     if acc_status is None:
-        acc_status = 'Living accession',None
+        acc_status = 'Living accession', None
 
     if session is None:
         session = create_session()
