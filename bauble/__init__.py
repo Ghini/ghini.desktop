@@ -35,8 +35,8 @@ import bauble.utils as utils
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
 
-sys.stderr.write('sys.path: %s\n' % sys.path)
-sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
+#sys.stderr.write('sys.path: %s\n' % sys.path)
+#sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
 
 # create the user directory
 if not os.path.exists(paths.user_dir()):

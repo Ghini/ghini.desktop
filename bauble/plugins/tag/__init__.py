@@ -358,7 +358,7 @@ def _on_add_tag_activated(*args):
 def _tag_menu_item_activated(widget, tag_name):
     view = bauble.gui.get_view()
     if isinstance(view, SearchView):
-        view.search('tag=%s' % tag_name)
+        view.search('tag="%s"' % tag_name)
 
 
 _tags_menu_item = None

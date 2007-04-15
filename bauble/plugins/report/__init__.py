@@ -334,8 +334,10 @@ class ReportToolDialogPresenter(object):
         self.view.widgets.ok_button.set_sensitive(title is not None)
         if title is None:
             return
-
-        cls = self.formatter_class_map[title]
+        try:
+            cls = self.formatter_class_map[title]
+        except KeyError:
+            return
         box = cls.get_settings_box()
         if box is not None:
             box.update(settings)
