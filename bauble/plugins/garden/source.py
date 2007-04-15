@@ -1,4 +1,4 @@
-# 
+#
 # source.py
 #
 
@@ -17,28 +17,28 @@ def source_markup_func(source):
 # TODO: maybe change donor_acc to donor_code
 donation_table = Table('donation',
                        Column('id', Integer, primary_key=True),
-                       Column('donor_id', Integer, ForeignKey('donor.id'), 
+                       Column('donor_id', Integer, ForeignKey('donor.id'),
                               nullable=False),
                        Column('donor_acc', Unicode(32)),  # donor's accession id
                        Column('notes', Unicode),
                        Column('date', Date),
-                       Column('accession_id', Integer, 
+                       Column('accession_id', Integer,
                               ForeignKey('accession.id'), nullable=False),
                        Column('_created', DateTime(True),
                               default=func.current_timestamp()),
                        Column('_last_updated', DateTime(True),
-                              default=func.current_timestamp(), 
+                              default=func.current_timestamp(),
                               onupdate=func.current_timestamp()))
 
 class Donation(BaubleMapper):
-        
+
     def __str__(self):
         return 'Donation from %s' % (self.donor or '<not set>')
-        
+
 # TODO: is there anyway to get this date format from BaubleMeta, also
 #    i don't know why setting dateFormat here give me an error about getting
 #    the date in unicode instead of a DateTimeCol eventhough i set this
-#    column using a datetime object    
+#    column using a datetime object
 # TODO: deleting this foreign accession deletes this collection
 # TODO: this shouldn't be allowed to be None, UPDATE: what the hell am i talking about
 collection_table = Table('collection',
@@ -56,19 +56,19 @@ collection_table = Table('collection',
                          Column('geography_id', Integer,
                                 ForeignKey('geography.id')),
                          Column('notes', Unicode),
-                         Column('accession_id', Integer, 
+                         Column('accession_id', Integer,
                                 ForeignKey('accession.id'), nullable=False),
                          Column('_created', DateTime(True),
                                 default=func.current_timestamp()),
                          Column('_last_updated', DateTime(True),
-                                default=func.current_timestamp(), 
+                                default=func.current_timestamp(),
                                 onupdate=func.current_timestamp()))
 
 class Collection(BaubleMapper):
-        
+
     def __str__(self):
         return 'Collection at %s' % (self.locale or '<not set>')
-    
+
 
 mapper(Donation, donation_table)
 mapper(Collection, collection_table)

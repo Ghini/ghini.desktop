@@ -11,28 +11,27 @@ from bauble.types import Enum
 from bauble.plugins.garden.source import Donation, donation_table
 import bauble.utils.sql as sql_utils
 
-# TODO: need to make it so you can't delete Donors if they still have 
+# TODO: need to make it so you can't delete Donors if they still have
 # associated Donations
 
-def edit_callback(row):
-    value = row[0]
+def edit_callback(value):
     e = DonorEditor(model=value)
     return e.start() != None
-    
-def remove_callback(row):
-    value = row[0]    
+
+
+def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
-        return    
+        return
     try:
         session = create_session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)        
-        utils.message_details_dialog(msg, traceback.format_exc(), 
+        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
 
@@ -51,7 +50,7 @@ donor_table = Table('donor',
                     Column('name', Unicode(72), unique=True),
                     Column('donor_type', Enum(values=['Expedition',
                                                       "Gene bank",
-                                                      "Botanic Garden or Arboretum", 
+                                                      "Botanic Garden or Arboretum",
                                                       "Research/Field Station",
                                                       "Staff member",
                                                       "University Department",
@@ -70,27 +69,27 @@ donor_table = Table('donor',
                     Column('_created', DateTime(True),
                            default=func.current_timestamp()),
                     Column('_last_updated', DateTime(True),
-                           default=func.current_timestamp(), 
+                           default=func.current_timestamp(),
                            onupdate=func.current_timestamp()))
 
 class Donor(bauble.BaubleMapper):
-    
+
     def __str__(self):
         return self.name
 
 # TODO: make sure that you can't delete the donor if donations exist, this
 # should have a test
 mapper(Donor, donor_table,
-       properties={'donations': relation(Donation, 
+       properties={'donations': relation(Donation,
                                          backref=backref('donor', uselist=False))},
        order_by='name')
 
 
 class DonorEditorView(GenericEditorView):
-    
+
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
-                                                      'plugins', 'garden', 
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
+                                                      'plugins', 'garden',
                                                       'editors.glade'),
                                    parent=parent)
         self.dialog = self.widgets.donor_dialog
@@ -98,25 +97,25 @@ class DonorEditorView(GenericEditorView):
         if sys.platform == 'win32':
             import pango
             combo = self.widgets.don_type_combo
-            context = combo.get_pango_context()        
-            font_metrics = context.get_metrics(context.get_font_description(), 
-                                               context.get_language())        
-            width = font_metrics.get_approximate_char_width()            
+            context = combo.get_pango_context()
+            font_metrics = context.get_metrics(context.get_font_description(),
+                                               context.get_language())
+            width = font_metrics.get_approximate_char_width()
             new_width = pango.PIXELS(width) * 20
             combo.set_size_request(new_width, -1)
-            
-            
+
+
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.don_ok_button.set_sensitive(sensitive)
         self.widgets.don_next_button.set_sensitive(sensitive)
-        
-        
+
+
     def start(self):
         return self.dialog.run()
 
 
 class DonorEditorPresenter(GenericEditorPresenter):
-    
+
     widget_to_field_map = {'don_name_entry': 'name',
                            'don_type_combo': 'donor_type',
                            'don_address_textview': 'address',
@@ -124,7 +123,7 @@ class DonorEditorPresenter(GenericEditorPresenter):
                            'don_tel_entry': 'tel',
                            'don_fax_entry': 'fax'
                            }
-    
+
     def __init__(self, model, view):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         model = gtk.ListStore(str)
@@ -134,29 +133,29 @@ class DonorEditorPresenter(GenericEditorPresenter):
         for enum in sorted(self.model.c.donor_type.type.values):
             model.append([enum])
         self.view.widgets.don_type_combo.set_model(model)
-        
+
         self.refresh_view()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
-        
+
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
         for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
-    
-    
-    def on_field_changed(self, model, field):
-        self.view.set_accept_buttons_sensitive(True)        
 
-    
+
+    def on_field_changed(self, model, field):
+        self.view.set_accept_buttons_sensitive(True)
+
+
     def dirty(self):
         return self.model.dirty
 
 
     def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():            
-#            debug('donor refresh(%s, %s=%s)' % (widget, field, 
+        for widget, field in self.widget_to_field_map.iteritems():
+#            debug('donor refresh(%s, %s=%s)' % (widget, field,
 #                                                self.model[field]))
             self.view.set_widget_value(widget, self.model[field])
 
@@ -167,12 +166,12 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 # TODO: need to create a widget to edit the notes
 class DonorEditor(GenericModelViewPresenterEditor):
-    
+
     label = 'Donor'
     mnemonic_label = '_Donor'
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
-    
+
     def __init__(self, model=None, parent=None):
         '''
         @param model: Donor instance or None
@@ -184,7 +183,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-    
+
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -195,7 +194,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                     self._committed.append(self.model)
-            except SQLError, e:                
+            except SQLError, e:
                 exc = traceback.format_exc()
                 msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -203,14 +202,14 @@ class DonorEditor(GenericModelViewPresenterEditor):
             except Exception, e:
                 msg = 'Unknown error when committing changes. See the details '\
                       'for more information.\n\n%s' % utils.xml_safe(e)
-                utils.message_details_dialog(msg, traceback.format_exc(), 
+                utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             return True
         else:
             return False
-                
+
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
@@ -218,37 +217,37 @@ class DonorEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
         if more_committed is not None:
             self._committed.append(more_committed)
-        
-        return True        
 
-        
+        return True
+
+
     def start(self):
         self.view = DonorEditorView(parent=self.parent)
         self.presenter = DonorEditorPresenter(self.model, self.view)
-        
+
         # add quick response keys
-        dialog = self.view.dialog        
+        dialog = self.view.dialog
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)                
-        
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
+
         exc_msg = "Could not commit changes.\n"
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
-            
+
         self.session.close() # cleanup session
         return self._committed
-    
 
-        
+
+
 
 from bauble.view import InfoBox, InfoExpander
 
 class GeneralDonorExpander(InfoExpander):
     '''
-    displays name, number of donations, address, email, fax, tel, 
+    displays name, number of donations, address, email, fax, tel,
     type of donor
     '''
     def __init__(self, widgets):
@@ -267,7 +266,7 @@ class GeneralDonorExpander(InfoExpander):
 
         donation_ids = select([donation_table.c.id], donation_table.c.donor_id==row.id)
         ndons = sql_utils.count_select(donation_ids)
-        self.set_widget_value('don_ndons_data', ndons)            
+        self.set_widget_value('don_ndons_data', ndons)
 
 
 class NotesExpander(InfoExpander):
@@ -276,7 +275,7 @@ class NotesExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)            
+        InfoExpander.__init__(self, "Notes", widgets)
         notes_box = self.widgets.don_notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
@@ -285,20 +284,20 @@ class NotesExpander(InfoExpander):
     def update(self, row):
         if row.notes is None:
             self.set_sensitive(False)
-            self.set_expanded(False)            
+            self.set_expanded(False)
         else:
             # TODO: get expanded state from prefs
             self.set_sensitive(True)
-            self.set_widget_value('don_notes_data', row.notes)       
+            self.set_widget_value('don_notes_data', row.notes)
 
 
-class DonorInfoBox(InfoBox):        
+class DonorInfoBox(InfoBox):
 
     def __init__(self):
         InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden", 
+        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
                             "infoboxes.glade")
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))            
+        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
         self.general = GeneralDonorExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

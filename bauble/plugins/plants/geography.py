@@ -19,7 +19,7 @@ def get_species_in_geography(geo):
     # expanded properly....that's probably not a bad idea in general, just
     # before we get an items children in the results view we should disable
     # clicking in the view and once the item has expanded we reenable it
-    # 
+    #
     kids_stmt = select([geography_table.c.id],
                        geography_table.c.parent_id==bindparam('parent_id'))
     def get_kids(parent_id):
@@ -32,8 +32,8 @@ def get_species_in_geography(geo):
     species_ids = select([species_distribution_table.c.species_id],
                     species_distribution_table.c.geography_id.in_(*geo_kids))
     return session.query(Species).select(species_table.c.id.in_(species_ids))
-     
-    
+
+
 
 geography_table = Table('geography',
                         Column('id', Integer, primary_key=True),
@@ -45,12 +45,12 @@ geography_table = Table('geography',
                         Column('_created', DateTime(True),
                                default=func.current_timestamp()),
                         Column('_last_updated', DateTime(True),
-                               default=func.current_timestamp(), 
+                               default=func.current_timestamp(),
                                onupdate=func.current_timestamp()))
 
 
 class Geography(bauble.BaubleMapper):
-    
+
     def __str__(self):
         return str(self.name)
 
