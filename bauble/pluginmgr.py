@@ -438,18 +438,21 @@ def _find_module_names(path):
                 modules.append('%s.%s' % (pkg, m.group(1)))
 	debug(modules)
     else:
-        for d in os.listdir(path):
-            full = os.path.join(path, d)
-            if os.path.isdir(full) and \
-                   os.path.exists(os.path.join(full, '__init__.py')):
-                modules.append(d)
+        for dir, subdir, files in os.walk(path):
+            if dir != path and '__init__.py' in files:
+                modules.append(dir[len(path)+1:].replace(os.sep, '.'))
+##         for d in os.listdir(path):
+##             full = os.path.join(path, d)
+##             if os.path.isdir(full) and \
+##                    os.path.exists(os.path.join(full, '__init__.py')):
+##                 modules.append(d)
     return modules
 
 
 def _find_plugins(path):
 #    debug('_find_plugins(%s)' % path)
     plugin_names = _find_module_names(path)
-
+    debug(plugin_names)
     # import the modules and test if they provide a plugin to make sure
     # they are plugin modules
     def load_module(module_name, path):
@@ -471,22 +474,29 @@ def _find_plugins(path):
         else:
             mod = None
             import imp
-            last_name = module_name.split('.')[-1]
-            f, p, d = imp.find_module(last_name, [path])
-            try:
-                mod = imp.load_module(module_name, f, p, d)
-            finally:
-                if f:
-                    f.close()
+            debug(module_name)
+            debug(path)
+            #last_name = module_name.split('.')[-1]
+            last_name = module_name
+            mod = __import__('bauble.plugins.%s' % module_name, globals(),
+                             locals(), [module_name], -1)
+##             f, p, d = imp.find_module(last_name, [path])
+##             try:
+##                 mod = imp.load_module(module_name, f, p, d)
+##             finally:
+##                 if f:
+##                     f.close()
+            debug(mod)
             return mod
 
     plugins = []
 
     bauble_mod = sys.modules['bauble']
-    plugin_module = load_module('bauble.plugins', bauble_mod.__path__[0])
+    #plugin_module = load_module('bauble.plugins', bauble_mod.__path__[0])
+    import bauble.plugins
+    plugin_module = bauble.plugins
 
-    def isPlugin(p):
-        return inspect.isclass(p) and issubclass(p, Plugin)
+    isPlugin = lambda p: inspect.isclass(p) and issubclass(p, Plugin)
 
     fp = mod = None
     for name in plugin_names:
