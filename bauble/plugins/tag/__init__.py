@@ -408,7 +408,7 @@ class TagPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-       from bauble.view import SearchMeta, SearchView
+        from bauble.view import SearchMeta, SearchView
         search_meta = SearchMeta(Tag, ["tag"], "tag")
         SearchView.register_search_meta("tag", search_meta)
         SearchView.register_search_meta("tags", search_meta)
