@@ -29,25 +29,22 @@ from bauble.i18n import *
 # the genus then so they aren't using the wrong version of the Genus,
 # e.g. Cananga
 
-def edit_callback(row):
-    value = row[0]
+def edit_callback(value):
     e = GenusEditor(model=value)
     return e.start() != None
 
 
-def add_species_callback(row):
+def add_species_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    value = row[0]
     e = SpeciesEditor(Species(genus=value))
     return e.start() != None
 
 
-def remove_callback(row):
+def remove_callback(value):
     # TODO: before removing we should get the object, find all the dependent
     # objects for the class and then find all the child objects that refer
     # to the object to be removed and at least say something like,
     # '522 species refer to this object, do you still want to remove it'
-    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):

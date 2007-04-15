@@ -20,14 +20,12 @@ from bauble.view import SearchView
 # TODO: is it  possible to add to a context menu for any object that show's a
 # submenu of all the tags on an object
 
-def edit_callback(row):
-    value = row[0]
+def edit_callback(value):
     e = TagEditor(model_or_defaults=value)
     return e.start() != None
 
 
-def remove_callback(row):
-    value = row[0]
+def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):

@@ -11,32 +11,29 @@ import bauble.utils as utils
 import bauble.paths as paths
 
 
-def edit_callback(row):
-    value = row[0]    
+def edit_callback(value):
     e = LocationEditor(value)
     return e.start() != None
 
 
-def add_plant_callback(row):
-    value = row[0]
+def add_plant_callback(value):
     e = PlantEditor(Plant(location=value))
     return e.start() != None
 
 
-def remove_callback(row):
-    value = row[0]    
+def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
-        return    
+        return
     try:
         session = create_session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)        
-        utils.message_details_dialog(msg, traceback.format_exc(), 
+        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
 
@@ -49,7 +46,7 @@ loc_context_menu = [('Edit', edit_callback),
 
 
 def loc_markup_func(location):
-    if location.description is not None:        
+    if location.description is not None:
         return str(location), str(location.description)
     else:
         return str(location)
@@ -62,29 +59,29 @@ location_table = Table('location',
                        Column('_created', DateTime(True),
                               default=func.current_timestamp()),
                        Column('_last_updated', DateTime(True),
-                              default=func.current_timestamp(), 
+                              default=func.current_timestamp(),
                               onupdate=func.current_timestamp()))
-                   
+
 
 class Location(bauble.BaubleMapper):
     def __str__(self):
         return self.site
-    
+
 
 from bauble.plugins.garden.plant import Plant
 
 mapper(Location, location_table, order_by='site',
        properties={'plants': relation(Plant, backref=backref('location',
                                                              uselist=False))})
-    
+
 
 class LocationEditorView(GenericEditorView):
-    
+
     #source_expanded_pref = 'editor.accesssion.source.expanded'
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(), 
-                                                      'plugins', 'garden', 
+        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
+                                                      'plugins', 'garden',
                                                       'editors.glade'),
                                    parent=parent)
         self.dialog = self.widgets.location_dialog
@@ -102,16 +99,16 @@ class LocationEditorView(GenericEditorView):
                                                          and sensitive)
         self.widgets.loc_next_button.set_sensitive(sensitive)
 
-        
+
     def start(self):
-        return self.dialog.run()    
-        
+        return self.dialog.run()
+
 
 class LocationEditorPresenter(GenericEditorPresenter):
-    
+
     widget_to_field_map = {'loc_location_entry': 'site',
                            'loc_desc_textview': 'description'}
-    
+
     def __init__(self, model, view):
         '''
         model: should be an instance of class Accession
@@ -121,53 +118,53 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.refresh_view() # put model values in view            
-        
+        self.refresh_view() # put model values in view
+
         # connect signals
         self.assign_simple_handler('loc_location_entry', 'site')
         self.assign_simple_handler('loc_desc_textview', 'description')
-        
+
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
         for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
-    
-    
+
+
     def on_field_changed(self, model, field):
         self.view.set_accept_buttons_sensitive(True)
-        
-    
+
+
     def dirty(self):
         return self.model.dirty
-    
-    
+
+
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
             self.view.set_widget_value(widget, value)
 
-    
+
     def start(self):
         return self.view.start()
-    
-    
+
+
 class LocationEditor(GenericModelViewPresenterEditor):
-    
+
     label = 'Location'
     mnemonic_label = '_Location'
-    
+
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
-    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)    
-        
-        
+    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+
+
     def __init__(self, model=None, parent=None):
         '''
         @param model: Location instance or None
         @param parent: the parent widget or None
-        '''        
+        '''
         if model is None:
             model = Location()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
@@ -176,7 +173,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
-    
+
     def handle_response(self, response):
         '''
         handle the response from self.presenter.start() in self.start()
@@ -187,7 +184,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
                 if self.presenter.dirty():
                     self.commit_changes()
                 self._committed.append(self.model)
-            except SQLError, e:                
+            except SQLError, e:
                 msg = 'Error committing changes.\n\n%s' % \
                       utils.xml_safe(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -195,7 +192,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             except Exception, e:
                 msg = 'Unknown error when committing changes. See the '\
                       'details for more information.\n\n%s' % utils.xml_safe(e)
-                utils.message_details_dialog(msg, traceback.format_exc(), 
+                utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() \
@@ -204,7 +201,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             return True
         else:
             return False
-                
+
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
@@ -213,29 +210,29 @@ class LocationEditor(GenericModelViewPresenterEditor):
         elif response == self.RESPONSE_OK_AND_ADD:
             e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
-             
+
         if more_committed is not None:
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)
             else:
-                self._committed.append(more_committed)                
-        
-        return True            
-    
-    
+                self._committed.append(more_committed)
+
+        return True
+
+
     def start(self):
         self.view = LocationEditorView(parent=self.parent)
         self.presenter = LocationEditorPresenter(self.model, self.view)
-        
+
         # add quick response keys
-        dialog = self.view.dialog        
+        dialog = self.view.dialog
         self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
                              gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
-        
+
         exc_msg = "Could not commit changes.\n"
         committed = None
         while True:
@@ -243,17 +240,17 @@ class LocationEditor(GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
-            
+
         self.session.close() # cleanup session
         return self._committed
 
 
 from bauble.view import InfoBox, InfoExpander
 
-    
+
 class GeneralLocationExpander(InfoExpander):
     """
-    general expander for the PlantInfoBox        
+    general expander for the PlantInfoBox
     """
 
     def __init__(self, widgets):
@@ -279,7 +276,7 @@ class DescriptionExpander(InfoExpander):
     the location description
     """
 
-    def __init__(self, widgets):      
+    def __init__(self, widgets):
         InfoExpander.__init__(self, "Descripion", widgets)
         descr_box = self.widgets.loc_descr_box
         self.widgets.remove_parent(descr_box)
@@ -311,7 +308,7 @@ class LocationInfoBox(InfoBox):
                                   "infoboxes.glade")
         self.widgets = utils.GladeWidgets(glade_file)
         self.general = GeneralLocationExpander(self.widgets)
-        self.add_expander(self.general)                    
+        self.add_expander(self.general)
 
         self.description = DescriptionExpander(self.widgets)
         self.add_expander(self.description)

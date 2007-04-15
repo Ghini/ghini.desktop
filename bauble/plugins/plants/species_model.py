@@ -41,30 +41,18 @@ from bauble.plugins.plants.geography import Geography, geography_table
 # infobox if they don't already, and the same children expander, maybe the
 # markup for the search result should have be formatted like Name (Genus sp.)
 
-def edit_callback(row):
-    if isinstance(row, Species):
-        value = row
-    else: # TreeModelRow
-        value = row[0]
+def edit_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
     e = SpeciesEditor(value)
     return e.start() != None
 
 
-def add_accession_callback(row):
+def add_accession_callback(value):
     from bauble.plugins.garden.accession import AccessionEditor
-    if isinstance(row, Species):
-        value = row
-    else: # TreeModelRow
-        value = row[0]
     e = AccessionEditor(Accession(species=value))
     return e.start() != None
 
-def remove_callback(row):
-    if isinstance(row, Species):
-        value = row
-    else: # TreeModelRow
-        value = row[0]
+def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
@@ -88,8 +76,7 @@ species_context_menu = [('Edit', edit_callback),
                        ('--', None),
                        ('Remove', remove_callback)]
 
-def call_on_species(func):
-    return lambda row: func(row[0].species)
+call_on_species = lambda value: func(value.species)
 
 vernname_context_menu = [('Edit', call_on_species(edit_callback)),
                           ('--', None),
