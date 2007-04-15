@@ -21,21 +21,19 @@ from bauble.types import Enum
 # TODO: might be worthwhile to have a label or textview next to the location
 # combo that shows the description of the currently selected location
 
-def edit_callback(row):
-    value = row[0]
-    e = PlantEditor(value)
+def edit_callback(plant):
+    e = PlantEditor(plant)
     return e.start() != None
 
 
-def remove_callback(row):
-    value = row[0]
-    s = '%s: %s' % (value.__class__.__name__, str(value))
+def remove_callback(plant):
+    s = '%s: %s' % (plant.__class__.__name__, str(plant))
     msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
         session = create_session()
-        obj = session.load(value.__class__, value.id)
+        obj = session.load(plant.__class__, plant.id)
         session.delete(obj)
         session.flush()
     except Exception, e:

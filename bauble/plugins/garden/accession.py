@@ -85,21 +85,21 @@ def decimal_to_dms(decimal, long_or_lat):
     return dir, int(d), int(m), s
 
 
-def edit_callback(row):
-    value = row[0]
+def edit_callback(value):
+    #value = row[0]
     e = AccessionEditor(value)
     return e.start() != None
 
 
-def add_plants_callback(row):
+def add_plants_callback(value):
     from bauble.plugins.garden.plant import PlantEditor
-    value = row[0]
+    #value = row[0]
     e = PlantEditor(Plant(accession=value))
     return e.start() != None
 
 
-def remove_callback(row):
-    value = row[0]
+def remove_callback(value):
+#    value = row[0]
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
     if not utils.yes_no_dialog(msg):

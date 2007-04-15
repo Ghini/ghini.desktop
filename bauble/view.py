@@ -538,6 +538,7 @@ class SearchView(pluginmgr.View):
         return [model[row][0] for row in rows]
 
 
+
     def on_results_view_select_row(self, view):
         '''
         add and removes the infobox which should change depending on
@@ -983,7 +984,8 @@ class SearchView(pluginmgr.View):
             return # if not right click then leave
 
         values = self.get_selected_values()
-        if values is None or len(values) > 1:
+        model, paths = self.results_view.get_selection().get_selected_rows()
+        if len(paths) > 1:
             return
         selected_type = type(values[0])
         if self.view_meta[selected_type].context_menu_desc is None:
@@ -999,9 +1001,8 @@ class SearchView(pluginmgr.View):
                 if label == '--':
                     menu.add(gtk.SeparatorMenuItem())
                 else:
-                    #def on_activate(item, f, model, iter):
-                    def on_activate(item, f, value):
-                        self.results_view.get_model()
+                    def on_activate(item, f):
+                        value = self.get_selected_values()[0]
                         expanded_rows = self.get_expanded_rows()
                         if f(value) is not None:
                             for obj in self.session:
@@ -1020,7 +1021,7 @@ class SearchView(pluginmgr.View):
                             self.expand_to_all_refs(expanded_rows)
                             self.update_infobox()
                     item = gtk.MenuItem(label)
-                    item.connect('activate', on_activate, func, values[0])
+                    item.connect('activate', on_activate, func)
                     menu.add(item)
             self.context_menu_cache[selected_type] = menu
 

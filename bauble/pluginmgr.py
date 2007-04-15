@@ -474,8 +474,8 @@ def _find_plugins(path):
         else:
             mod = None
             import imp
-            debug(module_name)
-            debug(path)
+#            debug(module_name)
+#            debug(path)
             #last_name = module_name.split('.')[-1]
             last_name = module_name
             mod = __import__('bauble.plugins.%s' % module_name, globals(),
@@ -486,7 +486,7 @@ def _find_plugins(path):
 ##             finally:
 ##                 if f:
 ##                     f.close()
-            debug(mod)
+#            debug(mod)
             return mod
 
     plugins = []
