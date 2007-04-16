@@ -76,7 +76,8 @@ species_context_menu = [('Edit', edit_callback),
                        ('--', None),
                        ('Remove', remove_callback)]
 
-call_on_species = lambda value: func(value.species)
+def call_on_species(func):
+    return lambda value : func(value.species)
 
 vernname_context_menu = [('Edit', call_on_species(edit_callback)),
                           ('--', None),
