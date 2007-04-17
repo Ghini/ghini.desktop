@@ -322,7 +322,7 @@ def get_tag_ids(objs):
                             tagged_obj_table.c.obj_id==x.id)
     select_stmt = lambda x: select([tagged_obj_table.c.tag_id], clause(x))
     stmt = intersect(*map(select_stmt, objs))
-    debug(str(stmt))
+#    debug(str(stmt))
     return [i[0] for i in stmt.execute()]
 
 

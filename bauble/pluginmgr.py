@@ -421,7 +421,7 @@ def _find_module_names(path, parent='bauble.plugins'):
     modules = []
     if path.find("library.zip") != -1: # using py2exe
         zipfiles = __import__(parent, globals(), locals(),
-                              [pkg]).__loader__._files
+                              [parent]).__loader__._files
         x = [zipfiles[file][0] \
              for file in zipfiles.keys() if parent.replace('.', '\\') in file]
         s = os.path.join('.+?', parent, '(.+?)', '__init__.py[oc]')
@@ -435,7 +435,7 @@ def _find_module_names(path, parent='bauble.plugins'):
             if dir != path and '__init__.py' in files:
                 modules.append('%s.%s' % \
                                (parent, dir[len(path)+1:].replace(os.sep,'.')))
-        return modules
+    return modules
 
 
 
