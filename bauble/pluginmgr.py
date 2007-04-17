@@ -414,48 +414,37 @@ class CommandHandler(object):
 
 
 
-def _find_module_names(path):
+def _find_module_names(path, parent='bauble.plugins'):
     '''
     @param path: where to look for modules
     '''
-    assert(path is not None)
     modules = []
-    #path, name = os.path.split(__file__)
     if path.find("library.zip") != -1: # using py2exe
-	debug('library.zip')
-        pkg = "bauble.plugins"
-        zipfiles = __import__(pkg, globals(), locals(),
+        zipfiles = __import__(parent, globals(), locals(),
                               [pkg]).__loader__._files
-	debug(zipfiles)
         x = [zipfiles[file][0] \
-             for file in zipfiles.keys() if "bauble\\plugins" in file]
-	debug(x)
-        s = os.path.join('.+?', pkg, '(.+?)', '__init__.py[oc]')
+             for file in zipfiles.keys() if parent.replace('.', '\\') in file]
+        s = os.path.join('.+?', parent, '(.+?)', '__init__.py[oc]')
         rx = re.compile(s.encode('string_escape'))
         for filename in x:
             m = rx.match(filename)
             if m is not None:
-                modules.append('%s.%s' % (pkg, m.group(1)))
-	debug(modules)
+                modules.append('%s.%s' % (parent, m.group(1)))
     else:
         for dir, subdir, files in os.walk(path):
             if dir != path and '__init__.py' in files:
-                name = 'bauble.plugins.%s' % \
-                    dir[len(path)+1:].replace(os.sep, '.')
-                modules.append(name)
-    return modules
+                modules.append('%s.%s' % \
+                               (parent, dir[len(path)+1:].replace(os.sep,'.')))
+        return modules
+
 
 
 def _find_plugins(path):
-#    debug('_find_plugins(%s)' % path)
-    plugin_names = _find_module_names(path)
-#    debug(plugin_names)
-
     plugins = []
     import bauble.plugins
     plugin_module = bauble.plugins
-    isPlugin = lambda p: inspect.isclass(p) and issubclass(p, Plugin)
-    fp = mod = None
+    mod = None
+    plugin_names = _find_module_names(path)
     for name in plugin_names:
         # Fast path: see if the module has already been imported.
         if name in sys.modules:
@@ -466,8 +455,7 @@ def _find_plugins(path):
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
-                utils.message_details_dialog(msg,
-                                             str(traceback.format_exc()),
+                utils.message_details_dialog(msg, str(traceback.format_exc()),
                                              gtk.MESSAGE_ERROR)
         if not hasattr(mod, "plugin"):
             continue
@@ -479,16 +467,18 @@ def _find_plugins(path):
         else:
             mod_plugin = mod.plugin
 
+        is_plugin = lambda p: inspect.isclass(p) and issubclass(p, Plugin)
         if isinstance(mod_plugin, (list, tuple)):
             for p in mod_plugin:
-                if isPlugin(p):
+                if is_plugin(p):
                     plugins.append(p)
-        elif isPlugin(mod_plugin):
+        elif is_plugin(mod_plugin):
             plugins.append(mod_plugin)
         else:
             warning(_('%s.plugin is not an instance of pluginmgr.Plugin'\
                       % mod.__name__))
     return plugins
+
 
 
 #
