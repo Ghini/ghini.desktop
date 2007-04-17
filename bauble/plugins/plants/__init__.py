@@ -34,7 +34,7 @@ class PlantsPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-        search_meta = SearchMeta(Family, ["family"], "family")
+        search_meta = SearchMeta(Family, ["family"])
         SearchView.register_search_meta("family", search_meta)
         SearchView.register_search_meta("fam", search_meta)
         SearchView.view_meta[Family].set(children="genera",
@@ -42,7 +42,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                          context_menu=family_context_menu,
                                          markup_func=family_markup_func)
 
-        search_meta = SearchMeta(Genus, ["genus"], "genus")
+        search_meta = SearchMeta(Genus, ["genus"])
         SearchView.register_search_meta("genus", search_meta)
         SearchView.register_search_meta("gen", search_meta)
         SearchView.view_meta[Genus].set(children="species",
@@ -50,7 +50,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        search_meta = SearchMeta(Species, ["sp", "infrasp"], "sp")
+        search_meta = SearchMeta(Species, ["sp", "infrasp"])
         SearchView.register_search_meta("species", search_meta)
         SearchView.register_search_meta("sp", search_meta)
         SearchView.view_meta[Species].set(children='accessions',
@@ -58,7 +58,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                           context_menu=species_context_menu,
                                           markup_func=species_markup_func)
 
-        search_meta = SearchMeta(VernacularName, ['name'], "name")
+        search_meta = SearchMeta(VernacularName, ['name'])
         SearchView.register_search_meta("vernacular", search_meta)
         SearchView.register_search_meta("vern", search_meta)
         SearchView.register_search_meta("common", search_meta)

@@ -15,6 +15,19 @@ from bauble.utils.pyparsing import *
 from bauble.view import SearchView
 
 
+class DefaultView(pluginmgr.View):
+    '''
+    DefaultView is not related to view.DefaultCommandHandler
+    '''
+    def __init__(self):
+        super(DefaultView, self).__init__()
+        image = gtk.Image()
+        image.set_from_file(os.path.join(paths.lib_dir(), 'images',
+                                         'bauble_logo.png'))
+        self.pack_start(image)
+
+
+
 class GUI(object):
 
     entry_history_pref = 'bauble.history'
@@ -76,6 +89,10 @@ class GUI(object):
         vbox.show()
         hbox.show()
 
+        cmd = StringStart() +':'+ Word(alphanums + '-_').setResultsName('cmd')
+        arg = restOfLine.setResultsName('arg')
+        self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
+
 
     def show(self):
         self.build_tools_menu()
@@ -90,15 +107,17 @@ class GUI(object):
             self.widgets.go_button.emit("clicked")
 
 
-    cmd = StringStart() + ':' + Word(alphanums + '-_').setResultsName('cmd')
-    arg = restOfLine.setResultsName('arg')
-    parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
+    def send_command(self, command):
+        self.widgets.main_entry.set_text(command)
+        self.widgets.go_button.emit("clicked")
+
+
     def on_go_button_clicked(self, widget):
         '''
         '''
         text = self.widgets.main_entry.get_text()
         self.add_to_history(text)
-        tokens = self.parser.parseString(text)
+        tokens = self.cmd_parser.parseString(text)
         cmd = None
         arg = None
         try:
@@ -155,7 +174,6 @@ class GUI(object):
         main_combo.set_model(model)
 
 
-
     def __get_title(self):
         if bauble.conn_name is None:
             return '%s %s' % ('Bauble', bauble.version_str)
@@ -174,11 +192,8 @@ class GUI(object):
 
 
     def set_default_view(self):
-        image = gtk.Image()
-        image.set_from_file(os.path.join(paths.lib_dir(), 'images',
-                                         'bauble_logo.png'))
         self.widgets.main_entry.set_text('')
-        self.set_view(image)
+        self.set_view(DefaultView())
 
 
     def set_view(self, view=None):
@@ -390,7 +405,6 @@ class GUI(object):
             bauble.create_database()
         pluginmgr.init()
         self.set_default_view()
-
 
 
     def on_file_menu_open(self, widget, data=None):

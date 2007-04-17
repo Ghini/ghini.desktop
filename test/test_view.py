@@ -43,6 +43,33 @@ from bauble.utils.pyparsing import *
 # val1 val2 val3 = and(val1, val2, val3)
 # "val1 with space" val2 val3 = and('val1 with spaces', val2, val3)
 
+# expression =  identifier bin_op value [log_op expression]
+
+# 1. domain where join1.join_or_col = val
+# -- query statement with simple expressions after "where"
+# find table for search domain, join1 must be a join, if join_or_col is a
+# column then compare its value to val, if join_or_col is a join/object then
+# find the search meta for this object type and search again the columns in the
+# search meta 
+#
+# 2. domain where join_or_col = val
+# -- query statement with expressions after "where"
+# find the table for search domain, if join_or_col is a join/object then
+# find the search meta for this object type and search again the columns in the
+# search meta
+#
+# 3. domain = value [ domain = value...]
+# -- expression where domain must be in domain_map and multiple expressions
+#    are OR'd together
+# get the search meta for domain and search the columns in the meta
+# for value
+# 
+# 4. value [ value...]
+# -- expression where domain is implied as all domains and the
+#    operator is LIKE %val%) and multiple values are OR'd together]
+# search all the search metas for all domain for value
+
+
 # just values
 #value_tests = [('test', {'values': ['test']}),
 #               ('"test"', {'values': ['test']}),# with quotes
