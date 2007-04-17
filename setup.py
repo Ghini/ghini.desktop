@@ -146,7 +146,9 @@ for p in all_packages:
 setup(name="bauble",
       version=version,
       console=["scripts/bauble"],
-      windows=["scripts/bauble"],
+      windows = [
+        {'script': 'scripts/bauble',  
+         'icon_resources': [(1, "bauble/images/icon.ico")]}],
       scripts=["scripts/bauble"], # for setuptools?
       options=opts,
       dist_dir='dist/bauble-%s' % version, # distribution directory
