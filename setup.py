@@ -12,13 +12,6 @@ USING_PY2EXE = False
 if sys.argv[1] == 'py2exe':
     USING_PY2EXE = True
 
-# TODO: to include pygtk and gtk in the dist
-# see http://py2exe.org/index.cgi/Py2exeAndPyGTK
-
-# TODO: use an icon for the exe
-# http://py2exe.org/index.cgi/CustomIcons
-#convert image.gif -resize 32x32 favicon.png
-#icotool -c -o favicon.ico favicon.png
 
 # TODO: alot of this work doesn't have to be done if we're not using py2exe,
 # we could either create another module to import when create a exe or just
@@ -86,7 +79,7 @@ for pattern in data_patterns:
                 plugin_data[p] = []
             plugin_data[p] += [f[len(package_dir):] for f in files]
 
-bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg']}
+bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg', 'images/*.ico']}
 #package_data = {'pysqlite2': ['*.pyd']}
 package_data = {}
 package_data.update(bauble_package_data)
@@ -128,7 +121,8 @@ if USING_PY2EXE:
                                       'bauble/connmgr.glade')),
                           ('bauble/images',
                            glob.glob('bauble/images/*.png')+\
-                           glob.glob('bauble/images/*.svg')),
+                           glob.glob('bauble/images/*.svg'),
+                           glob.glob('bauble/images/*.ico'))
                           ('bauble/pixmaps',
                            glob.glob('bauble/pixmaps/*.png'))]
 else:
@@ -143,11 +137,14 @@ for p in all_packages:
 #print '------- package directories --------\n' + str(all_package_dirs)
 #print '------- packages data--------\n' + str(package_data)
 
+# TODO: fix warnings about console, windows, install_requires, dist_dir and
+# options arguments
+
 setup(name="bauble",
       version=version,
       console=["scripts/bauble"],
       windows = [
-        {'script': 'scripts/bauble',  
+        {'script': 'scripts/bauble',
          'icon_resources': [(1, "bauble/images/icon.ico")]}],
       scripts=["scripts/bauble"], # for setuptools?
       options=opts,

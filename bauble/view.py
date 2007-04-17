@@ -212,7 +212,7 @@ class InfoBox(gtk.ScrolledWindow):
 
 
 
-class SearchParser:
+class SearchParser(object):
     """
     This class parses three distinct types of string. They can beL
         1. Value or a list of values: val1, val2, val3
@@ -311,14 +311,11 @@ class PythonOperatorValidator(object):#OperatorValidator):
                '<>': '!=',
                }
 
-class SearchMeta:
 
-    # TODO: *args was put here for backwards compatibility,
-    # the context_menu and markup_func seem to have been pushed out
-    # we need to make changes in any plugins that still use this interface
-    # or pass in extra arguments...i think some of the extra args in the
-    # plugins was probably for the sort column
-    def __init__(self, mapper, columns, *args):#, context_menu=None, markup_func=None):
+
+class SearchMeta(object):
+
+    def __init__(self, mapper, columns):
         """
         @param mapper: a Mapper object
         @param columns: the names of the table columns that will be search
@@ -327,6 +324,7 @@ class SearchMeta:
         assert isinstance(columns, list), 'SearchMeta.__init__: '\
                                           'columns argument must be a list'
         self.columns = columns
+
 
 
 class ResultSet(object):
@@ -1101,3 +1099,4 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
 
     def __call__(self, arg):
         self.view.search(arg)
+

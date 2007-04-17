@@ -136,17 +136,15 @@ def init():
     call init() for each of the plugins in the registry,
     this should be called after we have a connection to the database
     """
-#    debug('entered pluginmgr.init()')
     registry = Registry()
-#    debug(str(registry))
     for entry in registry:
-#        debug('entry: %s' % entry)
         try:
             plugins_dict[entry.name].init()
-        except KeyError, e:
-            warning(_("Couldn't initialize %s.") % entry.name)
-            warning(e)
-#    debug('leaving pluginmgr.init()')
+        except Exception, e:
+            utils.message_details_dialog(_("Error: Couldn't initialize %s\n\n"\
+                                           "%s.") % (entry.name, str(e)),
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
 
 
 
@@ -386,10 +384,10 @@ class Tool(object):
 class View(gtk.VBox):
 
     def __init__(self, *args, **kwargs):
-        '''
+        """
         if a class extends this View and provides it's own __init__ it *must*
         call it's parent (this) __init__
-        '''
+        """
         super(View, self).__init__(*args, **kwargs)
 
 

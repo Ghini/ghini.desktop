@@ -354,9 +354,8 @@ def _on_add_tag_activated(*args):
 
 
 def _tag_menu_item_activated(widget, tag_name):
-    view = bauble.gui.get_view()
-    if isinstance(view, SearchView):
-        view.search('tag="%s"' % tag_name)
+    bauble.gui.send_command('tag="%s"' % tag_name)
+
 
 
 _tags_menu_item = None
@@ -407,19 +406,12 @@ class TagPlugin(pluginmgr.Plugin):
     @classmethod
     def init(cls):
         from bauble.view import SearchMeta, SearchView
-        search_meta = SearchMeta(Tag, ["tag"], "tag")
+        search_meta = SearchMeta(Tag, ["tag"])
         SearchView.register_search_meta("tag", search_meta)
         SearchView.register_search_meta("tags", search_meta)
         SearchView.view_meta[Tag].set(children='objects',
                                       context_menu=tag_context_menu)
         _reset_tags_menu()
-
-
-##     @classmethod
-##     def create_tables(cls):
-##         super(TagPlugin, cls).create_tables()
-##         if bauble.gui is not None:
-##             _reset_tags_menu()
 
 
     @classmethod
