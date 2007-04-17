@@ -178,7 +178,7 @@ class ReportToolDialogPresenter(object):
         try:
             self.set_names_combo(default)
         except Exception, e:
-            debug('init: %s' % e)
+#            debug('init: %s' % e)
             self.set_names_combo(0)
 
 
@@ -190,10 +190,10 @@ class ReportToolDialogPresenter(object):
         if the model on the combo is None then this method will return
         and not emit the changed signal
         """
-        debug('set_names_combo(%s)' %  val)
+#        debug('set_names_combo(%s)' %  val)
         combo = self.view.widgets.names_combo
         if combo.get_model() is None:
-            debug('--None')
+#            debug('--None')
             self.view.widgets.details_box.set_sensitive(False)
             return
         if isinstance(val, int):
@@ -403,7 +403,7 @@ class ReportToolDialogPresenter(object):
 	    msg = _('No formatters found. To create a new formatter click the '\
 		    '"New" button.')
 	    utils.message_dialog(msg, parent=self.view.dialog)
-	    debug('names_combo.model=None')
+#	    debug('names_combo.model=None')
 	    self.view.widgets.names_combo.set_model(None)
         self.populate_names_combo()
 

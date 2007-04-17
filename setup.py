@@ -17,6 +17,8 @@ if sys.argv[1] == 'py2exe':
 
 # TODO: use an icon for the exe
 # http://py2exe.org/index.cgi/CustomIcons
+#convert image.gif -resize 32x32 favicon.png
+#icotool -c -o favicon.ico favicon.png
 
 # TODO: alot of this work doesn't have to be done if we're not using py2exe,
 # we could either create another module to import when create a exe or just

@@ -13,39 +13,39 @@
 Name "Bauble"
 
 ; this should be the Bauble version number combined with the subversion revision
-!define version "0.7.0b1"
+!define version "0.7.0b2"
 !define src_dir "../dist"
 Outfile "bauble-${version}-setup.exe"
- 
+
 !define prodname "Bauble"
 !define exec "bauble.exe"
 !define license_file "LICENSE"
 !define readme "README"
- 
+
 ; icons must be Microsoft .ICO files
 ; !define icon "icon.ico"
- 
+
 ; file containing list of file-installation commands
 ; !define files "files.nsi"
- 
+
 ; file containing list of file-uninstall commands
 ; !define unfiles "unfiles.nsi"
- 
+
 ; registry stuff
 !define regkey "Software\${prodname}"
 !define uninstkey "Software\Microsoft\Windows\CurrentVersion\Uninstall\${prodname}"
 
 !define startmenu "$SMPROGRAMS\${prodname}"
 !define uninstaller "uninstall.exe"
-  
+
 SetDateSave on
 SetDatablockOptimize on
 CRCCheck on
 SilentInstall normal
- 
+
 InstallDir "$PROGRAMFILES\${prodname}"
 InstallDirRegKey HKLM "${regkey}" ""
-  
+
 ;--------------------------------
 ;Interface Settings
 
@@ -62,7 +62,7 @@ InstallDirRegKey HKLM "${regkey}" ""
 !insertmacro MUI_UNPAGE_INSTFILES
 ;--------------------------------
 ;Languages
- 
+
 !insertmacro MUI_LANGUAGE "English"
 ;--------------------------------
 ;Installer Sections
@@ -70,7 +70,7 @@ InstallDirRegKey HKLM "${regkey}" ""
 Section "Dummy Section" SecDummy
     SetOutPath "$INSTDIR"
     ;ADD YOUR OWN FILES HERE...
-    
+
     ;Store installation folder
     WriteRegStr HKCU "${regkey}" "" $INSTDIR
     ; Uninstall reg keys
@@ -81,25 +81,25 @@ Section "Dummy Section" SecDummy
 
     ; package all files, recursively, preserving attributes
     ; assume files are in the correct places
-    File /a /r "${src_dir}\*.*" 
-  
+    File /a /r "${src_dir}\*.*"
+
 SectionEnd
- 
+
 ; create shortcuts
 Section
     CreateDirectory "${startmenu}"
     SetOutPath $INSTDIR ; for working directory
-    CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}" 
+    CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
 SectionEnd
- 
+
 ; Uninstaller
 ; All section names prefixed by "Un" will be in the uninstaller
- 
+
 UninstallText "This will uninstall ${prodname}."
-  
+
 Section "Uninstall"
     DeleteRegKey HKLM "${uninstkey}"
-    DeleteRegKey HKLM "${regkey}"  
+    DeleteRegKey HKLM "${regkey}"
     Delete "${startmenu}\*.*"
     Delete "${startmenu}"
     SetOutPath $TEMP
