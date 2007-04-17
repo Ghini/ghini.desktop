@@ -701,7 +701,7 @@ class SearchView(pluginmgr.View):
                 if sr.count() > 0: # don't add empty queries
                     results.append(sr)
         elif 'expression' in tokens:
-            print 'expr: %s' % tokens['expression']
+#            print 'expr: %s' % tokens['expression']
             for domain, cond, val in tokens['expression']:
                 mapping = self.domain_map[domain]
 #                debug(mapping.class_.__name__)
