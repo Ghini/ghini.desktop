@@ -761,7 +761,7 @@ class DonationPresenter(GenericEditorPresenter):
 
         # if there is only one donor in the donor combo model and
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
-            donor('set_active(0)')
+#           donor('set_active(0)')
             donor_combo.set_active(0)
 
 
@@ -774,7 +774,7 @@ class DonationPresenter(GenericEditorPresenter):
         changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
         '''
-        debug('on_donor_combo_changed')
+#        debug('on_donor_combo_changed')
         i = combo.get_active_iter()
         if i is None:
             return
@@ -853,12 +853,12 @@ class DonationPresenter(GenericEditorPresenter):
 
 
     def refresh_view(self):
-        debug('DonationPresenter.refresh_view')
+#        debug('DonationPresenter.refresh_view')
 
         # populate the donor combo
         model = gtk.ListStore(object)
         for value in self.session.query(Donor).select():
-            debug(value)
+#            debug(value)
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
         donor_combo.set_model(model)
