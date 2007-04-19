@@ -106,6 +106,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
         fo_cmd = renderers_map[renderer]
         session = create_session()
         plants = get_all_plants(objs, session=session)
+        plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
         if len(plants) == 0:
             utils.message_dialog('There are no plants in the search '
                                  'results.  Please try another search.')

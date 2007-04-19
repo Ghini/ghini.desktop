@@ -28,7 +28,7 @@
 		  <fo:table-cell>
 		    <fo:block>
 		      ID
-'		    </fo:block>
+		    </fo:block>
 		  </fo:table-cell>
 		  <fo:table-cell>
 		    <fo:block>
