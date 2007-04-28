@@ -25,6 +25,8 @@ from bauble.plugins.plants.species import *
 from bauble.plugins.plants.geography import *
 from bauble.view import SearchView, SearchMeta
 
+def natsort_kids(kids):
+    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
 
 class PlantsPlugin(pluginmgr.Plugin):
 
@@ -53,7 +55,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         search_meta = SearchMeta(Species, ["sp", "infrasp"])
         SearchView.register_search_meta("species", search_meta)
         SearchView.register_search_meta("sp", search_meta)
-        SearchView.view_meta[Species].set(children='accessions',
+        SearchView.view_meta[Species].set(children=natsort_kids('accessions'),
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,
                                           markup_func=species_markup_func)
@@ -62,7 +64,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         SearchView.register_search_meta("vernacular", search_meta)
         SearchView.register_search_meta("vern", search_meta)
         SearchView.register_search_meta("common", search_meta)
-        SearchView.view_meta[VernacularName].set(children=vernname_get_children,
+        SearchView.view_meta[VernacularName].set(children=vernname_get_kids,
                                             infobox=VernacularNameInfoBox,
                                             context_menu=vernname_context_menu,
                                             markup_func=vernname_markup_func)

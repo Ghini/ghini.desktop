@@ -410,12 +410,15 @@ def startfile(filename):
         raise Exception("bauble.utils.startfile(): can't open file: %s" \
                         % filename)
 
+
 def natsort_key(obj):
     """
     a key getter for sort and sorted function
 
     the sorting is done on return value of obj.__str__() so we can sort
     objects as well, i don't know if this will cause problems with unicode
+
+    use like: sorted(some_list, key=utils.natsort_key)
     """
     item = str(obj)
     chunks = re.split('(\d+(?:\.\d+)?)', item)
