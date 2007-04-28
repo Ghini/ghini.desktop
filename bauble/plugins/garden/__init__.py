@@ -5,6 +5,7 @@
 import os, sys
 import bauble
 from bauble.i18n import *
+import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView, SearchMeta
 from bauble.plugins.garden.accession import accession_table, Accession, \
@@ -25,6 +26,10 @@ from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
 # - cultivation table
 # - conservation table
 
+def natsort_kids(kids):
+    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+
+
 class GardenPlugin(pluginmgr.Plugin):
 
     tables = [accession_table, location_table, plant_table, donor_table,
@@ -36,14 +41,14 @@ class GardenPlugin(pluginmgr.Plugin):
         search_meta = SearchMeta(Accession, ["code"])
         SearchView.register_search_meta("accession", search_meta)
         SearchView.register_search_meta("acc", search_meta)
-        SearchView.view_meta[Accession].set(children="plants",
+        SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
                                             infobox=AccessionInfoBox,
                                             context_menu=acc_context_menu,
                                             markup_func=acc_markup_func)
         search_meta = SearchMeta(Location, ["site"])
         SearchView.register_search_meta("location", search_meta)
         SearchView.register_search_meta("loc", search_meta)
-        SearchView.view_meta[Location].set(children="plants",
+        SearchView.view_meta[Location].set(children=natsort_kids('plants'),
                                            infobox=LocationInfoBox,
                                            context_menu=loc_context_menu,
                                            markup_func=loc_markup_func)
@@ -56,7 +61,7 @@ class GardenPlugin(pluginmgr.Plugin):
         search_meta = SearchMeta(Donor, ['name'])
         SearchView.register_search_meta('donor', search_meta)
         SearchView.register_search_meta('don', search_meta)
-        SearchView.view_meta[Donor].set(children="donations",
+        SearchView.view_meta[Donor].set(children=natsort_kids('donations'),
                                         infobox=DonorInfoBox,
                                         context_menu=donor_context_menu)
 
