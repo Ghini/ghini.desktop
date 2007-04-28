@@ -140,6 +140,14 @@ def init():
     for entry in registry:
         try:
             plugins_dict[entry.name].init()
+        except KeyError, e:
+            msg = _("The %s plugin is listed in the registry but isn't " \
+                    "installed\n\n" \
+                    "<i>Would you like to remove this plugin from the "\
+                    "registry?</i>" % entry.name)
+            if utils.yes_no_dialog(msg):
+                registry.remove(entry.name)
+                registry.save()
         except Exception, e:
             utils.message_details_dialog(_("Error: Couldn't initialize %s\n\n"\
                                            "%s.") % (entry.name, str(e)),
