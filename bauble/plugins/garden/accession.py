@@ -929,10 +929,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def sp_get_completions(text):
-            genus_ids = select([genus_table.c.id],
-                               genus_table.c.genus.like('%s%%' % text))
-            sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-            return self.session.query(Species).select(sql)
+            from sqlalchemy.ext.selectresults import SelectResults
+            query = self.session.query(Species)
+            return query.select(and_(species_table.c.genus_id == \
+                                     genus_table.c.id,
+                                     genus_table.c.genus.like('%s%%' % text)))
 
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
