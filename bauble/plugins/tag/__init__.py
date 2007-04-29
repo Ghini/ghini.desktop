@@ -398,6 +398,9 @@ def _reset_tags_menu():
         _tags_menu_item.show_all()
 
 
+def natsort_kids(kids):
+    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+
 
 class TagPlugin(pluginmgr.Plugin):
 
@@ -409,7 +412,7 @@ class TagPlugin(pluginmgr.Plugin):
         search_meta = SearchMeta(Tag, ["tag"])
         SearchView.register_search_meta("tag", search_meta)
         SearchView.register_search_meta("tags", search_meta)
-        SearchView.view_meta[Tag].set(children='objects',
+        SearchView.view_meta[Tag].set(children=natsort_kids('objects'),
                                       context_menu=tag_context_menu)
         _reset_tags_menu()
 
