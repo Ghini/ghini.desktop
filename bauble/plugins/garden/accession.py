@@ -126,8 +126,6 @@ acc_context_menu = [('Edit', edit_callback),
 def acc_markup_func(acc):
     '''
     '''
-    #sp = [acc.species.markup(authors=False), acc.id_qual]
-    #return str(acc), ' '.join([s for s in sp if s is not None])
     if acc.id_qual is None:
         sp_str = acc.species.markup(authors=False)
     else:
@@ -1402,7 +1400,7 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         self.set_widget_value('name_data',
                               '%s %s\n%s' % (row.species.markup(True),
-                                             row.id_qual,
+                                             row.id_qual or '',
                                              row.code))
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,

@@ -4,6 +4,7 @@
 # Description: the default view
 #
 import sys, re, traceback
+import itertools
 import gtk, gobject, pango
 from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
@@ -341,7 +342,7 @@ class ResultSet(object):
 
 
     def __len__(self):
-        # it possible, but unlikely that this can truncate the value
+        # it possible, but unlikely that int() can truncate the value
         return int(self.count())
 
 
@@ -356,20 +357,7 @@ class ResultSet(object):
 
 
     def __iter__(self):
-        self.__iter = iter(self._results)
-        self.__curr = None
-        return self
-
-
-    def next(self):
-        if self.__curr is None:
-            self.__curr = iter(self.__iter.next())
-
-        try:
-            return self.__curr.next()
-        except StopIteration:
-            self.__curr = iter(self.__iter.next())
-            return self.next()
+        return itertools.chain(*self._results)
 
 
 class SearchView(pluginmgr.View):
@@ -867,18 +855,28 @@ class SearchView(pluginmgr.View):
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
-#        import logging
-#        logger = logging.getLogger('sqlalchemy.engine')
-#        logger.setLevel(logging.INFO)
+##        import logging
+##        logger = logging.getLogger('sqlalchemy.engine')
+##        logger.setLevel(logging.INFO)
+
+        type_map = {}
         for s in select:
-            p = model.append(None, [s])
-            selected_type = type(s)
-            if check_for_kids:
-                kids = self.view_meta[selected_type].get_children(s)
-                if len(kids) > 0:
+            try:
+                type_map[type(s)].append(s)
+            except:
+                type_map[type(s)] = [s]
+        for values in type_map.values():
+            values.sort(key=utils.natsort_key)
+
+        for s in itertools.chain(*type_map.values()):
+                p = model.append(None, [s])
+                selected_type = type(s)
+                if check_for_kids:
+                    kids = self.view_meta[selected_type].get_children(s)
+                    if len(kids) > 0:
+                        model.append(p, ['-'])
+                elif self.view_meta[selected_type].children is not None:
                     model.append(p, ['-'])
-            elif self.view_meta[selected_type].children is not None:
-                model.append(p, ['-'])
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
