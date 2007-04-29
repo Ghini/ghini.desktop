@@ -731,22 +731,22 @@ class SearchView(pluginmgr.View):
 
     nresults_statusbar_context = 'searchview.nresults'
 
-    @staticmethod
-    def dump_garbage():
-        """
-        show us what's the garbage about
-        """
+##     @staticmethod
+##     def dump_garbage():
+##         """
+##         show us what's the garbage about
+##         """
 
-        # force collection
-        print "\nGARBAGE:"
-        gc.collect()
+##         # force collection
+##         print "\nGARBAGE:"
+##         gc.collect()
 
-        print "\nGARBAGE OBJECTS:"
-        for x in gc.garbage:
-            s = str(x)
-            if len(s) > 80:
-                s = s[:80]
-            print type(x),"\n  ", s
+##         print "\nGARBAGE OBJECTS:"
+##         for x in gc.garbage:
+##             s = str(x)
+##             if len(s) > 80:
+##                 s = s[:80]
+##             print type(x),"\n  ", s
 
 
     def search(self, text):
