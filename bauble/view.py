@@ -850,7 +850,6 @@ class SearchView(pluginmgr.View):
             all appended rows will have an expand indicator and the children
             will be check on expansion
         '''
-        results = []
         utils.clear_model(self.results_view)
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
@@ -859,16 +858,17 @@ class SearchView(pluginmgr.View):
 ##        logger = logging.getLogger('sqlalchemy.engine')
 ##        logger.setLevel(logging.INFO)
 
-        type_map = {}
-        for s in select:
-            try:
-                type_map[type(s)].append(s)
-            except:
-                type_map[type(s)] = [s]
-        for values in type_map.values():
-            values.sort(key=utils.natsort_key)
+        import time
+##        start = time.time()
+        groups = []
+        # TODO: the natural sort probably isn't compatible for non ASCII
+        # character strings
+        for k, g in itertools.groupby(select, lambda x: type(x)):
+            groups.append(sorted(g, key=utils.natsort_key))
+##         debug(time.time()-start)
 
-        for s in itertools.chain(*type_map.values()):
+##         start = time.time()
+        for s in itertools.chain(*groups):
                 p = model.append(None, [s])
                 selected_type = type(s)
                 if check_for_kids:
@@ -880,6 +880,8 @@ class SearchView(pluginmgr.View):
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
+
+##        debug(time.time()-start)
 #        logger.setLevel(logging.ERROR)
 
 
@@ -1089,10 +1091,14 @@ class SearchView(pluginmgr.View):
 
 class DefaultCommandHandler(pluginmgr.CommandHandler):
 
+    def __init__(self):
+        self.view = None
+
     command = None
 
     def get_view(self):
-        self.view = SearchView()
+        if self.view is None:
+            self.view = SearchView()
         return self.view
 
     def __call__(self, arg):

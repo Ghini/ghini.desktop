@@ -411,6 +411,8 @@ def startfile(filename):
                         % filename)
 
 
+__natsort_rx = re.compile('(\d+(?:\.\d+)?)')
+
 def natsort_key(obj):
     """
     a key getter for sort and sorted function
@@ -421,11 +423,13 @@ def natsort_key(obj):
     use like: sorted(some_list, key=utils.natsort_key)
     """
     item = str(obj)
-    chunks = re.split('(\d+(?:\.\d+)?)', item)
+    chunks = __natsort_rx.split(item)
     for ii in range(len(chunks)):
         if chunks[ii] and chunks[ii][0] in '0123456789':
-            if '.' in chunks[ii]: numtype = float
-            else: numtype = int
+            if '.' in chunks[ii]:
+                numtype = float
+            else:
+                numtype = int
             # wrap in tuple with '0' to explicitly specify numbers come first
             chunks[ii] = (0, numtype(chunks[ii]))
         else:

@@ -513,6 +513,12 @@ class GenericEditorPresenter(object):
     # after the regular on_match_select
     # TODO: assign ctrl-space to match on whatever is currently in the entry
     # regardless of the length
+    # TODO: should try to put a timer to add completions in case the user
+    # is typing really fast we shouldn't be adding completions and should
+    # assume they know what they're typing and only add and show completions
+    # when they pause
+    # TODO: if the user types the entire string of an entry in the completions
+    # we should automatically match it
     def assign_completions_handler(self, widget_name, field,
                                    get_completions,
                                    set_func=lambda self, f, v: \
