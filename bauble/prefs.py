@@ -5,8 +5,10 @@
 import sys, os
 import gtk
 import bauble
+from bauble.i18n import *
 import bauble.utils as utils
 import bauble.paths as paths
+import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug, warning
 
 # TODO: include the version of the database in the prefs so that if the prefs
@@ -108,7 +110,7 @@ config_version = bauble.version[0], bauble.version[1]
 ##         return frame
 
 
-from ConfigParser import ConfigParser
+from ConfigParser import RawConfigParser
 
 class _prefs(dict):
 
@@ -125,7 +127,7 @@ class _prefs(dict):
         if not os.path.exists(head):
             os.makedirs(head)
 
-        self.config = ConfigParser()
+        self.config = RawConfigParser()
 
         # set the version if the file doesn't exist
         if not os.path.exists(self._filename):
@@ -193,16 +195,69 @@ class _prefs(dict):
         f.close()
 
 
-#    def __del__(self, item):
-#        """
-#        """
-#        section, option = _prefs._parse_key(item)
-#        #if has section: remove option
-#        # if n_option in section == -
-#        #     remove section
-#
-#        pass
 
+class PrefsView(pluginmgr.View):
+
+    def __init__(self):
+        super(PrefsView, self).__init__()
+        self.create_gui()
+
+
+    def create_gui(self):
+        treeview = gtk.TreeView()
+        #treeview.set_headers_visible(False)
+        treeview.set_rules_hint(True)
+
+        def cell_data_func(col, cell, model, iter, item):
+            value = model[iter][item]
+            cell.set_property('markup', value)
+        def cell_data_func2(col, cell, model, iter, item):
+            value = model[iter][item]
+            cell.set_property('markup', value)
+
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn(_('Name'), renderer, text=0)
+        #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        treeview.append_column(column)
+
+        renderer = gtk.CellRendererText()
+        column = gtk.TreeViewColumn(_('Value'), renderer, text=1)
+        #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+        treeview.append_column(column)
+
+        model = gtk.ListStore(str, str)
+        for section in prefs.config.sections():
+            for name, value in prefs.config.items(section):
+#                debug('%s.%s: %s' % (section, name, value))
+                model.append(['%s.%s' % (section, name), value])
+        treeview.set_model(model)
+        treeview.show_all()
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw.add(treeview)
+
+        self.pack_start(sw)
+
+
+class PrefsCommandHandler(object):
+
+    command = ('prefs', 'config')
+    view = None
+
+    def __call__(self, arg):
+        pass
+
+
+    def get_view(self):
+        if self.view is None:
+            self.view = PrefsView()
+            return self.view
+
+
+
+pluginmgr.register_command('prefs', PrefsCommandHandler)
+pluginmgr.register_command('config', PrefsCommandHandler)
 
 prefs = _prefs()
 

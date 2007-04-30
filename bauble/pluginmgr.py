@@ -35,6 +35,12 @@ plugins = []
 plugins_dict = {}
 commands = {}
 
+def register_command(command, handler):
+    if command in commands:
+        raise ValueError(_('%s already registred' % command))
+    commands[command] = handler
+
+
 def install(plugins_to_install, force=False):
     """
     @param plugins_to_install: a list of plugins to install, if None then
@@ -126,7 +132,11 @@ def load(path=None):
     # register commands
     for plugin in found:
         for cmd in plugin.commands:
-            commands[cmd.command] = cmd
+            if isinstance(cmd.command, str):
+                register_command(cmd.command, cmd)
+            else:
+                for c in cmd.command:
+                    register_command(c, cmd)
 
     return []
 
