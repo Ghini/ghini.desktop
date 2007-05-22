@@ -118,6 +118,9 @@ def open_database(uri, name=None):
                                     gtk.MESSAGE_ERROR)
        raise
 
+    if db_engine is None:
+       return None
+
     try:
        db.verify(db_engine)
     except db.MetaTableError, e:
@@ -274,8 +277,10 @@ def main(uri=None):
             if conn_name is None:
                quit()
             try:
-               open_database(uri, conn_name)
-               break
+               if open_database(uri, conn_name):
+                  break
+               else:
+                  uri = conn_name = None
             except db.VersionError, e:
                warning(e)
                break
