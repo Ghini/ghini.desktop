@@ -6,7 +6,7 @@ import imp, os, sys, re
 import bauble
 import bauble.paths as paths
 import gtk, gtk.glade
-from bauble.utils.log import debug
+from bauble.utils.log import debug, warning
 import xml.sax.saxutils as saxutils
 
 default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
@@ -384,10 +384,9 @@ def xml_safe(ustr, encoding='utf-8'):
     return a unicode string encoded to @param encoding that is safe for xml
     output
     '''
-    #return xml.sax.saxutils.escape(ustr).encode(encoding)
     # TODO: encodings.string_escape to escape string as well
-    #return xml.sax.saxutils.escape(unicode(ustr)).encode(encoding)
-    return saxutils.escape(unicode(ustr)).encode(encoding)
+    warning('bauble.utils.xml_safe needs testing')
+    return saxutils.escape(unicode(ustr))#, encoding))
 
 
 def startfile(filename):

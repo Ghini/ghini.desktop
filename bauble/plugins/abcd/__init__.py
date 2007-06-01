@@ -20,8 +20,8 @@ from bauble.plugins.garden.plant import Plant
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
 
-# TODO: should have a command line argument to create labels without starting 
-# the full bauble interface, after creating the labels it should automatically 
+# TODO: should have a command line argument to create labels without starting
+# the full bauble interface, after creating the labels it should automatically
 # open the whatever ever view is associated with pdf files
 # e.g bauble -labels "select string"
 # bauble -labels "block=4"
@@ -29,12 +29,12 @@ from bauble.plugins.garden.plant import Plant
 #
 # TODO: create label make in the tools that show a dialog with an entry
 # the entry is for a search string that then returns a list of all the labels
-# that'll be made with checkboxess next to them to de/select the ones you 
-# don't want to print, could also have a check box to select species or 
-# accessions so we can print labels for plants that don't have accessions, 
-# though this could be a problem b/c abcd data expects 'unitid' fields but 
+# that'll be made with checkboxess next to them to de/select the ones you
+# don't want to print, could also have a check box to select species or
+# accessions so we can print labels for plants that don't have accessions,
+# though this could be a problem b/c abcd data expects 'unitid' fields but
 # we could have a special case just for generating labels
-# 
+#
 
 def validate(root):
     '''
@@ -60,8 +60,8 @@ def plants_to_abcd(plants, authors=True):
     ds = ElementFactory(datasets, 'DataSet')
     tech_contacts = ElementFactory(ds, 'TechnicalContacts')
     tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
-    
-    # TODO: need to include contact information in bauble meta when 
+
+    # TODO: need to include contact information in bauble meta when
     # creating a new database
     contact_name = 'Noone'
     contact_email = 'noone@nowhere.com'
@@ -80,38 +80,38 @@ def plants_to_abcd(plants, authors=True):
     units = ElementFactory(ds, 'Units')
     # add standard data that's not part of the units, e.g. metadata
     # TODO: what is required???
-    # - TechnicalContacts, 
-    
-    # build the ABCD unit    
+    # - TechnicalContacts,
+
+    # build the ABCD unit
     for plant in plants:
         unit = ElementFactory(units, 'Unit')
         # TODO: get SourceInstitutionID from the prefs/metadata
         institution = 'NoInstitution'
         ElementFactory(unit, 'SourceInstitutionID', text=institution)
-        
+
         # TODO: get id divider from prefs/metadata
         divider = '.'
         # TODO: don't really understand the SourceID element
         ElementFactory(unit, 'SourceID', text='Bauble')
 #        debug(xml_safe('%s%s%s' % (plant.accession.code, divider, plant.code)))
         unit_id = ElementFactory(unit, 'UnitID',
-                                 text = xml_safe('%s%s%s' % (plant.accession.code, 
-                                                             divider, plant.code)))
+                            text = xml_safe('%s%s%s' % (plant.accession.code,
+                                                        divider, plant.code)))
         # TODO: metadata -- <DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
         identifications = ElementFactory(unit, 'Identifications')
-        
+
         # scientific name identification
         identification = ElementFactory(identifications, 'Identification')
         result = ElementFactory(identification, 'Result')
         taxon_identified = ElementFactory(result, 'TaxonIdentified')
         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
-        higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName', 
+        higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName',
                   text=xml_safe(unicode(plant.accession.species.genus.family)))
-        higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank', 
+        higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank',
                                            text='familia')
         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
-        ElementFactory(scientific_name, 'FullScientificNameString', 
+        ElementFactory(scientific_name, 'FullScientificNameString',
                        text=Species.str(plant.accession.species,
                                         authors=authors, markup=False))
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
@@ -120,42 +120,39 @@ def plants_to_abcd(plants, authors=True):
                        text=xml_safe(plant.accession.species.genus))
         ElementFactory(botanical, 'FirstEpithet',
                        text=xml_safe(plant.accession.species.sp))
-        # TODO: handle more complex names
         ElementFactory(botanical, 'AuthorTeam',
                        text=(xml_safe(plant.accession.species.sp_author)))
-        
+
         # vernacular name identification
-        # only include the default vernacular name, not all the
-        # vernacular names
+        # TODO: should we include all the vernacular names or only the default
+        # one
         vernacular_name = plant.accession.species.default_vernacular_name
-#        debug(vernacular_name)
         if vernacular_name is not None:
             identification = ElementFactory(identifications, 'Identification')
             result = ElementFactory(identification, 'Result')
             taxon_identified = ElementFactory(result, 'TaxonIdentified')
-            ElementFactory(taxon_identified, 'InformalNameString', text=(xml_safe(vernacular_name)))
-            #ElementFactory(taxon_identified, 'InformalNameString', text=(xml_safe(vernacular_name)),
-            #               attrib={'language': vernacular_name.language})
-        
+            ElementFactory(taxon_identified, 'InformalNameString',
+                           text=(xml_safe(vernacular_name)))
+
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
         # TODO: Gathering, make our collection records fit Gatherings
         # TODO: see BotanicalGardenUnit
-            
-    try:    
+
+    try:
         assert validate(datasets), 'ABCD data not valid'
     except AssertionError, e:
         utils.message_dialog('ABCD data not valid')
         #utils.message_details_dialog('ABCD data not valid', etree.tostring(datasets))
         debug(etree.tostring(datasets))
         raise
-        
+
     return ElementTree(datasets)
 
 
 
 class ABCDExporter:
-    
+
     def start(self, filename=None, plants=None):
         if filename == None: # no filename, ask the user
             d = gtk.FileChooserDialog("Choose a file to export to...", None,
@@ -168,30 +165,30 @@ class ABCDExporter:
             if response != gtk.RESPONSE_ACCEPT or filename == None:
                 return
         self.run(filename, plants)
-        
-    
+
+
     def run(self, filename, plants=None):
         if filename == None:
-            raise ValueError("filename can not be None")            
-            
+            raise ValueError("filename can not be None")
+
         # TODO: check if filename already exists give a message to the user
-        
-        # if plants is None then export all plants, this could be huge 
+
+        # if plants is None then export all plants, this could be huge
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
             session = create_session()
             plants = session.query(Plant).select()
             #plants = plugins.tables["Plant"].select()
-        data = plants_to_abcd(plants)        
+        data = plants_to_abcd(plants)
         data.write_c14n(filename)
-        
-        
+
+
 #class ABCDImporter:
 #
 #    def start(self, filenames=None):
 #        pass
-#        
+#
 #    def run(self, filenames):
 #        pass
 
@@ -202,12 +199,12 @@ class ABCDExporter:
 #    @classmethod
 #    def start(cls):
 #        ABCDImporter().start()
-    
-    
+
+
 class ABCDExportTool(pluginmgr.Tool):
     category = "Export"
     label = "ABCD"
-    
+
     @classmethod
     def start(cls):
         msg = 'The ABCD Exporter is not fully implemented. At the moment it '\
@@ -215,13 +212,13 @@ class ABCDExportTool(pluginmgr.Tool):
               'source information such as collection and donation data'
         utils.message_dialog(msg)
         ABCDExporter().start()
-    
+
 
 class ABCDImexPlugin(pluginmgr.Plugin):
     tools = [ABCDExportTool]
     depends = ["PlantsPlugin"]
-    
+
 plugin = ABCDImexPlugin
-            
-            
+
+
 __all__ = [DataSets, ABCDElement, ElementFactory, ABCDExporter, ABCDExportTool, plants_to_abcd]
