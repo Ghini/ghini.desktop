@@ -471,7 +471,7 @@ class SearchView(pluginmgr.View):
         try:
             self.set_infobox_from_row(values[0])
         except Exception, e:
-            debug('SearchView.update_infobox: %s' % e)
+            #debug('SearchView.update_infobox: %s' % e)
             self.set_infobox_from_row(None)
 
 
