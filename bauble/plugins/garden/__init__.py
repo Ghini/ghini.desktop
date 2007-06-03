@@ -21,6 +21,7 @@ from bauble.plugins.garden.source import donation_table, Donation, \
     collection_table, Collection, source_markup_func
 from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
+import bauble.plugins.garden.institution
 
 # other ideas:
 # - cultivation table

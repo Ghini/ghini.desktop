@@ -89,10 +89,11 @@ mapper(Donor, donor_table,
 class DonorEditorView(GenericEditorView):
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'garden',
-                                                      'editors.glade'),
-                                   parent=parent)
+        super(DonorEditorView, self).__init__(os.path.join(paths.lib_dir(),
+                                                           'plugins', 'garden',
+                                                           'editors.glade'),
+                                                           parent=parent)
+
         self.dialog = self.widgets.donor_dialog
         self.connect_dialog_close(self.dialog)
         if sys.platform == 'win32':
@@ -126,7 +127,7 @@ class DonorEditorPresenter(GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        super(DonorEditorPresenter, self).__init__(ModelDecorator(model), view)
         model = gtk.ListStore(str)
         # init the donor types, only needs to be done once
         #for value in self.model.columns['donor_type'].enumValues:
@@ -180,7 +181,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Donor()
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        super(DonorEditor, self).__init(model, parent)
         self.parent = parent
         self._committed = []
 
@@ -189,7 +190,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if self.presenter.dirty():
@@ -197,12 +198,14 @@ class DonorEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:
                 exc = traceback.format_exc()
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = _('Error committing changes.\n\n%s' \
+                        % utils.xml_safe(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                msg = ('Unknown error when committing changes. See the '\
+                       'details for more information.\n\n%s' \
+                       % utils.xml_safe(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
@@ -251,8 +254,8 @@ class GeneralDonorExpander(InfoExpander):
     displays name, number of donations, address, email, fax, tel,
     type of donor
     '''
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, "Genera", widgets)
+    def __init__(self, widgeets):
+        super(GeneralDonorExpander, self).__init__("Genera", widgets)
         gen_box = self.widgets.don_gen_box
         self.widgets.remove_parent(gen_box)
         self.vbox.pack_start(gen_box)
@@ -276,7 +279,7 @@ class NotesExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)
+        super(NotesExpander, self).__init__("Notes", widgets)
         notes_box = self.widgets.don_notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
@@ -295,7 +298,7 @@ class NotesExpander(InfoExpander):
 class DonorInfoBox(InfoBox):
 
     def __init__(self):
-        InfoBox.__init__(self)
+        super(DonorInfoBox, self).__init__()
         glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
                             "infoboxes.glade")
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
