@@ -15,14 +15,14 @@ bauble_meta_table = Table('bauble',
                           Column('_created', DateTime(True),
                                  default=func.current_timestamp()),
                           Column('_last_updated', DateTime(True),
-                                 default=func.current_timestamp(), 
-                                 onupdate=func.current_timestamp())) 
-        
+                                 default=func.current_timestamp(),
+                                 onupdate=func.current_timestamp()))
+
 class BaubleMeta(object):
-    
+
 ##     version = 'version'
 ##     created = 'created'
-    
+
     def __init__(self, name=None, value=None):
         self.name = name
         self.value = value

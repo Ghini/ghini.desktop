@@ -38,7 +38,7 @@ import logging
     # which we could then reflect and drop, in general maybe we should have
     # more information about the schema represented in the datbase
 
-def create():
+def create(import_defaults=True):
     """
     create new Bauble database at the current connection
 
@@ -85,32 +85,34 @@ def create():
         # TODO: this won't work correctly because importing the data
         # in the pluginmgr is non blocking and will return here and cause
         # the transaction to be committed before it's through
+        # UPDATE: June 2, 2007 - is this still true, it looks like the
+        # pluginmgr install blocks now
 
         # create the plugin registry and import the default data
-        pluginmgr.install('all', True)
+        pluginmgr.install('all', import_defaults, force=True)
         #pluginmgr.init(True)
-        debug('returned from pluginmgr.install')
+#        debug('returned from pluginmgr.install')
         meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
                                                 value=str(bauble.version))
         meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
                                             value=str(datetime.datetime.now()))
 
     except Exception:
-        debug('rollback')
-        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+#        debug('rollback')
+#        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         transaction.rollback()
-        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
+#        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
         raise
     else:
-        debug('commit')
-        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+#        debug('commit')
+#        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         transaction.commit()
-        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
+#        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
     conn.close()
 
 #    from bauble.plugins.plants.family import family_table
 #    debug(select([family_table.c.family]).execute().fetchall())
-    debug('leaving db.create()')
+#    debug('leaving db.create()')
 
 class DatabaseError(BaubleError):
     pass
