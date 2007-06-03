@@ -142,7 +142,7 @@ def plants_to_abcd(plants, authors=True):
     try:
         assert validate(datasets), 'ABCD data not valid'
     except AssertionError, e:
-        utils.message_dialog('ABCD data not valid')
+        #utils.message_dialog('ABCD data not valid')
         #utils.message_details_dialog('ABCD data not valid', etree.tostring(datasets))
         debug(etree.tostring(datasets))
         raise

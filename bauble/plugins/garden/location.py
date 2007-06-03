@@ -54,7 +54,7 @@ def loc_markup_func(location):
 
 location_table = Table('location',
                        Column('id', Integer, primary_key=True),
-                       Column('site', Unicode(64), unique=True),
+                       Column('site', Unicode(64), unique=True,nullable=False),
                        Column('description', Unicode),
                        Column('_created', DateTime(True),
                               default=func.current_timestamp()),

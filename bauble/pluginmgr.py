@@ -41,7 +41,7 @@ def register_command(command, handler):
     commands[command] = handler
 
 
-def install(plugins_to_install, force=False):
+def install(plugins_to_install, import_defaults=True, force=False):
     """
     @param plugins_to_install: a list of plugins to install, if None then
     install all plugins that haven't been installed
@@ -59,29 +59,30 @@ def install(plugins_to_install, force=False):
     else:
         to_install = plugins_to_install
 
-    debug('to_install: %s' % to_install)
+    #debug('to_install: %s' % to_install)
     # import default data for plugins
-    default_filenames = []
-    for p in to_install:
-        default_filenames.extend(p.default_filenames())
+    if import_defaults:
+        default_filenames = []
+        for p in to_install:
+            default_filenames.extend(p.default_filenames())
 
-    _error = False
-    if len(default_filenames) > 0:
-        from bauble.plugins.imex.csv_ import CSVImporter
-        csv = CSVImporter()
-        debug('starting import')
-        try:
-            csv.start(filenames=default_filenames, metadata=default_metadata,
-                      force=force)
+        _error = False
+        if len(default_filenames) > 0:
+            from bauble.plugins.imex.csv_ import CSVImporter
+            csv = CSVImporter()
+            debug('starting import')
+            try:
+                csv.start(filenames=default_filenames, metadata=
+                          default_metadata, force=force)
 
-            # register plugin as installed
-            for p in to_install:
-                debug('add %s to registry' % p)
-                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
-                registry.save()
-        except Exception, e:
-            debug(e)
-            transaction.rollback()
+                # register plugin as installed
+                for p in to_install:
+                    debug('add %s to registry' % p)
+                    registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+                    registry.save()
+            except Exception, e:
+                debug(e)
+                transaction.rollback()
         else:
             debug('commiting in pluginmgr.install()')
             transaction.commit()
@@ -430,12 +431,15 @@ class CommandHandler(object):
 
 
 
-def _find_module_names(path, parent='bauble.plugins'):
+def _find_module_names(path):
     '''
     @param path: where to look for modules
     '''
     modules = []
     if path.find("library.zip") != -1: # using py2exe
+        warning('***** importing from library.zip needs to be reviewed since '\
+                'we removed the parent parameter **********')
+        raise NotImplementedError
         zipfiles = __import__(parent, globals(), locals(),
                               [parent]).__loader__._files
         x = [zipfiles[file][0] \
@@ -445,12 +449,11 @@ def _find_module_names(path, parent='bauble.plugins'):
         for filename in x:
             m = rx.match(filename)
             if m is not None:
-                modules.append('%s.%s' % (parent, m.group(1)))
+                modules.append(m.group(1))
     else:
         for dir, subdir, files in os.walk(path):
             if dir != path and '__init__.py' in files:
-                modules.append('%s.%s' % \
-                               (parent, dir[len(path)+1:].replace(os.sep,'.')))
+                modules.append(dir[len(path)+1:].replace(os.sep,'.'))
     return modules
 
 
@@ -460,7 +463,8 @@ def _find_plugins(path):
     import bauble.plugins
     plugin_module = bauble.plugins
     mod = None
-    plugin_names = _find_module_names(path)
+    plugin_names = map(lambda s: 'bauble.plugins.%s' % s,
+                       _find_module_names(path))
     for name in plugin_names:
         # Fast path: see if the module has already been imported.
         if name in sys.modules:

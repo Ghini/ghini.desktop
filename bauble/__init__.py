@@ -99,7 +99,7 @@ def quit():
         sys.exit(1)
 
 
-def open_database(uri, name=None):
+def open_database(uri, verify=True):
     '''
     open a database connection
     '''
@@ -120,6 +120,9 @@ def open_database(uri, name=None):
 
     if db_engine is None:
        return None
+
+    if not verify:
+       return
 
     try:
        db.verify(db_engine)
@@ -185,7 +188,7 @@ def create_database(import_defaults=True):
    # changes we make here#
    import bauble.db as db
    try:
-      db.create()
+      db.create(import_defaults)
    except Exception, e:
       msg = _('Error creating tables. Your database may be corrupt.'\
               '\n\n%s') % utils.xml_safe(e)
