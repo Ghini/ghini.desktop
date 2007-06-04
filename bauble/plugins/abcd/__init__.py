@@ -16,6 +16,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.accession import Accession
 
 # NOTE: see biocase provider software for reading and writing ABCD data
 # files, already downloaded software to desktop
@@ -49,6 +50,11 @@ def validate(root):
     abcd_schema = etree.XMLSchema(xmlschema_doc)
     return abcd_schema.validate(root)
 
+# TODO: this function needs to be renamed since we now check an object in
+# the list is an Accession them we use the accession data as the UnitID, else
+# we treat it as a Plant...using plants is necessary for things like making
+# labels but most likely accessions are wanted if we're exchanging data, the
+# only problem is that accessions don't keep status, like dead, etc.
 
 def plants_to_abcd(plants, authors=True):
     '''
@@ -63,40 +69,37 @@ def plants_to_abcd(plants, authors=True):
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-    contact_name = 'Noone'
-    contact_email = 'noone@nowhere.com'
-    ElementFactory(tech_contact, 'Name', text=contact_name)
-    ElementFactory(tech_contact, 'Email', text=contact_email)
+    import bauble.plugins.garden.institution as institution
+    inst = institution.Institution()
+    ElementFactory(tech_contact, 'Name', text=inst.technical_contact)
+    ElementFactory(tech_contact, 'Email', text=inst.email)
     cont_contacts = ElementFactory(ds, 'ContentContacts')
     cont_contact = ElementFactory(cont_contacts, 'ContentContact')
-    ElementFactory(cont_contact, 'Name', text=contact_name)
-    ElementFactory(cont_contact, 'Email', text=contact_email)
+    ElementFactory(cont_contact, 'Name', text=inst.contact)
+    ElementFactory(cont_contact, 'Email', text=inst.email)
     metadata = ElementFactory(ds, 'Metadata', )
     description = ElementFactory(metadata, 'Description')
+
+    # TODO: need to get the localized language
     representation = ElementFactory(description, 'Representation', attrib={'language': 'en'})
     revision = ElementFactory(metadata, 'RevisionData')
     ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
     title = ElementFactory(representation, 'Title', text='TheTitle')
     units = ElementFactory(ds, 'Units')
-    # add standard data that's not part of the units, e.g. metadata
-    # TODO: what is required???
-    # - TechnicalContacts,
 
     # build the ABCD unit
     for plant in plants:
         unit = ElementFactory(units, 'Unit')
-        # TODO: get SourceInstitutionID from the prefs/metadata
-        institution = 'NoInstitution'
-        ElementFactory(unit, 'SourceInstitutionID', text=institution)
+        ElementFactory(unit, 'SourceInstitutionID', text=inst.code)
 
-        # TODO: get id divider from prefs/metadata
-        divider = '.'
         # TODO: don't really understand the SourceID element
         ElementFactory(unit, 'SourceID', text='Bauble')
-#        debug(xml_safe('%s%s%s' % (plant.accession.code, divider, plant.code)))
-        unit_id = ElementFactory(unit, 'UnitID',
-                            text = xml_safe('%s%s%s' % (plant.accession.code,
-                                                        divider, plant.code)))
+        if isinstance(plant, Accession):
+            acc = plant
+        else:
+            acc = plant.accession
+
+        unit_id = ElementFactory(unit, 'UnitID', text = xml_safe(str(plant)))
         # TODO: metadata -- <DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
         identifications = ElementFactory(unit, 'Identifications')
 
@@ -107,21 +110,21 @@ def plants_to_abcd(plants, authors=True):
         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
         higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName',
-                  text=xml_safe(unicode(plant.accession.species.genus.family)))
+                  text=xml_safe(unicode(acc.species.genus.family)))
         higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank',
                                            text='familia')
         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
         ElementFactory(scientific_name, 'FullScientificNameString',
-                       text=Species.str(plant.accession.species,
-                                        authors=authors, markup=False))
+                       text=Species.str(acc.species, authors=authors,
+                                        markup=False))
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
         botanical = ElementFactory(name_atomised, 'Botanical')
         ElementFactory(botanical, 'GenusOrMonomial',
-                       text=xml_safe(plant.accession.species.genus))
+                       text=xml_safe(acc.species.genus))
         ElementFactory(botanical, 'FirstEpithet',
-                       text=xml_safe(plant.accession.species.sp))
+                       text=xml_safe(acc.species.sp))
         ElementFactory(botanical, 'AuthorTeam',
-                       text=(xml_safe(plant.accession.species.sp_author)))
+                       text=(xml_safe(acc.species.sp_author)))
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default

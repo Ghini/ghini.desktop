@@ -15,13 +15,15 @@ from bauble.plugins.garden.location import location_table, Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
 from bauble.plugins.garden.plant import plant_table, Plant, \
     plant_history_table, PlantHistory, PlantEditor, PlantInfoBox, \
-    plant_context_menu, plant_markup_func
+    plant_context_menu, plant_markup_func, plant_delimiter_key, \
+    default_plant_delimiter
 #from reference import Reference, ReferenceEditor
 from bauble.plugins.garden.source import donation_table, Donation, \
     collection_table, Collection, source_markup_func
 from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
 import bauble.plugins.garden.institution
+from bauble.utils.log import debug
 
 # other ideas:
 # - cultivation table
@@ -29,6 +31,7 @@ import bauble.plugins.garden.institution
 
 def natsort_kids(kids):
     return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+
 
 
 class GardenPlugin(pluginmgr.Plugin):
@@ -79,6 +82,14 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
             #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
+
+        # if the plant delimiter isn't in the bauble meta then add the default
+        import bauble.meta as meta
+        table = meta.bauble_meta_table
+        row = table.select(table.c.name==plant_delimiter_key).execute().fetchone()
+        if row is None:
+            table.insert().execute(name=plant_delimiter_key,
+                                   value=default_plant_delimiter)
 
 
     depends = ["PlantsPlugin"]
