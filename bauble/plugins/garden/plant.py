@@ -13,6 +13,7 @@ from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.types import Enum
+import bauble.meta as meta
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -20,6 +21,22 @@ from bauble.types import Enum
 
 # TODO: might be worthwhile to have a label or textview next to the location
 # combo that shows the description of the currently selected location
+
+plant_delimiter_key = 'plant_delimiter'
+default_plant_delimiter = '.'
+
+__plant_delimiter = None
+def plant_delimiter(refresh=False):
+    global __plant_delimiter
+    if refresh:
+        __plant_delimiter = None
+    if __plant_delimiter is None:
+        debug('querying delimiter')
+        table = meta.bauble_meta_table
+        row = table.select(table.c.name==plant_delimiter_key).execute()
+        __plant_delimiter = row.fetchone()['value']
+    return __plant_delimiter
+
 
 def edit_callback(plant):
     e = PlantEditor(plant)
@@ -131,16 +148,33 @@ plant_table = Table('plant',
 
 class Plant(bauble.BaubleMapper):
 
+    __delimiter = None
+
+    @staticmethod
+    def refresh_delimiter(cls):
+        row = table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
+        Plant.__delimiter = row.fetchone()['value']
+
+    def __get_delimiter(self):
+        if Plant.__delimiter is None:
+            row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
+            Plant.__delimiter = row.fetchone()['value']
+        return Plant.__delimiter
+
+    delimiter = property(__get_delimiter)
+
+
     def __str__(self):
-        return "%s.%s" % (self.accession, self.code)
+        return "%s%s%s" % (self.accession, self.delimiter, self.code)
+
 
     def markup(self):
         #return "%s.%s" % (self.accession, self.plant_id)
         # FIXME: this makes expanding accessions look ugly with too many
         # plant names around but makes expanding the location essential
         # or you don't know what plants you are looking at
-        return "%s.%s (%s)" % (self.accession, self.code,
-                               self.accession.species.markup())
+        return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
+                                self.accession.species.markup())
 
 
 from bauble.plugins.garden.accession import Accession

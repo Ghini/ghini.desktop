@@ -1,7 +1,7 @@
 #
 # abcd.py
-# 
-# module for read and writing Access to Biological Collection 
+#
+# module for read and writing Access to Biological Collection
 # Data (ABCD) files
 #
 
@@ -18,25 +18,25 @@ from bauble.utils import xml_safe
 
 # TODO: also need ability to dump to darwin core, should consider just writing
 # an xsl transformation to do the conversion instead of writing more export
-# code, Darwin Core is a flat structure and from i understand doesn't have a 
+# code, Darwin Core is a flat structure and from i understand doesn't have a
 # sense of "unit"
 
-# TODO: doesn't validate unless i write the dataset to a file and read it back 
+# TODO: doesn't validate unless i write the dataset to a file and read it back
 # in, it's most likely some sort of namespace issue
 
 namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 
 def ABCDElement(parent, name, type=None, text=None, attrib={}):
-    el = SubElement(parent, '{http://www.tdwg.org/schemas/abcd/2.06}%s' % name, 
+    el = SubElement(parent, '{http://www.tdwg.org/schemas/abcd/2.06}%s' % name,
                     nsmap=namespaces, attrib=attrib)
     el.text = text
     return el
-    
-    
+
+
 def DataSets():
     return Element('{http://www.tdwg.org/schemas/abcd/2.06}DataSets', nsmap=namespaces)
-    
+
 
 #
 # using a factory means less typos but also less flexibility
@@ -54,13 +54,13 @@ element_map = {'DataSet': ['{http://www.tdwg.org/schemas/abcd/2.06}DataSets', 'D
                    'Representation': ['Description'], # language attribute
                        'Title': ['Representation'],
                    'RevisionData': ['Metadata'],
-                       'DateModified': ['RevisionData'],                   
+                       'DateModified': ['RevisionData'],
                'Units': ['DataSet'],
                    'Unit': ['Units'],
                        'SourceInstitutionID': ['Unit'],
                        'SourceID': ['Unit'],
                        'UnitID': ['Unit'],
-                       'DateLastEdited': ['Unit'],                       
+                       'DateLastEdited': ['Unit'],
                        'Identifications': ['Unit'],
                            'Identification': ['Identifications'],
                                'Result': ['Identification'],
@@ -77,7 +77,7 @@ element_map = {'DataSet': ['{http://www.tdwg.org/schemas/abcd/2.06}DataSets', 'D
                                                    'FirstEpithet': ['Botanical'],
                                                    'AuthorTeam': ['Botanical'],
                                        'InformalNameString': ['TaxonIdentified']
-                                   
+
                            }
 
 def ElementFactory(parent, name, **kwargs):

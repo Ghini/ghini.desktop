@@ -202,8 +202,70 @@ class PrefsView(pluginmgr.View):
         super(PrefsView, self).__init__()
         self.create_gui()
 
+    def create_registry_view(self):
+        pass
+    def create_meta_view(self):
+        pass
 
     def create_gui(self):
+        expander = gtk.Expander(_('Preferences'))
+        view = self.create_prefs_view()
+        expander.add(view)
+        self.pack_start(expander)
+
+##         expander = gtk.Expander(_('Registry'))
+##         view = create_registry_view()
+##         expander.add(view)
+##         self.pack_start(expander)
+
+##         expander = gtk.Expander(_('Meta'))
+##         view = create_meta_view()
+##         expander.add(view)
+##         self.pack_start(expander)
+
+
+    def create_tree(self, columns, itemsiter):
+        treeview = gtk.TreeView()
+        treeview.set_rules_hint(True)
+
+        i = 0
+        model_cols = []
+        for c in columns:
+            renderer = gtk.CellRendererText()
+            column = gtk.TreeViewColumn(c, renderer, text=i)
+            treeview.append_column(column)
+            i += 1
+            model_cols.append(str)
+
+
+        model = gtk.ListStore(*model_cols)
+        for i in itemsiter:
+            debug(i)
+            model.append(i)
+        treeview.set_model(model)
+
+        sw = gtk.ScrolledWindow()
+        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+        sw.add(treeview)
+        return sw
+
+
+    def create_prefs_view(self):
+        class prefs_iter(object):
+
+            def __iter__(self):
+                return self
+
+            def next(self):
+                for section in prefs.config.sections():
+                    for name, value in prefs.config.items(section):
+                        yield ['%s.%s' % (section, name), value]
+
+        tree = self.create_tree([_('Names'), _('Values')], iter(prefs_iter()))
+        return tree
+
+
+    def create_prefs_view2(self):
         treeview = gtk.TreeView()
         #treeview.set_headers_visible(False)
         treeview.set_rules_hint(True)
@@ -237,10 +299,11 @@ class PrefsView(pluginmgr.View):
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
         sw.add(treeview)
 
-        self.pack_start(sw)
+        #self.pack_start(sw)
+        return sw
 
 
-class PrefsCommandHandler(object):
+class PrefsCommandHandler(pluginmgr.CommandHandler):
 
     command = ('prefs', 'config')
     view = None
@@ -256,8 +319,7 @@ class PrefsCommandHandler(object):
 
 
 
-pluginmgr.register_command('prefs', PrefsCommandHandler)
-pluginmgr.register_command('config', PrefsCommandHandler)
+pluginmgr.register_command(PrefsCommandHandler)
 
 prefs = _prefs()
 

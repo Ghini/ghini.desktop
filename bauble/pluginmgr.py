@@ -35,10 +35,20 @@ plugins = []
 plugins_dict = {}
 commands = {}
 
-def register_command(command, handler):
-    if command in commands:
-        raise ValueError(_('%s already registred' % command))
-    commands[command] = handler
+#def register_command(command, handler):
+def register_command(handler):
+    global commands
+    if isinstance(handler.command, str):
+        if handler.command in commands:
+            raise ValueError(_('%s already registred' % command))
+        commands[handler.command] = handler
+    else:
+        for cmd in handler.command:
+            if cmd in commands:
+                raise ValueError(_('%s already registred' % command))
+            commands[cmd] = handler
+
+
 
 
 def install(plugins_to_install, import_defaults=True, force=False):
@@ -133,11 +143,7 @@ def load(path=None):
     # register commands
     for plugin in found:
         for cmd in plugin.commands:
-            if isinstance(cmd.command, str):
-                register_command(cmd.command, cmd)
-            else:
-                for c in cmd.command:
-                    register_command(c, cmd)
+            register_command(cmd)
 
     return []
 
@@ -573,6 +579,3 @@ def topological_sort(items, partial_order):
         # There is a loop in the input.
         return None
     return sorted
-
-
-

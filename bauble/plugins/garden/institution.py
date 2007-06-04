@@ -39,16 +39,18 @@ class Institution(Singleton):
     __properties = ('name', 'abbreviation', 'code', 'contact',
                     'technical_contact', 'email', 'tel', 'fax', 'address')
     __db_tmpl = 'inst_%s'
+    table = meta.bauble_meta_table
+    prop = lambda s, p: s.__db_tmpl % p
 
     def __getattr__(self, prop):
         if prop not in self.__properties:
             msg = _('Institution.__getattr__: %s not a property on '\
                     'Intitution') % prop
             raise ValueError(msg)
-        entry = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==self.__db_tmpl % prop).execute().fetchone()
-        if entry is None:
+        r = self.table.select(self.table.c.name==self.prop(prop)).execute().fetchone()
+        if r is None:
             return None
-        return entry['value']
+        return r['value']
 
 
     def __setattr__(self, prop, value):
@@ -56,20 +58,17 @@ class Institution(Singleton):
             msg = _('Institution.__setattr__: %s not a property on '\
                     'Intitution') % prop
             raise ValueError(msg)
-        table = meta.bauble_meta_table
-        prop_name = lambda p: self.__db_tmpl % p
-        s = table.select(table.c.name == prop_name(prop)).execute().fetchone()
-        # have to see if the property exists first because sqlite doesn't raise
-        # an error if you try to update a value that doesn't exist and
+        s = self.table.select(self.table.c.name == self.prop(prop)).execute()
+        # have to check if the property exists first because sqlite doesn't
+        # raise an error if you try to update a value that doesn't exist and
         # do an insert and then catching the exception if it exists and then
         # updating the value is too slow
-        if s is None:
-#            debug('insert: %s = %s' % (prop, value))
-            meta.bauble_meta_table.insert().execute(name=self.__db_tmpl % prop,
-                                                    value=value)
+        if s.fetchone() is None:
+##            debug('insert: %s = %s' % (prop, value))
+            self.table.insert().execute(name=self.prop(prop), value=value)
         else:
-#            debug('update: %s = %s' % (prop, value))
-            meta.bauble_meta_table.update(meta.bauble_meta_table.c.name==self.__db_tmpl % prop).execute(value=value)
+##            debug('update: %s = %s' % (prop, value))
+            self.table.update(self.table.c.name==self.prop(prop)).execute(value=value)
 
 
 

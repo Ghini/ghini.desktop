@@ -9,8 +9,9 @@ import bauble
 from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.plugins.garden.plant import Plant, plant_table
-from bauble.plugins.garden.accession import accession_table
+from bauble.plugins.plants.species import Species, species_table
+from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
+from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.abcd import plants_to_abcd
 from bauble.plugins.report import get_all_plants, FormatterPlugin, SettingsBox
 
@@ -117,22 +118,26 @@ class DefaultFormatterPlugin(FormatterPlugin):
         # this adds a "distribution" tag from the species_distribnution, we
         # use this when generating labels and can be safely ignored since it's
         # not in the ABCD namespace
+        session = create_session()
         for el in abcd_data.getiterator(tag='{http://www.tdwg.org/schemas/abcd/2.06}Unit'):
             unit_id = el.xpath('abcd:UnitID',
                             {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'})
-            divider = '.' # TODO: should get this from the prefs or bauble meta
-            acc_code, plant_code = unit_id[0].text.rsplit(divider, 1)
-            acc_id = select([accession_table.c.id],
-                            accession_table.c.code==acc_code).scalar()
-            plant_id = select([plant_table.c.id],
-                              plant_table.c.accession_id==acc_id).scalar()
-            session = create_session()
-            plant = session.get(Plant, plant_id)
-            sp = plant.accession.species
-            if sp.distribution is not None:
-                etree.SubElement(el, 'distribution').text = \
-                                     sp.distribution_str()
-            session.close()
+
+            code = unit_id[0].text
+            results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.code == code))
+
+            if len(results) < 1:
+                acc_code, plant_code = code.rsplit(plant_delimiter(), 1)
+                results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.id==plant_table.c.accession_id, accession_table.c.code==acc_code, plant_table.c.code==plant_code))
+
+            if len(results) < 1:
+                raise ValueError('Couldn\'t find a Plant or Accession with '\
+                                 'code %s' % code)
+            species = results[0]
+            if species.distribution is not None:
+                etree.SubElement(el, 'distribution').text=species.distribution_str()
+            session.clear()
+        session.close()
 
 #        debug(etree.dump(abcd_data.getroot()))
 
