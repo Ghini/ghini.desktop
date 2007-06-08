@@ -13,6 +13,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.utils import xml_safe
 import bauble.pluginmgr as pluginmgr
+from bauble.i18n import *
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
@@ -56,12 +57,33 @@ def validate(root):
 # labels but most likely accessions are wanted if we're exchanging data, the
 # only problem is that accessions don't keep status, like dead, etc.
 
+def verify_institution(institution):
+    test = lambda x: x != '' and x != None
+    return test(institution.name) and test(institution.technical_contact) and \
+           test(institution.email) and test(institution.contact) and \
+           test(institution.code)
+
+
+
 def plants_to_abcd(plants, authors=True):
     '''
     @param plants: a list of bauble.plugins.garden.Plant object to convert
     to valid ABCD XML
+    @param authors: flag to control whether to include the authors in the
+    species name
     @returns: a valid ABCD ElementTree
     '''
+    import bauble.plugins.garden.institution as institution
+    inst = institution.Institution()
+    if not verify_institution(inst):
+        msg = _('Some or all of the information about your institution or ' \
+                'business is not complete. Please make sure that the ' \
+                'Name, Technical Contact, Email, Contact and Institution '
+                'Code fields are filled in.')
+        utils.message_dialog(msg)
+        institution.InstitutionEditor().start()
+        return plants_to_abcd(plants, authors)
+
     datasets = DataSets()
     ds = ElementFactory(datasets, 'DataSet')
     tech_contacts = ElementFactory(ds, 'TechnicalContacts')
@@ -69,8 +91,7 @@ def plants_to_abcd(plants, authors=True):
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-    import bauble.plugins.garden.institution as institution
-    inst = institution.Institution()
+
     ElementFactory(tech_contact, 'Name', text=inst.technical_contact)
     ElementFactory(tech_contact, 'Email', text=inst.email)
     cont_contacts = ElementFactory(ds, 'ContentContacts')
@@ -81,7 +102,8 @@ def plants_to_abcd(plants, authors=True):
     description = ElementFactory(metadata, 'Description')
 
     # TODO: need to get the localized language
-    representation = ElementFactory(description, 'Representation', attrib={'language': 'en'})
+    representation = ElementFactory(description, 'Representation',
+                                    attrib={'language': 'en'})
     revision = ElementFactory(metadata, 'RevisionData')
     ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
     title = ElementFactory(representation, 'Title', text='TheTitle')
@@ -100,7 +122,7 @@ def plants_to_abcd(plants, authors=True):
             acc = plant.accession
 
         unit_id = ElementFactory(unit, 'UnitID', text = xml_safe(str(plant)))
-        # TODO: metadata -- <DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
+        # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
         identifications = ElementFactory(unit, 'Identifications')
 
         # scientific name identification
@@ -120,11 +142,13 @@ def plants_to_abcd(plants, authors=True):
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
         botanical = ElementFactory(name_atomised, 'Botanical')
         ElementFactory(botanical, 'GenusOrMonomial',
-                       text=xml_safe(acc.species.genus))
+                       text=xml_safe(str(acc.species.genus)))
         ElementFactory(botanical, 'FirstEpithet',
                        text=xml_safe(acc.species.sp))
-        ElementFactory(botanical, 'AuthorTeam',
-                       text=(xml_safe(acc.species.sp_author)))
+        if acc.species.sp_author is not None:
+            ElementFactory(botanical, 'AuthorTeam',
+                text=(xml_safe(unicode(acc.species.sp_author, 'utf-8'),
+                               'utf-8')))
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default

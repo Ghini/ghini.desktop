@@ -662,13 +662,17 @@ class GenericEditorPresenter(object):
 
 class GenericModelViewPresenterEditor(object):
 
+    '''
+    GenericModelViewPresenterEditor assume that model is an instance
+    of object mapped to a SQLAlchemy table
+    '''
     label = ''
     standalone = True
     ok_responses = ()
 
     def __init__(self, model, parent=None):
         '''
-        @param model: an instance of a object mapped to an SQLAlchemy Table
+        @param model: an instance of an object mapped to a SQLAlchemy Table
         @param parent: the parent windows for the view or None
         '''
         # the editor does all of it's work in it's own session,

@@ -414,7 +414,8 @@ class TagPlugin(pluginmgr.Plugin):
         SearchView.register_search_meta("tags", search_meta)
         SearchView.view_meta[Tag].set(children=natsort_kids('objects'),
                                       context_menu=tag_context_menu)
-        _reset_tags_menu()
+        if bauble.gui is not None:
+            _reset_tags_menu()
 
 
     @classmethod

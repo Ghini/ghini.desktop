@@ -42,4 +42,11 @@ if __name__ == '__main__':
 
     testbase.log.msg('=======================')
     runner = unittest.TextTestRunner()
-    runner.run(alltests)
+    if len(args) > 0:
+        # run a specific testsuite, would be nice to allow running specific
+        # test cases or test methods
+        for t in alltests:
+            if t.__class__.__name__ in args:
+                runner.run(t)
+    else:
+        runner.run(alltests)

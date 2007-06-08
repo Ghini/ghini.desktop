@@ -87,15 +87,19 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
                 # register plugin as installed
                 for p in to_install:
-                    debug('add %s to registry' % p)
+#                    debug('add %s to registry' % p)
                     registry.add(RegistryEntry(name=p.__name__, version='0.0'))
                     registry.save()
             except Exception, e:
                 debug(e)
                 transaction.rollback()
-        else:
-            debug('commiting in pluginmgr.install()')
-            transaction.commit()
+    else:
+        for p in to_install:
+#            debug('add %s to registry' % p)
+            registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+            registry.save()
+#    debug('commiting in pluginmgr.install()')
+    transaction.commit()
 
 
 
@@ -136,6 +140,7 @@ def load(path=None):
     try:
         plugins = topological_sort(found, depends)
         plugins.reverse()
+#        debug(plugins)
     except Exception, e:
         debug(e)
         raise
@@ -156,6 +161,7 @@ def init():
     registry = Registry()
     for entry in registry:
         try:
+#            debug('init %s' % entry)
             plugins_dict[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
