@@ -40,9 +40,9 @@ def init_bauble(uri):
         bauble.open_database(uri, verify=False)
     except Exception, e:
         print e
-    bauble.create_database(False)
     prefs.init()
     pluginmgr.load()
+    bauble.create_database(False)
     pluginmgr.init()
     __initialized = True
 

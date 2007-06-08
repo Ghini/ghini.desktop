@@ -80,9 +80,10 @@ class PlantsPlugin(pluginmgr.Plugin):
         # TODO: for the infobox somehow we need to show the species infobox
 ##         SearchView.view_meta["VernacularName"].set(context_menu=vern_context_menu,
 ##                                                    markup_func=vern_markup_func)
-        bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
-        bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
-        bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
+        if bauble.gui is not None:
+            bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
+            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
+            bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
 
 
 

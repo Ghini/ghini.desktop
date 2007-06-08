@@ -31,7 +31,6 @@ def plant_delimiter(refresh=False):
     if refresh:
         __plant_delimiter = None
     if __plant_delimiter is None:
-        debug('querying delimiter')
         table = meta.bauble_meta_table
         row = table.select(table.c.name==plant_delimiter_key).execute()
         __plant_delimiter = row.fetchone()['value']
@@ -158,7 +157,9 @@ class Plant(bauble.BaubleMapper):
     def __get_delimiter(self):
         if Plant.__delimiter is None:
             row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
-            Plant.__delimiter = row.fetchone()['value']
+            result = row.fetchone()
+            assert result is not None, 'plant delimiter not set in bauble meta'
+            Plant.__delimiter = result['value']
         return Plant.__delimiter
 
     delimiter = property(__get_delimiter)

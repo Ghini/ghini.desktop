@@ -12,6 +12,7 @@ from bauble.plugins.plants.family import family_table
 from bauble.plugins.plants.genus import genus_table
 from bauble.plugins.plants.species_model import species_table
 import bauble.plugins.plants.test as plants_test
+from bauble.plugins.garden.institution import Institution
 
 
 accession_test_data = ({'id':1 , 'code': '1.1', 'species_id': 1},
@@ -35,6 +36,13 @@ def setUp_test_data():
     location_table.insert().execute(*location_test_data)
     plant_table.insert().execute(*plant_test_data)
     donor_table.insert().execute(*donor_test_data)
+    i = Institution()
+    i.name = 'TestInstitution'
+    i.technical_contact = 'TestTechnicalContact Name'
+    i.email = 'contact@test.com'
+    i.contact = 'TestContact Name'
+    i.code = 'TestCode'
+
 
 
 def tearDown_test_data():

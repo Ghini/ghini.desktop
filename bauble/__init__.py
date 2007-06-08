@@ -6,7 +6,7 @@ import imp, os, sys
 import bauble.paths as paths
 
 # major, minor, revision version tuple
-version = (0,7,'0b2')
+version = (0,7,'0b3')
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
@@ -333,6 +333,7 @@ def main(uri=None):
          prefs[conn_default_pref] = conn_name
 
       gtk.gdk.threads_leave()
+
    gobject.idle_add(_post_loop)
 
    gui.show()

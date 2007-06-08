@@ -379,14 +379,18 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     return r
 
 
-def xml_safe(ustr, encoding='utf-8'):
+def xml_safe(str, encoding='utf-8'):
     '''
-    return a unicode string encoded to @param encoding that is safe for xml
-    output
+    return a string with character entities escaped safe for xml, if the
+    str paramater is a string a string is returned, if str is a unicode object
+    then a unicode object is returned
     '''
-    # TODO: encodings.string_escape to escape string as well
-    warning('bauble.utils.xml_safe needs testing')
-    return saxutils.escape(unicode(ustr))#, encoding))
+    # what about encodings.string_escape to escape strings
+    assert isinstance(str, basestring)
+    if isinstance(str, unicode):
+        return unicode(saxutils.escape(str.encode(encoding)), encoding)
+    else:
+        return saxutils.escape(str)
 
 
 def startfile(filename):

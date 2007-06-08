@@ -17,7 +17,6 @@ from bauble.plugins.garden.plant import plant_table, Plant, \
     plant_history_table, PlantHistory, PlantEditor, PlantInfoBox, \
     plant_context_menu, plant_markup_func, plant_delimiter_key, \
     default_plant_delimiter
-#from reference import Reference, ReferenceEditor
 from bauble.plugins.garden.source import donation_table, Donation, \
     collection_table, Collection, source_markup_func
 from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
@@ -38,6 +37,7 @@ class GardenPlugin(pluginmgr.Plugin):
 
     tables = [accession_table, location_table, plant_table, donor_table,
               donation_table, collection_table, plant_history_table]
+
 
     @classmethod
     def init(cls):
@@ -82,6 +82,7 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
             #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
+
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
