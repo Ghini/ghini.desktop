@@ -379,6 +379,13 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     return r
 
 
+def utf8(obj):
+    '''
+    return a unicode object representation of obj
+    '''
+    return unicode(str(obj), 'utf-8')
+
+
 def xml_safe(str, encoding='utf-8'):
     '''
     return a string with character entities escaped safe for xml, if the
@@ -393,6 +400,10 @@ def xml_safe(str, encoding='utf-8'):
         return saxutils.escape(str)
 
 
+def xml_safe_utf8(obj):
+    return xml_safe(utf8(obj))
+
+
 def startfile(filename):
     """
     @param filename: the name of the file to execute
@@ -404,11 +415,11 @@ def startfile(filename):
         try:
             os.startfile(filename)
         except WindowsError, e: # probably no file association
-            msg = "Could not open pdf file.\n\n%s" % xml_safe(e)
+            msg = _("Could not open pdf file.\n\n%s") % xml_safe_utf8(e)
             message_dialog(msg)
     elif sys.platform == 'linux2':
         # FIXME: need to determine if gnome or kde
-        os.system("gnome-open " + filename)
+        os.system("gnome-open %s'" % filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file: %s" \
                         % filename)

@@ -593,8 +593,8 @@ class VernacularNamePresenter(GenericEditorPresenter):
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]
 
-        msg = 'Are you sure you want to remove the vernacular name %s?' \
-              % utils.xml_safe(value.name)
+        msg = _('Are you sure you want to remove the vernacular name %s?') \
+              % utils.xml_safe_utf8(value.name)
         if not utils.yes_no_dialog(msg, parent=self.view.window):
             return
 
@@ -1025,12 +1025,14 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:
                 exc = traceback.format_exc()
-                msg = 'Error committing changes.\n\n%s'% utils.xml_safe(e.orig)
+                msg = _('Error committing changes.\n\n%s') % \
+                      utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the '\
-                      'details for more information.\n\n%s' % utils.xml_safe(e)
+                msg = _('Unknown error when committing changes. See the '\
+                        'details for more information.\n\n%s') % \
+                        utils.xml_safe_utf8(e)
                 debug(traceback.format_exc())
                 #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),

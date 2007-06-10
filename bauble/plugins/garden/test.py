@@ -269,7 +269,7 @@ class DMSConversionTests(unittest.TestCase):
 class GardenTestSuite(unittest.TestSuite):
 
    def __init__(self):
-       unittest.TestSuite.__init__(self)
+       super(GardenTestSuite, self).__init__()
        self.addTests(map(DMSConversionTests, ('test_dms_to_decimal',
                                               'test_decimal_to_dms',
                                               'test_parse_lat_lon')))

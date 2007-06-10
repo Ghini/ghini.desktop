@@ -184,7 +184,7 @@ def open(uri):
         default_metadata.engine.contextual_connect() # test the connection
         db_engine = default_metadata.engine
     except Exception, e:
-        msg = "Could not open connection.\n\n%s" % utils.xml_safe(e)
+        msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
         return None

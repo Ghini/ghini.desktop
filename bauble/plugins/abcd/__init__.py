@@ -11,7 +11,8 @@ from lxml.etree import Element, SubElement, ElementTree
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.utils import xml_safe
+#from bauble.utils import xml_safe
+import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.i18n import *
 from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
@@ -121,7 +122,8 @@ def plants_to_abcd(plants, authors=True):
         else:
             acc = plant.accession
 
-        unit_id = ElementFactory(unit, 'UnitID', text = xml_safe(str(plant)))
+        unit_id = ElementFactory(unit, 'UnitID',
+                                 text = utils.xml_safe_utf8(str(plant)))
         # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
         identifications = ElementFactory(unit, 'Identifications')
 
@@ -132,7 +134,7 @@ def plants_to_abcd(plants, authors=True):
         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
         higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName',
-                  text=xml_safe(unicode(acc.species.genus.family)))
+                  text=utils.xml_safe_utf8(acc.species.genus.family))
         higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank',
                                            text='familia')
         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
@@ -142,13 +144,12 @@ def plants_to_abcd(plants, authors=True):
         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
         botanical = ElementFactory(name_atomised, 'Botanical')
         ElementFactory(botanical, 'GenusOrMonomial',
-                       text=xml_safe(str(acc.species.genus)))
+                       text=utils.xml_safe(str(acc.species.genus)))
         ElementFactory(botanical, 'FirstEpithet',
-                       text=xml_safe(acc.species.sp))
+                       text=utils.xml_safe_utf8(acc.species.sp))
         if acc.species.sp_author is not None:
             ElementFactory(botanical, 'AuthorTeam',
-                text=(xml_safe(unicode(acc.species.sp_author, 'utf-8'),
-                               'utf-8')))
+                text=(utils.xml_safe_utf8(acc.species.sp_author)))
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default
@@ -159,7 +160,7 @@ def plants_to_abcd(plants, authors=True):
             result = ElementFactory(identification, 'Result')
             taxon_identified = ElementFactory(result, 'TaxonIdentified')
             ElementFactory(taxon_identified, 'InformalNameString',
-                           text=(xml_safe(vernacular_name)))
+                           text=(utils.xml_safe_utf8(vernacular_name)))
 
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis

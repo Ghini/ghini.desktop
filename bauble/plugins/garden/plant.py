@@ -44,7 +44,7 @@ def edit_callback(plant):
 
 def remove_callback(plant):
     s = '%s: %s' % (plant.__class__.__name__, str(plant))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -53,7 +53,8 @@ def remove_callback(plant):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -74,9 +75,9 @@ def plant_markup_func(plant):
                             plant.accession.id_qual)
     if plant.acc_status == 'Dead':
         color = '<span foreground="#666666">%s</span>'
-        return color % str(plant), sp_str
+        return color % utils.xml_safe_utf8(plant), sp_str
     else:
-        return str(plant), sp_str
+        return utils.xml_safe_utf8(plant), sp_str
 
 
 plant_history_table = Table('plant_history',
@@ -505,7 +506,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
                       'details for more information.\n\n%s') \
-                      % utils.xml_safe(e)
+                      % utils.xml_safe_utf8(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)

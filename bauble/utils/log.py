@@ -10,37 +10,38 @@ def _main_is_frozen():
 	    hasattr(sys, "importers") or # old py2exe
 	    imp.is_frozen("__main__")) # tools/freeze
 
-        
+
 def _default_handler():
     import bauble.paths as paths
-    if _main_is_frozen():        
+    if _main_is_frozen():
         # TODO: should make sure we can open this file and it's writeable
         filename = os.path.join(paths.user_dir(), 'bauble.log')
         handler = logging.FileHandler(filename, 'w+')
         sys.stdout = open(filename, 'w+')
         sys.stderr = open(filename, 'w+')
-    else:             
+    else:
         handler = logging.StreamHandler()
     return handler
 
 
 # warning: HACK! so the error message only shows once
 __yesyesiknow = False
-    
+
 def _config_logger(name, level, format, propagate=False):
     try:
         handler = _default_handler()
     except IOError, e:
         import traceback
-        
+
         # TODO: popup a dialog telling the user that the default logger
         # couldn't be started??
         global __yesyesiknow
         if not __yesyesiknow and not _main_is_frozen():
-            msg = '** Could not open the default log file.\nPress any key to '\
-            'continue.\n\n%s' % bauble.utils.xml_safe(e)
+            msg = _('** Could not open the default log file.\n'\
+                    'Press any key to continue.\n\n%s') % \
+                    bauble.utils.xml_safe_utf8(e)
             utils.message_details_dialog(msg, traceback.format_exc())
-            __yesyesiknow = True        
+            __yesyesiknow = True
         handler = logging.StreamHandler()
     handler.setLevel(level)
     formatter = logging.Formatter(format)
@@ -52,7 +53,7 @@ def _config_logger(name, level, format, propagate=False):
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
-#root_logger = _config_logger('', logging.DEBUG, '%(levelname)s: %(message)s', 
+#root_logger = _config_logger('', logging.DEBUG, '%(levelname)s: %(message)s',
 #			     True)
 
 # info logger, prints only the message
@@ -109,8 +110,8 @@ if __name__ == "__main__":
     log.debug('log.debug message')
     debug('debug message')
     log.info('log.info message')
-    info('info message')    
+    info('info message')
     log.warning('log.warning message')
     warning('warning message')
-    log.error('log.error message')    
+    log.error('log.error message')
     error('error message')

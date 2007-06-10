@@ -158,7 +158,7 @@ def open_database(uri, verify=True):
        raise
     except Exception, e:
        msg = _('There was an error connecting to the database.\n\n ** %s' % \
-               str(utils.xml_safe(e)))
+               str(utils.xml_safe_utf8(e)))
        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
        raise
 
@@ -191,7 +191,7 @@ def create_database(import_defaults=True):
       db.create(import_defaults)
    except Exception, e:
       msg = _('Error creating tables. Your database may be corrupt.'\
-              '\n\n%s') % utils.xml_safe(e)
+              '\n\n%s') % utils.xml_safe_utf8(e)
       debug(traceback.format_exc())
       utils.message_details_dialog(msg, traceback.format_exc(),
                                    gtk.MESSAGE_ERROR)

@@ -36,7 +36,7 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
 

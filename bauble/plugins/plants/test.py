@@ -1,12 +1,19 @@
+#
+# test.py
+#
+# Description: test for the Plant plugin
+#
+
 import os, sys, unittest
 from sqlalchemy import *
 import bauble
 from bauble.plugins.plants.species_model import Species, species_table, \
-    VernacularName, vernacular_name_table
+    VernacularName, vernacular_name_table, species_synonym_table, \
+    SpeciesSynonym
 from bauble.plugins.plants.family import family_table
 from bauble.plugins.plants.genus import genus_table
-
 from testbase import BaubleTestCase, log
+
 #
 # TODO: things to create tests for
 #
@@ -16,37 +23,106 @@ from testbase import BaubleTestCase, log
 # - test the setting the default vernacular name on a species is working
 # and that delete vernacular names and default vernacular names does
 # proper  cascading
+# make sure that deleting either of the species referred to in a synonym
+# deletes the synonym
+
+# TODO: create more species name test cases
+# TODO: create some scenarios that should fail
 
 family_test_data = ({'id': 1, 'family': 'Orchidaceae'},
-                    {'id': 2, 'family': 'Leguminosae'})
+                    {'id': 2, 'family': 'Leguminosae'},
+                    {'id': 3, 'family': 'Polypodiaceae'})
 
 genus_test_data = ({'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
+                   {'id': 2, 'genus': 'Encyclia', 'family_id': 1},
+                   {'id': 3, 'genus': 'Abrus', 'family_id': 2},
+                   {'id': 4, 'genus': 'Campyloneurum', 'family_id': 3},
                    )
 
-species_test_data = ({'id':1 , 'sp': 'variabilis', 'genus_id': 1},
+species_test_data = ({'id': 1, 'sp': 'variabilis', 'genus_id': 1,
+                      'sp_author': 'Bateman ex Lindl.'},
+                     {'id': 2, 'sp': 'cochleata', 'genus_id': 2,
+                      'sp_author': '(L.) Lem\xc3\xa9e'},
+                     {'id': 3, 'sp': 'precatorius', 'genus_id': 3,
+                      'sp_author': 'L.'},
+                     {'id': 4, 'sp': 'alapense', 'genus_id': 4,
+                      'sp_hybrid': 'x', 'sp_author': 'F\xc3\xa9e'},
+                     {'id': 5, 'sp': 'cochleata', 'genus_id': 2,
+                      'sp_author': '(L.) Lem\xc3\xa9e', 'infrasp_rank': 'var.',
+                      'infrasp': 'cochleata'},
+                     {'id': 6, 'sp': 'cochleata', 'genus_id': 2,
+                      'sp_author': '(L.) Lem\xc3\xa9e', 'infrasp_rank': 'cv.',
+                      'infrasp': 'Black Night'},
+                     {'id': 7, 'sp': 'precatorius', 'genus_id': 3,
+                      'sp_author': 'L.', 'cv_group':'SomethingRidiculous'},
+                     {'id': 8, 'sp': 'precatorius', 'genus_id': 3,
+                      'sp_author': 'L.', 'infrasp_rank': 'cv.',
+                      'infrasp': 'Hot Rio Nights',
+                      'cv_group':'SomethingRidiculous'},
+#                     {'id': 9, 'sp': 'precatorius', 'genus_id': 3,
+#                      'sp_author': 'L.', cv_group='SomethingRidiculous'},
                      )
+
+species_str_map = {\
+    1: 'Maxillaria variabilis',
+    2: 'Encyclia cochleata',
+    3: 'Abrus precatorius',
+    4: 'Campyloneurum x alapense',
+    5: 'Encyclia cochleata var. cochleata',
+    6: 'Encyclia cochleata \'Black Night\'',
+    7: 'Abrus precatorius SomethingRidiculous Group',
+    8: 'Abrus precatorius (SomethingRidiculous Group) \'Hot Rio Nights\'',
+    }
+
+species_markup_map = {\
+    1: '<i>Maxillaria</i> <i>variabilis</i>',
+    2: '<i>Encyclia</i> <i>cochleata</i>',
+    3: '<i>Abrus</i> <i>precatorius</i>',
+    4: '<i>Campyloneurum</i> x <i>alapense</i>',
+    5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
+    6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\''}
+
+species_str_authors_map = {\
+    1: 'Maxillaria variabilis Bateman ex Lindl.',
+    2: 'Encyclia cochleata (L.) Lem\xc3\xa9e',
+    3: 'Abrus precatorius L.',
+    4: 'Campyloneurum x alapense F\xc3\xa9e',
+    5: 'Encyclia cochleata (L.) Lem\xc3\xa9e var. cochleata',
+    6: 'Encyclia cochleata (L.) Lem\xc3\xa9e \'Black Night\''}
+
+species_markup_authors_map = {\
+    1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
+    2: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e',
+    3: '<i>Abrus</i> <i>precatorius</i> L.',
+    4: '<i>Campyloneurum</i> x <i>alapense</i> F\xc3\xa9e',
+    5: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e var. <i>cochleata</i>',
+    6: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e \'Black Night\''}
+
+sp_synonym_test_data = ({'id': 1, 'synonym_id': 1, 'species_id': 2},
+                        )
 
 vn_test_data = ({'id': 1, 'name': 'SomeName', 'language': 'English',
                  'species_id': 1},
                 )
+
+test_data_table_control = ((family_table, family_test_data),
+                           (genus_table, genus_test_data),
+                           (species_table, species_test_data),
+                           (vernacular_name_table, vn_test_data),
+                           (species_synonym_table, sp_synonym_test_data))
 
 def setUp_test_data():
     '''
     if this method is called again before tearDown_test_data is called you
     will get an error about the test data rows already existing in the database
     '''
-    family_table.insert().execute(*family_test_data)
-    genus_table.insert().execute(*genus_test_data)
-    species_table.insert().execute(*species_test_data)
-    vernacular_name_table.insert().execute(*vn_test_data)
+    for table, data in test_data_table_control:
+        for row in data:
+            table.insert().execute(row)
 
 
 def tearDown_test_data():
-    control = ((family_table, family_test_data),
-               (genus_table, genus_test_data),
-               (species_table, species_test_data),
-               (vernacular_name_table, vn_test_data))
-    for table, data in control:
+    for table, data in test_data_table_control:
         for row in data:
             #print 'delete %s %s' % (table, row['id'])
             table.delete(table.c.id==row['id']).execute()
@@ -70,99 +146,6 @@ class AttrDict(dict):
         return dict.__setitem__(self, attr, value)
 
 
-# all possible combinations of species values
-sp_example_dicts = [AttrDict(genus='Genus', sp='species'),
-                     AttrDict(genus='Genus', sp='species', sp_author='SpAuthor'),
-                     AttrDict(genus='Genus', sp='spname', sp_hybrid='x'),
-                     AttrDict(genus='Genus', sp='spname', infrasp_rank='var.', infrasp='ispname'),
-                     AttrDict(genus='Genus', sp='spname', infrasp_rank='cv.', infrasp='ispname'),
-                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName'), # TODO: should this be valid?
-                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.', infrasp='ispname'),
-                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.')
-                     ]
-sp_examples_no_authors_no_markup = (('Genus species', sp_example_dicts[0]),
-                                     ('Genus species', sp_example_dicts[1]),
-                                     ('Genus x spname', sp_example_dicts[2]),
-                                     ('Genus spname var. ispname', sp_example_dicts[3]),
-                                     ('Genus spname \'ispname\'', sp_example_dicts[4]),
-                                     ('Genus spname CvGroupName Group', sp_example_dicts[5]),
-                                     ('Genus spname (CvGroupName Group) \'ispname\'', sp_example_dicts[6]),
-                                     ('Genus spname CvGroupName Group', sp_example_dicts[7])
-                                     )
-
-sp_examples_yes_authors_no_markup = (('Genus species', sp_example_dicts[0]),
-                                      ('Genus species SpAuthor', sp_example_dicts[1]),
-                                      ('Genus x spname', sp_example_dicts[2]),
-                                      ('Genus spname var. ispname', sp_example_dicts[3]),
-                                      ('Genus spname \'ispname\'', sp_example_dicts[4]))
-
-sp_examples_no_authors_yes_markup = (('<i>Genus</i> <i>species</i>', sp_example_dicts[0]),
-                                      ('<i>Genus</i> <i>species</i>', sp_example_dicts[1]),
-                                      ('<i>Genus</i> x <i>spname</i>', sp_example_dicts[2]),
-                                      ('<i>Genus</i> <i>spname</i> var. <i>ispname</i>', sp_example_dicts[3]),
-                                      ('<i>Genus</i> <i>spname</i> \'ispname\'', sp_example_dicts[4]),
-                                      ('<i>Genus</i> <i>spname</i> CvGroupName Group', sp_example_dicts[5]),
-                                      ('<i>Genus</i> <i>spname</i> (CvGroupName Group) \'ispname\'', sp_example_dicts[6]))
-
-sp_examples_yes_authors_yes_markup = (('<i>Genus</i> <i>species</i>', sp_example_dicts[0]),
-                                       ('<i>Genus</i> <i>species</i> SpAuthor', sp_example_dicts[1]),
-                                       ('<i>Genus</i> x <i>spname</i>', sp_example_dicts[2]),
-                                       ('<i>Genus</i> <i>spname</i> var. <i>ispname</i>', sp_example_dicts[3]),
-                                       ('<i>Genus</i> <i>spname</i> \'ispname\'', sp_example_dicts[4]),
-                                       ('<i>Genus</i> <i>spname</i> CvGroupName Group', sp_example_dicts[5]),
-                                       ('<i>Genus</i> <i>spname</i> (CvGroupName Group) \'ispname\'', sp_example_dicts[6]))
-
-#
-#def profile():
-#    example_dicts = [AttrDict(genus='Genus', sp='species'),
-#                     AttrDict(genus='Genus', sp='species', sp_author='SpAuthor'),
-#                     AttrDict(genus='Genus', sp='spname', sp_hybrid='x'),
-#                     AttrDict(genus='Genus', sp='spname', infrasp_rank='var.', infrasp='ispname'),
-#                     AttrDict(genus='Genus', sp='spname', infrasp_rank='cv.', infrasp='ispname'),
-#                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName'), # TODO: should this be valid?
-#                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.', infrasp='ispname'),
-#                     AttrDict(genus='Genus', sp='spname', cv_group='CvGroupName', infrasp_rank='cv.')
-#                     ]
-#    examples_yes_authors_yes_markup = (('<i>Genus</i> <i>species</i>', example_dicts[0]),
-#                                       ('<i>Genus</i> <i>species</i> SpAuthor', example_dicts[1]),
-#                                       ('<i>Genus</i> x <i>spname</i>', example_dicts[2]),
-#                                       ('<i>Genus</i> <i>spname</i> var. <i>ispname</i>', example_dicts[3]),
-#                                       ('<i>Genus</i> <i>spname</i> \'ispname\'', example_dicts[4]),
-#                                       ('<i>Genus</i> <i>spname</i> CvGroupName Group', example_dicts[5]),
-#                                       ('<i>Genus</i> <i>spname</i> (CvGroupName Group) \'ispname\'', example_dicts[6]))
-#    for i in xrange(1, 1000):
-#        for name, name_dict in examples_yes_authors_yes_markup:
-#            s = Species.str(name_dict, authors=True, markup=True)
-#            assert(name == s)
-#
-#
-#def main():
-#    from optparse import OptionParser
-#    parser = OptionParser()
-#    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
-#                      help='verbose output')
-#    parser.add_option('-p', '--profile', dest='profile', action='store_true',
-#                      help='print run times')
-#    options, args = parser.parse_args()
-#
-#    import profile
-#    import time
-#    if options.profile:
-#        t1 = time.time()
-#        #profile.run('test_speciesStr()')
-#        profile.run('profile()')
-#        t2 = time.time()
-#        print 'time: %s' % (t2-t1)
-#    else:
-#        print 'starting tests...'
-#        test_speciesStr(options.verbose)
-#        print 'done.'
-#
-#
-#if __name__ == '__main__':
-#    main()
-
-
 class PlantTestCase(BaubleTestCase):
 
     def __init__(self, *args):
@@ -178,41 +161,36 @@ class PlantTestCase(BaubleTestCase):
         super(PlantTestCase, self).tearDown()
         tearDown_test_data()
 
+
 class SpeciesTests(PlantTestCase):
 
-    def testString(self):
-        '''
-        test Species string conversion function
-        '''
-        log.info('\ntest Species.str(authors=False, markup=False)\n----------------')
-        for name, name_dict in sp_examples_no_authors_no_markup:
-            s = Species.str(name_dict, authors=False, markup=False)
-            log.info('-- %s\n  %s == %s' % (name_dict, name, s))
-            assert(name == s), 'authors=False, markup=False, %s == %s' % (name, name_dict)
+    def test_string(self):
+        # TODO: do away with testString and use this instead
+        for id, s in species_str_map.iteritems():
+#            print s
+#            print Species.str(self.session.load(Species, id))
+            self.assert_(str(self.session.load(Species, id)) == s)
 
-        log.info('\ntest Species.str(authors=True, markup=False)\n----------------')
-        for name, name_dict in sp_examples_yes_authors_no_markup:
-            s = Species.str(name_dict, authors=True, markup=False)
-            log.info('-- %s\n  %s == %s' % (name_dict, name, s))
-            assert(name == s)
+        for id, s in species_str_authors_map.iteritems():
+#            print s
+#            print Species.str(self.session.load(Species, id), authors=True)
+            self.assert_(Species.str(self.session.load(Species, id),
+                                     authors=True) == s)
 
-        log.info('\ntest Species.str(authors=False, markup=True)\n----------------')
-        for name, name_dict in sp_examples_no_authors_yes_markup:
-            s = Species.str(name_dict, authors=False, markup=True)
-            log.info('-- %s\n  %s == %s' % (name_dict, name, s))
-            assert(name == s)
+        for id, s in species_markup_map.iteritems():
+            self.assert_(Species.str(self.session.load(Species, id),
+                                     markup=True) == s)
 
-        log.info('\ntest Species.str(authors=True, markup=True)\n----------------')
-        for name, name_dict in sp_examples_yes_authors_yes_markup:
-            s = Species.str(name_dict, authors=True, markup=True)
-            log.info('-- %s\n  %s == %s' % (name_dict, name, s))
-            assert(name == s)
+        for id, s in species_markup_authors_map.iteritems():
+            self.assert_(Species.str(self.session.load(Species, id),
+                                     markup=True, authors=True) == s)
+
 
     def setUp(self):
         super(SpeciesTests, self).setUp()
 
 
-    def testVernacularName(self):
+    def test_vernacular_name(self):
         '''
         test creating verncular names, attaching them to the species, setting
         the species.default_vernacular_name and then deleting them
@@ -238,12 +216,96 @@ class SpeciesTests(PlantTestCase):
         session.flush()
 
 
+class SynonymsTests(PlantTestCase):
+
+    def test_species_synonyms(self):
+        load_sp = lambda id: self.session.load(Species, id)
+
+        def create_syn(sp_id, syn_id):
+            syn = SpeciesSynonym()
+            syn.synonym = load_sp(syn_id)
+            load_sp(sp_id).synonyms.append(syn)
+            self.session.save(syn)
+            return syn
+
+        def syn_str(id1, id2, isit='not'):
+            sp1 = load_sp(id1)
+            sp2 = load_sp(id2)
+            return '%s(%s).synonyms: %s' % \
+                   (sp1, sp1.id,
+                    str(map(lambda s: '%s(%s)' % \
+                            (s, s.species_id), sp1.synonyms)))
+
+        def synonym_of(id1, id2):
+            sp1 = load_sp(id1)
+            sp2 = load_sp(id2)
+            return sp2.id in [syn.id for syn in sp1.synonyms]
+
+        # make sure that appending a synonym works
+        syn = create_syn(1, 2)
+        self.session.flush()
+        self.assert_(synonym_of(1, 2), syn_str(1,2))
+        self.session.clear()
+
+        # test the removing a synonyms works
+        sp1 = load_sp(1)
+#        print map(lambda s: '%s(%s)' % (str(s), s.id), sp1.synonyms)
+        syn0 = sp1.synonyms[0]
+#        print syn0
+        self.assert_(syn0 is not None)
+        sp2 = syn0.synonym
+        sp1.synonyms.remove(syn0)
+        self.session.flush()
+        self.failIf(synonym_of(sp1.id, sp2.id), syn_str(sp1.id, sp2.id))
+
+
+        def i_wish_it_worked_like_this():
+            # this is would be nice where species.synonyms was a list of
+            # species instead of a list of synonyms
+            sp.synonyms.append(self.session.load(Species, 2))
+            self.session.flush()
+            assert self.session.load(Species, 2) in self.session.load(Species, 1).synonyms
+
+
+    def test_genus_synonyms(self):
+        pass
+
+
+    def test_family_synonyms(self):
+        pass
+
+
 class PlantTestSuite(unittest.TestSuite):
    def __init__(self):
-       unittest.TestSuite.__init__(self, map(SpeciesTests,
-                                             ('testString','testVernacularName')))
+       super(PlantTestSuite, self).__init__()
+       self.addTests(map(SpeciesTests,('test_vernacular_name', 'test_string')))
+       self.addTests(map(SynonymsTests, ('test_species_synonyms',)))
 
 testsuite = PlantTestSuite
 
 
-
+#def main():
+#    from optparse import OptionParser
+#    parser = OptionParser()
+#    parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+#                      help='verbose output')
+#    parser.add_option('-p', '--profile', dest='profile', action='store_true',
+#                      help='print run times')
+#    options, args = parser.parse_args()
+#
+#    import profile
+#    import time
+#    if options.profile:
+#        t1 = time.time()
+#        #profile.run('test_speciesStr()')
+#        profile.run('profile()')
+#        t2 = time.time()
+#        print 'time: %s' % (t2-t1)
+#    else:
+#        print 'starting tests...'
+#        test_speciesStr(options.verbose)
+#        print 'done.'
+#
+#
+#if __name__ == '__main__':
+#    main()
