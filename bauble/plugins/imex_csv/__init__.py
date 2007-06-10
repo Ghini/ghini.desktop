@@ -80,7 +80,8 @@ class CSVImporter:
         try:
             transaction = metadata.engine.connect().begin()
         except Exception, e:
-            msg = 'Error connecting to database.\n\n%s' % utils.xml_safe(e)
+            msg = _('Error connecting to database.\n\n%s') % \
+                  utils.xml_safe_utf8(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -265,7 +266,7 @@ class CSVImporter:
                         debug(e)
                         self.__error = True
                         self.__cancel = True
-                        self.__error_exc = utils.xml_safe(e)
+                        self.__error_exc = utils.xml_safe_utf8(e)
                         self.__error_traceback_str = traceback.format_exc()
 
                 f = file(filename, "rb")
@@ -304,7 +305,7 @@ class CSVImporter:
         except Exception, e:
             debug(e)
             self.__error = True
-            self.__error_exc = utils.xml_safe(e)
+            self.__error_exc = utils.xml_safe_utf8(e)
             self.__error_traceback_str = traceback.format_exc()
             self.__cancel = True
 
@@ -314,7 +315,7 @@ class CSVImporter:
             except AttributeError, e: # no attribute orig
                 msg = self.__error_exc
             d = utils.create_message_details_dialog('Error:  %s' % \
-                                                    utils.xml_safe(msg),
+                                                    utils.xml_safe_utf8(msg),
                                                     self.__error_traceback_str,
                                                     type=gtk.MESSAGE_ERROR)
             yield (gtasklet.WaitForSignal(d, "response"),
@@ -349,13 +350,13 @@ class CSVImporter:
                                    (sequence_name, max+1)
                             connection.execute(stmt)
                 except Exception, e:
-                    debug(e)
-                    msg = 'Error: Could not set the value the for the '\
-                          'sequence: %s' % sequence_name
-                    d = utils.create_message_details_dialog('Error:  %s' \
-                                                        % utils.xml_safe(msg),
-                                                        str(e),
-                                                        type=gtk.MESSAGE_ERROR)
+                    debug(utils.utf8(e))
+                    msg = _('Error: Could not set the value the for the '\
+                          'sequence: %s') % sequence_name
+                    d = utils.create_message_details_dialog(_('Error:  %s') \
+                                                    % utils.xml_safe_utf8(msg),
+                                                    str(e),
+                                                    type=gtk.MESSAGE_ERROR)
                     yield (gtasklet.WaitForSignal(d, "response"),
                            gtasklet.WaitForSignal(d, "close"))
                     gtasklet.get_event()

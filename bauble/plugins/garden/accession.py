@@ -99,9 +99,11 @@ def add_plants_callback(value):
 
 
 def remove_callback(value):
-#    value = row[0]
-    s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe(s)
+    msg = _('%s plants depend on this accession: <b>%s</b>?\n\n'\
+            'Are you sure you want to remove accession <b>%s</b>?') % \
+            (len(value.plants), ', '.join(map(utils.utf8, value.plants)),
+             utils.xml_safe_utf8(value))
+      #msg = _("Are you sure you want to remove %s?") %
     if not utils.yes_no_dialog(msg):
         return
 
@@ -111,7 +113,7 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -131,7 +133,7 @@ def acc_markup_func(acc):
     else:
         sp_str = '%s %s' % (acc.species.markup(authors=False),
                             acc.id_qual)
-    return str(acc), sp_str
+    return utils.xml_safe_utf8(acc), sp_str
 
 
 
@@ -1255,13 +1257,13 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe(e.orig)
+                      utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
                       'details for more information.\n\n%s') \
-                      % utils.xml_safe(e)
+                      % utils.xml_safe_utf8(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)

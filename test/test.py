@@ -45,6 +45,7 @@ if __name__ == '__main__':
     if len(args) > 0:
         # run a specific testsuite, would be nice to allow running specific
         # test cases or test methods
+#        unittest.TestLoader().loadTestsFromNames(args)
         for t in alltests:
             if t.__class__.__name__ in args:
                 runner.run(t)

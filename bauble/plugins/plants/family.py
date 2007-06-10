@@ -28,7 +28,7 @@ def add_genera_callback(value):
 
 def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
+    msg = "Are you sure you want to remove %s?" % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -37,7 +37,7 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        msg = 'Could not delete.\n\n%s' % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -405,12 +405,13 @@ class FamilyEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:
-                msg = 'Error committing changes.\n\n%s' % utils.xml_safe(e.orig)
+                msg = 'Error committing changes.\n\n%s' % \
+                      utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe(e)
+                      'for more information.\n\n%s' % utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False

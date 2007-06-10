@@ -21,6 +21,11 @@ if sys.platform == "win32":
 else:
     fop_cmd = 'fop'
 
+# TODO: use which() to search the path for a known renderer, could do this in
+# task so that it's non blocking, should cache the values in the prefs and
+# check that they are still valid when we open the report UI up again
+#def which(e):
+#    return ([os.path.join(p, e) for p in os.environ['PATH'].split(os.pathsep) if os.path.exists(os.path.join(p, e))] + [None])[0]
 
 # TODO: support FOray, see http://www.foray.org/
 renderers_map = {'Apache FOP': fop_cmd + \

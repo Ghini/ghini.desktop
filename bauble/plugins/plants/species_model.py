@@ -9,6 +9,7 @@ from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.utils as utils
+from bauble.i18n import *
 from bauble.utils.log import log, debug
 from bauble.types import Enum
 from bauble.plugins.plants.geography import Geography, geography_table
@@ -51,7 +52,8 @@ def add_accession_callback(value):
 
 def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
+    msg = _("Are you sure you want to remove %s?") % \
+              utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -60,7 +62,7 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -234,15 +236,16 @@ class Species(bauble.BaubleMapper):
         genus = str(species.genus)
         sp = species.sp
         if markup:
-            italic = "<i>%s</i>"
+            italic = u'<i>%s</i>'
             #genus = italic % species.genus
-            genus = italic % genus
+            genus = italic % utils.xml_safe_utf8(genus)
             if sp is not None: # shouldn't really be allowed
                 sp = italic % species.sp
             # the infrasp italic is handled below
-            escape = sax.escape
+            #escape = sax.escape
+            escape = utils.xml_safe_utf8
         else:
-            italic = "%s"
+            italic = u'%s'
             escape = lambda x: x
 
         author = None

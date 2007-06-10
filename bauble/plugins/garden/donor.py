@@ -6,6 +6,7 @@ from sqlalchemy import *
 from sqlalchemy.exceptions import SQLError
 import bauble
 from bauble.editor import *
+from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
 from bauble.plugins.garden.source import Donation, donation_table
@@ -21,7 +22,7 @@ def edit_callback(value):
 
 def remove_callback(value):
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -30,7 +31,7 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -199,13 +200,13 @@ class DonorEditor(GenericModelViewPresenterEditor):
             except SQLError, e:
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s' \
-                        % utils.xml_safe(e.orig))
+                        % utils.xml_safe_utf8(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
                 msg = ('Unknown error when committing changes. See the '\
                        'details for more information.\n\n%s' \
-                       % utils.xml_safe(e))
+                       % utils.xml_safe_utf8(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False

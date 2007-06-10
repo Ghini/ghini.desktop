@@ -118,7 +118,8 @@ class CSVImporter(object):
             connection = engine.contextual_connect()
             transaction = connection.begin()
         except Exception, e:
-            msg = _('Error connecting to database.\n\n%s') % utils.xml_safe(e)
+            msg = _('Error connecting to database.\n\n%s') % \
+                  utils.xml_safe_utf8(e)
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
@@ -273,7 +274,7 @@ class CSVImporter(object):
         except Exception, e:
             debug(e)
             self.__error = True
-            self.__error_exc = utils.xml_safe(e)
+            self.__error_exc = utils.xml_safe_utf8(e)
             self.__error_traceback_str = traceback.format_exc()
             self.__cancel = True
 
@@ -283,7 +284,7 @@ class CSVImporter(object):
             except AttributeError, e: # no attribute orig
                 msg = self.__error_exc
             utils.message_details_dialog(_('Error:  %s') % \
-                                         utils.xml_safe(msg),
+                                         utils.xml_safe_utf8(msg),
                                          self.__error_traceback_str,
                                          type=gtk.MESSAGE_ERROR)
 
@@ -318,7 +319,7 @@ class CSVImporter(object):
                     msg = _('Error: Could not set the value the for the '\
                             'sequence: %s') % sequence_name
                     utils.message_details_dialog(_('Error:  %s' \
-                                                   % utils.xml_safe(msg)),
+                                                   % utils.xml_safe_utf8(msg)),
                                                  str(e),
                                                  type=gtk.MESSAGE_ERROR)
 

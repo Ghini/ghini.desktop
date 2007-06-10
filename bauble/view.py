@@ -773,10 +773,10 @@ class SearchView(pluginmgr.View):
             results = self._get_search_results_from_tokens(tokens)
             #debug('results: %s' % results)
         except ParseException, err:
-            error_msg = 'Error in search string at column %s' % err.column
+            error_msg = _('Error in search string at column %s') % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
             debug(traceback.format_exc())
-            error_msg = '** Error: %s' % utils.xml_safe(e)
+            error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
         if len(results) == 0:
             model = gtk.ListStore(str)
             if error_msg is not None:
@@ -921,8 +921,9 @@ class SearchView(pluginmgr.View):
                 else:
                     main = str(value)
                     substr = '(%s)' % type(value).__name__
-                cell.set_property('markup', '%s\n%s' % (_mainstr_tmpl % main,
-                                                        _substr_tmpl % substr))
+                cell.set_property('markup', '%s\n%s' % \
+                                  (_mainstr_tmpl % utils.utf8(main),
+                                   _substr_tmpl % utils.utf8(substr)))
             except (saexc.InvalidRequestError, TypeError), e:
                 def remove():
                     treeview_model = self.results_view.get_model()
