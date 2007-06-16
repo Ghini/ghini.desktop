@@ -63,9 +63,12 @@ class BaubleTestCase(unittest.TestCase):
         # set of default data
         self.session = create_session()
 
+    def set_logging_level(level, logger='sqlalchemy'):
+        logging.getLogger('sqlalchemy').setLevel(level)
 
     def tearDown(self):
         '''
         need to find all tests and run their tearDown methods
         '''
         self.session.close()
+        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
