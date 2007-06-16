@@ -9,8 +9,8 @@ from bauble.editor import *
 from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
-from bauble.plugins.garden.source import Donation, donation_table
 import bauble.utils.sql as sql_utils
+from bauble.plugins.garden.source import Donation
 
 # TODO: need to make it so you can't delete Donors if they still have
 # associated Donations
@@ -82,8 +82,9 @@ class Donor(bauble.BaubleMapper):
 # TODO: make sure that you can't delete the donor if donations exist, this
 # should have a test
 mapper(Donor, donor_table,
-       properties={'donations': relation(Donation,
-                                         backref=backref('donor', uselist=False))},
+       properties={'donations':
+                   relation(Donation,
+                            backref=backref('donor', uselist=False))},
        order_by='name')
 
 
@@ -255,8 +256,8 @@ class GeneralDonorExpander(InfoExpander):
     displays name, number of donations, address, email, fax, tel,
     type of donor
     '''
-    def __init__(self, widgeets):
-        super(GeneralDonorExpander, self).__init__("Genera", widgets)
+    def __init__(self, widgets):
+        super(GeneralDonorExpander, self).__init__(_('General'), widgets)
         gen_box = self.widgets.don_gen_box
         self.widgets.remove_parent(gen_box)
         self.vbox.pack_start(gen_box)

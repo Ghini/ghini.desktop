@@ -56,7 +56,6 @@ def dms_to_decimal(dir, deg, min, sec):
     assert(abs(min) > 0 and abs(min) < 60)
     assert(abs(sec) > 0 and abs(sec) < 60)
     dec = (abs(sec)/3600.0) + (abs(min)/60.0) + abs(deg)
-    #dec = (((abs(sec)/60.0) + abs(min)) /60.0) + abs(deg)
     if dir in ('W', 'S'):
         dec = -dec
     return dec
@@ -75,13 +74,13 @@ def decimal_to_dms(decimal, long_or_lat):
     dir = dir_map[long_or_lat][0]
     if decimal < 0:
         dir = dir_map[long_or_lat][1]
-
     dec = abs(decimal)
     d = abs(int(dec))
     m = abs((dec-d)*60)
     s = abs((int(m)-m) * 60)
-    ROUND_TO=2
-    #return dir, int(d), int(m), round(s,ROUND_TO)
+#    ROUND_TO = 2
+#    ROUND_TO = len(str(decimal).split('.')[1])
+#    return dir, int(d), int(m), round(s,ROUND_TO)
     return dir, int(d), int(m), s
 
 
@@ -239,6 +238,7 @@ class Accession(bauble.BaubleMapper):
     def __str__(self):
         return self.code
 
+
     def _get_source(self):
         if self.source_type is None:
             return None
@@ -255,12 +255,12 @@ class Accession(bauble.BaubleMapper):
             self.source_type = None
         else:
             self.source_type = source.__class__.__name__
-            source.accession = self
+            source._accession = self
 
     def _del_source(self):
         source = self.source
         if source is not None:
-            source.accession = None
+            source._accession = None
             delete_or_expunge(source)
         self.source_type = None
 
@@ -275,16 +275,23 @@ from bauble.plugins.garden.source import Donation, donation_table, \
     Collection, collection_table
 from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table
 
+
+# NOTES: be careful with the _accession property on the Collection and
+# Donation tables, if you try to set the accession for one of these objects
+# using the _accession property you will have problems using Accession.source
+# because the Accession.source_type property won't be set
 mapper(Accession, accession_table,
        properties = {
     '_collection':
     relation(Collection,
              primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-             cascade='all', uselist=False, backref='accession'),
+             cascade='all', uselist=False,
+             backref=backref('_accession', uselist=False)),
     '_donation':
     relation(Donation,
              primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-             cascade='all', uselist=False, backref='accession'),
+             cascade='all', uselist=False,
+             backref=backref('_accession', uselist=False)),
     'plants':
     relation(Plant, cascade='all, delete-orphan',
              order_by=plant_table.c.code,
@@ -1511,7 +1518,7 @@ class AccessionInfoBox(InfoBox):
     - source
     """
     def __init__(self):
-        InfoBox.__init__(self)
+        super(AccessionInfoBox, self).__init__()
         glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
                             "acc_infobox.glade")
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))

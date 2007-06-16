@@ -1,25 +1,22 @@
 #
 # source.py
 #
-
-from bauble import BaubleMapper
+import bauble
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 
-# TODO: a donation or collection string should include the accession
-# number, at least in the search results and should use the accession infobox
-# as well
 
 def source_markup_func(source):
+    # TODO: should probably just make the source look and act like an accession
+    # with the same markup and children in the view
     return source.accession, source
 
 # TODO: don't allow donor to be deleted if donor still has donations
-# TODO: maybe change donor_acc to donor_code
 donation_table = Table('donation',
                        Column('id', Integer, primary_key=True),
                        Column('donor_id', Integer, ForeignKey('donor.id'),
                               nullable=False),
-                       Column('donor_acc', Unicode(32)),  # donor's accession id
+                       Column('donor_acc', Unicode(32)), # donor's accession id
                        Column('notes', Unicode),
                        Column('date', Date),
                        Column('accession_id', Integer,
@@ -30,7 +27,7 @@ donation_table = Table('donation',
                               default=func.current_timestamp(),
                               onupdate=func.current_timestamp()))
 
-class Donation(BaubleMapper):
+class Donation(bauble.BaubleMapper):
 
     def __str__(self):
         return 'Donation from %s' % (self.donor or '<not set>')
@@ -64,12 +61,17 @@ collection_table = Table('collection',
                                 default=func.current_timestamp(),
                                 onupdate=func.current_timestamp()))
 
-class Collection(BaubleMapper):
+class Collection(bauble.BaubleMapper):
 
     def __str__(self):
         return 'Collection at %s' % (self.locale or '<not set>')
 
 
+# NOTE:
+# 1. Donation has a donor property that is added as a backref Donor mapper
+# 2. Both Donation and Collection have an "_accession" property created as
+# a backref in the Accession mapper
 mapper(Donation, donation_table)
 mapper(Collection, collection_table)
+
 
