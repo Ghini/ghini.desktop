@@ -10,10 +10,8 @@ from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
 import bauble.utils.sql as sql_utils
-from bauble.plugins.garden.source import Donation
+from bauble.plugins.garden.source import donation_table, Donation
 
-# TODO: need to make it so you can't delete Donors if they still have
-# associated Donations
 
 def edit_callback(value):
     e = DonorEditor(model=value)

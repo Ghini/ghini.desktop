@@ -135,11 +135,16 @@ class GUI(object):
 
     def add_to_history(self, text, index=0):
         """
-        add text to history, if text is already in the history then don't
-        do anything
+        add text to history, if text is already in the history then set its
+        index to index parameter
         """
         history = prefs.get(self.entry_history_pref, [])
         if text in history:
+            i = history.index(text)
+            h = history.pop(i)
+            history.insert(index, h)
+            prefs[self.entry_history_pref] = history
+            self.populate_main_entry()
             return
 
         while len(history) >= self.history_size-1:

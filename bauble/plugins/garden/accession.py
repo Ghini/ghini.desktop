@@ -1551,5 +1551,5 @@ class AccessionInfoBox(InfoBox):
 # it's easier just to put this here instead of playing around with imports
 class SourceInfoBox(AccessionInfoBox):
     def update(self, row):
-        super(SourceInfoBox, self).update(row.accession)
+        super(SourceInfoBox, self).update(row._accession)
 
