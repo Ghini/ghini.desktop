@@ -9,9 +9,9 @@ from sqlalchemy.orm.session import object_session
 def source_markup_func(source):
     # TODO: should probably just make the source look and act like an accession
     # with the same markup and children in the view
-    return source.accession, source
+    return source._accession, source
 
-# TODO: don't allow donor to be deleted if donor still has donations
+
 donation_table = Table('donation',
                        Column('id', Integer, primary_key=True),
                        Column('donor_id', Integer, ForeignKey('donor.id'),
