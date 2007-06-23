@@ -31,7 +31,8 @@ class DefaultView(pluginmgr.View):
 class GUI(object):
 
     entry_history_pref = 'bauble.history'
-    history_size = 12
+    history_size_pref = 'bauble.history_size'
+    _default_history_size = 12
 
     def __init__(self):
         glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
@@ -99,6 +100,14 @@ class GUI(object):
         self.window.show()
 
 
+    def _get_history_size(self):
+        history = prefs[self.history_size_pref]
+        if history is None:
+            prefs[self.history_size_pref] = self._default_history_size
+        return int(prefs[self.history_size_pref])
+    history_size = property(_get_history_size)
+
+
     def on_main_entry_key_press(self, widget, event, data=None):
         '''
         '''
@@ -138,17 +147,17 @@ class GUI(object):
         add text to history, if text is already in the history then set its
         index to index parameter
         """
+        if index < 0 or index > self.history_size:
+            raise ValueError(_('history size must be greater than zero and '\
+                               'less than the history size'))
         history = prefs.get(self.entry_history_pref, [])
         if text in history:
-            i = history.index(text)
-            h = history.pop(i)
-            history.insert(index, h)
-            prefs[self.entry_history_pref] = history
-            self.populate_main_entry()
-            return
+            history.remove(text)
 
+        # trim the history if the size is larger than the history_size pref
         while len(history) >= self.history_size-1:
             history.pop()
+
         history.insert(index, text)
         prefs[self.entry_history_pref] = history
         self.populate_main_entry()

@@ -158,6 +158,7 @@ setup(name="bauble",
 #      extras_requires=["mysql-python and psycopg"
 
       # metadata
+      test_suite="test.test", #TODO: running "setup.py test" hasn't been tested
       author="Brett",
       author_email="brett@belizebotanic.org",
       description="""\

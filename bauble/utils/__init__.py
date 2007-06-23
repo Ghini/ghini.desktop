@@ -419,7 +419,7 @@ def startfile(filename):
             message_dialog(msg)
     elif sys.platform == 'linux2':
         # FIXME: need to determine if gnome or kde
-        os.system("gnome-open %s'" % filename)
+        os.system('gnome-open %s' % filename)
     else:
         raise Exception("bauble.utils.startfile(): can't open file: %s" \
                         % filename)

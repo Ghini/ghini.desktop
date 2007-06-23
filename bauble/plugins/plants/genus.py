@@ -585,12 +585,18 @@ class GenusEditor(GenericModelViewPresenterEditor):
 #
 # infobox
 #
-from bauble.view import InfoBox, InfoExpander
+from bauble.view import InfoBox, InfoExpander, LinkExpander, GBIFLinkButton
 from sqlalchemy.orm.session import object_session
 import bauble.paths as paths
 from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
+
+class GenusLinkExpander(InfoExpander):
+
+    def __init__(self):
+        super(GenusLinkExpander, self).__init__()
+        #self.add_button(super(
 
 class GeneralGenusExpander(InfoExpander):
     '''

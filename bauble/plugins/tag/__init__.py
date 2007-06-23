@@ -17,7 +17,7 @@ from bauble.utils.log import debug, warning
 from bauble.view import SearchView
 
 
-# TODO: is it  possible to add to a context menu for any object that show's a
+# TODO: is it  possible to add to a context menu for any object that shows a
 # submenu of all the tags on an object
 
 def edit_callback(value):
@@ -61,10 +61,6 @@ class TagItemGUI:
         self.dialog.set_transient_for(bauble.gui.window)
         self.item_data_label = self.glade_xml.get_widget('items_data')
         self.values = values
-
-        # TODO: this is going to make the window too wide if there
-        # are lots of items, we should do something like insert a
-        # '\n' after each third comma or so
         self.item_data_label.set_text(', '.join([str(s) for s in self.values]))
         button = self.glade_xml.get_widget('new_button')
         button.connect('clicked', self.on_new_button_clicked)
