@@ -161,9 +161,14 @@ class DefaultFormatterPlugin(FormatterPlugin):
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
                             'out_filename': filename})
+        print fo_cmd
+
+        # TODO: use popen to get output
         os.system(fo_cmd)
 
+        print filename
         utils.startfile(filename)
+        print 'started'
         return True
 
 

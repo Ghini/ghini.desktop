@@ -98,14 +98,17 @@ def add_plants_callback(value):
 
 
 def remove_callback(value):
-    msg = _('%s plants depend on this accession: <b>%s</b>?\n\n'\
-            'Are you sure you want to remove accession <b>%s</b>?') % \
-            (len(value.plants), ', '.join(map(utils.utf8, value.plants)),
-             utils.xml_safe_utf8(value))
-      #msg = _("Are you sure you want to remove %s?") %
+    if len(value.plants) > 0:
+        msg = _('%s plants depend on this accession: <b>%s</b>\n\n'\
+                'Are you sure you want to remove accession <b>%s</b>?') % \
+                (len(value.plants),
+                 utils.xml_safe_utf8(', '.join(map(utils.utf8, value.plants))),
+                 utils.xml_safe_utf8(value))
+    else:
+        msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
+              (utils.xml_safe_utf8(value))
     if not utils.yes_no_dialog(msg):
         return
-
     try:
         session = create_session()
         obj = session.load(value.__class__, value.id)

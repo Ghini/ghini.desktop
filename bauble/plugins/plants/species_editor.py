@@ -8,6 +8,7 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+from bauble.i18n import *
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
 import bauble.paths as paths
@@ -368,13 +369,11 @@ class DistributionPresenter(GenericEditorPresenter):
 
 
     def on_remove_button_pressed(self, button, event):
-        debug('on_remove_button_pressed')
         # clear the menu
         for c in self.remove_menu.get_children():
             self.remove_menu.remove(c)
         # add distributions to menu
         for dist in self.model.distribution:
-            debug('adding %s to remove_button' % str(dist))
             item = gtk.MenuItem(str(dist))
             item.connect('activate', self.on_activate_remove_menu_item, dist)
             self.remove_menu.append(item)

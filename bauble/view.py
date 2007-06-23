@@ -118,7 +118,7 @@ class InfoExpander(gtk.Expander):
         @param glade_xml: a gtk.glade.XML instace where can find the expanders
         widgets
         """
-        gtk.Expander.__init__(self, label)
+        super(InfoExpander, self).__init__(label)
         self.vbox = gtk.VBox(False)
         self.vbox.set_border_width(5)
         self.add(self.vbox)
@@ -153,7 +153,7 @@ class InfoBox(gtk.ScrolledWindow):
     """
 
     def __init__(self):
-        gtk.ScrolledWindow.__init__(self)
+        super(InfoBox, self).__init__()
         self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         self.vbox = gtk.VBox()
         self.vbox.set_spacing(10)
@@ -211,6 +211,21 @@ class InfoBox(gtk.ScrolledWindow):
         # TODO: should we just iter over the expanders and update them all
         raise NotImplementedError
 
+
+class GBIFLinkButton(gtk.LinkButton):
+
+    def __init__(self, label=_('Search GBIF')):
+        super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
+                                             label=label)
+
+
+class LinkExpander(InfoExpander):
+
+    def __init__(self):
+        super(LinkExpander, self).__init__()
+
+    def add_button(button):
+        self.vbox.pack_start(button)
 
 
 class SearchParser(object):
@@ -381,7 +396,7 @@ class SearchView(pluginmgr.View):
 
     class ViewMeta(dict):
 
-        class Meta:
+        class Meta(object):
             def __init__(self):
                 self.set()
 
@@ -463,15 +478,16 @@ class SearchView(pluginmgr.View):
         sets the infobox according to the currently selected row
         or remove the infobox is nothing is selected
         '''
+        self.set_infobox_from_row(None)
         values = self.get_selected_values()
-#        debug(values)
-        if values is None or len(values) > 1:
-#            debug('infobox=None')
-            self.set_infobox_from_row(None)
+        if len(values) == 0:
+            return
         try:
             self.set_infobox_from_row(values[0])
         except Exception, e:
-            #debug('SearchView.update_infobox: %s' % e)
+            debug('SearchView.update_infobox: %s' % e)
+            debug(traceback.format_exc())
+            debug(values)
             self.set_infobox_from_row(None)
 
 
@@ -491,6 +507,7 @@ class SearchView(pluginmgr.View):
 
         new_infobox = None
         selected_type = type(row)
+
         # check if we've already created an infobox of this type,
         # if not create one and put it in self.infobox_cache
         if selected_type in self.infobox_cache.keys():
@@ -1093,6 +1110,7 @@ class SearchView(pluginmgr.View):
 class DefaultCommandHandler(pluginmgr.CommandHandler):
 
     def __init__(self):
+        super(DefaultCommandHandler, self).__init__()
         self.view = None
 
     command = None
