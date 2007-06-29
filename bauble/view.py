@@ -270,6 +270,8 @@ class SearchParser(object):
 
     def parse_string(self, text):
         '''
+        returns a pyparsing.ParseResults objects the represents  either a
+        query, an expression or a list of values
         '''
         return self.statement.parseString(text)
 
@@ -328,7 +330,6 @@ class PythonOperatorValidator(object):#OperatorValidator):
                }
 
 
-
 class SearchMeta(object):
 
     def __init__(self, mapper, columns):
@@ -343,8 +344,244 @@ class SearchMeta(object):
 
 
 
-class ResultSet(object):
+class SearchStrategy(object):
 
+    def search(self, tokens, session):
+        '''
+        '''
+        pass
+
+
+# value1, value2, value3: search mapping columns for value1, value2, value3, same as dom=value1,dom=value2,etc... for all domains
+# dom=value: get mapping of domain and search specific columns
+# domain where join.col = value search specific column on mapping or join for value
+# domain where join = value: search columns of the mapping of join for value
+
+# should create some sort of list of mapping: (col1, col1) to query: what about other operators for queries where you want the values or/and'ed together
+class MapperSearch(SearchStrategy):
+
+    def __init__(self, mapper, columns):
+        """
+        @param mapper: a Mapper object
+        @param columns: the names of the table columns that will be search
+        """
+        self.mapper = class_mapper(mapper)
+        assert isinstance(columns, list), 'SearchMeta.__init__: '\
+                                          'columns argument must be a list'
+        self.columns = columns
+
+
+    def _resolve_identifiers(self, parent, identifiers):
+        '''
+        results the types of identifiers starting from parent where the
+        first item in the identifiers list is either a property or column
+        of parent
+        '''
+        def get_prop(parent, name):
+            try:
+                if isinstance(parent, Mapper):
+                    prop = parent.props[name]
+                else:
+                    prop = getattr(parent, name).property
+            except (KeyError, AttributeError):
+                if isinstance(parent, Mapper):
+                     parent_name = parent.local_table
+                else:
+                     parent_name = parent.__name__
+                debug(parent)
+                debug(name)
+                raise ValueError('no column named %s in %s' % \
+                                 (name, parent_name))
+#            debug(prop)
+            if isinstance(prop, ColumnProperty):
+                # this way we don't have to support or screw around with
+                # column properties that use more than one column
+#                debug(parent.c[name])
+                return parent.c[name]
+            elif isinstance(prop, PropertyLoader):
+#                debug(prop.argument)
+                if isinstance(prop.argument, Mapper):
+                    return prop.argument.class_
+                else:
+                    return prop.argument
+            else:
+                raise ValueError('unsupported property type: %s' % type(prop))
+
+        props = []
+#        debug('%s: %s' % (parent , identifiers))
+        props.append(get_prop(parent, identifiers[0]))
+        for i in xrange(1, len(identifiers)):
+            parent = props[i-1]
+            if isinstance(parent, Column):
+                get_prop(parent, identifiers[i])
+            else:
+                props.append(get_prop(class_mapper(parent), identifiers[i]))
+#        debug(props)
+        return props
+
+
+    def _build_select(self, session, mapping, identifiers, cond, val):
+        '''
+        return a sqlalchemy.ext.selectresults
+        '''
+        # TODO: this was written before the generative queries were in
+        # SQLAlchemy, this should probably be rewritten to remove the
+        # SelectResults dependency and just use the Query object
+
+        # if the last item in identifiers is a column then create an
+        # and statement doing applying cond to val,
+        # else get the search meta for the last item in identifiers
+        # and build the and_ statement by or'ing the columns in search
+        # meta together against val
+        query = session.query(mapping)
+        sr = SelectResults(query)
+        table = query.table
+        resolved = self._resolve_identifiers(mapping, identifiers)
+        last = resolved[-1]
+        if isinstance(last, Column):
+            if len(identifiers) > 1:
+                # if it's a join then get the search meta columns
+                # else just search on the column
+                for i in identifiers[:-1]:
+                    sr = sr.join_to(i)
+                filter_col = resolved[-2].c[identifiers[-1]]
+            else:
+                filter_col = table.c[identifiers[-1]]
+            sr = sr.select(filter_col.op(cond)(val))
+        else:
+            for i in identifiers:
+                sr = sr.join_to(i)
+            cols = self.search_metas[last.__name__].columns
+            if cols > 1:
+                ors = [last.c[c].op(cond)(val) for c in cols]
+                filter_clause = or_(*ors)
+            else:
+                filter_clause = last.c[c].op(cond)(val)
+            sr = sr.select(filter_clause)
+#        debug('----- clause ----- \n %s' % sr._clause)
+        return sr
+
+    def _get_results_from_query(self, tokens, session):
+        '''
+        get results from search query in the form
+        domain where ident=value...
+
+        @return: an sqlalchemy.ext.selectresults object
+        '''
+#        debug('query: %s' % tokens['query'])
+        domain, expr = tokens['query']
+#        mapping = self.domain_map[domain]
+#        search_meta = self.search_metas[mapping.class_.__name__]
+        mapping = self.mapper.class_
+        expr_iter = iter(expr)
+        select = prev_select = None
+        op = None
+        query = session.query(mapping)
+        for e in expr_iter:
+            ident, cond, val = e
+#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
+            select = self._build_select(session, mapping, ident, cond, val)
+            if op is not None:
+                # TODO: i'm not sure how elegant building the queries like
+                # this is when we have to 'op' then together but it seems to
+                # work on most of the queries statements that i've tried
+                prop = mapping.props[ident[0]]
+                if isinstance(prop, ColumnProperty):
+                    select = prev_select.select(and_(select._clause))
+                else:
+                    if prop.is_backref:
+                        prop = prop.select_mapper.props[prop.backref.key]
+                    # TODO: i haven't tested this for multiple columns on the
+                    # remote side
+                    for col in prop.remote_side:
+                        ids = [s.id for s in select]
+                        select = prev_select.select(mapping.local_table.c['id'].in_(*ids))
+            try:
+                op = expr_iter.next()
+                prev_select = select
+            except StopIteration:
+                pass
+
+#        debug(str(select._clause))
+        return select
+
+    def search(self, tokens, session=None):
+        '''
+        return the search results depending on how tokens were parsed
+        '''
+
+#        debug('MapperSearch.search()')
+        if session is None:
+            session = create_session()
+
+        results = ResultSet()
+        if 'values' in tokens:
+            # make searches in postgres case-insensitive, i don't think other
+            # databases support a case-insensitive like operator
+            if bauble.db_engine.name == 'postgres':
+                like = lambda table, col, val: \
+                       table.c[col].op('ILIKE')('%%%s%%' % val)
+            else:
+                like = lambda table, col, val: \
+                       table.c[col].like('%%%s%%' % val)
+            mapping = self.mapper.class_
+            q = session.query(mapping)
+            sr = SelectResults(q)
+            cv = [(c,v) for c in self.columns for v in tokens]
+            sr = sr.select(or_(*[like(mapping, c, v) for c,v in cv]))
+            results.append(sr)
+        elif 'expression' in tokens:
+#            print 'expr: %s' % tokens['expression']
+            for domain, cond, val in tokens['expression']:
+                #mapping = self.domain_map[domain]
+#                debug(mapping.class_.__name__)
+                #search_meta = self.search_metas[mapping.class_.__name__]
+                print self.mapper
+                mapping = self.mapper.class_
+                query = session.query(mapping)
+                # TODO: should probably create a normalize_cond() method
+                # to convert things like contains and has into like conditions
+
+                # TODO: i think that sqlite uses case insensitve like, there
+                # is a pragma to change this so maybe we could send that
+                # command first to handle case sensitive and insensitive
+                # queries
+
+                if cond in ('ilike', 'icontains') and \
+                       bauble.db_engine.name != 'postgres':
+                    msg = _('The <i>ilike</i> and <i>icontains</i> '\
+                            'operators are only supported on PostgreSQL ' \
+                            'databases. You are connected to a %s database.') \
+                            % bauble.db_engine.name
+                    utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+                    return results
+                if cond in ('contains', 'icontains', 'has', 'ihas'):
+                    val = '%%%s%%' % val
+                    if cond in ('icontains', 'ihas'):
+                        cond = 'ilike'
+                    else:
+                        cond = 'like'
+
+                # select everything
+                sr = SelectResults(query)
+                if val == '*':
+                    results.append(sr)
+                else:
+                    for col in self.columns:
+                        results.append(query.select(mapping.c[col].op(cond)(val)))
+        elif 'query' in tokens:
+            results.append(self._get_results_from_query(tokens, session))
+
+        return results
+
+
+
+class ResultSet(object):
+    '''
+    a ResultSet represents a set of results returned from a query, it allows
+    you to add results to the set and then iterate over all the results
+    as if they were one set
+    '''
     def __init__(self, results=None):
         if results is None:
             self._results = []
@@ -362,6 +599,10 @@ class ResultSet(object):
 
 
     def count(self):
+        '''
+        return the number of total results from all of the members of this
+        results set, does not take into account duplicate results
+        '''
         ctr = 0
         for r in self._results:
             if isinstance(r, SelectResults):
@@ -372,7 +613,21 @@ class ResultSet(object):
 
 
     def __iter__(self):
-        return itertools.chain(*self._results)
+        self._iter = itertools.chain(*self._results)
+        self._set = set()
+        return self
+
+
+    def next(self):
+        '''
+        returns unique items from the result set
+        '''
+        v = self._iter.next()
+        if v in self._set:
+            return self.next()
+        self._set.add(v)
+        return v
+
 
 
 class SearchView(pluginmgr.View):
@@ -393,6 +648,12 @@ class SearchView(pluginmgr.View):
     #search_map = {} # dictionary of search metas
     domain_map = {}
     search_metas = {}
+
+    '''
+    the search strategy is keyed by domain and each value will be a list of
+    SearchStrategy instances
+    '''
+    search_strategies = {}
 
     class ViewMeta(dict):
 
@@ -439,15 +700,26 @@ class SearchView(pluginmgr.View):
 
 
     @classmethod
-    def register_search_meta(cls, domain, search_meta):
+    def register_search_strategy(cls, domain, strategy):
         '''
-        @param domain: a shorthand for for queries for this class
-        @param search_meta: the meta information to register with the domain
+        @param domain: a domain or list of domains names to register
+        the search strategy under, if the domain is None then the search
+        strategy is used when there is no search domain specified
+        will
+        @param strategy: the search strategy to use for the domain(s)
         '''
-        table_name = search_meta.mapper.local_table.name
-        cls.domain_map[domain] = search_meta.mapper
-        # look up by name of mapped class
-        cls.search_metas[search_meta.mapper.class_.__name__] = search_meta
+        cls.search_strategies[domain] = strategy
+
+
+    @classmethod
+    def get_search_strategy(cls, domain):
+        for d, strategy in cls.search_strategies.iteritems():
+            if isinstance(d, (list, tuple)):
+                if domain in d:
+                    return strategy
+            else:
+                if d == domain:
+                    return strategy
 
 
     def __init__(self):
@@ -541,7 +813,6 @@ class SearchView(pluginmgr.View):
         return [model[row][0] for row in rows]
 
 
-
     def on_results_view_select_row(self, view):
         '''
         add and removes the infobox which should change depending on
@@ -550,141 +821,13 @@ class SearchView(pluginmgr.View):
         self.update_infobox()
 
 
-    condition_map = {'and': and_,
-                     'or': or_}
-
-
-    def _resolve_identifiers(self, parent, identifiers):
-        '''
-        results the types of identifiers starting from parent where the
-        first item in the identifiers list is either a property or column
-        of parent
-        '''
-        def get_prop(parent, name):
-            try:
-                prop = parent.props[name]
-            except (KeyError, AttributeError):
-                if isinstance(parent, Mapper):
-                     parent_name = parent.local_table
-                else:
-                     parent_name = parent.__name__
-                raise ValueError('no column named %s in %s' % \
-                                 (name, parent_name))
-#            debug(prop)
-            if isinstance(prop, ColumnProperty):
-                # this way we don't have to support or screw around with
-                # column properties that use more than one column
-#                debug(parent.c[name])
-                return parent.c[name]
-            elif isinstance(prop, PropertyLoader):
-#                debug(prop.argument)
-                if isinstance(prop.argument, Mapper):
-                    return prop.argument.class_
-                else:
-                    return prop.argument
-            else:
-                raise ValueError('unsupported property type')
-
-        props = []
-        props.append(get_prop(parent, identifiers[0]))
-        for i in xrange(1, len(identifiers)):
-            parent = props[i-1]
-            if isinstance(parent, Column):
-                get_prop(parent, identifiers[i])
-            else:
-                props.append(get_prop(class_mapper(parent), identifiers[i]))
-#        debug(props)
-        return props
-
-
-    def _build_select(self, mapping, identifiers, cond, val):
-        '''
-        return a sqlalchemy.ext.selectresults
-        '''
-        # if the last item in identifiers is a column then create an
-        # and statement doing applying cond to val,
-        # else get the search meta for the last item in identifiers
-        # and build the and_ statement by or'ing the columns in search
-        # meta together against val
-        query = self.session.query(mapping)
-        sr = SelectResults(query)
-        table = query.table
-        resolved = self._resolve_identifiers(mapping, identifiers)
-        last = resolved[-1]
-        if isinstance(last, Column):
-            if len(identifiers) > 1:
-                # if it's a join then get the search meta columns
-                # else just search on the column
-                for i in identifiers[:-1]:
-                    sr = sr.join_to(i)
-                filter_col = resolved[-2].c[identifiers[-1]]
-            else:
-                filter_col = table.c[identifiers[-1]]
-            sr = sr.select(filter_col.op(cond)(val))
-        else:
-            for i in identifiers:
-                sr = sr.join_to(i)
-            cols = self.search_metas[last.__name__].columns
-            if cols > 1:
-                ors = [last.c[c].op(cond)(val) for c in cols]
-                filter_clause = or_(*ors)
-            else:
-                filter_clause = last.c[c].op(cond)(val)
-            sr = sr.select(filter_clause)
-#        debug('----- clause ----- \n %s' % sr._clause)
-        return sr
-
-
-    def _get_results_from_query(self, tokens):
-        '''
-        get results from search query in the form
-        domain where ident=value...
-
-        @return: an sqlalchemy.ext.selectresults object
-        '''
-#        debug('query: %s' % tokens['query'])
-        domain, expr = tokens['query']
-        mapping = self.domain_map[domain]
-        search_meta = self.search_metas[mapping.class_.__name__]
-        expr_iter = iter(expr)
-        select = prev_select = None
-        op = None
-        query = self.session.query(mapping)
-        for e in expr_iter:
-            ident, cond, val = e
-#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
-            select = self._build_select(mapping, ident, cond, val)
-            if op is not None:
-                # TODO: i'm not sure how elegant building the queries like
-                # this is when we have to 'op' then together but it seems to
-                # work on most of the queries statements that i've tried
-                prop = mapping.props[ident[0]]
-                if isinstance(prop, ColumnProperty):
-                    select = prev_select.select(and_(select._clause))
-                else:
-                    if prop.is_backref:
-                        prop = prop.select_mapper.props[prop.backref.key]
-                    # TODO: i haven't tested this for multiple columns on the
-                    # remote side
-                    for col in prop.remote_side:
-                        ids = [s.id for s in select]
-                        select = prev_select.select(mapping.local_table.c['id'].in_(*ids))
-            try:
-                op = expr_iter.next()
-                prev_select = select
-            except StopIteration:
-                pass
-
-#        debug(str(select._clause))
-        return select
-
-
     def _get_search_results_from_tokens(self, tokens):
         '''
         return the search results depending on how tokens was parsed
         '''
         results = ResultSet()
         if 'values' in tokens:
+            debug('values')
             # make searches in postgres case-insensitive, i don't think other
             # databases support a case-insensitive like operator
             if bauble.db_engine.name == 'postgres':
@@ -693,56 +836,17 @@ class SearchView(pluginmgr.View):
             else:
                 like = lambda table, col, val: \
                        table.c[col].like('%%%s%%' % val)
-            for meta in self.search_metas.values():
-                mapping = meta.mapper
-                q = self.session.query(mapping)
-                sr = SelectResults(q)
-                cv = [(c,v) for c in meta.columns for v in tokens]
-                sr = sr.select(or_(*[like(mapping, c, v) \
-                                     for c,v in cv]))
-##                debug('%s -- %s: %s' % (mapping, cv, sr.count()))
-                if sr.count() > 0: # don't add empty queries
-                    results.append(sr)
+            for strategy in self.search_strategies.values():
+                results.append(strategy.search(tokens, self.session))
         elif 'expression' in tokens:
 #            print 'expr: %s' % tokens['expression']
             for domain, cond, val in tokens['expression']:
-                mapping = self.domain_map[domain]
-#                debug(mapping.class_.__name__)
-                search_meta = self.search_metas[mapping.class_.__name__]
-                query = self.session.query(mapping)
-                # TODO: should probably create a normalize_cond() method
-                # to convert things like contains and has into like conditions
-
-                # TODO: i think that sqlite uses case insensitve like, there
-                # is a pragma to change this so maybe we could send that
-                # command first to handle case sensitive and insensitive
-                # queries
-
-                if cond in ('ilike', 'icontains') and \
-                       bauble.db_engine.name != 'postgres':
-                    msg = _('The <i>ilike</i> and <i>icontains</i> '\
-                            'operators are only supported on PostgreSQL ' \
-                            'databases. You are connected to a %s database.') \
-                            % bauble.db_engine.name
-                    utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-                    return results
-                if cond in ('contains', 'icontains', 'has', 'ihas'):
-                    val = '%%%s%%' % val
-                    if cond in ('icontains', 'ihas'):
-                        cond = 'ilike'
-                    else:
-                        cond = 'like'
-
-                # select everything
-                sr = SelectResults(query)
-                if val == '*':
-                    results.append(sr)
-                else:
-                    for col in search_meta.columns:
-                        results.append(query.select(mapping.c[col].op(cond)(val)))
+                strategy = self.get_search_strategy(domain)
+                results.append(strategy.search(tokens, self.session))
         elif 'query' in tokens:
-            results.append(self._get_results_from_query(tokens))
-
+            domain, expr = tokens['query']
+            strategy = self.get_search_strategy(domain)
+            results = strategy.search(tokens, self.session)
         return results
 
 
@@ -788,7 +892,6 @@ class SearchView(pluginmgr.View):
         try:
             tokens = self.parser.parse_string(text)
             results = self._get_search_results_from_tokens(tokens)
-            #debug('results: %s' % results)
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
