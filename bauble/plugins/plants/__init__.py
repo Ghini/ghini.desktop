@@ -23,7 +23,7 @@ from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
 from bauble.plugins.plants.geography import *
-from bauble.view import SearchView, SearchMeta, MapperSearch
+from bauble.view import SearchView
 
 def natsort_kids(kids):
     return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
@@ -36,40 +36,34 @@ class PlantsPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-        mapper_search = MapperSearch(Family, ['family'])
-        SearchView.register_search_strategy(('family', 'fam'), mapper_search)
+        mapper_search = SearchView.get_search_strategy('MapperSearch')
+
+        mapper_search.add_meta(('family', 'fam'), Family, ['family'])
         SearchView.view_meta[Family].set(children="genera",
                                          infobox=FamilyInfoBox,
                                          context_menu=family_context_menu,
                                          markup_func=family_markup_func)
 
-        mapper_search = MapperSearch(Genus, ['genus'])
-        SearchView.register_search_strategy(('genus', 'gen'), mapper_search)
+        mapper_search.add_meta(('genus', 'gen'), Genus, ['genus'])
         SearchView.view_meta[Genus].set(children="species",
                                         infobox=GenusInfoBox,
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        mapper_search = MapperSearch(Species, ['sp', 'infrasp'])
-        SearchView.register_search_strategy(('species', 'sp'), mapper_search)
+        mapper_search.add_meta(('sp', 'species'), Species, ['sp', 'infrasp'])
         SearchView.view_meta[Species].set(children=natsort_kids('accessions'),
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,
                                           markup_func=species_markup_func)
 
-        mapper_search = MapperSearch(VernacularName, ['name'])
-        SearchView.register_search_strategy(('vernacular', 'vern', 'common'),
-                                            mapper_search)
+        mapper_search.add_meta(('vernacular', 'vern', 'common'),
+                               VernacularName, ['name'])
         SearchView.view_meta[VernacularName].set(children=vernname_get_kids,
                                             infobox=VernacularNameInfoBox,
                                             context_menu=vernname_context_menu,
                                             markup_func=vernname_markup_func)
 
-##         search_meta = SearchMeta(Geography, ['name'])
-##         SearchView.register_search_meta('geography', search_meta)
-##         SearchView.register_search_meta('geo', search_meta)
-        mapper_search = MapperSearch(Geography, ['name'])
-        SearchView.register_search_strategy(('geography', 'geo'),mapper_search)
+        mapper_search.add_meta(('geography', 'geo'), Geography, ['name'])
         SearchView.view_meta[Geography].set(children=get_species_in_geography)
 
         if bauble.gui is not None:

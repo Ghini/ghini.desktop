@@ -404,9 +404,9 @@ class TagPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-        from bauble.view import SearchMeta, SearchView
-        mapper_search = MapperSearch(Tag, ['tag'])
-        SearchView.register_search_strategy(('tag', 'tags'), mapper_search)
+        from bauble.view import SearchView
+        mapper_search = SearchView.get_search_strategy('MapperSearch')
+        mapper_search.add_meta(('tag', 'tags'), Tag, ['tag'])
         SearchView.view_meta[Tag].set(children=natsort_kids('objects'),
                                       context_menu=tag_context_menu)
         if bauble.gui is not None:

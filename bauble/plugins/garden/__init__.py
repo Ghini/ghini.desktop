@@ -7,7 +7,7 @@ import bauble
 from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
-from bauble.view import SearchView, MapperSearch
+from bauble.view import SearchView
 from bauble.plugins.garden.accession import accession_table, Accession, \
     AccessionEditor, AccessionInfoBox, acc_context_menu, acc_markup_func, \
     SourceInfoBox
@@ -42,38 +42,26 @@ class GardenPlugin(pluginmgr.Plugin):
     @classmethod
     def init(cls):
         from bauble.plugins.plants import Species
-##         search_meta = SearchMeta(Accession, ["code"])
-##         SearchView.register_search_meta("accession", search_meta)
-##         SearchView.register_search_meta("acc", search_meta)
-        mapper_search = MapperSearch(Accession, ['code'])
-        SearchView.register_search_strategy(('accession','acc'), mapper_search)
+        mapper_search = SearchView.get_search_strategy('MapperSearch')
+
+        mapper_search.add_meta(('accession', 'acc'), Accession, ['code'])
         SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
                                             infobox=AccessionInfoBox,
                                             context_menu=acc_context_menu,
                                             markup_func=acc_markup_func)
 
-##         search_meta = SearchMeta(Location, ["site"])
-##         SearchView.register_search_meta("location", search_meta)
-##         SearchView.register_search_meta("loc", search_meta)
-        mapper_search = MapperSearch(Location, ['site'])
-        SearchView.register_search_strategy(('location', 'loc'), mapper_search)
+        mapper_search.add_meta(('location', 'loc'), Location, ['site'])
         SearchView.view_meta[Location].set(children=natsort_kids('plants'),
                                            infobox=LocationInfoBox,
                                            context_menu=loc_context_menu,
                                            markup_func=loc_markup_func)
-##         search_meta = SearchMeta(Plant, ["code"])
-##         SearchView.register_search_meta('plant', search_meta)
-        plant_search = PlantSearch()
-        SearchView.register_search_strategy('plant', plant_search)
+
+        SearchView.add_search_strategy(PlantSearch)
         SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
                                         context_menu=plant_context_menu,
                                         markup_func=plant_markup_func)
 
-##         search_meta = SearchMeta(Donor, ['name'])
-##         SearchView.register_search_meta('donor', search_meta)
-##         SearchView.register_search_meta('don', search_meta)
-        mapper_search = MapperSearch(Donor, ['name'])
-        SearchView.register_search_strategy(('donor', 'don'), mapper_search)
+        mapper_search.add_meta(('donor', 'don'), Donor, ['name'])
         SearchView.view_meta[Donor].set(children=natsort_kids('donations'),
                                         infobox=DonorInfoBox,
                                         context_menu=donor_context_menu)
