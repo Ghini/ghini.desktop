@@ -133,6 +133,8 @@ class SearchTestCase(BaubleTestCase):
         plants_test.tearDown_test_data()
 
     def test_search(self):
+        # TODO: create a list of search strings and expected values and
+        # make sure the two match up
         #parse = SearchParse()
         view = SearchView()
         #tokens = view.parser.parse_string('gen where genus=Maxillaria')
