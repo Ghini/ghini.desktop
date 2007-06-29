@@ -1,15 +1,16 @@
 #
-# test.py
+# test_view.py
 #
 import os, sys, unittest
+from sqlalchemy import *
 from testbase import BaubleTestCase, log
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
+import bauble.plugins.plants.test as plants_test
+import bauble.plugins.garden.test as garden_test
+from bauble.view import SearchView, MapperSearch, ResultSet
 
 # test search parser
-
-
-                    
 
 # TODO: do a replacement on all the quotes in the tests to test for both single
 # and double quotes
@@ -18,17 +19,17 @@ from bauble.utils.pyparsing import *
 
 # TODO: add spaces in different places to check for ignoring whitespace
 
-# TODO: create some invalid search strings that should definitely break the 
+# TODO: create some invalid search strings that should definitely break the
 # parser
 
 # TODO: allow AND and OR in possbile values, especially so we can do...
 # species where genus.family=='Orchidaceae' and accessions.acc_status!='Dead'
 
 # TODO: this also means that we need to somehow support != as well as = which
-# means we need to include the operator in the parse instead of just 
+# means we need to include the operator in the parse instead of just
 # suppressing
 
-# TODO: generate documentation directly from tables so its easier for the 
+# TODO: generate documentation directly from tables so its easier for the
 # user to know which subdomain they can search, this could also include the
 # search domains, table names, columns types, etc
 
@@ -50,7 +51,7 @@ from bauble.utils.pyparsing import *
 # find table for search domain, join1 must be a join, if join_or_col is a
 # column then compare its value to val, if join_or_col is a join/object then
 # find the search meta for this object type and search again the columns in the
-# search meta 
+# search meta
 #
 # 2. domain where join_or_col = val
 # -- query statement with expressions after "where"
@@ -63,7 +64,7 @@ from bauble.utils.pyparsing import *
 #    are OR'd together
 # get the search meta for domain and search the columns in the meta
 # for value
-# 
+#
 # 4. value [ value...]
 # -- expression where domain is implied as all domains and the
 #    operator is LIKE %val%) and multiple values are OR'd together]
@@ -116,15 +117,44 @@ all_tests = value_tests + domain_tests + query_tests
 
 parser = SearchParser()
 
-class ParseTests(unittest.TestCase):
+class SearchTestCase(BaubleTestCase):
+
+    def __init__(self, *args):
+        super(SearchTestCase, self).__init__(*args)
 
     def setUp(self):
-        pass
-    
+        super(SearchTestCase, self).setUp()
+        plants_test.setUp_test_data()
+        garden_test.setUp_test_data()
+
     def tearDown(self):
-        pass
-    
-    def testParse(self):
+        super(SearchTestCase, self).tearDown()
+        garden_test.tearDown_test_data()
+        plants_test.tearDown_test_data()
+
+    def test_search(self):
+        # TODO: create a list of search strings and expected values and
+        # make sure the two match up
+        #parse = SearchParse()
+        view = SearchView()
+        #tokens = view.parser.parse_string('gen where genus=Maxillaria')
+        #tokens = view.parser.parse_string('Maxillaria')
+        #tokens = view.parser.parse_string('Orchidaceae')
+        #tokens = view.parser.parse_string('plant where code=1.1')
+        #tokens = view.parser.parse_string('plant=1.1')
+        #tokens = view.parser.parse_string('1.1')
+        text = 'Orchidaceae'
+        text = 'fam=Orchidaceae'
+        text = 'fam where family = Orchidaceae'
+        text = '1.1'
+        results = ResultSet()
+        for strategy in view.search_strategies:
+            results.append(strategy.search(text))
+        #results = view._get_search_results_from_tokens(tokens)
+        for r in results:
+            print r
+
+    def test_parse(self):
         t = None
         try:
             #print value_tests
@@ -141,7 +171,7 @@ class ParseTests(unittest.TestCase):
 ##                    print '%s: %s' % (str(value), type(value))
 ##                    print tok == value
 ##                    #print tokens
-##                    
+##
 ##                    #self.assert_(tokens[key] == value, 'tokens[%s]=%s, expected %s' % (key, tokens[key], value))
 #                    self.assertEquals(str(tok), str(value), 'tokens[%s]=%s, expected %s' % (key, tokens[key], value))
                 #print '%s --> %s' % (t, p)
@@ -152,12 +182,12 @@ class ParseTests(unittest.TestCase):
             raise
 
 
-class SearchTestSuite(unittest.TestSuite):
+class ViewTestSuite(unittest.TestSuite):
    def __init__(self):
-       unittest.TestSuite.__init__(self, map(ParseTests,
-                                             ('testParse',)))
+       unittest.TestSuite.__init__(self, map(SearchTestCase,
+                                             ('test_search', 'test_parse')))
 
-testsuite = SearchTestSuite
+testsuite = ViewTestSuite
 
 if __name__ == '__main__':
     unittest.main()
