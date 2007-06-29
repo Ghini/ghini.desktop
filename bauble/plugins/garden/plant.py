@@ -14,6 +14,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.types import Enum
 import bauble.meta as meta
+from bauble.view import MapperSearch
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -78,6 +79,25 @@ def plant_markup_func(plant):
         return color % utils.xml_safe_utf8(plant), sp_str
     else:
         return utils.xml_safe_utf8(plant), sp_str
+
+
+
+class PlantSearch(MapperSearch):
+
+    def __init__(self):
+        super(PlantSearch, self).__init__(Plant, ['code'])
+
+    def search(self, tokens, session):
+        #print tokens
+        #print tokens.asList()
+        print tokens.__toklist
+        if 'values' in tokens:
+            pass
+        elif 'expression' in tokens:
+            pass
+        elif 'domain' in tokens:
+            pass
+        return []
 
 
 plant_history_table = Table('plant_history',

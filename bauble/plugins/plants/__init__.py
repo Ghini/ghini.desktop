@@ -23,7 +23,7 @@ from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
 from bauble.plugins.plants.geography import *
-from bauble.view import SearchView, SearchMeta
+from bauble.view import SearchView, SearchMeta, MapperSearch
 
 def natsort_kids(kids):
     return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
@@ -36,50 +36,42 @@ class PlantsPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
-        search_meta = SearchMeta(Family, ["family"])
-        SearchView.register_search_meta("family", search_meta)
-        SearchView.register_search_meta("fam", search_meta)
+        mapper_search = MapperSearch(Family, ['family'])
+        SearchView.register_search_strategy(('family', 'fam'), mapper_search)
         SearchView.view_meta[Family].set(children="genera",
                                          infobox=FamilyInfoBox,
                                          context_menu=family_context_menu,
                                          markup_func=family_markup_func)
 
-        search_meta = SearchMeta(Genus, ["genus"])
-        SearchView.register_search_meta("genus", search_meta)
-        SearchView.register_search_meta("gen", search_meta)
+        mapper_search = MapperSearch(Genus, ['genus'])
+        SearchView.register_search_strategy(('genus', 'gen'), mapper_search)
         SearchView.view_meta[Genus].set(children="species",
                                         infobox=GenusInfoBox,
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        search_meta = SearchMeta(Species, ["sp", "infrasp"])
-        SearchView.register_search_meta("species", search_meta)
-        SearchView.register_search_meta("sp", search_meta)
+        mapper_search = MapperSearch(Species, ['sp', 'infrasp'])
+        SearchView.register_search_strategy(('species', 'sp'), mapper_search)
         SearchView.view_meta[Species].set(children=natsort_kids('accessions'),
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,
                                           markup_func=species_markup_func)
 
-        search_meta = SearchMeta(VernacularName, ['name'])
-        SearchView.register_search_meta("vernacular", search_meta)
-        SearchView.register_search_meta("vern", search_meta)
-        SearchView.register_search_meta("common", search_meta)
+        mapper_search = MapperSearch(VernacularName, ['name'])
+        SearchView.register_search_strategy(('vernacular', 'vern', 'common'),
+                                            mapper_search)
         SearchView.view_meta[VernacularName].set(children=vernname_get_kids,
                                             infobox=VernacularNameInfoBox,
                                             context_menu=vernname_context_menu,
                                             markup_func=vernname_markup_func)
 
-        search_meta = SearchMeta(Geography, ['name'])
-        SearchView.register_search_meta('geography', search_meta)
-        SearchView.register_search_meta('geo', search_meta)
+##         search_meta = SearchMeta(Geography, ['name'])
+##         SearchView.register_search_meta('geography', search_meta)
+##         SearchView.register_search_meta('geo', search_meta)
+        mapper_search = MapperSearch(Geography, ['name'])
+        SearchView.register_search_strategy(('geography', 'geo'),mapper_search)
         SearchView.view_meta[Geography].set(children=get_species_in_geography)
 
-        # TODO: this needs some work, what should we be able to do
-        # when a vernacular name is returned, should we just return the
-        # species
-        # TODO: for the infobox somehow we need to show the species infobox
-##         SearchView.view_meta["VernacularName"].set(context_menu=vern_context_menu,
-##                                                    markup_func=vern_markup_func)
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))

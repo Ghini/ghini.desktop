@@ -14,7 +14,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
-from bauble.view import SearchView
+from bauble.view import SearchView, MapperSearch
 
 
 # TODO: is it  possible to add to a context menu for any object that shows a
@@ -405,9 +405,8 @@ class TagPlugin(pluginmgr.Plugin):
     @classmethod
     def init(cls):
         from bauble.view import SearchMeta, SearchView
-        search_meta = SearchMeta(Tag, ["tag"])
-        SearchView.register_search_meta("tag", search_meta)
-        SearchView.register_search_meta("tags", search_meta)
+        mapper_search = MapperSearch(Tag, ['tag'])
+        SearchView.register_search_strategy(('tag', 'tags'), mapper_search)
         SearchView.view_meta[Tag].set(children=natsort_kids('objects'),
                                       context_menu=tag_context_menu)
         if bauble.gui is not None:
