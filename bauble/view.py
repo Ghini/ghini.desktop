@@ -21,13 +21,6 @@ from bauble.prefs import prefs
 from bauble.utils.log import debug
 from bauble.utils.pyparsing import *
 
-#
-# NOTE: to add a new search domain do:
-#
-# 1. add table to search map with columns to search
-# 2. add domain keys to domain map
-# 3. if you want a result to expand on one of its children then
-#    add the table and the default child to child_expand_map
 
 # TODO: things todo when a result is selected
 # - GBIF search results, probably have to look up specific institutions
@@ -35,18 +28,6 @@ from bauble.utils.pyparsing import *
 # - give list of references and images and make then clickable if they are uris
 # - show location of a plant in the garden map
 
-# TODO: could push the search map into the table modules so each table can
-# have its own search map then this module doesn't have to know about all the
-# tables, it only has to query the tables module for the search map for all
-# tables, could also do something similar to domain map and child expand
-# map
-
-# TODO: i don't really think that the sort column is that necessary
-# in the SearchMeta since we have to sort all the results later, though
-# if the results are partially sorted when we get them it make make them
-# much faster to sort later, this would be worth looking into, we could also
-# use the sort_column as the column to compare in the sorted method of
-# populate_results
 
 # TODO: provide a way to pin down the infobox so that changing the selection
 # in the results_view doesn't change the values in the infobox
@@ -61,8 +42,6 @@ from bauble.utils.pyparsing import *
 # TODO: it would be good to be able to search using the SIMILAR TO operator
 # but we need to designate a way to show that value is a regular expression
 
-# TODO: select first result in list on succesful search
-
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
 # double click on an icon to open the children of that type
@@ -73,11 +52,6 @@ from bauble.utils.pyparsing import *
 # TODO: it might make it easier to do some of the fancier searchs on properties
 # using advanced property overriding, see...
 # http://www.sqlalchemy.org/docs/adv_datamapping.myt#advdatamapping_properties_overriding
-
-# TODO: it does seem like it would be better to use properties instead of
-# columns names for searches, it would allow us to be more expressive and could
-# probably avoid some of the trickery on deciding the top, we would just trust
-# that the property returns what we need
 
 # use different formatting template for the result view depending on the
 # platform
@@ -276,77 +250,63 @@ class SearchParser(object):
         return self.statement.parseString(text)
 
 
-class OperatorValidator(object):#formencode.FancyValidator):
+## class OperatorValidator(object):#formencode.FancyValidator):
 
-    to_operator_map = {}
+##     to_operator_map = {}
 
-    def to_python(self, value, state=None):
-        if value in self.to_operator_map:
-            return self.to_operator_map[value]
-        else:
-            return value
-
-
-    def from_python(self, value, state=None):
-        return value
+##     def to_python(self, value, state=None):
+##         if value in self.to_operator_map:
+##             return self.to_operator_map[value]
+##         else:
+##             return value
 
 
-class SQLOperatorValidator(object):#OperatorValidator):
-
-    def __init__(self, db_type, *args, **kwargs):
-        super(SQLOperatorValidator, self).__init__(*args, **kwargs)
-        type_map = {'postgres': self.pg_operator_map,
-                    'sqlite': self.sqlite_operator_map,
-                    'mysql': self.mysql_operator_map
-                    }
-        self.db_type = db_type
-        self.to_operator_map = type_map.get(self.db_type, {})
+##     def from_python(self, value, state=None):
+##         return value
 
 
-    # TODO: using operators like this doesn't do the fuzzy matching
-    # using like so when searching you would have to specify exactly what
-    # you want, maybe we could do '=' and '!=' do fuzzy matching using like
-    # and '==' and '<>' do exact matches, to do this we just
-    # need to override _to_python to do a string sub on NOT LIKE(%%s%)
-    pg_operator_map = {'==': '=',
-               '!=': '<>',
-               }
-    sqlite_operator_map = {'=': '==',
-               '!=': '<>'
-               }
-    mysql_operator_map = {'=': '==',
-              '!=': '<>'
-              }
+## class SQLOperatorValidator(object):#OperatorValidator):
+
+##     def __init__(self, db_type, *args, **kwargs):
+##         super(SQLOperatorValidator, self).__init__(*args, **kwargs)
+##         type_map = {'postgres': self.pg_operator_map,
+##                     'sqlite': self.sqlite_operator_map,
+##                     'mysql': self.mysql_operator_map
+##                     }
+##         self.db_type = db_type
+##         self.to_operator_map = type_map.get(self.db_type, {})
 
 
-class PythonOperatorValidator(object):#OperatorValidator):
-    """
-    convert accepted parse operators to python operators
-    NOTE: this operator validator is only for python operators and doesn't
-    do convert operators that may be specific to the database type
-    """
-    to_operator_map = {'=': '==',
-               '<>': '!=',
-               }
+##     # TODO: using operators like this doesn't do the fuzzy matching
+##     # using like so when searching you would have to specify exactly what
+##     # you want, maybe we could do '=' and '!=' do fuzzy matching using like
+##     # and '==' and '<>' do exact matches, to do this we just
+##     # need to override _to_python to do a string sub on NOT LIKE(%%s%)
+##     pg_operator_map = {'==': '=',
+##                '!=': '<>',
+##                }
+##     sqlite_operator_map = {'=': '==',
+##                '!=': '<>'
+##                }
+##     mysql_operator_map = {'=': '==',
+##               '!=': '<>'
+##               }
 
 
-class SearchMeta(object):
-
-    def __init__(self, mapper, columns):
-        """
-        @param mapper: a Mapper object
-        @param columns: the names of the table columns that will be search
-        """
-        self.mapper = class_mapper(mapper)
-        assert isinstance(columns, list), 'SearchMeta.__init__: '\
-                                          'columns argument must be a list'
-        self.columns = columns
-
+## class PythonOperatorValidator(object):#OperatorValidator):
+##     """
+##     convert accepted parse operators to python operators
+##     NOTE: this operator validator is only for python operators and doesn't
+##     do convert operators that may be specific to the database type
+##     """
+##     to_operator_map = {'=': '==',
+##                '<>': '!=',
+##                }
 
 
 class SearchStrategy(object):
 
-    def search(self, tokens, session):
+    def search(self, text, session=None):
         '''
         '''
         pass
@@ -358,17 +318,25 @@ class SearchStrategy(object):
 # domain where join = value: search columns of the mapping of join for value
 
 # should create some sort of list of mapping: (col1, col1) to query: what about other operators for queries where you want the values or/and'ed together
+
 class MapperSearch(SearchStrategy):
 
-    def __init__(self, mapper, columns):
-        """
-        @param mapper: a Mapper object
-        @param columns: the names of the table columns that will be search
-        """
-        self.mapper = class_mapper(mapper)
-        assert isinstance(columns, list), 'SearchMeta.__init__: '\
+    _domains = {}
+    _mapping_columns = {}
+
+    def __init__(self, mapper=None, columns=None):
+        self.parser = SearchParser()
+
+
+    def add_meta(self, domain, mapping, columns):
+        assert isinstance(columns, list), 'MapperSearch.add_meta(): '\
                                           'columns argument must be a list'
-        self.columns = columns
+        if isinstance(domain, (list, tuple)):
+            for d in domain:
+                self._domains[d] = mapping, columns
+        else:
+            self._domains[d] = mapping, columns
+        self._mapping_columns[mapping] = columns
 
 
     def _resolve_identifiers(self, parent, identifiers):
@@ -470,9 +438,7 @@ class MapperSearch(SearchStrategy):
         '''
 #        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
-#        mapping = self.domain_map[domain]
-#        search_meta = self.search_metas[mapping.class_.__name__]
-        mapping = self.mapper.class_
+        mapping, columns = self._domains[domain]
         expr_iter = iter(expr)
         select = prev_select = None
         op = None
@@ -505,15 +471,15 @@ class MapperSearch(SearchStrategy):
 #        debug(str(select._clause))
         return select
 
-    def search(self, tokens, session=None):
+
+    def search(self, text, session=None):
         '''
         return the search results depending on how tokens were parsed
         '''
-
-#        debug('MapperSearch.search()')
         if session is None:
             session = create_session()
 
+        tokens = self.parser.parse_string(text)
         results = ResultSet()
         if 'values' in tokens:
             # make searches in postgres case-insensitive, i don't think other
@@ -524,20 +490,15 @@ class MapperSearch(SearchStrategy):
             else:
                 like = lambda table, col, val: \
                        table.c[col].like('%%%s%%' % val)
-            mapping = self.mapper.class_
-            q = session.query(mapping)
-            sr = SelectResults(q)
-            cv = [(c,v) for c in self.columns for v in tokens]
-            sr = sr.select(or_(*[like(mapping, c, v) for c,v in cv]))
-            results.append(sr)
+            for mapping, columns in self._mapping_columns.iteritems():
+                q = session.query(mapping)
+                sr = SelectResults(q)
+                cv = [(c,v) for c in columns for v in tokens]
+                sr = sr.select(or_(*[like(mapping, c, v) for c,v in cv]))
+                results.append(sr)
         elif 'expression' in tokens:
-#            print 'expr: %s' % tokens['expression']
             for domain, cond, val in tokens['expression']:
-                #mapping = self.domain_map[domain]
-#                debug(mapping.class_.__name__)
-                #search_meta = self.search_metas[mapping.class_.__name__]
-                print self.mapper
-                mapping = self.mapper.class_
+                mapping, columns = self._domains[domain]
                 query = session.query(mapping)
                 # TODO: should probably create a normalize_cond() method
                 # to convert things like contains and has into like conditions
@@ -567,7 +528,7 @@ class MapperSearch(SearchStrategy):
                 if val == '*':
                     results.append(sr)
                 else:
-                    for col in self.columns:
+                    for col in columns:
                         results.append(query.select(mapping.c[col].op(cond)(val)))
         elif 'query' in tokens:
             results.append(self._get_results_from_query(tokens, session))
@@ -642,18 +603,11 @@ class SearchView(pluginmgr.View):
     5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
     '''
 
-
-    # the search map is keyed by domain, this means that the same search
-    # meta instance can be refered to by more than one key
-    #search_map = {} # dictionary of search metas
-    domain_map = {}
-    search_metas = {}
-
     '''
     the search strategy is keyed by domain and each value will be a list of
     SearchStrategy instances
     '''
-    search_strategies = {}
+    search_strategies = [MapperSearch()]
 
     class ViewMeta(dict):
 
@@ -700,36 +654,23 @@ class SearchView(pluginmgr.View):
 
 
     @classmethod
-    def register_search_strategy(cls, domain, strategy):
-        '''
-        @param domain: a domain or list of domains names to register
-        the search strategy under, if the domain is None then the search
-        strategy is used when there is no search domain specified
-        will
-        @param strategy: the search strategy to use for the domain(s)
-        '''
-        cls.search_strategies[domain] = strategy
+    def add_search_strategy(cls, strategy):
+        cls.search_strategies.append(strategy())
 
 
     @classmethod
-    def get_search_strategy(cls, domain):
-        for d, strategy in cls.search_strategies.iteritems():
-            if isinstance(d, (list, tuple)):
-                if domain in d:
-                    return strategy
-            else:
-                if d == domain:
-                    return strategy
+    def get_search_strategy(cls, name):
+        for strategy in cls.search_strategies:
+            if strategy.__class__.__name__ == name:
+                return strategy
 
 
     def __init__(self):
         '''
         the constructor
         '''
-        #views.View.__init__(self)
         super(SearchView, self).__init__()
         self.create_gui()
-        self.parser = SearchParser()
 
         # we only need this for the timeout version of populate_results
         self.populate_callback_id = None
@@ -821,35 +762,6 @@ class SearchView(pluginmgr.View):
         self.update_infobox()
 
 
-    def _get_search_results_from_tokens(self, tokens):
-        '''
-        return the search results depending on how tokens was parsed
-        '''
-        results = ResultSet()
-        if 'values' in tokens:
-            debug('values')
-            # make searches in postgres case-insensitive, i don't think other
-            # databases support a case-insensitive like operator
-            if bauble.db_engine.name == 'postgres':
-                like = lambda table, col, val: \
-                       table.c[col].op('ILIKE')('%%%s%%' % val)
-            else:
-                like = lambda table, col, val: \
-                       table.c[col].like('%%%s%%' % val)
-            for strategy in self.search_strategies.values():
-                results.append(strategy.search(tokens, self.session))
-        elif 'expression' in tokens:
-#            print 'expr: %s' % tokens['expression']
-            for domain, cond, val in tokens['expression']:
-                strategy = self.get_search_strategy(domain)
-                results.append(strategy.search(tokens, self.session))
-        elif 'query' in tokens:
-            domain, expr = tokens['query']
-            strategy = self.get_search_strategy(domain)
-            results = strategy.search(tokens, self.session)
-        return results
-
-
     nresults_statusbar_context = 'searchview.nresults'
 
 ##     @staticmethod
@@ -885,13 +797,14 @@ class SearchView(pluginmgr.View):
 
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
-        results = []
+        #results = []
+        results = ResultSet()
         error_msg = None
         self.session.clear() # clear out any old search results
         bold = '<b>%s</b>'
         try:
-            tokens = self.parser.parse_string(text)
-            results = self._get_search_results_from_tokens(tokens)
+            for strategy in self.search_strategies:
+                results.append(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
