@@ -236,25 +236,21 @@ class Accession(bauble.BaubleMapper):
             return self._collection
         elif self.source_type == 'Donation':
             return self._donation
-        raise AssertionError('unknown source_type in accession: %s' % \
+        raise AssertionError(_('unknown source_type in accession: %s') % \
                              self.source_type)
-
     def _set_source(self, source):
-        del self.source
+        if self.source is not None:
+            obj = self.source
+            obj._accession = None
+            if hasattr(self.source, '_sa_session_id'):
+                utils.delete_or_expunge(obj)
+            self.source_type = None
         if source is None:
             self.source_type = None
         else:
             self.source_type = source.__class__.__name__
             source._accession = self
-
-    def _del_source(self):
-        source = self.source
-        if source is not None:
-            source._accession = None
-            utils.delete_or_expunge(source)
-        self.source_type = None
-
-    source = property(_get_source, _set_source, _del_source)
+    source = property(_get_source, _set_source)
 
 
     def markup(self):
@@ -271,25 +267,20 @@ from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table
 # using the _accession property you will have problems using Accession.source
 # because the Accession.source_type property won't be set
 mapper(Accession, accession_table,
-       properties = {
-    '_collection':
-    relation(Collection,
-             primaryjoin=accession_table.c.id==collection_table.c.accession_id,
-             cascade='all', uselist=False,
-             backref=backref('_accession', uselist=False)),
-    '_donation':
-    relation(Donation,
-             primaryjoin=accession_table.c.id==donation_table.c.accession_id,
-             cascade='all', uselist=False,
-             backref=backref('_accession', uselist=False)),
-    'plants':
-    relation(Plant, cascade='all, delete-orphan',
-             order_by=plant_table.c.code,
-             backref='accession'),
-    'verifications':
-    relation(Verification, order_by='date', private=True,
-             backref='accession', )},
-       )#order_by='code')
+    properties = {\
+        '_collection':
+        relation(Collection, cascade='all, delete-orphan', uselist=False,
+                 backref=backref('_accession', uselist=False)),
+        '_donation':
+        relation(Donation, cascade='all, delete-orphan', uselist=False,
+                 backref=backref('_accession', uselist=False)),
+        'plants':
+        relation(Plant, cascade='all, delete-orphan',
+                 order_by=plant_table.c.code, backref='accession'),
+        'verifications':
+        relation(Verification, order_by='date', private=True,
+                 backref='accession')},
+       )
 
 mapper(Verification, verification_table)
 
