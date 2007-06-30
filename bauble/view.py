@@ -204,7 +204,8 @@ class LinkExpander(InfoExpander):
 
 class SearchParser(object):
     """
-    This class parses three distinct types of string. They can beL
+    This class is used by MapperSarch to parses three distinct types of
+    strings. They can be:
         1. Value or a list of values: val1, val2, val3
         2. An expression where the domain is a search domain registered
            with the search meta: domain=something and val2=somethingelse,asdasd
@@ -479,7 +480,10 @@ class MapperSearch(SearchStrategy):
         if session is None:
             session = create_session()
 
-        tokens = self.parser.parse_string(text)
+        try:
+            tokens = self.parser.parse_string(text)
+        except:
+            return []
         results = ResultSet()
         if 'values' in tokens:
             # make searches in postgres case-insensitive, i don't think other
@@ -592,22 +596,6 @@ class ResultSet(object):
 
 
 class SearchView(pluginmgr.View):
-    '''
-    1. all search parameters are by default ANDed together unless two of the
-    same class are give and then they are ORed, e.g. fam=... fam=... will
-    give everything that matches either one\
-    2. should follow some sort of precedence using AND, OR and parentheses
-    3. if the search get too complicated we may have to define a language
-    4. search specifically by family, genus, sp, infrasp(x?), author,
-    garden location, country/region or origin, conservation status, edible
-    5. possibly add families/family=Arecaceae, Orchidaceae, Poaceae
-    '''
-
-    '''
-    the search strategy is keyed by domain and each value will be a list of
-    SearchStrategy instances
-    '''
-    search_strategies = [MapperSearch()]
 
     class ViewMeta(dict):
 
@@ -652,6 +640,12 @@ class SearchView(pluginmgr.View):
 
     view_meta = ViewMeta()
 
+
+    '''
+    the search strategy is keyed by domain and each value will be a list of
+    SearchStrategy instances
+    '''
+    search_strategies = [MapperSearch()]
 
     @classmethod
     def add_search_strategy(cls, strategy):
@@ -797,7 +791,6 @@ class SearchView(pluginmgr.View):
 
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
-        #results = []
         results = ResultSet()
         error_msg = None
         self.session.clear() # clear out any old search results
