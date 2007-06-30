@@ -6,10 +6,11 @@
 
 import os, sys, unittest
 from sqlalchemy import *
+from sqlalchemy.exceptions import *
 import bauble
 from bauble.plugins.plants.species_model import Species, species_table, \
     VernacularName, vernacular_name_table, species_synonym_table, \
-    SpeciesSynonym
+    SpeciesSynonym, DefaultVernacularName
 from bauble.plugins.plants.family import family_table
 from bauble.plugins.plants.genus import genus_table
 from testbase import BaubleTestCase, log
@@ -103,6 +104,8 @@ sp_synonym_test_data = ({'id': 1, 'synonym_id': 1, 'species_id': 2},
 
 vn_test_data = ({'id': 1, 'name': 'SomeName', 'language': 'English',
                  'species_id': 1},
+                {'id': 2, 'name': 'SomeName 2', 'language': 'English',
+                 'species_id': 1},
                 )
 
 test_data_table_control = ((family_table, family_test_data),
@@ -127,23 +130,6 @@ def tearDown_test_data():
             #print 'delete %s %s' % (table, row['id'])
             table.delete(table.c.id==row['id']).execute()
 
-
-
-class AttrDict(dict):
-
-    def __init__(self, **kwargs):
-        dict.__init__(self)
-        for name, value in kwargs.iteritems():
-            self[name] = value
-
-    def __getattr__(self, attr):
-        if attr in self:
-            return dict.__getitem__(self, attr)
-        else:
-            return None
-
-    def __setattr__(self, attr, value):
-        return dict.__setitem__(self, attr, value)
 
 
 class PlantTestCase(BaubleTestCase):
@@ -190,30 +176,42 @@ class SpeciesTests(PlantTestCase):
         super(SpeciesTests, self).setUp()
 
 
+    def test_default_vernacular_changed_twice(self):
+        # test for regression in bug Launchpad #123286
+        sp = self.session.load(Species, 1)
+        sp.default_vernacular_name = sp.vernacular_names[0]
+        sp.default_vernacular_name = sp.vernacular_names[1]
+        self.session.flush()
+
+
     def test_vernacular_name(self):
         '''
         test creating verncular names, attaching them to the species, setting
         the species.default_vernacular_name and then deleting them
         '''
-        session = create_session()
-        sp_query = session.query(Species)
-        sp_name = 'testvernspecies'
+        sp_query = self.session.query(Species)
         sp = sp_query.select()[0]
-        vn = session.query(VernacularName).select()[0]
-        session.save(vn)
+        vn = self.session.query(VernacularName).select()[0]
+
+        # append vernacular name to species and make it the default
         sp.vernacular_names.append(vn)
-        session.flush()
         sp.default_vernacular_name = vn
-        session.flush()
-        del sp.default_vernacular_name
-        session.flush()
-        assert sp.default_vernacular_name not in session
-        assert vn not in session
-        #session.delete(vn) # give and InvalidRequestError
-        session.flush()
-        session.expire(sp) # this expire() has to be here or it will fail
-        assert sp.default_vernacular_name is None, 'default vernacular name is not None'
-        session.flush()
+        self.session.flush()
+        self.assert_(vn.species == sp)
+
+        # test that when the vernacular name is orphaned it and any default
+        # vernacular names get deleted with it
+        #sp.default_vernacular_name = vn
+        #session.flush()
+        dvn_id = sp._default_vernacular_name.id
+        vn_id = vn.id
+        sp.vernacular_names.remove(vn)
+        self.session.flush()
+        self.assertRaises(InvalidRequestError,
+                          self.session.load, VernacularName, vn_id)
+        self.assertRaises(InvalidRequestError,
+                          self.session.load, DefaultVernacularName, dvn_id)
+
 
 
 class SynonymsTests(PlantTestCase):
@@ -278,7 +276,9 @@ class SynonymsTests(PlantTestCase):
 class PlantTestSuite(unittest.TestSuite):
    def __init__(self):
        super(PlantTestSuite, self).__init__()
-       self.addTests(map(SpeciesTests,('test_vernacular_name', 'test_string')))
+       self.addTests(map(SpeciesTests,('test_vernacular_name',
+                                       'test_default_vernacular_changed_twice',
+                                       'test_string')))
        self.addTests(map(SynonymsTests, ('test_species_synonyms',)))
 
 testsuite = PlantTestSuite

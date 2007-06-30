@@ -572,8 +572,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         self.model.vernacular_names.append(vn)
         it = tree_model.append([ModelDecorator(vn)]) # append to tree model
         if len(tree_model) == 1:
-            default = DefaultVernacularName(vernacular_name=vn)
-            self.model.default_vernacular_name = default
+            self.model.default_vernacular_name = vn
         self.view.widgets.sp_vern_add_button.set_sensitive(False)
         self.view.widgets.vern_name_entry.set_text('')
         self.view.widgets.vern_lang_entry.set_text('')
@@ -599,16 +598,12 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
         tree_model.remove(tree_model.get_iter(path))
         self.model.vernacular_names.remove(value.model)
-        if self.model.default_vernacular_name is not None and value.model == self.model.default_vernacular_name.vernacular_name:
-            delete_or_expunge(self.model.default_vernacular_name)
-            self.model.default_vernacular_name = None
+        if self.model.default_vernacular_name is not None and value.model == self.model.default_vernacular_name:
             # if there is only one value in the tree then set it as the
             # default vernacular name
             first = tree_model.get_iter_first()
             if first is not None:
-                path = tree_model.get_path(tree_model.get_iter_first())
-                default = DefaultVernacularName(vernacular_name=tree_model[first][0].model)
-                self.model.default_vernacular_name = default
+                self.model.default_vernacular_name = tree_model[first][0].model
         delete_or_expunge(value.model)
         self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
@@ -618,25 +613,10 @@ class VernacularNamePresenter(GenericEditorPresenter):
         '''
         default column callback
         '''
-        # FIXME: there's a bug if you add a new vernacular, set it as the
-        # default, set the default back to the previous default and then hit
-        # ok, you should reliably get "duplicate key violates unique
-        # constraint "default_vn_index"
-#        debug('on_default_toggled')
         active = cell.get_property('active')
-        if not active: # then it's becoming active ???
-             tree_model = self.treeview.get_model()
-             it = tree_model.get_iter(path)
-             old_default = self.model.default_vernacular_name
-#             debug('old_default: %s,%s(%s)' % (old_default.id,old_default,type(old_default)))
-             self.model.default_vernacular_name = None
-             delete_or_expunge(old_default)
-#             if old_default.id is None:
-#                 debug('not hasattr(id)')
-                 #del old_default
-#             debug('old default in session: %s' % (old_default in self.session))
-             default = DefaultVernacularName(vernacular_name=tree_model[it][0].model)
-             self.model.default_vernacular_name = default
+        if not active: # then it's becoming active
+            vn = self.treeview.get_model()[path][0].model
+            self.model.default_vernacular_name = vn
         self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
@@ -688,7 +668,8 @@ class VernacularNamePresenter(GenericEditorPresenter):
         def _default_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             try:
-                cell.set_property('active', v.model==self.model.default_vernacular_name.vernacular_name)
+                cell.set_property('active',
+                                  v.model==self.model.default_vernacular_name)
                 return
             except AttributeError, e:
                 pass
@@ -734,8 +715,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
             first = tree_model.get_iter_first()
             value = tree_model[first][0]
             path = tree_model.get_path(first)
-            default = DefaultVernacularName(vernacular_name=value.model)
-            self.model.default_vernacular_name = default
+            self.model.default_vernacular_name = value.model
             self.view.set_accept_buttons_sensitive(True)
         elif default_vernacular_name is None:
             return
@@ -1101,201 +1081,4 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
                 break
         self.session.close() # cleanup session
         return self._committed
-
-
-
-from bauble.view import InfoBox, InfoExpander
-from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.garden.plant import Plant, plant_table
-
-#
-# Species infobox for SearchView
-#
-class VernacularExpander(InfoExpander):
-    '''
-    the constructor
-    '''
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, "Vernacular Names", widgets)
-        vernacular_box = self.widgets.sp_vernacular_box
-        self.widgets.remove_parent(vernacular_box)
-        self.vbox.pack_start(vernacular_box)
-
-
-    def update(self, row):
-        '''
-        update the expander
-
-        @param row: the row to get thevalues from
-        '''
-        if len(row.vernacular_names) == 0:
-            self.set_sensitive(False)
-            self.set_expanded(False)
-        else:
-            names = []
-            for vn in row.vernacular_names:
-                #if vn == row.default_vernacular_name:
-                if row.default_vernacular_name is not None \
-                       and vn == row.default_vernacular_name.vernacular_name:
-                    names.insert(0, '%s - %s (default)' % \
-                                 (vn.name, vn.language))
-                else:
-                    names.append('%s - %s' % \
-                                 (vn.name, vn.language))
-            self.set_widget_value('sp_vernacular_data', '\n'.join(names))
-            self.set_sensitive(True)
-            # TODO: get expanded state from prefs
-            self.set_expanded(True)
-
-
-
-class SynonymsExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, "Synonyms", widgets)
-        synonyms_box = self.widgets.sp_synonyms_box
-        self.widgets.remove_parent(synonyms_box)
-        self.vbox.pack_start(synonyms_box)
-
-
-    def update(self, row):
-        '''
-        update the expander
-
-        @param row: the row to get thevalues from
-        '''
-        #debug(row.synonyms)
-        if len(row.synonyms) == 0:
-            self.set_sensitive(False)
-            self.set_expanded(False)
-        else:
-            synonyms = []
-            for syn in row.synonyms:
-                s = Species.str(syn.synonym, markup=True, authors=True)
-                synonyms.append(s)
-            self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
-            self.set_sensitive(True)
-            # TODO: get expanded state from prefs
-            self.set_expanded(True)
-
-
-
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)
-        notes_box = self.widgets.sp_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('sp_notes_data', row.notes)
-
-
-class GeneralSpeciesExpander(InfoExpander):
-    '''
-    expander to present general information about a species
-    '''
-
-    def __init__(self, widgets):
-        '''
-        the constructor
-        '''
-        InfoExpander.__init__(self, "General", widgets)
-        general_box = self.widgets.sp_general_box
-        self.widgets.remove_parent(general_box)
-        self.vbox.pack_start(general_box)
-
-        # make the check buttons read only
-        def on_enter(button, *args):
-            button.emit_stop_by_name("enter-notify-event")
-            return True
-
-
-    def update(self, row):
-        '''
-        update the expander
-
-        @param row: the row to get the values from
-        '''
-        self.set_widget_value('sp_name_data', row.markup(True))
-        nacc = sql_utils.count(accession_table,
-                               accession_table.c.species_id==row.id)
-        self.set_widget_value('sp_nacc_data', nacc)
-
-        acc_ids = select([accession_table.c.id],
-                         accession_table.c.species_id==row.id)
-        nplants_str = str(sql_utils.count(plant_table,
-                                    plant_table.c.accession_id.in_(acc_ids)))
-        if nplants_str != '0':
-            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % \
-                          (nplants_str, nacc_with_plants)
-        self.set_widget_value('sp_nplants_data', nplants_str)
-
-        self.set_widget_value('sp_dist_data', row.distribution_str())
-
-
-
-class SpeciesInfoBox(InfoBox):
-    '''
-    general info, fullname, common name, num of accessions and clones,
-    distribution
-    '''
-
-    # others to consider: reference, images, redlist status
-
-    def __init__(self):
-        '''
-        the constructor
-        '''
-        InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants',
-                                  'infoboxes.glade')
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
-        self.general = GeneralSpeciesExpander(self.widgets)
-        self.add_expander(self.general)
-        self.vernacular = VernacularExpander(self.widgets)
-        self.add_expander(self.vernacular)
-        self.synonyms = SynonymsExpander(self.widgets)
-        self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
-
-        #self.ref = ReferenceExpander()
-        #self.ref.set_expanded(True)
-        #self.add_expander(self.ref)
-
-        #img = ImagesExpander()
-        #img.set_expanded(True)
-        #self.add_expander(img)
-
-
-    def update(self, row):
-        '''
-        update the expanders in this infobox
-
-        @param row: the row to get the values from
-        '''
-        self.general.update(row)
-        self.vernacular.update(row)
-        self.synonyms.update(row)
-        self.notes.update(row)
-        #self.ref.update(row.references)
-        #self.ref.value = row.references
-        #ref = self.get_expander("References")
-        #ref.set_values(row.references)
-
-
-# it's easier just to put this here instead of playing around with imports
-class VernacularNameInfoBox(SpeciesInfoBox):
-    def update(self, row):
-        super(VernacularNameInfoBox, self).update(row.species)
 

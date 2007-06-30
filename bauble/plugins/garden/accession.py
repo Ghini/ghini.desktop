@@ -223,19 +223,6 @@ accession_table = Table('accession',
                        onupdate=func.current_timestamp()))
 
 
-
-def delete_or_expunge(obj):
-    session = object_session(obj)
-#    debug('delete_or_expunge: %s' % obj)
-    if obj in session.new:
-#        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
-        session.expunge(obj)
-        del obj
-    else:
-#        debug('delete obj: %s -- %s' % (obj, repr(obj)))
-        session.delete(obj)
-
-
 class Accession(bauble.BaubleMapper):
 
     def __str__(self):
@@ -264,7 +251,7 @@ class Accession(bauble.BaubleMapper):
         source = self.source
         if source is not None:
             source._accession = None
-            delete_or_expunge(source)
+            utils.delete_or_expunge(source)
         self.source_type = None
 
     source = property(_get_source, _set_source, _del_source)

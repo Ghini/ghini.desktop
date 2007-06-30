@@ -37,83 +37,6 @@ from bauble.plugins.plants.geography import Geography, geography_table
 # Genus x sp sp_author
 # Genus sp sp_athor x infrasp infrasp_author
 
-
-def edit_callback(value):
-    from bauble.plugins.plants.species_editor import SpeciesEditor
-    e = SpeciesEditor(value)
-    return e.start() != None
-
-
-def add_accession_callback(value):
-    from bauble.plugins.garden.accession import AccessionEditor
-    e = AccessionEditor(Accession(species=value))
-    return e.start() != None
-
-
-def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = _("Are you sure you want to remove %s?") % \
-              utils.xml_safe_utf8(s)
-    if not utils.yes_no_dialog(msg):
-        return
-    try:
-        session = create_session()
-        obj = session.load(value.__class__, value.id)
-        session.delete(obj)
-        session.flush()
-    except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     type=gtk.MESSAGE_ERROR)
-    return True
-
-
-
-species_context_menu = [('Edit', edit_callback),
-                       ('--', None),
-                       ('Add accession', add_accession_callback),
-                       ('--', None),
-                       ('Remove', remove_callback)]
-
-
-def call_on_species(func):
-    return lambda value : func(value.species)
-
-vernname_context_menu = [('Edit', call_on_species(edit_callback)),
-                          ('--', None),
-                          ('Add accession',
-                           call_on_species(add_accession_callback))]
-
-def species_markup_func(species):
-    '''
-    '''
-    # TODO: add (syn) after species name if there are species synonyms that
-    # refer to the id of this plant
-    if len(species.vernacular_names) > 0:
-        substring = '%s -- %s' % \
-                    (species.genus.family, \
-                     ', '.join([str(v) for v in species.vernacular_names]))
-    else:
-        substring = '%s' % species.genus.family
-    return species.markup(authors=False), substring
-
-
-def vernname_get_kids(vernname):
-    '''
-    '''
-    # TODO: should probably just create an accessions property on vername that
-    # does the same thing as vername.species.accessions and might even make
-    # it faster if we create the join directly instead of loading the species
-    # first
-    return sorted(vernname.species.accessions, key=utils.natsort_key)
-
-
-def vernname_markup_func(vernname):
-    '''
-    '''
-    return str(vernname), vernname.species.markup(authors=False)
-
-
 '''
 Species table (species)
 
@@ -198,6 +121,31 @@ class Species(bauble.BaubleMapper):
         #    self.__cached_str = Species.str(self)
         #return self.__cached_str
         return Species.str(self)
+
+
+    def _get_default_vernacular_name(self):
+        if self._default_vernacular_name is None:
+            return None
+        return self._default_vernacular_name.vernacular_name
+    def _set_default_vernacular_name(self, vn):
+        if vn not in self.vernacular_names:
+            self.names.append(vn)
+        if self._default_vernacular_name is not None:
+            utils.delete_or_expunge(self.default_vernacular_name)
+
+        d = DefaultVernacularName()
+        d.vernacular_name = vn
+        self._default_vernacular_name = d
+    def _del_default_vernacular_name(self):
+        """
+        deleting the default vernacular name only removes the vernacular as
+        the default and doesn't do anything to the vernacular name was the
+        default
+        """
+        del self._default_vernacular_name
+    default_vernacular_name = property(_get_default_vernacular_name,
+                                       _set_default_vernacular_name,
+                                       _del_default_vernacular_name)
 
 
     def distribution_str(self):
@@ -435,11 +383,11 @@ mapper(VernacularName, vernacular_name_table)
 
 # map default vernacular name
 mapper(DefaultVernacularName, default_vernacular_name_table,
-    properties = \
-       {'vernacular_name':
-        relation(VernacularName,
-                 primaryjoin=default_vernacular_name_table.c.vernacular_name_id==vernacular_name_table.c.id,
-                 uselist=False)})
+     properties = \
+        {'vernacular_name':
+         relation(VernacularName, uselist=False,
+                  backref=backref('__defaults', cascade='all, delete-orphan')
+                  )})
 
 
 # map species distribution
@@ -459,14 +407,12 @@ species_mapper = mapper(Species, species_table,
                   primaryjoin=species_table.c.id==species_synonym_table.c.species_id,
                   cascade='all, delete-orphan'),
          'vernacular_names':
-         relation(VernacularName,
-                  primaryjoin=species_table.c.id==vernacular_name_table.c.species_id,
+         relation(VernacularName, cascade='all, delete-orphan',
+                  backref=backref('species', uselist=False)),
+         '_default_vernacular_name':
+         relation(DefaultVernacularName, uselist=False,
                   cascade='all, delete-orphan',
                   backref=backref('species', uselist=False)),
-         'default_vernacular_name':
-         relation(DefaultVernacularName, uselist=False,
-                  cascade='all, delete-orphan', lazy=False,
-                  backref='species'),
          'distribution':
          relation(SpeciesDistribution,
                   cascade='all, delete-orphan',
