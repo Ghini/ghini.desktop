@@ -27,9 +27,10 @@ import bauble.plugins.garden.test as garden_test
 class ABCDTests(BaubleTestCase):
 
     def setUp(self):
+        super(ABCDTests, self).setUp()
         plants_test.setUp_test_data()
         garden_test.setUp_test_data()
-        super(ABCDTests, self).setUp()
+
 
         schema_file = os.path.join(paths.lib_dir(), 'plugins',
             'abcd','abcd_2.06.xsd')
