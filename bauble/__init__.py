@@ -198,46 +198,43 @@ def create_database(import_defaults=True):
 
 
 def set_busy(busy):
-    global gui
-    if gui is None:
-        return
-    # main_box is everything but the statusbar
-    gui.widgets.main_box.set_sensitive(not busy)
-    if busy:
-        gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
-    else:
-        gui.window.window.set_cursor(None)
+   global gui
+   if gui is None:
+      return
+   # main_box is everything but the statusbar
+   gui.widgets.main_box.set_sensitive(not busy)
+   if busy:
+      gui.window.window.set_cursor(gtk.gdk.Cursor(gtk.gdk.WATCH))
+   else:
+      gui.window.window.set_cursor(None)
 
 
 last_handler = None
 
 def command_handler(cmd, arg):
-    # TODO: if the handler doesn't provide a view we should keep the old
-    # view around so it doesn't get reset....i guess we should always keep a
-    # reference to the handler that provides the current view so it doesn't
-    # get cleaned up and we don't lost state
-    global last_handler
-    handler_cls = None
-    try:
-        handler_cls = pluginmgr.commands[cmd]
-    except KeyError, e:
-        if cmd is None:
-            utils.message_dialog(_('No default handler registered'))
-        else:
-            utils.message_dialog(_('No command handler for %s' % cmd))
-        return
+   """
+   """
+   global last_handler
+   handler_cls = None
+   try:
+      handler_cls = pluginmgr.commands[cmd]
+   except KeyError, e:
+      if cmd is None:
+         utils.message_dialog(_('No default handler registered'))
+      else:
+         utils.message_dialog(_('No command handler for %s' % cmd))
+         return
 
-    if not isinstance(last_handler, handler_cls):
-        handler = handler_cls()
-        view = handler.get_view()
-        if view is not None:
-            gui.set_view(view)
-        last_handler = handler
-    try:
-       last_handler(arg)
-    except Exception, e:
-       utils.message_details_dialog(str(e), traceback.format_exc(),
-                                    gtk.MESSAGE_ERROR)
+   if not isinstance(last_handler, handler_cls):
+      last_handler = handler_cls()
+   handler_view = last_handler.get_view()
+   if type(gui.get_view()) != type(handler_view):
+         gui.set_view(handler_view)
+   try:
+      last_handler(arg)
+   except Exception, e:
+      utils.message_details_dialog(str(e), traceback.format_exc(),
+                                   gtk.MESSAGE_ERROR)
 
 
 try:
