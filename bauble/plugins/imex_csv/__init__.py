@@ -8,7 +8,7 @@ from sqlalchemy import *
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils.log import log, debug
 import bauble.utils.gtasklet as gtasklet
@@ -522,7 +522,7 @@ class CSVExporter:
             write_csv(filename, rows)
 
 
-class CSVImportCommandHandler(plugin.CommandHandler):
+class CSVImportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'imcsv'
 
@@ -532,7 +532,7 @@ class CSVImportCommandHandler(plugin.CommandHandler):
         importer.start(arg)
 
 
-class CSVExportCommandHandler(plugin.CommandHandler):
+class CSVExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'excsv'
 
@@ -547,7 +547,7 @@ class CSVExportCommandHandler(plugin.CommandHandler):
 # plugin classes
 #
 
-class CSVImportTool(plugin.Tool):
+class CSVImportTool(pluginmgr.Tool):
     category = "Import"
     label = "Comma Separated Value"
 
@@ -561,7 +561,7 @@ class CSVImportTool(plugin.Tool):
             c.start()
 
 
-class CSVExportTool(plugin.Tool):
+class CSVExportTool(pluginmgr.Tool):
     category = "Export"
     label = "Comma Separated Value"
 
@@ -570,7 +570,7 @@ class CSVExportTool(plugin.Tool):
         c = CSVExporter()
         c.start()
 
-class CSVImexPlugin(plugin.Plugin):
+class CSVImexPlugin(pluginmgr.Plugin):
     tools = [CSVImportTool, CSVExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler]
 
