@@ -85,7 +85,7 @@ def plant_markup_func(plant):
 class PlantSearch(MapperSearch):
 
     def __init__(self):
-        super(PlantSearch, self).__init__(Plant, ['code'])
+        super(PlantSearch, self).__init__()
 
 
     def search(self, text, session=None):

@@ -55,12 +55,6 @@ class BaubleTestCase(unittest.TestCase):
         '''
         '''
         init_bauble(self.uri)
-        # TODO: should have a default set of data that all of our tests can
-        # rely on and we can use the same set of data for all database types
-        # though the default should be to create the database in memory with
-        # sqlite, each test should provide its own set of default data if
-        # on plugin relies on another it should be able to access its parents
-        # set of default data
         self.session = create_session()
 
     def set_logging_level(level, logger='sqlalchemy'):
