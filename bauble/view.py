@@ -28,11 +28,8 @@ from bauble.utils.pyparsing import *
 # - give list of references and images and make then clickable if they are uris
 # - show location of a plant in the garden map
 
-
 # TODO: provide a way to pin down the infobox so that changing the selection
 # in the results_view doesn't change the values in the infobox
-
-# TODO: search won't work on a unicode col. e.g. try 'acc where notes='test''
 
 # TODO: on some search errors the connection gets invalidated, this
 # happened to me on 'loc where site=test'
@@ -325,19 +322,19 @@ class MapperSearch(SearchStrategy):
     _domains = {}
     _mapping_columns = {}
 
-    def __init__(self, mapper=None, columns=None):
+    def __init__(self):
         self.parser = SearchParser()
 
 
-    def add_meta(self, domain, mapping, columns):
-        assert isinstance(columns, list), 'MapperSearch.add_meta(): '\
-                                          'columns argument must be a list'
+    def add_meta(self, domain, mapping, default_columns):
+        assert isinstance(default_columns, list), 'MapperSearch.add_meta(): '\
+               'default_columns argument must be list'
         if isinstance(domain, (list, tuple)):
             for d in domain:
-                self._domains[d] = mapping, columns
+                self._domains[d] = mapping, default_columns
         else:
-            self._domains[d] = mapping, columns
-        self._mapping_columns[mapping] = columns
+            self._domains[d] = mapping, default_columns
+        self._mapping_columns[mapping] = default_columns
 
 
     def _resolve_identifiers(self, parent, identifiers):
@@ -439,6 +436,8 @@ class MapperSearch(SearchStrategy):
         '''
 #        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
+        if domain not in self._domains:
+            raise ValueError('unknown search domain: %s' % domain)
         mapping, columns = self._domains[domain]
         expr_iter = iter(expr)
         select = prev_select = None
@@ -469,7 +468,8 @@ class MapperSearch(SearchStrategy):
             except StopIteration:
                 pass
 
-#        debug(str(select._clause))
+##        debug(str(select._clause))
+##        debug(list(select))
         return select
 
 
