@@ -111,5 +111,6 @@ def queue(task, on_quit, on_error, *args):
     @param callback: the function to call when the task is finished
     @param args: the arguments to pass to the task
     """
+    global _task_queue
     _task_queue.put((task, on_quit, on_error, args))
     flush()

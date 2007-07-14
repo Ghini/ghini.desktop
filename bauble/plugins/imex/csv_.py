@@ -33,6 +33,7 @@ from bauble.utils.log import log, debug
 # if it has rows it seems like the database is waiting for the
 # transaction to finish and....LOCK
 
+
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 
@@ -52,12 +53,20 @@ def chunk(iterable, n):
     yield chunk
 
 
+def pb_set_fraction(fraction):
+    """
+    provides a safe way to handle the progress bar if the gui isn't started,
+    we use this in the tests where there is not gui
+    """
+    if bauble.gui is not None and bauble.gui.progressbar is not None:
+        bauble.gui.progressbar.set_fraction(fraction)
+
 
 class Importer(object):
 
     def start(self, **kwargs):
         '''
-        start the import process, this is a non blocking method queue the
+        start the import process, this is a non blocking method, queue the
         process as a bauble task
         '''
         return bauble.task.queue(self.run, self.on_quit, self.on_error,
@@ -79,10 +88,14 @@ class Importer(object):
         raise NotImplementedError
 
 
-class CSVImporter(object):
+class CSVImporter(Importer):
 
     def __init__(self):
-        pass
+        super(CSVImporter, self).__init()
+
+
+    def on_error(self, exc):
+        utils.message_details_dialog(str(exc), traceback.format_exc())
 
 
     def start(self, filenames=None, metadata=None, force=False):
@@ -91,15 +104,20 @@ class CSVImporter(object):
         process as a bauble task
         '''
         if metadata is None:
-            metadata = default_metadata
+            metadata = default_metadata # default_metadata from SQLAlchemy
 
-        def on_error(exc):
-            utils.message_details_dialog(str(exc), traceback.format_exc())
+#        def on_error(exc):
+#            utils.message_details_dialog(str(exc), traceback.format_exc())
 
         if filenames is None:
             filenames = self._get_filenames()
+        if filenames is None:
+            return
 
-        bauble.task.queue(self.run, None, on_error, filenames, metadata, force)
+        # self.on_quit isn't implemented but we include it here because
+        # the imex tests use it
+        bauble.task.queue(self.run, self.on_quit, self.on_error, filenames,
+                          metadata, force)
 
 
 
@@ -141,7 +159,7 @@ class CSVImporter(object):
         for table in metadata.table_iterator():
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
-            except KeyError, e: # ---> table.naeme not in list of filenames
+            except KeyError, e: # ---> table.name not in list of filenames
                 # we handle this below
                 pass
 
@@ -189,7 +207,8 @@ class CSVImporter(object):
                     add_to_created(table.name)
                     #elif table.count().scalar(connectable=connection) > 0 and not force:
                 elif table.name not in created_tables:# or \
-                    #(table.count().scalar() > 0 and not force):
+                    ##debug('table_exists')
+                    ##(table.count().scalar() > 0 and not force):
                     if not force:
                         msg = _('The <b>%s</b> table already exists in the '\
                                 'database and may contain some data. If a '\
@@ -206,7 +225,8 @@ class CSVImporter(object):
                     if response:
                         deps = utils.find_dependent_tables(table)
                         dep_names = [t.name for t in deps]
-                        if len(dep_names) > 0 and not force:
+                        #if len(dep_names) > 0 and not force:
+                        if len(dep_names) > 0:
                             msg = _('The following tables depend on the '
                                     '%(table)s table. These tables will need '
                                     'to be dropped as well.\n\n' \
@@ -214,8 +234,7 @@ class CSVImporter(object):
                                     '<i>Would you like to continue?</i>' \
                                     % {'table': table.name,
                                        'other_tables': ', '.join(dep_names)})
-
-                            if not utils.yes_no_dialog(msg):
+                            if not force and not utils.yes_no_dialog(msg):
                                 self.__cancel = True
                                 continue
 
@@ -223,49 +242,50 @@ class CSVImporter(object):
                             for d in reversed(deps):
                                 debug('dropping dep %s' % d)
                                 d.drop(checkfirst=True)
-
-                            # TODO: there is a bug here when importing the same
-                            # table back to back,
-                            # see https://launchpad.net/products/bauble/+bug/70309
                             debug('dropping %s' % table)
                             table.drop(checkfirst=True)
                             debug('creating %s' % table)
                             table.create()
-
                             add_to_created([table.name])
                             for d in deps: # recreate the deps
                                 debug('creating dep %s' % d)
                                 d.create()
                                 add_to_created(dep_names)
+                        else:
+                            debug('dropping %s' % table)
+                            table.drop(checkfirst=True)
+                            debug('creating %s' % table)
+                            table.create()
+                            add_to_created([table.name])
 
                 if self.__cancel or self.__error:
                     debug('canceled')
                     break
 
-                insert = table.insert()
+                # do the inserts
+                insert = table.insert().compile()
                 f = file(filename, "rb")
                 reader = csv.DictReader(f, quotechar=QUOTE_CHAR,
                                         quoting=QUOTE_STYLE)
                 update_every = 11
-                # TODO: maybe to speed this up we could build all the inserts
-                # and then do an execute_many
-#                debug('slice it')
-                for slice in reader:
+##                debug('slice it')
+                for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
-                    if len(slice) > 0:
+                    if len(line) > 0:
                         cleaned = dict([(k, v) for k,v in \
-                                        slice.iteritems() if v is not ''])
+                                        line.iteritems() if v is not ''])
 #                        debug('%s: %s' % (insert.table, cleaned['id']))
                         connection.execute(insert, cleaned)
+
                     steps_so_far += 1
                     if steps_so_far % update_every == 0:
                         percent = float(steps_so_far)/float(total_lines)
                         if 0 < percent < 1.0: # avoid warning
                             if bauble.gui is not None:
-                                bauble.gui.progressbar.set_fraction(percent)
+                                pb_set_fraction(percent)
                     yield
 
                 if self.__error or self.__cancel:
@@ -436,7 +456,7 @@ class CSVExporter:
             filename = filename_template % table_name
             steps_so_far+=1
             fraction = float(steps_so_far)/float(ntables)
-            bauble.gui.progressbar.set_fraction(fraction)
+            pb_set_fraction(fraction)
             msg = _('exporting %(table)s table to %(filename)s') \
                     % {'table': table_name, 'filename': filename}
             bauble.task.set_message(msg)
