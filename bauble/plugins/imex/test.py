@@ -9,7 +9,6 @@ import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
 
-
 # TODO: test that when we import data we get what we expect
 # TODO: test that all Unicode works
 # TODO: test that when we export data we get what we expect
@@ -42,28 +41,24 @@ class ImexTestCase(BaubleTestCase):
 class ImexCSVTestCase(ImexTestCase):
 
     def test_import(self):
-        #importer = TestCSVImporter(
-        # TODO to get the CSVImporter testable
-        # 1. make sure that we can run it without the gui, this means that
-        # we have to be careful with message_dialog functions and also that
-        # when the import is finished that the main loop ends, we could try
-        # to gtk.main_quit to on_quit function
-        # 2. make sure we can pass a file or file like object into the start
-        # or run methods so that we can import and export from memory, if we
-        # can't do that then we would have to create a temporary directory
-        # and write our test data to temporary files that matches the name
-        # of the tables, e.g. family.txt
-        # 3. ....
+        # TODO: this test doesn't really test yet that any of the data was
+        # correctly imported or exported, only that export and importing
+        # run successfuly
+
+        # 1. write the test data to a temporary file or files
+        # 2. import the data and make sure the objects match field for field
 
         # the exporters and importers show logging information, turn it off
         import logging
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         import tempfile
         tempdir = tempfile.mkdtemp()
+
+        # export all the testdata
         exporter = CSVExporter()
         exporter.start(tempdir)
 
-        # get all files in the temp directory
+        # import all the files in the temp directory
         logging.getLogger('bauble').setLevel(logging.ERROR)
         filenames = os.listdir(tempdir)
         importer = CSVImporter()
@@ -72,12 +67,6 @@ class ImexCSVTestCase(ImexTestCase):
         importer.start([os.path.join(tempdir, name) for name in filenames],
                        force=True)
 
-
-
-
-        # 1. write the test data to a temporary file or files
-        # 2. import the data and make sure the objects match field for field
-        pass
 
     def test_export(self):
         # 1. export the test data
