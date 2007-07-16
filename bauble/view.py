@@ -327,8 +327,10 @@ class MapperSearch(SearchStrategy):
 
 
     def add_meta(self, domain, mapping, default_columns):
-        assert isinstance(default_columns, list), 'MapperSearch.add_meta(): '\
-               'default_columns argument must be list'
+        assert isinstance(default_columns, list),_('MapperSearch.add_meta(): '\
+               'default_columns argument must be list')
+        assert len(default_columns) > 0, _('MapperSearch.add_meta(): '\
+                                    'default_columns argument cannot be empty')
         if isinstance(domain, (list, tuple)):
             for d in domain:
                 self._domains[d] = mapping, default_columns

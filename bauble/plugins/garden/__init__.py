@@ -56,7 +56,7 @@ class GardenPlugin(pluginmgr.Plugin):
                                            context_menu=loc_context_menu,
                                            markup_func=loc_markup_func)
 
-        mapper_search.add_meta(('plant', 'plants'), Plant, [])
+        mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
         SearchView.add_search_strategy(PlantSearch)
         SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
                                         context_menu=plant_context_menu,
