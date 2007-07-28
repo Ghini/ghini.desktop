@@ -248,21 +248,21 @@ class CSVImporter(Importer):
 
                             # drop the deps in reverse order
                             for d in reversed(deps):
-                                debug('dropping dep %s' % d)
+#                                debug('dropping dep %s' % d)
                                 d.drop(checkfirst=True)
-                            debug('dropping %s' % table)
+#                            debug('dropping %s' % table)
                             table.drop(checkfirst=True)
-                            debug('creating %s' % table)
+#                            debug('creating %s' % table)
                             table.create()
                             add_to_created([table.name])
                             for d in deps: # recreate the deps
-                                debug('creating dep %s' % d)
+#                                debug('creating dep %s' % d)
                                 d.create()
                                 add_to_created(dep_names)
                         else:
-                            debug('dropping %s' % table)
+#                            debug('dropping %s' % table)
                             table.drop(checkfirst=True)
-                            debug('creating %s' % table)
+#                            debug('creating %s' % table)
                             table.create()
                             add_to_created([table.name])
 

@@ -12,7 +12,7 @@ def source_markup_func(source):
     return source._accession, source
 
 
-donation_table = Table('donation',
+donation_table = bauble.Table('donation',
                        Column('id', Integer, primary_key=True),
                        Column('donor_id', Integer, ForeignKey('donor.id'),
                               nullable=False),
@@ -20,12 +20,7 @@ donation_table = Table('donation',
                        Column('notes', Unicode),
                        Column('date', Date),
                        Column('accession_id', Integer,
-                              ForeignKey('accession.id'), nullable=False),
-                       Column('_created', DateTime(True),
-                              default=func.current_timestamp()),
-                       Column('_last_updated', DateTime(True),
-                              default=func.current_timestamp(),
-                              onupdate=func.current_timestamp()))
+                              ForeignKey('accession.id'), nullable=False))
 
 class Donation(bauble.BaubleMapper):
 
@@ -38,7 +33,7 @@ class Donation(bauble.BaubleMapper):
 #    column using a datetime object
 # TODO: deleting this foreign accession deletes this collection
 # TODO: this shouldn't be allowed to be None, UPDATE: what the hell am i talking about
-collection_table = Table('collection',
+collection_table = bauble.Table('collection',
                          Column('id', Integer, primary_key=True),
                          Column('collector', Unicode(64)),
                          Column('collectors_code', Unicode(50)),
@@ -54,12 +49,7 @@ collection_table = Table('collection',
                                 ForeignKey('geography.id')),
                          Column('notes', Unicode),
                          Column('accession_id', Integer,
-                                ForeignKey('accession.id'), nullable=False),
-                         Column('_created', DateTime(True),
-                                default=func.current_timestamp()),
-                         Column('_last_updated', DateTime(True),
-                                default=func.current_timestamp(),
-                                onupdate=func.current_timestamp()))
+                                ForeignKey('accession.id'), nullable=False))
 
 class Collection(bauble.BaubleMapper):
 

@@ -44,29 +44,38 @@ if not os.path.exists(paths.user_dir()):
 
 from bauble.i18n import *
 try:
-    from sqlalchemy import *
+   #from sqlalchemy import *
+   import sqlalchemy
     # TODO: check sqlalchemy version
 except ImportError:
-    msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
-            'http://www.sqlalchemy.org')
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-    raise
+   msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
+           'http://www.sqlalchemy.org')
+   utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+   raise
 
 
 # set SQLAlchemy logging level
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
-# TODO: make this work, we get strange errors when using this, probably because
-# of the way table is implemented, with a singleton metaclass
-#
+
+_now = sqlalchemy.func.current_timestamp(type=sqlalchemy.DateTime)
+
 #class BaubleTable(Table):
-#
-#    def __init__(self, *args, **kwargs):
-#        # TODO: add _created
-#        super(BaubleTable, self).__init__(*args, **kwargs)
-#        super(BaubleTable, self).append_column(Column('_last_updated', DateTime,
-#                                                      onupdate=func.current_timestamp()))
+
+class Table(sqlalchemy.Table):
+
+   def __init__(self, *args, **kwargs):
+      super(Table, self).__init__(*args, **kwargs)
+      self.append_column(sqlalchemy.Column('_created',
+                                           sqlalchemy.DateTime(True),
+                                           default=_now))
+      self.append_column(sqlalchemy.Column('_last_updated',
+                                           sqlalchemy.DateTime(True),
+                                           default=_now, onupdate=_now))
+
+#BaubleTable = Table
+
 
 class BaubleMapper(object):
 
