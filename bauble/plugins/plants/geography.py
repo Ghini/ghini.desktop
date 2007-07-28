@@ -35,18 +35,13 @@ def get_species_in_geography(geo):
 
 
 
-geography_table = Table('geography',
+geography_table = bauble.Table('geography',
                         Column('id', Integer, primary_key=True),
                         Column('name', String(255), nullable=False),
                         Column('tdwg_code', String(6)),
                         Column('iso_code', String(7)),
                         Column('parent_id', Integer,
-                               ForeignKey('geography.id')),
-                        Column('_created', DateTime(True),
-                               default=func.current_timestamp()),
-                        Column('_last_updated', DateTime(True),
-                               default=func.current_timestamp(),
-                               onupdate=func.current_timestamp()))
+                               ForeignKey('geography.id')))
 
 
 class Geography(bauble.BaubleMapper):

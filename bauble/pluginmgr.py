@@ -23,6 +23,7 @@ import bauble
 import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
+import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning
 from bauble.i18n import *
 import simplejson as json
@@ -80,7 +81,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
         if len(default_filenames) > 0:
             from bauble.plugins.imex.csv_ import CSVImporter
             csv = CSVImporter()
-            debug('starting import')
+#            debug('starting import')
             try:
                 csv.start(filenames=default_filenames, metadata=
                           default_metadata, force=force)
@@ -219,10 +220,13 @@ class Registry(dict):
         create a new empty registry in the current database, if a registry
         already exists an error will be raised
         '''
+        #logger.echo(True)
         obj = meta.BaubleMeta(name=meta.REGISTRY_KEY, value='[]')
         session = create_session()
         session.save(obj)
+#        debug(obj)
         session.flush()
+        #logger.echo(False)
 
 
     def save(self):
