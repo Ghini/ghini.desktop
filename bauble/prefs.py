@@ -174,6 +174,10 @@ class _prefs(dict):
             #return self.config.get(section, option)
 
 
+    def iteritems(self):
+        return [('%s.%s' % (section, name), value) for section in sorted(prefs.config.sections()) for name, value in prefs.config.items(section)]
+
+
     def __setitem__(self, key, value):
         section, option = _prefs._parse_key(key)
         if not self.config.has_section(section):
@@ -211,17 +215,12 @@ class PrefsView(pluginmgr.View):
         expander = gtk.Expander(_('Preferences'))
         view = self.create_prefs_view()
         expander.add(view)
-        self.pack_start(expander)
+        self.pack_start(expander, expand=False, fill=True)
 
-##         expander = gtk.Expander(_('Registry'))
-##         view = create_registry_view()
-##         expander.add(view)
-##         self.pack_start(expander)
-
-##         expander = gtk.Expander(_('Meta'))
-##         view = create_meta_view()
-##         expander.add(view)
-##         self.pack_start(expander)
+        expander = gtk.Expander(_('Registry'))
+        view = self.create_registry_view()
+        expander.add(view)
+        self.pack_start(expander, expand=False, fill=True)
 
 
     def create_tree(self, columns, itemsiter):
@@ -240,7 +239,6 @@ class PrefsView(pluginmgr.View):
 
         model = gtk.ListStore(*model_cols)
         for i in itemsiter:
-            debug(i)
             model.append(i)
         treeview.set_model(model)
 
@@ -251,56 +249,54 @@ class PrefsView(pluginmgr.View):
 
 
     def create_prefs_view(self):
-        class prefs_iter(object):
+        global prefs
+        tree = self.create_tree([_('Names'), _('Values')], prefs.iteritems())
+        return tree
 
-            def __iter__(self):
-                return self
-
-            def next(self):
-                for section in prefs.config.sections():
-                    for name, value in prefs.config.items(section):
-                        yield ['%s.%s' % (section, name), value]
-
-        tree = self.create_tree([_('Names'), _('Values')], iter(prefs_iter()))
+    def create_registry_view(self):
+        from bauble.pluginmgr import Registry
+        tree = self.create_tree([_('Names'), _('Values')], Registry().iteritems())
         return tree
 
 
-    def create_prefs_view2(self):
-        treeview = gtk.TreeView()
-        #treeview.set_headers_visible(False)
-        treeview.set_rules_hint(True)
 
-        def cell_data_func(col, cell, model, iter, item):
-            value = model[iter][item]
-            cell.set_property('markup', value)
-        def cell_data_func2(col, cell, model, iter, item):
-            value = model[iter][item]
-            cell.set_property('markup', value)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_('Name'), renderer, text=0)
-        #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        treeview.append_column(column)
+##     def create_prefs_view2(self):
+##         treeview = gtk.TreeView()
+##         #treeview.set_headers_visible(False)
+##         treeview.set_rules_hint(True)
 
-        renderer = gtk.CellRendererText()
-        column = gtk.TreeViewColumn(_('Value'), renderer, text=1)
-        #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        treeview.append_column(column)
+##         def cell_data_func(col, cell, model, iter, item):
+##             value = model[iter][item]
+##             cell.set_property('markup', value)
+##         def cell_data_func2(col, cell, model, iter, item):
+##             value = model[iter][item]
+##             cell.set_property('markup', value)
 
-        model = gtk.ListStore(str, str)
-        for section in prefs.config.sections():
-            for name, value in prefs.config.items(section):
-#                debug('%s.%s: %s' % (section, name, value))
-                model.append(['%s.%s' % (section, name), value])
-        treeview.set_model(model)
-        treeview.show_all()
+##         renderer = gtk.CellRendererText()
+##         column = gtk.TreeViewColumn(_('Name'), renderer, text=0)
+##         #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+##         treeview.append_column(column)
 
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        sw.add(treeview)
+##         renderer = gtk.CellRendererText()
+##         column = gtk.TreeViewColumn(_('Value'), renderer, text=1)
+##         #column.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
+##         treeview.append_column(column)
 
-        #self.pack_start(sw)
-        return sw
+##         model = gtk.ListStore(str, str)
+##         for section in prefs.config.sections():
+##             for name, value in prefs.config.items(section):
+## #                debug('%s.%s: %s' % (section, name, value))
+##                 model.append(['%s.%s' % (section, name), value])
+##         treeview.set_model(model)
+##         treeview.show_all()
+
+##         sw = gtk.ScrolledWindow()
+##         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
+##         sw.add(treeview)
+
+##         #self.pack_start(sw)
+##         return sw
 
 
 class PrefsCommandHandler(pluginmgr.CommandHandler):
