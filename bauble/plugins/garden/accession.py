@@ -167,26 +167,21 @@ date: date accessioned
     #ver_hist = StringCol(default=None)  # verification history
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
-verification_table = Table('verification',
+verification_table = bauble.Table('verification',
                            Column('id', Integer, primary_key=True),
                            Column('verifier', Unicode(64)),
                            Column('date', Date),
                            Column('literature', Unicode),
                            Column('level', String), # i don't know what this is
                            Column('accession_id', Integer,
-                                  ForeignKey('accession.id')),
-                           Column('_created', DateTime(True),
-                                  default=func.current_timestamp()),
-                           Column('_last_updated', DateTime(True),
-                                  default=func.current_timestamp(),
-                                  onupdate=func.current_timestamp()))
+                                  ForeignKey('accession.id')))
 
 
 class Verification(bauble.BaubleMapper):
     pass
 
 
-accession_table = Table('accession',
+accession_table = bauble.Table('accession',
                         Column('id', Integer, primary_key=True),
                         Column('code', Unicode(20), nullable=False,
                                unique=True),
@@ -215,12 +210,7 @@ accession_table = Table('accession',
                                                'forsan', 'near', '?', None],
                                        empty_to_none=True)),
                 Column('species_id', Integer, ForeignKey('species.id'),
-                       nullable=False),
-                Column('_created', DateTime(True),
-                       default=func.current_timestamp()),
-                Column('_last_updated', DateTime(True),
-                       default=func.current_timestamp(),
-                       onupdate=func.current_timestamp()))
+                       nullable=False))
 
 
 class Accession(bauble.BaubleMapper):

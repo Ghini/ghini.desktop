@@ -51,6 +51,16 @@ def _config_logger(name, level, format, propagate=False):
     logger.propagate = propagate
     return logger
 
+def sa_echo(logger='sqlalchemy', level=logging.DEBUG):
+    l = logging.getLogger(logger)
+    l.setLevel(level)
+
+def echo(toggle=True):
+    if toggle == True:
+        sa_echo(level=logging.DEBUG)
+    else:
+        sa_echo(level=logging.ERROR)
+
 
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
 #root_logger = _config_logger('', logging.DEBUG, '%(levelname)s: %(message)s',

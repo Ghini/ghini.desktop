@@ -53,15 +53,10 @@ def loc_markup_func(location):
         return str(location)
 
 
-location_table = Table('location',
+location_table = bauble.Table('location',
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True,nullable=False),
-                       Column('description', Unicode),
-                       Column('_created', DateTime(True),
-                              default=func.current_timestamp()),
-                       Column('_last_updated', DateTime(True),
-                              default=func.current_timestamp(),
-                              onupdate=func.current_timestamp()))
+                       Column('description', Unicode))
 
 
 class Location(bauble.BaubleMapper):

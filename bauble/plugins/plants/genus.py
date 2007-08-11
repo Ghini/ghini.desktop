@@ -90,7 +90,7 @@ def genus_markup_func(genus):
     # TODO: we should at least warn the user that a duplicate genus name is
     # being entered
 
-genus_table = Table('genus',
+genus_table = bauble.Table('genus',
                     Column('id', Integer, primary_key=True),
                     # it is possible that there can be genera with the same
                     # name but different authors and probably means that at
@@ -109,11 +109,6 @@ genus_table = Table('genus',
                     Column('notes', Unicode),
                     Column('family_id', Integer, ForeignKey('family.id'),
                            nullable=False),
-                    Column('_created', DateTime(True),
-                           default=func.current_timestamp()),
-                    Column('_last_updated', DateTime(True),
-                           default=func.current_timestamp(),
-                           onupdate=func.current_timestamp()),
                     UniqueConstraint('genus', 'hybrid', 'author',
                                      'family_id', name='genus_index'))
 
@@ -135,17 +130,12 @@ class Genus(bauble.BaubleMapper):
                                          xml.sax.saxutils.escape(genus.author)] if s is not None])
 
 
-genus_synonym_table = Table('genus_synonym',
+genus_synonym_table = bauble.Table('genus_synonym',
                             Column('id', Integer, primary_key=True),
                             Column('genus_id', Integer, ForeignKey('genus.id'),
                                    nullable=False),
                             Column('synonym_id', Integer,
                                    ForeignKey('genus.id'), nullable=False),
-                            Column('_created', DateTime(True),
-                                   default=func.current_timestamp()),
-                            Column('_last_updated', DateTime(True),
-                                   default=func.current_timestamp(),
-                                   onupdate=func.current_timestamp()),
                             UniqueConstraint('genus_id', 'synonym_id',
                                              name='genus_synonym_index'))
 

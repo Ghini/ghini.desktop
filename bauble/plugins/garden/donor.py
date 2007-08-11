@@ -44,7 +44,7 @@ donor_context_menu = [('Edit', edit_callback),
 # in the search view
 # TODO: the donor_type could be either be character codes or possible a foreign
 # key into another table
-donor_table = Table('donor',
+donor_table = bauble.Table('donor',
                     Column('id', Integer, primary_key=True),
                     Column('name', Unicode(72), unique=True, nullable=False),
                     Column('donor_type',
@@ -65,12 +65,7 @@ donor_table = Table('donor',
                     Column('email', Unicode(128)),
                     Column('fax', Unicode(64)),
                     Column('tel', Unicode(64)),
-                    Column('notes', Unicode),
-                    Column('_created', DateTime(True),
-                           default=func.current_timestamp()),
-                    Column('_last_updated', DateTime(True),
-                           default=func.current_timestamp(),
-                           onupdate=func.current_timestamp()))
+                    Column('notes', Unicode))
 
 class Donor(bauble.BaubleMapper):
 
