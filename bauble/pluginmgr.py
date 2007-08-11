@@ -41,12 +41,12 @@ def register_command(handler):
     global commands
     if isinstance(handler.command, str):
         if handler.command in commands:
-            raise ValueError(_('%s already registred' % command))
+            raise ValueError(_('%s already registred' % handler.command))
         commands[handler.command] = handler
     else:
         for cmd in handler.command:
             if cmd in commands:
-                raise ValueError(_('%s already registred' % command))
+                raise ValueError(_('%s already registred' % cmd))
             commands[cmd] = handler
 
 
@@ -81,26 +81,34 @@ def install(plugins_to_install, import_defaults=True, force=False):
         if len(default_filenames) > 0:
             from bauble.plugins.imex.csv_ import CSVImporter
             csv = CSVImporter()
-#            debug('starting import')
+            debug('starting import')
             try:
                 csv.start(filenames=default_filenames, metadata=
                           default_metadata, force=force)
+                debug('import done')
 
                 # register plugin as installed
                 for p in to_install:
 #                    debug('add %s to registry' % p)
                     registry.add(RegistryEntry(name=p.__name__, version='0.0'))
                     registry.save()
+                transaction.commit()
             except Exception, e:
                 debug(e)
+                debug('rollback registry')
                 transaction.rollback()
+                raise
     else:
-        for p in to_install:
-#            debug('add %s to registry' % p)
-            registry.add(RegistryEntry(name=p.__name__, version='0.0'))
-            registry.save()
-#    debug('commiting in pluginmgr.install()')
-    transaction.commit()
+        try:
+            for p in to_install:
+                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+                registry.save()
+        except:
+            debug(e)
+            transaction.rollback()
+            raise
+##    debug('commiting in pluginmgr.install()')
+        transaction.commit()
 
 
 

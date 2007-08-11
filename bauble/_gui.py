@@ -42,6 +42,7 @@ class GUI(object):
         self.window.hide()
 
         self.window.set_default_size(800, 600)
+        self.window.connect('delete-event', self.on_delete_event)
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
         if sys.platform != 'win32':
@@ -206,7 +207,8 @@ class GUI(object):
 
 
     def set_default_view(self):
-        self.widgets.main_entry.set_text('')
+        if self.widgets.main_entry is not None:
+            self.widgets.main_entry.set_text('')
         self.set_view(DefaultView())
 
 
@@ -217,6 +219,8 @@ class GUI(object):
         @param view: default=None
         '''
         view_box = self.widgets.view_box
+        if view_box is None:
+            return
         for kids in view_box.get_children():
             view_box.remove(kids)
         view_box.pack_start(view, True, True, 0)
@@ -444,6 +448,15 @@ class GUI(object):
         """
         prefs.save()
 
+
+    def on_delete_event(self, *args):
+        import bauble.task as task
+        if task._flushing or not task._task_queue.empty():
+            msg = _('Would you like the cancel the current tasks?')
+            if not utils.yes_no_dialog(msg):
+                # stop other handlers for being invoked for this event
+                return True
+        return False
 
     def on_quit(self, widget, data=None):
         bauble.quit()

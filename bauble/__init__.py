@@ -58,23 +58,37 @@ except ImportError:
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
+import datetime
+class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
+
+   impl = sqlalchemy.types.DateTime
+
+   def __init__(self, *args, **kwargs):
+      super(DateTimeDecorator, self).__init__(*args, **kwargs)
+
+   def convert_bind_param(self, value, engine):
+      if isinstance(value, (basestring)):
+         format = '%Y-%m-%d %H:%M:%S'
+         value = datetime.datetime.strptime(value, format)
+      return super(DateTimeDecorator, self).convert_bind_param(value, engine)
+
+   def convert_result_value(self, value, engine):
+      return super(DateTimeDecorator, self).convert_result_value(value, engine)
+
 
 _now = sqlalchemy.func.current_timestamp(type=sqlalchemy.DateTime)
-
-#class BaubleTable(Table):
 
 class Table(sqlalchemy.Table):
 
    def __init__(self, *args, **kwargs):
       super(Table, self).__init__(*args, **kwargs)
       self.append_column(sqlalchemy.Column('_created',
-                                           sqlalchemy.DateTime(True),
+                                           DateTimeDecorator(True),
                                            default=_now))
       self.append_column(sqlalchemy.Column('_last_updated',
-                                           sqlalchemy.DateTime(True),
+                                           DateTimeDecorator(True),
                                            default=_now, onupdate=_now))
 
-#BaubleTable = Table
 
 
 class BaubleMapper(object):
@@ -93,19 +107,23 @@ from bauble.prefs import prefs
 
 
 def save_state():
-    # in case we quit before the gui is created
-    global gui, prefs
-    if gui is not None:
-        gui.save_state()
-    prefs.save()
+   # in case we quit before the gui is created
+   global gui, prefs
+   if gui is not None:
+      gui.save_state()
+   prefs.save()
 
 
 def quit():
-    save_state()
-    try:
-        gtk.main_quit()
-    except RuntimeError: # in case main_quit is called before main
-        sys.exit(1)
+   import bauble.task as task
+   global _quitting
+   _quitting = True
+   save_state()
+   try:
+      task._quit()
+      gtk.main_quit()
+   except RuntimeError: # in case main_quit is called before main
+      sys.exit(1)
 
 
 def open_database(uri, verify=True):
@@ -196,19 +214,26 @@ def create_database(import_defaults=True):
    # then if the import transaction fails then we can rollback any
    # changes we make here#
    import bauble.db as db
+   from bauble.task import TaskQuitting
    try:
+
       db.create(import_defaults)
+   except (GeneratorExit, TaskQuitting), e:
+      # this is here in case the main windows is closed in the middle
+      # of a task
+      raise
    except Exception, e:
       msg = _('Error creating tables. Your database may be corrupt.'\
               '\n\n%s') % utils.xml_safe_utf8(e)
       debug(traceback.format_exc())
       utils.message_details_dialog(msg, traceback.format_exc(),
                                    gtk.MESSAGE_ERROR)
+      raise
 
 
 def set_busy(busy):
    global gui
-   if gui is None:
+   if gui is None or gui.widgets.main_box is None:
       return
    # main_box is everything but the statusbar
    gui.widgets.main_box.set_sensitive(not busy)
@@ -328,7 +353,8 @@ def main(uri=None):
                create_database()
                ok_to_init_plugins = True
       except Exception, e:
-         utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
+         pass
+         #utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
       else:
          # create_database creates all tables registered with the default
          # metadata so the pluginmgr should be loaded after the database

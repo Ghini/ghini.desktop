@@ -70,6 +70,52 @@ def pb_set_fraction(fraction):
         bauble.gui.progressbar.set_fraction(fraction)
 
 
+
+class UnicodeReader:
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        self.reader = csv.DictReader(f, dialect=dialect, **kwds)
+        self.encoding = encoding
+
+
+    def next(self):
+        row = self.reader.next()
+        t = {}
+        for k, v in row.iteritems():
+            try:
+                t[k] = unicode(v, self.encoding)
+            except:
+                t[k] = v
+        return t
+
+
+    def __iter__(self):
+        return self
+
+
+
+class UnicodeWriter:
+
+    def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
+        self.writer = csv.writer(f, dialect=dialect, **kwds)
+        self.encoding = encoding
+
+
+    def writerow(self, row):
+        t = []
+        for s in row:
+            try:
+                t.append(unicode(s, self.encoding))
+            except:
+                t.append(s)
+        self.writer.writerow(t)
+
+
+    def writerows(self, rows):
+        for row in rows:
+            self.writerow(row)
+
+
 class Importer(object):
 
     def start(self, **kwargs):
@@ -273,8 +319,8 @@ class CSVImporter(Importer):
                 # do the inserts
                 insert = table.insert().compile()
                 f = file(filename, "rb")
-                reader = csv.DictReader(f, quotechar=QUOTE_CHAR,
-                                        quoting=QUOTE_STYLE)
+                reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
+                                       quoting=QUOTE_STYLE)
                 update_every = 11
 ##                debug('slice it')
                 for line in reader:
@@ -284,8 +330,7 @@ class CSVImporter(Importer):
                         break
                     if len(line) > 0:
                         cleaned = dict([(k, v) for k,v in \
-                                        line.iteritems() if v is not ''])
-#                        debug('%s: %s' % (insert.table, cleaned['id']))
+                                        line.iteritems() if v not in ('',u'')])
                         connection.execute(insert, cleaned)
 
                     steps_so_far += 1
@@ -299,57 +344,47 @@ class CSVImporter(Importer):
                 if self.__error or self.__cancel:
                     break
 
+        except (bauble.task.TaskQuitting, GeneratorExit), e:
+            transaction.rollback()
+            raise
         except Exception, e:
             debug(e)
-            self.__error = True
-            self.__error_exc = utils.xml_safe_utf8(e)
-            self.__error_traceback_str = traceback.format_exc()
-            self.__cancel = True
-
-        if self.__error:
-            try:
-                msg = self.__error_exc.orig
-            except AttributeError, e: # no attribute orig
-                msg = self.__error_exc
-            utils.message_details_dialog(_('Error:  %s') % \
-                                         utils.xml_safe_utf8(msg),
-                                         self.__error_traceback_str,
-                                         type=gtk.MESSAGE_ERROR)
-
-        if self.__error or self.__cancel:
-            log.info('rolling back import')
             transaction.rollback()
-        else:
-            log.info('commiting import')
-            transaction.commit()
-            # set the sequence on a table to the max value
-            if engine.name == 'postgres':
-                try:
-                    for table, filename in sorted_tables:
-                    # TOD0: maybe something like
-    #                for col in table.c:
-    #                    if col.type == Integer:
-    #                        - get the max
-    #                        try:
-    #                            - set the sequence
-    #                        except:
-    #                            pass
+            utils.message_details_dialog(_('Error:  %s') % \
+                                         utils.xml_safe_utf8(e),
+                                         traceback.format_exc(),
+                                         type=gtk.MESSAGE_ERROR)
+            raise
 
-                        sequence_name = '%s_id_seq' % table.name
-                        stmt = "SELECT max(id) FROM %s" % table.name
-                        max = connection.execute(stmt).fetchone()[0]
-                        if max is not None:
-                            stmt = "SELECT setval('%s', %d);" % \
-                                   (sequence_name, max+1)
-                            connection.execute(stmt)
-                except Exception, e:
-                    debug(e)
-                    msg = _('Error: Could not set the value the for the '\
-                            'sequence: %s') % sequence_name
-                    utils.message_details_dialog(_('Error:  %s' \
-                                                   % utils.xml_safe_utf8(msg)),
-                                                 str(e),
-                                                 type=gtk.MESSAGE_ERROR)
+
+        transaction.commit()
+        # set the sequence on a table to the max value
+        if engine.name == 'postgres':
+            try:
+                for table, filename in sorted_tables:
+##                     # TOD0: maybe something like
+##     #                for col in table.c:
+##     #                    if col.type == Integer:
+##     #                        - get the max
+##     #                        try:
+##     #                            - set the sequence
+##     #                        except:
+##     #                            pass
+
+                    sequence_name = '%s_id_seq' % table.name
+                    stmt = "SELECT max(id) FROM %s" % table.name
+                    max = connection.execute(stmt).fetchone()[0]
+                    if max is not None:
+                        stmt = "SELECT setval('%s', %d);" % \
+                               (sequence_name, max+1)
+                        connection.execute(stmt)
+            except Exception, e:
+                debug(e)
+                msg = _('Error: Could not set the value the for the '\
+                        'sequence: %s') % sequence_name
+                utils.message_details_dialog(_('Error:  %s' \
+                                               % utils.xml_safe_utf8(msg)),
+                                             str(e), type=gtk.MESSAGE_ERROR)
 
 
     def __init__(self):
@@ -422,7 +457,10 @@ class CSVExporter:
             raise ValueError(_("CSVExporter: path does not exist.\n%s" % path))
 
         def on_error(exc):
-            utils.message_dialog(str(exc))
+            debug(exc)
+            debug(type(exc))
+            if not isinstance(exc, (GeneratorExit, bauble.task.TaskQuitting)):
+                utils.message_dialog(str(exc))
 
         try:
             bauble.task.queue(self.__export_task, None, on_error, path)
@@ -455,7 +493,8 @@ class CSVExporter:
 
         def write_csv(filename, rows):
             f = file(filename, 'wb')
-            writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+            #writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
+            writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,quoting=QUOTE_STYLE)
             writer.writerows(rows)
             f.close()
 
