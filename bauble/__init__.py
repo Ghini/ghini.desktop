@@ -349,7 +349,7 @@ def main(uri=None):
                     'the current connection?\n\n<i>Warning: If there is '\
                     'already a database at this connection any existing '\
                     'data will be destroyed!</i>')
-            if utils.yes_no_dialog(msg):
+            if utils.yes_no_dialog(msg, yes_delay=2):
                create_database()
                ok_to_init_plugins = True
       except Exception, e:

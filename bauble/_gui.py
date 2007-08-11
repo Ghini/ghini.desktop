@@ -419,7 +419,7 @@ class GUI(object):
         msg = "If a database already exists at this connection then creating "\
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
-        if utils.yes_no_dialog(msg):
+        if utils.yes_no_dialog(msg, yes_delay=2):
             bauble.create_database()
         pluginmgr.init()
         self.set_default_view()
