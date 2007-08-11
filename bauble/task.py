@@ -5,6 +5,8 @@
 #
 import gobject, gtk
 import bauble
+import bauble.utils as utils
+from bauble.i18n import *
 from bauble.utils.log import debug
 import Queue
 
@@ -16,15 +18,6 @@ _task_queue = Queue.Queue(0)
 # check again if the queue is empty and set the status bar message if it's
 # empty
 
-# TODO: do we need a timeout function that regulary check the queue or just
-# accept that everytime something is queued the task manager keeps running all
-# the tasks in the queue until it's empty, the next queueed task would then
-# start the process again
-
-# TODO: if we passed some custom class to the tasklet instead of a method then
-# the class could have some interface like a cancel() method that tells the
-# task to cancel itself
-
 # TODO: catch the quit or closes signals and see if there are any running tasks
 # and send then the task cancel signal so they can ask the user if they
 # really wan't to cancel the task
@@ -35,12 +28,20 @@ def _update_gui():
     while gtk.events_pending():
         gtk.main_iteration()
 
+
+class TaskQuitting(Exception):
+    pass
+
 def _run_task(func, *args, **kwargs):
+    global __gtk_quitting
     task = func(*args, **kwargs)
     try:
         while True:
-            task.next()
-            _update_gui()
+            if not __gtk_quitting:
+                task.next()
+                _update_gui()
+            else:
+                raise TaskQuitting
     except StopIteration:
         pass
 
@@ -61,7 +62,8 @@ def set_message(msg):
 
 
 def clear_messages():
-    if bauble.gui is None or bauble.gui.widgets is None:
+    if bauble.gui is None or bauble.gui.widgets is None \
+           or bauble.gui.widgets.statusbar is None:
         return
     global _context_id, __message_ids
     for id in __message_ids:
@@ -90,11 +92,12 @@ def flush():
             _run_task(func, *args)
             if on_quit is not None:
                 on_quit()
+        except (GeneratorExit, TaskQuitting), e:
+            raise
         except Exception, e:
             if on_error is not None:
                 on_error(e)
-            else:
-                raise
+            raise
     bauble.set_busy(False)
     clear_messages()
     if bauble.gui is not None:
@@ -104,6 +107,14 @@ def flush():
     _flushing = False
 
 
+__quit_handler_id = None
+__gtk_quitting = False
+
+def _quit():
+    global __gtk_quitting
+    __gtk_quitting = True
+    return 0 # return 0 to remove from gtk quit handlers
+
 
 def queue(task, on_quit, on_error, *args):
     """
@@ -112,5 +123,9 @@ def queue(task, on_quit, on_error, *args):
     @param args: the arguments to pass to the task
     """
     global _task_queue
+    global __quit_handler_id
+    if __quit_handler_id is None:
+        level = gtk.main_level()
+        __quit_handler_id = gtk.quit_add(level, _quit)
     _task_queue.put((task, on_quit, on_error, args))
     flush()

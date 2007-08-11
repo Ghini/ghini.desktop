@@ -49,7 +49,10 @@ class ImexCSVTestCase(ImexTestCase):
         # 2. import the data and make sure the objects match field for field
 
         # the exporters and importers show logging information, turn it off
+        import bauble.utils as utils
         import logging
+        #utils.log.echo()
+#        utils.log.sa_echo('sqlalchemy.engine', level=logging.INFO)
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         import tempfile
         tempdir = tempfile.mkdtemp()
@@ -58,14 +61,18 @@ class ImexCSVTestCase(ImexTestCase):
         exporter = CSVExporter()
         exporter.start(tempdir)
 
+
+#        print '******** exported **************'
         # import all the files in the temp directory
         logging.getLogger('bauble').setLevel(logging.ERROR)
         filenames = os.listdir(tempdir)
         importer = CSVImporter()
+        # import twice to check for regression Launchpad #???
         importer.start([os.path.join(tempdir, name) for name in filenames],
                        force=True)
-        importer.start([os.path.join(tempdir, name) for name in filenames],
-                       force=True)
+#        importer.start([os.path.join(tempdir, name) for name in filenames],
+#                       force=True)
+        utils.log.echo(False)
 
 
     def test_export(self):

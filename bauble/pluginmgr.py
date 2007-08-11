@@ -23,6 +23,7 @@ import bauble
 import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
+import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning
 from bauble.i18n import *
 import simplejson as json
@@ -40,12 +41,12 @@ def register_command(handler):
     global commands
     if isinstance(handler.command, str):
         if handler.command in commands:
-            raise ValueError(_('%s already registred' % command))
+            raise ValueError(_('%s already registred' % handler.command))
         commands[handler.command] = handler
     else:
         for cmd in handler.command:
             if cmd in commands:
-                raise ValueError(_('%s already registred' % command))
+                raise ValueError(_('%s already registred' % cmd))
             commands[cmd] = handler
 
 
@@ -84,22 +85,30 @@ def install(plugins_to_install, import_defaults=True, force=False):
             try:
                 csv.start(filenames=default_filenames, metadata=
                           default_metadata, force=force)
+                debug('import done')
 
                 # register plugin as installed
                 for p in to_install:
 #                    debug('add %s to registry' % p)
                     registry.add(RegistryEntry(name=p.__name__, version='0.0'))
                     registry.save()
+                transaction.commit()
             except Exception, e:
                 debug(e)
+                debug('rollback registry')
                 transaction.rollback()
+                raise
     else:
-        for p in to_install:
-#            debug('add %s to registry' % p)
-            registry.add(RegistryEntry(name=p.__name__, version='0.0'))
-            registry.save()
-#    debug('commiting in pluginmgr.install()')
-    transaction.commit()
+        try:
+            for p in to_install:
+                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+                registry.save()
+        except:
+            debug(e)
+            transaction.rollback()
+            raise
+##    debug('commiting in pluginmgr.install()')
+        transaction.commit()
 
 
 
@@ -219,10 +228,13 @@ class Registry(dict):
         create a new empty registry in the current database, if a registry
         already exists an error will be raised
         '''
+        #logger.echo(True)
         obj = meta.BaubleMeta(name=meta.REGISTRY_KEY, value='[]')
         session = create_session()
         session.save(obj)
+#        debug(obj)
         session.flush()
+        #logger.echo(False)
 
 
     def save(self):
