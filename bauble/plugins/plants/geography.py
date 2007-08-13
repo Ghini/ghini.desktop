@@ -37,25 +37,30 @@ def get_species_in_geography(geo):
 
 geography_table = bauble.Table('geography',
                         Column('id', Integer, primary_key=True),
-                        Column('name', String(255), nullable=False),
+                        Column('name', Unicode(255), nullable=False),
                         Column('tdwg_code', String(6)),
                         Column('iso_code', String(7)),
                         Column('parent_id', Integer,
                                ForeignKey('geography.id')))
 
 
+
 class Geography(bauble.BaubleMapper):
 
     def __str__(self):
-        return str(self.name)
+        return self.name
+
+    def __unicode__(self):
+        return self.name
+
+
 
 # Geography mapper
 Geography.mapper = mapper(Geography, geography_table,
     properties = {'children':
-                  relation(Geography,
-                           primaryjoin=geography_table.c.parent_id==geography_table.c.id,
-                           cascade='all',
-                           backref=backref("parent",
-                                           remote_side=[geography_table.c.id])
-                           )},
+        relation(Geography,
+                 primaryjoin=geography_table.c.parent_id==geography_table.c.id,
+                 cascade='all', backref=backref("parent",
+                                            remote_side=[geography_table.c.id])
+                 )},
     order_by=[geography_table.c.name])

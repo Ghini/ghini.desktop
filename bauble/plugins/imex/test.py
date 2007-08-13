@@ -17,11 +17,6 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
 
 csv_test_data = ({})
 
-class TestCSVImporter(CSVImporter):
-
-    def on_quit(self):
-        gtk.main_quit()
-
 class ImexTestCase(BaubleTestCase):
 
     def __init__(self, *args):
@@ -41,6 +36,14 @@ class ImexTestCase(BaubleTestCase):
 class ImexCSVTestCase(ImexTestCase):
 
     def test_import(self):
+        # TODO: create a test to check that we aren't using an insert
+        # statement for import that assumes a column value from the previous
+        # insert values, could probably create an insert statement from a
+        # row in the test data and then create an insert statement from some
+        # other dummy data that has different columns from the test data and
+        # see if any of the columns from the second insert statement has values
+        # from the first statement
+
         # TODO: this test doesn't really test yet that any of the data was
         # correctly imported or exported, only that export and importing
         # run successfuly
@@ -51,8 +54,6 @@ class ImexCSVTestCase(ImexTestCase):
         # the exporters and importers show logging information, turn it off
         import bauble.utils as utils
         import logging
-        #utils.log.echo()
-#        utils.log.sa_echo('sqlalchemy.engine', level=logging.INFO)
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         import tempfile
         tempdir = tempfile.mkdtemp()
@@ -61,8 +62,6 @@ class ImexCSVTestCase(ImexTestCase):
         exporter = CSVExporter()
         exporter.start(tempdir)
 
-
-#        print '******** exported **************'
         # import all the files in the temp directory
         logging.getLogger('bauble').setLevel(logging.ERROR)
         filenames = os.listdir(tempdir)
@@ -70,9 +69,19 @@ class ImexCSVTestCase(ImexTestCase):
         # import twice to check for regression Launchpad #???
         importer.start([os.path.join(tempdir, name) for name in filenames],
                        force=True)
-#        importer.start([os.path.join(tempdir, name) for name in filenames],
-#                       force=True)
+        importer.start([os.path.join(tempdir, name) for name in filenames],
+                       force=True)
         utils.log.echo(False)
+
+    def test_unicode(self):
+        from bauble.plugins.plants.geography import Geography, geography_table
+        data = {'name': u'Gal\xe1pagos'}
+        geography_table.insert().execute(data)
+        query = self.session.query(Geography)
+        row = query.select()[0]
+        print str(row)
+        print data['name']
+        assert row.name == data['name']
 
 
     def test_export(self):
@@ -86,7 +95,8 @@ class ImexTestSuite(unittest.TestSuite):
 
     def __init__(self):
         super(ImexTestSuite, self).__init__()
-        self.addTests(map(ImexCSVTestCase, ('test_import', 'test_export')))
+        self.addTests(map(ImexCSVTestCase, ('test_import', 'test_export',
+                                            'test_unicode')))
 
 
 testsuite = ImexTestSuite
