@@ -932,9 +932,7 @@ class SearchView(pluginmgr.View):
 
     def cell_data_func(self, coll, cell, model, iter):
         value = model[iter][0]
-#        table_name = value.__class__.__name__
-
-        if isinstance(value, str):
+        if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
             try:
@@ -952,11 +950,13 @@ class SearchView(pluginmgr.View):
                 cell.set_property('markup', '%s\n%s' % \
                                   (_mainstr_tmpl % utils.utf8(main),
                                    _substr_tmpl % utils.utf8(substr)))
+
             except (saexc.InvalidRequestError, TypeError), e:
                 def remove():
                     treeview_model = self.results_view.get_model()
                     self.results_view.set_model(None) # detach model
                     for found in utils.search_tree_model(treeview_model,value):
+                        #debug('remove: %' % str(model[found][0]))
                         treeview_model.remove(found)
                     self.results_view.set_model(treeview_model)
                 gobject.idle_add(remove)

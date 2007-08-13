@@ -81,12 +81,9 @@ def install(plugins_to_install, import_defaults=True, force=False):
         if len(default_filenames) > 0:
             from bauble.plugins.imex.csv_ import CSVImporter
             csv = CSVImporter()
-            debug('starting import')
             try:
                 csv.start(filenames=default_filenames, metadata=
                           default_metadata, force=force)
-                debug('import done')
-
                 # register plugin as installed
                 for p in to_install:
 #                    debug('add %s to registry' % p)
@@ -94,8 +91,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
                     registry.save()
                 transaction.commit()
             except Exception, e:
-                debug(e)
-                debug('rollback registry')
+##                 debug(e)
                 transaction.rollback()
                 raise
     else:
