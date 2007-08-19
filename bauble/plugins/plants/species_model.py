@@ -234,7 +234,9 @@ class Species(bauble.BaubleMapper):
 
         if species.sp_qual is not None:
             name.append(species.sp_qual)
-        return ' '.join(name)
+#        print name
+        return u' '.join(name)
+
 
 
 

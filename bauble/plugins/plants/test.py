@@ -43,16 +43,16 @@ genus_test_data = ({'id': 1, 'genus': 'Maxillaria', 'family_id': 1},
 species_test_data = ({'id': 1, 'sp': 'variabilis', 'genus_id': 1,
                       'sp_author': 'Bateman ex Lindl.'},
                      {'id': 2, 'sp': 'cochleata', 'genus_id': 2,
-                      'sp_author': '(L.) Lem\xc3\xa9e'},
+                      'sp_author': u'(L.) Lem\xe9e'},
                      {'id': 3, 'sp': 'precatorius', 'genus_id': 3,
                       'sp_author': 'L.'},
                      {'id': 4, 'sp': 'alapense', 'genus_id': 4,
-                      'sp_hybrid': 'x', 'sp_author': 'F\xc3\xa9e'},
+                      'sp_hybrid': 'x', 'sp_author': u'F\xe9e'},
                      {'id': 5, 'sp': 'cochleata', 'genus_id': 2,
-                      'sp_author': '(L.) Lem\xc3\xa9e', 'infrasp_rank': 'var.',
+                      'sp_author': u'(L.) Lem\xe9e', 'infrasp_rank': 'var.',
                       'infrasp': 'cochleata'},
                      {'id': 6, 'sp': 'cochleata', 'genus_id': 2,
-                      'sp_author': '(L.) Lem\xc3\xa9e', 'infrasp_rank': 'cv.',
+                      'sp_author': u'(L.) Lem\xe9e', 'infrasp_rank': 'cv.',
                       'infrasp': 'Black Night'},
                      {'id': 7, 'sp': 'precatorius', 'genus_id': 3,
                       'sp_author': 'L.', 'cv_group':'SomethingRidiculous'},
@@ -85,19 +85,19 @@ species_markup_map = {\
 
 species_str_authors_map = {\
     1: 'Maxillaria variabilis Bateman ex Lindl.',
-    2: 'Encyclia cochleata (L.) Lem\xc3\xa9e',
+    2: u'Encyclia cochleata (L.) Lem\xe9e',
     3: 'Abrus precatorius L.',
-    4: 'Campyloneurum x alapense F\xc3\xa9e',
-    5: 'Encyclia cochleata (L.) Lem\xc3\xa9e var. cochleata',
-    6: 'Encyclia cochleata (L.) Lem\xc3\xa9e \'Black Night\''}
+    4: u'Campyloneurum x alapense F\xe9e',
+    5: u'Encyclia cochleata (L.) Lem\xe9e var. cochleata',
+    6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\''}
 
 species_markup_authors_map = {\
     1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
-    2: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e',
+    2: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e',
     3: '<i>Abrus</i> <i>precatorius</i> L.',
-    4: '<i>Campyloneurum</i> x <i>alapense</i> F\xc3\xa9e',
-    5: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e var. <i>cochleata</i>',
-    6: '<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xc3\xa9e \'Black Night\''}
+    4: u'<i>Campyloneurum</i> x <i>alapense</i> F\xe9e',
+    5: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e var. <i>cochleata</i>',
+    6: u'<i>Encyclia</i> <i>cochleata</i> (L.) Lem\xe9e \'Black Night\''}
 
 sp_synonym_test_data = ({'id': 1, 'synonym_id': 1, 'species_id': 2},
                         )
@@ -151,25 +151,26 @@ class PlantTestCase(BaubleTestCase):
 class SpeciesTests(PlantTestCase):
 
     def test_string(self):
-        # TODO: do away with testString and use this instead
         for id, s in species_str_map.iteritems():
-#            print s
-#            print Species.str(self.session.load(Species, id))
-            self.assert_(str(self.session.load(Species, id)) == s)
+            spstr = Species.str(self.session.load(Species, id))
+            self.assert_(spstr == s,
+                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
         for id, s in species_str_authors_map.iteritems():
-#            print s
-#            print Species.str(self.session.load(Species, id), authors=True)
-            self.assert_(Species.str(self.session.load(Species, id),
-                                     authors=True) == s)
+            spstr = Species.str(self.session.load(Species, id), authors=True)
+            self.assert_(spstr == s,
+                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
         for id, s in species_markup_map.iteritems():
-            self.assert_(Species.str(self.session.load(Species, id),
-                                     markup=True) == s)
+            spstr = Species.str(self.session.load(Species, id), markup=True)
+            self.assert_(spstr == s,
+                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
         for id, s in species_markup_authors_map.iteritems():
-            self.assert_(Species.str(self.session.load(Species, id),
-                                     markup=True, authors=True) == s)
+            spstr = Species.str(self.session.load(Species, id),
+                                     markup=True, authors=True)
+            self.assert_(spstr == s,
+                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
 
     def setUp(self):
