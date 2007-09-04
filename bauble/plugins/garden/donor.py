@@ -176,7 +176,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Donor()
-        super(DonorEditor, self).__init(model, parent)
+        super(DonorEditor, self).__init__(model, parent)
         self.parent = parent
         self._committed = []
 

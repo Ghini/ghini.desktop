@@ -232,8 +232,7 @@ class Accession(bauble.BaubleMapper):
         if self.source is not None:
             obj = self.source
             obj._accession = None
-            if hasattr(self.source, '_sa_session_id'):
-                utils.delete_or_expunge(obj)
+            utils.delete_or_expunge(obj)
             self.source_type = None
         if source is None:
             self.source_type = None
@@ -1078,19 +1077,22 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         '''
         source_type = combo.get_active_text()
         source_type_changed = False
-#        debug('on_source_type_combo_changed(%s)' % source_type)
-
         if source_type is None:
             if self.model.source is not None:
                 self.model.source = None
+                if self.current_source_box is not None:
+                    self.view.widgets.remove_parent(self.current_source_box)
+                    self.current_source_box = None
+                self.on_field_changed(self.model, 'source_type')
             return
 
         # FIXME: Donation and Collection shouldn't be hardcoded so that it
         # can be translated
-        # this helps keep a reference to the widgets so they don't get
-        # destroyed
         # TODO: if source_type is set and self.model.source is None then create
         # a new empty source object and attach it to the model
+        #
+        # this helps keep a reference to the widgets so they don't get
+        # destroyed
         box_map = {'Donation': self.view.widgets.donation_box,
                    'Collection': self.view.widgets.collection_box}
         source_class_map = {'Donation': Donation,
@@ -1098,6 +1100,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         # the source_type has changed from what it originally was
         if source_type != self.model.source_type:
+            debug('source_type != model.source_type')
             source_type_changed = True
             new_source = None
             try:
