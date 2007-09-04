@@ -78,7 +78,7 @@ near -- Close to
 # http://www.hortax.org.uk/gardenplantsnames.html
 
 species_table = \
-    Table('species',
+    bauble.Table('species',
           Column('id', Integer, primary_key=True),
           Column('sp', String(64), nullable=False, index=True),
           Column('sp_author', Unicode(128)),
@@ -96,10 +96,6 @@ species_table = \
                                       empty_to_none=True)),
           Column('notes', Unicode),
           Column('genus_id', Integer, ForeignKey('genus.id'), nullable=False),
-          Column('_created', DateTime(True), default=func.current_timestamp()),
-          Column('_last_updated', DateTime(True),
-                 default=func.current_timestamp(),
-                 onupdate=func.current_timestamp()),
           UniqueConstraint('sp', 'sp_author', 'sp_hybrid', 'sp_qual',
                            'cv_group', 'trade_name', 'infrasp',
                            'infrasp_author', 'infrasp_rank', 'genus_id',
@@ -238,23 +234,21 @@ class Species(bauble.BaubleMapper):
 
         if species.sp_qual is not None:
             name.append(species.sp_qual)
-        return ' '.join(name)
+#        print name
+        return u' '.join(name)
+
 
 
 
 # TODO: deleting either of the species this synonym refers to makes
 # this synonym irrelevant
 species_synonym_table = \
-    Table('species_synonym',
+    bauble.Table('species_synonym',
           Column('id', Integer, primary_key=True),
           Column('species_id', Integer, ForeignKey('species.id'),
                  nullable=False),
           Column('synonym_id', Integer, ForeignKey('species.id'),
                  nullable=False),
-          Column('_created', DateTime(True), default=func.current_timestamp()),
-          Column('_last_updated', DateTime(True),
-                 default=func.current_timestamp(),
-                 onupdate=func.current_timestamp()),
           UniqueConstraint('species_id', 'synonym_id',
                            name='species_synonym_index'))
 
@@ -274,17 +268,12 @@ language: language is free text and could include something like UK or US to
 identify the origin of the name
 species_id: key to the species this vernacular name refers to
 """
-vernacular_name_table = Table('vernacular_name',
+vernacular_name_table = bauble.Table('vernacular_name',
                               Column('id', Integer, primary_key=True),
                               Column('name', Unicode(128), nullable=False),
                               Column('language', Unicode(128)),
                               Column('species_id', Integer,
                                      ForeignKey('species.id'), nullable=False),
-                              Column('_created', DateTime(True),
-                                     default=func.current_timestamp()),
-                              Column('_last_updated', DateTime(True),
-                                     default=func.current_timestamp(),
-                                     onupdate=func.current_timestamp()),
                               UniqueConstraint('name', 'language',
                                                'species_id', name='vn_index'))
 
@@ -309,7 +298,7 @@ Default Vernacular Name table(default_vernacular_name)
 species_id:
 vernacular_name_id:
 '''
-default_vernacular_name_table = Table('default_vernacular_name',
+default_vernacular_name_table = bauble.Table('default_vernacular_name',
                                       Column('id', Integer, primary_key=True),
                                       Column('species_id', Integer,
                                              ForeignKey('species.id'),
@@ -317,11 +306,6 @@ default_vernacular_name_table = Table('default_vernacular_name',
                                       Column('vernacular_name_id', Integer,
                                              ForeignKey('vernacular_name.id'),
                                              nullable=False),
-                                      Column('_created', DateTime(True),
-                                             default=func.current_timestamp()),
-                                      Column('_last_updated', DateTime(True),
-                                            default=func.current_timestamp(),
-                                            onupdate=func.current_timestamp()),
                                       UniqueConstraint('species_id',
                                                        'vernacular_name_id',
                                                       name='default_vn_index'))
@@ -342,17 +326,12 @@ class DefaultVernacularName(bauble.BaubleMapper):
 
 
 species_distribution_table = \
-    Table('species_distribution',
+    bauble.Table('species_distribution',
           Column('id', Integer, primary_key=True),
           Column('geography_id', Integer, ForeignKey('geography.id'),
                  nullable=False),
           Column('species_id', Integer, ForeignKey('species.id'),
-                 nullable=False),
-          Column('_created', DateTime(True), default=func.current_timestamp()),
-          Column('_last_updated', DateTime(True),
-                 default=func.current_timestamp(),
-                 onupdate=func.current_timestamp()))
-
+                 nullable=False))
 
 
 class SpeciesDistribution(bauble.BaubleMapper):

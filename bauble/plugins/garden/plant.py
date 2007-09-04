@@ -104,17 +104,12 @@ class PlantSearch(MapperSearch):
 
 
 
-plant_history_table = Table('plant_history',
+plant_history_table = bauble.Table('plant_history',
                             Column('id', Integer, primary_key=True),
                             Column('date', Date),
                             Column('description', Unicode),
                             Column('plant_id', Integer, ForeignKey('plant.id'),
-                                   nullable=False),
-                            Column('_created', DateTime(True),
-                                   default=func.current_timestamp()),
-                            Column('_last_updated', DateTime(True),
-                                   default=func.current_timestamp(),
-                                   onupdate=func.current_timestamp()))
+                                   nullable=False))
 
 
 class PlantHistory(bauble.BaubleMapper):
@@ -143,7 +138,7 @@ Other: Other, possible see notes for more information
 None: no information, unknown)
 '''
 
-plant_table = Table('plant',
+plant_table = bauble.Table('plant',
                     Column('id', Integer, primary_key=True),
                     Column('code', Unicode(6), nullable=False),
                     Column('acc_type',
@@ -160,11 +155,6 @@ plant_table = Table('plant',
                            nullable=False),
                     Column('location_id', Integer, ForeignKey('location.id'),
                            nullable=False),
-                    Column('_created', DateTime(True),
-                           default=func.current_timestamp()),
-                    Column('_last_updated', DateTime(True),
-                           default=func.current_timestamp(),
-                           onupdate=func.current_timestamp()),
                     UniqueConstraint('code', 'accession_id',
                                      name='plant_index'))
 

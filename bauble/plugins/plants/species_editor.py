@@ -20,7 +20,7 @@ from bauble.plugins.plants.species_model import Species, species_table, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
      SpeciesDistribution, species_distribution_table, Geography, \
      geography_table
-from bauble.plugins.garden.accession import AccessionEditor
+from bauble.plugins.garden.accession import AccessionEditor, Accession
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
 # instead of having to add new ones

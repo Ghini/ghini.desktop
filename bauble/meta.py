@@ -1,6 +1,7 @@
 #
 # meta.py
 #
+import bauble
 from datetime import datetime
 from sqlalchemy import *
 
@@ -8,15 +9,11 @@ VERSION_KEY='version'
 CREATED_KEY='created'
 REGISTRY_KEY='registry'
 
-bauble_meta_table = Table('bauble',
+bauble_meta_table = bauble.Table('bauble',
                           Column('id', Integer, primary_key=True),
                           Column('name', Unicode(64), unique=True),
-                          Column('value', Unicode),
-                          Column('_created', DateTime(True),
-                                 default=func.current_timestamp()),
-                          Column('_last_updated', DateTime(True),
-                                 default=func.current_timestamp(),
-                                 onupdate=func.current_timestamp()))
+                          Column('value', Unicode))
+
 
 class BaubleMeta(object):
 

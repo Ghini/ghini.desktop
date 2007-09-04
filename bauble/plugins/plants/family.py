@@ -59,22 +59,17 @@ def family_markup_func(family):
 #
 # Family
 #
-family_table = Table('family',
+family_table = bauble.Table('family',
                      Column('id', Integer, primary_key=True),
                      Column('family', String(45), nullable=False, index=True),
                      Column('qualifier', Enum(values=['s. lat.', 's. str.',
                                                       None],
                                               empty_to_none=True)),
                      Column('notes', Unicode),
-                     Column('_created', DateTime(True),
-                            default=func.current_timestamp()),
-                     Column('_last_updated', DateTime(True),
-                            default=func.current_timestamp(),
-                            onupdate=func.current_timestamp()),
                      UniqueConstraint('family', 'qualifier',
                                       name='family_index'))
 
-family_synonym_table = Table('family_synonym',
+family_synonym_table = bauble.Table('family_synonym',
                              Column('id', Integer, primary_key=True),
                              Column('family_id', Integer,
                                     ForeignKey('family.id'),
@@ -82,11 +77,6 @@ family_synonym_table = Table('family_synonym',
                              Column('synonym_id', Integer,
                                     ForeignKey('family.id'),
                                     nullable=False),
-                             Column('_created', DateTime(True),
-                                    default=func.current_timestamp()),
-                             Column('_last_updated', DateTime(True),
-                                    default=func.current_timestamp(),
-                                    onupdate=func.current_timestamp()),
                              UniqueConstraint('family_id', 'synonym_id',
                                               name='family_synonym_index'))
 

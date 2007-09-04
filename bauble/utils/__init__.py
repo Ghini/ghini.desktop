@@ -319,10 +319,22 @@ def create_yes_no_dialog(msg, parent=None):
 # TODO: it would be nice to implement a yes_or_no method that asks from the
 # console if there is no gui. is it possible to know if we have a terminal
 # to write to?
-def yes_no_dialog(msg, parent=None):
-    '''
-    '''
+def yes_no_dialog(msg, parent=None, yes_delay=-1):
+    """
+    @param msg: the message to display in the dialog
+    @param parent: the dialog's parent
+    @param yes_delay: the number of seconds before the yes button should
+    become sensitive
+    """
     d = create_yes_no_dialog(msg, parent)
+    if yes_delay > 0:
+        button = d.action_area.get_children()[1]  # is the yes button always 1?
+        button.set_sensitive(False)
+        def on_timeout():
+            button.set_sensitive(True)
+            return False
+        import gobject
+        gobject.timeout_add(yes_delay*1000, on_timeout)
     r = d.run()
     d.destroy()
     return r == gtk.RESPONSE_YES
