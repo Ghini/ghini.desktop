@@ -13,9 +13,10 @@ if 'PYTHONPATH' not in os.environ or os.environ['PYTHONPATH'] is '':
 
 # TODO: right now this just runs all tests but should really be able to
 # pass individuals tests or test suites on the command line
+default_uri = 'sqlite:///:memory:'
 parser = OptionParser()
 parser.add_option("-c", "--connection", dest="connection", metavar="CONN",
-                  default='sqlite:///:memory:', help="connect to CONN")
+                  default=default_uri, help="connect to CONN")
 parser.add_option("-l", "--loglevel", dest='loglevel', metavar='LEVEL (0-61)',
                   type='int', default=30, help="display extra test information")
 
@@ -23,6 +24,8 @@ if __name__ == '__main__':
     (options, args) = parser.parse_args()
     testbase.log.setLevel(options.loglevel)
     testbase.uri = options.connection
+    if testbase.uri != default_uri:
+        print 'uri: %s' % testbase.uri
     module_names = pluginmgr._find_module_names(os.getcwd())
     alltests = unittest.TestSuite()
     for name in module_names:
@@ -45,9 +48,11 @@ if __name__ == '__main__':
     if len(args) > 0:
         # run a specific testsuite, would be nice to allow running specific
         # test cases or test methods
-#        unittest.TestLoader().loadTestsFromNames(args)
+##        unittest.TestLoader().loadTestsFromNames(args)
         for t in alltests:
             if t.__class__.__name__ in args:
                 runner.run(t)
+            else:
+                raise ValueError('unknown test: %s' % t)
     else:
         runner.run(alltests)

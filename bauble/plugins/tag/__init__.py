@@ -181,14 +181,9 @@ class TagItemGUI:
 #
 # tag table
 #
-tag_table = Table('tag',
+tag_table = bauble.Table('tag',
                   Column('id', Integer, primary_key=True),
-                  Column('tag', Unicode(64), unique=True, nullable=False),
-                  Column('_created', DateTime(True),
-                         default=func.current_timestamp()),
-                  Column('_last_updated', DateTime(True),
-                         default=func.current_timestamp(),
-                         onupdate=func.current_timestamp()))
+                  Column('tag', Unicode(64), unique=True, nullable=False))
 
 
 # TODO: maybe we shouldn't remove the obj from the tag if we can't find it,
@@ -237,16 +232,11 @@ class Tag(bauble.BaubleMapper):
 # tagged_obj table
 #
 # TODO: can class names be unicode, i.e. should obj_class be unicode
-tagged_obj_table = Table('tagged_obj',
+tagged_obj_table = bauble.Table('tagged_obj',
                          Column('id', Integer, primary_key=True),
                          Column('obj_id', Integer),
                          Column('obj_class', String(64)),
-                         Column('tag_id', Integer, ForeignKey('tag.id')),
-                         Column('_created', DateTime(True),
-                                default=func.current_timestamp()),
-                         Column('_last_updated', DateTime(True),
-                                default=func.current_timestamp(),
-                                onupdate=func.current_timestamp()))
+                         Column('tag_id', Integer, ForeignKey('tag.id')))
 
 class TaggedObj(bauble.BaubleMapper):
 
