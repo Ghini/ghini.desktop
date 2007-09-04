@@ -2,6 +2,7 @@ import unittest
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
 from testbase import BaubleTestCase, log
+import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, accession_table, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor, donor_table
@@ -192,6 +193,14 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, collection2.id)
+
+        # change source without flushing
+        donation4 = Donation()
+        acc.source = donation4
+        collection3 = Collection(locale='TestAccLocale3')
+        acc.source = collection3
+        self.session.flush()
+        utils.log.echo(False)
 
         # make sure the orphaned donation get's deleted
         self.assertRaises(InvalidRequestError, self.session.load, Donation,

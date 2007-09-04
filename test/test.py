@@ -52,7 +52,7 @@ if __name__ == '__main__':
         for t in alltests:
             if t.__class__.__name__ in args:
                 runner.run(t)
-            else:
-                raise ValueError('unknown test: %s' % t)
+#            else:
+#                raise ValueError('unknown test: %s' % t)
     else:
         runner.run(alltests)
