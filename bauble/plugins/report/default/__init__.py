@@ -9,6 +9,7 @@ import bauble
 from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.paths as paths
+from bauble.i18n import *
 from bauble.plugins.plants.species import Species, species_table
 from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
 from bauble.plugins.garden.accession import Accession, accession_table
@@ -102,9 +103,9 @@ class DefaultFormatterPlugin(FormatterPlugin):
         renderer = kwargs['renderer']
         error_msg = None
         if not stylesheet:
-            error_msg = 'Please select a stylesheet.'
+            error_msg = _('Please select a stylesheet.')
         elif not renderer:
-            error_msg = 'Please select a a renderer'
+            error_msg = _('Please select a a renderer')
         if error_msg is not None:
             utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
             return False
@@ -114,8 +115,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
         plants = get_all_plants(objs, session=session)
         plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
         if len(plants) == 0:
-            utils.message_dialog('There are no plants in the search '
-                                 'results.  Please try another search.')
+            utils.message_dialog(_('There are no plants in the search '
+                                 'results.  Please try another search.'))
             return False
 
         abcd_data = plants_to_abcd(plants, authors=authors)
@@ -136,8 +137,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
                 results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.id==plant_table.c.accession_id, accession_table.c.code==acc_code, plant_table.c.code==plant_code))
 
             if len(results) < 1:
-                raise ValueError('Couldn\'t find a Plant or Accession with '\
-                                 'code %s' % code)
+                raise ValueError(_('Couldn\'t find a Plant or Accession with '\
+                                 'code %s') % code)
             species = results[0]
             if species.distribution is not None:
                 etree.SubElement(el, 'distribution').text=species.distribution_str()
@@ -161,15 +162,20 @@ class DefaultFormatterPlugin(FormatterPlugin):
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
                             'out_filename': filename})
-        print fo_cmd
-
+#        print fo_cmd
+#        debug(fo_cmd)
         # TODO: use popen to get output
         os.system(fo_cmd)
 
-        print filename
-        utils.startfile(filename)
-        print 'started'
-        return True
+#        print filename
+        if not os.path.exists(filename):
+            utils.message_dialog(_('Error creating the PDF file. Please ' \
+                                 'ensure that your PDF formatter is ' \
+                                 'properly_installed'), gtk.MESSAGE_ERROR)
+            return False
+        else:
+            utils.startfile(filename)
+            return True
 
 
 # expose the formatter
