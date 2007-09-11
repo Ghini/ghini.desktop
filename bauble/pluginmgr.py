@@ -24,7 +24,7 @@ import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
-from bauble.utils.log import log, debug, warning
+from bauble.utils.log import log, debug, warning, error
 from bauble.i18n import *
 import simplejson as json
 import logging
@@ -120,7 +120,8 @@ def load(path=None):
     global plugins
     if path is None:
         if bauble.main_is_frozen():
-            path = os.path.join(paths.lib_dir(), 'library.zip')
+            #path = os.path.join(paths.lib_dir(), 'library.zip')
+            path = os.path.join(paths.main_dir(), 'library.zip')
         else:
             path = os.path.join(paths.lib_dir(), 'plugins')
     found = _find_plugins(path)
@@ -457,19 +458,15 @@ def _find_module_names(path):
     '''
     modules = []
     if path.find("library.zip") != -1: # using py2exe
-        warning('***** importing from library.zip needs to be reviewed since '\
-                'we removed the parent parameter **********')
-        raise NotImplementedError
-        zipfiles = __import__(parent, globals(), locals(),
-                              [parent]).__loader__._files
-        x = [zipfiles[file][0] \
-             for file in zipfiles.keys() if parent.replace('.', '\\') in file]
-        s = os.path.join('.+?', parent, '(.+?)', '__init__.py[oc]')
-        rx = re.compile(s.encode('string_escape'))
-        for filename in x:
-            m = rx.match(filename)
+        from zipfile import ZipFile
+        z = ZipFile(path)
+        filenames = z.namelist()
+        rx = re.compile('(.+)\\__init__.py[oc]')
+        for f in filenames:
+            m = rx.match(f)
             if m is not None:
-                modules.append(m.group(1))
+                modules.append(m.group(1).replace('/', '.')[:-1])
+        z.close()
     else:
         for dir, subdir, files in os.walk(path):
             if dir != path and '__init__.py' in files:
@@ -483,8 +480,13 @@ def _find_plugins(path):
     import bauble.plugins
     plugin_module = bauble.plugins
     mod = None
-    plugin_names = map(lambda s: 'bauble.plugins.%s' % s,
-                       _find_module_names(path))
+
+    if path.find('library.zip') != -1:
+        plugin_names = [m for m in _find_module_names(path) \
+                        if m.startswith('bauble.plugins')]
+    else:
+        plugin_names =['bauble.plugins.%s'%m for m in _find_module_names(path)]
+
     for name in plugin_names:
         # Fast path: see if the module has already been imported.
         if name in sys.modules:
@@ -495,8 +497,13 @@ def _find_plugins(path):
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
-                utils.message_details_dialog(msg, str(traceback.format_exc()),
-                                             gtk.MESSAGE_ERROR)
+                # TODO: we should really show this error message but right now
+                # it gives us a strange error about importing the abcd
+                # module, i think we should rename bauble.plugins.abcd.abcd to
+                # abcd_.py or just include the code from that file into the
+                # __init__.py for the module
+#                 utils.message_details_dialog(msg, str(traceback.format_exc()),
+#                                              gtk.MESSAGE_ERROR)
         if not hasattr(mod, "plugin"):
             continue
 
@@ -517,6 +524,7 @@ def _find_plugins(path):
         else:
             warning(_('%s.plugin is not an instance of pluginmgr.Plugin'\
                       % mod.__name__))
+#    debug(plugins)
     return plugins
 
 

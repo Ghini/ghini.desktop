@@ -30,7 +30,6 @@ else: # main is frozen
                     os.pathsep, os.environ['PATH'])
 
 import gtk, gobject
-import bauble.utils as utils
 
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
@@ -43,6 +42,12 @@ if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
 from bauble.i18n import *
+
+# TODO: maybe if sqlalchemy and simplejson aren't installed we should try to
+# install them with setuptools
+
+import bauble.utils as utils
+
 try:
    #from sqlalchemy import *
    import sqlalchemy
@@ -50,6 +55,16 @@ try:
 except ImportError:
    msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
            'http://www.sqlalchemy.org')
+   utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+   raise
+
+try:
+   #from sqlalchemy import *
+   import simplejson
+    # TODO: check sqlalchemy version
+except ImportError:
+   msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
+           'http://cheeseshop.python.org/pypi/simplejson')
    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
    raise
 
