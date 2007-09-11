@@ -33,7 +33,6 @@ from bauble.utils.log import log, debug
 # if it has rows it seems like the database is waiting for the
 # transaction to finish and....LOCK
 
-
 # TODO: allow the user set the unicode encoding on import, exports should
 # always us UTF-8, import, exports should always use UTF-8, need to figure
 # out how to extend the file open dialog,
@@ -41,7 +40,6 @@ from bauble.utils.log import log, debug
 # import codecs
 # fileObj = codecs.open( "someFile", "r", "utf-8" )
 # u = fileObj.read() # Returns a Unicode string from the UTF-8 bytes in the file
-
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 
@@ -322,13 +320,15 @@ class CSVImporter(Importer):
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
                 update_every = 11
-##                debug('slice it')
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
                     if len(line) > 0:
+                        # removed everything that doesn't have a value
+                        # specified in the csv file so that the columns will
+                        # pick up their default on insert
                         cleaned = dict([(k, v) for k,v in \
                                         line.iteritems() if v not in ('',u'')])
                         connection.execute(insert, cleaned)
