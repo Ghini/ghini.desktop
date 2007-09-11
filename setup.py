@@ -43,7 +43,21 @@ plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 subpackages = ['plugins', 'utils']
 all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 
+package_data = {'': ['README', 'CHANGES', 'LICENSE'],
+                'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
+                           'images/*.svg', 'images/*.ico']}
+
+data_patterns = ['default/*.txt', '*.ui', '*.glade']
+for pkg in plugins_pkgs:
+    package_data[pkg] = data_patterns
+
+all_package_dirs = {'': '.'}
+for p in all_packages:
+    all_package_dirs[p] = p.replace('.', '/')
+
+
 if USING_PY2EXE:
+    import py2exe
     def get_sqlalchemy_includes():
         includes = []
         from imp import find_module
@@ -56,40 +70,9 @@ if USING_PY2EXE:
         return includes
 
     py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
-                       'encodings'] + gtk_pkgs + plugins_pkgs + get_sqlalchemy_includes()
-else:
-    py2exe_includes = []
+                       'encodings'] + gtk_pkgs + plugins_pkgs + \
+                       get_sqlalchemy_includes()
 
-# get all the package data
-plugin_data = {}
-data_patterns = ('default/*.txt', '*.ui', '*.glade')
-for pattern in data_patterns:
-    # glob for pattern in each of the package directories
-    i = pattern.rfind(os.sep)
-    extra_path = ""
-    if i != -1:
-        extra_path = pattern[:pattern.find(os.sep)]
-    for p in plugins_pkgs:
-        package_dir = p.replace('.',os.sep) + '/'
-#        print 'package_dir: %s' % package_dir
-        files = glob.glob('%s%s' % (package_dir, pattern))
-#        print ' -- files: %s' % files
-        if len(files) != 0:
-            if p not in plugin_data:
-                plugin_data[p] = []
-            plugin_data[p] += [f[len(package_dir):] for f in files]
-
-bauble_package_data = {'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png', 'images/*.svg', 'images/*.ico']}
-#package_data = {'pysqlite2': ['*.pyd']}
-package_data = {}
-package_data.update(bauble_package_data)
-package_data.update(plugin_data)
-
-#
-# generate the data files for py2exe, why can't it just use package_data?
-#
-if USING_PY2EXE:
-    import py2exe
     opts = {
         "py2exe": {
             "compressed": 1,
@@ -104,34 +87,28 @@ if USING_PY2EXE:
                 "libxml2", "libglade-2.0-0", "zlib1"]
         }
     }
-    globs= []
-    for pattern in data_patterns:
-        # glob for pattern in each of the package directories
-        i = pattern.rfind(os.sep)
-        extra_path = ""
-        if i != -1:
-            extra_path = pattern[:pattern.find(os.sep)]
-        globs += [(p.replace('.',os.sep) + os.sep + extra_path,
-                  glob.glob('%s\\%s' % (p.replace('.',os.sep), pattern))) \
-                 for p in plugins_pkgs]
-    py2exe_data_files = [p for p in globs if len(p[1]) != 0]
-    py2exe_data_files += [('', ('README', 'LICENSE', 'CHANGES')),
-                          ('bauble', ('bauble/bauble.ui',
-				      'bauble/bauble.glade',
-                                      'bauble/connmgr.glade')),
-                          ('bauble/images',
-                           glob.glob('bauble/images/*.png')+\
-                           glob.glob('bauble/images/*.svg'),
-                           glob.glob('bauble/images/*.ico'))
-                          ('bauble/pixmaps',
-                           glob.glob('bauble/pixmaps/*.png'))]
+
+    # py2exe doesn't seem to respect packages_data so build data_files from
+    # package_data
+    py2exe_data_files = []
+    for package, patterns in package_data.iteritems():
+        dir = all_package_dirs[package]
+        for p in patterns:
+            matches = glob.glob(dir + '/' + p)
+            if matches != []:
+                index = p.rfind('/')
+                if index != -1:
+                    install_dir = '%s/%s' % (dir, p[:index])
+                else:
+                    install_dir = dir
+                py2exe_data_files.append((install_dir,
+                                          [m.replace(os.sep, '/') \
+                                               for m in matches]))
 else:
     opts=None
     py2exe_data_files = None
+    py2exe_includes = []
 
-all_package_dirs = {}
-for p in all_packages:
-    all_package_dirs[p] = p.replace('.', os.sep)
 
 #print '------- packages --------\n' + str(all_packages)
 #print '------- package directories --------\n' + str(all_package_dirs)
@@ -154,7 +131,7 @@ setup(name="bauble",
       package_data = package_data,
       data_files = py2exe_data_files,
       install_requires=["SQLAlchemy>=0.3.6", "pysqlite==2.3.2",
-                        "PyGTK>=2.10", "simplejson"],# pygtk is not supported using distutils
+                        "PyGTK>=2.10", "simplejson", "lxml"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
 
       # metadata
