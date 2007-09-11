@@ -5,7 +5,7 @@
 import imp, os, sys, re
 import bauble
 import bauble.paths as paths
-from sqlalchemy import object_session
+from bauble.i18n import *
 import gtk, gtk.glade
 from bauble.utils.log import debug, warning
 import xml.sax.saxutils as saxutils
@@ -466,6 +466,7 @@ def natsort_key(obj):
 
 
 def delete_or_expunge(obj):
+    from sqlalchemy import object_session
     session = object_session(obj)
 #    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:
