@@ -33,6 +33,8 @@ class Donation(bauble.BaubleMapper):
 #    column using a datetime object
 # TODO: deleting this foreign accession deletes this collection
 # TODO: this shouldn't be allowed to be None, UPDATE: what the hell am i talking about
+# TODO: collector combined with collectors_code should be a unique key, need to
+# also indicate this in the UI
 collection_table = bauble.Table('collection',
                          Column('id', Integer, primary_key=True),
                          Column('collector', Unicode(64)),

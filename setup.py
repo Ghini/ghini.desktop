@@ -22,14 +22,6 @@ def get_version():
     """
     from bauble import version_str as version
     return version
-#    #from svn import repos, fs, core
-#    import xml.dom.minidom
-#    stdin, stdout = os.popen4('svn info "%s" --xml' % os.getcwd())
-#    svninfo = stdout.read()
-#    dom = xml.dom.minidom.parseString(svninfo)
-#    el = dom.getElementsByTagName("commit")
-#    revision = el[0].getAttribute('revision')
-#    return '%s.r%s' % (version, revision)
 
 version = get_version()
 
@@ -109,6 +101,7 @@ else:
     py2exe_data_files = None
     py2exe_includes = []
 
+print package_data
 
 #print '------- packages --------\n' + str(all_packages)
 #print '------- package directories --------\n' + str(all_package_dirs)
