@@ -417,27 +417,6 @@ def xml_safe_utf8(obj):
     return xml_safe(utf8(obj))
 
 
-def startfile(filename):
-    """
-    @param filename: the name of the file to execute
-
-    opens a file with it's associated application, should work on win32 and
-    linux/gnome for now
-    """
-    if sys.platform == 'win32':
-        try:
-            os.startfile(filename)
-        except WindowsError, e: # probably no file association
-            msg = _("Could not open pdf file.\n\n%s") % xml_safe_utf8(e)
-            message_dialog(msg)
-    elif sys.platform == 'linux2':
-        # FIXME: need to determine if gnome or kde
-        os.system('gnome-open %s' % filename)
-    else:
-        raise Exception("bauble.utils.startfile(): can't open file: %s" \
-                        % filename)
-
-
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')
 
 def natsort_key(obj):

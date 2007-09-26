@@ -419,6 +419,22 @@ class MapperSearch(SearchStrategy):
         else:
             for i in identifiers:
                 sr = sr.join_to(i)
+            debug(last)
+            # TODO -- important: to get the columns from the last item
+            # in the identifiers
+            # we would need to get the search strategy for the type of the
+            # last identifier from the SearchView, this means that
+            # MapperSearch depend on SearchView which isn't good...
+            # ...i'm not sure how to do this right now unless we use the
+            # session.query(mapping).join(identifier[0]).join(identifier[1])
+            # to get the joined table but then we still don't have a column
+            # to filter on...in fact i think since 0.3.9 or .10 we can do
+            # session.query(mapping)..join(identifiers)....what we could
+            # probably do is to get the search strategy from the search view
+            # and create a simple search and then do a join across the results
+            # or just get the sql statement and use that as the filter argument
+            # for our join
+            strategy = SearchView.get_search_strategy(last.__name__)
             cols = self.search_metas[last.__name__].columns
             if cols > 1:
                 ors = [last.c[c].op(cond)(val) for c in cols]
@@ -428,6 +444,7 @@ class MapperSearch(SearchStrategy):
             sr = sr.select(filter_clause)
 #        debug('----- clause ----- \n %s' % sr._clause)
         return sr
+
 
     def _get_results_from_query(self, tokens, session):
         '''

@@ -8,6 +8,7 @@ from sqlalchemy import *
 import bauble
 from bauble.utils.log import debug
 import bauble.utils as utils
+import bauble.utils.desktop as desktop
 import bauble.paths as paths
 from bauble.i18n import *
 from bauble.plugins.plants.species import Species, species_table
@@ -158,6 +159,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
         dummy, filename = tempfile.mkstemp()
         filename = '%s.pdf' % filename
 
+        # TODO: checkout pyexpect for spawning processes
+
         # run the report to produce the pdf file, the command has to be
         # on the path for this to work
         fo_cmd = fo_cmd % ({'fo_filename': fo_filename,
@@ -174,7 +177,13 @@ class DefaultFormatterPlugin(FormatterPlugin):
                                  'properly_installed'), gtk.MESSAGE_ERROR)
             return False
         else:
-            utils.startfile(filename)
+            try:
+                desktop.open(filename)
+            except OSError:
+                utils.message_dialog(_('Could not open the report with the '\
+                                       'default program. You can open the '\
+                                       'file manually at %s') % filename)
+
             return True
 
 

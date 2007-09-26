@@ -43,9 +43,6 @@ if not os.path.exists(paths.user_dir()):
 
 from bauble.i18n import *
 
-# TODO: maybe if sqlalchemy and simplejson aren't installed we should try to
-# install them with setuptools
-
 import bauble.utils as utils
 
 try:

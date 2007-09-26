@@ -382,7 +382,7 @@ class GUI(object):
 
 
     def on_tools_menu_item_activate(self, widget, tool):
-        debug('on_tools_menu_item_activate(%s)' % tool)
+#        debug('on_tools_menu_item_activate(%s)' % tool)
         tool.start()
 
 
