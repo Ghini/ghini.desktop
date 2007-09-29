@@ -10,7 +10,6 @@ from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
 from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
-from sqlalchemy.ext.selectresults import SelectResults, SelectResultsExt
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
 from bauble.i18n import *
@@ -390,60 +389,15 @@ class MapperSearch(SearchStrategy):
 
     def _build_select(self, session, mapping, identifiers, cond, val):
         '''
-        return a sqlalchemy.ext.selectresults
+        return a Query object
         '''
-        # TODO: this was written before the generative queries were in
-        # SQLAlchemy, this should probably be rewritten to remove the
-        # SelectResults dependency and just use the Query object
-
-        # if the last item in identifiers is a column then create an
-        # and statement doing applying cond to val,
-        # else get the search meta for the last item in identifiers
-        # and build the and_ statement by or'ing the columns in search
-        # meta together against val
         query = session.query(mapping)
-        sr = SelectResults(query)
-        table = query.table
-        resolved = self._resolve_identifiers(mapping, identifiers)
-        last = resolved[-1]
-        if isinstance(last, Column):
-            if len(identifiers) > 1:
-                # if it's a join then get the search meta columns
-                # else just search on the column
-                for i in identifiers[:-1]:
-                    sr = sr.join_to(i)
-                filter_col = resolved[-2].c[identifiers[-1]]
-            else:
-                filter_col = table.c[identifiers[-1]]
-            sr = sr.select(filter_col.op(cond)(val))
+        if len(identifiers) == 1:
+            results = query.filter(query.table.c[identifiers[0]].op(cond)(val))
         else:
-            for i in identifiers:
-                sr = sr.join_to(i)
-            debug(last)
-            # TODO -- important: to get the columns from the last item
-            # in the identifiers
-            # we would need to get the search strategy for the type of the
-            # last identifier from the SearchView, this means that
-            # MapperSearch depend on SearchView which isn't good...
-            # ...i'm not sure how to do this right now unless we use the
-            # session.query(mapping).join(identifier[0]).join(identifier[1])
-            # to get the joined table but then we still don't have a column
-            # to filter on...in fact i think since 0.3.9 or .10 we can do
-            # session.query(mapping)..join(identifiers)....what we could
-            # probably do is to get the search strategy from the search view
-            # and create a simple search and then do a join across the results
-            # or just get the sql statement and use that as the filter argument
-            # for our join
-            strategy = SearchView.get_search_strategy(last.__name__)
-            cols = self.search_metas[last.__name__].columns
-            if cols > 1:
-                ors = [last.c[c].op(cond)(val) for c in cols]
-                filter_clause = or_(*ors)
-            else:
-                filter_clause = last.c[c].op(cond)(val)
-            sr = sr.select(filter_clause)
-#        debug('----- clause ----- \n %s' % sr._clause)
-        return sr
+            resolved = self._resolve_identifiers(mapping, identifiers)
+            results = query.join(identifiers[:-1]).filter(resolved[-1].op(cond)(val))
+        return results
 
 
     def _get_results_from_query(self, tokens, session):
@@ -451,7 +405,7 @@ class MapperSearch(SearchStrategy):
         get results from search query in the form
         domain where ident=value...
 
-        @return: an sqlalchemy.ext.selectresults object
+        @return: query object
         '''
 #        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
@@ -487,8 +441,6 @@ class MapperSearch(SearchStrategy):
             except StopIteration:
                 pass
 
-##        debug(str(select._clause))
-##        debug(list(select))
         return select
 
 
@@ -515,10 +467,12 @@ class MapperSearch(SearchStrategy):
                        table.c[col].like('%%%s%%' % val)
             for mapping, columns in self._mapping_columns.iteritems():
                 q = session.query(mapping)
-                sr = SelectResults(q)
                 cv = [(c,v) for c in columns for v in tokens]
-                sr = sr.select(or_(*[like(mapping, c, v) for c,v in cv]))
-                results.append(sr)
+                # i'm not quite sure why we have to return the results of
+                # filter and assign them to q, i would think since filter
+                # is generative then it would be the same
+                q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
+                results.append(q)
         elif 'expression' in tokens:
             for domain, cond, val in tokens['expression']:
                 mapping, columns = self._domains[domain]
@@ -547,9 +501,8 @@ class MapperSearch(SearchStrategy):
                         cond = 'like'
 
                 # select everything
-                sr = SelectResults(query)
                 if val == '*':
-                    results.append(sr)
+                    results.append(query)
                 else:
                     for col in columns:
                         results.append(query.select(mapping.c[col].op(cond)(val)))
@@ -578,7 +531,7 @@ class ResultSet(object):
 
 
     def __len__(self):
-        # it possible, but unlikely that int() can truncate the value
+        # it's possible, but unlikely that int() can truncate the value
         return int(self.count())
 
 
@@ -589,7 +542,7 @@ class ResultSet(object):
         '''
         ctr = 0
         for r in self._results:
-            if isinstance(r, SelectResults):
+            if isinstance(r, Query):
                 ctr += r.count()
             else:
                 ctr += len(r)
