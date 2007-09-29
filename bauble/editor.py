@@ -229,7 +229,8 @@ class GenericEditorView(object):
 
     def attach_completion(self, entry_name,
                           cell_data_func=default_completion_cell_data_func,
-                          match_func=default_completion_match_func):
+                          match_func=default_completion_match_func,
+                          minimum_key_length=2):
         '''
         @return: the completion attached to the entry
         '''
@@ -242,7 +243,7 @@ class GenericEditorView(object):
         cell = gtk.CellRendererText() # set up the completion renderer
         completion.pack_start(cell)
         completion.set_cell_data_func(cell, cell_data_func)
-        completion.set_minimum_key_length(2)
+        completion.set_minimum_key_length(minimum_key_length)
         completion.set_popup_completion(True)
         self.widgets[entry_name].set_completion(completion)
         return completion

@@ -218,7 +218,8 @@ class PlantEditorView(GenericEditorView):
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
-        self.attach_completion('plant_acc_entry', acc_cell_data_func)
+        self.attach_completion('plant_acc_entry', acc_cell_data_func,
+                               minimum_key_length=1)
         if sys.platform == 'win32':
             self.do_win32_fixes()
 
