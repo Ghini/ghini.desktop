@@ -564,10 +564,7 @@ class GenericEditorPresenter(object):
             values = get_completions(text)
             def idle_callback(values):
                 completion = widget.get_completion()
-                old_model = completion.get_model()
-                if old_model is not None:
-                    old_model.clear()
-                    completion.set_model(None)
+                utils.clear_model(completion)
                 completion_model = gtk.ListStore(object)
                 for v in values:
                     completion_model.append([v])
