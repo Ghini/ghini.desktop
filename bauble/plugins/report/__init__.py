@@ -1,5 +1,7 @@
 #
-# __init__.py -- report module
+# __init__.py
+#
+# Description : report plugin
 #
 
 import os, sys, traceback, re
@@ -14,6 +16,10 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import log, debug
+
+# BUGS:
+# https://bugs.launchpad.net/bauble/+bug/146998 - Don't hardcode how to get the plants in report plugin
+
 
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
@@ -64,10 +70,6 @@ def get_all_plants(objs, acc_status=None, session=None):
     except ImportError:
         pass
 
-    # TODO: it would be better if getting the plants from the different
-    # types wasn't hardcoded in here, it would be better if we could
-    # just register a type and how to get that types children similar to the
-    # view meta or at least something along those lines
     from bauble.plugins.plants import Family, Genus, Species, VernacularName
     from bauble.plugins.garden import Accession, Plant, Location
     for obj in objs:

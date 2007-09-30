@@ -374,6 +374,9 @@ class ConnectionManager:
 
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
+        '''
+        show a dialog with and entry and returh the value entered
+        '''
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
         d = gtk.Dialog(title, self.dialog,
@@ -396,6 +399,9 @@ class ConnectionManager:
 
 
     def parameters_to_uri(self, params):
+        '''
+        return connections paramaters as a uri
+        '''
         if params['type'].lower() == "sqlite":
 	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
@@ -431,6 +437,7 @@ class ConnectionManager:
         """
         check that all of the information in the current connection
         is valid and return true or false
+
         NOTE: this was meant to be used to implement an eclipse style
         information box at the top of the dialog but it's not really
         used right now
