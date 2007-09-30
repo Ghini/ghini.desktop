@@ -11,7 +11,6 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.orm.properties import PropertyLoader
-#from formencode import *
 import bauble
 from bauble.prefs import prefs
 import bauble.utils as utils

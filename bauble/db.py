@@ -16,27 +16,31 @@ from bauble.i18n import *
 from bauble.error import *
 import logging
 
-    # TODO: creating a database can't be guaranteed to work if you are
-    # trying to create
-    # a new database at a connection that has tables that aren't defined in
-    # the current metadata, sqlalchemy won't be able to determine the
-    # dependency order and you might get a drop...cascade error, we could
-    # either pass drop all directly to the database, is this non-standard
+# BUGS:
+# https://bugs.launchpad.net/bauble/+bug/145396 - bauble.db.create should do everything in a transaction
 
-    # TODO: what about leaving tables around that we're not using or indexes
-    # or other things from other versions, is it possible to have a
-    # "relatively" clean state, maybe if we hold a schema object in the
-    # meta with at least the indexes and table names
 
-    # TODO: should probably do a version check and make sure
-    # that we aren't creating a new database on a database when the version
-    # numbers don't match...in fact we shouldn't really allow creating a new
-    # database except from the connection dialog so that we can't connect
-    # to a database unless it was created by bauble
+# TODO: creating a database can't be guaranteed to work if you are
+# trying to create
+# a new database at a connection that has tables that aren't defined in
+# the current metadata, sqlalchemy won't be able to determine the
+# dependency order and you might get a drop...cascade error, we could
+# either pass drop all directly to the database, is this non-standard
 
-    # TODO: could keep a list of tables created by bauble in the database
-    # which we could then reflect and drop, in general maybe we should have
-    # more information about the schema represented in the datbase
+# TODO: what about leaving tables around that we're not using or indexes
+# or other things from other versions, is it possible to have a
+# "relatively" clean state, maybe if we hold a schema object in the
+# meta with at least the indexes and table names
+
+# TODO: should probably do a version check and make sure
+# that we aren't creating a new database on a database when the version
+# numbers don't match...in fact we shouldn't really allow creating a new
+# database except from the connection dialog so that we can't connect
+# to a database unless it was created by bauble
+
+# TODO: could keep a list of tables created by bauble in the database
+# which we could then reflect and drop, in general maybe we should have
+# more information about the schema represented in the datbase
 
 def create(import_defaults=True):
     """
@@ -55,10 +59,6 @@ def create(import_defaults=True):
     # make it more difficult to make the interface more responsive,
     # maybe we can use a dialog without the progress bar to show the status,
     # should probably work on the status bar to display this
-    # TODO: *** important ***
-    # this work should be done in a transaction, i think the best way to do
-    # this would be to pass a metadata or engine or connection object to
-    # the importer that holds the transaction we should work in
 
     conn = default_metadata.engine.contextual_connect()
     transaction = conn.begin()

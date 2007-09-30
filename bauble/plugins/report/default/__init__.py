@@ -23,6 +23,10 @@ if sys.platform == "win32":
 else:
     fop_cmd = 'fop'
 
+# Bugs:
+# https://bugs.launchpad.net/bauble/+bug/104963 (check for PDF renderers on PATH)
+#
+
 # TODO: use which() to search the path for a known renderer, could do this in
 # task so that it's non blocking, should cache the values in the prefs and
 # check that they are still valid when we open the report UI up again

@@ -20,34 +20,20 @@ from bauble.prefs import prefs
 from bauble.utils.log import debug
 from bauble.utils.pyparsing import *
 
-
-# TODO: things todo when a result is selected
-# - GBIF search results, probably have to look up specific institutions
-# - search Lifemapper for distributions maps
-# - give list of references and images and make then clickable if they are uris
-# - show location of a plant in the garden map
-
-# TODO: provide a way to pin down the infobox so that changing the selection
-# in the results_view doesn't change the values in the infobox
+# BUGS:
+# https://bugs.launchpad.net/bauble/+bug/147015 - Show relevant online data for search results
+# https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down infobox
+# https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve search results in a task
+# https://bugs.launchpad.net/bauble/+bug/147020 - Use regular expressions in search strings
 
 # TODO: on some search errors the connection gets invalidated, this
 # happened to me on 'loc where site=test'
 # UPDATE: this query doesn't invalidate the connection any more but apparantly
 # there's a way that this happens so we should track it down
 
-# TODO: it would be good to be able to search using the SIMILAR TO operator
-# but we need to designate a way to show that value is a regular expression
-
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
 # double click on an icon to open the children of that type
-
-# TODO: make the search result do their thing in a task so we can keep state
-# and pulse the progressbar for large result sets
-
-# TODO: it might make it easier to do some of the fancier searchs on properties
-# using advanced property overriding, see...
-# http://www.sqlalchemy.org/docs/adv_datamapping.myt#advdatamapping_properties_overriding
 
 # use different formatting template for the result view depending on the
 # platform
@@ -58,8 +44,8 @@ else:
     _substr_tmpl = '<small>%s</small>'
 
 
-import gc
-gc.enable()
+#import gc
+#gc.enable()
 #gc.set_debug(gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_INSTANCES|gc.DEBUG_OBJECTS)
 #gc.set_debug(gc.DEBUG_LEAK)
 
@@ -246,59 +232,6 @@ class SearchParser(object):
         '''
         return self.statement.parseString(text)
 
-
-## class OperatorValidator(object):#formencode.FancyValidator):
-
-##     to_operator_map = {}
-
-##     def to_python(self, value, state=None):
-##         if value in self.to_operator_map:
-##             return self.to_operator_map[value]
-##         else:
-##             return value
-
-
-##     def from_python(self, value, state=None):
-##         return value
-
-
-## class SQLOperatorValidator(object):#OperatorValidator):
-
-##     def __init__(self, db_type, *args, **kwargs):
-##         super(SQLOperatorValidator, self).__init__(*args, **kwargs)
-##         type_map = {'postgres': self.pg_operator_map,
-##                     'sqlite': self.sqlite_operator_map,
-##                     'mysql': self.mysql_operator_map
-##                     }
-##         self.db_type = db_type
-##         self.to_operator_map = type_map.get(self.db_type, {})
-
-
-##     # TODO: using operators like this doesn't do the fuzzy matching
-##     # using like so when searching you would have to specify exactly what
-##     # you want, maybe we could do '=' and '!=' do fuzzy matching using like
-##     # and '==' and '<>' do exact matches, to do this we just
-##     # need to override _to_python to do a string sub on NOT LIKE(%%s%)
-##     pg_operator_map = {'==': '=',
-##                '!=': '<>',
-##                }
-##     sqlite_operator_map = {'=': '==',
-##                '!=': '<>'
-##                }
-##     mysql_operator_map = {'=': '==',
-##               '!=': '<>'
-##               }
-
-
-## class PythonOperatorValidator(object):#OperatorValidator):
-##     """
-##     convert accepted parse operators to python operators
-##     NOTE: this operator validator is only for python operators and doesn't
-##     do convert operators that may be specific to the database type
-##     """
-##     to_operator_map = {'=': '==',
-##                '<>': '!=',
-##                }
 
 
 class SearchStrategy(object):
