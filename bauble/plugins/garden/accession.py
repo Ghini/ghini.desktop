@@ -2,7 +2,7 @@
 # accessions module
 #
 
-import os, traceback, math
+import sys, re, os, traceback, math
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk, gobject
@@ -313,7 +313,8 @@ class AccessionEditorView(GenericEditorView):
                                    parent=parent)
         self.dialog = self.widgets.accession_dialog
         self.dialog.set_transient_for(parent)
-        self.attach_completion('acc_species_entry')
+        self.attach_completion('acc_species_entry',
+                               cell_data_func=self.species_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.accession_dialog)
         if sys.platform == 'win32':
@@ -406,7 +407,7 @@ class AccessionEditorView(GenericEditorView):
 
     def species_cell_data_func(self, column, renderer, model, iter, data=None):
         v = model[iter][0]
-        renderer.set_property('text', str(v))
+        renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
 
 
@@ -1100,7 +1101,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         # the source_type has changed from what it originally was
         if source_type != self.model.source_type:
-            debug('source_type != model.source_type')
+#            debug('source_type != model.source_type')
             source_type_changed = True
             new_source = None
             try:

@@ -1,16 +1,16 @@
 #
-# gui.py
+# _gui.py
 #
 
-import os, sys, time, re
-import gtk, gobject
+import os, sys
+import gtk
 import bauble
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.prefs import prefs#, PreferencesMgr
+from bauble.prefs import prefs
 from bauble.utils.log import log, debug
-from bauble.i18n import *
+from bauble.i18n import _
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView
 

@@ -1,7 +1,7 @@
 #
 # Species table definition
 #
-import os
+import os, sys, traceback
 import xml.sax.saxutils as sax
 from operator import itemgetter
 import gtk, gobject
