@@ -1,17 +1,19 @@
 #
 # connmgr.py
 #
-
-import os, sys, copy, traceback
+"""
+The connection manager provides a GUI for creating and opening
+connections. This is the first thing displayed when Bauble starts.
+"""
+import os, copy, traceback
 import gtk
-import gtk.glade
 from sqlalchemy import *
 import utils
 import bauble
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug
-from bauble.i18n import *
+from bauble.i18n import _
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe
@@ -32,11 +34,15 @@ from bauble.i18n import *
 
 class ConnectionManager:
 
+    """
+    The main class that starts the connection manager GUI.
+    """
+
     def __init__(self, default=None):
-        '''
+        """
         @param default: the name of the connection to select from the list
         of connection names
-        '''
+        """
         self.default_name = default
         self.current_name = None
 
@@ -47,6 +53,9 @@ class ConnectionManager:
 
 
     def start(self):
+        """
+        Show the connection manager.
+        """
         self.create_gui()
         self.dialog.connect('response', self.on_dialog_response)
         self.dialog.connect('close', self.on_dialog_close_or_delete)
@@ -374,9 +383,9 @@ class ConnectionManager:
 
 
     def get_passwd(self, title=_("Enter your password"), before_main=False):
-        '''
+        """
         show a dialog with and entry and returh the value entered
-        '''
+        """
         # TODO: if self.dialog is None then ask from the command line
         # or just set dialog parent to None
         d = gtk.Dialog(title, self.dialog,
@@ -399,9 +408,9 @@ class ConnectionManager:
 
 
     def parameters_to_uri(self, params):
-        '''
+        """
         return connections paramaters as a uri
-        '''
+        """
         if params['type'].lower() == "sqlite":
 	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
@@ -487,16 +496,16 @@ class CMParamsBox(gtk.Table):
 
 
     def get_prefs(self):
-        '''
+        """
         see get_prefs
-        '''
+        """
         return self.get_parameters()
 
 
     def get_parameters(self):
-        '''
+        """
         return only those preferences that are used to build the connection uri
-        '''
+        """
         d = {}
         d["db"] = self.db_entry.get_text()
         d["host"] = self.host_entry.get_text()
@@ -506,9 +515,9 @@ class CMParamsBox(gtk.Table):
 
 
     def refresh_view(self, prefs):
-        '''
+        """
         refresh the widget values from prefs
-        '''
+        """
     	try:
     	    self.db_entry.set_text(prefs["db"])
     	    self.host_entry.set_text(prefs["host"])

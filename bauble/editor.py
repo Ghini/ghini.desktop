@@ -5,41 +5,56 @@
 # editors for Bauble data
 #
 
-import os, sys, re, copy, traceback
-import xml.sax.saxutils as saxutils
+import traceback
 import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.orm.properties import PropertyLoader
 import bauble
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug
-from bauble.i18n import *
+from bauble.i18n import _
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
 
-class StringOrNoneValidator(object):#(validators.FancyValidator):
+class ValidatorError(Exception):
+    pass
+
+class StringOrNoneValidator(object):
+
+    """If the value is an empty string then return None, else return the str()
+    of the value.
+    """
 
     def to_python(self, value, state):
-        if value is u'':
+        if value in (u'', ''):
             return None
         return str(value)
 
 
-class UnicodeOrNoneValidator(object):#validators.FancyValidator):
+class UnicodeOrNoneValidator(object):
 
-    def to_python(self, value, state):
-        if value is '':
+    """If the value is an empty unicode string then return None, else return
+    the unicode() of the value. The default encoding is 'utf-8'.
+    """
+    def __init__(self, encoding='utf-8'):
+        self.encoding = encoding
+
+    def to_python(self, value):
+        if value in (u'', ''):
             return None
-        return unicode(value, 'utf-8')
+        return unicode(value, self.encoding)
 
 
-class IntOrNoneStringValidator(object):#validators.FancyValidator):
+class IntOrNoneStringValidator(object):
 
-    def _to_python(self, value, state):
+    """If the value is an int or long then return the number, else return
+    None
+    """
+
+    def _to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):
             return None
         elif isinstance(value, (int, long)):
@@ -47,14 +62,14 @@ class IntOrNoneStringValidator(object):#validators.FancyValidator):
         try:
             return int(value)
         except:
-            raise validators.Invalid('expected a int in column %s, got %s '\
-                                     'instead' % (self.name, type(value)), \
-                                     value, state)
+            raise ValidatorError('Expected a int in column %s, got %s '\
+                                 'instead' % (self.name, type(value)))
 
+class FloatOrNoneStringValidator(object):
 
-class FloatOrNoneStringValidator(object):#validators.FancyValidator):
+    """If the value is a float then return the value, else return None"""
 
-    def to_python(self, value, state):
+    def to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):
             return None
         elif isinstance(value, (int, long, float)):
@@ -62,11 +77,10 @@ class FloatOrNoneStringValidator(object):#validators.FancyValidator):
         try:
             return float(value)
         except:
-            raise validators.Invalid(_('expected a float in column %(name)s, '\
-                                       'got %(type)s instead') % \
-                                       ({'name': self.name,
-                                         'type': type(value)}),
-                                     value, state)
+            raise ValidatorError(_('expected a float in column %(name)s, '\
+                                   'got %(type)s instead') % \
+                                 ({'name': self.name,
+                                   'type': type(value)}), value)
 
 #
 # decorates and delegates to a SA mapped object
@@ -292,40 +306,40 @@ class DontCommitException(Exception):
 
 class Problems(object):
 
-        def __init__(self):
-            self._problems = []
+    def __init__(self):
+        self._problems = []
 
-        def add(self, problem):
-            '''
-            @param problem: the problem to add
-            '''
-            self._problems.append(problem)
+    def add(self, problem):
+        '''
+        @param problem: the problem to add
+        '''
+        self._problems.append(problem)
 
-        def remove(self, problem):
-            '''
-            @param problem: the problem to remove
-            '''
-            # TODO: nothing happens if problem does not exist in self.problems
-            # should we ignore it or do..
-            # if problem not in self.problems
-            #   raise KeyError()
-            while 1:
-                try:
-                    self._problems.remove(problem)
-                except:
-                    break
+    def remove(self, problem):
+        '''
+        @param problem: the problem to remove
+        '''
+        # TODO: nothing happens if problem does not exist in self.problems
+        # should we ignore it or do..
+        # if problem not in self.problems
+        #   raise KeyError()
+        while 1:
+            try:
+                self._problems.remove(problem)
+            except:
+                break
 
-        def __len__(self):
-            '''
-            @return: the number of problems
-            '''
-            return len(self._problems)
+    def __len__(self):
+        '''
+        @return: the number of problems
+        '''
+        return len(self._problems)
 
-        def __str__(self):
-            '''
-            @return: a string of the list of problems
-            '''
-            return str(self._problems)
+    def __str__(self):
+        '''
+        @return: a string of the list of problems
+        '''
+        return str(self._problems)
 
 
 class GenericEditorPresenter(object):
@@ -538,8 +552,8 @@ class GenericEditorPresenter(object):
         widget = self.view.widgets[widget_name]
         if model is None:
             model = self.model
-        # TODO: this works with Ctrl-Space and all but i don't know how to pop up
-        # the completion
+        # TODO: this works with Ctrl-Space and all but i don't know how to
+        # pop up the completion
 #        def callback(w, event):
 #            debug(gtk.gdk.keyval_name(event.keyval))
 #            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):
