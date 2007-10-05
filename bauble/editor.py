@@ -28,7 +28,7 @@ class StringOrNoneValidator(object):
     of the value.
     """
 
-    def to_python(self, value, state):
+    def to_python(self, value):
         if value in (u'', ''):
             return None
         return str(value)
@@ -458,9 +458,9 @@ class GenericEditorPresenter(object):
 #            debug('type(value) = %s' % type(value))
             if validator is not None:
                 try:
-                    value = validator.to_python(value, None)
+                    value = validator.to_python(value)
                     self.problems.remove('BAD_VALUE_%s' % model_field)
-                except validators.Invalid, e:
+                except ValidatorError, e:
                     self.problems.add('BAD_VALUE_%s' % model_field)
                     value = None # make sure the value in the model is reset
 #            debug('%s: %s' % (value, type(value)))
