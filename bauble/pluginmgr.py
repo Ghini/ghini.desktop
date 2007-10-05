@@ -91,7 +91,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
                     registry.save()
                 transaction.commit()
             except Exception, e:
-##                 debug(e)
+                debug(e)
                 transaction.rollback()
                 raise
     else:

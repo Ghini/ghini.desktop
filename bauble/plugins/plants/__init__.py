@@ -13,12 +13,13 @@
 # TODO: should create the table the first time this plugin is loaded, if a new
 # database is created there should be a way to recreate everything from scratch
 
-import os
+import os, traceback
 import bauble
-from bauble.i18n import *
+from bauble.i18n import _
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
+from bauble.utils.log import debug, warning
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
@@ -67,10 +68,20 @@ class PlantsPlugin(pluginmgr.Plugin):
         SearchView.view_meta[Geography].set(children=get_species_in_geography)
 
         if bauble.gui is not None:
-            bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
-            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
             bauble.gui.add_to_insert_menu(FamilyEditor, _('Family'))
+            bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
+            bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
 
+        try:
+            from bauble.plugins.tag import register_mapping
+            register_mapping(Family)
+            register_mapping(Genus)
+            register_mapping(Species)
+            register_mapping(VernacularName)
+            register_mapping(Geography)
+        except Exception, e:
+            warning(_("Couldn't register mapper with tag plugin: \n%s" % str))
+            warning(traceback.format_exc(e))
 
 
     @classmethod
@@ -92,5 +103,6 @@ class PlantsPlugin(pluginmgr.Plugin):
         creating tables, etc...
         """
         cls.create_tables()
+
 
 plugin = PlantsPlugin
