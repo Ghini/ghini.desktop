@@ -1,0 +1,10 @@
+; -*- lisp -*-
+;
+; project settings for Bauble
+;
+;(add-to-list 'org-agenda-files (expand-file-name "./org/bauble.org"))
+;(setq bauble-root "~/devel/bauble/trunk")
+(setq bauble-root (file-name-directory buffer-file-name))
+(setq org-agenda-files (list (expand-file-name (concat bauble-root "/org/bauble.org"))))
+(setq tags-file-name (concat bauble-root "/TAGS"))
+(setenv "PYLINTRC" (concat bauble-root ".pylintrc"))
