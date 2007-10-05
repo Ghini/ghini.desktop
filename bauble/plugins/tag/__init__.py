@@ -49,6 +49,18 @@ tag_context_menu = [#('Edit', edit_callback),
                     #('--', None),
                     ('Remove', remove_callback)]
 
+# TODO: for a plugin to have its mappers taggable they have to register with
+# the tag plugin
+__mappings = {}
+def register_mapping(mapping):
+    """
+    @param mapping:
+    """
+    global __mappings
+    debug(mapping.__name__)
+    __mappings[mapping.__name__] = mapping
+
+
 class TagItemGUI:
     '''
     interface for tagging individual items in the results of the SearchView
@@ -203,7 +215,8 @@ def get_tagged_objects(tag):
     for obj in t._objects:
         try:
             obj_class = str(obj.obj_class)
-            mapper = SearchView.search_metas[obj_class].mapper
+            mapping = __mappings[obj_class]
+            mapper = class_mapper(mapping)
             kids.append(session.load(mapper, obj.obj_id))
         except KeyError, e:
             warning(_('KeyError -- tag.get_tagged_objects(%s): %s') % (tag, e))
@@ -288,6 +301,12 @@ def tag_objects(name, objs):
     classname = lambda x: x.__class__.__name__
 ##    debug('class: %s(%s)' % (obj_class, type(obj_class)))
     for obj in objs:
+        # TODO: need to make sure the objects are registered with
+        # register_mapping first, could probably just put a string in the
+        # returned results that says something like, "could not get value for
+        # object with type e.g. "Family(id)"
+        warning("Need to make sure that all objects are register with "
+                "register_mapping first.")
         if tagged_obj_table.select(\
             and_(tagged_obj_table.c.obj_class==classname(obj),
                  tagged_obj_table.c.obj_id==obj.id,

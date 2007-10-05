@@ -81,6 +81,15 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
             #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
 
+        try:
+            from bauble.plugins.tag import register_mapping
+            register_mapping(Accession)
+            register_mapping(Plant)
+            register_mapping(Location)
+            register_mapping(Donor)
+        except Exception, e:
+            warning(_("Couldn't register mapper with tag plugin: \n%s" % str))
+            warning(traceback.format_exc(e))
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
