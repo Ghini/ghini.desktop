@@ -39,7 +39,7 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
                            'images/*.svg', 'images/*.ico']}
 
-data_patterns = ['default/*.txt', '*.ui', '*.glade']
+data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
