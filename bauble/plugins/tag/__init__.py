@@ -301,12 +301,6 @@ def tag_objects(name, objs):
     classname = lambda x: x.__class__.__name__
 ##    debug('class: %s(%s)' % (obj_class, type(obj_class)))
     for obj in objs:
-        # TODO: need to make sure the objects are registered with
-        # register_mapping first, could probably just put a string in the
-        # returned results that says something like, "could not get value for
-        # object with type e.g. "Family(id)"
-        warning("Need to make sure that all objects are register with "
-                "register_mapping first.")
         if tagged_obj_table.select(\
             and_(tagged_obj_table.c.obj_class==classname(obj),
                  tagged_obj_table.c.obj_id==obj.id,
