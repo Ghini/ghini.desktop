@@ -5,6 +5,8 @@
 from species_editor import *
 from species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch
+from bauble.i18n import _
+import bauble.utils.desktop as desktop
 
 __all__ = ['species_table', 'Species', 'species_synonym_table',
            'SpeciesSynonym', 'vernacular_name_table', 'VernacularName',
@@ -45,20 +47,20 @@ def remove_callback(value):
 
 
 
-species_context_menu = [('Edit', edit_callback),
-                       ('--', None),
-                       ('Add accession', add_accession_callback),
-                       ('--', None),
-                       ('Remove', remove_callback)]
+species_context_menu = [(_('Edit'), edit_callback),
+                        ('--', None),
+                        (_('Add accession'), add_accession_callback),
+                        ('--', None),
+                        (_('Remove'), remove_callback)]
 
 
 def call_on_species(func):
     return lambda value : func(value.species)
 
-vernname_context_menu = [('Edit', call_on_species(edit_callback)),
-                          ('--', None),
-                          ('Add accession',
-                           call_on_species(add_accession_callback))]
+vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
+                         ('--', None),
+                         (_('Add accession'),
+                          call_on_species(add_accession_callback))]
 
 def species_markup_func(species):
     '''
@@ -102,7 +104,7 @@ class VernacularExpander(InfoExpander):
     the constructor
     '''
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Vernacular Names", widgets)
+        InfoExpander.__init__(self, _("Vernacular Names"), widgets)
         vernacular_box = self.widgets.sp_vernacular_box
         self.widgets.remove_parent(vernacular_box)
         self.vbox.pack_start(vernacular_box)
@@ -137,7 +139,7 @@ class VernacularExpander(InfoExpander):
 class SynonymsExpander(InfoExpander):
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Synonyms", widgets)
+        InfoExpander.__init__(self, _("Synonyms"), widgets)
         synonyms_box = self.widgets.sp_synonyms_box
         self.widgets.remove_parent(synonyms_box)
         self.vbox.pack_start(synonyms_box)
@@ -168,7 +170,7 @@ class SynonymsExpander(InfoExpander):
 class NotesExpander(InfoExpander):
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Notes", widgets)
+        InfoExpander.__init__(self, _("Notes"), widgets)
         notes_box = self.widgets.sp_notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
@@ -193,7 +195,7 @@ class GeneralSpeciesExpander(InfoExpander):
         '''
         the constructor
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.sp_general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -229,6 +231,84 @@ class GeneralSpeciesExpander(InfoExpander):
 
 
 
+class LinksExpander(InfoExpander):
+
+    """
+    A collection of link buttons to use for internet searches.
+    """
+
+    def __init__(self):
+        InfoExpander.__init__(self, _("Links"))
+        self.tooltips = gtk.Tooltips()
+        buttons = []
+
+        self.google_button = gtk.LinkButton("", _("Search Google"))
+        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        buttons.append(self.google_button)
+
+        self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
+        self.tooltips.set_tip(self.gbif_button,
+                         _("Search the Global Biodiversity Information "\
+                           "Facility"))
+        buttons.append(self.gbif_button)
+
+        self.itis_button = gtk.LinkButton("", _("Search ITIS"))
+        self.tooltips.set_tip(self.itis_button,
+                              _("Search the Intergrated Taxonomic "\
+                                "Information System"))
+        buttons.append(self.itis_button)
+
+        self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
+        self.tooltips.set_tip(self.ipni_button,
+                              _("Search the International Plant Names Index"))
+        buttons.append(self.ipni_button)
+
+        self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
+        self.tooltips.set_tip(self.bgci_button,
+                              _("Search Botanic Gardens Conservation " \
+                                "International"))
+        buttons.append(self.bgci_button)
+
+        for b in buttons:
+            b.set_alignment(0, -1)
+            b.connect("clicked", self.on_click)
+            self.vbox.pack_start(b)
+
+
+    def on_click(self, button):
+        desktop.open(button.get_uri())
+
+
+    def update(self, row):
+        s = str(row)
+        self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
+                                 s.replace(' ', '+'))
+        itis_uri = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?"\
+                   "search_topic=Scientific_Name" \
+                   "&search_value=%(search_value)s" \
+                   "&search_kingdom=Plant" \
+                   "&search_span=containing" \
+                   "&categories=All&source=html&search_credRating=All" \
+                   % {'search_value': s.replace(' ', '%20')}
+        self.itis_button.set_uri(itis_uri)
+
+        self.google_button.set_uri("http://www.google.com/search?q=%s" % \
+                                   s.replace(' ', '+'))
+
+        bgci_uri = "http://www.bgci.org/plant_search.php?action=Find"\
+                   "&ftrGenus=%(genus)s&ftrRedList=&ftrSpecies=%(species)s"\
+                   "&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results" % \
+                   {'genus': str(row.genus), "species": str(row.sp) }
+        self.bgci_button.set_uri(bgci_uri)
+
+        ipni_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
+                   "find_genus=%(genus)s&find_species=%(species)s" \
+                   "&find_isAPNIRecord=on& find_isGCIRecord=on" \
+                   "&find_isIKRecord=on&output_format=normal" % \
+                   {'genus': str(row.genus), 'species': str(row.sp)}
+        self.ipni_button.set_uri(ipni_uri)
+
+
 class SpeciesInfoBox(InfoBox):
     '''
     general info, fullname, common name, num of accessions and clones,
@@ -253,6 +333,8 @@ class SpeciesInfoBox(InfoBox):
         self.add_expander(self.synonyms)
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
+        self.links = LinksExpander()
+        self.add_expander(self.links)
 
         #self.ref = ReferenceExpander()
         #self.ref.set_expanded(True)
@@ -273,6 +355,7 @@ class SpeciesInfoBox(InfoBox):
         self.vernacular.update(row)
         self.synonyms.update(row)
         self.notes.update(row)
+        self.links.update(row)
         #self.ref.update(row.references)
         #self.ref.value = row.references
         #ref = self.get_expander("References")

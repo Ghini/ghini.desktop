@@ -9,13 +9,13 @@ from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
+from bauble.i18n import _
 from bauble.editor import *
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
+import bauble.utils.desktop as desktop
 from bauble.types import Enum
 from bauble.utils.log import debug
-from bauble.i18n import *
-
 
 
 # TODO: should be a higher_taxon column that holds values into
@@ -46,7 +46,7 @@ def remove_callback(value):
     # to the object to be removed and at least say something like,
     # '522 species refer to this object, do you still want to remove it'
     s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = "Are you sure you want to remove %s?" % utils.xml_safe_utf8(s)
+    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -55,17 +55,17 @@ def remove_callback(value):
         session.delete(obj)
         session.flush()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
 
 
-genus_context_menu = [('Edit', edit_callback),
+genus_context_menu = [(_('Edit'), edit_callback),
                       ('--', None),
-                      ('Add species', add_species_callback),
+                      (_('Add species'), add_species_callback),
                       ('--', None),
-                      ('Remove', remove_callback)]
+                      (_('Remove'), remove_callback)]
 
 
 def genus_markup_func(genus):
@@ -123,7 +123,8 @@ class Genus(bauble.BaubleMapper):
         if genus.genus is None:
             return repr(genus)
         elif not author:
-            return ' '.join([s for s in [genus.hybrid, genus.genus, genus.qualifier] if s is not None])
+            return ' '.join([s for s in [genus.hybrid, genus.genus,
+                                         genus.qualifier] if s is not None])
         else:
             return ' '.join([s for s in [genus.hybrid, genus.genus,
                                          genus.qualifier,
@@ -492,7 +493,7 @@ class GenusEditor(GenericModelViewPresenterEditor):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if self.presenter.dirty():
@@ -539,8 +540,8 @@ class GenusEditor(GenericModelViewPresenterEditor):
 
     def start(self):
         if self.session.query(Family).count() == 0:
-            msg = 'You must first add or import at least one Family into the '\
-                  'database before you can add plants.'
+            msg = _('You must first add or import at least one Family into '\
+                    'the database before you can add plants.')
             utils.message_dialog(msg)
             return
         self.view = GenusEditorView(parent=self.parent)
@@ -588,6 +589,82 @@ class GenusLinkExpander(InfoExpander):
         super(GenusLinkExpander, self).__init__()
         #self.add_button(super(
 
+
+class LinksExpander(InfoExpander):
+
+    """
+    A collection of link buttons to use for internet searches.
+    """
+
+    def __init__(self):
+        InfoExpander.__init__(self, _("Links"))
+        self.tooltips = gtk.Tooltips()
+        buttons = []
+
+        self.google_button = gtk.LinkButton("", _("Search Google"))
+        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        buttons.append(self.google_button)
+
+        self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
+        self.tooltips.set_tip(self.gbif_button,
+                         _("Search the Global Biodiversity Information "\
+                           "Facility"))
+        buttons.append(self.gbif_button)
+
+        self.itis_button = gtk.LinkButton("", _("Search ITIS"))
+        self.tooltips.set_tip(self.itis_button,
+                              _("Search the Intergrated Taxonomic "\
+                                "Information System"))
+        buttons.append(self.itis_button)
+
+        self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
+        self.tooltips.set_tip(self.ipni_button,
+                              _("Search the International Plant Names Index"))
+        buttons.append(self.ipni_button)
+
+        self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
+        self.tooltips.set_tip(self.bgci_button,
+                              _("Search Botanic Gardens Conservation " \
+                                "International"))
+        buttons.append(self.bgci_button)
+
+        for b in buttons:
+            b.set_alignment(0, -1)
+            b.connect("clicked", self.on_click)
+            self.vbox.pack_start(b)
+
+
+    def on_click(self, button):
+        desktop.open(button.get_uri())
+
+
+    def update(self, row):
+        s = str(row)
+        self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
+                                 s.replace(' ', '+'))
+        itis_uri = "http://www.itis.gov/servlet/SingleRpt/SingleRpt?"\
+                   "search_topic=Scientific_Name" \
+                   "&search_value=%(search_value)s" \
+                   "&search_kingdom=Plant" \
+                   "&search_span=containing" \
+                   "&categories=All&source=html&search_credRating=All" \
+                   % {'search_value': s.replace(' ', '%20')}
+        self.itis_button.set_uri(itis_uri)
+
+        self.google_button.set_uri("http://www.google.com/search?q=%s" % \
+                                   s.replace(' ', '+'))
+
+        bgci_uri = "http://www.bgci.org/plant_search.php?action=Find"\
+                   "&ftrGenus=%s&ftrRedList="\
+                   "&ftrRedList1997=&ftrEpithet=&ftrCWR=&x=0&y=0#results" % s
+        self.bgci_button.set_uri(bgci_uri)
+
+        ipni_uri = "http://www.ipni.org/ipni/advPlantNameSearch.do?"\
+                   "find_genus=%s&find_isAPNIRecord=on& find_isGCIRecord=on" \
+                   "&find_isIKRecord=on&output_format=normal" % s
+        self.ipni_button.set_uri(ipni_uri)
+
+
 class GeneralGenusExpander(InfoExpander):
     '''
     expander to present general information about a genus
@@ -597,7 +674,7 @@ class GeneralGenusExpander(InfoExpander):
         '''
         the constructor
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.gen_general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -648,9 +725,12 @@ class GenusInfoBox(InfoBox):
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
         self.general = GeneralGenusExpander(self.widgets)
         self.add_expander(self.general)
+        self.links = LinksExpander()
+        self.add_expander(self.links)
 
     def update(self, row):
             self.general.update(row)
+            self.links.update(row)
 
 __all__ = ['genus_table', 'Genus', 'genus_synonym_table', 'GenusSynonym',
            'GenusEditor', 'GenusInfoBox', 'genus_context_menu',
