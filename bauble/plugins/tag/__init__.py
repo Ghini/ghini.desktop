@@ -57,7 +57,6 @@ def register_mapping(mapping):
     @param mapping:
     """
     global __mappings
-    debug(mapping.__name__)
     __mappings[mapping.__name__] = mapping
 
 
