@@ -98,9 +98,61 @@ class InfoExpander(gtk.Expander):
         raise NotImplementedError("InfoExpander.update(): not implemented")
 
 
-# should we have a specific expander for those that use glade
-class GladeInfoExpander(gtk.Expander):
-    pass
+class PropertiesExpander(InfoExpander):
+
+    def __init__(self):
+        super(PropertiesExpander, self).__init__(_('Properties'))
+        table = gtk.Table(rows=4, columns=2)
+        table.set_col_spacings(15)
+        table.set_row_spacings(8)
+
+        # database id
+        id_label = gtk.Label(_("<b>ID:</b>"))
+        id_label.set_use_markup(True)
+        id_label.set_alignment(1, .5)
+        self.id_data = gtk.Label('--')
+        self.id_data.set_alignment(0, .5)
+        table.attach(id_label, 0, 1, 0, 1)
+        table.attach(self.id_data, 1, 2, 0, 1)
+
+        # object type
+        type_label = gtk.Label(_("<b>Type:</b>"))
+        type_label.set_use_markup(True)
+        type_label.set_alignment(1, .5)
+        self.type_data = gtk.Label('--')
+        self.type_data.set_alignment(0, .5)
+        table.attach(type_label, 0, 1, 1, 2)
+        table.attach(self.type_data, 1, 2, 1, 2)
+
+        # date created
+        created_label = gtk.Label(_("<b>Date created:</b>"))
+        created_label.set_use_markup(True)
+        created_label.set_alignment(1, .5)
+        self.created_data = gtk.Label('--')
+        self.created_data.set_alignment(0, .5)
+        table.attach(created_label, 0, 1, 2, 3)
+        table.attach(self.created_data, 1, 2, 2, 3)
+
+        # date last updated
+        updated_label = gtk.Label(_("<b>Last updated:</b>"))
+        updated_label.set_use_markup(True)
+        updated_label.set_alignment(1, .5)
+        self.updated_data = gtk.Label('--')
+        self.updated_data.set_alignment(0, .5)
+        table.attach(updated_label, 0, 1, 3, 4)
+        table.attach(self.updated_data, 1, 2, 3, 4)
+
+        box = gtk.HBox()
+        box.pack_start(table, expand=False, fill=False)
+        self.vbox.pack_start(box)
+
+
+    def update(self, row):
+        self.id_data.set_text(str(row.id))
+        self.type_data.set_text(str(type(row).__name__))
+        self.created_data.set_text(str(row._created))
+        self.updated_data.set_text(str(row._last_updated))
+
 
 
 class InfoBox(gtk.ScrolledWindow):
@@ -116,7 +168,6 @@ class InfoBox(gtk.ScrolledWindow):
         viewport = gtk.Viewport()
         viewport.add(self.vbox)
         self.add(viewport)
-
         self.expanders = {}
 
 
@@ -168,20 +219,20 @@ class InfoBox(gtk.ScrolledWindow):
         raise NotImplementedError
 
 
-class GBIFLinkButton(gtk.LinkButton):
+## class GBIFLinkButton(gtk.LinkButton):
 
-    def __init__(self, label=_('Search GBIF')):
-        super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
-                                             label=label)
+##     def __init__(self, label=_('Search GBIF')):
+##         super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
+##                                              label=label)
 
 
-class LinkExpander(InfoExpander):
+## class LinkExpander(InfoExpander):
 
-    def __init__(self):
-        super(LinkExpander, self).__init__()
+##     def __init__(self):
+##         super(LinkExpander, self).__init__()
 
-    def add_button(button):
-        self.vbox.pack_start(button)
+##     def add_button(button):
+##         self.vbox.pack_start(button)
 
 
 class SearchParser(object):
@@ -354,10 +405,11 @@ class MapperSearch(SearchStrategy):
 #            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
             select = self._build_select(session, mapping, ident, cond, val)
             if op is not None:
-                # TODO: i'm not sure how elegant building the queries like
+                # i'm not sure how elegant building the queries like
                 # this is when we have to 'op' then together but it seems to
                 # work on most of the queries statements that i've tried
-                prop = mapping.props[ident[0]]
+                cls_mapper = class_mapper(mapping)
+                prop = cls_mapper.props[ident[0]]
                 if isinstance(prop, ColumnProperty):
                     select = prev_select.select(and_(select._clause))
                 else:
@@ -367,7 +419,8 @@ class MapperSearch(SearchStrategy):
                     # remote side
                     for col in prop.remote_side:
                         ids = [s.id for s in select]
-                        select = prev_select.select(mapping.local_table.c['id'].in_(*ids))
+                        select = prev_select.select(cls_mapper.\
+                                            local_table.c['id'].in_(*ids))
             try:
                 op = expr_iter.next()
                 prev_select = select

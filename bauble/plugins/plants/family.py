@@ -97,6 +97,7 @@ class Family(bauble.BaubleMapper):
             return ' '.join([s for s in [family.family, family.qualifier] if s is not None])
 
 
+
 class FamilySynonym(bauble.BaubleMapper):
 
     # - deleting either of the families that this synonym refers to
@@ -129,6 +130,7 @@ mapper(FamilySynonym, family_synonym_table,
                   'family': relation(Family, uselist=False,
             primaryjoin=family_synonym_table.c.family_id==family_table.c.id)
                      })
+
 
 
 class FamilyEditorView(GenericEditorView):
@@ -174,6 +176,7 @@ class FamilyEditorView(GenericEditorView):
         return self.dialog.run()
 
 
+
 class FamilyEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'family',
@@ -190,7 +193,8 @@ class FamilyEditorPresenter(GenericEditorPresenter):
 
         # initialize widgets
         self.init_enum_combo('fam_qualifier_combo', 'qualifier')
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view, self.session)
+        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
+                                                    self.session)
         self.refresh_view() # put model values in view
 
         # connect signals
@@ -456,7 +460,7 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 #
 # Family infobox
 #
-from bauble.view import InfoBox, InfoExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander
 import bauble.paths as paths
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, species_table
@@ -513,7 +517,7 @@ class GeneralFamilyExpander(InfoExpander):
 
         # get the number of plants
         nplants_str = str(sql_utils.count(plant_table,
-                                          plant_table.c.accession_id.in_(acc_ids)))
+                                    plant_table.c.accession_id.in_(acc_ids)))
         if nplants_str != '0':
             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
             nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
@@ -524,7 +528,7 @@ class GeneralFamilyExpander(InfoExpander):
 class LinksExpander(InfoExpander):
 
     def __init__(self):
-        InfoExpander.__init__(self, _("Links"))
+        super(LinksExpander, self).__init__(_('Links'))
         self.tooltips = gtk.Tooltips()
         buttons = []
         self.google_button = gtk.LinkButton("", _("Search Google"))
@@ -580,6 +584,7 @@ class LinksExpander(InfoExpander):
         self.ipni_button.set_uri(ipni_uri)
 
 
+
 class FamilyInfoBox(InfoBox):
     '''
     '''
@@ -595,12 +600,16 @@ class FamilyInfoBox(InfoBox):
         self.add_expander(self.general)
         self.links = LinksExpander()
         self.add_expander(self.links)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
+
 
     def update(self, row):
         '''
         '''
         self.general.update(row)
         self.links.update(row)
+        self.props.update(row)
 
 
 __all__ = ['family_table', 'Family', 'FamilyEditor', 'family_synonym_table',

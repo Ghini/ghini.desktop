@@ -18,7 +18,7 @@ from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
 from bauble.types import Enum
-from bauble.view import InfoBox, InfoExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander
 from bauble.plugins.garden.donor import Donor
 
 # TODO: underneath the species entry create a label that shows information
@@ -1500,17 +1500,17 @@ class AccessionInfoBox(InfoBox):
 
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
-
         self.source = SourceExpander(self.widgets)
         self.add_expander(self.source)
-
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
 
 
     def update(self, row):
         self.general.update(row)
-
+        self.props.update(row)
         if row.notes is None:
             self.notes.set_expanded(False)
             self.notes.set_sensitive(False)
