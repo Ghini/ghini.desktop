@@ -105,11 +105,12 @@ class PlantSearch(MapperSearch):
 
 
 plant_history_table = bauble.Table('plant_history',
-                            Column('id', Integer, primary_key=True),
-                            Column('date', Date),
-                            Column('description', Unicode),
-                            Column('plant_id', Integer, ForeignKey('plant.id'),
-                                   nullable=False))
+                                   Column('id', Integer, primary_key=True),
+                                   Column('date', Date),
+                                   Column('description', Unicode),
+                                   Column('plant_id', Integer,
+                                          ForeignKey('plant.id'),
+                                          nullable=False))
 
 
 class PlantHistory(bauble.BaubleMapper):
@@ -166,7 +167,8 @@ class Plant(bauble.BaubleMapper):
 
     @staticmethod
     def refresh_delimiter(cls):
-        row = table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
+        row = table.select(meta.bauble_meta_table.c.name== \
+                           plant_delimiter_key).execute()
         Plant.__delimiter = row.fetchone()['value']
 
     def __get_delimiter(self):
@@ -246,6 +248,16 @@ class PlantEditorView(GenericEditorView):
         acc_status_combo.set_size_request(width_func(acc_status_combo,
                                                      'acc_status'), -1)
 
+        # TODO: need to make sure the width that we're guessing here works
+        # alright for windows, it's too small for gnome
+        from bauble.plugins.garden.location import location_table
+        maxlen = 0
+        for loc in location_table.select().execute():
+            if len(loc.site) > maxlen:
+                maxlen = len(loc.site)
+        plant_loc_combo = self.widgets.plant_loc_combo
+        width = int(round(get_char_width(plant_loc_combo) * maxlen * 1.3))
+        plant_loc_combo.set_size_request(width, -1)
 
     def save_state(self):
         pass
@@ -259,15 +271,11 @@ class PlantEditorView(GenericEditorView):
         return self.dialog.run()
 
 
-class ObjectIdValidator(object):#(validators.FancyValidator):
+class ObjectIdValidator(object):
 
     def to_python(self, value, state):
         return value.id
-#        try:
-#
-#        except:
-#            raise validators.Invalid('expected a int in column %s, got %s '\
-#                                     'instead' % (self.name, type(value)), value, state)
+
 
 class PlantEditorPresenter(GenericEditorPresenter):
 
@@ -598,7 +606,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
 import os
 import bauble.paths as paths
-from bauble.view  import InfoBox, InfoExpander
+from bauble.view  import InfoBox, InfoExpander, PropertiesExpander
 
 class GeneralPlantExpander(InfoExpander):
     """
@@ -664,9 +672,10 @@ class PlantInfoBox(InfoBox):
         self.widgets = utils.GladeWidgets(glade_file)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
-
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
 
 
     def update(self, row):
@@ -677,6 +686,7 @@ class PlantInfoBox(InfoBox):
         #loc = self.get_expander("Location")
         #loc.update(row.location)
         self.general.update(row)
+        self.props.update(row)
 
         if row.notes is None:
             self.notes.set_expanded(False)

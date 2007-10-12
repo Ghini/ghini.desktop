@@ -4,7 +4,8 @@
 
 from species_editor import *
 from species_model import *
-from bauble.view import SearchView, SearchStrategy, MapperSearch
+from bauble.view import SearchView, SearchStrategy, MapperSearch, \
+     PropertiesExpander
 from bauble.i18n import _
 import bauble.utils.desktop as desktop
 
@@ -335,14 +336,8 @@ class SpeciesInfoBox(InfoBox):
         self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
-
-        #self.ref = ReferenceExpander()
-        #self.ref.set_expanded(True)
-        #self.add_expander(self.ref)
-
-        #img = ImagesExpander()
-        #img.set_expanded(True)
-        #self.add_expander(img)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
 
 
     def update(self, row):
@@ -356,15 +351,14 @@ class SpeciesInfoBox(InfoBox):
         self.synonyms.update(row)
         self.notes.update(row)
         self.links.update(row)
-        #self.ref.update(row.references)
-        #self.ref.value = row.references
-        #ref = self.get_expander("References")
-        #ref.set_values(row.references)
+        self.props.update(row)
 
 
 # it's easier just to put this here instead of playing around with imports
 class VernacularNameInfoBox(SpeciesInfoBox):
+
     def update(self, row):
         super(VernacularNameInfoBox, self).update(row.species)
+        self.props.update(row)
 
 
