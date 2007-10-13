@@ -440,6 +440,7 @@ class GUI(object):
             bauble.conn_name = name
             self.window.set_title(self.title)
             self.set_default_view()
+            pluginmgr.init()
 
 
     def save_state(self):

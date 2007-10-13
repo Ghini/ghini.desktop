@@ -9,7 +9,7 @@ import imp, os, sys
 import bauble.paths as paths
 
 # major, minor, revision version tuple
-version = (0, 7, '0rc1')
+version = (0, 7, '0rc2')
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
@@ -57,7 +57,7 @@ try:
     # TODO: check sqlalchemy version
 except ImportError:
     msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
-              'http://www.sqlalchemy.org')
+            'http://www.sqlalchemy.org')
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
     raise
 
@@ -79,7 +79,9 @@ import datetime
 class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
 
     """
-    A DateTime type that converts Python's datetime.datetime to an
+    A DateTime
+
+ type that converts Python's datetime.datetime to an
     SQLAlchemy DateTime type.
     """
 
@@ -97,7 +99,6 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
     def convert_result_value(self, value, engine):
         return super(DateTimeDecorator, self).convert_result_value(value,
                                                                    engine)
-
 
 _now = sqlalchemy.func.current_timestamp(type=sqlalchemy.DateTime)
 
@@ -360,20 +361,21 @@ def main(uri=None):
                 if conn_name is None:
                     quit()
                 try:
-                    if open_database(uri, conn_name):
+                    if open_database(uri):
                         break
                     else:
                         uri = conn_name = None
                 except db.VersionError, e:
                     warning(e)
                     break
-                except db.DatabaseError, e:
+                except (db.DatabaseError, db.MetaTableError), e:
                     debug(e)
                     traceback.format_exc()
                     open_exc = e
                     break
     else:
-        open_database(uri, None)
+        open_database(uri)
+
 
     # save any changes made in the conn manager before anything else has
     # chance to crash
@@ -392,7 +394,7 @@ def main(uri=None):
         gtk.gdk.threads_enter()
         ok_to_init_plugins = True
         try:
-            if isinstance(open_exc, db.DatabaseError):
+            if isinstance(open_exc, (db.DatabaseError, db.MetaTableError)):
                 ok_to_init_plugins = False
                 msg = _('Would you like to create a new Bauble database at ' \
                         'the current connection?\n\n<i>Warning: If there is '\

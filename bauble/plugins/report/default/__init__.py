@@ -85,13 +85,10 @@ class DefaultFormatterSettingsBox(SettingsBox):
 
 
     def update(self, settings={}):
-        debug(settings)
         if 'stylesheet' in settings and settings['stylesheet'] != None:
-            debug(settings['stylesheet'])
             self.widgets.stylesheet_chooser.\
                                         set_filename(settings['stylesheet'])
         if 'renderer' not in settings:
-            debug(default_renderer)
             utils.combo_set_active_text(self.widgets.renderer_combo,
                                         default_renderer)
         else:
@@ -105,7 +102,7 @@ _settings_box = DefaultFormatterSettingsBox()
 
 class DefaultFormatterPlugin(FormatterPlugin):
 
-    title = _('XSL to PDF')
+    title = _('Default')
 
     @staticmethod
     def get_settings_box():

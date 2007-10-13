@@ -241,7 +241,7 @@ class ReportToolDialogPresenter(object):
                        buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                       gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
         d.vbox.set_spacing(10)
-        label = gtk.Label('Enter a name for the new formatter')
+        label = gtk.Label(_('Enter a name for the new formatter'))
         label.set_padding(10, 10)
         d.vbox.pack_start(label)
         entry = gtk.Entry()
@@ -255,7 +255,7 @@ class ReportToolDialogPresenter(object):
                     continue
                 elif names_model is not None \
                          and utils.tree_model_has(names_model, name):
-                    utils.message_dialog('%s already exists' % name)
+                    utils.message_dialog(_('%s already exists') % name)
                     continue
                 else:
                     self.set_prefs_for(entry.get_text(), None, {})
@@ -364,7 +364,7 @@ class ReportToolDialogPresenter(object):
         model = gtk.ListStore(str)
         #assert len(plugins) is not 0, 'No formatter plugins defined.'
         if len(plugins) == 0:
-            utils.message_dialog('No formatter plugins defined',
+            utils.message_dialog(_('No formatter plugins defined'),
                                  gtk.MESSAGE_WARNING)
             return
 
@@ -402,8 +402,8 @@ class ReportToolDialogPresenter(object):
     def init_names_combo(self):
 	formatters = prefs[config_list_pref]
 	if formatters is None or len(formatters) == 0:
-	    msg = _('No formatters found. To create a new formatter click the '\
-		    '"New" button.')
+	    msg = _('No formatters found. To create a new formatter click '\
+                    'the "New" button.')
 	    utils.message_dialog(msg, parent=self.view.dialog)
 #	    debug('names_combo.model=None')
 	    self.view.widgets.names_combo.set_model(None)

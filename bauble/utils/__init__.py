@@ -303,14 +303,16 @@ def create_yes_no_dialog(msg, parent=None):
         except:
             parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=parent, type=gtk.MESSAGE_QUESTION,
-                          buttons = gtk.BUTTONS_YES_NO)
+                         parent=parent, type=gtk.MESSAGE_QUESTION,
+                         buttons = gtk.BUTTONS_YES_NO)
     d.set_title('Bauble')
     d.set_markup(msg)
     if d.get_icon() is None:
         pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
         d.set_icon(pixbuf)
         d.set_property('skip-taskbar-hint', False)
+##     if sys.platform == "win32":
+##         d.set_alternative_button_order([gtk.RESPONSE_YES, gtk.RESPONSE_NO])
     d.show_all()
     return d
 
@@ -327,7 +329,8 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     """
     d = create_yes_no_dialog(msg, parent)
     if yes_delay > 0:
-        button = d.action_area.get_children()[1]  # is the yes button always 1?
+        # TODO: i thought that yes was 1 before but now it seems to be 0...?
+        button = d.action_area.get_children()[0]
         button.set_sensitive(False)
         def on_timeout():
             button.set_sensitive(True)
