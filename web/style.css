@@ -86,3 +86,9 @@ body{
 .screenshot img {
 	border: none;
 }
+
+.note { 
+  border: 1px dashed black;
+  background-color: #F5F5FF;
+  padding: .3em;
+}
