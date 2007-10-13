@@ -502,6 +502,7 @@ def _find_plugins(path):
                 # module, i think we should rename bauble.plugins.abcd.abcd to
                 # abcd_.py or just include the code from that file into the
                 # __init__.py for the module
+                debug(msg)
 #                 utils.message_details_dialog(msg, str(traceback.format_exc()),
 #                                              gtk.MESSAGE_ERROR)
         if not hasattr(mod, "plugin"):
