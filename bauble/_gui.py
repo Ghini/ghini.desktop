@@ -280,18 +280,23 @@ class GUI(object):
         # get menu bar from ui manager
         self.menubar = self.ui_manager.get_widget("/MenuBar")
 
-        def clear_menu(path):
-            # clear out the insert an tools menus
-            menu = self.ui_manager.get_widget(path)
-            submenu = menu.get_submenu()
-            for c in submenu.get_children():
-                submenu.remove(c)
-            menu.show()
-        clear_menu('/ui/MenuBar/insert_menu')
-        clear_menu('/ui/MenuBar/tools_menu')
+        self.clear_menu('/ui/MenuBar/insert_menu')
+        self.clear_menu('/ui/MenuBar/tools_menu')
 
         self.insert_menu= self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         return self.menubar
+
+
+    def clear_menu(self, path):
+        """
+        remove all the menus items from a menu
+        """
+        # clear out the insert an tools menus
+        menu = self.ui_manager.get_widget(path)
+        submenu = menu.get_submenu()
+        for c in submenu.get_children():
+            submenu.remove(c)
+        menu.show()
 
 
     def add_menu(self, name, menu, index=-1):
@@ -440,6 +445,7 @@ class GUI(object):
             bauble.conn_name = name
             self.window.set_title(self.title)
             self.set_default_view()
+            self.clear_menu('/ui/MenuBar/insert_menu')
             pluginmgr.init()
 
 
