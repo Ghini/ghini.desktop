@@ -1,7 +1,14 @@
 #
-# __init__.py -- the default report module
+# __init__.py
 #
+"""
+The PDF report generator module.
 
+This module takes a list of objects, get all the plants from the
+objects, converts them to the ABCD XML format, transforms the ABCD
+data to an XSL formatting stylesheet and uses a XSL-PDF renderer to
+convert the stylesheet to PDF.
+"""
 import sys, os, tempfile, traceback
 import gtk
 from sqlalchemy import *
@@ -27,6 +34,9 @@ else:
 # https://bugs.launchpad.net/bauble/+bug/104963 (check for PDF renderers on PATH)
 #
 
+# TODO: need to make sure we can't select the OK button if we haven't selected
+# a value for everything
+
 # TODO: use which() to search the path for a known renderer, could do this in
 # task so that it's non blocking, should cache the values in the prefs and
 # check that they are still valid when we open the report UI up again
@@ -41,6 +51,7 @@ renderers_map = {'Apache FOP': fop_cmd + \
 #                 'Ibex for Java': 'java -cp /home/brett/bin/ibex-3.9.7.jar \
 #         ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
                 }
+default_renderer = 'Apache FOP'
 
 class SettingsBoxPresenter:
 
@@ -74,26 +85,27 @@ class DefaultFormatterSettingsBox(SettingsBox):
 
 
     def update(self, settings={}):
-        try:
-            self.widgets.stylesheet_chooser.set_filename(settings['stylesheet'])
+        debug(settings)
+        if 'stylesheet' in settings and settings['stylesheet'] != None:
+            debug(settings['stylesheet'])
+            self.widgets.stylesheet_chooser.\
+                                        set_filename(settings['stylesheet'])
+        if 'renderer' not in settings:
+            debug(default_renderer)
+            utils.combo_set_active_text(self.widgets.renderer_combo,
+                                        default_renderer)
+        else:
             utils.combo_set_active_text(self.widgets.renderer_combo,
                                         settings['renderer'])
+        if 'authors' in settings:
             self.widgets.author_check.set_active(settings['authors'])
-        except KeyError, e:
-            #debug('SettingsBox.update(): KeyError -- %s' % e)
-            pass
-        except Exception, e:
-            #debug('SettingsBox.update(): Exception -- %s' % e)
-            #debug(e)
-            pass
-
 
 
 _settings_box = DefaultFormatterSettingsBox()
 
 class DefaultFormatterPlugin(FormatterPlugin):
 
-    title = 'Default'
+    title = _('XSL to PDF')
 
     @staticmethod
     def get_settings_box():
@@ -121,7 +133,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
         plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
         if len(plants) == 0:
             utils.message_dialog(_('There are no plants in the search '
-                                 'results.  Please try another search.'))
+                                   'results.  Please try another search.'))
             return False
 
         abcd_data = plants_to_abcd(plants, authors=authors)
@@ -143,10 +155,11 @@ class DefaultFormatterPlugin(FormatterPlugin):
 
             if len(results) < 1:
                 raise ValueError(_('Couldn\'t find a Plant or Accession with '\
-                                 'code %s') % code)
+                                   'code %s') % code)
             species = results[0]
             if species.distribution is not None:
-                etree.SubElement(el, 'distribution').text=species.distribution_str()
+                etree.SubElement(el, 'distribution').text=\
+                                     species.distribution_str()
             session.clear()
         session.close()
 
@@ -188,7 +201,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
                                        'default program. You can open the '\
                                        'file manually at %s') % filename)
 
-            return True
+        return True
 
 
 # expose the formatter
