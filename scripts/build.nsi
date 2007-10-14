@@ -38,6 +38,7 @@ Outfile "bauble-${version}-setup.exe"
 !define startmenu "$SMPROGRAMS\${prodname}"
 !define uninstaller "uninstall.exe"
 
+SetCompressor /SOLID lzma
 SetDateSave on
 SetDatablockOptimize on
 CRCCheck on
@@ -74,7 +75,7 @@ Section "Dummy Section" SecDummy
     ;Store installation folder
     WriteRegStr HKCU "${regkey}" "" $INSTDIR
     ; Uninstall reg keys
-    WriteRegStr HKLM "${uninstkey}" "DisplayName" "${prodname} (remove only)"
+    WriteRegStr HKLM "${uninstkey}" "DisplayName" "${prodname} ${version} (remove only)"
     WriteRegStr HKLM "${uninstkey}" "UninstallString" '"$INSTDIR\${uninstaller}"'
     ;Create uninstaller
     WriteUninstaller "$INSTDIR\${uninstaller}"
