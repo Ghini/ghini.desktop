@@ -256,8 +256,9 @@ class PlantEditorView(GenericEditorView):
             if len(loc.site) > maxlen:
                 maxlen = len(loc.site)
         plant_loc_combo = self.widgets.plant_loc_combo
-        width = int(round(get_char_width(plant_loc_combo) * maxlen * 1.3))
+        width = int(round(get_char_width(plant_loc_combo) * maxlen * 1.5))
         plant_loc_combo.set_size_request(width, -1)
+
 
     def save_state(self):
         pass

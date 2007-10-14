@@ -372,7 +372,15 @@ class AccessionEditorView(GenericEditorView):
         lon_dms_label = self.widgets.lon_dms_label
         lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
 
-        # fixes for donation editor
+        # fixes for donor combo
+        from bauble.plugins.garden.donor import donor_table
+        maxlen = 0
+        for donor in donor_table.select().execute():
+            if len(donor.name) > maxlen:
+                maxlen = len(donor.name)
+        donor_combo = self.widgets.donor_combo
+        width = int(round(get_char_width(donor_combo) * maxlen * 1.3))
+        donor_combo.set_size_request(width, -1)
 
 
     def save_state(self):
