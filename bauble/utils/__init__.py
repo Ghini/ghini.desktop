@@ -94,6 +94,8 @@ class GladeWidgets(dict):
 
 
     def remove_parent(self, widget):
+        # if parent is the last reference to widget then widget may be
+        # automatically destroyed
         if isinstance(widget, str):
             w = self[widget]
         else:

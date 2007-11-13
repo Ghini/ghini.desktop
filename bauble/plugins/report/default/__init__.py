@@ -70,8 +70,11 @@ class DefaultFormatterSettingsBox(SettingsBox):
         super(DefaultFormatterSettingsBox, self).__init__(*args)
         self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
                                "plugins", "report", 'default', 'gui.glade'))
+        # keep a refefence to settings box so it doesn't get destroyed in
+        # remove_parent()
+        settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(self.widgets.settings_box)
+        self.pack_start(settings_box)
         self.presenter = SettingsBoxPresenter(self.widgets)
 
 
