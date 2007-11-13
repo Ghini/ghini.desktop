@@ -273,7 +273,7 @@ class ReportToolDialogPresenter(object):
         names_combo = self.view.widgets.names_combo
         name = names_combo.get_active_text()
         formatters.pop(name)
-        prefs[formatters_list_pref] = formatters
+        prefs[config_list_pref] = formatters
         self.populate_names_combo()
         names_combo.set_active(0)
 
@@ -290,13 +290,17 @@ class ReportToolDialogPresenter(object):
         try:
             title, settings = formatters[name]
         except (KeyError, TypeError), e:
-            #debug(e)
+            # TODO: show a dialog saying that you can't find whatever
+            # you're looking for in the settings
+            debug(e)
             return
 
         try:
             self.set_formatter_combo(title)
         except Exception, e:
-#            debug(e)
+            # TODO: show a dialog saying that you can't find whatever
+            # you're looking for in the settings
+            debug(e)
             self.set_formatter_combo(-1)
         self.view.widgets.details_box.set_sensitive(True)
 
