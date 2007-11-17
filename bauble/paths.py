@@ -3,7 +3,6 @@
 #
 
 import os, sys
-#import bauble
 
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we
@@ -45,19 +44,29 @@ def locale_dir():
 
 
 def user_dir():
-    if sys.platform == "win32":
-        if 'APPDATA' in os.environ:
-            dir = os.path.join(os.environ["APPDATA"], "Bauble")
-        else:
-            raise Exception(_('Could not get path for user settings: no ' \
-                              'APPDATA variable'))
-    elif sys.platform == "linux2":
-        if 'HOME' in os.environ:
-            dir = os.path.join(os.environ["HOME"], ".bauble")
-        else:
-            raise Exception(_('Could not get path for user settings: '\
-                              'no HOME variable'))
-    else:
-        raise Exception(_('Could not get path to user settings: ' \
-                          'unsupported platform'))
-    return dir
+   if sys.platform == "win32":
+      if 'APPDATA' in os.environ:
+         dir = os.path.join(os.environ["APPDATA"], "Bauble")
+      elif 'USERPROFILE' in os.environ:
+         dir = os.path.join(os.environ['USERPROFILE'], 'Application Data',
+                            'Bauble')
+      else:
+#             raise Exception(_('Could not get path for user settings: no ' \
+#                               'APPDATA variable'))
+         raise Exception('Could not get path for user settings: no ' \
+                            'APPDATA variable')
+   elif sys.platform == "linux2":
+      if 'HOME' in os.environ:
+         dir = os.path.join(os.environ["HOME"], ".bauble")
+      else:
+#             raise Exception(_('Could not get path for user settings: '\
+#                               'no HOME variable'))
+         raise Exception('Could not get path for user settings: '\
+                            'no HOME variable')
+   else:
+#        raise Exception(_('Could not get path to user settings: ' \
+#                          'unsupported platform'))
+      raise Exception('Could not get path to user settings: ' \
+                         'unsupported platform')
+   return dir
+
