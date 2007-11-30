@@ -13,14 +13,15 @@
 #
 
 import sys
-import os
-import urllib
 
-print sys.platform
 if sys.platform != 'win32':
     print "Error: This script is only for Win32"
     sys.exit(1)
 
+import os
+import urllib
+import zipfile
+import _winreg
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-r', '--redl', action='store_true', dest='redl',
@@ -80,8 +81,6 @@ ALL_FILES = [GTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
              XML_PATH, CROCO_PATH, GSF_PATH, FONTCONFIG_PATH, EXPAT_PATH,
              FREETYPE_PATH] # no python files yet
 
-# get python versions from the registry
-import _winreg
 
 def get_subkey_names(reg_key):
     index = 0
@@ -159,6 +158,7 @@ if options.download_path:
 else:
     DL_PATH = os.path.join(os.getcwd(), 'install_gtk')
 
+print 'using download path: %s' % DL_PATH
 if not os.path.exists(DL_PATH):
     os.makedirs(DL_PATH)
 
@@ -191,7 +191,6 @@ else:
 
 # for all the files that we downloaded (or would have downloaded) then
 # either unzip or execute them
-import zipfile
 for filename in [f.split('/')[-1] for f in ALL_FILES]:
     if filename.endswith('.zip'):
         zip = zipfile.ZipFile(os.path.join(DL_PATH, filename), 'r')
