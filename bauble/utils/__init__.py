@@ -6,6 +6,7 @@ import imp, os, sys, re
 import bauble
 import bauble.paths as paths
 from sqlalchemy.orm import object_session
+from bauble.i18n import *
 import gtk, gtk.glade
 from bauble.utils.log import debug, warning
 import xml.sax.saxutils as saxutils
@@ -94,6 +95,8 @@ class GladeWidgets(dict):
 
 
     def remove_parent(self, widget):
+        # if parent is the last reference to widget then widget may be
+        # automatically destroyed
         if isinstance(widget, str):
             w = self[widget]
         else:
@@ -129,23 +132,22 @@ def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
 
 
 
-def clear_model(obj_with_model, ridiculous=False):
+def clear_model(obj_with_model):
     '''
     and and remove the model on an object
     '''
     model = obj_with_model.get_model()
     if model is None:
         return
-    if not ridiculous:
-        model.clear()
-    else:
-        ncols = model.get_n_columns()
-        def del_cb(model, path, iter, data=None):
-            for c in xrange(0, ncols):
-                v =  model.get_value(iter, c)
-                del v
-            del iter
-        model.foreach(del_cb)
+
+    ncols = model.get_n_columns()
+    def del_cb(model, path, iter, data=None):
+        for c in xrange(0, ncols):
+            v =  model.get_value(iter, c)
+            del v
+        del iter
+    model.foreach(del_cb)
+    model.clear()
     del model
     model = None
     obj_with_model.set_model(None)
@@ -304,14 +306,16 @@ def create_yes_no_dialog(msg, parent=None):
         except:
             parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=parent, type=gtk.MESSAGE_QUESTION,
-                          buttons = gtk.BUTTONS_YES_NO)
+                         parent=parent, type=gtk.MESSAGE_QUESTION,
+                         buttons = gtk.BUTTONS_YES_NO)
     d.set_title('Bauble')
     d.set_markup(msg)
     if d.get_icon() is None:
         pixbuf = gtk.gdk.pixbuf_new_from_file(icon)
         d.set_icon(pixbuf)
         d.set_property('skip-taskbar-hint', False)
+##     if sys.platform == "win32":
+##         d.set_alternative_button_order([gtk.RESPONSE_YES, gtk.RESPONSE_NO])
     d.show_all()
     return d
 
@@ -328,7 +332,8 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     """
     d = create_yes_no_dialog(msg, parent)
     if yes_delay > 0:
-        button = d.action_area.get_children()[1]  # is the yes button always 1?
+        # TODO: i thought that yes was 1 before but now it seems to be 0...?
+        button = d.action_area.get_children()[0]
         button.set_sensitive(False)
         def on_timeout():
             button.set_sensitive(True)
@@ -417,27 +422,6 @@ def xml_safe_utf8(obj):
     return xml_safe(utf8(obj))
 
 
-def startfile(filename):
-    """
-    @param filename: the name of the file to execute
-
-    opens a file with it's associated application, should work on win32 and
-    linux/gnome for now
-    """
-    if sys.platform == 'win32':
-        try:
-            os.startfile(filename)
-        except WindowsError, e: # probably no file association
-            msg = _("Could not open pdf file.\n\n%s") % xml_safe_utf8(e)
-            message_dialog(msg)
-    elif sys.platform == 'linux2':
-        # FIXME: need to determine if gnome or kde
-        os.system('gnome-open %s' % filename)
-    else:
-        raise Exception("bauble.utils.startfile(): can't open file: %s" \
-                        % filename)
-
-
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')
 
 def natsort_key(obj):
@@ -466,6 +450,7 @@ def natsort_key(obj):
 
 
 def delete_or_expunge(obj):
+    from sqlalchemy import object_session
     session = object_session(obj)
 #    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:
