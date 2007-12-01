@@ -16,6 +16,8 @@ from bauble.plugins.plants.species_model import species_table
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution
 
+# TODO: create a test to make sure that if you delete an accession then the
+# plants that are "children" of this accession are also deleted
 
 accession_test_data = ({'id':1 , 'code': '1.1', 'species_id': 1,
                         'source_type': 'Donation'},
