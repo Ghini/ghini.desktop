@@ -6,8 +6,9 @@
 import os, traceback
 import gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.exceptions import SQLError
-from sqlalchemy.orm.session import object_session
+#from sqlalchemy.orm.session import object_session
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -181,7 +182,7 @@ class TagItemGUI:
 #
 # tag table
 #
-tag_table = bauble.Table('tag',
+tag_table = bauble.Table('tag', bauble.metadata,
                   Column('id', Integer, primary_key=True),
                   Column('tag', Unicode(64), unique=True, nullable=False))
 
@@ -232,7 +233,7 @@ class Tag(bauble.BaubleMapper):
 # tagged_obj table
 #
 # TODO: can class names be unicode, i.e. should obj_class be unicode
-tagged_obj_table = bauble.Table('tagged_obj',
+tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
                          Column('id', Integer, primary_key=True),
                          Column('obj_id', Integer),
                          Column('obj_class', String(64)),
