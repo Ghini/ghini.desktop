@@ -1056,6 +1056,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 self.view.widgets.altacc_entry.set_sensitive(False)
 
         # refresh the sensitivity of the accept buttons
+        # TODO: there is a bug here that if the source_type is changed and
+        # even though the required fields aren't filled in then the accept
+        # buttons are still set as sensitive,
+        # https://bugs.launchpad.net/bauble/+bug/165212
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False

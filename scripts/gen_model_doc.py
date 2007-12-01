@@ -8,7 +8,41 @@
 
 import os, sys
 sys.path.append('.')
-from bauble.plugins import tables
+import sqlalchemy as sa
+import bauble.pluginmgr as pluginmgr
+## import bauble.db as db
+## try:
+##     bauble.open_database(uri, verify=False)
+## except Exception, e:
+##     print e
+## prefs.init()
+pluginmgr.load()
+## bauble.create_database(False)
+#pluginmgr.init()
+## __initialized = True
+
+def column_type_str(col):
+    print type(col)
+    if isinstance(col, sa.String):
+        return 'string'
+    elif isinstance(col, sa.Unicode):
+        return 'unicode'
+    elif isinstance(col, sa.Integer):
+        return 'integer'
+    elif isinstance(col, sa.ForeignKey):
+        return 'foreign key(int)'
+
+for table in sa.default_metadata.table_iterator():
+    print 'Table: %s' % table
+    for col in table.columns:
+        if col.nullable:
+            print '  %s: %s' % (col.name, col.type)
+        else:
+            print '  %s: %s (required)' % (col.name, col.type)
+
+    print ''
+        #print ' -- %s' % column_type_str(col)
+sys.exit()
 
 html_head='''<html><head>
 <style>
@@ -55,7 +89,7 @@ for name, table in tables.iteritems():
 
     if columns != '':
 	columns_markup = columns_template % columns
-    
+
     joins = ''
     for join in table.sqlmeta.joins:
 	joins += join_template % join.joinMethodName
@@ -64,9 +98,9 @@ for name, table in tables.iteritems():
     if joins != '':
 	joins_markup = joins_template % joins
 
-    print table_template % ({'name': name, 
+    print table_template % ({'name': name,
 			     'table_name': table.sqlmeta.table,
-			     'columns': columns_markup, 
+			     'columns': columns_markup,
 			     'joins': joins_markup})
-    
+
 print html_tail
