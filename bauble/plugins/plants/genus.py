@@ -154,17 +154,18 @@ from bauble.plugins.plants.species_editor import SpeciesEditor
 
 
 genus_mapper = mapper(Genus, genus_table,
-    properties = {'species':
-        relation(Species,
-                 primaryjoin=genus_table.c.id==species_table.c.genus_id,
-                 cascade='all, delete-orphan',
-                 order_by=['sp', 'infrasp_rank', 'infrasp'],
-                 backref='genus'),
-                  'synonyms':
-        relation(GenusSynonym,
-                 primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
-                 cascade='all, delete-orphan',
-                 backref='genus')},
+    properties = {\
+    'species': relation(Species,
+                        primaryjoin=genus_table.c.id==species_table.c.genus_id,
+                        cascade='all, delete-orphan',
+                        order_by=['sp', 'infrasp_rank', 'infrasp'],
+                        backref='genus'
+                        ),
+    'synonyms': relation(GenusSynonym,
+                primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
+                cascade='all, delete-orphan',
+                         #backref='genus'
+                         )},
     order_by=['genus', 'author'])
 
 mapper(GenusSynonym, genus_synonym_table,
@@ -576,18 +577,13 @@ class GenusEditor(GenericModelViewPresenterEditor):
 #
 # infobox
 #
-from bauble.view import InfoBox, InfoExpander, LinkExpander, GBIFLinkButton
+from bauble.view import InfoBox, InfoExpander
 from sqlalchemy.orm.session import object_session
 import bauble.paths as paths
 from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
 
-class GenusLinkExpander(InfoExpander):
-
-    def __init__(self):
-        super(GenusLinkExpander, self).__init__()
-        #self.add_button(super(
 
 class GeneralGenusExpander(InfoExpander):
     '''
