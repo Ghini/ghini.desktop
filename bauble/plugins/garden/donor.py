@@ -3,6 +3,7 @@
 #
 
 import os
+import sys
 from sqlalchemy import *
 from sqlalchemy.exceptions import SQLError
 import bauble
