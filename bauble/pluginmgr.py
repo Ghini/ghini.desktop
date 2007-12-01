@@ -20,7 +20,7 @@ import inspect
 import gobject, gtk
 from sqlalchemy import *
 import bauble
-import bauble.meta as meta
+#import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
@@ -199,6 +199,7 @@ class Registry(dict):
         @param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
+        import bauble.meta as meta
         if session is None:
             self.session = create_session()
         else:
@@ -224,6 +225,7 @@ class Registry(dict):
         create a new empty registry in the current database, if a registry
         already exists an error will be raised
         '''
+        import bauble.meta as meta
         #logger.echo(True)
         obj = meta.BaubleMeta(name=meta.REGISTRY_KEY, value='[]')
         session = create_session()
@@ -237,7 +239,8 @@ class Registry(dict):
         '''
         save the state of the registry object to the database
         '''
-#        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+##        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+        import bauble.meta as meta
         dumped = json.dumps(self.entries.values())
         obj = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
         obj.value = dumped

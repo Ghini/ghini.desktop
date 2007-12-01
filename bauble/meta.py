@@ -4,12 +4,14 @@
 import bauble
 from datetime import datetime
 from sqlalchemy import *
+from sqlalchemy.orm import mapper
 
 VERSION_KEY='version'
 CREATED_KEY='created'
 REGISTRY_KEY='registry'
 
-bauble_meta_table = bauble.Table('bauble',
+print bauble.metadata
+bauble_meta_table = bauble.Table('bauble', bauble.metadata,
                           Column('id', Integer, primary_key=True),
                           Column('name', Unicode(64), unique=True),
                           Column('value', Unicode))

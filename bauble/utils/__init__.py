@@ -5,7 +5,7 @@
 import imp, os, sys, re
 import bauble
 import bauble.paths as paths
-from sqlalchemy import object_session
+from sqlalchemy.orm import object_session
 import gtk, gtk.glade
 from bauble.utils.log import debug, warning
 import xml.sax.saxutils as saxutils

@@ -5,6 +5,7 @@
 import os, traceback
 import gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
@@ -59,7 +60,7 @@ def family_markup_func(family):
 #
 # Family
 #
-family_table = bauble.Table('family',
+family_table = bauble.Table('family', bauble.metadata,
                      Column('id', Integer, primary_key=True),
                      Column('family', String(45), nullable=False, index=True),
                      Column('qualifier', Enum(values=['s. lat.', 's. str.',
@@ -69,7 +70,7 @@ family_table = bauble.Table('family',
                      UniqueConstraint('family', 'qualifier',
                                       name='family_index'))
 
-family_synonym_table = bauble.Table('family_synonym',
+family_synonym_table = bauble.Table('family_synonym', bauble.metadata,
                              Column('id', Integer, primary_key=True),
                              Column('family_id', Integer,
                                     ForeignKey('family.id'),

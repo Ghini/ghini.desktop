@@ -3,6 +3,7 @@
 #
 
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.exceptions import SQLError
 import bauble
 from bauble.editor import *
@@ -44,7 +45,7 @@ donor_context_menu = [('Edit', edit_callback),
 # in the search view
 # TODO: the donor_type could be either be character codes or possible a foreign
 # key into another table
-donor_table = bauble.Table('donor',
+donor_table = bauble.Table('donor', bauble.metadata,
                     Column('id', Integer, primary_key=True),
                     Column('name', Unicode(72), unique=True, nullable=False),
                     Column('donor_type',

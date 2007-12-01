@@ -6,6 +6,7 @@ import os, traceback
 import xml
 import gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
@@ -90,7 +91,7 @@ def genus_markup_func(genus):
     # TODO: we should at least warn the user that a duplicate genus name is
     # being entered
 
-genus_table = bauble.Table('genus',
+genus_table = bauble.Table('genus', bauble.metadata,
                     Column('id', Integer, primary_key=True),
                     # it is possible that there can be genera with the same
                     # name but different authors and probably means that at
@@ -130,7 +131,7 @@ class Genus(bauble.BaubleMapper):
                                          xml.sax.saxutils.escape(genus.author)] if s is not None])
 
 
-genus_synonym_table = bauble.Table('genus_synonym',
+genus_synonym_table = bauble.Table('genus_synonym', bauble.metadata,
                             Column('id', Integer, primary_key=True),
                             Column('genus_id', Integer, ForeignKey('genus.id'),
                                    nullable=False),

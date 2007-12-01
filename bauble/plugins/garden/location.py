@@ -3,6 +3,7 @@
 #
 
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
@@ -53,7 +54,7 @@ def loc_markup_func(location):
         return str(location)
 
 
-location_table = bauble.Table('location',
+location_table = bauble.Table('location', bauble.metadata,
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True,nullable=False),
                        Column('description', Unicode))
