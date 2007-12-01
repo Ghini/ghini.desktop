@@ -2,6 +2,7 @@
 # donor.py
 #
 
+import os
 from sqlalchemy import *
 from sqlalchemy.exceptions import SQLError
 import bauble
