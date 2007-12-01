@@ -6,7 +6,9 @@ import os
 import traceback
 import gtk
 import datetime
-from sqlalchemy import *
+#from sqlalchemy import *
+#from sqlalchemy import create_session
+
 import bauble
 import bauble.pluginmgr as pluginmgr
 import bauble.meta as meta
@@ -16,29 +18,33 @@ from bauble.i18n import *
 from bauble.error import *
 import logging
 
-    # TODO: creating a database can't be guaranteed to work if you are
-    # trying to create
-    # a new database at a connection that has tables that aren't defined in
-    # the current metadata, sqlalchemy won't be able to determine the
-    # dependency order and you might get a drop...cascade error, we could
-    # either pass drop all directly to the database, is this non-standard
+# TODO: creating a database can't be guaranteed to work if you are
+# trying to create
+# a new database at a connection that has tables that aren't defined in
+# the current metadata, sqlalchemy won't be able to determine the
+# dependency order and you might get a drop...cascade error, we could
+# either pass drop all directly to the database, is this non-standard
 
-    # TODO: what about leaving tables around that we're not using or indexes
-    # or other things from other versions, is it possible to have a
-    # "relatively" clean state, maybe if we hold a schema object in the
-    # meta with at least the indexes and table names
+# TODO: what about leaving tables around that we're not using or indexes
+# or other things from other versions, is it possible to have a
+# "relatively" clean state, maybe if we hold a schema object in the
+# meta with at least the indexes and table names
 
-    # TODO: should probably do a version check and make sure
-    # that we aren't creating a new database on a database when the version
-    # numbers don't match...in fact we shouldn't really allow creating a new
-    # database except from the connection dialog so that we can't connect
-    # to a database unless it was created by bauble
+# TODO: should probably do a version check and make sure
+# that we aren't creating a new database on a database when the version
+# numbers don't match...in fact we shouldn't really allow creating a new
+# database except from the connection dialog so that we can't connect
+# to a database unless it was created by bauble
 
-    # TODO: could keep a list of tables created by bauble in the database
-    # which we could then reflect and drop, in general maybe we should have
-    # more information about the schema represented in the datbase
+# TODO: could keep a list of tables created by bauble in the database
+# which we could then reflect and drop, in general maybe we should have
+# more information about the schema represented in the datbase
 
-def create(import_defaults=True):
+engine = None
+create_session = None
+metadata = None
+
+def _create(import_defaults=True):
     """
     create new Bauble database at the current connection
 
@@ -120,7 +126,7 @@ class VersionError(DatabaseError):
         self.version = version
 
 
-def verify(engine):
+def _verify(engine):
     # make sure the version information matches or if the bauble
     # table doesn't exists then this may not be a bauble created
     # database
@@ -158,22 +164,29 @@ def verify(engine):
 
 
 
-def open(uri):
+def _open(uri):
     """
     open a database connection
 
     @param uri: the uri of the database to open
     """
     #debug(uri) # ** WARNING: this can print your passwd
-    db_engine = None
+    #db_engine = None
+    global engine
+    global metadata
     try:
-        global_connect(uri)#, strategy='threadlocal')
-        default_metadata.engine.contextual_connect() # test the connection
-        db_engine = default_metadata.engine
+        #global_connect(uri)#, strategy='threadlocal')
+        #default_metadata.engine.contextual_connect() # test the connection
+        engine.connect(uri)
+        metadata = MetaData()
+        #engine = default_metadata.engine
     except Exception, e:
         msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
-        return None
+        engine = None
 
-    return db_engine
+    metadata.bind = engine
+    return engine
+    #return db_engine
+

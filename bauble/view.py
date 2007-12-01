@@ -8,7 +8,7 @@ import itertools
 import gtk, gobject, pango
 from sqlalchemy import *
 import sqlalchemy.exceptions as saexc
-from sqlalchemy.orm.attributes import InstrumentedList
+#from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.ext.selectresults import SelectResults, SelectResultsExt
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader

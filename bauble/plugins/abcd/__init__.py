@@ -5,6 +5,7 @@
 import os,csv
 import gtk.gdk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import lxml.etree as etree
 import lxml._elementpath # put this here sp py2exe picks it up
 from lxml.etree import Element, SubElement, ElementTree
