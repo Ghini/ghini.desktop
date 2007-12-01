@@ -19,6 +19,7 @@ import shelve
 import inspect
 import gobject, gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import bauble
 #import bauble.meta as meta
 import bauble.paths as paths
@@ -36,7 +37,6 @@ plugins = []
 plugins_dict = {}
 commands = {}
 
-#def register_command(command, handler):
 def register_command(handler):
     global commands
     if isinstance(handler.command, str):
@@ -50,8 +50,6 @@ def register_command(handler):
             commands[cmd] = handler
 
 
-
-
 def install(plugins_to_install, import_defaults=True, force=False):
     """
     @param plugins_to_install: a list of plugins to install, if None then
@@ -62,6 +60,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     try:
         registry = Registry()
     except RegistryEmptyError:
+        debug('registry empty -- creating')
         Registry.create()
         registry = Registry()
 
@@ -91,7 +90,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
                     registry.save()
                 transaction.commit()
             except Exception, e:
-##                 debug(e)
+                warning(e)
                 transaction.rollback()
                 raise
     else:
@@ -164,9 +163,10 @@ def init():
     this should be called after we have a connection to the database
     """
     registry = Registry()
+    debug(plugins_dict.keys())
     for entry in registry:
         try:
-#            debug('init %s' % entry)
+            debug('init %s' % entry)
             plugins_dict[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
@@ -199,12 +199,13 @@ class Registry(dict):
         @param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
+        self.create_session = sessionmaker(bind=bauble.engine)
         import bauble.meta as meta
         if session is None:
-            self.session = create_session()
+            self.session = self.create_session()
         else:
             self.session = session
-        result = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
+        result = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
         if result is None:
             raise RegistryEmptyError
 
@@ -228,7 +229,7 @@ class Registry(dict):
         import bauble.meta as meta
         #logger.echo(True)
         obj = meta.BaubleMeta(name=meta.REGISTRY_KEY, value='[]')
-        session = create_session()
+        session = self.create_session()
         session.save(obj)
 #        debug(obj)
         session.flush()
@@ -242,7 +243,7 @@ class Registry(dict):
 ##        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         import bauble.meta as meta
         dumped = json.dumps(self.entries.values())
-        obj = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
+        obj = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
         obj.value = dumped
 #        debug('obj: %s=%s' % (obj.name, obj.value))
 #        self.session.echo_uow = True

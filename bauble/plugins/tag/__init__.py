@@ -360,11 +360,12 @@ def _reset_tags_menu():
     #manage_tag_item = gtk.MenuItem('Manage Tags')
     #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
-    session = create_session()
+    #session = create_session()
+    session =  sessionmaker(bind=bauble.engine)()
     query = session.query(Tag)
     try:
         #for tag in tag_.select():
-        for tag in query.select():
+        for tag in query:#.select():
             item = gtk.MenuItem(tag.tag)
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)

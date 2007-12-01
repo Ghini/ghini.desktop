@@ -157,13 +157,13 @@ def _verify_connection(engine):
 
    # check that the database we connected to has a "created" timestamp
    # in the bauble meta table
-   result = query.get_by(name=meta.CREATED_KEY)
+   result = query.filter_by(name = CREATED_KEY).one()
    if result is None:
       raise TimestampError()
 
    # check that the database we connected to has a "version" in the bauble
    # meta table and the the major and minor version are the same
-   result = query.get_by(name=meta.VERSION_KEY)
+   result = query.filter_by(name = meta.VERSION_KEY).one()
    if result is None:
       raise VersionError(None)
    elif eval(result.value)[0:2] != bauble.version[0:2]:
@@ -193,6 +193,7 @@ def open_database(uri, verify=True):
       engine = sqlalchemy.create_engine(uri)
       engine.connect()
       metadata = sqlalchemy.MetaData()
+      metadata.bind = engine # make engine implicit for metadata
       import bauble.meta as meta
       create_session.configure(bind=engine)
    except Exception, e:
@@ -218,7 +219,7 @@ def open_database(uri, verify=True):
 
    # check that the database we connected to has a "created" timestamp
    # in the bauble meta table
-   result = query.get_by(name=meta.CREATED_KEY)
+   result = query.filter_by(name = meta.CREATED_KEY).one()
    if result is None:
       msg = _('The database you have connected to does not have a '\
               'timestamp for when it was created. This usually means '\
@@ -228,7 +229,7 @@ def open_database(uri, verify=True):
 
    # check that the database we connected to has a "version" in the bauble
    # meta table and the the major and minor version are the same
-   result = query.get_by(name=meta.VERSION_KEY)
+   result = query.filter_by(name = meta.VERSION_KEY).one()
    if result is None or eval(result.value)[0:2] != bauble.version[0:2]:
       msg = _('You are using Bauble version %(version)s while the '\
               'database you have connected to was created with '\
@@ -368,10 +369,11 @@ def main(uri=None):
             conn_name, uri = cm.start()
             if conn_name is None:
                quit()
-            if open_database(uri, conn_name):
-               break
+#            if open_database(uri, conn_name):
+#               break
             try:
                if open_database(uri, conn_name):
+                  prefs[conn_default_pref] = conn_name
                   break
                else:
                   uri = conn_name = None
@@ -403,8 +405,10 @@ def main(uri=None):
    gui = _gui.GUI()
 
    def _post_loop():
+      debug('__post_loop')
       gtk.gdk.threads_enter()
       ok_to_init_plugins = True
+      import bauble.db as db
       try:
          if isinstance(open_exc, db.DatabaseError):
             ok_to_init_plugins = False
@@ -416,6 +420,7 @@ def main(uri=None):
                create_database()
                ok_to_init_plugins = True
       except Exception, e:
+         debug(e)
          pass
          #utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
       else:

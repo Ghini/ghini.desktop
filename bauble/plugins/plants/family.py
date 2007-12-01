@@ -116,16 +116,20 @@ from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
 
 mapper(Family, family_table,
-       properties = {'synonyms': relation(FamilySynonym,
-                                          primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
-                                          cascade='all, delete-orphan',
-                                          backref='family'),
-                     'genera': relation(Genus, backref='family')})
+    properties = { \
+    'synonyms': relation(FamilySynonym,
+            primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
+            cascade='all, delete-orphan',
+                         #backref='family'
+                         ),
+    'genera': relation(Genus, backref='family')})
+
 mapper(FamilySynonym, family_synonym_table,
-       properties = {'synonym': relation(Family, uselist=False,
-                                         primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id),
-                     'family': relation(Family, uselist=False,
-                                        primaryjoin=family_synonym_table.c.family_id==family_table.c.id)
+    properties = {\
+    'synonym': relation(Family, uselist=False,
+            primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id),
+    'family': relation(Family, uselist=False,
+            primaryjoin=family_synonym_table.c.family_id==family_table.c.id)
                      })
 
 

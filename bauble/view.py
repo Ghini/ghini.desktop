@@ -7,6 +7,7 @@ import sys, re, traceback
 import itertools
 import gtk, gobject, pango
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import sqlalchemy.exceptions as saexc
 #from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
@@ -21,34 +22,20 @@ from bauble.prefs import prefs
 from bauble.utils.log import debug
 from bauble.utils.pyparsing import *
 
-
-# TODO: things todo when a result is selected
-# - GBIF search results, probably have to look up specific institutions
-# - search Lifemapper for distributions maps
-# - give list of references and images and make then clickable if they are uris
-# - show location of a plant in the garden map
-
-# TODO: provide a way to pin down the infobox so that changing the selection
-# in the results_view doesn't change the values in the infobox
+# BUGS:
+# https://bugs.launchpad.net/bauble/+bug/147015 - Show relevant online data for search results
+# https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down infobox
+# https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve search results in a task
+# https://bugs.launchpad.net/bauble/+bug/147020 - Use regular expressions in search strings
 
 # TODO: on some search errors the connection gets invalidated, this
 # happened to me on 'loc where site=test'
 # UPDATE: this query doesn't invalidate the connection any more but apparantly
 # there's a way that this happens so we should track it down
 
-# TODO: it would be good to be able to search using the SIMILAR TO operator
-# but we need to designate a way to show that value is a regular expression
-
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
 # double click on an icon to open the children of that type
-
-# TODO: make the search result do their thing in a task so we can keep state
-# and pulse the progressbar for large result sets
-
-# TODO: it might make it easier to do some of the fancier searchs on properties
-# using advanced property overriding, see...
-# http://www.sqlalchemy.org/docs/adv_datamapping.myt#advdatamapping_properties_overriding
 
 # use different formatting template for the result view depending on the
 # platform
@@ -59,8 +46,8 @@ else:
     _substr_tmpl = '<small>%s</small>'
 
 
-import gc
-gc.enable()
+#import gc
+#gc.enable()
 #gc.set_debug(gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_INSTANCES|gc.DEBUG_OBJECTS)
 #gc.set_debug(gc.DEBUG_LEAK)
 
@@ -113,9 +100,61 @@ class InfoExpander(gtk.Expander):
         raise NotImplementedError("InfoExpander.update(): not implemented")
 
 
-# should we have a specific expander for those that use glade
-class GladeInfoExpander(gtk.Expander):
-    pass
+class PropertiesExpander(InfoExpander):
+
+    def __init__(self):
+        super(PropertiesExpander, self).__init__(_('Properties'))
+        table = gtk.Table(rows=4, columns=2)
+        table.set_col_spacings(15)
+        table.set_row_spacings(8)
+
+        # database id
+        id_label = gtk.Label(_("<b>ID:</b>"))
+        id_label.set_use_markup(True)
+        id_label.set_alignment(1, .5)
+        self.id_data = gtk.Label('--')
+        self.id_data.set_alignment(0, .5)
+        table.attach(id_label, 0, 1, 0, 1)
+        table.attach(self.id_data, 1, 2, 0, 1)
+
+        # object type
+        type_label = gtk.Label(_("<b>Type:</b>"))
+        type_label.set_use_markup(True)
+        type_label.set_alignment(1, .5)
+        self.type_data = gtk.Label('--')
+        self.type_data.set_alignment(0, .5)
+        table.attach(type_label, 0, 1, 1, 2)
+        table.attach(self.type_data, 1, 2, 1, 2)
+
+        # date created
+        created_label = gtk.Label(_("<b>Date created:</b>"))
+        created_label.set_use_markup(True)
+        created_label.set_alignment(1, .5)
+        self.created_data = gtk.Label('--')
+        self.created_data.set_alignment(0, .5)
+        table.attach(created_label, 0, 1, 2, 3)
+        table.attach(self.created_data, 1, 2, 2, 3)
+
+        # date last updated
+        updated_label = gtk.Label(_("<b>Last updated:</b>"))
+        updated_label.set_use_markup(True)
+        updated_label.set_alignment(1, .5)
+        self.updated_data = gtk.Label('--')
+        self.updated_data.set_alignment(0, .5)
+        table.attach(updated_label, 0, 1, 3, 4)
+        table.attach(self.updated_data, 1, 2, 3, 4)
+
+        box = gtk.HBox()
+        box.pack_start(table, expand=False, fill=False)
+        self.vbox.pack_start(box)
+
+
+    def update(self, row):
+        self.id_data.set_text(str(row.id))
+        self.type_data.set_text(str(type(row).__name__))
+        self.created_data.set_text(str(row._created))
+        self.updated_data.set_text(str(row._last_updated))
+
 
 
 class InfoBox(gtk.ScrolledWindow):
@@ -131,7 +170,6 @@ class InfoBox(gtk.ScrolledWindow):
         viewport = gtk.Viewport()
         viewport.add(self.vbox)
         self.add(viewport)
-
         self.expanders = {}
 
 
@@ -183,20 +221,22 @@ class InfoBox(gtk.ScrolledWindow):
         raise NotImplementedError
 
 
-class GBIFLinkButton(gtk.LinkButton):
+## class GBIFLinkButton(gtk.LinkButton):
 
-    def __init__(self, label=_('Search GBIF')):
-        super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
-                                             label=label)
+##     def __init__(self, label=_('Search GBIF')):
+##         super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
+##                                              label=label)
 
 
-class LinkExpander(InfoExpander):
+# TODO: should be able to just to a add_link(uri, description) to
+# add buttons
+## class LinkExpander(InfoExpander):
 
-    def __init__(self):
-        super(LinkExpander, self).__init__()
+##     def __init__(self):
+##         super(LinkExpander, self).__init__()
 
-    def add_button(button):
-        self.vbox.pack_start(button)
+##     def add_button(button):
+##         self.vbox.pack_start(button)
 
 
 class SearchParser(object):
@@ -247,59 +287,6 @@ class SearchParser(object):
         '''
         return self.statement.parseString(text)
 
-
-## class OperatorValidator(object):#formencode.FancyValidator):
-
-##     to_operator_map = {}
-
-##     def to_python(self, value, state=None):
-##         if value in self.to_operator_map:
-##             return self.to_operator_map[value]
-##         else:
-##             return value
-
-
-##     def from_python(self, value, state=None):
-##         return value
-
-
-## class SQLOperatorValidator(object):#OperatorValidator):
-
-##     def __init__(self, db_type, *args, **kwargs):
-##         super(SQLOperatorValidator, self).__init__(*args, **kwargs)
-##         type_map = {'postgres': self.pg_operator_map,
-##                     'sqlite': self.sqlite_operator_map,
-##                     'mysql': self.mysql_operator_map
-##                     }
-##         self.db_type = db_type
-##         self.to_operator_map = type_map.get(self.db_type, {})
-
-
-##     # TODO: using operators like this doesn't do the fuzzy matching
-##     # using like so when searching you would have to specify exactly what
-##     # you want, maybe we could do '=' and '!=' do fuzzy matching using like
-##     # and '==' and '<>' do exact matches, to do this we just
-##     # need to override _to_python to do a string sub on NOT LIKE(%%s%)
-##     pg_operator_map = {'==': '=',
-##                '!=': '<>',
-##                }
-##     sqlite_operator_map = {'=': '==',
-##                '!=': '<>'
-##                }
-##     mysql_operator_map = {'=': '==',
-##               '!=': '<>'
-##               }
-
-
-## class PythonOperatorValidator(object):#OperatorValidator):
-##     """
-##     convert accepted parse operators to python operators
-##     NOTE: this operator validator is only for python operators and doesn't
-##     do convert operators that may be specific to the database type
-##     """
-##     to_operator_map = {'=': '==',
-##                '<>': '!=',
-##                }
 
 
 class SearchStrategy(object):
@@ -390,51 +377,23 @@ class MapperSearch(SearchStrategy):
 
     def _build_select(self, session, mapping, identifiers, cond, val):
         '''
-        return a sqlalchemy.ext.selectresults
+        return a Query object
         '''
-        # TODO: this was written before the generative queries were in
-        # SQLAlchemy, this should probably be rewritten to remove the
-        # SelectResults dependency and just use the Query object
-
-        # if the last item in identifiers is a column then create an
-        # and statement doing applying cond to val,
-        # else get the search meta for the last item in identifiers
-        # and build the and_ statement by or'ing the columns in search
-        # meta together against val
         query = session.query(mapping)
-        sr = SelectResults(query)
-        table = query.table
-        resolved = self._resolve_identifiers(mapping, identifiers)
-        last = resolved[-1]
-        if isinstance(last, Column):
-            if len(identifiers) > 1:
-                # if it's a join then get the search meta columns
-                # else just search on the column
-                for i in identifiers[:-1]:
-                    sr = sr.join_to(i)
-                filter_col = resolved[-2].c[identifiers[-1]]
-            else:
-                filter_col = table.c[identifiers[-1]]
-            sr = sr.select(filter_col.op(cond)(val))
+        if len(identifiers) == 1:
+            results = query.filter(query.table.c[identifiers[0]].op(cond)(val))
         else:
-            for i in identifiers:
-                sr = sr.join_to(i)
-            cols = self.search_metas[last.__name__].columns
-            if cols > 1:
-                ors = [last.c[c].op(cond)(val) for c in cols]
-                filter_clause = or_(*ors)
-            else:
-                filter_clause = last.c[c].op(cond)(val)
-            sr = sr.select(filter_clause)
-#        debug('----- clause ----- \n %s' % sr._clause)
-        return sr
+            resolved = self._resolve_identifiers(mapping, identifiers)
+            results = query.join(identifiers[:-1]).filter(resolved[-1].op(cond)(val))
+        return results
+
 
     def _get_results_from_query(self, tokens, session):
         '''
         get results from search query in the form
         domain where ident=value...
 
-        @return: an sqlalchemy.ext.selectresults object
+        @return: query object
         '''
 #        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
@@ -450,10 +409,11 @@ class MapperSearch(SearchStrategy):
 #            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
             select = self._build_select(session, mapping, ident, cond, val)
             if op is not None:
-                # TODO: i'm not sure how elegant building the queries like
+                # i'm not sure how elegant building the queries like
                 # this is when we have to 'op' then together but it seems to
                 # work on most of the queries statements that i've tried
-                prop = mapping.props[ident[0]]
+                cls_mapper = class_mapper(mapping)
+                prop = cls_mapper.props[ident[0]]
                 if isinstance(prop, ColumnProperty):
                     select = prev_select.select(and_(select._clause))
                 else:
@@ -463,15 +423,14 @@ class MapperSearch(SearchStrategy):
                     # remote side
                     for col in prop.remote_side:
                         ids = [s.id for s in select]
-                        select = prev_select.select(mapping.local_table.c['id'].in_(*ids))
+                        select = prev_select.select(cls_mapper.\
+                                            local_table.c['id'].in_(*ids))
             try:
                 op = expr_iter.next()
                 prev_select = select
             except StopIteration:
                 pass
 
-##        debug(str(select._clause))
-##        debug(list(select))
         return select
 
 
@@ -488,20 +447,27 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
+            debug('searching values')
             # make searches in postgres case-insensitive, i don't think other
             # databases support a case-insensitive like operator
-            if bauble.db_engine.name == 'postgres':
+            if bauble.engine.name == 'postgres':
                 like = lambda table, col, val: \
                        table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
                 like = lambda table, col, val: \
                        table.c[col].like('%%%s%%' % val)
             for mapping, columns in self._mapping_columns.iteritems():
+                debug(mapping)
+                debug(columns)
                 q = session.query(mapping)
-                sr = SelectResults(q)
                 cv = [(c,v) for c in columns for v in tokens]
-                sr = sr.select(or_(*[like(mapping, c, v) for c,v in cv]))
-                results.append(sr)
+                # i'm not quite sure why we have to return the results of
+                # filter and assign them to q, i would think since filter
+                # is generative then it would be the same
+                q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
+                for z in q:
+                    print z
+                results.append(q)
         elif 'expression' in tokens:
             for domain, cond, val in tokens['expression']:
                 mapping, columns = self._domains[domain]
@@ -515,11 +481,11 @@ class MapperSearch(SearchStrategy):
                 # queries
 
                 if cond in ('ilike', 'icontains') and \
-                       bauble.db_engine.name != 'postgres':
+                       bauble.engine.name != 'postgres':
                     msg = _('The <i>ilike</i> and <i>icontains</i> '\
                             'operators are only supported on PostgreSQL ' \
                             'databases. You are connected to a %s database.') \
-                            % bauble.db_engine.name
+                            % bauble.engine.name
                     utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                     return results
                 if cond in ('contains', 'icontains', 'has', 'ihas'):
@@ -530,9 +496,8 @@ class MapperSearch(SearchStrategy):
                         cond = 'like'
 
                 # select everything
-                sr = SelectResults(query)
                 if val == '*':
-                    results.append(sr)
+                    results.append(query)
                 else:
                     for col in columns:
                         results.append(query.select(mapping.c[col].op(cond)(val)))
@@ -561,7 +526,7 @@ class ResultSet(object):
 
 
     def __len__(self):
-        # it possible, but unlikely that int() can truncate the value
+        # it's possible, but unlikely that int() can truncate the value
         return int(self.count())
 
 
@@ -572,7 +537,7 @@ class ResultSet(object):
         '''
         ctr = 0
         for r in self._results:
-            if isinstance(r, SelectResults):
+            if isinstance(r, Query):
                 ctr += r.count()
             else:
                 ctr += len(r)
@@ -679,6 +644,7 @@ class SearchView(pluginmgr.View):
 
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
+        create_session = sessionmaker(bind=bauble.engine)
         self.session = create_session()
 
 
