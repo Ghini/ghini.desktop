@@ -335,7 +335,7 @@ class MapperSearch(SearchStrategy):
         def get_prop(parent, name):
             try:
                 if isinstance(parent, Mapper):
-                    prop = parent.props[name]
+                    prop = parent.get_property(name)
                 else:
                     prop = getattr(parent, name).property
             except (KeyError, AttributeError):
@@ -406,7 +406,7 @@ class MapperSearch(SearchStrategy):
         query = session.query(mapping)
         for e in expr_iter:
             ident, cond, val = e
-#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
+            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
             select = self._build_select(session, mapping, ident, cond, val)
             if op is not None:
                 # i'm not sure how elegant building the queries like
@@ -457,16 +457,12 @@ class MapperSearch(SearchStrategy):
                 like = lambda table, col, val: \
                        table.c[col].like('%%%s%%' % val)
             for mapping, columns in self._mapping_columns.iteritems():
-                debug(mapping)
-                debug(columns)
                 q = session.query(mapping)
                 cv = [(c,v) for c in columns for v in tokens]
                 # i'm not quite sure why we have to return the results of
                 # filter and assign them to q, i would think since filter
                 # is generative then it would be the same
                 q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
-                for z in q:
-                    print z
                 results.append(q)
         elif 'expression' in tokens:
             for domain, cond, val in tokens['expression']:

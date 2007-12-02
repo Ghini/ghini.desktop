@@ -187,9 +187,7 @@ def open_database(uri, verify=True):
 ##                'this connection, creating a new database could corrupt '\
 ##                'it.</i>')
    try:
-       #db._open(uri)
       create_session = sessionmaker(transactional=True)
-      #engine.connect(uri)
       engine = sqlalchemy.create_engine(uri)
       engine.connect()
       metadata = sqlalchemy.MetaData()

@@ -93,4 +93,5 @@ class PlantsPlugin(pluginmgr.Plugin):
         """
         cls.create_tables()
 
+
 plugin = PlantsPlugin
