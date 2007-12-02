@@ -4,13 +4,16 @@
 # provides an interactive test environment
 #
 from sqlalchemy import *
+from sqlalchemy.orm import *
 
 import logging
 logging.basicConfig()
 
 uri = 'sqlite:///:memory:'
 
-species_table = Table('species',
+metadata = MetaData()
+
+species_table = Table('species', metadata,
                   Column('id', Integer, primary_key=True),
                   Column('sp', String),
                   Column('genus_id', Integer, ForeignKey('genus.id')),
@@ -18,16 +21,14 @@ species_table = Table('species',
 #                         ForeignKey('vernacular_name.id')))
 
 
-
-
-vernacular_name_table = Table('vernacular_name',
+vernacular_name_table = Table('vernacular_name', metadata,
                               Column('id', Integer, primary_key=True),
                               Column('name', Unicode(128)),
                               Column('language', Unicode(128)),
                               Column('species_id', Integer,
                                      ForeignKey('species.id')))
 
-genus_table = Table('genus',
+genus_table = Table('genus', metadata,
                     Column('id', Integer, primary_key=True),
                     Column('genus', String))
 
@@ -51,11 +52,13 @@ genus_mapper = mapper(Genus, genus_table,
                                          backref=backref('genus'))})#, order_by=['sp'])})
 mapper(VernacularName, vernacular_name_table)
 
-global_connect(uri)
-engine = default_metadata.engine
+#global_connect(uri)
+engine = create_engine(uri)
+engine.connect()
+metadata.bind = engine
 session = create_session()
 
-default_metadata.create_all()
+metadata.create_all()
 genus_table.insert().execute({'genus': 'Maxillaria'})
 species_table.insert().execute({'genus_id': 1, 'sp': 'sp'})
 

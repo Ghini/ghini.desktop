@@ -166,7 +166,7 @@ def init():
     debug(plugins_dict.keys())
     for entry in registry:
         try:
-            debug('init %s' % entry)
+##            debug('init %s' % entry)
             plugins_dict[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
