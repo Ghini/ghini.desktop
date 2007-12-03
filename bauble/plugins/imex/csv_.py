@@ -158,7 +158,7 @@ class CSVImporter(Importer):
         process as a bauble task
         '''
         if metadata is None:
-            metadata = default_metadata # default_metadata from SQLAlchemy
+            metadata = bauble.metadata  # use the default metadata
 
 #        def on_error(exc):
 #            utils.message_details_dialog(str(exc), traceback.format_exc())
@@ -183,11 +183,11 @@ class CSVImporter(Importer):
         @param metadata
         @param force: default=False
         '''
-        engine = metadata.engine
+        engine = metadata.bind
         transaction = None
         connection = None
         try:
-            connection = engine.contextual_connect()
+            connection = engine.connect()
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
@@ -245,24 +245,18 @@ class CSVImporter(Importer):
             for table, filename in sorted_tables:
                 if self.__cancel or self.__error:
                     break
-                inner_trans = connection.begin()
-#                if self.__cancel or self.__error:
-#                    debug('break')
-#                    break
                 msg = _('importing %(table)s table from %(filename)s') \
                         % {'table': table.name, 'filename': filename}
                 log.info(msg)
                 bauble.task.set_message(msg)
-                yield # allow update
-                if not table.exists():#connectable=engine):
+                yield # allow progress bar update
+                if not table.exists():
                     log.info('%s does not exist. creating.' % table.name)
                     debug('%s does not exist. creating.' % table.name)
-                    table.create()#connectable=connection)
+                    table.create(bind=engine)
                     add_to_created(table.name)
                     #elif table.count().scalar(connectable=connection) > 0 and not force:
                 elif table.name not in created_tables:# or \
-                    ##debug('table_exists')
-                    ##(table.count().scalar() > 0 and not force):
                     if not force:
                         msg = _('The <b>%s</b> table already exists in the '\
                                 'database and may contain some data. If a '\
@@ -277,10 +271,9 @@ class CSVImporter(Importer):
                         response = True
 
                     if response:
-                        deps = utils.find_dependent_tables(table)
-                        dep_names = [t.name for t in deps]
-                        #if len(dep_names) > 0 and not force:
-                        if len(dep_names) > 0:
+                        deps = list(utils.find_dependent_tables(table))
+                        if len(deps) > 0:
+                            dep_names = [t.name for t in deps]
                             msg = _('The following tables depend on the '
                                     '%(table)s table. These tables will need '
                                     'to be dropped as well.\n\n' \
@@ -294,26 +287,20 @@ class CSVImporter(Importer):
 
                             # drop the deps in reverse order
                             for d in reversed(deps):
-#                                debug('dropping dep %s' % d)
-                                d.drop(checkfirst=True)
-#                            debug('dropping %s' % table)
-                            table.drop(checkfirst=True)
-#                            debug('creating %s' % table)
-                            table.create()
+                                d.drop(bind=engine, checkfirst=True)
+                            table.drop(bind=engine, checkfirst=True)
+                            import sys
+                            table.create(bind=engine)
                             add_to_created([table.name])
                             for d in deps: # recreate the deps
-#                                debug('creating dep %s' % d)
-                                d.create()
+                                d.create(bind=engine)
                                 add_to_created(dep_names)
                         else:
-#                            debug('dropping %s' % table)
-                            table.drop(checkfirst=True)
-#                            debug('creating %s' % table)
-                            table.create()
+                            table.drop(bind=engine, checkfirst=True)
+                            table.create(bind=engine)
                             add_to_created([table.name])
 
                 if self.__cancel or self.__error:
-                    debug('canceled')
                     break
 
                 # do the inserts
@@ -463,6 +450,8 @@ class CSVExporter:
                 utils.message_dialog(str(exc))
 
         try:
+            # TODO: should we support exporting other metadata
+            # besides bauble.metadata
             bauble.task.queue(self.__export_task, None, on_error, path)
         except Exception, e:
             debug(e)
@@ -472,17 +461,17 @@ class CSVExporter:
 #        if not os.path.exists(path):
 #            raise ValueError("CSVExporter: path does not exist.\n" + path)
         filename_template = os.path.join(path, "%s.txt")
-        tables = default_metadata.tables
 #        timeout = tasklet.WaitForTimeout(12)
-        ntables = len(tables.keys())
         steps_so_far = 0
-        for name in tables.keys():
-            filename = filename_template % name
+        ntables = 0
+        for table in bauble.metadata.table_iterator():
+            ntables += 1
+            filename = filename_template % table.name
             if os.path.exists(filename):
                 msg = _('Export file <b>%(filename)s</b> for '\
                         '<b>%(table)s</b> table already exists.\n\n<i>Would '\
                         'you like to continue?</i>') \
-                        % {'filename': filename, 'table': name}
+                        % {'filename': filename, 'table': table.name}
                 if utils.yes_no_dialog(msg):
                     return
 
@@ -499,15 +488,15 @@ class CSVExporter:
             f.close()
 
         update_every = 30
-        for table_name, table in tables.iteritems():
-            filename = filename_template % table_name
+        for table in bauble.metadata.table_iterator():
+            filename = filename_template % table.name
             steps_so_far+=1
             fraction = float(steps_so_far)/float(ntables)
             pb_set_fraction(fraction)
             msg = _('exporting %(table)s table to %(filename)s') \
-                    % {'table': table_name, 'filename': filename}
+                    % {'table': table.name, 'filename': filename}
             bauble.task.set_message(msg)
-            log.info("exporting %s" % table_name)
+            log.info("exporting %s" % table.name)
 
             # get the data
             results = table.select().execute().fetchall()

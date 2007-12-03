@@ -46,7 +46,6 @@ from bauble.i18n import *
 try:
    import sqlalchemy
    parts = sqlalchemy.__version__.split('.')
-   print parts
    if int(parts[1]) < 4:
       msg = _('This version of Bauble requires SQLAlchemy 0.4.0 or greater. '\
               'Please download and install a newer version of SQLAlchemy ' \
@@ -69,8 +68,8 @@ logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 # get down to business...
 #
 engine = None
-metadata = None
-create_session = None
+metadata = sqlalchemy.MetaData()
+Session = None
 
 import datetime
 class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
@@ -140,14 +139,14 @@ def quit():
       sys.exit(1)
 
 def _verify_connection(engine):
-   import bauble.meta as met
+   import bauble.meta as meta
    # make sure the version information matches or if the bauble
    # table doesn't exists then this may not be a bauble created
    # database
    warning = _('\n\n<i>Warning: If a database does already exists at ' \
                'this connection, creating a new database could corrupt '\
                'it.</i>')
-   session = create_session()
+   session = Session()
    query = session.query(meta.BaubleMeta)
 
 
@@ -176,24 +175,22 @@ def open_database(uri, verify=True):
    '''
    open a database connection
    '''
-##    debug(uri) # ** WARNING: this can print your passwd
+##   debug('bauble.open_database(%s)' % uri) # ** WARNING: this can print your passwd
 ##    import bauble.db as db
    from sqlalchemy.orm import sessionmaker
    global engine
    global metadata
-   global create_session
+   global Session
 
 ##    warning = _('\n\n<i>Warning: If a database does already exists at ' \
 ##                'this connection, creating a new database could corrupt '\
 ##                'it.</i>')
    try:
-      create_session = sessionmaker(transactional=True)
       engine = sqlalchemy.create_engine(uri)
       engine.connect()
-      metadata = sqlalchemy.MetaData()
       metadata.bind = engine # make engine implicit for metadata
       import bauble.meta as meta
-      create_session.configure(bind=engine)
+      Session = sessionmaker(bind=engine, autoflush=True, transactional=True)
    except Exception, e:
        #msg = _('The database you connected to wasn\'t created with Bauble.')
       msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
@@ -207,7 +204,7 @@ def open_database(uri, verify=True):
    if not verify:
       return
 
-   session = create_session()
+   session = Session()
    query = session.query(meta.BaubleMeta)
 
    msg = None
@@ -273,11 +270,12 @@ def create_database(import_defaults=True):
    # UPDATE: maybe if we could pass a nested transaction to csv.start and
    # then if the import transaction fails then we can rollback any
    # changes we make here#
-#   import bauble.db as db
+##   import bauble.db as db
+   import bauble.meta
    from bauble.task import TaskQuitting
    try:
-
-      db.create(import_defaults)
+      import bauble.db as db
+      db._create(import_defaults)
    except (GeneratorExit, TaskQuitting), e:
       # this is here in case the main windows is closed in the middle
       # of a task
@@ -403,7 +401,7 @@ def main(uri=None):
    gui = _gui.GUI()
 
    def _post_loop():
-      debug('__post_loop')
+##      debug('__post_loop')
       gtk.gdk.threads_enter()
       ok_to_init_plugins = True
       import bauble.db as db

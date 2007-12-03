@@ -10,7 +10,6 @@ VERSION_KEY='version'
 CREATED_KEY='created'
 REGISTRY_KEY='registry'
 
-print bauble.metadata
 bauble_meta_table = bauble.Table('bauble', bauble.metadata,
                           Column('id', Integer, primary_key=True),
                           Column('name', Unicode(64), unique=True),

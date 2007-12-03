@@ -1,5 +1,6 @@
 import unittest
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import bauble
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
@@ -32,17 +33,23 @@ uri = None
 __initialized = False
 
 def init_bauble(uri):
+##    print 'testbast.init_bauble'
     global __initialized
     if __initialized:
         return
-    import bauble.db as db
     try:
         bauble.open_database(uri, verify=False)
     except Exception, e:
         print e
+##    print 'testbase: call prefs.init()'
     prefs.init()
+##    print 'testbase: call pluginmgr.load()'
     pluginmgr.load()
+##     for t in bauble.metadata.table_iterator():
+##         print t
+##     print 'testbase: call bauble.create_database()'
     bauble.create_database(False)
+##    print 'testbase: call bauble.pluginmgr.init()'
     pluginmgr.init()
     __initialized = True
 
@@ -55,7 +62,7 @@ class BaubleTestCase(unittest.TestCase):
         '''
         '''
         init_bauble(self.uri)
-        self.session = create_session()
+        self.session = bauble.Session()
 
     def set_logging_level(level, logger='sqlalchemy'):
         logging.getLogger('sqlalchemy').setLevel(level)

@@ -46,7 +46,8 @@ metadata = None
 
 def _create(import_defaults=True):
     """
-    create new Bauble database at the current connection
+    create new Bauble database at the current connection, this should only
+    be called after all of your tables have been declared
 
     this will drop _all_ the tables at the connection that are registered with
     the metadata
@@ -65,16 +66,14 @@ def _create(import_defaults=True):
     # this work should be done in a transaction, i think the best way to do
     # this would be to pass a metadata or engine or connection object to
     # the importer that holds the transaction we should work in
-
-    conn = default_metadata.engine.contextual_connect()
+    conn = bauble.engine.connect()
     transaction = conn.begin()
     try:
         # TODO: here we are creating all the tables in the metadata whether
         # they are in the registry or not, we should really only be creating
         # those tables in the registry
-        default_metadata.drop_all()
-        default_metadata.create_all()
-
+        bauble.metadata.drop_all()
+        bauble.metadata.create_all()
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into bauble.create_database, the problem is at the
         # moment the data is imported in the pluginmgr.init method so we would
@@ -95,13 +94,12 @@ def _create(import_defaults=True):
         meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
                                             value=str(datetime.datetime.now()))
 
-    except Exception:
-        debug('rollback')
+    except Exception, e:
+        debug(e)
 #        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         transaction.rollback()
         raise
 #        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-        raise
     else:
         transaction.commit()
     conn.close()

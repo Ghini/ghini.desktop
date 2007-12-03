@@ -63,7 +63,6 @@ class ImexCSVTestCase(ImexTestCase):
         exporter.start(tempdir)
 
         # import all the files in the temp directory
-        logging.getLogger('bauble').setLevel(logging.ERROR)
         filenames = os.listdir(tempdir)
         importer = CSVImporter()
         # import twice to check for regression Launchpad #???
@@ -78,7 +77,7 @@ class ImexCSVTestCase(ImexTestCase):
         data = {'name': u'Gal\xe1pagos'}
         geography_table.insert().execute(data)
         query = self.session.query(Geography)
-        row = query.select()[0]
+        row = query[0]
         print str(row)
         print data['name']
         assert row.name == data['name']
