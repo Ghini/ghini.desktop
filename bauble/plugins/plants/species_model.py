@@ -128,21 +128,21 @@ class Species(bauble.BaubleMapper):
         if vn not in self.vernacular_names:
             self.names.append(vn)
         if self._default_vernacular_name is not None:
-            utils.delete_or_expunge(self.default_vernacular_name)
+            utils.delete_or_expunge(self._default_vernacular_name)
 
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
-    def _del_default_vernacular_name(self):
-        """
-        deleting the default vernacular name only removes the vernacular as
-        the default and doesn't do anything to the vernacular name was the
-        default
-        """
-        del self._default_vernacular_name
+##     def _del_default_vernacular_name(self):
+##         """
+##         deleting the default vernacular name only removes the vernacular as
+##         the default and doesn't do anything to the vernacular name was the
+##         default
+##         """
+##         del self._default_vernacular_name
     default_vernacular_name = property(_get_default_vernacular_name,
-                                       _set_default_vernacular_name,
-                                       _del_default_vernacular_name)
+                                       _set_default_vernacular_name)
+#                                       _del_default_vernacular_name)
 
 
     def distribution_str(self):
@@ -321,9 +321,7 @@ class DefaultVernacularName(bauble.BaubleMapper):
 
 
     def __str__(self):
-        # TODO: i can't decide which one of these i should stick with
         return str(self.vernacular_name)
-        #return '%s (default)' % str(self.vernacular_name)
 
 
 

@@ -34,34 +34,24 @@ default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
 #    return result
 
 
-
 def find_dependent_tables(table, metadata=None):
     '''
-    return a list of tables that depend on table
+    return an iterator with all tables the depend on table
     '''
-    from sqlalchemy import default_metadata
-    import sqlalchemy.sql_util as sql_util
     if metadata is None:
-        metadata = default_metadata
+        metadata = bauble.metadata
     result = []
-#    debug('find_dependent_tables(%s)' % table.name)
     def _impl(t2):
-        for name, t in metadata.tables.iteritems():
+        for t in metadata.table_iterator():
             for c in t.c:
-                try:
-                    if c.foreign_key.column.table == t2:
+                for f in c.foreign_keys:
+                    if f.column.table == t2:
                         if t not in result and t is not table:
                             result.append(t)
-#                            print 'finding dependencies for %s' % t.name
                             _impl(t)
-                except AttributeError, e:
-                    pass
     _impl(table)
-    collection = sql_util.TableCollection()
-    for r in result:
-        collection.add(r)
-    sorted = collection.sort(False)
-    return [s for s in sorted if s is not table]
+    return metadata.table_iterator(tables=result)
+
 
 
 class GladeWidgets(dict):
@@ -450,7 +440,7 @@ def natsort_key(obj):
 
 
 def delete_or_expunge(obj):
-    from sqlalchemy import object_session
+    from sqlalchemy.orm import object_session
     session = object_session(obj)
 #    debug('delete_or_expunge: %s' % obj)
     if obj in session.new:

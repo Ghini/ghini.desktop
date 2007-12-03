@@ -110,11 +110,12 @@ class DonorTests(GardenTestCase):
         donation = Donation()
         donation.donor = donor
         acc.source = donation
-        self.session.flush()
+        self.session.commit()
         self.session.close()
 
         # do the rest in a new session
-        session = create_session()
+        import bauble
+        session = bauble.Session()
         donor = session.load(Donor, 1)
         # shouldn't be allowed to delete donor if it has donations,
         # what is happening here is that when deleting the donor the
@@ -122,7 +123,7 @@ class DonorTests(GardenTestCase):
         # isn't allowed by the scheme....is this the best we can do? or can we
         # get some sort of error when creating a dangling reference
         session.delete(donor)
-        self.assertRaises(SQLError, session.flush)
+        self.assertRaises(SQLError, session.commit)
 
 
 class AccessionTests(GardenTestCase):
