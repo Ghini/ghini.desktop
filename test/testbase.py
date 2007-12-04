@@ -33,7 +33,6 @@ uri = None
 __initialized = False
 
 def init_bauble(uri):
-##    print 'testbast.init_bauble'
     global __initialized
     if __initialized:
         return
@@ -41,15 +40,9 @@ def init_bauble(uri):
         bauble.open_database(uri, verify=False)
     except Exception, e:
         print e
-##    print 'testbase: call prefs.init()'
     prefs.init()
-##    print 'testbase: call pluginmgr.load()'
     pluginmgr.load()
-##     for t in bauble.metadata.table_iterator():
-##         print t
-##     print 'testbase: call bauble.create_database()'
     bauble.create_database(False)
-##    print 'testbase: call bauble.pluginmgr.init()'
     pluginmgr.init()
     __initialized = True
 
