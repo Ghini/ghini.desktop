@@ -7,8 +7,9 @@ import sys, re, traceback
 import itertools
 import gtk, gobject, pango
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import sqlalchemy.exceptions as saexc
-from sqlalchemy.orm.attributes import InstrumentedList
+#from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
@@ -219,13 +220,9 @@ class InfoBox(gtk.ScrolledWindow):
         raise NotImplementedError
 
 
-## class GBIFLinkButton(gtk.LinkButton):
 
-##     def __init__(self, label=_('Search GBIF')):
-##         super(GBIFLinkButton, self).__init__(uri='http://www.gbif.nbet',
-##                                              label=label)
-
-
+# TODO: should be able to just to a add_link(uri, description) to
+# add buttons
 ## class LinkExpander(InfoExpander):
 
 ##     def __init__(self):
@@ -331,7 +328,7 @@ class MapperSearch(SearchStrategy):
         def get_prop(parent, name):
             try:
                 if isinstance(parent, Mapper):
-                    prop = parent.props[name]
+                    prop = parent.get_property(name)
                 else:
                     prop = getattr(parent, name).property
             except (KeyError, AttributeError):
@@ -443,9 +440,10 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
+            debug('searching values')
             # make searches in postgres case-insensitive, i don't think other
             # databases support a case-insensitive like operator
-            if bauble.db_engine.name == 'postgres':
+            if bauble.engine.name == 'postgres':
                 like = lambda table, col, val: \
                        table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
@@ -472,11 +470,11 @@ class MapperSearch(SearchStrategy):
                 # queries
 
                 if cond in ('ilike', 'icontains') and \
-                       bauble.db_engine.name != 'postgres':
+                       bauble.engine.name != 'postgres':
                     msg = _('The <i>ilike</i> and <i>icontains</i> '\
                             'operators are only supported on PostgreSQL ' \
                             'databases. You are connected to a %s database.') \
-                            % bauble.db_engine.name
+                            % bauble.engine.name
                     utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                     return results
                 if cond in ('contains', 'icontains', 'has', 'ihas'):
@@ -635,6 +633,7 @@ class SearchView(pluginmgr.View):
 
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
+        create_session = sessionmaker(bind=bauble.engine)
         self.session = create_session()
 
 

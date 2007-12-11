@@ -6,6 +6,7 @@ import traceback
 import gtk
 import xml.sax.saxutils as sax
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.utils as utils
@@ -78,7 +79,7 @@ near -- Close to
 # http://www.hortax.org.uk/gardenplantsnames.html
 
 species_table = \
-    bauble.Table('species',
+    bauble.Table('species', bauble.metadata,
           Column('id', Integer, primary_key=True),
           Column('sp', String(64), nullable=False, index=True),
           Column('sp_author', Unicode(128)),
@@ -127,21 +128,21 @@ class Species(bauble.BaubleMapper):
         if vn not in self.vernacular_names:
             self.names.append(vn)
         if self._default_vernacular_name is not None:
-            utils.delete_or_expunge(self.default_vernacular_name)
+            utils.delete_or_expunge(self._default_vernacular_name)
 
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
-    def _del_default_vernacular_name(self):
-        """
-        deleting the default vernacular name only removes the vernacular as
-        the default and doesn't do anything to the vernacular name was the
-        default
-        """
-        del self._default_vernacular_name
+##     def _del_default_vernacular_name(self):
+##         """
+##         deleting the default vernacular name only removes the vernacular as
+##         the default and doesn't do anything to the vernacular name was the
+##         default
+##         """
+##         del self._default_vernacular_name
     default_vernacular_name = property(_get_default_vernacular_name,
-                                       _set_default_vernacular_name,
-                                       _del_default_vernacular_name)
+                                       _set_default_vernacular_name)
+#                                       _del_default_vernacular_name)
 
 
     def distribution_str(self):
@@ -243,7 +244,7 @@ class Species(bauble.BaubleMapper):
 # TODO: deleting either of the species this synonym refers to makes
 # this synonym irrelevant
 species_synonym_table = \
-    bauble.Table('species_synonym',
+    bauble.Table('species_synonym', bauble.metadata,
           Column('id', Integer, primary_key=True),
           Column('species_id', Integer, ForeignKey('species.id'),
                  nullable=False),
@@ -268,7 +269,7 @@ language: language is free text and could include something like UK or US to
 identify the origin of the name
 species_id: key to the species this vernacular name refers to
 """
-vernacular_name_table = bauble.Table('vernacular_name',
+vernacular_name_table = bauble.Table('vernacular_name', bauble.metadata,
                               Column('id', Integer, primary_key=True),
                               Column('name', Unicode(128), nullable=False),
                               Column('language', Unicode(128)),
@@ -299,6 +300,7 @@ species_id:
 vernacular_name_id:
 '''
 default_vernacular_name_table = bauble.Table('default_vernacular_name',
+                                             bauble.metadata,
                                       Column('id', Integer, primary_key=True),
                                       Column('species_id', Integer,
                                              ForeignKey('species.id'),
@@ -319,14 +321,12 @@ class DefaultVernacularName(bauble.BaubleMapper):
 
 
     def __str__(self):
-        # TODO: i can't decide which one of these i should stick with
         return str(self.vernacular_name)
-        #return '%s (default)' % str(self.vernacular_name)
 
 
 
 species_distribution_table = \
-    bauble.Table('species_distribution',
+    bauble.Table('species_distribution', bauble.metadata,
           Column('id', Integer, primary_key=True),
           Column('geography_id', Integer, ForeignKey('geography.id'),
                  nullable=False),

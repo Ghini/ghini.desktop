@@ -6,7 +6,6 @@ import os
 import traceback
 import gtk
 import datetime
-from sqlalchemy import *
 import bauble
 import bauble.pluginmgr as pluginmgr
 import bauble.meta as meta
@@ -42,9 +41,10 @@ import logging
 # which we could then reflect and drop, in general maybe we should have
 # more information about the schema represented in the datbase
 
-def create(import_defaults=True):
+def _create(import_defaults=True):
     """
-    create new Bauble database at the current connection
+    create new Bauble database at the current connection, this should only
+    be called after all of your tables have been declared
 
     this will drop _all_ the tables at the connection that are registered with
     the metadata
@@ -59,16 +59,14 @@ def create(import_defaults=True):
     # make it more difficult to make the interface more responsive,
     # maybe we can use a dialog without the progress bar to show the status,
     # should probably work on the status bar to display this
-
-    conn = default_metadata.engine.contextual_connect()
+    conn = bauble.engine.connect()
     transaction = conn.begin()
     try:
         # TODO: here we are creating all the tables in the metadata whether
         # they are in the registry or not, we should really only be creating
         # those tables in the registry
-        default_metadata.drop_all()
-        default_metadata.create_all()
-
+        bauble.metadata.drop_all()
+        bauble.metadata.create_all()
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into bauble.create_database, the problem is at the
         # moment the data is imported in the pluginmgr.init method so we would
@@ -89,13 +87,12 @@ def create(import_defaults=True):
         meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
                                             value=str(datetime.datetime.now()))
 
-    except Exception:
-        debug('rollback')
+    except Exception, e:
+        debug(e)
 #        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
         transaction.rollback()
         raise
 #        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
-        raise
     else:
         transaction.commit()
     conn.close()
@@ -120,7 +117,7 @@ class VersionError(DatabaseError):
         self.version = version
 
 
-def verify(engine):
+def _verify(engine):
     # make sure the version information matches or if the bauble
     # table doesn't exists then this may not be a bauble created
     # database
@@ -158,22 +155,27 @@ def verify(engine):
 
 
 
-def open(uri):
+def _open(uri):
     """
     open a database connection
 
     @param uri: the uri of the database to open
     """
     #debug(uri) # ** WARNING: this can print your passwd
-    db_engine = None
     try:
-        global_connect(uri)#, strategy='threadlocal')
-        default_metadata.engine.contextual_connect() # test the connection
-        db_engine = default_metadata.engine
+        #global_connect(uri)#, strategy='threadlocal')
+        #default_metadata.engine.contextual_connect() # test the connection
+        # TODO: this needs to be checked since the SA4 merge, should we be
+        # resetting the metadata here or binding it to a new engine if that
+        # engine is being connected to a new uri
+        bauble.engine.connect(uri)
+        #metadata = MetaData()
     except Exception, e:
         msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
-        return None
+        engine = None
 
-    return db_engine
+#    metadata.bind = engine
+    return engine
+

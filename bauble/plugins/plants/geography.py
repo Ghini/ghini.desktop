@@ -3,6 +3,7 @@
 #
 from datetime import datetime
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import bauble
 from bauble.utils.log import debug
 
@@ -35,7 +36,7 @@ def get_species_in_geography(geo):
 
 
 
-geography_table = bauble.Table('geography',
+geography_table = bauble.Table('geography', bauble.metadata,
                         Column('id', Integer, primary_key=True),
                         Column('name', Unicode(255), nullable=False),
                         Column('tdwg_code', String(6)),

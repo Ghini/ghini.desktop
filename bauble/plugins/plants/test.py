@@ -182,7 +182,7 @@ class SpeciesTests(PlantTestCase):
         sp = self.session.load(Species, 1)
         sp.default_vernacular_name = sp.vernacular_names[0]
         sp.default_vernacular_name = sp.vernacular_names[1]
-        self.session.flush()
+        self.session.commit()
 
 
     def test_vernacular_name(self):
@@ -191,8 +191,8 @@ class SpeciesTests(PlantTestCase):
         the species.default_vernacular_name and then deleting them
         '''
         sp_query = self.session.query(Species)
-        sp = sp_query.select()[0]
-        vn = self.session.query(VernacularName).select()[0]
+        sp = sp_query[0]
+        vn = self.session.query(VernacularName)[0]
 
         # append vernacular name to species and make it the default
         sp.vernacular_names.append(vn)

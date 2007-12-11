@@ -7,6 +7,7 @@ import os, unittest, tempfile
 import lxml.etree as etree
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
+import bauble
 import bauble.paths as paths
 from lxml.etree import Element, SubElement, ElementTree, dump
 from testbase import BaubleTestCase, log
@@ -24,10 +25,14 @@ import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 
 
-class ABCDTests(BaubleTestCase):
+class ABCDTestCase(BaubleTestCase):
+
+    def __init__(self, *args):
+        super(ABCDTestCase, self).__init__(*args)
+
 
     def setUp(self):
-        super(ABCDTests, self).setUp()
+        super(ABCDTestCase, self).setUp()
         plants_test.setUp_test_data()
         garden_test.setUp_test_data()
 
@@ -39,6 +44,7 @@ class ABCDTests(BaubleTestCase):
 
 
     def tearDown(self):
+        super(ABCDTestCase, self).tearDown()
         plants_test.tearDown_test_data()
         garden_test.tearDown_test_data()
 
@@ -70,8 +76,8 @@ class ABCDTests(BaubleTestCase):
 
 
     def test_plants_to_abcd(self):
-        plants = self.session.query(Plant).select()
-        assert len(plants) > 0
+        plants = self.session.query(Plant)
+        assert plants.count() > 0
         # create abcd from plants
         data = abcd.plants_to_abcd(plants)
         # assert validate abcd
@@ -86,7 +92,7 @@ class ABCDTestSuite(unittest.TestSuite):
 
    def __init__(self):
        unittest.TestSuite.__init__(self)
-       self.addTests(map(ABCDTests,('test_abcd','test_plants_to_abcd')))
+       self.addTests(map(ABCDTestCase,('test_abcd','test_plants_to_abcd')))
 
 
 testsuite = ABCDTestSuite
