@@ -94,8 +94,8 @@ class GardenPlugin(pluginmgr.Plugin):
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
         table = meta.bauble_meta_table
-        row = table.select(table.c.name==plant_delimiter_key).execute().fetchone()
-        if row is None:
+        sel = table.select(table.c.name==plant_delimiter_key).execute()
+        if sel.fetchone() is None:
             table.insert().execute(name=plant_delimiter_key,
                                    value=default_plant_delimiter)
 

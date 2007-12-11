@@ -6,6 +6,7 @@
 import os, sys, traceback
 import gtk, gobject
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 from bauble.i18n import *
@@ -104,13 +105,12 @@ class PlantSearch(MapperSearch):
 
 
 
-plant_history_table = bauble.Table('plant_history',
-                                   Column('id', Integer, primary_key=True),
-                                   Column('date', Date),
-                                   Column('description', Unicode),
-                                   Column('plant_id', Integer,
-                                          ForeignKey('plant.id'),
-                                          nullable=False))
+plant_history_table = bauble.Table('plant_history', bauble.metadata,
+                            Column('id', Integer, primary_key=True),
+                            Column('date', Date),
+                            Column('description', Unicode),
+                            Column('plant_id', Integer, ForeignKey('plant.id'),
+                                   nullable=False))
 
 
 class PlantHistory(bauble.BaubleMapper):
@@ -139,7 +139,7 @@ Other: Other, possible see notes for more information
 None: no information, unknown)
 '''
 
-plant_table = bauble.Table('plant',
+plant_table = bauble.Table('plant', bauble.metadata,
                     Column('id', Integer, primary_key=True),
                     Column('code', Unicode(6), nullable=False),
                     Column('acc_type',

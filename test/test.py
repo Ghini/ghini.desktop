@@ -39,7 +39,7 @@ if __name__ == '__main__':
             # inside the module when importing
             testbase.log.debug(traceback.format_exc())
             # TODO: this is a bad hack
-            if str(e) != 'No module named test':
+            if str(e) != 'No module named test': #shouldn't rely on string here
                 print e
 
 

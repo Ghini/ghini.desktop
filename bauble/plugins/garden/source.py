@@ -3,6 +3,7 @@
 #
 import bauble
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 
 
@@ -12,7 +13,7 @@ def source_markup_func(source):
     return source._accession, source
 
 
-donation_table = bauble.Table('donation',
+donation_table = bauble.Table('donation', bauble.metadata,
                        Column('id', Integer, primary_key=True),
                        Column('donor_id', Integer, ForeignKey('donor.id'),
                               nullable=False),
@@ -35,7 +36,7 @@ class Donation(bauble.BaubleMapper):
 # TODO: this shouldn't be allowed to be None, UPDATE: what the hell am i talking about
 # TODO: collector combined with collectors_code should be a unique key, need to
 # also indicate this in the UI
-collection_table = bauble.Table('collection',
+collection_table = bauble.Table('collection', bauble.metadata,
                          Column('id', Integer, primary_key=True),
                          Column('collector', Unicode(64)),
                          Column('collectors_code', Unicode(50)),

@@ -7,6 +7,7 @@ from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk, gobject
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
@@ -167,7 +168,7 @@ date: date accessioned
     #ver_hist = StringCol(default=None)  # verification history
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
-verification_table = bauble.Table('verification',
+verification_table = bauble.Table('verification', bauble.metadata,
                            Column('id', Integer, primary_key=True),
                            Column('verifier', Unicode(64)),
                            Column('date', Date),
@@ -181,7 +182,7 @@ class Verification(bauble.BaubleMapper):
     pass
 
 
-accession_table = bauble.Table('accession',
+accession_table = bauble.Table('accession', bauble.metadata,
                         Column('id', Integer, primary_key=True),
                         Column('code', Unicode(20), nullable=False,
                                unique=True),

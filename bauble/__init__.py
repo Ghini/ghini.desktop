@@ -54,7 +54,14 @@ import bauble.utils as utils
 
 try:
     import sqlalchemy
-    # TODO: check sqlalchemy version
+    parts = sqlalchemy.__version__.split('.')
+    if int(parts[1]) < 4:
+        msg = _('This version of Bauble requires SQLAlchemy 0.4.0 or greater.'\
+                'Please download and install a newer version of SQLAlchemy ' \
+                'from http://www.sqlalchemy.org or contact your system '
+                'administrator.')
+        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+        sys.exit(1)
 except ImportError:
     msg = _('SQLAlchemy not installed. Please install SQLAlchemy from ' \
             'http://www.sqlalchemy.org')
@@ -75,13 +82,18 @@ except ImportError:
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
+#
+# global database handler
+#
+engine = None
+metadata = sqlalchemy.MetaData()
+Session = None
+
 import datetime
 class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
 
     """
-    A DateTime
-
- type that converts Python's datetime.datetime to an
+    A DateTime type that converts Python's datetime.datetime to an
     SQLAlchemy DateTime type.
     """
 
@@ -100,7 +112,7 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
         return super(DateTimeDecorator, self).convert_result_value(value,
                                                                    engine)
 
-_now = sqlalchemy.func.current_timestamp(type=sqlalchemy.DateTime)
+_now = sqlalchemy.func.current_timestamp(type_=sqlalchemy.DateTime)
 
 class Table(sqlalchemy.Table):
 
@@ -162,81 +174,122 @@ def quit():
     except RuntimeError: # in case main_quit is called before main
         sys.exit(1)
 
-
-def open_database(uri, verify=True):
-    """
-    Open a database connection.
-
-    @param uri: the connection to open
-    @param verify: boolean, check whether the database we are connected to is
-    a valid Bauble database
-    """
-##     debug(uri) # ** WARNING: this can print your passwd
-    import bauble.db as db
-    global db_engine
-
+def _verify_connection(engine):
+    import bauble.meta as meta
+    # make sure the version information matches or if the bauble
+    # table doesn't exists then this may not be a bauble created
+    # database
     warning = _('\n\n<i>Warning: If a database does already exists at ' \
                 'this connection, creating a new database could corrupt '\
                 'it.</i>')
+    session = Session()
+    query = session.query(meta.BaubleMeta)
+
+
+    # check that the database we connected to has the bauble meta table
+    if not engine.has_table(meta.bauble_meta_table.name):
+        raise MetaTableError()
+
+    # check that the database we connected to has a "created" timestamp
+    # in the bauble meta table
+    result = query.filter_by(name = CREATED_KEY).one()
+    if result is None:
+        raise TimestampError()
+
+    # check that the database we connected to has a "version" in the bauble
+    # meta table and the the major and minor version are the same
+    result = query.filter_by(name = meta.VERSION_KEY).one()
+    if result is None:
+        raise VersionError(None)
+    elif eval(result.value)[0:2] != bauble.version[0:2]:
+        raise VersionError(result.value)
+
+    return True
+
+
+
+def open_database(uri, verify=True):
+    '''
+    open a database connection
+    '''
+##   debug('bauble.open_database(%s)' % uri) # ** WARNING: this can print your passwd
+##    import bauble.db as db
+    from sqlalchemy.orm import sessionmaker
+    global engine
+    global metadata
+    global Session
+    global version, version_str
+
+##    warning = _('\n\n<i>Warning: If a database does already exists at ' \
+##                'this connection, creating a new database could corrupt '\
+##                'it.</i>')
     try:
-        db_engine = db.open(uri)
+        engine = sqlalchemy.create_engine(uri)
+        engine.connect()
+        metadata.bind = engine # make engine implicit for metadata
+        import bauble.meta as meta
+        Session = sessionmaker(bind=engine, autoflush=True, transactional=True)
     except Exception, e:
-        msg = _('The database you connected to wasn\'t created with Bauble.')
+        #msg = _('The database you connected to wasn\'t created with Bauble.')
+        msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
         raise
 
-    if db_engine is None:
+    if engine is None:
         return None
 
     if not verify:
         return
 
-    try:
-        db.verify(db_engine)
-    except db.MetaTableError, e:
+    session = Session()
+    query = session.query(meta.BaubleMeta)
+
+    msg = None
+    # check that the database we connected to has the bauble meta table
+    if not engine.has_table(meta.bauble_meta_table.name):
         msg = _('The database you connected to wasn\'t created with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
-    except db.VersionError, e:
-        ## TODO: pretty print db_version
-        ##debug('e.version: %s' % str(e.version))
-        ##debug('e.version: %s' % type(e.version))
-        msg = _('You are using Bauble version %(version)s while the '\
-                'database you have connected to was created with '\
-                'version %(db_version)s\n\nSome things might not work as '\
-                'or some of your data may become unexpectedly '\
-                'corrupted.') % {'version': version_str,
-                                 'db_version': '%s.%s.%s' % eval(e.version)}
-        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-        raise
-    except db.RegistryError:
-        msg = _('Could not get the plugin registry from the database. '\
-                'Most likely this is because the database you have '\
-                'connected to wasn\'t created with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
-    except db.TimestampError:
+
+    # check that the database we connected to has a "created" timestamp
+    # in the bauble meta table
+    result = query.filter_by(name = meta.CREATED_KEY).one()
+    if result is None:
         msg = _('The database you have connected to does not have a '\
                 'timestamp for when it was created. This usually means '\
                 'that there was a problem when you created the '\
                 'database or the database you connected to wasn\'t'\
                 'created with Bauble.')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
-    except Exception, e:
-        msg = _('There was an error connecting to the database.\n\n ** %s' % \
-                str(utils.xml_safe_utf8(e)))
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
 
-    return db_engine
+    # check that the database we connected to has a "version" in the bauble
+    # meta table and the the major and minor version are the same
+    result = query.filter_by(name = meta.VERSION_KEY).one()
+    if result is None or eval(result.value)[0:2] != version[0:2]:
+        msg = _('You are using Bauble version %(version)s while the '\
+                'database you have connected to was created with '\
+                'version %(db_version)s\n\nSome things might not work as '\
+                'or some of your data may become unexpectedly '\
+                'corrupted.') % {'version': version_str,
+                                 'db_version': '%s.%s.%s' % eval(result.value)}
+
+    if msg is not None:
+        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+        return False
+    return True
+
+
+##     except Exception, e:
+##        msg = _('There was an error connecting to the database.\n\n ** %s' % \
+##                str(utils.xml_safe_utf8(e)))
+##        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+##        raise
+
+##     return db_engine#
 
 
 def create_database(import_defaults=True):
-    """
-    Create new Bauble database at the current connection.
-    """
+    '''
+    create new Bauble database at the current connection
+    '''
     # TODO: when creating a database there shouldn't be any errors
     # on import since we are importing from the default values, we should
     # just force the import and send everything in the database at once
@@ -245,27 +298,31 @@ def create_database(import_defaults=True):
     # maybe we can use a dialog without the progress bar to show the status,
     # should probably work on the status bar to display this
 
+    # TODO: **** important ***
+    # TODO: this should be done in a transaction or maybe the transaction
+    # should be pushed into db.create()
     # UPDATE: this wouldn't work since csv.start() doesn't block, need
     # another way to handle the transaction, maybe pass it the csv start
     # and tell it to commit when it's done. that not good though....
     # UPDATE: maybe if we could pass a nested transaction to csv.start and
     # then if the import transaction fails then we can rollback any
     # changes we make here#
-    import bauble.db as db
+##   import bauble.db as db
+    import bauble.meta
     from bauble.task import TaskQuitting
     try:
-
-        db.create(import_defaults)
+        import bauble.db as db
+        db._create(import_defaults)
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
         raise
     except Exception, e:
         msg = _('Error creating tables. Your database may be corrupt.'\
-                  '\n\n%s') % utils.xml_safe_utf8(e)
+                '\n\n%s') % utils.xml_safe_utf8(e)
         debug(traceback.format_exc())
         utils.message_details_dialog(msg, traceback.format_exc(),
-                                              gtk.MESSAGE_ERROR)
+                                     gtk.MESSAGE_ERROR)
         raise
 
 
@@ -331,8 +388,6 @@ def main(uri=None):
     """
     Initialize Bauble and start the main Bauble interface.
     """
-    import bauble.db as db
-
     # initialize threading
     gtk.gdk.threads_init()
     gtk.gdk.threads_enter()
@@ -346,8 +401,8 @@ def main(uri=None):
     # intialize the user preferences
     prefs.init()
 
-    # load the plugins
-    pluginmgr.load()
+    import bauble.db as db
+    import bauble.pluginmgr as pluginmgr
 
     open_exc = None
     # open default database
@@ -360,22 +415,26 @@ def main(uri=None):
                 conn_name, uri = cm.start()
                 if conn_name is None:
                     quit()
-                try:
-                    if open_database(uri):
-                        break
-                    else:
-                        uri = conn_name = None
-                except db.VersionError, e:
-                    warning(e)
-                    break
-                except (db.DatabaseError, db.MetaTableError), e:
-                    debug(e)
-                    traceback.format_exc()
-                    open_exc = e
-                    break
-    else:
-        open_database(uri)
 
+            try:
+                if open_database(uri, conn_name):
+                    prefs[conn_default_pref] = conn_name
+                    break
+                else:
+                    uri = conn_name = None
+            except db.VersionError, e:
+                warning(e)
+                break
+            except db.DatabaseError, e:
+                debug(e)
+                traceback.format_exc()
+                open_exc = e
+                break
+    else:
+        open_database(uri, None)
+
+    # load the plugins
+    pluginmgr.load()
 
     # save any changes made in the conn manager before anything else has
     # chance to crash
@@ -391,10 +450,12 @@ def main(uri=None):
     gui = _gui.GUI()
 
     def _post_loop():
+##      debug('__post_loop')
         gtk.gdk.threads_enter()
         ok_to_init_plugins = True
+        import bauble.db as db
         try:
-            if isinstance(open_exc, (db.DatabaseError, db.MetaTableError)):
+            if isinstance(open_exc, db.DatabaseError):
                 ok_to_init_plugins = False
                 msg = _('Would you like to create a new Bauble database at ' \
                         'the current connection?\n\n<i>Warning: If there is '\
@@ -404,6 +465,7 @@ def main(uri=None):
                     create_database()
                     ok_to_init_plugins = True
         except Exception, e:
+            debug(e)
             pass
             #utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
         else:

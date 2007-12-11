@@ -19,8 +19,9 @@ import shelve
 import inspect
 import gobject, gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import bauble
-import bauble.meta as meta
+#import bauble.meta as meta
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
@@ -36,7 +37,6 @@ plugins = []
 plugins_dict = {}
 commands = {}
 
-#def register_command(command, handler):
 def register_command(handler):
     global commands
     if isinstance(handler.command, str):
@@ -50,18 +50,17 @@ def register_command(handler):
             commands[cmd] = handler
 
 
-
-
 def install(plugins_to_install, import_defaults=True, force=False):
     """
     @param plugins_to_install: a list of plugins to install, if None then
     install all plugins that haven't been installed
     """
     # create the registry if it doesn't exist
-    transaction = default_metadata.engine.contextual_connect().begin()
+    transaction = bauble.engine.connect().begin()
     try:
         registry = Registry()
     except RegistryEmptyError:
+        log.info('registry empty, creating.')
         Registry.create()
         registry = Registry()
 
@@ -70,7 +69,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
     else:
         to_install = plugins_to_install
 
-    #debug('to_install: %s' % to_install)
     # import default data for plugins
     if import_defaults:
         default_filenames = []
@@ -82,16 +80,15 @@ def install(plugins_to_install, import_defaults=True, force=False):
             from bauble.plugins.imex.csv_ import CSVImporter
             csv = CSVImporter()
             try:
-                csv.start(filenames=default_filenames, metadata=
-                          default_metadata, force=force)
+                csv.start(filenames=default_filenames,
+                          metadata=bauble.metadata, force=force)
                 # register plugin as installed
                 for p in to_install:
-#                    debug('add %s to registry' % p)
                     registry.add(RegistryEntry(name=p.__name__, version='0.0'))
                     registry.save()
                 transaction.commit()
             except Exception, e:
-                debug(e)
+                warning(e)
                 transaction.rollback()
                 raise
     else:
@@ -103,8 +100,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             debug(e)
             transaction.rollback()
             raise
-##    debug('commiting in pluginmgr.install()')
-        transaction.commit()
+    transaction.commit()
 
 
 
@@ -167,7 +163,6 @@ def init():
     registry = Registry()
     for entry in registry:
         try:
-#            debug('init %s' % entry)
             plugins_dict[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
@@ -178,6 +173,7 @@ def init():
                 registry.remove(entry.name)
                 registry.save()
         except Exception, e:
+            debug(e)
             utils.message_details_dialog(_("Error: Couldn't initialize %s\n\n"\
                                            "%s.") % (entry.name, str(e)),
                                          traceback.format_exc(),
@@ -188,6 +184,9 @@ def init():
 class RegistryEmptyError(Exception):
     pass
 
+
+# TODO: reimplement the Registry with the following recipe
+# http://www.sqlalchemy.org/trac/wiki/UsageRecipes/JSONColumn
 
 class Registry(dict):
     '''
@@ -200,12 +199,15 @@ class Registry(dict):
         @param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
+        import bauble.meta as meta
         if session is None:
-            self.session = create_session()
+            self.session = bauble.Session()
         else:
             self.session = session
-        result = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
-        if result is None:
+        try:
+            result = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
+        except:
+##            debug('RegistryEmptyError')
             raise RegistryEmptyError
 
         self.entries = {}
@@ -225,12 +227,12 @@ class Registry(dict):
         create a new empty registry in the current database, if a registry
         already exists an error will be raised
         '''
+        import bauble.meta as meta
         #logger.echo(True)
-        obj = meta.BaubleMeta(name=meta.REGISTRY_KEY, value='[]')
-        session = create_session()
-        session.save(obj)
-#        debug(obj)
-        session.flush()
+        ins = meta.bauble_meta_table.insert(values={'name': meta.REGISTRY_KEY,
+                                                    'value': '[]'})
+        bauble.engine.connect().execute(ins)
+        sql =  meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==meta.REGISTRY_KEY)
         #logger.echo(False)
 
 
@@ -238,13 +240,12 @@ class Registry(dict):
         '''
         save the state of the registry object to the database
         '''
-#        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+##        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+        import bauble.meta as meta
         dumped = json.dumps(self.entries.values())
-        obj = self.session.query(meta.BaubleMeta).get_by(name=meta.REGISTRY_KEY)
+        obj = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
         obj.value = dumped
-#        debug('obj: %s=%s' % (obj.name, obj.value))
-#        self.session.echo_uow = True
-        self.session.flush()
+        self.session.commit()
         self.session.close()
 #        self.session.echo_uow = False
 #        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
