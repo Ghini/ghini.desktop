@@ -36,10 +36,10 @@ def remove_callback(value):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = create_session()
+        session = bauble.Session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
-        session.flush()
+        session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),

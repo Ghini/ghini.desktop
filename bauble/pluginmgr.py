@@ -56,7 +56,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
     install all plugins that haven't been installed
     """
     # create the registry if it doesn't exist
-    transaction = bauble.engine.connect().begin()
     try:
         registry = Registry()
     except RegistryEmptyError:
@@ -80,6 +79,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             from bauble.plugins.imex.csv_ import CSVImporter
             csv = CSVImporter()
             try:
+                transaction = bauble.engine.connect().begin()
                 csv.start(filenames=default_filenames,
                           metadata=bauble.metadata, force=force)
                 # register plugin as installed
@@ -100,7 +100,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
             debug(e)
             transaction.rollback()
             raise
-    transaction.commit()
 
 
 

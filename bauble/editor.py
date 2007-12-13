@@ -8,7 +8,7 @@
 import traceback
 import gtk, gobject
 from sqlalchemy import *
-from sqlalchemy.orm.session import object_session
+from sqlalchemy.orm import *
 import bauble
 from bauble.prefs import prefs
 import bauble.utils as utils
@@ -688,7 +688,7 @@ class GenericModelViewPresenterEditor(object):
         '''
         # the editor does all of it's work in it's own session,
         # so put a copy of the model in our session
-        self.session = create_session(bind_to=bauble.db_engine)
+        self.session = bauble.Session()
         obj_session = object_session(model)
         if obj_session is not None:
             if model in obj_session.new:
@@ -702,7 +702,8 @@ class GenericModelViewPresenterEditor(object):
         else:
             self.model = model
 
-        for name, prop in object_mapper(model).props.iteritems():
+        for prop in object_mapper(model).iterate_properties:
+            name = prop.key
             value = getattr(self.model, name)
             if value not in (None, []) and hasattr(value, '_instance_key'):
                 new_value = self.session.load(value.__class__, value.id)
@@ -727,7 +728,6 @@ class GenericModelViewPresenterEditor(object):
     def commit_changes(self):
         '''
         '''
-
 #        for obj in self.session:
 #            if obj in self.session.new:
 #                debug('new: %s' % obj)
@@ -740,6 +740,6 @@ class GenericModelViewPresenterEditor(object):
 #            debug('%s' % repr(obj))
 #        import logging
 #        logging.getLogger('sqlalchemy').setLevel(logging.INFO)
-        self.session.flush()
+        self.session.commit()
 #        logging.getLogger('sqlalchemy').setLevel(1)
         return True

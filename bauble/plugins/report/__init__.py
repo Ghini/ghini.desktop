@@ -39,7 +39,7 @@ def get_all_plants(objs, acc_status=None, session=None):
         acc_status = 'Living accession', None
 
     if session is None:
-        session = create_session()
+        session = bauble.Session()
 
     from bauble.plugins.garden.plant import Plant, plant_table
     all_plants = {}

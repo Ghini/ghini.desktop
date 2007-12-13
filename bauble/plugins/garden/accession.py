@@ -111,10 +111,10 @@ def remove_callback(value):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = create_session()
+        session = bauble.Session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
-        session.flush()
+        session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
@@ -268,7 +268,7 @@ mapper(Accession, accession_table,
         relation(Plant, cascade='all, delete-orphan',
                  order_by=plant_table.c.code, backref='accession'),
         'verifications':
-        relation(Verification, order_by='date', private=True,
+        relation(Verification, order_by='date', cascade='all, delete-orphan',
                  backref='accession')},
        )
 
@@ -974,7 +974,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     def _set_acc_code_from_text(self, text):
         if text != self._original_code \
-               and self.session.query(Accession).count_by(code=text) > 0:
+            and self.session.query(Accession).filter_by(code=text).count()>0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.model.code = None
@@ -1403,7 +1403,7 @@ class GeneralAccessionExpander(InfoExpander):
         # TODO: it would be nice if we did something like 13 Living,
         # 2 Dead, 6 Unknown, etc
         # TODO: could this be sped up, does it matter?
-        nplants = session.query(Plant).count_by(accession_id=row.id)
+        nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
         self.set_widget_value('prov_data', row.prov_type, False)
 

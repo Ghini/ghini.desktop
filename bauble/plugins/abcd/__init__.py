@@ -9,6 +9,7 @@ from sqlalchemy.orm import *
 import lxml.etree as etree
 import lxml._elementpath # put this here sp py2exe picks it up
 from lxml.etree import Element, SubElement, ElementTree
+import bauble
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -206,9 +207,7 @@ class ABCDExporter:
         # TODO: do something about this, like list the number of plants
         # to be returned and make sure this is what the user wants
         if plants == None:
-            session = create_session()
-            plants = session.query(Plant).select()
-            #plants = plugins.tables["Plant"].select()
+            plants = bauble.Session().query(Plant)
         data = plants_to_abcd(plants)
         data.write_c14n(filename)
 
