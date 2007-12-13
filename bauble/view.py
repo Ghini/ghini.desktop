@@ -432,7 +432,7 @@ class MapperSearch(SearchStrategy):
         return the search results depending on how tokens were parsed
         '''
         if session is None:
-            session = create_session()
+            session = bauble.Session()
 
         try:
             tokens = self.parser.parse_string(text)
@@ -440,7 +440,7 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
-            debug('searching values')
+#            debug('searching values')
             # make searches in postgres case-insensitive, i don't think other
             # databases support a case-insensitive like operator
             if bauble.engine.name == 'postgres':

@@ -32,10 +32,10 @@ def remove_callback(value):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = create_session()
+        session = bauble.Session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
-        session.flush()
+        session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
@@ -97,9 +97,9 @@ class TagItemGUI:
         d.destroy()
 
         if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
-            session = create_session()
+            session = bauble.Session()
             session.save(Tag(tag=name))
-            session.flush()
+            session.commit()
             model = self.tag_tree.get_model()
             model.append([False, name])
             _reset_tags_menu()
@@ -171,7 +171,7 @@ class TagItemGUI:
         model = gtk.ListStore(bool, str)
         item_tags = get_tag_ids(self.values)
         has_tag = False
-        tag_query = create_session().query(Tag)
+        tag_query = bauble.Session().query(Tag)
         for tag in tag_query.select():
             if tag.id in item_tags:
                 has_tag = True
@@ -208,7 +208,7 @@ def get_tagged_objects(tag):
         t = tag
         session = object_session(t)
     else:
-        session = create_session()
+        session = bauble.Session()
         t = session.query(Tag).select(tag_table.c.tag==tag)[0]
     from bauble.view import SearchView
     kids = []
@@ -272,7 +272,7 @@ def untag_objects(name, objs):
     # TODO: don't need to screw around with sessions, we should
     # just use delete() to generate a delete statement
     tag = None
-    session = create_session()
+    session = bauble.Session()
     try:
         tag = session.query(Tag).select(tag_table.c.tag==name)[0]
     except Exception, e:
@@ -286,7 +286,7 @@ def untag_objects(name, objs):
             if same(kid, obj):
                 o = session.load(type(kid), kid.id)
                 session.delete(o)
-    session.flush()
+    session.commit()
     session.close()
 
 
@@ -296,7 +296,7 @@ def tag_objects(name, objs):
     @param obj: the object to tag
     '''
 ##    debug('tag_object(%s)' % objs)
-    session = create_session()
+    session = bauble.Session()
     tag = session.query(Tag).select_by(tag=name)[0]
     classname = lambda x: x.__class__.__name__
 ##    debug('class: %s(%s)' % (obj_class, type(obj_class)))
@@ -308,7 +308,7 @@ def tag_objects(name, objs):
             tagged_obj = TaggedObj(obj_class=classname(obj), obj_id=obj.id,
                                    tag=tag)
             session.save(tagged_obj)
-            session.flush()
+            session.commit()
     session.close()
 
 
@@ -372,12 +372,10 @@ def _reset_tags_menu():
     #manage_tag_item = gtk.MenuItem('Manage Tags')
     #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
-    #session = create_session()
-    session =  sessionmaker(bind=bauble.engine)()
+    session = bauble.Session()
     query = session.query(Tag)
     try:
-        #for tag in tag_.select():
-        for tag in query:#.select():
+        for tag in query:
             item = gtk.MenuItem(tag.tag)
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)

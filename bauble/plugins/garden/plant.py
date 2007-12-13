@@ -50,10 +50,10 @@ def remove_callback(plant):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = create_session()
+        session = bauble.Session()
         obj = session.load(plant.__class__, plant.id)
         session.delete(obj)
-        session.flush()
+        session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
 
@@ -91,7 +91,7 @@ class PlantSearch(MapperSearch):
 
     def search(self, text, session=None):
         if session is None:
-            session = create_session()
+            session = bauble.Session()
         delimiter = plant_delimiter()
         if delimiter not in text:
             return []
@@ -99,7 +99,7 @@ class PlantSearch(MapperSearch):
         query = session.query(Plant)
         from bauble.plugins.garden import accession_table
         try:
-            return query.select(and_(plant_table.c.accession_id==accession_table.c.id, accession_table.c.code == acc_code, plant_table.c.code == plant_code))
+            return query.filter(and_(plant_table.c.accession_id==accession_table.c.id, accession_table.c.code == acc_code, plant_table.c.code == plant_code))
         except:
             return []
 

@@ -128,7 +128,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
             return False
 
         fo_cmd = renderers_map[renderer]
-        session = create_session()
+        session = bauble.Session()
         plants = get_all_plants(objs, session=session)
         plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
         if len(plants) == 0:
@@ -137,11 +137,11 @@ class DefaultFormatterPlugin(FormatterPlugin):
             return False
 
         abcd_data = plants_to_abcd(plants, authors=authors)
+        session.clear() # we don't need the plants anymore
 
         # this adds a "distribution" tag from the species_distribnution, we
         # use this when generating labels and can be safely ignored since it's
         # not in the ABCD namespace
-        session = create_session()
         for el in abcd_data.getiterator(tag='{http://www.tdwg.org/schemas/abcd/2.06}Unit'):
             unit_id = el.xpath('abcd:UnitID',
                             {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'})

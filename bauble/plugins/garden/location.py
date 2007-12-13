@@ -29,10 +29,10 @@ def remove_callback(value):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = create_session()
+        session = bauble.Session()
         obj = session.load(value.__class__, value.id)
         session.delete(obj)
-        session.flush()
+        session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
@@ -265,7 +265,7 @@ class GeneralLocationExpander(InfoExpander):
         '''
         self.set_widget_value('loc_site_data', str(row.site))
         session = object_session(row)
-        nplants = session.query(Plant).count_by(location_id=row.id)
+        nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)
 
 
