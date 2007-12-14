@@ -48,7 +48,7 @@ def get_all_plants(objs, acc_status=None, session=None):
 
     def add_plants(plants):
         for p in plants:
-            if id not in all_plants and p.acc_status in acc_status:
+            if p.id not in all_plants and p.acc_status in acc_status:
                 all_plants[p.id] = p
 
 
@@ -72,6 +72,7 @@ def get_all_plants(objs, acc_status=None, session=None):
 
     from bauble.plugins.plants import Family, Genus, Species, VernacularName
     from bauble.plugins.garden import Accession, Plant, Location
+
     for obj in objs:
         # extract the plants from the search results
         if isinstance(obj, Family):
@@ -93,6 +94,44 @@ def get_all_plants(objs, acc_status=None, session=None):
             add_plants(obj.plants)
 
     return all_plants.values()
+
+
+def get_all_species(objs , session=None):
+    """
+    return all unique species we can find in objs
+    """
+    if session == None:
+        session = bauble.Session()
+    from bauble.plugins.plants import Family, Genus, Species, VernacularName
+    from bauble.plugins.garden import Accession, Plant, Location
+    all_species = {}
+    def add_species(species):
+        if isinstance(species, Species):
+            if species.id not in all_species:
+                all_species[species.id] = species
+        else:
+            for s in species:
+                if s.id not in all_species:
+                    all_species[s.id] = s
+    for obj in objs:
+        if isinstance(obj, Family):
+            for gen in obj.genera:
+                add_species(gen.speces)
+        elif isinstance(obj, Genus):
+            add_species(obj.species)
+        elif isinstance(obj, Species):
+            add_species(obj)
+        elif isinstance(obj, VernacularName):
+            add_species(obj.species)
+        elif isinstance(obj, Accession):
+            add_species(obj.species)
+        elif isinstance(obj, Plant):
+            add_species(obj.accession.species)
+        elif isinstance(obj, Location):
+            add_species(obj.plants.accession.species)
+
+    return all_species.values()
+
 
 
 

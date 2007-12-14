@@ -1,5 +1,5 @@
 #
-# __init__.py
+# default report formatter package
 #
 """
 The PDF report generator module.
@@ -21,8 +21,9 @@ from bauble.i18n import *
 from bauble.plugins.plants.species import Species, species_table
 from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
 from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.abcd import plants_to_abcd
-from bauble.plugins.report import get_all_plants, FormatterPlugin, SettingsBox
+from bauble.plugins.abcd import create_abcd, ABCDAdapter
+from bauble.plugins.report import get_all_plants, get_all_species, \
+     FormatterPlugin, SettingsBox
 
 
 if sys.platform == "win32":
@@ -52,6 +53,85 @@ renderers_map = {'Apache FOP': fop_cmd + \
 #         ibex.Run -xml %(fo_filename)s -pdf %(out_filename)s'
                 }
 default_renderer = 'Apache FOP'
+
+plant_source_type = _('Plant/Clone')
+accession_source_type = _('Accession')
+species_source_type = _('Species')
+default_source_type = plant_source_type
+
+class PlantABCDAdapter(ABCDAdapter):
+
+    def __init__(self, plant):
+        self.plant = plant
+        self.species = self.plant.accession.species
+
+    def get_UnitID(self):
+        return utils.xml_safe_utf8(str(self.plant))
+
+    def get_family(self):
+        return utils.xml_safe_utf8(self.species.genus.family)
+
+    def get_FullScientificNameString(self, authors=True):
+        return Species.str(self.species,authors=authors,markup=False)
+
+    def get_GenusOrMonomial(self):
+        return utils.xml_safe_utf8(str(self.species.genus))
+
+    def get_FirstEpithet(self):
+        return utils.xml_safe_utf8(str(self.species.sp))
+
+    def get_AuthorTeam(self):
+        author = self.species.sp_author
+        if author is None:
+            return None
+        else:
+            return utils.xml_safe_utf8(author)
+
+    def get_InformalNameString(self):
+        vernacular_name = self.species.default_vernacular_name
+        if vernacular_name is None:
+            return None
+        else:
+            return utils.xml_safe_utf8(vernacular_name)
+
+
+class SpeciesABCDAdapter:
+
+    def __init__(self, species):
+        self.species = species
+
+    def get_UnitID(self):
+        # **** This is makes the ABCD data NOT valid ABCD but it does make
+        # it work for created reports without including the accession or
+        # plant code
+        return ""
+
+    def get_family(self):
+        return utils.xml_safe_utf8(self.species.genus.family)
+
+    def get_FullScientificNameString(self, authors=True):
+        return Species.str(self.species, authors=authors,markup=False)
+
+    def get_GenusOrMonomial(self):
+        return utils.xml_safe_utf8(str(self.species.genus))
+
+    def get_FirstEpithet(self):
+        return utils.xml_safe_utf8(str(self.species.sp))
+
+    def get_AuthorTeam(self):
+        author = self.species.sp_author
+        if author is None:
+            return None
+        else:
+            return utils.xml_safe_utf8(author)
+
+    def get_InformalNameString(self):
+        vernacular_name = self.species.default_vernacular_name
+        if vernacular_name is None:
+            return None
+        else:
+            return utils.xml_safe_utf8(vernacular_name)
+
 
 class SettingsBoxPresenter:
 
@@ -84,6 +164,7 @@ class DefaultFormatterSettingsBox(SettingsBox):
         '''
         return {'stylesheet': self.widgets.stylesheet_chooser.get_filename(),
                 'renderer': self.widgets.renderer_combo.get_active_text(),
+                'source_type':self.widgets.source_type_combo.get_active_text(),
                 'authors': self.widgets.author_check.get_active()}
 
 
@@ -97,6 +178,14 @@ class DefaultFormatterSettingsBox(SettingsBox):
         else:
             utils.combo_set_active_text(self.widgets.renderer_combo,
                                         settings['renderer'])
+
+        if 'source_type' not in settings:
+            utils.combo_set_active_text(self.widgets.source_type_combo,
+                                        default_source_type)
+        else:
+            utils.combo_set_active_text(self.widgets.source_type_combo,
+                                        settings['source_type'])
+
         if 'authors' in settings:
             self.widgets.author_check.set_active(settings['authors'])
 
@@ -118,6 +207,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
         stylesheet = kwargs['stylesheet']
         authors = kwargs['authors']
         renderer = kwargs['renderer']
+        source_type = kwargs['source_type']
         error_msg = None
         if not stylesheet:
             error_msg = _('Please select a stylesheet.')
@@ -129,14 +219,32 @@ class DefaultFormatterPlugin(FormatterPlugin):
 
         fo_cmd = renderers_map[renderer]
         session = bauble.Session()
-        plants = get_all_plants(objs, session=session)
-        plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
-        if len(plants) == 0:
-            utils.message_dialog(_('There are no plants in the search '
-                                   'results.  Please try another search.'))
-            return False
 
-        abcd_data = plants_to_abcd(plants, authors=authors)
+        adapted = []
+        if source_type == plant_source_type:
+            plants = get_all_plants(objs, session=session)
+            plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
+            if len(plants) == 0:
+                utils.message_dialog(_('There are no plants in the search '
+                                       'results.  Please try another search.'))
+                return False
+            for p in plants:
+                adapted.append(PlantABCDAdapter(p))
+        elif source_type == species_source_type:
+            species = get_all_species(objs, session=session)
+            species.sort(cmp=lambda x,y: cmp(str(x), str(y)))
+            if len(species) == 0:
+                utils.message_dialog(_('There are no species in the search '
+                                       'results.  Please try another search.'))
+                return False
+            for s in species:
+                adapted.append(SpeciesABCDAdapter(s))
+        else:
+            raise NotImplementedError('unknown source_type: %s' % source_type)
+        if len(adapted) == 0:
+            raise Exception # shouldn't ever really get here
+        abcd_data = create_abcd(adapted, authors=authors, validate=False)
+
         session.clear() # we don't need the plants anymore
 
         # this adds a "distribution" tag from the species_distribnution, we
@@ -146,20 +254,30 @@ class DefaultFormatterPlugin(FormatterPlugin):
             unit_id = el.xpath('abcd:UnitID',
                             {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'})
 
-            code = unit_id[0].text
-            results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.code == code))
 
-            if len(results) < 1:
-                acc_code, plant_code = code.rsplit(plant_delimiter(), 1)
-                results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.id==plant_table.c.accession_id, accession_table.c.code==acc_code, plant_table.c.code==plant_code))
+            # TODO: ***** right now we only set the distribution if we are
+            # using a plant_source_type but we should be able to get
+            # distributions from others, the problem is how to we get
+            # a unique id when we are generating the abcd from species
+            if source_type == plant_source_type:
+                code = unit_id[0].text
+                results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.code == code))
 
-            if len(results) < 1:
-                raise ValueError(_('Couldn\'t find a Plant or Accession with '\
-                                   'code %s') % code)
-            species = results[0]
-            if species.distribution is not None:
-                etree.SubElement(el, 'distribution').text=\
-                                     species.distribution_str()
+                if len(results) < 1:
+                    acc_code, plant_code = code.rsplit(plant_delimiter(), 1)
+                    results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.id==plant_table.c.accession_id, accession_table.c.code==acc_code, plant_table.c.code==plant_code))
+
+                if len(results) < 1:
+                    raise ValueError(_('Couldn\'t find a Plant or Accession '\
+                                       'with code %s') % code)
+                species = results[0]
+##             elif source_type == species_source_type:
+##                 if species.distribution is not None:
+##                     etree.SubElement(el, 'distribution').text=\
+##                                          species.distribution_str()
+                if species.distribution is not None:
+                    etree.SubElement(el, 'distribution').text=\
+                                         species.distribution_str()
             session.clear()
         session.close()
 
