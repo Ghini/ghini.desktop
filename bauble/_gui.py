@@ -32,6 +32,7 @@ class GUI(object):
 
     entry_history_pref = 'bauble.history'
     history_size_pref = 'bauble.history_size'
+    window_geometry_pref = "bauble.geometry"
     _default_history_size = 12
 
     def __init__(self):
@@ -41,7 +42,10 @@ class GUI(object):
         self.window = self.widgets.main_window
         self.window.hide()
 
-        self.window.set_default_size(800, 600)
+        # restore the window size
+        width, height = prefs[self.window_geometry_pref]
+        self.window.set_size_request(width, height)
+
         self.window.connect('delete-event', self.on_delete_event)
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
@@ -453,6 +457,8 @@ class GUI(object):
         """
         this is usually called from bauble.py when it shuts down
         """
+        rect = self.window.allocation
+        prefs[self.window_geometry_pref] = rect.width, rect.height
         prefs.save()
 
 
