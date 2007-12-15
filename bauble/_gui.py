@@ -43,8 +43,9 @@ class GUI(object):
         self.window.hide()
 
         # restore the window size
-        width, height = prefs[self.window_geometry_pref]
-        self.window.set_size_request(width, height)
+        geometry = prefs[self.window_geometry_pref]
+        if geometry is not None:
+            self.window.set_size_request(*geometry)
 
         self.window.connect('delete-event', self.on_delete_event)
         self.window.connect("destroy", self.on_quit)
