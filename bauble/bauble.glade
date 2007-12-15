@@ -1,9 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.2.0 on Sun Jun  3 15:50:02 2007 by brett@licuala-->
+<!--Generated with glade3 3.4.0 on Sat Dec 15 08:45:36 2007 -->
 <glade-interface>
   <widget class="GtkWindow" id="main_window">
     <property name="title" translatable="yes">Bauble</property>
+    <property name="role">bauble</property>
+    <property name="startup_id">bauble</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
@@ -54,6 +56,7 @@
                 <child>
                   <widget class="GtkButton" id="go_button">
                     <property name="visible">True</property>
+                    <property name="response_id">0</property>
                     <child>
                       <widget class="GtkImage" id="image1">
                         <property name="visible">True</property>
