@@ -73,7 +73,11 @@ class ABCDAdapter(object):
     # of all the higher taxon
 
     # TODO: need to mark those fields acc that are required and those that
-    # are option
+    # are optional
+
+    def __init__(self, obj):
+        self._object = obj
+        self._mapper = object_mapper(self._object)
 
     def get_UnitID(self):
         pass
@@ -95,6 +99,19 @@ class ABCDAdapter(object):
 
     def get_InformalNameString(self):
         pass
+
+    def get_dbURI(self):
+        # db://user@host:password/database/table/id
+        url = str(self._mapper.local_table.metadata.bind.url)
+        # parse out the password
+        at_i = url.find('@')
+        if at_i != -1:
+            col_i = url.find(':')
+            i = url.find(':', col_i+1, at_i)
+            url = url[:i] + url[at_i:]
+        return '%s/%s/%s' % (url, self._mapper.local_table,
+                             self._object.id)
+
 
 
 def create_abcd(decorated_objects, authors=True, validate=True):
@@ -193,11 +210,14 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ElementFactory(taxon_identified, 'InformalNameString',
                            text=vernacular_name)
 
+        dburi = obj.get_dbURI()
+        if dburi is not None:
+            ElementFactory(unit, "Notes", text=dburi)
+
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
         # TODO: Gathering, make our collection records fit Gatherings
         # TODO: see BotanicalGardenUnit
-
 
     if not validate:
         return ElementTree(datasets)
@@ -211,118 +231,6 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         raise
 
     return ElementTree(datasets)
-
-
-## def plants_to_abcd(plants, authors=True):
-##     '''
-##     @param plants: a list of bauble.plugins.garden.Plant object to convert
-##     to valid ABCD XML
-##     @param authors: flag to control whether to include the authors in the
-##     species name
-##     @returns: a valid ABCD ElementTree
-##     '''
-##     import bauble.plugins.garden.institution as institution
-##     inst = institution.Institution()
-##     if not verify_institution(inst):
-##         msg = _('Some or all of the information about your institution or ' \
-##                 'business is not complete. Please make sure that the ' \
-##                 'Name, Technical Contact, Email, Contact and Institution '
-##                 'Code fields are filled in.')
-##         utils.message_dialog(msg)
-##         institution.InstitutionEditor().start()
-##         return plants_to_abcd(plants, authors)
-
-##     datasets = DataSets()
-##     ds = ElementFactory(datasets, 'DataSet')
-##     tech_contacts = ElementFactory(ds, 'TechnicalContacts')
-##     tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
-
-##     # TODO: need to include contact information in bauble meta when
-##     # creating a new database
-
-##     ElementFactory(tech_contact, 'Name', text=inst.technical_contact)
-##     ElementFactory(tech_contact, 'Email', text=inst.email)
-##     cont_contacts = ElementFactory(ds, 'ContentContacts')
-##     cont_contact = ElementFactory(cont_contacts, 'ContentContact')
-##     ElementFactory(cont_contact, 'Name', text=inst.contact)
-##     ElementFactory(cont_contact, 'Email', text=inst.email)
-##     metadata = ElementFactory(ds, 'Metadata', )
-##     description = ElementFactory(metadata, 'Description')
-
-##     # TODO: need to get the localized language
-##     representation = ElementFactory(description, 'Representation',
-##                                     attrib={'language': 'en'})
-##     revision = ElementFactory(metadata, 'RevisionData')
-##     ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
-##     title = ElementFactory(representation, 'Title', text='TheTitle')
-##     units = ElementFactory(ds, 'Units')
-
-##     # build the ABCD unit
-##     for plant in plants:
-##         unit = ElementFactory(units, 'Unit')
-##         ElementFactory(unit, 'SourceInstitutionID', text=inst.code)
-
-##         # TODO: don't really understand the SourceID element
-##         ElementFactory(unit, 'SourceID', text='Bauble')
-##         if isinstance(plant, Accession):
-##             acc = plant
-##         else:
-##             acc = plant.accession
-
-##         unit_id = ElementFactory(unit, 'UnitID',
-##                                  text = utils.xml_safe_utf8(str(plant)))
-##         # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
-##         identifications = ElementFactory(unit, 'Identifications')
-
-##         # scientific name identification
-##         identification = ElementFactory(identifications, 'Identification')
-##         result = ElementFactory(identification, 'Result')
-##         taxon_identified = ElementFactory(result, 'TaxonIdentified')
-##         higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
-##         higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
-##         higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName',
-##                   text=utils.xml_safe_utf8(acc.species.genus.family))
-##         higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank',
-##                                            text='familia')
-##         scientific_name = ElementFactory(taxon_identified, 'ScientificName')
-##         ElementFactory(scientific_name, 'FullScientificNameString',
-##                        text=Species.str(acc.species, authors=authors,
-##                                         markup=False))
-##         name_atomised = ElementFactory(scientific_name, 'NameAtomised')
-##         botanical = ElementFactory(name_atomised, 'Botanical')
-##         ElementFactory(botanical, 'GenusOrMonomial',
-##                        text=utils.xml_safe(str(acc.species.genus)))
-##         ElementFactory(botanical, 'FirstEpithet',
-##                        text=utils.xml_safe_utf8(acc.species.sp))
-##         if acc.species.sp_author is not None:
-##             ElementFactory(botanical, 'AuthorTeam',
-##                 text=(utils.xml_safe_utf8(acc.species.sp_author)))
-
-##         # vernacular name identification
-##         # TODO: should we include all the vernacular names or only the default
-##         # one
-##         vernacular_name = plant.accession.species.default_vernacular_name
-##         if vernacular_name is not None:
-##             identification = ElementFactory(identifications, 'Identification')
-##             result = ElementFactory(identification, 'Result')
-##             taxon_identified = ElementFactory(result, 'TaxonIdentified')
-##             ElementFactory(taxon_identified, 'InformalNameString',
-##                            text=(utils.xml_safe_utf8(vernacular_name)))
-
-##         # TODO: handle verifiers/identifiers
-##         # TODO: RecordBasis
-##         # TODO: Gathering, make our collection records fit Gatherings
-##         # TODO: see BotanicalGardenUnit
-
-##     try:
-##         assert validate(datasets), 'ABCD data not valid'
-##     except AssertionError, e:
-##         #utils.message_dialog('ABCD data not valid')
-##         #utils.message_details_dialog('ABCD data not valid', etree.tostring(datasets))
-##         debug(etree.tostring(datasets))
-##         raise
-
-##     return ElementTree(datasets)
 
 
 

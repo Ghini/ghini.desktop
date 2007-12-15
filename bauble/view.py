@@ -9,7 +9,6 @@ import gtk, gobject, pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import sqlalchemy.exceptions as saexc
-#from sqlalchemy.orm.attributes import InstrumentedList
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
@@ -26,11 +25,6 @@ from bauble.utils.pyparsing import *
 # https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down infobox
 # https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve search results in a task
 # https://bugs.launchpad.net/bauble/+bug/147020 - Use regular expressions in search strings
-
-# TODO: on some search errors the connection gets invalidated, this
-# happened to me on 'loc where site=test'
-# UPDATE: this query doesn't invalidate the connection any more but apparantly
-# there's a way that this happens so we should track it down
 
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
@@ -489,7 +483,7 @@ class MapperSearch(SearchStrategy):
                     results.append(query)
                 else:
                     for col in columns:
-                        results.append(query.select(mapping.c[col].op(cond)(val)))
+                        results.append(query.filter(mapping.c[col].op(cond)(val)))
         elif 'query' in tokens:
             results.append(self._get_results_from_query(tokens, session))
 
