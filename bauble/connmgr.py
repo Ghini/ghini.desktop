@@ -12,7 +12,7 @@ import utils
 import bauble
 import bauble.paths as paths
 from bauble.prefs import prefs
-from bauble.utils.log import log, debug
+from bauble.utils.log import log, debug, warning
 from bauble.i18n import _
 
 # TODO: make the border red for anything the user changes so
@@ -125,19 +125,19 @@ class ConnectionManager:
             self._supported_dbtypes['SQLite'] = i
             i += 1
         except ImportError, e:
-            debug(e)
+            warning('ConnectionManager: %s' % e)
         try:
             import psycopg2
             self._supported_dbtypes['Postgres'] = i
             i += 1
         except ImportError, e:
-            debug(e)
+            warning('ConnectionManager: %s' % e)
         try:
             import MySQLdb
             self._supported_dbtypes['MySQL'] = i
             i += 1
         except ImportError, e:
-            debug(e)
+            warning('ConnectionManager: %s' % e)
 
         return self._supported_dbtypes
 
