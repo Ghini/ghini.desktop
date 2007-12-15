@@ -76,7 +76,8 @@ element_map = {'DataSet': ['{http://www.tdwg.org/schemas/abcd/2.06}DataSets', 'D
                                                    'GenusOrMonomial': ['Botanical'],
                                                    'FirstEpithet': ['Botanical'],
                                                    'AuthorTeam': ['Botanical'],
-                                       'InformalNameString': ['TaxonIdentified']
+                                       'InformalNameString': ['TaxonIdentified'],
+                       'Notes': ['Unit']
 
                            }
 

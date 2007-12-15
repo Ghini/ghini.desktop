@@ -58,7 +58,7 @@ def get_all_plants(objs, acc_status=None, session=None):
         '''
         acc_ids = [acc.id for acc in accessions]
         stmt = plant_table.select(plant_table.c.accession_id.in_(*acc_ids))
-        plants = plant_query.select(stmt)
+        plants = plant_query.from_statement(stmt)
         add_plants(plants)
 
     # append the objects from the tag
@@ -113,6 +113,16 @@ def get_all_species(objs , session=None):
             for s in species:
                 if s.id not in all_species:
                     all_species[s.id] = s
+
+    # append the objects from the tag
+    try:
+        from bauble.plugins.tag import Tag
+        for obj in objs:
+            if isinstance(obj, Tag):
+                objs.extend(obj.objects)
+    except ImportError:
+        pass
+
     for obj in objs:
         if isinstance(obj, Family):
             for gen in obj.genera:
@@ -128,7 +138,8 @@ def get_all_species(objs , session=None):
         elif isinstance(obj, Plant):
             add_species(obj.accession.species)
         elif isinstance(obj, Location):
-            add_species(obj.plants.accession.species)
+            for p in obj.plants:
+                add_species(p.accession.species)
 
     return all_species.values()
 

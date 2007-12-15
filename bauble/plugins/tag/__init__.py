@@ -96,7 +96,7 @@ class TagItemGUI:
         name = entry.get_text()
         d.destroy()
 
-        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
+        if name is not '' and tag_table.filter(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
             session = bauble.Session()
             session.save(Tag(tag=name))
             session.commit()
@@ -172,7 +172,7 @@ class TagItemGUI:
         item_tags = get_tag_ids(self.values)
         has_tag = False
         tag_query = bauble.Session().query(Tag)
-        for tag in tag_query.select():
+        for tag in tag_query:
             if tag.id in item_tags:
                 has_tag = True
             model.append([has_tag, tag.tag])
@@ -209,7 +209,7 @@ def get_tagged_objects(tag):
         session = object_session(t)
     else:
         session = bauble.Session()
-        t = session.query(Tag).select(tag_table.c.tag==tag)[0]
+        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
     from bauble.view import SearchView
     kids = []
     for obj in t._objects:
@@ -274,7 +274,7 @@ def untag_objects(name, objs):
     tag = None
     session = bauble.Session()
     try:
-        tag = session.query(Tag).select(tag_table.c.tag==name)[0]
+        tag = session.query(Tag).filter(tag_table.c.tag==name)[0]
     except Exception, e:
         debug(traceback.format_exc())
         return
@@ -297,7 +297,7 @@ def tag_objects(name, objs):
     '''
 ##    debug('tag_object(%s)' % objs)
     session = bauble.Session()
-    tag = session.query(Tag).select_by(tag=name)[0]
+    tag = session.query(Tag).filter_by(tag=name)[0]
     classname = lambda x: x.__class__.__name__
 ##    debug('class: %s(%s)' % (obj_class, type(obj_class)))
     for obj in objs:

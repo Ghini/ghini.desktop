@@ -12,6 +12,7 @@ convert the stylesheet to PDF.
 import sys, os, tempfile, traceback
 import gtk
 from sqlalchemy import *
+from sqlalchemy.orm import *
 import bauble
 from bauble.utils.log import debug
 import bauble.utils as utils
@@ -60,8 +61,11 @@ species_source_type = _('Species')
 default_source_type = plant_source_type
 
 class PlantABCDAdapter(ABCDAdapter):
-
+    """
+    An adapter to convert a Plant to an ABCD Unit
+    """
     def __init__(self, plant):
+        super(PlantABCDAdapter, self).__init__(plant)
         self.plant = plant
         self.species = self.plant.accession.species
 
@@ -95,9 +99,12 @@ class PlantABCDAdapter(ABCDAdapter):
             return utils.xml_safe_utf8(vernacular_name)
 
 
-class SpeciesABCDAdapter:
-
+class SpeciesABCDAdapter(ABCDAdapter):
+    """
+    An adapter to convert a Species to an ABCD Unit
+    """
     def __init__(self, species):
+        super(SpeciesABCDAdapter, self).__init__(species)
         self.species = species
 
     def get_UnitID(self):
@@ -131,6 +138,7 @@ class SpeciesABCDAdapter:
             return None
         else:
             return utils.xml_safe_utf8(vernacular_name)
+
 
 
 class SettingsBoxPresenter:
@@ -220,6 +228,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
         fo_cmd = renderers_map[renderer]
         session = bauble.Session()
 
+        # convert objects to ABCDAdapters for depending on source type for
+        # passing to create_abcd
         adapted = []
         if source_type == plant_source_type:
             plants = get_all_plants(objs, session=session)
@@ -241,43 +251,38 @@ class DefaultFormatterPlugin(FormatterPlugin):
                 adapted.append(SpeciesABCDAdapter(s))
         else:
             raise NotImplementedError('unknown source_type: %s' % source_type)
+
         if len(adapted) == 0:
             raise Exception # shouldn't ever really get here
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
         session.clear() # we don't need the plants anymore
 
-        # this adds a "distribution" tag from the species_distribnution, we
+        # add a "distribution" tag from the species_distribnution, we
         # use this when generating labels and can be safely ignored since it's
         # not in the ABCD namespace
-        for el in abcd_data.getiterator(tag='{http://www.tdwg.org/schemas/abcd/2.06}Unit'):
-            unit_id = el.xpath('abcd:UnitID',
-                            {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'})
+        unit_tag = '{http://www.tdwg.org/schemas/abcd/2.06}Unit')
+        namespace = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
+        for el in abcd_data.getiterator(tag=unit_tag):
+            unit_id = el.xpath('abcd:UnitID', namespace)
+            # we store the bauble database uri in the notes
+            # NOTE: this will break if anything else is stored in the
+            # Notes element
+            uri = el.xpath('abcd:Notes', namespace)[0].text
+            uri_parts = uri.split('/')
+            row_id, table_name = uri_parts[-1], uri_parts[-2]
+            table = bauble.metadata.tables[table_name]
+            species = None
+            if source_type == species_source_type:
+                species = session.query(Species).load(row_id)
+            elif source_type == plant_source_type:
+                plant = session.query(Plant).load(row_id).accession.species
+            elif source_type == accession_source_type:
+                acc = session.query(Accession).load(row_id).species
 
-
-            # TODO: ***** right now we only set the distribution if we are
-            # using a plant_source_type but we should be able to get
-            # distributions from others, the problem is how to we get
-            # a unique id when we are generating the abcd from species
-            if source_type == plant_source_type:
-                code = unit_id[0].text
-                results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.code == code))
-
-                if len(results) < 1:
-                    acc_code, plant_code = code.rsplit(plant_delimiter(), 1)
-                    results = session.query(Species).select(and_(species_table.c.id==accession_table.c.species_id, accession_table.c.id==plant_table.c.accession_id, accession_table.c.code==acc_code, plant_table.c.code==plant_code))
-
-                if len(results) < 1:
-                    raise ValueError(_('Couldn\'t find a Plant or Accession '\
-                                       'with code %s') % code)
-                species = results[0]
-##             elif source_type == species_source_type:
-##                 if species.distribution is not None:
-##                     etree.SubElement(el, 'distribution').text=\
-##                                          species.distribution_str()
-                if species.distribution is not None:
-                    etree.SubElement(el, 'distribution').text=\
-                                         species.distribution_str()
+            if species is not None and species.distribution is not None:
+                etree.SubElement(el, 'distribution').text=\
+                                     species.distribution_str()
             session.clear()
         session.close()
 
