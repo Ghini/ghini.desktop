@@ -261,7 +261,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
         # add a "distribution" tag from the species_distribnution, we
         # use this when generating labels and can be safely ignored since it's
         # not in the ABCD namespace
-        unit_tag = '{http://www.tdwg.org/schemas/abcd/2.06}Unit')
+        unit_tag = '{http://www.tdwg.org/schemas/abcd/2.06}Unit'
         namespace = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
         for el in abcd_data.getiterator(tag=unit_tag):
             unit_id = el.xpath('abcd:UnitID', namespace)
