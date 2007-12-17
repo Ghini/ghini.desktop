@@ -451,7 +451,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             v = model[iter][0]
             cell.set_property('text', str(v))
 
-        locations = self.session.query(Location).select()
+        locations = self.session.query(Location)
         renderer = gtk.CellRendererText()
         combo = self.view.widgets.plant_loc_combo
         combo.clear()
