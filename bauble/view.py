@@ -329,9 +329,7 @@ class MapperSearch(SearchStrategy):
                 if isinstance(parent, Mapper):
                      parent_name = parent.local_table
                 else:
-                     parent_name = parent.__name__
-                debug(parent)
-                debug(name)
+                     parent_name = parent.key
                 raise ValueError('no column named %s in %s' % \
                                  (name, parent_name))
 #            debug(prop)
@@ -382,6 +380,9 @@ class MapperSearch(SearchStrategy):
 
         @return: query object
         '''
+        # TODO: this whole method should be reworked before 0.8 is released
+        # as their are probably new features in SA 0.4 that make this alot
+        # more straight forward
 #        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
         if domain not in self._domains:
@@ -402,7 +403,8 @@ class MapperSearch(SearchStrategy):
                 cls_mapper = class_mapper(mapping)
                 prop = cls_mapper.props[ident[0]]
                 if isinstance(prop, ColumnProperty):
-                    select = prev_select.select(and_(select._clause))
+                    debug('prev select 1')
+                    select = prev_select.filter(and_(select._clause))
                 else:
                     if prop.is_backref:
                         prop = prop.select_mapper.props[prop.backref.key]
@@ -410,7 +412,8 @@ class MapperSearch(SearchStrategy):
                     # remote side
                     for col in prop.remote_side:
                         ids = [s.id for s in select]
-                        select = prev_select.select(cls_mapper.\
+                        debug('prev_select 2')
+                        select = prev_select.filter(cls_mapper.\
                                             local_table.c['id'].in_(ids))
             try:
                 op = expr_iter.next()

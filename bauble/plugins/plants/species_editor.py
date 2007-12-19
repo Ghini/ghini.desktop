@@ -74,7 +74,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
+            return self.session.query(Genus).filter(genus_table.c.genus.like('%s%%' % text))
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('sp_genus_entry', 'genus',
@@ -748,7 +748,7 @@ class SynonymsPresenter(GenericEditorPresenter):
             genus_ids = select([genus_table.c.id],
                                genus_table.c.genus.like('%s%%' % text))
             sql = species_table.select(species_table.c.genus_id.in_(genus_ids))
-            return self.session.query(Species).select(sql)
+            return self.session.query(Species).from_statement(sql)
 
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected

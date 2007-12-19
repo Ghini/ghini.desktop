@@ -267,7 +267,7 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def fam_get_completions(text):
-            return self.session.query(Family).select(Family.c.family.like('%s%%' % text))
+            return self.session.query(Family).filter(Family.c.family.like('%s%%' % text))
 #        def set_in_model(self, field, value):
 #            setattr(self.model, field, value.id)
 #        self.assign_completions_handler('gen_family_entry', 'family_id',
@@ -350,7 +350,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         # seperate SpeciesSynonym models on add
         completions_model = GenusSynonym()
         def gen_get_completions(text):
-            return self.session.query(Genus).select(genus_table.c.genus.like('%s%%' % text))
+            return self.session.query(Genus).filter(genus_table.c.genus.like('%s%%' % text))
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected
             sensitive = True
