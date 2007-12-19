@@ -322,7 +322,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def acc_get_completions(text):
-            return self.session.query(Accession).select(Accession.c.code.like('%s%%' % text))
+            return self.session.query(Accession).filter(Accession.c.code.like('%s%%' % text))
         def format_acc(accession):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, value):

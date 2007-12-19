@@ -844,7 +844,7 @@ class DonationPresenter(GenericEditorPresenter):
 
         # populate the donor combo
         model = gtk.ListStore(object)
-        for value in self.session.query(Donor).select():
+        for value in self.session.query(Donor):
 #            debug(value)
             model.append([value])
         donor_combo = self.view.widgets.donor_combo
@@ -916,9 +916,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def sp_get_completions(text):
-            from sqlalchemy.ext.selectresults import SelectResults
             query = self.session.query(Species)
-            return query.select(and_(species_table.c.genus_id == \
+            return query.filter(and_(species_table.c.genus_id == \
                                      genus_table.c.id,
                                      genus_table.c.genus.like('%s%%' % text)))
 
