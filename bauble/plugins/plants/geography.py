@@ -5,6 +5,7 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import bauble
+from bauble.view import ResultSet
 from bauble.utils.log import debug
 
 
@@ -31,8 +32,9 @@ def get_species_in_geography(geo):
     get_kids(geo.id)
     session = object_session(geo)
     species_ids = select([species_distribution_table.c.species_id],
-                    species_distribution_table.c.geography_id.in_(*geo_kids))
-    return session.query(Species).select(species_table.c.id.in_(species_ids))
+                    species_distribution_table.c.geography_id.in_(geo_kids))
+    return ResultSet(session.query(Species).\
+                     filter(species_table.c.id.in_(species_ids)))
 
 
 

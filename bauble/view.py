@@ -411,7 +411,7 @@ class MapperSearch(SearchStrategy):
                     for col in prop.remote_side:
                         ids = [s.id for s in select]
                         select = prev_select.select(cls_mapper.\
-                                            local_table.c['id'].in_(*ids))
+                                            local_table.c['id'].in_(ids))
             try:
                 op = expr_iter.next()
                 prev_select = select
@@ -498,10 +498,9 @@ class ResultSet(object):
     as if they were one set
     '''
     def __init__(self, results=None):
-        if results is None:
-            self._results = []
-        else:
-            self._results = results
+        self._results = []
+        if results is not None:
+            self._results.append(results)
 
 
     def append(self, results):
@@ -574,7 +573,8 @@ class SearchView(pluginmgr.View):
             def get_children(self, obj):
                 '''
                 @param obj: get the children from obj according to
-                self.children
+                self.children, the returned object should support __len__,
+                if you want to return a query then wrap it in a ResultSet
                 '''
                 if self.children is None:
                     return []

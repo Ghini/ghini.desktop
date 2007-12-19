@@ -57,7 +57,7 @@ def get_all_plants(objs, acc_status=None, session=None):
         add all plants from all accessions
         '''
         acc_ids = [acc.id for acc in accessions]
-        stmt = plant_table.select(plant_table.c.accession_id.in_(*acc_ids))
+        stmt = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
         plants = plant_query.from_statement(stmt)
         add_plants(plants)
 
