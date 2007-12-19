@@ -13,9 +13,6 @@ if sys.argv[1] == 'py2exe':
     USING_PY2EXE = True
 
 
-# TODO: alot of this work doesn't have to be done if we're not using py2exe,
-# we could either create another module to import when create a exe or just
-# use an ifdef
 def get_version():
     """
     returns the bauble version combined with the subversion revision number
@@ -25,7 +22,6 @@ def get_version():
 
 version = get_version()
 
-# TODO: need someway to include specific modules in src/lib like fpconst.py
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
@@ -123,7 +119,7 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.3.6", "pysqlite==2.3.2",
+      install_requires=["SQLAlchemy>=0.4", "pysqlite==2.3.2",
                         "PyGTK>=2.10", "simplejson", "lxml"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
 
