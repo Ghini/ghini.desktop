@@ -992,11 +992,11 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
 
 
     def handle_response(self, response):
-        '''
-        @return: return a list if we want to tell start() to close the editor,
-        the list should either be empty or the list of committed values,
-        return None if we want to keep editing
-        '''
+        """
+        @return: return True if the editor is realdy to be closes, False if
+        we want to keep editing, if any changes are committed they are stored
+        in self._committed
+        """
         # TODO: need to do a __cleanup_model before the commit to do things
         # like remove the insfraspecific information that's attached to the
         # model if the infraspecific rank is None
@@ -1023,6 +1023,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
+            self.session.rollback()
             return True
         else:
             return False

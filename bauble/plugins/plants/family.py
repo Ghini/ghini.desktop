@@ -408,17 +408,19 @@ class FamilyEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:
-                msg = 'Error committing changes.\n\n%s' % \
+                msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = 'Unknown error when committing changes. See the details '\
-                      'for more information.\n\n%s' % utils.xml_safe_utf8(e)
+                msg = _('Unknown error when committing changes. See the ' \
+                      'details for more information.\n\n%s') % \
+                      utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+            self.session.rollback()
             return True
         else:
             return False

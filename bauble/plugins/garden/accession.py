@@ -1265,6 +1265,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         elif self.presenter.dirty() \
                  and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
+            self.session.rollback()
             return True
         else:
             return False
