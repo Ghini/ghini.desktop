@@ -159,7 +159,7 @@ class SynonymsExpander(InfoExpander):
         else:
             synonyms = []
             for syn in row.synonyms:
-                s = Species.str(syn.synonym, markup=True, authors=True)
+                s = Species.str(syn, markup=True, authors=True)
                 synonyms.append(s)
             self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
             self.set_sensitive(True)

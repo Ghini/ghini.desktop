@@ -96,7 +96,7 @@ class TagItemGUI:
         name = entry.get_text()
         d.destroy()
 
-        if name is not '' and tag_table.filter(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
+        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
             session = bauble.Session()
             session.save(Tag(tag=name))
             session.commit()

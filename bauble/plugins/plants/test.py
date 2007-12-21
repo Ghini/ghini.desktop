@@ -220,50 +220,63 @@ class SynonymsTests(PlantTestCase):
     def test_species_synonyms(self):
         load_sp = lambda id: self.session.load(Species, id)
 
-        def create_syn(sp_id, syn_id):
-            syn = SpeciesSynonym()
-            syn.synonym = load_sp(syn_id)
-            load_sp(sp_id).synonyms.append(syn)
-            self.session.save(syn)
-            return syn
-
         def syn_str(id1, id2, isit='not'):
             sp1 = load_sp(id1)
             sp2 = load_sp(id2)
             return '%s(%s).synonyms: %s' % \
                    (sp1, sp1.id,
                     str(map(lambda s: '%s(%s)' % \
-                            (s, s.species_id), sp1.synonyms)))
+                            (s, s.id), sp1.synonyms)))
 
         def synonym_of(id1, id2):
             sp1 = load_sp(id1)
             sp2 = load_sp(id2)
-            return sp2.id in [syn.id for syn in sp1.synonyms]
+            return sp2 in sp1.synonyms
 
-        # make sure that appending a synonym works
-        syn = create_syn(1, 2)
+        # test that appending a synonym works using species.synonyms
+        sp1 = load_sp(1)
+        sp2 = load_sp(2)
+        sp1.synonyms.append(sp2)
         self.session.flush()
         self.assert_(synonym_of(1, 2), syn_str(1,2))
+
+        # test that removing a synonyms works using species.synonyms
+        sp1.synonyms.remove(sp2)
+        self.session.flush()
+        self.failIf(synonym_of(1, 2), syn_str(1,2))
+
         self.session.clear()
 
-        # test the removing a synonyms works
+        # test that appending a synonym works using species._synonyms
         sp1 = load_sp(1)
-#        print map(lambda s: '%s(%s)' % (str(s), s.id), sp1.synonyms)
-        syn0 = sp1.synonyms[0]
-#        print syn0
-        self.assert_(syn0 is not None)
-        sp2 = syn0.synonym
-        sp1.synonyms.remove(syn0)
+        sp2 = load_sp(2)
+        syn = SpeciesSynonym(sp2)
+        sp1._synonyms.append(syn)
         self.session.flush()
-        self.failIf(synonym_of(sp1.id, sp2.id), syn_str(sp1.id, sp2.id))
+        self.assert_(synonym_of(1, 2), syn_str(1,2))
 
+        # test that removing a synonyms works using species._synonyms
+        sp1._synonyms.remove(syn)
+        self.session.flush()
+        self.failIf(synonym_of(1, 2), syn_str(1,2))
 
-        def i_wish_it_worked_like_this():
-            # this is would be nice where species.synonyms was a list of
-            # species instead of a list of synonyms
-            sp.synonyms.append(self.session.load(Species, 2))
-            self.session.flush()
-            assert self.session.load(Species, 2) in self.session.load(Species, 1).synonyms
+        # TODO: need to test adding a species and then immediately remove it
+        # TOOD: need to test removing a species and then immediately adding
+        # the same species
+        self.session.clear()
+        sp1 = load_sp(1)
+        sp2 = load_sp(2)
+        sp1.synonyms.append(sp2)
+        self.session.flush()
+
+        sp1.synonyms.remove(sp2)
+        for s in self.session.dirty:
+            if isinstance(s, SpeciesSynonym) and s.synonym == sp2:
+                self.session.flush([s])
+        sp1.synonyms.append(sp2)
+        self.session.flush()
+
+        self.session.clear()
 
 
     def test_genus_synonyms(self):
