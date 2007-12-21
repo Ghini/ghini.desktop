@@ -31,7 +31,7 @@ from bauble.plugins.garden.accession import AccessionEditor, Accession
 # UPDATE: i think i corrected most of these but i still need to double check
 
 
-# take from accession.py
+# taken from accession.py
 def delete_or_expunge(obj):
     session = object_session(obj)
     if session is None:
@@ -751,7 +751,11 @@ class SynonymsPresenter(GenericEditorPresenter):
             return self.session.query(Species).from_statement(sql)
 
         def set_in_model(self, field, value):
-            # don't set anything in the model, just set self.selected
+            """
+            This function isn't setting anything in the model, it just
+            self self._added so that in the on_add_button_clicked we know
+            which species was selected and it to model.synonyms there
+            """
             sensitive = True
             if value is None:
                 sensitive = False
@@ -795,7 +799,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.treeview.append_column(col)
 
         tree_model = gtk.ListStore(object)
-        for syn in model.synonyms:
+        for syn in model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -816,16 +820,13 @@ class SynonymsPresenter(GenericEditorPresenter):
 
 
     def on_add_button_clicked(self, button, data=None):
-        '''
+        """
         adds the synonym from the synonym entry to the list of synonyms for
-            this species
-        '''
-        syn = SpeciesSynonym()
-        syn.synonym = self._added
-        #self.session.save(syn)
-        self.model.synonyms.append(syn)
+        this species
+        """
+        self.model.synonyms.append(self._added)
         tree_model = self.treeview.get_model()
-        tree_model.append([syn])
+        tree_model.append([self._added])
         self._added = None
         entry = self.view.widgets.sp_syn_entry
         # sid generated from GenericEditorPresenter.assign_completion_handler
@@ -850,15 +851,18 @@ class SynonymsPresenter(GenericEditorPresenter):
         path, col = tree.get_cursor()
         tree_model = tree.get_model()
         value = tree_model[tree_model.get_iter(path)][0]
-#        debug('%s: %s' % (value, type(value)))
         s = Species.str(value.synonym, markup=True)
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
               '%s from the database.</i>' % (s, s)
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
-            self.model.synonyms.remove(value)
-#            delete_or_expunge(value)
+            self.model._synonyms.remove(value)
+            delete_or_expunge(value)
+            # make the change in synonym immediately available so that if
+            # we try to add the same species again we don't break the
+            # SpeciesSynonym UniqueConstraint
+            self.session.flush([value])
             self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
 

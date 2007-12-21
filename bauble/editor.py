@@ -533,22 +533,35 @@ class GenericEditorPresenter(object):
     # when they pause
     # TODO: if the user types the entire string of an entry in the completions
     # we should automatically match it
+
+    # TODO: ***** assign_compltions_hander is basically flawed since
+    # the set_func may do anything it wants.  With this said, this
+    # method is useful for alot of cases thought really we need to fix
+    # it so that the field is a property on the model that we can get/set/del
+    # so the the person using this method know what to expect when some
+    # action is taken on the model
     def assign_completions_handler(self, widget_name, field,
                                    get_completions,
                                    set_func=lambda self, f, v: \
                                       setattr(self.model, f, v),
                                    format_func=lambda x: str(x),
                                    model=None):
-        '''
+        """
+        assign_completions_handler assumes that when you select a
+        completion you are essentially setting the model.field from the
+        selected completion.
+
         @param widget_name: the name of the widget in self.view.widgets
         @param field: the name of the field to set in the model
-        @param set_func: the function to call to set the value in the model,
-            the default is lambda self, f, v: setattr(self.model, f, v)
+        @param set_func: the function to call when a value is selected from
+        the completions, the default is:
+                       lambda self, f, v: setattr(self.model, f, v)
         @param format_func: the func to call to format the value in the
             completion, the default is lambda x: str(x)
         @param model: the model to set for the completions, if None then
-        use self.model
-        '''
+        use self.model, should be able to access field as an attribute
+        of model
+        """
         widget = self.view.widgets[widget_name]
         if model is None:
             model = self.model
@@ -626,7 +639,7 @@ class GenericEditorPresenter(object):
         def on_delete_text(entry, start, end, data=None):
             text = entry.get_text()
             full_text = text[:start] + text[end:]
-            if full_text == '' or (full_text == str(model[field])):
+            if full_text == '' or (full_text == str(getattr(model, field))):
                 return
             compl_model = widget.get_completion().get_model()
             if (compl_model is None or len(compl_model) == 0) \
@@ -635,7 +648,7 @@ class GenericEditorPresenter(object):
             elif len(full_text) == 1:
                 add_completions(full_text[0])
             self.add_problem(PROBLEM, widget)
-            model[field] = None
+            setattr(model, field, None)
 
         def on_match_select(completion, compl_model, iter):
             value = compl_model[iter][0]

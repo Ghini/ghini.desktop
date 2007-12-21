@@ -8,6 +8,7 @@ import xml.sax.saxutils as sax
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
+from sqlalchemy.ext.associationproxy import association_proxy
 import bauble
 import bauble.utils as utils
 from bauble.i18n import *
@@ -105,6 +106,8 @@ species_table = \
 
 
 class Species(bauble.BaubleMapper):
+
+    synonyms = association_proxy('_synonyms', 'synonym')
 
     def __str__(self):
         '''
@@ -257,6 +260,13 @@ species_synonym_table = \
 
 class SpeciesSynonym(bauble.BaubleMapper):
 
+    def __init__(self, species=None):
+        """
+        @param species: a Species object
+        """
+        self.synonym = species
+
+
     def __str__(self):
         return str(self.synonym)
 
@@ -351,9 +361,6 @@ mapper(SpeciesSynonym, species_synonym_table,
        {'synonym':
         relation(Species, uselist=False,
             primaryjoin=species_synonym_table.c.synonym_id==species_table.c.id),
-        'species':
-        relation(Species, uselist=False,
-            primaryjoin=species_synonym_table.c.species_id==species_table.c.id)
                   })
 
 # map vernaculuar name
@@ -381,10 +388,10 @@ mapper(SpeciesDistribution, species_distribution_table,
 # map species
 species_mapper = mapper(Species, species_table,
     properties = \
-        {'synonyms':
+        {'_synonyms':
          relation(SpeciesSynonym,
-                  primaryjoin=species_table.c.id==species_synonym_table.c.species_id,
-                  cascade='all, delete-orphan'),
+            primaryjoin=species_table.c.id==species_synonym_table.c.species_id,
+            cascade='all, delete-orphan', uselist=True, backref='species'),
          'vernacular_names':
          relation(VernacularName, cascade='all, delete-orphan',
                   backref=backref('species', uselist=False)),
