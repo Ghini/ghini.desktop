@@ -31,18 +31,6 @@ from bauble.plugins.garden.accession import AccessionEditor, Accession
 # UPDATE: i think i corrected most of these but i still need to double check
 
 
-# taken from accession.py
-def delete_or_expunge(obj):
-    session = object_session(obj)
-    if session is None:
-        return # no session, don't need to delete or expunge
-    if obj in session.new:
-        session.expunge(obj)
-        del obj
-    else:
-        session.delete(obj)
-
-
 class SpeciesEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_INVALID_GENUS = 1
@@ -398,7 +386,7 @@ class DistributionPresenter(GenericEditorPresenter):
 
     def on_activate_remove_menu_item(self, widget, dist):
         self.model.distribution.remove(dist)
-        delete_or_expunge(dist)
+        utils.delete_or_expunge(dist)
         self.refresh_view()
         self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
@@ -604,7 +592,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
             first = tree_model.get_iter_first()
             if first is not None:
                 self.model.default_vernacular_name = tree_model[first][0].model
-        delete_or_expunge(value.model)
+        utils.delete_or_expunge(value.model)
         self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
 
@@ -739,7 +727,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = session
-        self.init_treeview(model)
+        self.init_treeview()
 
         # use completions_model as a dummy object for completions, we'll create
         # seperate SpeciesSynonym models on add
@@ -779,7 +767,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         return self.model.dirty or self.__dirty
 
 
-    def init_treeview(self, model):
+    def init_treeview(self):
         '''
         initialize the gtk.TreeView
         '''
@@ -799,7 +787,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.treeview.append_column(col)
 
         tree_model = gtk.ListStore(object)
-        for syn in model._synonyms:
+        for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -824,9 +812,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
         this species
         """
-        self.model.synonyms.append(self._added)
+        syn = SpeciesSynonym(self._added)
+        self.model._synonyms.append(syn)
         tree_model = self.treeview.get_model()
-        tree_model.append([self._added])
+        tree_model.append([syn])
         self._added = None
         entry = self.view.widgets.sp_syn_entry
         # sid generated from GenericEditorPresenter.assign_completion_handler
@@ -858,7 +847,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
             self.model._synonyms.remove(value)
-            delete_or_expunge(value)
+            utils.delete_or_expunge(value)
             # make the change in synonym immediately available so that if
             # we try to add the same species again we don't break the
             # SpeciesSynonym UniqueConstraint

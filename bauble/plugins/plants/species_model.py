@@ -111,7 +111,7 @@ class Species(bauble.BaubleMapper):
 
     def __str__(self):
         '''
-        returns a string representation of this speccies,
+        returns a string representation of this species,
         calls Species.str(self)
         '''
         # we'll cache the str(self) since building it is relatively heavy
@@ -262,7 +262,7 @@ class SpeciesSynonym(bauble.BaubleMapper):
 
     def __init__(self, species=None):
         """
-        @param species: a Species object
+        @param species: a Species object that will be used as the synonym
         """
         self.synonym = species
 

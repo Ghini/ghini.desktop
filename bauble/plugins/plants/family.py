@@ -8,6 +8,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+from sqlalchemy.ext.associationproxy import association_proxy
 import bauble
 from bauble.i18n import _
 from bauble.editor import *
@@ -62,28 +63,29 @@ def family_markup_func(family):
 #
 # Family
 #
-family_table = bauble.Table('family', bauble.metadata,
-                     Column('id', Integer, primary_key=True),
-                     Column('family', String(45), nullable=False, index=True),
-                     Column('qualifier', Enum(values=['s. lat.', 's. str.',
-                                                      None],
-                                              empty_to_none=True)),
-                     Column('notes', Unicode),
-                     UniqueConstraint('family', 'qualifier',
-                                      name='family_index'))
+family_table = \
+    bauble.Table('family', bauble.metadata,
+                 Column('id', Integer, primary_key=True),
+                 Column('family', String(45), nullable=False, index=True),
+                 Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
+                                          empty_to_none=True)),
+                 Column('notes', Unicode),
+                 UniqueConstraint('family', 'qualifier', name='family_index'))
 
-family_synonym_table = bauble.Table('family_synonym', bauble.metadata,
-                             Column('id', Integer, primary_key=True),
-                             Column('family_id', Integer,
-                                    ForeignKey('family.id'),
-                                    nullable=False),
-                             Column('synonym_id', Integer,
-                                    ForeignKey('family.id'),
-                                    nullable=False),
-                             UniqueConstraint('family_id', 'synonym_id',
-                                              name='family_synonym_index'))
+
+family_synonym_table = \
+    bauble.Table('family_synonym', bauble.metadata,
+                 Column('id', Integer, primary_key=True),
+                 Column('family_id', Integer, ForeignKey('family.id'),
+                        nullable=False),
+                 Column('synonym_id', Integer, ForeignKey('family.id'),
+                        nullable=False),
+                 UniqueConstraint('family_id', 'synonym_id',
+                                  name='family_synonym_index'))
 
 class Family(bauble.BaubleMapper):
+
+    synonyms = association_proxy('_synonyms', 'synonym')
 
     def __str__(self):
         # TODO: need ability to include the qualifier as part of the name,
@@ -101,14 +103,12 @@ class Family(bauble.BaubleMapper):
 
 class FamilySynonym(bauble.BaubleMapper):
 
-    # - deleting either of the families that this synonym refers to
-    # makes this synonym irrelevant
-    # - here default=None b/c this can only be edited as a sub editor of,
-    # Family, thoughwe have to be careful this doesn't create a dangling record
-    # with no parent
-    def __init__(self, family=None, synonym=None):
-        self.family = family
-        self.synonym = synonym
+    def __init__(self, family=None):
+        """
+        @param family: a Family object that will be used as the synonym
+        """
+        self.synonym = family
+
 
     def __str__(self):
         return Family.str(self.synonym)
@@ -120,22 +120,17 @@ from bauble.plugins.garden.plant import Plant, plant_table
 
 mapper(Family, family_table,
     properties = { \
-    'synonyms': relation(FamilySynonym,
+    '_synonyms': relation(FamilySynonym,
             primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
-            cascade='all, delete-orphan',
-                         #backref='family'
-                         ),
-    'genera': relation(Genus, backref='family')})
+            cascade='all, delete-orphan', uselist=True, backref='family'),
+    'genera': relation(Genus, backref='family')},
+    order_by=['family'])
 
 
 mapper(FamilySynonym, family_synonym_table,
     properties = {\
     'synonym': relation(Family, uselist=False,
-            primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id),
-    'family': relation(Family, uselist=False,
-            primaryjoin=family_synonym_table.c.family_id==family_table.c.id)
-                     })
-
+            primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id)})
 
 
 class FamilyEditorView(GenericEditorView):
@@ -239,8 +234,6 @@ class SynonymsPresenter(GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
-    # TODO: if you add a species and then immediately remove then you get an
-    # error, something about the synonym not being in the session
 
     def __init__(self, family, view, session):
         '''
@@ -274,7 +267,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.view.widgets.fam_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
         self.view.widgets.fam_syn_remove_button.connect('clicked',
-                                                    self.on_remove_button_clicked)
+                                                self.on_remove_button_clicked)
         self.__dirty = False
 
 
@@ -301,7 +294,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.treeview.append_column(col)
 
         tree_model = gtk.ListStore(object)
-        for syn in self.model.synonyms:
+        for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -326,10 +319,8 @@ class SynonymsPresenter(GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
             this species
         '''
-        syn = FamilySynonym()
-        syn.synonym = self._added
-        #self.session.save(syn)
-        self.model.synonyms.append(syn)
+        syn = FamilySynonym(self._added)
+        self.model._synonyms.append(syn)
         tree_model = self.treeview.get_model()
         tree_model.append([syn])
         self._added = None
@@ -341,7 +332,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         entry.handler_unblock(self._insert_fam_syn_entry_sid)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
-        #self.view.set_accept_buttons_sensitive(True)
+        self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
 
 
@@ -363,9 +354,10 @@ class SynonymsPresenter(GenericEditorPresenter):
               '%s from the database.</i>' % (s, s)
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
-            self.model.synonyms.remove(value)
-#            delete_or_expunge(value)
-            #self.view.set_accept_buttons_sensitive(True)
+            self.model._synonyms.remove(value)
+            utils.delete_or_expunge(value)
+            self.session.flush([value])
+            self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
 
 
