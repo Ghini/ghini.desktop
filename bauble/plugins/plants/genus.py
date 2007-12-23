@@ -9,6 +9,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+from sqlalchemy.ext.associationproxy import association_proxy
 import bauble
 from bauble.i18n import _
 from bauble.editor import *
@@ -85,35 +86,39 @@ def genus_markup_func(genus):
     qualifier field designates the botanical status of the genus.
     Possible values:
     s. lat. - aggregrate family (sensu lato)
-    s. str. segregate family (sensu stricto)
+    s. str. - segregate family (sensu stricto)
     '''
 
     # TODO: we should at least warn the user that a duplicate genus name is
     # being entered
 
-genus_table = bauble.Table('genus', bauble.metadata,
-                    Column('id', Integer, primary_key=True),
-                    # it is possible that there can be genera with the same
-                    # name but different authors and probably means that at
-                    # different points in literature this name was used but
-                    # is now a synonym even though it may not be a synonym
-                    # for the same species, this screws us up b/c you can
-                    # now enter duplicate genera, somehow
-                    # NOTE: we should at least warn the user that a duplicate
-                    # is being entered
-                    Column('genus', String(64), nullable=False, index=True),
-                    Column('hybrid', Enum(values=['H', 'x', '+', None],
+genus_table = \
+    bauble.Table('genus', bauble.metadata,
+                 Column('id', Integer, primary_key=True),
+                 # it is possible that there can be genera with the same
+                 # name but different authors and probably means that at
+                 # different points in literature this name was used but
+                 # is now a synonym even though it may not be a synonym
+                 # for the same species, this screws us up b/c you can
+                 # now enter duplicate genera, somehow
+                 # NOTE: we should at least warn the user that a duplicate
+                 # is being entered
+                 Column('genus', String(64), nullable=False, index=True),
+                 Column('hybrid', Enum(values=['H', 'x', '+', None],
                                           empty_to_none=True)),
-                    Column('author', Unicode(255)),
-                    Column('qualifier',Enum(values=['s. lat.', 's. str', None],
-                                            empty_to_none=True)),
-                    Column('notes', Unicode),
-                    Column('family_id', Integer, ForeignKey('family.id'),
-                           nullable=False),
-                    UniqueConstraint('genus', 'hybrid', 'author',
-                                     'family_id', name='genus_index'))
+                 Column('author', Unicode(255)),
+                 Column('qualifier',Enum(values=['s. lat.', 's. str', None],
+                                         empty_to_none=True)),
+                 Column('notes', Unicode),
+                 Column('family_id', Integer, ForeignKey('family.id'),
+                        nullable=False),
+                 UniqueConstraint('genus', 'hybrid', 'author', 'family_id',
+                                  name='genus_index'))
+
 
 class Genus(bauble.BaubleMapper):
+
+    synonyms = association_proxy('_synonyms', 'synonym')
 
     def __str__(self):
         return Genus.str(self)
@@ -144,9 +149,16 @@ genus_synonym_table = bauble.Table('genus_synonym', bauble.metadata,
 
 class GenusSynonym(bauble.BaubleMapper):
 
+
+    def __init__(self, genus=None):
+        """
+        @param genus: a Genus object that will be used as the synonym
+        """
+        self.synonym = genus
+
+
     def __str__(self):
         return str(self.synonym)
-        #return '(%s)' % self.synonym
 
 
 from bauble.plugins.plants.family import Family
@@ -160,23 +172,16 @@ genus_mapper = mapper(Genus, genus_table,
                         primaryjoin=genus_table.c.id==species_table.c.genus_id,
                         cascade='all, delete-orphan',
                         order_by=['sp', 'infrasp_rank', 'infrasp'],
-                        backref='genus'
-                        ),
-    'synonyms': relation(GenusSynonym,
+                        backref='genus'),
+    '_synonyms': relation(GenusSynonym,
                 primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
-                cascade='all, delete-orphan',
-                         #backref='genus'
-                         )},
+                cascade='all, delete-orphan', uselist=True, backref='genus')},
     order_by=['genus', 'author'])
 
 mapper(GenusSynonym, genus_synonym_table,
-    properties = {'synonym':
-        relation(Genus, uselist=False,
-               primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id),
-                'genus':
-        relation(Genus, uselist=False,
-                 primaryjoin=genus_synonym_table.c.genus_id==genus_table.c.id)
-                  })
+    properties = {\
+    'synonym': relation(Genus, uselist=False,
+            primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id)})
 
 
 class GenusEditorView(GenericEditorView):
@@ -204,7 +209,8 @@ class GenusEditorView(GenericEditorView):
         '''
         v = model[iter][0]
         renderer.set_property('markup', '<i>%s</i> %s (<small>%s</small>)' \
-                              % (Genus.str(v), v.author, Family.str(v.family)))
+                              % (Genus.str(v), utils.xml_safe(v.author),
+                                 Family.str(v.family)))
 
 
     def save_state(self):
@@ -268,10 +274,7 @@ class GenusEditorPresenter(GenericEditorPresenter):
         # connect signals
         def fam_get_completions(text):
             return self.session.query(Family).filter(Family.c.family.like('%s%%' % text))
-#        def set_in_model(self, field, value):
-#            setattr(self.model, field, value.id)
-#        self.assign_completions_handler('gen_family_entry', 'family_id',
-#                                        fam_get_completions, set_func=set_in_model)
+
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('gen_family_entry', 'family',
@@ -309,20 +312,6 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
 
     def start(self):
-        # TODO: this should return true or false to determine whether we
-        # need to commit our changes
-#
-#        not_ok_msg = 'Are you sure you want to lose your changes?'
-#        while True:
-#            response = self.view.start()
-#            if response == gtk.RESPONSE_OK:
-#                break
-#            elif response == gtk.RESPONSE_CANCEL and self.model.dirty:
-#                if utils.yes_no_dialog(not_ok_msg):
-#                    continue
-#
-#
-#
         return self.view.start()
 
 
@@ -333,8 +322,6 @@ class SynonymsPresenter(GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
-    # TODO: if you add a species and then immediately remove then you get an
-    # error, something about the synonym not being in the session
 
     def __init__(self, genus, view, session):
         '''
@@ -351,6 +338,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         completions_model = GenusSynonym()
         def gen_get_completions(text):
             return self.session.query(Genus).filter(genus_table.c.genus.like('%s%%' % text))
+
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected
             sensitive = True
@@ -363,7 +351,7 @@ class SynonymsPresenter(GenericEditorPresenter):
                                         gen_get_completions,
                                         set_func=set_in_model,
                                         model=completions_model)
-#        self.selected = None
+
         self._added = None
         self.view.widgets.gen_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
@@ -398,7 +386,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.treeview.append_column(col)
 
         tree_model = gtk.ListStore(object)
-        for syn in self.model.synonyms:
+        for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -423,10 +411,8 @@ class SynonymsPresenter(GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
             this species
         '''
-        syn = GenusSynonym()
-        syn.synonym = self._added
-        #self.session.save(syn)
-        self.model.synonyms.append(syn)
+        syn = GenusSynonym(self._added)
+        self.model._synonyms.append(syn)
         tree_model = self.treeview.get_model()
         tree_model.append([syn])
         self._added = None
@@ -459,9 +445,11 @@ class SynonymsPresenter(GenericEditorPresenter):
                 'genus from the database.</i>') % {'genus': s}
         if utils.yes_no_dialog(msg, parent=self.view.window):
             tree_model.remove(tree_model.get_iter(path))
-            self.model.synonyms.remove(value)
-            self.__dirty = True
+            self.model._synonyms.remove(value)
+            utils.delete_or_expunge(value)
+            self.session.flush([value])
             self.view.set_accept_buttons_sensitive(True)
+            self.__dirty = True
 
 
 class GenusEditor(GenericModelViewPresenterEditor):

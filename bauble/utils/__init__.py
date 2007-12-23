@@ -442,7 +442,8 @@ def natsort_key(obj):
 def delete_or_expunge(obj):
     from sqlalchemy.orm import object_session
     session = object_session(obj)
-#    debug('delete_or_expunge: %s' % obj)
+    if session is None:
+        return
     if obj in session.new:
 #        debug('expunge obj: %s -- %s' % (obj, repr(obj)))
         session.expunge(obj)
