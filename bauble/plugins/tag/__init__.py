@@ -198,10 +198,13 @@ tag_table = bauble.Table('tag', bauble.metadata,
                   Column('tag', Unicode(64), unique=True, nullable=False))
 
 
-# TODO: maybe we shouldn't remove the obj from the tag if we can't find it,
-# it doesn't really hurt to have it there and in case the table is available
-# at the moment doesn't mean it won't be there later
+# TODO: maybe we shouldn't remove the obj from the tag if we can't
+# find it, it doesn't really hurt to have it there and in case the
+# table isn't available at the moment doesn't mean it won't be there
+# later
 
+# TODO: provide another function that returns (table, id) pairs that
+# this function can use so that we can expose that functionality
 def get_tagged_objects(tag):
     session = None
     if isinstance(tag, Tag):
@@ -314,14 +317,16 @@ def tag_objects(name, objs):
 
 def get_tag_ids(objs):
     """
-    return a list of id's for tags associated with obj
+    return a list of tag id's for tags associated with obj
     """
     classname = lambda x: x.__class__.__name__
     clause = lambda x: and_(tagged_obj_table.c.obj_class==classname(x),
                             tagged_obj_table.c.obj_id==x.id)
     select_stmt = lambda x: select([tagged_obj_table.c.tag_id], clause(x))
     stmt = intersect(*map(select_stmt, objs))
-#    debug(str(stmt))
+##    debug(str(#stmt))
+    # TODO: should probably do a fetchall() here to get all the ids in one
+    # database call
     return [i[0] for i in stmt.execute()]
 
 

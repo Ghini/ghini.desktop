@@ -17,7 +17,7 @@ from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.i18n import *
-from bauble.plugins.abcd.abcd import DataSets, ABCDElement, ElementFactory
+from bauble.plugins.abcd.abcd import DataSets, ABCDElement#, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
@@ -72,8 +72,13 @@ class ABCDAdapter(object):
     # TODO: create a HigherTaxonRank/HigherTaxonName iteratorator for a list
     # of all the higher taxon
 
-    # TODO: need to mark those fields acc that are required and those that
+    # TODO: need to mark those fields that are required and those that
     # are optional
+    def extra_elements(self, unit):
+        """
+        add extra non required elements
+        """
+        pass
 
     def __init__(self, obj):
         self._object = obj
@@ -135,85 +140,86 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         return plants_to_abcd(plants, authors)
 
     datasets = DataSets()
-    ds = ElementFactory(datasets, 'DataSet')
-    tech_contacts = ElementFactory(ds, 'TechnicalContacts')
-    tech_contact = ElementFactory(tech_contacts, 'TechnicalContact')
+    ds = ABCDElement(datasets, 'DataSet')
+    tech_contacts = ABCDElement(ds, 'TechnicalContacts')
+    tech_contact = ABCDElement(tech_contacts, 'TechnicalContact')
 
     # TODO: need to include contact information in bauble meta when
     # creating a new database
-
-    ElementFactory(tech_contact, 'Name', text=inst.technical_contact)
-    ElementFactory(tech_contact, 'Email', text=inst.email)
-    cont_contacts = ElementFactory(ds, 'ContentContacts')
-    cont_contact = ElementFactory(cont_contacts, 'ContentContact')
-    ElementFactory(cont_contact, 'Name', text=inst.contact)
-    ElementFactory(cont_contact, 'Email', text=inst.email)
-    metadata = ElementFactory(ds, 'Metadata', )
-    description = ElementFactory(metadata, 'Description')
+    ABCDElement(tech_contact, 'Name', text=inst.technical_contact)
+    ABCDElement(tech_contact, 'Email', text=inst.email)
+    cont_contacts = ABCDElement(ds, 'ContentContacts')
+    cont_contact = ABCDElement(cont_contacts, 'ContentContact')
+    ABCDElement(cont_contact, 'Name', text=inst.contact)
+    ABCDElement(cont_contact, 'Email', text=inst.email)
+    metadata = ABCDElement(ds, 'Metadata', )
+    description = ABCDElement(metadata, 'Description')
 
     # TODO: need to get the localized language
-    representation = ElementFactory(description, 'Representation',
+    representation = ABCDElement(description, 'Representation',
                                     attrib={'language': 'en'})
-    revision = ElementFactory(metadata, 'RevisionData')
-    ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
-    title = ElementFactory(representation, 'Title', text='TheTitle')
-    units = ElementFactory(ds, 'Units')
+    revision = ABCDElement(metadata, 'RevisionData')
+    ABCDElement(revision, 'DateModified', text='2001-03-01T00:00:00')
+    title = ABCDElement(representation, 'Title', text='TheTitle')
+    units = ABCDElement(ds, 'Units')
 
     # build the ABCD unit
     for obj in decorated_objects:
-        unit = ElementFactory(units, 'Unit')
-        ElementFactory(unit, 'SourceInstitutionID', text=inst.code)
+        unit = ABCDElement(units, 'Unit')
+        ABCDElement(unit, 'SourceInstitutionID', text=inst.code)
 
         # TODO: don't really understand the SourceID element
-        ElementFactory(unit, 'SourceID', text='Bauble')
+        ABCDElement(unit, 'SourceID', text='Bauble')
 
-
-        unit_id = ElementFactory(unit, 'UnitID', text=obj.get_UnitID())
+        debug('UnitID: %s' % obj.get_UnitID())
+        unit_id = ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
         # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
-        identifications = ElementFactory(unit, 'Identifications')
+        identifications = ABCDElement(unit, 'Identifications')
 
         # scientific name identification
-        identification = ElementFactory(identifications, 'Identification')
-        result = ElementFactory(identification, 'Result')
-        taxon_identified = ElementFactory(result, 'TaxonIdentified')
-        higher_taxa = ElementFactory(taxon_identified, 'HigherTaxa')
-        higher_taxon = ElementFactory(higher_taxa, 'HigherTaxon')
+        identification = ABCDElement(identifications, 'Identification')
+        result = ABCDElement(identification, 'Result')
+        taxon_identified = ABCDElement(result, 'TaxonIdentified')
+        higher_taxa = ABCDElement(taxon_identified, 'HigherTaxa')
+        higher_taxon = ABCDElement(higher_taxa, 'HigherTaxon')
 
         # TODO: ABCDDecorator should provide an iterator so that we can
         # have multiple HigherTaxonName's
-        higher_taxon_name = ElementFactory(higher_taxon, 'HigherTaxonName',
+        higher_taxon_name = ABCDElement(higher_taxon, 'HigherTaxonName',
                                            text=obj.get_family())
-        higher_taxon_rank = ElementFactory(higher_taxon, 'HigherTaxonRank',
+        higher_taxon_rank = ABCDElement(higher_taxon, 'HigherTaxonRank',
                                            text='familia')
 
-        scientific_name = ElementFactory(taxon_identified, 'ScientificName')
-        ElementFactory(scientific_name, 'FullScientificNameString',
+        scientific_name = ABCDElement(taxon_identified, 'ScientificName')
+        ABCDElement(scientific_name, 'FullScientificNameString',
                        text=obj.get_FullScientificNameString(authors))
 
-        name_atomised = ElementFactory(scientific_name, 'NameAtomised')
-        botanical = ElementFactory(name_atomised, 'Botanical')
-        ElementFactory(botanical, 'GenusOrMonomial',
+        name_atomised = ABCDElement(scientific_name, 'NameAtomised')
+        botanical = ABCDElement(name_atomised, 'Botanical')
+        ABCDElement(botanical, 'GenusOrMonomial',
                        text=obj.get_GenusOrMonomial())
-        ElementFactory(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
+        ABCDElement(botanical, 'FirstEpithet', text=obj.get_FirstEpithet())
         author_team = obj.get_AuthorTeam()
         if author_team is not None:
-            ElementFactory(botanical, 'AuthorTeam', text=author_team)
+            ABCDElement(botanical, 'AuthorTeam', text=author_team)
 
         # vernacular name identification
         # TODO: should we include all the vernacular names or only the default
         # one
         vernacular_name = obj.get_InformalNameString()
         if vernacular_name is not None:
-            identification = ElementFactory(identifications, 'Identification')
-            result = ElementFactory(identification, 'Result')
-            taxon_identified = ElementFactory(result, 'TaxonIdentified')
-            ElementFactory(taxon_identified, 'InformalNameString',
+            identification = ABCDElement(identifications, 'Identification')
+            result = ABCDElement(identification, 'Result')
+            taxon_identified = ABCDElement(result, 'TaxonIdentified')
+            ABCDElement(taxon_identified, 'InformalNameString',
                            text=vernacular_name)
 
         dburi = obj.get_dbURI()
         if dburi is not None:
-            ElementFactory(unit, "Notes", text=dburi)
+            ABCDElement(unit, "Notes", text=dburi)
 
+        # add all the extra non standard elements
+#        obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
         # TODO: Gathering, make our collection records fit Gatherings
@@ -231,7 +237,6 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         raise
 
     return ElementTree(datasets)
-
 
 
 class ABCDExporter:
@@ -302,4 +307,5 @@ class ABCDImexPlugin(pluginmgr.Plugin):
 plugin = ABCDImexPlugin
 
 
-__all__ = [DataSets, ABCDElement, ElementFactory, ABCDExporter, ABCDExportTool, create_abcd]
+__all__ = [DataSets, ABCDElement, #ElementFactory,
+           ABCDExporter, ABCDExportTool, create_abcd]

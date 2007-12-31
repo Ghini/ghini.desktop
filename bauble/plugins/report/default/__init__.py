@@ -24,7 +24,7 @@ from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.abcd import create_abcd, ABCDAdapter
 from bauble.plugins.report import get_all_plants, get_all_species, \
-     FormatterPlugin, SettingsBox
+     get_all_accessions, FormatterPlugin, SettingsBox
 
 
 if sys.platform == "win32":
@@ -60,48 +60,10 @@ accession_source_type = _('Accession')
 species_source_type = _('Species')
 default_source_type = plant_source_type
 
-class PlantABCDAdapter(ABCDAdapter):
-    """
-    An adapter to convert a Plant to an ABCD Unit
-    """
-    def __init__(self, plant):
-        super(PlantABCDAdapter, self).__init__(plant)
-        self.plant = plant
-        self.species = self.plant.accession.species
-
-    def get_UnitID(self):
-        return utils.xml_safe_utf8(str(self.plant))
-
-    def get_family(self):
-        return utils.xml_safe_utf8(self.species.genus.family)
-
-    def get_FullScientificNameString(self, authors=True):
-        return Species.str(self.species,authors=authors,markup=False)
-
-    def get_GenusOrMonomial(self):
-        return utils.xml_safe_utf8(str(self.species.genus))
-
-    def get_FirstEpithet(self):
-        return utils.xml_safe_utf8(str(self.species.sp))
-
-    def get_AuthorTeam(self):
-        author = self.species.sp_author
-        if author is None:
-            return None
-        else:
-            return utils.xml_safe_utf8(author)
-
-    def get_InformalNameString(self):
-        vernacular_name = self.species.default_vernacular_name
-        if vernacular_name is None:
-            return None
-        else:
-            return utils.xml_safe_utf8(vernacular_name)
-
-
 class SpeciesABCDAdapter(ABCDAdapter):
     """
-    An adapter to convert a Species to an ABCD Unit
+    An adapter to convert a Species to an ABCD Unit, the SpeciesABCDAdapter
+    does not create a valid ABCDUnit since we can't provide the required UnitID
     """
     def __init__(self, species):
         super(SpeciesABCDAdapter, self).__init__(species)
@@ -109,7 +71,7 @@ class SpeciesABCDAdapter(ABCDAdapter):
 
     def get_UnitID(self):
         # **** This is makes the ABCD data NOT valid ABCD but it does make
-        # it work for created reports without including the accession or
+        # it work for creating reports without including the accession or
         # plant code
         return ""
 
@@ -138,6 +100,44 @@ class SpeciesABCDAdapter(ABCDAdapter):
             return None
         else:
             return utils.xml_safe_utf8(vernacular_name)
+
+    def extra_elements(self, unit):
+        # distribution isn't in the ABCD namespace so it should create an
+        # invalid XML file
+        etree.SubElement(unit, 'distribution').text=\
+                               self.species.distribution_str()
+
+class PlantABCDAdapter(SpeciesABCDAdapter):
+    """
+    An adapter to convert a Plant to an ABCD Unit
+    """
+    def __init__(self, plant):
+        super(PlantABCDAdapter, self).__init__(plant.accession.species)
+        self.plant = plant
+
+
+    def get_UnitID(self):
+        return utils.xml_safe_utf8(str(self.plant))
+
+
+    def extra_elements(self, unit):
+        bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
+        ABCDElement(bg_unit, 'LocationInGarden',
+                    text=utils.xml_safe_utf8(str(self.plant.location)))
+        super(PlantABCDAdapter, self).extra_elements(self, unit)
+
+
+class AccessionABCDAdapter(SpeciesABCDAdapter):
+    """
+    An adapter to convert a Plant to an ABCD Unit
+    """
+    def __init__(self, accession):
+        super(AccessionABCDAdapter, self).__init__(accession.species)
+        self.accession = accession
+
+    def get_UnitID(self):
+        return utils.xml_safe_utf8(str(self.accession))
+
 
 
 
@@ -228,8 +228,9 @@ class DefaultFormatterPlugin(FormatterPlugin):
         fo_cmd = renderers_map[renderer]
         session = bauble.Session()
 
-        # convert objects to ABCDAdapters for depending on source type for
+        # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd
+        # TODO: do a natural sort instead of a standard cmp() sort
         adapted = []
         if source_type == plant_source_type:
             plants = get_all_plants(objs, session=session)
@@ -249,41 +250,23 @@ class DefaultFormatterPlugin(FormatterPlugin):
                 return False
             for s in species:
                 adapted.append(SpeciesABCDAdapter(s))
+        elif source_type == accession_source_type:
+            accessions = get_all_accessions(objs, session=session)
+            accessions.sort(cmp=lambda x,y: cmp(str(x), str(y)))
+            if len(species) == 0:
+                utils.message_dialog(_('There are no accessions in the search '
+                                       'results.  Please try another search.'))
+                return False
+            for a in accessions:
+                adapted.append(AccessionABCDAdapter(s))
         else:
-            raise NotImplementedError('unknown source_type: %s' % source_type)
+            raise NotImplementedError('unknown source type')
+
 
         if len(adapted) == 0:
             raise Exception # shouldn't ever really get here
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
-        session.clear() # we don't need the plants anymore
-
-        # add a "distribution" tag from the species_distribnution, we
-        # use this when generating labels and can be safely ignored since it's
-        # not in the ABCD namespace
-        unit_tag = '{http://www.tdwg.org/schemas/abcd/2.06}Unit'
-        namespace = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
-        for el in abcd_data.getiterator(tag=unit_tag):
-            unit_id = el.xpath('abcd:UnitID', namespace)
-            # we store the bauble database uri in the notes
-            # NOTE: this will break if anything else is stored in the
-            # Notes element
-            uri = el.xpath('abcd:Notes', namespace)[0].text
-            uri_parts = uri.split('/')
-            row_id, table_name = uri_parts[-1], uri_parts[-2]
-            table = bauble.metadata.tables[table_name]
-            species = None
-            if source_type == species_source_type:
-                species = session.query(Species).load(row_id)
-            elif source_type == plant_source_type:
-                plant = session.query(Plant).load(row_id).accession.species
-            elif source_type == accession_source_type:
-                acc = session.query(Accession).load(row_id).species
-
-            if species is not None and species.distribution is not None:
-                etree.SubElement(el, 'distribution').text=\
-                                     species.distribution_str()
-            session.clear()
         session.close()
 
 #        debug(etree.dump(abcd_data.getroot()))
