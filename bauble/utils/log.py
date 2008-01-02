@@ -51,15 +51,20 @@ def _config_logger(name, level, format, propagate=False):
     logger.propagate = propagate
     return logger
 
+
 def sa_echo(logger='sqlalchemy', level=logging.DEBUG):
-    l = logging.getLogger(logger)
-    l.setLevel(level)
+    bauble.engine.echo = True
+    logging.getLogger(logger).setLevel(level)
+
 
 def echo(toggle=True):
     if toggle == True:
+        bauble.engine.echo = False
         sa_echo(level=logging.DEBUG)
     else:
+        bauble.engine.echo = True
         sa_echo(level=logging.ERROR)
+
 
 
 logging.basicConfig(level=logging.DEBUG, format='%(levelname)s: %(message)s')
