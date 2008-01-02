@@ -319,7 +319,7 @@ def tag_objects(name, objs):
     @param name: the tag name
     @type name: string
     @param obj: the object to tag
-    @type obj: a list of mapper objects registered with register_mapping
+    @type obj: a list of mapper objects
     @return: the tag
     '''
     session = bauble.Session()
