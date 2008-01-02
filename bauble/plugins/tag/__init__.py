@@ -7,14 +7,13 @@ import os, traceback
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.exceptions import SQLError
-#from sqlalchemy.orm.session import object_session
+from sqlalchemy.exceptions import SQLError, InvalidRequestError
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils
-from bauble.utils.log import debug, warning
+from bauble.utils.log import debug, warning, sa_echo, echo
 from bauble.view import SearchView, MapperSearch
 
 
@@ -50,15 +49,17 @@ tag_context_menu = [#('Edit', edit_callback),
                     #('--', None),
                     ('Remove', remove_callback)]
 
-# TODO: for a plugin to have its mappers taggable they have to register with
-# the tag plugin
+
+## ****** __mapping and register_mapping is not longer necessary and
+## is just left for now to ease transistion
 __mappings = {}
 def register_mapping(mapping):
     """
     @param mapping:
     """
-    global __mappings
-    __mappings[mapping.__name__] = mapping
+
+    pass
+
 
 
 class TagItemGUI:
@@ -198,40 +199,10 @@ tag_table = bauble.Table('tag', bauble.metadata,
                   Column('tag', Unicode(64), unique=True, nullable=False))
 
 
-# TODO: maybe we shouldn't remove the obj from the tag if we can't
-# find it, it doesn't really hurt to have it there and in case the
-# table isn't available at the moment doesn't mean it won't be there
-# later
-
-# TODO: provide another function that returns (table, id) pairs that
-# this function can use so that we can expose that functionality
-def get_tagged_objects(tag):
-    session = None
-    if isinstance(tag, Tag):
-        t = tag
-        session = object_session(t)
-    else:
-        session = bauble.Session()
-        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
-    from bauble.view import SearchView
-    kids = []
-    for obj in t._objects:
-        try:
-            obj_class = str(obj.obj_class)
-            mapping = __mappings[obj_class]
-            mapper = class_mapper(mapping)
-            kids.append(session.load(mapper, obj.obj_id))
-        except KeyError, e:
-            warning(_('KeyError -- tag.get_tagged_objects(%s): %s') % (tag, e))
-            continue
-        except SQLError, e:
-            warning(_('SQLError -- tag.get_tagged_objects(%s): %s') % (tag, e))
-            continue
-    return kids
-
-
-
 class Tag(bauble.BaubleMapper):
+
+    def __init__(self, tag):
+        self.tag = tag
 
     def __str__(self):
         return self.tag
@@ -254,9 +225,10 @@ tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
                          Column('obj_class', String(64)),
                          Column('tag_id', Integer, ForeignKey('tag.id')))
 
+
 class TaggedObj(bauble.BaubleMapper):
 
-    def __str__():
+    def __str__(self):
         return '%s: %s' % (self.obj_class.__name__, self.obj_id)
 
 mapper(TaggedObj, tagged_obj_table)
@@ -267,21 +239,67 @@ mapper(Tag, tag_table,
        order_by='tag')
 
 
+# TODO: maybe we shouldn't remove the obj from the tag if we can't
+# find it, it doesn't really hurt to have it there and in case the
+# table isn't available at the moment doesn't mean it won't be there
+# later
+
+# TODO: provide another function that returns (table, id) pairs that
+# this function can use so that we can expose that functionality
+def _get_tagged_object_pairs(tag):
+    """
+    @param tag: a Tag instance
+    """
+    from bauble.view import SearchView
+    kids = []
+    for obj in tag._objects:
+        try:
+            obj_class = str(obj.obj_class)
+            module_name, part, cls_name = obj.obj_class.rpartition('.')
+            module = __import__(module_name, globals(), locals(),
+                                module_name.split('.')[1:])
+            cls = getattr(module, cls_name)
+            kids.append((cls, obj.obj_id))
+        except KeyError, e:
+            warning(_('KeyError -- tag.get_tagged_objects(%s): %s') % (tag, e))
+            continue
+        except SQLError, e:
+            warning(_('SQLError -- tag.get_tagged_objects(%s): %s') % (tag, e))
+            continue
+    return kids
+
+
+def get_tagged_objects(tag, session=None):
+    if session is None:
+        if isinstance(tag, Tag):
+            session = object_session(tag)
+        else:
+            session = bauble.Session()
+    if isinstance(tag, Tag):
+        t = tag
+    else:
+        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
+
+    return [session.load(mapper, obj_id) for mapper, obj_id in _get_tagged_object_pairs(t)]
+
+
 def untag_objects(name, objs):
+    """
+    @param name:
+    @param objs:
+
+    untag objs
+    """
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
-    # TODO: should do this in a transaction
-    # TODO: don't need to screw around with sessions, we should
-    # just use delete() to generate a delete statement
-    tag = None
     session = bauble.Session()
     try:
-        tag = session.query(Tag).filter(tag_table.c.tag==name)[0]
+        tag = session.query(Tag).filter(tag_table.c.tag==name).one()
     except Exception, e:
         debug(traceback.format_exc())
         return
-    same = lambda x, y: x.obj_class==y.__class__.__name__ and x.obj_id==y.id
+    same = lambda x, y: x.obj_class==_classname(y) and x.obj_id==y.id
     for obj in objs:
         for kid in tag._objects:
             # x = kid
@@ -293,40 +311,46 @@ def untag_objects(name, objs):
     session.close()
 
 
+# create the classname stored in the tagged_obj table
+_classname = lambda x: '%s.%s' % (type(x).__module__, type(x).__name__)
+
 def tag_objects(name, objs):
     '''
     @param name: the tag name
+    @type name: string
     @param obj: the object to tag
+    @type obj: a list of mapper objects registered with register_mapping
+    @return: the tag
     '''
-##    debug('tag_object(%s)' % objs)
     session = bauble.Session()
-    tag = session.query(Tag).filter_by(tag=name)[0]
-    classname = lambda x: x.__class__.__name__
-##    debug('class: %s(%s)' % (obj_class, type(obj_class)))
+    try:
+        tag = session.query(Tag).filter_by(tag=name).one()
+    except InvalidRequestError, e:
+        tag = Tag(name)
+        session.save(tag)
     for obj in objs:
         if tagged_obj_table.select(\
-            and_(tagged_obj_table.c.obj_class==classname(obj),
+            and_(tagged_obj_table.c.obj_class==_classname(obj),
                  tagged_obj_table.c.obj_id==obj.id,
                  tagged_obj_table.c.tag_id==tag.id)).alias('__dummy').count().scalar() == 0:
-            tagged_obj = TaggedObj(obj_class=classname(obj), obj_id=obj.id,
+            tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
                                    tag=tag)
             session.save(tagged_obj)
-            session.commit()
+    # if a new tag is created with the name parameter it is always saved
+    # regardless of whether the objects are tagged
+    session.commit()
     session.close()
 
 
 def get_tag_ids(objs):
     """
-    return a list of tag id's for tags associated with obj
+    return a list of tag id's for tags associated with obj, only returns those
+    tag ids that are common between all the objs
     """
-    classname = lambda x: x.__class__.__name__
-    clause = lambda x: and_(tagged_obj_table.c.obj_class==classname(x),
+    clause = lambda x: and_(tagged_obj_table.c.obj_class==_classname(x),
                             tagged_obj_table.c.obj_id==x.id)
     select_stmt = lambda x: select([tagged_obj_table.c.tag_id], clause(x))
     stmt = intersect(*map(select_stmt, objs))
-##    debug(str(#stmt))
-    # TODO: should probably do a fetchall() here to get all the ids in one
-    # database call
     return [i[0] for i in stmt.execute()]
 
 
@@ -338,8 +362,7 @@ def _on_add_tag_activated(*args):
     # tag plugin into the search view
     view = bauble.gui.get_view()
     if isinstance(view, SearchView):
-        #items = view.get_selected() # right
-        values = view.get_selected_values() # right
+        values = view.get_selected_values()
         if len(values) == 0:
             msg = _('Nothing selected')
             utils.message_dialog(msg)
