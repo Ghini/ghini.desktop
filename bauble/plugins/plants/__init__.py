@@ -72,17 +72,6 @@ class PlantsPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(GenusEditor, _('Genus'))
             bauble.gui.add_to_insert_menu(SpeciesEditor, _('Species'))
 
-        try:
-            from bauble.plugins.tag import register_mapping
-            register_mapping(Family)
-            register_mapping(Genus)
-            register_mapping(Species)
-            register_mapping(VernacularName)
-            register_mapping(Geography)
-        except Exception, e:
-            warning(_("Couldn't register mapper with tag plugin: \n%s" % str))
-            warning(traceback.format_exc(e))
-
 
     @classmethod
     def create_tables(cls):
