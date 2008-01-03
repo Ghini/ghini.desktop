@@ -96,7 +96,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             for p in to_install:
                 registry.add(RegistryEntry(name=p.__name__, version='0.0'))
                 registry.save()
-        except:
+        except Exception, e:
             debug(e)
             transaction.rollback()
             raise

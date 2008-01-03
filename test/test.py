@@ -28,19 +28,24 @@ if __name__ == '__main__':
         print 'uri: %s' % testbase.uri
     module_names = pluginmgr._find_module_names(os.getcwd())
     alltests = unittest.TestSuite()
-    for name in module_names:
+    for name in [m for m in module_names if m.startswith('bauble')]:
         try:
             mod = __import__('%s.test' % name, globals(), locals(), [name])
             if hasattr(mod, 'testsuite'):
                 testbase.log.msg('adding tests from bauble.plugins.%s' % name)
                 alltests.addTest(mod.testsuite())
-        except (ImportError,), e:
+        except ImportError, e:
             # TODO: this could cause a problem  if there is an ImportError
             # inside the module when importing
-            testbase.log.debug(traceback.format_exc())
+##            testbase.log.debug(traceback.format_exc())
+
             # TODO: this is a bad hack
             if str(e) != 'No module named test': #shouldn't rely on string here
-                print e
+                testbase.log.warning('** ImportError: Could not import '\
+                                     '%s.test -- %s' \
+                                     % (name, e))
+
+
 
 
     testbase.log.msg('=======================')

@@ -266,6 +266,13 @@ def _get_tagged_object_pairs(tag):
         except SQLError, e:
             warning(_('SQLError -- tag.get_tagged_objects(%s): %s') % (tag, e))
             continue
+        except AttributeError, e:
+            warning(_('AttributeError -- tag.get_tagged_objects(%s): %s') \
+                    % (tag, e))
+            warning('Could not get the object for %s.%s(%s)' % \
+                    (module_name, cls_name, obj.obj_id))
+            continue
+
     return kids
 
 
