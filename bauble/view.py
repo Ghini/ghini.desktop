@@ -239,7 +239,7 @@ class SearchParser(object):
 
     def __init__(self):
         quotes = Word('"\'')
-        value_word = Word(alphanums + '%.')
+        value_word = Word(alphanums + '%.-_')
         quotes = Word('"\'')
         value = (value_word | quotedString.setParseAction(removeQuotes))
         value_list = OneOrMore(value)

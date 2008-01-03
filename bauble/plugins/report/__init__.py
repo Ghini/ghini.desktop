@@ -8,7 +8,7 @@ import os, sys, traceback, re
 import gobject, gtk
 from sqlalchemy import *
 import lxml.etree as etree
-import lxml._elementpath # put this here sp py2exe picks it up
+import lxml._elementpath # make sure py2exe includes _elementpath
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
@@ -16,10 +16,15 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import log, debug
+from bauble.plugins.plants import Species, species_table, Genus, genus_table, \
+     Family, family_table, VernacularName, vernacular_name_table
+from bauble.plugins.garden import Accession, accession_table, Plant, \
+     plant_table, Location
+from bauble.plugins.tag import Tag
+from bauble.utils.log import debug, warning
 
 # BUGS:
 # https://bugs.launchpad.net/bauble/+bug/146998 - Don't hardcode how to get the plants in report plugin
-
 
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
@@ -28,188 +33,105 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.default'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
+# TODO: can we create some sort of select distinct query from all
+# these conditions instead of getting all the ids and then going
+# through them to find which ones are distinct....see
+# sqlalchemy.intersect and how we use it in
+# tag.get_plugin_ids....actually this probably won't work since all
+# the values in the dict can be callables and not just select
+# statements.....UPDATE: we now use the builtin set() type which is pretty
+# damn fast so trying to create some complicated select statement is probably
+# unecessary unless we are creating reports with excess of 50000 records
 
-def get_all_plants(objs, acc_status=None, session=None):
-    """
-    @param objs: a list of object to search through for Plant instances
-    @param acc_status: only return thost plants whose acc_status matches
-    @param session: the session that the returned plants should be attached to
-    """
-    if acc_status is None:
-        acc_status = 'Living accession', None
-
-    if session is None:
-        session = bauble.Session()
-
-    from bauble.plugins.garden.plant import Plant, plant_table
-    all_plants = {}
-
-    plant_query = session.query(Plant)
-
-    def add_plants(plants):
-        for p in plants:
-            if p.id not in all_plants and p.acc_status in acc_status:
-                all_plants[p.id] = p
-
-
-    def add_plants_from_accessions(accessions):
-        '''
-        add all plants from all accessions
-        '''
-        acc_ids = [acc.id for acc in accessions]
-        stmt = plant_table.select(plant_table.c.accession_id.in_(acc_ids))
-        plants = plant_query.from_statement(stmt)
-        add_plants(plants)
-
-    # append the objects from the tag
-    try:
-        from bauble.plugins.tag import Tag
-        for obj in objs:
-            if isinstance(obj, Tag):
-                objs.extend(obj.objects)
-    except ImportError:
-        pass
-
-    from bauble.plugins.plants import Family, Genus, Species, VernacularName
-    from bauble.plugins.garden import Accession, Plant, Location
-
+def _get_all_object_ids(table, queries, objs):
+    ids = set()
+    from sqlalchemy.sql.expression import FromClause, ClauseElement
     for obj in objs:
-        # extract the plants from the search results
-        if isinstance(obj, Family):
-            for gen in obj.genera:
-                for sp in gen.species:
-                    add_plants_from_accessions(sp.accessions)
-        elif isinstance(obj, Genus):
-            for sp in obj.species:
-                add_plants_from_accessions(sp.accessions)
-        elif isinstance(obj, Species):
-            add_plants_from_accessions(obj.accessions)
-        elif isinstance(obj, VernacularName):
-            add_plants_from_accessions(obj.species.accessions)
-        elif isinstance(obj, Accession):
-            add_plants(obj.plants)
-        elif isinstance(obj, Plant):
-            add_plants([obj])
-        elif isinstance(obj, Location):
-            add_plants(obj.plants)
+        query = queries[type(obj)]
+        if callable(query):
+            ids = ids.union(query(obj))
+        elif isinstance(query, ClauseElement):
+            if isinstance(query, FromClause):
+                stmt = select([table.c.id], from_obj=[query])
+            else:
+                stmt = select([table.c.id], query)
 
-    return all_plants.values()
+            ids = ids.union([r[0] for r in stmt.execute(id=obj.id)])
+        else:
+            raise NotImplementedError
+    return list(ids)
 
 
+plant_queries = {
+    Family: plant_table.join(accession_table).join(species_table).join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
+    Genus: plant_table.join(accession_table).join(species_table).join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
+    Species: plant_table.join(accession_table).join(species_table, and_(species_table.c.id==bindparam('id'), species_table.c.id==accession_table.c.species_id)),
+    VernacularName: plant_table.join(accession_table).join(species_table).join(vernacular_name_table, and_(vernacular_name_table.c.id==bindparam('id'), species_table.c.id==vernacular_name_table.c.species_id)),
+    Plant: lambda p: [p.id],
+    Accession: plant_table.join(accession_table, and_(accession_table.c.id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
+    Location: plant_table.c.location_id==bindparam('id'),
+    Tag: lambda t: _get_all_plant_ids(t.objects)
+    }
+
+def get_all_plants(objs, session=None):
+    if session == None:
+        session = bauble.session()
+    return [session.load(Plant, p) for p in _get_all_plant_ids(objs)]
+
+
+def _get_all_plant_ids(objs):
+    """
+    returns a list unique plant ids in objs
+    """
+    return _get_all_object_ids(plant_table, plant_queries, objs)
+
+accession_queries = {
+    Family: accession_table.join(species_table).join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
+    Genus: accession_table.join(species_table).join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
+    Species: accession_table.join(species_table, and_(species_table.c.id==bindparam('id'), species_table.c.id==accession_table.c.species_id)),
+    VernacularName: accession_table.join(species_table).join(vernacular_name_table, and_(vernacular_name_table.c.id==bindparam('id'), species_table.c.id==vernacular_name_table.c.species_id)),
+    Plant: lambda p: [p.accession_id],
+    Accession: lambda a: [a.id],
+    Location: accession_table.join(plant_table, and_(plant_table.c.location_id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
+    Tag: lambda t: _get_all_accession_ids(t.objects)
+    }
 
 def get_all_accessions(objs, session=None):
+    if session == None:
+        session = bauble.session()
+    return [session.load(Accession, a) for a in _get_all_accession_ids(objs)]
+
+
+def _get_all_accession_ids(objs):
     """
-    return all unique accession in objs
+    returns a list unique accession ids in objs
     """
-    raise NotImplementedError
-##     if session == None:
-##         session = bauble.Session()
-##     from bauble.plugins.plants import Family, Genus, Species, VernacularName
-##     from bauble.plugins.garden import Accession, Plant, Location
-##     all_accessions = {}
-##     def add_accession(accession):
-##         if isinstance(accession, Accession):
-##             if accession.id not in all_accessions:
-##                 all_accessions[accession.id] = accession
-##         else:
-##             for a in accession
-##                 if a.id not in all_accessions
-##                     all_accessions[s.id] = s
-
-##     # append the objects from the tag
-##     try:
-##         from bauble.plugins.tag import Tag
-##         for obj in objs:
-##             if isinstance(obj, Tag):
-##                 objs.extend(obj.objects)
-##     except ImportError:
-##         pass
-
-##     for obj in objs:
-##         if isinstance(obj, Family):
-##             for gen in obj.genera:
-##                 add_species(gen.speces)
-##         elif isinstance(obj, Genus):
-##             add_species(obj.species)
-##         elif isinstance(obj, Species):
-##             add_species(obj)
-##         elif isinstance(obj, VernacularName):
-##             add_species(obj.species)
-##         elif isinstance(obj, Accession):
-##             add_species(obj.species)
-##         elif isinstance(obj, Plant):
-##             add_species(obj.accession.species)
-##         elif isinstance(obj, Location):
-##             for p in obj.plants:
-##                 add_species(p.accession.species)
-
-##     return all_species.values()
+    return _get_all_object_ids(accession_table, accession_queries, objs)
 
 
-## from bauble.plugins.plants import Family, Genus, Species, VernacularName,\
-##      species_table, genus_table, family_table
-
-# TODO: would probably be better to create these adapters for each type instead
-# of having all these switch statement we would just have a map like....
-#adapters = {Family: FamilyAdapter,
-#            Genus: GenusAdapter}
-# ....or even something like
-## species_id_queries = {Family:
-##                       select([species_table.c.id], from_obj=[species_table.join(genus_table).join(family_table, family_table.c.id==bindparam('id')]),
-##                       Genus:
-##                       select([species_table.c.id], from_obj=[species_table.join(genus_table, genus_table.c.id==bindparam('id'))])
-##                              }
-#
-# ... though we really should just be able to generate a big fucking query that
-# returns us exactly what we want and let the database do all the work, this
-# is really the best way and would take time to create but would be the faster
-# and would require the least amount of code, this still means we might have
-# to create some sort of map like...
-
-try:
-    from bauble.plugins.plants import Species, species_table, Genus, \
-         genus_table, Family, family_table, VernacularName
-    from bauble.plugins.garden import Accession, accession_table, Plant, \
-         plant_table, Location
-
-    species_queries = {
-        Family: species_table.join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
-        Genus: species_table.join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
-        Species: lambda s: s.id,
-        VernacularName: lambda vn: vn.species_id,
-        Plant: species_table.join(accession_table).join(plant_table, and_(plant_table.c.id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-        Accession: lambda a: a.species_id,
-        Location: species_table.join(accession_table).join(plant_table, and_(plant_table.c.location_id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-#                   Tag: []
-        }
-    def get_all_species(objs, session=None):
-        if session == None:
-            session = bauble.Session()
-        return [session.load(Species, s) for s in _get_all_species_ids(objs)]
+species_queries = {
+    Family: species_table.join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
+    Genus: species_table.join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
+    Species: lambda s: [s.id],
+    VernacularName: lambda vn: [vn.species_id],
+    Plant: species_table.join(accession_table).join(plant_table, and_(plant_table.c.id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
+    Accession: lambda a: [a.species_id],
+    Location: species_table.join(accession_table).join(plant_table, and_(plant_table.c.location_id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
+    Tag: lambda t: _get_all_species_ids(t.objects)
+    }
 
 
-    def _get_all_species_ids(objs):
-        """
-        returns a list of species ids
-        """
-        species_ids = []
-        for obj in objs:
-            query = species_queries[type(obj)]
-            if callable(query):
-                species_ids.append([query(obj)])
-            else:
-                result = select([species_table.c.id],
-                                from_obj=[query]).execute(id=obj.id)
-                species_ids.append([r[0] for r in result])
-        from itertools import chain
-        all_ids = []
-        for s in chain(*species_ids):
-            if s not in all_ids:
-                all_ids.append(s)
-        return all_ids
+def get_all_species(objs, session=None):
+    if session == None:
+        session = bauble.Session()
+    return [session.load(Species, s) for s in _get_all_species_ids(objs)]
 
-except ImportError, e:
-    warning(e)
+
+def _get_all_species_ids(objs):
+    """
+    returns a list of unique species ids found in obj
+    """
+    return _get_all_object_ids(species_table, species_queries, objs)
 
 
 

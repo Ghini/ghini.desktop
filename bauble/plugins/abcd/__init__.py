@@ -171,7 +171,6 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         # TODO: don't really understand the SourceID element
         ABCDElement(unit, 'SourceID', text='Bauble')
 
-        debug('UnitID: %s' % obj.get_UnitID())
         unit_id = ABCDElement(unit, 'UnitID', text=obj.get_UnitID())
         # TODO: metadata--<DateLastEdited>2001-03-01T00:00:00</DateLastEdited>
         identifications = ABCDElement(unit, 'Identifications')
@@ -219,7 +218,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
             ABCDElement(unit, "Notes", text=dburi)
 
         # add all the extra non standard elements
-#        obj.extra_elements(unit)
+        obj.extra_elements(unit)
         # TODO: handle verifiers/identifiers
         # TODO: RecordBasis
         # TODO: Gathering, make our collection records fit Gatherings
