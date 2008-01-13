@@ -84,7 +84,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
                           metadata=bauble.metadata, force=force)
                 # register plugin as installed
                 for p in to_install:
-                    registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+                    registry.add(RegistryEntry(name=p.__name__,version=u'0.0'))
                     registry.save()
                 transaction.commit()
             except Exception, e:
@@ -94,7 +94,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     else:
         try:
             for p in to_install:
-                registry.add(RegistryEntry(name=p.__name__, version='0.0'))
+                registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
                 registry.save()
         except Exception, e:
             debug(e)
@@ -229,7 +229,7 @@ class Registry(dict):
         import bauble.meta as meta
         #logger.echo(True)
         ins = meta.bauble_meta_table.insert(values={'name': meta.REGISTRY_KEY,
-                                                    'value': '[]'})
+                                                    'value': u'[]'})
         bauble.engine.connect().execute(ins)
         sql =  meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==meta.REGISTRY_KEY)
         #logger.echo(False)
@@ -243,7 +243,7 @@ class Registry(dict):
         import bauble.meta as meta
         dumped = json.dumps(self.entries.values())
         obj = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
-        obj.value = dumped
+        obj.value = unicode(dumped)
         self.session.commit()
         self.session.close()
 #        self.session.echo_uow = False

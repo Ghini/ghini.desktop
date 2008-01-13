@@ -41,27 +41,30 @@ class ReportTests(ReportTestCase):
         fctr = gctr = sctr = actr = pctr = 0
         for f in xrange(0, 2):
             fctr+=1
-            family_table.insert({'id': fctr, 'family': str(fctr)}).execute()
+            family_table.insert({'id': fctr,
+                                 'family': str(fctr)}).execute()
             for g in xrange(0, 2):
                 gctr+=1
                 genus_table.insert({'id': gctr, 'genus': str(gctr),
                                     'family_id': fctr}).execute()
                 for s in xrange(0, 2):
                     sctr+=1
-                    species_table.insert({'id': sctr, 'sp': str(sctr),
+                    species_table.insert({'id': sctr, 'sp': unicode(sctr),
                                           'genus_id': gctr}).execute()
                     vernacular_name_table.insert({'id': sctr,
-                                                  'name': str(sctr),
+                                                  'name': unicode(sctr),
                                                 'species_id': sctr}).execute()
                     for a in xrange(0, 2):
                         actr+=1
-                        accession_table.insert({'id': actr, 'code': str(actr),
+                        accession_table.insert({'id': actr,
+                                                'code': unicode(actr),
                                                 'species_id': sctr}).execute()
                         for p in xrange(0, 2):
                             pctr+=1
                             location_table.insert({'id': pctr,
-                                                'site': str(pctr)}).execute()
-                            plant_table.insert({'id': pctr, 'code': str(pctr),
+                                                'site': unicode(pctr)}).execute()
+                            plant_table.insert({'id': pctr,
+                                                'code': unicode(pctr),
                                                 'accession_id': actr,
                                                 'location_id': pctr}).execute()
 ##                             print 'f: %s, g: %s, s: %s, a: %s, p: %s' \

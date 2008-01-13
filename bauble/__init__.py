@@ -316,9 +316,9 @@ def create_database(import_defaults=True):
         # create the plugin registry and import the default data
         pluginmgr.install('all', import_defaults, force=True)
         meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
-                                                value=str(bauble.version))
+                                                value=unicode(bauble.version))
         meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
-                                            value=str(datetime.datetime.now()))
+                                        value=unicode(datetime.datetime.now()))
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task

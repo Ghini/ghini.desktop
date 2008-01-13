@@ -238,7 +238,7 @@ class Accession(bauble.BaubleMapper):
         if source is None:
             self.source_type = None
         else:
-            self.source_type = source.__class__.__name__
+            self.source_type = unicode(source.__class__.__name__)
             source._accession = self
     source = property(_get_source, _set_source)
 

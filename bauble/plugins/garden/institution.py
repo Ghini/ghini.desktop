@@ -40,7 +40,7 @@ class Institution(Singleton):
                     'technical_contact', 'email', 'tel', 'fax', 'address')
     __db_tmpl = 'inst_%s'
     table = meta.bauble_meta_table
-    prop = lambda s, p: s.__db_tmpl % p
+    prop = lambda s, p: unicode(s.__db_tmpl % p)
 
     def __getattr__(self, prop):
         if prop not in self.__properties:

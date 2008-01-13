@@ -24,8 +24,8 @@ from bauble.view import MapperSearch
 # TODO: might be worthwhile to have a label or textview next to the location
 # combo that shows the description of the currently selected location
 
-plant_delimiter_key = 'plant_delimiter'
-default_plant_delimiter = '.'
+plant_delimiter_key = u'plant_delimiter'
+default_plant_delimiter = u'.'
 
 __plant_delimiter = None
 def plant_delimiter(refresh=False):
@@ -118,8 +118,7 @@ class PlantHistory(bauble.BaubleMapper):
         return '%s: %s' % (self.date, self.description)
 
 
-'''
-
+"""
 acc_type
 ------------
 Plant: Whole plant
@@ -137,7 +136,7 @@ Transfered: Noncurrent accession due to Transfer
 Stored in dormant state: Stored in dormant state
 Other: Other, possible see notes for more information
 None: no information, unknown)
-'''
+"""
 
 plant_table = bauble.Table('plant', bauble.metadata,
                     Column('id', Integer, primary_key=True),

@@ -38,7 +38,7 @@ class TagTests(TagTestCase):
     def setUp(self):
         super(TagTests, self).setUp()
         for f in self.family_ids:
-            family_table.insert({'id': f, 'family': str(f)}).execute()
+            family_table.insert({'id': f, 'family': unicode(f)}).execute()
 
 
     def tearDown(self):
@@ -98,8 +98,8 @@ class TagTests(TagTestCase):
 
         # test that we return multiple tag ids if the objs share tags
         tag_plugin.tag_objects('test2', [fam1])
-        sel = select([tag_table.c.id], or_(tag_table.c.tag=='test',
-                                           tag_table.c.tag=='test2'))
+        sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
+                                           tag_table.c.tag==u'test2'))
         test_id = [r[0] for r in sel.execute()]
         ids = tag_plugin.get_tag_ids([fam0, fam1])
         self.assert_(ids==test_id, ids)

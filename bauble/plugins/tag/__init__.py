@@ -202,7 +202,10 @@ tag_table = bauble.Table('tag', bauble.metadata,
 class Tag(bauble.BaubleMapper):
 
     def __init__(self, tag):
-        self.tag = tag
+        if isinstance(tag, str):
+            self.tag = unicode(tag)
+        else:
+            self.tag = tag
 
     def __str__(self):
         return self.tag
@@ -323,13 +326,16 @@ _classname = lambda x: '%s.%s' % (type(x).__module__, type(x).__name__)
 
 def tag_objects(name, objs):
     '''
-    @param name: the tag name
+    @param name: the tag name, if its a str object then it will be
+    converted to unicode()
     @type name: string
     @param obj: the object to tag
     @type obj: a list of mapper objects
     @return: the tag
     '''
     session = bauble.Session()
+    if isinstance(name, str):
+        name = unicode(name)
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:

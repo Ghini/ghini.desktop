@@ -65,4 +65,4 @@ class BaubleTestCase(unittest.TestCase):
         need to find all tests and run their tearDown methods
         '''
         self.session.close()
-        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+#        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
