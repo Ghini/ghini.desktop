@@ -6,9 +6,9 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import mapper
 
-VERSION_KEY='version'
-CREATED_KEY='created'
-REGISTRY_KEY='registry'
+VERSION_KEY=u'version'
+CREATED_KEY=u'created'
+REGISTRY_KEY=u'registry'
 
 bauble_meta_table = bauble.Table('bauble', bauble.metadata,
                           Column('id', Integer, primary_key=True),

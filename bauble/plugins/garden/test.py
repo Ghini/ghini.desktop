@@ -19,25 +19,26 @@ from bauble.plugins.garden.institution import Institution
 # TODO: create a test to make sure that if you delete an accession then the
 # plants that are "children" of this accession are also deleted
 
-accession_test_data = ({'id':1 , 'code': '1.1', 'species_id': 1,
-                        'source_type': 'Donation'},
-                       {'id':2 , 'code': '2.2', 'species_id': 2,
-                        'source_type': 'Collection'},
+accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
+                        'source_type': u'Donation'},
+                       {'id':2 , 'code': u'2.2', 'species_id': 2,
+                        'source_type': u'Collection'},
                        )
 
-plant_test_data = ({'id':1 , 'code': '1', 'accession_id': 1, 'location_id': 1},
+plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
+                    'location_id': 1},
                    )
 
-location_test_data = ({'id': 1, 'site': 'Somewhere Over The Rainbow'},
+location_test_data = ({'id': 1, 'site': u'Somewhere Over The Rainbow'},
                       )
 
-donor_test_data = ({'id': 1, 'name': 'SomeDonor'},
+donor_test_data = ({'id': 1, 'name': u'SomeDonor'},
                    )
 
 donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
                       )
 
-collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': 'Somewhere'},
+collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
                         )
 
 test_data_table_control = ((accession_table, accession_test_data),
@@ -56,11 +57,11 @@ def setUp_test_data():
         for row in data:
             table.insert().execute(row)
     i = Institution()
-    i.name = 'TestInstitution'
-    i.technical_contact = 'TestTechnicalContact Name'
-    i.email = 'contact@test.com'
-    i.contact = 'TestContact Name'
-    i.code = 'TestCode'
+    i.name = u'TestInstitution'
+    i.technical_contact = u'TestTechnicalContact Name'
+    i.email = u'contact@test.com'
+    i.contact = u'TestContact Name'
+    i.code = u'TestCode'
 
 
 
@@ -170,7 +171,7 @@ class AccessionTests(GardenTestCase):
                           old_donation_id)
 
         # set accession.source to a Collection
-        collection = Collection(locale='TestAccLocale')
+        collection = Collection(locale=u'TestAccLocale')
         acc.source = collection
         self.session.flush()
         self.session.expire(acc)
@@ -191,7 +192,7 @@ class AccessionTests(GardenTestCase):
 
         # change source from donation to collection
         old_donation_id = donation3.id
-        collection2 = Collection(locale='TestAccLocale2')
+        collection2 = Collection(locale=u'TestAccLocale2')
         acc.source = collection2
         self.session.flush()
         self.session.expire(acc)
@@ -200,10 +201,10 @@ class AccessionTests(GardenTestCase):
         # change source without flushing
         donation4 = Donation()
         acc.source = donation4
-        collection3 = Collection(locale='TestAccLocale3')
+        collection3 = Collection(locale=u'TestAccLocale3')
         acc.source = collection3
         self.session.flush()
-        utils.log.echo(False)
+#        utils.log.echo(False)
 
         # make sure the orphaned donation get's deleted
         self.assertRaises(InvalidRequestError, self.session.load, Donation,

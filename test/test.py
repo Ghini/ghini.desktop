@@ -46,8 +46,6 @@ if __name__ == '__main__':
                                      % (name, e))
 
 
-
-
     testbase.log.msg('=======================')
     runner = unittest.TextTestRunner()
     if len(args) > 0:

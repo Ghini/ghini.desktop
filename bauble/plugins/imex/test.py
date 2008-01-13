@@ -70,7 +70,7 @@ class ImexCSVTestCase(ImexTestCase):
                        force=True)
         importer.start([os.path.join(tempdir, name) for name in filenames],
                        force=True)
-        utils.log.echo(False)
+#        utils.log.echo(False)
 
     def test_unicode(self):
         from bauble.plugins.plants.geography import Geography, geography_table
