@@ -41,10 +41,16 @@ else:
     GTK_INSTALL_PATH = 'c:\\GTK'
 
 # main gtk/pygtk files
+
+# TODO: as far as I know there's no other way to get the list of most
+# current files without listing them explicitly here which may be
+# better since we might include an incompatible release, maybe another
+# script could at least fest me the version numbers so i can quickly
+# check if any of the files need to be updated
 SERVER_ROOT = 'http://ftp.gnome.org/pub/gnome/binaries/win32'
-GTK_PATH = 'gtk+/2.12/gtk+-2.12.1.zip'
-GLIB_PATH = 'glib/2.14/glib-2.14.4.zip'
-PANGO_PATH = 'pango/1.18/pango-1.18.3.zip'
+GTK_PATH = 'gtk+/2.12/gtk+-2.12.5.zip'
+GLIB_PATH = 'glib/2.14/glib-2.14.5.zip'
+PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
 ATK_PATH = 'atk/1.20/atk-1.20.0.zip'
 PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
 PYCAIRO_25_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.5.exe'
@@ -53,27 +59,29 @@ PYGOBJECT_25_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.5.exe'
 PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
 PYGTK_25_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.5.exe'
 
+CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
+GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
+RSVG_PATH = 'librsvg/2.16/librsvg-2.16.1.zip'
+SVG_PIXBUF_PATH = 'librsvg/2.16/svg-gdk-pixbuf-loader-2.16.1.zip'
+GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
+
 PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
 PYTHON_25_FILES = PYCAIRO_25_PATH, PYGOBJECT_25_PATH, PYGTK_25_PATH
 
 # dependencies
-ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
+CAIRO_PATH = 'dependencies/cairo-1.4.14.zip'
+EXPAT_PATH = 'dependencies/expat-2.0.0.zip'
+FONTCONFIG_PATH = 'dependencies/fontconfig-2.4.2-tml-20071015.zip'
+FREETYPE_PATH = 'dependencies/freetype-2.3.5.zip'
+#GETTEXT_PATH = 'dependencies/gettext-0.14.5.zip'
+GETTEXT_PATH = 'dependencies/gettext-runtime-0.17.zip'
 BZIP_PATH = 'dependencies/libbzip2-1.0.2.zip'
 ICONV_PATH = 'dependencies/libiconv-1.9.1.bin.woe32.zip' # should i be getting the woe32 or the other one?
-GETTEXT_PATH = 'dependencies/gettext-0.14.5.zip'
-PNG_PATH = 'dependencies/libpng-1.2.8.zip'
 JPEG_PATH = 'dependencies/libjpeg-6b-4.zip'
+PNG_PATH = 'dependencies/libpng-1.2.8.zip'
 TIFF_PATH = 'dependencies/libtiff-3.7.1.zip'
-CAIRO_PATH = 'dependencies/cairo-1.4.10.zip'
-RSVG_PATH = 'librsvg/2.16/librsvg-2.16.1.zip'
-SVG_PIXBUF_PATH = 'librsvg/2.16/svg-gdk-pixbuf-loader-2.16.1.zip'
-GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
 XML_PATH = 'dependencies/libxml2-2.6.27.zip'
-CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
-GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
-FREETYPE_PATH = 'dependencies/freetype-2.3.5.zip'
-FONTCONFIG_PATH = 'dependencies/fontconfig-2.4.2-tml-20071015.zip'
-EXPAT_PATH = 'dependencies/expat-2.0.0.zip'
+ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
 
 ALL_FILES = [GTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
              ICONV_PATH, GETTEXT_PATH, PNG_PATH, JPEG_PATH, TIFF_PATH,
