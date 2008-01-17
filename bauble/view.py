@@ -452,7 +452,17 @@ class MapperSearch(SearchStrategy):
                 # i'm not quite sure why we have to return the results of
                 # filter and assign them to q, i would think since filter
                 # is generative then it would be the same
-                q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
+
+                #q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
+
+                # this isn't quite as elegant as the above filter but it
+                # avoids the "Unicode type received non-unicode bind param"
+                # warning that we get as of SQLAlchemy 0.4.2
+                for c, v in cv:
+                    if isinstance(mapping.c[c].type, (Unicode, UnicodeText)):
+                        q = q.filter(like(mapping, c, unicode(v)))
+                    else:
+                        q = q.filter(like(mapping, c, unicode(v)))
                 results.append(q)
         elif 'expression' in tokens:
             for domain, cond, val in tokens['expression']:
