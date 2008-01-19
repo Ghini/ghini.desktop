@@ -30,12 +30,7 @@ log.addHandler(handler)
 
 uri = None
 
-__initialized = False
-
 def init_bauble(uri):
-    global __initialized
-    if __initialized:
-        return
     try:
         bauble.open_database(uri, verify=False)
     except Exception, e:
@@ -44,7 +39,6 @@ def init_bauble(uri):
     pluginmgr.load()
     bauble.create_database(False)
     pluginmgr.init()
-    __initialized = True
 
 
 class BaubleTestCase(unittest.TestCase):
@@ -65,4 +59,9 @@ class BaubleTestCase(unittest.TestCase):
         need to find all tests and run their tearDown methods
         '''
         self.session.close()
+        bauble.metadata.drop_all()
+        bauble.pluginmgr.commands.clear()
+        bauble.create_database(False)
+        pluginmgr.init()
+#        tables()
 #        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)

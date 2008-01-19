@@ -242,7 +242,7 @@ class SearchParser(object):
         value_word = Word(alphanums + '%.-_')
         quotes = Word('"\'')
         value = (value_word | quotedString.setParseAction(removeQuotes))
-        value_list = OneOrMore(value)
+        value_list = Group(delimitedList(value) ^ OneOrMore(value))
 
         binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
                       'icontains ihas')
@@ -262,10 +262,9 @@ class SearchParser(object):
         domain_query = domain + where_token.suppress() + \
                        Group(query_expressions)
 
-        self.statement = (domain_query).setResultsName('query')+StringEnd() | \
-                         (domain_expression + \
-                          StringEnd()).setResultsName('expression') | \
-                         value_list.setResultsName('values') + StringEnd()
+        self.statement = (domain_query).setResultsName('query') | \
+            (domain_expression).setResultsName('expression') | \
+            value_list.setResultsName('values')
 
     def parse_string(self, text):
         '''
