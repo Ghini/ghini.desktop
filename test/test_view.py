@@ -80,26 +80,26 @@ from bauble.view import SearchView, MapperSearch, ResultSet
 #               ("'test with spaces'", {'values': ['test with spaces']}),
 #               ('"test with spaces", test1, \'test2\'', {'values': ['test with spaces', 'test1', 'test2']}),
 #               ]
-value_tests = [('test'),
-               ('"test"'),# with quotes
-               ('test1,test2'),
-               ('"test1",test2,test3'),# three values
-               ('"test with spaces"'),
-               ("'test with spaces'"),
-               ('"test with spaces", test1, \'test2\''),
-               ]
-               #('"test,test"', {'values': ['test,test']}),# value with commas
-               #('"test, test", test', {'values': ['test, test', 'test']})]
+value_tests = {'test': {'values': ['test']},
+               'test1 test2': {'values': ['test1', 'test2']},
+               'test1, test2': {'values': ['test1', 'test2']},
+               'test1,test2,test3': {'values': ['test1', 'test2', 'test3']},
+               '"test with spaces"': {'values': ['test with spaces']},
+               "'test with spaces'": {'values': ['test with spaces']},
+               '"test with spaces", test1, \'test2\'': \
+                   {'values': ['test with spaces', 'test1', 'test2']}
+                }
+
 
 # domain expression
-domain_tests = ['domain=%s' % v for v in value_tests]
+domain_tests = ['domain=%s' % v for v in value_tests.keys()]
 
 # query expression
 #[(c,v) for c in columns for v in values]
 #query_tests = [t.replace('domain=', 'domain where prop.prop=') for t in value_tests]
-query_tests = ['domain where prop.prop=%s' % v for v in value_tests]
+query_tests = ['domain where prop.prop=%s' % v for v in value_tests.keys()]
 #'domain where prop.prop=val and prop.prop=val
-query_tests += ['%s and prop.prop=%s' % (q, v) for q in query_tests for v in value_tests]
+query_tests += ['%s and prop.prop=%s' % (q, v) for q in query_tests for v in value_tests.keys()]
 
 # query expression domain where subdomain = value
 # single subdomain
@@ -112,7 +112,7 @@ query_tests += ['%s and prop.prop=%s' % (q, v) for q in query_tests for v in val
 #subsubdomain_tests = [t.replace('domain=','domain where sub.sub=') \
 #              for t in domain_tests]
 
-all_tests = value_tests + domain_tests + query_tests
+all_tests = value_tests.keys() + domain_tests + query_tests
 #all_tests = value_tests# + domain_tests + subdomain_tests + subsubdomain_tests
 
 parser = SearchParser()
@@ -133,6 +133,7 @@ class SearchTestCase(BaubleTestCase):
         plants_test.tearDown_test_data()
 
     def test_search(self):
+        return
         # TODO: create a list of search strings and expected values and
         # make sure the two match up
         #parse = SearchParse()
@@ -154,32 +155,30 @@ class SearchTestCase(BaubleTestCase):
         for r in results:
             print r
 
+
     def test_parse(self):
         t = None
+        s = ''
+        tokens = None
         try:
-            #print value_tests
-            #for s, results in all_tests:
-            for s in all_tests:
-                print 'parsing: %s' % s
+            for s, expected  in value_tests.iteritems():
                 tokens = parser.parse_string(s)
-#                print tokens.asDict
-#                print tokens.asDict() == results
-#                for key, value in results.iteritems():
-#                    self.assert_(key in tokens, 'didn\'t match %s in %s' % (key, s))
-#                    tok = tokens[key]
-##                    print '%s: %s' % (str(tok), type(tok))
-##                    print '%s: %s' % (str(value), type(value))
-##                    print tok == value
-##                    #print tokens
-##
-##                    #self.assert_(tokens[key] == value, 'tokens[%s]=%s, expected %s' % (key, tokens[key], value))
-#                    self.assertEquals(str(tok), str(value), 'tokens[%s]=%s, expected %s' % (key, tokens[key], value))
-                #print '%s --> %s' % (t, p)
-        #except ParseException, e:
+                for e_key, e_value in expected.iteritems():
+#                    print tokens[e_key].getName()
+#                    print tokens.getName()
+                    self.assert_(tokens[e_key].asList() == e_value,
+                                 ' - expected: %s\n - got: %s' % \
+                                 ('%s=%s' % (e_key, e_value),
+                                  '%s=%s' % (e_key, tokens[e_key])))
+
+            for s in domain_tests:
+                tokens = parser.parse_string(s)
+            for s in query_tests:
+                tokens = parser.parse_string(s)
+
         except Exception, e:
-            #sys.stderr.write(t)
-            print '\nException on ** %s **\n' % s
-            raise
+            self.fail('\nException parsing ** %s **\n%s\nParseResults:\n%s' % \
+                          (s, e, tokens.dump(indent='  ')))
 
 
 class ViewTestSuite(unittest.TestSuite):

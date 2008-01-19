@@ -327,7 +327,7 @@ _classname = lambda x: '%s.%s' % (type(x).__module__, type(x).__name__)
 def tag_objects(name, objs):
     '''
     @param name: the tag name, if its a str object then it will be
-    converted to unicode()
+    converted to unicode() using the default encoding
     @type name: string
     @param obj: the object to tag
     @type obj: a list of mapper objects

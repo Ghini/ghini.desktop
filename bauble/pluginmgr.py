@@ -59,7 +59,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     try:
         registry = Registry()
     except RegistryEmptyError:
-        log.info('registry empty, creating.')
+        #log.info('registry empty, creating.')
         Registry.create()
         registry = Registry()
 

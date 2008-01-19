@@ -15,7 +15,7 @@ metadata = MetaData()
 
 species_table = Table('species', metadata,
                   Column('id', Integer, primary_key=True),
-                  Column('sp', String),
+                  Column('sp', Text),
                   Column('genus_id', Integer, ForeignKey('genus.id')),
                   Column('default_vernacular_name_id', Integer))
 #                         ForeignKey('vernacular_name.id')))
@@ -30,7 +30,7 @@ vernacular_name_table = Table('vernacular_name', metadata,
 
 genus_table = Table('genus', metadata,
                     Column('id', Integer, primary_key=True),
-                    Column('genus', String))
+                    Column('genus', Text))
 
 class Genus(object):
     def __str__(self):
