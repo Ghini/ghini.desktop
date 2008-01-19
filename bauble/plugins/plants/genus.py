@@ -109,7 +109,7 @@ genus_table = \
                  Column('author', Unicode(255)),
                  Column('qualifier',Enum(values=['s. lat.', 's. str', None],
                                          empty_to_none=True)),
-                 Column('notes', Unicode),
+                 Column('notes', UnicodeText),
                  Column('family_id', Integer, ForeignKey('family.id'),
                         nullable=False),
                  UniqueConstraint('genus', 'hybrid', 'author', 'family_id',
