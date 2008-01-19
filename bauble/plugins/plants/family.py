@@ -69,7 +69,7 @@ family_table = \
                  Column('family', String(45), nullable=False, index=True),
                  Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
                                           empty_to_none=True)),
-                 Column('notes', Unicode),
+                 Column('notes', UnicodeText),
                  UniqueConstraint('family', 'qualifier', name='family_index'))
 
 

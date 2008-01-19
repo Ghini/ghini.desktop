@@ -96,7 +96,7 @@ species_table = \
                                               'subvar.', 'f.',
                                               'subf.', 'cv.', None],
                                       empty_to_none=True)),
-          Column('notes', Unicode),
+          Column('notes', UnicodeText),
           Column('genus_id', Integer, ForeignKey('genus.id'), nullable=False),
           UniqueConstraint('sp', 'sp_author', 'sp_hybrid', 'sp_qual',
                            'cv_group', 'trade_name', 'infrasp',

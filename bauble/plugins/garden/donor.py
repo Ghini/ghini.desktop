@@ -64,11 +64,11 @@ donor_table = bauble.Table('donor', bauble.metadata,
                                     "Other",
                                     "Unknown",
                                     None], empty_to_none=True)),
-                    Column('address', Unicode),
+                    Column('address', UnicodeText),
                     Column('email', Unicode(128)),
                     Column('fax', Unicode(64)),
                     Column('tel', Unicode(64)),
-                    Column('notes', Unicode))
+                    Column('notes', UnicodeText))
 
 class Donor(bauble.BaubleMapper):
 

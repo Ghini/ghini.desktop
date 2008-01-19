@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 #
 # accessions module
 #
@@ -172,8 +174,8 @@ verification_table = bauble.Table('verification', bauble.metadata,
                            Column('id', Integer, primary_key=True),
                            Column('verifier', Unicode(64)),
                            Column('date', Date),
-                           Column('literature', Unicode),
-                           Column('level', String), # i don't know what this is
+                           Column('literature', UnicodeText),
+                           Column('level', Text),# i don't know what this is
                            Column('accession_id', Integer,
                                   ForeignKey('accession.id')))
 
@@ -205,7 +207,7 @@ accession_table = bauble.Table('accession', bauble.metadata,
                 Column('date', Date),
                 Column('source_type', Enum(values=['Collection', 'Donation',
                                                    None], empty_to_none=True)),
-                Column('notes', Unicode),
+                Column('notes', UnicodeText),
                 # id_qual new in 0.7
                 Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect',
                                                'forsan', 'near', '?', None],
@@ -429,23 +431,23 @@ class AccessionEditorView(GenericEditorView):
 # #Abbreviation Name
 # Adindan Adindan- Ethiopia, Mali, Senegal, Sudan
 # Afgooye Afgooye- Somalia
-# AIN EL ABD ‘70 AIN EL ANBD 1970- Bahrain Island, Saudi Arabia
-# Anna 1 Ast ‘65 Anna 1 Astro ‘65- Cocos I.
+# AIN EL ABD '70 AIN EL ANBD 1970- Bahrain Island, Saudi Arabia
+# Anna 1 Ast '65 Anna 1 Astro '65- Cocos I.
 # ARC 1950 ARC 1950- Botswana, Lesotho, Malawi, Swaziland, Zaire, Zambia
 # ARC 1960 Kenya, Tanzania
-# Ascnsn Isld ‘58 Ascension Island ‘58- Ascension Island
+# Ascnsn Isld '58 Ascension Island '58- Ascension Island
 # Astro Dos 71/4 Astro Dos 71/4- St. Helena
 # Astro B4 Sorol Sorol Atoll- Tern Island
-# Astro Bcn “E” Astro Beacon “E”- Iwo Jima
-# Astr Stn ‘52 Astronomic Stn ‘52- Marcus Island
-# Aus Geod ‘66 Australian Geod ‘66- Australia, Tasmania Island
-# Aus Geod ‘84 Australian Geod ‘84- Australia, Tasmania Island
+# Astro Bcn "E" Astro Beacon "E"- Iwo Jima
+# Astr Stn '52 Astronomic Stn '52- Marcus Island
+# Aus Geod '66 Australian Geod '66- Australia, Tasmania Island
+# Aus Geod '84 Australian Geod '84- Australia, Tasmania Island
 # Austria Austria
 # Bellevue (IGN) Efate and Erromango Islands
 # Bermuda 1957 Bermuda 1957- Bermuda Islands
 # Bogota Observ Bogata Obsrvatry- Colombia
 # Campo Inchspe Campo Inchauspe- Argentina
-# Canton Ast ‘66 Canton Astro 1966- Phoenix Islands
+# Canton Ast '66 Canton Astro 1966- Phoenix Islands
 # Cape Cape- South Africa
 # Cape Canavrl Cape Canaveral- Florida, Bahama Islands
 # Carthage Carthage- Tunisia
@@ -464,17 +466,17 @@ class AccessionEditorView(GenericEditorView):
 # Finland Hayfrd Finland Hayford- Finland
 # Gandajika Base Gandajika Base- Republic of Maldives
 # GDA Geocentric Datum of Australia
-# Geod Datm ‘49 Geodetic Datum ‘49- New Zealand
+# Geod Datm '49 Geodetic Datum '49- New Zealand
 # Guam 1963 Guam 1963- Guam Island
 # Gux 1 Astro Guadalcanal Island
 # Hjorsey 1955 Hjorsey 1955- Iceland
-# Hong Kong ‘63 Hong Kong
+# Hong Kong '63 Hong Kong
 # Hu-Tzu-Shan Taiwan
 # Indian Bngldsh Indian- Bangladesh, India, Nepal
 # Indian Thailand Indian- Thailand, Vietnam
 # Indonesia 74 Indonesia 1974- Indonesia
 # Ireland 1965 Ireland 1965- Ireland
-# ISTS 073 Astro ISTS 073 ASTRO ‘69- Diego Garcia
+# ISTS 073 Astro ISTS 073 ASTRO '69- Diego Garcia
 # Johnston Island Johnston Island NAD27 Central
 # Kandawala Kandawala- Sri Lanka
 # Kergueln Islnd Kerguelen Island
@@ -487,7 +489,7 @@ class AccessionEditorView(GenericEditorView):
 # Marco Astro Marco Astro- Salvage Isl.
 # Massawa Massawa- Eritrea (Ethiopia)
 # Merchich Merchich- Morocco
-# Midway Ast ‘61 Midway Astro ‘61- Midway
+# Midway Ast '61 Midway Astro '61- Midway
 # Minna Minna- Nigeria
 # NAD27 Alaska North American 1927- Alaska
 # NAD27 Bahamas North American 1927- Bahamas
@@ -507,16 +509,16 @@ class AccessionEditorView(GenericEditorView):
 # Nhrwn Masirah Nahrwn- Masirah Island (Oman)
 # Nhrwn Saudi A Nahrwn- Saudi Arabia
 # Nhrwn United A Nahrwn- United Arab Emirates
-# Obsrvtorio ‘66 Observatorio 1966- Corvo and Flores Islands (Azores)
+# Obsrvtorio '66 Observatorio 1966- Corvo and Flores Islands (Azores)
 # Old Egyptian Old Egyptian- Egypt
 # Old Hawaiian Old Hawaiian- Mean Value
 # Oman Oman- Oman
 # Old Srvy GB Old Survey Great Britain- England, Isle of Man, Scotland, Shetland Isl., Wales
 # Pico De Las Nv Canary Islands
 # Potsdam Potsdam-Germany
-# Prov S Am ‘56 Prov So Amricn ‘56- Bolivia, Chile,Colombia, Ecuador, Guyana, Peru, Venezuela
-# Prov S Chln ‘63 So. Chilean ‘63- S. Chile
-# Ptcairn Ast ‘67 Pitcairn Astro ‘67- Pitcairn
+# Prov S Am '56 Prov So Amricn '56- Bolivia, Chile,Colombia, Ecuador, Guyana, Peru, Venezuela
+# Prov S Chln '63 So. Chilean '63- S. Chile
+# Ptcairn Ast '67 Pitcairn Astro '67- Pitcairn
 # Puerto Rico Puerto Rico & Virgin Isl.
 # Qatar National Qatar National- Qatar South Greenland
 # Qornoq Qornoq- South Greenland
@@ -525,17 +527,17 @@ class AccessionEditorView(GenericEditorView):
 # RT 90 Sweden
 # Santo (Dos) Santo (Dos)- Espirito Santo
 # Sao Braz Sao Braz- Sao Miguel, Santa Maria Islands
-# Sapper Hill ‘43 Sapper Hill 1943- East Falkland Island
+# Sapper Hill '43 Sapper Hill 1943- East Falkland Island
 # Schwarzeck Schwarzeck- Namibia
 # SE Base Southeast Base- Porto Santo and Madiera Islands
 # South Asia South Asia- Singapore
-# Sth Amrcn ‘69 S. American ‘69- Argentina, Bolivia, Brazil, Chile, Colombia, Ecuador, Guyana,
+# Sth Amrcn '69 S. American '69- Argentina, Bolivia, Brazil, Chile, Colombia, Ecuador, Guyana,
 # Paraguay, Peru, Venezuela, Trin/Tobago
 # SW Base Southwest Base- Faial, Graciosa, Pico, Sao Jorge and Terceira
 # Taiwan Taiwan
 # Timbalai 1948 Timbalai 1948- Brunei and E. Malaysia (Sarawak and Sabah)
 # Tokyo Tokyo- Japan, Korea, Okinawa
-# Tristan Ast ‘68 Tristan Astro 1968- Tristan da Cunha
+# Tristan Ast '68 Tristan Astro 1968- Tristan da Cunha
 # Viti Levu 1916 Viti Levu 1916- Viti Levu/Fiji Islands
 # Wake-Eniwetok Wake-Eniwetok- Marshall
 # WGS 72 World Geodetic System 72

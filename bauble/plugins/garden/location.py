@@ -57,7 +57,7 @@ def loc_markup_func(location):
 location_table = bauble.Table('location', bauble.metadata,
                        Column('id', Integer, primary_key=True),
                        Column('site', Unicode(64), unique=True,nullable=False),
-                       Column('description', Unicode))
+                       Column('description', UnicodeText))
 
 
 class Location(bauble.BaubleMapper):

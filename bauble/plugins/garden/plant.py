@@ -108,7 +108,7 @@ class PlantSearch(MapperSearch):
 plant_history_table = bauble.Table('plant_history', bauble.metadata,
                             Column('id', Integer, primary_key=True),
                             Column('date', Date),
-                            Column('description', Unicode),
+                            Column('description', UnicodeText),
                             Column('plant_id', Integer, ForeignKey('plant.id'),
                                    nullable=False))
 
@@ -150,7 +150,7 @@ plant_table = bauble.Table('plant', bauble.metadata,
                                                      'Stored in dormant state',
                                                       'Other', None],
                                               empty_to_none=True)),
-                    Column('notes', Unicode),
+                    Column('notes', UnicodeText),
                     Column('accession_id', Integer, ForeignKey('accession.id'),
                            nullable=False),
                     Column('location_id', Integer, ForeignKey('location.id'),
