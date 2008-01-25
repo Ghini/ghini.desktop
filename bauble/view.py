@@ -256,14 +256,16 @@ class SearchParser(object):
         or_token = CaselessKeyword('or')
         identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
         ident_expression = Group(identifier + binop + value)
+        #ident_expression = identifier + binop + value
         logop = and_token | or_token
         query_expressions = ident_expression + \
                             ZeroOrMore(logop + ident_expression)
+        #query_expressions = Group(ident_expression)
         domain_query = domain + where_token.suppress() + \
                        Group(query_expressions)
 
-        self.statement = (domain_query).setResultsName('query') | \
-            (domain_expression).setResultsName('expression') | \
+        self.statement = (domain_query).setResultsName('query') ^ \
+            (domain_expression).setResultsName('expression') ^ \
             value_list.setResultsName('values')
 
     def parse_string(self, text):
@@ -447,7 +449,8 @@ class MapperSearch(SearchStrategy):
                        table.c[col].like('%%%s%%' % val)
             for mapping, columns in self._mapping_columns.iteritems():
                 q = session.query(mapping)
-                cv = [(c,v) for c in columns for v in tokens]
+                #cv = [(c,v) for c in columns for v in tokens]
+                cv = [(c,v) for c in columns for v in tokens['values']]
                 # i'm not quite sure why we have to return the results of
                 # filter and assign them to q, i would think since filter
                 # is generative then it would be the same
@@ -464,7 +467,13 @@ class MapperSearch(SearchStrategy):
                         q = q.filter(like(mapping, c, unicode(v)))
                 results.append(q)
         elif 'expression' in tokens:
-            for domain, cond, val in tokens['expression']:
+            #debug(tokens.dump())
+            for domain, cond, val in tokens:#['expression']:
+#                 debug(tokens['expression'])
+#                 debug(tokens.dump())
+#                 debug(domain)
+#                 debug(cond)
+#                 debug(val)
                 mapping, columns = self._domains[domain]
                 query = session.query(mapping)
                 # TODO: should probably create a normalize_cond() method

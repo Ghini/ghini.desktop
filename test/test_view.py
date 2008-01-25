@@ -124,36 +124,40 @@ class SearchTestCase(BaubleTestCase):
 
     def setUp(self):
         super(SearchTestCase, self).setUp()
-        plants_test.setUp_test_data()
-        garden_test.setUp_test_data()
+#        plants_test.setUp_test_data()
+#        garden_test.setUp_test_data()
 
     def tearDown(self):
         super(SearchTestCase, self).tearDown()
-        garden_test.tearDown_test_data()
-        plants_test.tearDown_test_data()
+#        garden_test.tearDown_test_data()
+#        plants_test.tearDown_test_data()
 
     def test_search(self):
-        return
-        # TODO: create a list of search strings and expected values and
-        # make sure the two match up
-        #parse = SearchParse()
         view = SearchView()
-        #tokens = view.parser.parse_string('gen where genus=Maxillaria')
-        #tokens = view.parser.parse_string('Maxillaria')
-        #tokens = view.parser.parse_string('Orchidaceae')
-        #tokens = view.parser.parse_string('plant where code=1.1')
-        #tokens = view.parser.parse_string('plant=1.1')
-        #tokens = view.parser.parse_string('1.1')
-        text = 'Orchidaceae'
-        text = 'fam=Orchidaceae'
-        text = 'fam where family = Orchidaceae'
-        text = '1.1'
-        results = ResultSet()
-        for strategy in view.search_strategies:
-            results.append(strategy.search(text))
-        #results = view._get_search_results_from_tokens(tokens)
-        for r in results:
-            print r
+        from bauble.plugins.plants.family import Family, family_table
+        from bauble.plugins.plants.genus import Genus, genus_table
+        family_ids = [0, 1]
+        for f in family_ids:
+            family_table.insert({'id': f, 'family': unicode(f)}).execute()
+        genus_ids = [2, 3]
+        for g in genus_ids:
+            genus_table.insert({'id': g, 'genus': unicode(g),
+                                'family_id': g-2}).execute()
+
+        test_text = {'1': [(Family, 1)],
+                     'fam=1': [(Family, 1)],
+#                     'fam=1 gen=2': [(Family, 1), (Genus, 2)],
+                     'fam where family=1': [(Family, 1)],
+                     'gen where family.family=1': [(Genus, 3)]}
+
+        for text, expected in test_text.iteritems():
+            results = ResultSet()
+            for strategy in view.search_strategies:
+                results.append(strategy.search(text, session=self.session))
+
+            es = set([self.session.load(cls, cls_id) for cls, cls_id in expected])
+            obj_str = lambda o: '%s(%s)' % (o.__class__.__name__, o.id)
+            self.assert_(es == set(results), [obj_str(o) for o in results])
 
 
     def test_parse(self):

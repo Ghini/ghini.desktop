@@ -10,6 +10,7 @@
 # TODO:
 # - let the user choose a mirror
 # - *-dev versions of files?
+# - check MD5
 #
 
 import sys

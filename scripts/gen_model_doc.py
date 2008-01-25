@@ -1,25 +1,27 @@
 #!/usr/bin/env python
-# load all the plugins
-# get all the tables
-# iterate through the columns
-# iterate through the joins
 
 # TODO: use pydoc to get documentation from tables
 
+# TODO: the generated document provides alot of information but
+# doesn't really explain what it is
+
+# TODO: cross reference ColumnProperty properties from the mappers
+# back to the Table definitions, if for each of the tables or columns
+# we generate an anchor tag of the form <a name="tablename_colname">
+# then it should be easy enough to generate the links in the mapper
+# section
+
 import os, sys
+import xml.sax.saxutils as saxutils
 sys.path.append('.')
 import sqlalchemy as sa
+from sqlalchemy.orm import *
+from sqlalchemy.orm.mapper import _mapper_registry
+from sqlalchemy.orm.properties import *
+import bauble
 import bauble.pluginmgr as pluginmgr
-## import bauble.db as db
-## try:
-##     bauble.open_database(uri, verify=False)
-## except Exception, e:
-##     print e
-## prefs.init()
+
 pluginmgr.load()
-## bauble.create_database(False)
-#pluginmgr.init()
-## __initialized = True
 
 def column_type_str(col):
     print type(col)
@@ -32,17 +34,6 @@ def column_type_str(col):
     elif isinstance(col, sa.ForeignKey):
         return 'foreign key(int)'
 
-for table in sa.default_metadata.table_iterator():
-    print 'Table: %s' % table
-    for col in table.columns:
-        if col.nullable:
-            print '  %s: %s' % (col.name, col.type)
-        else:
-            print '  %s: %s (required)' % (col.name, col.type)
-
-    print ''
-        #print ' -- %s' % column_type_str(col)
-sys.exit()
 
 html_head='''<html><head>
 <style>
@@ -64,10 +55,9 @@ margin-left: 10px;
 html_tail='''</body>
 </html>'''
 
-table_template = '''<div class='table'><h2 class="name">%(name)s (%(table_name)s)</h2>
-<div class='details'>
+table_template = '''<div class="table"><h2 class="name">%(table_name)s</h2>
+<div class="details">
 %(columns)s
-%(joins)s
 </div>
 </div>'''
 
@@ -82,25 +72,46 @@ join_template = '''<li>%s</li>'''
 
 print html_head
 
-for name, table in tables.iteritems():
-    columns = ''
-    for col in table.sqlmeta.columns:
-	columns += column_template % col
+print '<h1>Tables</h1>'
+for table in sorted(bauble.metadata.table_iterator(), key=lambda x: x.name):
+    columns_str = ''
+    for col in table.columns:
+        s = '<b>%s</b>: %s' % (col.name, col.type)
+        if len(col.foreign_keys) > 0:
+            s += ', ForeignKey(%s)' % \
+                ', '.join(['%s.%s' % (f.column.table, f.column.name) for f in col.foreign_keys])
+        if not col.nullable:
+            s += ' [required]'
+        columns_str += column_template % s
 
-    if columns != '':
-	columns_markup = columns_template % columns
+    if columns_str != '':
+	columns_markup = columns_template % columns_str
 
-    joins = ''
-    for join in table.sqlmeta.joins:
-	joins += join_template % join.joinMethodName
 
-    joins_markup = ''
-    if joins != '':
-	joins_markup = joins_template % joins
+    print table_template % ({'table_name': table.name,
+			     'columns': columns_markup})
+#                             'properties': properties_markup})
+#			     'joins': joins_markup})
 
-    print table_template % ({'name': name,
-			     'table_name': table.sqlmeta.table,
-			     'columns': columns_markup,
-			     'joins': joins_markup})
+
+print '<br/><hr/><br/>'
+print '<h1>Mappers</h1>'
+for mapper in sorted(_mapper_registry, key=lambda x: x.class_.__name__):
+
+    # this str builder copied from the Mapper class
+    s = mapper.class_.__name__ + "->" + (mapper.entity_name is not None and "/%s" % mapper.entity_name or "") + (mapper.local_table and mapper.local_table.description or str(mapper.local_table)) + (mapper.non_primary and "|non-primary" or "")
+    print '<h2 class="name">%s</h2>' % s
+    print '<div class="details">'
+    print '<h3>Properties</h3>'
+    props_str = ''
+    for p in sorted(mapper.iterate_properties,
+                    key=lambda x: isinstance(x, ColumnProperty)):
+        if isinstance(p, ColumnProperty):
+            props_str += '<li>%s</li>' % [str(c) for c in p.columns]
+        else:
+            props_str += '<li>%s</li>' % saxutils.escape(str(p))
+    if props_str is not '':
+        print '<ul>%s</ul>' % props_str
+    print '</div>'
 
 print html_tail
