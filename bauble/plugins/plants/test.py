@@ -60,8 +60,13 @@ species_test_data = ({'id': 1, 'sp': 'variabilis', 'genus_id': 1,
                       'sp_author': u'L.', 'infrasp_rank': u'cv.',
                       'infrasp': u'Hot Rio Nights',
                       'cv_group': u'SomethingRidiculous'},
-#                     {'id': 9, 'sp': 'precatorius', 'genus_id': 3,
-#                      'sp_author': 'L.', cv_group='SomethingRidiculous'},
+                     {'id': 9, 'sp': 'generalis', 'genus_id': 1,
+                      'sp_hybrid': u'x', 'infrasp_rank': u'cv.',
+                      'infrasp': u'Red'},
+                     {'id': 10, 'sp': 'generalis', 'genus_id': 1,
+                      'sp_hybrid': u'x',
+                      'sp_author': u'L.', 'infrasp_rank': u'cv.',
+                      'infrasp': u'Red', 'cv_group': u'SomeGroup'},
                      )
 
 species_str_map = {\
@@ -70,9 +75,11 @@ species_str_map = {\
     3: 'Abrus precatorius',
     4: 'Campyloneurum x alapense',
     5: 'Encyclia cochleata var. cochleata',
-    6: 'Encyclia cochleata \'Black Night\'',
+    6: "Encyclia cochleata 'Black Night'",
     7: 'Abrus precatorius SomethingRidiculous Group',
-    8: 'Abrus precatorius (SomethingRidiculous Group) \'Hot Rio Nights\'',
+    8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
+    9: "Maxillaria x generalis 'Red'",
+    10:"Maxillaria x generalis (SomeGroup Group) 'Red'"
     }
 
 species_markup_map = {\
