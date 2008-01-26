@@ -322,15 +322,9 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     """
     d = create_yes_no_dialog(msg, parent)
     if yes_delay > 0:
-        if sys.platform == 'win32':
-            yes_button_index = 1
-        else:
-            yes_button_index = 0
-        button = d.action_area.get_children()[yes_button_index]
-
-        button.set_sensitive(False)
+        d.set_response_sensitive(gtk.RESPONSE_YES, False)
         def on_timeout():
-            button.set_sensitive(True)
+            d.set_response_sensitive(gtk.RESPONSE_YES, True)
             return False
         import gobject
         gobject.timeout_add(yes_delay*1000, on_timeout)
