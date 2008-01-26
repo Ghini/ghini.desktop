@@ -143,8 +143,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         # turn off the infraspecific rank combo if the hybrid value in the
         # model is not None, this has to be called before the conditional that
         # sets the sp_cvgroup_entry
-        if self.model.sp_hybrid is not None:
-            self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
+#        if self.model.sp_hybrid is not None:
+#            self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
 
         # infraspecific rank has to be a cultivar for the cultivar group entry
         # to be sensitive
@@ -231,63 +231,14 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
     def refresh_fullname_label(self):
         '''
-        resets the fullname label according to values in the model
+        set the value of sp_fullname_label to either '--' if there
+        is a problem or to the name of the string returned by Species.str
         '''
-        # TODO: i saw this not working once but then it started working again
-        # when i restarted before i could debug it so somewhere there's a
-        # bug in hiding
-#        debug('refresh_fullname_label')
-        if len(self.problems) > 0:
-#            debug('len(self.problems) > 0')
-            s = '--'
-        elif self.model.genus == None:
-#            debug('self.model.genus == None')
-            s = '--'
-        else:
-            # create an object that behaves like a Species and pass it to
-            # Species.str
-            d = {}
-            d.update(zip(self.model.c.keys(),
-                        [getattr(self.model, k) for k in self.model.c.keys()]))
-
-            class attr_dict(object):
-                def __init__(self, d):
-                    attr_dict.__setattr__(self, '__dict', d)
-                def __getattr__(self, item):
-                    d = self.__getattribute__('__dict')
-                    if item is '__dict':
-                        return d
-                    elif item in d:
-                        return d[item]
-                    else:
-                        return getattr(d, item)
-                def __setattr__(self, item, value):
-                    if item is '__dict':
-                        super(attr_dict, self).__setattr__(item , value)
-                    d = self.__getattribute__('__dict')
-                    d[item] = value
-                def iteritems(self):
-                    d = self.__getattribute__('__dict')
-                    return d.iteritems()
-
-            values = attr_dict(d)
-            values.genus = self.model.genus
-            for key, value in values.iteritems():
-                if value is '':
-                    values[key] = None
-            if values.sp_hybrid is not None:
-                values.infrasp_rank = None
-                values.cv_group = None
-                values.sp_hybrid = values.sp_hybrid # so this is the last field on_field_changed is called on
-            elif values.infrasp_rank is None:
-                values.infrasp = None
-                values.cv_group = None
-                values.infrasp_author = None
-            elif values.infrasp_rank != 'cv.':
-                values.cv_group = None
-            s = '%s  -  %s' % (Family.str(values.genus.family),
-                               Species.str(values, authors=True, markup=True))
-        self.view.widgets.sp_fullname_label.set_markup(s)
+        if len(self.problems) > 0 or self.model.genus == None:
+            self.view.widgets.sp_fullname_label.set_markup('--')
+            return
+        sp_str = Species.str(self.model, markup=True, authors=True)
+        self.view.widgets.sp_fullname_label.set_markup(sp_str)
 
 
     def start(self):

@@ -183,6 +183,7 @@ class Species(bauble.BaubleMapper):
         #genus = str(Genus.get_by(id=species.genus_id))
         genus = str(species.genus)
         sp = species.sp
+        infrasp = species.infrasp
         if markup:
             italic = u'<i>%s</i>'
             #genus = italic % species.genus
@@ -192,6 +193,8 @@ class Species(bauble.BaubleMapper):
             # the infrasp italic is handled below
             #escape = sax.escape
             escape = utils.xml_safe_utf8
+            if species.infrasp_rank not in (u'cv.', 'cv.'):
+                infrasp = italic % species.infrasp
         else:
             italic = u'%s'
             escape = lambda x: x
@@ -206,9 +209,24 @@ class Species(bauble.BaubleMapper):
 
         if species.sp_hybrid: # is a hybrid
             if species.infrasp is not None:
-                name = [s for s in [genus, sp, author, species.sp_hybrid,
-                                    species.infrasp, isp_author] \
-                        if s is not None]
+                if species.infrasp_rank is None:
+                    name = [s for s in [genus, sp, author, species.sp_hybrid,
+                                        infrasp, isp_author] \
+                                if s is not None]
+                elif species.infrasp_rank in (u'cv.', 'cv.'):
+                    if species.cv_group:
+                        cv = "(%s Group) '%s'" % \
+                            (species.cv_group, infrasp)
+                    else:
+                        cv = "'%s'" % infrasp
+                    name = [s for s in [genus, species.sp_hybrid, sp, author,
+                                        cv, isp_author] \
+                                if s is not None]
+                else:
+                    name = [s for s in [genus, species.sp_hybrid, sp, author,
+                                        species.infrasp_rank, infrasp,
+                                        isp_author] \
+                                if s is not None]
             else:
                 name = [s for s in [genus, species.sp_hybrid, sp, author] \
                         if s is not None]
@@ -218,7 +236,7 @@ class Species(bauble.BaubleMapper):
                     cv = None
                     group = '%s Group' % species.cv_group
                 else:
-                    cv = "'%s'" % species.infrasp
+                    cv = "'%s'" % infrasp
                     group = '(%s Group)' % species.cv_group
                 name = [s for s in [genus, sp, author, group, cv, isp_author] \
                         if s is not None]
@@ -232,7 +250,8 @@ class Species(bauble.BaubleMapper):
                         isp = "'%s'" % (species.infrasp or '')
                     else:
                         isp_rank = species.infrasp_rank
-                        isp = italic % species.infrasp
+                        #isp = italic % species.infrasp
+                        isp = infrasp
                 name = [s for s in [genus, sp, author, isp_rank, isp,
                                     isp_author] if s is not None]
 
