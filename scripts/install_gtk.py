@@ -231,3 +231,5 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
 # register the pixbuf loaders
 load_pixbufs_cmd = '%s\\bin\gdk-pixbuf-query-loaders.exe > %s\\etc\gtk-2.0\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
 os.system(load_pixbufs_cmd)
+
+print 'done.'

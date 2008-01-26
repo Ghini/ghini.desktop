@@ -293,13 +293,32 @@ def get_source(row):
         raise ValueError(_('unknown source type: %s') % str(row.source_type))
 
 
+def _val_str(col):
+    s = [str(v) for v in col.type.values if v is not None]
+    if None in col.type.values:
+        s.append('<None>') #s.append('&lt;None&gt;')
+    return ', '.join(s)
+
 accession_editor_tooltips = \
-    {'acc_species_entry':
-     _("The accession's species completed from the species table"),
-     'acc_code_entry':
-     _("The accession ID must be a unique code and is the most common way of "
-       "refering to this accession")
-    }
+    {'acc_species_entry': _("The species must be selected from the list of "
+                            "completions. To add a species use the Species "
+                            "editor."),
+     'acc_code_entry': _("The accession ID must be a unique code"),
+     'acc_id_qual_combo': _("The ID Qualifier\n"
+                            "Possible values: %s" %
+                            _val_str(accession_table.c.id_qual)),
+     'acc_date_entry': _('The date this the accession was created.'),
+     'acc_prov_combo': _('The origin or source of this accession.\n'
+                         'Possible values: %s' %
+                         _val_str(accession_table.c.prov_type)),
+     'acc_wild_prov_combo': _('The wild status is used to clarify the '
+                              'provenance\nPossible values: %s' %
+                              _val_str(accession_table.c.wild_prov_status)),
+     'acc_source_type_combo': _('The source type is in what way this '
+                                'accession was obtained'),
+     'acc_notes_textview': _('Miscelleanous notes about this accession.')
+     }
+
 
 class AccessionEditorView(GenericEditorView):
 
@@ -326,10 +345,11 @@ class AccessionEditorView(GenericEditorView):
 
 
     def set_tooltips(self):
+        # TODO: switch to the new gtk.Tooltip API when pygtk-2.12 becomes
+        # available on win32
         self.tooltips = gtk.Tooltips()
-        for name, tip in accession_editor_tooltips.iteritems():
-#            debug('tt: %s, %s' % (name, tip))
-            self.tooltips.set_tip(self.widgets[name], tip)
+        for widget_name, markup in accession_editor_tooltips.iteritems():
+            self.tooltips.set_tip(self.widgets[widget_name], markup)
         self.tooltips.enable()
 
 
@@ -1107,7 +1127,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                             self.view.widgets.acc_code_entry)
         if text is '':
             self.model.code = None
-        self.model.code = text
+        else:
+            self.model.code = unicode(text)
 
 
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
@@ -1181,20 +1202,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 self.view.widgets.altacc_entry.set_sensitive(False)
 
         # refresh the sensitivity of the accept buttons
-        # TODO: there is a bug here that if the source_type is changed and
-        # even though the required fields aren't filled in then the accept
-        # buttons are still set as sensitive,
-        # https://bugs.launchpad.net/bauble/+bug/165212
         sensitive = True
         if len(self.problems) != 0:
             sensitive = False
-        elif self.source_presenter is not None:
-            if len(self.source_presenter.problems) != 0:
-                sensitive = False
-        elif self.model.code is None or self.model.species is None:
+        elif self.source_presenter is not None and \
+                len(self.source_presenter.problems) != 0:
+            sensitive = False
+        elif (self.model.code is None) or (self.model.species is None):
             sensitive = False
         elif field == 'source_type':
             sensitive = False
+
         self.set_accept_buttons_sensitive(sensitive)
 
 
