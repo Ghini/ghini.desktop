@@ -203,6 +203,26 @@ plant_mapper = mapper(Plant, plant_table,
 mapper(PlantHistory, plant_history_table, order_by='date')
 
 
+def _val_str(col):
+    s = [str(v) for v in col.type.values if v is not None]
+    if None in col.type.values:
+        s.append('<None>') #s.append('&lt;None&gt;')
+    return ', '.join(s)
+
+plant_editor_tooltips = {
+    'plant_code_entry': _('The plant code must be a unique code'),
+    'plant_acc_entry': _('The accession must be selected from the list of '
+                         'completions.  To add an accession use the Accession '
+                         'editor'),
+    'plant_loc_combo': _('The location of the plant in your collection.'),
+    'plant_acc_type_combo': _('The type of the plant material.\n'
+                              'Possible values: %s' %
+                              _val_str(plant_table.c.acc_type)),
+    'plant_acc_status_combo': _('The status of this plant in the '
+                                'collection.\nPossible values: %s' %
+                                _val_str(plant_table.c.acc_status)),
+    'plant_notes_textview': _('Miscelleanous notes about this plant.'),
+    }
 
 class PlantEditorView(GenericEditorView):
 
@@ -223,6 +243,16 @@ class PlantEditorView(GenericEditorView):
                                minimum_key_length=1)
         if sys.platform == 'win32':
             self.do_win32_fixes()
+        self.set_tooltips()
+
+
+    def set_tooltips(self):
+        # TODO: switch to the new gtk.Tooltip API when pygtk-2.12 becomes
+        # available on win32
+        self.tooltips = gtk.Tooltips()
+        for widget_name, markup in plant_editor_tooltips.iteritems():
+            self.tooltips.set_tip(self.widgets[widget_name], markup)
+        self.tooltips.enable()
 
 
     def do_win32_fixes(self):
