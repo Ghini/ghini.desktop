@@ -2,7 +2,7 @@
 # _gui.py
 #
 
-import os, sys
+import os, sys, traceback
 import gtk
 import bauble
 import bauble.utils as utils
@@ -393,18 +393,28 @@ class GUI(object):
 
     def on_tools_menu_item_activate(self, widget, tool):
 #        debug('on_tools_menu_item_activate(%s)' % tool)
-        tool.start()
+        try:
+            tool.start()
+        except Exception, e:
+            utils.message_details_dialog(str(e), traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+            debug(traceback.format_exc())
 
 
     def on_insert_menu_item_activate(self, widget, editor):
-        view = self.get_view()
-        if isinstance(view, SearchView):
-            expanded_rows = view.get_expanded_rows()
-        e = editor()
-        committed = e.start()
-        if committed is not None and isinstance(view, SearchView):
-            view.results_view.collapse_all()
-            view.expand_to_all_refs(expanded_rows)
+        try:
+            view = self.get_view()
+            if isinstance(view, SearchView):
+                expanded_rows = view.get_expanded_rows()
+            e = editor()
+            committed = e.start()
+            if committed is not None and isinstance(view, SearchView):
+                view.results_view.collapse_all()
+                view.expand_to_all_refs(expanded_rows)
+        except Exception, e:
+            utils.message_details_dialog(str(e), traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+            debug(traceback.format_exc())
 
 
 ##     def on_edit_menu_prefs(self, widget, data=None):

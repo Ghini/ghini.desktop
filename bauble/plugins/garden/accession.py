@@ -88,14 +88,12 @@ def decimal_to_dms(decimal, long_or_lat):
 
 
 def edit_callback(value):
-    #value = row[0]
     e = AccessionEditor(value)
     return e.start() != None
 
 
 def add_plants_callback(value):
     from bauble.plugins.garden.plant import PlantEditor
-    #value = row[0]
     e = PlantEditor(Plant(accession=value))
     return e.start() != None
 
