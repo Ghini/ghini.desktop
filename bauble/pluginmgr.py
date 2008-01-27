@@ -497,12 +497,8 @@ def _find_plugins(path):
             except Exception, e:
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
-                # TODO: we should really show this error message but right now
-                # it gives us a strange error about importing the abcd
-                # module, i think we should rename bauble.plugins.abcd.abcd to
-                # abcd_.py or just include the code from that file into the
-                # __init__.py for the module
                 debug(msg)
+                debug(traceback.format_exc())
 #                 utils.message_details_dialog(msg, str(traceback.format_exc()),
 #                                              gtk.MESSAGE_ERROR)
         if not hasattr(mod, "plugin"):

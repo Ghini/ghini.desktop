@@ -178,7 +178,7 @@ if not os.path.exists(EASY_INSTALL_EXE):
 
 # install the eggs
 for egg, version in eggs_install.iteritems():
-    cmd = '%s "%s%s"' % (EASY_INSTALL_EXE, egg, version)
+    cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
     #print cmd
     os.system(cmd)
 

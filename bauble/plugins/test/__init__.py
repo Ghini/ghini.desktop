@@ -87,4 +87,6 @@ class TestPlugin(plugin.Plugin):
     commands = [TestCommandHandler]
 
 
-plugin = TestPlugin
+# TODO: how do we include the test plugin in a src dist but not in a
+# binary or py2exe dist
+##plugin = TestPlugin
