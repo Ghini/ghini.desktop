@@ -2,8 +2,8 @@
 # ABCD import/exporter
 #
 
-import os,csv
-import gtk.gdk
+import os, csv
+import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import lxml.etree as etree
@@ -17,7 +17,7 @@ from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.i18n import *
-from bauble.plugins.abcd.abcd import DataSets, ABCDElement#, ElementFactory
+#from bauble.plugins.abcd.abcd import DataSets, ABCDElement#, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
@@ -65,6 +65,27 @@ def verify_institution(institution):
     return test(institution.name) and test(institution.technical_contact) and \
            test(institution.email) and test(institution.contact) and \
            test(institution.code)
+
+
+namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
+
+
+def ABCDElement(parent, name, text=None, attrib={}):
+    """
+    create an ABCDElement, must be a subelement
+    @param parent:
+    @param name:
+    @param text:
+    @param attrib:
+    """
+    el = SubElement(parent, '{%s}%s' % (namespaces['abcd'], name),
+                    nsmap=namespaces, attrib=attrib)
+    el.text = text
+    return el
+
+
+def DataSets():
+    return Element('{%s}DataSets' % namespaces['abcd'], nsmap=namespaces)
 
 
 class ABCDAdapter(object):

@@ -57,8 +57,9 @@ if USING_PY2EXE:
                 includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
         return includes
 
-    py2exe_includes = ['pysqlite2.dbapi2', #'lxml', 'lxml._elementpath',
-                       'encodings'] + gtk_pkgs + plugins_pkgs + \
+    py2exe_includes = ['pysqlite2.dbapi2', 'simplejson', 'lxml',
+                       'MySQLdb', 'psycopg2', 'encodings'] + \
+                       gtk_pkgs + plugins_pkgs + \
                        get_sqlalchemy_includes()
 
     opts = {
@@ -119,8 +120,8 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.4", "pysqlite==2.3.2",
-                        "PyGTK>=2.10", "simplejson", "lxml"],# pygtk is not supported using distutils
+      install_requires=["SQLAlchemy>=0.4.2p3", "pysqlite==2.3.2",
+                        "PyGTK>=2.10", "simplejson==1.7.1", "lxml"],# pygtk is not supported using distutils
 #      extras_requires=["mysql-python and psycopg"
 
       # metadata
