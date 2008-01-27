@@ -974,7 +974,7 @@ class SearchView(pluginmgr.View):
         # happened, make that that selection and then popup the menu,
         # see the pygtk FAQ about this at
         #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
-        # TODO: SLOW -- it can be really slow if the the callback method
+        # TODO: SLOW -- it can be really slow if the callback method
         # changes the model(or what if it doesn't) and the view has to be
         # refreshed from a large dataset
         if event.button != 3:
@@ -1001,7 +1001,16 @@ class SearchView(pluginmgr.View):
                     def on_activate(item, f):
                         value = self.get_selected_values()[0]
                         expanded_rows = self.get_expanded_rows()
-                        if f(value) is not None:
+                        result = False
+                        try:
+                            result = f(value)
+                        except Exception, e:
+                            utils.message_details_dialog(str(e),
+                                                        traceback.format_exc(),
+                                                         gtk.MESSAGE_ERROR)
+                            debug(traceback.format_exc())
+
+                        if result is not None:
                             for obj in self.session:
                                 try:
                                     self.session.expire(obj)
