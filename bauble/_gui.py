@@ -50,10 +50,10 @@ class GUI(object):
         self.window.connect('delete-event', self.on_delete_event)
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
-        if sys.platform != 'win32':
-            filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
-            pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-            self.window.set_icon(pixbuf)
+
+        filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
+        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        self.window.set_icon(pixbuf)
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)

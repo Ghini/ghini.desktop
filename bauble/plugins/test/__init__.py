@@ -4,7 +4,7 @@
 import gtk
 import bauble
 import bauble.utils as utils
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils.log import debug
 
@@ -45,7 +45,7 @@ class TestTask:
         bauble.task.queue(self.task, callback, None)
 
 
-class TestTool(plugin.Tool):
+class TestTool(pluginmgr.Tool):
     category = "Test"
     label = "Task"
 
@@ -57,7 +57,7 @@ class TestTool(plugin.Tool):
         t.start()
         t.start()
 
-class TestView(plugin.View):
+class TestView(pluginmgr.View):
 
     def __init__(self):
         super(TestView, self).__init__()
@@ -69,7 +69,7 @@ class TestView(plugin.View):
         self.label.set_text('arg: %s' % arg)
 
 
-class TestCommandHandler(plugin.CommandHandler):
+class TestCommandHandler(pluginmgr.CommandHandler):
 
     command = 'test'
 
@@ -81,7 +81,7 @@ class TestCommandHandler(plugin.CommandHandler):
         self.view.do_something(arg)
 
 
-class TestPlugin(plugin.Plugin):
+class TestPlugin(pluginmgr.Plugin):
     tools = [TestTool]
     views = TestView
     commands = [TestCommandHandler]
