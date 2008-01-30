@@ -396,7 +396,8 @@ class GUI(object):
         try:
             tool.start()
         except Exception, e:
-            utils.message_details_dialog(str(e), traceback.format_exc(),
+            utils.message_details_dialog(utils.xml_safe(str(e)),
+                                         traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
             debug(traceback.format_exc())
 
@@ -412,7 +413,8 @@ class GUI(object):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
         except Exception, e:
-            utils.message_details_dialog(str(e), traceback.format_exc(),
+            utils.message_details_dialog(utils.xml_safe(str(e)),
+                                         traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
             debug(traceback.format_exc())
 

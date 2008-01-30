@@ -202,16 +202,20 @@ accession_table = bauble.Table('accession', bauble.metadata,
                                             "Unknown",
                                             None],
                                     empty_to_none=True)),
-                Column('date', Date),
-                Column('source_type', Enum(values=['Collection', 'Donation',
-                                                   None], empty_to_none=True)),
-                Column('notes', UnicodeText),
-                # id_qual new in 0.7
-                Column('id_qual', Enum(values=['aff.', 'cf.', 'Incorrect',
-                                               'forsan', 'near', '?', None],
-                                       empty_to_none=True)),
-                Column('species_id', Integer, ForeignKey('species.id'),
-                       nullable=False))
+                        Column('date', Date),
+                        Column('source_type',
+                               Enum(values=['Collection', 'Donation',
+                                            None], empty_to_none=True)),
+                        Column('notes', UnicodeText),
+                        # "id_qual" new in 0.7
+                        Column('id_qual',
+                               Enum(values=['aff.', 'cf.', 'Incorrect',
+                                            'forsan', 'near', '?', None],
+                                    empty_to_none=True)),
+                        # "private" new in 0.8b2
+                        Column('private', Boolean),
+                        Column('species_id', Integer, ForeignKey('species.id'),
+                               nullable=False))
 
 
 class Accession(bauble.BaubleMapper):
@@ -337,6 +341,17 @@ class AccessionEditorView(GenericEditorView):
                                cell_data_func=self.species_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.accession_dialog)
+
+        # datum completions
+        completion = self.attach_completion('datum_entry',
+                                            minimum_key_length=1)
+        model = gtk.ListStore(str)
+        for abbr in sorted(datums.keys()):
+            # TODO: should create a marked up string with the datum description
+            model.append([abbr])
+        completion.set_model(model)
+
+
         if sys.platform == 'win32':
             self.do_win32_fixes()
         self.set_tooltips()
@@ -438,130 +453,7 @@ class AccessionEditorView(GenericEditorView):
         v = model[iter][0]
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
-#
-# Map Datum List - this list should be available as a list of completions for
-# the datum text entry....the best way is that is to show the abbreviation
-# with the long string in parenthesis or with different markup but selecting
-# the completion will enter the abbreviation....though the entry should be
-# free text....this list complements of:
-# http://www8.garmin.com/support/faqs/MapDatumList.pdf
-#
-# #Abbreviation Name
-# Adindan Adindan- Ethiopia, Mali, Senegal, Sudan
-# Afgooye Afgooye- Somalia
-# AIN EL ABD '70 AIN EL ANBD 1970- Bahrain Island, Saudi Arabia
-# Anna 1 Ast '65 Anna 1 Astro '65- Cocos I.
-# ARC 1950 ARC 1950- Botswana, Lesotho, Malawi, Swaziland, Zaire, Zambia
-# ARC 1960 Kenya, Tanzania
-# Ascnsn Isld '58 Ascension Island '58- Ascension Island
-# Astro Dos 71/4 Astro Dos 71/4- St. Helena
-# Astro B4 Sorol Sorol Atoll- Tern Island
-# Astro Bcn "E" Astro Beacon "E"- Iwo Jima
-# Astr Stn '52 Astronomic Stn '52- Marcus Island
-# Aus Geod '66 Australian Geod '66- Australia, Tasmania Island
-# Aus Geod '84 Australian Geod '84- Australia, Tasmania Island
-# Austria Austria
-# Bellevue (IGN) Efate and Erromango Islands
-# Bermuda 1957 Bermuda 1957- Bermuda Islands
-# Bogota Observ Bogata Obsrvatry- Colombia
-# Campo Inchspe Campo Inchauspe- Argentina
-# Canton Ast '66 Canton Astro 1966- Phoenix Islands
-# Cape Cape- South Africa
-# Cape Canavrl Cape Canaveral- Florida, Bahama Islands
-# Carthage Carthage- Tunisia
-# CH-1903 CH 1903- Switzerland
-# Chatham 1971 Chatham 1971- Chatham Island (New Zealand)
-# Chua Astro Chua Astro- Paraguay
-# Corrego Alegr Corrego Alegre- Brazil
-# Croatia Croatia
-# Djakarta Djakarta (Batavia)- Sumatra Island (Indonesia)
-# Dos 1968 Dos 1968- Gizo Island (New Georgia Islands)
-# Dutch Dutch
-# Easter Isld 67 Easter Island 1967
-# European 1950 European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar,
-# Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland
-# European 1979 European 1979- Austria, Finland, Netherlands, Norway, Spain, Sweden, Switzerland
-# Finland Hayfrd Finland Hayford- Finland
-# Gandajika Base Gandajika Base- Republic of Maldives
-# GDA Geocentric Datum of Australia
-# Geod Datm '49 Geodetic Datum '49- New Zealand
-# Guam 1963 Guam 1963- Guam Island
-# Gux 1 Astro Guadalcanal Island
-# Hjorsey 1955 Hjorsey 1955- Iceland
-# Hong Kong '63 Hong Kong
-# Hu-Tzu-Shan Taiwan
-# Indian Bngldsh Indian- Bangladesh, India, Nepal
-# Indian Thailand Indian- Thailand, Vietnam
-# Indonesia 74 Indonesia 1974- Indonesia
-# Ireland 1965 Ireland 1965- Ireland
-# ISTS 073 Astro ISTS 073 ASTRO '69- Diego Garcia
-# Johnston Island Johnston Island NAD27 Central
-# Kandawala Kandawala- Sri Lanka
-# Kergueln Islnd Kerguelen Island
-# Kertau 1948 West Malaysia, Singapore
-# L.C. 5 Astro Cayman Brac Island
-# Liberia 1964 Liberia 1964- Liberia
-# Luzon Mindanao Luzon- Mindanao Island
-# Luzon Philippine Luzon- Philippines (excluding Mindanao Isl.)
-# Mahe 1971 Mahe 1971- Mahe Island
-# Marco Astro Marco Astro- Salvage Isl.
-# Massawa Massawa- Eritrea (Ethiopia)
-# Merchich Merchich- Morocco
-# Midway Ast '61 Midway Astro '61- Midway
-# Minna Minna- Nigeria
-# NAD27 Alaska North American 1927- Alaska
-# NAD27 Bahamas North American 1927- Bahamas
-# NAD27 Canada North American 1927- Canada and Newfoundland
-# NAD27 Canal Zn North American 1927- Canal Zone
-# NAD27 Caribbn North American 1927- Caribbean (Barbados, Caicos Islands, Cuba, Dominican Repuplic,
-# Grand Cayman, Jamaica, Leeward and Turks Islands)
-# NAD27 Central North American 1927- Central America (Belize, Costa Rica, El Salvador, Guatemala,
-# Honduras, Nicaragua)
-# NAD27 CONUS North American 1927- Mean Value (CONUS)
-# NAD27 Cuba North American 1927- Cuba
-# NAD27 Grnland North American 1927- Greenland (Hayes Peninsula)
-# NAD27 Mexico North American 1927- Mexico
-# NAD27 San Sal North American 1927- San Salvador Island
-# NAD83 North American 1983- Alaska, Canada, Central America, CONUS, Mexico
-# Naparima BWI Naparima BWI- Trinidad and Tobago
-# Nhrwn Masirah Nahrwn- Masirah Island (Oman)
-# Nhrwn Saudi A Nahrwn- Saudi Arabia
-# Nhrwn United A Nahrwn- United Arab Emirates
-# Obsrvtorio '66 Observatorio 1966- Corvo and Flores Islands (Azores)
-# Old Egyptian Old Egyptian- Egypt
-# Old Hawaiian Old Hawaiian- Mean Value
-# Oman Oman- Oman
-# Old Srvy GB Old Survey Great Britain- England, Isle of Man, Scotland, Shetland Isl., Wales
-# Pico De Las Nv Canary Islands
-# Potsdam Potsdam-Germany
-# Prov S Am '56 Prov So Amricn '56- Bolivia, Chile,Colombia, Ecuador, Guyana, Peru, Venezuela
-# Prov S Chln '63 So. Chilean '63- S. Chile
-# Ptcairn Ast '67 Pitcairn Astro '67- Pitcairn
-# Puerto Rico Puerto Rico & Virgin Isl.
-# Qatar National Qatar National- Qatar South Greenland
-# Qornoq Qornoq- South Greenland
-# Reunion Reunion- Mascarene Island
-# Rome 1940 Rome 1940- Sardinia Isl.
-# RT 90 Sweden
-# Santo (Dos) Santo (Dos)- Espirito Santo
-# Sao Braz Sao Braz- Sao Miguel, Santa Maria Islands
-# Sapper Hill '43 Sapper Hill 1943- East Falkland Island
-# Schwarzeck Schwarzeck- Namibia
-# SE Base Southeast Base- Porto Santo and Madiera Islands
-# South Asia South Asia- Singapore
-# Sth Amrcn '69 S. American '69- Argentina, Bolivia, Brazil, Chile, Colombia, Ecuador, Guyana,
-# Paraguay, Peru, Venezuela, Trin/Tobago
-# SW Base Southwest Base- Faial, Graciosa, Pico, Sao Jorge and Terceira
-# Taiwan Taiwan
-# Timbalai 1948 Timbalai 1948- Brunei and E. Malaysia (Sarawak and Sabah)
-# Tokyo Tokyo- Japan, Korea, Okinawa
-# Tristan Ast '68 Tristan Astro 1968- Tristan da Cunha
-# Viti Levu 1916 Viti Levu 1916- Viti Levu/Fiji Islands
-# Wake-Eniwetok Wake-Eniwetok- Marshall
-# WGS 72 World Geodetic System 72
-# WGS 84 World Geodetic System 84
-# Zanderij Zanderij- Surinam (excluding San Salvador Island)
-# User User-defined custom datum
+
 
 # TODO: should have a label next to lat/lon entry to show what value will be
 # stored in the database, might be good to include both DMS and the float
@@ -583,7 +475,8 @@ class CollectionPresenter(GenericEditorPresenter):
                            'alt_entry': 'elevation',
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
-                           'coll_notes_textview': 'notes'}
+                           'coll_notes_textview': 'notes',
+                           }
 
     # TODO: could make the problems be tuples of an id and description to
     # be displayed in a dialog or on a label ala eclipse
@@ -608,6 +501,7 @@ class CollectionPresenter(GenericEditorPresenter):
                                    FloatOrNoneStringValidator())
         self.assign_simple_handler('habitat_textview', 'habitat')
         self.assign_simple_handler('coll_notes_textview', 'notes')
+        self.assign_simple_handler('datum_entry', 'datum')
 
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
@@ -637,7 +531,7 @@ class CollectionPresenter(GenericEditorPresenter):
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
             value = self.model[field]
-#            debug('%s, %s, %s' % (widget, field, value))
+##            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
             self.view.set_widget_value(widget, value)
@@ -664,6 +558,7 @@ class CollectionPresenter(GenericEditorPresenter):
 
         if self.model.latitude is None or self.model.longitude is None:
             self.view.widgets.geoacc_entry.set_sensitive(False)
+            self.view.widgets.datum_entry.set_sensitive(False)
 
 
     def on_date_entry_insert(self, entry, new_text, new_text_length, position,
@@ -1034,7 +929,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_source_type_combo': 'source_type',
-                           'acc_notes_textview': 'notes'}
+                           'acc_notes_textview': 'notes',
+                           'acc_private_check': 'private'}
 
 
     PROBLEM_INVALID_DATE = 3
@@ -1091,6 +987,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    StringOrNoneValidator())
+        self.assign_simple_handler('acc_private_check', 'private')
         self.init_change_notifier()
 
 
@@ -1188,16 +1085,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
 
         if field == 'longitude' or field == 'latitude':
-            if model.latitude is not None and model.longitude is not None:
-                self.view.widgets.geoacc_entry.set_sensitive(True)
-            else:
-                self.view.widgets.geoacc_entry.set_sensitive(False)
+            sensitive = model.latitude is not None and \
+                            model.longitude is not None
+            self.view.widgets.geoacc_entry.set_sensitive(sensitive)
+            self.view.widgets.datum_entry.set_sensitive(sensitive)
 
         if field == 'elevation':
-            if model.elevation is not None:
-                self.view.widgets.altacc_entry.set_sensitive(True)
-            else:
-                self.view.widgets.altacc_entry.set_sensitive(False)
+            sensitive = model.elevation is not None
+            self.view.widgets.altacc_entry.set_sensitive(sensitive)
 
         # refresh the sensitivity of the accept buttons
         sensitive = True
@@ -1339,15 +1234,15 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 value = self.model[field]
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month, value.year)
-
             self.view.set_widget_value(widget, value)
 
-        if self.model.prov_type == 'Wild':
-            self.view.widgets.acc_wild_prov_combo.set_sensitive(True)
-            self.view.widgets.acc_wild_prov_frame.set_sensitive(True)
-        else:
-            self.view.widgets.acc_wild_prov_combo.set_sensitive(False)
-            self.view.widgets.acc_wild_prov_frame.set_sensitive(False)
+        if self.model.private is None:
+            self.view.widgets.acc_private_check.set_inconsistent(False)
+            self.view.widgets.acc_private_check.set_active(False)
+
+        sensitive = self.model.prov_type == 'Wild'
+        self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
+        self.view.widgets.acc_wild_prov_frame.set_sensitive(sensitive)
 
 
     def start(self):
@@ -1682,3 +1577,125 @@ class SourceInfoBox(AccessionInfoBox):
     def update(self, row):
         super(SourceInfoBox, self).update(row._accession)
 
+
+
+#
+# Map Datum List - this list should be available as a list of completions for
+# the datum text entry....the best way is that is to show the abbreviation
+# with the long string in parenthesis or with different markup but selecting
+# the completion will enter the abbreviation....though the entry should be
+# free text....this list complements of:
+# http://www8.garmin.com/support/faqs/MapDatumList.pdf
+#
+# Abbreviation: Name
+datums = {"Adindan": "Adindan- Ethiopia, Mali, Senegal, Sudan",
+          "Afgooye": "Afgooye- Somalia",
+          "AIN EL ABD": "'70 AIN EL ANBD 1970- Bahrain Island, Saudi Arabia",
+          "Anna 1 Ast '65": "Anna 1 Astro '65- Cocos I.",
+          "ARC 1950": "ARC 1950- Botswana, Lesotho, Malawi, Swaziland, Zaire, Zambia",
+          "ARC 1960": "Kenya, Tanzania",
+          "Ascnsn Isld '58": "Ascension Island '58- Ascension Island",
+          "Astro Dos 71/4": "Astro Dos 71/4- St. Helena",
+          "Astro B4 Sorol": "Sorol Atoll- Tern Island",
+          "Astro Bcn \"E\"": "Astro Beacon \"E\"- Iwo Jima",
+          "Astr Stn '52": "Astronomic Stn '52- Marcus Island",
+          "Aus Geod '66": "Australian Geod '66- Australia, Tasmania Island",
+          "Aus Geod '84": "Australian Geod '84- Australia, Tasmania Island",
+          "Austria": "Austria",
+          "Bellevue (IGN)": "Efate and Erromango Islands",
+          "Bermuda 1957" : "Bermuda 1957- Bermuda Islands",
+          "Bogota Observ": "Bogata Obsrvatry- Colombia",
+          "Campo Inchspe": "Campo Inchauspe- Argentina",
+          "Canton Ast '66": "Canton Astro 1966- Phoenix Islands",
+          "Cape": "Cape- South Africa",
+          "Cape Canavrl": "Cape Canaveral- Florida, Bahama Islands",
+          "Carthage": "Carthage- Tunisia",
+          "CH-1903": "CH 1903- Switzerland",
+          "Chatham 1971" : "Chatham 1971- Chatham Island (New Zealand)",
+          "Chua Astro": "Chua Astro- Paraguay",
+          "Corrego Alegr" : "Corrego Alegre- Brazil",
+          "Croatia" : "Croatia",
+          "Djakarta" : "Djakarta (Batavia)- Sumatra Island (Indonesia)",
+          "Dos 1968" : "Dos 1968- Gizo Island (New Georgia Islands)",
+          "Dutch" : "Dutch",
+          "Easter Isld 67" : "Easter Island 1967",
+          "European 1950" : "European 1950- Austria, Belgium, Denmark, Finland, France, Germany, Gibraltar, Greece, Italy, Luxembourg, Netherlands, Norway, Portugal, Spain, Sweden, Switzerland",
+          "European 1979": "European 1979- Austria, Finland, Netherlands, Norway, Spain, Sweden, Switzerland",
+          "Finland Hayfrd": "Finland Hayford- Finland",
+          "Gandajika Base": "Gandajika Base- Republic of Maldives",
+          "GDA": "Geocentric Datum of Australia",
+          "Geod Datm '49": "Geodetic Datum '49- New Zealand",
+          "Guam 1963": "Guam 1963- Guam Island",
+          "Gux 1 Astro": "Guadalcanal Island",
+          "Hjorsey 1955": "Hjorsey 1955- Iceland",
+          "Hong Kong '63": "Hong Kong",
+          "Hu-Tzu-Shan": "Taiwan",
+          "Indian Bngldsh" : "Indian- Bangladesh, India, Nepal",
+          "Indian Thailand" : "Indian- Thailand, Vietnam",
+          "Indonesia 74" : "Indonesia 1974- Indonesia",
+          "Ireland 1965" : "Ireland 1965- Ireland",
+          "ISTS 073 Astro": "ISTS 073 ASTRO '69- Diego Garcia",
+          "Johnston Island" : "Johnston Island NAD27 Central",
+          "Kandawala": "Kandawala- Sri Lanka",
+          "Kergueln Islnd": "Kerguelen Island",
+          "Kertau 1948": "West Malaysia, Singapore",
+          "L.C. 5 Astro": "Cayman Brac Island",
+          "Liberia 1964": "Liberia 1964- Liberia",
+          "Luzon Mindanao": "Luzon- Mindanao Island",
+          "Luzon Philippine": "Luzon- Philippines (excluding Mindanao Isl.)",
+          "Mahe 1971": "Mahe 1971- Mahe Island",
+          "Marco Astro": "Marco Astro- Salvage Isl.",
+          "Massawa": "Massawa- Eritrea (Ethiopia)",
+          "Merchich": "Merchich- Morocco",
+          "Midway Ast '61": "Midway Astro '61- Midway",
+          "Minna": "Minna- Nigeria",
+          "NAD27 Alaska": "North American 1927- Alaska",
+          "NAD27 Bahamas": "North American 1927- Bahamas",
+          "NAD27 Canada": "North American 1927- Canada and Newfoundland",
+          "NAD27 Canal Zn": "North American 1927- Canal Zone",
+          "NAD27 Caribbn": "North American 1927- Caribbean (Barbados, Caicos Islands, Cuba, Dominican Repuplic, Grand Cayman, Jamaica, Leeward and Turks Islands)",
+          "NAD27 Central": "North American 1927- Central America (Belize, Costa Rica, El Salvador, Guatemala, Honduras, Nicaragua)",
+          "NAD27 CONUS": "North American 1927- Mean Value (CONUS)",
+          "NAD27 Cuba": "North American 1927- Cuba",
+          "NAD27 Grnland": "North American 1927- Greenland (Hayes Peninsula)",
+          "NAD27 Mexico": "North American 1927- Mexico",
+          "NAD27 San Sal": "North American 1927- San Salvador Island",
+          "NAD83": "North American 1983- Alaska, Canada, Central America, CONUS, Mexico",
+          "Naparima BWI": "Naparima BWI- Trinidad and Tobago",
+          "Nhrwn Masirah": "Nahrwn- Masirah Island (Oman)",
+          "Nhrwn Saudi A": "Nahrwn- Saudi Arabia",
+          "Nhrwn United A": "Nahrwn- United Arab Emirates",
+          "Obsrvtorio '66": "Observatorio 1966- Corvo and Flores Islands (Azores)",
+          "Old Egyptian": "Old Egyptian- Egypt",
+          "Old Hawaiian": "Old Hawaiian- Mean Value",
+          "Oman": "Oman- Oman",
+          "Old Srvy GB": "Old Survey Great Britain- England, Isle of Man, Scotland, Shetland Isl., Wales",
+          "Pico De Las Nv": "Canary Islands",
+          "Potsdam": "Potsdam-Germany",
+          "Prov S Am '56": "Prov  Amricn '56- Bolivia, Chile,Colombia, Ecuador, Guyana, Peru, Venezuela",
+          "Prov S Chln '63": "So. Chilean '63- S. Chile",
+          "Ptcairn Ast '67": "Pitcairn Astro '67- Pitcairn",
+          "Puerto Rico": "Puerto Rico & Virgin Isl.",
+          "Qatar National": "Qatar National- Qatar South Greenland",
+          "Qornoq": "Qornoq- South Greenland",
+          "Reunion": "Reunion- Mascarene Island",
+          "Rome 1940": "Rome 1940- Sardinia Isl.",
+          "RT 90": "Sweden",
+          "Santo (Dos)": "Santo (Dos)- Espirito Santo",
+          "Sao Braz": "Sao Braz- Sao Miguel, Santa Maria Islands",
+          "Sapper Hill '43": "Sapper Hill 1943- East Falkland Island",
+          "Schwarzeck": "Schwarzeck- Namibia",
+          "SE Base": "Southeast Base- Porto Santo and Madiera Islands",
+          "South Asia": "South Asia- Singapore",
+          "Sth Amrcn '69": "S. American '69- Argentina, Bolivia, Brazil, Chile, Colombia, Ecuador, Guyana, Paraguay, Peru, Venezuela, Trin/Tobago",
+          "SW Base": "Southwest Base- Faial, Graciosa, Pico, Sao Jorge and Terceira",
+          "Taiwan": "Taiwan",
+          "Timbalai 1948": "Timbalai 1948- Brunei and E. Malaysia (Sarawak and Sabah)",
+          "Tokyo": "Tokyo- Japan, Korea, Okinawa",
+          "Tristan Ast '68": "Tristan Astro 1968- Tristan da Cunha",
+          "Viti Levu 1916": "Viti Levu 1916- Viti Levu/Fiji Islands",
+          "Wake-Eniwetok": "Wake-Eniwetok- Marshall",
+          "WGS 72": "World Geodetic System 72",
+          "WGS 84": "World Geodetic System 84",
+          "Zanderij": "Zanderij- Surinam (excluding San Salvador Island)",
+          "User": "User-defined custom datum"}

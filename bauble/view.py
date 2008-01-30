@@ -268,6 +268,7 @@ class SearchParser(object):
             (domain_expression).setResultsName('expression') ^ \
             value_list.setResultsName('values')
 
+
     def parse_string(self, text):
         '''
         returns a pyparsing.ParseResults objects the represents  either a
@@ -291,6 +292,11 @@ class SearchStrategy(object):
 # domain where join = value: search columns of the mapping of join for value
 
 # should create some sort of list of mapping: (col1, col1) to query: what about other operators for queries where you want the values or/and'ed together
+
+# TODO: ************** broken in 0.8.0
+# if I have a species named Maxillaria test then searching for test won't
+# find it....also add a test for this
+# ** also can't expand search results on newly added item
 
 class MapperSearch(SearchStrategy):
 

@@ -244,8 +244,9 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
         else:
             w.set_inconsistent(True)
     else:
-        raise TypeError('don\'t know how to handle the widget type %s with '\
-		                'name %s' % (type(w), widget_name))
+        raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
+                        'the widget type %s with name %s' % \
+                        (type(w), widget_name))
 
 # TODO: if i escape the messages that come in then my own markup doesn't
 # work, what really needs to be done is make sure that any exception that

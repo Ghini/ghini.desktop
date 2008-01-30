@@ -517,7 +517,6 @@ class GenericEditorPresenter(object):
                 button.set_inconsistent(False)
                 _set_in_model(active, model_field)
             widget.connect('toggled', toggled)
-
         else:
             raise ValueError('assign_simple_handler() -- '\
                              'widget type not supported: %s' % type(widget))
