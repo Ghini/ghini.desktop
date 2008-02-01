@@ -654,8 +654,7 @@ class SearchView(pluginmgr.View):
 
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
-        create_session = sessionmaker(bind=bauble.engine)
-        self.session = create_session()
+        self.session = bauble.Session()
 
 
     def update_infobox(self):
@@ -838,6 +837,10 @@ class SearchView(pluginmgr.View):
             for found in utils.search_tree_model(model, row):
                 model.remove(found)
             return True
+        except Exception, e:
+            debug(e)
+            debug(traceback.format_exc())
+            return True
         else:
             self.append_children(model, iter, kids)
             return False
@@ -908,6 +911,7 @@ class SearchView(pluginmgr.View):
 
     def cell_data_func(self, coll, cell, model, iter):
         value = model[iter][0]
+#        debug(value)
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -928,6 +932,7 @@ class SearchView(pluginmgr.View):
                                    _substr_tmpl % utils.utf8(substr)))
 
             except (saexc.InvalidRequestError, TypeError), e:
+                debug(e)
                 def remove():
                     treeview_model = self.results_view.get_model()
                     self.results_view.set_model(None) # detach model
@@ -1019,15 +1024,18 @@ class SearchView(pluginmgr.View):
                         if result is not None:
                             for obj in self.session:
                                 try:
+#                                    debug('expire: %s(%s)' % (obj, repr(obj)))
                                     self.session.expire(obj)
-                                except saexc.InvalidRequestError:
-#                                    debug('exception on refresh')
+                                    #self.session.refresh(obj)
+                                except saexc.InvalidRequestError, e:
                                     # find the object in the tree and remove
                                     # it, this could get expensive if there
                                     # are a lot of items in the tree
+                                    debug(e)
                                     for found in utils.search_tree_model(model,
                                                                          obj):
-#                                        debug('found %s: %s' % (found, model[found][0]))
+#                                        debug('found %s: %s' % \
+#                                              (found, model[found][0]))
                                         model.remove(found)
                             self.results_view.collapse_all()
                             self.expand_to_all_refs(expanded_rows)
