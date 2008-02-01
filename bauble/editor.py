@@ -694,34 +694,25 @@ class GenericModelViewPresenterEditor(object):
     ok_responses = ()
 
     def __init__(self, model, parent=None):
-        '''
+        """
+        The editor does all of it's work in it's own session.  A copy of model
+        is merged into the editor's session.
+
+        Warning: If the model is in object_session(model).new it is
+        expunged first from its session first before merged into the
+        editor's session.  This will most likely change in the future.
+
         @param model: an instance of an object mapped to a SQLAlchemy Table
         @param parent: the parent windows for the view or None
-        '''
-        # the editor does all of it's work in it's own session,
-        # so put a copy of the model in our session
+        """
         self.session = bauble.Session()
         obj_session = object_session(model)
-        if obj_session is not None:
-            if model in obj_session.new:
-                # TODO: i would rather not touch the model's session, can we
-                # just copy the model into the new session without removing it
-                # from the previous one
-                obj_session.expunge(model)
-                self.model = model
-            else:
-                self.model = self.session.load(model.__class__, model.id)
-        else:
-            self.model = model
-
-        for prop in object_mapper(model).iterate_properties:
-            name = prop.key
-            value = getattr(self.model, name)
-            if value not in (None, []) and hasattr(value, '_instance_key'):
-                new_value = self.session.load(value.__class__, value.id)
-                setattr(self.model, name, new_value)
-
-        self.session.save_or_update(self.model)
+        if obj_session is not None and model in obj_session.new:
+            # TODO: i would rather not touch the model's session, can we
+            # just copy the model into the new session without removing it
+            # from the previous one but this didn't work as of r685
+            obj_session.expunge(model)
+        self.model = self.session.merge(model)
 
 
     def attach_response(self, dialog, response, keyname, mask):

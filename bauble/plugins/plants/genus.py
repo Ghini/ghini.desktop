@@ -166,16 +166,15 @@ from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.plants.species_editor import SpeciesEditor
 
 
-genus_mapper = mapper(Genus, genus_table,
+mapper(Genus, genus_table,
     properties = {\
-    'species': relation(Species,
-                        primaryjoin=genus_table.c.id==species_table.c.genus_id,
-                        cascade='all, delete-orphan',
+    'species': relation(Species, cascade='all, delete-orphan',
                         order_by=['sp', 'infrasp_rank', 'infrasp'],
-                        backref='genus'),
+                        backref=backref('genus', uselist=False)),
     '_synonyms': relation(GenusSynonym,
                 primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
-                cascade='all, delete-orphan', uselist=True, backref='genus')},
+                cascade='all, delete-orphan', uselist=True,
+                backref='genus')},
     order_by=['genus', 'author'])
 
 mapper(GenusSynonym, genus_synonym_table,

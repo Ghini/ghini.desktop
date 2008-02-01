@@ -177,10 +177,6 @@ class Species(bauble.BaubleMapper):
         @param markup: flags to toggle whether the returned text is marked up
         to show italics on the epithets
         '''
-        #genus = str(species.genus)
-        # TODO: the Genus->Species one_to_many relationship should have created
-        # a backref to genus in species but it doesn't seem to work
-        #genus = str(Genus.get_by(id=species.genus_id))
         genus = str(species.genus)
         sp = species.sp
         infrasp = species.infrasp
