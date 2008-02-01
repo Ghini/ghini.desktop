@@ -455,22 +455,17 @@ class MapperSearch(SearchStrategy):
                        table.c[col].like('%%%s%%' % val)
             for mapping, columns in self._mapping_columns.iteritems():
                 q = session.query(mapping)
-                #cv = [(c,v) for c in columns for v in tokens]
                 cv = [(c,v) for c in columns for v in tokens['values']]
-                # i'm not quite sure why we have to return the results of
-                # filter and assign them to q, i would think since filter
-                # is generative then it would be the same
 
-                #q = q.filter(or_(*[like(mapping, c, v) for c,v in cv]))
-
-                # this isn't quite as elegant as the above filter but it
-                # avoids the "Unicode type received non-unicode bind param"
-                # warning that we get as of SQLAlchemy 0.4.2
-                for c, v in cv:
-                    if isinstance(mapping.c[c].type, (Unicode, UnicodeText)):
-                        q = q.filter(like(mapping, c, unicode(v)))
+                # as of SQLAlchemy 0.4.2 we convert the value to a unicode
+                # object if the col is a Unicode or UnicodeText column in order
+                # to avoid the "Unicode type received non-unicode bind param"
+                def unicol(col, v):
+                    if isinstance(mapping.c[col].type, (Unicode,UnicodeText)):
+                        return unicode(v)
                     else:
-                        q = q.filter(like(mapping, c, unicode(v)))
+                        return v
+                q =q.filter(or_(*[like(mapping,c,unicol(c, v)) for c,v in cv]))
                 results.append(q)
         elif 'expression' in tokens:
             #debug(tokens.dump())
@@ -1016,7 +1011,8 @@ class SearchView(pluginmgr.View):
                         try:
                             result = f(value)
                         except Exception, e:
-                            utils.message_details_dialog(str(e),
+                            msg = utils.xml_safe_utf8(str(e))
+                            utils.message_details_dialog(msg,
                                                         traceback.format_exc(),
                                                          gtk.MESSAGE_ERROR)
                             debug(traceback.format_exc())
@@ -1031,7 +1027,7 @@ class SearchView(pluginmgr.View):
                                     # find the object in the tree and remove
                                     # it, this could get expensive if there
                                     # are a lot of items in the tree
-                                    debug(e)
+#                                    debug(e)
                                     for found in utils.search_tree_model(model,
                                                                          obj):
 #                                        debug('found %s: %s' % \
