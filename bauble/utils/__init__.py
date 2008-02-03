@@ -454,3 +454,20 @@ def delete_or_expunge(obj):
     else:
 #        debug('delete obj: %s -- %s' % (obj, repr(obj)))
         session.delete(obj)
+
+
+def chunk(iterable, n):
+    '''
+    return iterable in chunks of size n
+    '''
+    # TODO: this could probably be implemented way more efficiently
+    chunk = []
+    ctr = 0
+    for it in iterable:
+        chunk.append(it)
+        ctr += 1
+        if ctr >= n:
+            yield chunk
+            chunk = []
+            ctr = 0
+    yield chunk

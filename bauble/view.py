@@ -38,7 +38,6 @@ if sys.platform == 'win32':
 else:
     _substr_tmpl = '<small>%s</small>'
 
-
 #import gc
 #gc.enable()
 #gc.set_debug(gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_INSTANCES|gc.DEBUG_OBJECTS)
@@ -793,21 +792,26 @@ class SearchView(pluginmgr.View):
             statusbar.pop(sbcontext_id)
             self.results_view.set_model(model)
         else:
-            def populate_callback():
-                self.populate_results(results)
-                statusbar.push(sbcontext_id, "%s results" % len(results))
-                # select first item in list
-                self.results_view.set_cursor(0)
-            if len(results) > 2000:
+            if len(results) > 5000:
                 msg = 'This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you '\
                         'want to continue?' % len(results)
-                if utils.yes_no_dialog(msg):
-                    gobject.idle_add(populate_callback)
-                else:
-                    pass
+                if not utils.yes_no_dialog(msg):
+                    return
+            statusbar.push(sbcontext_id, "Retrieving %s search results..." % \
+                           len(results))
+            if len(results) > 1000:
+                    self.populate_results(results)
             else:
-                gobject.idle_add(populate_callback)
+                task = self._populate_worker(results)
+                while True:
+                    try:
+                        task.next()
+                    except StopIteration:
+                        break
+                self.results_view.set_cursor(0)
+            statusbar.push(sbcontext_id, "%s search results" % len(results))
+
 
 
     def remove_children(self, model, parent):
@@ -851,28 +855,43 @@ class SearchView(pluginmgr.View):
 
 
     def populate_results(self, results, check_for_kids=False):
-        """
-        populate the results view with the results
+        def on_error(exc):
+            debug('SearchView.populate_results:')
+            debug(exc)
+        def on_quit():
+            try:
+                self.results_view.set_cursor(0)
+            except Exception, e:
+                debug(e)
+        return bauble.task.queue(self._populate_worker, on_quit, on_error,
+                                 results, check_for_kids)
 
-        @param results: an iterable object to get the rows from
-        @param check_for_kids: whether we should check if each of the rows in
-            select have children and set the expand indicator as such, this can
-            signicantly slow down large lists of data, if this is False then
-            all appended rows will have an expand indicator and the children
-            will be check on expansion
-        """
+
+    def _populate_worker(self, results, check_for_kids=False):
+#    def populate_results(self, results, check_for_kids=False):
+        nresults = len(results)
+        model = gtk.TreeStore(object)
+        model.set_default_sort_func(lambda *args: -1)
+        model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         utils.clear_model(self.results_view)
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         # insert them into the model by groups
+        groups = {}
         for key, group in itertools.groupby(results, lambda x: type(x)):
+            groups[key] = group
+
+        chunk_size = 100
+        update_every = 1
+        steps_so_far = 0
+        for c in utils.chunk(results, chunk_size):
             # TODO: the natural sort probably isn't compatible for non ASCII
             # character strings
             # TODO: choose between natsort_key or letting the returned results
             # determine the order
             #for obj in sorted(group, key=utils.natsort_key):
-            for obj in group:
+            for obj in c:
                 parent = model.append(None, [obj])
                 obj_type = type(obj)
                 if check_for_kids:
@@ -881,6 +900,13 @@ class SearchView(pluginmgr.View):
                         model.append(parent, ['-'])
                 elif self.view_meta[obj_type].children is not None:
                     model.append(parent, ['-'])
+
+            steps_so_far += chunk_size
+            if steps_so_far % update_every == 0:
+                percent = float(steps_so_far)/float(nresults)
+                if 0< percent < 1.0:
+                    bauble.gui.progressbar.set_fraction(percent)
+            yield
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
