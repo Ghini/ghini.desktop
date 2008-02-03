@@ -367,6 +367,7 @@ class MapperSearch(SearchStrategy):
         return a Query object
         '''
         query = session.query(mapping)
+        val = unicode(val)
         if len(identifiers) == 1:
             results = query.filter(query.table.c[identifiers[0]].op(cond)(val))
         else:
@@ -1017,7 +1018,6 @@ class SearchView(pluginmgr.View):
                                 try:
 #                                    debug('expire: %s(%s)' % (obj, repr(obj)))
                                     self.session.expire(obj)
-                                    #self.session.refresh(obj)
                                 except saexc.InvalidRequestError, e:
                                     # find the object in the tree and remove
                                     # it, this could get expensive if there
