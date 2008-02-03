@@ -21,12 +21,14 @@ from bauble.types import Enum
 
 
 def edit_callback(value):
-    e = FamilyEditor(model=value)
+    session = bauble.Session()
+    e = FamilyEditor(model=session.merge(value))
     return e.start() != None
 
 
 def add_genera_callback(value):
-    e = GenusEditor(Genus(family=value))
+    session = bauble.Session()
+    e = GenusEditor(model=Genus(family=session.merge(value)))
     return e.start() != None
 
 

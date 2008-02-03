@@ -439,6 +439,10 @@ def natsort_key(obj):
 
 
 def delete_or_expunge(obj):
+    """
+    If the object is in object_session(obj).new then expunge it from the
+    session.  If not then session.delete it.
+    """
     from sqlalchemy.orm import object_session
     session = object_session(obj)
     if session is None:

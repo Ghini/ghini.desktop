@@ -695,24 +695,22 @@ class GenericModelViewPresenterEditor(object):
 
     def __init__(self, model, parent=None):
         """
-        The editor does all of it's work in it's own session.  A copy of model
-        is merged into the editor's session.
+        The editor does all of it's work in the model's session. If
+        model is not yet part of a session then we create a new
+        session and add the model to it.
 
-        Warning: If the model is in object_session(model).new it is
-        expunged first from its session first before merged into the
-        editor's session.  This will most likely change in the future.
+        Warning: The editor will call session.commit on the model's
+        session so don't pass a model in a session that you don't want
+        committed.
 
         @param model: an instance of an object mapped to a SQLAlchemy Table
         @param parent: the parent windows for the view or None
         """
-        self.session = bauble.Session()
-        obj_session = object_session(model)
-        if obj_session is not None and model in obj_session.new:
-            # TODO: i would rather not touch the model's session, can we
-            # just copy the model into the new session without removing it
-            # from the previous one but this didn't work as of r685
-            obj_session.expunge(model)
-        self.model = self.session.merge(model)
+        self.session = object_session(model)
+        self.model = model
+        if self.session is None:
+            self.session = bauble.Session()
+            self.session.save_or_update(self.model)
 
 
     def attach_response(self, dialog, response, keyname, mask):

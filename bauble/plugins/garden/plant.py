@@ -40,7 +40,8 @@ def plant_delimiter(refresh=False):
 
 
 def edit_callback(plant):
-    e = PlantEditor(plant)
+    session = bauble.Session()
+    e = PlantEditor(model=session.merge(plant))
     return e.start() != None
 
 
