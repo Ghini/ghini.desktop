@@ -462,7 +462,7 @@ class MapperSearch(SearchStrategy):
                     else:
                         return v
                 q =q.filter(or_(*[like(mapping,c,unicol(c, v)) for c,v in cv]))
-                results.append(q)
+                results.add(q)
         elif 'expression' in tokens:
             #debug(tokens.dump())
             for domain, cond, val in tokens:#['expression']:
@@ -498,12 +498,12 @@ class MapperSearch(SearchStrategy):
 
                 # select everything
                 if val == '*':
-                    results.append(query)
+                    results.add(query)
                 else:
                     for col in columns:
-                        results.append(query.filter(mapping.c[col].op(cond)(val)))
+                        results.add(query.filter(mapping.c[col].op(cond)(val)))
         elif 'query' in tokens:
-            results.append(self._get_results_from_query(tokens, session))
+            results.add(self._get_results_from_query(tokens, session))
 
         return results
 
@@ -511,18 +511,23 @@ class MapperSearch(SearchStrategy):
 
 class ResultSet(object):
     '''
-    a ResultSet represents a set of results returned from a query, it allows
-    you to add results to the set and then iterate over all the results
-    as if they were one set
+    A ResultSet represents a set of results returned from a query, it
+    allows you to add results to the set and then iterate over all the
+    results as if they were one set.  It will only return objects that
+    are unique between all the results.
     '''
     def __init__(self, results=None):
-        self._results = []
         if results is not None:
-            self._results.append(results)
+            self._results = set(results)
+        else:
+            self._results = set()
 
 
-    def append(self, results):
-        self._results.append(results)
+    def add(self, results):
+        if isinstance(results, list):
+            self._results.update(results)
+        else:
+            self._results.add(results)
 
 
     def __len__(self):
@@ -539,14 +544,21 @@ class ResultSet(object):
         for r in self._results:
             if isinstance(r, Query):
                 ctr += r.count()
-            else:
+            elif hasattr(r, '__iter__'):
                 ctr += len(r)
+            else:
+                ctr += 1
         return ctr
 
 
     def __iter__(self):
+        # TODO: the problem we have with doing iteration this way is
+        # that if this ResultSet contains other ResultSets that are
+        # large we'll be creating lots of large set objects....of
+        # course if the sets are really only holding references to the
+        # objects then it won't really be a problem
+        self._iterset = set()
         self._iter = itertools.chain(*self._results)
-        self._set = set()
         return self
 
 
@@ -555,10 +567,11 @@ class ResultSet(object):
         returns unique items from the result set
         '''
         v = self._iter.next()
-        if v in self._set:
+        if v not in self._iterset: # only return unique objects
+            self._iterset.add(v)
+            return v
+        else:
             return self.next()
-        self._set.add(v)
-        return v
 
 
 
@@ -765,7 +778,7 @@ class SearchView(pluginmgr.View):
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
-                results.append(strategy.search(text, self.session))
+                results.add(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
@@ -837,50 +850,40 @@ class SearchView(pluginmgr.View):
             return False
 
 
-    def populate_results(self, select, check_for_kids=False):
-        '''
-        populate the results view with the rows in select
+    def populate_results(self, results, check_for_kids=False):
+        """
+        populate the results view with the results
 
-        @param select: an iterable object to get the rows from
+        @param results: an iterable object to get the rows from
         @param check_for_kids: whether we should check if each of the rows in
             select have children and set the expand indicator as such, this can
             signicantly slow down large lists of data, if this is False then
             all appended rows will have an expand indicator and the children
             will be check on expansion
-        '''
+        """
         utils.clear_model(self.results_view)
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
-##        import logging
-##        logger = logging.getLogger('sqlalchemy.engine')
-##        logger.setLevel(logging.INFO)
-
-        import time
-##        start = time.time()
-        groups = []
-        # TODO: the natural sort probably isn't compatible for non ASCII
-        # character strings
-        for k, g in itertools.groupby(select, lambda x: type(x)):
-            groups.append(sorted(g, key=utils.natsort_key))
-##         debug(time.time()-start)
-
-##         start = time.time()
-        for s in itertools.chain(*groups):
-                p = model.append(None, [s])
-                selected_type = type(s)
+        # insert them into the model by groups
+        for key, group in itertools.groupby(results, lambda x: type(x)):
+            # TODO: the natural sort probably isn't compatible for non ASCII
+            # character strings
+            # TODO: choose between natsort_key or letting the returned results
+            # determine the order
+            #for obj in sorted(group, key=utils.natsort_key):
+            for obj in group:
+                parent = model.append(None, [obj])
+                obj_type = type(obj)
                 if check_for_kids:
-                    kids = self.view_meta[selected_type].get_children(s)
+                    kids = self.view_meta[obj_type].get_children(s)
                     if len(kids) > 0:
-                        model.append(p, ['-'])
-                elif self.view_meta[selected_type].children is not None:
-                    model.append(p, ['-'])
+                        model.append(parent, ['-'])
+                elif self.view_meta[obj_type].children is not None:
+                    model.append(parent, ['-'])
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
-
-##        debug(time.time()-start)
-#        logger.setLevel(logging.ERROR)
 
 
     def append_children(self, model, parent, kids):
@@ -902,7 +905,7 @@ class SearchView(pluginmgr.View):
 
     def cell_data_func(self, coll, cell, model, iter):
         value = model[iter][0]
-#        debug(value)
+#        debug('%s(%s)' % (value, type(value)))
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
