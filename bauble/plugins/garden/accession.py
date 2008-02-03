@@ -988,7 +988,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
         self.init_change_notifier()
 
@@ -1025,7 +1025,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if text is '':
             self.model.code = None
         else:
-            self.model.code = unicode(text)
+            # TODO: even though utf-8 is pretty much standard throughout
+            # Bauble we shouldn't hardcode the encoding here...probably best
+            # to store the default encoding in the bauble.meta
+            self.model.code = unicode(text, encoding='utf-8')
 
 
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
