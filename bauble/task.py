@@ -24,6 +24,8 @@ _task_queue = Queue.Queue(0)
 
 # TODO: test callback
 
+# WARNING: tasks don't work if called inside a gobject.idle_add callback
+
 def _update_gui():
     while gtk.events_pending():
         gtk.main_iteration()
