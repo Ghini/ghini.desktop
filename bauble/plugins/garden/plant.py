@@ -358,6 +358,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         def set_in_model(self, field, value):
 #            debug('set_in_model(%s, %s)' % (field, value))
             setattr(self.model, field, value)
+            # reset the plant code to check that this is a valid code for the
+            # new accession, fixes bug #103946
+            self._set_plant_code_from_text(self.model.code)
         self.assign_completions_handler('plant_acc_entry', 'accession',
                                         acc_get_completions,
                                         set_func=set_in_model,
