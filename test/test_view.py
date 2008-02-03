@@ -153,7 +153,7 @@ class SearchTestCase(BaubleTestCase):
         for text, expected in test_text.iteritems():
             results = ResultSet()
             for strategy in view.search_strategies:
-                results.append(strategy.search(text, session=self.session))
+                results.add(strategy.search(text, session=self.session))
 
             es = set([self.session.load(cls, cls_id) for cls, cls_id in expected])
             obj_str = lambda o: '%s(%s)' % (o.__class__.__name__, o.id)
