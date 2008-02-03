@@ -69,19 +69,19 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                                         gen_get_completions,
                                         set_func=set_in_model)
         self.assign_simple_handler('sp_species_entry', 'sp',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_entry', 'infrasp',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_notes_textview', 'notes',

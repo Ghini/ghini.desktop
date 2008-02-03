@@ -20,6 +20,8 @@ from bauble.view import SearchView, MapperSearch
 # TODO: is it  possible to add to a context menu for any object that shows a
 # submenu of all the tags on an object
 
+# TODO: the unicode usage here needs to be reviewed
+
 # def edit_callback(value):
 #     session = bauble.Session()
 #     e = TagEditor(model_or_defaults=session.merge(value))
@@ -95,10 +97,11 @@ class TagItemGUI:
         d.vbox.pack_start(entry)
         d.show_all()
         d.run()
-        name = entry.get_text()
+        name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
-        if name is not '' and tag_table.select(tag_table.c.tag==name).alias('__dummy').alias('__dummy').count().scalar() == 0:
+        stmt = tag_table.select(tag_table.c.tag==name).count()
+        if name not in ('', u'') and stmt.scalar() == 0:
             session = bauble.Session()
             session.save(Tag(tag=name))
             session.commit()
@@ -203,12 +206,13 @@ tag_table = bauble.Table('tag', bauble.metadata,
 class Tag(bauble.BaubleMapper):
 
     def __init__(self, tag):
-        if isinstance(tag, str):
-            self.tag = unicode(tag)
+        if not isinstance(tag, unicode):
+            self.tag = unicode(tag, 'utf-8')
         else:
             self.tag = tag
 
     def __str__(self):
+        # TODO: __str__ return unicode ???
         return self.tag
 
     def markup(self):
@@ -226,7 +230,7 @@ class Tag(bauble.BaubleMapper):
 tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
                          Column('id', Integer, primary_key=True),
                          Column('obj_id', Integer),
-                         Column('obj_class', String(64)),
+                         Column('obj_class', Unicode(64)),
                          Column('tag_id', Integer, ForeignKey('tag.id')))
 
 
@@ -289,7 +293,7 @@ def get_tagged_objects(tag, session=None):
     if isinstance(tag, Tag):
         t = tag
     else:
-        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
+        t = session.query(Tag).filter(tag_table.c.tag==unicode(tag))[0]
 
     return [session.load(mapper, obj_id) for mapper, obj_id in _get_tagged_object_pairs(t)]
 
@@ -306,7 +310,7 @@ def untag_objects(name, objs):
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
     session = bauble.Session()
     try:
-        tag = session.query(Tag).filter(tag_table.c.tag==name).one()
+        tag = session.query(Tag).filter(tag_table.c.tag==unicode(name)).one()
     except Exception, e:
         debug(traceback.format_exc())
         return
@@ -323,7 +327,7 @@ def untag_objects(name, objs):
 
 
 # create the classname stored in the tagged_obj table
-_classname = lambda x: '%s.%s' % (type(x).__module__, type(x).__name__)
+_classname = lambda x: unicode('%s.%s', 'utf-8') % (type(x).__module__, type(x).__name__)
 
 def tag_objects(name, objs):
     '''
@@ -335,18 +339,18 @@ def tag_objects(name, objs):
     @return: the tag
     '''
     session = bauble.Session()
-    if isinstance(name, str):
-        name = unicode(name)
+    if not isinstance(name, unicode):
+        name = unicode(name, 'utf-8')
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
         tag = Tag(name)
         session.save(tag)
     for obj in objs:
-        if tagged_obj_table.select(\
-            and_(tagged_obj_table.c.obj_class==_classname(obj),
-                 tagged_obj_table.c.obj_id==obj.id,
-                 tagged_obj_table.c.tag_id==tag.id)).alias('__dummy').count().scalar() == 0:
+        cls = and_(tagged_obj_table.c.obj_class==_classname(obj),
+                   tagged_obj_table.c.obj_id==obj.id,
+                   tagged_obj_table.c.tag_id==tag.id)
+        if tagged_obj_table.select(cls).count().scalar() == 0:
             tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
                                    tag=tag)
             session.save(tagged_obj)

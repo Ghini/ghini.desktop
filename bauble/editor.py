@@ -49,9 +49,9 @@ class UnicodeOrNoneValidator(object):
 
 
 class IntOrNoneStringValidator(object):
-
-    """If the value is an int or long then return the number, else return
-    None
+    """
+    If the value is an int, long or can be cast to int then return the
+    number, else return None
     """
 
     def _to_python(self, value):
@@ -66,8 +66,10 @@ class IntOrNoneStringValidator(object):
                                  'instead' % (self.name, type(value)))
 
 class FloatOrNoneStringValidator(object):
-
-    """If the value is a float then return the value, else return None"""
+    """
+    If the value is an int, long, float or can be cast to float then return the
+    number, else return None
+    """
 
     def to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):

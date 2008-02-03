@@ -373,9 +373,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_notes_textview', 'notes')
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
-                                   StringOrNoneValidator())
+                                   UnicodeOrNoneValidator())
 
         self.view.widgets.plant_loc_add_button.connect('clicked',
                                                     self.on_loc_button_clicked,

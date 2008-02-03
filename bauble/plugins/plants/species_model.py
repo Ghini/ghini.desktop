@@ -82,7 +82,7 @@ near -- Close to
 species_table = \
     bauble.Table('species', bauble.metadata,
           Column('id', Integer, primary_key=True),
-          Column('sp', String(64), nullable=False, index=True),
+          Column('sp', Unicode(64), nullable=False, index=True),
           Column('sp_author', Unicode(128)),
           Column('sp_hybrid', Enum(values=['x', '+', 'H', None],
                                    empty_to_none=True)),
