@@ -293,11 +293,6 @@ class SearchStrategy(object):
 
 # should create some sort of list of mapping: (col1, col1) to query: what about other operators for queries where you want the values or/and'ed together
 
-# TODO: ************** broken in 0.8.0
-# if I have a species named Maxillaria test then searching for test won't
-# find it....also add a test for this
-# ** also can't expand search results on newly added item
-
 class MapperSearch(SearchStrategy):
 
     _domains = {}
@@ -1027,7 +1022,7 @@ class SearchView(pluginmgr.View):
                                     # find the object in the tree and remove
                                     # it, this could get expensive if there
                                     # are a lot of items in the tree
-#                                    debug(e)
+                                    debug(e)
                                     for found in utils.search_tree_model(model,
                                                                          obj):
 #                                        debug('found %s: %s' % \

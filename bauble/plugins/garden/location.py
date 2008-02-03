@@ -13,12 +13,14 @@ import bauble.paths as paths
 
 
 def edit_callback(value):
-    e = LocationEditor(value)
+    session = bauble.Session()
+    e = LocationEditor(model=session.merge(value))
     return e.start() != None
 
 
 def add_plant_callback(value):
-    e = PlantEditor(Plant(location=value))
+    session = bauble.Session()
+    e = PlantEditor(model=Plant(location=session.merge(value)))
     return e.start() != None
 
 

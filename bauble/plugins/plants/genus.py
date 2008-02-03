@@ -32,13 +32,15 @@ from bauble.utils.log import debug
 # e.g. Cananga
 
 def edit_callback(value):
-    e = GenusEditor(model=value)
+    session = bauble.Session()
+    e = GenusEditor(model=session.merge(value))
     return e.start() != None
 
 
 def add_species_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    e = SpeciesEditor(Species(genus=value))
+    session = bauble.Session()
+    e = SpeciesEditor(model=Species(genus=session.merge(value)))
     return e.start() != None
 
 
@@ -128,7 +130,7 @@ class Genus(bauble.BaubleMapper):
     def str(genus, author=False):
         if genus.genus is None:
             return repr(genus)
-        elif not author:
+        elif not author or genus.author is None:
             return ' '.join([s for s in [genus.hybrid, genus.genus,
                                          genus.qualifier] if s is not None])
         else:

@@ -19,13 +19,15 @@ __all__ = ['species_table', 'Species', 'species_synonym_table',
 
 def edit_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    e = SpeciesEditor(value)
+    session = bauble.Session()
+    e = SpeciesEditor(model=session.merge(value))
     return e.start() != None
 
 
 def add_accession_callback(value):
     from bauble.plugins.garden.accession import AccessionEditor
-    e = AccessionEditor(Accession(species=value))
+    session = bauble.Session()
+    e = AccessionEditor(model=Accession(species=session.merge(value)))
     return e.start() != None
 
 

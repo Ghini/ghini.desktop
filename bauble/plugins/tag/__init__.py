@@ -20,9 +20,10 @@ from bauble.view import SearchView, MapperSearch
 # TODO: is it  possible to add to a context menu for any object that shows a
 # submenu of all the tags on an object
 
-def edit_callback(value):
-    e = TagEditor(model_or_defaults=value)
-    return e.start() != None
+# def edit_callback(value):
+#     session = bauble.Session()
+#     e = TagEditor(model_or_defaults=session.merge(value))
+#     return e.start() != None
 
 
 def remove_callback(value):

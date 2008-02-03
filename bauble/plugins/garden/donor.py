@@ -17,7 +17,8 @@ from bauble.plugins.garden.source import donation_table, Donation
 
 
 def edit_callback(value):
-    e = DonorEditor(model=value)
+    session = bauble.Session()
+    e = DonorEditor(model=session.merge(value))
     return e.start() != None
 
 
