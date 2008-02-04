@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Bauble
+Version=0.8.0b2
+Comment=An application for managing botanical collections
+Terminal=False
+Icon=bauble/images/icon.svg
+Type=Application
+Exec=/usr/bin/python
+Categories=Other;
