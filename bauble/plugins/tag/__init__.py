@@ -422,7 +422,7 @@ def _reset_tags_menu():
     query = session.query(Tag)
     try:
         for tag in query:
-            item = gtk.MenuItem(tag.tag)
+            item = gtk.MenuItem(tag.tag, use_underline=False)
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
     except:
