@@ -788,18 +788,18 @@ class SearchView(pluginmgr.View):
             if error_msg is not None:
                 model.append([bold % error_msg])
             else:
-                model.append([bold % 'Couldn\'t find anything'])
+                model.append([bold % _('Couldn\'t find anything')])
             statusbar.pop(sbcontext_id)
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
-                msg = 'This query returned %s results.  It may take a '\
+                msg = _('This query returned %s results.  It may take a '\
                         'long time to get all the data. Are you sure you '\
-                        'want to continue?' % len(results)
+                        'want to continue?') % len(results)
                 if not utils.yes_no_dialog(msg):
                     return
-            statusbar.push(sbcontext_id, "Retrieving %s search results..." % \
-                           len(results))
+            statusbar.push(sbcontext_id, _("Retrieving %s search " \
+                                           "results...") % len(results))
             if len(results) > 1000:
                     self.populate_results(results)
             else:
@@ -810,7 +810,7 @@ class SearchView(pluginmgr.View):
                     except StopIteration:
                         break
                 self.results_view.set_cursor(0)
-            statusbar.push(sbcontext_id, "%s search results" % len(results))
+            statusbar.push(sbcontext_id, _("%s search results") % len(results))
 
 
 

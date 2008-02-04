@@ -60,7 +60,9 @@ class GUI(object):
 
         self.populate_main_entry()
         main_entry = self.widgets.main_entry
-        main_entry.connect('key_press_event', self.on_main_entry_key_press)
+
+#        main_entry.connect('key_press_event', self.on_main_entry_key_press)
+        main_entry.connect('activate', self.on_main_entry_activate)
         accel_group = gtk.AccelGroup()
         main_entry.add_accelerator("grab-focus", accel_group, ord('L'),
                                    gtk.gdk.CONTROL_MASK, gtk.ACCEL_VISIBLE)
@@ -114,16 +116,23 @@ class GUI(object):
     history_size = property(_get_history_size)
 
 
-    def on_main_entry_key_press(self, widget, event, data=None):
-        '''
-        '''
-        keyname = gtk.gdk.keyval_name(event.keyval)
-        if keyname == "Return":
-            self.widgets.go_button.emit("clicked")
+#     def on_main_entry_key_press(self, widget, event, data=None):
+#         '''
+#         '''
+#         keyname = gtk.gdk.keyval_name(event.keyval)
+#         if keyname == "Return":
+#             self.widgets.go_button.emit("clicked")
+#             return True
+#         else:
+#             return False
 
 
     def send_command(self, command):
         self.widgets.main_entry.set_text(command)
+        self.widgets.go_button.emit("clicked")
+
+
+    def on_main_entry_activate(self, widget, data=None):
         self.widgets.go_button.emit("clicked")
 
 
@@ -426,15 +435,15 @@ class GUI(object):
 
 
     def on_edit_menu_cut(self, widget, data=None):
-        pass
+        self.widgets.main_entry.cut_clipboard()
 
 
     def on_edit_menu_copy(self, widget, data=None):
-        pass
+        self.widgets.main_entry.copy_clipboard()
 
 
     def on_edit_menu_paste(self, widget, data=None):
-        pass
+        self.widgets.main_entry.paste_clipboard()
 
 
     def on_file_menu_new(self, widget, date=None):
