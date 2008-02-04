@@ -230,7 +230,7 @@ class Tag(bauble.BaubleMapper):
 tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
                          Column('id', Integer, primary_key=True),
                          Column('obj_id', Integer),
-                         Column('obj_class', Unicode(64)),
+                         Column('obj_class', String(128)),
                          Column('tag_id', Integer, ForeignKey('tag.id')))
 
 
@@ -262,8 +262,8 @@ def _get_tagged_object_pairs(tag):
     kids = []
     for obj in tag._objects:
         try:
-            obj_class = str(obj.obj_class)
-            module_name, part, cls_name = obj.obj_class.rpartition('.')
+            # __import__ "from_list" parameters has to be a list of strings
+            module_name, part, cls_name = str(obj.obj_class).rpartition('.')
             module = __import__(module_name, globals(), locals(),
                                 module_name.split('.')[1:])
             cls = getattr(module, cls_name)
