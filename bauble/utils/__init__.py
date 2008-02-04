@@ -325,7 +325,8 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     if yes_delay > 0:
         d.set_response_sensitive(gtk.RESPONSE_YES, False)
         def on_timeout():
-            d.set_response_sensitive(gtk.RESPONSE_YES, True)
+            if d.get_property('visible'): # conditional avoids GTK+ warning
+                d.set_response_sensitive(gtk.RESPONSE_YES, True)
             return False
         import gobject
         gobject.timeout_add(yes_delay*1000, on_timeout)
