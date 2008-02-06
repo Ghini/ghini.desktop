@@ -158,7 +158,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
                 'Code fields are filled in.')
         utils.message_dialog(msg)
         institution.InstitutionEditor().start()
-        return plants_to_abcd(plants, authors)
+        return create_abcd(decorated_objects, authors, validate)
 
     datasets = DataSets()
     ds = ABCDElement(datasets, 'DataSet')
