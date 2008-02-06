@@ -22,7 +22,7 @@ from bauble.i18n import *
 from bauble.plugins.plants.species import Species, species_table
 from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
 from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.abcd import create_abcd, ABCDAdapter
+from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
      get_all_accessions, FormatterPlugin, SettingsBox
 
@@ -124,7 +124,7 @@ class PlantABCDAdapter(SpeciesABCDAdapter):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=utils.xml_safe_utf8(str(self.plant.location)))
-        super(PlantABCDAdapter, self).extra_elements(self, unit)
+        super(PlantABCDAdapter, self).extra_elements(unit)
 
 
 class AccessionABCDAdapter(SpeciesABCDAdapter):
@@ -173,7 +173,8 @@ class DefaultFormatterSettingsBox(SettingsBox):
         return {'stylesheet': self.widgets.stylesheet_chooser.get_filename(),
                 'renderer': self.widgets.renderer_combo.get_active_text(),
                 'source_type':self.widgets.source_type_combo.get_active_text(),
-                'authors': self.widgets.author_check.get_active()}
+                'authors': self.widgets.author_check.get_active(),
+                'private': self.widgets.private_check.get_active()}
 
 
     def update(self, settings={}):
@@ -197,6 +198,9 @@ class DefaultFormatterSettingsBox(SettingsBox):
         if 'authors' in settings:
             self.widgets.author_check.set_active(settings['authors'])
 
+        if 'private' in settings:
+            self.widgets.private_check.set_active(settings['private'])
+
 
 _settings_box = DefaultFormatterSettingsBox()
 
@@ -216,6 +220,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
         authors = kwargs['authors']
         renderer = kwargs['renderer']
         source_type = kwargs['source_type']
+        use_private = kwargs['private']
         error_msg = None
         if not stylesheet:
             error_msg = _('Please select a stylesheet.')
@@ -240,7 +245,10 @@ class DefaultFormatterPlugin(FormatterPlugin):
                                        'results.  Please try another search.'))
                 return False
             for p in plants:
-                adapted.append(PlantABCDAdapter(p))
+                if use_private:
+                    adapted.append(PlantABCDAdapter(p))
+                elif p.accession.private:
+                    adapted.append(PlantABCDAdapter(p))
         elif source_type == species_source_type:
             species = get_all_species(objs, session=session)
             species.sort(cmp=lambda x,y: cmp(str(x), str(y)))
@@ -253,12 +261,15 @@ class DefaultFormatterPlugin(FormatterPlugin):
         elif source_type == accession_source_type:
             accessions = get_all_accessions(objs, session=session)
             accessions.sort(cmp=lambda x,y: cmp(str(x), str(y)))
-            if len(species) == 0:
+            if len(accessions) == 0:
                 utils.message_dialog(_('There are no accessions in the search '
                                        'results.  Please try another search.'))
                 return False
             for a in accessions:
-                adapted.append(AccessionABCDAdapter(s))
+                if use_private:
+                    adapted.append(AccessionABCDAdapter(a))
+                elif a.private:
+                    adapted.append(AccessionABCDAdapter(a))
         else:
             raise NotImplementedError('unknown source type')
 
