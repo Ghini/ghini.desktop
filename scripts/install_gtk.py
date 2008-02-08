@@ -145,7 +145,7 @@ if not options.gtk_only:
             print 'Python %s NOT installed correctly' % version
 
     if len(available_versions.keys()) == 0:
-        print "Error: Install Python first"
+        print "** Error: Install Python first\n"
 
     if len(available_versions.keys()) > 1:
         # TODO: make a decision if more than one version
