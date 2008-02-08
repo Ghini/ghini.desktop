@@ -465,12 +465,15 @@ class MapperSearch(SearchStrategy):
         elif 'expression' in tokens:
             #debug(tokens.dump())
             for domain, cond, val in tokens:#['expression']:
-#                 debug(tokens['expression'])
-#                 debug(tokens.dump())
-#                 debug(domain)
-#                 debug(cond)
-#                 debug(val)
-                mapping, columns = self._domains[domain]
+##                 debug(tokens['expression'])
+##                 debug(tokens.dump())
+##                 debug(domain)
+##                 debug(cond)
+##                 debug(val)
+                try:
+                    mapping, columns = self._domains[domain]
+                except KeyError:
+                    raise KeyError(_('Unknown search domain: %s' % domain))
                 query = session.query(mapping)
                 # TODO: should probably create a normalize_cond() method
                 # to convert things like contains and has into like conditions
@@ -771,6 +774,7 @@ class SearchView(pluginmgr.View):
 
         statusbar = bauble.gui.widgets.statusbar
         sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        statusbar.pop(sbcontext_id)
         results = ResultSet()
         error_msg = None
         self.session.clear() # clear out any old search results
@@ -783,13 +787,13 @@ class SearchView(pluginmgr.View):
         except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
             debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
+
         if len(results) == 0:
             model = gtk.ListStore(str)
             if error_msg is not None:
                 model.append([bold % error_msg])
             else:
                 model.append([bold % _('Couldn\'t find anything')])
-            statusbar.pop(sbcontext_id)
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
@@ -810,6 +814,7 @@ class SearchView(pluginmgr.View):
                     except StopIteration:
                         break
                 self.results_view.set_cursor(0)
+            statusbar.pop(sbcontext_id)
             statusbar.push(sbcontext_id, _("%s search results") % len(results))
 
 
