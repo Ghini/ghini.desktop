@@ -199,11 +199,15 @@ class _prefs(dict):
         f.close()
 
 
+# TODO: remember pane sizes
 
 class PrefsView(pluginmgr.View):
     """
     The PrefsView displays the values of in the preferences and the registry.
     """
+
+    pane_size_pref = 'bauble.prefs.pane_position'
+
     def __init__(self):
         super(PrefsView, self).__init__()
         self.create_gui()
@@ -215,15 +219,46 @@ class PrefsView(pluginmgr.View):
         pass
 
     def create_gui(self):
-        expander = gtk.Expander(_('Preferences'))
-        view = self.create_prefs_view()
-        expander.add(view)
-        self.pack_start(expander, expand=False, fill=True)
+        pane = gtk.VPaned()
+        self.pack_start(pane)
+        pane.set_border_width(5)
+        width, height = pane.size_request()
 
-        expander = gtk.Expander(_('Registry'))
+
+        # TODO: check-resize and move_handle are not the correct
+        # signals when the pane is resized....so right now the size is
+        # not getting saved in the prefs
+        def on_move_handle(paned, data=None):
+            print p.get_position()
+            prefs[self.pane_size_pref] = p.get_position()
+        pane.connect('check-resize', on_move_handle)
+
+        if prefs.get(self.pane_size_pref, None) is not None:
+            pane.set_position(prefs[self.pane_size_pref])
+        else:
+            # setting the default to half the height of the window is
+            # close enough to the middle even though the top pane will
+            # be a little larger
+            rect = bauble.gui.window.get_allocation()
+            pane.set_position(int(rect.height/2))
+
+        label = gtk.Label()
+        label.set_markup(_('<b>Preferences</b>'))
+        label.set_padding(5, 0)
+        frame = gtk.Frame()
+        frame.set_label_widget(label)
+        view = self.create_prefs_view()
+        frame.add(view)
+        pane.pack1(frame)
+
+        label = gtk.Label()
+        label.set_markup(_('<b>Registry</b>'))
+        label.set_padding(5, 0)
+        frame = gtk.Frame()
+        frame.set_label_widget(label)
         view = self.create_registry_view()
-        expander.add(view)
-        self.pack_start(expander, expand=False, fill=True)
+        frame.add(view)
+        pane.pack2(frame)
 
 
     def create_tree(self, columns, itemsiter):
