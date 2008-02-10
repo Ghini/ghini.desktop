@@ -185,19 +185,19 @@ mapper(GenusSynonym, genus_synonym_table,
             primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id)})
 
 
-genus_editor_tooltips = {
-     'gen_family_entry': _('The family name'),
-     'gen_hybrid_combo': _('The family qualifier helps to remove '
-                              'ambiguities that might be associated with '
-                              'this family name')
-     'gen_genus_entry': _('Miscelleanous notes about this family.'),
-     'gen_author_entry': _(''),
-     'gen_syn_box': _('A list of synonyms for this family.\n\nTo add a '
-                      'synonym enter a family name and select one from the '
-                      'list of completions.  Then click Add to add it to the '
-                      'list of synonyms.')
-     'gen_notes_textview': _('')
-     }
+# genus_editor_tooltips = {
+#      'gen_family_entry': _('The family name'),
+#      'gen_hybrid_combo': _('The family qualifier helps to remove '
+#                               'ambiguities that might be associated with '
+#                               'this family name')
+#      'gen_genus_entry': _(''),
+#      'gen_author_entry': _(''),
+#      'gen_syn_box': _('A list of synonyms for this family.\n\nTo add a '
+#                       'synonym enter a family name and select one from the '
+#                       'list of completions.  Then click Add to add it to the '
+#                       'list of synonyms.')
+#      'gen_notes_textview': _('Miscelleanous notes about this family.')
+#      }
 
 class GenusEditorView(GenericEditorView):
 
