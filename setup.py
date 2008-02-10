@@ -3,7 +3,12 @@
 #     use_setuptools()
 #     from setuptools import setup
 # except ImportError:
-from distutils.core import setup
+
+try:
+    import setuptools
+except ImportError, e:
+    print e
+    from distutils.core import setup
 import os, sys, glob
 
 import sys
@@ -25,11 +30,14 @@ version = get_version()
 
 gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 
-plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
-	   'imex']
+#plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
+#	   'imex']
+#plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
+#subpackages = ['plugins', 'utils']
+#all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
+plugins = setuptools.find_packages(where='bauble/plugins', exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-subpackages = ['plugins', 'utils']
-all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
+all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test'])
 
 package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
@@ -46,6 +54,8 @@ for p in all_packages:
 
 if USING_PY2EXE:
     import py2exe
+    # TODO: see if we can use setuptools.find_packages() instead searching for
+    # sqlalchemy packages manually
     def get_sqlalchemy_includes():
         includes = []
         from imp import find_module
@@ -98,7 +108,7 @@ else:
     py2exe_data_files = None
     py2exe_includes = []
 
-print package_data
+#print package_data
 
 #print '------- packages --------\n' + str(all_packages)
 #print '------- package directories --------\n' + str(all_package_dirs)
@@ -106,6 +116,8 @@ print package_data
 
 # TODO: fix warnings about console, windows, install_requires, dist_dir and
 # options arguments
+
+# TODO: external dependencies not in the PyPI: PyGTK>=2.10
 
 setup(name="bauble",
       version=version,
@@ -120,12 +132,12 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.4.2p3", "pysqlite==2.3.2",
-                        "PyGTK>=2.10", "simplejson==1.7.1", "lxml"],# pygtk is not supported using distutils
+      install_requires=["SQLAlchemy>=0.4.2p3", "pysqlite>=2.3.2",
+                        "simplejson>=1.7.1", "lxml"],
 #      extras_requires=["mysql-python and psycopg"
 
       # metadata
-      test_suite="test.test", #TODO: running "setup.py test" hasn't been tested
+      #test_suite="test.test", #TODO:running "setup.py test" hasn't been tested
       author="Brett",
       author_email="brett@belizebotanic.org",
       description="""\

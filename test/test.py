@@ -18,16 +18,10 @@ parser = OptionParser()
 parser.add_option("-c", "--connection", dest="connection", metavar="CONN",
                   default=default_uri, help="connect to CONN")
 parser.add_option("-l", "--loglevel", dest='loglevel', metavar='LEVEL (0-61)',
-                  type='int', default=30, help="display extra test information")
+                type='int', default=30, help="display extra test information")
 
-if __name__ == '__main__':
-    (options, args) = parser.parse_args()
-    testbase.log.setLevel(options.loglevel)
-    testbase.uri = options.connection
-    test_loader = unittest.defaultTestLoader
-    if testbase.uri != default_uri:
-        print 'uri: %s' % testbase.uri
 
+def find_all_tests():
     test_suites = unittest.TestSuite()
     modules = []
 
@@ -77,9 +71,23 @@ if __name__ == '__main__':
         """
         pass
 
+    return test_suites
+
+
+
+if __name__ == '__main__':
+    (options, args) = parser.parse_args()
+    testbase.log.setLevel(options.loglevel)
+    testbase.uri = options.connection
+    test_loader = unittest.defaultTestLoader
+    if testbase.uri != default_uri:
+        print 'uri: %s' % testbase.uri
+
+    global tests
+    test_suites = find_all_tests()
+
     testbase.log.msg('=======================')
     runner = unittest.TextTestRunner()
-
     if len(args) > 0:
         # run a specific testsuite, would be nice to allow running
         # specific test cases or test methods...
@@ -99,5 +107,12 @@ if __name__ == '__main__':
 
     else:
         runner.run(test_suites)
+
+
+
+
+
+
+
 
 
