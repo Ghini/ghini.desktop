@@ -170,6 +170,9 @@ date: date accessioned
     #ver_hist = StringCol(default=None)  # verification history
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
+
+# TODO: see HISPID for a good explanation of what should be included
+# in the verification data
 verification_table = bauble.Table('verification', bauble.metadata,
                            Column('id', Integer, primary_key=True),
                            Column('verifier', Unicode(64)),

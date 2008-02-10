@@ -104,6 +104,9 @@ species_table = \
                            name='species_index'))
 
 
+# TODO: create a some sort of SpeciesStringBuilder object so that
+# other objects can create more custom species string such as adding
+# in identification qualifiers(aff, ?, etc)
 
 class Species(bauble.BaubleMapper):
 
