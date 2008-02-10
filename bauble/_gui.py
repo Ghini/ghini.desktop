@@ -13,6 +13,7 @@ from bauble.utils.log import log, debug
 from bauble.i18n import _
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView
+import bauble.error as error
 
 
 class DefaultView(pluginmgr.View):
@@ -467,7 +468,40 @@ class GUI(object):
         if name is None:
             return
 
-        if bauble.open_database(uri, name) is not None:
+        engine = None
+        try:
+            engine = bauble.open_database(uri, False)
+        except Exception, e:
+            debug(e)
+            if isinstance(e, error.DatabaseError):
+                return
+            msg = _("Could not open connection.\n\n%s") % \
+                  utils.xml_safe_utf8(e)
+            utils.message_details_dialog(msg, traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+
+        if engine is None:
+            return
+
+        # show a custom message if its a version error and continue to use
+        # the same engine, if its a different error then verify again but
+        # show_error_dialogs = True
+        try:
+            bauble._verify_connection(engine, show_error_dialogs=False)
+        except error.VersionError, e:
+            msg = _('You are using Bauble version %(version)s while the '\
+                    'database you have connected to was created with '\
+                    'version %(db_version)s\n\nSome things might not work as '\
+                    'or some of your data may become unexpectedly '\
+                    'corrupted.') % \
+                    {'version': bauble.version_str,
+                     'db_version':'%s.%s.%s' % eval(e.version)}
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+        except Exception, e:
+            bauble._verify_connection(engine, show_error_dialogs=True)
+
+        # everything seems to have passed ok so setup the rest of bauble
+        if engine is not None:
             bauble.conn_name = name
             self.window.set_title(self.title)
             self.set_default_view()

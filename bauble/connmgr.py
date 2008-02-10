@@ -411,19 +411,18 @@ class ConnectionManager:
         """
         return connections paramaters as a uri
         """
+        import copy
+        subs = copy.copy(params)
         if params['type'].lower() == "sqlite":
 	    filename = params['file'].replace('\\', '/')
             uri = "sqlite:///" + filename
             return uri
-
-        params['type'] = params['type'].lower()
+        subs['type'] = params['type'].lower()
         template = "%(type)s://%(user)s@%(host)s/%(db)s"
         if params["passwd"] == True:
-            params["passwd"] = self.get_passwd()
+            subs["passwd"] = self.get_passwd()
             template = "%(type)s://%(user)s:%(passwd)s@%(host)s/%(db)s"
-
-        uri = template % params
-        return uri
+        return template % subs
 
 
     def _get_connection_uri(self):

@@ -175,6 +175,7 @@ def quit():
     except RuntimeError: # in case main_quit is called before main
         sys.exit(1)
 
+
 def _verify_connection(engine, show_error_dialogs=False):
     """
     Test whether a connection to an engine is a valid Bauble database. This
@@ -220,6 +221,7 @@ def _verify_connection(engine, show_error_dialogs=False):
                 'this connection, creating a new database could corrupt '\
                 'it.</i>')
     session = Session()
+    session.bind = engine
     query = session.query(meta.BaubleMeta)
 
     # check that the database we connected to has the bauble meta table
@@ -247,31 +249,30 @@ def _verify_connection(engine, show_error_dialogs=False):
 def open_database(uri, verify=True, show_error_dialogs=False):
     '''
     open a database connection
+
+    @returns: On a successful connection a new engine is returned
+    which is the same as bauble.engine, on failure None is returned
+    and bauble.engine remains as it was previously
     '''
 ##   debug('bauble.open_database(%s)' % uri) # ** WARNING: this can print your passwd
     from sqlalchemy.orm import sessionmaker
     global engine
-    global metadata
-    global Session
-    global version, version_str
-
-    try:
-        engine = sqlalchemy.create_engine(uri)
-        engine.connect()
+    new_engine = None
+    new_engine = sqlalchemy.create_engine(uri)
+    new_engine.connect()
+    def _bind():
+        global Session, metadata, engine
         metadata.bind = engine # make engine implicit for metadata
-        import bauble.meta as meta
-        Session = sessionmaker(bind=engine,autoflush=False, transactional=True)
-    except Exception, e:
-        msg = _("Could not open connection.\n\n%s") % utils.xml_safe_utf8(e)
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
-        raise
+        Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
 
     if engine is None or not verify:
+        engine = new_engine
+        _bind()
         return engine
 
-    _verify_connection(engine, show_error_dialogs)
-
+    _verify_connection(new_engine, show_error_dialogs)
+    engine = new_engine
+    _bind()
     return engine
 
 
@@ -438,9 +439,15 @@ def main(uri=None):
                 break
             except error.DatabaseError, e:
                 debug(e)
-                traceback.format_exc()
+                #traceback.format_exc()
                 open_exc = e
                 break
+            except Exception, e:
+                msg = _("Could not open connection.\n\n%s") % \
+                      utils.xml_safe_utf8(e)
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                uri = None
     else:
         open_database(uri, None, True)
 
