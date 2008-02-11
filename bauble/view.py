@@ -20,11 +20,13 @@ from bauble.prefs import prefs
 from bauble.utils.log import debug
 from bauble.utils.pyparsing import *
 
-# BUGS:
-# https://bugs.launchpad.net/bauble/+bug/147015 - Show relevant online data for search results
-# https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down infobox
-# https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve search results in a task
-# https://bugs.launchpad.net/bauble/+bug/147020 - Use regular expressions in search strings
+# BUGS: - https://bugs.launchpad.net/bauble/+bug/147015 - Show
+# relevant online data for search results
+# https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down
+# infobox https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve
+# search results in a task
+# https://bugs.launchpad.net/bauble/+bug/147020 - Use regular
+# expressions in search strings
 
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
@@ -50,7 +52,7 @@ else:
 # in the infobox
 
 # what to display if the value in the database is None
-DEFAULT_VALUE='--'
+DEFAULT_VALUE = '--'
 
 class InfoExpander(gtk.Expander):
     """
@@ -237,9 +239,8 @@ class SearchParser(object):
     """
 
     def __init__(self):
-        quotes = Word('"\'')
+#        quotes = Word('"\'')
         value_word = Word(alphanums + '%.-_')
-        quotes = Word('"\'')
         value = (value_word | quotedString.setParseAction(removeQuotes))
         value_list = Group(delimitedList(value) ^ OneOrMore(value))
 
@@ -285,14 +286,18 @@ class SearchStrategy(object):
         pass
 
 
-# value1, value2, value3: search mapping columns for value1, value2, value3, same as dom=value1,dom=value2,etc... for all domains
-# dom=value: get mapping of domain and search specific columns
-# domain where join.col = value search specific column on mapping or join for value
-# domain where join = value: search columns of the mapping of join for value
-
-# should create some sort of list of mapping: (col1, col1) to query: what about other operators for queries where you want the values or/and'ed together
 
 class MapperSearch(SearchStrategy):
+
+    """
+    Mapper Search support three types of search expression:
+    1. value searches: search that are just list of values, e.g. value1,
+    value2, value3, searches all domains and registered columns for values
+    2. expression searches: searched of the form domain=value, resolves the
+    domain and searches specific columns from the mapping
+    3. query searchs: searches of the form domain where ident.ident = value,
+    resolve the domain and identifiers and search for value
+    """
 
     _domains = {}
     _mapping_columns = {}
@@ -302,8 +307,16 @@ class MapperSearch(SearchStrategy):
 
 
     def add_meta(self, domain, mapping, default_columns):
-        assert isinstance(default_columns, list),_('MapperSearch.add_meta(): '\
-               'default_columns argument must be list')
+        """
+        Adds search meta to the domain
+        @param domain: a string, list or tuple of domains that will resolve
+        to mapping in a search string
+        @param mapping: the mapping the domain will resolve to, should be a
+        class that inherits from bauble.BaubleMapper
+        @param default_columns: the columns to search on the mapping
+        """
+        assert isinstance(default_columns, list), _('MapperSearch.add_meta():'\
+                ' default_columns argument must be list')
         assert len(default_columns) > 0, _('MapperSearch.add_meta(): '\
                                     'default_columns argument cannot be empty')
         if isinstance(domain, (list, tuple)):
@@ -314,6 +327,7 @@ class MapperSearch(SearchStrategy):
         self._mapping_columns[mapping] = default_columns
 
 
+    # TODO: _resolve_identifiers needs a test
     def _resolve_identifiers(self, parent, identifiers):
         '''
         results the types of identifiers starting from parent where the
@@ -321,6 +335,10 @@ class MapperSearch(SearchStrategy):
         of parent
         '''
         def get_prop(parent, name):
+            """
+            resolves the property with name on parent depending on the
+            type of parent
+            """
             try:
                 if isinstance(parent, Mapper):
                     prop = parent.get_property(name)
@@ -328,9 +346,9 @@ class MapperSearch(SearchStrategy):
                     prop = getattr(parent, name).property
             except (KeyError, AttributeError):
                 if isinstance(parent, Mapper):
-                     parent_name = parent.local_table
+                    parent_name = parent.local_table
                 else:
-                     parent_name = parent.key
+                    parent_name = parent.key
                 raise ValueError('no column named %s in %s' % \
                                  (name, parent_name))
 #            debug(prop)
@@ -361,69 +379,49 @@ class MapperSearch(SearchStrategy):
         return props
 
 
-    def _build_select(self, session, mapping, identifiers, cond, val):
-        '''
-        return a Query object
-        '''
-        query = session.query(mapping)
-        val = unicode(val)
-        if len(identifiers) == 1:
-            results = query.filter(query.table.c[identifiers[0]].op(cond)(val))
-        else:
-            resolved = self._resolve_identifiers(mapping, identifiers)
-            results = query.join(identifiers[:-1]).filter(resolved[-1].op(cond)(val))
-        return results
-
-
     def _get_results_from_query(self, tokens, session):
-        '''
-        get results from search query in the form
-        domain where ident=value...
-
-        @return: query object
-        '''
-        # TODO: this whole method should be reworked before 0.8 is released
-        # as their are probably new features in SA 0.4 that make this alot
-        # more straight forward
-#        debug('query: %s' % tokens['query'])
         domain, expr = tokens['query']
-        if domain not in self._domains:
-            raise ValueError('unknown search domain: %s' % domain)
+        assert domain in self._domains, 'Unknown search domain: %s' % domain
         mapping, columns = self._domains[domain]
         expr_iter = iter(expr)
-        select = prev_select = None
         op = None
         query = session.query(mapping)
+        clause = prev_clause = None
         for e in expr_iter:
-            ident, cond, val = e
-#            debug('ident: %s, cond: %s, val: %s' % (ident, cond, val))
-            select = self._build_select(session, mapping, ident, cond, val)
+            idents, cond, val = e
+##            debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
+            new_from = None
+            if len(idents) == 1:
+                col = idents[0]
+                # TODO: at the moment this only works if the
+                # identifier is a column but in theory if we should be
+                # able to resolve the identifier if its not a column
+                # and treat it like a search expression, maybe we
+                # could create a custom search string and pass it to
+                # self.search() or an sql statement from it
+                assert col in mapping.c, 'The %s table does not have a '\
+                       'column named %s' % \
+                       (class_mapper(mapping).local_table.name, col)
+                clause = mapping.c[idents[0]].op(cond)(unicode(val))
+            else:
+                resolved = self._resolve_identifiers(mapping, idents)
+                query = query.join(idents[:-1])
+                clause = resolved[-1].op(cond)(unicode(val))
+
             if op is not None:
-                # i'm not sure how elegant building the queries like
-                # this is when we have to 'op' then together but it seems to
-                # work on most of the queries statements that i've tried
-                cls_mapper = class_mapper(mapping)
-                prop = cls_mapper.props[ident[0]]
-                if isinstance(prop, ColumnProperty):
-                    debug('prev select 1')
-                    select = prev_select.filter(and_(select._clause))
-                else:
-                    if prop.is_backref:
-                        prop = prop.select_mapper.props[prop.backref.key]
-                    # TODO: i haven't tested this for multiple columns on the
-                    # remote side
-                    for col in prop.remote_side:
-                        ids = [s.id for s in select]
-                        debug('prev_select 2')
-                        select = prev_select.filter(cls_mapper.\
-                                            local_table.c['id'].in_(ids))
+                assert op in ('and', 'or'), 'Unsupported operator: %s' % op
+                import sqlalchemy.sql
+                op = getattr(sqlalchemy.sql, '%s_' % op)
+                clause = op(prev_clause, clause)
+
+            prev_clause = clause
+
             try:
                 op = expr_iter.next()
-                prev_select = select
             except StopIteration:
                 pass
 
-        return select
+        return query.filter(clause)
 
 
     def search(self, text, session=None):
@@ -805,7 +803,7 @@ class SearchView(pluginmgr.View):
             statusbar.push(sbcontext_id, _("Retrieving %s search " \
                                            "results...") % len(results))
             if len(results) > 1000:
-                    self.populate_results(results)
+                self.populate_results(results)
             else:
                 task = self._populate_worker(results)
                 while True:
