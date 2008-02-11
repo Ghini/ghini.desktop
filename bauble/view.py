@@ -282,6 +282,11 @@ class SearchStrategy(object):
 
     def search(self, text, session=None):
         '''
+        @param text: the search string
+        @param: the session to use for the search
+
+        Return an interable of a list of object retrieved from the
+        text search string
         '''
         pass
 
@@ -303,6 +308,7 @@ class MapperSearch(SearchStrategy):
     _mapping_columns = {}
 
     def __init__(self):
+        super(MapperSearch, self).__init__()
         self.parser = SearchParser()
 
 
@@ -328,6 +334,7 @@ class MapperSearch(SearchStrategy):
 
 
     # TODO: _resolve_identifiers needs a test
+    # TODO: we should be able to rewrite this recursively
     def _resolve_identifiers(self, parent, identifiers):
         '''
         results the types of identifiers starting from parent where the
@@ -380,9 +387,17 @@ class MapperSearch(SearchStrategy):
 
 
     def _get_results_from_query(self, tokens, session):
+        """
+        @param tokens: the tokens from the parsed search string,
+        should match a query search expression
+        @param session: the session to use to retreive the results
+
+        Returns a sqlalchemy.orm.Query that will retreive the search
+        results for the search tokens
+        """
         domain, expr = tokens['query']
         assert domain in self._domains, 'Unknown search domain: %s' % domain
-        mapping, columns = self._domains[domain]
+        mapping = self._domains[domain][0]
         expr_iter = iter(expr)
         op = None
         query = session.query(mapping)
@@ -390,7 +405,6 @@ class MapperSearch(SearchStrategy):
         for e in expr_iter:
             idents, cond, val = e
 ##            debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
-            new_from = None
             if len(idents) == 1:
                 col = idents[0]
                 # TODO: at the moment this only works if the
@@ -581,7 +595,11 @@ class SearchView(pluginmgr.View):
 
         class Meta(object):
             def __init__(self):
-                self.set()
+                self.children = None
+                self.infobox = None
+                self.context_menu_desc = None
+                self.markup_func = None
+
 
             def set(self, children=None, infobox=None, context_menu=None,
                     markup_func=None):
@@ -898,7 +916,7 @@ class SearchView(pluginmgr.View):
                 parent = model.append(None, [obj])
                 obj_type = type(obj)
                 if check_for_kids:
-                    kids = self.view_meta[obj_type].get_children(s)
+                    kids = self.view_meta[obj_type].get_children(obj)
                     if len(kids) > 0:
                         model.append(parent, ['-'])
                 elif self.view_meta[obj_type].children is not None:
