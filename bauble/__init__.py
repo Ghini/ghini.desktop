@@ -70,7 +70,7 @@ except ImportError:
 
 try:
     import simplejson
-    # TODO: check simplejson version
+    # TODO: check simplejson version....why, do we require a specific version?
 except ImportError:
     msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
               'http://cheeseshop.python.org/pypi/simplejson')
@@ -88,6 +88,9 @@ logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 engine = None
 metadata = sqlalchemy.MetaData()
 Session = None
+gui = None
+default_icon = None
+conn_name = None
 
 import datetime
 class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
@@ -155,7 +158,6 @@ def save_state():
     Save the gui state and preferences.
     """
     # in case we quit before the gui is created
-    global gui, prefs
     if gui is not None:
         gui.save_state()
     prefs.save()
@@ -166,8 +168,6 @@ def quit():
     Stop all  tasks and quite Bauble.
     """
     import bauble.task as task
-    global _quitting
-    _quitting = True
     save_state()
     try:
         task._quit()
@@ -217,9 +217,6 @@ def _verify_connection(engine, show_error_dialogs=False):
     # make sure the version information matches or if the bauble
     # table doesn't exists then this may not be a bauble created
     # database
-    warning = _('\n\n<i>Warning: If a database does already exists at ' \
-                'this connection, creating a new database could corrupt '\
-                'it.</i>')
     session = Session()
     session.bind = engine
     query = session.query(meta.BaubleMeta)
@@ -236,7 +233,6 @@ def _verify_connection(engine, show_error_dialogs=False):
 
     # check that the database we connected to has a "version" in the bauble
     # meta table and the the major and minor version are the same
-    global version
     result = query.filter_by(name = meta.VERSION_KEY).first()
     if result is None:
         raise error.VersionError(None)
@@ -254,14 +250,16 @@ def open_database(uri, verify=True, show_error_dialogs=False):
     which is the same as bauble.engine, on failure None is returned
     and bauble.engine remains as it was previously
     '''
-##   debug('bauble.open_database(%s)' % uri) # ** WARNING: this can print your passwd
+    # ** WARNING: this can print your passwd
+##   debug('bauble.open_database(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
     global engine
     new_engine = None
     new_engine = sqlalchemy.create_engine(uri)
     new_engine.connect()
     def _bind():
-        global Session, metadata, engine
+        """bind metadata to engine and create sessionmaker """
+        global Session
         metadata.bind = engine # make engine implicit for metadata
         Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
 
@@ -291,24 +289,24 @@ def create_database(import_defaults=True):
     # TODO: we create a transaction here and the csv import creates another
     # nested transaction, we need to verify that if we rollback here then all
     # of the changes made by csv import are rolled back as well
-    import bauble.meta
+    import bauble.meta as meta
     from bauble.task import TaskQuitting
-    conn = bauble.engine.connect()
+    conn = engine.connect()
     transaction = conn.begin()
     try:
         # TODO: here we are creating all the tables in the metadata whether
         # they are in the registry or not, we should really only be creating
         # those tables in the registry
-        bauble.metadata.drop_all()
-        bauble.metadata.create_all()
+        metadata.drop_all()
+        metadata.create_all()
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into bauble.create_database, the problem is at the
         # moment the data is imported in the pluginmgr.init method so we would
         # have to separate table creations from the init menu
 
         # clear the insert menu
-        if bauble.gui is not None and hasattr(bauble.gui, 'insert_menu'):
-            menu = bauble.gui.insert_menu
+        if gui is not None and hasattr(gui, 'insert_menu'):
+            menu = gui.insert_menu
             submenu = menu.get_submenu()
             for c in submenu.get_children():
                 submenu.remove(c)
@@ -317,7 +315,7 @@ def create_database(import_defaults=True):
         # create the plugin registry and import the default data
         pluginmgr.install('all', import_defaults, force=True)
         meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
-                                                value=unicode(bauble.version))
+                                                value=unicode(version))
         meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
                                         value=unicode(datetime.datetime.now()))
     except (GeneratorExit, TaskQuitting), e:
@@ -344,7 +342,6 @@ def set_busy(busy):
     """
     Set the interface to appear busy.
     """
-    global gui
     if gui is None or gui.widgets.main_box is None:
         return
     # main_box is everything but the statusbar
@@ -387,14 +384,6 @@ def command_handler(cmd, arg):
                                               gtk.MESSAGE_ERROR)
 
 
-try:
-    # TODO: this should really only be set once but for some reason its being
-    # reset,
-    gui
-except NameError:
-    gui=None
-
-
 conn_default_pref = "conn.default"
 conn_list_pref = "conn.list"
 
@@ -407,15 +396,12 @@ def main(uri=None):
     gtk.gdk.threads_enter()
 
     # declare module level variables
-    global prefs, conn_name, db_engine, gui, default_icon
-    gui = conn_name = db_engine = None
+    global prefs, gui, default_icon, conn_name
 
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
 
     # intialize the user preferences
     prefs.init()
-
-    import bauble.pluginmgr as pluginmgr
 
     open_exc = None
     # open default database

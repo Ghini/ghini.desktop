@@ -139,7 +139,7 @@ family_editor_tooltips = {
      'fam_family_entry': _('The family name'),
      'fam_qualifier_combo': _('The family qualifier helps to remove '
                               'ambiguities that might be associated with '
-                              'this family name')
+                              'this family name'),
      'fam_notes_textview': _('Miscelleanous notes about this family.'),
      'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
                       'synonym enter a family name and select one from the '
