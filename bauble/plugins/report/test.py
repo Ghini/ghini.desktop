@@ -116,7 +116,7 @@ class ReportTests(ReportTestCase):
         self.assert_(species_id == [1], species_id)
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
         species_id = _get_all_species_ids([tag])
         self.assert_(species_id == [1,2,3,4], species_id)
 
@@ -159,7 +159,7 @@ class ReportTests(ReportTestCase):
         self.assert_(acc_id == [1, 2], acc_id)
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
         acc_id = _get_all_accession_ids([tag])
         self.assert_(acc_id == [1,2,3,4,5,6,7,8], acc_id)
 
@@ -202,7 +202,7 @@ class ReportTests(ReportTestCase):
         self.assert_(plant_ids == [1, 2, 3, 4], plant_ids)
 
         tag_objects('test', [family, genus])
-        tag = self.session.query(Tag).filter_by(tag='test').one()
+        tag = self.session.query(Tag).filter_by(tag=u'test').one()
         plant_ids = _get_all_plant_ids([tag])
         self.assert_(plant_ids == range(1, 17), plant_ids)
 

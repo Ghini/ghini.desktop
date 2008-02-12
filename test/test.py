@@ -19,6 +19,8 @@ parser.add_option("-c", "--connection", dest="connection", metavar="CONN",
                   default=default_uri, help="connect to CONN")
 parser.add_option("-l", "--loglevel", dest='loglevel', metavar='LEVEL (0-61)',
                 type='int', default=30, help="display extra test information")
+parser.add_option('-v', "--verbosity", dest='verbosity', metavar="VERBOSITY",
+                  type='int', default=1, help="verbosity noise level")
 
 
 def find_all_tests():
@@ -87,7 +89,7 @@ if __name__ == '__main__':
     test_suites = find_all_tests()
 
     testbase.log.msg('=======================')
-    runner = unittest.TextTestRunner()
+    runner = unittest.TextTestRunner(verbosity=options.verbosity)
     if len(args) > 0:
         # run a specific testsuite, would be nice to allow running
         # specific test cases or test methods...
@@ -107,12 +109,4 @@ if __name__ == '__main__':
 
     else:
         runner.run(test_suites)
-
-
-
-
-
-
-
-
 

@@ -292,8 +292,10 @@ def get_tagged_objects(tag, session=None):
             session = bauble.Session()
     if isinstance(tag, Tag):
         t = tag
+    elif not isinstance(tag, unicode):
+        t = session.query(Tag).filter(tag_table.c.tag==unicode(tag,'utf-8'))[0]
     else:
-        t = session.query(Tag).filter(tag_table.c.tag==unicode(tag))[0]
+        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
 
     return [session.load(mapper, obj_id) for mapper, obj_id in _get_tagged_object_pairs(t)]
 
