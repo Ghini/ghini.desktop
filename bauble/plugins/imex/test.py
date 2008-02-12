@@ -35,6 +35,24 @@ class ImexTestCase(BaubleTestCase):
 
 class ImexCSVTestCase(ImexTestCase):
 
+    def test_import_defaults(self):
+        # temporarily disable this method since it can take a long time
+        return
+        import bauble
+        import bauble.pluginmgr as pluginmgr
+        #filenames = [p.default_filenames() for p in pluginmgr.plugins]
+        filenames = []
+        for p in pluginmgr.plugins:
+            filenames.extend(p.default_filenames())
+        importer = CSVImporter()
+        def on_error(exc):
+            raise exc
+        # the bauble.DateTimeDecorator gives erros here when using a
+        # postgres database
+        importer.start(filenames=filenames, metadata=bauble.metadata,
+                       force=True, on_error=on_error)
+
+
     def test_import(self):
         # TODO: create a test to check that we aren't using an insert
         # statement for import that assumes a column value from the previous
@@ -94,7 +112,9 @@ class ImexTestSuite(unittest.TestSuite):
 
     def __init__(self):
         super(ImexTestSuite, self).__init__()
-        self.addTests(map(ImexCSVTestCase, ('test_import', 'test_export',
+        self.addTests(map(ImexCSVTestCase, ('test_import',
+                                            'test_import_defaults',
+                                            'test_export',
                                             'test_unicode')))
 
 

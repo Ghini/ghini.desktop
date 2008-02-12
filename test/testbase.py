@@ -43,12 +43,10 @@ def init_bauble(uri):
 
 class BaubleTestCase(unittest.TestCase):
 
-    uri = 'sqlite:///:memory:'
-
     def setUp(self):
         '''
         '''
-        init_bauble(self.uri)
+        init_bauble(uri)
         self.session = bauble.Session()
 
     def set_logging_level(level, logger='sqlalchemy'):

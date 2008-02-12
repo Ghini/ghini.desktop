@@ -108,10 +108,14 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
     def convert_bind_param(self, value, engine):
         if isinstance(value, (basestring)):
             format = '%Y-%m-%d %H:%M:%S'
+            # TODO: datetime.strptime is new in version Python 2.5, we should
+            # probably stay at least compatible with 2.4
             value = datetime.datetime.strptime(value, format)
+            debug(value)
         return super(DateTimeDecorator, self).convert_bind_param(value, engine)
 
     def convert_result_value(self, value, engine):
+        debug(value)
         return super(DateTimeDecorator, self).convert_result_value(value,
                                                                    engine)
 
@@ -185,6 +189,7 @@ def _verify_connection(engine, show_error_dialogs=False):
     @param show_error_dialogs: flag for whether or not to show message dialogs
     detailing the error, default=False
     """
+##    debug('entered _verify_connection(%s)' % show_error_dialogs)
     if show_error_dialogs:
         try:
             return _verify_connection(engine, False)
@@ -193,6 +198,7 @@ def _verify_connection(engine, show_error_dialogs=False):
                     'bauble meta table.  This usually means that the database '
                     'is either corrupt or it was created with an old version '
                     'of Bauble')
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except error.TimestampError:
             msg = _('The database you have connected to does not have a '\
@@ -212,32 +218,50 @@ def _verify_connection(engine, show_error_dialogs=False):
                      'db_version':'%s.%s.%s' % eval(e.version)}
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
+        except pluginmgr.RegistryEmptyError, e:
+            msg = _('The database you have connected to does not have a '\
+                    'valid plugin registry.  This means that the ' \
+                    'database could be corrupt or was interrupted while ' \
+                    'creating a new database at this connection.')
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            raise
 
     import bauble.meta as meta
-    # make sure the version information matches or if the bauble
-    # table doesn't exists then this may not be a bauble created
-    # database
-    session = Session()
-    session.bind = engine
-    query = session.query(meta.BaubleMeta)
 
     # check that the database we connected to has the bauble meta table
     if not engine.has_table(meta.bauble_meta_table.name):
         raise error.MetaTableError()
 
+    from sqlalchemy.orm import sessionmaker
+    # if we don't close this session before raising an exception then we
+    # will probably get deadlocks....i'm not really sure why
+    session = sessionmaker(bind=engine)()
+    query = session.query#(meta.BaubleMeta)
+
     # check that the database we connected to has a "created" timestamp
     # in the bauble meta table
-    result = query.filter_by(name = meta.CREATED_KEY).first()
-    if result is None:
+    result = query(meta.BaubleMeta).filter_by(name = meta.CREATED_KEY).first()
+    if not result:
+        session.close()
         raise error.TimestampError()
 
     # check that the database we connected to has a "version" in the bauble
     # meta table and the the major and minor version are the same
-    result = query.filter_by(name = meta.VERSION_KEY).first()
-    if result is None:
+    result = query(meta.BaubleMeta).filter_by(name = meta.VERSION_KEY).first()
+    if not result:
+        session.close()
         raise error.VersionError(None)
     elif eval(result.value)[0:2] != version[0:2]:
+        session.close()
         raise error.VersionError(result.value)
+
+    # will raise RegistryEmptyError if the plugin registry does not exist in
+    # the meta table
+    try:
+        pluginmgr.Registry(session=session)
+    except:
+        session.close()
+        raise
 
     return True
 
@@ -251,25 +275,26 @@ def open_database(uri, verify=True, show_error_dialogs=False):
     and bauble.engine remains as it was previously
     '''
     # ** WARNING: this can print your passwd
-##   debug('bauble.open_database(%s)' % uri)
+##    debug('bauble.open_database(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
     global engine
     new_engine = None
     new_engine = sqlalchemy.create_engine(uri)
-    new_engine.connect()
+    new_engine.contextual_connect()
     def _bind():
         """bind metadata to engine and create sessionmaker """
-        global Session
+        global Session, engine
+        engine = new_engine
         metadata.bind = engine # make engine implicit for metadata
         Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
 
-    if engine is None or not verify:
-        engine = new_engine
+    if new_engine is not None and not verify:
         _bind()
         return engine
+    elif new_engine is None:
+        return None
 
     _verify_connection(new_engine, show_error_dialogs)
-    engine = new_engine
     _bind()
     return engine
 
@@ -277,6 +302,7 @@ def open_database(uri, verify=True, show_error_dialogs=False):
 def create_database(import_defaults=True):
     '''
     create new Bauble database at the current connection
+    @param import_defaults: default=True
     '''
     # TODO: when creating a database there shouldn't be any errors
     # on import since we are importing from the default values, we should
@@ -289,16 +315,17 @@ def create_database(import_defaults=True):
     # TODO: we create a transaction here and the csv import creates another
     # nested transaction, we need to verify that if we rollback here then all
     # of the changes made by csv import are rolled back as well
+##    debug('entered bauble.create_database()')
     import bauble.meta as meta
     from bauble.task import TaskQuitting
-    conn = engine.connect()
-    transaction = conn.begin()
+    transaction = engine.contextual_connect().begin()
     try:
         # TODO: here we are creating all the tables in the metadata whether
         # they are in the registry or not, we should really only be creating
         # those tables in the registry
-        metadata.drop_all()
+        metadata.drop_all(checkfirst=True)
         metadata.create_all()
+##       debug('dropped and created')
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into bauble.create_database, the problem is at the
         # moment the data is imported in the pluginmgr.init method so we would
@@ -321,21 +348,22 @@ def create_database(import_defaults=True):
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
+        debug(e)
+#        debug('bauble.create_database(): rollback')
         transaction.rollback()
-        conn.close()
         raise
     except Exception, e:
+        debug(e)
+#        debug('bauble.create_database(): rollback')
         transaction.rollback()
-        conn.close()
-        msg = _('Error creating tables. Your database may be corrupt.'\
-                '\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Error creating tables.\n\n%s') % utils.xml_safe_utf8(e)
         debug(traceback.format_exc())
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
         raise
     else:
+##        debug('bauble.create_database(): committing')
         transaction.commit()
-        conn.close()
 
 
 def set_busy(busy):
@@ -415,19 +443,28 @@ def main(uri=None):
                 if conn_name is None:
                     quit()
             try:
-                if open_database(uri, conn_name, True):
+                if open_database(uri, True, True):
                     prefs[conn_default_pref] = conn_name
                     break
                 else:
                     uri = conn_name = None
             except error.VersionError, e:
                 warning(e)
+                open_database(uri, False)
+                break
+            except (error.MetaTableError, pluginmgr.RegistryEmptyError,
+                    error.VersionError, error.TimestampError), e:
+                warning(e)
+                open_exc = e
+                # reopen without verification so that bauble.Session and
+                # bauble.engine, bauble.metadata will be bound to an engine
+                open_database(uri, False)
                 break
             except error.DatabaseError, e:
                 debug(e)
                 #traceback.format_exc()
                 open_exc = e
-                break
+                #break
             except Exception, e:
                 msg = _("Could not open connection.\n\n%s") % \
                       utils.xml_safe_utf8(e)
@@ -435,7 +472,7 @@ def main(uri=None):
                                              gtk.MESSAGE_ERROR)
                 uri = None
     else:
-        open_database(uri, None, True)
+        open_database(uri, True, True)
 
     # load the plugins
     pluginmgr.load()
@@ -454,33 +491,30 @@ def main(uri=None):
     gui = _gui.GUI()
 
     def _post_loop():
-##      debug('__post_loop')
         gtk.gdk.threads_enter()
-        ok_to_init_plugins = True
         try:
             if isinstance(open_exc, error.DatabaseError):
-                ok_to_init_plugins = False
                 msg = _('Would you like to create a new Bauble database at ' \
                         'the current connection?\n\n<i>Warning: If there is '\
                         'already a database at this connection any existing '\
                         'data will be destroyed!</i>')
                 if utils.yes_no_dialog(msg, yes_delay=2):
-                    create_database()
-                    ok_to_init_plugins = True
+                    try:
+                        create_database()
+                        # create_database creates all tables registered with
+                        # the default metadata so the pluginmgr should be
+                        # loaded after the database is created so we don't
+                        # inadvertantly create tables from the plugins
+                        pluginmgr.init()
+                        # set the default connection
+                        prefs[conn_default_pref] = conn_name
+                    except Exception, e:
+                        debug(e)
+            else:
+                pluginmgr.init()
         except Exception, e:
             debug(e)
-            pass
             #utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
-        else:
-            # create_database creates all tables registered with the default
-            # metadata so the pluginmgr should be loaded after the database
-            # is created so we don't inadvertantly create tables from the
-            # plugins
-            if ok_to_init_plugins:
-                pluginmgr.init()
-            # set the default connection
-            prefs[conn_default_pref] = conn_name
-
         gtk.gdk.threads_leave()
 
     gobject.idle_add(_post_loop)

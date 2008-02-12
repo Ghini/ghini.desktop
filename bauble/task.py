@@ -24,7 +24,10 @@ _task_queue = Queue.Queue(0)
 
 # TODO: test callback
 
-# WARNING: tasks don't work if called inside a gobject.idle_add callback
+# WARNING: tasks don't work if called inside a gobject.idle_add
+# callback...UPDATE: it seems like they do but they're touchy, we run
+# bauble.create_database() inside of bauble._post_loop which
+# eventually calls cvs import which is a task
 
 def _update_gui():
     while gtk.events_pending():
@@ -97,9 +100,12 @@ def flush():
         except (GeneratorExit, TaskQuitting), e:
             raise
         except Exception, e:
-            if on_error is not None:
-                on_error(e)
-            raise
+            #  we can't raise an exception here since the other
+            #  pending tasks would be able to complete...on_error also
+            #  shouldn't raise an exception
+            #gobject.idle_add(on_error, e)
+            on_error(e)
+
     bauble.set_busy(False)
     clear_messages()
     if bauble.gui is not None:

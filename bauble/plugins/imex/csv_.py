@@ -150,7 +150,8 @@ class CSVImporter(Importer):
         utils.message_details_dialog(str(exc), traceback.format_exc())
 
 
-    def start(self, filenames=None, metadata=None, force=False):
+    def start(self, filenames=None, metadata=None, force=False, on_quit=None,
+              on_error=None, ):
         '''
         start the import process, this is a non blocking method queue the
         process as a bauble task
@@ -168,7 +169,11 @@ class CSVImporter(Importer):
 
         # self.on_quit isn't implemented but we include it here because
         # the imex tests use it
-        bauble.task.queue(self.run, self.on_quit, self.on_error, filenames,
+        if on_quit is None:
+            on_quit = self.on_quit
+        if on_error is None:
+            on_error = self.on_error
+        bauble.task.queue(self.run, on_quit, on_error, filenames,
                           metadata, force)
 
 
@@ -185,7 +190,11 @@ class CSVImporter(Importer):
         transaction = None
         connection = None
         try:
-            connection = engine.connect()
+            # here we have to call contextual_connect() so that we use the
+            # same connection throughout bauble, if not then this
+            # method might be called inside another transaction and it
+            # could cause terrible deadlocks with other transactions
+            connection = engine.contextual_connect()
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
@@ -237,7 +246,8 @@ class CSVImporter(Importer):
             #get the total number of lines for all the files
             total_lines += len(file(filename).readlines())
         steps_so_far = 0
-
+        cleaned = None
+        insert = None
         try:
             # first do all the table creation/dropping
             for table, filename in sorted_tables:
@@ -284,13 +294,12 @@ class CSVImporter(Importer):
                                 continue
 
                             # drop the deps in reverse order
-                            for d in reversed(deps):
+                            for d in deps:
                                 d.drop(bind=engine, checkfirst=True)
                             table.drop(bind=engine, checkfirst=True)
-                            import sys
                             table.create(bind=engine)
                             add_to_created([table.name])
-                            for d in deps: # recreate the deps
+                            for d in reversed(deps): # recreate the deps
                                 d.create(bind=engine)
                                 add_to_created(dep_names)
                         else:
@@ -302,7 +311,6 @@ class CSVImporter(Importer):
                     break
 
                 # do the inserts
-                insert = table.insert().compile()
                 f = file(filename, "rb")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
@@ -317,9 +325,15 @@ class CSVImporter(Importer):
                         # specified in the csv file so that the columns will
                         # pick up their default on insert
                         cleaned = dict([(k, v) for k,v in \
-                                        line.iteritems() if v not in ('',u'')])
-                        connection.execute(insert, cleaned)
-
+                                line.iteritems() if v not in ('', u'', None)])
+                        # its a hell of a lot faster if we precompile
+                        # the insert statement but it can lead to
+                        # problems if different rows have different
+                        # columns which is likely since we "clean" the
+                        # rows so that those rows that are blank will
+                        # accept the default values
+                        insert = table.insert(values=cleaned)
+                        connection.execute(insert)#, cleaned)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0:
                         percent = float(steps_so_far)/float(total_lines)
@@ -330,54 +344,32 @@ class CSVImporter(Importer):
 
                 if self.__error or self.__cancel:
                     break
-
         except (bauble.task.TaskQuitting, GeneratorExit), e:
             transaction.rollback()
             raise
         except Exception, e:
-            debug(e)
             transaction.rollback()
+            debug(insert)
+            debug(cleaned)
+            debug(e)
             utils.message_details_dialog(_('Error:  %s') % \
                                          utils.xml_safe_utf8(e),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
+            self.__error = True
+            self.__error_exc = e
             raise
-
-
-        transaction.commit()
-        # set the sequence on a table to the max value
-        if engine.name == 'postgres':
-            try:
-                for table, filename in sorted_tables:
-##                     # TOD0: maybe something like
-##     #                for col in table.c:
-##     #                    if col.type == Integer:
-##     #                        - get the max
-##     #                        try:
-##     #                            - set the sequence
-##     #                        except:
-##     #                            pass
-
-                    sequence_name = '%s_id_seq' % table.name
-                    stmt = "SELECT max(id) FROM %s" % table.name
-                    max = connection.execute(stmt).fetchone()[0]
-                    if max is not None:
-                        stmt = "SELECT setval('%s', %d);" % \
-                               (sequence_name, max+1)
-                        connection.execute(stmt)
-            except Exception, e:
-                debug(e)
-                msg = _('Error: Could not set the value the for the '\
-                        'sequence: %s') % sequence_name
-                utils.message_details_dialog(_('Error:  %s' \
-                                               % utils.xml_safe_utf8(msg)),
-                                             str(e), type=gtk.MESSAGE_ERROR)
+        else:
+##            debug('CSVImporter.run(): commit')
+            # don't commit anything everything imported correctly
+            transaction.commit()
 
 
     def __init__(self):
         self.__error = False  # flag to indicate error on import
         self.__cancel = False # flag to cancel importing
         self.__pause = False  # flag to pause importing
+        self.__error_exc = False
 
 
 

@@ -42,14 +42,16 @@ def find_dependent_tables(table, metadata=None):
         metadata = bauble.metadata
     result = []
     def _impl(t2):
-        for t in metadata.table_iterator():
-            for c in t.c:
-                for f in c.foreign_keys:
-                    if f.column.table == t2:
-                        if t not in result and t is not table:
-                            result.append(t)
-                            _impl(t)
+        for tbl in metadata.table_iterator():
+            for col in tbl.c:
+                for fk in col.foreign_keys:
+                    if fk.column.table == t2:
+                        if tbl not in result and tbl is not table:
+#                            debug('append: %s' % tbl.name)
+                            result.append(tbl)
+                            _impl(tbl)
     _impl(table)
+#    debug([r.name for r in result])
     return metadata.table_iterator(tables=result)
 
 
