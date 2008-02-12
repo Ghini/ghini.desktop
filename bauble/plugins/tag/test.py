@@ -60,7 +60,7 @@ class TagTests(TagTestCase):
         self.assert_(sorted_pairs == [(Family, 0), (Family, 1)], sorted_pairs)
 
         # get object by tag
-        tag = self.session.query(tag_plugin.Tag).filter_by(tag='test').one()
+        tag = self.session.query(tag_plugin.Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
         sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
                              cmp=lambda x, y: cmp(x[0], y[0]))
@@ -80,7 +80,7 @@ class TagTests(TagTestCase):
         self.assert_(pairs == [], pairs)
 
         # get object by tag
-        tag = self.session.query(tag_plugin.Tag).filter_by(tag='test').one()
+        tag = self.session.query(tag_plugin.Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
 
 
@@ -91,7 +91,7 @@ class TagTests(TagTestCase):
         tag_plugin.tag_objects('test2', [fam0])
 
         # test we only return the ids the objects have in common
-        sel = select([tag_table.c.id], tag_table.c.tag=='test')
+        sel = select([tag_table.c.id], tag_table.c.tag==u'test')
         test_id = [r[0] for r in sel.execute()]
         ids = tag_plugin.get_tag_ids([fam0, fam1])
         self.assert_(ids==test_id, ids)
