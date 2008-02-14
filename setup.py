@@ -6,6 +6,7 @@
 
 try:
     import setuptools
+    from setuptools import setup
 except ImportError, e:
     print e
     from distutils.core import setup
@@ -35,7 +36,8 @@ gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 #plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 #subpackages = ['plugins', 'utils']
 #all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
-plugins = setuptools.find_packages(where='bauble/plugins', exclude=['test', 'bauble.*.test'])
+plugins = setuptools.find_packages(where='bauble/plugins',
+                                   exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test'])
 
@@ -91,20 +93,20 @@ if USING_PY2EXE:
     # package_data
     py2exe_data_files = []
     for package, patterns in package_data.iteritems():
-        dir = all_package_dirs[package]
+        pkg_dir = all_package_dirs[package]
         for p in patterns:
-            matches = glob.glob(dir + '/' + p)
+            matches = glob.glob(pkg_dir + '/' + p)
             if matches != []:
                 index = p.rfind('/')
                 if index != -1:
-                    install_dir = '%s/%s' % (dir, p[:index])
+                    install_dir = '%s/%s' % (pkg_dir, p[:index])
                 else:
-                    install_dir = dir
+                    install_dir = pkg_dir
                 py2exe_data_files.append((install_dir,
                                           [m.replace(os.sep, '/') \
                                                for m in matches]))
 else:
-    opts=None
+    opts = None
     py2exe_data_files = None
     py2exe_includes = []
 

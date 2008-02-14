@@ -369,6 +369,9 @@ class CSVImporter(Importer):
 
         # unfortunately importing doesn't change the sequence number
         # so we have to set it manually to the max value
+        #
+        # TODO: need to test what mysql does and also make this work
+        # for other columns other than id columns
         if engine.name == 'postgres':
             try:
                 for table, filename in sorted_tables:
@@ -376,7 +379,7 @@ class CSVImporter(Importer):
                     # something like
 ##                     for col in table.c:
 ##                         if col.type == Integer:
-##                             - get the max
+##                             - check that it has a sequence or that its a serial type and get the max value
 ##                             try:
 ##                                 - set the sequence
 ##                             except:
