@@ -85,7 +85,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                  'genus_synonym.txt', 'geography.txt']
         return [os.path.join(path, f) for f in files]
 
-
+    @classmethod
     def install(cls):
         """
         do any setup and configuration required bt this plugin like

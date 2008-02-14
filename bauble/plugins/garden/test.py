@@ -108,6 +108,9 @@ class GardenTestCase(BaubleTestCase):
 
 class DonorTests(GardenTestCase):
 
+    def __init__(self, *args):
+        super(DonorTests, self).__init__(*args)
+
     def test_delete_donor(self):
         acc = self.session.load(Accession, 1)
         donor = self.session.load(Donor, 1)

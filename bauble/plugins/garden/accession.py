@@ -284,20 +284,23 @@ mapper(Accession, accession_table,
 mapper(Verification, verification_table)
 
 
-def get_source(row):
-    # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
-    # into some of the accession.source_type columns, this can cause an error
-    # here but it's not critical, but we should make sure this doesn't happen
-    # again in the future, maybe incorporated into a test
-    if row.source_type == None:
-        return None
-    elif row.source_type == tables['Donation'].__name__:
-        # the __name__ should be 'Donation'
-        return row._donation
-    elif row.source_type == tables['Collection'].__name__:
-        return row._collection
-    else:
-        raise ValueError(_('unknown source type: %s') % str(row.source_type))
+# TODO: we don't use this anymore i don't think and its broken
+# anyways, remove it?
+#
+# def get_source(row):
+#     # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
+#     # into some of the accession.source_type columns, this can cause an error
+#     # here but it's not critical, but we should make sure this doesn't happen
+#     # again in the future, maybe incorporated into a test
+#     if row.source_type == None:
+#         return None
+#     elif row.source_type == tables['Donation'].__name__:
+#         # the __name__ should be 'Donation'
+#         return row._donation
+#     elif row.source_type == tables['Collection'].__name__:
+#         return row._collection
+#     else:
+#         raise ValueError(_('unknown source type: %s') % str(row.source_type))
 
 
 def _val_str(col):

@@ -259,7 +259,7 @@ def create_abcd(decorated_objects, authors=True, validate=True):
     return ElementTree(datasets)
 
 
-class ABCDExporter:
+class ABCDExporter(object):
 
     def start(self, filename=None, plants=None):
         if filename == None: # no filename, ask the user
@@ -286,7 +286,11 @@ class ABCDExporter:
         # to be returned and make sure this is what the user wants
         if plants == None:
             plants = bauble.Session().query(Plant)
-        data = plants_to_abcd(plants)
+
+        # TODO: move PlantABCDAdapter, AccessionABCDAdapter and
+        # PlantABCDAdapter into the ABCD plugin
+        from bauble.plugins.report.default import PlantABCDAdapter
+        data = create_abcd([PlantABCDAdapter(p) for p in plants])
         data.write_c14n(filename)
 
 

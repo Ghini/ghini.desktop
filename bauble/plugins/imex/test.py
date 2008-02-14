@@ -14,6 +14,7 @@ from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
 # TODO: test that when we export data we get what we expect
 # TODO: test that importing and then exporting gives the same data
 # TODO: test that exporting and then importing gives the same data
+# TODO: test XMLExporter
 
 csv_test_data = ({})
 

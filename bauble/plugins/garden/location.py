@@ -7,6 +7,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 import bauble
+from bauble.i18n import _
 from bauble.editor import *
 import bauble.utils as utils
 import bauble.paths as paths

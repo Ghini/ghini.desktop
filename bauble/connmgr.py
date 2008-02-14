@@ -281,8 +281,8 @@ class ConnectionManager:
             #self.type_combo.set_active(0)
 
 
-    def set_info_label(self, msg=_("Choose a connection")):
-        self.info_label.set_text(msg)
+##    def set_info_label(self, msg=_("Choose a connection")):
+##        self.info_label.set_text(msg)
 
 
     def save_current_to_prefs(self):

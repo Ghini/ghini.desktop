@@ -167,8 +167,8 @@ class Plant(bauble.BaubleMapper):
 
     @staticmethod
     def refresh_delimiter(cls):
-        row = table.select(meta.bauble_meta_table.c.name== \
-                           plant_delimiter_key).execute()
+        row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
+                                            plant_delimiter_key).execute()
         Plant.__delimiter = row.fetchone()['value']
 
     def __get_delimiter(self):

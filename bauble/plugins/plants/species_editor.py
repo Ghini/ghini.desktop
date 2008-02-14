@@ -302,8 +302,6 @@ class DistributionPresenter(GenericEditorPresenter):
 
 
     def on_add_button_pressed(self, button, event):
-        if self.add_menu is None:
-            init_add_menu()
         self.add_menu.popup(None, None, None, event.button, event.time)
 
 
