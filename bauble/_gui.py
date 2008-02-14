@@ -1,4 +1,4 @@
-#
+ #
 # _gui.py
 #
 
@@ -197,10 +197,10 @@ class GUI(object):
         else:
             compl_model = completion.get_model()
 
-	if history is not None:
-	    for herstory in history:
-		main_combo.append_text(herstory)
-		compl_model.append([herstory])
+        if history is not None:
+            for herstory in history:
+                main_combo.append_text(herstory)
+                compl_model.append([herstory])
         main_combo.set_model(model)
 
 
@@ -351,7 +351,7 @@ class GUI(object):
         i = 0
         for label in sorted(self.__insert_menu_cache.keys()):
             submenu.reorder_child(self.__insert_menu_cache[label], i)
-            i+=1
+            i += 1
 
 
     def build_tools_menu(self):
@@ -391,9 +391,11 @@ class GUI(object):
             submenu_item = gtk.MenuItem(category)
             submenu_item.set_submenu(submenu)
             menu.append(submenu_item)
-            for tool in sorted(tools[category], cmp=lambda x, y: cmp(x.label, y.label)):
+            for tool in sorted(tools[category],
+                               cmp=lambda x, y: cmp(x.label, y.label)):
                 item = gtk.MenuItem(tool.label)
-                item.connect("activate", self.on_tools_menu_item_activate,tool)
+                item.connect("activate", self.on_tools_menu_item_activate,
+                             tool)
                 submenu.append(item)
                 if not tool.enabled:
                     item.set_sensitive(False)
@@ -447,7 +449,7 @@ class GUI(object):
         self.widgets.main_entry.paste_clipboard()
 
 
-    def on_file_menu_new(self, widget, date=None):
+    def on_file_menu_new(self, widget, data=None):
         msg = "If a database already exists at this connection then creating "\
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
@@ -486,6 +488,10 @@ class GUI(object):
         # show a custom message if its a version error and continue to use
         # the same engine, if its a different error then verify again but
         # show_error_dialogs = True
+
+        # TODO: there's no reason for us to call _verify_connection a
+        # second time when we could just catch this exception in the
+        # open_database above
         try:
             bauble._verify_connection(engine, show_error_dialogs=False)
         except error.VersionError, e:

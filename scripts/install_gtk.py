@@ -49,16 +49,22 @@ else:
 # script could at least fest me the version numbers so i can quickly
 # check if any of the files need to be updated
 SERVER_ROOT = 'http://ftp.gnome.org/pub/gnome/binaries/win32'
-GTK_PATH = 'gtk+/2.12/gtk+-2.12.5.zip'
-GLIB_PATH = 'glib/2.14/glib-2.14.5.zip'
+GTK_PATH = 'gtk+/2.12/gtk+-2.12.8.zip'
+GLIB_PATH = 'glib/2.14/glib-2.14.6-2.zip'
 PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
 ATK_PATH = 'atk/1.20/atk-1.20.0.zip'
+
+# pycairo-1.4.x doesn't support python 2.5
 PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
-PYCAIRO_25_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.5.exe'
+PYCAIRO_25_PATH = 'pycairo/1.4/pycairo-1.4.12-1.win32-py2.5.exe'
+
+# pygobject-2.14.x only supports python 2.5
 PYGOBJECT_24_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.4.exe'
-PYGOBJECT_25_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.5.exe'
+PYGOBJECT_25_PATH = 'pygobject/2.14/pygobject-2.14.1-1.win32-py2.5.exe'
+
+# pygtk-2.12.x only support python 2.5
 PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
-PYGTK_25_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.5.exe'
+PYGTK_25_PATH = 'pygtk/2.12/pygtk-2.12.1-1.win32-py2.5.exe'
 
 CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
 GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'

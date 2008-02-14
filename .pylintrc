@@ -61,7 +61,8 @@ load-plugins=
 # R0903: To few public methods
 # R0904: To many public methods
 # W0511: TODO, FIXME, XXX messages
-disable-msg=W0703,R0903,R0904,W0511
+# WO611: Unused import: this one could actually be useful but it complains alot when using * imports
+disable-msg=W0703,R0903,R0904,W0511,W0611
 
 # W
 

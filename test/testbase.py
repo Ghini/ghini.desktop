@@ -49,7 +49,7 @@ class BaubleTestCase(unittest.TestCase):
         init_bauble(uri)
         self.session = bauble.Session()
 
-    def set_logging_level(level, logger='sqlalchemy'):
+    def set_logging_level(self, level, logger='sqlalchemy'):
         logging.getLogger('sqlalchemy').setLevel(level)
 
     def tearDown(self):

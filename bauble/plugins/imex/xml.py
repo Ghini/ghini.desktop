@@ -83,9 +83,8 @@ class XMLExporter:
 
 
     def __export_task(self, path, one_file=True):
-        tables = default_metadata.tables
         timeout = gtasklet.WaitForTimeout(12)
-        ntables = len(tables.keys())
+        ntables = len(bauble.metadata.tables)
         steps_so_far = 0
         if not one_file:
             tableset_el = etree.Element('tableset')

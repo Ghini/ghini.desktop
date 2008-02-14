@@ -111,11 +111,11 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
             # TODO: datetime.strptime is new in version Python 2.5, we should
             # probably stay at least compatible with 2.4
             value = datetime.datetime.strptime(value, format)
-            debug(value)
+#            debug(value)
         return super(DateTimeDecorator, self).convert_bind_param(value, engine)
 
     def convert_result_value(self, value, engine):
-        debug(value)
+#        debug(value)
         return super(DateTimeDecorator, self).convert_result_value(value,
                                                                    engine)
 

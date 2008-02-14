@@ -54,7 +54,7 @@ class IntOrNoneStringValidator(object):
     number, else return None
     """
 
-    def _to_python(self, value):
+    def to_python(self, value):
         if value is None or (isinstance(value, str) and value == ''):
             return None
         elif isinstance(value, (int, long)):
@@ -62,8 +62,8 @@ class IntOrNoneStringValidator(object):
         try:
             return int(value)
         except:
-            raise ValidatorError('Expected a int in column %s, got %s '\
-                                 'instead' % (self.name, type(value)))
+            raise ValidatorError('Could not convert value to int: %s (%s)' \
+                                 % (value, type(value)))
 
 class FloatOrNoneStringValidator(object):
     """
@@ -79,10 +79,9 @@ class FloatOrNoneStringValidator(object):
         try:
             return float(value)
         except:
-            raise ValidatorError(_('expected a float in column %(name)s, '\
-                                   'got %(type)s instead') % \
-                                 ({'name': self.name,
-                                   'type': type(value)}), value)
+            raise ValidatorError('Could not convert value to float: %s (%s)' \
+                                 % (value, type(value)))
+
 
 #
 # decorates and delegates to a SA mapped object
@@ -364,6 +363,8 @@ class GenericEditorPresenter(object):
         self.model = model
         self.view = view
         self.problems = Problems()
+        # used by assign_completions_handler
+        self._prev_text = {}
 
 
     # whether the presenter should be commited or not
@@ -564,6 +565,7 @@ class GenericEditorPresenter(object):
         of model
         """
         widget = self.view.widgets[widget_name]
+        self._prev_text[widget_name] = None
         if model is None:
             model = self.model
         # TODO: this works with Ctrl-Space and all but i don't know how to
@@ -607,7 +609,7 @@ class GenericEditorPresenter(object):
                 # block the signal from here since it will call this same
                 # method again and resetting the species completions
                 entry.handler_block(getattr(self, insert_sid_name))
-                entry.set_text(self.prev_text)
+                entry.set_text(self._prev_text[widget_name])
                 entry.handler_unblock(getattr(self, insert_sid_name))
                 return False # is this 'False' necessary, does it do anything?
             entry_text = entry.get_text()
@@ -629,7 +631,7 @@ class GenericEditorPresenter(object):
 #                add_completions(full_text)
 #            elif new_text_length > 2:# and entry_text != '':
 #                add_completions(full_text[:2])
-#            self.prev_text = full_text
+#            prev_text = full_text
 
             # i think this is making sure the value in the entry was chosen
             # from the popup, i.e. set in the model
@@ -661,7 +663,7 @@ class GenericEditorPresenter(object):
             self.remove_problem(PROBLEM, widget)
             set_func(self, field, value)
 #            debug('set prev text')
-            self.prev_text = str(value)
+            self._prev_text[widget_name] = str(value)
 
         completion = widget.get_completion()
 
