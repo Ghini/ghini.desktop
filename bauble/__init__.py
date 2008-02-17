@@ -108,8 +108,13 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
     def convert_bind_param(self, value, engine):
         if isinstance(value, (basestring)):
             format = '%Y-%m-%d %H:%M:%S'
-            # TODO: datetime.strptime is new in version Python 2.5, we should
-            # probably stay at least compatible with 2.4
+            # TODO: datetime.strptime is new in version Python 2.5, we
+            # should probably stay at least compatible with 2.4 and
+            # work around strptime...then again pygtk>=2.12 only
+            # supports 2.5 so maybe its time to drop 2.4
+            #
+            # TODO: SA-0.4.3 not has a func.now() that might work
+            # better for us
             value = datetime.datetime.strptime(value, format)
 #            debug(value)
         return super(DateTimeDecorator, self).convert_bind_param(value, engine)
@@ -120,7 +125,7 @@ class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
                                                                    engine)
 
 _now = sqlalchemy.func.current_timestamp(type_=sqlalchemy.DateTime)
-
+from sqlalchemy import *
 class Table(sqlalchemy.Table):
 
     """
@@ -128,14 +133,18 @@ class Table(sqlalchemy.Table):
     this Table class.
     """
 
+    # func.now() is only supported in SQLAlchemy>=0.4.3
     def __init__(self, *args, **kwargs):
         super(Table, self).__init__(*args, **kwargs)
         self.append_column(sqlalchemy.Column('_created',
                                              DateTimeDecorator(True),
-                                             default=_now))
+                                             default=func.now()))
+                                             #default=_now))
         self.append_column(sqlalchemy.Column('_last_updated',
                                              DateTimeDecorator(True),
-                                             default=_now, onupdate=_now))
+                                             default=func.now(),
+                                             onupdate=func.now()))
+                                             #default=_now, onupdate=_now))
 
 
 

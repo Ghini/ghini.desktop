@@ -46,6 +46,7 @@ class BaubleTestCase(unittest.TestCase):
     def setUp(self):
         '''
         '''
+        assert uri is not None, "The database URI is not set"
         init_bauble(uri)
         self.session = bauble.Session()
 

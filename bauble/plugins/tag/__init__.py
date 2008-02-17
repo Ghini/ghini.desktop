@@ -229,7 +229,7 @@ class Tag(bauble.BaubleMapper):
 # TODO: can class names be unicode, i.e. should obj_class be unicode
 tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
                          Column('id', Integer, primary_key=True),
-                         Column('obj_id', Integer),
+                         Column('obj_id', Integer, autoincrement=False),
                          Column('obj_class', String(128)),
                          Column('tag_id', Integer, ForeignKey('tag.id')))
 
@@ -352,7 +352,8 @@ def tag_objects(name, objs):
         cls = and_(tagged_obj_table.c.obj_class==_classname(obj),
                    tagged_obj_table.c.obj_id==obj.id,
                    tagged_obj_table.c.tag_id==tag.id)
-        if tagged_obj_table.select(cls).count().scalar() == 0:
+        # SA 0.4.3 gave an error without this _dummy alias
+        if tagged_obj_table.select(cls).alias('_dummy').count().scalar() == 0:
             tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
                                    tag=tag)
             session.save(tagged_obj)

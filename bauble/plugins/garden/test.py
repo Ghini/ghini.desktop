@@ -56,6 +56,8 @@ def setUp_test_data():
     for table, data in test_data_table_control:
         for row in data:
             table.insert().execute(row)
+        for col in table.c:
+            utils.reset_sequence(col)
     i = Institution()
     i.name = u'TestInstitution'
     i.technical_contact = u'TestTechnicalContact Name'
@@ -134,6 +136,9 @@ class DonorTests(GardenTestCase):
 
 
 class AccessionTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(AccessionTests, self).__init__(*args)
 
     def test_set_source(self):
         acc = self.session.load(Accession, 1)

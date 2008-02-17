@@ -8,6 +8,7 @@ import os, sys, unittest
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
 import bauble
+import bauble.utils as utils
 from bauble.plugins.plants.species_model import Species, species_table, \
     VernacularName, vernacular_name_table, species_synonym_table, \
     SpeciesSynonym, DefaultVernacularName
@@ -129,6 +130,8 @@ def setUp_test_data():
     for table, data in test_data_table_control:
         for row in data:
             table.insert().execute(row)
+        for col in table.c:
+            utils.reset_sequence(col)
 
 
 def tearDown_test_data():

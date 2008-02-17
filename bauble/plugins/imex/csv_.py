@@ -367,40 +367,20 @@ class CSVImporter(Importer):
             # don't commit anything everything imported correctly
             transaction.commit()
 
-        # unfortunately importing doesn't change the sequence number
-        # so we have to set it manually to the max value
-        #
-        # TODO: need to test what mysql does and also make this work
-        # for other columns other than id columns
-        if engine.name == 'postgres':
-            try:
-                for table, filename in sorted_tables:
-                    # TOD0: this could be more intelligent, maybe
-                    # something like
-##                     for col in table.c:
-##                         if col.type == Integer:
-##                             - check that it has a sequence or that its a serial type and get the max value
-##                             try:
-##                                 - set the sequence
-##                             except:
-##                                 pass
-                    sequence_name = '%s_id_seq' % table.name
-                    stmt = "SELECT max(id) FROM %s" % table.name
-                    max_id = connection.execute(stmt).fetchone()[0]
-                    if max_id is not None:
-                        stmt = "SELECT setval('%s', %d);" % \
-                               (sequence_name, max_id + 1)
-                        connection.execute(stmt)
-            except Exception, e:
-                debug(e)
-                msg = _('Error: Could not set the value the for the '\
-                        'sequence: %s') % sequence_name
-                utils.message_details_dialog(_('Error:  %s' \
-                                               % utils.xml_safe_utf8(msg)),
-                                             str(e), type=gtk.MESSAGE_ERROR)
-
-
-
+        # unfortunately inserting an explicit value into a column that
+        # has a sequence doesn't update the sequence, we shortcut this
+        # by setting the sequence manyally to the max(column)+1
+        col = None
+        try:
+            for table, filename in sorted_tables:
+                for col in table.c:
+                    utils.reset_sequence(col)
+        except Exception, e:
+            msg = _('Error: Could not set the sequence for column: %s') \
+                  % col.name
+            utils.message_details_dialog(_(utils.xml_safe_utf8(msg)),
+                                         traceback.format_exc(),
+                                         type=gtk.MESSAGE_ERROR)
 # TODO: we don't use the progress dialog any more but we'll leave this
 # around to remind us when we support cancelling via the progress statusbar
 #
@@ -413,10 +393,7 @@ class CSVImporter(Importer):
 #         self.__pause = True
 #         if utils.yes_no_dialog(msg, parent=self.__progress_dialog):
 #             self.__cancel = True
-#         self.__pause = False
-
-
-
+##         self.__pause = False
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """

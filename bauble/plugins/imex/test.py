@@ -3,8 +3,10 @@
 #
 
 import os, unittest
+import logging
 from sqlalchemy import *
 from testbase import BaubleTestCase, log
+import bauble
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
@@ -37,8 +39,8 @@ class ImexTestCase(BaubleTestCase):
 class ImexCSVTestCase(ImexTestCase):
 
     def test_import_defaults(self):
-        # temporarily disable this method since it can take a long time
-        return
+        # this test is usually not included in the test suite since it
+        # takes so long
         import bauble
         import bauble.pluginmgr as pluginmgr
         #filenames = [p.default_filenames() for p in pluginmgr.plugins]
@@ -52,6 +54,43 @@ class ImexCSVTestCase(ImexTestCase):
         # postgres database
         importer.start(filenames=filenames, metadata=bauble.metadata,
                        force=True, on_error=on_error)
+
+    def test_sequences(self):
+        """
+        test that the sequences are set correctly after an import
+        """
+        # turn off logger
+        logging.getLogger('bauble.info').setLevel(logging.ERROR)
+        # import the family data
+        from bauble.plugins.plants.family import Family, family_table
+        from bauble.plugins.plants import PlantsPlugin
+        filenames = PlantsPlugin.default_filenames()
+        family_filename = [fn for fn in filenames \
+                           if fn.endswith('family.txt')][0]
+        importer = CSVImporter()
+        importer.start([family_filename], force=True)
+
+        # the highest id number in the family file is assumed to be
+        # num(lines)-1 since the id numbers are sequential and
+        # subtract for the file header
+        highest_id =  len(open(family_filename).readlines())-1
+        currval = None
+        conn = bauble.engine.contextual_connect()
+        if bauble.engine.name == 'postgres':
+            stmt = "SELECT currval('family_id_seq');"
+            currval = conn.execute(stmt).fetchone()[0]
+        elif bauble.engine.name == 'sqlite':
+            # max(id) isn't really safe in production use but is ok for a test
+            stmt = "SELECT max(id) from family;"
+            currval = conn.execute(stmt).fetchone()[0]
+            currval += 1
+        else:
+            raise "no test for engine type: %s" % bauble.engine.name
+
+        maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
+        assert currval > highest_id, \
+               "bad sequence: highest_id(%s) != currval(%s) -- %s" % \
+               (highest_id, currval, maxid)
 
 
     def test_import(self):
@@ -72,7 +111,6 @@ class ImexCSVTestCase(ImexTestCase):
 
         # the exporters and importers show logging information, turn it off
         import bauble.utils as utils
-        import logging
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         import tempfile
         tempdir = tempfile.mkdtemp()
@@ -114,9 +152,10 @@ class ImexTestSuite(unittest.TestSuite):
     def __init__(self):
         super(ImexTestSuite, self).__init__()
         self.addTests(map(ImexCSVTestCase, ('test_import',
-                                            'test_import_defaults',
+                                            #'test_import_defaults',
                                             'test_export',
-                                            'test_unicode')))
+                                            'test_unicode',
+                                            'test_sequences',)))
 
 
 testsuite = ImexTestSuite

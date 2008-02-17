@@ -1,15 +1,17 @@
-import imp, unittest, traceback
-import os, sys, imp
-from optparse import OptionParser
-import bauble.pluginmgr as pluginmgr
-import testbase
+#!/usr/bin/env python
 
+import os, sys
 
 if 'PYTHONPATH' not in os.environ or os.environ['PYTHONPATH'] is '':
     msg = 'This test suite should be run from the top of the source tree '\
           'with the command:\n  PYTHONPATH=. python test/test.py'
     print msg
     sys.exit(1)
+
+import imp, unittest, traceback
+from optparse import OptionParser
+import bauble.pluginmgr as pluginmgr
+import testbase
 
 # TODO: right now this just runs all tests but should really be able to
 # pass individuals tests or test suites on the command line
@@ -23,7 +25,7 @@ parser.add_option('-v', "--verbosity", dest='verbosity', metavar="VERBOSITY",
                   type='int', default=1, help="verbosity noise level")
 
 
-def find_all_tests():
+def find_all_tests(verbose=False):
     test_suites = unittest.TestSuite()
     modules = []
 
@@ -59,11 +61,13 @@ def find_all_tests():
                                      % (name, e))
 
     for mod in modules:
-#         tests = test_loader.loadTestsFromModule(mod)
-#         if tests.countTestCases() != 0:
-#             test_suites.addTest(tests)
+##         tests = test_loader.loadTestsFromModule(mod)
+##         if tests.countTestCases() != 0:
+##             test_suites.addTest(tests)
         if hasattr(mod, 'testsuite'):
-            testbase.log.msg('adding tests from bauble.plugins.%s' %name)
+            if verbose:
+                testbase.log.msg('adding tests from bauble.plugins.%s' % \
+                                 mod.__name__)
             test_suites.addTest(mod.testsuite())
 #            suites.append(mod.testsuite())
 
@@ -86,9 +90,9 @@ if __name__ == '__main__':
         print 'uri: %s' % testbase.uri
 
     global tests
-    test_suites = find_all_tests()
-
-    testbase.log.msg('=======================')
+    test_suites = find_all_tests(options.verbosity>=2)
+    if options.verbosity>=2:
+        testbase.log.msg('=======================')
     runner = unittest.TextTestRunner(verbosity=options.verbosity)
     if len(args) > 0:
         # run a specific testsuite, would be nice to allow running

@@ -6,15 +6,21 @@
 from sqlalchemy import *
 from sqlalchemy.orm import *
 
+# TODO: should create another itest that will refect an existing
+# database so that i can run tests against something more similar to a
+# normal bauble database
+
 import logging
 logging.basicConfig()
 
-uri = 'sqlite:///:memory:'
+#uri = 'sqlite:///:memory:'
+
 
 metadata = MetaData()
 
 species_table = Table('species', metadata,
-                  Column('id', Integer, primary_key=True),
+                  Column('id', Integer, Sequence('species_id_seq'),
+                         primary_key=True),
                   Column('sp', Text),
                   Column('genus_id', Integer, ForeignKey('genus.id')),
                   Column('default_vernacular_name_id', Integer))

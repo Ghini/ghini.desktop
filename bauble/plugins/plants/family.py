@@ -21,18 +21,27 @@ from bauble.types import Enum
 
 
 def edit_callback(value):
+    """
+    Family context menu callback
+    """
     session = bauble.Session()
     e = FamilyEditor(model=session.merge(value))
     return e.start() != None
 
 
 def add_genera_callback(value):
+    """
+    Family context menu callback
+    """
     session = bauble.Session()
     e = GenusEditor(model=Genus(family=session.merge(value)))
     return e.start() != None
 
 
 def remove_callback(value):
+    """
+    Family context menu callback
+    """
     s = '%s: %s' % (value.__class__.__name__, str(value))
     msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
@@ -57,8 +66,10 @@ family_context_menu = [(_('Edit'), edit_callback),
 
 
 def family_markup_func(family):
-    '''
-    '''
+    """
+    return a string or object with __str__ method to use to markup
+    text in the results view
+    """
     return family
 
 
@@ -67,7 +78,8 @@ def family_markup_func(family):
 #
 family_table = \
     bauble.Table('family', bauble.metadata,
-                 Column('id', Integer, primary_key=True),
+                 Column('id', Integer, #Sequence('family_id_seq'),
+                        primary_key=True),
                  Column('family', String(45), nullable=False, index=True),
                  Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
                                           empty_to_none=True)),
