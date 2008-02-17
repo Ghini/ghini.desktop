@@ -474,3 +474,44 @@ def chunk(iterable, n):
             chunk = []
             ctr = 0
     yield chunk
+
+
+def reset_sequence(column):
+    """
+    if column.sequence is not None or the column is an Integer and
+    column.autoincrement is true then reset the sequence for the next
+    available value for the column...if the column doesn't have a
+    sequence then do nothing and return
+
+    The SQL statements are executed directly from bauble.engine
+    """
+    import bauble
+    from sqlalchemy.types import Integer
+    from sqlalchemy import schema
+    if bauble.engine.name == 'sqlite':
+        pass # sqlite works fine
+    elif bauble.engine.name == 'postgres':
+        sequence_name = None
+        # this crazy elif conditional is from
+        # sqlalchemy.database.postgres.PGDefaultRunner
+        if hasattr(column, "sequence") and column.sequence is not None:
+            sequence_name = column.sequence.name
+        elif (isinstance(column.type, Integer) and column.autoincrement) and (column.default is None or (isinstance(column.default, schema.Sequence) and column.default.optional)) and len(column.foreign_keys)==0:
+            sequence_name = '%s_%s_seq' %(column.table.name, column.name)
+        else:
+            return
+        stmt = "SELECT max(%s) from %s" % (column.name, column.table.name)
+
+        maxid = bauble.engine.execute(stmt).fetchone()[0]
+        if maxid == None:
+            stmt = "SELECT setval('%s', 1);" % (sequence_name)
+        else:
+            stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
+                   % (sequence_name, column.name, column.table.name)
+        bauble.engine.execute(stmt)
+
+    else:
+        # TODO: should at least support mysql
+        raise NotImplementedError(_('Error: using sequences hasn\'t been '\
+                                    'tested on this database type: %s' % \
+                                    engine.name))

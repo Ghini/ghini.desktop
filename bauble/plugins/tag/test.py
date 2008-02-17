@@ -39,6 +39,8 @@ class TagTests(TagTestCase):
         super(TagTests, self).setUp()
         for f in self.family_ids:
             family_table.insert({'id': f, 'family': unicode(f)}).execute()
+        for col in family_table.c:
+            utils.reset_sequence(col)
 
 
     def tearDown(self):
