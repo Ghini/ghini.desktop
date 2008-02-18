@@ -1100,7 +1100,7 @@
                         <property name="xalign">0</property>
                         <property name="xscale">0.5</property>
                         <child>
-                          <widget class="GtkHBox" id="hbox19">
+                          <widget class="GtkHBox" id="sp_dist_box">
                             <property name="visible">True</property>
                             <child>
                               <widget class="GtkFrame" id="frame16">
@@ -1195,15 +1195,23 @@
                                 <property name="n_rows">2</property>
                                 <property name="n_columns">2</property>
                                 <child>
-                                  <widget class="GtkLabel" id="label39">
+                                  <widget class="GtkLabel" id="label37">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes" context="yes">Language</property>
+                                    <property name="label" translatable="yes" context="yes">Vernacular name</property>
                                   </widget>
                                   <packing>
-                                    <property name="left_attach">1</property>
-                                    <property name="right_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
+                                    <property name="y_options"></property>
+                                  </packing>
+                                </child>
+                                <child>
+                                  <widget class="GtkEntry" id="vern_name_entry">
+                                    <property name="visible">True</property>
+                                  </widget>
+                                  <packing>
+                                    <property name="top_attach">1</property>
+                                    <property name="bottom_attach">2</property>
                                     <property name="y_options"></property>
                                   </packing>
                                 </child>
@@ -1221,22 +1229,14 @@
                                   </packing>
                                 </child>
                                 <child>
-                                  <widget class="GtkEntry" id="vern_name_entry">
-                                    <property name="visible">True</property>
-                                  </widget>
-                                  <packing>
-                                    <property name="top_attach">1</property>
-                                    <property name="bottom_attach">2</property>
-                                    <property name="y_options"></property>
-                                  </packing>
-                                </child>
-                                <child>
-                                  <widget class="GtkLabel" id="label37">
+                                  <widget class="GtkLabel" id="label39">
                                     <property name="visible">True</property>
                                     <property name="xalign">0</property>
-                                    <property name="label" translatable="yes" context="yes">Vernacular name</property>
+                                    <property name="label" translatable="yes" context="yes">Language</property>
                                   </widget>
                                   <packing>
+                                    <property name="left_attach">1</property>
+                                    <property name="right_attach">2</property>
                                     <property name="x_options">GTK_FILL</property>
                                     <property name="y_options"></property>
                                   </packing>
@@ -1398,7 +1398,7 @@
                       </packing>
                     </child>
                     <child>
-                      <widget class="GtkFrame" id="notes_frame">
+                      <widget class="GtkFrame" id="sp_notes_frame">
                         <property name="visible">True</property>
                         <property name="label_xalign">0</property>
                         <property name="shadow_type">GTK_SHADOW_NONE</property>

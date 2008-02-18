@@ -147,22 +147,22 @@ mapper(FamilySynonym, family_synonym_table,
             primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id)})
 
 
-family_editor_tooltips = {
-     'fam_family_entry': _('The family name'),
-     'fam_qualifier_combo': _('The family qualifier helps to remove '
-                              'ambiguities that might be associated with '
-                              'this family name'),
-     'fam_notes_textview': _('Miscelleanous notes about this family.'),
-     'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
-                      'synonym enter a family name and select one from the '
-                      'list of completions.  Then click Add to add it to the '
-                      'list of synonyms.')
-     }
-
-
 class FamilyEditorView(GenericEditorView):
 
     syn_expanded_pref = 'editor.family.synonyms.expanded'
+
+    _tooltips = {
+        'fam_family_entry': _('The family name'),
+        'fam_qualifier_combo': _('The family qualifier helps to remove '
+                                 'ambiguities that might be associated with '
+                                 'this family name'),
+        'fam_notes_textview': _('Miscelleanous notes about this family.'),
+        'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
+                         'synonym enter a family name and select one from the '
+                         'list of completions.  Then click Add to add it to '\
+                         'the list of synonyms.')
+     }
+
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
@@ -174,15 +174,6 @@ class FamilyEditorView(GenericEditorView):
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
         self.connect_dialog_close(self.widgets.family_dialog)
         self.restore_state()
-        self.set_tooltips()
-
-    def set_tooltips(self):
-        # TODO: switch to the new gtk.Tooltip API when pygtk-2.12 becomes
-        # available on win32
-        self.tooltips = gtk.Tooltips()
-        for widget_name, markup in family_editor_tooltips.iteritems():
-            self.tooltips.set_tip(self.widgets[widget_name], markup)
-        self.tooltips.enable()
 
 
     def save_state(self):

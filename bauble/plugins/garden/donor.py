@@ -87,6 +87,10 @@ mapper(Donor, donor_table,
 
 class DonorEditorView(GenericEditorView):
 
+    # i think the field names are pretty self explanatory and tooltips
+    # would be pointless
+    _tooltips = {}
+
     def __init__(self, parent=None):
         super(DonorEditorView, self).__init__(os.path.join(paths.lib_dir(),
                                                            'plugins', 'garden',

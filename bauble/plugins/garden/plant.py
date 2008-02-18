@@ -207,27 +207,29 @@ mapper(PlantHistory, plant_history_table, order_by='date')
 def _val_str(col):
     s = [str(v) for v in col.type.values if v is not None]
     if None in col.type.values:
-        s.append('<None>') #s.append('&lt;None&gt;')
+        s.append('&lt;None&gt;')
     return ', '.join(s)
 
-plant_editor_tooltips = {
-    'plant_code_entry': _('The plant code must be a unique code'),
-    'plant_acc_entry': _('The accession must be selected from the list of '
-                         'completions.  To add an accession use the Accession '
-                         'editor'),
-    'plant_loc_combo': _('The location of the plant in your collection.'),
-    'plant_acc_type_combo': _('The type of the plant material.\n'
-                              'Possible values: %s' %
-                              _val_str(plant_table.c.acc_type)),
-    'plant_acc_status_combo': _('The status of this plant in the '
-                                'collection.\nPossible values: %s' %
-                                _val_str(plant_table.c.acc_status)),
-    'plant_notes_textview': _('Miscelleanous notes about this plant.'),
-    }
 
 class PlantEditorView(GenericEditorView):
 
     #source_expanded_pref = 'editor.accesssion.source.expanded'
+
+    _tooltips = {
+        'plant_code_entry': _('The plant code must be a unique code'),
+        'plant_acc_entry': _('The accession must be selected from the list of '
+                             'completions.  To add an accession use the '\
+                             'Accession editor'),
+        'plant_loc_combo': _('The location of the plant in your collection.'),
+        'plant_acc_type_combo': _('The type of the plant material.\n\n'
+                                  'Possible values: %s' %
+                                  _val_str(plant_table.c.acc_type)),
+        'plant_acc_status_combo': _('The status of this plant in the '
+                                    'collection.\nPossible values: %s' %
+                                    _val_str(plant_table.c.acc_status)),
+        'plant_notes_textview': _('Miscelleanous notes about this plant.'),
+        }
+
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
@@ -244,16 +246,7 @@ class PlantEditorView(GenericEditorView):
                                minimum_key_length=1)
         if sys.platform == 'win32':
             self.do_win32_fixes()
-        self.set_tooltips()
 
-
-    def set_tooltips(self):
-        # TODO: switch to the new gtk.Tooltip API when pygtk-2.12 becomes
-        # available on win32
-        self.tooltips = gtk.Tooltips()
-        for widget_name, markup in plant_editor_tooltips.iteritems():
-            self.tooltips.set_tip(self.widgets[widget_name], markup)
-        self.tooltips.enable()
 
 
     def do_win32_fixes(self):
@@ -340,11 +333,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
-            default_acc_type = 'Plant'
+            default_acc_type = unicode('Plant')
             self.view.set_widget_value('plant_acc_type_combo',default_acc_type)
             self.model._set('acc_type', default_acc_type, dirty=False)
         if self.model.id is None and self.model.acc_status is None:
-            default_acc_status = 'Living accession'
+            default_acc_status = unicode('Living accession')
             self.view.set_widget_value('plant_acc_status_combo',
                                        default_acc_status)
             self.model._set('acc_status', default_acc_status, dirty=False)
@@ -352,11 +345,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def acc_get_completions(text):
-            return self.session.query(Accession).filter(Accession.c.code.like('%s%%' % text))
+            query = self.session.query(Accession)
+            return query.filter(Accession.c.code.like(unicode('%s%%' % text)))
         def format_acc(accession):
             return '%s (%s)' % (accession, accession.species)
-        def set_in_model(self, field, value):
-#            debug('set_in_model(%s, %s)' % (field, value))
+        def set_in_model(self, field, accession):
             setattr(self.model, field, value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
@@ -365,6 +358,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                         acc_get_completions,
                                         set_func=set_in_model,
                                         format_func=format_acc)
+
         #self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
@@ -373,7 +367,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                                self.on_plant_code_entry_insert)
         self.view.widgets.plant_code_entry.connect('delete-text',
                                                self.on_plant_code_entry_delete)
-        self.assign_simple_handler('plant_notes_textview', 'notes')
+        self.assign_simple_handler('plant_notes_textview', 'notes',
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
                                    UnicodeOrNoneValidator())
@@ -415,12 +410,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
                              self.view.widgets.plant_code_entry)
             self.model.code = None
-
-        if self._original_accession_id == self.model.accession.id:
-            if not text == self._original_code \
-                   and count_plants(self.model.accession.id, text) > 0:
-                problem()
-                return
+        text = unicode(text)
+        if self.model.accession is None:
+            problem()
+            return
+        elif self._original_accession_id == self.model.accession.id \
+                 and not text == self._original_code \
+                 and count_plants(self.model.accession.id, text) > 0:
+            problem()
+            return
         elif count_plants(self.model.accession.id, text) > 0:
             problem()
             return

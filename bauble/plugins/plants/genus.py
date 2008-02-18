@@ -134,9 +134,10 @@ class Genus(bauble.BaubleMapper):
             return ' '.join([s for s in [genus.hybrid, genus.genus,
                                          genus.qualifier] if s is not None])
         else:
-            return ' '.join([s for s in [genus.hybrid, genus.genus,
-                                         genus.qualifier,
-                                         xml.sax.saxutils.escape(genus.author)] if s is not None])
+            return ' '.join(
+                [s for s in [genus.hybrid, genus.genus,
+                genus.qualifier,
+                xml.sax.saxutils.escape(genus.author)] if s is not None])
 
 
 genus_synonym_table = bauble.Table('genus_synonym', bauble.metadata,
@@ -185,25 +186,25 @@ mapper(GenusSynonym, genus_synonym_table,
             primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id)})
 
 
-# genus_editor_tooltips = {
-#      'gen_family_entry': _('The family name'),
-#      'gen_hybrid_combo': _('The family qualifier helps to remove '
-#                               'ambiguities that might be associated with '
-#                               'this family name')
-#      'gen_genus_entry': _(''),
-#      'gen_author_entry': _(''),
-#      'gen_syn_box': _('A list of synonyms for this family.\n\nTo add a '
-#                       'synonym enter a family name and select one from the '
-#                       'list of completions.  Then click Add to add it to the '
-#                       'list of synonyms.')
-#      'gen_notes_textview': _('Miscelleanous notes about this family.')
-#      }
-
 class GenusEditorView(GenericEditorView):
 
     syn_expanded_pref = 'editor.genus.synonyms.expanded'
     expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
                           'gen_notes_expander': 'editor.genus.notes.expanded'}
+
+    _tooltips = {
+        'gen_family_entry': _('The family name'),
+        'gen_hybrid_combo': _('The type of hybrid for this genus.'),
+        'gen_genus_entry': _('The genus name'),
+        'gen_author_entry': _('The name or abbreviation of the author that '\
+                              'published this genus'),
+        'gen_syn_box': _('A list of synonyms for this genus.\n\nTo add a '
+                         'synonym enter a family name and select one from the '
+                         'list of completions.  Then click Add to add it to '\
+                         'the list of synonyms.'),
+        'gen_notes_textview': _('Miscelleanous notes about this genus.')
+     }
+
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
@@ -288,7 +289,8 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def fam_get_completions(text):
-            return self.session.query(Family).filter(Family.c.family.like('%s%%' % text))
+            query = self.session.query(Family)
+            return query.filter(Family.c.family.like('%s%%' % text))
 
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
@@ -296,10 +298,13 @@ class GenusEditorPresenter(GenericEditorPresenter):
                                         fam_get_completions,
                                         set_func=set_in_model)
         self.assign_simple_handler('gen_genus_entry', 'genus')
-        self.assign_simple_handler('gen_hybrid_combo', 'hybrid')
-        self.assign_simple_handler('gen_author_entry', 'author')
+        self.assign_simple_handler('gen_hybrid_combo', 'hybrid',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('gen_author_entry', 'author',
+                                   UnicodeOrNoneValidator())
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
-        self.assign_simple_handler('gen_notes_textview', 'notes')
+        self.assign_simple_handler('gen_notes_textview', 'notes',
+                                   UnicodeOrNoneValidator())
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize

@@ -306,28 +306,9 @@ mapper(Verification, verification_table)
 def _val_str(col):
     s = [str(v) for v in col.type.values if v is not None]
     if None in col.type.values:
-        s.append('<None>') #s.append('&lt;None&gt;')
+        #s.append('<None>')
+        s.append('&lt;None&gt;')
     return ', '.join(s)
-
-accession_editor_tooltips = \
-    {'acc_species_entry': _("The species must be selected from the list of "
-                            "completions. To add a species use the Species "
-                            "editor."),
-     'acc_code_entry': _("The accession ID must be a unique code"),
-     'acc_id_qual_combo': _("The ID Qualifier\n"
-                            "Possible values: %s" %
-                            _val_str(accession_table.c.id_qual)),
-     'acc_date_entry': _('The date this the accession was created.'),
-     'acc_prov_combo': _('The origin or source of this accession.\n'
-                         'Possible values: %s' %
-                         _val_str(accession_table.c.prov_type)),
-     'acc_wild_prov_combo': _('The wild status is used to clarify the '
-                              'provenance\nPossible values: %s' %
-                              _val_str(accession_table.c.wild_prov_status)),
-     'acc_source_type_combo': _('The source type is in what way this '
-                                'accession was obtained'),
-     'acc_notes_textview': _('Miscelleanous notes about this accession.')
-     }
 
 
 class AccessionEditorView(GenericEditorView):
@@ -336,6 +317,28 @@ class AccessionEditorView(GenericEditorView):
                           'editor.accession.notes.expanded',
                           'acc_source_expander':
                           'editor.accession.source.expanded'}
+
+    _tooltips = {
+        'acc_species_entry': _("The species must be selected from the list "\
+                               "of completions. To add a species use the "\
+                               "Species editor."),
+        'acc_code_entry': _("The accession ID must be a unique code"),
+        'acc_id_qual_combo': _("The ID Qualifier\n\n"
+                               "Possible values: %s" %
+                               _val_str(accession_table.c.id_qual)),
+        'acc_date_entry': _('The date this species was accessioned.'),
+        'acc_prov_combo': _('The origin or source of this accession.\n\n'
+                            'Possible values: %s' %
+                            _val_str(accession_table.c.prov_type)),
+        'acc_wild_prov_combo': _('The wild status is used to clarify the '
+                                 'provenance\n\nPossible values: %s' %
+                                 _val_str(accession_table.c.wild_prov_status)),
+        'acc_source_type_combo': _('The source type is in what way this '
+                                   'accession was obtained'),
+        'acc_notes_textview': _('Miscelleanous notes about this accession.'),
+        'acc_private_check': _('Indicates whether this accession record ' \
+                               'should be considered private.')
+        }
 
 
     def __init__(self, parent=None):
@@ -362,16 +365,6 @@ class AccessionEditorView(GenericEditorView):
 
         if sys.platform == 'win32':
             self.do_win32_fixes()
-        self.set_tooltips()
-
-
-    def set_tooltips(self):
-        # TODO: switch to the new gtk.Tooltip API when pygtk-2.12 becomes
-        # available on win32
-        self.tooltips = gtk.Tooltips()
-        for widget_name, markup in accession_editor_tooltips.iteritems():
-            self.tooltips.set_tip(self.widgets[widget_name], markup)
-        self.tooltips.enable()
 
 
     def do_win32_fixes(self):
@@ -498,18 +491,24 @@ class CollectionPresenter(GenericEditorPresenter):
         self.session = session
         self.refresh_view()
 
-        self.assign_simple_handler('collector_entry', 'collector')
-        self.assign_simple_handler('locale_entry', 'locale')
-        self.assign_simple_handler('collid_entry', 'collectors_code')
+        self.assign_simple_handler('collector_entry', 'collector',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('locale_entry', 'locale',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('collid_entry', 'collectors_code',
+                                   UnicodeOrNoneValidator())
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
                                    IntOrNoneStringValidator())
         self.assign_simple_handler('alt_entry', 'elevation',
                                    FloatOrNoneStringValidator())
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
                                    FloatOrNoneStringValidator())
-        self.assign_simple_handler('habitat_textview', 'habitat')
-        self.assign_simple_handler('coll_notes_textview', 'notes')
-        self.assign_simple_handler('datum_entry', 'datum')
+        self.assign_simple_handler('habitat_textview', 'habitat',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('coll_notes_textview', 'notes',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('datum_entry', 'datum',
+                                   UnicodeOrNoneValidator())
 
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
@@ -782,8 +781,10 @@ class DonationPresenter(GenericEditorPresenter):
 
         # assign handlers
         donor_combo.connect('changed', self.on_donor_combo_changed)
-        self.assign_simple_handler('donid_entry', 'donor_acc')
-        self.assign_simple_handler('donnotes_entry', 'notes')
+        self.assign_simple_handler('donid_entry', 'donor_acc',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('donnotes_entry', 'notes',
+                                   UnicodeOrNoneValidator())
         don_date_entry = self.view.widgets.don_date_entry
         don_date_entry.connect('insert-text', self.on_date_entry_insert)
         don_date_entry.connect('delete-text', self.on_date_entry_delete)
@@ -982,12 +983,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                                       'wild_prov_status')
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
-        # adding a problem to the widget
+        # adding a problem to the widget...if we passed it the widget it
+        # could
         self.view.widgets.acc_code_entry.connect('insert-text',
                                                self.on_acc_code_entry_insert)
         self.view.widgets.acc_code_entry.connect('delete-text',
                                                self.on_acc_code_entry_delete)
-        self.assign_simple_handler('acc_notes_textview', 'notes')
+        self.assign_simple_handler('acc_notes_textview', 'notes',
+                                   UnicodeOrNoneValidator())
 
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
@@ -1007,6 +1010,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     def on_acc_code_entry_insert(self, entry, new_text, new_text_length,
                                  position, data=None):
+        """
+        insert-text callback for acc_code widget
+        """
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -1014,14 +1020,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_acc_code_entry_delete(self, entry, start, end, data=None):
+        """
+        delete-text callback for acc_code widget
+        """
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_acc_code_from_text(full_text)
 
 
     def _set_acc_code_from_text(self, text):
+        query = self.session.query(Accession)
         if text != self._original_code \
-            and self.session.query(Accession).filter_by(code=text).count()>0:
+               and query.filter_by(code=unicode(text)).count()>0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
             self.model.code = None
@@ -1039,14 +1049,19 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
                                  position, data=None):
+        """
+        insert-text call back for acc_date widget
+        """
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-#        debug('acc:date_insert: %s' % full_text)
         self._set_acc_date_from_text(full_text)
 
 
     def on_acc_date_entry_delete(self, entry, start, end, data=None):
+        """
+        delete-text call back for acc_date_widget
+        """
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_acc_date_from_text(full_text)
@@ -1055,6 +1070,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
 
     def _set_acc_date_from_text(self, text):
+        """
+        """
         if text == '':
             self.model.date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE,

@@ -78,6 +78,13 @@ mapper(Location, location_table, order_by='site',
 class LocationEditorView(GenericEditorView):
 
     #source_expanded_pref = 'editor.accesssion.source.expanded'
+    _tooltips = {
+        'loc_location_entry': _('The site is the name that you will use '\
+                                'later to refer to this location.'),
+        'loc_desc_textview': _('Any information that might be relevant to '\
+                               'the location such as where it is or what\'s '\
+                               'it\'s purpose')
+        }
 
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
@@ -121,8 +128,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('loc_location_entry', 'site')
-        self.assign_simple_handler('loc_desc_textview', 'description')
+        self.assign_simple_handler('loc_location_entry', 'site',
+                                   UnicodeOrNoneValidator())
+        self.assign_simple_handler('loc_desc_textview', 'description',
+                                   UnicodeOrNoneValidator())
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
@@ -132,7 +141,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
-        self.view.set_accept_buttons_sensitive(True)
+        self.view.set_accept_buttons_sensitive(model.site != None)
 
 
     def dirty(self):

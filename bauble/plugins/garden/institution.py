@@ -74,11 +74,13 @@ class Institution(Singleton):
 
 class InstitutionEditorView(editor.GenericEditorView):
 
+    # i think the institution editor's field are pretty self explanatory
+    _tooltips = {}
+
     def __init__(self, parent=None):
-        super(InstitutionEditorView, self).__init__(os.path.join(paths.lib_dir(),
-                                                        'plugins', 'garden',
-                                                        'editors.glade'),
-                                                    parent=parent)
+        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                            'editors.glade')
+        super(InstitutionEditorView, self).__init__(glade_path, parent=parent)
         self.dialog = self.widgets.inst_dialog
         self.connect_dialog_close(self.dialog)
         if parent is None:
@@ -104,7 +106,8 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
-        super(InstitutionEditorPresenter, self).__init__(editor.ModelDecorator(model), view)
+        decorated_model = editor.ModelDecorator(model)
+        super(InstitutionEditorPresenter, self).__init__(decorated_model, view)
         self.refresh_view()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
