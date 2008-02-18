@@ -91,6 +91,8 @@ Section
     CreateDirectory "${startmenu}"
     SetOutPath $INSTDIR ; for working directory
     CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
+    nsExec::Exec '"$INSTDIR\gtk\bin\gdk-pixbuf-query-loaders.exe" >> "$INSTDIR\gtk\etc\gtk-2.0\gdk-pixbuf.loaders"'
+
 SectionEnd
 
 ; Uninstaller
