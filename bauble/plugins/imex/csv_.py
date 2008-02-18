@@ -39,7 +39,12 @@ from bauble.utils.log import log, debug
 # http://evanjones.ca/python-utf8.html
 # import codecs
 # fileObj = codecs.open( "someFile", "r", "utf-8" )
-# u = fileObj.read() # Returns a Unicode string from the UTF-8 bytes in the file
+# u = fileObj.read() # Returns a Unicode string from the UTF-8 bytes in
+# the file
+
+# TODO: what happens when you export from one database type and try
+# and import into a different database, e.g. postgres->sqlite
+
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
 

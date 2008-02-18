@@ -92,40 +92,66 @@ gui = None
 default_icon = None
 conn_name = None
 
-import datetime
-class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
 
-    """
-    A DateTime type that converts Python's datetime.datetime to an
-    SQLAlchemy DateTime type.
-    """
+#class DateTimeDecorator(sqlalchemy.types.DateTime): pass
 
-    impl = sqlalchemy.types.DateTime
+# TODO: i was using this DateTime voodoo so we could pass strings and
+# automagically convert them to DateTime objects but this doesn't seem
+# to be necessary, i can't even really remember why i was doing it
+#
+# import datetime
+# import re
 
-    def __init__(self, *args, **kwargs):
-        super(DateTimeDecorator, self).__init__(*args, **kwargs)
+# _datetime_rx = re.compile('\..+(-)')
 
-    def convert_bind_param(self, value, engine):
-        if isinstance(value, (basestring)):
-            format = '%Y-%m-%d %H:%M:%S'
-            # TODO: datetime.strptime is new in version Python 2.5, we
-            # should probably stay at least compatible with 2.4 and
-            # work around strptime...then again pygtk>=2.12 only
-            # supports 2.5 so maybe its time to drop 2.4
-            #
-            # TODO: SA-0.4.3 not has a func.now() that might work
-            # better for us
-            value = datetime.datetime.strptime(value, format)
-#            debug(value)
-        return super(DateTimeDecorator, self).convert_bind_param(value, engine)
+# class DateTimeDecorator(sqlalchemy.types.TypeDecorator):
 
-    def convert_result_value(self, value, engine):
-#        debug(value)
-        return super(DateTimeDecorator, self).convert_result_value(value,
-                                                                   engine)
+#     """
+#     A DateTime type that converts Python's datetime.datetime to an
+#     SQLAlchemy DateTime type.
+#     """
 
-_now = sqlalchemy.func.current_timestamp(type_=sqlalchemy.DateTime)
+#     impl = sqlalchemy.types.DateTime
+
+#     def __init__(self, *args, **kwargs):
+#         super(DateTimeDecorator, self).__init__(*args, **kwargs)
+
+
+#     def convert_bind_param(self, value, engine):
+# #        debug('%s(%s)' % (value, type(value)))
+# #         if isinstance(value, (basestring)):
+# #             format = '%Y-%m-%d %H:%M:%S'
+# #             # TODO: datetime.strptime is new in version Python 2.5, we
+# #             # should probably stay at least compatible with 2.4 and
+# #             # work around strptime...then again pygtk>=2.12 only
+# #             # supports 2.5 so maybe its time to drop 2.4
+# #             #
+# #             # TODO: SA-0.4.3 not has a func.now() that might work
+# #             # better for us
+# #             try:
+# #                 dt = datetime.datetime.strptime(value, format)
+# #             except ValueError, e:
+# #                 debug(e)
+# #                 # 2008-02-17 17:35:22.525000-06:00
+# #                 value = _datetime_rx.sub('\g<1>', value)
+# #                 dt = datetime.datetime.strptime(value, format)
+# #                 debug(value)
+# #                 #return self.convert_bind_param(new_value, engine)
+#         return super(DateTimeDecorator, self).convert_bind_param(value, engine)
+
+#     def convert_result_value(self, value, engine):
+# #        debug('%s(%s)' % (value, type(value)))
+#         return super(DateTimeDecorator, self).convert_result_value(value,
+#                                                                    engine)
+
+# TODO: as of SA >= 0.4.3 this _now function isn't needed, we should
+# probably just remove it unless we want to stay compatible with older
+# versions
+#
+#_now = sqlalchemy.func.current_timestamp(type_=sqlalchemy.DateTime)
+#
 from sqlalchemy import *
+
 class Table(sqlalchemy.Table):
 
     """
@@ -137,11 +163,11 @@ class Table(sqlalchemy.Table):
     def __init__(self, *args, **kwargs):
         super(Table, self).__init__(*args, **kwargs)
         self.append_column(sqlalchemy.Column('_created',
-                                             DateTimeDecorator(True),
+                                             DateTime(True),
                                              default=func.now()))
                                              #default=_now))
         self.append_column(sqlalchemy.Column('_last_updated',
-                                             DateTimeDecorator(True),
+                                             DateTime(True),
                                              default=func.now(),
                                              onupdate=func.now()))
                                              #default=_now, onupdate=_now))
@@ -327,6 +353,7 @@ def create_database(import_defaults=True):
 ##    debug('entered bauble.create_database()')
     import bauble.meta as meta
     from bauble.task import TaskQuitting
+    import datetime
     transaction = engine.contextual_connect().begin()
     try:
         # TODO: here we are creating all the tables in the metadata whether
