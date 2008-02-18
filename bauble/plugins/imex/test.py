@@ -57,7 +57,11 @@ class ImexCSVTestCase(ImexTestCase):
 
     def test_sequences(self):
         """
-        test that the sequences are set correctly after an import
+        test that the sequences are set correctly after an import,
+        bauble.util.test already has a method to test
+        utils.reset_sequence but this test makes sure that its works
+        correctly after an import
+
         """
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)

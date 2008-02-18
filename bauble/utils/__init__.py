@@ -509,7 +509,6 @@ def reset_sequence(column):
             stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
                    % (sequence_name, column.name, column.table.name)
         bauble.engine.execute(stmt)
-
     else:
         # TODO: should at least support mysql
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
