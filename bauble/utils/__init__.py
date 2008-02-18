@@ -5,7 +5,6 @@
 import imp, os, sys, re
 import bauble
 import bauble.paths as paths
-from sqlalchemy.orm import object_session
 from bauble.i18n import *
 import gtk, gtk.glade
 from bauble.utils.log import debug, warning
@@ -198,7 +197,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
     NOTE: any values passed in for widgets that expect a string will call
     the values __str__ method
     '''
-
+    import gtk
     w = glade_xml.get_widget(widget_name)
     if value is None:  # set the value from the default
         if isinstance(w,(gtk.Label, gtk.TextView, gtk.Entry)) \

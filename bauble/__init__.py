@@ -7,6 +7,7 @@ The top level module for Bauble.
 
 import imp, os, sys
 import bauble.paths as paths
+from bauble.i18n import _
 
 # major, minor, revision version tuple
 version = (0, 8, '0b4')
@@ -36,7 +37,16 @@ else: # main is frozen
                    os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
                    os.pathsep, os.environ['PATH'])
 
+# TODO: it would be nice to show a Tk dialog here saying we can't
+# import gtk...but then we would have to include all of the Tk libs in
+# with the win32 batteries-included installer
 import gtk, gobject
+import bauble.utils as utils
+
+if not hasattr(gtk.Widget, 'set_tooltip_markup'):
+    msg = _('Bauble requires GTK+ version 2.12 or greater')
+    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+    sys.exit(1)
 
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())
@@ -47,10 +57,6 @@ sys.path.append(paths.lib_dir())
 # create the user directory
 if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
-
-from bauble.i18n import _
-
-import bauble.utils as utils
 
 try:
     import sqlalchemy

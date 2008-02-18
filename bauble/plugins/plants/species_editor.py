@@ -62,7 +62,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            return self.session.query(Genus).filter(genus_table.c.genus.like('%s%%' % text))
+            clause = genus_table.c.genus.like('%s%%' % text)
+            return self.session.query(Genus).filter(clause)
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('sp_genus_entry', 'genus',
@@ -810,6 +811,23 @@ class SpeciesEditorView(GenericEditorView):
 
     expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded',
                           'sp_meta_expander': 'editor.species.meta.expanded'}
+
+    _tooltips = {
+        'sp_genus_entry': _('genus'),
+        'sp_species_entry': _('sp'),
+        'sp_author_entry': _('sp_author'),
+        'sp_infra_rank_combo': _('infrasp_rank'),
+        'sp_hybrid_combo': _('sp_hybrid'),
+        'sp_infra_entry': _('infrasp'),
+        'sp_cvgroup_entry': _('cv_group'),
+        'sp_infra_author_entry': _('infrasp_author'),
+        'sp_spqual_combo': _('sp_qual'),
+        'sp_notes_frame': _('notes'),
+        'sp_dist_box': _('sp_dist_box'),
+        'sp_vern_box': _('sp_vern_box'),
+        'sp_syn_box': _('sp_syn_box')
+        }
+
 
 
     def __init__(self, parent=None):

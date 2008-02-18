@@ -187,6 +187,8 @@ def default_completion_match_func(completion, key_string, iter):
 
 class GenericEditorView(object):
 
+    _tooltips = {}
+
     def __init__(self, glade_xml, parent=None):
         '''
         glade_xml either at gtk.glade.XML instance or a path to a glade
@@ -200,9 +202,16 @@ class GenericEditorView(object):
         else: # assume it's a path string
             self.glade_xml = gtk.glade.XML(glade_xml)
         self.parent = parent
-        #self.widgets = GenericEditorView._widgets(self.glade_xml)
         self.widgets = utils.GladeWidgets(self.glade_xml)
         self.response = None
+
+        for widget_name, markup in self._tooltips.iteritems():
+            try:
+                self.widgets[widget_name].set_tooltip_markup(markup)
+            except Exception, e:
+                debug(_('Couldn\'t set the tooltip on widget %s\n\n%s' \
+                        % (widget_name, e)))
+
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
