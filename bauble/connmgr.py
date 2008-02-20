@@ -38,6 +38,40 @@ class ConnectionManager:
     The main class that starts the connection manager GUI.
     """
 
+    def _get_working_dbtypes(self, retry=False):
+        """
+        get for self.working_dbtypes property
+
+        this sets self._working_dbtypes to a dictionary where the
+        keys are the database names and the values are the index in
+        the connectiona manager's database types
+        """
+        if self._working_dbtypes != [] and not retry:
+            return self._working_dbtypes
+        self._working_dbtypes = []
+        try:
+            import pysqlite2
+            self._working_dbtypes.append('SQLite')
+        except ImportError, e:
+            warning('ConnectionManager: %s' % e)
+        try:
+            import psycopg2
+            self._working_dbtypes.append('Postgres')
+        except ImportError, e:
+            warning('ConnectionManager: %s' % e)
+        try:
+            import MySQLdb
+            self._working_dbtypes.append('MySQL')
+        except ImportError, e:
+            warning('ConnectionManager: %s' % e)
+
+        return self._working_dbtypes
+
+    _dbtypes = ['SQLite', 'Postgres', 'MySQL']
+    # a list of dbtypes that are importable
+    working_dbtypes = property(_get_working_dbtypes)
+    _working_dbtypes = []
+
     def __init__(self, default=None):
         """
         @param default: the name of the connection to select from the list
@@ -45,7 +79,6 @@ class ConnectionManager:
         """
         self.default_name = default
         self.current_name = None
-
         # old_params is used to cache the parameter values for when the param
         # box changes but we want to keep the values, e.g. when the type
         # changes
@@ -69,7 +102,6 @@ class ConnectionManager:
         else:
             self.set_active_connection_by_name(self.default_name)
             self._dirty = False
-
 
         response = self.dialog.run()
         name = None
@@ -109,47 +141,8 @@ class ConnectionManager:
         return True
 
 
-    def _get_supported_dbtypes(self):
-        """
-        get for self.supported_types property
-
-        search for the supported database python modules are in PYTHONPATH,
-        we don't import them here so we don't waste memory
-        """
-        if self._supported_dbtypes != None:
-            return self._supported_dbtypes
-        self._supported_dbtypes = {}
-        i = 0
-        try:
-            import pysqlite2
-            self._supported_dbtypes['SQLite'] = i
-            i += 1
-        except ImportError, e:
-            warning('ConnectionManager: %s' % e)
-        try:
-            import psycopg2
-            self._supported_dbtypes['Postgres'] = i
-            i += 1
-        except ImportError, e:
-            warning('ConnectionManager: %s' % e)
-        try:
-            import MySQLdb
-            self._supported_dbtypes['MySQL'] = i
-            i += 1
-        except ImportError, e:
-            warning('ConnectionManager: %s' % e)
-
-        return self._supported_dbtypes
-
-
-     # this is a dict with the keys the names of the database types and
-     # the value are the index in the type_combo
-    supported_dbtypes = property(_get_supported_dbtypes)
-    _supported_dbtypes = None
-
-
     def create_gui(self):
-        if self.supported_dbtypes is None or len(self.supported_dbtypes) == 0:
+        if self.working_dbtypes is None or len(self.working_dbtypes) == 0:
             msg = _("No Python database connectors installed.\n"\
                     "Please consult the documentation for the "\
                     "prerequesites for installing Bauble.")
@@ -185,15 +178,25 @@ class ConnectionManager:
         self.expander_box = self.widgets.expander_box
 
         self.type_combo = self.widgets.type_combo
-        # test for different supported database types, this doesn't necessarily
-        # mean these database connections have been tested to work with all
-        # the features of bauble but if someone tries one and it doesn't
-        # work then hopefully they'll let us know
         self.type_combo.remove_text(0) # remove dummy '--'
-        for dbtype, index in self.supported_dbtypes.iteritems():
-            self.type_combo.insert_text(index, dbtype)
-        self.type_combo.connect("changed", self.on_changed_type_combo)
+        for dbtype in self._dbtypes:
+            self.type_combo.insert_text(self._dbtypes.index(dbtype), dbtype)
+        def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
+            """
+            if the database type is not in self.working_dbtypes then
+            make it not sensitive
+            """
+            dbtype = model[iter][0]
+            sensitive = dbtype in self.working_dbtypes
+            renderer.set_property('sensitive', sensitive)
+            renderer.set_property('text', dbtype)
 
+        # TODO: here get get the following warning
+        # GtkWarning: gtk_cell_view_set_cell_data: assertion
+        # `cell_view->priv->displayed_row != NULL' failed
+        renderer = self.type_combo.get_child().get_cell_renderers()[0]
+        self.type_combo.set_cell_data_func(renderer, type_combo_cell_data_func)
+        self.type_combo.connect("changed", self.on_changed_type_combo)
 
         self.name_combo = self.widgets.name_combo
         self.name_combo.remove_text(0) # remove dummy '--'
@@ -341,9 +344,7 @@ class ConnectionManager:
 
         if conn_list is not None and name in conn_list:
             conn = conn_list[name]
-            # TODO: there could be a problem here if the db type is in the
-            # connection list but is not supported any more
-	    self.type_combo.set_active(self.supported_dbtypes[conn["type"]])
+            self.type_combo.set_active(self._dbtypes.index(conn["type"]))
 	    self.params_box.refresh_view(conn_list[name])
         else: # this is for new connections
             self.type_combo.set_active(0)
@@ -364,6 +365,9 @@ class ConnectionManager:
         if dbtype == None:
             self.params_box = None
             return
+
+        sensitive = dbtype in self._working_dbtypes
+        self.widgets.connect_button.set_sensitive(sensitive)
 
         # get parameters box for the dbtype
         self.params_box = CMParamsBoxFactory.createParamsBox(dbtype, self)
