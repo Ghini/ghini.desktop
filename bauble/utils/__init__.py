@@ -487,8 +487,8 @@ def reset_sequence(column):
     import bauble
     from sqlalchemy.types import Integer
     from sqlalchemy import schema
-    if bauble.engine.name == 'sqlite':
-        pass # sqlite works fine
+    if bauble.engine.name in ('sqlite', 'mysql'):
+        pass # sqlite and mysql seem to work fine
     elif bauble.engine.name == 'postgres':
         sequence_name = None
         # this crazy elif conditional is from
@@ -509,7 +509,6 @@ def reset_sequence(column):
                    % (sequence_name, column.name, column.table.name)
         bauble.engine.execute(stmt)
     else:
-        # TODO: should at least support mysql
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
-                                    engine.name))
+                                    bauble.engine.name))

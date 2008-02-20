@@ -28,6 +28,9 @@ class CommitException(Exception):
 class DatabaseError(BaubleError):
     pass
 
+class EmptyDatabaseError(DatabaseError):
+    pass
+
 class MetaTableError(DatabaseError):
     pass
 
