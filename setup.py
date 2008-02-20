@@ -18,7 +18,6 @@ USING_PY2EXE = False
 if sys.argv[1] == 'py2exe':
     USING_PY2EXE = True
 
-
 def get_version():
     """
     returns the bauble version combined with the subversion revision number
