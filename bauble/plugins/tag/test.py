@@ -33,7 +33,7 @@ class TagTestCase(BaubleTestCase):
 class TagTests(TagTestCase):
 
 
-    family_ids = [0, 1]
+    family_ids = [1, 2]
 
     def setUp(self):
         super(TagTests, self).setUp()
@@ -53,29 +53,29 @@ class TagTests(TagTestCase):
 
 
     def test_tag_objects(self):
-        tag_plugin.tag_objects('test', [self.session.load(Family, 0),
-                                        self.session.load(Family, 1)])
+        tag_plugin.tag_objects('test', [self.session.load(Family, 1),
+                                        self.session.load(Family, 2)])
         # get object by string
         tagged_objs = tag_plugin.get_tagged_objects('test')
         sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, 0), (Family, 1)], sorted_pairs)
+        self.assert_(sorted_pairs == [(Family, 1), (Family, 2)], sorted_pairs)
 
         # get object by tag
         tag = self.session.query(tag_plugin.Tag).filter_by(tag=u'test').one()
         tagged_objs = tag_plugin.get_tagged_objects(tag)
         sorted_pairs= sorted([(type(o), o.id) for o in tagged_objs],
                              cmp=lambda x, y: cmp(x[0], y[0]))
-        self.assert_(sorted_pairs == [(Family, 0), (Family, 1)], sorted_pairs)
+        self.assert_(sorted_pairs == [(Family, 1), (Family, 2)], sorted_pairs)
 
-        tag_plugin.tag_objects('test', [self.session.load(Family, 0),
+        tag_plugin.tag_objects('test', [self.session.load(Family, 1),
                                         self.session.load(Family, 1)])
 
         #
         # now untag everything
         #
-        tag_plugin.untag_objects('test', [self.session.load(Family, 0),
-                                          self.session.load(Family, 1)])
+        tag_plugin.untag_objects('test', [self.session.load(Family, 1),
+                                          self.session.load(Family, 2)])
         # get object by string
         tagged_objs = tag_plugin.get_tagged_objects('test')
         pairs = [(type(o), o.id) for o in tagged_objs]
@@ -87,15 +87,15 @@ class TagTests(TagTestCase):
 
 
     def test_get_tag_ids(self):
-        fam0 = self.session.load(Family, 0)
         fam1 = self.session.load(Family, 1)
-        tag_plugin.tag_objects('test', [fam0, fam1])
-        tag_plugin.tag_objects('test2', [fam0])
+        fam2 = self.session.load(Family, 2)
+        tag_plugin.tag_objects('test', [fam1, fam2])
+        tag_plugin.tag_objects('test2', [fam1])
 
         # test we only return the ids the objects have in common
         sel = select([tag_table.c.id], tag_table.c.tag==u'test')
         test_id = [r[0] for r in sel.execute()]
-        ids = tag_plugin.get_tag_ids([fam0, fam1])
+        ids = tag_plugin.get_tag_ids([fam1, fam2])
         self.assert_(ids==test_id, ids)
 
         # test that we return multiple tag ids if the objs share tags
@@ -103,7 +103,7 @@ class TagTests(TagTestCase):
         sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
                                            tag_table.c.tag==u'test2'))
         test_id = [r[0] for r in sel.execute()]
-        ids = tag_plugin.get_tag_ids([fam0, fam1])
+        ids = tag_plugin.get_tag_ids([fam1, fam2])
         self.assert_(ids==test_id, ids)
 
 

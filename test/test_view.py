@@ -136,7 +136,8 @@ class SearchTestCase(BaubleTestCase):
         view = SearchView()
         from bauble.plugins.plants.family import Family, family_table
         from bauble.plugins.plants.genus import Genus, genus_table
-        family_ids = [0, 1]
+        # MySQL doesn't allow '0' for keys it seems
+        family_ids = [1, 2]
         for f in family_ids:
             family_table.insert({'id': f, 'family': unicode(f)}).execute()
         genus_ids = [2, 3]

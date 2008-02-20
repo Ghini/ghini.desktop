@@ -10,7 +10,7 @@ import bauble.paths as paths
 from bauble.i18n import _
 
 # major, minor, revision version tuple
-version = (0, 8, '0b4')
+version = (0, 8, '0rc1')
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
@@ -156,9 +156,10 @@ conn_name = None
 #
 #_now = sqlalchemy.func.current_timestamp(type_=sqlalchemy.DateTime)
 #
-from sqlalchemy import *
+#from sqlalchemy import *
+import sqlalchemy as sa
 
-class Table(sqlalchemy.Table):
+class Table(sa.Table):
 
     """
     All tables create created for use in Bauble should inherit from
@@ -168,16 +169,11 @@ class Table(sqlalchemy.Table):
     # func.now() is only supported in SQLAlchemy>=0.4.3
     def __init__(self, *args, **kwargs):
         super(Table, self).__init__(*args, **kwargs)
-        self.append_column(sqlalchemy.Column('_created',
-                                             DateTime(True),
-                                             default=func.now()))
-                                             #default=_now))
-        self.append_column(sqlalchemy.Column('_last_updated',
-                                             DateTime(True),
-                                             default=func.now(),
-                                             onupdate=func.now()))
-                                             #default=_now, onupdate=_now))
-
+        self.append_column(sa.Column('_created', sa.DateTime(True),
+                                     default=sa.func.now()))
+        self.append_column(sa.Column('_last_updated', sa.DateTime(True),
+                                     default=sa.func.now(),
+                                     onupdate=sa.func.now()))
 
 
 class BaubleMapper(object):
@@ -234,6 +230,10 @@ def _verify_connection(engine, show_error_dialogs=False):
     if show_error_dialogs:
         try:
             return _verify_connection(engine, False)
+        except error.EmptyDatabaseError:
+            msg = _('The database you have connected to is empty.')
+            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            raise
         except error.MetaTableError:
             msg = _('The database you have connected to does not have the '
                     'bauble meta table.  This usually means that the database '
@@ -267,8 +267,10 @@ def _verify_connection(engine, show_error_dialogs=False):
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
 
-    import bauble.meta as meta
+    if len(engine.table_names()) == 0:
+        raise error.EmptyDatabaseError()
 
+    import bauble.meta as meta
     # check that the database we connected to has the bauble meta table
     if not engine.has_table(meta.bauble_meta_table.name):
         raise error.MetaTableError()
@@ -494,8 +496,9 @@ def main(uri=None):
                 warning(e)
                 open_database(uri, False)
                 break
-            except (error.MetaTableError, pluginmgr.RegistryEmptyError,
-                    error.VersionError, error.TimestampError), e:
+            except (error.EmptyDatabaseError, error.MetaTableError,
+                    pluginmgr.RegistryEmptyError, error.VersionError,
+                    error.TimestampError), e:
                 warning(e)
                 open_exc = e
                 # reopen without verification so that bauble.Session and
