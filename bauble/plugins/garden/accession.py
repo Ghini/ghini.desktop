@@ -38,6 +38,7 @@ from bauble.plugins.garden.donor import Donor
 # TODO: make sure an accessions source record is being deleted when the
 # accession is being deleted, and create a test for the same thing
 
+
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
 
@@ -47,6 +48,12 @@ def latitude_to_dms(decimal):
 # TODO: should get the precision from the values passed in,
 # e.g. if seconds was passed in as an integer there is no reason
 # to keep 6 decimal places for precision
+
+# TODO: *** important ***
+# use the decimal.Decimal type instead of
+# float...this way numbers like 1.1 don't get represented by things
+# like 1.1000000000001
+#
 def dms_to_decimal(dir, deg, min, sec):
     '''
     convert degrees, minutes, seconds to decimal
@@ -66,10 +73,11 @@ def dms_to_decimal(dir, deg, min, sec):
 
 def decimal_to_dms(decimal, long_or_lat):
     '''
-    long_or_lat: should be either "long" or "lat"
+    @param decimal: the value to convert
+    @param long_or_lat: should be either "long" or "lat"
 
-    returns dir, degrees, minutes seconds
-    seconds rounded to two decimal points
+    @returns dir, degrees, minutes seconds, seconds rounded to two
+    decimal points
     '''
 
     dir_map = {'long': ['E', 'W'],

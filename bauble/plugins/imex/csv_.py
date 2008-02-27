@@ -24,14 +24,8 @@ from bauble.utils.log import log, debug
 # dependency that we expect that data to be imported in this same
 # task, or at least let the user know that the table is empty
 
-# TODO: checking the number of rows in a database locks up when in a
-# transaction and causes the import the hang, i would rather only ask
-# the user if they want drop the table if it isn't empty but i haven't
-# figured out a way to do this in a transaction. the problem seems to
-# be when table is in an inbetween state b/c it's been dropped in
-# transaction as a dependency of another table so when we go to check
-# if it has rows it seems like the database is waiting for the
-# transaction to finish and....LOCK
+# TODO: don't ask if we want to drop empty tables
+# https://bugs.launchpad.net/bauble/+bug/103923
 
 # TODO: allow the user set the unicode encoding on import, exports should
 # always us UTF-8, import, exports should always use UTF-8, need to figure
@@ -47,22 +41,6 @@ from bauble.utils.log import log, debug
 
 QUOTE_STYLE = csv.QUOTE_MINIMAL
 QUOTE_CHAR = '"'
-
-def chunk(iterable, n):
-    '''
-    return iterable in chunks of size n
-    '''
-    chunk = []
-    ctr = 0
-    for it in iterable:
-        chunk.append(it)
-        ctr += 1
-        if ctr >= n:
-            yield chunk
-            chunk = []
-            ctr = 0
-    yield chunk
-
 
 def pb_set_fraction(fraction):
     """
@@ -561,7 +539,7 @@ class CSVImportTool(plugin.Tool):
     @classmethod
     def start(cls):
         msg = _('It is possible that importing data into this database could '\
-                'destroyed or corrupt your existing data.\n\n<i>Would you '\
+                'destroy or corrupt your existing data.\n\n<i>Would you '\
                 'like to continue?</i>')
         if utils.yes_no_dialog(msg):
             c = CSVImporter()

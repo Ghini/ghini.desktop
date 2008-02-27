@@ -3,7 +3,6 @@
 #     use_setuptools()
 #     from setuptools import setup
 # except ImportError:
-
 try:
     import setuptools
     from setuptools import setup

@@ -462,7 +462,8 @@ def chunk(iterable, n):
     '''
     return iterable in chunks of size n
     '''
-    # TODO: this could probably be implemented way more efficiently
+    # TODO: this could probably be implemented way more efficiently,
+    # maybe using itertools
     chunk = []
     ctr = 0
     for it in iterable:
