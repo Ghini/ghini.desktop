@@ -371,7 +371,8 @@ def get_tag_ids(objs):
     clause = lambda x: and_(tagged_obj_table.c.obj_class==_classname(x),
                             tagged_obj_table.c.obj_id==x.id)
     select_stmt = lambda x: select([tagged_obj_table.c.tag_id], clause(x))
-    # TODO MySQL and SA 0.4.3 gives an error with this intersect statement
+    # TODO: MySQL doesn't support the intersect statement...how do we
+    # work around this
     stmt = intersect(*map(select_stmt, objs))
     return [i[0] for i in stmt.execute()]
 
