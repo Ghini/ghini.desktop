@@ -24,6 +24,50 @@ class UtilsTests(unittest.TestCase):
         assert utils.xml_safe(u'test< string') == u'test&lt; string'
         assert utils.xml_safe('test< string') == 'test&lt; string'
 
+    def test_datetime_to_str(self):
+        from datetime import datetime
+        dt = datetime(2008, 12, 1)
+        s = utils.date_to_str(dt, 'yyyy.m.d')
+        assert s == '2008.12.1', s
+        s = utils.date_to_str(dt, 'yyyy.mm.d')
+        assert s == '2008.12.1', s
+        s = utils.date_to_str(dt, 'yyyy.m.dd')
+        assert s == '2008.12.01', s
+        s = utils.date_to_str(dt, 'yyyy.mm.dd')
+        assert s == '2008.12.01', s
+
+        dt = datetime(2008, 12, 12)
+        s = utils.date_to_str(dt, 'yyyy.m.d')
+        assert s == '2008.12.12', s
+        s = utils.date_to_str(dt, 'yyyy.mm.d')
+        assert s == '2008.12.12', s
+        s = utils.date_to_str(dt, 'yyyy.m.dd')
+        assert s == '2008.12.12', s
+        s = utils.date_to_str(dt, 'yyyy.mm.dd')
+        assert s == '2008.12.12', s
+
+        dt = datetime(2008, 1, 1)
+        s = utils.date_to_str(dt, 'yyyy.m.d')
+        assert s == '2008.1.1', s
+        s = utils.date_to_str(dt, 'yyyy.mm.d')
+        assert s == '2008.01.1', s
+        s = utils.date_to_str(dt, 'yyyy.m.dd')
+        assert s == '2008.1.01', s
+        s = utils.date_to_str(dt, 'yyyy.mm.dd')
+        assert s == '2008.01.01', s
+
+        dt = datetime(2008, 1, 12)
+        s = utils.date_to_str(dt, 'yyyy.m.d')
+        assert s == '2008.1.12', s
+        s = utils.date_to_str(dt, 'yyyy.mm.d')
+        assert s == '2008.01.12', s
+        s = utils.date_to_str(dt, 'yyyy.m.dd')
+        assert s == '2008.1.12', s
+        s = utils.date_to_str(dt, 'yyyy.mm.dd')
+        assert s == '2008.01.12', s
+
+
+
 
 class ResetSequenceTests(BaubleTestCase):
 
@@ -85,7 +129,8 @@ class UtilsTestSuite(unittest.TestSuite):
 
    def __init__(self):
        unittest.TestSuite.__init__(self)
-       self.addTests(map(UtilsTests, ('test_xml_safe',)))
+       self.addTests(map(UtilsTests, ('test_xml_safe',
+                                      'test_datetime_to_str')))
        self.addTests(map(ResetSequenceTests, ('test_no_col_sequence',
                                               'test_with_col_sequence')))
 

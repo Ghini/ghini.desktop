@@ -54,7 +54,6 @@ def find_dependent_tables(table, metadata=None):
     return metadata.table_iterator(tables=result)
 
 
-
 class GladeWidgets(dict):
     '''
     dictionary and attribute access for widgets
@@ -513,3 +512,29 @@ def reset_sequence(column):
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
                                     bauble.engine.name))
+
+# TODO: always req month and year, day can be optional, what about a
+# flag to make the day optional, like?
+def date_to_str(date, format):
+    """
+    @param data: a datetime object
+    @param format: the format of the string to return, uses:
+    yyyy,yy,d,dd,m,mm
+
+    We don't do any validation that the format is correct or invalid
+    """
+    import re
+    s = format.replace('yyyy', str(date.year))
+    month = date.month
+    if month < 10:
+        month = '0%s' % month
+    s = s.replace('mm', str(month))
+    s = s.replace('m', str(date.month))
+    day = date.day
+    if day < 10:
+        day = '0%s' % day
+    s = s.replace('dd', str(day))
+    s = s.replace('d', str(date.day))
+    return s
+
+
