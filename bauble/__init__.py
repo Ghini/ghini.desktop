@@ -43,10 +43,10 @@ else: # main is frozen
 import gtk, gobject
 import bauble.utils as utils
 
-if not hasattr(gtk.Widget, 'set_tooltip_markup'):
-    msg = _('Bauble requires GTK+ version 2.12 or greater')
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-    sys.exit(1)
+# if not hasattr(gtk.Widget, 'set_tooltip_markup'):
+#     msg = _('Bauble requires GTK+ version 2.12 or greater')
+#     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+#     sys.exit(1)
 
 # make sure we look in the lib path for modules
 sys.path.append(paths.lib_dir())

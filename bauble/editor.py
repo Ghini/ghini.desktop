@@ -205,13 +205,21 @@ class GenericEditorView(object):
         self.widgets = utils.GladeWidgets(self.glade_xml)
         self.response = None
 
-        for widget_name, markup in self._tooltips.iteritems():
-            try:
-                self.widgets[widget_name].set_tooltip_markup(markup)
-            except Exception, e:
-                debug(_('Couldn\'t set the tooltip on widget %s\n\n%s' \
-                        % (widget_name, e)))
-
+        # pygtk 2.12.1 on win32 for some reason doesn't support the new
+        # gtk 2.12 gtk.Tooltip API
+#        if False:
+        if hasattr(gtk.Widget, 'set_tooltip_markup'):
+            for widget_name, markup in self._tooltips.iteritems():
+                try:
+                    self.widgets[widget_name].set_tooltip_markup(markup)
+                except Exception, e:
+                    debug(_('Couldn\'t set the tooltip on widget %s\n\n%s' \
+                            % (widget_name, e)))
+        else:
+            tooltips = gtk.Tooltips()
+            for widget_name, markup in self._tooltips.iteritems():
+                widget = self.widgets[widget_name]
+                tooltips.set_tip(widget, markup)
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
