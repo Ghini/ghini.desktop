@@ -33,6 +33,8 @@ parser.add_option('-i', '--install_path', dest="install_path", metavar="DIR",
                   help="directory to install GTK+, default is c:\GTK")
 parser.add_option('-d', '--download_path', dest="download_path", metavar="DIR",
                   help="directory to download files, default is .\install_gtk")
+parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
+                  default=False)
 (options, args) = parser.parse_args()
 
 
@@ -224,18 +226,23 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
             except Exception, e:
                 print e
                 raise
-
+            if options.verbose:
+                print 'unzipping %s to %s' % (filename, GTK_INSTALL_PATH)
             data = zip.read(zf)
             dest_file.write(data)
             dest_file.close()
         zip.close()
     elif filename.endswith('.exe'):
         fullname = '"%s"' % os.path.join(DL_PATH, filename)
+        if options.verbose:
+            print 'running installer %s' % fullname
         os.system(fullname)
 
 
 # register the pixbuf loaders
 load_pixbufs_cmd = '%s\\bin\gdk-pixbuf-query-loaders.exe > %s\\etc\gtk-2.0\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
+if options.verbose:
+    print load_pixbufs_cmd
 os.system(load_pixbufs_cmd)
 
 print 'done.'
