@@ -26,16 +26,14 @@ def get_version():
 
 version = get_version()
 
-
-gtk_pkgs = [ "pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
-
+gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 #plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
 #	   'imex']
 #plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 #subpackages = ['plugins', 'utils']
 #all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 plugins = setuptools.find_packages(where='bauble/plugins',
-                                   exclude=['test', 'bauble.*.test'])
+				   exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
 all_packages = setuptools.find_packages(exclude=['test', 'bauble.*.test'])
 
@@ -50,7 +48,6 @@ for pkg in plugins_pkgs:
 all_package_dirs = {'': '.'}
 for p in all_packages:
     all_package_dirs[p] = p.replace('.', '/')
-
 
 if USING_PY2EXE:
     import py2exe
@@ -118,7 +115,6 @@ else:
 # options arguments
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.10
-
 setup(name="bauble",
       version=version,
       console=["scripts/bauble"],

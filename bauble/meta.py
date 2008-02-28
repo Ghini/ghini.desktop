@@ -6,9 +6,18 @@ from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import mapper
 
-VERSION_KEY=u'version'
-CREATED_KEY=u'created'
-REGISTRY_KEY=u'registry'
+VERSION_KEY = u'version'
+CREATED_KEY = u'created'
+REGISTRY_KEY = u'registry'
+
+# date format strings:
+# yy - short year
+# yyyy - long year
+# dd - number day, always two digits
+# d - number day, two digits when necessary
+# mm -number month, always two digits
+# m - number month, two digits when necessary
+DATE_FORMAT_KEY = u'date_format'
 
 bauble_meta_table = bauble.Table('bauble', bauble.metadata,
                           Column('id', Integer, primary_key=True),
