@@ -207,7 +207,10 @@ mapper(PlantHistory, plant_history_table, order_by='date')
 def _val_str(col):
     s = [str(v) for v in col.type.values if v is not None]
     if None in col.type.values:
-        s.append('&lt;None&gt;')
+        if hasattr(gtk.Widget, 'set_tooltip_markup'):
+            s.append('&lt;None&gt;')
+        else:
+            s.append('<None>')
     return ', '.join(s)
 
 
