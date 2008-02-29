@@ -153,8 +153,14 @@ class ConnectionManager:
         self.widgets = utils.GladeWidgets(glade_path)
 
         self.dialog = self.widgets.main_dialog
-        pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
-        self.dialog.set_icon(pixbuf)
+        try:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
+            self.dialog.set_icon(pixbuf)
+        except Exception, e:
+            utils.message_details_dialog(_('Could not load icon from %s' % \
+                                         bauble.default_icon),
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
 
         if bauble.gui is not None and bauble.gui.window is not None:
             self.dialog.set_transient_for(bauble.gui.window)
