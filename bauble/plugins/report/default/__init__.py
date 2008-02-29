@@ -278,7 +278,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
             # nothing adapted....possibly everything was private
             # TODO: if everything was private and that is really why we got
             # here then it is probably better to show a dialog with a message
-            and raise and exception which appears as an error
+            # and raise and exception which appears as an error
             raise Exception('No objects could be adapted to ABCD units.')
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
