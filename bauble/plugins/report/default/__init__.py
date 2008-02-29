@@ -247,7 +247,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
             for p in plants:
                 if use_private:
                     adapted.append(PlantABCDAdapter(p))
-                elif p.accession.private:
+                elif not p.accession.private:
                     adapted.append(PlantABCDAdapter(p))
         elif source_type == species_source_type:
             species = get_all_species(objs, session=session)
@@ -268,14 +268,18 @@ class DefaultFormatterPlugin(FormatterPlugin):
             for a in accessions:
                 if use_private:
                     adapted.append(AccessionABCDAdapter(a))
-                elif a.private:
+                elif not a.private:
                     adapted.append(AccessionABCDAdapter(a))
         else:
             raise NotImplementedError('unknown source type')
 
 
         if len(adapted) == 0:
-            raise Exception # shouldn't ever really get here
+            # nothing adapted....possibly everything was private
+            # TODO: if everything was private and that is really why we got
+            # here then it is probably better to show a dialog with a message
+            and raise and exception which appears as an error
+            raise Exception('No objects could be adapted to ABCD units.')
         abcd_data = create_abcd(adapted, authors=authors, validate=False)
 
         session.close()

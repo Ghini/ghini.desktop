@@ -906,13 +906,14 @@ class SearchView(pluginmgr.View):
         chunk_size = 100
         update_every = 1
         steps_so_far = 0
-        for c in utils.chunk(results, chunk_size):
+        for piece in utils.chunk(results, chunk_size):
             # TODO: the natural sort probably isn't compatible for non ASCII
             # character strings
             # TODO: choose between natsort_key or letting the returned results
-            # determine the order
-            #for obj in sorted(group, key=utils.natsort_key):
-            for obj in c:
+            # determine the order....UPDATE 2008.02.28: stick with natsort
+            # until we find something wrong with it
+            #for obj in piece:
+            for obj in sorted(piece, key=utils.natsort_key):
                 parent = model.append(None, [obj])
                 obj_type = type(obj)
                 if check_for_kids:
