@@ -100,7 +100,7 @@ Section
     IfErrors done
     FileWrite $0 $QUERY_PIXBUF_CMD
     FileClose $0
-    Exec '"$INSTDIR\query_pixbufs.bat"'
+    nsExec::Exec '"$INSTDIR\query_pixbufs.bat"'
     done:
 SectionEnd
 
