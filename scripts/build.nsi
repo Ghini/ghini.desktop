@@ -70,8 +70,6 @@ InstallDirRegKey HKLM "${regkey}" ""
 
 Section "Dummy Section" SecDummy
     SetOutPath "$INSTDIR"
-    ;ADD YOUR OWN FILES HERE...
-
     ;Store installation folder
     WriteRegStr HKCU "${regkey}" "" $INSTDIR
     ; Uninstall reg keys
@@ -88,11 +86,22 @@ SectionEnd
 
 ; create shortcuts
 Section
-    CreateDirectory "${startmenu}"
     SetOutPath $INSTDIR ; for working directory
+    CreateDirectory "${startmenu}"
     CreateShortCut "${startmenu}\${prodname}.lnk" "$INSTDIR\${exec}"
-    nsExec::Exec '"$INSTDIR\gtk\bin\gdk-pixbuf-query-loaders.exe" >> "$INSTDIR\gtk\etc\gtk-2.0\gdk-pixbuf.loaders"'
+    ; have to use COMSPEC because of the redirection
+    #Exec "$INSTDIR\loadpixbufs.bat"
+    ExpandEnvStrings $0 %COMSPEC%
 
+    ; create a .bat file to run gdk-pixbuf-query-loaders.exe
+    Var /GLOBAL QUERY_PIXBUF_CMD
+    StrCpy $QUERY_PIXBUF_CMD '"$INSTDIR\gtk\bin\gdk-pixbuf-query-loaders.exe" > "$INSTDIR\gtk\etc\gtk-2.0\gdk-pixbuf.loaders"' 
+    FileOpen $0 $INSTDIR\query_pixbufs.bat w
+    IfErrors done
+    FileWrite $0 $QUERY_PIXBUF_CMD
+    FileClose $0
+    Exec '"$INSTDIR\query_pixbufs.bat"'
+    done:
 SectionEnd
 
 ; Uninstaller
