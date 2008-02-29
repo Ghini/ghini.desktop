@@ -52,9 +52,14 @@ class GUI(object):
         self.window.connect("destroy", self.on_quit)
         self.window.set_title(self.title)
 
-        filename = os.path.join(paths.lib_dir(), "images", "icon.svg")
-        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-        self.window.set_icon(pixbuf)
+        try:
+            pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
+            self.window.set_icon(pixbuf)
+        except:
+            utils.message_details_dialog(_('Could not load icon from %s' % \
+                                         bauble.default_icon),
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
 
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
