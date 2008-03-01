@@ -105,6 +105,8 @@ def tree_model_has(tree, value):
 def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
     '''
     return a list of tree iters to all occurences of data in model
+
+    This function only search one deep below the parent.
     '''
     results = []
     for row in parent:
