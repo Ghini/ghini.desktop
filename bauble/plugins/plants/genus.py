@@ -77,7 +77,9 @@ def genus_markup_func(genus):
     '''
     return str(genus), str(genus.family)
 
-    '''
+
+# genus table doc string -- TODO: incomplete
+'''
     hybrid: indicates whether the name in the Genus Name field refers to an
     Intergeneric hybrid or an Intergeneric graft chimaera.
     Content of genhyb   Nature of Name in gen
@@ -89,7 +91,7 @@ def genus_markup_func(genus):
     Possible values:
     s. lat. - aggregrate family (sensu lato)
     s. str. - segregate family (sensu stricto)
-    '''
+'''
 
     # TODO: we should at least warn the user that a duplicate genus name is
     # being entered
@@ -380,6 +382,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         self.__dirty = False
 
 
+    def start(self):
+        raise Exception('genus.SynonymsPresenter cannot be started')
+
+
     def dirty(self):
         return self.model.dirty or self.__dirty
 
@@ -489,6 +495,9 @@ class GenusEditor(GenericModelViewPresenterEditor):
         @param model: Genus instance or None
         @param parent: None
         '''
+        # the view and presenter are created in self.start()
+        self.view = None
+        self.presenter = None
         if model is None:
             model = Genus()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
@@ -573,7 +582,6 @@ class GenusEditor(GenericModelViewPresenterEditor):
         else:
             self.view.widgets.gen_genus_entry.grab_focus()
 
-        exc_msg = "Could not commit changes.\n"
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state

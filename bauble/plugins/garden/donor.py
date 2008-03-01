@@ -212,7 +212,8 @@ class DonorEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -235,8 +236,10 @@ class DonorEditor(GenericModelViewPresenterEditor):
 
         # add quick response keys
         dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return', gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
 
         exc_msg = "Could not commit changes.\n"
         while True:
@@ -272,7 +275,8 @@ class GeneralDonorExpander(InfoExpander):
         self.set_widget_value('don_tel_data', row.tel)
         self.set_widget_value('don_fax_data', row.fax)
 
-        donation_ids = select([donation_table.c.id], donation_table.c.donor_id==row.id)
+        donation_ids = select([donation_table.c.id],
+                              donation_table.c.donor_id==row.id)
         ndons = sql_utils.count_select(donation_ids)
         self.set_widget_value('don_ndons_data', ndons)
 

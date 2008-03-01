@@ -13,7 +13,6 @@ import bauble.pluginmgr as plugin
 import bauble.task
 from bauble.utils import xml_safe
 from bauble.utils.log import log, debug
-import bauble.utils.gtasklet as gtasklet
 
 # <tableset>
 # <table name="tablename">
@@ -83,7 +82,6 @@ class XMLExporter:
 
 
     def __export_task(self, path, one_file=True):
-        timeout = gtasklet.WaitForTimeout(12)
         ntables = len(bauble.metadata.tables)
         steps_so_far = 0
         if not one_file:

@@ -101,18 +101,10 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         set the sensitivity on the widgets that make up the species name
         according to values in the model
         '''
-        # TODO: there is a bug here that sometimes the ok/accept buttons don't
-        # get set as sensitive after entering a genus name and species name,
-        # it will work thought after Bauble has been restarted, it seems like
-        # it happens after entering a second species name...UPDATE: something
-        # similar seems to be happening in the same Accession editor, maybe other
-        # editors too
-        sensitive = []
-        notsensitive = []
-        # TODO: make sure this is perfect
         # states_dict:
         # { field: [widget(s) whose sensitivity == fields is not None] }
-        # - if widgets is a tuple then at least one of the items has to not be None
+        # - if widgets is a tuple then at least one of the items has to not be
+        # None
         # - this assumes that when field is not None, if field is none then
         # sensitive widgets are set to false
         states_dict = {'sp_hybrid_combo': [('genus', 'genus')],
@@ -120,7 +112,8 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
-                       'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'), 'infrasp', 'sp']}
+                       'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'),
+                                                 'infrasp', 'sp']}
         for widget, fields in states_dict.iteritems():
 #            debug('%s: %s' % (widget, fields))
             none_status = []
@@ -1034,7 +1027,6 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
         else:
             self.view.widgets.sp_species_entry.grab_focus()
 
-        exc_msg = "Could not commit changes.\n"
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state

@@ -127,12 +127,12 @@ class ResetSequenceTests(BaubleTestCase):
 
 class UtilsTestSuite(unittest.TestSuite):
 
-   def __init__(self):
-       unittest.TestSuite.__init__(self)
-       self.addTests(map(UtilsTests, ('test_xml_safe',
-                                      'test_datetime_to_str')))
-       self.addTests(map(ResetSequenceTests, ('test_no_col_sequence',
-                                              'test_with_col_sequence')))
+    def __init__(self):
+        unittest.TestSuite.__init__(self)
+        self.addTests(map(UtilsTests, ('test_xml_safe',
+                                       'test_datetime_to_str')))
+        self.addTests(map(ResetSequenceTests, ('test_no_col_sequence',
+                                               'test_with_col_sequence')))
 
 
 testsuite = UtilsTestSuite

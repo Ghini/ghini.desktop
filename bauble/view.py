@@ -911,7 +911,9 @@ class SearchView(pluginmgr.View):
             # character strings
             # TODO: choose between natsort_key or letting the returned results
             # determine the order....UPDATE 2008.02.28: stick with natsort
-            # until we find something wrong with it
+            # until we find something wrong with it...
+            # UPDATE 2008.02.29: if sorting takes too long for large datasets
+            # then maybe it would be better to
             #for obj in piece:
             for obj in sorted(piece, key=utils.natsort_key):
                 parent = model.append(None, [obj])
@@ -995,6 +997,7 @@ class SearchView(pluginmgr.View):
 
     def get_expanded_rows(self):
         '''
+        return all the rows in the model that are expanded
         '''
         expanded_rows = []
         self.results_view.map_expanded_rows(lambda view, path: expanded_rows.append(gtk.TreeRowReference(view.get_model(), path)))
@@ -1053,7 +1056,6 @@ class SearchView(pluginmgr.View):
                 else:
                     def on_activate(item, f):
                         value = self.get_selected_values()[0]
-                        expanded_rows = self.get_expanded_rows()
                         result = False
                         try:
                             result = f(value)
@@ -1063,25 +1065,8 @@ class SearchView(pluginmgr.View):
                                                         traceback.format_exc(),
                                                          gtk.MESSAGE_ERROR)
                             debug(traceback.format_exc())
-
                         if result is not None:
-                            for obj in self.session:
-                                try:
-#                                    debug('expire: %s(%s)' % (obj, repr(obj)))
-                                    self.session.expire(obj)
-                                except saexc.InvalidRequestError, e:
-                                    # find the object in the tree and remove
-                                    # it, this could get expensive if there
-                                    # are a lot of items in the tree
-                                    debug(e)
-                                    for found in utils.search_tree_model(model,
-                                                                         obj):
-#                                        debug('found %s: %s' % \
-#                                              (found, model[found][0]))
-                                        model.remove(found)
-                            self.results_view.collapse_all()
-                            self.expand_to_all_refs(expanded_rows)
-                            self.update_infobox()
+                            self.reset_view()
                     item = gtk.MenuItem(label)
                     item.connect('activate', on_activate, func)
                     menu.add(item)
@@ -1089,6 +1074,30 @@ class SearchView(pluginmgr.View):
 
         menu.show_all()
         menu.popup(None, None, None, event.button, event.time)
+
+
+    def reset_view(self):
+        """
+        expire all the children in the model, collapse everything,
+        reexpand the rows to the previous state where possible and
+        update the infobox
+        """
+        for obj in self.session:
+            try:
+#                 debug('expire: %s(%s)' % (obj, repr(obj)))
+                self.session.expire(obj)
+            except saexc.InvalidRequestError, e:
+                # find the object in the tree and remove it, this
+                # could get expensive if there are a lot of items in
+                # the tree
+#                 debug(e)
+                for found in utils.search_tree_model(model, obj):
+#                     debug('found %s: %s' % (found, model[found][0]))
+                    model.remove(found)
+        expanded_rows = self.get_expanded_rows()
+        self.results_view.collapse_all()
+        self.expand_to_all_refs(expanded_rows)
+        self.update_infobox()
 
 
     def on_view_row_activated(self, view, path, column, data=None):

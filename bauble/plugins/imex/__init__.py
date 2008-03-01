@@ -16,7 +16,6 @@ import bauble.utils as utils
 import bauble.pluginmgr as plugin
 import bauble.task
 from bauble.utils.log import log, debug
-import bauble.utils.gtasklet as gtasklet
 import Queue
 from bauble.plugins.imex.csv_ import CSVImportTool, CSVExportTool, \
      CSVExportCommandHandler, CSVImportCommandHandler

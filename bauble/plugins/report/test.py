@@ -142,7 +142,7 @@ class ReportTests(ReportTestCase):
         acc_id = _get_all_accession_ids([species])
         self.assert_(acc_id == [1, 2], acc_id)
 
-        accession = self.session.load(Accession ,1)
+        accession = self.session.load(Accession, 1)
         acc_id = _get_all_accession_ids([accession])
         self.assert_(acc_id == [1], acc_id)
 
@@ -185,7 +185,7 @@ class ReportTests(ReportTestCase):
         plant_ids = _get_all_plant_ids([species])
         self.assert_(plant_ids == [1, 2, 3, 4], plant_ids)
 
-        accession = self.session.load(Accession ,1)
+        accession = self.session.load(Accession, 1)
         plant_ids = _get_all_plant_ids([accession])
         self.assert_(plant_ids == [1, 2], plant_ids)
 
@@ -214,11 +214,11 @@ class ReportTests(ReportTestCase):
 
 class ReportTestSuite(unittest.TestSuite):
 
-   def __init__(self):
-       super(ReportTestSuite, self).__init__()
-       self.addTests(map(ReportTests, ('test_get_all_species',
-                                       'test_get_all_accessions',
-                                       'test_get_all_plants')))
+    def __init__(self):
+        super(ReportTestSuite, self).__init__()
+        self.addTests(map(ReportTests, ('test_get_all_species',
+                                        'test_get_all_accessions',
+                                        'test_get_all_plants')))
 
 
 testsuite = ReportTestSuite

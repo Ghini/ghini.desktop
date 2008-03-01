@@ -2,7 +2,7 @@
 
 import sys, os, glob, csv, zipfile
 
-# NOTE: for some reason the files for the old family names downloaded from the 
+# NOTE: for some reason the files for the old family names downloaded from the
 # kew website don't end in .TXT like the rest
 # these have to be renamed manually
 # to rename then use:
@@ -24,7 +24,7 @@ family_rename_map = {'COMPOSITAE': 'ASTERACEAE',
                      'PALMAE': 'ARECACEAE',
                      'UMBELLIFERAE': 'APIACEAE',
                    }
-                    
+
 gen_columns = '"id","hybrid","genus","author","synonymID","familyID"'
 fam_columns = '"id","family"'
 
@@ -39,7 +39,7 @@ fam_id = 1 # the start id
 
 # look up family id's from here, mostly to avoid
 # redundancy for the legumes
-family_map = {} 
+family_map = {}
 
 if os.path.isdir(src):
     files = sorted(glob.glob(os.path.join(src, '*.TXT')))
@@ -54,12 +54,12 @@ for f in sorted(files):
     if fam in family_rename_map:
         fam = family_rename_map[fam]
     fam = fam.capitalize()
-    
+
     if fam not in family_map:
         family_map[fam] = fam_id
         fam_id+=1
         families.write('%d,"%s"\n' % (family_map[fam], fam))
-        
+
     for i in csv.reader(file_read(f)):
         # TODO: the ^M needs to be stripped from the lines
         genera.writerow(i + [family_map[fam]])
@@ -67,10 +67,10 @@ for f in sorted(files):
 try:
     z.close()
 except NameError, e:
-    debug('wasn\'t a zip')
-    
+    print 'wasn\'t a zip'
+
 genera_file.close()
 families.close()
-    
-    
-    
+
+
+

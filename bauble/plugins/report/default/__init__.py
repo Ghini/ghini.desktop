@@ -177,7 +177,7 @@ class DefaultFormatterSettingsBox(SettingsBox):
                 'private': self.widgets.private_check.get_active()}
 
 
-    def update(self, settings={}):
+    def update(self, settings):
         if 'stylesheet' in settings and settings['stylesheet'] != None:
             self.widgets.stylesheet_chooser.\
                                         set_filename(settings['stylesheet'])

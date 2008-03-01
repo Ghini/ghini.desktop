@@ -226,7 +226,8 @@ class CSVImporter(Importer):
 
         created_tables = []
         def add_to_created(names):
-           created_tables.extend([n for n in names if n not in created_tables])
+            created_tables.extend([n for n in names \
+                                   if n not in created_tables])
         total_lines = 0
         for table, filename in sorted_tables:
             #get the total number of lines for all the files
@@ -310,7 +311,7 @@ class CSVImporter(Importer):
                         # removed everything that doesn't have a value
                         # specified in the csv file so that the columns will
                         # pick up their default on insert
-                        cleaned = dict([(k, v) for k,v in \
+                        cleaned = dict([(k, v) for k, v in \
                                 line.iteritems() if v not in ('', u'', None)])
                         # its a hell of a lot faster if we precompile
                         # the insert statement but it can lead to
@@ -359,8 +360,13 @@ class CSVImporter(Importer):
                 for col in table.c:
                     utils.reset_sequence(col)
         except Exception, e:
+            col_name = None
+            try:
+                col_name = col.name
+            except:
+                pass
             msg = _('Error: Could not set the sequence for column: %s') \
-                  % col.name
+                  % col_name
             utils.message_details_dialog(_(utils.xml_safe_utf8(msg)),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)

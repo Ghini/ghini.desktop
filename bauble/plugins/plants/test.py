@@ -248,12 +248,12 @@ class SynonymsTests(PlantTestCase):
         sp2 = load_sp(2)
         sp1.synonyms.append(sp2)
         self.session.flush()
-        self.assert_(synonym_of(1, 2), syn_str(1,2))
+        self.assert_(synonym_of(1, 2), syn_str(1, 2))
 
         # test that removing a synonyms works using species.synonyms
         sp1.synonyms.remove(sp2)
         self.session.flush()
-        self.failIf(synonym_of(1, 2), syn_str(1,2))
+        self.failIf(synonym_of(1, 2), syn_str(1, 2))
 
         self.session.clear()
 
@@ -263,12 +263,12 @@ class SynonymsTests(PlantTestCase):
         syn = SpeciesSynonym(sp2)
         sp1._synonyms.append(syn)
         self.session.flush()
-        self.assert_(synonym_of(1, 2), syn_str(1,2))
+        self.assert_(synonym_of(1, 2), syn_str(1, 2))
 
         # test that removing a synonyms works using species._synonyms
         sp1._synonyms.remove(syn)
         self.session.flush()
-        self.failIf(synonym_of(1, 2), syn_str(1,2))
+        self.failIf(synonym_of(1, 2), syn_str(1, 2))
 
         # TODO: need to test adding a species and then immediately remove it
         # TOOD: need to test removing a species and then immediately adding
@@ -298,12 +298,12 @@ class SynonymsTests(PlantTestCase):
 
 
 class PlantTestSuite(unittest.TestSuite):
-   def __init__(self):
-       super(PlantTestSuite, self).__init__()
-       self.addTests(map(SpeciesTests,('test_vernacular_name',
-                                       'test_default_vernacular_changed_twice',
-                                       'test_string')))
-       self.addTests(map(SynonymsTests, ('test_species_synonyms',)))
+    def __init__(self):
+        super(PlantTestSuite, self).__init__()
+        self.addTests(map(SpeciesTests, ('test_vernacular_name',
+                                    'test_default_vernacular_changed_twice',
+                                    'test_string')))
+        self.addTests(map(SynonymsTests, ('test_species_synonyms',)))
 
 testsuite = PlantTestSuite
 

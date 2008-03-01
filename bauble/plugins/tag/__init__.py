@@ -100,7 +100,7 @@ class TagItemGUI:
         name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
-        stmt = tag_table.select(tag_table.c.tag==name).count()
+        stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
         if name not in ('', u'') and stmt.scalar() == 0:
             session = bauble.Session()
             session.save(Tag(tag=name))
@@ -141,21 +141,32 @@ class TagItemGUI:
 
     def on_key_released(self, widget, event):
         '''
-        on delete remove the currently select tag
+        if the user hits the delete key on a selected tag in the tag editor
+        then delete the tag
         '''
         keyname = gtk.gdk.keyval_name(event.keyval)
         if keyname != "Delete":
             return
-        model, iter = self.tag_tree.get_selection().get_selected()
-        tag = model[iter][1]
-        msg = _('Are you sure you want to delete the tag "%s"?') % tag
-        if utils.yes_no_dialog(msg):
-            t = Tag.byTag(tag)
-            t.destroySelf()
-            model.remove(iter)
+        model, row_iter = self.tag_tree.get_selection().get_selected()
+        tag_name = model[row_iter][1]
+        msg = _('Are you sure you want to delete the tag "%s"?') % tag_name
+        if not utils.yes_no_dialog(msg):
+            return
+        try:
+            session = bauble.Session()
+            query = session.query(Tag)
+            tag = query.filter(tag_table.c.tag == unicode(tag_name)).one()
+            session.delete(tag)
+            session.commit()
+            model.remove(row_iter)
             _reset_tags_menu()
-            view = bauble.gui.get_current_view()
-            view.refresh_search()
+            view = bauble.gui.get_view()
+            if isinstance(view, SearchView):
+                view.reset_view()
+        except Exception, e:
+            utils.message_details_dialog(utils.xml_safe(str(e)),
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
 
 
     def start(self):
@@ -431,10 +442,10 @@ def _reset_tags_menu():
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
     except:
-    	debug(traceback.format_exc())
-    	msg = _('Could not create the tags menus')
-    	utils.message_details_dialog(msg, traceback.format_exc(),
-    				     gtk.MESSAGE_ERROR)
+        debug(traceback.format_exc())
+        msg = _('Could not create the tags menus')
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     gtk.MESSAGE_ERROR)
     #	raise
             #debug('** maybe the tags table hasn\'t been created yet')
 

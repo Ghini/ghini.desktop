@@ -147,7 +147,7 @@ class SettingsBox(gtk.VBox):
     def get_settings(self):
         raise NotImplementerError
 
-    def update(self, settings={}):
+    def update(self, settings):
         raise NotImplementerError
 
 
@@ -443,13 +443,13 @@ class ReportToolDialogPresenter(object):
 
 
     def init_names_combo(self):
-	formatters = prefs[config_list_pref]
-	if formatters is None or len(formatters) == 0:
-	    msg = _('No formatters found. To create a new formatter click '\
+        formatters = prefs[config_list_pref]
+        if formatters is None or len(formatters) == 0:
+            msg = _('No formatters found. To create a new formatter click '\
                     'the "New" button.')
-	    utils.message_dialog(msg, parent=self.view.dialog)
-#	    debug('names_combo.model=None')
-	    self.view.widgets.names_combo.set_model(None)
+            utils.message_dialog(msg, parent=self.view.dialog)
+##	    debug('names_combo.model=None')
+            self.view.widgets.names_combo.set_model(None)
         self.populate_names_combo()
 
 

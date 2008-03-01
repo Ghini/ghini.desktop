@@ -67,7 +67,8 @@ class ABCDTestCase(BaubleTestCase):
 #         ElementFactory(cont_contact, 'Email', text='brett@belizebotanic.org')
 #         metadata = ElementFactory(ds, 'Metadata', )
 #         description = ElementFactory(metadata, 'Description')
-#         representation = ElementFactory(description, 'Representation', attrib={'language': 'en'})
+#           representation = ElementFactory(description, 'Representation',
+#                                           attrib={'language': 'en'})
 #         revision = ElementFactory(metadata, 'RevisionData')
 #         ElementFactory(revision, 'DateModified', text='2001-03-01T00:00:00')
 #         title = ElementFactory(representation, 'Title', text='TheTitle')
@@ -96,9 +97,9 @@ class ABCDTestCase(BaubleTestCase):
 
 class ABCDTestSuite(unittest.TestSuite):
 
-   def __init__(self):
-       unittest.TestSuite.__init__(self)
-       self.addTests(map(ABCDTestCase,('test_abcd','test_plants_to_abcd')))
+    def __init__(self):
+        unittest.TestSuite.__init__(self)
+        self.addTests(map(ABCDTestCase, ('test_abcd', 'test_plants_to_abcd')))
 
 
 testsuite = ABCDTestSuite
