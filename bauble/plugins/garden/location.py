@@ -257,7 +257,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-from bauble.view import InfoBox, InfoExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander
 
 
 class GeneralLocationExpander(InfoExpander):
@@ -277,7 +277,8 @@ class GeneralLocationExpander(InfoExpander):
     def update(self, row):
         '''
         '''
-        self.set_widget_value('loc_site_data', str(row.site))
+        self.set_widget_value('loc_site_data',
+                              '<big>%s</big>' % utils.xml_safe(str(row.site)))
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)
@@ -321,9 +322,10 @@ class LocationInfoBox(InfoBox):
         self.widgets = utils.GladeWidgets(glade_file)
         self.general = GeneralLocationExpander(self.widgets)
         self.add_expander(self.general)
-
         self.description = DescriptionExpander(self.widgets)
         self.add_expander(self.description)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
 
 
     def update(self, row):
@@ -331,6 +333,7 @@ class LocationInfoBox(InfoBox):
         '''
         self.general.update(row)
         self.description.update(row)
+        self.props.update(row)
 #
 # import here to avoid circular dependencies
 #

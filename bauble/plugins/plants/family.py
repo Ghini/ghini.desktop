@@ -514,7 +514,7 @@ class GeneralFamilyExpander(InfoExpander):
         @param row: the row to get the values from
         '''
 
-        self.set_widget_value('fam_name_data', str(row))
+        self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
 
         # get the number of genera
         genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)

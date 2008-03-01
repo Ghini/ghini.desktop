@@ -215,7 +215,14 @@ class GeneralSpeciesExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        self.set_widget_value('sp_name_data', row.markup(True))
+        # TODO: get the genus string, match if in the species string
+        # and create a button from it so we can browse to the genus
+        sp_str = row.markup(True)
+        from textwrap import TextWrapper
+        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        new_str = wrapper.fill(sp_str)
+        self.set_widget_value('sp_name_data', '<big>%s</big>' % new_str)
+#                               row.markup(True))
         nacc = sql_utils.count(accession_table,
                                accession_table.c.species_id==row.id)
         self.set_widget_value('sp_nacc_data', nacc)

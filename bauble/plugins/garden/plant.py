@@ -654,14 +654,47 @@ class GeneralPlantExpander(InfoExpander):
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
+        self.current_obj = None
+        name_button = self.widgets.name_data_button
+        name_button.set_focus_on_click(False)
+        name_button.connect('clicked', self.on_species_button_clicked)
+
+
+    def on_species_button_clicked(self, widget, *args):
+        """
+        search the tree model for species of self.current_obj, if it
+        exists then select it if not then add it and select it
+
+        the the species in not in the first level of the model then we
+        add it
+        """
+        if self.current_obj == None:
+            return
+        from bauble.view import SearchView
+        view = bauble.gui.get_view()
+        if isinstance(view, SearchView):
+            model = view.results_view.get_model()
+            species = self.current_obj.accession.species
+            found = utils.search_tree_model(model, species)
+            path = None
+            if len(found) > 0:
+                path = model.get_path(found[0])
+            else:
+                it = model.append(None, [species])
+                path = model.get_path(it)
+            view.results_view.set_cursor(path)
 
 
     def update(self, row):
         '''
         '''
-        self.set_widget_value('name_data',
-             '%s %s\n%s' % (row.accession.species.markup(True),
-                            row.accession.id_qual or '', str(row)))
+        self.current_obj = row
+        self.set_widget_value('plant_code_data', '<big>%s</big>' % \
+                                  utils.xml_safe(unicode(row)))
+        name_button = self.widgets.name_data_button
+        name_button.child.set_markup('%s %s' % \
+             (row.accession.species.markup(True), row.accession.id_qual or ''))
+
         self.set_widget_value('location_data',row.location.site)
         self.set_widget_value('status_data',
                          row.acc_status, False)
