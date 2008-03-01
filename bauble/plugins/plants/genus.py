@@ -699,7 +699,8 @@ class GeneralGenusExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        self.set_widget_value('gen_name_data', Genus.str(row, author=True))
+        self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
+                                  (row, utils.xml_safe(row.author)))
 
         # get the number of species
         species_ids = select([species_table.c.id],

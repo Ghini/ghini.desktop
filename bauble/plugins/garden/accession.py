@@ -1469,15 +1469,46 @@ class GeneralAccessionExpander(InfoExpander):
         general_box = self.widgets.general_box
         self.widgets.general_window.remove(general_box)
         self.vbox.pack_start(general_box)
+        name_button = self.widgets.name_data_button
+        name_button.set_focus_on_click(False)
+        name_button.connect('clicked', self.on_species_button_clicked)
+        self.current_obj = None
+
+
+    def on_species_button_clicked(self, widget, *args):
+        """
+        search the tree model for species of self.current_obj, if it
+        exists then select it if not then add it and select it
+
+        the the species in not in the first level of the model then we
+        add it
+        """
+        if self.current_obj == None:
+            return
+        from bauble.view import SearchView
+        view = bauble.gui.get_view()
+        if isinstance(view, SearchView):
+            model = view.results_view.get_model()
+            found = utils.search_tree_model(model, self.current_obj.species)
+            path = None
+            if len(found) > 0:
+                path = model.get_path(found[0])
+            else:
+                it = model.append(None, [self.current_obj.species])
+                path = model.get_path(it)
+            view.results_view.set_cursor(path)
 
 
     def update(self, row):
         '''
         '''
-        self.set_widget_value('name_data',
-                              '%s %s\n%s' % (row.species.markup(True),
-                                             row.id_qual or '',
-                                             row.code))
+        self.current_obj = row
+        name_button = self.widgets.name_data_button
+        name_button.child.set_markup('%s %s' % \
+                              (row.species.markup(True), row.id_qual or '',))
+        self.set_widget_value('acc_code_data', '<big>%s</big>' % \
+                              utils.xml_safe(row.code))
+
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,
         # 2 Dead, 6 Unknown, etc

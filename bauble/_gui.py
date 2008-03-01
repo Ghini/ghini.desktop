@@ -240,7 +240,7 @@ class GUI(object):
         '''
         view_box = self.widgets.view_box
         if view_box is None:
-            return
+            return # viewbox should never be None, why is this here?
         for kids in view_box.get_children():
             view_box.remove(kids)
         view_box.pack_start(view, True, True, 0)
@@ -515,6 +515,14 @@ class GUI(object):
         if engine is not None:
             bauble.conn_name = name
             self.window.set_title(self.title)
+            # TODO: come up with a better way to reset the handler than have
+            # to bauble.last_handler = None
+            #
+            # we have to set last_handler to None since although the
+            # view is changing the handler isn't so we might end up
+            # using the same instance of a view that could have old
+            # settings from the previous handler...
+            bauble.last_handler = None
             self.set_default_view()
             self.clear_menu('/ui/MenuBar/insert_menu')
             pluginmgr.init()
