@@ -206,7 +206,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 return False
             except Exception, e:
-                msg = ('Unknown error when committing changes. See the '\
+                msg = _('Unknown error when committing changes. See the '\
                        'details for more information.\n\n%s' \
                        % utils.xml_safe_utf8(e))
                 utils.message_details_dialog(msg, traceback.format_exc(),
@@ -269,7 +269,10 @@ class GeneralDonorExpander(InfoExpander):
 
 
     def update(self, row):
-        self.set_widget_value('don_name_data', row.name)
+        from textwrap import TextWrapper
+        wrapper = TextWrapper(width=50, subsequent_indent='  ')
+        self.set_widget_value('don_name_data', '<big>%s</big>' % \
+                              utils.xml_safe(wrapper.fill(str(row.name))))
         self.set_widget_value('don_address_data', row.address)
         self.set_widget_value('don_email_data', row.email)
         self.set_widget_value('don_tel_data', row.tel)
