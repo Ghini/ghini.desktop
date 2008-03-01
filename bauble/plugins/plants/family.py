@@ -472,8 +472,6 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k', gtk.gdk.CONTROL_MASK)
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n', gtk.gdk.CONTROL_MASK)
 
-        exc_msg = _("Could not commit changes.\n")
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state

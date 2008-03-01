@@ -174,6 +174,9 @@ class LocationEditor(GenericModelViewPresenterEditor):
         @param model: Location instance or None
         @param parent: the parent widget or None
         '''
+        # view and presenter are created in self.start()
+        self.view = None
+        self.presenter = None
         if model is None:
             model = Location()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
@@ -244,8 +247,6 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
-        exc_msg = "Could not commit changes.\n"
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state

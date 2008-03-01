@@ -62,7 +62,11 @@ load-plugins=
 # R0904: To many public methods
 # W0511: TODO, FIXME, XXX messages
 # WO611: Unused import: this one could actually be useful but it complains alot when using * imports
-disable-msg=W0703,R0903,R0904,W0511,W0611
+# C0111: Missing docstring
+# C0112: Empty docstrin
+# W0401: Wildcard import
+# R0801: Similar lines (refactor)
+disable-msg=W0703,R0903,R0904,W0511,W0611,C0111,C0112,W0401,R0801
 
 # W
 

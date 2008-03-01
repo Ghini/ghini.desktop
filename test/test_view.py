@@ -187,9 +187,9 @@ class SearchTestCase(BaubleTestCase):
 
 
 class ViewTestSuite(unittest.TestSuite):
-   def __init__(self):
-       unittest.TestSuite.__init__(self, map(SearchTestCase,
-                                             ('test_search', 'test_parse')))
+    def __init__(self):
+        unittest.TestSuite.__init__(self, map(SearchTestCase,
+                                              ('test_search', 'test_parse')))
 
 testsuite = ViewTestSuite
 

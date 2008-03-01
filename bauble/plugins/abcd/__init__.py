@@ -13,11 +13,8 @@ import bauble
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
-#from bauble.utils import xml_safe
-import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.i18n import *
-#from bauble.plugins.abcd.abcd import DataSets, ABCDElement#, ElementFactory
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession
@@ -252,7 +249,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         assert validate(datasets), 'ABCD data not valid'
     except AssertionError, e:
         #utils.message_dialog('ABCD data not valid')
-        #utils.message_details_dialog('ABCD data not valid', etree.tostring(datasets))
+#         utils.message_details_dialog('ABCD data not valid',
+#                                      etree.tostring(datasets))
         debug(etree.tostring(datasets))
         raise
 

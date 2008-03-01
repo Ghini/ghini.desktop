@@ -109,10 +109,9 @@ class TagTests(TagTestCase):
 
 class TagTestSuite(unittest.TestSuite):
 
-   def __init__(self):
-       super(TagTestSuite, self).__init__()
-       self.addTests(map(TagTests, ('test_tag_objects', 'test_get_tag_ids',
-                                    )))
+    def __init__(self):
+        super(TagTestSuite, self).__init__()
+        self.addTests(map(TagTests, ('test_tag_objects', 'test_get_tag_ids')))
 
 
 testsuite = TagTestSuite

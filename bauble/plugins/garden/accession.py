@@ -38,6 +38,8 @@ from bauble.plugins.garden.donor import Donor
 # TODO: make sure an accessions source record is being deleted when the
 # accession is being deleted, and create a test for the same thing
 
+# date regular expression for date entry fields
+_date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
 
 def longitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'long')
@@ -102,7 +104,6 @@ def edit_callback(value):
 
 
 def add_plants_callback(value):
-    from bauble.plugins.garden.plant import PlantEditor
     session = bauble.Session()
     e = PlantEditor(model=Plant(accession=session.merge(value)))
     return e.start() != None
@@ -150,26 +151,24 @@ def acc_markup_func(acc):
 
 
 
-'''
-prov_type:
-----------
-"Wild", # Wild,
-"Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
-"Not of wild source", # Not of wild source
-"Insufficient Data", # Insufficient data
-"Unknown"
 
-wild_prov_status:
------------------
-"Wild native", # Endemic found within it indigineous range
-"Wild non-native", # Propagule of wild plant in cultivation
-"Cultivated native", # Not of wild source
-"Insufficient Data", # Insufficient data
-"Unknown",
+# prov_type:
+# ----------
+# "Wild", # Wild,
+# "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
+# "Not of wild source", # Not of wild source
+# "Insufficient Data", # Insufficient data
+# "Unknown"
 
-date: date accessioned
+# wild_prov_status:
+# -----------------
+# "Wild native", # Endemic found within it indigineous range
+# "Wild non-native", # Propagule of wild plant in cultivation
+# "Cultivated native", # Not of wild source
+# "Insufficient Data", # Insufficient data
+# "Unknown",
 
-'''
+# date: date accessioned
 
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
@@ -312,13 +311,13 @@ mapper(Verification, verification_table)
 
 
 def _val_str(col):
-    s = [str(v) for v in col.type.values if v is not None]
+    values = [str(v) for v in col.type.values if v is not None]
     if None in col.type.values:
         if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            s.append('&lt;None&gt;')
+            values.append('&lt;None&gt;')
         else:
-            s.append('<None>')
-    return ', '.join(s)
+            values.append('<None>')
+    return ', '.join(values)
 
 
 class AccessionEditorView(GenericEditorView):
@@ -541,6 +540,11 @@ class CollectionPresenter(GenericEditorPresenter):
         self.east_toggle_signal_id = east_radio.connect('toggled',
                                             self.on_east_west_radio_toggled)
 
+
+    def start(self):
+        raise Exception('CollectionEditorPresenter cannot be started')
+
+
     def dirty(self):
         return self.model.dirty
 
@@ -592,8 +596,6 @@ class CollectionPresenter(GenericEditorPresenter):
         self._set_date_from_text(full_text)
 
 
-    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-
     def _set_date_from_text(self, text):
         if text == '':
             self.model.date = None
@@ -602,7 +604,7 @@ class CollectionPresenter(GenericEditorPresenter):
             return
 
         dt = None # datetime
-        m = self._date_regex.match(text)
+        m = _date_regex.match(text)
         if m is None:
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.coll_date_entry)
@@ -703,12 +705,13 @@ class CollectionPresenter(GenericEditorPresenter):
         dms_string = ''
         try:
             if text != '' and text is not None:
-                self.view.widgets.north_radio.handler_block(self.north_toggle_signal_id)
+                north_radio = self.view.widgets.north_radio
+                north_radio.handler_block(self.north_toggle_signal_id)
                 if text[0] == '-':
                     self.view.widgets.south_radio.set_active(True)
                 else:
-                    self.view.widgets.north_radio.set_active(True)
-                self.view.widgets.north_radio.handler_unblock(self.north_toggle_signal_id)
+                    north_radio.set_active(True)
+                north_radio.handler_unblock(self.north_toggle_signal_id)
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
@@ -745,12 +748,13 @@ class CollectionPresenter(GenericEditorPresenter):
         dms_string = ''
         try:
             if text != '' and text is not None:
-                self.view.widgets.east_radio.handler_block(self.east_toggle_signal_id)
+                east_radio = self.view.widgets.east_radio
+                east_radio.handler_block(self.east_toggle_signal_id)
                 if text[0] == '-':
                     self.view.widgets.west_radio.set_active(True)
                 else:
                     self.view.widgets.east_radio.set_active(True)
-                self.view.widgets.east_radio.handler_unblock(self.east_toggle_signal_id)
+                east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
@@ -809,6 +813,10 @@ class DonationPresenter(GenericEditorPresenter):
             donor_combo.set_active(0)
 
 
+    def start(self):
+        raise Exception('CollectionEditorPresenter cannot be started')
+
+
     def dirty(self):
         return self.model.dirty
 
@@ -844,7 +852,6 @@ class DonationPresenter(GenericEditorPresenter):
         self._set_date_from_text(full_text)
 
 
-    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
     def _set_date_from_text(self, text):
         if text == '':
             self.model.date = None
@@ -852,7 +859,7 @@ class DonationPresenter(GenericEditorPresenter):
                                 self.view.widgets.don_date_entry)
             return
 
-        m = self._date_regex.match(text)
+        m = _date_regex.match(text)
         dt = None # datetime
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
@@ -1077,8 +1084,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._set_acc_date_from_text(full_text)
 
 
-    _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
-
     def _set_acc_date_from_text(self, text):
         """
         """
@@ -1088,7 +1093,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                 self.view.widgets.acc_date_entry)
             return
 
-        m = self._date_regex.match(text)
+        m = _date_regex.match(text)
         dt = None # datetime
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
@@ -1096,7 +1101,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             dt = datetime(*ymd).date()
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
-        except:
+        except Exception:
 #            debug(traceback.format_exc())
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.acc_date_entry)
@@ -1196,7 +1201,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 debug('unknown source type: %s' % e)
                 raise
             if isinstance(new_source, type(self._original_source)):
-                self.model.source == self._original_source
+                self.model.source = self._original_source
             else:
                 self.model.source = new_source
         elif source_type is not None and self.model.source is None:
@@ -1304,6 +1309,9 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         @param model: Accession instance or None
         @param parent: the parent widget
         '''
+        # the view and presenter are created in self.start()
+        self.view = None
+        self.presenter = None
         if model is None:
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
@@ -1354,7 +1362,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             more_committed = e.start()
 
         if more_committed is not None:
-            committed = [self._committed]
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)
             else:
@@ -1388,8 +1395,6 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         else:
             self.view.widgets.acc_code_entry.grab_focus()
 
-        exc_msg = _("Could not commit changes.\n")
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
@@ -1517,21 +1522,21 @@ class SourceExpander(InfoExpander):
 
         if collection.latitude is not None:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+            lat_str = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lat_data', s)
+            self.set_widget_value('lat_data', lat_str)
 
         if collection.longitude is not None:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            s = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
+            long_str = '%.2f (%s %s\302\260%s"%.3f\') %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
-            self.set_widget_value('lon_data', s)
+            self.set_widget_value('lon_data', long_str)
 
-        v = collection.elevation
+        elevation = collection.elevation
 
         if collection.elevation_accy is not None:
-            v = '%s (+/- %sm)' % (v, collection.elevation_accy)
-        self.set_widget_value('elev_data', v)
+            elevation = '%s (+/- %sm)' % (elevation, collection.elevation_accy)
+        self.set_widget_value('elev_data', elevation)
 
         self.set_widget_value('coll_data', collection.collector)
         self.set_widget_value('date_data', collection.date)

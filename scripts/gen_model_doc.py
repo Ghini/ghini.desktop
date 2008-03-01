@@ -35,7 +35,7 @@ def column_type_str(col):
         return 'foreign key(int)'
 
 
-html_head='''<html><head>
+html_head = '''<html><head>
 <style>
 .table{
 padding-bottom: 10px;
@@ -85,8 +85,7 @@ for table in sorted(bauble.metadata.table_iterator(), key=lambda x: x.name):
         columns_str += column_template % s
 
     if columns_str != '':
-	columns_markup = columns_template % columns_str
-
+        columns_markup = columns_template % columns_str
 
     print table_template % ({'table_name': table.name,
 			     'columns': columns_markup})

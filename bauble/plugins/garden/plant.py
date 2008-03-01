@@ -609,8 +609,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
                   'the database before you can add species.\n\nWould you '\
                   'like to open the Location editor?'
             if utils.yes_no_dialog(msg):
-               e = LocationEditor()
-               return e.start()
+                e = LocationEditor()
+                return e.start()
         self.view = PlantEditorView(parent=self.parent)
         self.presenter = PlantEditorPresenter(self.model, self.view)
 
@@ -627,8 +627,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         else:
             self.view.widgets.plant_code_entry.grab_focus()
 
-        exc_msg = "Could not commit changes.\n"
-        committed = None
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state

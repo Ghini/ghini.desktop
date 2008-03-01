@@ -13,7 +13,7 @@ from sqlalchemy.orm import *
 import logging
 logging.basicConfig()
 
-#uri = 'sqlite:///:memory:'
+uri = 'sqlite:///:memory:'
 
 
 metadata = MetaData()
