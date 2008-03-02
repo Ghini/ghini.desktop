@@ -1162,6 +1162,9 @@ class SearchView(pluginmgr.View):
 
 def select_in_search_results(obj):
     """
+    @param obj: the object the select
+    @returns: a gtk.TreeIter to the selected row
+
     search the tree model for obj if it exists then select it if not
     then add it and select it
 
@@ -1169,16 +1172,21 @@ def select_in_search_results(obj):
     """
     assert obj != None, 'select_in_search_results: arg is None'
     view = bauble.gui.get_view()
-    if isinstance(view, SearchView):
-        model = view.results_view.get_model()
-        found = utils.search_tree_model(model, obj)
-        path = None
-        if len(found) > 0:
-            path = model.get_path(found[0])
-        else:
-            it = model.append(None, [obj])
-            path = model.get_path(it)
-        view.results_view.set_cursor(path)
+    if not isinstance(view, SearchView):
+        return None
+    model = view.results_view.get_model()
+    found = utils.search_tree_model(model, obj)
+    path = None
+    row_iter = None
+    if len(found) > 0:
+        row_iter = found[0]
+        path = model.get_path(row_iter)
+    else:
+        row_iter = model.append(None, [obj])
+        model.append(row_iter, ['-'])
+        path = model.get_path(row_iter)
+    view.results_view.set_cursor(path)
+    return row_iter
 
 
 class DefaultCommandHandler(pluginmgr.CommandHandler):

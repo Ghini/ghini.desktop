@@ -1516,6 +1516,14 @@ class SourceExpander(InfoExpander):
     def __init__(self, widgets):
         InfoExpander.__init__(self, _('Source'), widgets)
         self.curr_box = None
+        self.box_map = {Collection: (self.widgets.collections_box,
+                                     self.update_collections),
+                        Donation: (self.widgets.donations_box,
+                                   self.update_donations)}
+        self.current_obj = None
+        def on_donor_clicked(*args):
+            select_in_search_results(self.current_obj.donor)
+        utils.make_label_clickable(self.widgets.donor_data, on_donor_clicked)
 
 
     def update_collections(self, collection):
@@ -1554,10 +1562,11 @@ class SourceExpander(InfoExpander):
 
 
     def update_donations(self, donation):
-        #self.set_widget_value('donor_data', donation.donor)
+        self.current_obj = donation
         session = object_session(donation)
-        self.set_widget_value('donor_data',
-                              session.load(Donor, donation.donor_id))
+        donor_str = utils.xml_safe(unicode(session.load(Donor,
+                                                        donation.donor_id)))
+        self.set_widget_value('donor_data', donor_str)
         self.set_widget_value('donid_data', donation.donor_acc)
         self.set_widget_value('donnotes_data', donation.notes)
 
@@ -1571,14 +1580,7 @@ class SourceExpander(InfoExpander):
             self.set_sensitive(False)
             return
 
-        # TODO: i guess we are losing the references here to box map
-        # and so the widgets are getting destroyed, somehow we need to make
-        # this persistent, maybe make it class level
-        box_map = {Collection: (self.widgets.collections_box,
-                                self.update_collections),
-                   Donation: (self.widgets.donations_box,
-                              self.update_donations)}
-        box, update = box_map[value.__class__]
+        box, update = self.box_map[value.__class__]
         self.widgets.remove_parent(box)
         self.curr_box = box
         update(value)
