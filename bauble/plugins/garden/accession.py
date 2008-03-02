@@ -1488,8 +1488,9 @@ class GeneralAccessionExpander(InfoExpander):
         # TODO: i don't know why we can't just set the visible
         # property to False here
         acc_private = self.widgets.acc_private_data
-        if row.private or acc_private.parent != self.widgets.acc_code_box:
-            self.widgets.acc_code_box.pack_start(acc_private)
+        if row.private:
+            if acc_private.parent != self.widgets.acc_code_box:
+                self.widgets.acc_code_box.pack_start(acc_private)
         else:
             self.widgets.remove_parent(acc_private)
 
