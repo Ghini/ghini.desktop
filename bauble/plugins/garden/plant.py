@@ -640,7 +640,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
 import os
 import bauble.paths as paths
-from bauble.view  import InfoBox, InfoExpander, PropertiesExpander
+from bauble.view  import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results
+
 
 class GeneralPlantExpander(InfoExpander):
     """
@@ -655,46 +657,31 @@ class GeneralPlantExpander(InfoExpander):
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
         self.current_obj = None
-        name_button = self.widgets.name_data_button
-        name_button.set_focus_on_click(False)
-        name_button.connect('clicked', self.on_species_button_clicked)
 
+        def on_acc_code_clicked(*args):
+            select_in_search_results(self.current_obj.accession)
+        utils.make_label_clickable(self.widgets.acc_code_data,
+                                   on_acc_code_clicked)
 
-    def on_species_button_clicked(self, widget, *args):
-        """
-        search the tree model for species of self.current_obj, if it
-        exists then select it if not then add it and select it
-
-        the the species in not in the first level of the model then we
-        add it
-        """
-        if self.current_obj == None:
-            return
-        from bauble.view import SearchView
-        view = bauble.gui.get_view()
-        if isinstance(view, SearchView):
-            model = view.results_view.get_model()
-            species = self.current_obj.accession.species
-            found = utils.search_tree_model(model, species)
-            path = None
-            if len(found) > 0:
-                path = model.get_path(found[0])
-            else:
-                it = model.append(None, [species])
-                path = model.get_path(it)
-            view.results_view.set_cursor(path)
+        def on_species_clicked(*args):
+            select_in_search_results(self.current_obj.accession.species)
+        utils.make_label_clickable(self.widgets.name_data, on_species_clicked)
 
 
     def update(self, row):
         '''
         '''
         self.current_obj = row
-        self.set_widget_value('plant_code_data', '<big>%s</big>' % \
-                                  utils.xml_safe(unicode(row)))
-        name_button = self.widgets.name_data_button
-        name_button.child.set_markup('%s %s' % \
-             (row.accession.species.markup(True), row.accession.id_qual or ''))
+        acc_code = str(row.accession)
+        plant_code = str(row)
+        head, tail = plant_code[:len(acc_code)], plant_code[len(acc_code):]
 
+        self.set_widget_value('acc_code_data', '<big>%s</big>' % \
+                                                utils.xml_safe(unicode(head)))
+        self.set_widget_value('plant_code_data', '<big>%s</big>' % \
+                              utils.xml_safe(unicode(tail)))
+        self.set_widget_value('name_data', '%s %s' % \
+             (row.accession.species.markup(True), row.accession.id_qual or ''))
         self.set_widget_value('location_data',row.location.site)
         self.set_widget_value('status_data',
                          row.acc_status, False)

@@ -95,7 +95,7 @@ def vernname_markup_func(vernname):
     return str(vernname), vernname.species.markup(authors=False)
 
 
-from bauble.view import InfoBox, InfoExpander
+from bauble.view import InfoBox, InfoExpander, select_in_search_results
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
 
@@ -208,6 +208,11 @@ class GeneralSpeciesExpander(InfoExpander):
             button.emit_stop_by_name("enter-notify-event")
             return True
 
+        self.current_obj = None
+#         def on_genus_clicked(*args):
+#             select_in_search_results(self.current_obj.genus)
+#         utils.make_label_clickable(self.widgets.sp_genus_data, on_genus_clicked)
+
 
     def update(self, row):
         '''
@@ -215,14 +220,15 @@ class GeneralSpeciesExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        # TODO: get the genus string, match if in the species string
-        # and create a button from it so we can browse to the genus
+        # TODO: how do we put the genus is a seperate label so so it
+        # can be clickable but still respect the text wrap to wrap
+        # around and indent from the genus name instead of from the
+        # species name
         sp_str = row.markup(True)
         from textwrap import TextWrapper
         wrapper = TextWrapper(width=50, subsequent_indent='  ')
         new_str = wrapper.fill(sp_str)
         self.set_widget_value('sp_name_data', '<big>%s</big>' % new_str)
-#                               row.markup(True))
         nacc = sql_utils.count(accession_table,
                                accession_table.c.species_id==row.id)
         self.set_widget_value('sp_nacc_data', nacc)
