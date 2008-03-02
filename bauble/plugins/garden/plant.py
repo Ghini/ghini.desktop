@@ -119,25 +119,27 @@ class PlantHistory(bauble.BaubleMapper):
         return '%s: %s' % (self.date, self.description)
 
 
-"""
-acc_type
-------------
-Plant: Whole plant
-Seed/Spore: Seed or Spore
-Vegetative Part: Vegetative Part
-Tissue Culture: Tissue culture
-Other: Other, probably see notes for more information
-None: no information, unknown
+# TODO: where should i put the plant table's doc string
+#
+# """
+# acc_type
+# ------------
+# Plant: Whole plant
+# Seed/Spore: Seed or Spore
+# Vegetative Part: Vegetative Part
+# Tissue Culture: Tissue culture
+# Other: Other, probably see notes for more information
+# None: no information, unknown
 
-acc_status
--------------
-Living accession: Current accession in living collection
-Dead: Noncurrent accession due to Death
-Transfered: Noncurrent accession due to Transfer
-Stored in dormant state: Stored in dormant state
-Other: Other, possible see notes for more information
-None: no information, unknown)
-"""
+# acc_status
+# -------------
+# Living accession: Current accession in living collection
+# Dead: Noncurrent accession due to Death
+# Transfered: Noncurrent accession due to Transfer
+# Stored in dormant state: Stored in dormant state
+# Other: Other, possible see notes for more information
+# None: no information, unknown)
+# """
 
 plant_table = bauble.Table('plant', bauble.metadata,
                     Column('id', Integer, primary_key=True),

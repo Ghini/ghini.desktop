@@ -2,8 +2,8 @@
 # species.py
 #
 
-from species_editor import *
-from species_model import *
+from bauble.plugins.plants.species_editor import *
+from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch, \
      PropertiesExpander
 from bauble.i18n import _
