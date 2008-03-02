@@ -140,7 +140,6 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
 
 
 
-
 class SettingsBoxPresenter:
 
     def __init__(self, widgets):
