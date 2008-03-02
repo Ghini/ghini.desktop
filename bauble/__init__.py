@@ -10,7 +10,7 @@ import bauble.paths as paths
 from bauble.i18n import _
 
 # major, minor, revision version tuple
-version = (0, 8, '0rc2')
+version = (0, 8, 0)
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
