@@ -226,7 +226,7 @@ accession_table = bauble.Table('accession', bauble.metadata,
                                             'forsan', 'near', '?', None],
                                     empty_to_none=True)),
                         # "private" new in 0.8b2
-                        Column('private', Boolean),
+                        Column('private', Boolean, default=False),
                         Column('species_id', Integer, ForeignKey('species.id'),
                                nullable=False))
 
@@ -1471,6 +1471,7 @@ class GeneralAccessionExpander(InfoExpander):
         self.widgets.general_window.remove(general_box)
         self.vbox.pack_start(general_box)
         self.current_obj = None
+        self.private_image = self.widgets.acc_private_data
 
         def on_species_clicked(*args):
             select_in_search_results(self.current_obj.species)
@@ -1483,6 +1484,15 @@ class GeneralAccessionExpander(InfoExpander):
         self.current_obj = row
         self.set_widget_value('acc_code_data', '<big>%s</big>' % \
                               utils.xml_safe(row.code))
+
+        # TODO: i don't know why we can't just set the visible
+        # property to False here
+        acc_private = self.widgets.acc_private_data
+        if row.private or acc_private.parent != self.widgets.acc_code_box:
+            self.widgets.acc_code_box.pack_start(acc_private)
+        else:
+            self.widgets.remove_parent(acc_private)
+
         self.set_widget_value('name_data', '%s %s' % \
                               (row.species.markup(True), row.id_qual or '',))
 
