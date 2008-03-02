@@ -1160,6 +1160,25 @@ class SearchView(pluginmgr.View):
 #        '''
 #        pass
 
+def select_in_search_results(obj):
+    """
+    search the tree model for obj if it exists then select it if not
+    then add it and select it
+
+    the the obj is not in the first level of the model then we add it
+    """
+    assert obj != None, 'select_in_search_results: arg is None'
+    view = bauble.gui.get_view()
+    if isinstance(view, SearchView):
+        model = view.results_view.get_model()
+        found = utils.search_tree_model(model, obj)
+        path = None
+        if len(found) > 0:
+            path = model.get_path(found[0])
+        else:
+            it = model.append(None, [obj])
+            path = model.get_path(it)
+        view.results_view.set_cursor(path)
 
 
 class DefaultCommandHandler(pluginmgr.CommandHandler):

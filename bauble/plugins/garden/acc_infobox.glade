@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.0 on Sat Mar  1 17:04:28 2008 
+<!--Generated with glade3 3.4.0 on Sun Mar  2 12:48:01 2008 
 	Version: 3.0.1
 	Date: Sun Aug 27 10:57:55 2006
 	User: brett
@@ -12,12 +12,13 @@
     <child>
       <widget class="GtkVBox" id="general_box">
         <property name="visible">True</property>
+        <property name="spacing">5</property>
         <child>
           <widget class="GtkLabel" id="acc_code_data">
             <property name="visible">True</property>
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
             <property name="xalign">0</property>
-            <property name="xpad">5</property>
+            <property name="ypad">5</property>
             <property name="label" translatable="yes">&lt;i&gt;--&lt;/i&gt;</property>
             <property name="use_markup">True</property>
           </widget>
@@ -26,16 +27,18 @@
           </packing>
         </child>
         <child>
-          <widget class="GtkButton" id="name_data_button">
+          <widget class="GtkEventBox" id="eventbox1">
             <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="receives_default">True</property>
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-            <property name="label" translatable="yes">--</property>
-            <property name="relief">GTK_RELIEF_NONE</property>
-            <property name="focus_on_click">False</property>
-            <property name="xalign">0</property>
-            <property name="response_id">0</property>
+            <child>
+              <widget class="GtkLabel" id="name_data">
+                <property name="visible">True</property>
+                <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
+                <property name="use_markup">True</property>
+              </widget>
+            </child>
           </widget>
           <packing>
             <property name="expand">False</property>
@@ -50,19 +53,22 @@
             <property name="column_spacing">15</property>
             <property name="row_spacing">8</property>
             <child>
-              <widget class="GtkLabel" id="label1">
+              <widget class="GtkLabel" id="ver_data1">
                 <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Plants/Clones:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+                <property name="sensitive">False</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
               </widget>
               <packing>
-                <property name="x_options">GTK_FILL</property>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
                 <property name="y_options"></property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="nplants_data">
+              <widget class="GtkLabel" id="prov_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">--</property>
@@ -70,20 +76,8 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="label2">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Provenance:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
             </child>
@@ -103,31 +97,40 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="prov_data">
+              <widget class="GtkLabel" id="label2">
                 <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Provenance:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
               </widget>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="ver_data1">
+              <widget class="GtkLabel" id="nplants_data">
                 <property name="visible">True</property>
-                <property name="sensitive">False</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">--</property>
               </widget>
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Plants/Clones:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
             </child>
@@ -154,169 +157,16 @@
             <property name="column_spacing">10</property>
             <property name="row_spacing">8</property>
             <child>
-              <widget class="GtkLabel" id="loc_label">
+              <widget class="GtkLabel" id="date_data">
                 <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Location:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
               </widget>
               <packing>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="date_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Date collected:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="coll_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Collector:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
-                <property name="top_attach">4</property>
-                <property name="bottom_attach">5</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="collid_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Collection ID:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="elev_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Elevation:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lat_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Latitude:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lon_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Longitude:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="collid_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">6</property>
-                <property name="bottom_attach">7</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="loc_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lat_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="lon_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">2</property>
-                <property name="bottom_attach">3</property>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="elev_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">3</property>
-                <property name="bottom_attach">4</property>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -337,7 +187,7 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="date_data">
+              <widget class="GtkLabel" id="elev_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="label" translatable="yes">--</property>
@@ -345,8 +195,161 @@
               <packing>
                 <property name="left_attach">1</property>
                 <property name="right_attach">2</property>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="lon_data">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="lat_data">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="loc_data">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="collid_data">
+                <property name="visible">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
+              </widget>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">6</property>
+                <property name="bottom_attach">7</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="lon_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Longitude:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="lat_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Latitude:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="elev_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Elevation:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">3</property>
+                <property name="bottom_attach">4</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="collid_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Collection ID:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">6</property>
+                <property name="bottom_attach">7</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="coll_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Collector:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
+                <property name="top_attach">4</property>
+                <property name="bottom_attach">5</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="date_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Date collected:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
                 <property name="top_attach">5</property>
                 <property name="bottom_attach">6</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="loc_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Location:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>
@@ -463,25 +466,14 @@
             <property name="column_spacing">8</property>
             <property name="row_spacing">5</property>
             <child>
-              <widget class="GtkLabel" id="don_label">
+              <widget class="GtkLabel" id="donid_data">
                 <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Donor:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
+                <property name="xalign">0</property>
+                <property name="label" translatable="yes">--</property>
               </widget>
               <packing>
-                <property name="x_options">GTK_FILL</property>
-                <property name="y_options"></property>
-              </packing>
-            </child>
-            <child>
-              <widget class="GtkLabel" id="donid_label">
-                <property name="visible">True</property>
-                <property name="xalign">1</property>
-                <property name="label" translatable="yes">&lt;b&gt;Donor's ID:&lt;/b&gt;</property>
-                <property name="use_markup">True</property>
-              </widget>
-              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
                 <property name="x_options">GTK_FILL</property>
@@ -502,16 +494,27 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkLabel" id="donid_data">
+              <widget class="GtkLabel" id="donid_label">
                 <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Donor's ID:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
               </widget>
               <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
                 <property name="top_attach">1</property>
                 <property name="bottom_attach">2</property>
+                <property name="x_options">GTK_FILL</property>
+                <property name="y_options"></property>
+              </packing>
+            </child>
+            <child>
+              <widget class="GtkLabel" id="don_label">
+                <property name="visible">True</property>
+                <property name="xalign">1</property>
+                <property name="label" translatable="yes">&lt;b&gt;Donor:&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </widget>
+              <packing>
                 <property name="x_options">GTK_FILL</property>
                 <property name="y_options"></property>
               </packing>

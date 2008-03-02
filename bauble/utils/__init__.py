@@ -538,3 +538,29 @@ def date_to_str(date, format):
     return s
 
 
+def make_label_clickable(label, on_clicked):
+    """
+    @param label: must have an eventbox as its parent
+    @param on_clicked: callback to be called when the label is clicked
+    on_clicked(label, event, data)
+    """
+    eventbox = label.parent
+    assert eventbox != None and isinstance(eventbox, gtk.EventBox), \
+           'label must have an gtk.EventBox as it\'s parent'
+    label.__pressed = False
+    def on_enter_notify(*args):
+        label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))
+    def on_leave_notify(*args):
+        label.modify_fg(gtk.STATE_NORMAL, None)
+        label.__pressed = False
+    def on_press(*args):
+        label.__pressed = True
+    def on_release(widget, event, data=None):
+        if label.__pressed:
+            label.__pressed = False
+            label.modify_fg(gtk.STATE_NORMAL, None)
+            on_clicked(label, event, data)
+    eventbox.connect('enter_notify_event', on_enter_notify)
+    eventbox.connect('leave_notify_event', on_leave_notify)
+    eventbox.connect('button_press_event', on_press)
+    eventbox.connect('button_release_event', on_release)

@@ -95,16 +95,18 @@ class TagTests(TagTestCase):
         # test we only return the ids the objects have in common
         sel = select([tag_table.c.id], tag_table.c.tag==u'test')
         test_id = [r[0] for r in sel.execute()]
+        # should only return id for "test"
         ids = tag_plugin.get_tag_ids([fam1, fam2])
         self.assert_(ids==test_id, ids)
 
         # test that we return multiple tag ids if the objs share tags
-        tag_plugin.tag_objects('test2', [fam1])
+        tag_plugin.tag_objects('test2', [fam2])
         sel = select([tag_table.c.id], or_(tag_table.c.tag==u'test',
                                            tag_table.c.tag==u'test2'))
         test_id = [r[0] for r in sel.execute()]
+        # should return ids for both test and test2
         ids = tag_plugin.get_tag_ids([fam1, fam2])
-        self.assert_(ids==test_id, ids)
+        self.assert_(ids==test_id, '%s == %s' % (ids, test_id))
 
 
 class TagTestSuite(unittest.TestSuite):
