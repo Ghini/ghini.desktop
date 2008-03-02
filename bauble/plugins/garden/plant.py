@@ -355,7 +355,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         def format_acc(accession):
             return '%s (%s)' % (accession, accession.species)
         def set_in_model(self, field, accession):
-            setattr(self.model, field, value)
+            setattr(self.model, field, accession)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
             self._set_plant_code_from_text(self.model.code)
