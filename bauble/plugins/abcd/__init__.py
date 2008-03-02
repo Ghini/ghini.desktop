@@ -67,7 +67,7 @@ def verify_institution(institution):
 namespaces = {'abcd': 'http://www.tdwg.org/schemas/abcd/2.06'}
 
 
-def ABCDElement(parent, name, text=None, attrib={}):
+def ABCDElement(parent, name, text=None, attrib=None):
     """
     create an ABCDElement, must be a subelement
     @param parent:
@@ -75,6 +75,8 @@ def ABCDElement(parent, name, text=None, attrib={}):
     @param text:
     @param attrib:
     """
+    if attrib == None:
+        attrib = {}
     el = SubElement(parent, '{%s}%s' % (namespaces['abcd'], name),
                     nsmap=namespaces, attrib=attrib)
     el.text = text

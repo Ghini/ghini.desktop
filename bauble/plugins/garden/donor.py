@@ -200,7 +200,6 @@ class DonorEditor(GenericModelViewPresenterEditor):
                     self.commit_changes()
                     self._committed.append(self.model)
             except SQLError, e:
-                exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s' \
                         % utils.xml_safe_utf8(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
@@ -241,7 +240,6 @@ class DonorEditor(GenericModelViewPresenterEditor):
         self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
-        exc_msg = "Could not commit changes.\n"
         while True:
             response = self.presenter.start()
             self.view.save_state() # should view or presenter save state
