@@ -13,7 +13,7 @@ from sqlalchemy import *
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils.log import log, debug
 import Queue
@@ -32,7 +32,7 @@ from bauble.plugins.imex.xml import XMLExportTool, XMLExportCommandHandler
 # table.insert().execute(*list) statement or it will fill in values for
 # missing columns so that all columns will have some value
 
-class ImexPlugin(plugin.Plugin):
+class ImexPlugin(pluginmgr.Plugin):
     tools = [CSVImportTool, CSVExportTool, XMLExportTool]
     commands = [CSVExportCommandHandler, CSVImportCommandHandler,
                 XMLExportCommandHandler]

@@ -41,12 +41,12 @@ def register_command(handler):
     global commands
     if isinstance(handler.command, str):
         if handler.command in commands:
-            raise ValueError(_('%s already registred' % handler.command))
+            raise ValueError(_('%s already registered' % handler.command))
         commands[handler.command] = handler
     else:
         for cmd in handler.command:
             if cmd in commands:
-                raise ValueError(_('%s already registred' % cmd))
+                raise ValueError(_('%s already registered' % cmd))
             commands[cmd] = handler
 
 
@@ -166,7 +166,12 @@ def load(path=None):
     # register commands
     for plugin in found:
         for cmd in plugin.commands:
-            register_command(cmd)
+            try:
+                register_command(cmd)
+            except Exception, e:
+                msg = 'Error: Could not register command handler.\n\n%s' % \
+                    utils.xml_safe(str(e))
+                utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
     return []
 
