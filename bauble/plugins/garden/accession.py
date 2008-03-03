@@ -979,6 +979,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
         self.init_source_expander()
         self.refresh_view() # put model values in view
+        self._source_box_map = {'Donation': self.view.widgets.donation_box,
+                                'Collection': self.view.widgets.collection_box}
 
         # connect signals
         def sp_get_completions(text):
@@ -1181,13 +1183,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         # FIXME: Donation and Collection shouldn't be hardcoded so that it
         # can be translated
+        #
         # TODO: if source_type is set and self.model.source is None then create
         # a new empty source object and attach it to the model
-        #
-        # this helps keep a reference to the widgets so they don't get
-        # destroyed
-        box_map = {'Donation': self.view.widgets.donation_box,
-                   'Collection': self.view.widgets.collection_box}
+
         source_class_map = {'Donation': Donation,
                             'Collection': Collection}
 
@@ -1220,7 +1219,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if self.current_source_box is not None:
             self.view.widgets.remove_parent(self.current_source_box)
         if source_type is not None:
-            self.current_source_box = box_map[source_type]
+            self.current_source_box = self._source_box_map[source_type]
             self.view.widgets.remove_parent(self.current_source_box)
             source_box_parent.add(self.current_source_box)
         else:
@@ -1336,6 +1335,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -1344,6 +1344,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
+                self.session.rollback()
                 return False
         elif self.presenter.dirty() \
                  and utils.yes_no_dialog(not_ok_msg) \

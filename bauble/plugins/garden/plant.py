@@ -562,6 +562,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % e.orig
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -570,6 +571,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
+                self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
             self.session.rollback()
