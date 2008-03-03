@@ -154,6 +154,3 @@ try:
 except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
                          'XML Import/Exporter plugin')
-else:
-#    plugin = XMLImexPlugin
-    pass
