@@ -171,7 +171,7 @@ def default_completion_cell_data_func(column, renderer, model, iter,data=None):
     GenericEditorView.attach_completions
     '''
     v = model[iter][0]
-    renderer.set_property('markup', str(v))
+    renderer.set_property('markup', unicode(v))
 
 
 def default_completion_match_func(completion, key_string, iter):
@@ -563,7 +563,7 @@ class GenericEditorPresenter(object):
                                    get_completions,
                                    set_func=lambda self, f, v: \
                                       setattr(self.model, f, v),
-                                   format_func=lambda x: str(x),
+                                   format_func=lambda x: unicode(x),
                                    model=None):
         """
         assign_completions_handler assumes that when you select a
@@ -576,7 +576,7 @@ class GenericEditorPresenter(object):
         the completions, the default is:
                        lambda self, f, v: setattr(self.model, f, v)
         @param format_func: the func to call to format the value in the
-            completion, the default is lambda x: str(x)
+            completion, the default is lambda x: unicode(x)
         @param model: the model to set for the completions, if None then
         use self.model, should be able to access field as an attribute
         of model
