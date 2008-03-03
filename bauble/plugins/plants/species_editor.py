@@ -62,13 +62,29 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = genus_table.c.genus.like('%s%%' % text)
+            clause = or_(genus_table.c.genus.like('%s%%' % unicode(text)),
+                         genus_table.c.hybrid.like('%s%%' % unicode(text)))
             return self.session.query(Genus).filter(clause)
+
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('sp_genus_entry', 'genus',
                                         gen_get_completions,
                                         set_func=set_in_model)
+
+        # set the completion match func so we match against both
+        # str(genus) and str(genus.genus) so that we catch the genera
+        # with hybrid flags in their name when only entering the genus
+        # name
+        compl = self.view.widgets.sp_genus_entry.get_completion()
+        def match_func(completion, key, iter, data=None):
+            genus = completion.get_model()[iter][0]
+            if str(genus).lower().startswith(key.lower()) \
+               or str(genus.genus).lower().startswith(key.lower()):
+                return True
+            return False
+        compl.set_match_func(match_func)
+
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
@@ -859,13 +875,13 @@ class SpeciesEditorView(GenericEditorView):
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
 
-    def _lower_completion_match_func(self, completion, key_string, iter,
-                                    data=None):
-        '''
-        the only thing this does different is it make the match case insensitve
-        '''
-        value = completion.get_model()[iter][0]
-        return str(value).lower().startswith(key_string.lower())
+#     def _lower_completion_match_func(self, completion, key_string, iter,
+#                                     data=None):
+#         '''
+#         the only thing this does different is it make the match case insensitve
+#         '''
+#         value = completion.get_model()[iter][0]
+#         return str(value).lower().startswith(key_string.lower())
 
 
     def genus_completion_cell_data_func(self, column, renderer, model, iter,

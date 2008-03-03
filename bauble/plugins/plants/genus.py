@@ -399,7 +399,8 @@ class SynonymsPresenter(GenericEditorPresenter):
             v = model[iter][0]
             syn = v.synonym
             cell.set_property('markup', '<i>%s</i> %s (<small>%s</small>)' \
-                              % (Genus.str(syn), syn.author,
+                              % (Genus.str(syn),
+                                 utils.xml_safe(unicode(syn.author)),
                                  Family.str(syn.family)))
             # set background color to indicate its new
             if v.id is None:
@@ -700,7 +701,7 @@ class GeneralGenusExpander(InfoExpander):
         @param row: the row to get the values from
         '''
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
-                                  (row, utils.xml_safe(row.author)))
+                                  (row, utils.xml_safe(unicode(row.author))))
 
         # get the number of species
         species_ids = select([species_table.c.id],
