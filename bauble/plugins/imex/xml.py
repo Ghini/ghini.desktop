@@ -9,7 +9,7 @@ from sqlalchemy import *
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils import xml_safe
 from bauble.utils.log import log, debug
@@ -120,7 +120,7 @@ class XMLExporter:
 
 
 
-class XMLExportCommandHandler(plugin.CommandHandler):
+class XMLExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'exxml'
 
@@ -133,8 +133,7 @@ class XMLExportCommandHandler(plugin.CommandHandler):
 
 
 
-class XMLExportTool(plugin.Tool):
-
+class XMLExportTool(pluginmgr.Tool):
     category = "Export"
     label = "XML"
 
@@ -145,7 +144,7 @@ class XMLExportTool(plugin.Tool):
 
 
 
-class XMLImexPlugin(plugin.Plugin):
+class XMLImexPlugin(pluginmgr.Plugin):
     tools = [XMLExportTool]
     commands = [XMLExportCommandHandler]
 
@@ -156,4 +155,5 @@ except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
                          'XML Import/Exporter plugin')
 else:
-    plugin = XMLImexPlugin
+#    plugin = XMLImexPlugin
+    pass
