@@ -72,19 +72,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                                         gen_get_completions,
                                         set_func=set_in_model)
 
-        # set the completion match func so we match against both
-        # str(genus) and str(genus.genus) so that we catch the genera
-        # with hybrid flags in their name when only entering the genus
-        # name
-        compl = self.view.widgets.sp_genus_entry.get_completion()
-        def match_func(completion, key, iter, data=None):
-            genus = completion.get_model()[iter][0]
-            if str(genus).lower().startswith(key.lower()) \
-               or str(genus.genus).lower().startswith(key.lower()):
-                return True
-            return False
-        compl.set_match_func(match_func)
-
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
@@ -852,7 +839,8 @@ class SpeciesEditorView(GenericEditorView):
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('sp_genus_entry',
-                               self.genus_completion_cell_data_func)
+                               self.genus_completion_cell_data_func,
+                               match_func=self.genus_match_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.species_dialog)
@@ -866,6 +854,19 @@ class SpeciesEditorView(GenericEditorView):
     window = property(_get_window)
 
 
+    def genus_match_func(self, completion, key, iter, data=None):
+        """
+        match against both str(genus) and str(genus.genus) so that we
+        catch the genera with hybrid flags in their name when only
+        entering the genus name
+        """
+        genus = completion.get_model()[iter][0]
+        if str(genus).lower().startswith(key.lower()) \
+               or str(genus.genus).lower().startswith(key.lower()):
+            return True
+        return False
+
+
     def set_accept_buttons_sensitive(self, sensitive):
         '''
         set the sensitivity of all the accept/ok buttons for the editor dialog
@@ -873,15 +874,6 @@ class SpeciesEditorView(GenericEditorView):
         self.widgets.sp_ok_button.set_sensitive(sensitive)
         self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
         self.widgets.sp_next_button.set_sensitive(sensitive)
-
-
-#     def _lower_completion_match_func(self, completion, key_string, iter,
-#                                     data=None):
-#         '''
-#         the only thing this does different is it make the match case insensitve
-#         '''
-#         value = completion.get_model()[iter][0]
-#         return str(value).lower().startswith(key_string.lower())
 
 
     def genus_completion_cell_data_func(self, column, renderer, model, iter,

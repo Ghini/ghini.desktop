@@ -359,7 +359,8 @@ class AccessionEditorView(GenericEditorView):
         self.dialog = self.widgets.accession_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('acc_species_entry',
-                               cell_data_func=self.species_cell_data_func)
+                               cell_data_func=self.species_cell_data_func,
+                               match_func=self.species_match_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.accession_dialog)
 
@@ -376,6 +377,13 @@ class AccessionEditorView(GenericEditorView):
         if sys.platform == 'win32':
             self.do_win32_fixes()
 
+
+    def species_match_func(self, completion, key, iter, data=None):
+        species = completion.get_model()[iter][0]
+        if str(species).lower().startswith(key.lower()) \
+               or str(species.genus.genus).lower().startswith(key.lower()):
+            return True
+        return False
 
     def do_win32_fixes(self):
         import pango
@@ -987,11 +995,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             query = self.session.query(Species)
             return query.filter(and_(species_table.c.genus_id == \
                                      genus_table.c.id,
-                                     genus_table.c.genus.like('%s%%' % text)))
-
+                                or_(genus_table.c.genus.like('%s%%' % text),
+                                    genus_table.c.hybrid==text)))
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
-
         self.assign_completions_handler('acc_species_entry', 'species',
                                         sp_get_completions,
                                         set_func=set_in_model)
