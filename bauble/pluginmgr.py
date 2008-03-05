@@ -11,11 +11,14 @@
 
 # TODO: need a way to register editors with the insert menu
 
+# TODO: don't completely blow up if there is a problem with on plugin,
+# e.g. don't ask if you want to remove all the other plugins unless
+# the plugin is dependent on the bad one
+
 import os
 import sys
 import traceback
 import re
-import shelve
 import inspect
 import gobject, gtk
 from sqlalchemy import *
