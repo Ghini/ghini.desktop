@@ -391,6 +391,8 @@ def utf8(obj):
     '''
     return a unicode object representation of obj
     '''
+    # TODO: check that this is actually correct, what if obj is
+    # already a unicode object
     return unicode(str(obj), 'utf-8')
 
 

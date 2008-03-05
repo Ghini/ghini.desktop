@@ -221,14 +221,17 @@ class GenusEditorView(GenericEditorView):
         self.restore_state()
 
 
-    def syn_cell_data_func(self, column, renderer, model, iter,
-                                         data=None):
+    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
         '''
         '''
         v = model[iter][0]
+        author = None
+        if v.author is None:
+            author = ''
+        else:
+            author = utils.xml_safe(unicode(v.author))
         renderer.set_property('markup', '<i>%s</i> %s (<small>%s</small>)' \
-                              % (Genus.str(v), utils.xml_safe(v.author),
-                                 Family.str(v.family)))
+                              % (Genus.str(v), author, Family.str(v.family)))
 
 
     def save_state(self):
