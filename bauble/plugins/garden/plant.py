@@ -671,6 +671,11 @@ class GeneralPlantExpander(InfoExpander):
             select_in_search_results(self.current_obj.accession.species)
         utils.make_label_clickable(self.widgets.name_data, on_species_clicked)
 
+        def on_location_clicked(*args):
+            select_in_search_results(self.current_obj.location)
+        utils.make_label_clickable(self.widgets.location_data,
+                                   on_location_clicked)
+
 
     def update(self, row):
         '''
