@@ -53,18 +53,6 @@ tag_context_menu = [#('Edit', edit_callback),
                     ('Remove', remove_callback)]
 
 
-## ****** __mapping and register_mapping is not longer necessary and
-## is just left for now to ease transistion
-__mappings = {}
-def register_mapping(mapping):
-    """
-    @param mapping:
-    """
-
-    pass
-
-
-
 class TagItemGUI:
     '''
     interface for tagging individual items in the results of the SearchView
@@ -416,6 +404,10 @@ def _on_add_tag_activated(*args):
 
 def _tag_menu_item_activated(widget, tag_name):
     bauble.gui.send_command('tag="%s"' % tag_name)
+    from bauble.view import SearchView
+    view = bauble.gui.get_view()
+    if isinstance(view, SearchView):
+        view.results_view.expand_to_path('0')
 
 
 
