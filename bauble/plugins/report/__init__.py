@@ -23,9 +23,6 @@ from bauble.plugins.garden import Accession, accession_table, Plant, \
 from bauble.plugins.tag import Tag
 from bauble.utils.log import debug, warning
 
-# BUGS:
-# https://bugs.launchpad.net/bauble/+bug/146998 - Don't hardcode how to get the plants in report plugin
-
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
 
@@ -33,17 +30,16 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.default'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
-# TODO: can we create some sort of select distinct query from all
-# these conditions instead of getting all the ids and then going
-# through them to find which ones are distinct....see
-# sqlalchemy.intersect and how we use it in
-# tag.get_plugin_ids....actually this probably won't work since all
-# the values in the dict can be callables and not just select
-# statements.....UPDATE: we now use the builtin set() type which is pretty
-# damn fast so trying to create some complicated select statement is probably
-# unecessary unless we are creating reports with excess of 50000 records
 
 def _get_all_object_ids(table, queries, objs):
+    """
+    @param table: the table to query
+    @param queries: a map of type(obj) to select or callable
+    @param objs: the list of objects to use to find table
+
+    This function tries to find all the column ids in table that can be
+    derived from the objects in the [objs] list using the [queries] dict.
+    """
     ids = set()
     from sqlalchemy.sql.expression import FromClause, ClauseElement
     for obj in objs:
