@@ -106,6 +106,10 @@ class SpeciesABCDAdapter(ABCDAdapter):
         # invalid XML file
         etree.SubElement(unit, 'distribution').text=\
                                self.species.distribution_str()
+        if self.species.notes is not None:
+            ABCDElement(unit, 'Notes',
+                        text=utils.xml_safe(unicode(self.species.notes)))
+
 
 class PlantABCDAdapter(SpeciesABCDAdapter):
     """
@@ -124,6 +128,9 @@ class PlantABCDAdapter(SpeciesABCDAdapter):
         bg_unit = ABCDElement(unit, 'BotanicalGardenUnit')
         ABCDElement(bg_unit, 'LocationInGarden',
                     text=utils.xml_safe_utf8(str(self.plant.location)))
+        if self.plant.notes is not None:
+            ABCDElement(unit, 'Notes',
+                        text=utils.xml_safe(unicode(self.plant.notes)))
         super(PlantABCDAdapter, self).extra_elements(unit)
 
 
@@ -138,6 +145,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
     def get_UnitID(self):
         return utils.xml_safe_utf8(str(self.accession))
 
+
+    def extra_elements(self, unit):
+        if self.accession.notes is not None:
+            ABCDElement(unit, 'Notes',
+                        text=utils.xml_safe(unicode(self.accession.notes)))
+        super(AccessionABCDAdapter, self).extra_elements(unit)
 
 
 class SettingsBoxPresenter:
