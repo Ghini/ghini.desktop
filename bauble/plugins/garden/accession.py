@@ -116,10 +116,10 @@ def remove_callback(value):
                 'Are you sure you want to remove accession <b>%s</b>?') % \
                 (len(value.plants),
                  utils.xml_safe_utf8(', '.join(map(utils.utf8, value.plants))),
-                 utils.xml_safe_utf8(value))
+                 utils.xml_safe_utf8(unicode(value)))
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-              (utils.xml_safe_utf8(value))
+                  utils.xml_safe_utf8(unicode(value))
     if not utils.yes_no_dialog(msg):
         return
     try:
@@ -128,7 +128,7 @@ def remove_callback(value):
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(unicode(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
     return True
@@ -148,7 +148,7 @@ def acc_markup_func(acc):
     else:
         sp_str = '%s %s' % (acc.species.markup(authors=False),
                             acc.id_qual)
-    return utils.xml_safe_utf8(acc), sp_str
+    return utils.xml_safe_utf8(unicode(acc)), sp_str
 
 
 
@@ -1340,14 +1340,14 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                     self._committed.append(self.model)
             except SQLError, e:
                 msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(e.orig)
+                      utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
-                      'details for more information.\n\n%s') \
-                      % utils.xml_safe_utf8(e)
+                        'details for more information.\n\n%s') \
+                        % utils.xml_safe_utf8(e)
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
@@ -1491,7 +1491,7 @@ class GeneralAccessionExpander(InfoExpander):
         '''
         self.current_obj = row
         self.set_widget_value('acc_code_data', '<big>%s</big>' % \
-                              utils.xml_safe(row.code))
+                              utils.xml_safe(unicode(row.code)))
 
         # TODO: i don't know why we can't just set the visible
         # property to False here
