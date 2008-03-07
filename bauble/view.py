@@ -1001,9 +1001,8 @@ class SearchView(pluginmgr.View):
         '''
         expanded_rows = []
         self.results_view.map_expanded_rows(lambda view, path: expanded_rows.append(gtk.TreeRowReference(view.get_model(), path)))
-        # if we don't reverse them before returning them then looping over
-        # them to reexpand them may cause paths that are 'lower' in the tree
-        # have invalid paths
+        # seems to work better if we passed the reversed rows to
+        # self.expand_to_all_refs
         expanded_rows.reverse()
         return expanded_rows
 
@@ -1011,13 +1010,13 @@ class SearchView(pluginmgr.View):
     def expand_to_all_refs(self, references):
         '''
         @param references: a list of TreeRowReferences to expand to
+
+        Note: This method calls get_path() on each
+        gtk.TreeRowReference in <references> which apparently
+        invalidates the reference.
         '''
         for ref in references:
             if ref.valid():
-                # use expand_to_path instead of expand_row b/c then the other
-                # references that are 'lower' in the tree may have invalid
-                # paths, which seems like the opposite of what tree row
-                # reference is meant to do
                 self.results_view.expand_to_path(ref.get_path())
 
 
@@ -1030,9 +1029,6 @@ class SearchView(pluginmgr.View):
         # happened, make that that selection and then popup the menu,
         # see the pygtk FAQ about this at
         #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
-        # TODO: SLOW -- it can be really slow if the callback method
-        # changes the model(or what if it doesn't) and the view has to be
-        # refreshed from a large dataset
         if event.button != 3:
             return # if not right click then leave
 
@@ -1065,7 +1061,7 @@ class SearchView(pluginmgr.View):
                                                         traceback.format_exc(),
                                                          gtk.MESSAGE_ERROR)
                             debug(traceback.format_exc())
-                        if result is not None:
+                        if result:
                             self.reset_view()
                     item = gtk.MenuItem(label)
                     item.connect('activate', on_activate, func)
@@ -1082,22 +1078,24 @@ class SearchView(pluginmgr.View):
         reexpand the rows to the previous state where possible and
         update the infobox
         """
+        # TODO: we should do some profiling to see how this method
+        # performs on large datasets
+        model, paths = self.results_view.get_selection().get_selected_rows()
+        ref = gtk.TreeRowReference(model, paths[0])
         for obj in self.session:
             try:
-#                 debug('expire: %s(%s)' % (obj, repr(obj)))
                 self.session.expire(obj)
             except saexc.InvalidRequestError, e:
-                # find the object in the tree and remove it, this
-                # could get expensive if there are a lot of items in
-                # the tree
-#                 debug(e)
-                for found in utils.search_tree_model(model, obj):
-#                     debug('found %s: %s' % (found, model[found][0]))
                     model.remove(found)
         expanded_rows = self.get_expanded_rows()
         self.results_view.collapse_all()
+        # expand_to_all_refs will invalidate the ref so get the path first
+        path = None
+        if ref.valid():
+            path = ref.get_path()
         self.expand_to_all_refs(expanded_rows)
-        self.update_infobox()
+        self.results_view.set_cursor(path)
+
 
 
     def on_view_row_activated(self, view, path, column, data=None):

@@ -982,13 +982,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
         self.source_presenter = None
+        self._source_box_map = {'Donation': self.view.widgets.donation_box,
+                                'Collection': self.view.widgets.collection_box}
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
         self.init_source_expander()
         self.refresh_view() # put model values in view
-        self._source_box_map = {'Donation': self.view.widgets.donation_box,
-                                'Collection': self.view.widgets.collection_box}
+
 
         # connect signals
         def sp_get_completions(text):
