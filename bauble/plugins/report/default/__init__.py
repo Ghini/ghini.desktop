@@ -146,10 +146,24 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         return utils.xml_safe_utf8(str(self.accession))
 
 
+    # TODO: these values should probably alse be added for the PlantABCDAdapter
+    def donation_extra_elements(self, unit):
+        pass
+    def collection_extra_elements(self, unit):
+        pass
     def extra_elements(self, unit):
         if self.accession.notes is not None:
             ABCDElement(unit, 'Notes',
                         text=utils.xml_safe(unicode(self.accession.notes)))
+        if self.accession.source_type == 'Collection':
+            # see ABCD/Unit/Gathering, CollectorsFieldNumber
+            self.collection_extra_elements(unit)
+        elif self.accession.source_type == 'Donation':
+            # see DonorCategory, DecodedDonorInstitute
+            self.donation_extra_elements(unit)
+        else:
+            # TODO: what should we do here
+            pass
         super(AccessionABCDAdapter, self).extra_elements(unit)
 
 
