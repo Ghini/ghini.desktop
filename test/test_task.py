@@ -8,7 +8,6 @@ import bauble
 import bauble.pluginmgr as pluginmgr
 import bauble.meta as meta
 import bauble.task
-import bauble.utils.gtasklet as gtasklet
 from bauble.utils.log import debug
 import gtk
 
@@ -17,18 +16,20 @@ import gtk
 # can get rid of gtasklet once and for all
 
 def example_task(monitor):
-    timeout = gtasklet.WaitForTimeout(1000)
-    msgwait = gtasklet.WaitForMessages(accept='quit')
+#    timeout = gtasklet.WaitForTimeout(1000)
+#    msgwait = gtasklet.WaitForMessages(accept='quit')
     for i in range(1, 10):
         debug(i)
-        yield timeout
+        yield # timeout
         gtasklet.get_event()
         try:
             if i == 2:
                 #raise Exception
                 pass
-        except:
-            gtasklet.WaitForMessages(accept='quit')
+        except Exception, e:
+            return
+    return
+            #gtasklet.WaitForMessages(accept='quit')
     #for i in xrange(10, 0, -1):
 #        dialog.format_secondary_markup("Time left: <b>%i</b> seconds" % i)
 #        yield timeout, msgwait
@@ -39,7 +40,7 @@ def example_task(monitor):
 #            pass
 #        else:
 #            raise AssertionError
-    yield gtasklet.Message('quit', dest=monitor)
+#    yield gtasklet.Message('quit', dest=monitor)
 
 class TaskTests(unittest.TestCase):
 
