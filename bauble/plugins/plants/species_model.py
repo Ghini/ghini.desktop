@@ -131,24 +131,20 @@ class Species(bauble.BaubleMapper):
             return None
         return self._default_vernacular_name.vernacular_name
     def _set_default_vernacular_name(self, vn):
+        if vn is None or self._default_vernacular_name:
+            del self.default_vernacular_name
+            return
         if vn not in self.vernacular_names:
-            self.names.append(vn)
-        if self._default_vernacular_name is not None:
-            utils.delete_or_expunge(self._default_vernacular_name)
-
+            self.vernacular_names.append(vn)
         d = DefaultVernacularName()
         d.vernacular_name = vn
         self._default_vernacular_name = d
-##     def _del_default_vernacular_name(self):
-##         """
-##         deleting the default vernacular name only removes the vernacular as
-##         the default and doesn't do anything to the vernacular name was the
-##         default
-##         """
-##         del self._default_vernacular_name
+    def _del_default_vernacular_name(self):
+        utils.delete_or_expunge(self._default_vernacular_name)
+        del self._default_vernacular_name
     default_vernacular_name = property(_get_default_vernacular_name,
-                                       _set_default_vernacular_name)
-#                                       _del_default_vernacular_name)
+                                       _set_default_vernacular_name,
+                                       _del_default_vernacular_name)
 
 
     def distribution_str(self):
@@ -384,13 +380,19 @@ mapper(SpeciesSynonym, species_synonym_table,
 # map vernaculuar name
 mapper(VernacularName, vernacular_name_table)
 
+# TODO: this had the _default backref before so that if a vernacular
+# named was orphaned then it would take the default_vernacular_name
+# with it, i'm not sure if this ever worked property but now we use
+# the collection_class=VNList on species.vernacular_names to
+# accomplish the same thing....is there a way to do this just with
+# cascading
 
 # map default vernacular name
 mapper(DefaultVernacularName, default_vernacular_name_table,
      properties = \
         {'vernacular_name':
          relation(VernacularName, uselist=False,
-                  backref=backref('__defaults', cascade='all, delete-orphan')
+#                  backref=backref('_default', cascade='all, delete-orphan')
                   )})
 
 
@@ -402,6 +404,23 @@ mapper(SpeciesDistribution, species_distribution_table,
                  primaryjoin=species_distribution_table.c.geography_id==geography_table.c.id,
                  uselist=False)})
 
+from sqlalchemy.orm.collections import collection
+
+class VNList(list):
+    """
+    A Collection class for Species.vernacular_names
+
+    This makes it possible to automatically remove a
+    default_vernacular_name if the vernacular_name is removed from the
+    list.
+    """
+    def remove(self, vn):
+        super(VNList, self).remove(vn)
+        try:
+            if vn.species.default_vernacular_name == vn:
+                del vn.species.default_vernacular_name
+        except Exception, e:
+            debug(e)
 
 # map species
 species_mapper = mapper(Species, species_table,
@@ -412,6 +431,7 @@ species_mapper = mapper(Species, species_table,
             cascade='all, delete-orphan', uselist=True, backref='species'),
          'vernacular_names':
          relation(VernacularName, cascade='all, delete-orphan',
+                  collection_class=VNList,
                   backref=backref('species', uselist=False)),
          '_default_vernacular_name':
          relation(DefaultVernacularName, uselist=False,
