@@ -195,6 +195,37 @@ class SpeciesTests(PlantTestCase):
         self.session.commit()
 
 
+    def test_default_vernacular_deleted(self):
+        sp = self.session.load(Species, 1)
+        sp.default_vernacular_name = sp.vernacular_names[0]
+        sp.default_vernacular_name = None
+        self.session.commit()
+
+        sp = self.session.load(Species, 1)
+        sp.default_vernacular_name = sp.vernacular_names[0]
+        del sp.default_vernacular_name
+        self.session.commit()
+
+
+    def test_delete_vn_propagates_to_default(self):
+        # test that when the vernacular name is orphaned it and any default
+        # vernacular names get deleted with it
+        sp = self.session.load(Species, 1)
+        vn = self.session.query(VernacularName)[0]
+
+        # append vernacular name to species and make it the default
+        sp.vernacular_names.append(vn)
+        sp.default_vernacular_name = vn
+        self.session.commit()
+        dvn_id = sp._default_vernacular_name.id
+        sp.vernacular_names.remove(vn)
+        self.session.commit()
+        self.assertRaises(InvalidRequestError,
+                          self.session.load, DefaultVernacularName, dvn_id)
+        self.assertEquals(sp.default_vernacular_name, None)
+
+
+
     def test_vernacular_name(self):
         '''
         test creating verncular names, attaching them to the species, setting
@@ -207,21 +238,8 @@ class SpeciesTests(PlantTestCase):
         # append vernacular name to species and make it the default
         sp.vernacular_names.append(vn)
         sp.default_vernacular_name = vn
-        self.session.flush()
+        self.session.commit()
         self.assert_(vn.species == sp)
-
-        # test that when the vernacular name is orphaned it and any default
-        # vernacular names get deleted with it
-        #sp.default_vernacular_name = vn
-        #session.flush()
-        dvn_id = sp._default_vernacular_name.id
-        vn_id = vn.id
-        sp.vernacular_names.remove(vn)
-        self.session.flush()
-        self.assertRaises(InvalidRequestError,
-                          self.session.load, VernacularName, vn_id)
-        self.assertRaises(InvalidRequestError,
-                          self.session.load, DefaultVernacularName, dvn_id)
 
 
 
@@ -302,6 +320,8 @@ class PlantTestSuite(unittest.TestSuite):
         super(PlantTestSuite, self).__init__()
         self.addTests(map(SpeciesTests, ('test_vernacular_name',
                                     'test_default_vernacular_changed_twice',
+                                    'test_default_vernacular_deleted',
+                                    'test_delete_vn_propagates_to_default',
                                     'test_string')))
         self.addTests(map(SynonymsTests, ('test_species_synonyms',)))
 
