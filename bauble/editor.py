@@ -395,7 +395,7 @@ class GenericEditorPresenter(object):
         raise NotImplementedError
 
 
-    def remove_problem(self, problem_id, problem_widgets):
+    def remove_problem(self, problem_id, problem_widgets=None):
         """
         remove problem_id from self.problems and reset the background color
         of the widget(s) in problem_widgets
@@ -409,7 +409,7 @@ class GenericEditorPresenter(object):
                 w.modify_bg(gtk.STATE_NORMAL, None)
                 w.modify_base(gtk.STATE_NORMAL, None)
                 w.queue_draw()
-        else:
+        elif problem_widgets is not None:
             problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
             problem_widgets.modify_base(gtk.STATE_NORMAL, None)
             problem_widgets.queue_draw()

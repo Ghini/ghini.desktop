@@ -12,7 +12,7 @@ from bauble.plugins.garden.plant import plant_table
 from bauble.plugins.garden.location import location_table
 from bauble.plugins.plants.family import family_table
 from bauble.plugins.plants.genus import genus_table
-from bauble.plugins.plants.species_model import species_table
+from bauble.plugins.plants.species_model import Species, species_table
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution
 
@@ -152,6 +152,7 @@ class AccessionTests(GardenTestCase):
         self.session.expire(acc)
         acc = self.session.load(Accession, 1)
         self.assertEquals(acc.source.id, donation.id)
+        self.assertEquals(acc.source_type, u'Donation')
 
         # create a new Donation and set that as the source, this should
         # delete the old donation object since it's an orphan,
@@ -162,17 +163,33 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, donation2.id)
+        self.assertEquals(acc.source_type, u'Donation')
 
         # make sure the old donation gets deleted since it's an orphan
         self.assertRaises(InvalidRequestError, self.session.load, Donation,
                           old_donation_id)
 
         # delete the source
+        donation = Donation()
+        donation.donor = donor
+        acc.source = donation
         acc.source = None
         self.session.flush()
         self.session.expire(acc)
         old_donation_id = donation2.id
         self.assertEquals(acc.source, None)
+        self.assertEquals(acc.source_type, None)
+
+        # delete the source 2
+        donation = Donation()
+        donation.donor = donor
+        acc.source = donation
+        del acc.source
+        self.session.flush()
+        self.session.expire(acc)
+        old_donation_id = donation2.id
+        self.assertEquals(acc.source, None)
+        self.assertEquals(acc.source_type, None)
 
         # make sure the orphaned donation get's deleted
         self.assertRaises(InvalidRequestError, self.session.load, Donation,
@@ -184,6 +201,7 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, collection.id)
+        self.assertEquals(acc.source_type, u'Collection')
 
         # changed source from collection to donation
         old_collection_id = collection.id
@@ -193,6 +211,7 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, donation3.id)
+        self.assertEquals(acc.source_type, u'Donation')
 
         # make sure the orphaned collection get's deleted
         self.assertRaises(InvalidRequestError, self.session.load, Collection,
@@ -205,6 +224,7 @@ class AccessionTests(GardenTestCase):
         self.session.flush()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, collection2.id)
+        self.assertEquals(acc.source_type, u'Collection')
 
         # change source without flushing
         donation4 = Donation()
@@ -219,6 +239,28 @@ class AccessionTests(GardenTestCase):
                           old_donation_id)
 
 
+    def test_double_commit(self):
+        """
+        This tests a Bug with SQLAlchemy that was tentatively fixed
+        after SQ 0.4.4 was released in r4264.  There is a reference to
+        this in the SA mailing list.
+
+        The bug is here just to check if this ever gets fixed.
+        """
+        import bauble.utils.log as log
+        sp = self.session.load(Species, 1)
+        acc = Accession()
+        self.session.save(acc)
+        acc.species = sp
+        acc.code = u"3"
+        donation = Donation()
+        acc.source = donation
+        try:
+            self.session.commit()
+        except IntegrityError:
+            self.session.rollback()
+            #self.session.commit()
+            self.assertRaises(InvalidRequestError, self.session.commit)
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
@@ -318,7 +360,8 @@ class GardenTestSuite(unittest.TestSuite):
         self.addTests(map(DMSConversionTests, ('test_dms_to_decimal',
                                                'test_decimal_to_dms',
                                                'test_parse_lat_lon')))
-        self.addTests(map(AccessionTests, ('test_set_source',)))
+        self.addTests(map(AccessionTests, ('test_set_source',
+                                           'test_double_commit')))
         self.addTests(map(DonorTests, ('test_delete_donor',)))
 
 
