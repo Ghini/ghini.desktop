@@ -5,6 +5,7 @@
 #
 
 import sys, re, os, traceback, math
+from random import random
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 import gtk, gobject
@@ -240,9 +241,9 @@ class Accession(bauble.BaubleMapper):
     def _get_source(self):
         if self.source_type is None:
             return None
-        elif self.source_type == 'Collection':
+        elif self.source_type == u'Collection':
             return self._collection
-        elif self.source_type == 'Donation':
+        elif self.source_type == u'Donation':
             return self._donation
         raise AssertionError(_('unknown source_type in accession: %s') % \
                              self.source_type)
@@ -257,7 +258,10 @@ class Accession(bauble.BaubleMapper):
         else:
             self.source_type = unicode(source.__class__.__name__)
             source._accession = self
-    source = property(_get_source, _set_source)
+    def _del_source(self):
+        self.source = None
+
+    source = property(_get_source, _set_source, _del_source)
 
 
     def markup(self):
@@ -499,9 +503,10 @@ class CollectionPresenter(GenericEditorPresenter):
 
     # TODO: could make the problems be tuples of an id and description to
     # be displayed in a dialog or on a label ala eclipse
-    PROBLEM_BAD_LATITUDE = 1
-    PROBLEM_BAD_LONGITUDE = 2
-    PROBLEM_INVALID_DATE = 3
+    PROBLEM_BAD_LATITUDE = random()
+    PROBLEM_BAD_LONGITUDE = random()
+    PROBLEM_INVALID_DATE = random()
+    PROBLEM_INVALID_LOCALE = random()
 
 
     def __init__(self, model, view, session):
@@ -548,6 +553,18 @@ class CollectionPresenter(GenericEditorPresenter):
         east_radio = self.view.widgets.east_radio
         self.east_toggle_signal_id = east_radio.connect('toggled',
                                             self.on_east_west_radio_toggled)
+
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+        if self.model.locale is None or self.model.locale in ('', u''):
+            self.add_problem(self.PROBLEM_INVALID_LOCALE)
+
+
+    def on_field_changed(self, model, field):
+        if self.model.locale is None or self.model.locale in ('', u''):
+            self.add_problem(self.PROBLEM_INVALID_LOCALE)
+        else:
+            self.remove_problem(self.PROBLEM_INVALID_LOCALE)
 
 
     def start(self):
@@ -787,7 +804,8 @@ class DonationPresenter(GenericEditorPresenter):
                            'donid_entry': 'donor_acc',
                            'donnotes_entry': 'notes',
                            'don_date_entry': 'date'}
-    PROBLEM_INVALID_DATE = 3
+    PROBLEM_INVALID_DATE = random()
+    PROBLEM_INVALID_DONOR = random()
 
     def __init__(self, model, view, session):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
@@ -820,6 +838,18 @@ class DonationPresenter(GenericEditorPresenter):
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
 #           donor('set_active(0)')
             donor_combo.set_active(0)
+
+        for field in self.widget_to_field_map.values():
+            self.model.add_notifier(field, self.on_field_changed)
+        if self.model.donor is None:
+            self.add_problem(self.PROBLEM_INVALID_DONOR)
+
+
+    def on_field_changed(self, model, field):
+        if self.model.donor is None:
+            self.add_problem(self.PROBLEM_INVALID_DONOR)
+        else:
+            self.remove_problem(self.PROBLEM_INVALID_DONOR)
 
 
     def start(self):
@@ -967,9 +997,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                            'acc_notes_textview': 'notes',
                            'acc_private_check': 'private'}
 
-
-    PROBLEM_INVALID_DATE = 3
-    PROBLEM_DUPLICATE_ACCESSION = 5
+    PROBLEM_INVALID_DATE = random()
+    PROBLEM_DUPLICATE_ACCESSION = random()
 
     def __init__(self, model, view):
         '''
@@ -1121,11 +1150,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
-#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
+##        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
+
+        # This method works on the assumption that
+        # source_presenter.on_field_changed is called before this
+        # method and adds and removes problems as necessary, if for
+        # some reason this isn't the case then this method would work
+        # as expected...TODO: add a test to make sure that the change
+        # notifiers are called in the expected order
         prov_sensitive = True
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
