@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # test imex plugins
 #
@@ -135,6 +136,9 @@ class ImexCSVTestCase(ImexTestCase):
 
     def test_unicode(self):
         from bauble.plugins.plants.geography import Geography, geography_table
+        # u'Gal\xe1pagos' is the unencoded unicode object,
+        # calling u.encode('utf-8') will convert the \xe1 to the a
+        # with an accent
         data = {'name': u'Gal\xe1pagos'}
         geography_table.insert().execute(data)
         query = self.session.query(Geography)
