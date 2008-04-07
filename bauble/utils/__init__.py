@@ -397,7 +397,7 @@ def utf8(obj):
     return obj
 
 
-def xml_safe(str, encoding='utf-8'):
+def xml_safe(obj, encoding='utf-8'):
     '''
     return a string with character entities escaped safe for xml, if the
     str paramater is a string a string is returned, if str is a unicode object
@@ -405,11 +405,13 @@ def xml_safe(str, encoding='utf-8'):
     '''
     # what about encodings.string_escape to escape strings
     # TODO: make sure this is correct
-    assert isinstance(str, basestring)
-    if isinstance(str, unicode):
-        return unicode(saxutils.escape(str.encode(encoding)), encoding)
+    #assert isinstance(obj, basestring)
+    if not isinstance(obj, basestring):
+        obj = unicode(obj)
+    if isinstance(obj, unicode):
+        return unicode(saxutils.escape(obj.encode(encoding)), encoding)
     else:
-        return saxutils.escape(str)
+        return saxutils.escape(obj)
 
 
 def xml_safe_utf8(obj):

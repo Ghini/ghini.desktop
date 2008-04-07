@@ -9,8 +9,9 @@ import imp, os, sys
 import bauble.paths as paths
 from bauble.i18n import _
 
+
 # major, minor, revision version tuple
-version = (0, 8, 1)
+version = (0, 8, 2)
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
@@ -101,7 +102,6 @@ conn_name = None
 import sqlalchemy as sa
 
 class Table(sa.Table):
-
     """
     All tables create created for use in Bauble should inherit from
     this Table class.
@@ -118,7 +118,6 @@ class Table(sa.Table):
 
 
 class BaubleMapper(object):
-
     """
     All mappers created for use with Bauble should inherit from this class.
     """
