@@ -528,6 +528,7 @@ class ReportTool(pluginmgr.Tool):
 
         except AssertionError, e:
             debug(e)
+            debug(traceback.format_exc())
             parent = None
             if hasattr(self, 'view') and hasattr(self.view, 'dialog'):
                 parent = self.view.dialog
