@@ -386,36 +386,45 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.destroy()
     return r
 
-
-def utf8(obj):
-    '''
-    return a unicode object representation of obj
-    '''
+def to_unicode(obj, encoding='utf-8'):
+    """
+    Return obj converted to unicode.  If obj is already a unicode
+    object it will no try to decode it to converted it to <encoding>
+    but will just return the original obj
+    """
     if isinstance(obj, basestring):
         if not isinstance(obj, unicode):
-            obj = unicode(obj, 'utf-8')
+            obj = unicode(obj, encoding)
+    else:
+        try:
+            obj = unicode(obj, encoding)
+        except:
+            obj = unicode(str(obj), encoding)
     return obj
+
+
+def utf8(obj):
+    """
+    This function is an alias for to_unicode(obj, 'utf-8')
+    """
+    return to_unicode(obj, 'utf-8')
 
 
 def xml_safe(obj, encoding='utf-8'):
     '''
-    return a string with character entities escaped safe for xml, if the
+    Return a string with character entities escaped safe for xml, if the
     str paramater is a string a string is returned, if str is a unicode object
     then a unicode object is returned
     '''
-    # what about encodings.string_escape to escape strings
-    # TODO: make sure this is correct
-    #assert isinstance(obj, basestring)
-    if not isinstance(obj, basestring):
-        obj = unicode(obj)
-    if isinstance(obj, unicode):
-        return unicode(saxutils.escape(obj.encode(encoding)), encoding)
-    else:
-        return saxutils.escape(obj)
+    obj = to_unicode(obj, encoding)
+    return saxutils.escape(obj)
 
 
 def xml_safe_utf8(obj):
-    return xml_safe(utf8(obj))
+    """
+    this method is deprecated and just return xml_safe(obj)
+    """
+    return xml_safe(obj)
 
 
 __natsort_rx = re.compile('(\d+(?:\.\d+)?)')
