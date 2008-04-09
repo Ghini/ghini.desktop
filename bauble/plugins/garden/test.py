@@ -280,16 +280,27 @@ UTM = 3 # Datum(wgs84/nad83 or nad27), UTM Zone, Easting, Northing
 # 5 +/- 0.8m
 # 6 +/- 0.08m
 
+from decimal import Decimal
+dec = Decimal
 conversion_test_data = (
-                        ((('N', 17, 21, 59),('W', 89, 1, 41)),
-                          ((17, 21.98333333), (-89, 1.68333333)),
-                          (17.36638889, -89.02805556),
-                          (('wgs84', 16, 284513, 1921226))),
-                        ((('S', 50, 19, 32.59),('W', 74, 2, 11.6)),
-                          ((-50, 19.543166), (-74, 2.193333)),
-                          (-50.325719, -74.036555),
+                        ((('N', 17, 21, dec(59)), # dms
+                          ('W', 89, 1, 41)),
+                         ((dec(17), dec('21.98333333')), # deg min_dec
+                          (dec(-89), dec('1.68333333'))),
+                         (dec('17.366389'), dec('-89.028056')), # dec deg
+                         (('wgs84', 16, 284513, 1921226))), # utm
+                        ((('S', 50, 19, dec('32.59')), # dms
+                          ('W', 74, 2, dec('11.6'))),
+                         ((dec(-50), dec('19.543166')), # deg min_dec
+                          (dec(-74), dec('2.193333'))),
+                         (dec('-50.325719'), dec('-74.036556')), # dec deg
                           (('wgs84', 18, 568579, 568579)),
-                          (('nad27', 18, 568581, 4424928)))
+                          (('nad27', 18, 568581, 4424928))),
+                        ((('N', 9, 0, dec('4.593384')),
+                          ('W', 78, 3, dec('28.527984'))),
+                         ((9, dec('0.0765564')),
+                          (-78, dec('3.4754664'))),
+                         (dec('9.00127594'), dec('-78.05792444')))
                         )
 
 #parse_lat_lon_data = ('17, 21, 59', '17 21 59', '17:21:59',
@@ -298,54 +309,44 @@ conversion_test_data = (
 #                      '50, 19, 32.59', '50 19 32.59', '50:19:32.59',
 #                      '-50 19.543166', '-50, 19.543166',
 #                      '-50.325719')
-parse_lat_lon_data = ('17 21 59', '17 21.98333333', '17.36638889',
-                      '50 19 32.59', '-50 19.543166', '-50.325719')
+parse_lat_lon_data = ('17 21 59', '17 21.98333333', '17.03656',
+                      '50 19 32.59', '-50 19.543166', '-50.32572')
 
 
 class DMSConversionTests(unittest.TestCase):
 
     # test coordinate conversions
     def test_dms_to_decimal(self):
+        # test converting DMS to degrees decimal
+        ALLOWED_ERROR = 6
         for data_set in conversion_test_data:
             dms_data = data_set[DMS]
             dec_data = data_set[DEG_DEC]
             lat_dec = dms_to_decimal(*dms_data[0])
             lon_dec = dms_to_decimal(*dms_data[1])
-            self.assertAlmostEqual(lat_dec, dec_data[0], ALLOWED_DECIMAL_ERROR)
-            self.assertAlmostEqual(lon_dec, dec_data[1], ALLOWED_DECIMAL_ERROR)
+            self.assertAlmostEqual(lat_dec, dec_data[0], ALLOWED_ERROR)
+            self.assertAlmostEqual(lon_dec, dec_data[1], ALLOWED_ERROR)
+
 
 
     def test_decimal_to_dms(self):
-        # TODO: this is temporary disabled b/c the converted numbers aren't
-        # exactly equal, the easiest thing would probably be to compare the
-        # components of the returned tuples instead comparing the two
-        # tuples together...we need to get this as accurate as possible
+        # test converting degrees decimal to dms, allow a certain
+        # amount of error in the seconds
+        ALLOWABLE_ERROR = 2
         for data_set in conversion_test_data:
-            assert_ = lambda left, right: self.assert_(abs(left-right)<THRESHOLD, 'abs(%s - %s) is not less than %s' % (left, right, THRESHOLD))
-
             dms_data = data_set[DMS]
             dec_data = data_set[DEG_DEC]
 
+            # convert to DMS
             lat_dms = latitude_to_dms(dec_data[0])
-            dms = dms_data[0]
-            self.assertEqual(dms[0], lat_dms[0])
-            assert_(dms[1], lat_dms[1])
-            assert_(dms[2], lat_dms[2])
-            assert_(dms[3], lat_dms[3])
-##             print dms
-##             print lat_dms
-##             print abs(dms[3]-lat_dms[3])
+            self.assertEqual(lat_dms[0:2], dms_data[0][0:2])
+            # test seconds with allowable error
+            self.assertAlmostEqual(lat_dms[3], dms_data[0][3], ALLOWABLE_ERROR)
 
             lon_dms = longitude_to_dms(dec_data[1])
-            dms = dms_data[1]
-            self.assertEqual(dms[0], lon_dms[0])
-            assert_(dms[1], lon_dms[1])
-            assert_(dms[2], lon_dms[2])
-            assert_(dms[3], lon_dms[3])
-##             print dms
-##             print lon_dms
-##             print abs(dms[3]-lon_dms[3])
-##             print '--------'
+            self.assertEqual(lon_dms[0:2], dms_data[1][0:2])
+            # test seconds with allowable error
+            self.assertAlmostEqual(lon_dms[3], dms_data[1][3], ALLOWABLE_ERROR)
 
 
     def test_parse_lat_lon(self):

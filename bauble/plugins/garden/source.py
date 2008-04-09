@@ -37,6 +37,9 @@ class Donation(bauble.BaubleMapper):
 # TODO: collector combined with collectors_code should be a unique key, need to
 # also indicate this in the UI
 # TODO: should provide a collection type: alcohol, bark, boxed, cytological, fruit, illustration, image, other, packet, pollen, print, reference, seed, sheet, slide, transparency, vertical, wood.....see HISPID standard, in general need to be more herbarium aware
+
+# TODO: create a DMS column type to hold latitude and longitude,
+# should probably store the DMS data as a string in decimal degrees
 collection_table = bauble.Table('collection', bauble.metadata,
                          Column('id', Integer, primary_key=True),
                          Column('collector', Unicode(64)),

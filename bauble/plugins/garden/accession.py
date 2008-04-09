@@ -8,6 +8,7 @@ import sys, re, os, traceback, math
 from random import random
 from datetime import datetime
 import xml.sax.saxutils as saxutils
+from decimal import Decimal, ROUND_DOWN
 import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
@@ -25,6 +26,7 @@ from bauble.types import Enum
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results
 from bauble.plugins.garden.donor import Donor
+
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -49,31 +51,6 @@ def longitude_to_dms(decimal):
 def latitude_to_dms(decimal):
     return decimal_to_dms(decimal, 'lat')
 
-# TODO: should get the precision from the values passed in,
-# e.g. if seconds was passed in as an integer there is no reason
-# to keep 6 decimal places for precision
-
-# TODO: *** important ***
-# use the decimal.Decimal type instead of
-# float...this way numbers like 1.1 don't get represented by things
-# like 1.1000000000001
-#
-def dms_to_decimal(dir, deg, min, sec):
-    '''
-    convert degrees, minutes, seconds to decimal
-    return float rounded to 5 decimal points
-    '''
-    if dir in ('E', 'W'): # longitude
-        assert(abs(deg) > 0 and abs(deg) <= 180)
-    else:
-        assert(abs(deg) > 0 and abs(deg) <= 90)
-    assert(abs(min) > 0 and abs(min) < 60)
-    assert(abs(sec) > 0 and abs(sec) < 60)
-    dec = (abs(sec)/3600.0) + (abs(min)/60.0) + abs(deg)
-    if dir in ('W', 'S'):
-        dec = -dec
-    return dec
-
 
 def decimal_to_dms(decimal, long_or_lat):
     '''
@@ -81,22 +58,48 @@ def decimal_to_dms(decimal, long_or_lat):
     @param long_or_lat: should be either "long" or "lat"
 
     @returns dir, degrees, minutes seconds, seconds rounded to two
-    decimal points
+    decimal places
     '''
-
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
     dir = dir_map[long_or_lat][0]
     if decimal < 0:
         dir = dir_map[long_or_lat][1]
-    dec = abs(decimal)
-    d = abs(int(dec))
-    m = abs((dec-d)*60)
-    s = abs((int(m)-m) * 60)
-#    ROUND_TO = 2
-#    ROUND_TO = len(str(decimal).split('.')[1])
-#    return dir, int(d), int(m), round(s,ROUND_TO)
-    return dir, int(d), int(m), s
+    dec = Decimal(str(abs(decimal)))
+    d = Decimal(str(dec)).to_integral(rounding=ROUND_DOWN)
+    m = Decimal(abs((dec-d)*60)).to_integral(rounding=ROUND_DOWN)
+    m2 = Decimal(abs((dec-d)*60))
+    places = 2
+    q = Decimal((0, (1,), -places))
+    s = Decimal(abs((m2-m) * 60)).quantize(q)
+    return dir, d, m, s
+
+
+
+def dms_to_decimal(dir, deg, min, sec, precision=6):
+    '''
+    convert degrees, minutes, seconds to decimal
+    return a decimal.Decimal
+    '''
+    nplaces = Decimal(10) ** -precision
+    if dir in ('E', 'W'): # longitude
+        assert(abs(deg) >= 0 and abs(deg) <= 180)
+    else:
+        assert(abs(deg) >= 0 and abs(deg) <= 90)
+    assert(abs(min) >= 0 and abs(min) < 60)
+    assert(abs(sec) >= 0 and abs(sec) < 60)
+    deg = Decimal(str(deg))
+    min = Decimal(str(min))
+    sec = Decimal(str(sec))
+    dec = abs(sec/Decimal('3600')) + abs(min/Decimal('60.0')) + deg
+    #dec = Decimal((abs(Decimal(str(sec)))/Decimal('3600.0')) + \
+    #      (abs(Decimal(str(min)))/Decimal('60.0')) + \
+    #       Decimal(abs(deg)), 5)
+    if dir in ('W', 'S'):
+        dec = -dec
+
+    return dec.quantize(nplaces)
+
 
 
 def edit_callback(value):
@@ -673,9 +676,11 @@ class CollectionPresenter(GenericEditorPresenter):
             entry.set_text(lat_text[1:])
 
 
-    # TODO: need to write a test for this method
     @staticmethod
     def _parse_lat_lon(direction, text):
+        '''
+        parse a latitude or longitude in a variety of formats
+        '''
         bits = re.split(':| ', text.strip())
 #        debug('%s: %s' % (direction, bits))
         if len(bits) == 1:
@@ -697,6 +702,9 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def _get_lat_direction(self):
+        '''
+        return N or S from the radio
+        '''
         if self.view.widgets.north_radio.get_active():
             return 'N'
         elif self.view.widgets.south_radio.get_active():
@@ -705,6 +713,9 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def _get_lon_direction(self):
+        '''
+        return E or W from the radio
+        '''
         if self.view.widgets.east_radio.get_active():
             return 'E'
         elif self.view.widgets.west_radio.get_active():
@@ -714,6 +725,9 @@ class CollectionPresenter(GenericEditorPresenter):
 
     def on_lat_entry_insert(self, entry, new_text, new_text_length, position,
                             data=None):
+        '''
+        insert handler for lat_entry
+        '''
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
@@ -721,12 +735,18 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def on_lat_entry_delete(self, entry, start, end, data=None):
+        '''
+        delete handler for lat_entry
+        '''
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         self._set_latitude_from_text(full_text)
 
 
     def _set_latitude_from_text(self, text):
+        '''
+        set the latitude value from text
+        '''
         latitude = None
         dms_string = ''
         try:
@@ -1604,10 +1624,11 @@ class SourceExpander(InfoExpander):
                 (collection.longitude, dir, deg, min, sec, geo_accy)
             self.set_widget_value('lon_data', long_str)
 
-        elevation = collection.elevation
-
         if collection.elevation_accy is not None:
-            elevation = '%s (+/- %sm)' % (elevation, collection.elevation_accy)
+            elevation = '%sm (+/- %sm)' % (collection.elevation,
+                                           collection.elevation_accy)
+        else:
+            elevation = '%sm' % collection.elevation
         self.set_widget_value('elev_data', elevation)
 
         self.set_widget_value('coll_data', collection.collector)
