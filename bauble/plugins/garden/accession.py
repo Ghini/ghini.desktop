@@ -88,7 +88,7 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
         assert(abs(deg) >= 0 and abs(deg) <= 90)
     assert(abs(min) >= 0 and abs(min) < 60)
     assert(abs(sec) >= 0 and abs(sec) < 60)
-    deg = Decimal(str(deg))
+    deg = Decimal(str(abs(deg)))
     min = Decimal(str(min))
     sec = Decimal(str(sec))
     dec = abs(sec/Decimal('3600')) + abs(min/Decimal('60.0')) + deg
@@ -660,7 +660,9 @@ class CollectionPresenter(GenericEditorPresenter):
             return
         if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
             entry.set_text('-%s' % lon_text)
+            debug('entry.set_text(%s)' % ('-%s' % lon_text))
         elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
+            debug('entry.set_text(%s)' % (lon_text[1:]))
             entry.set_text(lon_text[1:])
 
 
