@@ -19,6 +19,7 @@ class UtilsTests(unittest.TestCase):
 ##         pass
 
     def test_xml_safe(self):
+        # TODO: need to test passing object here
         assert utils.xml_safe('test string') == 'test string'
         assert utils.xml_safe(u'test string') == u'test string'
         assert utils.xml_safe(u'test< string') == u'test&lt; string'
@@ -65,7 +66,6 @@ class UtilsTests(unittest.TestCase):
         assert s == '2008.1.12', s
         s = utils.date_to_str(dt, 'yyyy.mm.dd')
         assert s == '2008.01.12', s
-
 
 
 

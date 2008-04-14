@@ -32,7 +32,7 @@ elif args[0] == 'on':
         sys.exit(1)
     else:
         shutil.move(GTK_OFF_PATH, GTK_PATH)
-elif arg[0] == 'dist':
+elif args[0] == 'dist':
     print 'Error: not implemented'
 
 

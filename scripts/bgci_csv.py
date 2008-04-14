@@ -80,6 +80,7 @@ GENUS_COL = 1
 SP_INFRA_RANK_COL = 5
 for row in rows:
     line = list(row)
+    # change infrasp_rank and infrasp to a cultivate if infrasp_rank=='cv.'
     if line[SP_INFRA_RANK_COL] == 'cv.':
         line[SP_INFRA_RANK_COL] = None
         line.append(line[SP_INFRASP])
