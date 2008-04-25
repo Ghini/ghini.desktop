@@ -50,7 +50,10 @@ class ConnectionManager:
             return self._working_dbtypes
         self._working_dbtypes = []
         try:
-            import pysqlite2
+            try:
+                import pysqlite2
+            except:
+                import sqlite3
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
