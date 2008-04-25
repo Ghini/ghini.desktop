@@ -6,9 +6,6 @@ import os, csv
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
-import lxml.etree as etree
-import lxml._elementpath # put this here sp py2exe picks it up
-from lxml.etree import Element, SubElement, ElementTree
 import bauble
 import bauble.paths as paths
 import bauble.utils as utils
@@ -328,7 +325,15 @@ class ABCDImexPlugin(pluginmgr.Plugin):
     tools = [ABCDExportTool]
     depends = ["PlantsPlugin"]
 
-plugin = ABCDImexPlugin
+try:
+    import lxml.etree as etree
+    import lxml._elementpath # put this here sp py2exe picks it up
+    from lxml.etree import Element, SubElement, ElementTree
+except ImportError:
+    utils.message_dialog('The <i>lxml</i> package is required for the '\
+                         'ABCD plugin')
+else:
+    plugin = ABCDImexPlugin
 
 
 __all__ = [DataSets, ABCDElement, #ElementFactory,
