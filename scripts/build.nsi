@@ -101,6 +101,8 @@ Section
     IfErrors done
     FileWrite $0 $QUERY_PIXBUF_CMD
     FileClose $0
+;    MessageBox MB_OK|MB_ICONSTOP $INSTDIR
+;    MessageBox MB_OK|MB_ICONSTOP $QUERY_PIXBUF_CMD   
     nsExec::Exec '"$INSTDIR\query_pixbufs.bat"'
     done:
 SectionEnd
