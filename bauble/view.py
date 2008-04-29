@@ -538,7 +538,7 @@ class ResultSet(object):
 
 
     def add(self, results):
-        if isinstance(results, list):
+        if isinstance(results, (list, tuple, set)):
             self._results.update(results)
         else:
             self._results.add(results)
@@ -570,7 +570,7 @@ class ResultSet(object):
         # that if this ResultSet contains other ResultSets that are
         # large we'll be creating lots of large set objects....of
         # course if the sets are really only holding references to the
-        # objects then it won't really be a problem
+        # objects then it might not be really be a problem
         self._iterset = set()
         self._iter = itertools.chain(*self._results)
         return self
