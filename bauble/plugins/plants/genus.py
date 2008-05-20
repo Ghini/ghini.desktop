@@ -299,6 +299,7 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
+
         self.assign_completions_handler('gen_family_entry', 'family',
                                         fam_get_completions,
                                         set_func=set_in_model)
@@ -319,8 +320,10 @@ class GenusEditorPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
-        if self.model.family is not None:
-            self.view.set_accept_buttons_sensitive(True)
+        sensitive = False
+        if self.model.family and self.model.genus:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
 
 
     def dirty(self):
