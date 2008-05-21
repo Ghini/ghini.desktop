@@ -11,7 +11,7 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = (0, 8, 2)
+version = (0, 8, 3)
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
