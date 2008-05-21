@@ -395,7 +395,6 @@ class GenericEditorPresenter(object):
         raise NotImplementedError
 
 
-
     def remove_problem(self, problem_id, problem_widgets=None):
         """
         remove problem_id from self.problems and reset the background color

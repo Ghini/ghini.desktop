@@ -365,7 +365,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         # seperate SpeciesSynonym models on add
         completions_model = GenusSynonym()
         def gen_get_completions(text):
-            return self.session.query(Genus).filter(genus_table.c.genus.like('%s%%' % text))
+            query = self.session.query(Genus)
+            query = query.filter(and_(genus_table.c.genus.like('%s%%' % text),
+                                      genus_table.c.id != self.model.id))
+            return query
 
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected
