@@ -168,7 +168,7 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
     os.system(fullname)
 
 
-if not options.no_eggs:
+if not options.noeggs:
     # make sure that setuptools is installed
     EASY_INSTALL_EXE = os.path.join(PYTHON_HOME, 'scripts','easy_install.exe')
     if not os.path.exists(EASY_INSTALL_EXE):
