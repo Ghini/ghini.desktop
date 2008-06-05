@@ -534,7 +534,7 @@ class GUI(object):
         """
         rect = self.window.allocation
         prefs[self.window_geometry_pref] = rect.width, rect.height
-        prefs.save()
+        # prefs.save() is called in bauble/__init__.py
 
 
     def on_delete_event(self, *args):
