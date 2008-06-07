@@ -194,9 +194,17 @@ class _prefs(dict):
 
 
     def save(self):
-        f = open(self._filename, "w+")
-        self.config.write(f)
-        f.close()
+        try:
+            f = open(self._filename, "w+")
+            self.config.write(f)
+            f.close()
+        except:
+            msg = _("Bauble can't save your user preferences. \n\nPlease "
+                    "check the file permissions of your config file:\n %s" \
+                    % self._filename)
+            if bauble.gui is not None and bauble.gui.window is not None:
+                utils.message_dialog(msg, type=gtk.MESSAGE_ERROR,
+                                     parent=bauble.gui.window)
 
 
 # TODO: remember pane sizes

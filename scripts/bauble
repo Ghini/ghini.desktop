@@ -15,10 +15,7 @@
 # Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 import os, sys
-#from bauble.main import bauble_main
-#if __name__ == "__main__":  
-#	bauble_main()
 
 if __name__ == "__main__":
-	import bauble
-	bauble.main()
+    import bauble
+    bauble.main()

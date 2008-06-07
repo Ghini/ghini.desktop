@@ -13,7 +13,7 @@
 # - check MD5
 #
 
-import sys
+import sys, traceback
 
 if sys.platform != 'win32':
     print "Error: This script is only for Win32"
@@ -52,9 +52,10 @@ else:
 # check if any of the files need to be updated
 SERVER_ROOT = 'http://ftp.gnome.org/pub/gnome/binaries/win32'
 GTK_PATH = 'gtk+/2.12/gtk+-2.12.9.zip'
-GLIB_PATH = 'glib/2.14/glib-2.16.2.zip'
-PANGO_PATH = 'pango/1.18/pango-1.20.0.zip'
-ATK_PATH = 'atk/1.20/atk-1.22.0.zip'
+GLIB_PATH = 'glib/2.16/glib-2.16.2.zip'
+#PANGO_PATH = 'pango/1.20/pango-1.20.2.zip'
+PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
+ATK_PATH = 'atk/1.22/atk-1.22.0.zip'
 
 # pycairo-1.4.x doesn't support python 2.5
 PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
@@ -210,7 +211,12 @@ else:
 # either unzip or execute them
 for filename in [f.split('/')[-1] for f in ALL_FILES]:
     if filename.endswith('.zip'):
-        zip = zipfile.ZipFile(os.path.join(DL_PATH, filename), 'r')
+        try:
+            zip = zipfile.ZipFile(os.path.join(DL_PATH, filename), 'r')
+        except:
+            print traceback.format_exc()
+            print 'Error: bad zip file -- %s' % os.path.join(DL_PATH, filename)
+            sys.exit(1)
         for zf in zip.namelist():
             if zf.endswith('/'):
                 # for some reason sometimes there's a compressed

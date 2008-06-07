@@ -14,7 +14,7 @@ Name "Bauble"
 
 ; this should be the Bauble version number combined with the subversion 
 ; revision
-!define version "0.8.2"
+!define version "0.9.0b1"
 !define src_dir "../dist"
 Outfile "bauble-${version}-setup.exe"
 
@@ -101,6 +101,8 @@ Section
     IfErrors done
     FileWrite $0 $QUERY_PIXBUF_CMD
     FileClose $0
+;    MessageBox MB_OK|MB_ICONSTOP $INSTDIR
+;    MessageBox MB_OK|MB_ICONSTOP $QUERY_PIXBUF_CMD   
     nsExec::Exec '"$INSTDIR\query_pixbufs.bat"'
     done:
 SectionEnd

@@ -50,7 +50,10 @@ class ConnectionManager:
             return self._working_dbtypes
         self._working_dbtypes = []
         try:
-            import pysqlite2
+            try:
+                import pysqlite2
+            except:
+                import sqlite3
             self._working_dbtypes.append('SQLite')
         except ImportError, e:
             warning('ConnectionManager: %s' % e)
@@ -103,24 +106,46 @@ class ConnectionManager:
             self.set_active_connection_by_name(self.default_name)
             self._dirty = False
 
-        response = self.dialog.run()
+        self._error = True
         name = None
         uri = None
-        if response == gtk.RESPONSE_OK:
-            name = self._get_connection_name()
-            uri = self._get_connection_uri()
-        if name is None and response == gtk.RESPONSE_OK:
-            msg = _('You have to choose or create a new connection before '\
-                    'you can connect to the database.')
-            utils.message_dialog(msg)
-            name, uri = self.start()
+        while name is None or self._error:
+            response = self.dialog.run()
+            if response == gtk.RESPONSE_OK:
+                name = self._get_connection_name()
+                uri = self._get_connection_uri()
+                if name is None:
+                    msg = _('You have to choose or create a new connection ' \
+                            'before you can connect to the database.')
+                    utils.message_dialog(msg)
+            else:
+                name = uri = None
+                break
         self.dialog.destroy()
         return name, uri
 
 
     def on_dialog_response(self, dialog, response, data=None):
+        """
+        """
+        self._error = False
         if response == gtk.RESPONSE_OK:
-            self.save_current_to_prefs()
+            settings = self.params_box.get_prefs()
+            dbtype = self.widgets.type_combo.get_active_text()
+            if dbtype == 'SQLite':
+                filename = settings['file']
+                if not os.access(filename, os.R_OK):
+                    self._error = True
+                    msg = "Bauble does not have permission to read the "\
+                          "database file:\n %s" % filename
+                    utils.message_dialog(msg)
+                elif not os.access(filename, os.W_OK):
+                    msg = "Bauble does not have permission to write to the "\
+                          "database file: %s\n" % filename
+                    utils.message_dialog(msg)
+                    self._error = True
+                else:
+                    self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
              response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
@@ -133,6 +158,7 @@ class ConnectionManager:
         if response < 0:
             dialog.hide()
             #dialog.emit_stop_by_name('response')
+
         return response
 
 
@@ -295,6 +321,9 @@ class ConnectionManager:
 
 
     def save_current_to_prefs(self):
+        """
+        save connection parameters from the widgets in the prefs
+        """
         if self.current_name is None:
             return
         if bauble.conn_list_pref not in prefs:

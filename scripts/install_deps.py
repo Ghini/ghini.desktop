@@ -32,6 +32,8 @@ parser.add_option('-r', '--redl', action='store_true', dest='redl',
 #                 default=False, help='only download the GTK+ files, not PyGTK')
 #parser.add_option('-i', '--install_path', dest="install_path", metavar="DIR",
 #                  help="directory to install GTK+, default is c:\GTK")
+parser.add_option('-e', '--noeggs', action='store_true', dest='noeggs',
+                  default=False, help="don't use easy_install")
 parser.add_option('-d', '--download_path', dest="download_path", metavar="DIR",
                   help="directory to download files, default is .\install_deps")
 (options, args) = parser.parse_args()
@@ -41,11 +43,11 @@ ALL_FILES = []
 
 PYTHON_24_FILES = [
     'http://initd.org/pub/software/pysqlite/releases/2.4/2.4.0/pysqlite-2.4.0.win32-py2.4.exe',
-    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.6.win32-py2.4-pg8.2.4-release.exe']
+    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.7.win32-py2.4-pg8.3.1-release.exe']
 
 PYTHON_25_FILES = [
     'http://initd.org/pub/software/pysqlite/releases/2.4/2.4.0/pysqlite-2.4.0.win32-py2.5.exe',
-    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.6.win32-py2.5-pg8.2.4-release.exe']
+    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.7.win32-py2.5-pg8.3.1-release.exe']
 
 EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 
@@ -58,7 +60,7 @@ EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 eggs_install = {'lxml': '==1.3.6',
                 'MySQL-python': '==1.2.2',
                 'simplejson': '==1.7.1', # 1.73 is the latest but doesn't have a compile win32 version on PPI
-                'SQLAlchemy': '>=0.4.2p3',
+                'SQLAlchemy': '>=0.4.4',
                 'py2exe': '==0.6.6'}
 
 
@@ -166,20 +168,21 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
     os.system(fullname)
 
 
-# make sure that setuptools is installed
-EASY_INSTALL_EXE = os.path.join(PYTHON_HOME, 'scripts','easy_install.exe')
-if not os.path.exists(EASY_INSTALL_EXE):
-    EZ_SETUP_DL_PATH = os.path.join(DL_PATH, 'ez_setup.py')
-    if not os.path.exists(EZ_SETUP_DL_PATH):
-        urllib.urlretrieve(EZ_SETUP_PATH, EZ_SETUP_DL_PATH)
-    cmd = '%s "%s"' % (PYTHON_EXE, EZ_SETUP_DL_PATH)
-#    print cmd
-    os.system(cmd)
+if not options.noeggs:
+    # make sure that setuptools is installed
+    EASY_INSTALL_EXE = os.path.join(PYTHON_HOME, 'scripts','easy_install.exe')
+    if not os.path.exists(EASY_INSTALL_EXE):
+        EZ_SETUP_DL_PATH = os.path.join(DL_PATH, 'ez_setup.py')
+        if not os.path.exists(EZ_SETUP_DL_PATH):
+            urllib.urlretrieve(EZ_SETUP_PATH, EZ_SETUP_DL_PATH)
+        cmd = '%s "%s"' % (PYTHON_EXE, EZ_SETUP_DL_PATH)
+        #print cmd
+        os.system(cmd)
 
-# install the eggs
-for egg, version in eggs_install.iteritems():
-    cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
-    #print cmd
-    os.system(cmd)
+    # install the eggs
+    for egg, version in eggs_install.iteritems():
+        cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
+        #print cmd
+        os.system(cmd)
 
 print 'done.'

@@ -64,6 +64,8 @@ if USING_PY2EXE:
                 includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
         return includes
 
+    # TODO: check again that this is necessary for pysqlite2, we might
+    # be able to juse use the python 2.5 built in sqlite3 module
     py2exe_includes = ['pysqlite2.dbapi2', 'simplejson', 'lxml',
                        'MySQLdb', 'psycopg2', 'encodings'] + \
                        gtk_pkgs + plugins_pkgs + \

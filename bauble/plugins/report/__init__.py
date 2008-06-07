@@ -4,11 +4,10 @@
 # Description : report plugin
 #
 
+
 import os, sys, traceback, re
 import gobject, gtk
 from sqlalchemy import *
-import lxml.etree as etree
-import lxml._elementpath # make sure py2exe includes _elementpath
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
@@ -551,8 +550,15 @@ class ReportToolPlugin(pluginmgr.Plugin):
 
 
 
-def plugin():
-    from bauble.plugins.report.default import DefaultFormatterPlugin
-    return [ReportToolPlugin, DefaultFormatterPlugin]
+try:
+    import lxml.etree as etree
+    import lxml._elementpath # put this here sp py2exe picks it up
+except ImportError:
+    utils.message_dialog('The <i>lxml</i> package is required for the '\
+                         'Report plugin')
+else:
+    def plugin():
+        from bauble.plugins.report.default import DefaultFormatterPlugin
+        return [ReportToolPlugin, DefaultFormatterPlugin]
 
 

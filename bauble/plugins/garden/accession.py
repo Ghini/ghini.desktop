@@ -1609,29 +1609,28 @@ class SourceExpander(InfoExpander):
         self.set_widget_value('loc_data', collection.locale)
 
         geo_accy = collection.geo_accy
-        if geo_accy is None:
+        if not geo_accy:
             geo_accy = ''
         else:
             geo_accy = '(+/- %sm)' % geo_accy
 
-        if collection.latitude is not None:
+        if collection.latitude:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
             lat_str = '%.2f (%s %s\302\260%s"%.2f\') %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
             self.set_widget_value('lat_data', lat_str)
 
-        if collection.longitude is not None:
+        if collection.longitude:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
             long_str = '%.2f (%s %s\302\260%s"%.2f\') %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
             self.set_widget_value('lon_data', long_str)
 
-        if collection.elevation_accy is not None:
+        if collection.elevation_accy:
             elevation = '%sm (+/- %sm)' % (collection.elevation,
                                            collection.elevation_accy)
-        else:
-            elevation = '%sm' % collection.elevation
-        self.set_widget_value('elev_data', elevation)
+            self.set_widget_value('elev_data', elevation)
+
 
         self.set_widget_value('coll_data', collection.collector)
         self.set_widget_value('date_data', collection.date)

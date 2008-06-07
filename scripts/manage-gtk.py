@@ -16,8 +16,8 @@ parser = OptionParser()
 
 cmds = ('off', 'on', 'dist')
 
-if args[0] not in cmds:
-    parser.error('expecting a command')
+if len(args) < 1 or args[0] not in cmds:
+    parser.error('expecting a command: %s' % str(cmds))
 
 import shutil
 if args[0] == 'off':
