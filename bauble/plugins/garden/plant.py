@@ -447,13 +447,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def refresh_sensitivity(self):
-        def set_accept_buttons_sensitive(sensitive):
-            self.view.widgets.plant_ok_button.set_sensitive(sensitive)
-            self.view.widgets.plant_next_button.set_sensitive(sensitive)
+#         def set_accept_buttons_sensitive(sensitive):
+
         sensitive = (self.model.accession is not None and \
                      self.model.code is not None and \
-                     self.model.location is not None) and self.model.dirty
-        set_accept_buttons_sensitive(sensitive)
+                     self.model.location is not None) \
+                     and self.model.dirty is not None
+        self.view.widgets.plant_ok_button.set_sensitive(sensitive)
+        self.view.widgets.plant_next_button.set_sensitive(sensitive)
 
 
     def on_field_changed(self, model, field):

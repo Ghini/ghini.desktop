@@ -276,7 +276,11 @@ class SynonymsPresenter(GenericEditorPresenter):
         # seperate SpeciesSynonym models on add
         completions_model = FamilySynonym()
         def fam_get_completions(text):
-            return self.session.query(Family).filter(family_table.c.family.like('%s%%' % text))
+            query = self.session.query(Family)
+            query = query.filter(and_(family_table.c.family.like('%s%%' %text),
+                                      family_table.c.id != self.model.id))
+            return query
+
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self.selected
             sensitive = True

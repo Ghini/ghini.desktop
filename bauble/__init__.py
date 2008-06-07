@@ -11,7 +11,7 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = (0, 8, 2)
+version = (0, 9, '0b1')
 version_str = '.'.join([str(v) for v in version])
 
 def main_is_frozen():
@@ -42,6 +42,13 @@ else: # main is frozen
 # import gtk...but then we would have to include all of the Tk libs in
 # with the win32 batteries-included installer
 import gtk, gobject
+
+import gtk.gdk
+display = gtk.gdk.display_get_default()
+if display is None:
+    print _("**Error: Bauble must be run in a windowed environment.")
+    sys.exit(1)
+
 import bauble.utils as utils
 
 # if not hasattr(gtk.Widget, 'set_tooltip_markup'):
