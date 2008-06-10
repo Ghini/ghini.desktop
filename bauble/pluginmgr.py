@@ -168,6 +168,9 @@ def load(path=None):
 
     # register commands
     for plugin in found:
+        # plugin.commands can be None or []
+        if plugin.commands is None:
+            continue
         for cmd in plugin.commands:
             try:
                 register_command(cmd)

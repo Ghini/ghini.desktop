@@ -270,7 +270,7 @@ class DistributionPresenter(GenericEditorPresenter):
 
     def __init__(self, species, view, session):
         '''
-        @param model: a list of VernacularName objects
+        @param species:
         @param view:
         @param session:
         '''
@@ -463,45 +463,60 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
 
     def dirty(self):
+        """
+        @return True or False if the vernacular names have changed.
+        """
         return self.__dirty
 
 
     def on_entry_insert(self, entry, new_text, new_text_length, position,
                         other_widget_name):
-        '''
-        ensures that the two vernacular name entries both have text and sets
-        the sensitivity of the add button if so
-        '''
+        """
+        @param entry
+        @param new_text
+        @param new_text_length
+        @param position
+        @param other_widget_name
+
+        Sets the sensitivity of the add button only if both the
+        vernacular name and language are not empty.
+        """
         entry_text = entry.get_text()
         cursor = entry.get_position()
         full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
         sensitive = False
-        if full_text != '' and self.view.widgets[other_widget_name].get_text() != '':
+        if full_text != '' \
+               and self.view.widgets[other_widget_name].get_text() != '':
             sensitive = True
         self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
 
 
     def on_entry_delete(self, entry, start, end, other_widget_name):
-        '''
-        ensures that the two vernacular name entries both have text and sets
-        the sensitivity of the add button if so
-        '''
+        """
+        @param entry
+        @param start
+        @param end
+        @param other_widget_name
+
+        Sets the sensitivity of the add button only if both the
+        vernacular name and language are not empty.
+        """
         text = entry.get_text()
         full_text = text[:start] + text[end:]
         sensitive = False
-        if full_text != '' and self.view.widgets[other_widget_name].get_text() != '':
+        if full_text != '' \
+               and self.view.widgets[other_widget_name].get_text() != '':
             sensitive = True
         self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
 
 
     def on_add_button_clicked(self, button, data=None):
-        '''
-        add the values in the entries to the model
-        '''
-
+        """
+        Add the values in the entries to the model.
+        """
         name = self.view.widgets.vern_name_entry.get_text()
         lang = self.view.widgets.vern_lang_entry.get_text()
-        vn = VernacularName(name=name, language=lang)
+        vn = VernacularName(name=utils.utf8(name), language=utils.utf8(lang))
         tree_model = self.treeview.get_model()
         self.model.vernacular_names.append(vn)
         it = tree_model.append([ModelDecorator(vn)]) # append to tree model
@@ -515,9 +530,9 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
 
     def on_remove_button_clicked(self, button, data=None):
-        '''
-        removes the currently selected vernacular name from the view
-        '''
+        """
+        Removes the currently selected vernacular name from the view.
+        """
         # TODO: maybe we should only ask 'are you sure' if the selected value
         # is an instance, this means it will be deleted from the database
         tree = self.view.widgets.vern_treeview
@@ -532,7 +547,8 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
         tree_model.remove(tree_model.get_iter(path))
         self.model.vernacular_names.remove(value.model)
-        if self.model.default_vernacular_name is not None and value.model == self.model.default_vernacular_name:
+        if self.model.default_vernacular_name is not None \
+               and value.model == self.model.default_vernacular_name:
             # if there is only one value in the tree then set it as the
             # default vernacular name
             first = tree_model.get_iter_first()
@@ -544,9 +560,9 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
 
     def on_default_toggled(self, cell, path, data=None):
-        '''
-        default column callback
-        '''
+        """
+        Default column callback.
+        """
         active = cell.get_property('active')
         if not active: # then it's becoming active
             vn = self.treeview.get_model()[path][0].model
@@ -556,9 +572,9 @@ class VernacularNamePresenter(GenericEditorPresenter):
 
 
     def init_treeview(self, model):
-        '''
-        initialized the list of vernacular names
-        '''
+        """
+        Initialized the list of vernacular names.
+        """
         self.treeview = self.view.widgets.vern_treeview
 
         def _name_data_func(column, cell, model, iter, data=None):
