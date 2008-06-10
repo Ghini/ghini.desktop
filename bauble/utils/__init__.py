@@ -386,6 +386,20 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.destroy()
     return r
 
+
+def setup_text_combobox(combo, values=[], cell_data_func=None):
+    combo.clear()
+    model = gtk.ListStore(str)
+    for v in values:
+        model.append([v])
+    combo.set_model(model)
+    renderer = gtk.CellRendererText()
+    combo.pack_start(renderer, True)
+    combo.add_attribute(renderer, 'text', 0)
+    if cell_data_func:
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+
 def to_unicode(obj, encoding='utf-8'):
     """
     Return obj converted to unicode.  If obj is already a unicode

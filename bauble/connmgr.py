@@ -209,10 +209,8 @@ class ConnectionManager:
         self.params_box = None
         self.expander_box = self.widgets.expander_box
 
+        # setup the type combo
         self.type_combo = self.widgets.type_combo
-        self.type_combo.remove_text(0) # remove dummy '--'
-        for dbtype in self._dbtypes:
-            self.type_combo.insert_text(self._dbtypes.index(dbtype), dbtype)
         def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
             """
             if the database type is not in self.working_dbtypes then
@@ -222,16 +220,13 @@ class ConnectionManager:
             sensitive = dbtype in self.working_dbtypes
             renderer.set_property('sensitive', sensitive)
             renderer.set_property('text', dbtype)
-
-        # TODO: here get get the following warning
-        # GtkWarning: gtk_cell_view_set_cell_data: assertion
-        # `cell_view->priv->displayed_row != NULL' failed
-        renderer = self.type_combo.get_child().get_cell_renderers()[0]
-        self.type_combo.set_cell_data_func(renderer, type_combo_cell_data_func)
+        utils.setup_text_combobox(self.type_combo, self._dbtypes,
+                                  type_combo_cell_data_func)
         self.type_combo.connect("changed", self.on_changed_type_combo)
 
+        # setup the name combo
         self.name_combo = self.widgets.name_combo
-        self.name_combo.remove_text(0) # remove dummy '--'
+        utils.setup_text_combobox(self.name_combo)
         self.name_combo.connect("changed", self.on_changed_name_combo)
 
         self.dialog.set_focus(self.widgets.connect_button)
