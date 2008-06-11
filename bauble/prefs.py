@@ -194,6 +194,7 @@ class _prefs(dict):
 
 
     def save(self):
+        print self.config.items('conn')
         try:
             f = open(self._filename, "w+")
             self.config.write(f)

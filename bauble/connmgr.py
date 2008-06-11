@@ -134,17 +134,29 @@ class ConnectionManager:
             dbtype = self.widgets.type_combo.get_active_text()
             if dbtype == 'SQLite':
                 filename = settings['file']
-                if not os.access(filename, os.R_OK):
+                if not os.path.exists(filename):
+                    path, f = os.path.split(filename)
+                    if not os.access(path, os.R_OK):
+                        self._error = True
+                        msg = _("Bauble does not have permission to "\
+                                "read the directory:\n\n%s") % path
+                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                    elif not os.access(path, os.W_OK):
+                        self._error = True
+                        msg = _("Bauble does not have permission to "\
+                                "write to the directory:\n\n%s") % path
+                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                elif not os.access(filename, os.R_OK):
                     self._error = True
-                    msg = "Bauble does not have permission to read the "\
-                          "database file:\n %s" % filename
-                    utils.message_dialog(msg)
+                    msg = _("Bauble does not have permission to read the "\
+                            "database file:\n\n%s") % filename
+                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 elif not os.access(filename, os.W_OK):
-                    msg = "Bauble does not have permission to write to the "\
-                          "database file: %s\n" % filename
-                    utils.message_dialog(msg)
                     self._error = True
-                else:
+                    msg = _("Bauble does not have permission to "\
+                            "write to the database file:\n\n%s") % filename
+                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                if not self._error:
                     self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
              response == gtk.RESPONSE_DELETE_EVENT:
