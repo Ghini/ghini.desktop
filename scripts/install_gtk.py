@@ -23,6 +23,8 @@ import os
 import urllib
 import zipfile
 import _winreg
+import shutil
+
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-r', '--redl', action='store_true', dest='redl',
@@ -71,8 +73,8 @@ PYGTK_25_PATH = 'pygtk/2.12/pygtk-2.12.1-2.win32-py2.5.exe'
 
 CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
 GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
-RSVG_PATH = 'librsvg/2.16/librsvg-2.16.1.zip'
-SVG_PIXBUF_PATH = 'librsvg/2.16/svg-gdk-pixbuf-loader-2.16.1.zip'
+RSVG_PATH = 'librsvg/2.22/librsvg-2.22.2.zip'
+SVG_PIXBUF_PATH = 'librsvg/2.22/svg-gdk-pixbuf-loader-2.22.2.zip'
 GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
 
 PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
@@ -88,7 +90,7 @@ GETTEXT_PATH = 'dependencies/gettext-runtime-0.17.zip'
 BZIP_PATH = 'dependencies/libbzip2-1.0.2.zip'
 ICONV_PATH = 'dependencies/libiconv-1.9.1.bin.woe32.zip' # should i be getting the woe32 or the other one?
 JPEG_PATH = 'dependencies/libjpeg-6b-4.zip'
-PNG_PATH = 'dependencies/libpng-1.2.8.zip'
+PNG_PATH = 'dependencies/libpng-1.2.29.zip'
 TIFF_PATH = 'dependencies/libtiff-3.7.1.zip'
 XML_PATH = 'dependencies/libxml2-2.6.27.zip'
 ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
@@ -191,7 +193,14 @@ for url in ['%s/%s' % (SERVER_ROOT, FILE) for FILE in ALL_FILES]:
     if os.path.exists(dest_file) and not options.redl:
         continue
     print 'downloading %s...' % filename
-    urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
+    #filename, headers = urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
+    tmp, headers = urllib.urlretrieve(url)
+    if headers.type != 'text/html': # usually an error message        
+        shutil.move(tmp, os.path.join(DL_PATH, filename))
+    else:
+        print 'could not retrieve %s' % url
+        sys.exit(1)
+    
 
 # 1. for all downloaded files except for the python files we need to unzip them
 # into the GTK+ installation directory
@@ -248,11 +257,17 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
             print 'running installer %s' % fullname
         os.system(fullname)
 
-
+# at some point the svg pixbuf loader started linking against libpng13.dll
+# so we just copy our libpng12-0.dll to libpng13.dll
+PNG_13_PATH = os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng13.dll')
+if not os.path.exists(PNG_13_PATH):
+    shutil.copyfile(os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng12-0.dll'), PNG_13_PATH)
+        
 # register the pixbuf loaders
-load_pixbufs_cmd = '%s\\bin\gdk-pixbuf-query-loaders.exe > %s\\etc\gtk-2.0\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
+load_pixbufs_cmd = '%s\\bin\\gdk-pixbuf-query-loaders.exe > %s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
 if options.verbose:
     print load_pixbufs_cmd
+print load_pixbufs_cmd
 os.system(load_pixbufs_cmd)
 
 print 'done.'
