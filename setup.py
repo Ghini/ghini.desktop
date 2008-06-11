@@ -129,7 +129,7 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.4.3", "pysqlite>=2.3.2",
+      install_requires=["SQLAlchemy>=0.4.4", "pysqlite>=2.3.2",
                         "simplejson>=1.7.1", "lxml>=2.0.1"],
 #      extras_requires=["mysql-python and psycopg"
 
