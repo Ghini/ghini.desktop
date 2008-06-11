@@ -586,7 +586,8 @@ class CollectionPresenter(GenericEditorPresenter):
             value = self.model[field]
 ##            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         latitude = self.model.latitude
@@ -984,7 +985,8 @@ class DonationPresenter(GenericEditorPresenter):
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         if self.model.donor is None:
@@ -1350,7 +1352,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             else:
                 value = self.model[field]
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         if self.model.private is None:
