@@ -156,8 +156,8 @@ class ConnectionManager:
                     msg = _("Bauble does not have permission to "\
                             "write to the database file:\n\n%s") % filename
                     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-                if not self._error:
-                    self.save_current_to_prefs()
+            if not self._error:
+                self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
              response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
