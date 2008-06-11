@@ -25,7 +25,6 @@ def get_version():
     return version
 
 version = get_version()
-
 gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 #plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
 #	   'imex']
@@ -145,3 +144,17 @@ setup(name="bauble",
       url="http://bauble.belizebotanic.org",
 #      download_url="http://bauble.belizebotanic.org/#download"
      )
+
+from distutils.util import execute
+def install_linux():
+    """
+    install the menu and icons entries on Linux system that complies
+    with the freedesktop.org specs
+    """
+    os.system('xdg-desktop-menu install --novendor bauble.desktop')
+    icon_sizes = [16, 22, 32, 48, 64]#, 128]
+    for size in icon_sizes:
+        os.system('xdg-icon-resource install --novendor --size %s bauble/images/bauble-%s.png bauble' % (size, size))
+
+if sys.platform == 'linux2':
+    execute(install_linux, [], msg='installing menu entry and icon')

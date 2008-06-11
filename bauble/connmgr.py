@@ -200,11 +200,11 @@ class ConnectionManager:
                    }
         self.widgets.signal_autoconnect(handlers)
 
-        # we shouldn't have to manually set the logo anymore, i think has
-        # been fixed in glade-3
-        #logo = self.widgets.logo_image
-        #logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
-        #logo.set_from_file(logo_path)
+        # set the logo image manually, its hard to depend on glade to
+        # get this right since the image paths may change
+        logo = self.widgets.logo_image
+        logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
+        logo.set_from_file(logo_path)
 
         self.params_box = None
         self.expander_box = self.widgets.expander_box
