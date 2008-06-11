@@ -152,6 +152,7 @@ def install_linux():
     with the freedesktop.org specs
     """
     os.system('xdg-desktop-menu install --novendor bauble.desktop')
+    os.system('xdg-desktop-icon install --novendor bauble/images/bauble.xpm')
     icon_sizes = [16, 22, 32, 48, 64]#, 128]
     for size in icon_sizes:
         os.system('xdg-icon-resource install --novendor --size %s bauble/images/bauble-%s.png bauble' % (size, size))
