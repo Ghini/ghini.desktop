@@ -241,7 +241,7 @@ class AccessionTests(GardenTestCase):
 
     def test_double_commit(self):
         """
-        This tests a Bug with SQLAlchemy that was tentatively fixed
+        This tests a bug with SQLAlchemy that was tentatively fixed
         after SQ 0.4.4 was released in r4264.  There is a reference to
         this in the SA mailing list.
 
@@ -253,14 +253,25 @@ class AccessionTests(GardenTestCase):
         self.session.save(acc)
         acc.species = sp
         acc.code = u"3"
+        # not donor_id, should raise an IntegrityError
         donation = Donation()
         acc.source = donation
         try:
             self.session.commit()
         except IntegrityError:
             self.session.rollback()
-            #self.session.commit()
-            self.assertRaises(InvalidRequestError, self.session.commit)
+            # before SA 0.4.5 this would give and InvalidRequestError
+            # about not being able to refresh Accession after a rollback
+            try:
+                self.session.commit()
+            except InvalidRequestError, e:
+                # we get here in SA pre-0.4.5, we can't use those
+                # versions for bauble
+                raise
+            except IntegrityError:
+                # it should raise an integrity error because there is
+                # still no donor_id on donation
+                pass
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
