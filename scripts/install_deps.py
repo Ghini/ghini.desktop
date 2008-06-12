@@ -57,10 +57,10 @@ EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 # TODO: check for easy_install, if not installed then download and install
 # ez_setup.py
 
-eggs_install = {'lxml': '==1.3.6',
+eggs_install = {'lxml': '==2.0.6',
                 'MySQL-python': '==1.2.2',
                 'simplejson': '==1.7.1', # 1.73 is the latest but doesn't have a compile win32 version on PPI
-                'SQLAlchemy': '==0.4.3',
+                'SQLAlchemy': '>=0.4.5',
                 'py2exe': '==0.6.6'}
 
 
