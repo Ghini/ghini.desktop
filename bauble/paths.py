@@ -8,9 +8,6 @@ import os, sys
 # directory that tells us where all the other directories are but how do we
 # know where the lib directory is
 
-# TODO: for Linux/*nix support we need to be able to find /usr/share/X
-# for files like icons and bauble.desktop
-
 def main_is_frozen():
     import imp
     return (hasattr(sys, "frozen") or # new py2exe
