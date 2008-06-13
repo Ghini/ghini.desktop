@@ -51,15 +51,17 @@ def user_dir():
             dir = os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
-            raise Exception('Could not get path for user settings: no ' \
-                            'APPDATA variable')
+            raise Exception(_('Could not get path for user settings: no ' \
+                              'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":
-        if 'HOME' in os.environ:
-            dir = os.path.join(os.environ["HOME"], ".bauble")
+        # using os.expanduser is more reliable than os.environ['HOME']
+        # because if the user runs bauble with sudo then it will
+        # return the path of the user that used sudo instead of ~root
+        try:
+            return os.expanduser('~%s' % os.environ['USER'])
         else:
-            raise Exception('Could not get path for user settings: '\
-                            'no HOME variable')
+            raise Exception(_('Could not get path for user settings: '\
+                              'no HOME variable'))
     else:
-        raise Exception('Could not get path to user settings: ' \
-                         'unsupported platform')
-    return dir
+        raise Exception(_('Could not get path to user settings: ' \
+                          'unsupported platform'))
