@@ -4,6 +4,9 @@
 
 import os, sys
 
+# we can't the i18n module because it depends on this module for locale_dir
+#from bauble.i18n import _
+
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we
 # know where the lib directory is
@@ -51,17 +54,24 @@ def user_dir():
             dir = os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
-            raise Exception(_('Could not get path for user settings: no ' \
-                              'APPDATA or USERPROFILE variable'))
+            raise Exception('Could not get path for user settings: no ' \
+                              'APPDATA or USERPROFILE variable')
+#             raise Exception(_('Could not get path for user settings: no ' \
+#                               'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root
         try:
-            return os.expanduser('~%s' % os.environ['USER'])
-        else:
-            raise Exception(_('Could not get path for user settings: '\
-                              'no HOME variable'))
+            return os.path.expanduser('~%s' % os.environ['USER'])
+        except:
+            raise
+            raise Exception('Could not get path for user settings: '\
+                              'no HOME variable')
+#             raise Exception(_('Could not get path for user settings: '\
+#                               'no HOME variable'))
     else:
-        raise Exception(_('Could not get path to user settings: ' \
-                          'unsupported platform'))
+        raise Exception('Could not get path for user settings: '\
+                          'no HOME variable')
+#         raise Exception(_('Could not get path to user settings: ' \
+#                           'unsupported platform'))
