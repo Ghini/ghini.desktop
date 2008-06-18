@@ -63,11 +63,11 @@ def user_dir():
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root
         try:
-            return os.path.expanduser('~%s' % os.environ['USER'])
+            return os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
+				'.bauble')
         except:
-            raise
             raise Exception('Could not get path for user settings: '\
-                              'no HOME variable')
+                            'no HOME variable')
 #             raise Exception(_('Could not get path for user settings: '\
 #                               'no HOME variable'))
     else:
