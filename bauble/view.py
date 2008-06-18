@@ -3,14 +3,20 @@
 #
 # Description: the default view
 #
-import sys, re, traceback
+import sys
+import re
+import traceback
 import itertools
-import gtk, gobject, pango
+
+import gtk
+import gobject
+import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import sqlalchemy.exceptions as saexc
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
+
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -889,33 +895,30 @@ class SearchView(pluginmgr.View):
 
 
     def _populate_worker(self, results, check_for_kids=False):
-#    def populate_results(self, results, check_for_kids=False):
+        """
+        Generator function for adding the search results to the model
+        """
         nresults = len(results)
         model = gtk.TreeStore(object)
         model.set_default_sort_func(lambda *args: -1)
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         utils.clear_model(self.results_view)
-        model = gtk.TreeStore(object)
-        model.set_default_sort_func(lambda *args: -1)
-        model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
-        # insert them into the model by groups
-        groups = {}
+
+        # TODO: what happens with natsort and unicode characters
+
+        # insert them into the model by sorted groups
+        groups = []
         for key, group in itertools.groupby(results, lambda x: type(x)):
-            groups[key] = group
+            groups.append(sorted(group, key=utils.natsort_key))
 
         chunk_size = 100
         update_every = 1
         steps_so_far = 0
-        for piece in utils.chunk(results, chunk_size):
-            # TODO: the natural sort probably isn't compatible for non ASCII
-            # character strings
-            # TODO: choose between natsort_key or letting the returned results
-            # determine the order....UPDATE 2008.02.28: stick with natsort
-            # until we find something wrong with it...
-            # UPDATE 2008.02.29: if sorting takes too long for large datasets
-            # then maybe it would be better to
-            #for obj in piece:
-            for obj in sorted(piece, key=utils.natsort_key):
+
+        # chunk the groups into pieces of chunk_size and yield after adding
+        # each piece to the model
+        for piece in utils.chunk(itertools.chain(*groups), chunk_size):
+            for obj in piece:
                 parent = model.append(None, [obj])
                 obj_type = type(obj)
                 if check_for_kids:
