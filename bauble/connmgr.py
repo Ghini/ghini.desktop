@@ -134,18 +134,30 @@ class ConnectionManager:
             dbtype = self.widgets.type_combo.get_active_text()
             if dbtype == 'SQLite':
                 filename = settings['file']
-                if not os.access(filename, os.R_OK):
+                if not os.path.exists(filename):
+                    path, f = os.path.split(filename)
+                    if not os.access(path, os.R_OK):
+                        self._error = True
+                        msg = _("Bauble does not have permission to "\
+                                "read the directory:\n\n%s") % path
+                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                    elif not os.access(path, os.W_OK):
+                        self._error = True
+                        msg = _("Bauble does not have permission to "\
+                                "write to the directory:\n\n%s") % path
+                        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+                elif not os.access(filename, os.R_OK):
                     self._error = True
-                    msg = "Bauble does not have permission to read the "\
-                          "database file:\n %s" % filename
-                    utils.message_dialog(msg)
+                    msg = _("Bauble does not have permission to read the "\
+                            "database file:\n\n%s") % filename
+                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 elif not os.access(filename, os.W_OK):
-                    msg = "Bauble does not have permission to write to the "\
-                          "database file: %s\n" % filename
-                    utils.message_dialog(msg)
                     self._error = True
-                else:
-                    self.save_current_to_prefs()
+                    msg = _("Bauble does not have permission to "\
+                            "write to the database file:\n\n%s") % filename
+                    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+            if not self._error:
+                self.save_current_to_prefs()
         elif response == gtk.RESPONSE_CANCEL or \
              response == gtk.RESPONSE_DELETE_EVENT:
             if not self.compare_prefs_to_saved(self.current_name):
@@ -200,19 +212,17 @@ class ConnectionManager:
                    }
         self.widgets.signal_autoconnect(handlers)
 
-        # we shouldn't have to manually set the logo anymore, i think has
-        # been fixed in glade-3
-        #logo = self.widgets.logo_image
-        #logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
-        #logo.set_from_file(logo_path)
+        # set the logo image manually, its hard to depend on glade to
+        # get this right since the image paths may change
+        logo = self.widgets.logo_image
+        logo_path = os.path.join(paths.lib_dir(), "images", "bauble_logo.png")
+        logo.set_from_file(logo_path)
 
         self.params_box = None
         self.expander_box = self.widgets.expander_box
 
+        # setup the type combo
         self.type_combo = self.widgets.type_combo
-        self.type_combo.remove_text(0) # remove dummy '--'
-        for dbtype in self._dbtypes:
-            self.type_combo.insert_text(self._dbtypes.index(dbtype), dbtype)
         def type_combo_cell_data_func(combo, renderer, model, iter, data=None):
             """
             if the database type is not in self.working_dbtypes then
@@ -222,16 +232,13 @@ class ConnectionManager:
             sensitive = dbtype in self.working_dbtypes
             renderer.set_property('sensitive', sensitive)
             renderer.set_property('text', dbtype)
-
-        # TODO: here get get the following warning
-        # GtkWarning: gtk_cell_view_set_cell_data: assertion
-        # `cell_view->priv->displayed_row != NULL' failed
-        renderer = self.type_combo.get_child().get_cell_renderers()[0]
-        self.type_combo.set_cell_data_func(renderer, type_combo_cell_data_func)
+        utils.setup_text_combobox(self.type_combo, self._dbtypes,
+                                  type_combo_cell_data_func)
         self.type_combo.connect("changed", self.on_changed_type_combo)
 
+        # setup the name combo
         self.name_combo = self.widgets.name_combo
-        self.name_combo.remove_text(0) # remove dummy '--'
+        utils.setup_text_combobox(self.name_combo)
         self.name_combo.connect("changed", self.on_changed_name_combo)
 
         self.dialog.set_focus(self.widgets.connect_button)

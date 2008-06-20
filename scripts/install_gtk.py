@@ -23,6 +23,8 @@ import os
 import urllib
 import zipfile
 import _winreg
+import shutil
+
 from optparse import OptionParser
 parser = OptionParser()
 parser.add_option('-r', '--redl', action='store_true', dest='redl',
@@ -43,16 +45,16 @@ if options.install_path:
 else:
     GTK_INSTALL_PATH = 'c:\\GTK'
 
-# main gtk/pygtk files
-
 # TODO: as far as I know there's no other way to get the list of most
 # current files without listing them explicitly here which may be
 # better since we might include an incompatible release, maybe another
 # script could at least fest me the version numbers so i can quickly
 # check if any of the files need to be updated
+
+# main gtk/pygtk files
 SERVER_ROOT = 'http://ftp.gnome.org/pub/gnome/binaries/win32'
-GTK_PATH = 'gtk+/2.12/gtk+-2.12.9.zip'
-GLIB_PATH = 'glib/2.16/glib-2.16.2.zip'
+GTK_PATH = 'gtk+/2.12/gtk+-2.12.10.zip'
+GLIB_PATH = 'glib/2.16/glib-2.16.3.zip'
 #PANGO_PATH = 'pango/1.20/pango-1.20.2.zip'
 PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
 ATK_PATH = 'atk/1.22/atk-1.22.0.zip'
@@ -67,12 +69,12 @@ PYGOBJECT_25_PATH = 'pygobject/2.14/pygobject-2.14.1-1.win32-py2.5.exe'
 
 # pygtk-2.12.x only support python 2.5
 PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
-PYGTK_25_PATH = 'pygtk/2.12/pygtk-2.12.1-1.win32-py2.5.exe'
+PYGTK_25_PATH = 'pygtk/2.12/pygtk-2.12.1-2.win32-py2.5.exe'
 
 CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
 GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
-RSVG_PATH = 'librsvg/2.16/librsvg-2.16.1.zip'
-SVG_PIXBUF_PATH = 'librsvg/2.16/svg-gdk-pixbuf-loader-2.16.1.zip'
+RSVG_PATH = 'librsvg/2.22/librsvg-2.22.2.zip'
+SVG_PIXBUF_PATH = 'librsvg/2.22/svg-gdk-pixbuf-loader-2.22.2.zip'
 GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
 
 PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
@@ -88,7 +90,7 @@ GETTEXT_PATH = 'dependencies/gettext-runtime-0.17.zip'
 BZIP_PATH = 'dependencies/libbzip2-1.0.2.zip'
 ICONV_PATH = 'dependencies/libiconv-1.9.1.bin.woe32.zip' # should i be getting the woe32 or the other one?
 JPEG_PATH = 'dependencies/libjpeg-6b-4.zip'
-PNG_PATH = 'dependencies/libpng-1.2.8.zip'
+PNG_PATH = 'dependencies/libpng-1.2.29.zip'
 TIFF_PATH = 'dependencies/libtiff-3.7.1.zip'
 XML_PATH = 'dependencies/libxml2-2.6.27.zip'
 ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
@@ -101,6 +103,10 @@ ALL_FILES = [GTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
 
 
 def get_subkey_names(reg_key):
+    """
+    @param reg_key: a RegKey object
+    Get the names of the subkeys under reg_key
+    """
     index = 0
     L = []
     while True:
@@ -187,7 +193,14 @@ for url in ['%s/%s' % (SERVER_ROOT, FILE) for FILE in ALL_FILES]:
     if os.path.exists(dest_file) and not options.redl:
         continue
     print 'downloading %s...' % filename
-    urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
+    #filename, headers = urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
+    tmp, headers = urllib.urlretrieve(url)
+    if headers.type != 'text/html': # usually an error message        
+        shutil.move(tmp, os.path.join(DL_PATH, filename))
+    else:
+        print 'could not retrieve %s' % url
+        sys.exit(1)
+    
 
 # 1. for all downloaded files except for the python files we need to unzip them
 # into the GTK+ installation directory
@@ -244,11 +257,17 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
             print 'running installer %s' % fullname
         os.system(fullname)
 
-
+# at some point the svg pixbuf loader started linking against libpng13.dll
+# so we just copy our libpng12-0.dll to libpng13.dll
+PNG_13_PATH = os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng13.dll')
+if not os.path.exists(PNG_13_PATH):
+    shutil.copyfile(os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng12-0.dll'), PNG_13_PATH)
+        
 # register the pixbuf loaders
-load_pixbufs_cmd = '%s\\bin\gdk-pixbuf-query-loaders.exe > %s\\etc\gtk-2.0\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
+load_pixbufs_cmd = '%s\\bin\\gdk-pixbuf-query-loaders.exe > %s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
 if options.verbose:
     print load_pixbufs_cmd
+print load_pixbufs_cmd
 os.system(load_pixbufs_cmd)
 
 print 'done.'

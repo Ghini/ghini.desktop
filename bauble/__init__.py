@@ -41,7 +41,15 @@ else: # main is frozen
 # TODO: it would be nice to show a Tk dialog here saying we can't
 # import gtk...but then we would have to include all of the Tk libs in
 # with the win32 batteries-included installer
-import gtk, gobject
+try:
+    import gtk, gobject
+except ImportError, e:
+    print '** Error: could not import gtk and/or gobject'
+    print e
+    if sys.platform == 'win32':
+        print 'Please make sure that GTK_ROOT\\bin is in your PATH.'
+    sys.exit(1)
+
 
 import gtk.gdk
 display = gtk.gdk.display_get_default()

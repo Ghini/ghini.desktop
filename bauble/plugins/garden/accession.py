@@ -548,6 +548,9 @@ class CollectionPresenter(GenericEditorPresenter):
         coll_date_entry.connect('insert-text', self.on_date_entry_insert)
         coll_date_entry.connect('delete-text', self.on_date_entry_delete)
 
+        utils.setup_date_button(coll_date_entry,
+                                self.view.widgets.coll_date_button)
+
         # don't need to connection to south/west since they are in the same
         # groups as north/east
         north_radio = self.view.widgets.north_radio
@@ -583,7 +586,8 @@ class CollectionPresenter(GenericEditorPresenter):
             value = self.model[field]
 ##            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         latitude = self.model.latitude
@@ -851,6 +855,8 @@ class DonationPresenter(GenericEditorPresenter):
         don_date_entry = self.view.widgets.don_date_entry
         don_date_entry.connect('insert-text', self.on_date_entry_insert)
         don_date_entry.connect('delete-text', self.on_date_entry_delete)
+        utils.setup_date_button(don_date_entry,
+                                self.view.widgets.don_date_button)
         self.view.widgets.don_new_button.connect('clicked',
                                                  self.on_don_new_clicked)
         self.view.widgets.don_edit_button.connect('clicked',
@@ -979,7 +985,8 @@ class DonationPresenter(GenericEditorPresenter):
             value = self.model[field]
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         if self.model.donor is None:
@@ -1074,6 +1081,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         acc_date_entry = self.view.widgets.acc_date_entry
         acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
         acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
+
+        utils.setup_date_button(acc_date_entry,
+                                self.view.widgets.acc_date_button)
 
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    UnicodeOrNoneValidator())
@@ -1342,7 +1352,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             else:
                 value = self.model[field]
             if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month, value.year)
+                value = '%s/%s/%s' % (value.day, value.month,
+                                      '%04d' % value.year)
             self.view.set_widget_value(widget, value)
 
         if self.model.private is None:
