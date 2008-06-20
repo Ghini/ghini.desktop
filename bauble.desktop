@@ -1,10 +1,10 @@
 [Desktop Entry]
 Encoding=UTF-8
 Name=Bauble
-Version=0.8.3
+Version=0.8.5
 Comment=An application for managing botanical collections
 Terminal=False
-Icon=bauble-0.8.3/bauble/images/icon.svg
+Icon=bauble
 Type=Application
 Exec=/usr/bin/bauble
 Categories=Education;

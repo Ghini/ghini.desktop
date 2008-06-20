@@ -319,7 +319,7 @@ class PrefsCommandHandler(pluginmgr.CommandHandler):
     def get_view(self):
         if self.view is None:
             self.view = PrefsView()
-            return self.view
+        return self.view
 
 
 

@@ -1,4 +1,4 @@
- #
+#
 # _gui.py
 #
 
@@ -6,6 +6,7 @@ import os, sys, traceback
 import gtk
 import bauble
 import bauble.utils as utils
+import bauble.utils.desktop as desktop
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
@@ -290,6 +291,17 @@ class GUI(object):
 ##                                    self.on_edit_menu_prefs),
                                   ("insert", None, _("_Insert")),
                                   ("tools", None, _("_Tools")),
+				  ("help", None, _("_Help")),
+				  ("help_contents", gtk.STOCK_HELP,
+				   _("Contents"), None, None,
+				   self.on_help_menu_contents),
+				  ("help_bug", None, _("Report a bug"), None,
+				   None, self.on_help_menu_bug),
+				  ("help_web", gtk.STOCK_HOME,
+				   _("Bauble website"), None,
+				   None, self.on_help_menu_web),
+				  ("help_about", gtk.STOCK_ABOUT, _("About"),
+				   None, None, self.on_help_menu_about),
                                   ])
         self.ui_manager.insert_action_group(menu_actions, 0)
 
@@ -329,10 +341,7 @@ class GUI(object):
         '''
         menu_item = gtk.MenuItem(name)
         menu_item.set_submenu(menu)
-        # we'll just append them for now but really we should
-        # get the number of children in the menubar and insert at len-1
-        # to account for the Help menu
-        self.menubar.append(menu_item)
+	self.menubar.insert(menu_item, len(self.menubar.get_children())-1)
         self.menubar.show_all()
         return menu_item
 
@@ -526,6 +535,29 @@ class GUI(object):
             self.set_default_view()
             self.clear_menu('/ui/MenuBar/insert_menu')
             pluginmgr.init()
+
+
+    def on_help_menu_contents(self, widget, data=None):
+	desktop.open('http://bauble.belizebotanic.org/using.html')
+
+
+    def on_help_menu_bug(self, widget, data=None):
+	desktop.open('https://bugs.launchpad.net/bauble/+bugs')
+
+
+    def on_help_menu_web(self, widget, data=None):
+	desktop.open('http://bauble.belizebotanic.org')
+
+
+    def on_help_menu_about(self, widget, data=None):
+	about = gtk.AboutDialog()
+	about.set_name('Bauble')
+	about.set_version(bauble.version_str)
+	about.set_website(_('http://bauble.belizebotanic.org'))
+	about.set_logo_icon_name('bauble')
+	about.set_copyright(_(u'Copyright \u00A9 Belize Botanic Gardens'))
+	about.run()
+	about.destroy()
 
 
     def save_state(self):

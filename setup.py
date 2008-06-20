@@ -25,7 +25,6 @@ def get_version():
     return version
 
 version = get_version()
-
 gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
 #plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
 #	   'imex']
@@ -41,7 +40,7 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
                            'images/*.svg', 'images/*.ico']}
 
-data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl']
+data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
 
@@ -130,7 +129,7 @@ setup(name="bauble",
       package_dir = all_package_dirs,
       package_data = package_data,
       data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.4.3", "pysqlite>=2.3.2",
+      install_requires=["SQLAlchemy>=0.4.4", "pysqlite>=2.3.2",
                         "simplejson>=1.7.1", "lxml>=2.0.1"],
 #      extras_requires=["mysql-python and psycopg"
 
@@ -145,3 +144,18 @@ setup(name="bauble",
       url="http://bauble.belizebotanic.org",
 #      download_url="http://bauble.belizebotanic.org/#download"
      )
+
+from distutils.util import execute
+def install_linux():
+    """
+    install the menu and icons entries on Linux system that complies
+    with the freedesktop.org specs
+    """
+    os.system('xdg-desktop-menu install --novendor bauble.desktop')
+    icon_sizes = [16, 22, 32, 48, 64]#, 128]
+    for size in icon_sizes:
+        os.system('xdg-icon-resource install --novendor --size %s '\
+                  'bauble/images/bauble-%s.png bauble' % (size, size))
+
+if sys.platform == 'linux2':
+    execute(install_linux, [], msg='installing menu entry and icon')

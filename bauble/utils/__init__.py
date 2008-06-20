@@ -386,6 +386,49 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     d.destroy()
     return r
 
+
+def setup_text_combobox(combo, values=[], cell_data_func=None):
+    """
+    Configure a gtk.ComboBox as a text combobox
+    """
+    combo.clear()
+    model = gtk.ListStore(str)
+    for v in values:
+        model.append([v])
+    combo.set_model(model)
+    renderer = gtk.CellRendererText()
+    combo.pack_start(renderer, True)
+    combo.add_attribute(renderer, 'text', 0)
+    if cell_data_func:
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+
+
+def setup_date_button(entry, button, date_func=None):
+    """
+    @param entry: the entry that the data goes into
+    @param button: the button that enters the data in entry
+    @date_func: the function that returns a string represention of the date
+    """
+    # TODO: connect Ctrl-T on the entry to enter signal clicked on the button
+    icon = os.path.join(paths.lib_dir(), 'images', 'calendar.png')
+    image = gtk.Image()
+    image.set_from_file(icon)
+    button.set_tooltip_text(_("Today's date"))
+    button.set_image(image)
+    def on_clicked(b):
+        s = ''
+        if not date_func:
+            import datetime
+            today = datetime.date.today()
+            s = '%s/%s/%s' % (today.day, today.month, today.year)
+        else:
+            s = date_func()
+        entry.set_text(s)
+    button.connect('clicked', on_clicked)
+
+
+
 def to_unicode(obj, encoding='utf-8'):
     """
     Return obj converted to unicode.  If obj is already a unicode
