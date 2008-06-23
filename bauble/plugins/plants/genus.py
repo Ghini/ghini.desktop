@@ -4,12 +4,14 @@
 
 import os, traceback
 import xml
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
+
 import bauble
 from bauble.i18n import _
 from bauble.editor import *
@@ -18,7 +20,9 @@ import bauble.utils.sql as sql_utils
 import bauble.utils.desktop as desktop
 from bauble.types import Enum
 from bauble.utils.log import debug
-
+import bauble.paths as paths
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results
 
 # TODO: should be a higher_taxon column that holds values into
 # subgen, subfam, tribes etc, maybe this should be included in Genus
@@ -603,17 +607,13 @@ class GenusEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-
-#
-# infobox
-#
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander
-from sqlalchemy.orm.session import object_session
-import bauble.paths as paths
 from bauble.plugins.plants.species_model import Species, species_table
 from bauble.plugins.garden.accession import Accession, accession_table
 from bauble.plugins.garden.plant import Plant, plant_table
 
+#
+# Infobox and InfoExpanders
+#
 
 class LinksExpander(InfoExpander):
 
@@ -704,6 +704,12 @@ class GeneralGenusExpander(InfoExpander):
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
 
+        self.current_obj = None
+        def on_family_clicked(*args):
+            select_in_search_results(self.current_obj.family)
+        utils.make_label_clickable(self.widgets.gen_fam_data,
+                                   on_family_clicked)
+
 
     def update(self, row):
         '''
@@ -711,9 +717,11 @@ class GeneralGenusExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
+        self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
                                   (row, utils.xml_safe(unicode(row.author))))
-
+        self.set_widget_value('gen_fam_data',
+                              (utils.xml_safe(unicode(row.family))))
         # get the number of species
         species_ids = select([species_table.c.id],
                              species_table.c.genus_id==row.id)
@@ -760,11 +768,22 @@ class SynonymsExpander(InfoExpander):
             self.set_sensitive(False)
             self.set_expanded(False)
         else:
-            synonyms = []
+            def on_label_clicked(label, event, syn):
+                select_in_search_results(syn)
+            syn_box = self.widgets.gen_synonyms_box
             for syn in row.synonyms:
-                g = Genus.str(syn, author=True)
-                synonyms.append(g)
-            self.widgets.gen_synonyms_data.set_markup('\n'.join(synonyms))
+                # remove all the children
+                syn_box.foreach(syn_box.remove)
+                # create clickable label that will select the synonym
+                # in the search results
+                box = gtk.EventBox()
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(Genus.str(syn, author=True))
+                box.add(label)
+                utils.make_label_clickable(label, on_label_clicked, syn)
+                syn_box.pack_start(box, expand=False, fill=False)
+
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)

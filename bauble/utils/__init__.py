@@ -596,7 +596,7 @@ def date_to_str(date, format):
     return s
 
 
-def make_label_clickable(label, on_clicked):
+def make_label_clickable(label, on_clicked, *args):
     """
     @param label: must have an eventbox as its parent
     @param on_clicked: callback to be called when the label is clicked
@@ -613,12 +613,12 @@ def make_label_clickable(label, on_clicked):
         label.__pressed = False
     def on_press(*args):
         label.__pressed = True
-    def on_release(widget, event, data=None):
+    def on_release(widget, event, *args):
         if label.__pressed:
             label.__pressed = False
             label.modify_fg(gtk.STATE_NORMAL, None)
-            on_clicked(label, event, data)
+            on_clicked(label, event, *args)
     eventbox.connect('enter_notify_event', on_enter_notify)
     eventbox.connect('leave_notify_event', on_leave_notify)
     eventbox.connect('button_press_event', on_press)
-    eventbox.connect('button_release_event', on_release)
+    eventbox.connect('button_release_event', on_release, *args)

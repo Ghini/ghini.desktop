@@ -180,7 +180,7 @@ class InfoBox(gtk.ScrolledWindow):
         @type expander: InfoExpander
         @param expander: the expander to add to this infobox
         '''
-        self.vbox.pack_start(expander, expand=False, fill=True)
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
 
         sep = gtk.HSeparator()

@@ -2,13 +2,16 @@
 # Family table definition
 #
 
-import os, traceback
+import os
+import traceback
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
+
 import bauble
 from bauble.i18n import _
 from bauble.editor import *
@@ -490,7 +493,8 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 #
 # Family infobox
 #
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results
 import bauble.paths as paths
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, species_table
@@ -575,11 +579,22 @@ class SynonymsExpander(InfoExpander):
             self.set_sensitive(False)
             self.set_expanded(False)
         else:
-            synonyms = []
+            def on_label_clicked(label, event, syn):
+                select_in_search_results(syn)
+            syn_box = self.widgets.fam_synonyms_box
             for syn in row.synonyms:
-                f = Family.str(syn)
-                synonyms.append(f)
-            self.widgets.fam_synonyms_data.set_markup('\n'.join(synonyms))
+                # remove all the children
+                syn_box.foreach(syn_box.remove)
+                # create clickable label that will select the synonym
+                # in the search results
+                box = gtk.EventBox()
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(Family.str(syn))
+                box.add(label)
+                utils.make_label_clickable(label, on_label_clicked, syn)
+                syn_box.pack_start(box, expand=False, fill=False)
+
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
