@@ -11,7 +11,6 @@
         <property name="visible">True</property>
         <child>
           <widget class="GtkVBox" id="sp_general_box">
-            <property name="border_width">5</property>
             <child>
               <widget class="GtkLabel" id="sp_name_data">
                 <property name="visible">True</property>
@@ -135,7 +134,6 @@
         <child>
           <widget class="GtkVBox" id="sp_vernacular_box">
             <property name="visible">True</property>
-            <property name="border_width">5</property>
             <child>
               <widget class="GtkLabel" id="sp_vernacular_data">
                 <property name="visible">True</property>
@@ -200,16 +198,38 @@
         <child>
           <widget class="GtkVBox" id="gen_general_box">
             <property name="visible">True</property>
-            <property name="border_width">5</property>
+            <property name="spacing">5</property>
             <child>
-              <widget class="GtkLabel" id="gen_name_data">
+              <widget class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="ypad">8</property>
+                <child>
+                  <widget class="GtkLabel" id="gen_name_data">
+                    <property name="visible">True</property>
+                    <property name="xalign">0</property>
+                  </widget>
+                  <packing>
+                    <property name="expand">False</property>
+                    <property name="fill">False</property>
+                  </packing>
+                </child>
+                <child>
+                  <widget class="GtkEventBox" id="eventbox1">
+                    <property name="visible">True</property>
+                    <child>
+                      <widget class="GtkLabel" id="gen_fam_data">
+                        <property name="visible">True</property>
+                        <property name="xalign">0</property>
+                        <property name="label" translatable="yes" context="yes">--</property>
+                      </widget>
+                    </child>
+                  </widget>
+                  <packing>
+                    <property name="position">1</property>
+                  </packing>
+                </child>
               </widget>
               <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
+                <property name="padding">5</property>
               </packing>
             </child>
             <child>
@@ -314,17 +334,8 @@
         <child>
           <widget class="GtkVBox" id="gen_synonyms_box">
             <property name="visible">True</property>
-            <property name="border_width">5</property>
             <child>
-              <widget class="GtkLabel" id="gen_synonyms_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes" context="yes">--</property>
-              </widget>
-              <packing>
-                <property name="expand">False</property>
-                <property name="fill">False</property>
-              </packing>
+              <placeholder/>
             </child>
           </widget>
           <packing>
@@ -500,11 +511,7 @@
           <widget class="GtkVBox" id="fam_synonyms_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkLabel" id="fam_synonyms_data">
-                <property name="visible">True</property>
-                <property name="xalign">0</property>
-                <property name="label" translatable="yes">--</property>
-              </widget>
+              <placeholder/>
             </child>
           </widget>
           <packing>
