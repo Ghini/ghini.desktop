@@ -739,6 +739,58 @@ class GeneralGenusExpander(InfoExpander):
         self.set_widget_value('gen_nplants_data', nplants_str)
 
 
+
+class SynonymsExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, _("Synonyms"), widgets)
+        synonyms_box = self.widgets.gen_synonyms_box
+        self.widgets.remove_parent(synonyms_box)
+        self.vbox.pack_start(synonyms_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get thevalues from
+        '''
+        #debug(row.synonyms)
+        if len(row.synonyms) == 0:
+            self.set_sensitive(False)
+            self.set_expanded(False)
+        else:
+            synonyms = []
+            for syn in row.synonyms:
+                g = Genus.str(syn, author=True)
+                synonyms.append(g)
+            self.widgets.gen_synonyms_data.set_markup('\n'.join(synonyms))
+            self.set_sensitive(True)
+            # TODO: get expanded state from prefs
+            self.set_expanded(True)
+
+
+
+class NotesExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, _("Notes"), widgets)
+        notes_box = self.widgets.gen_notes_box
+        self.widgets.remove_parent(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        if row.notes is None:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+        else:
+            self.set_expanded(True)
+            self.set_sensitive(True)
+            self.set_widget_value('gen_notes_data', row.notes)
+
+
+
 class GenusInfoBox(InfoBox):
     """
     - number of taxon in number of accessions
@@ -751,6 +803,10 @@ class GenusInfoBox(InfoBox):
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
         self.general = GeneralGenusExpander(self.widgets)
         self.add_expander(self.general)
+        self.synonyms = SynonymsExpander(self.widgets)
+        self.add_expander(self.synonyms)
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -759,6 +815,8 @@ class GenusInfoBox(InfoBox):
 
     def update(self, row):
         self.general.update(row)
+        self.synonyms.update(row)
+        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
