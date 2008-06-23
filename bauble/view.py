@@ -146,7 +146,7 @@ class PropertiesExpander(InfoExpander):
 
         box = gtk.HBox()
         box.pack_start(table, expand=False, fill=False)
-        self.vbox.pack_start(box)
+        self.vbox.pack_start(box, expand=False, fill=False)
 
 
     def update(self, row):
@@ -180,7 +180,8 @@ class InfoBox(gtk.ScrolledWindow):
         @type expander: InfoExpander
         @param expander: the expander to add to this infobox
         '''
-        self.vbox.pack_start(expander, False, False)
+        self.vbox.pack_start(expander, expand=False, fill=True)
+        #self.vbox.pack_start(expander, expand=False, fill=False)
         self.expanders[expander.get_property("label")] = expander
 
         sep = gtk.HSeparator()
@@ -739,7 +740,7 @@ class SearchView(pluginmgr.View):
         self.infobox = new_infobox
         if self.infobox is not None:
             self.infobox.update(row)
-            self.pane.pack2(self.infobox, False, True)
+            self.pane.pack2(self.infobox, resize=False, shrink=True)
             self.pane.show_all()
 
 
@@ -1148,7 +1149,7 @@ class SearchView(pluginmgr.View):
         # pane to split the results view and the infobox, the infobox
         # is created when a row in the results is selected
         self.pane = gtk.HPaned()
-        self.pane.pack1(sw, True, False)
+        self.pane.pack1(sw, resize=True, shrink=True)
         self.pack_start(self.pane)
         self.show_all()
 
