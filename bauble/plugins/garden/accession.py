@@ -1055,7 +1055,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             return query.filter(and_(species_table.c.genus_id == \
                                      genus_table.c.id,
                                 or_(genus_table.c.genus.like('%s%%' % text),
-                                    genus_table.c.hybrid==text)))
+                                    genus_table.c.hybrid==utils.utf8(text))))
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('acc_species_entry', 'species',
