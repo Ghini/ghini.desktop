@@ -50,7 +50,11 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
     def __init__(self, model, view):
         GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
         self.session = object_session(model)
-        self.init_combos()
+
+        combos = ('sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_spqual_combo')
+        for name in combos:
+            self.init_enum_combo(name, self.widget_to_field_map[name])
+
         self.init_fullname_widgets()
         self.vern_presenter = VernacularNamePresenter(self.model, self.view,
                                                       self.session)
@@ -180,26 +184,6 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         for field in self.widget_to_field_map.values():
             self.model.add_notifier(field, self.on_field_changed)
 
-
-    def init_combos(self):
-        '''
-        initialize the infraspecific rank combo, the species hybrid combo,
-        the species qualifier combo
-        '''
-        combos = ['sp_infra_rank_combo', 'sp_hybrid_combo',
-                  'sp_spqual_combo']
-        for combo_name in combos:
-            combo = self.view.widgets[combo_name]
-            combo.clear()
-            r = gtk.CellRendererText()
-            combo.pack_start(r, True)
-            combo.add_attribute(r, 'text', 0)
-            column = self.model.c[self.widget_to_field_map[combo_name]]
-            for enum in sorted(column.type.values):
-                if enum == None:
-                    combo.append_text('')
-                else:
-                    combo.append_text(enum)
 
 
     def init_fullname_widgets(self):

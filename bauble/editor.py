@@ -443,13 +443,12 @@ class GenericEditorPresenter(object):
         in self.model.field
         """
         combo = self.view.widgets[widget_name]
-        model = gtk.ListStore(str)
-        for enum in sorted(self.model.c[field].type.values):
-            if enum == None:
-                model.append([''])
-            else:
-                model.append([enum])
-        combo.set_model(model)
+        values = sorted(self.model.c[field].type.values)
+        if None in values:
+            values.remove(None)
+            values.insert(0, '')
+        utils.setup_text_combobox(combo, values)
+
 
 #    def bind_widget_to_model(self, widget_name, model_field):
 #        # TODO: this is just an idea stub, should we have a method like
