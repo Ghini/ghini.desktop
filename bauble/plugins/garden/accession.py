@@ -373,24 +373,16 @@ class AccessionEditorView(GenericEditorView):
 
         # datum completions
         completion = self.attach_completion('datum_entry',
-                                            minimum_key_length=1)
+                                        minimum_key_length=1, text_column=0)
         model = gtk.ListStore(str)
         for abbr in sorted(datums.keys()):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
         completion.set_model(model)
 
-
         if sys.platform == 'win32':
             self.do_win32_fixes()
 
-
-    def species_match_func(self, completion, key, iter, data=None):
-        species = completion.get_model()[iter][0]
-        if str(species).lower().startswith(key.lower()) \
-               or str(species.genus.genus).lower().startswith(key.lower()):
-            return True
-        return False
 
     def do_win32_fixes(self):
         import pango
@@ -466,13 +458,12 @@ class AccessionEditorView(GenericEditorView):
         return self.widgets.accession_dialog.run()
 
 
-    def species_completion_match_func(self, completion, key_string, iter,
-                                      data=None):
-        '''
-        the only thing this does different is it make the match case insensitve
-        '''
-        value = completion.get_model()[iter][0]
-        return str(value).lower().startswith(key_string.lower())
+    def species_match_func(self, completion, key, iter, data=None):
+        species = completion.get_model()[iter][0]
+        if str(species).lower().startswith(key.lower()) \
+               or str(species.genus.genus).lower().startswith(key.lower()):
+            return True
+        return False
 
 
     def species_cell_data_func(self, column, renderer, model, iter, data=None):
@@ -502,6 +493,7 @@ class CollectionPresenter(GenericEditorPresenter):
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
                            'coll_notes_textview': 'notes',
+                           'datum_entry': 'gps_datum'
                            }
 
     # TODO: could make the problems be tuples of an id and description to
@@ -533,8 +525,26 @@ class CollectionPresenter(GenericEditorPresenter):
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('coll_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
-        self.assign_simple_handler('datum_entry', 'datum',
-                                   UnicodeOrNoneValidator())
+        # the list of completions are added in AccessionEditorView.__init__
+        #def set_in_model(self, field, value):
+        #    debug('set in model')
+        #    self.model['gps_datum'] = value
+        #self.assign_completions_handler('datum_entry', 'gps_datum',
+        #                                set_func=set_in_model)
+        def on_match(completion, model, iter, data=None):
+            value = model[iter][0]
+            debug(value)
+            validator = UnicodeOrNoneValidator()
+            self.model.gps_datum = validator.to_python(value)
+            completion.get_entry().set_text(value)
+            #completion.get_entry().insert_text(value)
+            debug(self.view.widgets.datum_entry.get_text())
+            #self.view.widgets.datum_entry.set_text('match')
+        completion = self.view.widgets.datum_entry.get_completion()
+        completion.connect('match-selected', on_match)
+        #self.assign_simple_handler('datum_entry', 'gps_datum',
+        #                           UnicodeOrNoneValidator())
+        #self.view.widgets.datum_entry.set_text('something')
 
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
@@ -567,6 +577,9 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
+        """
+        Validates the fields when a field changes.
+        """
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
         else:
@@ -664,9 +677,7 @@ class CollectionPresenter(GenericEditorPresenter):
             return
         if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
             entry.set_text('-%s' % lon_text)
-            debug('entry.set_text(%s)' % ('-%s' % lon_text))
         elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
-            debug('entry.set_text(%s)' % (lon_text[1:]))
             entry.set_text(lon_text[1:])
 
 
@@ -1182,18 +1193,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
+        """
+        This method works on the assumption that
+        source_presenter.on_field_changed is called before this method
+        and adds and removes problems as necessary, if for some reason
+        this isn't the case then this method would work as expected
+        """
 ##        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
 
-        # This method works on the assumption that
-        # source_presenter.on_field_changed is called before this
-        # method and adds and removes problems as necessary, if for
-        # some reason this isn't the case then this method would work
-        # as expected...TODO: add a test to make sure that the change
-        # notifiers are called in the expected order
+        # TODO: add a test to make sure that the change notifiers are
+        # called in the expected order
         prov_sensitive = True
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':

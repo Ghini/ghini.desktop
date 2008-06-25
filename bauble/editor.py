@@ -45,7 +45,8 @@ class UnicodeOrNoneValidator(object):
     def to_python(self, value):
         if value in (u'', ''):
             return None
-        return unicode(value, self.encoding)
+        return utils.to_unicode(value, self.encoding)
+
 
 
 class IntOrNoneStringValidator(object):
@@ -171,7 +172,7 @@ def default_completion_cell_data_func(column, renderer, model, iter,data=None):
     GenericEditorView.attach_completions
     '''
     v = model[iter][0]
-    renderer.set_property('markup', unicode(v))
+    renderer.set_property('markup', utils.to_unicode(v))
 
 
 def default_completion_match_func(completion, key_string, iter):
@@ -261,28 +262,53 @@ class GenericEditorView(object):
     def attach_completion(self, entry_name,
                           cell_data_func=default_completion_cell_data_func,
                           match_func=default_completion_match_func,
-                          minimum_key_length=2):
-        '''
+                          minimum_key_length=2,
+                          text_column=-1):
+        """
+        Attach an entry completion to a gtk.Entry.  The defaults
+        values for this attach_completion assumes the completion popup
+        only shows text and that the text is in the first column of
+        the model.
+
+        NOTE: If you are selecting completions from strings in your model
+        you must set the text_column parameter to the column in the
+        model that holds the strings or else when you select the string
+        from the completions it won't get set properly in the entry
+        even though you call entry.set_text().
+
+        @param entry_name: the name of the entry to attach the completion
+
+        @param cell_data_func: the function to use to display the rows in
+        the completion popup
+
+        @param match_func: a function that returns True/False if the
+        value from the model should be shown in the completions
+
+        @param minimum_key_length: default=2
+
+        @param text_column: the value of the text-column property on the entry,
+        default is -1
+
         @return: the completion attached to the entry
-        '''
+        """
         # TODO: we should add a default ctrl-space to show the list of
         # completions regardless of the length of the string
-        entry = self.widgets[entry_name]
         completion = gtk.EntryCompletion()
-        completion.set_popup_set_width(True)
-        completion.set_match_func(match_func)
         cell = gtk.CellRendererText() # set up the completion renderer
         completion.pack_start(cell)
         completion.set_cell_data_func(cell, cell_data_func)
+        completion.set_match_func(match_func)
+        completion.set_property('text-column', text_column)
         completion.set_minimum_key_length(minimum_key_length)
         completion.set_popup_completion(True)
+        completion.set_popup_set_width(True)
         self.widgets[entry_name].set_completion(completion)
         return completion
 
 
     def save_state(self):
         '''
-        save the state of the view by setting a value in the preferences
+        Save the state of the view by setting a value in the preferences
         that will be called restored in restore_state
         e.g. prefs[pref_string] = pref_value
         '''
@@ -290,7 +316,7 @@ class GenericEditorView(object):
 
     def restore_state(self):
         '''
-        resore the state of the view, this is usually done by getting a value
+        Restore the state of the view, this is usually done by getting a value
         by the preferences and setting the equivalent in the interface
         '''
         pass
@@ -559,18 +585,23 @@ class GenericEditorPresenter(object):
     # so the the person using this method know what to expect when some
     # action is taken on the model
     def assign_completions_handler(self, widget_name, field,
-                                   get_completions,
+                                   get_completions=None,
                                    set_func=lambda self, f, v: \
                                       setattr(self.model, f, v),
                                    format_func=lambda x: unicode(x),
                                    model=None):
         """
-        assign_completions_handler assumes that when you select a
-        completion you are essentially setting the model.field from the
-        selected completion.
+        assign_completions_handler is generally used in the case where
+        the list of completions if generated dynamically from the text
+        in the entry
+
+        it is assumed that when you select a completion you are
+        essentially setting the model.field from the selected
+        completion.
 
         @param widget_name: the name of the widget in self.view.widgets
         @param field: the name of the field to set in the model
+        @param get_completions: return a list of strings to use as completions
         @param set_func: the function to call when a value is selected from
         the completions, the default is:
                        lambda self, f, v: setattr(self.model, f, v)
@@ -581,7 +612,7 @@ class GenericEditorPresenter(object):
         of model
         """
         widget = self.view.widgets[widget_name]
-        self._prev_text[widget_name] = None
+        self._prev_text[widget_name] = ''
         if model is None:
             model = self.model
         # TODO: this works with Ctrl-Space and all but i don't know how to
@@ -605,7 +636,12 @@ class GenericEditorPresenter(object):
         PROBLEM = hash(widget_name)
         insert_sid_name = '_insert_%s_sid' % widget_name
         def add_completions(text):
-#            debug('add_completions(%s)' % text)
+##            debug('add_completions(%s)' % text)
+            if get_completions is None:
+                # get_completions is None usually means that the
+                # completions model already has a static list of
+                # completions
+                return
             values = get_completions(text)
             def idle_callback(values):
                 completion = widget.get_completion()
