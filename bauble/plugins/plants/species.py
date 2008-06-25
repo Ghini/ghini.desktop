@@ -159,11 +159,22 @@ class SynonymsExpander(InfoExpander):
             self.set_sensitive(False)
             self.set_expanded(False)
         else:
-            synonyms = []
+            def on_label_clicked(label, event, syn):
+                select_in_search_results(syn)
+            syn_box = self.widgets.sp_synonyms_box
             for syn in row.synonyms:
-                s = Species.str(syn, markup=True, authors=True)
-                synonyms.append(s)
-            self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
+                # remove all the children
+                syn_box.foreach(syn_box.remove)
+                # create clickable label that will select the synonym
+                # in the search results
+                box = gtk.EventBox()
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(Species.str(syn, markup=True, authors=True))
+                box.add(label)
+                utils.make_label_clickable(label, on_label_clicked, syn)
+                syn_box.pack_start(box, expand=False, fill=False)
+
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
