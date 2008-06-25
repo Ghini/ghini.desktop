@@ -1631,6 +1631,7 @@ class SourceExpander(InfoExpander):
     def update_collections(self, collection):
 
         self.set_widget_value('loc_data', collection.locale)
+        self.set_widget_value('datum_data', collection.gps_datum)
 
         geo_accy = collection.geo_accy
         if not geo_accy:
