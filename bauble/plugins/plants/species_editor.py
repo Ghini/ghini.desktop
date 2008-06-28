@@ -846,8 +846,7 @@ class SpeciesEditorView(GenericEditorView):
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
         self.connect_dialog_close(self.widgets.species_dialog)
-        if sys.platform == 'win32':
-            self.do_win32_fixes()
+
 
     def _get_window(self):
         '''
@@ -893,12 +892,6 @@ class SpeciesEditorView(GenericEditorView):
         '''
         v = model[iter][0]
         renderer.set_property('text', str(v))
-
-
-    def do_win32_fixes(self):
-        '''
-        '''
-        pass
 
 
     def save_state(self):
