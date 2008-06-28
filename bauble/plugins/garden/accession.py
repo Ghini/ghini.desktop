@@ -103,12 +103,8 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     min = Decimal(str(min))
     sec = Decimal(str(sec))
     dec = abs(sec/Decimal('3600')) + abs(min/Decimal('60.0')) + deg
-    #dec = Decimal((abs(Decimal(str(sec)))/Decimal('3600.0')) + \
-    #      (abs(Decimal(str(min)))/Decimal('60.0')) + \
-    #       Decimal(abs(deg)), 5)
     if dir in ('W', 'S'):
         dec = -dec
-
     return dec.quantize(nplaces)
 
 
@@ -383,7 +379,6 @@ class AccessionEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.accession_dialog)
 
         # datum completions
-
         completion = self.attach_completion('datum_entry',
                                         minimum_key_length=1,
                                             match_func=self.datum_match,
