@@ -67,6 +67,7 @@ def decimal_to_dms(decimal, long_or_lat):
     @returns dir, degrees, minutes seconds, seconds rounded to two
     decimal places
     '''
+    debug('%s: %s' % (decimal, long_or_lat))
     if long_or_lat == 'long':
         check(abs(decimal) <= 180)
     else:
@@ -103,12 +104,8 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     min = Decimal(str(min))
     sec = Decimal(str(sec))
     dec = abs(sec/Decimal('3600')) + abs(min/Decimal('60.0')) + deg
-    #dec = Decimal((abs(Decimal(str(sec)))/Decimal('3600.0')) + \
-    #      (abs(Decimal(str(min)))/Decimal('60.0')) + \
-    #       Decimal(abs(deg)), 5)
     if dir in ('W', 'S'):
         dec = -dec
-
     return dec.quantize(nplaces)
 
 
@@ -735,7 +732,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 #u"\N{DEGREE SIGN}"
                 dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
         except:
-#            debug(traceback.format_exc())
+            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
@@ -777,7 +774,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
         except:
-#            debug(traceback.format_exc())
+            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
