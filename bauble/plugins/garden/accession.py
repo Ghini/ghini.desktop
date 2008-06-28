@@ -384,62 +384,6 @@ class AccessionEditorView(GenericEditorView):
             model.append([abbr])
         completion.set_model(model)
 
-        if sys.platform == 'win32':
-            self.do_win32_fixes()
-
-
-    def do_win32_fixes(self):
-        import pango
-        def get_char_width(widget):
-            context = widget.get_pango_context()
-            font_metrics = context.get_metrics(context.get_font_description(),
-                                               context.get_language())
-            width = font_metrics.get_approximate_char_width()
-            return pango.PIXELS(width)
-
-        def width_func(widget, col, multiplier=1.3):
-            return int(round(get_char_width(widget) * \
-                             accession_table.c[col].type.length*multiplier))
-        species_entry = self.widgets.acc_species_entry
-        species_entry.set_size_request(get_char_width(species_entry)*20, -1)
-        prov_combo = self.widgets.acc_prov_combo
-        prov_combo.set_size_request(width_func(prov_combo, 'prov_type', 1.1),
-                                    -1)
-        wild_prov_combo = self.widgets.acc_wild_prov_combo
-        wild_prov_combo.set_size_request(width_func(wild_prov_combo,
-                                                    'wild_prov_status'), -1)
-        source_combo = self.widgets.acc_source_type_combo
-        source_combo.set_size_request(width_func(source_combo, 'source_type'),
-                                      -1)
-
-        # TODO: we really don't need to do the the fixes for the source
-        # presenters until we know the which source box is going to be opened,
-        # could connect to the boxes realized or focused signals or something
-        # along those lines
-
-        # fix the widgets in the collection editor
-        lat_entry = self.widgets.lat_entry
-        lat_entry.set_size_request(get_char_width(lat_entry)*8, -1)
-        lon_entry = self.widgets.lon_entry
-        lon_entry.set_size_request(get_char_width(lon_entry)*8, -1)
-        locale_entry = self.widgets.locale_entry
-        locale_entry.set_size_request(get_char_width(locale_entry)*30, -1)
-
-        lat_dms_label = self.widgets.lat_dms_label
-        lat_dms_label.set_size_request(get_char_width(lat_dms_label)*7, -1)
-        lon_dms_label = self.widgets.lon_dms_label
-        lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
-
-        # fixes for donor combo
-        from bauble.plugins.garden.donor import donor_table
-        maxlen = 0
-        for donor in donor_table.select().execute():
-            if len(donor.name) > maxlen:
-                maxlen = len(donor.name)
-        donor_combo = self.widgets.donor_combo
-        width = int(round(get_char_width(donor_combo) * maxlen * 1.3))
-        donor_combo.set_size_request(width, -1)
-
 
     def save_state(self):
         '''
