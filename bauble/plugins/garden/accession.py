@@ -383,8 +383,11 @@ class AccessionEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.accession_dialog)
 
         # datum completions
+
         completion = self.attach_completion('datum_entry',
-                                        minimum_key_length=1, text_column=0)
+                                        minimum_key_length=1,
+                                            match_func=self.datum_match,
+                                            text_column=0)
         model = gtk.ListStore(str)
         for abbr in sorted(datums.keys()):
             # TODO: should create a marked up string with the datum description
@@ -411,6 +414,15 @@ class AccessionEditorView(GenericEditorView):
 
     def start(self):
         return self.widgets.accession_dialog.run()
+
+
+    def datum_match(self, completion, key, iter, data=None):
+        datum = completion.get_model()[iter][0]
+        words = datum.split(' ')
+        for w in words:
+            if w.lower().startswith(key.lower()):
+                return True
+        return False
 
 
     def species_match_func(self, completion, key, iter, data=None):
@@ -481,25 +493,15 @@ class CollectionPresenter(GenericEditorPresenter):
         self.assign_simple_handler('coll_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
         # the list of completions are added in AccessionEditorView.__init__
-        #def set_in_model(self, field, value):
-        #    debug('set in model')
-        #    self.model['gps_datum'] = value
-        #self.assign_completions_handler('datum_entry', 'gps_datum',
-        #                                set_func=set_in_model)
         def on_match(completion, model, iter, data=None):
             value = model[iter][0]
-            debug(value)
             validator = UnicodeOrNoneValidator()
             self.model.gps_datum = validator.to_python(value)
             completion.get_entry().set_text(value)
-            #completion.get_entry().insert_text(value)
-            debug(self.view.widgets.datum_entry.get_text())
-            #self.view.widgets.datum_entry.set_text('match')
         completion = self.view.widgets.datum_entry.get_completion()
         completion.connect('match-selected', on_match)
-        #self.assign_simple_handler('datum_entry', 'gps_datum',
-        #                           UnicodeOrNoneValidator())
-        #self.view.widgets.datum_entry.set_text('something')
+        self.assign_simple_handler('datum_entry', 'gps_datum',
+                                   UnicodeOrNoneValidator())
 
         lat_entry = self.view.widgets.lat_entry
         lat_entry.connect('insert-text', self.on_lat_entry_insert)
