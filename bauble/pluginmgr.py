@@ -20,18 +20,22 @@ import sys
 import traceback
 import re
 import inspect
-import gobject, gtk
+import logging
+
+import gobject
+import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
+import simplejson as json
+
 import bauble
 #import bauble.meta as meta
+from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning, error
 from bauble.i18n import *
-import simplejson as json
-import logging
 
 # TODO: we need to clarify what's in plugins, should we be looking in plugins
 # or the registry for plugins, should only registered plugins be in plugins?
@@ -333,7 +337,7 @@ class Registry(dict):
         '''
         create a plugin registry entry from a kwargs
         '''
-        assert isinstance(entry, RegistryEntry)
+        check(isinstance(entry, RegistryEntry))
         self.entries[key] = entry
 
 
@@ -349,8 +353,8 @@ class RegistryEntry(dict):
         '''
         name, version and enabled are required
         '''
-        assert 'name' in kwargs
-        assert 'version' in kwargs
+        check('name' in kwargs)
+        check('version' in kwargs)
         for key, value in kwargs.iteritems():
             self[key] = value
 

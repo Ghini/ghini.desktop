@@ -4,12 +4,15 @@
 # Description: a collection of functions and abstract classes for creating
 # editors for Bauble data
 #
-
 import traceback
-import gtk, gobject
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
+
 import bauble
+from bauble.error import check, CheckConditionError
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
@@ -512,7 +515,7 @@ class GenericEditorPresenter(object):
             setattr(self.model, field, value)
 
         widget = self.view.widgets[widget_name]
-        assert widget is not None, _('no widget with name %s') % widget_name
+        check(widget is not None, _('no widget with name %s') % widget_name)
 
         if isinstance(widget, gtk.Entry):
             def insert(entry, new_text, new_text_length, position):
@@ -720,8 +723,8 @@ class GenericEditorPresenter(object):
 
         completion = widget.get_completion()
 
-        assert completion is not None, 'the gtk.Entry %s doesn\'t have a '\
-            'completion attached to it' % widget_name
+        check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
+              'completion attached to it' % widget_name)
 
         completion.connect('match-selected', on_match_select)
         sid = widget.connect('insert-text', on_insert_text)

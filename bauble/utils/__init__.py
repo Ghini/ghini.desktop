@@ -2,13 +2,21 @@
 # utils module
 #
 
-import imp, os, sys, re
+import imp
+import os
+import sys
+import re
+import xml.sax.saxutils as saxutils
+
+import gtk
+import gtk.glade
+
 import bauble
+from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 from bauble.i18n import *
-import gtk, gtk.glade
 from bauble.utils.log import debug, warning
-import xml.sax.saxutils as saxutils
+
 
 # TODO: this util module might need to be split up if it gets much larger
 # we could have a utils.gtk and utils.sql
@@ -603,8 +611,8 @@ def make_label_clickable(label, on_clicked, *args):
     on_clicked(label, event, data)
     """
     eventbox = label.parent
-    assert eventbox != None and isinstance(eventbox, gtk.EventBox), \
-           'label must have an gtk.EventBox as it\'s parent'
+    check(eventbox != None and isinstance(eventbox, gtk.EventBox),
+          'label must have an gtk.EventBox as it\'s parent')
     label.__pressed = False
     def on_enter_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))
