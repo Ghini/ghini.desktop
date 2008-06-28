@@ -60,11 +60,15 @@ def decimal_to_dms(decimal, long_or_lat):
     @returns dir, degrees, minutes seconds, seconds rounded to two
     decimal places
     '''
+    if long_or_lat == 'long':
+        assert(decimal >= -180 and decimal <= 180)
+    else:
+        assert(decimal >= -90 and decimal <= 90)
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
-    dir = dir_map[long_or_lat][0]
+    direction = dir_map[long_or_lat][0]
     if decimal < 0:
-        dir = dir_map[long_or_lat][1]
+        direction = dir_map[long_or_lat][1]
     dec = Decimal(str(abs(decimal)))
     d = Decimal(str(dec)).to_integral(rounding=ROUND_DOWN)
     m = Decimal(abs((dec-d)*60)).to_integral(rounding=ROUND_DOWN)
@@ -72,7 +76,7 @@ def decimal_to_dms(decimal, long_or_lat):
     places = 2
     q = Decimal((0, (1,), -places))
     s = Decimal(abs((m2-m) * 60)).quantize(q)
-    return dir, d, m, s
+    return direction, d, m, s
 
 
 
