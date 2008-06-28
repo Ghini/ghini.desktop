@@ -68,9 +68,9 @@ def decimal_to_dms(decimal, long_or_lat):
     decimal places
     '''
     if long_or_lat == 'long':
-        check(decimal >= -180 and decimal <= 180)
+        check(abs(decimal) <= 180)
     else:
-        check(decimal >= -90 and decimal <= 90)
+        check(abs(decimal) <= 90)
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
     direction = dir_map[long_or_lat][0]
@@ -94,11 +94,11 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     '''
     nplaces = Decimal(10) ** -precision
     if dir in ('E', 'W'): # longitude
-        check(abs(deg) >= 0 and abs(deg) <= 180)
+        check(abs(deg) <= 180)
     else:
-        check(abs(deg) >= 0 and abs(deg) <= 90)
-    check(abs(min) >= 0 and abs(min) < 60)
-    check(abs(sec) >= 0 and abs(sec) < 60)
+        check(abs(deg) <= 90)
+    check(abs(min) < 60)
+    check(abs(sec) < 60)
     deg = Decimal(str(abs(deg)))
     min = Decimal(str(min))
     sec = Decimal(str(sec))
