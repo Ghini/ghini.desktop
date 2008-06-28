@@ -3,13 +3,19 @@
 #
 # Description:
 #
-import os, sys, traceback
-import gtk, gobject
+import os
+import sys
+import traceback
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+
 from bauble.i18n import *
+from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -177,7 +183,7 @@ class Plant(bauble.BaubleMapper):
         if Plant.__delimiter is None:
             row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
             result = row.fetchone()
-            assert result is not None, 'plant delimiter not set in bauble meta'
+            check(result is not None, 'plant delimiter not set in bauble meta')
             Plant.__delimiter = result['value']
         return Plant.__delimiter
 

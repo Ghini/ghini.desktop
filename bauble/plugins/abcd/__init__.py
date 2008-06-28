@@ -2,11 +2,15 @@
 # ABCD import/exporter
 #
 
-import os, csv
+import os
+import csv
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
+
 import bauble
+from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -245,8 +249,8 @@ def create_abcd(decorated_objects, authors=True, validate=True):
         return ElementTree(datasets)
 
     try:
-        assert validate(datasets), 'ABCD data not valid'
-    except AssertionError, e:
+        check(validate(datasets), 'ABCD data not valid')
+    except CheckConditionError, e:
         #utils.message_dialog('ABCD data not valid')
 #         utils.message_details_dialog('ABCD data not valid',
 #                                      etree.tostring(datasets))

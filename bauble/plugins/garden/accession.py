@@ -4,17 +4,24 @@
 # accessions module
 #
 
-import sys, re, os, traceback, math
+import sys
+import re
+import os
+import traceback
 from random import random
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 from decimal import Decimal, ROUND_DOWN
-import gtk, gobject
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+
 import bauble
+from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.i18n import *
@@ -61,9 +68,9 @@ def decimal_to_dms(decimal, long_or_lat):
     decimal places
     '''
     if long_or_lat == 'long':
-        assert(decimal >= -180 and decimal <= 180)
+        check(decimal >= -180 and decimal <= 180)
     else:
-        assert(decimal >= -90 and decimal <= 90)
+        check(decimal >= -90 and decimal <= 90)
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
     direction = dir_map[long_or_lat][0]
@@ -87,11 +94,11 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     '''
     nplaces = Decimal(10) ** -precision
     if dir in ('E', 'W'): # longitude
-        assert(abs(deg) >= 0 and abs(deg) <= 180)
+        check(abs(deg) >= 0 and abs(deg) <= 180)
     else:
-        assert(abs(deg) >= 0 and abs(deg) <= 90)
-    assert(abs(min) >= 0 and abs(min) < 60)
-    assert(abs(sec) >= 0 and abs(sec) < 60)
+        check(abs(deg) >= 0 and abs(deg) <= 90)
+    check(abs(min) >= 0 and abs(min) < 60)
+    check(abs(sec) >= 0 and abs(sec) < 60)
     deg = Decimal(str(abs(deg)))
     min = Decimal(str(min))
     sec = Decimal(str(sec))
@@ -252,7 +259,7 @@ class Accession(bauble.BaubleMapper):
             return self._collection
         elif self.source_type == u'Donation':
             return self._donation
-        raise AssertionError(_('unknown source_type in accession: %s') % \
+        raise ValueError(_('unknown source_type in accession: %s') % \
                              self.source_type)
     def _set_source(self, source):
         if self.source is not None:

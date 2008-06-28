@@ -45,3 +45,17 @@ class VersionError(DatabaseError):
     def __init__(self, version):
         super(VersionError, self).__init__()
         self.version = version
+
+
+
+class CheckConditionError(BaubleError):
+    pass
+
+
+
+def check(condition, msg=None):
+    """
+    Assert
+    """
+    if not condition:
+        raise CheckConditionError(msg)
