@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!DOCTYPE glade-interface SYSTEM "glade-2.0.dtd">
-<!--Generated with glade3 3.4.5 on Wed Jun 25 09:40:18 2008 
+<!--Generated with glade3 3.4.5 on Sat Jun 28 11:57:15 2008 
 	Version: 3.0.1
 	Date: Sat Sep 30 15:57:01 2006
 	User: brett
@@ -2625,11 +2625,10 @@
                                   <widget class="GtkLabel" id="lat_dms_label">
                                     <property name="visible">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="width_chars">12</property>
+                                    <property name="width_chars">13</property>
                                   </widget>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
+                                    <property name="padding">5</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -2660,11 +2659,10 @@
                                   <widget class="GtkLabel" id="lon_dms_label">
                                     <property name="visible">True</property>
                                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                                    <property name="width_chars">12</property>
+                                    <property name="width_chars">13</property>
                                   </widget>
                                   <packing>
-                                    <property name="expand">False</property>
-                                    <property name="fill">False</property>
+                                    <property name="padding">5</property>
                                     <property name="position">1</property>
                                   </packing>
                                 </child>
@@ -2840,10 +2838,6 @@
                               </packing>
                             </child>
                           </widget>
-                          <packing>
-                            <property name="expand">False</property>
-                            <property name="fill">False</property>
-                          </packing>
                         </child>
                         <child>
                           <widget class="GtkHBox" id="hbox11">
