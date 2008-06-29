@@ -7,6 +7,8 @@ if 'PYTHONPATH' not in os.environ or os.environ['PYTHONPATH'] is '':
           'with the command:\n  PYTHONPATH=. python test/test.py'
     print msg
     sys.exit(1)
+else:
+    sys.path.insert(0, os.environ['PYTHONPATH'])
 
 import imp, unittest, traceback
 from optparse import OptionParser

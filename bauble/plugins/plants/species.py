@@ -159,11 +159,22 @@ class SynonymsExpander(InfoExpander):
             self.set_sensitive(False)
             self.set_expanded(False)
         else:
-            synonyms = []
+            def on_label_clicked(label, event, syn):
+                select_in_search_results(syn)
+            syn_box = self.widgets.sp_synonyms_box
             for syn in row.synonyms:
-                s = Species.str(syn, markup=True, authors=True)
-                synonyms.append(s)
-            self.widgets.sp_synonyms_data.set_markup('\n'.join(synonyms))
+                # remove all the children
+                syn_box.foreach(syn_box.remove)
+                # create clickable label that will select the synonym
+                # in the search results
+                box = gtk.EventBox()
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(Species.str(syn, markup=True, authors=True))
+                box.add(label)
+                utils.make_label_clickable(label, on_label_clicked, syn)
+                syn_box.pack_start(box, expand=False, fill=False)
+
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
             self.set_expanded(True)
@@ -202,6 +213,7 @@ class GeneralSpeciesExpander(InfoExpander):
         general_box = self.widgets.sp_general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
+        self.widgets.sp_name_data.set_line_wrap(True)
 
         # make the check buttons read only
         def on_enter(button, *args):
@@ -209,9 +221,6 @@ class GeneralSpeciesExpander(InfoExpander):
             return True
 
         self.current_obj = None
-#         def on_genus_clicked(*args):
-#             select_in_search_results(self.current_obj.genus)
-#         utils.make_label_clickable(self.widgets.sp_genus_data, on_genus_clicked)
 
 
     def update(self, row):
@@ -224,11 +233,8 @@ class GeneralSpeciesExpander(InfoExpander):
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the
         # species name
-        sp_str = row.markup(True)
-        from textwrap import TextWrapper
-        wrapper = TextWrapper(width=50, subsequent_indent='  ')
-        new_str = wrapper.fill(sp_str)
-        self.set_widget_value('sp_name_data', '<big>%s</big>' % new_str)
+        self.set_widget_value('sp_name_data', '<big>%s</big>' % \
+                              row.markup(True))
         nacc = sql_utils.count(accession_table,
                                accession_table.c.species_id==row.id)
         self.set_widget_value('sp_nacc_data', nacc)
@@ -288,7 +294,7 @@ class LinksExpander(InfoExpander):
         for b in buttons:
             b.set_alignment(0, -1)
             b.connect("clicked", self.on_click)
-            self.vbox.pack_start(b)
+            self.vbox.pack_start(b, expand=False, fill=False)
 
 
     def on_click(self, button):

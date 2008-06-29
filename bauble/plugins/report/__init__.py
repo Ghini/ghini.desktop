@@ -5,9 +5,15 @@
 #
 
 
-import os, sys, traceback, re
-import gobject, gtk
+import os
+import sys
+import traceback
+import re
+
+import gobject
+import gtk
 from sqlalchemy import *
+
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils
@@ -524,7 +530,6 @@ class ReportTool(pluginmgr.Tool):
                 ok = formatter.format([row[0] for row in model], **settings)
                 if ok:
                     break
-
         except AssertionError, e:
             debug(e)
             debug(traceback.format_exc())
