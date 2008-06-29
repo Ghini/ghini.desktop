@@ -5,10 +5,15 @@
 The connection manager provides a GUI for creating and opening
 connections. This is the first thing displayed when Bauble starts.
 """
-import os, copy, traceback
+import os
+import copy
+import traceback
+
 import gtk
 from sqlalchemy import *
-import utils
+
+import bauble.utils as utils
+from bauble.error import check, CheckConditionError
 import bauble
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -250,7 +255,7 @@ class ConnectionManager:
         causes on_changed_name_combo to be fired which changes the param
         box type and set the connection parameters
         """
-        assert hasattr(self, "name_combo")
+        check(hasattr(self, "name_combo"))
         i = 0
         active = 0
         conn_list = prefs[bauble.conn_list_pref]

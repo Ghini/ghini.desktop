@@ -337,8 +337,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
 #        print filename
         if not os.path.exists(filename):
             utils.message_dialog(_('Error creating the PDF file. Please ' \
-                                 'ensure that your PDF formatter is ' \
-                                 'properly_installed'), gtk.MESSAGE_ERROR)
+                                   'ensure that your PDF formatter is ' \
+                                   'properly installed.'), gtk.MESSAGE_ERROR)
             return False
         else:
             try:

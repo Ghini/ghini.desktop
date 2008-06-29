@@ -18,6 +18,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 
 import bauble
+from bauble.error import check, CheckConditionError
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.error as error
@@ -146,7 +147,7 @@ class PropertiesExpander(InfoExpander):
 
         box = gtk.HBox()
         box.pack_start(table, expand=False, fill=False)
-        self.vbox.pack_start(box)
+        self.vbox.pack_start(box, expand=False, fill=False)
 
 
     def update(self, row):
@@ -180,7 +181,7 @@ class InfoBox(gtk.ScrolledWindow):
         @type expander: InfoExpander
         @param expander: the expander to add to this infobox
         '''
-        self.vbox.pack_start(expander, False, False)
+        self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
 
         sep = gtk.HSeparator()
@@ -327,10 +328,10 @@ class MapperSearch(SearchStrategy):
         class that inherits from bauble.BaubleMapper
         @param default_columns: the columns to search on the mapping
         """
-        assert isinstance(default_columns, list), _('MapperSearch.add_meta():'\
-                ' default_columns argument must be list')
-        assert len(default_columns) > 0, _('MapperSearch.add_meta(): '\
-                                    'default_columns argument cannot be empty')
+        check(isinstance(default_columns, list), _('MapperSearch.add_meta(): '\
+        'default_columns argument must be list'))
+        check(len(default_columns) > 0, _('MapperSearch.add_meta(): '\
+        'default_columns argument cannot be empty'))
         if isinstance(domain, (list, tuple)):
             for d in domain:
                 self._domains[d] = mapping, default_columns
@@ -402,7 +403,7 @@ class MapperSearch(SearchStrategy):
         results for the search tokens
         """
         domain, expr = tokens['query']
-        assert domain in self._domains, 'Unknown search domain: %s' % domain
+        check(domain in self._domains, 'Unknown search domain: %s' % domain)
         mapping = self._domains[domain][0]
         expr_iter = iter(expr)
         op = None
@@ -419,9 +420,9 @@ class MapperSearch(SearchStrategy):
                 # and treat it like a search expression, maybe we
                 # could create a custom search string and pass it to
                 # self.search() or an sql statement from it
-                assert col in mapping.c, 'The %s table does not have a '\
+                check(col in mapping.c, 'The %s table does not have a '\
                        'column named %s' % \
-                       (class_mapper(mapping).local_table.name, col)
+                       (class_mapper(mapping).local_table.name, col))
                 clause = mapping.c[idents[0]].op(cond)(unicode(val))
             else:
                 resolved = self._resolve_identifiers(mapping, idents)
@@ -429,7 +430,7 @@ class MapperSearch(SearchStrategy):
                 clause = resolved[-1].op(cond)(unicode(val))
 
             if op is not None:
-                assert op in ('and', 'or'), 'Unsupported operator: %s' % op
+                check(op in ('and', 'or'), 'Unsupported operator: %s' % op)
                 import sqlalchemy.sql
                 op = getattr(sqlalchemy.sql, '%s_' % op)
                 clause = op(prev_clause, clause)
@@ -739,7 +740,7 @@ class SearchView(pluginmgr.View):
         self.infobox = new_infobox
         if self.infobox is not None:
             self.infobox.update(row)
-            self.pane.pack2(self.infobox, False, True)
+            self.pane.pack2(self.infobox, resize=False, shrink=True)
             self.pane.show_all()
 
 
@@ -948,7 +949,7 @@ class SearchView(pluginmgr.View):
         @param kids: a list of kids to append
         @return: the model with the kids appended
         '''
-        assert parent is not None, "append_children(): need a parent"
+        check(parent is not None, "append_children(): need a parent")
         for k in kids:
             i = model.append(parent, [k])
             if self.view_meta[type(k)].children is not None:
@@ -1148,7 +1149,7 @@ class SearchView(pluginmgr.View):
         # pane to split the results view and the infobox, the infobox
         # is created when a row in the results is selected
         self.pane = gtk.HPaned()
-        self.pane.pack1(sw, True, False)
+        self.pane.pack1(sw, resize=True, shrink=True)
         self.pack_start(self.pane)
         self.show_all()
 
@@ -1171,7 +1172,7 @@ def select_in_search_results(obj):
 
     the the obj is not in the first level of the model then we add it
     """
-    assert obj != None, 'select_in_search_results: arg is None'
+    check(obj != None, 'select_in_search_results: arg is None')
     view = bauble.gui.get_view()
     if not isinstance(view, SearchView):
         return None

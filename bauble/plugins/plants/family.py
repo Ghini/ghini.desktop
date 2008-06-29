@@ -2,13 +2,16 @@
 # Family table definition
 #
 
-import os, traceback
+import os
+import traceback
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
+
 import bauble
 from bauble.i18n import _
 from bauble.editor import *
@@ -490,7 +493,8 @@ class FamilyEditor(GenericModelViewPresenterEditor):
 #
 # Family infobox
 #
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results
 import bauble.paths as paths
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, species_table
@@ -552,6 +556,68 @@ class GeneralFamilyExpander(InfoExpander):
             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
             nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
         self.set_widget_value('fam_nplants_data', nplants_str)
+
+
+
+class SynonymsExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, _("Synonyms"), widgets)
+        synonyms_box = self.widgets.fam_synonyms_box
+        self.widgets.remove_parent(synonyms_box)
+        self.vbox.pack_start(synonyms_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get thevalues from
+        '''
+        #debug(row.synonyms)
+        if len(row.synonyms) == 0:
+            self.set_sensitive(False)
+            self.set_expanded(False)
+        else:
+            def on_label_clicked(label, event, syn):
+                select_in_search_results(syn)
+            syn_box = self.widgets.fam_synonyms_box
+            for syn in row.synonyms:
+                # remove all the children
+                syn_box.foreach(syn_box.remove)
+                # create clickable label that will select the synonym
+                # in the search results
+                box = gtk.EventBox()
+                label = gtk.Label()
+                label.set_alignment(0, .5)
+                label.set_markup(Family.str(syn))
+                box.add(label)
+                utils.make_label_clickable(label, on_label_clicked, syn)
+                syn_box.pack_start(box, expand=False, fill=False)
+
+            self.set_sensitive(True)
+            # TODO: get expanded state from prefs
+            self.set_expanded(True)
+
+
+
+class NotesExpander(InfoExpander):
+
+    def __init__(self, widgets):
+        InfoExpander.__init__(self, _("Notes"), widgets)
+        notes_box = self.widgets.fam_notes_box
+        self.widgets.remove_parent(notes_box)
+        self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        if row.notes is None:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+        else:
+            self.set_expanded(True)
+            self.set_sensitive(True)
+            self.set_widget_value('fam_notes_data', row.notes)
 
 
 
@@ -628,6 +694,10 @@ class FamilyInfoBox(InfoBox):
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
         self.general = GeneralFamilyExpander(self.widgets)
         self.add_expander(self.general)
+        self.synonyms = SynonymsExpander(self.widgets)
+        self.add_expander(self.synonyms)
+        self.notes = NotesExpander(self.widgets)
+        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -638,6 +708,8 @@ class FamilyInfoBox(InfoBox):
         '''
         '''
         self.general.update(row)
+        self.synonyms.update(row)
+        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 

@@ -4,17 +4,24 @@
 # accessions module
 #
 
-import sys, re, os, traceback, math
+import sys
+import re
+import os
+import traceback
 from random import random
 from datetime import datetime
 import xml.sax.saxutils as saxutils
 from decimal import Decimal, ROUND_DOWN
-import gtk, gobject
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+
 import bauble
+from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.i18n import *
@@ -60,11 +67,15 @@ def decimal_to_dms(decimal, long_or_lat):
     @returns dir, degrees, minutes seconds, seconds rounded to two
     decimal places
     '''
+    if long_or_lat == 'long':
+        check(abs(decimal) <= 180)
+    else:
+        check(abs(decimal) <= 90)
     dir_map = {'long': ['E', 'W'],
                'lat':  ['N', 'S']}
-    dir = dir_map[long_or_lat][0]
+    direction = dir_map[long_or_lat][0]
     if decimal < 0:
-        dir = dir_map[long_or_lat][1]
+        direction = dir_map[long_or_lat][1]
     dec = Decimal(str(abs(decimal)))
     d = Decimal(str(dec)).to_integral(rounding=ROUND_DOWN)
     m = Decimal(abs((dec-d)*60)).to_integral(rounding=ROUND_DOWN)
@@ -72,7 +83,7 @@ def decimal_to_dms(decimal, long_or_lat):
     places = 2
     q = Decimal((0, (1,), -places))
     s = Decimal(abs((m2-m) * 60)).quantize(q)
-    return dir, d, m, s
+    return direction, d, m, s
 
 
 
@@ -83,21 +94,17 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     '''
     nplaces = Decimal(10) ** -precision
     if dir in ('E', 'W'): # longitude
-        assert(abs(deg) >= 0 and abs(deg) <= 180)
+        check(abs(deg) <= 180)
     else:
-        assert(abs(deg) >= 0 and abs(deg) <= 90)
-    assert(abs(min) >= 0 and abs(min) < 60)
-    assert(abs(sec) >= 0 and abs(sec) < 60)
+        check(abs(deg) <= 90)
+    check(abs(min) < 60)
+    check(abs(sec) < 60)
     deg = Decimal(str(abs(deg)))
     min = Decimal(str(min))
     sec = Decimal(str(sec))
     dec = abs(sec/Decimal('3600')) + abs(min/Decimal('60.0')) + deg
-    #dec = Decimal((abs(Decimal(str(sec)))/Decimal('3600.0')) + \
-    #      (abs(Decimal(str(min)))/Decimal('60.0')) + \
-    #       Decimal(abs(deg)), 5)
     if dir in ('W', 'S'):
         dec = -dec
-
     return dec.quantize(nplaces)
 
 
@@ -248,7 +255,7 @@ class Accession(bauble.BaubleMapper):
             return self._collection
         elif self.source_type == u'Donation':
             return self._donation
-        raise AssertionError(_('unknown source_type in accession: %s') % \
+        raise ValueError(_('unknown source_type in accession: %s') % \
                              self.source_type)
     def _set_source(self, source):
         if self.source is not None:
@@ -373,76 +380,14 @@ class AccessionEditorView(GenericEditorView):
 
         # datum completions
         completion = self.attach_completion('datum_entry',
-                                            minimum_key_length=1)
+                                        minimum_key_length=1,
+                                            match_func=self.datum_match,
+                                            text_column=0)
         model = gtk.ListStore(str)
         for abbr in sorted(datums.keys()):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
         completion.set_model(model)
-
-
-        if sys.platform == 'win32':
-            self.do_win32_fixes()
-
-
-    def species_match_func(self, completion, key, iter, data=None):
-        species = completion.get_model()[iter][0]
-        if str(species).lower().startswith(key.lower()) \
-               or str(species.genus.genus).lower().startswith(key.lower()):
-            return True
-        return False
-
-    def do_win32_fixes(self):
-        import pango
-        def get_char_width(widget):
-            context = widget.get_pango_context()
-            font_metrics = context.get_metrics(context.get_font_description(),
-                                               context.get_language())
-            width = font_metrics.get_approximate_char_width()
-            return pango.PIXELS(width)
-
-        def width_func(widget, col, multiplier=1.3):
-            return int(round(get_char_width(widget) * \
-                             accession_table.c[col].type.length*multiplier))
-        species_entry = self.widgets.acc_species_entry
-        species_entry.set_size_request(get_char_width(species_entry)*20, -1)
-        prov_combo = self.widgets.acc_prov_combo
-        prov_combo.set_size_request(width_func(prov_combo, 'prov_type', 1.1),
-                                    -1)
-        wild_prov_combo = self.widgets.acc_wild_prov_combo
-        wild_prov_combo.set_size_request(width_func(wild_prov_combo,
-                                                    'wild_prov_status'), -1)
-        source_combo = self.widgets.acc_source_type_combo
-        source_combo.set_size_request(width_func(source_combo, 'source_type'),
-                                      -1)
-
-        # TODO: we really don't need to do the the fixes for the source
-        # presenters until we know the which source box is going to be opened,
-        # could connect to the boxes realized or focused signals or something
-        # along those lines
-
-        # fix the widgets in the collection editor
-        lat_entry = self.widgets.lat_entry
-        lat_entry.set_size_request(get_char_width(lat_entry)*8, -1)
-        lon_entry = self.widgets.lon_entry
-        lon_entry.set_size_request(get_char_width(lon_entry)*8, -1)
-        locale_entry = self.widgets.locale_entry
-        locale_entry.set_size_request(get_char_width(locale_entry)*30, -1)
-
-        lat_dms_label = self.widgets.lat_dms_label
-        lat_dms_label.set_size_request(get_char_width(lat_dms_label)*7, -1)
-        lon_dms_label = self.widgets.lon_dms_label
-        lon_dms_label.set_size_request(get_char_width(lon_dms_label)*7, -1)
-
-        # fixes for donor combo
-        from bauble.plugins.garden.donor import donor_table
-        maxlen = 0
-        for donor in donor_table.select().execute():
-            if len(donor.name) > maxlen:
-                maxlen = len(donor.name)
-        donor_combo = self.widgets.donor_combo
-        width = int(round(get_char_width(donor_combo) * maxlen * 1.3))
-        donor_combo.set_size_request(width, -1)
 
 
     def save_state(self):
@@ -466,13 +411,21 @@ class AccessionEditorView(GenericEditorView):
         return self.widgets.accession_dialog.run()
 
 
-    def species_completion_match_func(self, completion, key_string, iter,
-                                      data=None):
-        '''
-        the only thing this does different is it make the match case insensitve
-        '''
-        value = completion.get_model()[iter][0]
-        return str(value).lower().startswith(key_string.lower())
+    def datum_match(self, completion, key, iter, data=None):
+        datum = completion.get_model()[iter][0]
+        words = datum.split(' ')
+        for w in words:
+            if w.lower().startswith(key.lower()):
+                return True
+        return False
+
+
+    def species_match_func(self, completion, key, iter, data=None):
+        species = completion.get_model()[iter][0]
+        if str(species).lower().startswith(key.lower()) \
+               or str(species.genus.genus).lower().startswith(key.lower()):
+            return True
+        return False
 
 
     def species_cell_data_func(self, column, renderer, model, iter, data=None):
@@ -502,6 +455,7 @@ class CollectionPresenter(GenericEditorPresenter):
                            'altacc_entry': 'elevation_accy',
                            'habitat_textview': 'habitat',
                            'coll_notes_textview': 'notes',
+                           'datum_entry': 'gps_datum'
                            }
 
     # TODO: could make the problems be tuples of an id and description to
@@ -533,7 +487,15 @@ class CollectionPresenter(GenericEditorPresenter):
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('coll_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
-        self.assign_simple_handler('datum_entry', 'datum',
+        # the list of completions are added in AccessionEditorView.__init__
+        def on_match(completion, model, iter, data=None):
+            value = model[iter][0]
+            validator = UnicodeOrNoneValidator()
+            self.model.gps_datum = validator.to_python(value)
+            completion.get_entry().set_text(value)
+        completion = self.view.widgets.datum_entry.get_completion()
+        completion.connect('match-selected', on_match)
+        self.assign_simple_handler('datum_entry', 'gps_datum',
                                    UnicodeOrNoneValidator())
 
         lat_entry = self.view.widgets.lat_entry
@@ -567,6 +529,9 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
+        """
+        Validates the fields when a field changes.
+        """
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
         else:
@@ -664,9 +629,7 @@ class CollectionPresenter(GenericEditorPresenter):
             return
         if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
             entry.set_text('-%s' % lon_text)
-            debug('entry.set_text(%s)' % ('-%s' % lon_text))
         elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
-            debug('entry.set_text(%s)' % (lon_text[1:]))
             entry.set_text(lon_text[1:])
 
 
@@ -1055,7 +1018,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             return query.filter(and_(species_table.c.genus_id == \
                                      genus_table.c.id,
                                 or_(genus_table.c.genus.like('%s%%' % text),
-                                    genus_table.c.hybrid==text)))
+                                    genus_table.c.hybrid==utils.utf8(text))))
         def set_in_model(self, field, value):
             setattr(self.model, field, value)
         self.assign_completions_handler('acc_species_entry', 'species',
@@ -1182,18 +1145,20 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_field_changed(self, model, field):
+        """
+        This method works on the assumption that
+        source_presenter.on_field_changed is called before this method
+        and adds and removes problems as necessary, if for some reason
+        this isn't the case then this method would work as expected
+        """
 ##        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
 
-        # This method works on the assumption that
-        # source_presenter.on_field_changed is called before this
-        # method and adds and removes problems as necessary, if for
-        # some reason this isn't the case then this method would work
-        # as expected...TODO: add a test to make sure that the change
-        # notifiers are called in the expected order
+        # TODO: add a test to make sure that the change notifiers are
+        # called in the expected order
         prov_sensitive = True
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
@@ -1618,6 +1583,7 @@ class SourceExpander(InfoExpander):
     def update_collections(self, collection):
 
         self.set_widget_value('loc_data', collection.locale)
+        self.set_widget_value('datum_data', collection.gps_datum)
 
         geo_accy = collection.geo_accy
         if not geo_accy:

@@ -49,9 +49,9 @@ def locale_dir():
 def user_dir():
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
-            dir = os.path.join(os.environ["APPDATA"], "Bauble")
+            return os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
-            dir = os.path.join(os.environ['USERPROFILE'], 'Application Data',
+            return os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
             raise Exception('Could not get path for user settings: no ' \

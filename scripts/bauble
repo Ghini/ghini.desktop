@@ -16,6 +16,9 @@
 
 import os, sys
 
+if 'PYTHONPATH' in os.environ:
+    sys.path.insert(0, os.environ['PYTHONPATH'])
+
 if __name__ == "__main__":
     import bauble
     bauble.main()

@@ -3,13 +3,19 @@
 #
 # Description:
 #
-import os, sys, traceback
-import gtk, gobject
+import os
+import sys
+import traceback
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+
 from bauble.i18n import *
+from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -177,7 +183,7 @@ class Plant(bauble.BaubleMapper):
         if Plant.__delimiter is None:
             row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
             result = row.fetchone()
-            assert result is not None, 'plant delimiter not set in bauble meta'
+            check(result is not None, 'plant delimiter not set in bauble meta')
             Plant.__delimiter = result['value']
         return Plant.__delimiter
 
@@ -249,43 +255,6 @@ class PlantEditorView(GenericEditorView):
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
-        if sys.platform == 'win32':
-            self.do_win32_fixes()
-
-
-
-    def do_win32_fixes(self):
-        # these width functions are copied from accession.py and could probably
-        # go in the utils
-        import pango
-        def get_char_width(widget):
-            context = widget.get_pango_context()
-            font_metrics = context.get_metrics(context.get_font_description(),
-                                               context.get_language())
-            width = font_metrics.get_approximate_char_width()
-            return pango.PIXELS(width)
-
-        def width_func(widget, col, multiplier=1.3):
-            return int(round(get_char_width(widget) * \
-                             plant_table.c[col].type.length*multiplier))
-
-        acc_type_combo = self.widgets.plant_acc_type_combo
-        acc_type_combo.set_size_request(width_func(acc_type_combo, 'acc_type'),
-                                        -1)
-        acc_status_combo = self.widgets.plant_acc_status_combo
-        acc_status_combo.set_size_request(width_func(acc_status_combo,
-                                                     'acc_status'), -1)
-
-        # TODO: need to make sure the width that we're guessing here works
-        # alright for windows, it's too small for gnome
-        from bauble.plugins.garden.location import location_table
-        maxlen = 0
-        for loc in location_table.select().execute():
-            if len(loc.site) > maxlen:
-                maxlen = len(loc.site)
-        plant_loc_combo = self.widgets.plant_loc_combo
-        width = int(round(get_char_width(plant_loc_combo) * maxlen * 1.5))
-        plant_loc_combo.set_size_request(width, -1)
 
 
     def save_state(self):

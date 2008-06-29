@@ -2,13 +2,21 @@
 # utils module
 #
 
-import imp, os, sys, re
+import imp
+import os
+import sys
+import re
+import xml.sax.saxutils as saxutils
+
+import gtk
+import gtk.glade
+
 import bauble
+from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 from bauble.i18n import *
-import gtk, gtk.glade
 from bauble.utils.log import debug, warning
-import xml.sax.saxutils as saxutils
+
 
 # TODO: this util module might need to be split up if it gets much larger
 # we could have a utils.gtk and utils.sql
@@ -596,15 +604,15 @@ def date_to_str(date, format):
     return s
 
 
-def make_label_clickable(label, on_clicked):
+def make_label_clickable(label, on_clicked, *args):
     """
     @param label: must have an eventbox as its parent
     @param on_clicked: callback to be called when the label is clicked
     on_clicked(label, event, data)
     """
     eventbox = label.parent
-    assert eventbox != None and isinstance(eventbox, gtk.EventBox), \
-           'label must have an gtk.EventBox as it\'s parent'
+    check(eventbox != None and isinstance(eventbox, gtk.EventBox),
+          'label must have an gtk.EventBox as it\'s parent')
     label.__pressed = False
     def on_enter_notify(*args):
         label.modify_fg(gtk.STATE_NORMAL, gtk.gdk.color_parse("blue"))
@@ -613,12 +621,12 @@ def make_label_clickable(label, on_clicked):
         label.__pressed = False
     def on_press(*args):
         label.__pressed = True
-    def on_release(widget, event, data=None):
+    def on_release(widget, event, *args):
         if label.__pressed:
             label.__pressed = False
             label.modify_fg(gtk.STATE_NORMAL, None)
-            on_clicked(label, event, data)
+            on_clicked(label, event, *args)
     eventbox.connect('enter_notify_event', on_enter_notify)
     eventbox.connect('leave_notify_event', on_leave_notify)
     eventbox.connect('button_press_event', on_press)
-    eventbox.connect('button_release_event', on_release)
+    eventbox.connect('button_release_event', on_release, *args)
