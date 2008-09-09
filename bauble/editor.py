@@ -217,8 +217,9 @@ class GenericEditorView(object):
                 try:
                     self.widgets[widget_name].set_tooltip_markup(markup)
                 except Exception, e:
-                    debug(_('Couldn\'t set the tooltip on widget %s\n\n%s' \
-                            % (widget_name, e)))
+                    values = dict(widget_name=widget_name, exception=e)
+                    debug(_('Couldn\'t set the tooltip on widget '\
+                            '%(widget_name)s\n\n%(exception)s' % values))
         else:
             tooltips = gtk.Tooltips()
             for widget_name, markup in self._tooltips.iteritems():
