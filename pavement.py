@@ -1,5 +1,13 @@
 import sys
 import os
+import glob
+
+if sys.platform not in ('linux2', 'win32'):
+    print '**Error: Your platform is not supported: %s' % sys.platform
+    sys.exit(1)
+
+
+import paver
 
 try:
     import setuptools
@@ -102,6 +110,13 @@ else:
     py2exe_includes = []
 
 
+# generate the data_files list for the locale files
+#if sys.platform == 'linux2':
+#    locale_dir = 'share/local
+#    pass
+#elif sys.platform == 'win32'
+#    pass
+
 @task
 @needs(['generate_setup', 'minilib', 'setuptools.command.sdist'])
 def sdist():
@@ -110,12 +125,28 @@ def sdist():
     """
     pass
 
+
 @task
 @needs('distutils.command.build')
 def build():
     """
+    Override the build command.
     """
-    pass
+    # generate .mo translations
+    builddir = 'build'
+    if sys.platform == 'linux2':
+        locale_tmpl = os.path.join(builddir, 'share', 'locale', '%s',
+                                   'LC_MESSAGES')
+    matches = glob.glob('po/*.po')
+    for po in matches:
+        # create an .mo in build/share/locale/$LANG/LC_MESSAGES
+        loc, ext = os.path.splitext(os.path.basename(po))
+        localedir = locale_tmpl % loc
+        if not os.path.exists(localedir):
+            os.makedirs(localedir)
+        paver.runtime.sh('msgfmt %s -o %s/bauble.mo' % \
+                         (po, localedir))
+
 
 @task
 @needs(['setuptools.command.install'])
@@ -132,9 +163,13 @@ def install():
             os.system('xdg-icon-resource install --novendor --size %s '\
                       'bauble/images/bauble-%s.png bauble' % (size, size))
 
+
+# TODO: need to figure out how to install the translations from the
+# build directory
+
 options(
     setup=Bunch(
-        name="Bauble",
+        name="bauble",
         version=version,
         scripts=["scripts/bauble"],
         options=opts,

@@ -5,48 +5,59 @@
 import os, sys
 
 # we can't the i18n module because it depends on this module for locale_dir
-#from bauble.i18n import _
+from bauble.i18n import _, _locale_dir
 
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we
 # know where the lib directory is
 
 def main_is_frozen():
+    """
+    Returns True/False if Bauble is being run from a py2exe
+    executable.  This method duplicates bauble.main_is_frozen in order
+    to make paths.py not depend on any other Bauble modules.
+    """
     import imp
     return (hasattr(sys, "frozen") or # new py2exe
             hasattr(sys, "importers") or # old py2exe
             imp.is_frozen("__main__")) # tools/freeze
 
+
 def main_dir():
-    #if bauble.main_is_frozen():
+    """
+    Returns the path of the bauble executable.
+    """
     if main_is_frozen():
-       dir = os.path.dirname(sys.executable)
+        d = os.path.dirname(sys.executable)
     else:
-       dir = os.path.dirname(sys.argv[0])
-    if dir == "":
-       dir = os.curdir
-    return dir
+        d = os.path.dirname(sys.argv[0])
+    if d == "":
+        d = os.curdir
+    return d
 
 
 def lib_dir():
-    #if bauble.main_is_frozen():
+    """
+    Returns the path of the bauble module.
+    """
     if main_is_frozen():
-       dir = os.path.join(main_dir(), 'bauble')
+        d = os.path.join(main_dir(), 'bauble')
     else:
-        dir = os.path.dirname(__file__)
-    return dir
+        d = os.path.dirname(__file__)
+    return d
 
 
 def locale_dir():
-    if sys.platform == 'win32':
-        return os.path.join(lib_dir(), 'po')
-    else:
-        # TODO: need to get the share directory where the locale files were
-        # installed
-        return os.path.join(lib_dir(), 'po')
+    """
+    Returns the root path of the locale files
+    """
+    return _locale_dir()
 
 
 def user_dir():
+    """
+    Returns the path to where Bauble settings should be saved.
+    """
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
             return os.path.join(os.environ["APPDATA"], "Bauble")
@@ -54,10 +65,8 @@ def user_dir():
             return os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
-            raise Exception('Could not get path for user settings: no ' \
-                              'APPDATA or USERPROFILE variable')
-#             raise Exception(_('Could not get path for user settings: no ' \
-#                               'APPDATA or USERPROFILE variable'))
+            raise Exception(_('Could not get path for user settings: no ' \
+                              'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":
         # using os.expanduser is more reliable than os.environ['HOME']
         # because if the user runs bauble with sudo then it will
@@ -66,12 +75,10 @@ def user_dir():
             return os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
 				'.bauble')
         except:
-            raise Exception('Could not get path for user settings: '\
-                            'no HOME variable')
-#             raise Exception(_('Could not get path for user settings: '\
-#                               'no HOME variable'))
+            raise Exception(_('Could not get path for user settings: '\
+                              'could not expand $HOME for user %(username)s' %\
+                              dict(username=os.environ['USER'])))
     else:
-        raise Exception('Could not get path for user settings: '\
-                          'no HOME variable')
-#         raise Exception(_('Could not get path to user settings: ' \
-#                           'unsupported platform'))
+        raise Exception(_('Could not get path for user settings: '\
+                          'unsupported platform'))
+
