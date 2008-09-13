@@ -7,7 +7,12 @@ if sys.platform not in ('linux2', 'win32'):
     sys.exit(1)
 
 
-import paver
+from paver.defaults import *
+#print len(sys.argv)
+#print sys.argv
+if len(sys.argv) < 2:
+    print '**Error: Argument required.'
+    sys.exit(1)
 
 try:
     import setuptools
@@ -117,6 +122,10 @@ else:
 #elif sys.platform == 'win32'
 #    pass
 
+#options(build_dir=path('build2'))
+print options
+sys.exit
+
 @task
 @needs(['generate_setup', 'minilib', 'setuptools.command.sdist'])
 def sdist():
@@ -127,12 +136,24 @@ def sdist():
 
 
 @task
-@needs('distutils.command.build')
-def build():
+#@needs('distutils.command.build')
+def build_i18n():
     """
     Override the build command.
     """
     # generate .mo translations
+    dist = runtime.options.distclass
+    #print build
+    #print dist
+    #print dir(dist)
+    #print dist.get_command_obj
+    #print options.distutils
+
+    #print dist.get_command_obj()
+    #print dir(runtime.dist)
+
+    #print TASKS['build'].distutils_command.user_options
+
     builddir = 'build'
     if sys.platform == 'linux2':
         locale_tmpl = os.path.join(builddir, 'share', 'locale', '%s',
@@ -144,8 +165,7 @@ def build():
         localedir = locale_tmpl % loc
         if not os.path.exists(localedir):
             os.makedirs(localedir)
-        paver.runtime.sh('msgfmt %s -o %s/bauble.mo' % \
-                         (po, localedir))
+        runtime.sh('msgfmt %s -o %s/bauble.mo' % (po, localedir))
 
 
 @task
@@ -167,8 +187,16 @@ def install():
 # TODO: need to figure out how to install the translations from the
 # build directory
 
+from distutils.command.build import build as _build
+
+class build(_build):
+    def run():
+        print 'run'
+        print self.build_base
+
 options(
     setup=Bunch(
+    cmdclass={'build': build},
         name="bauble",
         version=version,
         scripts=["scripts/bauble"],
@@ -182,8 +210,8 @@ options(
                           "simplejson>=1.7.1", "lxml>=2.0.1"],
         author="Brett",
         author_email="brett@belizebotanic.org",
-        description="""\
-        Bauble is a biodiversity collection manager software application""",
+        description="Bauble is a biodiversity collection manager " \
+                    "software application",
         license="GPL",
         keywords="database biodiversity botanic collection",
         url="http://bauble.belizebotanic.org",
