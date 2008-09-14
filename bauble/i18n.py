@@ -8,20 +8,8 @@ import sys
 import os
 import locale
 import gettext
-
-__all__ = ["_", '_locale_dir']
-
-def _locale_dir():
-    """
-    Returns the root path of the locale files
-    """
-    if sys.platform == 'linux2':
-        return os.path.join('/usr', 'share', 'locale')
-    elif sys.platform == 'win32':
-        return os.path.join(main_dir(), 'locale')
-    else:
-        raise NotImplementedError('This platform does not support '\
-                                  'translations')
+import bauble.paths as paths
+__all__ = ["_"]
 
 APP_NAME = 'bauble'
 
@@ -50,10 +38,10 @@ langs += ["en"]
 # use.  First we check the default, then what the system told us, and
 # finally the 'known' list
 
-gettext.bindtextdomain(APP_NAME, _locale_dir())
+gettext.bindtextdomain(APP_NAME, paths.locale_dir())
 gettext.textdomain(APP_NAME)
 # Get the language to use
-lang = gettext.translation(APP_NAME, _locale_dir(), languages=langs,
+lang = gettext.translation(APP_NAME, paths.locale_dir(), languages=langs,
                            fallback=True)
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
