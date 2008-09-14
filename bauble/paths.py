@@ -4,9 +4,6 @@
 
 import os, sys
 
-# we can't the i18n module because it depends on this module for locale_dir
-from bauble.i18n import _, _locale_dir
-
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we
 # know where the lib directory is
@@ -51,13 +48,21 @@ def locale_dir():
     """
     Returns the root path of the locale files
     """
-    return _locale_dir()
+    if sys.platform == 'linux2':
+        return os.path.join('/usr', 'share', 'locale')
+    elif sys.platform == 'win32':
+        import bauble.paths as paths
+        return os.path.join(paths.main_dir(), 'share', 'locale')
+    else:
+        raise NotImplementedError('This platform does not support '\
+                                  'translations: %s' % sys.platform)
 
 
 def user_dir():
     """
     Returns the path to where Bauble settings should be saved.
     """
+    from bauble.i18n import _
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
             return os.path.join(os.environ["APPDATA"], "Bauble")
@@ -65,6 +70,7 @@ def user_dir():
             return os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
+            from bauble.i18n import _
             raise Exception(_('Could not get path for user settings: no ' \
                               'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":
