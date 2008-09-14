@@ -1,36 +1,17 @@
-# try:
-#     from ez_setup import use_setuptool
-#     use_setuptools()
-#     from setuptools import setup
-# except ImportError:
-try:
-    import setuptools
-    from setuptools import setup
-except ImportError, e:
-    print e
-    from distutils.core import setup
+from ez_setup import use_setuptools
+use_setuptools()
+import setuptools
+
 import os, sys, glob
 
-import sys
+from bauble import version_str
+version = version_str
 
 USING_PY2EXE = False
 if sys.argv[1] == 'py2exe':
     USING_PY2EXE = True
 
-def get_version():
-    """
-    returns the bauble version combined with the subversion revision number
-    """
-    from bauble import version_str as version
-    return version
-
-version = get_version()
 gtk_pkgs = ["pango", "atk", "gobject", "gtk", "cairo", "pango", "pangocairo"]
-#plugins = ['garden', 'abcd', 'report', 'report.default', 'plants', 'tag',
-#	   'imex']
-#plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
-#subpackages = ['plugins', 'utils']
-#all_packages=["bauble"] + ["bauble.%s" % p for p in subpackages] + plugins_pkgs
 plugins = setuptools.find_packages(where='bauble/plugins',
 				   exclude=['test', 'bauble.*.test'])
 plugins_pkgs = ['bauble.plugins.%s' % p for p in plugins]
@@ -40,6 +21,7 @@ package_data = {'': ['README', 'CHANGES', 'LICENSE'],
                 'bauble': ['*.ui','*.glade','images/*.png', 'pixmaps/*.png',
                            'images/*.svg', 'images/*.ico']}
 
+# ceate a list of the data patterns to look for in the packages
 data_patterns = ['default/*.txt', '*.ui', '*.glade', '*.xsl', '*.xsd']
 for pkg in plugins_pkgs:
     package_data[pkg] = data_patterns
@@ -50,28 +32,30 @@ for p in all_packages:
 
 if USING_PY2EXE:
     import py2exe
-    # TODO: see if we can use setuptools.find_packages() instead searching for
-    # sqlalchemy packages manually
-    def get_sqlalchemy_includes():
-        includes = []
-        from imp import find_module
-        file, path, descr = find_module('sqlalchemy')
-        for dir, subdir, files in os.walk(path):
-            submod = dir[len(path)+1:]
-            includes.append('sqlalchemy.%s' % submod)
-            if submod in ('mods', 'ext', 'databases'):
-                includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
-        return includes
+    # setuptools.find packages doesn't dig deep enough so we search
+    # for a list of all packages in the sqlalchemy namespace
+    sqlalchemy_includes = []
+    from imp import find_module
+    file, path, descr = find_module('sqlalchemy')
+    for dir, subdir, files in os.walk(path):
+        submod = dir[len(path)+1:]
+        sqlalchemy_includes.append('sqlalchemy.%s' % submod)
+        if submod in ('mods', 'ext', 'databases'):
+            sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
 
     # TODO: check again that this is necessary for pysqlite2, we might
     # be able to juse use the python 2.5 built in sqlite3 module
     py2exe_includes = ['pysqlite2.dbapi2', 'simplejson', 'lxml',
                        'MySQLdb', 'psycopg2', 'encodings'] + \
-                       gtk_pkgs + plugins_pkgs + \
-                       get_sqlalchemy_includes()
-
-    opts = {
+                       gtk_pkgs + plugins_pkgs + sqlalchemy_includes
+    py2exe_setup_args = {'console': ["scripts/bauble"],
+                         'windows': [{'script': 'scripts/bauble',
+                                      'icon_resources': [(1, "bauble/images/icon.ico")]}]}
+    py2exe_options = {
         "py2exe": {
+            "console": ["scripts/bauble"],
+            "windows": [{'script': 'scripts/bauble',
+                         'icon_resources': [(1, "bauble/images/icon.ico")]}],
             "compressed": 1,
             "optimize": 2,
             "includes": py2exe_includes,
@@ -102,15 +86,11 @@ if USING_PY2EXE:
                                           [m.replace(os.sep, '/') \
                                                for m in matches]))
 else:
-    opts = None
+    py2exe_options = {}
+    py2exe_setup_args = {}
     py2exe_data_files = None
     py2exe_includes = []
 
-#print package_data
-
-#print '------- packages --------\n' + str(all_packages)
-#print '------- package directories --------\n' + str(all_package_dirs)
-#print '------- packages data--------\n' + str(package_data)
 
 # TODO: fix warnings about console, windows, install_requires, dist_dir and
 # options arguments
@@ -155,57 +135,43 @@ class install(_install):
         dir_util.copy_tree(src, os.path.join(self.prefix, locales))
         if sys.platform == 'linux2':
             # install standard desktop files
-            os.system('xdg-desktop-menu install --novendor bauble.desktop')
+            spawn.spawn(('xdg-desktop-menu', 'install', '--novendor',
+                        'bauble.desktop'))
             icon_sizes = [16, 22, 32, 48, 64]#, 128]
             for size in icon_sizes:
                 img = 'bauble/images/bauble-%s.png' % size
                 spawn.spawn(('xdg-icon-resource', 'install', '--novendor',
                             '--size', str(size),  img,  'bauble'))
 
-                #os.system('xdg-icon-resource install --novendor --size %s '\
-                #          'bauble/images/bauble-%s.png bauble' % (size, size))
 
-setup(name="bauble",
-      cmdclass={'build': build, 'install': install},
-      version=version,
-      console=["scripts/bauble"],
-      windows = [
-        {'script': 'scripts/bauble',
-         'icon_resources': [(1, "bauble/images/icon.ico")]}],
-      scripts=["scripts/bauble"], # for setuptools?
-      options=opts,
-      dist_dir='dist/bauble-%s' % version, # distribution directory
-      packages = all_packages,
-      package_dir = all_package_dirs,
-      package_data = package_data,
-      data_files = py2exe_data_files,
-      install_requires=["SQLAlchemy>=0.4.4", "pysqlite>=2.3.2",
-                        "simplejson>=1.7.1", "lxml>=2.0.1"],
-#      extras_requires=["mysql-python and psycopg"
+# require pysqlite if not using python2.5
+needs_sqlite = []
+try:
+    import sqlite3
+except ImportError:
+    needs_sqlite = "pysqlite>=2.3.2"
 
-      # metadata
-      #test_suite="test.test", #TODO:running "setup.py test" hasn't been tested
-      author="Brett",
-      author_email="brett@belizebotanic.org",
-      description="""\
-      Bauble is a biodiversity collection manager software application""",
-      license="GPL",
-      keywords="database biodiversity botanic collection",
-      url="http://bauble.belizebotanic.org",
-#      download_url="http://bauble.belizebotanic.org/#download"
+
+setuptools.setup(name="bauble",
+                 cmdclass={'build': build, 'install': install},
+                 version=version,
+                 scripts=["scripts/bauble"], # for setuptools?
+                 packages = all_packages,
+                 package_dir = all_package_dirs,
+                 package_data = package_data,
+                 data_files = py2exe_data_files,
+                 install_requires=["SQLAlchemy>=0.4.4,<0.5",
+                                   "simplejson>=1.7.1",
+                                   "lxml>=2.0"] + needs_sqlite,
+                 #TODO:running "setup.py test" hasn't been tested
+                 test_suite="test.test",
+                 author="Brett",
+                 author_email="brett@belizebotanic.org",
+                 description="Bauble is a biodiversity collection manager " \
+                 "software application",
+                 license="GPL",
+                 keywords="database biodiversity botanic collection",
+                 url="http://bauble.belizebotanic.org",
+                 options=py2exe_options,
+                 **py2exe_setup_args
      )
-
-# from distutils.util import execute
-# def install_linux():
-#     """
-#     install the menu and icons entries on Linux system that complies
-#     with the freedesktop.org specs
-#     """
-#     os.system('xdg-desktop-menu install --novendor bauble.desktop')
-#     icon_sizes = [16, 22, 32, 48, 64]#, 128]
-#     for size in icon_sizes:
-#         os.system('xdg-icon-resource install --novendor --size %s '\
-#                   'bauble/images/bauble-%s.png bauble' % (size, size))
-
-# if sys.platform == 'linux2':
-#     execute(install_linux, [], msg='installing menu entry and icon')
