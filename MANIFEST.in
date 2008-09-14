@@ -3,4 +3,4 @@ recursive-include po *.po
 #recursive-include debian *.*
 recursive-include bauble/images *.*
 recursive-include bauble/pixmaps *.*
-include README LICENSE CHANGES INSTALL bauble.desktop
+include README LICENSE CHANGES INSTALL bauble.desktop ez_setup.py
