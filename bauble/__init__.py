@@ -44,10 +44,10 @@ else: # main is frozen
 try:
     import gtk, gobject
 except ImportError, e:
-    print '** Error: could not import gtk and/or gobject'
+    print _('** Error: could not import gtk and/or gobject')
     print e
     if sys.platform == 'win32':
-        print 'Please make sure that GTK_ROOT\\bin is in your PATH.'
+        print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
     sys.exit(1)
 
 
@@ -56,6 +56,11 @@ display = gtk.gdk.display_get_default()
 if display is None:
     print _("**Error: Bauble must be run in a windowed environment.")
     sys.exit(1)
+
+# setup glade internationalization
+import gtk.glade
+gtk.glade.bindtextdomain('bauble', paths.locale_dir())
+gtk.glade.textdomain('bauble')
 
 import bauble.utils as utils
 

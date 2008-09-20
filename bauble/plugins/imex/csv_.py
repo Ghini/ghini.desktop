@@ -195,9 +195,13 @@ class CSVImporter(Importer):
             path, base = os.path.split(f)
             table_name, ext = os.path.splitext(base)
             if table_name in filename_dict:
+                safe = utils.xml_safe_utf8
+                values = dict(table_name=safe(table_name),
+                              file_name=safe(filename_dict[table_name]),
+                              file_name2=safe(f))
                 msg = _('More than one file given to import into table '\
-                        '<b>%s</b>: %s, %s') % (table_name,
-                                                filename_dict[table_name], f)
+                        '<b>%(table_name)s</b>: %(file_name)s, '\
+                        '(file_name2)s') % values
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return
             filename_dict[table_name] = f
