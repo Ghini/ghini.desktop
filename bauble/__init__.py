@@ -110,41 +110,32 @@ import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 #
-# global database handler
+# global database variables
 #
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declarative_base
 engine = None
-metadata = sqlalchemy.MetaData()
+Base = declarative_base()
+metadata = Base.metadata
 Session = None
 gui = None
 default_icon = None
 conn_name = None
 
-import sqlalchemy as sa
-
-class Table(sa.Table):
+class Table(object):
     """
-    All tables create created for use in Bauble should inherit from
-    this Table class.
+    Add id, _created and _last_updated columns. All tables created for use
+    in Bauble should inherit from table_base and this class.  this
+    Table class and table_base
     """
-
     # func.now() is only supported in SQLAlchemy>=0.4.3
     def __init__(self, *args, **kwargs):
-        super(Table, self).__init__(*args, **kwargs)
-        self.append_column(sa.Column('_created', sa.DateTime(True),
-                                     default=sa.func.now()))
-        self.append_column(sa.Column('_last_updated', sa.DateTime(True),
-                                     default=sa.func.now(),
-                                     onupdate=sa.func.now()))
+        self.__table__.append_column(sa.Column('_created', sa.DateTime(True),
+                                               default=sa.func.now()))
+        self.__table__append_column(sa.Column('_last_updated',
+                                              sa.DateTime(True),
+                                              default=sa.func.now()))
 
-
-class BaubleMapper(object):
-    """
-    All mappers created for use with Bauble should inherit from this class.
-    """
-
-    def __init__(self, **kwargs):
-        for attr, value in kwargs.iteritems():
-            setattr(self, attr, value)
 
 
 import traceback
@@ -232,7 +223,7 @@ def _verify_connection(engine, show_error_dialogs=False):
 
     import bauble.meta as meta
     # check that the database we connected to has the bauble meta table
-    if not engine.has_table(meta.bauble_meta_table.name):
+    if not engine.has_table(meta.BaubleMeta.__tablename__):
         raise error.MetaTableError()
 
     from sqlalchemy.orm import sessionmaker
@@ -289,7 +280,8 @@ def open_database(uri, verify=True, show_error_dialogs=False):
         global Session, engine
         engine = new_engine
         metadata.bind = engine # make engine implicit for metadata
-        Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
+        #Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
+        Session = sessionmaker(bind=engine)
 
     if new_engine is not None and not verify:
         _bind()
@@ -344,11 +336,12 @@ def create_database(import_defaults=True):
             menu.show()
 
         # create the plugin registry and import the default data
-        pluginmgr.install('all', import_defaults, force=True)
-        meta.bauble_meta_table.insert().execute(name=meta.VERSION_KEY,
-                                                value=unicode(version))
-        meta.bauble_meta_table.insert().execute(name=meta.CREATED_KEY,
+        meta_table = meta.BaubleMeta.__table__
+        meta_table.insert().execute(name=meta.VERSION_KEY,
+                                    value=unicode(version))
+        meta_table.insert().execute(name=meta.CREATED_KEY,
                                         value=unicode(datetime.datetime.now()))
+        pluginmgr.install('all', import_defaults, force=True)
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task

@@ -144,6 +144,9 @@ def load(path=None):
         else:
             path = os.path.join(paths.lib_dir(), 'plugins')
     found = _find_plugins(path)
+    if len(found) == 0:
+        debug('No plugins found at path: %s' % path)
+
     depends = []
     for plugin in found:
         plugins_dict[plugin.__name__] = plugin
@@ -264,10 +267,11 @@ class Registry(dict):
         '''
         import bauble.meta as meta
         #logger.echo(True)
-        ins = meta.bauble_meta_table.insert(values={'name': meta.REGISTRY_KEY,
+        meta_table = meta.BaubleMeta.__table__
+        ins = meta_table.insert(values={'name': meta.REGISTRY_KEY,
                                                     'value': u'[]'})
         bauble.engine.contextual_connect().execute(ins)
-        sql =  meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==meta.REGISTRY_KEY)
+        sql =  meta_table.select(meta_table.c.name==meta.REGISTRY_KEY)
         #logger.echo(False)
 
 
