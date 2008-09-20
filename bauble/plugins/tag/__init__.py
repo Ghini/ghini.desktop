@@ -268,13 +268,13 @@ def _get_tagged_object_pairs(tag):
             cls = getattr(module, cls_name)
             kids.append((cls, obj.obj_id))
         except KeyError, e:
-            warning(_('KeyError -- tag.get_tagged_objects(%s): %s') % (tag, e))
+            warning('KeyError -- tag.get_tagged_objects(%s): %s' % (tag, e))
             continue
         except SQLError, e:
-            warning(_('SQLError -- tag.get_tagged_objects(%s): %s') % (tag, e))
+            warning('SQLError -- tag.get_tagged_objects(%s): %s' % (tag, e))
             continue
         except AttributeError, e:
-            warning(_('AttributeError -- tag.get_tagged_objects(%s): %s') \
+            warning('AttributeError -- tag.get_tagged_objects(%s): %s' \
                     % (tag, e))
             warning('Could not get the object for %s.%s(%s)' % \
                     (module_name, cls_name, obj.obj_id))

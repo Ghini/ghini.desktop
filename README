@@ -1,6 +1,11 @@
 Bauble 
 ============
 
+**********
+WARNING:  This file is terribly out of date and most like not very accurate.
+**********
+
+
 At it's heart Bauble is a framework for creating database applications.  In
 it's distributed form Bauble is an application to manage plant records and 
 specifically living collections.  It is used by Belize Botanic Gardens to 

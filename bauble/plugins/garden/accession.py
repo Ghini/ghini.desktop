@@ -123,11 +123,14 @@ def add_plants_callback(value):
 
 def remove_callback(value):
     if len(value.plants) > 0:
-        msg = _('%s plants depend on this accession: <b>%s</b>\n\n'\
-                'Are you sure you want to remove accession <b>%s</b>?') % \
-                (len(value.plants),
-                 utils.xml_safe_utf8(', '.join(map(utils.utf8, value.plants))),
-                 utils.xml_safe_utf8(unicode(value)))
+        safe = utils.xml_safe_utf8
+        values = dict(num_plants=len(value.plants),
+                      plant_codes = safe(', '.join(value.plants)),
+                      acc_code = safe(value))
+        msg = _('%(num_plants)s plants depend on this accession: ' \
+                '<b>%(plant_codes)s</b>\n\n'\
+                'Are you sure you want to remove accession ' \
+                '<b>%(acc_code)s</b>?' % values)
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
                   utils.xml_safe_utf8(unicode(value))

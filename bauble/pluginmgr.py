@@ -206,8 +206,11 @@ def init():
                 registry.save()
         except Exception, e:
             debug(e)
-            utils.message_details_dialog(_("Error: Couldn't initialize %s\n\n"\
-                                           "%s.") % (entry.name, str(e)),
+            safe = utils.xml_safe_utf8
+            values = dict(entry_name=entry.name, exception=safe(e))
+            utils.message_details_dialog(_("Error: Couldn't initialize "\
+                                           "%(entry_name)s\n\n" \
+                                           "%(exception)s." % values),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
 
