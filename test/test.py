@@ -18,6 +18,7 @@ import testbase
 # TODO: right now this just runs all tests but should really be able to
 # pass individuals tests or test suites on the command line
 default_uri = 'sqlite:///:memory:'
+
 parser = OptionParser()
 parser.add_option("-c", "--connection", dest="connection", metavar="CONN",
                   default=default_uri, help="connect to CONN")
@@ -82,17 +83,27 @@ def find_all_tests(verbose=False):
     return test_suites
 
 
-
 if __name__ == '__main__':
+    import nose
+#     try:
+#         options, args = parser.parse_args()
+#         testbase.uri = options.connection
+#     except:
+    testbase.uri = default_uri
+    nose.run()
+    #nose.main()
+
+#if __name__ == '__main__':
+if False:
     (options, args) = parser.parse_args()
     testbase.log.setLevel(options.loglevel)
     testbase.uri = options.connection
     test_loader = unittest.defaultTestLoader
     if testbase.uri != default_uri:
         print 'uri: %s' % testbase.uri
-
     global tests
     test_suites = find_all_tests(options.verbosity>=2)
+    #sys.exit(1)
     if options.verbosity>=2:
         testbase.log.msg('=======================')
     runner = unittest.TextTestRunner(verbosity=options.verbosity)
