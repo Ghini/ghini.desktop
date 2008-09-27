@@ -13,21 +13,24 @@ class EnumError(error.BaubleError):
 
 
 class Enum(types.TypeDecorator):
-    """Emulate an Enum type.
+    """A database independent Enum type. The value is stored in the
+    database as a Unicode string.
 
-    valus:
-      A list of value values for this column
-    empty
-    values : a list of values that are valid for this column
-    empty_to_none : treat the empty string '' as None
+    values:
+      A list of valid values for column.
+    empty_to_none:
+      Treat the empty string '' as None.  None must be in the values
+      list in order to set empty_to_none=True.
     """
-
     impl = types.Unicode
 
     def __init__(self, values, empty_to_none=False, strict=True, **kwargs):
 
         if values is None or len(values) is 0:
-            raise EnumError('Enum requires a list of values')
+            raise EnumError(_('Enum requires a list of values'))
+        if empty_to_none and None not in values:
+            raise EnumError(_('You have configured empty_to_none=True but '\
+                              'None is not in the values lists'))
         self.values = values[:]
         self.strict = strict
         self.empty_to_none = empty_to_none
