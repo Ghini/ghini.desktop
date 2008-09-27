@@ -79,75 +79,169 @@ def family_markup_func(family):
 #
 # Family
 #
-family_table = \
-    bauble.Table('family', bauble.metadata,
-                 Column('id', Integer, #Sequence('family_id_seq'),
-                        primary_key=True),
-                 Column('family', String(45), nullable=False, index=True),
-                 Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
-                                          empty_to_none=True)),
-                 Column('notes', UnicodeText),
-                 UniqueConstraint('family', 'qualifier', name='family_index'))
+class Family(bauble.Base, bauble.Table):
+    """
+    Table: family
 
+    Columns:
+    --------
+    family: The name if the family. str(45), not null, unique
+    qualifier: The family qualifier. str[s. lat, s. str, null]
+    notes: Free text notes about the family.
 
-family_synonym_table = \
-    bauble.Table('family_synonym', bauble.metadata,
-                 Column('id', Integer, primary_key=True),
-                 Column('family_id', Integer, ForeignKey('family.id'),
-                        nullable=False),
-                 Column('synonym_id', Integer, ForeignKey('family.id'),
-                        nullable=False),
-                 UniqueConstraint('family_id', 'synonym_id',
-                                  name='family_synonym_index'))
+    Relations:
+    ----------
+    synonyms: An association to _synonyms that will automatically convert
+    a Family object and create the synonym.
 
-class Family(bauble.BaubleMapper):
+    Constraints:
+    ------------
+    The family table has a unique constraint on family/qualifier but
+    this is probably redundant since family always has to be unique it
+    implies that family/qualifier must be unique.
+    """
+    __tablename__ = 'family'
+    __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
+    __mapper_args = {'order_by': ['family', 'qualifier']}
 
+    # columns
+    id = Column(Integer, Sequence('family_id_seq'), primary_key=True)
+    family = Column(String(45), nullable=False, unique=True, index=True)
+    qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
+    notes = Column(UnicodeText)
+
+    # relations
     synonyms = association_proxy('_synonyms', 'synonym')
+    genera = relation('Genus', backref='family', cascade='all, delete-orphan')
+    _synonyms =  relation('FamilySynonym',
+                          primaryjoin='FamilySynonym.family_id==Family.id',
+                          cascade='all, delete-orphan', uselist=True,
+                          backref='family')
+
+    # this is a dummy relation, it is only here to make cascading work
+    # correctly and to ensure that all synonyms related to this family
+    # get deleted if this family gets deleted
+    __syn = relation('FamilySynonym',
+                     primaryjoin='FamilySynonym.synonym_id==Family.id',
+                     cascade='all, delete-orphan', uselist=True)
 
     def __str__(self):
-        # TODO: need ability to include the qualifier as part of the name,
-        # maybe as a keyworkd argument flag
         return Family.str(self)
 
     @staticmethod
-    def str(family):
+    def str(family, qualifier=False):
         if family.family is None:
             return repr(family)
         else:
-            return ' '.join([s for s in [family.family, family.qualifier] if s is not None])
+            return ' '.join([s for s in [family.family,
+                                    family.qualifier] if s not in (None,'')])
 
 
 
-class FamilySynonym(bauble.BaubleMapper):
+class FamilySynonym(bauble.Base, bauble.Table):
+    __tablename__ = 'family_synonym'
+    __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})
 
-    def __init__(self, family=None):
-        """
-        @param family: a Family object that will be used as the synonym
-        """
-        self.synonym = family
+    # columns
+    id = Column(Integer, primary_key=True)
+    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
+    synonym_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
+    # relations
+    synonym = relation('Family', uselist=False,
+                       primaryjoin='FamilySynonym.synonym_id==Family.id')
+
+    def __init__(self, synonym=None, **kwargs):
+        # it is necessary that the first argument here be synonym for
+        # the Family.synonyms association_proxy to work
+        self.synonym = synonym
+        super(FamilySynonym, self).__init__(**kwargs)
 
     def __str__(self):
         return Family.str(self.synonym)
 
-from bauble.plugins.plants.genus import Genus, genus_table, GenusEditor
+# extra setup
+from bauble.plugins.plants.genus import Genus, GenusEditor
 #from bauble.plugins.plants.genus import Species, species_table
-from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.garden.plant import Plant, plant_table
 
-mapper(Family, family_table,
-    properties = { \
-    '_synonyms': relation(FamilySynonym,
-            primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
-            cascade='all, delete-orphan', uselist=True, backref='family'),
-    'genera': relation(Genus, backref='family')},
-    order_by=['family'])
+# TODO: reenable imports
+#from bauble.plugins.garden.accession import Accession, accession_table
+#from bauble.plugins.garden.plant import Plant, plant_table
+
+#Family._synonyms =  relation('FamilySynonym',
+#                             primaryjoin=FamilySynonym.family_id==Family.id,
+#                             cascade='all, delete-orphan', uselist=True,
+#                             backref='family')
+#Family.genera = relation('Genus', backref='family')
+#FamilySynonym.synonym = relation('Family', uselist=False,
+#                            primaryjoin=FamilySynonym.synonym_id==Family.id)
+
+# family_table = \
+#     bauble.Table('family', bauble.metadata,
+#                  Column('id', Integer, #Sequence('family_id_seq'),
+#                         primary_key=True),
+#                  Column('family', String(45), nullable=False, index=True),
+#                  Column('qualifier', Enum(values=['s. lat.', 's. str.', None],
+#                                           empty_to_none=True)),
+#                  Column('notes', UnicodeText),
+#                  UniqueConstraint('family', 'qualifier', name='family_index'))
 
 
-mapper(FamilySynonym, family_synonym_table,
-    properties = {\
-    'synonym': relation(Family, uselist=False,
-            primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id)})
+# family_synonym_table = \
+#     bauble.Table('family_synonym', bauble.metadata,
+#                  Column('id', Integer, primary_key=True),
+#                  Column('family_id', Integer, ForeignKey('family.id'),
+#                         nullable=False),
+#                  Column('synonym_id', Integer, ForeignKey('family.id'),
+#                         nullable=False),
+#                  UniqueConstraint('family_id', 'synonym_id',
+#                                   name='family_synonym_index'))
+
+# class Family(bauble.BaubleMapper):
+
+#     synonyms = association_proxy('_synonyms', 'synonym')
+
+#     def __str__(self):
+#         # TODO: need ability to include the qualifier as part of the name,
+#         # maybe as a keyworkd argument flag
+#         return Family.str(self)
+
+#     @staticmethod
+#     def str(family):
+#         if family.family is None:
+#             return repr(family)
+#         else:
+#             return ' '.join([s for s in [family.family, family.qualifier] if s is not None])
+
+
+
+# class FamilySynonym(bauble.BaubleMapper):
+
+#     def __init__(self, family=None):
+#         """
+#         @param family: a Family object that will be used as the synonym
+#         """
+#         self.synonym = family
+
+
+#     def __str__(self):
+#         return Family.str(self.synonym)
+
+
+
+# mapper(Family, family_table,
+#     properties = { \
+#     '_synonyms': relation(FamilySynonym,
+#             primaryjoin=family_synonym_table.c.family_id==family_table.c.id,
+#             cascade='all, delete-orphan', uselist=True, backref='family'),
+#     'genera': relation(Genus, backref='family')},
+#     order_by=['family'])
+
+
+# mapper(FamilySynonym, family_synonym_table,
+#     properties = {\
+#     'synonym': relation(Family, uselist=False,
+#             primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id)})
 
 
 class FamilyEditorView(GenericEditorView):
@@ -497,9 +591,11 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results
 import bauble.paths as paths
 from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species, species_table
-from bauble.plugins.garden.accession import Accession
-from bauble.plugins.garden.plant import Plant
+from bauble.plugins.plants.species_model import Species
+
+# TODO: reenable imports
+#from bauble.plugins.garden.accession import Accession
+#from bauble.plugins.garden.plant import Plant
 
 class GeneralFamilyExpander(InfoExpander):
     '''
@@ -714,6 +810,5 @@ class FamilyInfoBox(InfoBox):
         self.props.update(row)
 
 
-__all__ = ['family_table', 'Family', 'FamilyEditor', 'family_synonym_table',
-           'FamilySynonym', 'FamilyInfoBox', 'family_context_menu',
-           'family_markup_func']
+__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
+           'family_context_menu', 'family_markup_func']

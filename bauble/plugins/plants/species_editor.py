@@ -15,12 +15,12 @@ import bauble.paths as paths
 from bauble.editor import *
 from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus, genus_table
-from bauble.plugins.plants.species_model import Species, species_table, \
+from bauble.plugins.plants.genus import Genus#, genus_table
+from bauble.plugins.plants.species_model import Species, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
-     SpeciesDistribution, species_distribution_table, Geography, \
-     geography_table
-from bauble.plugins.garden.accession import AccessionEditor, Accession
+     SpeciesDistribution, Geography
+
+#from bauble.plugins.garden.accession import AccessionEditor, Accession
 
 # TODO: would be nice, but not necessary, to edit existing vernacular names
 # instead of having to add new ones
