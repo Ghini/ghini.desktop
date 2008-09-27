@@ -22,6 +22,10 @@ def get_species_in_geography(geo):
     # before we get an items children in the results view we should disable
     # clicking in the view and once the item has expanded we reenable it
     #
+    # TODO: need to change this to use the new queries on the mapper
+    # or to update the select statements if we don't want to create
+    # full on Geography objects
+    raise NotImplementedError
     kids_stmt = select([geography_table.c.id],
                        geography_table.c.parent_id==bindparam('parent_id'))
     def get_kids(parent_id):
@@ -38,32 +42,56 @@ def get_species_in_geography(geo):
 
 
 
-geography_table = bauble.Table('geography', bauble.metadata,
-                        Column('id', Integer, primary_key=True),
-                        Column('name', Unicode(255), nullable=False),
-                        Column('tdwg_code', String(6)),
-                        Column('iso_code', String(7)),
-                        Column('parent_id', Integer,
-                               ForeignKey('geography.id')))
+class Geography(bauble.Base, bauble.Table):
+    __tablename__ = 'geography'
+
+    # columns
+    id = Column(Integer, primary_key=True)
+    name = Column(Unicode(255), nullable=False)
+    tdwg_code = Column(String(6))
+    iso_code = Column(String(7))
+    parent_id = Column(Integer, ForeignKey('geography.id'))
 
 
-
-class Geography(bauble.BaubleMapper):
 
     def __str__(self):
         return self.name
 
-    def __unicode__(self):
-        return self.name
+
+# late bindings
+Geography.children = relation(Geography,
+                              primaryjoin=Geography.parent_id==Geography.id,
+                              cascade='all',
+                              backref=backref("parent",
+                                    remote_side=[Geography.__table__.c.id]),
+                              order_by=[Geography.name])
+
+# geography_table = bauble.Table('geography', bauble.metadata,
+#                         Column('id', Integer, primary_key=True),
+#                         Column('name', Unicode(255), nullable=False),
+#                         Column('tdwg_code', String(6)),
+#                         Column('iso_code', String(7)),
+#                         Column('parent_id', Integer,
+#                                ForeignKey('geography.id')))
+
+
+
+# class Geography(bauble.BaubleMapper):
+
+#     def __str__(self):
+#         return self.name
+
+#     def __unicode__(self):
+#         return self.name
 
 
 
 # Geography mapper
-Geography.mapper = mapper(Geography, geography_table,
-    properties = {'children':
-        relation(Geography,
-                 primaryjoin=geography_table.c.parent_id==geography_table.c.id,
-                 cascade='all', backref=backref("parent",
-                                            remote_side=[geography_table.c.id])
-                 )},
-    order_by=[geography_table.c.name])
+# Geography.mapper = mapper(Geography, geography_table,
+#     properties = {'children':
+#         relation(Geography,
+#                  primaryjoin=geography_table.c.parent_id==geography_table.c.id,
+#                  cascade='all', backref=backref("parent",
+#                                             remote_side=[geography_table.c.id])
+#                  )},
+#     order_by=[geography_table.c.name])

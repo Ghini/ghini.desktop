@@ -32,9 +32,10 @@ def natsort_kids(kids):
 
 class PlantsPlugin(pluginmgr.Plugin):
 
-    tables = [family_table, family_synonym_table, genus_table,
-              genus_synonym_table, species_table, species_synonym_table,
-              vernacular_name_table, geography_table]
+    # TODO: do we need this table attribute
+#     tables = [family_table, family_synonym_table, genus_table,
+#               genus_synonym_table, species_table, species_synonym_table,
+#               vernacular_name_table, geography_table]
 
     @classmethod
     def init(cls):

@@ -9,12 +9,10 @@ from bauble.view import SearchView, SearchStrategy, MapperSearch, \
 from bauble.i18n import _
 import bauble.utils.desktop as desktop
 
-__all__ = ['species_table', 'Species', 'species_synonym_table',
-           'SpeciesSynonym', 'vernacular_name_table', 'VernacularName',
+__all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
            'species_context_menu', 'species_markup_func', 'vernname_get_kids',
            'vernname_markup_func', 'vernname_context_menu', 'SpeciesEditor',
-           'SpeciesInfoBox', 'VernacularNameInfoBox',
-           'species_distribution_table', 'SpeciesDistribution']
+           'SpeciesInfoBox', 'VernacularNameInfoBox', 'SpeciesDistribution']
 
 
 def edit_callback(value):
@@ -96,8 +94,10 @@ def vernname_markup_func(vernname):
 
 
 from bauble.view import InfoBox, InfoExpander, select_in_search_results
-from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.garden.plant import Plant, plant_table
+
+# TODO: reenable import
+#from bauble.plugins.garden.accession import Accession, accession_table
+#from bauble.plugins.garden.plant import Plant, plant_table
 
 #
 # Species infobox for SearchView
