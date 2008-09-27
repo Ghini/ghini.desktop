@@ -82,8 +82,8 @@ if not os.path.exists(paths.user_dir()):
 try:
     import sqlalchemy
     parts = sqlalchemy.__version__.split('.')
-    if int(parts[1]) < 4:
-        msg = _('This version of Bauble requires SQLAlchemy 0.4.0 or greater.'\
+    if int(parts[1]) < 5:
+        msg = _('This version of Bauble requires SQLAlchemy 0.5.0 or greater.'\
                 'Please download and install a newer version of SQLAlchemy ' \
                 'from http://www.sqlalchemy.org or contact your system '
                 'administrator.')
