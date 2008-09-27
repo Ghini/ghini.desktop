@@ -43,11 +43,13 @@ def find_dependent_tables(table, metadata=None):
     '''
     return an iterator with all tables the depend on table
     '''
+    # TODO: this function needs a test
+    from sqlalchemy.sql.util import sort_tables
     if metadata is None:
         metadata = bauble.metadata
     result = []
     def _impl(t2):
-        for tbl in metadata.table_iterator():
+        for tbl in metadata.sorted_tables:
             for col in tbl.c:
                 for fk in col.foreign_keys:
                     if fk.column.table == t2:
@@ -56,8 +58,8 @@ def find_dependent_tables(table, metadata=None):
                             result.append(tbl)
                             _impl(tbl)
     _impl(table)
-#    debug([r.name for r in result])
-    return metadata.table_iterator(tables=result)
+    #debug([r.name for r in result])
+    return sort_tables(tables=result)
 
 
 class GladeWidgets(dict):

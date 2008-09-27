@@ -37,7 +37,7 @@ class ImexTestCase(BaubleTestCase):
         plants_test.tearDown_test_data()
 
 
-class ImexCSVTestCase(ImexTestCase):
+class CSVTests(ImexTestCase):
 
     def test_import_defaults(self):
         # this test is usually not included in the test suite since it
@@ -154,16 +154,6 @@ class ImexCSVTestCase(ImexTestCase):
         # the test export string
         pass
 
-
-class ImexTestSuite(unittest.TestSuite):
-
-    def __init__(self):
-        super(ImexTestSuite, self).__init__()
-        self.addTests(map(ImexCSVTestCase, ('test_import',
-                                            #'test_import_defaults',
-                                            'test_export',
-                                            'test_unicode',
-                                            'test_sequences',)))
 
 
 testsuite = ImexTestSuite

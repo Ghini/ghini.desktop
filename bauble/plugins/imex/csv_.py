@@ -207,7 +207,7 @@ class CSVImporter(Importer):
             filename_dict[table_name] = f
 
         sorted_tables = []
-        for table in metadata.table_iterator():
+        for table in metadata.sorted_tables:
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
             except KeyError, e: # ---> table.name not in list of filenames
@@ -457,7 +457,7 @@ class CSVExporter:
 #        timeout = tasklet.WaitForTimeout(12)
         steps_so_far = 0
         ntables = 0
-        for table in bauble.metadata.table_iterator():
+        for table in bauble.metadata.sorted_tables:
             ntables += 1
             filename = filename_template % table.name
             if os.path.exists(filename):
@@ -481,7 +481,7 @@ class CSVExporter:
             f.close()
 
         update_every = 30
-        for table in bauble.metadata.table_iterator():
+        for table in bauble.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far+=1
             fraction = float(steps_so_far)/float(ntables)
