@@ -90,6 +90,76 @@ class FloatOrNoneStringValidator(object):
 #
 # decorates and delegates to a SA mapped object
 #
+
+from sqlalchemy.orm.interfaces import *
+import sys
+
+
+
+class ModelListener(object):
+    """
+    Listen for changes to attributes on a mapped class.
+    """
+    def __init__(self, callback=None):
+        """
+        callback is called whenever there is a change on the model, it
+        should take the form: callback(key, value)
+
+        """
+        self.callback = callback
+    def on_set(self, key, value, oldvalue):
+        if self.callback:
+            self.callback(key, value)
+        return value
+    def on_append(self, key, value):
+        if self.callback:
+            self.callback(key, value)
+        return value
+    def on_remove(self, key, value):
+        if self.callback:
+            self.callback(key, value)
+
+
+class AttributeListener(AttributeExtension):
+        def __init__(self, key, listener):
+            self.key = key
+            self.listener = listener
+
+        def append(self, state, value, initiator):
+            return self.listener.on_append(self.key, value)
+
+        def set(self, state, value, oldvalue, initiator):
+            return self.listener.on_set(self.key, value, oldvalue)
+
+        def remove(self, state, value):
+            self.listener.on_remove(self.key, value)
+
+
+def add_listener(model, listener):
+    """
+    Add a ModelListener to a mapped class.
+    """
+    mapper = class_mapper(model)
+    cls = type(model)
+    for prop in mapper.iterate_properties:
+        attr = getattr(cls, prop.key)
+        attr.impl.extensions.insert(0, AttributeListener(prop.key, listener))
+
+
+def remove_listener(model, listener):
+    """
+    Remove a ModelListener from a mapped class.
+    """
+    mapper = class_mapper(model)
+    cls = type(model)
+    for prop in mapper.iterate_properties:
+        attr = getattr(cls, prop.key)
+        for extension in attr.impl.extensions:
+            if isinstance(extension, AttributeListener) \
+                   and extension.listener == listener:
+                attr.impl.extensions.remove(extension)
+
+
 class ModelDecorator(object):
     '''
     creates notifiers and allows dict style access to our model
@@ -473,7 +543,8 @@ class GenericEditorPresenter(object):
         in self.model.field
         """
         combo = self.view.widgets[widget_name]
-        values = sorted(self.model.c[field].type.values)
+        mapper = class_mapper(self.model)
+        values = sorted(mapper.c[field].type.values)
         if None in values:
             values.remove(None)
             values.insert(0, '')
