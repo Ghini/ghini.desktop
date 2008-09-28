@@ -109,34 +109,38 @@ except ImportError:
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
+import sqlalchemy as sa
+from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+
+class MapperBase(DeclarativeMeta):
+    """
+    MapperBase adds the id, _created and _last_updated columns to all tables.
+    """
+
+    def __init__(cls, classname, bases, dict_):
+        #print >>sys.stderr, dict_
+        if '__tablename__' in dict_:
+            seqname = '%s_seq_id' % dict_['__tablename__']
+            dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
+                                    primary_key=True)
+            dict_['_created'] = sa.Column('_created', sa.DateTime(True),
+                                          default=sa.func.now())
+            dict_['_last_updated'] = sa.Column('_last_updated',
+                                               sa.DateTime(True),
+                                               default=sa.func.now())
+        super(MapperBase, cls).__init__(classname, bases, dict_)
+
+
 #
 # global database variables
 #
-import sqlalchemy as sa
-from sqlalchemy.ext.declarative import declarative_base
 engine = None
-Base = declarative_base()
+Base = declarative_base(metaclass=MapperBase)
 metadata = Base.metadata
 Session = None
 gui = None
 default_icon = None
 conn_name = None
-
-class Table(object):
-    """
-    Add id, _created and _last_updated columns. All tables created for use
-    in Bauble should inherit from table_base and this class.  this
-    Table class and table_base
-    """
-    # func.now() is only supported in SQLAlchemy>=0.4.3
-    def __init__(self, *args, **kwargs):
-        self.__table__.append_column(sa.Column('_created', sa.DateTime(True),
-                                               default=sa.func.now()))
-        self.__table__append_column(sa.Column('_last_updated',
-                                              sa.DateTime(True),
-                                              default=sa.func.now()))
-
-
 
 import traceback
 from bauble.utils.log import debug, warning
@@ -280,7 +284,6 @@ def open_database(uri, verify=True, show_error_dialogs=False):
         global Session, engine
         engine = new_engine
         metadata.bind = engine # make engine implicit for metadata
-        #Session = sessionmaker(bind=engine, autoflush=False,transactional=True)
         Session = sessionmaker(bind=engine)
 
     if new_engine is not None and not verify:
@@ -314,7 +317,8 @@ def create_database(import_defaults=True):
     import bauble.meta as meta
     from bauble.task import TaskQuitting
     import datetime
-    transaction = engine.contextual_connect().begin()
+    #transaction = engine.contextual_connect().begin()
+    session = Session()
     try:
         # TODO: here we are creating all the tables in the metadata whether
         # they are in the registry or not, we should really only be creating
@@ -347,12 +351,14 @@ def create_database(import_defaults=True):
         # of a task
         debug(e)
 #        debug('bauble.create_database(): rollback')
-        transaction.rollback()
+        #transaction.rollback()
+        session.rollback()
         raise
     except Exception, e:
         debug(e)
-#        debug('bauble.create_database(): rollback')
-        transaction.rollback()
+        #debug('bauble.create_database(): rollback')
+        #transaction.rollback()
+        session.rollback()
         msg = _('Error creating tables.\n\n%s') % utils.xml_safe_utf8(e)
         debug(traceback.format_exc())
         utils.message_details_dialog(msg, traceback.format_exc(),
@@ -360,7 +366,8 @@ def create_database(import_defaults=True):
         raise
     else:
 ##        debug('bauble.create_database(): committing')
-        transaction.commit()
+        session.commit()
+        #transaction.commit()
 
 
 def set_busy(busy):

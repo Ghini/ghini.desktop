@@ -49,7 +49,7 @@ def find_dependent_tables(table, metadata=None):
         metadata = bauble.metadata
     result = []
     def _impl(t2):
-        for tbl in metadata.sorted_tables:
+        for tbl in metadata.tables.values():
             for col in tbl.c:
                 for fk in col.foreign_keys:
                     if fk.column.table == t2:

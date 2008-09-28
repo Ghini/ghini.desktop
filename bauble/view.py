@@ -312,32 +312,33 @@ class MapperSearch(SearchStrategy):
     """
 
     _domains = {}
-    _mapping_columns = {}
+    _properties = {}
 
     def __init__(self):
         super(MapperSearch, self).__init__()
         self.parser = SearchParser()
 
 
-    def add_meta(self, domain, mapping, default_columns):
+    def add_meta(self, domain, cls, properties):
         """
         Adds search meta to the domain
+
         @param domain: a string, list or tuple of domains that will resolve
-        to mapping in a search string
-        @param mapping: the mapping the domain will resolve to, should be a
-        class that inherits from bauble.BaubleMapper
-        @param default_columns: the columns to search on the mapping
+        to cls a search string, domain act as a shorthand to the class name
+        @param cls: the class the domain will resolve to
+        @param properties: a list of string names of the properties to
+        search by default
         """
-        check(isinstance(default_columns, list), _('MapperSearch.add_meta(): '\
+        check(isinstance(properties, list), _('MapperSearch.add_meta(): '\
         'default_columns argument must be list'))
-        check(len(default_columns) > 0, _('MapperSearch.add_meta(): '\
+        check(len(properties) > 0, _('MapperSearch.add_meta(): '\
         'default_columns argument cannot be empty'))
         if isinstance(domain, (list, tuple)):
             for d in domain:
-                self._domains[d] = mapping, default_columns
+                self._domains[d] = cls, properties
         else:
-            self._domains[d] = mapping, default_columns
-        self._mapping_columns[mapping] = default_columns
+            self._domains[d] = cls, properties
+        self._properties[cls] = properties
 
 
     # TODO: _resolve_identifiers needs a test
@@ -404,30 +405,57 @@ class MapperSearch(SearchStrategy):
         """
         domain, expr = tokens['query']
         check(domain in self._domains, 'Unknown search domain: %s' % domain)
-        mapping = self._domains[domain][0]
+        cls = self._domains[domain][0]
+        mapper = class_mapper(cls)
         expr_iter = iter(expr)
         op = None
-        query = session.query(mapping)
+        query = session.query(cls)
         clause = prev_clause = None
         for e in expr_iter:
             idents, cond, val = e
 ##            debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
             if len(idents) == 1:
                 col = idents[0]
-                # TODO: at the moment this only works if the
-                # identifier is a column but in theory if we should be
-                # able to resolve the identifier if its not a column
-                # and treat it like a search expression, maybe we
-                # could create a custom search string and pass it to
-                # self.search() or an sql statement from it
-                check(col in mapping.c, 'The %s table does not have a '\
+                check(col in mapper.c, 'The %s table does not have a '\
                        'column named %s' % \
-                       (class_mapper(mapping).local_table.name, col))
-                clause = mapping.c[idents[0]].op(cond)(unicode(val))
+                       (mapper.local_table.name, col))
+                #clause = mapper.c[idents[0]].op(cond)(unicode(val))
+                #query.filter(mapper.c[idents[0]].op(cond)(unicode(val)))
+                query.filter(getattr(cls, col).op(cond)(unicode(val)))
             else:
-                resolved = self._resolve_identifiers(mapping, idents)
-                query = query.join(idents[:-1])
-                clause = resolved[-1].op(cond)(unicode(val))
+                relations = idents[:-1]
+                col = idents[-1]
+                # TODO: do all the databases quote the same
+
+                # TODO: need to either stick to a subset of conditions
+                # that work on all database or just normalize the
+                # conditions depending on the databases
+
+                # TODO: the like condition takes fucking ages here if
+                # the search query is something like:
+                # "children.column like something"
+                where = "%s %s '%s'" % (col, cond, val)
+                query = query.join(*relations).filter(where)
+                #debug(query)
+                #debug(list(query))
+
+
+#             if len(idents) == 1:
+#                 col = idents[0]
+#                 # TODO: at the moment this only works if the
+#                 # identifier is a column but in theory if we should be
+#                 # able to resolve the identifier if its not a column
+#                 # and treat it like a search expression, maybe we
+#                 # could create a custom search string and pass it to
+#                 # self.search() or an sql statement from it
+#                 check(col in mapper.c, 'The %s table does not have a '\
+#                        'column named %s' % \
+#                        (mapper.local_table.name, col))
+#                 clause = mapper.c[idents[0]].op(cond)(unicode(val))
+#             else:
+#                 resolved = self._resolve_identifiers(cls, idents)
+#                 query = query.join(idents[:-1])
+#                 clause = resolved[-1].op(cond)(unicode(val))
 
             if op is not None:
                 check(op in ('and', 'or'), 'Unsupported operator: %s' % op)
@@ -442,7 +470,8 @@ class MapperSearch(SearchStrategy):
             except StopIteration:
                 pass
 
-        return query.filter(clause)
+        #return query.filter(clause)
+        return query
 
 
     def search(self, text, session=None):
@@ -467,19 +496,23 @@ class MapperSearch(SearchStrategy):
             else:
                 like = lambda table, col, val: \
                        table.c[col].like('%%%s%%' % val)
-            for mapping, columns in self._mapping_columns.iteritems():
-                q = session.query(mapping)
+            for cls, columns in self._properties.iteritems():
+                q = session.query(cls)
                 cv = [(c,v) for c in columns for v in tokens['values']]
-
-                # as of SQLAlchemy 0.4.2 we convert the value to a unicode
+                # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
                 # object if the col is a Unicode or UnicodeText column in order
                 # to avoid the "Unicode type received non-unicode bind param"
                 def unicol(col, v):
-                    if isinstance(mapping.c[col].type, (Unicode,UnicodeText)):
+                    #debug(mapping)
+                    #debug(type(mapping))
+                    mapper = class_mapper(cls)
+                    if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
                         return unicode(v)
                     else:
                         return v
-                q =q.filter(or_(*[like(mapping,c,unicol(c, v)) for c,v in cv]))
+                mapper = class_mapper(cls)
+                q =q.filter(or_(*[like(mapper, c, unicol(c, v)) \
+                                  for c,v in cv]))
                 results.add(q)
         elif 'expression' in tokens:
             #debug(tokens.dump())
@@ -490,10 +523,10 @@ class MapperSearch(SearchStrategy):
 ##                 debug(cond)
 ##                 debug(val)
                 try:
-                    mapping, columns = self._domains[domain]
+                    cls, properties = self._domains[domain]
                 except KeyError:
                     raise KeyError(_('Unknown search domain: %s' % domain))
-                query = session.query(mapping)
+                query = session.query(cls)
                 # TODO: should probably create a normalize_cond() method
                 # to convert things like contains and has into like conditions
 
@@ -521,8 +554,13 @@ class MapperSearch(SearchStrategy):
                 if val == '*':
                     results.add(query)
                 else:
-                    for col in columns:
-                        results.add(query.filter(mapping.c[col].op(cond)(val)))
+                    mapper = class_mapper(cls)
+                    # TODO: can we use the properties directly instead
+                    # of using the columns names so that if the
+                    # properties are setup properly then they could be
+                    # used directly in the search string
+                    for col in properties:
+                        results.add(query.filter(mapper.c[col].op(cond)(val)))
         elif 'query' in tokens:
             results.add(self._get_results_from_query(tokens, session))
 

@@ -79,7 +79,7 @@ def family_markup_func(family):
 #
 # Family
 #
-class Family(bauble.Base, bauble.Table):
+class Family(bauble.Base):
     """
     Table: family
 
@@ -105,7 +105,6 @@ class Family(bauble.Base, bauble.Table):
     __mapper_args = {'order_by': ['family', 'qualifier']}
 
     # columns
-    id = Column(Integer, Sequence('family_id_seq'), primary_key=True)
     family = Column(String(45), nullable=False, unique=True, index=True)
     qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
     notes = Column(UnicodeText)
@@ -138,12 +137,11 @@ class Family(bauble.Base, bauble.Table):
 
 
 
-class FamilySynonym(bauble.Base, bauble.Table):
+class FamilySynonym(bauble.Base):
     __tablename__ = 'family_synonym'
     __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})
 
     # columns
-    id = Column(Integer, primary_key=True)
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
     synonym_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -619,22 +617,30 @@ class GeneralFamilyExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-
         self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
-
+        session = bauble.Session()
         # get the number of genera
-        genus_ids = select([genus_table.c.id], genus_table.c.family_id==row.id)
-        ngen = sql_utils.count_select(genus_ids)
+        ngen = session.query(Genus).filter_by(family_id=row.id).count()
         self.set_widget_value('fam_ngen_data', ngen)
 
         # get the number of species
-        species_ids = select([species_table.c.id],
-                             species_table.c.genus_id.in_(genus_ids))
-        nsp_str = str(sql_utils.count_select(species_ids))
-        if nsp_str != '0':
-            ngen_with_species = sql_utils.count_distinct_whereclause(species_table.c.genus_id, species_table.c.genus_id.in_(genus_ids))
-            nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)
-        self.set_widget_value('fam_nsp_data', nsp_str)
+        nsp = session.query(Species).join('genus').\
+              filter_by(family_id=row.id).count()
+        if nsp == 0:
+            self.set_widget_value('fam_nsp_data', 0)
+        else:
+            ngen_in_sp = session.query(Species.genus_id).join('genus').\
+                         filter_by(family_id=row.id).distinct().count()
+            self.set_widget_value('fam_nsp_data', '%s in %s' \
+                                  % (nsp, ngen_in_sp))
+        return
+#         species_ids = select([species_table.c.id],
+#                              species_table.c.genus_id.in_(genus_ids))
+#         nsp_str = str(sql_utils.count_select(species_ids))
+#         if nsp_str != '0':
+#             ngen_with_species = sql_utils.count_distinct_whereclause(species_table.c.genus_id, species_table.c.genus_id.in_(genus_ids))
+#             nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)
+#         self.set_widget_value('fam_nsp_data', nsp_str)
 
         # get the number of accessions
         acc_ids = select([accession_table.c.id],

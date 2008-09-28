@@ -86,7 +86,7 @@ def genus_markup_func(genus):
 
 
 
-class Genus(bauble.Base, bauble.Table):
+class Genus(bauble.Base):
     """
     Table: genus
 
@@ -119,7 +119,6 @@ class Genus(bauble.Base, bauble.Table):
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
     # columns
-    id = Column(Integer, primary_key=True)
     genus = Column(String(64), nullable=False, index=True)
     hybrid = Column(Enum(values=['H', 'x', '+', '']), default=u'')
     author = Column(Unicode(255), default=u'')
@@ -160,13 +159,12 @@ class Genus(bauble.Base, bauble.Table):
                 xml.sax.saxutils.escape(genus.author)] if s not in ('', None)])
 
 
-class GenusSynonym(bauble.Base, bauble.Table):
+class GenusSynonym(bauble.Base):
     __tablename__ = 'genus_synonym'
     __table_args__ = (UniqueConstraint('genus_id', 'synonym_id',
                                         name='genus_synonym_index'),
                       {})
     # columns
-    id = Column(Integer, Sequence('genus_id_seq'), primary_key=True)
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
     synonym_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 

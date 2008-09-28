@@ -66,7 +66,7 @@ class VNList(list):
 
 
 
-class Species(bauble.Base, bauble.Table):
+class Species(bauble.Base):
     """Species table (species)
 
     sp_hybrid
@@ -109,7 +109,6 @@ class Species(bauble.Base, bauble.Table):
                                    'infrasp']}
 
     # columns
-    id = Column(Integer, primary_key=True)
     sp = Column(Unicode(64), nullable=False, index=True)
     sp_author = Column(Unicode(128))
     sp_hybrid = Column(Enum(values=['x', '+', 'H', None]))
@@ -463,13 +462,12 @@ class Species(bauble.Base, bauble.Table):
 
 # TODO: deleting either of the species this synonym refers to makes
 # this synonym irrelevant
-class SpeciesSynonym(bauble.Base, bauble.Table):
+class SpeciesSynonym(bauble.Base):
     __tablename__ = 'species_synonym'
     __table_args__ = (UniqueConstraint('species_id', 'synonym_id',
                                        name='species_synonym_index'))
 
     # columns
-    id = Column(Integer, primary_key=True)
     species_id = Column(Integer, ForeignKey('species.id'),
                         nullable=False)
     synonym_id = Column(Integer, ForeignKey('species.id'),
@@ -518,7 +516,7 @@ class SpeciesSynonym(bauble.Base, bauble.Table):
 
 
 
-class VernacularName(bauble.Base, bauble.Table):
+class VernacularName(bauble.Base):
     """
     Vernacular name table (vernacular_name)
 
@@ -528,7 +526,6 @@ class VernacularName(bauble.Base, bauble.Table):
     species_id: key to the species this vernacular name refers to
     """
     __tablename__ = 'vernacular_name'
-    id = Column(Integer, primary_key=True)
     name = Column(Unicode(128), nullable=False)
     language = Column(Unicode(128))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
@@ -562,7 +559,7 @@ class VernacularName(bauble.Base, bauble.Table):
 #         return self.name
 
 
-class DefaultVernacularName(bauble.Base, bauble.Table):
+class DefaultVernacularName(bauble.Base):
     """
     table: default_vernacular_name
 
@@ -583,7 +580,6 @@ class DefaultVernacularName(bauble.Base, bauble.Table):
                       {})
 
     # columns
-    id = Column(Integer, primary_key=True)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     vernacular_name_id = Column(Integer, ForeignKey('vernacular_name.id'),
                                 nullable=False)
@@ -619,11 +615,10 @@ class DefaultVernacularName(bauble.Base, bauble.Table):
 #         return str(self.vernacular_name)
 
 
-class SpeciesDistribution(bauble.Base, bauble.Table):
+class SpeciesDistribution(bauble.Base):
     __tablename__ = 'species_distribution'
 
     # columns
-    id = Column(Integer, primary_key=True)
     geography_id = Column(Integer, ForeignKey('geography.id'), nullable=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
