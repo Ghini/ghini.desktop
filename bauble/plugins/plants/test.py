@@ -15,7 +15,8 @@ from bauble.plugins.plants.species_model import Species, VernacularName, \
      SpeciesSynonym, DefaultVernacularName
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
-from testbase import BaubleTestCase, log
+from bauble.plugins.plants.geography import *
+from bauble.test import BaubleTestCase
 
 #
 # TODO: things to create tests for
@@ -520,6 +521,10 @@ class SpeciesTests(PlantTestCase):
         self.session.clear()
 
 
+class GeographyTests(PlantTestCase):
+
+    def test(self):
+        pass
 
 # TODO: maybe the following could be in a seperate file called
 # profile.py or something that would profile everything in the plants

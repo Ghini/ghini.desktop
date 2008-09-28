@@ -19,7 +19,7 @@ REGISTRY_KEY = u'registry'
 # m - number month, two digits when necessary
 DATE_FORMAT_KEY = u'date_format'
 
-class BaubleMeta(bauble.Base, bauble.Table):
+class BaubleMeta(bauble.Base):
     __tablename__ = 'bauble'
     id = Column(Integer, primary_key=True)
     name = Column(Unicode(64), unique=True)

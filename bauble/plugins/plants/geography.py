@@ -42,16 +42,14 @@ def get_species_in_geography(geo):
 
 
 
-class Geography(bauble.Base, bauble.Table):
+class Geography(bauble.Base):
     __tablename__ = 'geography'
 
     # columns
-    id = Column(Integer, primary_key=True)
     name = Column(Unicode(255), nullable=False)
     tdwg_code = Column(String(6))
     iso_code = Column(String(7))
     parent_id = Column(Integer, ForeignKey('geography.id'))
-
 
 
     def __str__(self):
