@@ -14,14 +14,14 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
 from bauble.i18n import _
-from bauble.editor import *
+import bauble.editor as editor
 import bauble.utils.desktop as desktop
 from datetime import datetime
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
 from bauble.utils.log import debug
 from bauble.types import Enum
-
+from bauble.prefs import prefs
 
 def edit_callback(value):
     """
@@ -242,7 +242,7 @@ from bauble.plugins.plants.genus import Genus, GenusEditor
 #             primaryjoin=family_synonym_table.c.synonym_id==family_table.c.id)})
 
 
-class FamilyEditorView(GenericEditorView):
+class FamilyEditorView(editor.GenericEditorView):
 
     syn_expanded_pref = 'editor.family.synonyms.expanded'
 
@@ -260,10 +260,10 @@ class FamilyEditorView(GenericEditorView):
 
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'plants',
-                                                      'editors.glade'),
-                                   parent=parent)
+        super(FamilyEditorView, self).__init__(os.path.join(paths.lib_dir(),
+                                                'plugins', 'plants',
+                                                'editors.glade'),
+                                               parent=parent)
         self.dialog = self.widgets.family_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
@@ -299,7 +299,7 @@ class FamilyEditorView(GenericEditorView):
 
 
 
-class FamilyEditorPresenter(GenericEditorPresenter):
+class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'family',
                            'fam_qualifier_combo': 'qualifier',
@@ -310,7 +310,8 @@ class FamilyEditorPresenter(GenericEditorPresenter):
         @param model: should be an instance of class Accession
         @param view: should be an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        super(FamilyEditorPresenter, self).__init__(model, view)
+        self._dirty = False
         self.session = object_session(model)
 
         # initialize widgets
@@ -327,21 +328,26 @@ class FamilyEditorPresenter(GenericEditorPresenter):
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+        self.listener = editor.ModelListener(callback=self.on_field_changed)
+        editor.add_listener(self.model, self.listener)
+
+
+    def __del__(self):
+        editor.remove_listener(self.model, self.listener)
 
 
     def on_field_changed(self, model, field):
+        self._dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
 
     def dirty(self):
-        return self.model.dirty or self.synonyms_presenter.dirty()
+        return self._dirty or self.synonyms_presenter.dirty()
 
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
 
@@ -352,7 +358,7 @@ class FamilyEditorPresenter(GenericEditorPresenter):
 #
 # TODO: you shouldn't be able to set a family as a synonym of itself
 #
-class SynonymsPresenter(GenericEditorPresenter):
+class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
@@ -363,7 +369,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         @param view: see GenericEditorPresenter
         @param session:
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(family), view)
+        super(SynonymsPresenter, self).__init__(family, view)
         self.session = session
         self.init_treeview()
 
@@ -372,24 +378,24 @@ class SynonymsPresenter(GenericEditorPresenter):
         completions_model = FamilySynonym()
         def fam_get_completions(text):
             query = self.session.query(Family)
-            query = query.filter(and_(family_table.c.family.like('%s%%' %text),
-                                      family_table.c.id != self.model.id))
+            query.filter(and_(Family.family.like('%s%%' % text),
+                              Family.id != self.model.id))
             return query
 
         def set_in_model(self, field, value):
-            # don't set anything in the model, just set self.selected
+            # don't set anything in the model, just set self._selected
             sensitive = True
             if value is None:
                 sensitive = False
             self.view.widgets.fam_syn_add_button.set_sensitive(sensitive)
-            self._added = value
+            self._selected = value
 
         self.assign_completions_handler('fam_syn_entry', 'synonym',
                                         fam_get_completions,
                                         set_func=set_in_model,
                                         model=completions_model)
-#        self.selected = None
-        self._added = None
+
+        self._selected = None
         self.view.widgets.fam_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
         self.view.widgets.fam_syn_remove_button.connect('clicked',
@@ -398,7 +404,7 @@ class SynonymsPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.model.dirty or self.__dirty
+        return self.__dirty
 
 
     def init_treeview(self):
@@ -445,11 +451,10 @@ class SynonymsPresenter(GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
             this species
         '''
-        syn = FamilySynonym(self._added)
-        self.model._synonyms.append(syn)
+        self.model.synonyms.append(self._selected)
         tree_model = self.treeview.get_model()
-        tree_model.append([syn])
-        self._added = None
+        tree_model.append([self._selected])
+        self._selected = None
         entry = self.view.widgets.fam_syn_entry
         # sid generated from GenericEditorPresenter.assign_completion_handler
         entry.handler_block(self._insert_fam_syn_entry_sid)
@@ -487,7 +492,7 @@ class SynonymsPresenter(GenericEditorPresenter):
             self.__dirty = True
 
 
-class FamilyEditor(GenericModelViewPresenterEditor):
+class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
     label = 'Family'
     mnemonic_label = '_Family'
@@ -505,8 +510,8 @@ class FamilyEditor(GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Family()
+        super(FamilyEditor, self).__init__(model, parent)
 
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
         if parent is None: # should we even allow a change in parent
             parent = bauble.gui.window
         self.parent = parent
