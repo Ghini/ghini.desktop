@@ -241,7 +241,7 @@ class CSVImporter(Importer):
         insert = None
         try:
             # first do all the table creation/dropping
-            for table, filename in sorted_tables:
+            for table, filename in reversed(sorted_tables):
                 if self.__cancel or self.__error:
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
@@ -273,9 +273,9 @@ class CSVImporter(Importer):
                         deps = list(utils.find_dependent_tables(table))
                         if len(deps) > 0:
                             dep_names = [t.name for t in deps]
-                            msg = _('The following tables depend on the '
-                                    '%(table)s table. These tables will need '
-                                    'to be dropped as well.\n\n' \
+                            msg = _('The following tables depend on the ' \
+                                    '<b>%(table)s</b> table. These tables ' \
+                                    'will need to be dropped as well.\n\n' \
                                     '<b>%(other_tables)s</b>\n\n' \
                                     '<i>Would you like to continue?</i>' \
                                     % {'table': table.name,
