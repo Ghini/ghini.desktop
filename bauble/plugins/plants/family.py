@@ -311,7 +311,6 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         @param view: should be an instance of AccessionEditorView
         '''
         super(FamilyEditorPresenter, self).__init__(model, view)
-        self._dirty = False
         self.session = object_session(model)
 
         # initialize widgets
@@ -328,21 +327,17 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
-        self.listener = editor.ModelListener(callback=self.on_field_changed)
-        editor.add_listener(self.model, self.listener)
+        self.__dirty = False
+        self.add_listener(self.on_field_changed)
 
 
-    def __del__(self):
-        editor.remove_listener(self.model, self.listener)
-
-
-    def on_field_changed(self, model, field):
+    def on_field_changed(self, field, value):
         self._dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
 
     def dirty(self):
-        return self._dirty or self.synonyms_presenter.dirty()
+        return self.__dirty or self.synonyms_presenter.dirty()
 
 
     def refresh_view(self):
@@ -378,9 +373,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         completions_model = FamilySynonym()
         def fam_get_completions(text):
             query = self.session.query(Family)
-            query.filter(and_(Family.family.like('%s%%' % text),
-                              Family.id != self.model.id))
-            return query
+            return query.filter(and_(Family.family.like('%s%%' % text),
+                                     Family.id != self.model.id))
 
         def set_in_model(self, field, value):
             # don't set anything in the model, just set self._selected
@@ -583,6 +577,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
+        self.presenter.cleanup()
         self.session.close() # cleanup session
         return self._committed
 

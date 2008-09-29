@@ -16,7 +16,7 @@ from bauble.error import check, CheckConditionError
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
-from bauble.utils.log import log, debug
+from bauble.utils.log import log, debug, warning
 from bauble.i18n import _
 
 # TODO: create a generic date entry that can take a mask for the date format
@@ -102,9 +102,8 @@ class ModelListener(object):
     """
     def __init__(self, callback=None):
         """
-        callback is called whenever there is a change on the model, it
+        Callback is called whenever there is a change on the model, it
         should take the form: callback(key, value)
-
         """
         self.callback = callback
     def on_set(self, key, value, oldvalue):
@@ -137,18 +136,36 @@ class AttributeListener(AttributeExtension):
 
 def add_listener(model, listener):
     """
-    Add a ModelListener to a mapped class.
+    Add a listener to a mapped class.  This actually adds an
+    AttributeListener to the class rather than the instance so that
+    all instances of the type of model will receive change
+    notifications.  This might change in the future.
+
+    @param model: a instance of a mapped class
+    @param listener: a ModelListener instance or a callback that will be
+    called on change notifications
+
+    @param: the ModelListener instance attached to the model
     """
+    if isinstance(listener, ModelListener):
+        listener = listener
+    else:
+        listener = ModelListener(callback=listener)
+
     mapper = class_mapper(model)
     cls = type(model)
     for prop in mapper.iterate_properties:
         attr = getattr(cls, prop.key)
         attr.impl.extensions.insert(0, AttributeListener(prop.key, listener))
+    return listener
 
 
 def remove_listener(model, listener):
     """
     Remove a ModelListener from a mapped class.
+
+    @param model: the model the listener is attached to
+    @param listener: the listener to remove
     """
     mapper = class_mapper(model)
     cls = type(model)
@@ -297,6 +314,14 @@ class GenericEditorView(object):
                 tooltips.set_tip(widget, markup)
 
 
+    def _get_window(self):
+        """
+        @return: the top level window for view
+        """
+        raise NotImplementedError
+    window = property(_get_window)
+
+
     def set_widget_value(self, widget_name, value, markup=True, default=None):
         '''
         @param widget_name: the name of the widget whose value we want to set
@@ -322,6 +347,7 @@ class GenericEditorView(object):
         '''
         dialog.hide()
         self.response = response
+        return response
         #if response < 0:
         #    dialog.hide()
 
@@ -330,7 +356,7 @@ class GenericEditorView(object):
         '''
         '''
         dialog.hide()
-        return True
+        return False
 
 
     def attach_completion(self, entry_name,
@@ -398,7 +424,13 @@ class GenericEditorView(object):
     def start(self):
         '''
         '''
-        raise NotImplementedError()
+        raise NotImplementedError
+
+    def cleanup(self):
+        try:
+            self.window.destroy()
+        except NotImplementedError:
+            warning(_('Could not destroy window'))
 
 
 class DontCommitException(Exception):
@@ -482,17 +514,48 @@ class GenericEditorPresenter(object):
         self.problems = Problems()
         # used by assign_completions_handler
         self._prev_text = {}
+        self.__listeners = []
 
 
     # whether the presenter should be commited or not
     def dirty(self):
         """
-        returns True or False depending on whether the presenter has changed
+        Returns True or False depending on whether the presenter has changed
         anything that needs to be committed.  This doesn't
         necessarily imply that the session is not dirty nor is it required to
         change back to True if the changes are committed.
         """
         raise NotImplementedError
+
+
+    def add_listener(self, listener):
+        """
+        This method handled automatic listener handling to the
+        presenter.  The listeners will be automatically removed when
+        the view is closed provided the cleanup() method is called or
+        the view is properly destroyed.
+
+        NOTE: this method requires that the _get_window method be properly
+        implemented on the view.
+        """
+        try:
+            self.view.window
+        except NotImplementedError:
+            msg = _('To use the GenericEditorPresenter.add_listener you '\
+                    'must implement the GenericEditorView._get_window method '\
+                    'for the view to return it\'s top level gtk.Window.')
+            raise BaubleError(msg)
+        def remove_listeners(*args):
+            """
+            Remove all listeners on the model
+            """
+            for listener in self.__listeners:
+                #debug('remove_listener: %s' % listener)
+                remove_listener(self.model, listener)
+            del self.__listeners[:]
+        if len(self.__listeners) == 0:
+            self.view.window.connect('unrealize', remove_listeners)
+        self.__listeners.append(add_listener(self.model, listener))
 
 
     def remove_problem(self, problem_id, problem_widgets=None):
@@ -807,6 +870,8 @@ class GenericEditorPresenter(object):
     def start(self):
         raise NotImplementedError
 
+    def cleanup(self):
+        self.view.cleanup()
 
     def refresh_view(self):
         # TODO: should i provide a generic implementation of this method
@@ -842,7 +907,8 @@ class GenericModelViewPresenterEditor(object):
         self.model = model
         if self.session is None:
             self.session = bauble.Session()
-            self.session.save_or_update(self.model)
+            self.session.add(self.model)
+            #self.session.save_or_update(self.model)
 
 
     def attach_response(self, dialog, response, keyname, mask):
