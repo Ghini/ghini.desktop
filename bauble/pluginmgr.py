@@ -89,14 +89,16 @@ def install(plugins_to_install, import_defaults=True, force=False):
             import_exc = None
 
             try:
-                transaction = bauble.engine.contextual_connect().begin()
+                #transaction = bauble.engine.contextual_connect().begin()
+                session = bauble.Session()
                 # cvs.start uses a task which blocks here but allows the
                 # interface to stay responsive
                 def on_import_error(exc):
                     debug(exc)
                     import_error = True
                     import_exc = exc
-                    transaction.rollback()
+                    #transaction.rollback()
+                    session.rollback()
                 def on_import_quit():
                     """
                     register plugins and commit the imports
@@ -106,14 +108,16 @@ def install(plugins_to_install, import_defaults=True, force=False):
                         registry.add(RegistryEntry(name=p.__name__,
                                                    version=u'0.0'))
                     registry.save()
-                    transaction.commit()
+                    #transaction.commit()
+                    session.commit()
 ##                debug('start import')
                 csv.start(filenames=default_filenames,
                           metadata=bauble.metadata, force=force,
                           on_quit=on_import_quit, on_error=on_import_error)
             except Exception, e:
                 warning(e)
-                transaction.rollback()
+                #transaction.rollback()
+                session.rollback()
                 raise
     else:
         try:
@@ -122,10 +126,15 @@ def install(plugins_to_install, import_defaults=True, force=False):
                 registry.save()
         except Exception, e:
             debug(e)
-            transaction.rollback()
+            #transaction.rollback()
+            session.rollback()
             raise
 
 
+def _check_dependencies(plugin):
+    '''
+    Check the dependencies of plugin
+    '''
 
 def load(path=None):
     '''
@@ -209,6 +218,7 @@ def init():
                 registry.save()
         except Exception, e:
             debug(e)
+            print traceback.print_exc()
             safe = utils.xml_safe_utf8
             values = dict(entry_name=entry.name, exception=safe(e))
             utils.message_details_dialog(_("Error: Couldn't initialize "\

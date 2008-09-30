@@ -111,14 +111,15 @@ class Species(bauble.Base):
     # columns
     sp = Column(Unicode(64), nullable=False, index=True)
     sp_author = Column(Unicode(128))
-    sp_hybrid = Column(Enum(values=['x', '+', 'H', None]))
-    sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', None]))
+    sp_hybrid = Column(Enum(values=['x', '+', 'H', '']), default='')
+    sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', '']),
+                     default='')
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
     infrasp = Column(Unicode(50))
     infrasp_author = Column(Unicode(255))
     infrasp_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
-                                       'subf.', 'cv.', None]))
+                                       'subf.', 'cv.', '']), default='')
     notes = Column(UnicodeText)
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
