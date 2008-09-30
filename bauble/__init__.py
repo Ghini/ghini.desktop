@@ -284,7 +284,7 @@ def open_database(uri, verify=True, show_error_dialogs=False):
         global Session, engine
         engine = new_engine
         metadata.bind = engine # make engine implicit for metadata
-        Session = sessionmaker(bind=engine)
+        Session = sessionmaker(bind=engine, autoflush=False)
 
     if new_engine is not None and not verify:
         _bind()

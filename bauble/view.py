@@ -421,7 +421,7 @@ class MapperSearch(SearchStrategy):
                        (mapper.local_table.name, col))
                 #clause = mapper.c[idents[0]].op(cond)(unicode(val))
                 #query.filter(mapper.c[idents[0]].op(cond)(unicode(val)))
-                query.filter(getattr(cls, col).op(cond)(unicode(val)))
+                query = query.filter(getattr(cls, col).op(cond)(unicode(val)))
             else:
                 relations = idents[:-1]
                 col = idents[-1]
@@ -470,7 +470,8 @@ class MapperSearch(SearchStrategy):
             except StopIteration:
                 pass
 
-        #return query.filter(clause)
+        ##return query.filter(clause)
+        debug(query)
         return query
 
 

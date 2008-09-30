@@ -348,12 +348,10 @@ class GenusEditorView(editor.GenericEditorView):
             self.widgets[expander].set_expanded(expanded)
 
 
-    def _get_window(self):
+    def get_window(self):
         '''
         '''
-        #return self.widgets.family_dialog
         return self.widgets.genus_dialog
-    window = property(_get_window)
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -394,13 +392,10 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         def fam_get_completions(text):
             query = self.session.query(Family)
             return query.filter(Family.family.like('%s%%' % text))
-
-        def set_in_model(self, field, value):
-            setattr(self.model, field, value)
-
-        self.assign_completions_handler('gen_family_entry', 'family',
-                                        fam_get_completions,
-                                        set_func=set_in_model)
+        def on_select(value):
+            self.model.family = value
+        self.assign_completions_handler('gen_family_entry',fam_get_completions,
+                                        on_select=on_select)
         self.assign_simple_handler('gen_genus_entry', 'genus')
         self.assign_simple_handler('gen_hybrid_combo', 'hybrid',
                                    editor.UnicodeOrNoneValidator())
@@ -414,15 +409,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
         self.__dirty = False
-        #self.listener = editor.ModelListener(callback=self.on_field_changed)
-        #editor.add_listener(self.model, self.listener)
         self.add_listener(self.on_field_changed)
 
-#         def remove_listener(*args):
-#             editor.remove_listener(self.model, self.listener)
-#             return False
-#         for event in ('response', 'close', 'delete-event'):
-#             self.view.window.connect(event, remove_listener)
 
 
     def on_field_changed(self, field, value):
@@ -478,20 +466,18 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             return query.filter(and_(Genus.genus.like('%s%%' % text),
                                      Genus.id != self.model.id))
 
-        def set_in_model(self, field, value):
+        self._selected = None
+        def on_select(value):
             # don't set anything in the model, just set self.selected
             sensitive = True
             if value is None:
                 sensitive = False
             self.view.widgets.gen_syn_add_button.set_sensitive(sensitive)
             self._selected = value
+        self.assign_completions_handler('gen_syn_entry', gen_get_completions,
+                                        on_select=on_select)
 
-        self.assign_completions_handler('gen_syn_entry', 'synonym',
-                                        gen_get_completions,
-                                        set_func=set_in_model,
-                                        model=completions_model)
 
-        self._added = None
         self.view.widgets.gen_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
         self.view.widgets.gen_syn_remove_button.connect('clicked',
@@ -560,11 +546,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         tree_model.append([self._selected])
         self._selected = None
         entry = self.view.widgets.gen_syn_entry
-        # sid generated from GenericEditorPresenter.assign_completion_handler
-        entry.handler_block(self._insert_gen_syn_entry_sid)
+        self.pause_completions_handler(entry, True)
         entry.set_text('')
         entry.set_position(-1)
-        entry.handler_unblock(self._insert_gen_syn_entry_sid)
+        self.pause_completions_handler(entry, False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
@@ -586,7 +571,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         msg = _('Are you sure you want to remove %(genus)s as a synonym to '
                 'the current genus?\n\n<i>Note: This will not remove the '
                 'genus from the database.</i>') % {'genus': s}
-        if utils.yes_no_dialog(msg, parent=self.view.window):
+        if utils.yes_no_dialog(msg, parent=self.view.get_window()):
             tree_model.remove(tree_model.get_iter(path))
             self.model._synonyms.remove(value)
             utils.delete_or_expunge(value)

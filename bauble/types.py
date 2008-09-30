@@ -16,15 +16,17 @@ class Enum(types.TypeDecorator):
     """A database independent Enum type. The value is stored in the
     database as a Unicode string.
 
-    values:
-      A list of valid values for column.
-    empty_to_none:
-      Treat the empty string '' as None.  None must be in the values
-      list in order to set empty_to_none=True.
+
     """
     impl = types.Unicode
 
     def __init__(self, values, empty_to_none=False, strict=True, **kwargs):
+        """
+        @param values: A list of valid values for column.
+        @param empty_to_none: Treat the empty string '' as None.  None
+        must be in the values list in order to set empty_to_none=True.
+        @param strict:
+        """
 
         if values is None or len(values) is 0:
             raise EnumError(_('Enum requires a list of values'))
@@ -46,9 +48,9 @@ class Enum(types.TypeDecorator):
         """
         if self.empty_to_none and value is '':
             value = None
-        if value not in self.values:
-            raise EnumError(_('"%s" not in Enum.values: %s') % \
-                             (value, self.values))
+        #if value not in self.values:
+        #    raise EnumError(_('"%s" not in Enum.values: %s') % \
+        #                    (value, self.values))
         return value
 
 

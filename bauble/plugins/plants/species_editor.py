@@ -8,14 +8,16 @@ import gtk, gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exceptions import SQLError
+import bauble
+from bauble.prefs import prefs
 from bauble.i18n import *
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
 import bauble.paths as paths
-from bauble.editor import *
+import bauble.editor as editor
 from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus#, genus_table
+from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
      SpeciesDistribution, Geography
@@ -31,7 +33,7 @@ from bauble.plugins.plants.species_model import Species, \
 # UPDATE: i think i corrected most of these but i still need to double check
 
 
-class SpeciesEditorPresenter(GenericEditorPresenter):
+class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_GENUS = 1
 
@@ -48,7 +50,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
 
     def __init__(self, model, view):
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
 
         combos = ('sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_spqual_combo')
@@ -60,46 +62,53 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
                                                       self.session)
         self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
                                                     self.session)
-        self.dist_presenter = DistributionPresenter(self.model.model,
+        self.dist_presenter = DistributionPresenter(self.model,
                                                     self.view, self.session)
         self.refresh_view()
 
         # connect signals
         def gen_get_completions(text):
-            clause = or_(genus_table.c.genus.like('%s%%' % unicode(text)),
-                         genus_table.c.hybrid.like('%s%%' % unicode(text)))
+            clause = or_(Genus.genus.like('%s%%' % unicode(text)),
+                         Genus.hybrid.like('%s%%' % unicode(text)))
             return self.session.query(Genus).filter(clause)
 
-        def set_in_model(self, field, value):
-            setattr(self.model, field, value)
-        self.assign_completions_handler('sp_genus_entry', 'genus',
+        #def set_in_model(self, field, value):
+        #    debug('set_in_model(%s, %s)' % (field, value))
+        #    setattr(self.model, field, value)
+        def on_select(value):
+            self.model.genus = value
+        self.assign_completions_handler('sp_genus_entry', #'genus',
                                         gen_get_completions,
-                                        set_func=set_in_model)
+                                        on_select=on_select)
 
         self.assign_simple_handler('sp_species_entry', 'sp',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_entry', 'infrasp',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_author_entry', 'sp_author',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_notes_textview', 'notes',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
 
-        self.init_change_notifier()
+        # for each widget register a signal handler to be notified when the
+        # value in the widget changes, that way we can w things like sensitize
+        # the ok button
+        self.add_listener(self.on_field_changed)
+        self.__dirty = False
 
 
     def dirty(self):
-        return self.model.dirty or self.vern_presenter.dirty() or \
+        return self.__dirty or self.vern_presenter.dirty() or \
             self.synonyms_presenter.dirty() or self.dist_presenter.dirty()
 
 
@@ -109,37 +118,38 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
         according to values in the model
         '''
         # states_dict:
-        # { field: [widget(s) whose sensitivity == fields is not None] }
-        # - if widgets is a tuple then at least one of the items has to not be
-        # None
-        # - this assumes that when field is not None, if field is none then
-        # sensitive widgets are set to false
-        states_dict = {'sp_hybrid_combo': [('genus', 'genus')],
-                       'sp_species_entry': [('genus', 'genus')],
+        # { widget: [list of fields]
+        # - if any of fields is None then the widget.sensitive = False
+        # - if one of the fields is a tuple then the values in the
+        # tuple are AND'd together to determine the widgets
+        # sensitivity, e.g. all of the widgets in the tuple have to be
+        # not None
+#         states_dict = {'sp_hybrid_combo': [('genus', 'genus')],
+#                        'sp_species_entry': [('genus', 'genus')],
+#                        'sp_author_entry': ['sp'],
+#                        'sp_infra_rank_combo': ['sp'],
+#                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
+#                        'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'),
+#                                                  'infrasp', 'sp']}
+        states_dict = {'sp_hybrid_combo': ['genus'],
+                       'sp_species_entry': ['genus'],
                        'sp_author_entry': ['sp'],
                        'sp_infra_rank_combo': ['sp'],
                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
                        'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'),
                                                  'infrasp', 'sp']}
         for widget, fields in states_dict.iteritems():
-#            debug('%s: %s' % (widget, fields))
-            none_status = []
+            sensitive = False
             for field in fields:
                 if isinstance(field, tuple):
-                    none_list = [f for f in field if self.model[f] is not None]
-#                    debug(none_list)
-                    if len(none_list) != 0:
-                        none_status.append(none_list)
+                    if None not in [getattr(self.model, f) for f in field]:
+                        sensitive = True
+                        break
                 elif getattr(self.model, field) is not None:
-                    none_status.append(field)
+                    sensitive = True
+                    break
+            self.view.widgets[widget].set_sensitive(sensitive)
 
-#            debug(none_status)
-#            debug(len(none_status))
-#            debug(len(states_dict[widget]))
-            if len(none_status) == len(states_dict[widget]):
-                self.view.widgets[widget].set_sensitive(True)
-            else:
-                self.view.widgets[widget].set_sensitive(False)
 
         # turn off the infraspecific rank combo if the hybrid value in the
         # model is not None, this has to be called before the conditional that
@@ -156,34 +166,28 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
             self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
 
 
-    def on_field_changed(self, model, field):
+    def on_field_changed(self, field, value):
         '''
-        rests the sensitivity on the ok buttons and the name widgets when
+        Resets the sensitivity on the ok buttons and the name widgets when
         values change in the model
         '''
-#        debug('on_field_changed: %s' % field)
-#        debug('on_field_changed: %s = %s' % (field, getattr(model, field)))
+        #debug('on_field_changed(%s, %s)' % (field, value))
+        self.__dirty = True
         sensitive = True
         if len(self.problems) != 0 \
            or len(self.vern_presenter.problems) != 0 \
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        elif self.model.sp is None or self.model.genus is None:
+        #elif self.model.sp is None or self.model.genus is None:
+        elif self.model.sp and self.model.genus:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
-        self.refresh_sensitivity()
 
-
-    def init_change_notifier(self):
-        '''
-        for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can w things like sensitize
-        the ok button
-        '''
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
-
+        # refresh the sensitivity since self.on_field_changed() is
+        # called from the listener before attributes on the model have
+        # actually been changed
+        gobject.idle_add(self.refresh_sensitivity)
 
 
     def init_fullname_widgets(self):
@@ -243,7 +247,7 @@ class SpeciesEditorPresenter(GenericEditorPresenter):
 
 
 
-class DistributionPresenter(GenericEditorPresenter):
+class DistributionPresenter(editor.GenericEditorPresenter):
     """
     """
 
@@ -258,7 +262,7 @@ class DistributionPresenter(GenericEditorPresenter):
         @param view:
         @param session:
         '''
-        GenericEditorPresenter.__init__(self, species, view)
+        super(DistributionPresenter, self).__init__(species, view)
         self.session = session
         self.__dirty = False
         self.add_menu = gtk.Menu()
@@ -328,7 +332,8 @@ class DistributionPresenter(GenericEditorPresenter):
 
     def init_add_button(self):
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
-        from bauble.plugins.plants.species_model import geography_table
+        #from bauble.plugins.plants.species_model import geography_table
+        geography_table = Geography.__table__
         geos = select([geography_table.c.id, geography_table.c.name,
                            geography_table.c.parent_id]).execute().fetchall()
         geos_hash = {}
@@ -409,14 +414,14 @@ class DistributionPresenter(GenericEditorPresenter):
 
 
 
-class VernacularNamePresenter(GenericEditorPresenter):
+class VernacularNamePresenter(editor.GenericEditorPresenter):
     # TODO: change the background of the entries and desensitize the
     # name/lang entries if the name conflicts with an existing vernacular
     # name for this species
     """
-    in the VernacularNamePresenter we don't really use self.model, we more
-    rely on the model in the TreeView which are ModelDecorator objects wrapped
-    around VernacularNames objects
+    in the VernacularNamePresenter we don't really use self.model, we
+    more rely on the model in the TreeView which are VernacularName
+    objects
     """
 
     def __init__(self, species, view, session):
@@ -425,7 +430,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         @param view:
         @param session:
         '''
-        GenericEditorPresenter.__init__(self, species, view)
+        super(VernacularNamePresenter, self).__init__(species, view)
         self.session = session
         self.__dirty = False
         self.init_treeview(species.vernacular_names)
@@ -503,7 +508,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
         vn = VernacularName(name=utils.utf8(name), language=utils.utf8(lang))
         tree_model = self.treeview.get_model()
         self.model.vernacular_names.append(vn)
-        it = tree_model.append([ModelDecorator(vn)]) # append to tree model
+        it = tree_model.append([vn]) # append to tree model
         if len(tree_model) == 1:
             self.model.default_vernacular_name = vn
         self.view.widgets.sp_vern_add_button.set_sensitive(False)
@@ -625,7 +630,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
 #        debug(self.model)
         #for vn in self.model:
         for vn in model:
-            self.treeview.model.append([ModelDecorator(vn)])
+            self.treeview.model.append([vn])
         self.treeview.set_model(self.treeview.model)
 
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
@@ -658,7 +663,7 @@ class VernacularNamePresenter(GenericEditorPresenter):
 #
 # TODO: you shouldn't be able to set a plant as a synonym of itself
 #
-class SynonymsPresenter(GenericEditorPresenter):
+class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
@@ -671,7 +676,7 @@ class SynonymsPresenter(GenericEditorPresenter):
         @param view: see GenericEditorPresenter
         @param session:
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        super(SynonymsPresenter, self).__init__(model, view)
         self.session = session
         self.init_treeview()
 
@@ -681,29 +686,32 @@ class SynonymsPresenter(GenericEditorPresenter):
         def sp_get_completions(text):
             query = self.session.query(Species)
             query = query.join('genus')
-            query = query.filter(genus_table.c.genus.like('%s%%' % text))
-            query = query.filter(species_table.c.id != self.model.id)
+            query = query.filter(Genus.genus.like('%s%%' % text))
+            query = query.filter(Species.id != self.model.id)
             return query
 
 
-        def set_in_model(self, field, value):
-            """
-            This function isn't setting anything in the model, it just
-            self self._added so that in the on_add_button_clicked we know
-            which species was selected and it to model.synonyms there
-            """
+#         def set_in_model(self, field, value):
+#             """
+#             This function isn't setting anything in the model, it just
+#             self self._selected so that in the on_add_button_clicked we know
+#             which species was selected and it to model.synonyms there
+#             """
+#             sensitive = True
+#             if value is None:
+#                 sensitive = False
+#             self.view.widgets.sp_syn_add_button.set_sensitive(sensitive)
+#             self._selected = value
+        def on_select(value):
             sensitive = True
             if value is None:
                 sensitive = False
             self.view.widgets.sp_syn_add_button.set_sensitive(sensitive)
-            self._added = value
+            self._selected = value
+        self.assign_completions_handler('sp_syn_entry', sp_get_completions,
+                                        on_select=on_select)
 
-        self.assign_completions_handler('sp_syn_entry', 'synonym',
-                                        sp_get_completions,
-                                        set_func=set_in_model,
-                                        model=completions_model)
-
-        self._added = None
+        self._selected = None
         self.view.widgets.sp_syn_add_button.connect('clicked',
                                                     self.on_add_button_clicked)
         self.view.widgets.sp_syn_remove_button.connect('clicked',
@@ -712,7 +720,7 @@ class SynonymsPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.model.dirty or self.__dirty
+        return self.__dirty
 
 
     def init_treeview(self):
@@ -760,17 +768,15 @@ class SynonymsPresenter(GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
         this species
         """
-        syn = SpeciesSynonym(self._added)
-        self.model._synonyms.append(syn)
+        self.model.synonyms.append(self._selected)
         tree_model = self.treeview.get_model()
         tree_model.append([syn])
-        self._added = None
+        self._selected = None
         entry = self.view.widgets.sp_syn_entry
-        # sid generated from GenericEditorPresenter.assign_completion_handler
-        entry.handler_block(self._insert_sp_syn_entry_sid)
+        self.pause_completions_handler(entry, True)
         entry.set_text('')
         entry.set_position(-1)
-        entry.handler_unblock(self._insert_sp_syn_entry_sid)
+        self.pause_completions_handler(entry, False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
@@ -805,7 +811,7 @@ class SynonymsPresenter(GenericEditorPresenter):
 
 
 
-class SpeciesEditorView(GenericEditorView):
+class SpeciesEditorView(editor.GenericEditorView):
 
     expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded',
                           'sp_meta_expander': 'editor.species.meta.expanded'}
@@ -834,10 +840,9 @@ class SpeciesEditorView(GenericEditorView):
 
         @param parent: the parent window
         '''
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'plants',
-                                                      'editors.glade'),
-                                   parent=parent)
+        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                  'editors.glade')
+        super(SpeciesEditorView, self).__init__(glade_path, parent=parent)
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('sp_genus_entry',
@@ -848,11 +853,11 @@ class SpeciesEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.species_dialog)
 
 
-    def _get_window(self):
+    def get_window(self):
         '''
+        Returns the top level window or dialog.
         '''
         return self.widgets.species_dialog
-    window = property(_get_window)
 
 
     def genus_match_func(self, completion, key, iter, data=None):
@@ -919,7 +924,7 @@ class SpeciesEditorView(GenericEditorView):
 
 
 
-class SpeciesEditor(GenericModelViewPresenterEditor):
+class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
     label = 'Species'
     mnemonic_label = '_Species'
@@ -1037,6 +1042,7 @@ class SpeciesEditor(GenericModelViewPresenterEditor):
             self.view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
+        self.presenter.cleanup()
         self.session.close() # cleanup session
         return self._committed
 
