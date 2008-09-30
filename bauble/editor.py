@@ -12,7 +12,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
-from bauble.error import check, CheckConditionError
+from bauble.error import check, CheckConditionError, BaubleError
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
@@ -156,7 +156,7 @@ def add_listener(model, listener):
     cls = type(model)
     for prop in mapper.iterate_properties:
         attr = getattr(cls, prop.key)
-        attr.impl.extensions.insert(0, AttributeListener(prop.key, listener))
+        attr.impl.extensions.append(AttributeListener(prop.key, listener))
     return listener
 
 
@@ -314,12 +314,11 @@ class GenericEditorView(object):
                 tooltips.set_tip(widget, markup)
 
 
-    def _get_window(self):
+    def get_window(self):
         """
         @return: the top level window for view
         """
         raise NotImplementedError
-    window = property(_get_window)
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
@@ -428,7 +427,7 @@ class GenericEditorView(object):
 
     def cleanup(self):
         try:
-            self.window.destroy()
+            self.get_window().destroy()
         except NotImplementedError:
             warning(_('Could not destroy window'))
 
@@ -485,6 +484,9 @@ class Problems(object):
         '''
         return len(self._problems)
 
+#     def __contains__(self, problem):
+#         return problem in self._problems
+
     def __str__(self):
         '''
         @return: a string of the list of problems
@@ -539,11 +541,12 @@ class GenericEditorPresenter(object):
         implemented on the view.
         """
         try:
-            self.view.window
+            self.view.get_window()
         except NotImplementedError:
             msg = _('To use the GenericEditorPresenter.add_listener you '\
-                    'must implement the GenericEditorView._get_window method '\
-                    'for the view to return it\'s top level gtk.Window.')
+                    'must implement the GenericEditorView.get_window() ' \
+                    'method for the view to return it\'s top level ' \
+                    'gtk.Window.')
             raise BaubleError(msg)
         def remove_listeners(*args):
             """
@@ -554,7 +557,7 @@ class GenericEditorPresenter(object):
                 remove_listener(self.model, listener)
             del self.__listeners[:]
         if len(self.__listeners) == 0:
-            self.view.window.connect('unrealize', remove_listeners)
+            self.view.get_window().connect('unrealize', remove_listeners)
         self.__listeners.append(add_listener(self.model, listener))
 
 
@@ -705,6 +708,78 @@ class GenericEditorPresenter(object):
                              'widget type not supported: %s' % type(widget))
 
 
+    __changed_sid_name = lambda s, w: '__changed_%s_sid' % w.get_name()
+    def pause_completions_handler(self, widget, pause=True):
+        """
+        Pause a completion handler previously assigned with
+        assign_completions_handler()
+        """
+        if not isinstance(widget, gtk.Entry):
+            widget = self.view.widgets[widget]
+        sid = getattr(self, self.__changed_sid_name(widget))
+        if pause:
+            widget.handler_block(sid)
+        else:
+            widget.handler_unblock(sid)
+
+
+    def assign_completions_handler(self, widget, get_completions,
+                                   on_select=lambda v: v):
+        if not isinstance(widget, gtk.Entry):
+            widget = self.view.widgets[widget]
+        PROBLEM = hash(widget.get_name())
+        prev_text_name = '__prev_text_%s' % widget.get_name()
+        setattr(self, prev_text_name, None)
+        def add_completions(text):
+            #debug('add_completions(%s)' % text)
+            if get_completions is None:
+                # get_completions is None usually means that the
+                # completions model already has a static list of
+                # completions
+                return
+            values = get_completions(text)
+            def idle_callback(values):
+                completion = widget.get_completion()
+                utils.clear_model(completion)
+                completion_model = gtk.ListStore(object)
+                for v in values:
+                    completion_model.append([v])
+                completion.set_model(completion_model)
+            gobject.idle_add(idle_callback, values)
+
+        def on_changed(entry, *args):
+            text = entry.get_text()
+            #debug('on_changed(%s)' % text)
+            prev_text = getattr(self, prev_text_name)
+            if text == '' and prev_text:
+                # this works around a funny problem where after the
+                # completion is selected the changed signal is fired
+                # again with a blank string
+                self.pause_completions_handler(entry, True)
+                widget.set_text(prev_text)
+                self.pause_completions_handler(entry, False)
+                setattr(self, prev_text_name, None)
+                return
+            self.add_problem(PROBLEM, widget)
+            if len(text) == 2:
+                add_completions(text)
+
+        def on_match_select(completion, compl_model, iter):
+            value = compl_model[iter][0]
+            setattr(self, prev_text_name, utils.utf8(value))
+            self.pause_completions_handler(widget, True)
+            widget.set_text(utils.utf8(value))
+            on_select(value)
+            self.pause_completions_handler(widget, False)
+            self.remove_problem(PROBLEM, widget)
+
+
+        completion = widget.get_completion()
+        check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
+              'completion attached to it' % widget.get_name())
+        sid = widget.connect('changed', on_changed)
+        setattr(self, self.__changed_sid_name(widget), sid)
+        completion.connect('match-selected', on_match_select)
     # TODO: probably need a on_match_select in case we want to do anything
     # after the regular on_match_select
     # TODO: assign ctrl-space to match on whatever is currently in the entry
@@ -722,7 +797,7 @@ class GenericEditorPresenter(object):
     # it so that the field is a property on the model that we can get/set/del
     # so the the person using this method know what to expect when some
     # action is taken on the model
-    def assign_completions_handler(self, widget_name, field,
+    def old_assign_completions_handler(self, widget_name, field,
                                    get_completions=None,
                                    set_func=lambda self, f, v: \
                                       setattr(self.model, f, v),
@@ -785,6 +860,7 @@ class GenericEditorPresenter(object):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
                 completion_model = gtk.ListStore(object)
+                #debug(values)
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)
