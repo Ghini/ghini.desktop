@@ -332,7 +332,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     def on_field_changed(self, field, value):
         self._dirty = True
-        self.view.set_accept_buttons_sensitive(True)
+        sensitive = self.model.family and True or False
+        self.view.set_accept_buttons_sensitive(sensitive)
 
 
     def dirty(self):
