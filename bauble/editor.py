@@ -94,29 +94,47 @@ class FloatOrNoneStringValidator(object):
 from sqlalchemy.orm.interfaces import *
 import sys
 
-
-
 class ModelListener(object):
     """
-    Listen for changes to attributes on a mapped class.
+    Listens for changes to attributes on a mapped class.
     """
-    def __init__(self, callback=None):
+
+    def __init__(self, callback=None, before_change=False):
         """
-        Callback is called whenever there is a change on the model, it
-        should take the form: callback(key, value)
+        @param callback: called when there is a change on the model,
+        it should take the form: callback(key, value)
+
+        @param before_change: set to True if you want the callback
+        called before the value has been changed, in this case the
+        value returned from the callback will be the value set on the
+        model, default is False
         """
         self.callback = callback
+        self.pause = False
+        self.before_change = before_change
+
     def on_set(self, key, value, oldvalue):
-        if self.callback:
-            self.callback(key, value)
+        if self.callback and not self.pause:
+            if self.before_change:
+                return self.callback(key, value)
+            else:
+                gobject.idle_add(self.callback, key, value)
         return value
+
     def on_append(self, key, value):
-        if self.callback:
-            self.callback(key, value)
+        if self.callback and not self.pause:
+            if self.before_change:
+                return self.callback(key, value)
+            else:
+                gobject.idle_add(self.callback, key, value)
         return value
+
     def on_remove(self, key, value):
-        if self.callback:
-            self.callback(key, value)
+        if self.callback and not self.pause:
+            if self.before_change:
+                return self.callback(key, value)
+            else:
+                gobject.idle_add(self.callback, key, value)
 
 
 class AttributeListener(AttributeExtension):
@@ -516,7 +534,7 @@ class GenericEditorPresenter(object):
         self.problems = Problems()
         # used by assign_completions_handler
         self._prev_text = {}
-        self.__listeners = []
+        self._listeners = []
 
 
     # whether the presenter should be commited or not
@@ -552,13 +570,13 @@ class GenericEditorPresenter(object):
             """
             Remove all listeners on the model
             """
-            for listener in self.__listeners:
+            for listener in self._listeners:
                 #debug('remove_listener: %s' % listener)
                 remove_listener(self.model, listener)
-            del self.__listeners[:]
-        if len(self.__listeners) == 0:
+            del self._listeners[:]
+        if len(self._listeners) == 0:
             self.view.get_window().connect('unrealize', remove_listeners)
-        self.__listeners.append(add_listener(self.model, listener))
+        self._listeners.append(add_listener(self.model, listener))
 
 
     def remove_problem(self, problem_id, problem_widgets=None):
@@ -754,14 +772,17 @@ class GenericEditorPresenter(object):
             if text == '' and prev_text:
                 # this works around a funny problem where after the
                 # completion is selected the changed signal is fired
-                # again with a blank string
+                # again with a empty string
                 self.pause_completions_handler(entry, True)
                 widget.set_text(prev_text)
-                self.pause_completions_handler(entry, False)
                 setattr(self, prev_text_name, None)
+                self.pause_completions_handler(entry, False)
                 return
             self.add_problem(PROBLEM, widget)
-            if len(text) == 2:
+            on_select(None)
+            compl_model = widget.get_completion().get_model()
+            if (not compl_model and len(text)>2) \
+               or len(text) == 2:
                 add_completions(text)
 
         def on_match_select(completion, compl_model, iter):
@@ -933,7 +954,6 @@ class GenericEditorPresenter(object):
             self._prev_text[widget_name] = str(value)
 
         completion = widget.get_completion()
-
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
               'completion attached to it' % widget_name)
 
@@ -1002,19 +1022,7 @@ class GenericModelViewPresenterEditor(object):
 
     def commit_changes(self):
         '''
+        Commit the changes.
         '''
-#        for obj in self.session:
-#            if obj in self.session.new:
-#                debug('new: %s' % obj)
-#            elif obj in self.session.deleted:
-#                debug('deleted: %s' % obj)
-#            elif obj in self.session.dirty:
-#                debug('dirty: %s' % obj)
-#            else:
-#                debug('nowhere: %s' % obj)
-#            debug('%s' % repr(obj))
-#        import logging
-#        logging.getLogger('sqlalchemy').setLevel(logging.INFO)
         self.session.commit()
-#        logging.getLogger('sqlalchemy').setLevel(1)
         return True

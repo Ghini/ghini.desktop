@@ -168,8 +168,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     def on_field_changed(self, field, value):
         '''
-        Resets the sensitivity on the ok buttons and the name widgets when
-        values change in the model
+        Resets the sensitivity on the ok buttons and the name widgets
+        when values change in the model
         '''
         #debug('on_field_changed(%s, %s)' % (field, value))
         self.__dirty = True
@@ -179,15 +179,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        #elif self.model.sp is None or self.model.genus is None:
-        elif self.model.sp and self.model.genus:
+        elif not self.model.sp or not self.model.genus:
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
-
-        # refresh the sensitivity since self.on_field_changed() is
-        # called from the listener before attributes on the model have
-        # actually been changed
-        gobject.idle_add(self.refresh_sensitivity)
+        self.refresh_sensitivity()
 
 
     def init_fullname_widgets(self):

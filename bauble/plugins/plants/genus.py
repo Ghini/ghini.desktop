@@ -412,9 +412,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.add_listener(self.on_field_changed)
 
 
-
     def on_field_changed(self, field, value):
-        debug('on_field_changed(%s, %s)' % (field, value))
+        #debug('on_field_changed(%s, %s)' % (field, value))
         sensitive = False
         self.__dirty = True
         if self.model.family and self.model.genus:
