@@ -712,13 +712,15 @@ SpeciesDistribution.geography = relation('Geography',
 #               species_table.c.infrasp_rank,species_table.c.infrasp])
 
 
-# try:
-#     # in case the garden plugin doesn't exist
-#     from bauble.plugins.garden.accession import Accession, accession_table
+#try:
+    # add a species relation to accession if the GardenPlugin exists
+    # TODO: it would make more sense to just add this to the GardenPlugin
+    # instead of patching it on here
+#     from bauble.plugins.garden.accession import Accession
 #     species_mapper.add_property('accessions',
-#         relation(Accession,
-#                  primaryjoin=Species.id==Accession.species_id,
-#                  backref=backref('species', uselist=False, lazy=False)))
-# except:
-#     debug(traceback.format_exc())
-#     debug('Could not add accessions relation to species mapper')
+#          relation(Accession,
+#                   primaryjoin=Species.id==Accession.species_id,
+#                   backref=backref('species', uselist=False, lazy=False)))
+#  except:
+#      debug(traceback.format_exc())
+#      debug('Could not add accessions relation to species mapper')

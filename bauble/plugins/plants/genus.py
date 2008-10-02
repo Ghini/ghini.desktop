@@ -14,6 +14,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
 from bauble.i18n import _
+import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
 import bauble.utils.sql as sql_utils
@@ -697,10 +698,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
 
 from bauble.plugins.plants.species_model import Species#, species_table
 
-# TODO: need to reenable imports
-#from bauble.plugins.garden.accession import Accession, accession_table
-#from bauble.plugins.garden.plant import Plant, plant_table
-
 #
 # Infobox and InfoExpanders
 #
@@ -810,35 +807,43 @@ class GeneralGenusExpander(InfoExpander):
         #
         # TEMPORARILY DISABLED
         #
-        return
+        session = bauble.Session()
         self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
                                   (row, utils.xml_safe(unicode(row.author))))
         self.set_widget_value('gen_fam_data',
                               (utils.xml_safe(unicode(row.family))))
+
         # get the number of species
-        species_ids = select([species_table.c.id],
-                             species_table.c.genus_id==row.id)
-        nsp = sql_utils.count_select(species_ids)
+        #species_ids = select([species_table.c.id],
+        #                     species_table.c.genus_id==row.id)
+        #nsp = sql_utils.count_select(species_ids)
+        nsp = session.query(Species).join('genus').filter_by(id=row.id).count()
         self.set_widget_value('gen_nsp_data', nsp)
 
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            return
+
+        from bauble.plugins.garden.accession import Accession
+        from bauble.plugins.garden.plant import Plant
+
         # get number of accessions
-        acc_ids = select([accession_table.c.id],
-                         accession_table.c.species_id.in_(species_ids))
-        nacc_str = str(sql_utils.count_select(acc_ids))
-        if nacc_str != '0':
-            nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-            nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-        self.set_widget_value('gen_nacc_data', nacc_str)
+#         acc_ids = select([accession_table.c.id],
+#                          accession_table.c.species_id.in_(species_ids))
+#         nacc_str = str(sql_utils.count_select(acc_ids))
+#         if nacc_str != '0':
+#             nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
+#             nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
+#         self.set_widget_value('gen_nacc_data', nacc_str)
 
         # get number of plants
-        plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
-        nplants_str = str(sql_utils.count_select(plant_ids))
-        if nplants_str != '0':
-            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % (nplants_str,
-                                                   nacc_with_plants)
-        self.set_widget_value('gen_nplants_data', nplants_str)
+#         plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
+#         nplants_str = str(sql_utils.count_select(plant_ids))
+#         if nplants_str != '0':
+#             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+#             nplants_str = '%s in %s accessions' % (nplants_str,
+#                                                    nacc_with_plants)
+#         self.set_widget_value('gen_nplants_data', nplants_str)
 
 
 
@@ -906,8 +911,6 @@ class NotesExpander(InfoExpander):
 
 class GenusInfoBox(InfoBox):
     """
-    - number of taxon in number of accessions
-    - references
     """
     def __init__(self):
         InfoBox.__init__(self)
@@ -924,6 +927,12 @@ class GenusInfoBox(InfoBox):
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            self.widgets.remove_parent('gen_nacc_label')
+            self.widgets.remove_parent('gen_nacc_data')
+            self.widgets.remove_parent('gen_nplants_label')
+            self.widgets.remove_parent('gen_nplants_data')
 
 
     def update(self, row):

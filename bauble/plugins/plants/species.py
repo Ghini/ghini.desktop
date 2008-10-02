@@ -49,7 +49,7 @@ def remove_callback(value):
 def call_on_species(func):
     return lambda value : func(value.species)
 
-if 'PlantsPlugin' in pluginmgr.plugins:
+if 'GardenPlugin' in pluginmgr.plugins:
     def add_accession_callback(value):
         from bauble.plugins.garden.accession import AccessionEditor
         session = bauble.Session()
@@ -259,30 +259,33 @@ class GeneralSpeciesExpander(InfoExpander):
 
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
-        if 'GardenPlugin' in pluginmgr.plugins:
-            from bauble.plugins.garden.accession import Accession
-            from bauble.plugins.garden.plant import Plant
-
-            # TODO: need to remove the accession widget when the
-            # infobox is initialized and don't update the
-            nacc = session.query(Species).join('accession').\
-                   filter_by(species_id=row.id)
-            #nacc = sql_utils.count(accession_table,
-            #                       accession_table.c.species_id==row.id)
-            if nacc == 0:
-                self.set_widget_value('sp_nacc_data', nacc)
-
-            acc_ids = select([accession_table.c.id],
-                             accession_table.c.species_id==row.id)
-            nplants_str = str(sql_utils.count(plant_table,
-                                              plant_table.c.accession_id.in_(acc_ids)))
-            if nplants_str != '0':
-                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-                nplants_str = '%s in %s accessions' % \
-                          (nplants_str, nacc_with_plants)
-        self.set_widget_value('sp_nplants_data', nplants_str)
-
         self.set_widget_value('sp_dist_data', row.distribution_str())
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            return
+
+        from bauble.plugins.garden.accession import Accession
+        from bauble.plugins.garden.plant import Plant
+
+        # TODO: need to remove the accession widget when the
+        # infobox is initialized and don't update the
+        nacc = session.query(Species).join('accession').\
+               filter_by(species_id=row.id)
+        #nacc = sql_utils.count(accession_table,
+        #                       accession_table.c.species_id==row.id)
+        if nacc == 0:
+            self.set_widget_value('sp_nacc_data', nacc)
+
+        acc_ids = select([accession_table.c.id],
+                         accession_table.c.species_id==row.id)
+        nplants_str = str(sql_utils.count(plant_table,
+                                          plant_table.c.accession_id.in_(acc_ids)))
+        if nplants_str != '0':
+            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+            nplants_str = '%s in %s accessions' % \
+                          (nplants_str, nacc_with_plants)
+            self.set_widget_value('sp_nplants_data', nplants_str)
+
+
 
 
 
@@ -392,6 +395,12 @@ class SpeciesInfoBox(InfoBox):
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            self.widgets.remove_parent('sp_nacc_label')
+            self.widgets.remove_parent('sp_nacc_data')
+            self.widgets.remove_parent('sp_nplants_label')
+            self.widgets.remove_parent('sp_nplants_data')
 
 
     def update(self, row):
