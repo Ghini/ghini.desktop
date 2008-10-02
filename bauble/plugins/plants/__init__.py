@@ -32,11 +32,6 @@ def natsort_kids(kids):
 
 class PlantsPlugin(pluginmgr.Plugin):
 
-    # TODO: do we need this table attribute
-#     tables = [family_table, family_synonym_table, genus_table,
-#               genus_synonym_table, species_table, species_synonym_table,
-#               vernacular_name_table, geography_table]
-
     @classmethod
     def init(cls):
         mapper_search = SearchView.get_search_strategy('MapperSearch')
@@ -83,10 +78,8 @@ class PlantsPlugin(pluginmgr.Plugin):
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['family.txt',
-                 'family_synonym.txt', 'genus.txt',
-                 'genus_synonym.txt', 'geography.txt'
-                 ]
+        files = ['family.txt', 'family_synonym.txt', 'genus.txt',
+                 'genus_synonym.txt', 'geography.txt']
         return [os.path.join(path, f) for f in files]
 
     @classmethod
