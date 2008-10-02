@@ -259,6 +259,13 @@ class FamilyTests(PlantTestCase):
         """
         Test that the family str function works as expected
         """
+        f = Family()
+        self.assert_(str(f) == repr(f))
+        f = Family(family=u'fam')
+        self.assert_(str(f) == 'fam')
+        f.qualifier = 's. lat.'
+        self.assert_(str(f) == 'fam s. lat.')
+
 
 
 class GenusTests(PlantTestCase):
