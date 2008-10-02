@@ -14,6 +14,7 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
 from bauble.i18n import _
+import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils.desktop as desktop
 from datetime import datetime
@@ -631,9 +632,10 @@ class GeneralFamilyExpander(InfoExpander):
         if nsp == 0:
             self.set_widget_value('fam_nsp_data', 0)
         else:
-            ngen_in_sp = session.query(Species.genus_id).join('genus').\
-                         filter_by(family_id=row.id).distinct().count()
-            self.set_widget_value('fam_nsp_data', '%s in %s' \
+            q = session.query(Species.genus_id).join(['genus', 'family']).\
+                         filter_by(id=row.id).distinct().from_self()
+            ngen_in_sp = q.count()
+            self.set_widget_value('fam_nsp_data', '%s in %s genera' \
                                   % (nsp, ngen_in_sp))
         return
 #         species_ids = select([species_table.c.id],
@@ -644,22 +646,29 @@ class GeneralFamilyExpander(InfoExpander):
 #             nsp_str = '%s in %s genera' % (nsp_str, ngen_with_species)
 #         self.set_widget_value('fam_nsp_data', nsp_str)
 
+
         # get the number of accessions
-        acc_ids = select([accession_table.c.id],
-                         accession_table.c.species_id.in_(species_ids))
-        nacc_str = str(sql_utils.count_select(acc_ids))
-        if nacc_str != '0':
-            nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-            nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-        self.set_widget_value('fam_nacc_data', nacc_str)
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            return
+        nacc = session.query(Accession).join(['species', 'genus', 'family']).\
+               filter_by(id=row.id).count()
+        if nacc == 0:
+            self.set_widget_value('fam_nacc_data', nacc)
+#         acc_ids = select([accession_table.c.id],
+#                          accession_table.c.species_id.in_(species_ids))
+#         nacc_str = str(sql_utils.count_select(acc_ids))
+#         if nacc_str != '0':
+#             nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
+#             nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
+#         self.set_widget_value('fam_nacc_data', nacc_str)
 
         # get the number of plants
-        nplants_str = str(sql_utils.count(plant_table,
-                                    plant_table.c.accession_id.in_(acc_ids)))
-        if nplants_str != '0':
-            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
-        self.set_widget_value('fam_nplants_data', nplants_str)
+#         nplants_str = str(sql_utils.count(plant_table,
+#                                     plant_table.c.accession_id.in_(acc_ids)))
+#         if nplants_str != '0':
+#             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+#             nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
+#         self.set_widget_value('fam_nplants_data', nplants_str)
 
 
 
@@ -806,6 +815,12 @@ class FamilyInfoBox(InfoBox):
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+
+        if 'GardenPlugin' not in pluginmgr.plugins:
+            self.widgets.remove_parent('fam_nacc_label')
+            self.widgets.remove_parent('fam_nacc_data')
+            self.widgets.remove_parent('fam_nplants_label')
+            self.widgets.remove_parent('fam_nplants_data')
 
 
     def update(self, row):

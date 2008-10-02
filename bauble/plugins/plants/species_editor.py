@@ -22,8 +22,6 @@ from bauble.plugins.plants.species_model import Species, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
      SpeciesDistribution, Geography
 
-#from bauble.plugins.garden.accession import AccessionEditor, Accession
-
 # TODO: would be nice, but not necessary, to edit existing vernacular names
 # instead of having to add new ones
 
@@ -76,7 +74,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         #    debug('set_in_model(%s, %s)' % (field, value))
         #    setattr(self.model, field, value)
         def on_select(value):
-            self.model.genus = value
+            self.set_model_attr('genus', value)
         self.assign_completions_handler('sp_genus_entry', #'genus',
                                         gen_get_completions,
                                         on_select=on_select)
@@ -100,10 +98,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
 
-        # for each widget register a signal handler to be notified when the
-        # value in the widget changes, that way we can w things like sensitize
-        # the ok button
-        self.add_listener(self.on_field_changed)
         self.__dirty = False
 
 
@@ -166,11 +160,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
 
 
-    def on_field_changed(self, field, value):
+
+    def set_model_attr(self, field, value, validator=None):
         '''
         Resets the sensitivity on the ok buttons and the name widgets
         when values change in the model
         '''
+        super(SpeciesEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
         #debug('on_field_changed(%s, %s)' % (field, value))
         self.__dirty = True
         sensitive = True
@@ -873,7 +870,11 @@ class SpeciesEditorView(editor.GenericEditorView):
         set the sensitivity of all the accept/ok buttons for the editor dialog
         '''
         self.widgets.sp_ok_button.set_sensitive(sensitive)
-        self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
+        try:
+            import bauble.plugins.accession
+            self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
+        except:
+            pass
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
 
@@ -987,6 +988,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
+            from bauble.plugins.accession import AccesionEditor, Accession
             e = AccessionEditor(Accession(species=self.model,
                                           parent=self.parent))
             more_committed = e.start()
