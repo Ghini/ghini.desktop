@@ -40,8 +40,9 @@ from bauble.i18n import *
 # TODO: we need to clarify what's in plugins, should we be looking in plugins
 # or the registry for plugins, should only registered plugins be in plugins?
 
-plugins = []
-plugins_dict = {}
+#plugins = []
+#plugins_dict = {}
+plugins = {}
 commands = {}
 
 def register_command(handler):
@@ -145,7 +146,6 @@ def load(path=None):
     if path is a directory then search the directory for plugins
     if path is None then use the default plugins path, bauble.plugins
     '''
-    global plugins
     if path is None:
         if bauble.main_is_frozen():
             #path = os.path.join(paths.lib_dir(), 'library.zip')
@@ -158,12 +158,16 @@ def load(path=None):
 
     depends = []
     for plugin in found:
-        plugins_dict[plugin.__name__] = plugin
+        # TODO: should we include the module name of the plugin to allow
+        # for plugin namespaces or just assume that the plugin class
+        # name is unique
+        plugins[plugin.__name__] = plugin
 
+    # check the dependencies
     for p in found:
         for dep in p.depends:
             try:
-                depends.append((p, plugins_dict[dep]))
+                depends.append((p, plugins[dep]))
             except KeyError:
                 msg = _('The %(plugin)s plugin depends on the '\
                         '%(other_plugin)s  plugin but the %(other_plugin)s '\
@@ -174,16 +178,18 @@ def load(path=None):
                 # plugin as a dependency but the plugin that is a dependency
                 # wasn't found
                 raise
+
+    sorted_plugins = plugins.values()
     try:
-        plugins = topological_sort(found, depends)
-        plugins.reverse()
+        sorted_plugins = topological_sort(found, depends)
+        sorted_plugins.reverse()
 #        debug(plugins)
     except Exception, e:
         debug(e)
         raise
 
     # register commands
-    for plugin in found:
+    for plugin in sorted_plugins:
         # plugin.commands can be None or []
         if plugin.commands is None:
             continue
@@ -195,7 +201,6 @@ def load(path=None):
                     utils.xml_safe(str(e))
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
-    return []
 
 
 def init():
@@ -207,7 +212,7 @@ def init():
     registry = Registry()
     for entry in registry:
         try:
-            plugins_dict[entry.name].init()
+            plugins[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
                     "installed\n\n" \

@@ -393,7 +393,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             query = self.session.query(Family)
             return query.filter(Family.family.like('%s%%' % text))
         def on_select(value):
-            self.model.family = value
+            self.set_model_attr('family', value)
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
         self.assign_simple_handler('gen_genus_entry', 'genus')
@@ -409,11 +409,11 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
         self.__dirty = False
-        self.add_listener(self.on_field_changed)
 
 
-    def on_field_changed(self, field, value):
-        #debug('on_field_changed(%s, %s)' % (field, value))
+    def set_model_attr(self, field, value, validator=None):
+        super(GenusEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
         sensitive = False
         self.__dirty = True
         if self.model.family and self.model.genus:

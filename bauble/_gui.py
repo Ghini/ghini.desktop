@@ -378,7 +378,7 @@ class GUI(object):
         tools = []
         tools = {'__root': []}
         # categorize the tools into a dict
-        for p in pluginmgr.plugins:
+        for p in pluginmgr.plugins.values():
             for tool in p.tools:
                 if tool.category is not None:
                     try:

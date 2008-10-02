@@ -54,7 +54,7 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         markup_func=genus_markup_func)
 
         mapper_search.add_meta(('sp', 'species'), Species, ['sp', 'infrasp'])
-        SearchView.view_meta[Species].set(children=natsort_kids('accessions'),
+        SearchView.view_meta[Species].set(children=species_get_kids,
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,
                                           markup_func=species_markup_func)
@@ -83,8 +83,10 @@ class PlantsPlugin(pluginmgr.Plugin):
     @staticmethod
     def default_filenames():
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['family.txt', 'family_synonym.txt', 'genus.txt',
-                 'genus_synonym.txt', 'geography.txt']
+        files = ['family.txt',
+                 'family_synonym.txt', 'genus.txt',
+                 'genus_synonym.txt', 'geography.txt'
+                 ]
         return [os.path.join(path, f) for f in files]
 
     @classmethod

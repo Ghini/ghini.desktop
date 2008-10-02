@@ -1,7 +1,7 @@
 #
 # species.py
 #
-
+import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch, \
@@ -10,10 +10,15 @@ from bauble.i18n import _
 import bauble.utils.desktop as desktop
 
 __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
-           'species_context_menu', 'species_markup_func', 'vernname_get_kids',
-           'vernname_markup_func', 'vernname_context_menu', 'SpeciesEditor',
-           'SpeciesInfoBox', 'VernacularNameInfoBox', 'SpeciesDistribution']
+           'species_context_menu', 'species_markup_func', 'species_get_kids',
+           'vernname_get_kids', 'vernname_markup_func',
+           'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
+           'VernacularNameInfoBox', 'SpeciesDistribution']
 
+# TODO: we need to make sure that this will still work if the
+# AccessionPlugin is not present, this means that we would have to
+# change the species context menu, getting the children from the
+# search view and what else
 
 def edit_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
@@ -21,12 +26,6 @@ def edit_callback(value):
     e = SpeciesEditor(model=session.merge(value))
     return e.start() != None
 
-
-def add_accession_callback(value):
-    from bauble.plugins.garden.accession import AccessionEditor
-    session = bauble.Session()
-    e = AccessionEditor(model=Accession(species=session.merge(value)))
-    return e.start() != None
 
 
 def remove_callback(value):
@@ -47,21 +46,33 @@ def remove_callback(value):
     return True
 
 
-
-species_context_menu = [(_('Edit'), edit_callback),
-                        ('--', None),
-                        (_('Add accession'), add_accession_callback),
-                        ('--', None),
-                        (_('Remove'), remove_callback)]
-
-
 def call_on_species(func):
     return lambda value : func(value.species)
 
-vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
-                         ('--', None),
-                         (_('Add accession'),
-                          call_on_species(add_accession_callback))]
+if 'PlantsPlugin' in pluginmgr.plugins:
+    def add_accession_callback(value):
+        from bauble.plugins.garden.accession import AccessionEditor
+        session = bauble.Session()
+        e = AccessionEditor(model=Accession(species=session.merge(value)))
+        return e.start() != None
+
+    species_context_menu = [(_('Edit'), edit_callback),
+                            ('--', None),
+                            (_('Add accession'), add_accession_callback),
+                            ('--', None),
+                            (_('Remove'), remove_callback)]
+
+    vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
+                             ('--', None),
+                             (_('Add accession'),
+                              call_on_species(add_accession_callback))]
+else:
+    species_context_menu = [(_('Edit'), edit_callback),
+                            ('--', None),
+                            (_('Remove'), remove_callback)]
+    vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
+                             ('--', None)]
+
 
 def species_markup_func(species):
     '''
@@ -77,6 +88,12 @@ def species_markup_func(species):
     return species.markup(authors=False), substring
 
 
+def species_get_kids(species):
+    try:
+        natsort_kids('accessions')
+    except:
+        return []
+
 def vernname_get_kids(vernname):
     '''
     '''
@@ -84,7 +101,10 @@ def vernname_get_kids(vernname):
     # does the same thing as vername.species.accessions and might even make
     # it faster if we create the join directly instead of loading the species
     # first
-    return sorted(vernname.species.accessions, key=utils.natsort_key)
+    try:
+        return sorted(vernname.species.accessions, key=utils.natsort_key)
+    except:
+        return []
 
 
 def vernname_markup_func(vernname):
@@ -233,19 +253,32 @@ class GeneralSpeciesExpander(InfoExpander):
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the
         # species name
+        #
+        # TEMPORARILY DISABLED
+        #
+
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
-        nacc = sql_utils.count(accession_table,
-                               accession_table.c.species_id==row.id)
-        self.set_widget_value('sp_nacc_data', nacc)
+        if 'GardenPlugin' in pluginmgr.plugins:
+            from bauble.plugins.garden.accession import Accession
+            from bauble.plugins.garden.plant import Plant
 
-        acc_ids = select([accession_table.c.id],
-                         accession_table.c.species_id==row.id)
-        nplants_str = str(sql_utils.count(plant_table,
-                                    plant_table.c.accession_id.in_(acc_ids)))
-        if nplants_str != '0':
-            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % \
+            # TODO: need to remove the accession widget when the
+            # infobox is initialized and don't update the
+            nacc = session.query(Species).join('accession').\
+                   filter_by(species_id=row.id)
+            #nacc = sql_utils.count(accession_table,
+            #                       accession_table.c.species_id==row.id)
+            if nacc == 0:
+                self.set_widget_value('sp_nacc_data', nacc)
+
+            acc_ids = select([accession_table.c.id],
+                             accession_table.c.species_id==row.id)
+            nplants_str = str(sql_utils.count(plant_table,
+                                              plant_table.c.accession_id.in_(acc_ids)))
+            if nplants_str != '0':
+                nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
+                nplants_str = '%s in %s accessions' % \
                           (nplants_str, nacc_with_plants)
         self.set_widget_value('sp_nplants_data', nplants_str)
 
