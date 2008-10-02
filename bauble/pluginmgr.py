@@ -73,11 +73,12 @@ def install(plugins_to_install, import_defaults=True, force=False):
         registry = Registry()
 
     if plugins_to_install is 'all':
-        to_install = plugins
+        to_install = plugins.values()
     else:
         to_install = plugins_to_install
 
     # import default data for plugins
+    session = bauble.Session()
     if import_defaults:
         default_filenames = []
         for p in to_install:
@@ -91,7 +92,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
             try:
                 #transaction = bauble.engine.contextual_connect().begin()
-                session = bauble.Session()
+                #session = bauble.Session()
                 # cvs.start uses a task which blocks here but allows the
                 # interface to stay responsive
                 def on_import_error(exc):
