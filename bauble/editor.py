@@ -87,192 +87,6 @@ class FloatOrNoneStringValidator(object):
                                  % (value, type(value)))
 
 
-#
-# decorates and delegates to a SA mapped object
-#
-
-from sqlalchemy.orm.interfaces import *
-import sys
-
-class ModelListener(object):
-    """
-    Listens for changes to attributes on a mapped class.
-    """
-
-    def __init__(self, callback=None, before_change=False):
-        """
-        @param callback: called when there is a change on the model,
-        it should take the form: callback(key, value)
-
-        @param before_change: set to True if you want the callback
-        called before the value has been changed, in this case the
-        value returned from the callback will be the value set on the
-        model, default is False
-        """
-        self.callback = callback
-        self.pause = False
-        self.before_change = before_change
-
-    def on_set(self, key, value, oldvalue):
-        if self.callback and not self.pause:
-            if self.before_change:
-                return self.callback(key, value)
-            else:
-                gobject.idle_add(self.callback, key, value)
-        return value
-
-    def on_append(self, key, value):
-        if self.callback and not self.pause:
-            if self.before_change:
-                return self.callback(key, value)
-            else:
-                gobject.idle_add(self.callback, key, value)
-        return value
-
-    def on_remove(self, key, value):
-        if self.callback and not self.pause:
-            if self.before_change:
-                return self.callback(key, value)
-            else:
-                gobject.idle_add(self.callback, key, value)
-
-
-class AttributeListener(AttributeExtension):
-        def __init__(self, key, listener):
-            self.key = key
-            self.listener = listener
-
-        def append(self, state, value, initiator):
-            return self.listener.on_append(self.key, value)
-
-        def set(self, state, value, oldvalue, initiator):
-            return self.listener.on_set(self.key, value, oldvalue)
-
-        def remove(self, state, value):
-            self.listener.on_remove(self.key, value)
-
-
-def add_listener(model, listener):
-    """
-    Add a listener to a mapped class.  This actually adds an
-    AttributeListener to the class rather than the instance so that
-    all instances of the type of model will receive change
-    notifications.  This might change in the future.
-
-    @param model: a instance of a mapped class
-    @param listener: a ModelListener instance or a callback that will be
-    called on change notifications
-
-    @param: the ModelListener instance attached to the model
-    """
-    if isinstance(listener, ModelListener):
-        listener = listener
-    else:
-        listener = ModelListener(callback=listener)
-
-    mapper = class_mapper(model)
-    cls = type(model)
-    for prop in mapper.iterate_properties:
-        attr = getattr(cls, prop.key)
-        attr.impl.extensions.append(AttributeListener(prop.key, listener))
-    return listener
-
-
-def remove_listener(model, listener):
-    """
-    Remove a ModelListener from a mapped class.
-
-    @param model: the model the listener is attached to
-    @param listener: the listener to remove
-    """
-    mapper = class_mapper(model)
-    cls = type(model)
-    for prop in mapper.iterate_properties:
-        attr = getattr(cls, prop.key)
-        for extension in attr.impl.extensions:
-            if isinstance(extension, AttributeListener) \
-                   and extension.listener == listener:
-                attr.impl.extensions.remove(extension)
-
-
-class ModelDecorator(object):
-    '''
-    creates notifiers and allows dict style access to our model
-    '''
-
-    __locals__ = ['__notifiers', 'model', '__pause', '__dirty', 'dirty']
-
-    def __init__(self, model):
-        super(ModelDecorator, self).__init__(model)
-        super(ModelDecorator, self).__setattr__('__dirty', False)
-        super(ModelDecorator, self).__setattr__('__notifiers', {})
-        super(ModelDecorator, self).__setattr__('model', model)
-        super(ModelDecorator, self).__setattr__('__pause', False)
-
-
-    def _get_dirty(self):
-        return super(ModelDecorator, self).__getattribute__('__dirty')
-    dirty = property(_get_dirty)
-
-
-    def add_notifier(self, column, callback):
-        notifiers = super(ModelDecorator, self).__getattribute__('__notifiers')
-        try:
-            notifiers[column].append(callback)
-        except KeyError:
-            notifiers[column] = [callback]
-
-
-    def clear_notifers(self):
-        super(ModelDecorator, self).__getattribute__('__notifiers').clear()
-
-
-    def pause_notifiers(self, pause):
-        '''
-        @param pause: flags to disable calling notifier callbacks
-        @type pause: boolean
-        '''
-        super(ModelDecorator, self).__setattr__('__pause', False)
-
-
-    def __getattr__(self, name):
-        if name not in super(ModelDecorator,
-                             self).__getattribute__('__locals__'):
-            return getattr(self.model, name)
-        else:
-            return super(ModelDecorator, self).__getattribute__(name)
-
-
-    def _set(self, name, value, dirty=True):
-        model = super(ModelDecorator, self).__getattribute__('model')
-        setattr(model, name, value)
-        super(ModelDecorator, self).__setattr__('__dirty', dirty)
-        if name not in super(ModelDecorator,
-                             self).__getattribute__('__locals__') and \
-          not super(ModelDecorator, self).__getattribute__('__pause'):
-            notifiers = super(ModelDecorator,
-                              self).__getattribute__('__notifiers')
-            if name in notifiers:
-                for callback in notifiers[name]:
-                    callback(model, name)
-
-
-    def __cmp__(self, other):
-        return self.model == other
-
-    def __setattr__(self, name, value):
-        self._set(name, value)
-
-    def __getitem__(self, name):
-        return getattr(self.model, name)
-
-    def __setitem__(self, name, value):
-        self._set(name, value)
-
-    def __str__(self):
-        return str(self.model)
-
-
 
 def default_completion_cell_data_func(column, renderer, model, iter,data=None):
     '''
@@ -534,7 +348,6 @@ class GenericEditorPresenter(object):
         self.problems = Problems()
         # used by assign_completions_handler
         self._prev_text = {}
-        self._listeners = []
 
 
     # whether the presenter should be commited or not
@@ -547,36 +360,6 @@ class GenericEditorPresenter(object):
         """
         raise NotImplementedError
 
-
-    def add_listener(self, listener):
-        """
-        This method handled automatic listener handling to the
-        presenter.  The listeners will be automatically removed when
-        the view is closed provided the cleanup() method is called or
-        the view is properly destroyed.
-
-        NOTE: this method requires that the _get_window method be properly
-        implemented on the view.
-        """
-        try:
-            self.view.get_window()
-        except NotImplementedError:
-            msg = _('To use the GenericEditorPresenter.add_listener you '\
-                    'must implement the GenericEditorView.get_window() ' \
-                    'method for the view to return it\'s top level ' \
-                    'gtk.Window.')
-            raise BaubleError(msg)
-        def remove_listeners(*args):
-            """
-            Remove all listeners on the model
-            """
-            for listener in self._listeners:
-                #debug('remove_listener: %s' % listener)
-                remove_listener(self.model, listener)
-            del self._listeners[:]
-        if len(self._listeners) == 0:
-            self.view.get_window().connect('unrealize', remove_listeners)
-        self._listeners.append(add_listener(self.model, listener))
 
 
     def remove_problem(self, problem_id, problem_widgets=None):
@@ -635,12 +418,31 @@ class GenericEditorPresenter(object):
         utils.setup_text_combobox(combo, values)
 
 
-#    def bind_widget_to_model(self, widget_name, model_field):
-#        # TODO: this is just an idea stub, should we have a method like
-#        # this so to put the model values in the view we just
-#        # need a for loop over the keys of the widget_model_map
-#        pass
+#     def bind_widget_to_model(self, widget_name, model_field):
+#         # TODO: this is just an idea stub, should we have a method like
+#         # this so to put the model values in the view we just
+#         # need a for loop over the keys of the widget_model_map
+#         pass
 
+
+    def set_model_attr(self, attr, value, validator=None):
+        """
+        @param attr: the attribute on self.model to set
+        @param value: the value the attribute will be set to
+        @param validator: validates the value before setting it
+
+        It is best to use this method to set values on the model
+        rather than setting them directly.  Derived classes can
+        override this method to take action when the model changes.
+        """
+        if validator is not None:
+            try:
+                value = validator.to_python(value)
+                self.problems.remove('BAD_VALUE_%s' % attr)
+            except ValidatorError, e:
+                self.problems.add('BAD_VALUE_%s' % attr)
+                value = None # make sure the value in the model is reset
+        setattr(self.model, attr, value)
 
     # TODO: this should validate the data, i.e. convert strings to
     # int, or does commit do that?
@@ -653,23 +455,10 @@ class GenericEditorPresenter(object):
     # them to put junk in the handler without them knowing and its not as
     # obviously clear where the problem is, but this is much easier to
     # implement
-    def assign_simple_handler(self, widget_name, model_field, validator=None):
+    def assign_simple_handler(self, widget_name, model_attr, validator=None):
         '''
         assign handlers to widgets to change fields in the model
         '''
-        def _set_in_model(value, field=model_field):
-#            debug('_set_in_model(%s, %s)' % (value, field))
-#            debug('type(value) = %s' % type(value))
-            if validator is not None:
-                try:
-                    value = validator.to_python(value)
-                    self.problems.remove('BAD_VALUE_%s' % model_field)
-                except ValidatorError, e:
-                    self.problems.add('BAD_VALUE_%s' % model_field)
-                    value = None # make sure the value in the model is reset
-#            debug('%s: %s' % (value, type(value)))
-            setattr(self.model, field, value)
-
         widget = self.view.widgets[widget_name]
         check(widget is not None, _('no widget with name %s') % widget_name)
 
@@ -678,11 +467,13 @@ class GenericEditorPresenter(object):
                 entry_text = entry.get_text()
                 pos = entry.get_position()
                 full_text = entry_text[:pos] + new_text + entry_text[pos:]
-                _set_in_model(full_text)
+                #_set_in_model(full_text)
+                self.set_model_attr(model_attr, full_text, validator)
             def delete(entry, start, end, data=None):
                 text = entry.get_text()
                 full_text = text[:start] + text[end:]
-                _set_in_model(full_text)
+                #_set_in_model(full_text)
+                self.set_model_attr(model_attr, full_text, validator)
             widget.connect('insert-text', insert)
             widget.connect('delete-text', delete)
         elif isinstance(widget, gtk.TextView):
@@ -692,14 +483,16 @@ class GenericEditorPresenter(object):
                 text_start = buffer.get_text(buffer.get_start_iter(), iter)
                 text_end = buffer.get_text(iter, buffer.get_end_iter())
                 full_text = ''.join((text_start, new_text, text_end))
-                _set_in_model(full_text)
+                #_set_in_model(new_text)
+                self.set_model_attr(model_attr, full_text, validator)
             def delete(buffer, start_iter, end_iter, data=None):
                 start = start_iter.get_offset()
                 end = end_iter.get_offset()
                 text = buffer.get_text(buffer.get_start_iter(),
                                        buffer.get_end_iter())
                 new_text = text[:start] + text[end:]
-                _set_in_model(new_text)
+                #_set_in_model(new_text)
+                self.set_model_attr(model_attr, new_text, validator)
             widget.get_buffer().connect('insert-text', insert)
             widget.get_buffer().connect('delete-range', delete)
         elif isinstance(widget, gtk.ComboBox):
@@ -711,7 +504,8 @@ class GenericEditorPresenter(object):
                 if i is None:
                     return
                 data = combo.get_model()[combo.get_active_iter()][0]
-                _set_in_model(data, model_field)
+                #_set_in_model(data, model_field)
+                self.set_model_attr(model_attr, data, validator)
             widget.connect('changed', changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton,
                                  gtk.RadioButton)):
@@ -719,7 +513,8 @@ class GenericEditorPresenter(object):
                 active = button.get_active()
 #                debug('toggled %s: %s' % (widget_name, active))
                 button.set_inconsistent(False)
-                _set_in_model(active, model_field)
+                #_set_in_model(active, model_field)
+                self.set_model_attr(model_attr, active, validator)
             widget.connect('toggled', toggled)
         else:
             raise ValueError('assign_simple_handler() -- '\

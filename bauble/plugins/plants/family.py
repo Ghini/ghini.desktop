@@ -327,10 +327,12 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         # value in the widget changes, that way we can do things like sensitize
         # the ok button
         self.__dirty = False
-        self.add_listener(self.on_field_changed)
 
 
-    def on_field_changed(self, field, value):
+    def set_model_attr(self, field, value, validator=None):
+        #debug('set_model_attr(%s, %s)' % (field, value))
+        super(FamilyEditorPresenter, self).set_model_attr(field, value,
+                                                          validator)
         self._dirty = True
         sensitive = self.model.family and True or False
         self.view.set_accept_buttons_sensitive(sensitive)
