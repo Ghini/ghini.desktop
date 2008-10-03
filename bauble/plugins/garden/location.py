@@ -154,7 +154,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         super(LocationEditorPresenter, self).set_model_attr(model, field,
                                                             validator)
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(model.site != None)
+        self.view.set_accept_buttons_sensitive(self.model.site != None)
 
 
     def dirty(self):
@@ -163,7 +163,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
 
@@ -192,7 +192,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Location()
-        super(LocationEditor, self).__init__(self, model, parent)
+        super(LocationEditor, self).__init__(model, parent)
         if parent is None:
             parent = bauble.gui.window
         self.parent = parent

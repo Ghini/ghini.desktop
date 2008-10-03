@@ -112,6 +112,8 @@ class GardenTestCase(BaubleTestCase):
 
 class DonorTests(GardenTestCase):
 
+    # TODO: need to a test to ensure that donor doesn't get deleted if
+    # it is orphaned
     def __init__(self, *args):
         super(DonorTests, self).__init__(*args)
 
@@ -142,17 +144,33 @@ class AccessionTests(GardenTestCase):
     def __init__(self, *args):
         super(AccessionTests, self).__init__(*args)
 
+    def setUp(self):
+        super(AccessionTests, self).setUp()
+        self.family = Family(family=u'fam')
+        self.genus = Genus(family=self.family, genus=u'gen')
+        self.species = Species(genus=self.genus, sp=u'sp')
+        self.session.add_all([self.family, self.genus, self.species])
+        self.session.commit()
+
+
+    def tearDown(self):
+        super(AccessionTests, self).tearDown()
+
     def test_set_source(self):
-        acc = self.session.query(Accession).get(1)
-        donor = self.session.query(Donor).get(1)
+        #acc = self.session.query(Accession).get(1)
+        #donor = self.session.query(Donor).get(1)
+        acc = Accession(code=u'1', species=self.species)
+        donor = Donor(name=u'me')
+        self.session.add_all([acc, donor])
+        self.session.commit()
 
         # set source on accession as a Donation
         donation = Donation()
         donation.donor = donor
         acc.source = donation
         self.session.flush()
-        self.session.expire(acc)
-        acc = self.session.query(Accession).get(1)
+        #self.session.expire(acc)
+        self.session.refresh(acc)
         self.assertEquals(acc.source.id, donation.id)
         self.assertEquals(acc.source_type, u'Donation')
 
@@ -167,12 +185,19 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source.id, donation2.id)
         self.assertEquals(acc.source_type, u'Donation')
 
+        # delete all the donations
+        # TODO: the donor should never be deleted if a donation is
+        # deleted and a donation should never get deleted if a donor
+        # is deleted, an error should be reaised if you attempt to
+        # delete a donor that has donations but should an error be
+        # raised if you attempt to delete a donation that has a donor,
+        # i don't think so
+
         # make sure the old donation gets deleted since it's an orphan
         print self.session.query(Donation).get(old_donation_id)
-        self.assertRaises(InvalidRequestError,
-                          self.session.query(Donation).get, old_donation_id)
+        self.assert_(self.session.query(Donation).get(old_donation_id) == None)
 
-        # delete the source
+        # delete the source by setting acc.source=None
         donation = Donation()
         donation.donor = donor
         acc.source = donation
@@ -195,9 +220,7 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source_type, None)
 
         # make sure the orphaned donation get's deleted
-        #print self.session.query(Donation).get(old_donation_id)
-        self.assertRaises(InvalidRequestError,
-                          self.session.query(Donation).get, old_donation_id)
+        self.assert_(not self.session.query(Donation).get(old_donation_id))
 
         # set accession.source to a Collection
         collection = Collection(locale=u'TestAccLocale')
@@ -218,8 +241,7 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source_type, u'Donation')
 
         # make sure the orphaned collection get's deleted
-        self.assertRaises(InvalidRequestError, self.session.load, Collection,
-                          old_collection_id)
+        self.assert_(not self.session.query(Collection).get(old_collection_id))
 
         # change source from donation to collection
         old_donation_id = donation3.id
@@ -239,8 +261,7 @@ class AccessionTests(GardenTestCase):
 #        utils.log.echo(False)
 
         # make sure the orphaned donation get's deleted
-        self.assertRaises(InvalidRequestError, self.session.load, Donation,
-                          old_donation_id)
+        self.assert_(not self.session.query(Donation).get(old_donation_id))
 
 
     def test_double_commit(self):

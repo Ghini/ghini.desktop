@@ -11,7 +11,7 @@ from bauble.plugins.plants.geography import Geography
 def source_markup_func(source):
     # TODO: should probably just make the source look and act like an accession
     # with the same markup and children in the view
-    return source._accession, source
+    return source.accession, source
 
 
 class Donation(bauble.Base):
@@ -23,7 +23,10 @@ class Donation(bauble.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
     def __str__(self):
-        return 'Donation from %s' % (self.donor or repr(self))
+        if self.donor:
+            return 'Donation from %s' % self.donor
+        else:
+            return repr(self)
 
 # donation_table = bauble.Table('donation', bauble.metadata,
 #                        Column('id', Integer, primary_key=True),
@@ -54,7 +57,7 @@ class Donation(bauble.Base):
 # should probably store the DMS data as a string in decimal degrees
 class Collection(bauble.Base):
     __tablename__ = 'collection'
-    collector = Column(Unicode(64)),
+    collector = Column(Unicode(64))
     collectors_code = Column(Unicode(50))
     date = Column(Date)
     locale = Column(UnicodeText, nullable=False)

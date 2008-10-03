@@ -236,11 +236,14 @@ class Accession(bauble.Base):
     private = Column('private', Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
+    # relations
+    species = relation('Species', uselist=False, backref=backref('accessions',
+                                                cascade='all, delete-orphan'))
     _collection = relation('Collection', cascade='all, delete-orphan',
-                           uselist=False, backref=backref('_accession',
+                           uselist=False, backref=backref('accession',
                                                           uselist=False))
     _donation = relation('Donation', cascade='all, delete-orphan',
-                         uselist=False, backref=backref('_accession',
+                         uselist=False, backref=backref('accession',
                                                         uselist=False))
     plants = relation('Plant', cascade='all, delete-orphan',
                       order_by='Plant.code', backref='accession')
@@ -264,14 +267,14 @@ class Accession(bauble.Base):
     def _set_source(self, source):
         if self.source is not None:
             obj = self.source
-            obj._accession = None
+            obj.accession = None
             utils.delete_or_expunge(obj)
             self.source_type = None
         if source is None:
             self.source_type = None
         else:
             self.source_type = unicode(source.__class__.__name__)
-            source._accession = self
+            source.accession = self
     def _del_source(self):
         self.source = None
 
@@ -507,8 +510,9 @@ class CollectionPresenter(GenericEditorPresenter):
     PROBLEM_INVALID_LOCALE = random()
 
 
-    def __init__(self, model, view, session):
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+    def __init__(self, parent, model, view, session):
+        GenericEditorPresenter.__init__(self, model, view)
+        self.parent = parent
         self.session = session
         self.refresh_view()
 
@@ -532,7 +536,7 @@ class CollectionPresenter(GenericEditorPresenter):
         def on_match(completion, model, iter, data=None):
             value = model[iter][0]
             validator = UnicodeOrNoneValidator()
-            self.model.gps_datum = validator.to_python(value)
+            self.set_model_attr('gps_data', value, validator)
             completion.get_entry().set_text(value)
         completion = self.view.widgets.datum_entry.get_completion()
         completion.connect('match-selected', on_match)
@@ -563,33 +567,46 @@ class CollectionPresenter(GenericEditorPresenter):
         self.east_toggle_signal_id = east_radio.connect('toggled',
                                             self.on_east_west_radio_toggled)
 
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
+        self.__dirty = False
 
 
-    def on_field_changed(self, model, field):
+    def set_model_attr(self, field, value, validator=None):
         """
         Validates the fields when a field changes.
         """
+        super(CollectionPresenter, self).set_model_attr(field, value,validator)
+        self.__dirty = True
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
         else:
             self.remove_problem(self.PROBLEM_INVALID_LOCALE)
 
+        if field in ('longitude', 'latitude'):
+            sensitive = self.model.latitude is not None \
+                        and self.model.longitude is not None
+            self.view.widgets.geoacc_entry.set_sensitive(sensitive)
+            self.view.widgets.datum_entry.set_sensitive(sensitive)
+
+        if field == 'elevation':
+            sensitive = self.model.elevation is not None
+            self.view.widgets.altacc_entry.set_sensitive(sensitive)
+
+        self.parent.refresh_sensitivity()
+
 
     def start(self):
-        raise Exception('CollectionEditorPresenter cannot be started')
+        raise Exception('CollectionPresenter cannot be started')
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            value = getattr(self.model, field)
 ##            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month,
@@ -637,7 +654,7 @@ class CollectionPresenter(GenericEditorPresenter):
 
     def _set_date_from_text(self, text):
         if text == '':
-            self.model.date = None
+            self.set_model_attr('date', None)
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.coll_date_entry)
             return
@@ -659,7 +676,7 @@ class CollectionPresenter(GenericEditorPresenter):
             except:
                 self.add_problem(self.PROBLEM_INVALID_DATE,
                                     self.view.widgets.coll_date_entry)
-        self.model.date = dt
+        self.set_model_attr('date', dt)
 
 
     def on_east_west_radio_toggled(self, button, data=None):
@@ -781,7 +798,7 @@ class CollectionPresenter(GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LATITUDE,
                              self.view.widgets.lat_entry)
 
-        self.model['latitude'] = latitude
+        self.set_model_attr('latitude', latitude)
         self.view.widgets.lat_dms_label.set_text(dms_string)
 
 
@@ -823,7 +840,7 @@ class CollectionPresenter(GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
                               self.view.widgets.lon_entry)
 
-        self.model['longitude'] = longitude
+        self.set_model_attr('longitude', longitude)
         self.view.widgets.lon_dms_label.set_text(dms_string)
 
 
@@ -837,8 +854,12 @@ class DonationPresenter(GenericEditorPresenter):
     PROBLEM_INVALID_DATE = random()
     PROBLEM_INVALID_DONOR = random()
 
-    def __init__(self, model, view, session):
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+    def __init__(self, parent, model, view, session):
+        """
+        @param parent: the parent AccessionEditorPresenter
+        """
+        GenericEditorPresenter.__init__(self, model, view)
+        self.parent = parent
         self.session = session
 
         # set up donor_combo
@@ -868,28 +889,30 @@ class DonationPresenter(GenericEditorPresenter):
 
         # if there is only one donor in the donor combo model and
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
-#           donor('set_active(0)')
             donor_combo.set_active(0)
 
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
         if self.model.donor is None:
             self.add_problem(self.PROBLEM_INVALID_DONOR)
+        self.__dirty = False
 
 
-    def on_field_changed(self, model, field):
+    def set_model_attr(self, field, value, validator=None):
+#        debug('DonationPresenter.set_model_attr(%s, %s)' % (field, value))
+        super(DonationPresenter, self).set_model_attr(field, value, validator)
+        self.__dirty = True
         if self.model.donor is None:
             self.add_problem(self.PROBLEM_INVALID_DONOR)
         else:
             self.remove_problem(self.PROBLEM_INVALID_DONOR)
+        self.parent.refresh_sensitivity()
 
 
     def start(self):
-        raise Exception('CollectionEditorPresenter cannot be started')
+        raise Exception('DonationPresenter cannot be started')
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
     def on_donor_combo_changed(self, combo, data=None):
@@ -902,7 +925,7 @@ class DonationPresenter(GenericEditorPresenter):
         if i is None:
             return
         value = combo.get_model()[i][0]
-        self.model.donor = value
+        self.set_model_attr('donor', value)
         if isinstance(value, Donor):
             self.view.widgets.don_edit_button.set_sensitive(True)
         else:
@@ -925,7 +948,7 @@ class DonationPresenter(GenericEditorPresenter):
 
     def _set_date_from_text(self, text):
         if text == '':
-            self.model.date = None
+            self.set_model_attr('date', None)
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.don_date_entry)
             return
@@ -941,7 +964,7 @@ class DonationPresenter(GenericEditorPresenter):
         except:
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.don_date_entry)
-        self.model.date = dt
+        self.set_model_attr('date', dt)
 
 
 
@@ -986,7 +1009,7 @@ class DonationPresenter(GenericEditorPresenter):
         donor_combo.set_model(model)
 
         for widget, field in self.widget_to_field_map.iteritems():
-            value = self.model[field]
+            value = getattr(self.model, field)
 #            debug('%s, %s, %s' % (widget, field, value))
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month,
@@ -999,11 +1022,11 @@ class DonationPresenter(GenericEditorPresenter):
             self.view.widgets.don_edit_button.set_sensitive(True)
 
 
-def SourcePresenterFactory(model, view, session):
+def SourcePresenterFactory(parent, model, view, session):
     if isinstance(model, Collection):
-        return CollectionPresenter(model, view, session)
+        return CollectionPresenter(parent, model, view, session)
     elif isinstance(model, Donation):
-        return DonationPresenter(model, view, session)
+        return DonationPresenter(parent, model, view, session)
     else:
         raise ValueError('unknown source type: %s' % type(model))
 
@@ -1038,7 +1061,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         @param model: an instance of class Accession
         @param view: an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
         self._original_source = self.model.source
         self._original_code = self.model.code
@@ -1059,16 +1082,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             return query.filter(and_(Species.genus_id == Genus.id,
                                      or_(Genus.genus.like('%s%%' % text),
                                          Genus.hybrid==utils.utf8(text))))
-#             return query.filter(and_(species_table.c.genus_id == \
-#                                      genus_table.c.id,
-#                                 or_(genus_table.c.genus.like('%s%%' % text),
-#                                     genus_table.c.hybrid==utils.utf8(text))))
-        def set_in_model(self, field, value):
-            self.set_model_attr(field, value)
-            #setattr(self.model, field, value)
-        self.assign_completions_handler('acc_species_entry', 'species',
+        def on_select(value):
+            self.set_model_attr('species', value)
+        self.assign_completions_handler('acc_species_entry',
                                         sp_get_completions,
-                                        set_func=set_in_model)
+                                        on_select=on_select)
         self.view.widgets.acc_prov_combo.connect('changed',
                                                  self.on_combo_changed,
                                                  'prov_type')
@@ -1096,13 +1114,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.init_change_notifier()
+        self.__dirty = False
+
 
 
     def dirty(self):
         if self.source_presenter is None:
-            return self.model.dirty
-        return self.source_presenter.dirty() or self.model.dirty
+            return self.__dirty
+        return self.source_presenter.dirty() or self.__dirty
 
 
     def on_acc_code_entry_insert(self, entry, new_text, new_text_length,
@@ -1131,17 +1150,17 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                and query.filter_by(code=unicode(text)).count()>0:
             self.add_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                              self.view.widgets.acc_code_entry)
-            self.model.code = None
+            self.set_model_attr('code', None)
             return
         self.remove_problem(self.PROBLEM_DUPLICATE_ACCESSION,
                             self.view.widgets.acc_code_entry)
         if text is '':
-            self.model.code = None
+            self.set_model_attr('code', None)
         else:
             # TODO: even though utf-8 is pretty much standard throughout
             # Bauble we shouldn't hardcode the encoding here...probably best
             # to store the default encoding in the bauble.meta
-            self.model.code = unicode(text, encoding='utf-8')
+            self.set_model_attr('code', utils.utf8(text))
 
 
     def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
@@ -1186,22 +1205,24 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.acc_date_entry)
 
-        self.model.date = dt
+        self.set_model_attr('date', dt)
 
 
-    def on_field_changed(self, model, field):
+    def set_model_attr(self, field, value, validator=None):
         """
         This method works on the assumption that
         source_presenter.on_field_changed is called before this method
         and adds and removes problems as necessary, if for some reason
         this isn't the case then this method would work as expected
         """
-##        debug('on field changed: %s = %s' % (field, getattr(model, field)))
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
         # e.g. date, then if we do 'if date == something' we won't know
         # which model changed
-
+        #debug('set_model_attr(%s, %s)' % (field, value))
+        super(AccessionEditorPresenter, self).set_model_attr(field, value,
+                                                             validator)
+        self.__dirty = True
         # TODO: add a test to make sure that the change notifiers are
         # called in the expected order
         prov_sensitive = True
@@ -1216,39 +1237,25 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             wild_prov_combo.set_sensitive(prov_sensitive)
             self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
 
-        if field == 'longitude' or field == 'latitude':
-            sensitive = model.latitude is not None and \
-                            model.longitude is not None
-            self.view.widgets.geoacc_entry.set_sensitive(sensitive)
-            self.view.widgets.datum_entry.set_sensitive(sensitive)
+        self.refresh_sensitivity()
 
-        if field == 'elevation':
-            sensitive = model.elevation is not None
-            self.view.widgets.altacc_entry.set_sensitive(sensitive)
 
-        # refresh the sensitivity of the accept buttons
-        sensitive = True
+    def refresh_sensitivity(self):
+        """
+        Refresh the sensitivity of the accept buttons
+        """
+        sensitive = self.dirty()
         if len(self.problems) != 0:
             sensitive = False
         elif self.source_presenter is not None and \
                 len(self.source_presenter.problems) != 0:
             sensitive = False
-        elif (self.model.code is None) or (self.model.species is None):
+        elif not self.model.code or not self.model.species:
             sensitive = False
-        elif field == 'source_type':
-            sensitive = False
-
+        #elif field == 'source_type':
+        #    sensitive = False
+        #debug(sensitive)
         self.set_accept_buttons_sensitive(sensitive)
-
-
-    def init_change_notifier(self):
-        '''
-        for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can do things like sensitize
-        the ok button
-        '''
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
 
 
     def on_source_type_combo_changed(self, combo, data=None):
@@ -1260,11 +1267,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source_type_changed = False
         if source_type is None:
             if self.model.source is not None:
-                self.model.source = None
+                set_model_attr('source', None)
                 if self.current_source_box is not None:
                     self.view.widgets.remove_parent(self.current_source_box)
                     self.current_source_box = None
-                self.on_field_changed(self.model, 'source_type')
+                #self.on_field_changed(self.model, 'source_type')
             return
 
         # FIXME: Donation and Collection shouldn't be hardcoded so that it
@@ -1287,13 +1294,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 debug('unknown source type: %s' % e)
                 raise
             if isinstance(new_source, type(self._original_source)):
-                self.model.source = self._original_source
+                self.set_model_attr('source', self._original_source)
             else:
-                self.model.source = new_source
+                self.set_model_attr('source', new_source)
         elif source_type is not None and self.model.source is None:
             # the source type is set but there is no corresponding model.source
             try:
-                self.model.source = source_class_map[source_type]()
+                self.set_model_attr('source', source_class_map[source_type]())
             except KeyError, e:
                 debug('unknown source type: %s' % e)
                 raise
@@ -1313,15 +1320,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
         if self.model.source is not None:
             self.source_presenter = \
-                           SourcePresenterFactory(self.model.source, self.view,
-                                                  self.session)
-            # initialize model change notifiers
-            for field in self.source_presenter.widget_to_field_map.values():
-                self.source_presenter.model.add_notifier(field,
-                                                         self.on_field_changed)
+                           SourcePresenterFactory(self, self.model.source,
+                                                  self.view, self.session)
 
-        if source_type_changed:
-            self.on_field_changed(self.model, 'source_type')
+        #if source_type_changed:
+        #    self.on_field_changed(self.model, 'source_type')
+        #    self.set_model_attr('source_type'
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -1349,7 +1353,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_combo_changed(self, combo, field):
-        self.model[field] = combo.get_active_text()
+        self.set_model_attr(field, combo.get_active_text())
 
 
     def refresh_view(self):
@@ -1360,7 +1364,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             if field == 'species_id':
                 value = self.model.species
             else:
-                value = self.model[field]
+                value = getattr(self.model, field)
             if value is not None and field == 'date':
                 value = '%s/%s/%s' % (value.day, value.month,
                                       '%04d' % value.year)
@@ -1664,8 +1668,8 @@ class SourceExpander(InfoExpander):
     def update_donations(self, donation):
         self.current_obj = donation
         session = object_session(donation)
-        donor_str = utils.xml_safe(unicode(session.load(Donor,
-                                                        donation.donor_id)))
+        donor = session.query(Donor).get(donation.donor_id)
+        donor_str = utils.xml_safe(utils.utf8(donor))
         self.set_widget_value('donor_data', donor_str)
         self.set_widget_value('donid_data', donation.donor_acc)
         self.set_widget_value('donnotes_data', donation.notes)
@@ -1728,7 +1732,7 @@ class AccessionInfoBox(InfoBox):
 # it's easier just to put this here instead of playing around with imports
 class SourceInfoBox(AccessionInfoBox):
     def update(self, row):
-        super(SourceInfoBox, self).update(row._accession)
+        super(SourceInfoBox, self).update(row.accession)
 
 
 
