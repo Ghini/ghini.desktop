@@ -64,11 +64,9 @@ def install(plugins_to_install, import_defaults=True, force=False):
     install all plugins that haven't been installed
     """
     # create the registry if it doesn't exist
-##    debug('entered pluginmgr.install()')
     try:
         registry = Registry()
     except RegistryEmptyError:
-        #log.info('registry empty, creating.')
         Registry.create()
         registry = Registry()
 
@@ -79,51 +77,48 @@ def install(plugins_to_install, import_defaults=True, force=False):
 
     # import default data for plugins
     session = bauble.Session()
-    if import_defaults:
-        default_filenames = []
-        for p in to_install:
-            default_filenames.extend(p.default_filenames())
-
-        if len(default_filenames) > 0:
-            from bauble.plugins.imex.csv_ import CSVImporter
-            csv = CSVImporter()
-            import_error = False
-            import_exc = None
-
-            try:
-                #transaction = bauble.engine.contextual_connect().begin()
-                #session = bauble.Session()
-                # cvs.start uses a task which blocks here but allows the
-                # interface to stay responsive
-                def on_import_error(exc):
-                    debug(exc)
-                    import_error = True
-                    import_exc = exc
-                    #transaction.rollback()
-                    session.rollback()
-                def on_import_quit():
-                    """
-                    register plugins and commit the imports
-                    """
-                    # register plugin as installed
-                    for p in to_install:
-                        registry.add(RegistryEntry(name=p.__name__,
-                                                   version=u'0.0'))
-                    registry.save()
-                    #transaction.commit()
-                    session.commit()
-##                debug('start import')
-                csv.start(filenames=default_filenames,
-                          metadata=bauble.metadata, force=force,
-                          on_quit=on_import_quit, on_error=on_import_error)
-            except Exception, e:
-                warning(e)
+    from itertools import chain
+    default_filenames=list(chain(*[p.default_filenames() for p in to_install]))
+    if import_defaults and len(default_filenames) > 0:
+        from bauble.plugins.imex.csv_ import CSVImporter
+        csv = CSVImporter()
+        import_error = False
+        import_exc = None
+        try:
+            #transaction = bauble.engine.contextual_connect().begin()
+            #session = bauble.Session()
+            # cvs.start uses a task which blocks here but allows the
+            # interface to stay responsive
+            def on_import_error(exc):
+                debug(exc)
+                import_error = True
+                import_exc = exc
                 #transaction.rollback()
                 session.rollback()
-                raise
+            def on_import_quit():
+                """
+                register plugins and commit the imports
+                """
+                # register plugin as installed
+                for p in to_install:
+                    registry.add(RegistryEntry(name=p.__name__,
+                                               version=u'0.0'))
+                registry.save()
+                #transaction.commit()
+                session.commit()
+##                debug('start import')
+            csv.start(filenames=default_filenames, metadata=bauble.metadata,
+                      force=force, on_quit=on_import_quit,
+                      on_error=on_import_error)
+        except Exception, e:
+            warning(e)
+            #transaction.rollback()
+            session.rollback()
+            raise
     else:
         try:
             for p in to_install:
+                #debug('add %s to registry' % p.__name__)
                 registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
                 registry.save()
         except Exception, e:
@@ -192,7 +187,7 @@ def load(path=None):
     # register commands
     for plugin in sorted_plugins:
         # plugin.commands can be None or []
-        if plugin.commands is None:
+        if plugin.commands in (None, []):
             continue
         for cmd in plugin.commands:
             try:
@@ -206,17 +201,36 @@ def load(path=None):
 
 def init():
     """
-    call init() for each of the plugins in the registry,
-    this should be called after we have a connection to the database
+    Call init() for each of the plugins in the registry.
+
+    NOTE: This should be called after after Bauble has established a
+    connection to a database with bauble.open_database()
     """
 
     registry = Registry()
+    not_installed = []
+    for name, p in plugins.iteritems():
+        if p not in registry:
+            debug('%s not in registry' % name)
+            not_installed.append(name)
+
+    if len(not_installed) > 0:
+        msg = _('The following plugins were not found in the plugin '\
+                 'registry:\n\n<b>%s</b>\n\n'\
+                 '<i>Would you like to install them now?</i>' \
+                % ', '.join(not_installed))
+        if utils.yes_no_dialog(msg):
+            install([plugins[name] for name in not_installed])
+            registry.refresh()
+
+    # install the plugins that aren't listed in the registry
     for entry in registry:
+        #debug('init: %s' % entry)
         try:
             plugins[entry.name].init()
         except KeyError, e:
             msg = _("The %s plugin is listed in the registry but isn't " \
-                    "installed\n\n" \
+                    "installed.\n\n" \
                     "<i>Would you like to remove this plugin from the "\
                     "registry?</i>" % entry.name)
             if utils.yes_no_dialog(msg):
@@ -224,7 +238,7 @@ def init():
                 registry.save()
         except Exception, e:
             debug(e)
-            print traceback.print_exc()
+            debug(traceback.print_exc())
             safe = utils.xml_safe_utf8
             values = dict(entry_name=entry.name, exception=safe(e))
             utils.message_details_dialog(_("Error: Couldn't initialize "\
@@ -253,15 +267,21 @@ class Registry(dict):
         @param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
-        import bauble.meta as meta
+
         if session is None:
             self.session = bauble.Session()
         else:
             self.session = session
+        self.refresh()
+
+
+
+    def refresh(self):
+        import bauble.meta as meta
+        query = self.session.query(meta.BaubleMeta)
         try:
-            result = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
+            result = query.filter_by(name=meta.REGISTRY_KEY).one()
         except:
-##            debug('RegistryEmptyError')
             raise RegistryEmptyError
 
         self.entries = {}
@@ -269,7 +289,6 @@ class Registry(dict):
             entries = json.loads(result.value)
             for e in entries:
                 self.entries[e['name']] = RegistryEntry.create(e)
-
 
     def __str__(self):
         return str(self.entries.values())
