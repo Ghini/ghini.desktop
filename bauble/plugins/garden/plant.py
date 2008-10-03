@@ -22,7 +22,7 @@ from bauble.utils.log import debug
 from bauble.types import Enum
 import bauble.meta as meta
 from bauble.view import MapperSearch
-from bauble.plugins.garden.location import Location
+from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -33,17 +33,6 @@ from bauble.plugins.garden.location import Location
 
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
-
-__plant_delimiter = None
-def plant_delimiter(refresh=False):
-    global __plant_delimiter
-    if refresh:
-        __plant_delimiter = None
-    if __plant_delimiter is None:
-        table = meta.bauble_meta_table
-        row = table.select(table.c.name==plant_delimiter_key).execute()
-        __plant_delimiter = row.fetchone()['value']
-    return __plant_delimiter
 
 
 def edit_callback(plant):
@@ -100,15 +89,17 @@ class PlantSearch(MapperSearch):
     def search(self, text, session=None):
         if session is None:
             session = bauble.Session()
-        delimiter = plant_delimiter()
+        delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
         acc_code, plant_code = text.rsplit(delimiter, 1)
         query = session.query(Plant)
-        from bauble.plugins.garden import accession_table
+        from bauble.plugins.garden import Accession
         try:
-            return query.filter(and_(plant_table.c.accession_id==accession_table.c.id, accession_table.c.code == acc_code, plant_table.c.code == plant_code))
-        except:
+            return query.join('accession').filter(and_(Accession.code==acc_code,
+                                                       Plant.code==plant_code))
+        except Exception, e:
+            debug(e)
             return []
 
 
@@ -163,7 +154,7 @@ class Plant(bauble.Base):
     __tablename__ = 'plant'
     __table_args = (UniqueConstraint('code', 'accession_id'),
                     {})
-    __mapper_args__ = {'order_by': ['accession_id', 'code']}
+    __mapper_args__ = {'order_by': ['accession_id', 'plant.code']}
 
     # columns
     code = Column(Unicode(6), nullable=False)
@@ -182,23 +173,25 @@ class Plant(bauble.Base):
     # relations
     history = relation('PlantHistory', backref='plant')
 
-    __delimiter = None
+    @classmethod
+    def get_delimiter(cls):
+        """
+        Get the plant delimiter from the BaubleMeta table
+        """
+        #row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
+        #                                    plant_delimiter_key).execute()
+        #Plant.__delimiter = row.fetchone()['value']
+        query = bauble.Session().query(meta.BaubleMeta.value)
+        value = query.filter_by(name=plant_delimiter_key).one()[0]
+        check(value is not None, _('plant delimiter not set in bauble meta'))
+        return value
 
-    @staticmethod
-    def refresh_delimiter(cls):
-        row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
-                                            plant_delimiter_key).execute()
-        Plant.__delimiter = row.fetchone()['value']
-
-    def __get_delimiter(self):
-        if Plant.__delimiter is None:
-            row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
-            result = row.fetchone()
-            check(result is not None, 'plant delimiter not set in bauble meta')
-            Plant.__delimiter = result['value']
-        return Plant.__delimiter
-
-    delimiter = property(__get_delimiter)
+    _delimiter = None
+    def _get_delimiter(self):
+        if self._delimiter is None:
+            self._delimiter = Plant.get_delimiter()
+        return self._delimiter
+    delimiter = property(lambda self: self._get_delimiter())
 
 
     def __str__(self):
@@ -280,17 +273,12 @@ from bauble.plugins.garden.accession import Accession
 
 def enum_values_str(col):
     table_name, col_name = col.split('.')
-    debug('%s.%s' % (table_name, col_name))
-    return ''
+    #debug('%s.%s' % (table_name, col_name))
+    values = bauble.metadata.tables[table_name].c[col_name].type.values[:]
+    if None in values:
+        values[values.index(None)] = '<None>'
+    return ', '.join(values)
 
-def _val_str(col):
-    s = [str(v) for v in col.type.values if v is not None]
-    if None in col.type.values:
-        if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            s.append('&lt;None&gt;')
-        else:
-            s.append('<None>')
-    return ', '.join(s)
 
 
 class PlantEditorView(GenericEditorView):
@@ -363,7 +351,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         @model: should be an instance of Plant class
         @view: should be an instance of PlantEditorView
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
@@ -374,44 +362,35 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.init_enum_combo('plant_acc_type_combo', 'acc_type')
 
 #        self.init_history_box()
-        self.refresh_view() # put model values in view
+
 
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             default_acc_type = unicode('Plant')
-            self.view.set_widget_value('plant_acc_type_combo',default_acc_type)
-            self.model._set('acc_type', default_acc_type, dirty=False)
+            self.model.acc_type = default_acc_type
         if self.model.id is None and self.model.acc_status is None:
             default_acc_status = unicode('Living accession')
-            self.view.set_widget_value('plant_acc_status_combo',
-                                       default_acc_status)
-            self.model._set('acc_status', default_acc_status, dirty=False)
+            self.model.acc_status = default_acc_status
 
+        self.refresh_view() # put model values in view
 
         # connect signals
         def acc_get_completions(text):
             query = self.session.query(Accession)
-            return query.filter(Accession.c.code.like(unicode('%s%%' % text)))
-        def format_acc(accession):
-            return '%s (%s)' % (accession, accession.species)
-        def set_in_model(self, field, accession):
-            setattr(self.model, field, accession)
+            return query.filter(Accession.code.like(unicode('%s%%' % text)))
+
+        def on_select(value):
+            self.set_model_attr('accession', value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
-            self._set_plant_code_from_text(self.model.code)
-        self.assign_completions_handler('plant_acc_entry', 'accession',
-                                        acc_get_completions,
-                                        set_func=set_in_model,
-                                        format_func=format_acc)
+            #self._set_plant_code_from_text(self.model.code)
+            self.on_plant_code_entry_changed()
+        self.assign_completions_handler('plant_acc_entry', acc_get_completions,
+                                        on_select=on_select)
 
-        #self.assign_simple_handler('plant_code_entry', 'code', StringOrNoneValidator())
-        # TODO: could probably replace this by just passing a valdator
-        # to assign_simple_handler...UPDATE: but can the validator handle
-        # adding a problem to the widget
-        self.view.widgets.plant_code_entry.connect('insert-text',
-                                               self.on_plant_code_entry_insert)
-        self.view.widgets.plant_code_entry.connect('delete-text',
-                                               self.on_plant_code_entry_delete)
+        self.view.widgets.plant_code_entry.connect('changed',
+                                            self.on_plant_code_entry_changed)
+
         self.assign_simple_handler('plant_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
@@ -426,36 +405,23 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.plant_loc_edit_button.connect('clicked',
                                                     self.on_loc_button_clicked,
                                                     'edit')
-        self.init_change_notifier()
+        self.__dirty = False
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
-    def on_plant_code_entry_insert(self, entry, new_text, new_text_length,
-                                   position, data=None):
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_plant_code_from_text(full_text)
-
-
-    def on_plant_code_entry_delete(self, entry, start, end, data=None):
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_plant_code_from_text(full_text)
-
-
-    def _set_plant_code_from_text(self, text):
-        count_plants = lambda acc_id, code: plant_table.select(and_(plant_table.c.accession_id==acc_id, plant_table.c.code==code)).alias('__dummy').count().scalar()
+    def on_plant_code_entry_changed(self, *args):
+        text = self.view.widgets.plant_code_entry.get_text()
+        count_plants = lambda acc_id, code: self.session.query(Plant).join('accession').filter(Plant.code==code).count()
         # NOTE: we have to reference self.model.accession.id instead of
         # self.model.accession_id b/c setting the first doesn't set the second
         def problem():
             self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
                              self.view.widgets.plant_code_entry)
-            self.model.code = None
-        text = unicode(text)
+            self.set_model_attr('code', None)
+        text = utils.utf8(text)
         if self.model.accession is None:
             problem()
             return
@@ -471,34 +437,27 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
                             self.view.widgets.plant_code_entry)
         if text is '':
-            self.model.code = None
+            self.set_model_attr('code', None)
         else:
-            self.model.code = text
-
-
-    def init_change_notifier(self):
-        '''
-        for each widget register a signal handler to be notified when the
-        value in the widget changes, that way we can do things like sensitize
-        the ok button
-        '''
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+            self.set_model_attr('code', text)
 
 
     def refresh_sensitivity(self):
-#         def set_accept_buttons_sensitive(sensitive):
-
+        #def set_accept_buttons_sensitive(sensitive):
+        debug(self.model.code)
         sensitive = (self.model.accession is not None and \
                      self.model.code is not None and \
                      self.model.location is not None) \
-                     and self.model.dirty is not None
+                     and self.dirty() and len(self.problems)==0
         self.view.widgets.plant_ok_button.set_sensitive(sensitive)
         self.view.widgets.plant_next_button.set_sensitive(sensitive)
 
 
-    def on_field_changed(self, model, field):
-#        debug('on field changed: %s = %s' % (field, getattr(model, field)))
+    def set_model_attr(self, field, value, validator=None):
+        debug('set_model_attr(%s, %s)' % (field, value))
+        super(PlantEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
+        self.__dirty = True
         self.refresh_sensitivity()
 
 
@@ -558,7 +517,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 #            elif field is 'location_id':
 #                value = self.model.location
 #            else:
-            value = self.model[field]
+            value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
         self.refresh_sensitivity()
 

@@ -167,39 +167,33 @@ class DonorEditorPresenter(GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
-        super(DonorEditorPresenter, self).__init__(ModelDecorator(model), view)
+        super(DonorEditorPresenter, self).__init__(model, view)
         model = gtk.ListStore(str)
-        # init the donor types, only needs to be done once
-        #for value in self.model.columns['donor_type'].enumValues:
-        #column = self.model.c[donor_type']]
-        for enum in sorted(self.model.c.donor_type.type.values):
-            model.append([enum])
-        self.view.widgets.don_type_combo.set_model(model)
+        self.init_enum_combo('don_type_combo', 'donor_type')
+
 
         self.refresh_view()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
-
-        # for each widget register a signal handler to be notified when the
-        # value in the widget changes, that way we can do things like sensitize
-        # the ok button
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+        self.__dirty = False
 
 
-    def on_field_changed(self, model, field):
+    def set_model_attr(self, field, value, validator=None):
+        super(DonorEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
+        self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
 #            debug('donor refresh(%s, %s=%s)' % (widget, field,
 #                                                self.model[field]))
-            self.view.set_widget_value(widget, self.model[field])
+            self.view.set_widget_value(widget, getattr(self.model, field))
 
 
     def start(self, commit_transaction=True):

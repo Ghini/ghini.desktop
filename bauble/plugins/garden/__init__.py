@@ -32,7 +32,6 @@ def natsort_kids(kids):
     return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
 
 
-
 class GardenPlugin(pluginmgr.Plugin):
 
 
