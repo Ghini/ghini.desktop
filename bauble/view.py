@@ -512,8 +512,8 @@ class MapperSearch(SearchStrategy):
                     else:
                         return v
                 mapper = class_mapper(cls)
-                q =q.filter(or_(*[like(mapper, c, unicol(c, v)) \
-                                  for c,v in cv]))
+                q = q.filter(or_(*[like(mapper, c, unicol(c, v)) \
+                                   for c,v in cv]))
                 results.add(q)
         elif 'expression' in tokens:
             #debug(tokens.dump())
@@ -561,7 +561,21 @@ class MapperSearch(SearchStrategy):
                     # properties are setup properly then they could be
                     # used directly in the search string
                     for col in properties:
-                        results.add(query.filter(mapper.c[col].op(cond)(val)))
+                        # TODO: i don't think we should really even be
+                        # respecting the condition here, we should
+                        # just use like for everything
+                        #
+                        #results.add(query.filter(mapper.c[col].op(cond)(val)))
+                        #
+                        # TODO: i don't know how well this will work
+                        # out if we're search for numbers
+                        #
+                        # search for differernt variations on the same
+                        # string
+                        values=[val, val.lower(), val.upper(),
+                                val.capitalize(), val.lower().capitalize()]
+                        ors = or_(*map(mapper.c[col].op(cond), values))
+                        results.add(query.filter(ors))
         elif 'query' in tokens:
             results.add(self._get_results_from_query(tokens, session))
 

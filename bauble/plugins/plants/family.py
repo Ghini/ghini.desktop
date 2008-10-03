@@ -257,7 +257,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         #debug('set_model_attr(%s, %s)' % (field, value))
         super(FamilyEditorPresenter, self).set_model_attr(field, value,
                                                           validator)
-        self._dirty = True
+        self.__dirty = True
         sensitive = self.model.family and True or False
         self.view.set_accept_buttons_sensitive(sensitive)
 

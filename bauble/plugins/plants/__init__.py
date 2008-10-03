@@ -34,6 +34,21 @@ class PlantsPlugin(pluginmgr.Plugin):
 
     @classmethod
     def init(cls):
+
+        if 'GardenPlugin' in pluginmgr.plugins:
+            species_context_menu = [(_('Edit'), edit_callback),
+                                    ('--', None),
+                                    (_('Add accession'),
+                                     add_accession_callback),
+                                    ('--', None),
+                                    (_('Remove'), remove_callback)]
+
+            vernname_context_menu = [(_('Edit'),
+                                      call_on_species(edit_callback)),
+                                     ('--', None),
+                                     (_('Add accession'),
+                                      call_on_species(add_accession_callback))]
+
         mapper_search = SearchView.get_search_strategy('MapperSearch')
 
         mapper_search.add_meta(('family', 'fam'), Family, ['family'])
@@ -88,7 +103,8 @@ class PlantsPlugin(pluginmgr.Plugin):
         do any setup and configuration required bt this plugin like
         creating tables, etc...
         """
-        cls.create_tables()
+        #cls.create_tables()
+        pass
 
 
 plugin = PlantsPlugin
