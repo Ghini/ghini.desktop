@@ -804,9 +804,6 @@ class GeneralGenusExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        #
-        # TEMPORARILY DISABLED
-        #
         session = bauble.Session()
         self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \

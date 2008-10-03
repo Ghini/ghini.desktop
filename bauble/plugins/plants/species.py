@@ -13,7 +13,8 @@ __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
            'species_context_menu', 'species_markup_func', 'species_get_kids',
            'vernname_get_kids', 'vernname_markup_func',
            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
-           'VernacularNameInfoBox', 'SpeciesDistribution']
+           'VernacularNameInfoBox', 'SpeciesDistribution', 'edit_callback',
+           'add_accession_callback', 'remove_callback', 'call_on_species']
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
@@ -49,29 +50,18 @@ def remove_callback(value):
 def call_on_species(func):
     return lambda value : func(value.species)
 
-if 'GardenPlugin' in pluginmgr.plugins:
-    def add_accession_callback(value):
-        from bauble.plugins.garden.accession import AccessionEditor
-        session = bauble.Session()
-        e = AccessionEditor(model=Accession(species=session.merge(value)))
-        return e.start() != None
+def add_accession_callback(value):
+    from bauble.plugins.garden.accession import Accession, AccessionEditor
+    session = bauble.Session()
+    e = AccessionEditor(model=Accession(species=session.merge(value)))
+    return e.start() != None
 
-    species_context_menu = [(_('Edit'), edit_callback),
-                            ('--', None),
-                            (_('Add accession'), add_accession_callback),
-                            ('--', None),
-                            (_('Remove'), remove_callback)]
 
-    vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
-                             ('--', None),
-                             (_('Add accession'),
-                              call_on_species(add_accession_callback))]
-else:
-    species_context_menu = [(_('Edit'), edit_callback),
-                            ('--', None),
-                            (_('Remove'), remove_callback)]
-    vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
-                             ('--', None)]
+species_context_menu = [(_('Edit'), edit_callback),
+                        ('--', None),
+                        (_('Remove'), remove_callback)]
+vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
+                         ('--', None)]
 
 
 def species_markup_func(species):
@@ -253,10 +243,7 @@ class GeneralSpeciesExpander(InfoExpander):
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the
         # species name
-        #
-        # TEMPORARILY DISABLED
-        #
-
+        session = bauble.Session()
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
         self.set_widget_value('sp_dist_data', row.distribution_str())
