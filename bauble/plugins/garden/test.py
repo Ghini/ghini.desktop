@@ -1,18 +1,18 @@
 import unittest
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
-from testbase import BaubleTestCase, log
+#from testbase import BaubleTestCase, log
+from bauble.test import BaubleTestCase
 import bauble.utils as utils
-from bauble.plugins.garden.accession import Accession, accession_table, \
-    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
-from bauble.plugins.garden.donor import Donor, donor_table
-from bauble.plugins.garden.source import Donation, donation_table, \
-     Collection, collection_table
-from bauble.plugins.garden.plant import plant_table
-from bauble.plugins.garden.location import location_table
-from bauble.plugins.plants.family import family_table
-from bauble.plugins.plants.genus import genus_table
-from bauble.plugins.plants.species_model import Species, species_table
+from bauble.plugins.garden.accession import Accession, dms_to_decimal, \
+     decimal_to_dms, longitude_to_dms, latitude_to_dms
+from bauble.plugins.garden.donor import Donor
+from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.location import Location
+from bauble.plugins.plants.family import Family
+from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution
 
@@ -41,19 +41,20 @@ donation_test_data = ({'id': 1, 'accession_id': 1, 'donor_id': 1},
 collection_test_data = ({'id': 1, 'accession_id': 2, 'locale': u'Somewhere'},
                         )
 
-test_data_table_control = ((accession_table, accession_test_data),
-                           (location_table, location_test_data),
-                           (plant_table, plant_test_data),
-                           (donor_table, donor_test_data),
-                           (donation_table, donation_test_data),
-                           (collection_table, collection_test_data))
+test_data_table_control = ((Accession, accession_test_data),
+                           (Location, location_test_data),
+                           (Plant, plant_test_data),
+                           (Donor, donor_test_data),
+                           (Donation, donation_test_data),
+                           (Collection, collection_test_data))
 
 def setUp_test_data():
     '''
     if this method is called again before tearDown_test_data is called you
     will get an error about the test data rows already existing in the database
     '''
-    for table, data in test_data_table_control:
+    for cls, data in test_data_table_control:
+        table = cls.__table__
         for row in data:
             table.insert().execute(row)
         for col in table.c:
@@ -68,7 +69,8 @@ def setUp_test_data():
 
 
 def tearDown_test_data():
-    for table, data in test_data_table_control:
+    for cls, data in test_data_table_control:
+        table = cls.__table__
         for row in data:
             #print 'delete %s %s' % (table, row['id'])
             table.delete(table.c.id==row['id']).execute()
@@ -114,8 +116,8 @@ class DonorTests(GardenTestCase):
         super(DonorTests, self).__init__(*args)
 
     def test_delete_donor(self):
-        acc = self.session.load(Accession, 1)
-        donor = self.session.load(Donor, 1)
+        acc = self.session.query(Accession).get(1)
+        donor = self.session.query(Donor).get(1)
         donation = Donation()
         donation.donor = donor
         acc.source = donation
@@ -125,7 +127,7 @@ class DonorTests(GardenTestCase):
         # do the rest in a new session
         import bauble
         session = bauble.Session()
-        donor = session.load(Donor, 1)
+        donor = session.query(Donor).get(1)
         # shouldn't be allowed to delete donor if it has donations,
         # what is happening here is that when deleting the donor the
         # corresponding donations.donor_id's are being be set to null which
@@ -141,8 +143,8 @@ class AccessionTests(GardenTestCase):
         super(AccessionTests, self).__init__(*args)
 
     def test_set_source(self):
-        acc = self.session.load(Accession, 1)
-        donor = self.session.load(Donor, 1)
+        acc = self.session.query(Accession).get(1)
+        donor = self.session.query(Donor).get(1)
 
         # set source on accession as a Donation
         donation = Donation()
@@ -150,7 +152,7 @@ class AccessionTests(GardenTestCase):
         acc.source = donation
         self.session.flush()
         self.session.expire(acc)
-        acc = self.session.load(Accession, 1)
+        acc = self.session.query(Accession).get(1)
         self.assertEquals(acc.source.id, donation.id)
         self.assertEquals(acc.source_type, u'Donation')
 
@@ -166,8 +168,9 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source_type, u'Donation')
 
         # make sure the old donation gets deleted since it's an orphan
-        self.assertRaises(InvalidRequestError, self.session.load, Donation,
-                          old_donation_id)
+        print self.session.query(Donation).get(old_donation_id)
+        self.assertRaises(InvalidRequestError,
+                          self.session.query(Donation).get, old_donation_id)
 
         # delete the source
         donation = Donation()
@@ -192,8 +195,9 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source_type, None)
 
         # make sure the orphaned donation get's deleted
-        self.assertRaises(InvalidRequestError, self.session.load, Donation,
-                          old_donation_id)
+        #print self.session.query(Donation).get(old_donation_id)
+        self.assertRaises(InvalidRequestError,
+                          self.session.query(Donation).get, old_donation_id)
 
         # set accession.source to a Collection
         collection = Collection(locale=u'TestAccLocale')
@@ -248,7 +252,7 @@ class AccessionTests(GardenTestCase):
         The bug is here just to check if this ever gets fixed.
         """
         import bauble.utils.log as log
-        sp = self.session.load(Species, 1)
+        sp = self.session.query(Species).get(1)
         acc = Accession()
         self.session.save(acc)
         acc.species = sp
