@@ -22,6 +22,7 @@ from bauble.utils.log import debug
 from bauble.types import Enum
 import bauble.meta as meta
 from bauble.view import MapperSearch
+from bauble.plugins.garden.location import Location
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
 # already exists with the accession number, this probably won't work though
@@ -112,17 +113,27 @@ class PlantSearch(MapperSearch):
 
 
 
-plant_history_table = bauble.Table('plant_history', bauble.metadata,
-                            Column('id', Integer, primary_key=True),
-                            Column('date', Date),
-                            Column('description', UnicodeText),
-                            Column('plant_id', Integer, ForeignKey('plant.id'),
-                                   nullable=False))
+class PlantHistory(bauble.Base):
+    __tablename__ = 'plant_history'
+    _mapper_args__ = {'order_by': 'date'}
+    date = Column(Date)
+    description = Column(UnicodeText)
+    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 
-
-class PlantHistory(bauble.BaubleMapper):
     def __str__(self):
         return '%s: %s' % (self.date, self.description)
+
+# plant_history_table = bauble.Table('plant_history', bauble.metadata,
+#                             Column('id', Integer, primary_key=True),
+#                             Column('date', Date),
+#                             Column('description', UnicodeText),
+#                             Column('plant_id', Integer, ForeignKey('plant.id'),
+#                                    nullable=False))
+
+
+# class PlantHistory(bauble.BaubleMapper):
+#     def __str__(self):
+#         return '%s: %s' % (self.date, self.description)
 
 
 # TODO: where should i put the plant table's doc string
@@ -147,29 +158,29 @@ class PlantHistory(bauble.BaubleMapper):
 # None: no information, unknown)
 # """
 
-plant_table = bauble.Table('plant', bauble.metadata,
-                    Column('id', Integer, primary_key=True),
-                    Column('code', Unicode(6), nullable=False),
-                    Column('acc_type',
-                           Enum(values=['Plant', 'Seed/Spore',
-                                        'Vegetative Part',  'Tissue Culture',
-                                        'Other', None], empty_to_none=True)),
-                    Column('acc_status', Enum(values=['Living accession',
-                                                      'Dead', 'Transferred',
-                                                     'Stored in dormant state',
-                                                      'Other', None],
-                                              empty_to_none=True)),
-                    Column('notes', UnicodeText),
-                    Column('accession_id', Integer, ForeignKey('accession.id'),
-                           nullable=False),
-                    Column('location_id', Integer, ForeignKey('location.id'),
-                           nullable=False),
-                    UniqueConstraint('code', 'accession_id',
-                                     name='plant_index'))
 
+class Plant(bauble.Base):
+    __tablename__ = 'plant'
+    __table_args = (UniqueConstraint('code', 'accession_id'),
+                    {})
+    __mapper_args__ = {'order_by': ['accession_id', 'code']}
 
+    # columns
+    code = Column(Unicode(6), nullable=False)
 
-class Plant(bauble.BaubleMapper):
+    acc_type = Column(Enum(values=['Plant', 'Seed/Spore', 'Vegetative Part',
+                                   'Tissue Culture', 'Other', None]),
+                      default=None)
+    acc_status = Column(Enum(values=['Living accession', 'Dead', 'Transferred',
+                                     'Stored in dormant state', 'Other',
+                                     None]),
+                        default=None)
+    notes = Column(UnicodeText)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+    location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+
+    # relations
+    history = relation('PlantHistory', backref='plant')
 
     __delimiter = None
 
@@ -202,15 +213,75 @@ class Plant(bauble.BaubleMapper):
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
                                 self.accession.species.markup())
 
+# plant_table = bauble.Table('plant', bauble.metadata,
+#                     Column('id', Integer, primary_key=True),
+#                     Column('code', Unicode(6), nullable=False),
+#                     Column('acc_type',
+#                            Enum(values=['Plant', 'Seed/Spore',
+#                                         'Vegetative Part',  'Tissue Culture',
+#                                         'Other', None], empty_to_none=True)),
+#                     Column('acc_status', Enum(values=['Living accession',
+#                                                       'Dead', 'Transferred',
+#                                                      'Stored in dormant state',
+#                                                       'Other', None],
+#                                               empty_to_none=True)),
+#                     Column('notes', UnicodeText),
+#                     Column('accession_id', Integer, ForeignKey('accession.id'),
+#                            nullable=False),
+#                     Column('location_id', Integer, ForeignKey('location.id'),
+#                            nullable=False),
+#                     UniqueConstraint('code', 'accession_id',
+#                                      name='plant_index'))
+
+
+
+# class Plant(bauble.BaubleMapper):
+
+#     __delimiter = None
+
+#     @staticmethod
+#     def refresh_delimiter(cls):
+#         row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
+#                                             plant_delimiter_key).execute()
+#         Plant.__delimiter = row.fetchone()['value']
+
+#     def __get_delimiter(self):
+#         if Plant.__delimiter is None:
+#             row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
+#             result = row.fetchone()
+#             check(result is not None, 'plant delimiter not set in bauble meta')
+#             Plant.__delimiter = result['value']
+#         return Plant.__delimiter
+
+#     delimiter = property(__get_delimiter)
+
+
+#     def __str__(self):
+#         return "%s%s%s" % (self.accession, self.delimiter, self.code)
+
+
+#     def markup(self):
+#         #return "%s.%s" % (self.accession, self.plant_id)
+#         # FIXME: this makes expanding accessions look ugly with too many
+#         # plant names around but makes expanding the location essential
+#         # or you don't know what plants you are looking at
+#         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
+#                                 self.accession.species.markup())
+
 
 from bauble.plugins.garden.accession import Accession
 #
 # setup mappers
 #
-plant_mapper = mapper(Plant, plant_table,
-       properties={'history': relation(PlantHistory, backref='plant')})
-mapper(PlantHistory, plant_history_table, order_by='date')
+# plant_mapper = mapper(Plant, plant_table,
+#        properties={'history': relation(PlantHistory, backref='plant')})
+# mapper(PlantHistory, plant_history_table, order_by='date')
 
+
+def enum_values_str(col):
+    table_name, col_name = col.split('.')
+    debug('%s.%s' % (table_name, col_name))
+    return ''
 
 def _val_str(col):
     s = [str(v) for v in col.type.values if v is not None]
@@ -234,10 +305,10 @@ class PlantEditorView(GenericEditorView):
         'plant_loc_combo': _('The location of the plant in your collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n'
                                   'Possible values: %s' %
-                                  _val_str(plant_table.c.acc_type)),
+                                  enum_values_str('plant.acc_type')),
         'plant_acc_status_combo': _('The status of this plant in the '
                                     'collection.\nPossible values: %s' %
-                                    _val_str(plant_table.c.acc_status)),
+                                    enum_values_str('plant.acc_status')),
         'plant_notes_textview': _('Miscelleanous notes about this plant.'),
         }
 
@@ -731,4 +802,4 @@ class PlantInfoBox(InfoBox):
 
 
 from bauble.plugins.garden.accession import Accession
-from bauble.plugins.garden.location import Location, LocationEditor
+#from bauble.plugins.garden.location import Location, LocationEditor

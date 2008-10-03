@@ -39,7 +39,9 @@ class Institution(Singleton):
     __properties = ('name', 'abbreviation', 'code', 'contact',
                     'technical_contact', 'email', 'tel', 'fax', 'address')
     __db_tmpl = 'inst_%s'
-    table = meta.bauble_meta_table
+    #table = meta.bauble_meta_table
+    # TODO: update this to not use this table directly
+    table = meta.BaubleMeta.__table__
     prop = lambda s, p: unicode(s.__db_tmpl % p)
 
     def __getattr__(self, prop):

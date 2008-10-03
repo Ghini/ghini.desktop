@@ -8,18 +8,18 @@ from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
-from bauble.plugins.garden.accession import accession_table, Accession, \
+from bauble.plugins.garden.accession import Accession, \
     AccessionEditor, AccessionInfoBox, acc_context_menu, acc_markup_func, \
     SourceInfoBox
-from bauble.plugins.garden.location import location_table, Location, \
+from bauble.plugins.garden.location import Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
-from bauble.plugins.garden.plant import plant_table, Plant, \
-    plant_history_table, PlantHistory, PlantEditor, PlantInfoBox, \
+from bauble.plugins.garden.plant import Plant, \
+    PlantHistory, PlantEditor, PlantInfoBox, \
     plant_context_menu, plant_markup_func, plant_delimiter_key, \
     default_plant_delimiter, PlantSearch
-from bauble.plugins.garden.source import donation_table, Donation, \
-    collection_table, Collection, source_markup_func
-from bauble.plugins.garden.donor import donor_table, Donor, DonorEditor, \
+from bauble.plugins.garden.source import Donation, \
+    Collection, source_markup_func
+from bauble.plugins.garden.donor import Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
 import bauble.plugins.garden.institution
 from bauble.utils.log import debug
@@ -34,9 +34,6 @@ def natsort_kids(kids):
 
 
 class GardenPlugin(pluginmgr.Plugin):
-
-    tables = [accession_table, location_table, plant_table, donor_table,
-              donation_table, collection_table, plant_history_table]
 
 
     @classmethod
@@ -83,7 +80,7 @@ class GardenPlugin(pluginmgr.Plugin):
 
         # if the plant delimiter isn't in the bauble meta then add the default
         import bauble.meta as meta
-        table = meta.bauble_meta_table
+        table = meta.BaubleMeta.__table__
         sel = table.select(table.c.name==plant_delimiter_key).execute()
         if sel.fetchone() is None:
             table.insert().execute(name=plant_delimiter_key,

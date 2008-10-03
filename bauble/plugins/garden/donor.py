@@ -13,7 +13,7 @@ from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
 import bauble.utils.sql as sql_utils
-from bauble.plugins.garden.source import donation_table, Donation
+from bauble.plugins.garden.source import Donation
 
 
 def edit_callback(value):
@@ -44,45 +44,82 @@ donor_context_menu = [('Edit', edit_callback),
                       ('Remove', remove_callback)]
 
 
+# TODO: make sure that you can't delete the donor if donations exist, this
+# should have a test
+
 # TODO: show list of donations given by donor if searching for the donor name
 # in the search view
 # TODO: the donor_type could be either be character codes or possible a foreign
 # key into another table
-donor_table = bauble.Table('donor', bauble.metadata,
-                    Column('id', Integer, primary_key=True),
-                    Column('name', Unicode(72), unique=True, nullable=False),
-                    Column('donor_type',
-                           Enum(values=['Expedition',
-                                    "Gene bank",
-                                    "Botanic Garden or Arboretum",
-                                    "Research/Field Station",
-                                    "Staff member",
-                                    "University Department",
-                                    "Horticultural Association/Garden Club",
-                                    "Municipal department",
-                                    "Nursery/Commercial",
-                                    "Individual",
-                                    "Other",
-                                    "Unknown",
-                                    None], empty_to_none=True)),
-                    Column('address', UnicodeText),
-                    Column('email', Unicode(128)),
-                    Column('fax', Unicode(64)),
-                    Column('tel', Unicode(64)),
-                    Column('notes', UnicodeText))
+class Donor(bauble.Base):
+    __tablename__ = 'donor'
+    __mapper_args__ = {'order_by': 'name'}
 
-class Donor(bauble.BaubleMapper):
+    # columns
+    name = Column(Unicode(72), unique=True, nullable=False)
+    donor_type = Column('donor_type',
+                        Enum(values=['Expedition',
+                                     "Gene bank",
+                                     "Botanic Garden or Arboretum",
+                                     "Research/Field Station",
+                                     "Staff member",
+                                     "University Department",
+                                     "Horticultural Association/Garden Club",
+                                     "Municipal department",
+                                     "Nursery/Commercial",
+                                     "Individual",
+                                     "Other",
+                                     "Unknown",
+                                     None]),
+                        default=None)
+    address = Column(UnicodeText)
+    email = Column(Unicode(128))
+    fax = Column(Unicode(64))
+    tel = Column(Unicode(64))
+    notes = Column(UnicodeText)
+
+    # relations:
+    donations = relation(Donation, backref=backref('donor', uselist=False))
 
     def __str__(self):
         return self.name
 
-# TODO: make sure that you can't delete the donor if donations exist, this
-# should have a test
-mapper(Donor, donor_table,
-       properties={'donations':
-                   relation(Donation,
-                            backref=backref('donor', uselist=False))},
-       order_by='name')
+
+
+# donor_table = bauble.Table('donor', bauble.metadata,
+#                     Column('id', Integer, primary_key=True),
+#                     Column('name', Unicode(72), unique=True, nullable=False),
+#                     Column('donor_type',
+#                            Enum(values=['Expedition',
+#                                     "Gene bank",
+#                                     "Botanic Garden or Arboretum",
+#                                     "Research/Field Station",
+#                                     "Staff member",
+#                                     "University Department",
+#                                     "Horticultural Association/Garden Club",
+#                                     "Municipal department",
+#                                     "Nursery/Commercial",
+#                                     "Individual",
+#                                     "Other",
+#                                     "Unknown",
+#                                     None], empty_to_none=True)),
+#                     Column('address', UnicodeText),
+#                     Column('email', Unicode(128)),
+#                     Column('fax', Unicode(64)),
+#                     Column('tel', Unicode(64)),
+#                     Column('notes', UnicodeText))
+
+# class Donor(bauble.BaubleMapper):
+
+#     def __str__(self):
+#         return self.name
+
+
+# mapper(Donor, donor_table,
+#        properties={'donations':
+#                    relation(Donation,
+#                             backref=backref('donor', uselist=False))},
+#        order_by='name')
 
 
 class DonorEditorView(GenericEditorView):

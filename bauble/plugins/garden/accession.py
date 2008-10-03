@@ -195,57 +195,58 @@ def acc_markup_func(acc):
 
 # TODO: see HISPID for a good explanation of what should be included
 # in the verification data
-verification_table = bauble.Table('verification', bauble.metadata,
-                           Column('id', Integer, primary_key=True),
-                           Column('verifier', Unicode(64)),
-                           Column('date', Date),
-                           Column('literature', UnicodeText),
-                           Column('level', Text),# i don't know what this is
-                           Column('accession_id', Integer,
-                                  ForeignKey('accession.id')))
+class Verification(bauble.Base):
+    __tablename__ = 'verification'
+    verifier = Column('verifier', Unicode(64))
+    date = Column(Date)
+    literature = Column(UnicodeText) # citation?
+    level = Column(Text)# i don't know what this is..certainty maybe?
+    accession_id = Column(Integer, ForeignKey('accession.id'))
 
 
-class Verification(bauble.BaubleMapper):
-    pass
 
 
-accession_table = bauble.Table('accession', bauble.metadata,
-                        Column('id', Integer, primary_key=True),
-                        Column('code', Unicode(20), nullable=False,
-                               unique=True),
-                        Column('prov_type',
-                               Enum(values=['Wild',
-                                          'Propagule of cultivated wild plant',
-                                            "Not of wild source",
-                                            "Insufficient Data",
-                                            "Unknown",
-                                            None],
-                                    empty_to_none=True)),
-                        Column('wild_prov_status',
-                               Enum(values=["Wild native",
+class Accession(bauble.Base):
+    __tablename__ = 'accession'
+    __mapper_args__ = {'order_by': 'code'}
+
+    # columns
+    code = Column(Unicode(20), nullable=False, unique=True)
+    prov_type = Column(Enum(values=['Wild',
+                                    'Propagule of cultivated wild plant',
+                                    "Not of wild source",
+                                    "Insufficient Data",
+                                    "Unknown",
+                                    None]), default=None)
+    wild_prov_status = Column(Enum(values=["Wild native",
                                             "Wild non-native",
                                             "Cultivated native",
                                             "Insufficient Data",
                                             "Unknown",
-                                            None],
-                                    empty_to_none=True)),
-                        Column('date', Date),
-                        Column('source_type',
-                               Enum(values=['Collection', 'Donation',
-                                            None], empty_to_none=True)),
-                        Column('notes', UnicodeText),
-                        # "id_qual" new in 0.7
-                        Column('id_qual',
-                               Enum(values=['aff.', 'cf.', 'Incorrect',
-                                            'forsan', 'near', '?', None],
-                                    empty_to_none=True)),
-                        # "private" new in 0.8b2
-                        Column('private', Boolean, default=False),
-                        Column('species_id', Integer, ForeignKey('species.id'),
-                               nullable=False))
+                                            None]), default=None)
+    date = Column(Date)
+    source_type = Column(Enum(values=['Collection', 'Donation', None]),
+                         default=None)
+    notes = Column(UnicodeText)
+    # "id_qual" new in 0.7
+    id_qual = Column(Enum(values=['aff.', 'cf.', 'Incorrect',
+                                  'forsan', 'near', '?', None]),
+                     default=None)
+    # "private" new in 0.8b2
+    private = Column('private', Boolean, default=False)
+    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
-
-class Accession(bauble.BaubleMapper):
+    _collection = relation('Collection', cascade='all, delete-orphan',
+                           uselist=False, backref=backref('_accession',
+                                                          uselist=False))
+    _donation = relation('Donation', cascade='all, delete-orphan',
+                         uselist=False, backref=backref('_accession',
+                                                        uselist=False))
+    plants = relation('Plant', cascade='all, delete-orphan',
+                      order_by='Plant.code', backref='accession')
+    verifications = relation('Verification', #order_by='date',
+                             cascade='all, delete-orphan',
+                             backref='accession')
 
     def __str__(self):
         return self.code
@@ -280,33 +281,70 @@ class Accession(bauble.BaubleMapper):
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
 
+# accession_table = bauble.Table('accession', bauble.metadata,
+#                         Column('id', Integer, primary_key=True),
+#                         Column('code', Unicode(20), nullable=False,
+#                                unique=True),
+#                         Column('prov_type',
+#                                Enum(values=['Wild',
+#                                           'Propagule of cultivated wild plant',
+#                                             "Not of wild source",
+#                                             "Insufficient Data",
+#                                             "Unknown",
+#                                             None],
+#                                     empty_to_none=True)),
+#                         Column('wild_prov_status',
+#                                Enum(values=["Wild native",
+#                                             "Wild non-native",
+#                                             "Cultivated native",
+#                                             "Insufficient Data",
+#                                             "Unknown",
+#                                             None],
+#                                     empty_to_none=True)),
+#                         Column('date', Date),
+#                         Column('source_type',
+#                                Enum(values=['Collection', 'Donation',
+#                                             None], empty_to_none=True)),
+#                         Column('notes', UnicodeText),
+#                         # "id_qual" new in 0.7
+#                         Column('id_qual',
+#                                Enum(values=['aff.', 'cf.', 'Incorrect',
+#                                             'forsan', 'near', '?', None],
+#                                     empty_to_none=True)),
+#                         # "private" new in 0.8b2
+#                         Column('private', Boolean, default=False),
+#                         Column('species_id', Integer, ForeignKey('species.id'),
+#                                nullable=False))
 
-from bauble.plugins.garden.source import Donation, donation_table, \
-    Collection, collection_table
-from bauble.plugins.garden.plant import Plant, PlantEditor, plant_table
+
+
+
+
+from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.plant import Plant, PlantEditor
 
 
 # NOTES: be careful with the _accession property on the Collection and
 # Donation tables, if you try to set the accession for one of these objects
 # using the _accession property you will have problems using Accession.source
 # because the Accession.source_type property won't be set
-mapper(Accession, accession_table,
-    properties = {\
-        '_collection':
-        relation(Collection, cascade='all, delete-orphan', uselist=False,
-                 backref=backref('_accession', uselist=False)),
-        '_donation':
-        relation(Donation, cascade='all, delete-orphan', uselist=False,
-                 backref=backref('_accession', uselist=False)),
-        'plants':
-        relation(Plant, cascade='all, delete-orphan',
-                 order_by=plant_table.c.code, backref='accession'),
-        'verifications':
-        relation(Verification, order_by='date', cascade='all, delete-orphan',
-                 backref='accession')},
-       )
+# mapper(Accession, accession_table,
+#     properties = {\
+#         '_collection':
+#         relation(Collection, cascade='all, delete-orphan', uselist=False,
+#                  backref=backref('_accession', uselist=False)),
+#         '_donation':
+#         relation(Donation, cascade='all, delete-orphan', uselist=False,
+#                  backref=backref('_accession', uselist=False)),
+#         'plants':
+#         relation(Plant, cascade='all, delete-orphan',
+#                  order_by=plant_table.c.code, backref='accession'),
+#         'verifications':
+#         relation(Verification, order_by='date', cascade='all, delete-orphan',
+#                  backref='accession')},
+#        )
 
-mapper(Verification, verification_table)
+# mapper(Verification, verification_table)
 
 
 # TODO: we don't use this anymore i don't think and its broken
@@ -351,15 +389,15 @@ class AccessionEditorView(GenericEditorView):
                                "Species editor."),
         'acc_code_entry': _("The accession ID must be a unique code"),
         'acc_id_qual_combo': _("The ID Qualifier\n\n"
-                               "Possible values: %s" %
-                               _val_str(accession_table.c.id_qual)),
+                               "Possible values: %s"),
+                              #% _val_str(accession_table.c.id_qual)),
         'acc_date_entry': _('The date this species was accessioned.'),
         'acc_prov_combo': _('The origin or source of this accession.\n\n'
-                            'Possible values: %s' %
-                            _val_str(accession_table.c.prov_type)),
+                            'Possible values: %s'),
+                            #% _val_str(accession_table.c.prov_type)),
         'acc_wild_prov_combo': _('The wild status is used to clarify the '
-                                 'provenance\n\nPossible values: %s' %
-                                 _val_str(accession_table.c.wild_prov_status)),
+                                 'provenance\n\nPossible values: %s'),
+                                 #% _val_str(accession_table.c.wild_prov_status)),
         'acc_source_type_combo': _('The source type is in what way this '
                                    'accession was obtained'),
         'acc_notes_textview': _('Miscelleanous notes about this accession.'),
@@ -1018,12 +1056,16 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # connect signals
         def sp_get_completions(text):
             query = self.session.query(Species)
-            return query.filter(and_(species_table.c.genus_id == \
-                                     genus_table.c.id,
-                                or_(genus_table.c.genus.like('%s%%' % text),
-                                    genus_table.c.hybrid==utils.utf8(text))))
+            return query.filter(and_(Species.genus_id == Genus.id,
+                                     or_(Genus.genus.like('%s%%' % text),
+                                         Genus.hybrid==utils.utf8(text))))
+#             return query.filter(and_(species_table.c.genus_id == \
+#                                      genus_table.c.id,
+#                                 or_(genus_table.c.genus.like('%s%%' % text),
+#                                     genus_table.c.hybrid==utils.utf8(text))))
         def set_in_model(self, field, value):
-            setattr(self.model, field, value)
+            self.set_model_attr(field, value)
+            #setattr(self.model, field, value)
         self.assign_completions_handler('acc_species_entry', 'species',
                                         sp_get_completions,
                                         set_func=set_in_model)
@@ -1493,8 +1535,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 
 
 # import at the bottom to avoid circular dependencies
-from bauble.plugins.plants.genus import Genus, genus_table
-from bauble.plugins.plants.species_model import Species, species_table
+from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.donor import Donor, DonorEditor
 
 #

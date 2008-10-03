@@ -21,6 +21,7 @@ def edit_callback(value):
 
 def add_plant_callback(value):
     session = bauble.Session()
+    from bauble.plugins.garden.plant import PlantEditor
     e = PlantEditor(model=Plant(location=session.merge(value)))
     return e.start() != None
 
@@ -57,22 +58,36 @@ def loc_markup_func(location):
         return str(location)
 
 
-location_table = bauble.Table('location', bauble.metadata,
-                       Column('id', Integer, primary_key=True),
-                       Column('site', Unicode(64), unique=True,nullable=False),
-                       Column('description', UnicodeText))
+class Location(bauble.Base):
+    __tablename__ = 'location'
+    __mapper_args__ = {'order_by': 'site'}
 
+    # columns
+    site = Column(Unicode(64), unique=True, nullable=False)
+    description = Column(UnicodeText)
 
-class Location(bauble.BaubleMapper):
+    # relations
+    plants = relation('Plant', backref=backref('location', uselist=False))
+
     def __str__(self):
-        return self.site
+        return str(self.site)
+
+# location_table = bauble.Table('location', bauble.metadata,
+#                        Column('id', Integer, primary_key=True),
+#                        Column('site', Unicode(64), unique=True,nullable=False),
+#                        Column('description', UnicodeText))
 
 
-from bauble.plugins.garden.plant import Plant
+# class Location(bauble.BaubleMapper):
+#     def __str__(self):
+#         return self.site
 
-mapper(Location, location_table, order_by='site',
-       properties={'plants': relation(Plant, backref=backref('location',
-                                                             uselist=False))})
+
+# from bauble.plugins.garden.plant import Plant
+
+# mapper(Location, location_table, order_by='site',
+#        properties={'plants': relation(Plant, backref=backref('location',
+#                                                              uselist=False))})
 
 
 class LocationEditorView(GenericEditorView):
@@ -121,7 +136,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         model: should be an instance of class Accession
         view: should be an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, ModelDecorator(model), view)
+        GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
 
         # initialize widgets
@@ -132,20 +147,18 @@ class LocationEditorPresenter(GenericEditorPresenter):
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
-
-        # for each widget register a signal handler to be notified when the
-        # value in the widget changes, that way we can do things like sensitize
-        # the ok button
-        for field in self.widget_to_field_map.values():
-            self.model.add_notifier(field, self.on_field_changed)
+        self.__dirty = False
 
 
-    def on_field_changed(self, model, field):
+    def set_model_attr(self, model, field, validator=None):
+        super(LocationEditorPresenter, self).set_model_attr(model, field,
+                                                            validator)
+        self.__dirty = True
         self.view.set_accept_buttons_sensitive(model.site != None)
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
     def refresh_view(self):
@@ -179,7 +192,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Location()
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        super(LocationEditor, self).__init__(self, model, parent)
         if parent is None:
             parent = bauble.gui.window
         self.parent = parent
@@ -224,6 +237,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
+            from bauble.plugins.garden.plant import PlantEditor
             e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
 
@@ -339,4 +353,4 @@ class LocationInfoBox(InfoBox):
 #
 # import here to avoid circular dependencies
 #
-from bauble.plugins.garden.plant import PlantEditor
+#from bauble.plugins.garden.plant import PlantEditor
