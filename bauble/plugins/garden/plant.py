@@ -152,13 +152,11 @@ class PlantHistory(bauble.Base):
 
 class Plant(bauble.Base):
     __tablename__ = 'plant'
-    __table_args = (UniqueConstraint('code', 'accession_id'),
-                    {})
+    __table_args__ = (UniqueConstraint('code', 'accession_id'), {})
     __mapper_args__ = {'order_by': ['accession_id', 'plant.code']}
 
     # columns
     code = Column(Unicode(6), nullable=False)
-
     acc_type = Column(Enum(values=['Plant', 'Seed/Spore', 'Vegetative Part',
                                    'Tissue Culture', 'Other', None]),
                       default=None)
@@ -276,7 +274,7 @@ def enum_values_str(col):
     #debug('%s.%s' % (table_name, col_name))
     values = bauble.metadata.tables[table_name].c[col_name].type.values[:]
     if None in values:
-        values[values.index(None)] = '<None>'
+        values[values.index(None)] = '&lt;None&gt;'
     return ', '.join(values)
 
 

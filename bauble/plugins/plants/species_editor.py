@@ -871,7 +871,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         self.widgets.sp_ok_button.set_sensitive(sensitive)
         try:
-            import bauble.plugins.accession
+            import bauble.plugins.garden
             self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
         except:
             pass
@@ -988,9 +988,10 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            from bauble.plugins.accession import AccesionEditor, Accession
-            e = AccessionEditor(Accession(species=self.model,
-                                          parent=self.parent))
+            from bauble.plugins.garden.accession import AccessionEditor, \
+                 Accession
+            e = AccessionEditor(Accession(species=self.model),
+                                parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

@@ -102,34 +102,43 @@ class GardenTestCase(BaubleTestCase):
     def setUp(self):
         super(GardenTestCase, self).setUp()
         plants_test.setUp_test_data()
-        setUp_test_data()
+        #setUp_test_data()
+        self.family = Family(family=u'fam')
+        self.genus = Genus(family=self.family, genus=u'gen')
+        self.species = Species(genus=self.genus, sp=u'sp')
+        self.session.add_all([self.family, self.genus, self.species])
+        self.session.commit()
 
     def tearDown(self):
         super(GardenTestCase, self).tearDown()
         plants_test.tearDown_test_data()
-        tearDown_test_data()
+        #tearDown_test_data()
+
+    def create(self, class_, **kwargs):
+        obj = class_(**kwargs)
+        self.session.add(obj)
+        return obj
 
 
 class DonorTests(GardenTestCase):
 
-    # TODO: need to a test to ensure that donor doesn't get deleted if
-    # it is orphaned
+
     def __init__(self, *args):
         super(DonorTests, self).__init__(*args)
 
-    def test_delete_donor(self):
-        acc = self.session.query(Accession).get(1)
-        donor = self.session.query(Donor).get(1)
+    def test_delete(self):
+        acc = self.create(Accession, species=self.species, code=u'1')
+        donor = Donor(name=u'name')
         donation = Donation()
         donation.donor = donor
         acc.source = donation
         self.session.commit()
         self.session.close()
 
-        # do the rest in a new session
+        # test that we can't delete a donor if it has corresponding donations
         import bauble
         session = bauble.Session()
-        donor = session.query(Donor).get(1)
+        donor = session.query(Donor).filter_by(name=u'name').one()
         # shouldn't be allowed to delete donor if it has donations,
         # what is happening here is that when deleting the donor the
         # corresponding donations.donor_id's are being be set to null which
@@ -139,6 +148,35 @@ class DonorTests(GardenTestCase):
         self.assertRaises(SQLError, session.commit)
 
 
+class PlantTests(GardenTestCase):
+    def __init__(self, *args):
+        super(PlantTests, self).__init__(*args)
+
+    def setUp(self):
+        super(PlantTests, self).setUp()
+
+    def tearDown(self):
+        super(PlantTests, self).tearDown()
+
+
+    def test_constraints(self):
+        acc = self.create(Accession, species=self.species, code=u'1')
+        location = Location(site=u'site')
+        plant = Plant(accession=acc, location=location, code=u'1')
+        self.session.commit()
+
+        # test that we can't have duplicate codes with the same accession
+        plant2 = Plant(accession=acc, location=location, code=u'1')
+        self.session.add(plant2)
+        self.assertRaises(IntegrityError, self.session.commit)
+
+    def test_delete(self):
+        """
+        Test that when a plant is deleted...
+        """
+        pass
+
+
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -146,15 +184,54 @@ class AccessionTests(GardenTestCase):
 
     def setUp(self):
         super(AccessionTests, self).setUp()
-        self.family = Family(family=u'fam')
-        self.genus = Genus(family=self.family, genus=u'gen')
-        self.species = Species(genus=self.genus, sp=u'sp')
-        self.session.add_all([self.family, self.genus, self.species])
-        self.session.commit()
 
 
     def tearDown(self):
         super(AccessionTests, self).tearDown()
+
+
+    def test_delete(self):
+        """
+        Test that when an accession is deleted any orphaned rows are
+        cleaned up.
+        """
+        acc = self.create(Accession, species=self.species, code=u'1')
+        plant = self.create(Plant, accession=acc,
+                            location=Location(site=u'site'), code=u'1')
+        self.session.commit()
+
+        # test that the plant is deleted after being orphaned
+        plant_id = plant.id
+        self.session.delete(acc)
+        self.session.commit()
+        self.assert_(not self.session.query(Plant).get(plant_id))
+
+        # test that the donation and collection is deleted after being orphaned
+        #is done in test_source
+#         acc = acc = self.create(Accession, species=self.species, code=u'1')
+#         coll = Collection(locale=u'locale')
+#         acc.source = coll
+#         self.session.add(coll)
+#         self.session.commit()
+#         coll_id = coll.id
+#         self.session.delete(acc)
+#         self.session.commit()
+#         self.assert_(not self.session.query(Plant).get(coll_id))
+        # test that the collection is orphaned after being deleted
+
+    def test_constraints(self):
+        """
+        Test the constraints on the accession table.
+        """
+        acc = Accession(species=self.species, code=u'1')
+        self.session.add(acc)
+        self.session.commit()
+
+        # test that accession.code is unique
+        acc = Accession(species=self.species, code=u'1')
+        self.session.add(acc)
+        self.assertRaises(IntegrityError, self.session.commit)
+
 
     def test_set_source(self):
         #acc = self.session.query(Accession).get(1)
@@ -390,16 +467,4 @@ class DMSConversionTests(unittest.TestCase):
             pass
 
 
-class GardenTestSuite(unittest.TestSuite):
 
-    def __init__(self):
-        super(GardenTestSuite, self).__init__()
-        self.addTests(map(DMSConversionTests, ('test_dms_to_decimal',
-                                               'test_decimal_to_dms',
-                                               'test_parse_lat_lon')))
-        self.addTests(map(AccessionTests, ('test_set_source',
-                                           'test_double_commit')))
-        self.addTests(map(DonorTests, ('test_delete_donor',)))
-
-
-testsuite = GardenTestSuite
