@@ -35,7 +35,8 @@ def remove_callback(value):
         return
     try:
         session = bauble.Session()
-        obj = session.load(value.__class__, value.id)
+        #obj = session.load(value.__class__, value.id)
+        obj = session.query(type(value)).filter_by(id=value.id).one()
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -88,10 +89,11 @@ class TagItemGUI:
         name = unicode(entry.get_text(), encoding='utf-8')
         d.destroy()
 
-        stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
-        if name not in ('', u'') and stmt.scalar() == 0:
-            session = bauble.Session()
-            session.save(Tag(tag=name))
+        #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
+        session = bauble.Session()
+        ntags = session.query(Tag).filter_by(tag=name).count()
+        if name not in ('', u'') and ntags == 0:
+            session.add(Tag(tag=name))
             session.commit()
             model = self.tag_tree.get_model()
             model.append([False, name])
@@ -143,7 +145,7 @@ class TagItemGUI:
         try:
             session = bauble.Session()
             query = session.query(Tag)
-            tag = query.filter(tag_table.c.tag == unicode(tag_name)).one()
+            tag = query.filter_by(tag=unicode(tag_name)).one()
             session.delete(tag)
             session.commit()
             model.remove(row_iter)
@@ -194,25 +196,19 @@ class TagItemGUI:
         self.dialog.destroy()
 
 
-#
-# tag table
-#
-tag_table = bauble.Table('tag', bauble.metadata,
-                  Column('id', Integer, primary_key=True),
-                  Column('tag', Unicode(64), unique=True, nullable=False))
+class Tag(bauble.Base):
+    __tablename__ = 'tag'
+    __mapper_args__ = {'order_by': 'tag'}
 
+    # columns
+    tag = Column(Unicode(64), unique=True, nullable=False)
 
-class Tag(bauble.BaubleMapper):
+    # relations
+    _objects = relation('TaggedObj', cascade='all, delete-orphan',
+                        backref='tag')
 
-    def __init__(self, tag):
-        if not isinstance(tag, unicode):
-            self.tag = unicode(tag, 'utf-8')
-        else:
-            self.tag = tag
-
-    def __str__(self):
-        # TODO: __str__ return unicode ???
-        return self.tag
+    def __unicode__(self):
+        return utils.utf8(self.tag)
 
     def markup(self):
         return '%s Tag' % self.tag
@@ -222,28 +218,18 @@ class Tag(bauble.BaubleMapper):
     objects = property(_get_objects)
 
 
-#
-# tagged_obj table
-#
-# TODO: can class names be unicode, i.e. should obj_class be unicode
-tagged_obj_table = bauble.Table('tagged_obj', bauble.metadata,
-                         Column('id', Integer, primary_key=True),
-                         Column('obj_id', Integer, autoincrement=False),
-                         Column('obj_class', String(128)),
-                         Column('tag_id', Integer, ForeignKey('tag.id')))
+class TaggedObj(bauble.Base):
+    __tablename__ = 'tagged_obj'
 
+    # columns
+    obj_id = Column(Integer, autoincrement=False)
+    obj_class = Column(String(128))
+    # # TODO: can class names be unicode, i.e. should obj_class be unicode
+    tag_id = Column(Integer, ForeignKey('tag.id'))
 
-class TaggedObj(bauble.BaubleMapper):
 
     def __str__(self):
         return '%s: %s' % (self.obj_class.__name__, self.obj_id)
-
-mapper(TaggedObj, tagged_obj_table)
-mapper(Tag, tag_table,
-       properties={'_objects': relation(TaggedObj,
-                                        cascade='all, delete-orphan',
-                                        backref='tag', private=True)},
-       order_by='tag')
 
 
 # TODO: maybe we shouldn't remove the obj from the tag if we can't
@@ -291,12 +277,13 @@ def get_tagged_objects(tag, session=None):
             session = bauble.Session()
     if isinstance(tag, Tag):
         t = tag
-    elif not isinstance(tag, unicode):
-        t = session.query(Tag).filter(tag_table.c.tag==unicode(tag,'utf-8'))[0]
     else:
-        t = session.query(Tag).filter(tag_table.c.tag==tag)[0]
+        t = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
 
-    return [session.load(mapper, obj_id) for mapper, obj_id in _get_tagged_object_pairs(t)]
+    return [session.query(mapper).filter_by(id=obj_id).one() \
+            for mapper, obj_id in _get_tagged_object_pairs(t)]
+#     return [session.load(mapper, obj_id) for mapper, obj_id \
+#             in _get_tagged_object_pairs(t)]
 
 
 def untag_objects(name, objs):
@@ -311,7 +298,8 @@ def untag_objects(name, objs):
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
     session = bauble.Session()
     try:
-        tag = session.query(Tag).filter(tag_table.c.tag==unicode(name)).one()
+        #tag = session.query(Tag).filter(tag_table.c.tag==unicode(name)).one()
+        tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
     except Exception, e:
         debug(traceback.format_exc())
         return
@@ -321,7 +309,8 @@ def untag_objects(name, objs):
             # x = kid
             # y = obj
             if same(kid, obj):
-                o = session.load(type(kid), kid.id)
+                #o = session.load(type(kid), kid.id)
+                o = session.query(type(kid)).filter_by(id=kid.id).one()
                 session.delete(o)
     session.commit()
     session.close()
@@ -345,17 +334,19 @@ def tag_objects(name, objs):
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
-        tag = Tag(name)
-        session.save(tag)
+        tag = Tag(tag=name)
+        session.add(tag)
     for obj in objs:
-        cls = and_(tagged_obj_table.c.obj_class==_classname(obj),
-                   tagged_obj_table.c.obj_id==obj.id,
-                   tagged_obj_table.c.tag_id==tag.id)
+        cls = and_(TaggedObj.obj_class==_classname(obj),
+                   TaggedObj.obj_id==obj.id,
+                   TaggedObj.tag_id==tag.id)
         # SA 0.4.3 gave an error without this _dummy alias
-        if tagged_obj_table.select(cls).alias('_dummy').count().scalar() == 0:
+        #if tagged_obj_table.select(cls).alias('_dummy').count().scalar() == 0:
+        ntagged = session.query(TaggedObj).filter(cls).count()
+        if ntagged == 0:
             tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
                                    tag=tag)
-            session.save(tagged_obj)
+            session.add(tagged_obj)
     # if a new tag is created with the name parameter it is always saved
     # regardless of whether the objects are tagged
     session.commit()
@@ -364,16 +355,28 @@ def tag_objects(name, objs):
 
 def get_tag_ids(objs):
     """
-    return a list of tag id's for tags associated with obj, only returns those
+    @param objs: a list or tuple of objects
+
+    Return a list of tag id's for tags associated with obj, only returns those
     tag ids that are common between all the objs
     """
-    clause = lambda x: and_(tagged_obj_table.c.obj_class==_classname(x),
-                            tagged_obj_table.c.obj_id==x.id)
-    select_stmt = lambda x: select([tagged_obj_table.c.tag_id], clause(x))
-    # TODO: intersect raises an exception on MySQL since MySQL doesn't
-    # support the intersect statement...how do we work around this
-    stmt = intersect(*map(select_stmt, objs))
-    return [i[0] for i in stmt.execute()]
+    # TODO: this function does intersection in the most
+    # straightforward way and could probably do with some optimization
+    #clause = lambda x: and_(TaggedObj.obj_class==_classname(x),
+    #                        TaggedObj.obj_id==x.id)
+    #ors = or_(*map(clause, objs))
+    session = bauble.Session()
+    s = set()
+    tag_id_query = session.query(Tag.id).join('_objects')
+    for obj in objs:
+        clause = and_(TaggedObj.obj_class==_classname(obj),
+                      TaggedObj.obj_id==obj.id)
+        tags = [r[0] for r in tag_id_query.filter(clause)]
+        if len(s) == 0:
+            s.update(tags)
+        else:
+            s.intersection_update(tags)
+    return list(s)
 
 
 def _on_add_tag_activated(*args):
@@ -456,7 +459,7 @@ def natsort_kids(kids):
 
 class TagPlugin(pluginmgr.Plugin):
 
-    tables = [tag_table, tagged_obj_table]
+    #tables = [tag_table, tagged_obj_table]
 
     @classmethod
     def init(cls):
