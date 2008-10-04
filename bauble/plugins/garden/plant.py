@@ -48,7 +48,7 @@ def remove_callback(plant):
         return
     try:
         session = bauble.Session()
-        obj = session.load(plant.__class__, plant.id)
+        obj = session.query(Plant).get(plant.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -355,6 +355,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
+        self.__dirty = False
 
         # initialize widgets
         self.init_location_combo()
@@ -383,7 +384,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.set_model_attr('accession', value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
-            #self._set_plant_code_from_text(self.model.code)
             self.on_plant_code_entry_changed()
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
@@ -405,7 +405,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.plant_loc_edit_button.connect('clicked',
                                                     self.on_loc_button_clicked,
                                                     'edit')
-        self.__dirty = False
 
 
     def dirty(self):
@@ -413,38 +412,42 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def on_plant_code_entry_changed(self, *args):
-        text = self.view.widgets.plant_code_entry.get_text()
-        count_plants = lambda acc_id, code: self.session.query(Plant).join('accession').filter(Plant.code==code).count()
-        # NOTE: we have to reference self.model.accession.id instead of
-        # self.model.accession_id b/c setting the first doesn't set the second
-        def problem():
-            self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                             self.view.widgets.plant_code_entry)
-            self.set_model_attr('code', None)
-        text = utils.utf8(text)
-        if self.model.accession is None:
-            problem()
-            return
-        elif self._original_accession_id == self.model.accession.id \
-                 and not text == self._original_code \
-                 and count_plants(self.model.accession.id, text) > 0:
-            problem()
-            return
-        elif count_plants(self.model.accession.id, text) > 0:
-            problem()
-            return
-
-        self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                            self.view.widgets.plant_code_entry)
-        if text is '':
+        text = utils.utf8(self.view.widgets.plant_code_entry.get_text())
+        #debug('on_plant_code_entry_changed(%s)' % text)
+        if text == u'':
             self.set_model_attr('code', None)
         else:
             self.set_model_attr('code', text)
 
+        if self.model.accession is None:
+            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                                self.view.widgets.plant_code_entry)
+            self.refresh_sensitivity()
+            return
+
+        # reference accesssion.id instead of accession_id since
+        # setting the accession on the model doesn't set the
+        # accession_id until the session is flushed
+        nplants_query = self.session.query(Plant).join('accession').\
+                  filter(and_(Accession.id==self.model.accession.id,
+                              Plant.code==text))
+
+        # add a problem if the code is not unique but not if its the
+        # same accession and plant code that we started with when the
+        # editor was opened
+        if self.model.code is not None and nplants_query.count() > 0 \
+               and self._original_accession_id != self.model.accession.id \
+               and self.model.code == self._original_code:
+            self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                             self.view.widgets.plant_code_entry)
+        else:
+            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                                self.view.widgets.plant_code_entry)
+        self.refresh_sensitivity()
+
 
     def refresh_sensitivity(self):
-        #def set_accept_buttons_sensitive(sensitive):
-        debug(self.model.code)
+        #debug('refresh_sensitivity()')
         sensitive = (self.model.accession is not None and \
                      self.model.code is not None and \
                      self.model.location is not None) \
@@ -454,7 +457,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def set_model_attr(self, field, value, validator=None):
-        debug('set_model_attr(%s, %s)' % (field, value))
+        #debug('set_model_attr(%s, %s)' % (field, value))
         super(PlantEditorPresenter, self).set_model_attr(field, value,
                                                          validator)
         self.__dirty = True

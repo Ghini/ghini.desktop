@@ -299,16 +299,13 @@ class Problems(object):
     def remove(self, problem):
         '''
         @param problem: the problem to remove
+
+        NOTE: If the problem does not exist then there is no change
+        and no error.
         '''
-        # TODO: nothing happens if problem does not exist in self.problems
-        # should we ignore it or do..
-        # if problem not in self.problems
-        #   raise KeyError()
-        while 1:
-            try:
-                self._problems.remove(problem)
-            except:
-                break
+        while problem in self._problems:
+            self._problems.remove(problem)
+
 
     def __len__(self):
         '''
@@ -316,8 +313,6 @@ class Problems(object):
         '''
         return len(self._problems)
 
-#     def __contains__(self, problem):
-#         return problem in self._problems
 
     def __str__(self):
         '''
@@ -585,10 +580,9 @@ class GenericEditorPresenter(object):
             setattr(self, prev_text_name, utils.utf8(value))
             self.pause_completions_handler(widget, True)
             widget.set_text(utils.utf8(value))
+            self.remove_problem(PROBLEM, widget)
             on_select(value)
             self.pause_completions_handler(widget, False)
-            self.remove_problem(PROBLEM, widget)
-
 
         completion = widget.get_completion()
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
@@ -613,149 +607,149 @@ class GenericEditorPresenter(object):
     # it so that the field is a property on the model that we can get/set/del
     # so the the person using this method know what to expect when some
     # action is taken on the model
-    def old_assign_completions_handler(self, widget_name, field,
-                                   get_completions=None,
-                                   set_func=lambda self, f, v: \
-                                      setattr(self.model, f, v),
-                                   format_func=lambda x: unicode(x),
-                                   model=None):
-        """
-        assign_completions_handler is generally used in the case where
-        the list of completions if generated dynamically from the text
-        in the entry
+#     def old_assign_completions_handler(self, widget_name, field,
+#                                    get_completions=None,
+#                                    set_func=lambda self, f, v: \
+#                                       setattr(self.model, f, v),
+#                                    format_func=lambda x: unicode(x),
+#                                    model=None):
+#         """
+#         assign_completions_handler is generally used in the case where
+#         the list of completions if generated dynamically from the text
+#         in the entry
 
-        it is assumed that when you select a completion you are
-        essentially setting the model.field from the selected
-        completion.
+#         it is assumed that when you select a completion you are
+#         essentially setting the model.field from the selected
+#         completion.
 
-        @param widget_name: the name of the widget in self.view.widgets
-        @param field: the name of the field to set in the model
-        @param get_completions: return a list of strings to use as completions
-        @param set_func: the function to call when a value is selected from
-        the completions, the default is:
-                       lambda self, f, v: setattr(self.model, f, v)
-        @param format_func: the func to call to format the value in the
-            completion, the default is lambda x: unicode(x)
-        @param model: the model to set for the completions, if None then
-        use self.model, should be able to access field as an attribute
-        of model
-        """
-        widget = self.view.widgets[widget_name]
-        self._prev_text[widget_name] = ''
-        if model is None:
-            model = self.model
-        # TODO: this works with Ctrl-Space and all but i don't know how to
-        # pop up the completion
-#        def callback(w, event):
-#            debug(gtk.gdk.keyval_name(event.keyval))
-#            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):
-#                try:
-#                    c = w.get_completion() # just in case it's been deleted
-#                    for kid in c.get_children():
-#                        debug(kid)
-#                    debug('complete')
-#                    c.complete()
-#                    #c.insert_prefix()
-#                    debug('completd')
-#                except Exception, e:
-#                    debug(e)
-#        widget.add_events(gtk.gdk.KEY_PRESS_MASK)
-#        widget.connect("key-press-event", callback)
+#         @param widget_name: the name of the widget in self.view.widgets
+#         @param field: the name of the field to set in the model
+#         @param get_completions: return a list of strings to use as completions
+#         @param set_func: the function to call when a value is selected from
+#         the completions, the default is:
+#                        lambda self, f, v: setattr(self.model, f, v)
+#         @param format_func: the func to call to format the value in the
+#             completion, the default is lambda x: unicode(x)
+#         @param model: the model to set for the completions, if None then
+#         use self.model, should be able to access field as an attribute
+#         of model
+#         """
+#         widget = self.view.widgets[widget_name]
+#         self._prev_text[widget_name] = ''
+#         if model is None:
+#             model = self.model
+#         # TODO: this works with Ctrl-Space and all but i don't know how to
+#         # pop up the completion
+# #        def callback(w, event):
+# #            debug(gtk.gdk.keyval_name(event.keyval))
+# #            if event.keyval == gtk.gdk.keyval_from_name('space') and (event.state & gtk.gdk.CONTROL_MASK):
+# #                try:
+# #                    c = w.get_completion() # just in case it's been deleted
+# #                    for kid in c.get_children():
+# #                        debug(kid)
+# #                    debug('complete')
+# #                    c.complete()
+# #                    #c.insert_prefix()
+# #                    debug('completd')
+# #                except Exception, e:
+# #                    debug(e)
+# #        widget.add_events(gtk.gdk.KEY_PRESS_MASK)
+# #        widget.connect("key-press-event", callback)
 
-        PROBLEM = hash(widget_name)
-        insert_sid_name = '_insert_%s_sid' % widget_name
-        def add_completions(text):
-##            debug('add_completions(%s)' % text)
-            if get_completions is None:
-                # get_completions is None usually means that the
-                # completions model already has a static list of
-                # completions
-                return
-            values = get_completions(text)
-            def idle_callback(values):
-                completion = widget.get_completion()
-                utils.clear_model(completion)
-                completion_model = gtk.ListStore(object)
-                #debug(values)
-                for v in values:
-                    completion_model.append([v])
-                completion.set_model(completion_model)
-            gobject.idle_add(idle_callback, values)
+#         PROBLEM = hash(widget_name)
+#         insert_sid_name = '_insert_%s_sid' % widget_name
+#         def add_completions(text):
+# ##            debug('add_completions(%s)' % text)
+#             if get_completions is None:
+#                 # get_completions is None usually means that the
+#                 # completions model already has a static list of
+#                 # completions
+#                 return
+#             values = get_completions(text)
+#             def idle_callback(values):
+#                 completion = widget.get_completion()
+#                 utils.clear_model(completion)
+#                 completion_model = gtk.ListStore(object)
+#                 #debug(values)
+#                 for v in values:
+#                     completion_model.append([v])
+#                 completion.set_model(completion_model)
+#             gobject.idle_add(idle_callback, values)
 
-        def on_insert_text(entry, new_text, new_text_length, position,
-                           data=None):
-            if new_text == '':
-                # this is to workaround the problem of having a second
-                # insert-text signal called with new_text = '' when there is a
-                # custom renderer on the entry completion for this entry
-                # block the signal from here since it will call this same
-                # method again and resetting the species completions
-                entry.handler_block(getattr(self, insert_sid_name))
-                entry.set_text(self._prev_text[widget_name])
-                entry.handler_unblock(getattr(self, insert_sid_name))
-                return False # is this 'False' necessary, does it do anything?
-            entry_text = entry.get_text()
-            cursor = entry.get_position()
-            full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
+#         def on_insert_text(entry, new_text, new_text_length, position,
+#                            data=None):
+#             if new_text == '':
+#                 # this is to workaround the problem of having a second
+#                 # insert-text signal called with new_text = '' when there is a
+#                 # custom renderer on the entry completion for this entry
+#                 # block the signal from here since it will call this same
+#                 # method again and resetting the species completions
+#                 entry.handler_block(getattr(self, insert_sid_name))
+#                 entry.set_text(self._prev_text[widget_name])
+#                 entry.handler_unblock(getattr(self, insert_sid_name))
+#                 return False # is this 'False' necessary, does it do anything?
+#             entry_text = entry.get_text()
+#             cursor = entry.get_position()
+#             full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
 
-            # TODO: need to improve completion logic for corner cases and for
-            # ctrl-space handling
-            compl_model = widget.get_completion().get_model()
-            if (compl_model is None or len(compl_model) == 0) \
-                   and len(full_text) > 0:
-                add_completions(full_text[0])
-            elif len(full_text) == 1:
-                add_completions(full_text[0])
+#             # TODO: need to improve completion logic for corner cases and for
+#             # ctrl-space handling
+#             compl_model = widget.get_completion().get_model()
+#             if (compl_model is None or len(compl_model) == 0) \
+#                    and len(full_text) > 0:
+#                 add_completions(full_text[0])
+#             elif len(full_text) == 1:
+#                 add_completions(full_text[0])
 
-#            # this funny logic is so that completions are reset if the user
-#            # paste multiple characters in the entry
-#            if len(new_text) == 1 and len(full_text) == 2:
-#                add_completions(full_text)
-#            elif new_text_length > 2:# and entry_text != '':
-#                add_completions(full_text[:2])
-#            prev_text = full_text
+# #            # this funny logic is so that completions are reset if the user
+# #            # paste multiple characters in the entry
+# #            if len(new_text) == 1 and len(full_text) == 2:
+# #                add_completions(full_text)
+# #            elif new_text_length > 2:# and entry_text != '':
+# #                add_completions(full_text[:2])
+# #            prev_text = full_text
 
-            # i think this is making sure the value in the entry was chosen
-            # from the popup, i.e. set in the model
-            if full_text != str(getattr(model, field)):
-                self.add_problem(PROBLEM, widget)
-                setattr(model, field, None)
+#             # i think this is making sure the value in the entry was chosen
+#             # from the popup, i.e. set in the model
+#             if full_text != str(getattr(model, field)):
+#                 self.add_problem(PROBLEM, widget)
+#                 setattr(model, field, None)
 
-        def on_delete_text(entry, start, end, data=None):
-            text = entry.get_text()
-            full_text = text[:start] + text[end:]
-            if full_text == '' or (full_text == str(getattr(model, field))):
-                self.remove_problem(PROBLEM, widget)
-                return
-            compl_model = widget.get_completion().get_model()
-            if (compl_model is None or len(compl_model) == 0) \
-                   and len(full_text) > 0:
-                add_completions(full_text[0])
-            elif len(full_text) == 1:
-                add_completions(full_text[0])
-            self.add_problem(PROBLEM, widget)
-            setattr(model, field, None)
+#         def on_delete_text(entry, start, end, data=None):
+#             text = entry.get_text()
+#             full_text = text[:start] + text[end:]
+#             if full_text == '' or (full_text == str(getattr(model, field))):
+#                 self.remove_problem(PROBLEM, widget)
+#                 return
+#             compl_model = widget.get_completion().get_model()
+#             if (compl_model is None or len(compl_model) == 0) \
+#                    and len(full_text) > 0:
+#                 add_completions(full_text[0])
+#             elif len(full_text) == 1:
+#                 add_completions(full_text[0])
+#             self.add_problem(PROBLEM, widget)
+#             setattr(model, field, None)
 
-        def on_match_select(completion, compl_model, iter):
-            value = compl_model[iter][0]
-#            debug('on_match_select: %s' % str(value))
-            widget.handler_block(getattr(self, insert_sid_name))
-            widget.set_text(str(value))
-            widget.handler_unblock(getattr(self, insert_sid_name))
-            widget.set_position(-1)
-            self.remove_problem(PROBLEM, widget)
-            set_func(self, field, value)
-#            debug('set prev text')
-            self._prev_text[widget_name] = str(value)
+#         def on_match_select(completion, compl_model, iter):
+#             value = compl_model[iter][0]
+# #            debug('on_match_select: %s' % str(value))
+#             widget.handler_block(getattr(self, insert_sid_name))
+#             widget.set_text(str(value))
+#             widget.handler_unblock(getattr(self, insert_sid_name))
+#             widget.set_position(-1)
+#             self.remove_problem(PROBLEM, widget)
+#             set_func(self, field, value)
+# #            debug('set prev text')
+#             self._prev_text[widget_name] = str(value)
 
-        completion = widget.get_completion()
-        check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
-              'completion attached to it' % widget_name)
+#         completion = widget.get_completion()
+#         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
+#               'completion attached to it' % widget_name)
 
-        completion.connect('match-selected', on_match_select)
-        sid = widget.connect('insert-text', on_insert_text)
-        setattr(self, insert_sid_name, sid)
-        widget.connect('delete-text', on_delete_text)
+#         completion.connect('match-selected', on_match_select)
+#         sid = widget.connect('insert-text', on_insert_text)
+#         setattr(self, insert_sid_name, sid)
+#         widget.connect('delete-text', on_delete_text)
 
 
     def start(self):
