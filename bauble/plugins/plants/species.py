@@ -80,7 +80,7 @@ def species_markup_func(species):
 
 def species_get_kids(species):
     try:
-        natsort_kids('accessions')
+        return sorted(species.accessions, key=utils.natsort_key)
     except:
         return []
 
@@ -247,32 +247,28 @@ class GeneralSpeciesExpander(InfoExpander):
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
         self.set_widget_value('sp_dist_data', row.distribution_str())
+
+        # stop here if not GardenPluin
         if 'GardenPlugin' not in pluginmgr.plugins:
             return
 
         from bauble.plugins.garden.accession import Accession
         from bauble.plugins.garden.plant import Plant
 
-        # TODO: need to remove the accession widget when the
-        # infobox is initialized and don't update the
-        nacc = session.query(Species).join('accession').\
-               filter_by(species_id=row.id)
-        #nacc = sql_utils.count(accession_table,
-        #                       accession_table.c.species_id==row.id)
-        if nacc == 0:
-            self.set_widget_value('sp_nacc_data', nacc)
+        nacc = session.query(Accession).join('species').\
+               filter_by(id=row.id).count()
+        self.set_widget_value('sp_nacc_data', nacc)
 
-        acc_ids = select([accession_table.c.id],
-                         accession_table.c.species_id==row.id)
-        nplants_str = str(sql_utils.count(plant_table,
-                                          plant_table.c.accession_id.in_(acc_ids)))
-        if nplants_str != '0':
-            nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-            nplants_str = '%s in %s accessions' % \
-                          (nplants_str, nacc_with_plants)
-            self.set_widget_value('sp_nplants_data', nplants_str)
-
-
+        nplants = session.query(Plant).join(['accession', 'species']).\
+                    filter_by(id=row.id).count()
+        if nplants == 0:
+            self.set_widget_value('sp_nplants_data', nplants)
+        else:
+            nacc_in_plants = session.query(Plant.accession_id).\
+                    join(['accession', 'species']).\
+                    filter_by(id=row.id).distinct().from_self().count()
+            self.set_widget_value('sp_nplants_data', '%s in %s accessions' \
+                                  % (nplants, nacc_in_plants))
 
 
 

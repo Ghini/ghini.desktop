@@ -812,12 +812,10 @@ class GeneralGenusExpander(InfoExpander):
                               (utils.xml_safe(unicode(row.family))))
 
         # get the number of species
-        #species_ids = select([species_table.c.id],
-        #                     species_table.c.genus_id==row.id)
-        #nsp = sql_utils.count_select(species_ids)
         nsp = session.query(Species).join('genus').filter_by(id=row.id).count()
         self.set_widget_value('gen_nsp_data', nsp)
 
+        # stop here if no GardenPlugin
         if 'GardenPlugin' not in pluginmgr.plugins:
             return
 
@@ -825,22 +823,29 @@ class GeneralGenusExpander(InfoExpander):
         from bauble.plugins.garden.plant import Plant
 
         # get number of accessions
-#         acc_ids = select([accession_table.c.id],
-#                          accession_table.c.species_id.in_(species_ids))
-#         nacc_str = str(sql_utils.count_select(acc_ids))
-#         if nacc_str != '0':
-#             nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-#             nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-#         self.set_widget_value('gen_nacc_data', nacc_str)
+        nacc = session.query(Accession).join(['species', 'genus']).\
+               filter_by(id=row.id).count()
+        if nacc == 0:
+            self.set_widget_value('gen_nacc_data', nacc)
+        else:
+            nsp_in_acc = session.query(Accession.species_id).\
+                         join(['species', 'genus']).\
+                         filter_by(id=row.id).distinct().from_self().count()
+            self.set_widget_value('gen_nacc_data', '%s in %s species' \
+                                  % (nacc, nsp_in_acc))
 
-        # get number of plants
-#         plant_ids = select([plant_table.c.id], plant_table.c.accession_id.in_(acc_ids))
-#         nplants_str = str(sql_utils.count_select(plant_ids))
-#         if nplants_str != '0':
-#             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-#             nplants_str = '%s in %s accessions' % (nplants_str,
-#                                                    nacc_with_plants)
-#         self.set_widget_value('gen_nplants_data', nplants_str)
+        # get the number of plants in the genus
+        nplants = session.query(Plant).\
+                  join(['accession', 'species', 'genus']).\
+                  filter_by(id=row.id).count()
+        if nplants == 0:
+            self.set_widget_value('gen_nplants_data', nplants)
+        else:
+            nacc_in_plants = session.query(Plant.accession_id).\
+                    join(['accession', 'species', 'genus']).\
+                    filter_by(id=row.id).distinct().from_self().count()
+            self.set_widget_value('gen_nplants_data', '%s in %s accessions' \
+                                  % (nplants, nacc_in_plants))
 
 
 

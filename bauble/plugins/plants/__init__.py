@@ -27,8 +27,6 @@ from bauble.plugins.plants.species import *
 from bauble.plugins.plants.geography import *
 from bauble.view import SearchView
 
-def natsort_kids(kids):
-    return lambda(parent): sorted(getattr(parent, kids), key=utils.natsort_key)
 
 class PlantsPlugin(pluginmgr.Plugin):
 

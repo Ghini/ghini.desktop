@@ -556,12 +556,12 @@ class GeneralFamilyExpander(InfoExpander):
             ngen_in_sp = q.count()
             self.set_widget_value('fam_nsp_data', '%s in %s genera' \
                                   % (nsp, ngen_in_sp))
-        return
 
-        # get the number of accessions
+        # stop here if no GardenPlugin
         if 'GardenPlugin' not in pluginmgr.plugins:
             return
 
+        # get the number of accessions in the family
         from bauble.plugins.garden.accession import Accession
         from bauble.plugins.garden.plant import Plant
 
@@ -569,21 +569,26 @@ class GeneralFamilyExpander(InfoExpander):
                filter_by(id=row.id).count()
         if nacc == 0:
             self.set_widget_value('fam_nacc_data', nacc)
-#         acc_ids = select([accession_table.c.id],
-#                          accession_table.c.species_id.in_(species_ids))
-#         nacc_str = str(sql_utils.count_select(acc_ids))
-#         if nacc_str != '0':
-#             nsp_with_accessions = sql_utils.count_distinct_whereclause(accession_table.c.species_id, accession_table.c.species_id.in_(species_ids))
-#             nacc_str = '%s in %s species' % (nacc_str, nsp_with_accessions)
-#         self.set_widget_value('fam_nacc_data', nacc_str)
+        else:
+            q = session.query(Accession.species_id).\
+                join(['species', 'genus', 'family']).\
+                filter_by(id=row.id).distinct().from_self()
+            nsp_in_acc = q.count()
+            self.set_widget_value('fam_nacc_data', '%s in %s species' \
+                                  % (nacc, nsp_in_acc))
 
-        # get the number of plants
-#         nplants_str = str(sql_utils.count(plant_table,
-#                                     plant_table.c.accession_id.in_(acc_ids)))
-#         if nplants_str != '0':
-#             nacc_with_plants = sql_utils.count_distinct_whereclause(plant_table.c.accession_id, plant_table.c.accession_id.in_(acc_ids))
-#             nplants_str = '%s in %s accessions' % (nplants_str, nacc_with_plants)
-#         self.set_widget_value('fam_nplants_data', nplants_str)
+        # get the number of plants in the family
+        nplants = session.query(Plant).\
+                  join(['accession', 'species', 'genus', 'family']).\
+                  filter_by(id=row.id).count()
+        if nplants == 0:
+            self.set_widget_value('fam_nplants_data', nplants)
+        else:
+            nacc_in_plants = session.query(Plant.accession_id).\
+                join(['accession', 'species', 'genus','family']).\
+                filter_by(id=row.id).distinct().from_self().count()
+            self.set_widget_value('fam_nplants_data', '%s in %s accessions' \
+                                  % (nplants, nacc_in_plants))
 
 
 
