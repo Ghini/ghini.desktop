@@ -10,15 +10,15 @@ from sqlalchemy.exceptions import *
 import bauble
 import bauble.paths as paths
 from lxml.etree import Element, SubElement, ElementTree, dump
-from testbase import BaubleTestCase, log
-from bauble.plugins.garden.accession import Accession, accession_table
-from bauble.plugins.garden.location import location_table
-from bauble.plugins.garden.plant import Plant, plant_table
-from bauble.plugins.garden.donor import Donor, donor_table
+from bauble.test import BaubleTestCase
+from bauble.plugins.garden.accession import Accession
+from bauble.plugins.garden.location import Location
+from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.plants.family import family_table
-from bauble.plugins.plants.genus import genus_table
-from bauble.plugins.plants.species_model import species_table
+from bauble.plugins.plants.family import Family
+from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.species_model import Species
 from bauble.plugins.abcd import DataSets
 import bauble.plugins.abcd as abcd
 import bauble.plugins.plants.test as plants_test
