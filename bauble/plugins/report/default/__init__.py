@@ -19,9 +19,9 @@ import bauble.utils as utils
 import bauble.utils.desktop as desktop
 import bauble.paths as paths
 from bauble.i18n import *
-from bauble.plugins.plants.species import Species, species_table
-from bauble.plugins.garden.plant import Plant, plant_table, plant_delimiter
-from bauble.plugins.garden.accession import Accession, accession_table
+from bauble.plugins.plants.species import Species
+from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
      get_all_accessions, FormatterPlugin, SettingsBox

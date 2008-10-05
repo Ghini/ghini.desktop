@@ -1,16 +1,17 @@
+
 import unittest
+
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
-from testbase import BaubleTestCase, log
+
+from bauble.test import BaubleTestCase
 import bauble.utils as utils
+from bauble.utils.log import debug
 #import bauble.plugins.report as report_plugin
-from bauble.plugins.report import _get_all_species_ids, get_all_species, \
-     _get_all_accession_ids, get_all_accessions, _get_all_plant_ids, \
+from bauble.plugins.report import get_all_species, get_all_accessions, \
      get_all_plants
-from bauble.plugins.plants import Family, family_table, Genus, genus_table, \
-     Species, species_table, VernacularName, vernacular_name_table
-from bauble.plugins.garden import Accession, accession_table, Plant, \
-     plant_table, Location, location_table
+from bauble.plugins.plants import Family, Genus, Species, VernacularName
+from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.tag import tag_objects, Tag
 
 
@@ -39,177 +40,191 @@ class ReportTests(ReportTestCase):
     def setUp(self):
         super(ReportTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
-        for f in xrange(0, 2):
+        for f in xrange(2):
             fctr+=1
-            family_table.insert({'id': fctr,
-                                 'family': str(fctr)}).execute()
-            for g in xrange(0, 2):
+            family = Family(id=fctr, family=u'fam%s' % fctr)
+            self.session.add(family)
+            for g in range(2):
                 gctr+=1
-                genus_table.insert({'id': gctr, 'genus': str(gctr),
-                                    'family_id': fctr}).execute()
-                for s in xrange(0, 2):
+                genus = Genus(id=gctr, family=family, genus=u'gen%s' % gctr)
+                self.session.add(genus)
+                for s in range(2):
                     sctr+=1
-                    species_table.insert({'id': sctr, 'sp': unicode(sctr),
-                                          'genus_id': gctr}).execute()
-                    vernacular_name_table.insert({'id': sctr,
-                                                  'name': unicode(sctr),
-                                                'species_id': sctr}).execute()
-                    for a in xrange(0, 2):
+                    sp = Species(id=sctr, genus=genus, sp=u'sp%s' % sctr)
+                    vn = VernacularName(id=sctr, species=sp,
+                                        name=u'name%s' % sctr)
+                    self.session.add_all([sp, vn])
+                    for a in range(2):
                         actr+=1
-                        accession_table.insert({'id': actr,
-                                                'code': unicode(actr),
-                                                'species_id': sctr}).execute()
-                        for p in xrange(0, 2):
+                        acc = Accession(id=actr, species=sp, code=u'%s' % actr)
+                        self.session.add(acc)
+                        for p in range(2):
                             pctr+=1
-                            location_table.insert({'id': pctr,
-                                                'site': unicode(pctr)}).execute()
-                            plant_table.insert({'id': pctr,
-                                                'code': unicode(pctr),
-                                                'accession_id': actr,
-                                                'location_id': pctr}).execute()
-##                             print 'f: %s, g: %s, s: %s, a: %s, p: %s' \
-##                                   % (fctr, gctr, sctr, actr, pctr)
+                            loc = Location(id=pctr, site=u'site%s' % pctr)
+                            plant = Plant(id=pctr, accession=acc, location=loc,
+                                          code=u'%s' % pctr)
+                            #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
+                            #      % (fctr, gctr, actr, pctr))
+                            self.session.add_all([loc, plant])
+        self.session.commit()
 
 
     def tearDown(self):
         super(ReportTests, self).tearDown()
-        execute = self.session.bind.execute
-        execute(family_table.delete())
-        execute(genus_table.delete())
-        execute(species_table.delete())
-        execute(vernacular_name_table.delete())
-        execute(accession_table.delete())
-        execute(location_table.delete())
-        execute(plant_table.delete())
 
 
     def test_get_all_species(self):
         """
-        test getting the species from different types
+        Test getting the species from different types
         """
-        family = self.session.load(Family, 1)
-        species_id = _get_all_species_ids([family])
-        self.assert_(species_id == [1, 2, 3, 4], species_id)
+        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        genus = self.session.load(Genus, 1)
-        species_id = _get_all_species_ids([genus])
-        self.assert_(species_id == [1, 2], species_id)
+        family = self.session.query(Family).get(1)
+        ids = get_ids(get_all_species([family]))
+        self.assert_(ids == range(1, 5), ids)
 
-        species = self.session.load(Species, 1)
-        species_id = _get_all_species_ids([species])
-        self.assert_(species_id == [1], species_id)
+        family = self.session.query(Family).get(1)
+        family2 = self.session.query(Family).get(2)
+        ids = get_ids(get_all_species([family, family2]))
+        self.assert_(ids == range(1, 9), ids)
 
-        accession = self.session.load(Accession ,1)
-        species_id = _get_all_species_ids([accession])
-        self.assert_(species_id == [1], species_id)
+        genus = self.session.query(Genus).get(1)
+        ids = get_ids(get_all_species([genus]))
+        self.assert_(ids == [1, 2], ids)
 
-        plant = self.session.load(Plant, 1)
-        species_id = _get_all_species_ids([plant])
-        self.assert_(species_id == [1], species_id)
+        species = self.session.query(Species).get(1)
+        ids = get_ids(get_all_species([species]))
+        self.assert_(ids == [1], ids)
 
-        location = self.session.load(Location, 1)
-        species_id = _get_all_species_ids([location])
-        self.assert_(species_id == [1], species_id)
+        accession = self.session.query(Accession).get(1)
+        ids = get_ids(get_all_species([accession]))
+        self.assert_(ids == [1], ids)
 
-        vn = self.session.load(VernacularName, 1)
-        species_id = _get_all_species_ids([vn])
-        self.assert_(species_id == [1], species_id)
+        plant = self.session.query(Plant).get(1)
+        ids = get_ids(get_all_species([plant]))
+        self.assert_(ids == [1], ids)
+
+        location = self.session.query(Location).get(1)
+        ids = get_ids(get_all_species([location]))
+        self.assert_(ids == [1], ids)
+
+        vn = self.session.query(VernacularName).get(1)
+        ids = get_ids(get_all_species([vn]))
+        self.assert_(ids == [1], ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        species_id = _get_all_species_ids([tag])
-        self.assert_(species_id == [1,2,3,4], species_id)
+        ids = get_ids(get_all_species([tag]))
+        self.assert_(ids == range(1,5), ids)
 
         # now test all the objects
-        species_id = _get_all_species_ids([family, genus, species,
-                                           accession, plant, location])
-        self.assert_(species_id == [1, 2, 3, 4], species_id)
+        ids = get_ids(get_all_species([family, genus, species,
+                                        accession, plant, location]))
+        self.assert_(ids == range(1,5), ids)
 
 
     def test_get_all_accessions(self):
         """
-        test getting the species from different types
+        Test getting the accessions from different types
         """
-        family = self.session.load(Family, 1)
-        acc_id = _get_all_accession_ids([family])
-        self.assert_(acc_id == [1, 2, 3, 4, 5, 6, 7, 8], acc_id)
+        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        genus = self.session.load(Genus, 1)
-        acc_id = _get_all_accession_ids([genus])
-        self.assert_(acc_id == [1, 2, 3, 4], acc_id)
+        family = self.session.query(Family).get(1)
+        ids = get_ids(get_all_accessions([family]))
+        self.assert_(ids == range(1, 9), ids)
 
-        species = self.session.load(Species, 1)
-        acc_id = _get_all_accession_ids([species])
-        self.assert_(acc_id == [1, 2], acc_id)
+        family = self.session.query(Family).get(1)
+        family2 = self.session.query(Family).get(1)
+        ids = get_ids(get_all_accessions([family, family2]))
+        self.assert_(ids == range(1, 9), ids)
 
-        accession = self.session.load(Accession, 1)
-        acc_id = _get_all_accession_ids([accession])
-        self.assert_(acc_id == [1], acc_id)
+        genus = self.session.query(Genus).get(1)
+        ids = get_ids(get_all_accessions(genus))
+        self.assert_(ids == range(1,5), ids)
 
-        plant = self.session.load(Plant, 1)
-        acc_id = _get_all_accession_ids([plant])
-        self.assert_(acc_id == [1], acc_id)
+        species = self.session.query(Species).get(1)
+        ids = get_ids(get_all_accessions(species))
+        self.assert_(ids == [1,2], ids)
 
-        location = self.session.load(Location, 1)
-        acc_id = _get_all_accession_ids([location])
-        self.assert_(acc_id == [1], acc_id)
+        accession = self.session.query(Accession).get(1)
+        ids = get_ids(get_all_accessions([accession]))
+        self.assert_(ids == [1], ids)
 
-        vn = self.session.load(VernacularName, 1)
-        acc_id = _get_all_accession_ids([vn])
-        self.assert_(acc_id == [1, 2], acc_id)
+        plant = self.session.query(Plant).get(1)
+        ids = get_ids(get_all_accessions([plant]))
+        self.assert_(ids == [1], ids)
+
+        location = self.session.query(Location).get(1)
+        ids = get_ids(get_all_accessions([location]))
+        self.assert_(ids == [1], ids)
+
+        vn = self.session.query(VernacularName).get(1)
+        ids = get_ids(get_all_accessions([vn]))
+        self.assert_(ids == [1, 2], ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        acc_id = _get_all_accession_ids([tag])
-        self.assert_(acc_id == [1,2,3,4,5,6,7,8], acc_id)
+        ids = get_ids(get_all_accessions([tag]))
+        self.assert_(ids == range(1,9), ids)
 
         # now test all the objects
-        acc_id = _get_all_accession_ids([family, genus, species,
-                                           accession, plant, location])
-        self.assert_(acc_id == [1, 2, 3, 4, 5, 6, 7, 8], acc_id)
+        ids = get_ids(get_all_accessions([family, genus, species,
+                                             accession, plant, location]))
+        self.assert_(ids == range(1,9), ids)
 
 
     def test_get_all_plants(self):
         """
-        test getting the species from different types
+        Test getting the plants from different types
         """
-        family = self.session.load(Family, 1)
-        plant_ids = _get_all_plant_ids([family])
-        self.assert_(plant_ids == range(1, 17), plant_ids)
+        get_ids = lambda objs: sorted([o.id for o in objs])
 
-        genus = self.session.load(Genus, 1)
-        plant_ids = _get_all_plant_ids([genus])
-        self.assert_(plant_ids == [1, 2, 3, 4, 5, 6, 7, 8], plant_ids)
+        # get plants from one family
+        family = self.session.query(Family).get(1)
+        ids = get_ids(get_all_plants(family))
+        self.assert_(ids == range(1, 17), ids)
 
-        species = self.session.load(Species, 1)
-        plant_ids = _get_all_plant_ids([species])
-        self.assert_(plant_ids == [1, 2, 3, 4], plant_ids)
+        # get plants from multiple families
+        family = self.session.query(Family).get(1)
+        family2 = self.session.query(Family).get(2)
+        ids = get_ids(get_all_plants([family, family2]))
+        self.assert_(ids == range(1, 33), ids)
 
-        accession = self.session.load(Accession, 1)
-        plant_ids = _get_all_plant_ids([accession])
-        self.assert_(plant_ids == [1, 2], plant_ids)
+        genus = self.session.query(Genus).get(1)
+        ids = get_ids(get_all_plants(genus))
+        self.assert_(ids == range(1, 9), ids)
 
-        plant = self.session.load(Plant, 1)
-        plant_ids = _get_all_plant_ids([plant])
+        species = self.session.query(Species).get(1)
+        ids = get_ids(get_all_plants(species))
+        self.assert_(ids == range(1, 5), ids)
+
+        accession = self.session.query(Accession).get(1)
+        ids = get_ids(get_all_plants(accession))
+        self.assert_(ids == range(1, 3), ids)
+
+        plant = self.session.query(Plant).get(1)
+        ids = get_ids(get_all_plants(plant))
+        self.assert_(ids == [1], ids)
+
+        location = self.session.query(Location).get(1)
+        plants = get_all_plants([location])
+        plant_ids = sorted([p.id for p in plants])
         self.assert_(plant_ids == [1], plant_ids)
 
-        location = self.session.load(Location, 1)
-        plant_ids = _get_all_plant_ids([location])
-        self.assert_(plant_ids == [1], plant_ids)
-
-        vn = self.session.load(VernacularName, 1)
-        plant_ids = _get_all_plant_ids([vn])
-        self.assert_(plant_ids == [1, 2, 3, 4], plant_ids)
+        vn = self.session.query(VernacularName).get(1)
+        ids = get_ids(get_all_plants(vn))
+        self.assert_(ids == range(1, 5), ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        plant_ids = _get_all_plant_ids([tag])
-        self.assert_(plant_ids == range(1, 17), plant_ids)
+        ids = get_ids(get_all_plants(tag))
+        self.assert_(ids == range(1, 17), ids)
 
         # now test all the objects
-        plant_ids = _get_all_plant_ids([family, genus, species,
-                                        accession, plant, location])
-        self.assert_(plant_ids == range(1, 17), plant_ids)
+        plants = get_all_plants([family, genus, species, accession, plant,
+                                 location])
+        ids = get_ids(plants)
+        self.assert_(ids == range(1, 17), ids)
 
 
 class ReportTestSuite(unittest.TestSuite):
