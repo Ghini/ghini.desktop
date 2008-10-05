@@ -21,12 +21,14 @@ import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import log, debug
-from bauble.plugins.plants import Species, species_table, Genus, genus_table, \
-     Family, family_table, VernacularName, vernacular_name_table
-from bauble.plugins.garden import Accession, accession_table, Plant, \
-     plant_table, Location
-from bauble.plugins.tag import Tag
+from bauble.plugins.plants import Family, Genus, Species, VernacularName
+from bauble.plugins.garden import Accession, Plant, Location
+from bauble.plugins.tag import Tag, TaggedObj
 from bauble.utils.log import debug, warning
+
+# TODO: this module should depend on PlantPlugin, GardenPlugin,
+# TagPlugin and should also allow other plugins to register between
+# two type of objects
 
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
@@ -35,104 +37,166 @@ config_list_pref = 'report.configs'
 default_config_pref = 'report.default'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
+# _paths = {}
 
-def _get_all_object_ids(table, queries, objs):
+# def add_path(parent, descendant, query):
+#     """
+#     Register a query that will give all of the descendants under parent
+
+#     e.g. add_path(Family, Species) would register a query to retrieve
+#     all of the Species under a family
+#     """
+#     if parent not in _paths:
+#         _paths[parent] = {descendent: query}
+#     else descendant not in _paths[parent]:
+#         _paths[parent][descendent] = query
+
+
+# def _get_all_object_ids(table, queries, objs):
+#     """
+#     @param table: the table to query
+#     @param queries: a map of type(obj) to select or callable
+#     @param objs: the list of objects to use to find table
+
+#     This function tries to find all the column ids in table that can be
+#     derived from the objects in the [objs] list using the [queries] dict.
+#     """
+#     ids = set()
+#     from sqlalchemy.sql.expression import FromClause, ClauseElement
+#     for obj in objs:
+#         query = queries[type(obj)]
+#         if callable(query):
+#             ids = ids.union(query(obj))
+#         elif isinstance(query, ClauseElement):
+#             if isinstance(query, FromClause):
+#                 stmt = select([table.c.id], from_obj=[query])
+#             else:
+#                 stmt = select([table.c.id], query)
+
+#             ids = ids.union([r[0] for r in stmt.execute(id=obj.id)])
+#         else:
+#             raise NotImplementedError
+#     return list(ids)
+
+def _get_all_objects(cls, get_query_func, objs, session=None):
     """
-    @param table: the table to query
-    @param queries: a map of type(obj) to select or callable
-    @param objs: the list of objects to use to find table
-
-    This function tries to find all the column ids in table that can be
-    derived from the objects in the [objs] list using the [queries] dict.
+    @param cls:
+    @param get_query_func:
+    @param objs:
+    @param session:
     """
-    ids = set()
-    from sqlalchemy.sql.expression import FromClause, ClauseElement
-    for obj in objs:
-        query = queries[type(obj)]
-        if callable(query):
-            ids = ids.union(query(obj))
-        elif isinstance(query, ClauseElement):
-            if isinstance(query, FromClause):
-                stmt = select([table.c.id], from_obj=[query])
-            else:
-                stmt = select([table.c.id], query)
-
-            ids = ids.union([r[0] for r in stmt.execute(id=obj.id)])
-        else:
-            raise NotImplementedError
-    return list(ids)
-
-
-plant_queries = {
-    Family: plant_table.join(accession_table).join(species_table).join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
-    Genus: plant_table.join(accession_table).join(species_table).join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
-    Species: plant_table.join(accession_table).join(species_table, and_(species_table.c.id==bindparam('id'), species_table.c.id==accession_table.c.species_id)),
-    VernacularName: plant_table.join(accession_table).join(species_table).join(vernacular_name_table, and_(vernacular_name_table.c.id==bindparam('id'), species_table.c.id==vernacular_name_table.c.species_id)),
-    Plant: lambda p: [p.id],
-    Accession: plant_table.join(accession_table, and_(accession_table.c.id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-    Location: plant_table.c.location_id==bindparam('id'),
-    Tag: lambda t: _get_all_plant_ids(t.objects)
-    }
-
-def get_all_plants(objs, session=None):
-    if session == None:
-        session = bauble.session()
-    return [session.load(Plant, p) for p in _get_all_plant_ids(objs)]
-
-
-def _get_all_plant_ids(objs):
-    """
-    returns a list unique plant ids in objs
-    """
-    return _get_all_object_ids(plant_table, plant_queries, objs)
-
-accession_queries = {
-    Family: accession_table.join(species_table).join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
-    Genus: accession_table.join(species_table).join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
-    Species: accession_table.join(species_table, and_(species_table.c.id==bindparam('id'), species_table.c.id==accession_table.c.species_id)),
-    VernacularName: accession_table.join(species_table).join(vernacular_name_table, and_(vernacular_name_table.c.id==bindparam('id'), species_table.c.id==vernacular_name_table.c.species_id)),
-    Plant: lambda p: [p.accession_id],
-    Accession: lambda a: [a.id],
-    Location: accession_table.join(plant_table, and_(plant_table.c.location_id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-    Tag: lambda t: _get_all_accession_ids(t.objects)
-    }
-
-def get_all_accessions(objs, session=None):
-    if session == None:
-        session = bauble.session()
-    return [session.load(Accession, a) for a in _get_all_accession_ids(objs)]
-
-
-def _get_all_accession_ids(objs):
-    """
-    returns a list unique accession ids in objs
-    """
-    return _get_all_object_ids(accession_table, accession_queries, objs)
-
-
-species_queries = {
-    Family: species_table.join(genus_table).join(family_table, and_(family_table.c.id==bindparam('id'), family_table.c.id==genus_table.c.family_id)),
-    Genus: species_table.join(genus_table, and_(genus_table.c.id==species_table.c.genus_id, genus_table.c.id==bindparam('id'))),
-    Species: lambda s: [s.id],
-    VernacularName: lambda vn: [vn.species_id],
-    Plant: species_table.join(accession_table).join(plant_table, and_(plant_table.c.id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-    Accession: lambda a: [a.species_id],
-    Location: species_table.join(accession_table).join(plant_table, and_(plant_table.c.location_id==bindparam('id'), accession_table.c.id==plant_table.c.accession_id)),
-    Tag: lambda t: _get_all_species_ids(t.objects)
-    }
-
-
-def get_all_species(objs, session=None):
+    if not isinstance(objs, (tuple, list)):
+        objs = [objs]
     if session == None:
         session = bauble.Session()
-    return [session.load(Species, s) for s in _get_all_species_ids(objs)]
+    queries = map(lambda o: get_query_func(o, session), objs)
+    unions = union(*[q.statement for q in queries])
+    results = session.query(cls).from_statement(unions)
+    return results
 
 
-def _get_all_species_ids(objs):
+def get_plant_query(obj, session):
+    q = session.query(Plant)
+    if isinstance(obj, Family):
+        return q.join(['accession', 'species', 'genus', 'family']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Genus):
+        return q.join(['accession', 'species', 'genus']).filter_by(id=obj.id)
+    elif isinstance(obj, Species):
+        return q.join(['accession', 'species']).filter_by(id=obj.id)
+    elif isinstance(obj, VernacularName):
+        return q.join(['accession', 'species', 'vernacular_names']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Plant):
+        return q.filter_by(id=obj.id)
+    elif isinstance(obj, Accession):
+        return q.join('accession').filter_by(id=obj.id)
+    elif isinstance(obj, Location):
+        return q.filter_by(location_id=obj.id)
+    elif isinstance(obj, Tag):
+        plants = get_all_plants(obj.objects, session)
+        return q.filter(Plant.id.in_([p.id for p in plants]))
+    else:
+        raise BaubleError(_("Can't get plants from a %s" % type(cls).__name__))
+
+
+def get_all_plants(objs, session=None):
     """
-    returns a list of unique species ids found in obj
+    @param objs: an instance of a mapped object
+    @param session: the session to use for the queries
+
+    Return all the plants found in objs.
     """
-    return _get_all_object_ids(species_table, species_queries, objs)
+    return _get_all_objects(Plant, get_plant_query, objs, session)
+
+
+
+def get_accession_query(obj, session):
+    """
+    """
+    q = session.query(Accession)
+    if isinstance(obj, Family):
+        return q.join(['species', 'genus', 'family']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Genus):
+        return q.join(['species', 'genus']).filter_by(id=obj.id)
+    elif isinstance(obj, Species):
+        return q.join(['species']).filter_by(id=obj.id)
+    elif isinstance(obj, VernacularName):
+        return q.join(['species', 'vernacular_names']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Plant):
+        return q.join('plants').filter_by(id=obj.id)
+    elif isinstance(obj, Accession):
+        return q.filter_by(id=obj.id)
+    elif isinstance(obj, Location):
+        return q.join('plants').filter_by(location_id=obj.id)
+    elif isinstance(obj, Tag):
+        acc = get_all_accessions(obj.objects, session)
+        return q.filter(Accession.id.in_([a.id for a in acc]))
+    else:
+        raise BaubleError(_("Can't get accessions from a %s" % type(cls).__name__))
+
+
+def get_all_accessions(objs, session=None):
+    """
+    @param objs: an instance of a mapped object
+    @param session: the session to use for the queries
+
+    Return all the accessions found in objs.
+    """
+    return _get_all_objects(Accession, get_accession_query, objs, session)
+
+
+def get_species_query(obj, session):
+    """
+    """
+    q = session.query(Species)
+    if isinstance(obj, Family):
+        return q.join(['genus', 'family']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Genus):
+        return q.join(['genus']).filter_by(id=obj.id)
+    elif isinstance(obj, Species):
+        return q.filter_by(id=obj.id)
+    elif isinstance(obj, VernacularName):
+        return q.join(['vernacular_names']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Plant):
+        return q.join(['accessions', 'plants']).filter_by(id=obj.id)
+    elif isinstance(obj, Accession):
+        return q.join('accessions').filter_by(id=obj.id)
+    elif isinstance(obj, Location):
+        return q.join(['accessions', 'plants', 'location']).\
+               filter_by(id=obj.id)
+    elif isinstance(obj, Tag):
+        acc = get_all_species(obj.objects, session)
+        return q.filter(Species.id.in_([a.id for a in acc]))
+    else:
+        raise BaubleError(_("Can't get species from a %s" % type(cls).__name__))
+
+def get_all_species(objs, session=None):
+    return _get_all_objects(Species, get_species_query, objs, session)
 
 
 
@@ -400,7 +464,7 @@ class ReportToolDialogPresenter(object):
 
     def init_formatter_combo(self):
         plugins = []
-        for p in pluginmgr.plugins:
+        for p in pluginmgr.plugins.values():
             if issubclass(p, FormatterPlugin):
                 plugins.append(p)
 
@@ -552,6 +616,8 @@ class ReportToolPlugin(pluginmgr.Plugin):
     '''
     '''
     tools = [ReportTool]
+
+
 
 
 
