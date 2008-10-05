@@ -2,18 +2,21 @@
 # pluginmgr.py
 #
 
-# TODO: need a way to add tables to the database base without creating a new
-# database completely, in case someone drops in a plugin we can create the
-# needed tables
-
-# TODO: if a plugin is removed then a dialog should be popped
-# up to ask if you want to remove the joins
-
-# TODO: need a way to register editors with the insert menu
+# TODO: need a way to register editors with the insert menu...could be
+# done in Plugin.init()...UPDATE: 5/10.08...dont' we do this already
 
 # TODO: don't completely blow up if there is a problem with on plugin,
 # e.g. don't ask if you want to remove all the other plugins unless
 # the plugin is dependent on the bad one
+
+# TODO: currently (3/10/2008) we can drop in and remove plugins from
+# bauble but still if the plugin has tables then those tables on get
+# created when a new database is created, we need the ability to
+# create tables on installation...one solution is to create a tables
+# attribue on the plugins with a list of tables that need to be
+# created, the other is to just create an install() method on the
+# plugin that is called when the plugin is first installed and then we
+# let the plugins handle their own table creation and default imports
 
 import os
 import sys
@@ -37,11 +40,6 @@ import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning, error
 from bauble.i18n import *
 
-# TODO: we need to clarify what's in plugins, should we be looking in plugins
-# or the registry for plugins, should only registered plugins be in plugins?
-
-#plugins = []
-#plugins_dict = {}
 plugins = {}
 commands = {}
 
@@ -211,7 +209,7 @@ def init():
     not_installed = []
     for name, p in plugins.iteritems():
         if p not in registry:
-            debug('%s not in registry' % name)
+#            debug('%s not in registry' % name)
             not_installed.append(name)
 
     if len(not_installed) > 0:
