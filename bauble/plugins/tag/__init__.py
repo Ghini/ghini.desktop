@@ -270,6 +270,9 @@ def _get_tagged_object_pairs(tag):
 
 
 def get_tagged_objects(tag, session=None):
+    """
+    Return all object tagged with tag.
+    """
     if session is None:
         if isinstance(tag, Tag):
             session = object_session(tag)

@@ -3,8 +3,6 @@
 #
 # Description : report plugin
 #
-
-
 import os
 import sys
 import traceback
@@ -52,32 +50,6 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 #         _paths[parent][descendent] = query
 
 
-# def _get_all_object_ids(table, queries, objs):
-#     """
-#     @param table: the table to query
-#     @param queries: a map of type(obj) to select or callable
-#     @param objs: the list of objects to use to find table
-
-#     This function tries to find all the column ids in table that can be
-#     derived from the objects in the [objs] list using the [queries] dict.
-#     """
-#     ids = set()
-#     from sqlalchemy.sql.expression import FromClause, ClauseElement
-#     for obj in objs:
-#         query = queries[type(obj)]
-#         if callable(query):
-#             ids = ids.union(query(obj))
-#         elif isinstance(query, ClauseElement):
-#             if isinstance(query, FromClause):
-#                 stmt = select([table.c.id], from_obj=[query])
-#             else:
-#                 stmt = select([table.c.id], query)
-
-#             ids = ids.union([r[0] for r in stmt.execute(id=obj.id)])
-#         else:
-#             raise NotImplementedError
-#     return list(ids)
-
 def _get_all_objects(cls, get_query_func, objs, session=None):
     """
     @param cls:
@@ -96,6 +68,8 @@ def _get_all_objects(cls, get_query_func, objs, session=None):
 
 
 def get_plant_query(obj, session):
+    """
+    """
     q = session.query(Plant)
     if isinstance(obj, Family):
         return q.join(['accession', 'species', 'genus', 'family']).\
@@ -130,7 +104,6 @@ def get_all_plants(objs, session=None):
     return _get_all_objects(Plant, get_plant_query, objs, session)
 
 
-
 def get_accession_query(obj, session):
     """
     """
@@ -155,7 +128,8 @@ def get_accession_query(obj, session):
         acc = get_all_accessions(obj.objects, session)
         return q.filter(Accession.id.in_([a.id for a in acc]))
     else:
-        raise BaubleError(_("Can't get accessions from a %s" % type(cls).__name__))
+        raise BaubleError(_("Can't get accessions from a %s" % \
+                            type(cls).__name__))
 
 
 def get_all_accessions(objs, session=None):
@@ -193,9 +167,17 @@ def get_species_query(obj, session):
         acc = get_all_species(obj.objects, session)
         return q.filter(Species.id.in_([a.id for a in acc]))
     else:
-        raise BaubleError(_("Can't get species from a %s" % type(cls).__name__))
+        raise BaubleError(_("Can't get species from a %s" % \
+                            type(cls).__name__))
+
 
 def get_all_species(objs, session=None):
+    """
+    @param objs: an instance of a mapped object
+    @param session: the session to use for the queries
+
+    Return all the species found in objs.
+    """
     return _get_all_objects(Species, get_species_query, objs, session)
 
 
