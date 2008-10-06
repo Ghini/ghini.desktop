@@ -4,6 +4,8 @@
 import os, sys, unittest
 import datetime
 from sqlalchemy import *
+import bauble
+from bauble.utils.log import debug
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
 from bauble.test import BaubleTestCase
@@ -31,5 +33,24 @@ class BaubleTests(BaubleTestCase):
         self.assert_(hasattr(m, '_last_updated') \
                      and isinstance(m._last_updated, datetime.datetime))
 
+
+    def test_sequence(self):
+        """
+        Test that sequences behave like we expect.
+        """
+        engine = bauble.engine
+        from bauble.meta import BaubleMeta
+        table = BaubleMeta.__table__
+        debug(self.session.query(BaubleMeta).all())
+        table.insert(values={'id': 100}).execute(bind=engine)
+        table.insert(values={'id': 101}).execute(bind=engine)
+        # these two lines will fix it but aren't guaranteed to be safe
+        maxid = engine.execute('select max(id) from bauble').fetchone()[0]
+        #if engine.name == 'postgres':
+        #    engine.execute("select setval('bauble_id_seq', %s)" % (maxid + 1))
+
+        # if not unique then should raise IntegrityError
+        table.insert(values={'name': u'something'}).execute(bind=engine)
+        debug(engine.execute('select max(id) from bauble').fetchone()[0])
 
 
