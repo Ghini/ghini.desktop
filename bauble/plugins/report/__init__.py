@@ -28,6 +28,10 @@ from bauble.utils.log import debug, warning
 # TagPlugin and should also allow other plugins to register between
 # two type of objects
 
+# TODO: should be able to drop a new formatter plugin and have it
+# automatically detected, right now we to return it in this modules
+# plugin() function
+
 # name: formatter_class, formatter_kwargs
 config_list_pref = 'report.configs'
 
@@ -601,8 +605,6 @@ class ReportToolPlugin(pluginmgr.Plugin):
 
 
 
-
-
 try:
     import lxml.etree as etree
     import lxml._elementpath # put this here sp py2exe picks it up
@@ -612,6 +614,8 @@ except ImportError:
 else:
     def plugin():
         from bauble.plugins.report.default import DefaultFormatterPlugin
-        return [ReportToolPlugin, DefaultFormatterPlugin]
+        from bauble.plugins.report.template import TemplateFormatterPlugin
+        return [ReportToolPlugin, DefaultFormatterPlugin,
+                TemplateFormatterPlugin]
 
 

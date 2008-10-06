@@ -9,10 +9,15 @@ objects, converts them to the ABCD XML format, transforms the ABCD
 data to an XSL formatting stylesheet and uses a XSL-PDF renderer to
 convert the stylesheet to PDF.
 """
-import sys, os, tempfile, traceback
+import sys
+import os
+import tempfile
+import traceback
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
+
 import bauble
 from bauble.utils.log import debug
 import bauble.utils as utils
