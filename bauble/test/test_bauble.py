@@ -25,7 +25,6 @@ class BaubleTests(BaubleTestCase):
         table = m.__table__
         self.session.save(m)
         m = self.session.query(meta.BaubleMeta).first()
-        print >>sys.stderr, type(m._created)
 
         # test that _created and _last_updated were created correctly
         self.assert_(hasattr(m, '_created') \
@@ -41,7 +40,7 @@ class BaubleTests(BaubleTestCase):
         engine = bauble.engine
         from bauble.meta import BaubleMeta
         table = BaubleMeta.__table__
-        debug(self.session.query(BaubleMeta).all())
+        #debug(self.session.query(BaubleMeta).all())
         table.insert(values={'id': 100}).execute(bind=engine)
         table.insert(values={'id': 101}).execute(bind=engine)
         # these two lines will fix it but aren't guaranteed to be safe
@@ -51,6 +50,8 @@ class BaubleTests(BaubleTestCase):
 
         # if not unique then should raise IntegrityError
         table.insert(values={'name': u'something'}).execute(bind=engine)
-        debug(engine.execute('select max(id) from bauble').fetchone()[0])
+        maxid = engine.execute('select max(id) from bauble').fetchone()[0]
+        self.assert_(maxid == 102, maxid)
+
 
 

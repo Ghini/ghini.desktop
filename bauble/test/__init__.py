@@ -4,6 +4,7 @@ from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 
 uri = 'sqlite:///:memory:'
+#uri = 'postgres://test:test@ceiba/test'
 
 def init_bauble(uri):
     try:
