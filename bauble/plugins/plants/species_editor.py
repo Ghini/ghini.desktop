@@ -1,13 +1,18 @@
 #
 # Species table definition
 #
-import os, sys, traceback
+import os
+import sys
+import traceback
 import xml.sax.saxutils as sax
 from operator import itemgetter
-import gtk, gobject
+
+import gtk
+import gobject
 from sqlalchemy import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exceptions import SQLError
+from sqlalchemy.exc import SQLError
+
 import bauble
 from bauble.prefs import prefs
 from bauble.i18n import *

@@ -1,12 +1,13 @@
 #
 # donor.py
 #
-
 import os
 import sys
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.exceptions import SQLError
+from sqlalchemy.exc import SQLError
+
 import bauble
 from bauble.editor import *
 from bauble.i18n import *

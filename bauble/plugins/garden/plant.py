@@ -12,7 +12,7 @@ import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exceptions import SQLError
+from sqlalchemy.exc import SQLError
 
 from bauble.i18n import *
 from bauble.error import check, CheckConditionError

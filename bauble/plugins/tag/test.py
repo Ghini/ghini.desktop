@@ -1,6 +1,8 @@
 import unittest
+
 from sqlalchemy import *
-from sqlalchemy.exceptions import *
+from sqlalchemy.exc import *
+
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 import bauble.plugins.tag as tag_plugin

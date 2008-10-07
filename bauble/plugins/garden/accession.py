@@ -18,7 +18,7 @@ import gobject
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exceptions import SQLError
+from sqlalchemy.exc import SQLError
 
 import bauble
 from bauble.error import check

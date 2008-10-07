@@ -5,9 +5,14 @@
 # with the system csv module
 #
 
-import os, csv, traceback
-import gtk, gobject
+import os
+import csv
+import traceback
+
+import gtk
+import gobject
 from sqlalchemy import *
+
 import bauble
 from bauble.i18n import *
 import bauble.utils as utils

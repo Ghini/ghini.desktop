@@ -9,7 +9,7 @@ import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
-from sqlalchemy.exceptions import SQLError
+from sqlalchemy.exc import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble

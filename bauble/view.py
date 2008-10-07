@@ -13,7 +13,7 @@ import gobject
 import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
-import sqlalchemy.exceptions as saexc
+import sqlalchemy.exc as saexc
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 
@@ -339,59 +339,6 @@ class MapperSearch(SearchStrategy):
         else:
             self._domains[d] = cls, properties
         self._properties[cls] = properties
-
-
-    # TODO: _resolve_identifiers needs a test
-    # TODO: we should be able to rewrite this recursively
-    def _resolve_identifiers(self, parent, identifiers):
-        '''
-        results the types of identifiers starting from parent where the
-        first item in the identifiers list is either a property or column
-        of parent
-        '''
-        def get_prop(parent, name):
-            """
-            resolves the property with name on parent depending on the
-            type of parent
-            """
-            try:
-                if isinstance(parent, Mapper):
-                    prop = parent.get_property(name)
-                else:
-                    prop = getattr(parent, name).property
-            except (KeyError, AttributeError):
-                if isinstance(parent, Mapper):
-                    parent_name = parent.local_table
-                else:
-                    parent_name = parent.key
-                raise ValueError('no column named %s in %s' % \
-                                 (name, parent_name))
-#            debug(prop)
-            if isinstance(prop, ColumnProperty):
-                # this way we don't have to support or screw around with
-                # column properties that use more than one column
-#                debug(parent.c[name])
-                return parent.c[name]
-            elif isinstance(prop, PropertyLoader):
-#                debug(prop.argument)
-                if isinstance(prop.argument, Mapper):
-                    return prop.argument.class_
-                else:
-                    return prop.argument
-            else:
-                raise ValueError('unsupported property type: %s' % type(prop))
-
-        props = []
-#        debug('%s: %s' % (parent , identifiers))
-        props.append(get_prop(parent, identifiers[0]))
-        for i in xrange(1, len(identifiers)):
-            parent = props[i-1]
-            if isinstance(parent, Column):
-                get_prop(parent, identifiers[i])
-            else:
-                props.append(get_prop(class_mapper(parent), identifiers[i]))
-#        debug(props)
-        return props
 
 
     def _get_results_from_query(self, tokens, session):
