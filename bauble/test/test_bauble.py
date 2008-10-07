@@ -1,9 +1,13 @@
 #
 # test_bauble.py
 #
-import os, sys, unittest
+import os
+import sys
+import unittest
 import datetime
+
 from sqlalchemy import *
+
 import bauble
 from bauble.utils.log import debug
 from bauble.view import SearchParser
@@ -45,11 +49,16 @@ class BaubleTests(BaubleTestCase):
         table.insert(values={'id': 101}).execute(bind=engine)
         # these two lines will fix it but aren't guaranteed to be safe
         maxid = engine.execute('select max(id) from bauble').fetchone()[0]
+
+        # TODO: if it turns out we have to do this then check this recipe:
+        # http://www.sqlalchemy.org/trac/wiki/UsageRecipes/SafeCounterColumns
         #if engine.name == 'postgres':
         #    engine.execute("select setval('bauble_id_seq', %s)" % (maxid + 1))
 
         # if not unique then should raise IntegrityError
         table.insert(values={'name': u'something'}).execute(bind=engine)
+
+
         maxid = engine.execute('select max(id) from bauble').fetchone()[0]
         self.assert_(maxid == 102, maxid)
 

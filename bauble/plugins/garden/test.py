@@ -1,7 +1,8 @@
 import unittest
+
 from sqlalchemy import *
-from sqlalchemy.exceptions import *
-#from testbase import BaubleTestCase, log
+from sqlalchemy.exc import *
+
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, dms_to_decimal, \

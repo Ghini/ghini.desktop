@@ -1,7 +1,7 @@
 import os
 
 from sqlalchemy import *
-from sqlalchemy.exceptions import *
+from sqlalchemy.exc import *
 
 # TURN OFF desktop.open for this module so that the test doesn't open
 # the report

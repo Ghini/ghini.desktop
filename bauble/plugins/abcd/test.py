@@ -6,7 +6,7 @@
 import os, unittest, tempfile
 import lxml.etree as etree
 from sqlalchemy import *
-from sqlalchemy.exceptions import *
+from sqlalchemy.exc import *
 import bauble
 import bauble.paths as paths
 from lxml.etree import Element, SubElement, ElementTree, dump
