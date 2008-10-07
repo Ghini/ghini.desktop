@@ -3,6 +3,11 @@ import os
 from sqlalchemy import *
 from sqlalchemy.exceptions import *
 
+# TURN OFF desktop.open for this module so that the test doesn't open
+# the report
+import bauble.utils.desktop as desktop
+desktop.open = lambda x: x
+
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 from bauble.utils.log import debug
@@ -58,5 +63,6 @@ class TemplateFormatterTests(BaubleTestCase):
         plants = self.session.query(Plant).all()
         filename = os.path.join(os.path.dirname(__file__), 'test.html')
         report = TemplateFormatterPlugin.format(plants, template=filename)
-        debug(report)
+        # TODO: need to make some sort of assertion here
+
 

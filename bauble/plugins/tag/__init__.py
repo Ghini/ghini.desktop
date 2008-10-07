@@ -3,11 +3,14 @@
 #
 # Description:
 #
-import os, traceback
+import os
+import traceback
+
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.exceptions import SQLError, InvalidRequestError
+
 import bauble
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -474,10 +477,11 @@ class TagPlugin(pluginmgr.Plugin):
         if bauble.gui is not None:
             _reset_tags_menu()
 
-
-    @classmethod
-    def start(cls):
-        _reset_tags_menu()
+    # TODO: why do we have this start() method, when does it ever get
+    # called...commented out on 10/6/2008
+#     @classmethod
+#     def start(cls):
+#         _reset_tags_menu()
 
 
 #class TagEditorView(GenericEditorView):
