@@ -12,7 +12,6 @@ from bauble.editor import *
 from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
-import bauble.utils.sql as sql_utils
 from bauble.plugins.garden.source import Donation
 
 
@@ -308,10 +307,9 @@ class GeneralDonorExpander(InfoExpander):
         self.set_widget_value('don_email_data', row.email)
         self.set_widget_value('don_tel_data', row.tel)
         self.set_widget_value('don_fax_data', row.fax)
-
-        donation_ids = select([donation_table.c.id],
-                              donation_table.c.donor_id==row.id)
-        ndons = sql_utils.count_select(donation_ids)
+        session = bauble.Session()
+        ndons = session.query(Donation).join('donor').\
+                filter_by(id=row.id).count()
         self.set_widget_value('don_ndons_data', ndons)
 
 
