@@ -383,8 +383,9 @@ class AccessionEditorView(GenericEditorView):
 
     expanders_pref_map = {'acc_notes_expander':
                           'editor.accession.notes.expanded',
-                          'acc_source_expander':
-                          'editor.accession.source.expanded'}
+#                           'acc_source_expander':
+#                           'editor.accession.source.expanded'
+                          }
 
     _tooltips = {
         'acc_species_entry': _("The species must be selected from the list "\
@@ -1072,7 +1073,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
-        self.init_source_expander()
+        self.init_source_tab()
         self.refresh_view() # put model values in view
 
 
@@ -1337,7 +1338,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.view.widgets.acc_next_button.set_sensitive(sensitive)
 
 
-    def init_source_expander(self):
+    def init_source_tab(self):
         '''
         initialized the source expander contents
         '''
