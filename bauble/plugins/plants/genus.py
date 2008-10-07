@@ -17,7 +17,6 @@ from bauble.i18n import _
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
-import bauble.utils.sql as sql_utils
 import bauble.utils.desktop as desktop
 from bauble.types import Enum
 from bauble.utils.log import debug

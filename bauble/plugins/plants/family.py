@@ -19,7 +19,6 @@ import bauble.editor as editor
 import bauble.utils.desktop as desktop
 from datetime import datetime
 import bauble.utils as utils
-import bauble.utils.sql as sql_utils
 from bauble.utils.log import debug
 from bauble.types import Enum
 from bauble.prefs import prefs
