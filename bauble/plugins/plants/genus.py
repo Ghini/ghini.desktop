@@ -2,7 +2,8 @@
 # Genera table module
 #
 
-import os, traceback
+import os
+import traceback
 import xml
 
 import gtk
@@ -88,6 +89,12 @@ def genus_markup_func(genus):
 
 
 class Genus(bauble.Base):
+    # TODO: the H in the hybrid name doesn't make much sense in this
+    # context since we don't include a second genus name as the
+    # hybrid, see the HISPID standard for a good explanation...we
+    # could just drop the H and create a second genus field so that if
+    # the second genus field is selected then the name automatically
+    # becomes genus1 x/+ genus2
     """
     Table: genus
 
@@ -160,7 +167,10 @@ class Genus(bauble.Base):
                 xml.sax.saxutils.escape(genus.author)] if s not in ('', None)])
 
 
+
 class GenusSynonym(bauble.Base):
+    """GenusSynonyms table (genus_synonym)
+    """
     __tablename__ = 'genus_synonym'
     __table_args__ = (UniqueConstraint('genus_id', 'synonym_id',
                                         name='genus_synonym_index'),
@@ -182,76 +192,6 @@ class GenusSynonym(bauble.Base):
     def __str__(self):
         return str(self.synonym)
 
-# genus_table = \
-#     bauble.Table('genus', bauble.metadata,
-#                  Column('id', Integer, primary_key=True),
-#                  # it is possible that there can be genera with the same
-#                  # name but different authors and probably means that at
-#                  # different points in literature this name was used but
-#                  # is now a synonym even though it may not be a synonym
-#                  # for the same species, this screws us up b/c you can
-#                  # now enter duplicate genera, somehow
-#                  # NOTE: we should at least warn the user that a duplicate
-#                  # is being entered
-#                  Column('genus', String(64), nullable=False, index=True),
-#                  Column('hybrid', Enum(values=['H', 'x', '+', None],
-#                                           empty_to_none=True)),
-#                  Column('author', Unicode(255)),
-#                  Column('qualifier',Enum(values=['s. lat.', 's. str', None],
-#                                          empty_to_none=True)),
-#                  Column('notes', UnicodeText),
-#                  Column('family_id', Integer, ForeignKey('family.id'),
-#                         nullable=False),
-#                  UniqueConstraint('genus', 'hybrid', 'author', 'family_id',
-#                                   name='genus_index'))
-
-
-
-# class Genus(bauble.BaubleMapper):
-
-#     synonyms = association_proxy('_synonyms', 'synonym')
-
-#     def __str__(self):
-#         return Genus.str(self)
-
-
-#     @staticmethod
-#     def str(genus, author=False):
-#         if genus.genus is None:
-#             return repr(genus)
-#         elif not author or genus.author is None:
-#             return ' '.join([s for s in [genus.hybrid, genus.genus,
-#                                          genus.qualifier] if s is not None])
-#         else:
-#             return ' '.join(
-#                 [s for s in [genus.hybrid, genus.genus,
-#                 genus.qualifier,
-#                 xml.sax.saxutils.escape(genus.author)] if s is not None])
-
-
-# genus_synonym_table = bauble.Table('genus_synonym', bauble.metadata,
-#                             Column('id', Integer, primary_key=True),
-#                             Column('genus_id', Integer, ForeignKey('genus.id'),
-#                                    nullable=False),
-#                             Column('synonym_id', Integer,
-#                                    ForeignKey('genus.id'), nullable=False),
-#                             UniqueConstraint('genus_id', 'synonym_id',
-#                                              name='genus_synonym_index'))
-
-
-# class GenusSynonym(bauble.BaubleMapper):
-
-
-#     def __init__(self, genus=None):
-#         """
-#         @param genus: a Genus object that will be used as the synonym
-#         """
-#         self.synonym = genus
-
-
-#     def __str__(self):
-#         return str(self.synonym)
-
 
 # late bindings
 from bauble.plugins.plants.family import Family
@@ -260,28 +200,7 @@ from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
                          order_by=['sp', 'infrasp_rank', 'infrasp'],
                          backref=backref('genus', uselist=False))
-# Genus._synonyms = relation('GenusSynonym',
-#                            primaryjoin=Genus.id==GenusSynonym.genus_id,
-#                            cascade='all, delete-orphan', uselist=True,
-#                            backref='genus')#, order_by=['genus', 'author'])
-#GenusSynonym.synonym = relation('Genus', uselist=False,
-#                                primaryjoin=GenusSynonym.synonym_id==Genus.id)
 
-# mapper(Genus, genus_table,
-#     properties = {\
-#     'species': relation(Species, cascade='all, delete-orphan',
-#                         order_by=['sp', 'infrasp_rank', 'infrasp'],
-#                         backref=backref('genus', uselist=False)),
-#     '_synonyms': relation(GenusSynonym,
-#                 primaryjoin=genus_table.c.id==genus_synonym_table.c.genus_id,
-#                 cascade='all, delete-orphan', uselist=True,
-#                 backref='genus')},
-#     order_by=['genus', 'author'])
-
-# mapper(GenusSynonym, genus_synonym_table,
-#     properties = {\
-#     'synonym': relation(Genus, uselist=False,
-#             primaryjoin=genus_synonym_table.c.synonym_id==genus_table.c.id)})
 
 
 class GenusEditorView(editor.GenericEditorView):
