@@ -18,10 +18,6 @@ from bauble.i18n import *
 from bauble.utils.log import debug, warning
 
 
-# TODO: this util module might need to be split up if it gets much larger
-# we could have a utils.gtk and utils.sql
-#
-
 #def search_tree_model(model, data, func=lambda row, data: row[0] == data):
 #    '''
 #    return the first occurence of data found in model
@@ -632,3 +628,17 @@ def make_label_clickable(label, on_clicked, *args):
     eventbox.connect('leave_notify_event', on_leave_notify)
     eventbox.connect('button_press_event', on_press)
     eventbox.connect('button_release_event', on_release, *args)
+
+
+def enum_values_str(col):
+    """
+    @param col: a string if table.col where col is an enum type
+
+    return a string with of the values on an enum type join by a comma
+    """
+    table_name, col_name = col.split('.')
+    #debug('%s.%s' % (table_name, col_name))
+    values = bauble.metadata.tables[table_name].c[col_name].type.values[:]
+    if None in values:
+        values[values.index(None)] = '&lt;None&gt;'
+    return ', '.join(values)
