@@ -114,43 +114,29 @@ class PlantHistory(bauble.Base):
     def __str__(self):
         return '%s: %s' % (self.date, self.description)
 
-# plant_history_table = bauble.Table('plant_history', bauble.metadata,
-#                             Column('id', Integer, primary_key=True),
-#                             Column('date', Date),
-#                             Column('description', UnicodeText),
-#                             Column('plant_id', Integer, ForeignKey('plant.id'),
-#                                    nullable=False))
-
-
-# class PlantHistory(bauble.BaubleMapper):
-#     def __str__(self):
-#         return '%s: %s' % (self.date, self.description)
-
-
-# TODO: where should i put the plant table's doc string
-#
-# """
-# acc_type
-# ------------
-# Plant: Whole plant
-# Seed/Spore: Seed or Spore
-# Vegetative Part: Vegetative Part
-# Tissue Culture: Tissue culture
-# Other: Other, probably see notes for more information
-# None: no information, unknown
-
-# acc_status
-# -------------
-# Living accession: Current accession in living collection
-# Dead: Noncurrent accession due to Death
-# Transfered: Noncurrent accession due to Transfer
-# Stored in dormant state: Stored in dormant state
-# Other: Other, possible see notes for more information
-# None: no information, unknown)
-# """
 
 
 class Plant(bauble.Base):
+    """Plant table (plant)
+
+    acc_type
+    ------------
+    Plant: Whole plant
+    Seed/Spore: Seed or Spore
+    Vegetative Part: Vegetative Part
+    Tissue Culture: Tissue culture
+    Other: Other, probably see notes for more information
+    None: no information, unknown
+
+    acc_status
+    -------------
+    Living accession: Current accession in living collection
+    Dead: Noncurrent accession due to Death
+    Transfered: Noncurrent accession due to Transfer
+    Stored in dormant state: Stored in dormant state
+    Other: Other, possible see notes for more information
+    None: no information, unknown)
+    """
     __tablename__ = 'plant'
     __table_args__ = (UniqueConstraint('code', 'accession_id'), {})
     __mapper_args__ = {'order_by': ['accession_id', 'plant.code']}
@@ -204,79 +190,8 @@ class Plant(bauble.Base):
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
                                 self.accession.species.markup())
 
-# plant_table = bauble.Table('plant', bauble.metadata,
-#                     Column('id', Integer, primary_key=True),
-#                     Column('code', Unicode(6), nullable=False),
-#                     Column('acc_type',
-#                            Enum(values=['Plant', 'Seed/Spore',
-#                                         'Vegetative Part',  'Tissue Culture',
-#                                         'Other', None], empty_to_none=True)),
-#                     Column('acc_status', Enum(values=['Living accession',
-#                                                       'Dead', 'Transferred',
-#                                                      'Stored in dormant state',
-#                                                       'Other', None],
-#                                               empty_to_none=True)),
-#                     Column('notes', UnicodeText),
-#                     Column('accession_id', Integer, ForeignKey('accession.id'),
-#                            nullable=False),
-#                     Column('location_id', Integer, ForeignKey('location.id'),
-#                            nullable=False),
-#                     UniqueConstraint('code', 'accession_id',
-#                                      name='plant_index'))
-
-
-
-# class Plant(bauble.BaubleMapper):
-
-#     __delimiter = None
-
-#     @staticmethod
-#     def refresh_delimiter(cls):
-#         row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
-#                                             plant_delimiter_key).execute()
-#         Plant.__delimiter = row.fetchone()['value']
-
-#     def __get_delimiter(self):
-#         if Plant.__delimiter is None:
-#             row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name==plant_delimiter_key).execute()
-#             result = row.fetchone()
-#             check(result is not None, 'plant delimiter not set in bauble meta')
-#             Plant.__delimiter = result['value']
-#         return Plant.__delimiter
-
-#     delimiter = property(__get_delimiter)
-
-
-#     def __str__(self):
-#         return "%s%s%s" % (self.accession, self.delimiter, self.code)
-
-
-#     def markup(self):
-#         #return "%s.%s" % (self.accession, self.plant_id)
-#         # FIXME: this makes expanding accessions look ugly with too many
-#         # plant names around but makes expanding the location essential
-#         # or you don't know what plants you are looking at
-#         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
-#                                 self.accession.species.markup())
-
 
 from bauble.plugins.garden.accession import Accession
-#
-# setup mappers
-#
-# plant_mapper = mapper(Plant, plant_table,
-#        properties={'history': relation(PlantHistory, backref='plant')})
-# mapper(PlantHistory, plant_history_table, order_by='date')
-
-
-def enum_values_str(col):
-    table_name, col_name = col.split('.')
-    #debug('%s.%s' % (table_name, col_name))
-    values = bauble.metadata.tables[table_name].c[col_name].type.values[:]
-    if None in values:
-        values[values.index(None)] = '&lt;None&gt;'
-    return ', '.join(values)
-
 
 
 class PlantEditorView(GenericEditorView):
@@ -285,16 +200,16 @@ class PlantEditorView(GenericEditorView):
 
     _tooltips = {
         'plant_code_entry': _('The plant code must be a unique code'),
-        'plant_acc_entry': _('The accession must be selected from the list of '
-                             'completions.  To add an accession use the '\
+        'plant_acc_entry': _('The accession must be selected from the list ' \
+                             'of completions.  To add an accession use the '\
                              'Accession editor'),
         'plant_loc_combo': _('The location of the plant in your collection.'),
-        'plant_acc_type_combo': _('The type of the plant material.\n\n'
-                                  'Possible values: %s' %
-                                  enum_values_str('plant.acc_type')),
-        'plant_acc_status_combo': _('The status of this plant in the '
-                                    'collection.\nPossible values: %s' %
-                                    enum_values_str('plant.acc_status')),
+        'plant_acc_type_combo': _('The type of the plant material.\n\n' \
+                                  'Possible values: %s') \
+                                  % utils.enum_values_str('plant.acc_type'),
+        'plant_acc_status_combo': _('The status of this plant in the ' \
+                                    'collection.\nPossible values: %s') \
+                                   % utils.enum_values_str('plant.acc_status'),
         'plant_notes_textview': _('Miscelleanous notes about this plant.'),
         }
 

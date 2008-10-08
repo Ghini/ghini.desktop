@@ -166,25 +166,6 @@ def acc_markup_func(acc):
 
 
 
-
-# prov_type:
-# ----------
-# "Wild", # Wild,
-# "Propagule of cultivated wild plant", # Propagule of wild plant in cultivation
-# "Not of wild source", # Not of wild source
-# "Insufficient Data", # Insufficient data
-# "Unknown"
-
-# wild_prov_status:
-# -----------------
-# "Wild native", # Endemic found within it indigineous range
-# "Wild non-native", # Propagule of wild plant in cultivation
-# "Cultivated native", # Not of wild source
-# "Insufficient Data", # Insufficient data
-# "Unknown",
-
-# date: date accessioned
-
 # TODO: accession should have a one-to-many relationship on verifications
     #ver_level = StringCol(length=2, default=None) # verification level
     #ver_name = StringCol(length=50, default=None) # verifier's name
@@ -193,10 +174,12 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
-# TODO: see HISPID for a good explanation of what should be included
-# in the verification data
 class Verification(bauble.Base):
+    """Verification table (verification)
+    """
     __tablename__ = 'verification'
+
+    # columns
     verifier = Column('verifier', Unicode(64))
     date = Column(Date)
     literature = Column(UnicodeText) # citation?
@@ -204,9 +187,54 @@ class Verification(bauble.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'))
 
 
-
-
 class Accession(bauble.Base):
+    """Accession table (accession)
+
+    Columns
+    ----------
+    code:
+      the accession code
+    prov_type:
+      provenance type, possible values are Wild, Propagule of cultivated
+      wild plant, Not of wild source, Insufficient Data, Unknown
+    wild_prov_status:
+      if prov_type is Wild then this column can be used to give more
+      provenance information, possible values are Wild native,
+      Wild non-native, Cultivated native, Insufficient Data, Unknown
+    date:
+      the date this accession was accessioned
+    source_type:
+      the type of the source of this accession, possible values are
+      Collection and Donation
+    notes:
+      misc. notes relating to this accession
+    id_qual:
+      the id qualifier is used to indicate uncertainty in the
+      identification of this accession
+    private:
+      flag to indicate where this information is sensitive and should be
+      kept private
+    species_id:
+      foreign key to the species table
+
+    Relations
+    ----------
+    species:
+      the species this accession refers to
+    _collection:
+      this relation should never be used directly, use the source property
+      instead
+    _donation:
+      this relation should never be used directly, use the source property
+      instead
+    source:
+      source can either be a Donation, Collection or None depending on the
+      value of the source_type
+    plants:
+      a list of plants related to this accession
+    verifications:
+      a list of verifications on the identification of this accession
+    """
     __tablename__ = 'accession'
     __mapper_args__ = {'order_by': 'code'}
 
@@ -219,10 +247,10 @@ class Accession(bauble.Base):
                                     "Unknown",
                                     None]), default=None)
     wild_prov_status = Column(Enum(values=["Wild native",
-                                            "Wild non-native",
-                                            "Cultivated native",
-                                            "Insufficient Data",
-                                            "Unknown",
+                                           "Wild non-native",
+                                           "Cultivated native",
+                                           "Insufficient Data",
+                                           "Unknown",
                                             None]), default=None)
     date = Column(Date)
     source_type = Column(Enum(values=['Collection', 'Donation', None]),
@@ -239,6 +267,14 @@ class Accession(bauble.Base):
     # relations
     species = relation('Species', uselist=False, backref=backref('accessions',
                                                 cascade='all, delete-orphan'))
+
+    # TODO: the _accession property on the Collection and Donation
+    # tables, if you try to set the accession for one of these objects
+    # using the _accession property you will have problems using
+    # Accession.source because the Accession.source_type property
+    # won't be set...previously (0.8) the property was _accession, we
+    # should probably change it back and make accession a property
+    # that properly sets the source type or just the source
     _collection = relation('Collection', cascade='all, delete-orphan',
                            uselist=False, backref=backref('accession',
                                                           uselist=False))
@@ -284,99 +320,10 @@ class Accession(bauble.Base):
     def markup(self):
         return '%s (%s)' % (self.code, self.species.markup())
 
-# accession_table = bauble.Table('accession', bauble.metadata,
-#                         Column('id', Integer, primary_key=True),
-#                         Column('code', Unicode(20), nullable=False,
-#                                unique=True),
-#                         Column('prov_type',
-#                                Enum(values=['Wild',
-#                                           'Propagule of cultivated wild plant',
-#                                             "Not of wild source",
-#                                             "Insufficient Data",
-#                                             "Unknown",
-#                                             None],
-#                                     empty_to_none=True)),
-#                         Column('wild_prov_status',
-#                                Enum(values=["Wild native",
-#                                             "Wild non-native",
-#                                             "Cultivated native",
-#                                             "Insufficient Data",
-#                                             "Unknown",
-#                                             None],
-#                                     empty_to_none=True)),
-#                         Column('date', Date),
-#                         Column('source_type',
-#                                Enum(values=['Collection', 'Donation',
-#                                             None], empty_to_none=True)),
-#                         Column('notes', UnicodeText),
-#                         # "id_qual" new in 0.7
-#                         Column('id_qual',
-#                                Enum(values=['aff.', 'cf.', 'Incorrect',
-#                                             'forsan', 'near', '?', None],
-#                                     empty_to_none=True)),
-#                         # "private" new in 0.8b2
-#                         Column('private', Boolean, default=False),
-#                         Column('species_id', Integer, ForeignKey('species.id'),
-#                                nullable=False))
-
-
-
-
 
 from bauble.plugins.garden.source import Donation, Collection
 from bauble.plugins.garden.plant import Plant, PlantEditor
 
-
-# NOTES: be careful with the _accession property on the Collection and
-# Donation tables, if you try to set the accession for one of these objects
-# using the _accession property you will have problems using Accession.source
-# because the Accession.source_type property won't be set
-# mapper(Accession, accession_table,
-#     properties = {\
-#         '_collection':
-#         relation(Collection, cascade='all, delete-orphan', uselist=False,
-#                  backref=backref('_accession', uselist=False)),
-#         '_donation':
-#         relation(Donation, cascade='all, delete-orphan', uselist=False,
-#                  backref=backref('_accession', uselist=False)),
-#         'plants':
-#         relation(Plant, cascade='all, delete-orphan',
-#                  order_by=plant_table.c.code, backref='accession'),
-#         'verifications':
-#         relation(Verification, order_by='date', cascade='all, delete-orphan',
-#                  backref='accession')},
-#        )
-
-# mapper(Verification, verification_table)
-
-
-# TODO: we don't use this anymore i don't think and its broken
-# anyways, remove it?
-#
-# def get_source(row):
-#     # TODO: in one of the release prior to 0.4.5 we put the string 'NoneType'
-#     # into some of the accession.source_type columns, this can cause an error
-#     # here but it's not critical, but we should make sure this doesn't happen
-#     # again in the future, maybe incorporated into a test
-#     if row.source_type == None:
-#         return None
-#     elif row.source_type == tables['Donation'].__name__:
-#         # the __name__ should be 'Donation'
-#         return row._donation
-#     elif row.source_type == tables['Collection'].__name__:
-#         return row._collection
-#     else:
-#         raise ValueError(_('unknown source type: %s') % str(row.source_type))
-
-
-def _val_str(col):
-    values = [str(v) for v in col.type.values if v is not None]
-    if None in col.type.values:
-        if hasattr(gtk.Widget, 'set_tooltip_markup'):
-            values.append('&lt;None&gt;')
-        else:
-            values.append('<None>')
-    return ', '.join(values)
 
 
 class AccessionEditorView(GenericEditorView):
@@ -392,17 +339,17 @@ class AccessionEditorView(GenericEditorView):
                                "of completions. To add a species use the "\
                                "Species editor."),
         'acc_code_entry': _("The accession ID must be a unique code"),
-        'acc_id_qual_combo': _("The ID Qualifier\n\n"
-                               "Possible values: %s"),
-                              #% _val_str(accession_table.c.id_qual)),
+        'acc_id_qual_combo': _("The ID Qualifier\n\n" \
+                               "Possible values: %s") \
+                               % utils.enum_values_str('accession.id_qual'),
         'acc_date_entry': _('The date this species was accessioned.'),
-        'acc_prov_combo': _('The origin or source of this accession.\n\n'
-                            'Possible values: %s'),
-                            #% _val_str(accession_table.c.prov_type)),
-        'acc_wild_prov_combo': _('The wild status is used to clarify the '
-                                 'provenance\n\nPossible values: %s'),
-                                 #% _val_str(accession_table.c.wild_prov_status)),
-        'acc_source_type_combo': _('The source type is in what way this '
+        'acc_prov_combo': _('The origin or source of this accession.\n\n' \
+                            'Possible values: %s') \
+                             % utils.enum_values_str('accession.prov_type'),
+        'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
+                                 'provenance\n\nPossible values: %s') \
+                        % utils.enum_values_str('accession.wild_prov_status'),
+        'acc_source_type_combo': _('The source type is in what way this ' \
                                    'accession was obtained'),
         'acc_notes_textview': _('Miscelleanous notes about this accession.'),
         'acc_private_check': _('Indicates whether this accession record ' \
