@@ -1,15 +1,17 @@
 #
 # test_view.py
 #
-import os, sys, unittest
+import os
+import sys
+import unittest
+
 from sqlalchemy import *
+
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
-#import bauble.plugins.plants.test as plants_test
-#import bauble.plugins.garden.test as garden_test
 from bauble.view import SearchView, MapperSearch, ResultSet
-#import testbase
-from bauble.test import BaubleTestCase#, log
+from bauble.utils.log import debug
+from bauble.test import BaubleTestCase
 
 # test search parser
 
@@ -118,6 +120,14 @@ all_tests = value_tests.keys() + domain_tests + query_tests
 
 parser = SearchParser()
 
+
+# TODO: should we make these search tests independent of any plugins,
+# we could use setup() to initialize a custom MapperSearch instead of
+# expecting a plugin to set it up
+
+# TODO: these tests still need to be more extensive, see the above
+# values_tests
+
 class SearchTests(BaubleTestCase):
 
     def __init__(self, *args):
@@ -125,46 +135,9 @@ class SearchTests(BaubleTestCase):
 
     def setUp(self):
         super(SearchTests, self).setUp()
-#        plants_test.setUp_test_data()
-#        garden_test.setUp_test_data()
 
     def tearDown(self):
         super(SearchTests, self).tearDown()
-        #garden_test.tearDown_test_data()
-        #plants_test.tearDown_test_data()
-
-
-    def test_search(self):
-        #
-        # DISABLED
-        #
-        return
-        view = SearchView()
-        from bauble.plugins.plants.family import Family
-        from bauble.plugins.plants.genus import Genus
-        # MySQL doesn't allow '0' for keys it seems
-        family_ids = [1, 2]
-        for f in family_ids:
-            family_table.insert({'id': f, 'family': unicode(f)}).execute()
-        genus_ids = [2, 3]
-        for g in genus_ids:
-            genus_table.insert({'id': g, 'genus': unicode(g),
-                                'family_id': g-2}).execute()
-
-        test_text = {'1': [(Family, 1)],
-                     'fam=1': [(Family, 1)],
-#                     'fam=1 gen=2': [(Family, 1), (Genus, 2)],
-                     'fam where family=1': [(Family, 1)],
-                     'gen where family.family=1': [(Genus, 3)]}
-
-        for text, expected in test_text.iteritems():
-            results = ResultSet()
-            for strategy in view.search_strategies:
-                results.add(strategy.search(text, session=self.session))
-
-            es = set([self.session.load(cls, cls_id) for cls, cls_id in expected])
-            obj_str = lambda o: '%s(%s)' % (o.__class__.__name__, o.id)
-            self.assert_(es == set(results), [obj_str(o) for o in results])
 
 
     def test_search_by_values(self):
@@ -174,9 +147,6 @@ class SearchTests(BaubleTestCase):
         This test does not test that of the plugins setup their search
         properly, it only tests the MapperSearch works as expected
         """
-        # TODO: should we make these search tests independent of any
-        # plugins, we could use setup() to initialize a custom
-        # MapperSearch instead of expecting a plugin to set it up
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants.genus import Genus
         view = SearchView()
@@ -262,9 +232,28 @@ class SearchTests(BaubleTestCase):
         self.assert_(results.count() == 1 and isinstance(f, Family) \
                      and f.id==family.id)
 
-        # TODO: search with multiple conditions
-        #s = 'family where genera.genus=genus and '
-        #results = mapper_search.search('family where genera.genus=genus')
+        # search with multiple conditions and'ed together
+        #debug('--------')
+        f3 = Family(family=u'fam3')
+        g3 = Genus(family=f3, genus=u'genus2')
+        self.session.add_all([f3, g3])
+        self.session.commit()
+        s = 'genus where genus=genus2 and family.family=fam3'
+        results = mapper_search.search(s)
+        g = list(results)[0]
+        self.assert_(results.count() == 1 and isinstance(g, Genus) \
+                     and g.id==g3.id)
+
+        # search with or conditions
+        g4 = Genus(family=f3, genus=u'genus4')
+        self.session.add(g4)
+        self.session.commit()
+        s = 'genus where genus=genus2 or genus=genus'
+        results = mapper_search.search(s)
+        self.assert_(results.count() == 3)
+        self.assert_(sorted([r.id for r in results]) \
+                     == [g.id for g in (genus, genus2, g3)])
+
 
 
     def test_search_parser(self):
