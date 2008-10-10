@@ -13,6 +13,7 @@ import gobject
 import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
+import sqlalchemy.sql
 import sqlalchemy.exc as saexc
 from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
@@ -350,25 +351,30 @@ class MapperSearch(SearchStrategy):
         Returns a sqlalchemy.orm.Query that will retreive the search
         results for the search tokens
         """
+        # We build the queries by return the ids of the rows that
+        # match the condition and then returning a query to return the
+        # object that have ids in the build query
+        #
+        # TODO: support 'not' as well, e.g sp where
+        # genus.genus=Maxillaria and not genus.family=Orchidaceae
         domain, expr = tokens['query']
         check(domain in self._domains, 'Unknown search domain: %s' % domain)
         cls = self._domains[domain][0]
         mapper = class_mapper(cls)
         expr_iter = iter(expr)
         op = None
-        query = session.query(cls)
+        id_query = session.query(cls.id)
         clause = prev_clause = None
         for e in expr_iter:
             idents, cond, val = e
-##            debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
+            #debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
             if len(idents) == 1:
                 col = idents[0]
                 check(col in mapper.c, 'The %s table does not have a '\
                        'column named %s' % \
                        (mapper.local_table.name, col))
-                #clause = mapper.c[idents[0]].op(cond)(unicode(val))
-                #query.filter(mapper.c[idents[0]].op(cond)(unicode(val)))
-                query = query.filter(getattr(cls, col).op(cond)(unicode(val)))
+                clause = cls.id.in_(id_query.filter(getattr(cls, col).\
+                                           op(cond)(unicode(val))).statement)
             else:
                 relations = idents[:-1]
                 col = idents[-1]
@@ -378,48 +384,23 @@ class MapperSearch(SearchStrategy):
                 # that work on all database or just normalize the
                 # conditions depending on the databases
 
-                # TODO: the like condition takes fucking ages here if
-                # the search query is something like:
+                # TODO: the like condition takes fucking ages here on
+                # sqlite if the search query is something like:
                 # "children.column like something"
                 where = "%s %s '%s'" % (col, cond, val)
-                query = query.join(*relations).filter(where)
-                #debug(query)
-                #debug(list(query))
-
-
-#             if len(idents) == 1:
-#                 col = idents[0]
-#                 # TODO: at the moment this only works if the
-#                 # identifier is a column but in theory if we should be
-#                 # able to resolve the identifier if its not a column
-#                 # and treat it like a search expression, maybe we
-#                 # could create a custom search string and pass it to
-#                 # self.search() or an sql statement from it
-#                 check(col in mapper.c, 'The %s table does not have a '\
-#                        'column named %s' % \
-#                        (mapper.local_table.name, col))
-#                 clause = mapper.c[idents[0]].op(cond)(unicode(val))
-#             else:
-#                 resolved = self._resolve_identifiers(cls, idents)
-#                 query = query.join(idents[:-1])
-#                 clause = resolved[-1].op(cond)(unicode(val))
+                clause = cls.id.in_(id_query.join(*relations).\
+                                    filter(where).statement)
 
             if op is not None:
                 check(op in ('and', 'or'), 'Unsupported operator: %s' % op)
-                import sqlalchemy.sql
                 op = getattr(sqlalchemy.sql, '%s_' % op)
                 clause = op(prev_clause, clause)
-
             prev_clause = clause
-
             try:
                 op = expr_iter.next()
             except StopIteration:
                 pass
-
-        ##return query.filter(clause)
-        debug(query)
-        return query
+        return session.query(cls).filter(clause)
 
 
     def search(self, text, session=None):
@@ -435,7 +416,6 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
-#            debug('searching values')
             # make searches in postgres case-insensitive, i don't think other
             # databases support a case-insensitive like operator
             if bauble.engine.name == 'postgres':
