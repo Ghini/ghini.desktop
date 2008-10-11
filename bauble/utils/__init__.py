@@ -487,6 +487,7 @@ def natsort_key(obj):
 
     use like: sorted(some_list, key=utils.natsort_key)
     """
+    # TODO: what happens with natsort and unicode characters
     item = str(obj)
     chunks = __natsort_rx.split(item)
     for ii in range(len(chunks)):
@@ -521,22 +522,25 @@ def delete_or_expunge(obj):
         session.delete(obj)
 
 
-def chunk(iterable, n):
-    '''
-    return iterable in chunks of size n
-    '''
-    # TODO: this could probably be implemented way more efficiently,
-    # maybe using itertools
-    chunk = []
-    ctr = 0
-    for it in iterable:
-        chunk.append(it)
-        ctr += 1
-        if ctr >= n:
-            yield chunk
-            chunk = []
-            ctr = 0
-    yield chunk
+# TODO: this can probably be removed, i don't see any reason to use it
+# rather than itertools.islice
+#
+# def chunk(iterable, n):
+#     '''
+#     return iterable in chunks of size n
+#     '''
+#     # TODO: this could probably be implemented way more efficiently,
+#     # maybe using itertools
+#     chunk = []
+#     ctr = 0
+#     for it in iterable:
+#         chunk.append(it)
+#         ctr += 1
+#         if ctr >= n:
+#             yield chunk
+#             chunk = []
+#             ctr = 0
+#     yield chunk
 
 
 def reset_sequence(column):

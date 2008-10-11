@@ -25,7 +25,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
-from bauble.utils.log import debug
+from bauble.utils.log import debug, error
 from bauble.utils.pyparsing import *
 
 # BUGS: - https://bugs.launchpad.net/bauble/+bug/147015 - Show
@@ -293,8 +293,8 @@ class SearchStrategy(object):
         @param text: the search string
         @param: the session to use for the search
 
-        Return an interable of a list of object retrieved from the
-        text search string
+        Return an iterator that iterates over mapped classes retrieved
+        from the search.
         '''
         pass
 
@@ -353,7 +353,9 @@ class MapperSearch(SearchStrategy):
         """
         # We build the queries by return the ids of the rows that
         # match the condition and then returning a query to return the
-        # object that have ids in the build query
+        # object that have ids in the build query.  This might seem
+        # like a roundabout way but it works on databases don't
+        # support union and/or intersect
         #
         # TODO: support 'not' as well, e.g sp where
         # genus.genus=Maxillaria and not genus.family=Orchidaceae
@@ -522,6 +524,7 @@ class ResultSet(object):
             self._results = set(results)
         else:
             self._results = set()
+        self.step_size = 100
 
 
     def add(self, results):
@@ -553,11 +556,10 @@ class ResultSet(object):
 
 
     def __iter__(self):
-        # TODO: the problem we have with doing iteration this way is
-        # that if this ResultSet contains other ResultSets that are
-        # large we'll be creating lots of large set objects....of
-        # course if the sets are really only holding references to the
-        # objects then it might not be really be a problem
+        # If this ResultSet contains other ResultSets that are large
+        # we'll be creating lots of large set objects. This shouldn't
+        # be too much of a problem since the sets would only be
+        # holding references to the same object
         self._iterset = set()
         self._iter = itertools.chain(*self._results)
         return self
@@ -864,8 +866,8 @@ class SearchView(pluginmgr.View):
 
     def populate_results(self, results, check_for_kids=False):
         def on_error(exc):
-            debug('SearchView.populate_results:')
-            debug(exc)
+            error('SearchView.populate_results:')
+            error(exc)
         def on_quit():
             try:
                 self.results_view.set_cursor(0)
@@ -885,31 +887,29 @@ class SearchView(pluginmgr.View):
         model.set_sort_column_id(-1, gtk.SORT_ASCENDING)
         utils.clear_model(self.results_view)
 
-        # TODO: what happens with natsort and unicode characters
-
-        # insert them into the model by sorted groups
+        # group the results by type. this is where all the results are
+        # actually fetched from the database
         groups = []
         for key, group in itertools.groupby(results, lambda x: type(x)):
             groups.append(sorted(group, key=utils.natsort_key))
 
-        chunk_size = 100
+        steps = 100
         update_every = 1
         steps_so_far = 0
 
-        # chunk the groups into pieces of chunk_size and yield after adding
-        # each piece to the model
-        for piece in utils.chunk(itertools.chain(*groups), chunk_size):
-            for obj in piece:
-                parent = model.append(None, [obj])
-                obj_type = type(obj)
-                if check_for_kids:
-                    kids = self.view_meta[obj_type].get_children(obj)
-                    if len(kids) > 0:
-                        model.append(parent, ['-'])
-                elif self.view_meta[obj_type].children is not None:
+        # iterate over slice of size "steps", yield after adding each
+        # slice to the model
+        for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
+            parent = model.append(None, [obj])
+            obj_type = type(obj)
+            if check_for_kids:
+                kids = self.view_meta[obj_type].get_children(obj)
+                if len(kids) > 0:
                     model.append(parent, ['-'])
+            elif self.view_meta[obj_type].children is not None:
+                model.append(parent, ['-'])
 
-            steps_so_far += chunk_size
+            steps_so_far += steps
             if steps_so_far % update_every == 0:
                 percent = float(steps_so_far)/float(nresults)
                 if 0< percent < 1.0:
