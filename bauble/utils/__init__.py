@@ -18,23 +18,6 @@ from bauble.i18n import *
 from bauble.utils.log import debug, warning
 
 
-#def search_tree_model(model, data, func=lambda row, data: row[0] == data):
-#    '''
-#    return the first occurence of data found in model
-#
-#    @param model: the tree model to search
-#    @param data: what we are searching for
-#    @param func: the function to use to compare each row in the model, the
-#        default is C{lambda row, data: row[0] == data}
-#    '''
-#    result = None
-#    for row in model:
-#        if func(row, data):
-#            return row
-#        result = search_tree_model(row.iterchildren(), data, func)
-#    return result
-
-
 
 def find_dependent_tables(table, metadata=None):
     '''
@@ -109,27 +92,23 @@ def tree_model_has(tree, value):
     return len(search_tree_model(tree, value)) > 0
 
 
-def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
+def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
     """
-    Return a list of tree iters to all occurences of data in model
+    Return a iterable of gtk.TreeModelRow instances to all occurences
+    of data in model
 
-    @parant: a gtk.TreeModelRow instance
-    This function only search one deep below the parent.
+    @parent: a gtk.TreeModelRow instance
+    @data: the data to look for
+    @cmp: the function to call on each row to check if it matches
+    data, default is C{lambda row, data: row[0] == data}
     """
-    # TODO: This function is complete broken
-    test_func = lambda model, path, iter, data: model[iter][0]==data
-    results = []
-    for row in parent.iterchildren():
-        search_tree_model(row, data, func)
-        if func(row, data):
-#            debug('row %s: %s' % (row, row[0]))
-            try:
-                results.extend(row.iter)
-            except:
-                results = [row.iter]
-#    debug(results)
+    results = set()
+    def func(model, path, iter, dummy=None):
+        if cmp(model[iter], data):
+            results.add(model[iter])
+        return False
+    parent.model.foreach(func)
     return results
-
 
 
 def clear_model(obj_with_model):

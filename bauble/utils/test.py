@@ -33,9 +33,8 @@ class UtilsGTKTests(unittest.TestCase):
         to_find.append(model.append(None, ['something']))
 
         root = model.get_iter_root()
-        #debug(model[root])
         results = utils.search_tree_model(model[root], 'something')
-        #debug(results)
+        self.assert_(sorted([r.path for r in results]), sorted(to_find))
 
 
 
