@@ -7,6 +7,7 @@ import unittest
 
 from sqlalchemy import *
 
+import bauble
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView, MapperSearch, ResultSet
@@ -128,6 +129,7 @@ parser = SearchParser()
 # TODO: these tests still need to be more extensive, see the above
 # values_tests
 
+
 class SearchTests(BaubleTestCase):
 
     def __init__(self, *args):
@@ -138,6 +140,27 @@ class SearchTests(BaubleTestCase):
 
     def tearDown(self):
         super(SearchTests, self).tearDown()
+
+
+    def test_result_set(self):
+        # TODO: This doesn't really do anything at the moment, i
+        # started writing it to test out slicing with the ResultSet
+
+        return
+
+        from bauble.plugins.plants.family import Family
+        ids = xrange(1,1000)
+        table = Family.__table__
+        values = []
+        for i in ids:
+            values.append({'id': i, 'family': u'%s' % i})
+        bauble.engine.execute(table.insert(), values)
+        view = SearchView()
+        mapper_search = view.search_strategies[0]
+        result = mapper_search.search('fam=*')
+        #debug('list')
+        for v in result: pass
+        #debug('done')
 
 
     def test_search_by_values(self):

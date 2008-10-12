@@ -35,6 +35,7 @@ from bauble.utils.log import debug, warning
 #    return result
 
 
+
 def find_dependent_tables(table, metadata=None):
     '''
     return an iterator with all tables the depend on table
@@ -109,14 +110,17 @@ def tree_model_has(tree, value):
 
 
 def search_tree_model(parent, data, func=lambda row, data: row[0] == data):
-    '''
-    return a list of tree iters to all occurences of data in model
+    """
+    Return a list of tree iters to all occurences of data in model
 
+    @parant: a gtk.TreeModelRow instance
     This function only search one deep below the parent.
-    '''
+    """
+    # TODO: This function is complete broken
+    test_func = lambda model, path, iter, data: model[iter][0]==data
     results = []
-    for row in parent:
-        search_tree_model(row.iterchildren(), data, func)
+    for row in parent.iterchildren():
+        search_tree_model(row, data, func)
         if func(row, data):
 #            debug('row %s: %s' % (row, row[0]))
             try:

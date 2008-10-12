@@ -5,12 +5,17 @@
 # Description: test for the Plant plugin
 #
 
-import os, sys, unittest
+import os
+import sys
+import unittest
+
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from sqlalchemy.orm.exc import *
+
 import bauble
 import bauble.utils as utils
+from bauble.utils.log import debug
 from bauble.plugins.plants.species_model import Species, VernacularName, \
      SpeciesSynonym, DefaultVernacularName
 from bauble.plugins.plants.family import *
@@ -177,6 +182,7 @@ class FamilyTests(PlantTestCase):
 
         # test that deleting a family deletes an orphaned genus
         self.session.delete(family)
+        self.session.commit()
         query = self.session.query(Genus).filter_by(family_id=family.id)
         self.assertRaises(NoResultFound, query.one)
 
@@ -223,6 +229,7 @@ class FamilyTests(PlantTestCase):
         family.synonyms.append(family2)
         self.session.commit()
         self.session.delete(family2)
+        self.session.commit()
         self.assert_(self.session.query(FamilySynonym).count() == 0)
 
         # test that deleting the previous synonyms didn't delete the
@@ -234,6 +241,7 @@ class FamilyTests(PlantTestCase):
         family.synonyms.append(family2)
         self.session.commit()
         self.session.delete(family)
+        self.session.commit()
         self.assert_(self.session.query(FamilySynonym).count() == 0)
 
 
@@ -306,10 +314,11 @@ class GenusTests(PlantTestCase):
         self.assert_(self.session.query(GenusSynonym).count() == 0)
 
         # test that deleting a genus that is a synonym of another genus
-        # deletes all the dangling object s
+        # deletes all the dangling objects
         genus.synonyms.append(genus2)
         self.session.commit()
         self.session.delete(genus2)
+        self.session.commit()
         self.assert_(self.session.query(GenusSynonym).count() == 0)
 
         # test that deleting the previous synonyms didn't delete the
@@ -317,10 +326,13 @@ class GenusTests(PlantTestCase):
         self.assert_(self.session.query(Genus).get(genus.id))
 
         # test that deleting a genus that has synonyms deletes all
-        # the synonyms that refer to that genus deletes all the
+        # the synonyms that refer to that genus
+        genus2 = Genus(family=family, genus=u'genus2')
+        self.session.add(genus2)
         genus.synonyms.append(genus2)
         self.session.commit()
         self.session.delete(genus)
+        self.session.commit()
         self.assert_(self.session.query(GenusSynonym).count() == 0)
 
 
@@ -354,6 +366,8 @@ class GenusTests(PlantTestCase):
 
 class SpeciesTests(PlantTestCase):
 
+    def text_re_string(self):
+        rw = '$genus$'
 
     def test_string(self):
         def get_sp_str(id, **kwargs):
@@ -362,7 +376,7 @@ class SpeciesTests(PlantTestCase):
         for id, s in species_str_map.iteritems():
             spstr = get_sp_str(id)
             self.assert_(spstr == s,
-                         '%s != %s ** %s' % (spstr, s, unicode(spstr)))
+                         '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
 
         for id, s in species_str_authors_map.iteritems():
             spstr = get_sp_str(id, authors=True)

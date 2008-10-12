@@ -25,10 +25,9 @@ with everything already built in except for GTK+ and the optional XSL->PDF
 renderer which is need to use the formatter plugin.
 
 Python 2.4 (not tested with other versions but they may work as well)
-SQLAlchemy>=0.3.0
-FormEncode>=0.6
-pygtk>=2.8
-lxml>=1.1
+SQLAlchemy>=0.5.0
+pygtk>=2.12
+lxml>=2.0
 At least one of the following database connectors:
     pysqlite >= 2.3.2
 	psycopg2 >= 2.0.5 

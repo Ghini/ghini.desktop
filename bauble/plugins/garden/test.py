@@ -19,8 +19,9 @@ from bauble.plugins.garden.institution import Institution
 
 # TODO: create a test to make sure that if you delete an accession then the
 # plants that are "children" of this accession are also deleted
-
+from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
+                        'date': datetime.today(),
                         'source_type': u'Donation'},
                        {'id':2 , 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},

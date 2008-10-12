@@ -414,8 +414,7 @@ class RegistryEntry(dict):
 
 
 class Plugin(object):
-
-    '''
+    """
     tables: a list of tables that this plugin provides
     tools: a list of BaubleTool classes that this plugin provides, the
         tools' category and label will be used in Bauble's "Tool" menu
@@ -423,8 +422,8 @@ class Plugin(object):
         plugin depends on
     cmds: a map of commands this plugin handled with callbacks,
         e.g dict('cmd', lambda x: handler)
-    '''
-    tables = []
+    """
+    #tables = []
     commands = []
     tools = []
     depends = []
@@ -437,6 +436,15 @@ class Plugin(object):
     def init(cls):
         '''
         init is run when Bauble is first started
+        '''
+        pass
+
+
+    @classmethod
+    def install(cls):
+        '''
+        install() is run when a new plugin is installed, it is usually
+        only run once
         '''
         pass
 

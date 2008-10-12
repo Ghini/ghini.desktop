@@ -329,6 +329,7 @@ class CSVImporter(Importer):
                         # rows so that those rows that are blank will
                         # accept the default values
                         insert = table.insert(values=cleaned)
+                        #debug(insert)
                         connection.execute(insert)#, cleaned)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0:
@@ -348,6 +349,7 @@ class CSVImporter(Importer):
             debug(insert)
             debug(cleaned)
             debug(e)
+            #debug(traceback.format_exc())
             utils.message_details_dialog(_('Error:  %s') % \
                                          utils.xml_safe_utf8(e),
                                          traceback.format_exc(),

@@ -107,7 +107,7 @@ class PlantSearch(MapperSearch):
 class PlantHistory(bauble.Base):
     __tablename__ = 'plant_history'
     _mapper_args__ = {'order_by': 'date'}
-    date = Column(Date)
+    date = Column(bauble.Date)
     description = Column(UnicodeText)
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 

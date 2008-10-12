@@ -1,4 +1,6 @@
+import sys
 import unittest
+
 import bauble
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
@@ -10,7 +12,8 @@ def init_bauble(uri):
     try:
         bauble.open_database(uri, verify=False)
     except Exception, e:
-        print e
+        print >>sys.stderr, e
+        #debug e
     prefs.init()
     pluginmgr.load()
     bauble.create_database(False)

@@ -6,7 +6,7 @@
 import os, unittest
 import logging
 from sqlalchemy import *
-from testbase import BaubleTestCase, log
+from bauble.test import BaubleTestCase
 import bauble
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
@@ -46,7 +46,7 @@ class CSVTests(ImexTestCase):
         import bauble.pluginmgr as pluginmgr
         #filenames = [p.default_filenames() for p in pluginmgr.plugins]
         filenames = []
-        for p in pluginmgr.plugins:
+        for p in pluginmgr.plugins.values():
             filenames.extend(p.default_filenames())
         importer = CSVImporter()
         def on_error(exc):
@@ -67,8 +67,9 @@ class CSVTests(ImexTestCase):
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         # import the family data
-        from bauble.plugins.plants.family import Family, family_table
+        from bauble.plugins.plants.family import Family
         from bauble.plugins.plants import PlantsPlugin
+        family_table = Family.__table__
         filenames = PlantsPlugin.default_filenames()
         family_filename = [fn for fn in filenames \
                            if fn.endswith('family.txt')][0]
@@ -135,7 +136,8 @@ class CSVTests(ImexTestCase):
 #        utils.log.echo(False)
 
     def test_unicode(self):
-        from bauble.plugins.plants.geography import Geography, geography_table
+        from bauble.plugins.plants.geography import Geography
+        geography_table = Geography.__table__
         # u'Gal\xe1pagos' is the unencoded unicode object,
         # calling u.encode('utf-8') will convert the \xe1 to the a
         # with an accent
@@ -155,7 +157,5 @@ class CSVTests(ImexTestCase):
         pass
 
 
-
-testsuite = ImexTestSuite
 
 

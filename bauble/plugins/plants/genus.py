@@ -172,8 +172,7 @@ class GenusSynonym(bauble.Base):
     """GenusSynonyms table (genus_synonym)
     """
     __tablename__ = 'genus_synonym'
-    __table_args__ = (UniqueConstraint('genus_id', 'synonym_id',
-                                        name='genus_synonym_index'),
+    __table_args__ = (UniqueConstraint('genus_id', 'synonym_id'),
                       {})
     # columns
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
