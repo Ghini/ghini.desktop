@@ -34,7 +34,8 @@ class UtilsGTKTests(unittest.TestCase):
 
         root = model.get_iter_root()
         results = utils.search_tree_model(model[root], 'something')
-        self.assert_(sorted([r.path for r in results]), sorted(to_find))
+        self.assert_(sorted([model.get_path(r) for r in results]),
+                     sorted(to_find))
 
 
 
