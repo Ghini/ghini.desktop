@@ -94,21 +94,24 @@ def tree_model_has(tree, value):
 
 def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
     """
-    Return a iterable of gtk.TreeModelRow instances to all occurences
+    Return a iterable of gtk.TreeIter instances to all occurences
     of data in model
 
-    @parent: a gtk.TreeModelRow instance
+    @parent: a gtk.TreeModel or a gtk.TreeModelRow instance
     @data: the data to look for
     @cmp: the function to call on each row to check if it matches
     data, default is C{lambda row, data: row[0] == data}
     """
+    if isinstance(parent, gtk.TreeModel):
+        return search_tree_model(parent[parent.get_iter_root()], data, cmp)
     results = set()
     def func(model, path, iter, dummy=None):
         if cmp(model[iter], data):
-            results.add(model[iter])
+            #debug('add: %s' % model[iter])
+            results.add(iter)
         return False
     parent.model.foreach(func)
-    return results
+    return tuple(results)
 
 
 def clear_model(obj_with_model):

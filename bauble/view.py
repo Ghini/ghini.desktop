@@ -852,7 +852,7 @@ class SearchView(pluginmgr.View):
 #            debug(e)
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
-                model.remove(found)
+                model.remove(found.iter)
             return True
         except Exception, e:
             debug(e)
@@ -964,11 +964,10 @@ class SearchView(pluginmgr.View):
             except (saexc.InvalidRequestError, TypeError), e:
                 debug(e)
                 def remove():
-                    treeview_model = self.results_view.get_model()
+                    model = self.results_view.get_model()
                     self.results_view.set_model(None) # detach model
-                    for found in utils.search_tree_model(treeview_model,value):
-                        #debug('remove: %' % str(model[found][0]))
-                        treeview_model.remove(found)
+                    for found in utils.search_tree_model(model, value):
+                        treeview_model.remove(found.iter)
                     self.results_view.set_model(treeview_model)
                 gobject.idle_add(remove)
 
@@ -1149,10 +1148,10 @@ def select_in_search_results(obj):
     @param obj: the object the select
     @returns: a gtk.TreeIter to the selected row
 
-    search the tree model for obj if it exists then select it if not
-    then add it and select it
+    Search the tree model for obj if it exists then select it if not
+    then add it and select it.
 
-    the the obj is not in the first level of the model then we add it
+    The the obj is not in the model then we add it.
     """
     check(obj != None, 'select_in_search_results: arg is None')
     view = bauble.gui.get_view()
@@ -1160,16 +1159,13 @@ def select_in_search_results(obj):
         return None
     model = view.results_view.get_model()
     found = utils.search_tree_model(model, obj)
-    path = None
     row_iter = None
     if len(found) > 0:
         row_iter = found[0]
-        path = model.get_path(row_iter)
     else:
         row_iter = model.append(None, [obj])
         model.append(row_iter, ['-'])
-        path = model.get_path(row_iter)
-    view.results_view.set_cursor(path)
+    view.results_view.set_cursor(model.get_path(row_iter))
     return row_iter
 
 
