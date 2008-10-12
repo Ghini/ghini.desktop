@@ -418,14 +418,14 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
-            # make searches in postgres case-insensitive, i don't think other
-            # databases support a case-insensitive like operator
+            # make searches case-insensitive, in postgres use ilike,
+            # in other use upper()
             if bauble.engine.name == 'postgres':
                 like = lambda table, col, val: \
                        table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
                 like = lambda table, col, val: \
-                       table.c[col].like('%%%s%%' % val)
+                           func.upper(table.c[col]).like('%%%s%%' % val)
             for cls, columns in self._properties.iteritems():
                 q = session.query(cls)
                 cv = [(c,v) for c in columns for v in tokens['values']]
@@ -433,8 +433,6 @@ class MapperSearch(SearchStrategy):
                 # object if the col is a Unicode or UnicodeText column in order
                 # to avoid the "Unicode type received non-unicode bind param"
                 def unicol(col, v):
-                    #debug(mapping)
-                    #debug(type(mapping))
                     mapper = class_mapper(cls)
                     if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
                         return unicode(v)
@@ -511,7 +509,9 @@ class MapperSearch(SearchStrategy):
         return results
 
 
-
+# TODO: it would handy if we could support some sort of smart slicing
+# where we chould slice across the different sets and still return the
+# query values using LIMIT queries
 class ResultSet(object):
     '''
     A ResultSet represents a set of results returned from a query, it
@@ -524,7 +524,6 @@ class ResultSet(object):
             self._results = set(results)
         else:
             self._results = set()
-        self.step_size = 100
 
 
     def add(self, results):
@@ -893,13 +892,15 @@ class SearchView(pluginmgr.View):
         for key, group in itertools.groupby(results, lambda x: type(x)):
             groups.append(sorted(group, key=utils.natsort_key))
 
-        steps = 100
-        update_every = 1
+        chunk_size = 100
+        update_every = 200
         steps_so_far = 0
 
         # iterate over slice of size "steps", yield after adding each
         # slice to the model
-        for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
+        #for obj in itertools.islice(itertools.chain(*groups), 0,None, steps):
+        #for obj in itertools.islice(itertools.chain(results), 0,None, steps):
+        for obj in itertools.chain(*groups):
             parent = model.append(None, [obj])
             obj_type = type(obj)
             if check_for_kids:
@@ -909,12 +910,13 @@ class SearchView(pluginmgr.View):
             elif self.view_meta[obj_type].children is not None:
                 model.append(parent, ['-'])
 
-            steps_so_far += steps
+            #steps_so_far += chunk_size
+            steps_so_far += 1
             if steps_so_far % update_every == 0:
                 percent = float(steps_so_far)/float(nresults)
                 if 0< percent < 1.0:
                     bauble.gui.progressbar.set_fraction(percent)
-            yield
+                yield
         self.results_view.freeze_child_notify()
         self.results_view.set_model(model)
         self.results_view.thaw_child_notify()
