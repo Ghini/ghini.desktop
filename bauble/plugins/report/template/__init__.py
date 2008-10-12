@@ -66,6 +66,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
             utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(filename=template_filename)
+
+        # TODO: provide the option to get the objects as either plants
+        # or directly as they appear in the search results
         plants = get_all_plants(objs)
         report = template.render(plants=plants)
         # assume the template is the same file type as the output file

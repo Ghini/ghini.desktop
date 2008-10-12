@@ -13,6 +13,7 @@ from bauble.i18n import _
 # major, minor, revision version tuple
 version = (0, 9, '0b1')
 version_str = '.'.join([str(v) for v in version])
+#from bauble.version import *
 
 def main_is_frozen():
     """
@@ -80,8 +81,8 @@ if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
 try:
-    import sqlalchemy
-    parts = sqlalchemy.__version__.split('.')
+    import sqlalchemy as sa
+    parts = sa.__version__.split('.')
     if int(parts[1]) < 5:
         msg = _('This version of Bauble requires SQLAlchemy 0.5.0 or greater.'\
                 'Please download and install a newer version of SQLAlchemy ' \
@@ -100,7 +101,7 @@ try:
     # TODO: check simplejson version....why, do we require a specific version?
 except ImportError:
     msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
-              'http://cheeseshop.python.org/pypi/simplejson')
+            'http://cheeseshop.python.org/pypi/simplejson')
     utils.message_dialog(msg, gtk.MESSAGE_ERROR)
     raise
 
@@ -111,6 +112,59 @@ logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 import sqlalchemy as sa
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
+import sqlalchemy.types as types
+from datetime import datetime
+
+# TODO: should we allow custom formats?
+# TODO: do formats depend on locale
+class DateTime(types.TypeDecorator):
+    """
+    A DateTime type that allows strings
+    """
+    impl = types.DateTime
+
+    def process_bind_param(self, value, dialect):
+        from datetime import datetime
+        # TODO: what about microseconds
+        if isinstance(value, basestring):
+            date, time = value.split(' ')
+            y, mo, d = date.split('-')
+            h, mi, s = time.split(':')
+            return datetime(*map(int, (y, mo, d, h, mi, s)))
+
+        return value
+
+    def process_result_value(self, value, dialect):
+        return value
+
+    def copy(self):
+        return DateTime()
+
+
+class Date(types.TypeDecorator):
+    """
+    A Date type that allows Date strings
+    """
+    impl = types.Date
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, basestring):
+            if ' ' in value:
+                date, time = value.split(' ')
+                warning('bauble.Date.process_bind_param: truncating %s to %s' \
+                        % (value, date))
+            else:
+                date = value
+            y, mo, d = date.split('-')
+            return datetime(*map(int, (y, mo, d)))
+        return value
+
+    def process_result_value(self, value, dialect):
+        return value
+
+    def copy(self):
+        return Date()
+
 
 class MapperBase(DeclarativeMeta):
     """
@@ -123,10 +177,10 @@ class MapperBase(DeclarativeMeta):
             seqname = '%s_seq_id' % dict_['__tablename__']
             dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
                                     primary_key=True)
-            dict_['_created'] = sa.Column('_created', sa.DateTime(True),
+            dict_['_created'] = sa.Column('_created', DateTime(True),
                                           default=sa.func.now())
             dict_['_last_updated'] = sa.Column('_last_updated',
-                                               sa.DateTime(True),
+                                               DateTime(True),
                                                default=sa.func.now())
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
@@ -277,7 +331,7 @@ def open_database(uri, verify=True, show_error_dialogs=False):
     from sqlalchemy.orm import sessionmaker
     global engine
     new_engine = None
-    new_engine = sqlalchemy.create_engine(uri)
+    new_engine = sa.create_engine(uri)
     new_engine.contextual_connect()
     def _bind():
         """bind metadata to engine and create sessionmaker """
@@ -299,7 +353,7 @@ def open_database(uri, verify=True, show_error_dialogs=False):
 
 def create_database(import_defaults=True):
     '''
-    create new Bauble database at the current connection
+    Create new Bauble database at the current connection
     @param import_defaults: default=True
     '''
     # TODO: when creating a database there shouldn't be any errors

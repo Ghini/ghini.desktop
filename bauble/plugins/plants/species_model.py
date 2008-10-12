@@ -244,15 +244,15 @@ class Species(bauble.Base):
                         cv = "'%s'" % infrasp
                     name = [s for s in [genus, species.sp_hybrid, sp, author,
                                         cv, isp_author] \
-                                if s is not None]
+                                if s not in (None, '')]
                 else:
                     name = [s for s in [genus, species.sp_hybrid, sp, author,
                                         species.infrasp_rank, infrasp,
                                         isp_author] \
-                                if s is not None]
+                                if s not in (None, '')]
             else:
                 name = [s for s in [genus, species.sp_hybrid, sp, author] \
-                        if s is not None]
+                        if s not in (None, '')]
         else: # isn't a hybrid
             if species.cv_group:
                 if species.infrasp is None:
@@ -262,7 +262,7 @@ class Species(bauble.Base):
                     cv = "'%s'" % infrasp
                     group = '(%s Group)' % species.cv_group
                 name = [s for s in [genus, sp, author, group, cv, isp_author] \
-                        if s is not None]
+                        if s not in (None, '')]
             else:
                 if species.infrasp is None:
                     isp = None
@@ -276,9 +276,9 @@ class Species(bauble.Base):
                         #isp = italic % species.infrasp
                         isp = infrasp
                 name = [s for s in [genus, sp, author, isp_rank, isp,
-                                    isp_author] if s is not None]
+                                    isp_author] if s not in (None, '')]
 
-        if species.sp_qual is not None:
+        if species.sp_qual not in (None, ''):
             name.append(species.sp_qual)
 #        print name
         return u' '.join(name)

@@ -181,7 +181,7 @@ class Verification(bauble.Base):
 
     # columns
     verifier = Column('verifier', Unicode(64))
-    date = Column(Date)
+    date = Column(bauble.Date)
     literature = Column(UnicodeText) # citation?
     level = Column(Text)# i don't know what this is..certainty maybe?
     accession_id = Column(Integer, ForeignKey('accession.id'))
@@ -252,7 +252,7 @@ class Accession(bauble.Base):
                                            "Insufficient Data",
                                            "Unknown",
                                             None]), default=None)
-    date = Column(Date)
+    date = Column(bauble.Date)
     source_type = Column(Enum(values=['Collection', 'Donation', None]),
                          default=None)
     notes = Column(UnicodeText)

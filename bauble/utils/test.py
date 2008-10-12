@@ -4,10 +4,40 @@
 # Description: test for bauble.utils
 
 import unittest
+
+from sqlalchemy import *
+
 import bauble
 import bauble.utils as utils
-from sqlalchemy import *
-from testbase import BaubleTestCase, log
+from bauble.utils.log import debug
+from bauble.test import BaubleTestCase
+
+class UtilsGTKTests(unittest.TestCase):
+
+    def test_search_tree_model(self):
+        import gtk
+        model = gtk.TreeStore(str)
+
+        # the rows that should be found
+        to_find = []
+
+        row = model.append(None, ['1'])
+        model.append(row, ['1.1'])
+        to_find.append(model.append(row, ['something']))
+        model.append(row, ['1.3'])
+
+        row = model.append(None, ['2'])
+        to_find.append(model.append(row, ['something']))
+        model.append(row, ['2.1'])
+
+        to_find.append(model.append(None, ['something']))
+
+        root = model.get_iter_root()
+        #debug(model[root])
+        results = utils.search_tree_model(model[root], 'something')
+        #debug(results)
+
+
 
 class UtilsTests(unittest.TestCase):
 
@@ -124,15 +154,3 @@ class ResetSequenceTests(BaubleTestCase):
         self.assert_(currval > 1)
 
 
-
-class UtilsTestSuite(unittest.TestSuite):
-
-    def __init__(self):
-        unittest.TestSuite.__init__(self)
-        self.addTests(map(UtilsTests, ('test_xml_safe',
-                                       'test_datetime_to_str')))
-        self.addTests(map(ResetSequenceTests, ('test_no_col_sequence',
-                                               'test_with_col_sequence')))
-
-
-testsuite = UtilsTestSuite

@@ -18,6 +18,7 @@ import distutils.dir_util as dir_util
 
 from bauble import version_str
 version = version_str
+#from bauble.version import *
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.10
 
@@ -210,7 +211,7 @@ setuptools.setup(name="bauble",
                  package_data = package_data,
                  data_files = py2exe_data_files,
                  install_requires=["SQLAlchemy>=0.4.4,<0.5",
-                                   "simplejson>=1.7.1",
+                                   "simplejson>=2.0.1",
                                    "lxml>=2.0"] + needs_sqlite,
                  #TODO:running "setup.py test" hasn't been tested
                  test_suite="test.test",

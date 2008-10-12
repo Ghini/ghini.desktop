@@ -34,6 +34,12 @@ def natsort_kids(kids):
 
 class GardenPlugin(pluginmgr.Plugin):
 
+    depends = ["PlantsPlugin"]
+
+    @classmethod
+    def install(cls):
+        debug('GardenPlugin.install()')
+
 
     @classmethod
     def init(cls):
@@ -86,6 +92,5 @@ class GardenPlugin(pluginmgr.Plugin):
                                    value=default_plant_delimiter)
 
 
-    depends = ["PlantsPlugin"]
 
 plugin = GardenPlugin
