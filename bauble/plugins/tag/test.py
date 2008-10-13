@@ -11,13 +11,6 @@ from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location
 
 
-def setUp_test_data():
-    pass
-
-def tearDown_test_data():
-    pass
-
-
 class TagTestCase(BaubleTestCase):
 
     def __init__(self, *args):

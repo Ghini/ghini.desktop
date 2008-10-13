@@ -50,11 +50,12 @@ test_data_table_control = ((Accession, accession_test_data),
                            (Donation, donation_test_data),
                            (Collection, collection_test_data))
 
-def setUp_test_data():
-    '''
-    if this method is called again before tearDown_test_data is called you
-    will get an error about the test data rows already existing in the database
-    '''
+def setUp_data():
+    """
+    create_test_data()
+    #if this method is called again before tearDown_test_data is called you
+    #will get an error about the test data rows already existing in the database
+    """
     for cls, data in test_data_table_control:
         table = cls.__table__
         for row in data:
@@ -67,16 +68,6 @@ def setUp_test_data():
     i.email = u'contact@test.com'
     i.contact = u'TestContact Name'
     i.code = u'TestCode'
-
-
-
-def tearDown_test_data():
-    for cls, data in test_data_table_control:
-        table = cls.__table__
-        for row in data:
-            #print 'delete %s %s' % (table, row['id'])
-            table.delete(table.c.id==row['id']).execute()
-
 
 
 
@@ -103,7 +94,7 @@ class GardenTestCase(BaubleTestCase):
 
     def setUp(self):
         super(GardenTestCase, self).setUp()
-        plants_test.setUp_test_data()
+        plants_test.setUp_data()
         #setUp_test_data()
         self.family = Family(family=u'fam')
         self.genus = Genus(family=self.family, genus=u'gen')
@@ -111,10 +102,6 @@ class GardenTestCase(BaubleTestCase):
         self.session.add_all([self.family, self.genus, self.species])
         self.session.commit()
 
-    def tearDown(self):
-        super(GardenTestCase, self).tearDown()
-        plants_test.tearDown_test_data()
-        #tearDown_test_data()
 
     def create(self, class_, **kwargs):
         obj = class_(**kwargs)

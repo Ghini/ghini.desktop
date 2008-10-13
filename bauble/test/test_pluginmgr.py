@@ -60,6 +60,7 @@ class C(pluginmgr.Plugin):
         assert A.installed and B.installed
         cls.installed = True
 
+
 class PluginMgrTests(BaubleTestCase):
 
     def test_install(self):
@@ -128,17 +129,17 @@ class StandalonePluginMgrTests(unittest.TestCase):
         bauble.pluginmgr.init(force=True)
         self.assert_(A.initialized and B.initialized and C.initialized)
 
-    def test_install(self):
-        """
-        Test bauble.pluginmgr.init()
-        """
-        bauble.pluginmgr.plugins[C.__name__] = C
-        bauble.pluginmgr.plugins[B.__name__] = B
-        bauble.pluginmgr.plugins[A.__name__] = A
-        bauble.open_database(uri, verify=False)
-        bauble.create_database(False)
-        #bauble.pluginmgr.install((A, B, C), force=True)
-        self.assert_(A.installed and B.installed and C.installed)
+#     def test_install(self):
+#         """
+#         Test bauble.pluginmgr.install()
+#         """
+#         bauble.pluginmgr.plugins[C.__name__] = C
+#         bauble.pluginmgr.plugins[B.__name__] = B
+#         bauble.pluginmgr.plugins[A.__name__] = A
+#         bauble.open_database(uri, verify=False)
+#         bauble.create_database(False)
+#         #bauble.pluginmgr.install((A, B, C), force=True)
+#         self.assert_(A.installed and B.installed and C.installed)
 
 
 

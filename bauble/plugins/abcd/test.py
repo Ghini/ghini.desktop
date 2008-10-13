@@ -35,20 +35,14 @@ class ABCDTestCase(BaubleTestCase):
 
     def setUp(self):
         super(ABCDTestCase, self).setUp()
-        plants_test.setUp_test_data()
-        garden_test.setUp_test_data()
+        plants_test.setUp_data()
+        garden_test.setUp_data()
 
 
         schema_file = os.path.join(paths.lib_dir(), 'plugins',
             'abcd','abcd_2.06.xsd')
         xmlschema_doc = etree.parse(schema_file)
         self.abcd_schema = etree.XMLSchema(xmlschema_doc)
-
-
-    def tearDown(self):
-        super(ABCDTestCase, self).tearDown()
-        plants_test.tearDown_test_data()
-        garden_test.tearDown_test_data()
 
 
     def test_abcd(self):
