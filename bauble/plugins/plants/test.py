@@ -129,26 +129,19 @@ test_data_table_control = ((Family, family_test_data),
                            (VernacularName, vn_test_data),
                            (SpeciesSynonym, sp_synonym_test_data))
 
-def setUp_test_data():
-    '''
+def setUp_data():
+    """
+    bauble.plugins.plants.test.setUp_test_data()
+
     if this method is called again before tearDown_test_data is called you
     will get an error about the test data rows already existing in the database
-    '''
+    """
     for mapper, data in test_data_table_control:
         table = mapper.__table__
         for row in data:
             table.insert().execute(row)
         for col in table.c:
             utils.reset_sequence(col)
-
-
-def tearDown_test_data():
-    for mapper, data in test_data_table_control:
-        table = mapper.__table__
-        for row in data:
-            #print 'delete %s %s' % (table, row['id'])
-            table.delete(table.c.id==row['id']).execute()
-
 
 
 class PlantTestCase(BaubleTestCase):
@@ -159,12 +152,7 @@ class PlantTestCase(BaubleTestCase):
 
     def setUp(self):
         super(PlantTestCase, self).setUp()
-        setUp_test_data()
-
-
-    def tearDown(self):
-        super(PlantTestCase, self).tearDown()
-        tearDown_test_data()
+        setUp_data()
 
 
 class FamilyTests(PlantTestCase):
@@ -366,10 +354,20 @@ class GenusTests(PlantTestCase):
 
 class SpeciesTests(PlantTestCase):
 
+    def setUp(self):
+        super(SpeciesTests, self).setUp()
+
+    def tearDown(self):
+        super(SpeciesTests, self).tearDown()
+
+
     def text_re_string(self):
         rw = '$genus$'
 
     def test_string(self):
+        """
+        Test the Species.str() method
+        """
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
 
@@ -396,7 +394,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_vernacular_name(self):
         """
-        Test the vernacular_name property on Species
+        Test the Species.vernacular_name property
         """
         family = Family(family=u'family')
         genus = Genus(family=family, genus=u'genus')
@@ -419,7 +417,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_default_vernacular_name(self):
         """
-        Test the default_vernacular_name property on Species
+        Test the Species.default_vernacular_name property
         """
         family = Family(family=u'family')
         genus = Genus(family=family, genus=u'genus')
@@ -479,7 +477,7 @@ class SpeciesTests(PlantTestCase):
 
     def test_synonyms(self):
         """
-        Test the synonyms property on Species
+        Test the Species.synonyms property
         """
         load_sp = lambda id: self.session.query(Species).get(id)
 

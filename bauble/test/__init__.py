@@ -23,8 +23,6 @@ def init_bauble(uri):
 class BaubleTestCase(unittest.TestCase):
 
     def setUp(self):
-        '''
-        '''
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
         self.session = bauble.Session()
@@ -33,13 +31,9 @@ class BaubleTestCase(unittest.TestCase):
         logging.getLogger('sqlalchemy').setLevel(level)
 
     def tearDown(self):
-        '''
-        need to find all tests and run their tearDown methods
-        '''
         self.session.close()
-        bauble.metadata.drop_all()
+        bauble.metadata.drop_all(bind=bauble.engine)
         bauble.pluginmgr.commands.clear()
-        bauble.create_database(False)
-        pluginmgr.init()
-#        tables()
-#        logging.getLogger('sqlalchemy').setLevel(logging.ERROR)
+        # why do we create the database again...?
+        #bauble.create_database(False)
+        pluginmgr.plugins.clear()

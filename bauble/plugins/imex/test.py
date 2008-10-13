@@ -28,13 +28,8 @@ class ImexTestCase(BaubleTestCase):
 
     def setUp(self):
         super(ImexTestCase, self).setUp()
-        plants_test.setUp_test_data()
-        garden_test.setUp_test_data()
-
-    def tearDown(self):
-        super(ImexTestCase, self).tearDown()
-        garden_test.tearDown_test_data()
-        plants_test.tearDown_test_data()
+        plants_test.setUp_data()
+        garden_test.setUp_data()
 
 
 class CSVTests(ImexTestCase):
