@@ -18,6 +18,14 @@
 # plugin that is called when the plugin is first installed and then we
 # let the plugins handle their own table creation and default imports
 
+# 1. load the plugins: search the plugin directory for plugins,
+# populates the plugins dict
+#
+# 2. install the plugins if not in the registry, add properly
+# installed plugins in to the registry
+#
+# 3. initialize the plugins
+
 import os
 import sys
 import traceback
@@ -29,6 +37,8 @@ import gobject
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
+from sqlalchemy.exc import *
+from sqlalchemy.orm.exc import *
 import simplejson as json
 
 import bauble
@@ -56,74 +66,76 @@ def register_command(handler):
             commands[cmd] = handler
 
 
-def install(plugins_to_install, import_defaults=True, force=False):
-    """
-    @param plugins_to_install: a list of plugins to install, if None then
-    install all plugins that haven't been installed
-    """
-    # create the registry if it doesn't exist
-    try:
-        registry = Registry()
-    except RegistryEmptyError:
-        Registry.create()
-        registry = Registry()
 
-    if plugins_to_install is 'all':
-        to_install = plugins.values()
-    else:
-        to_install = plugins_to_install
 
-    # import default data for plugins
-    session = bauble.Session()
-    from itertools import chain
-    default_filenames=list(chain(*[p.default_filenames() for p in to_install]))
-    if import_defaults and len(default_filenames) > 0:
-        from bauble.plugins.imex.csv_ import CSVImporter
-        csv = CSVImporter()
-        import_error = False
-        import_exc = None
-        try:
-            #transaction = bauble.engine.contextual_connect().begin()
-            #session = bauble.Session()
-            # cvs.start uses a task which blocks here but allows the
-            # interface to stay responsive
-            def on_import_error(exc):
-                debug(exc)
-                import_error = True
-                import_exc = exc
-                #transaction.rollback()
-                session.rollback()
-            def on_import_quit():
-                """
-                register plugins and commit the imports
-                """
-                # register plugin as installed
-                for p in to_install:
-                    registry.add(RegistryEntry(name=p.__name__,
-                                               version=u'0.0'))
-                registry.save()
-                #transaction.commit()
-                session.commit()
-##                debug('start import')
-            csv.start(filenames=default_filenames, metadata=bauble.metadata,
-                      force=force, on_quit=on_import_quit,
-                      on_error=on_import_error)
-        except Exception, e:
-            warning(e)
-            #transaction.rollback()
-            session.rollback()
-            raise
-    else:
-        try:
-            for p in to_install:
-                #debug('add %s to registry' % p.__name__)
-                registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
-                registry.save()
-        except Exception, e:
-            debug(e)
-            #transaction.rollback()
-            session.rollback()
-            raise
+# def install(plugins_to_install, import_defaults=True, force=False):
+#     """
+#     @param plugins_to_install: a list of plugins to install, if None then
+#     install all plugins that haven't been installed
+#     """
+#     # create the registry if it doesn't exist
+#     try:
+#         registry = Registry()
+#     except RegistryEmptyError:
+#         Registry.create()
+#         registry = Registry()
+
+#     if plugins_to_install is 'all':
+#         to_install = plugins.values()
+#     else:
+#         to_install = plugins_to_install
+
+#     # import default data for plugins
+#     session = bauble.Session()
+#     from itertools import chain
+#     default_filenames=list(chain(*[p.default_filenames() for p in to_install]))
+#     if import_defaults and len(default_filenames) > 0:
+#         from bauble.plugins.imex.csv_ import CSVImporter
+#         csv = CSVImporter()
+#         import_error = False
+#         import_exc = None
+#         try:
+#             #transaction = bauble.engine.contextual_connect().begin()
+#             #session = bauble.Session()
+#             # cvs.start uses a task which blocks here but allows the
+#             # interface to stay responsive
+#             def on_import_error(exc):
+#                 debug(exc)
+#                 import_error = True
+#                 import_exc = exc
+#                 #transaction.rollback()
+#                 session.rollback()
+#             def on_import_quit():
+#                 """
+#                 register plugins and commit the imports
+#                 """
+#                 # register plugin as installed
+#                 for p in to_install:
+#                     registry.add(RegistryEntry(name=p.__name__,
+#                                                version=u'0.0'))
+#                 registry.save()
+#                 #transaction.commit()
+#                 session.commit()
+# ##                debug('start import')
+#             csv.start(filenames=default_filenames, metadata=bauble.metadata,
+#                       force=force, on_quit=on_import_quit,
+#                       on_error=on_import_error)
+#         except Exception, e:
+#             warning(e)
+#             #transaction.rollback()
+#             session.rollback()
+#             raise
+#     else:
+#         try:
+#             for p in to_install:
+#                 #debug('add %s to registry' % p.__name__)
+#                 registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
+#                 registry.save()
+#         except Exception, e:
+#             debug(e)
+#             #transaction.rollback()
+#             session.rollback()
+#             raise
 
 
 def _check_dependencies(plugin):
@@ -131,15 +143,37 @@ def _check_dependencies(plugin):
     Check the dependencies of plugin
     '''
 
+
+
+def _create_dependency_pairs(plugs):
+    """
+    Returns a tuple.  The first item in the tuple is the dependency
+    pairs that can be passed to topological sort.  The second item is
+    a dictionary whose keys are plugin names and value are a list of
+    unmet dependencies.
+    """
+    depends = []
+    unmet = {}
+    for p in plugs:
+        for dep in p.depends:
+            try:
+                depends.append((plugins[dep], p))
+            except KeyError:
+                debug('no dependency %s for %s' % (dep, p.__name__))
+                u = unmet.setdefault(p.__name__, [])
+                u.append(dep)
+    return depends, unmet
+
+
 def load(path=None):
-    '''
-    Search the plugin path for modules that provide a plugin
+    """
+    Search the plugin path for modules that provide a plugin.
 
     @param path: the path where to look for the plugins
 
     if path is a directory then search the directory for plugins
     if path is None then use the default plugins path, bauble.plugins
-    '''
+    """
     if path is None:
         if bauble.main_is_frozen():
             #path = os.path.join(paths.lib_dir(), 'library.zip')
@@ -150,41 +184,75 @@ def load(path=None):
     if len(found) == 0:
         debug('No plugins found at path: %s' % path)
 
-    depends = []
     for plugin in found:
         # TODO: should we include the module name of the plugin to allow
         # for plugin namespaces or just assume that the plugin class
         # name is unique
         plugins[plugin.__name__] = plugin
 
-    # check the dependencies
-    for p in found:
-        for dep in p.depends:
-            try:
-                depends.append((p, plugins[dep]))
-            except KeyError:
-                msg = _('The %(plugin)s plugin depends on the '\
-                        '%(other_plugin)s  plugin but the %(other_plugin)s '\
-                        'plugin wasn\'t found.' \
-                        % {'plugin': p.__name__, 'other_plugin': dep})
-                utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-                # TODO: do something, we get here if a plugin requests another
-                # plugin as a dependency but the plugin that is a dependency
-                # wasn't found
-                raise
 
-    sorted_plugins = plugins.values()
-    try:
-        sorted_plugins = topological_sort(found, depends)
-        sorted_plugins.reverse()
-#        debug(plugins)
-    except Exception, e:
-        debug(e)
-        raise
 
-    # register commands
-    for plugin in sorted_plugins:
-        # plugin.commands can be None or []
+def init():
+    """
+    Initialize the plugin manager.
+
+    1. Check for and install any plugins in the plugins dict that
+    aren't in the registry a
+    2.
+
+    Call init() for each of the plugins in the registry.
+
+    NOTE: This should be called after after Bauble has established a
+    connection to a database with bauble.open_database()
+    """
+    #debug('bauble.pluginmgr.init()')
+    registry = Registry()
+
+    # search for plugins that are in the plugins dict but not in the registry
+    not_installed = [p for p in plugins.values() if p not in registry]
+    if len(not_installed) > 0:
+        msg = _('The following plugins were not found in the plugin '\
+                 'registry:\n\n<b>%s</b>\n\n'\
+                 '<i>Would you like to install them now?</i>' \
+                % ', '.join([p.__name__ for p in not_installed]))
+        if utils.yes_no_dialog(msg):
+            install([plugins[name] for name in not_installed])
+
+    # initialized the plugins in the registry by their dependency
+    install([plugins[name] for name in not_installed])
+    registered = [plugins[e.name] for e in registry]
+    deps, unmet = _create_dependency_pairs(registered)
+    ordered = topological_sort(registered, deps)
+    if not ordered:
+        raise BaubleError(_('The plugins contain a dependency loop. This '\
+                            'can happend if two plugins directly or '\
+                            'indirectly rely on each other'))
+    for plugin in ordered:
+        #debug('init: %s' % plugin)
+        try:
+            plugin.init()
+        except KeyError, e:
+            # don't removed the plugin from the registry because if we
+            # find it again the user might decide to reinstall it
+            # which could overwrite data
+            msg = _("The %(plugin_name)s plugin is listed in the registry "\
+                    "but isn't wasn't found in the plugin directory") \
+                    % dict(plugin_name=plugin.__name__)
+            warning(msg)
+        except Exception, e:
+            #error(e)
+            error(traceback.print_exc())
+            safe = utils.xml_safe_utf8
+            values = dict(entry_name=plugin.__name__, exception=safe(e))
+            utils.message_details_dialog(_("Error: Couldn't initialize "\
+                                           "%(entry_name)s\n\n" \
+                                           "%(exception)s." % values),
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
+
+
+    # register the plugin commands seperately from the plugin initialization
+    for plugin in ordered:
         if plugin.commands in (None, []):
             continue
         for cmd in plugin.commands:
@@ -197,53 +265,60 @@ def load(path=None):
 
 
 
-def init():
+def install(plugins_to_install, import_defaults=True, force=False):
     """
-    Call init() for each of the plugins in the registry.
-
-    NOTE: This should be called after after Bauble has established a
-    connection to a database with bauble.open_database()
+    @param plugins_to_install: a list of plugins to install, if 'all'
+    then install all plugins listed in the bauble.pluginmgr.plugins
+    dict that aren't already listed in the plugin registry
+    @param import_defaults: whether a plugin should import its default database
+    @param force:
     """
+    # create the registry if it doesn't exist
+    if not Registry.exists():
+        Registry.create()
 
-    registry = Registry()
-    not_installed = []
-    for name, p in plugins.iteritems():
-        if p not in registry:
-#            debug('%s not in registry' % name)
-            not_installed.append(name)
+    session = bauble.Session()
+    registry = Registry(session)
 
-    if len(not_installed) > 0:
-        msg = _('The following plugins were not found in the plugin '\
-                 'registry:\n\n<b>%s</b>\n\n'\
-                 '<i>Would you like to install them now?</i>' \
-                % ', '.join(not_installed))
-        if utils.yes_no_dialog(msg):
-            install([plugins[name] for name in not_installed])
-            registry.refresh()
+    if plugins_to_install is 'all':
+        to_install = plugins.values()
+    else:
+        to_install = plugins_to_install
 
-    # install the plugins that aren't listed in the registry
-    for entry in registry:
-        #debug('init: %s' % entry)
-        try:
-            plugins[entry.name].init()
-        except KeyError, e:
-            msg = _("The %s plugin is listed in the registry but isn't " \
-                    "installed.\n\n" \
-                    "<i>Would you like to remove this plugin from the "\
-                    "registry?</i>" % entry.name)
-            if utils.yes_no_dialog(msg):
-                registry.remove(entry.name)
-                registry.save()
-        except Exception, e:
-            debug(e)
-            debug(traceback.print_exc())
-            safe = utils.xml_safe_utf8
-            values = dict(entry_name=entry.name, exception=safe(e))
-            utils.message_details_dialog(_("Error: Couldn't initialize "\
-                                           "%(entry_name)s\n\n" \
-                                           "%(exception)s." % values),
-                                         traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+    # sort the plugins by their dependency
+    depends, unmet = _create_dependency_pairs(to_install)
+    if unmet != {}:
+        debug(unmet)
+        raise BaubleError('unmet dependencies')
+    to_install = topological_sort(to_install, depends)
+
+#         msg = _('The %(plugin)s plugin depends on the %(other_plugin)s '\
+#                 'plugin but the %(other_plugin)s plugin wasn\'t found.') \
+#                 % {'plugin': e.plugin.__name__, 'other_plugin': e.not_found}
+#         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+
+#         to_install = topological_sort(to_install, depends)
+#     except DependencyError, e:
+#         msg = _('The %(plugin)s plugin depends on the %(other_plugin)s '\
+#                 'plugin but the %(other_plugin)s plugin wasn\'t found.') \
+#                 % {'plugin': e.plugin.__name__, 'other_plugin': e.not_found}
+#         utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+#         raise
+#     except DependencyError, e:
+#         error(utils.utf8(e))
+
+    try:
+        for p in to_install:
+            #debug('install: %s' % p.__name__)
+            p.install()
+            registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
+        session.commit()
+    except Exception, e:
+        debug(e)
+        debug(traceback.format_exc())
+        session.rollback()
+    finally:
+        session.close()
 
 
 
@@ -251,76 +326,92 @@ class RegistryEmptyError(Exception):
     pass
 
 
-# TODO: reimplement the Registry with the following recipe
-# http://www.sqlalchemy.org/trac/wiki/UsageRecipes/JSONColumn
-
 class Registry(dict):
-    '''
-    manipulate the bauble plugin registry, provides a dict interface to
-    XML data that is stored in the database that holds information about the
-    plugins used to create the database
-    '''
+    """
+    Manipulate the bauble plugin registry. The registry is stored in
+    the bauble meta table in JSON format.  This class provides a dict
+    interface to the registry.
+    """
     def __init__(self, session=None):
         '''
         @param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
-
         if session is None:
             self.session = bauble.Session()
         else:
             self.session = session
-        self.refresh()
 
 
-
-    def refresh(self):
+    def _get_entries(self):
         import bauble.meta as meta
-        query = self.session.query(meta.BaubleMeta)
         try:
-            result = query.filter_by(name=meta.REGISTRY_KEY).one()
-        except:
+            result = self.session.query(meta.BaubleMeta)\
+                     .filter_by(name=meta.REGISTRY_KEY).one()
+        except NoResultFound, e:
+            debug(e)
             raise RegistryEmptyError
 
-        self.entries = {}
+        named_entries = {}
         if result.value != '[]':
             entries = json.loads(result.value)
             for e in entries:
-                self.entries[e['name']] = RegistryEntry.create(e)
+                named_entries[e['name']] = RegistryEntry.create(e)
+        return named_entries
+    entries = property(_get_entries)
+
+
+#     def refresh(self):
+#         """
+#         Refresh the registry from the database
+#         """
+#         import bauble.meta as meta
+#         query = self.session.query(meta.BaubleMeta)
+#         try:
+#             result = query.filter_by(name=meta.REGISTRY_KEY).one()
+#         except:
+#             raise RegistryEmptyError
+
+#         self.entries = {}
+#         if result.value != '[]':
+#             entries = json.loads(result.value)
+#             for e in entries:
+#                 self.entries[e['name']] = RegistryEntry.create(e)
+
 
     def __str__(self):
         return str(self.entries.values())
 
 
     @staticmethod
-    def create():
-        '''
-        create a new empty registry in the current database, if a registry
-        already exists an error will be raised
-        '''
+    def exists(session=None):
+        """
+        Test if the registry exists
+        """
         import bauble.meta as meta
-        #logger.echo(True)
-        meta_table = meta.BaubleMeta.__table__
-        ins = meta_table.insert(values={'name': meta.REGISTRY_KEY,
-                                                    'value': u'[]'})
-        bauble.engine.contextual_connect().execute(ins)
-        sql =  meta_table.select(meta_table.c.name==meta.REGISTRY_KEY)
-        #logger.echo(False)
+        if not session:
+            session = bauble.Session()
+        query = session.query(meta.BaubleMeta)\
+                .filter_by(name=meta.REGISTRY_KEY).first()
+        return query is not None
 
 
-    def save(self):
-        '''
-        save the state of the registry object to the database
-        '''
-##        logging.getLogger('sqlalchemy').setLevel(logging.DEBUG)
+    @staticmethod
+    def create(session=None):
+        """
+        Create a new empty registry in the current database, if a
+        registry already exists an error will be raised.  If session
+        is passed in then we don't commit the session.  If session is
+        passed in then we commit it.
+        """
         import bauble.meta as meta
-        dumped = json.dumps(self.entries.values())
-        obj = self.session.query(meta.BaubleMeta).filter_by(name=meta.REGISTRY_KEY).one()
-        obj.value = unicode(dumped)
-        self.session.commit()
-        self.session.close()
-#        self.session.echo_uow = False
-#        logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
+        reg = meta.BaubleMeta(name=meta.REGISTRY_KEY, value=u'[]')
+        if not session:
+            session = bauble.Session()
+            session.add(reg)
+            session.commit()
+        else:
+            session.add(reg)
 
 
     def __iter__(self):
@@ -343,27 +434,39 @@ class Registry(dict):
 
         check if plugin exists in the registry
         '''
-        if issubclass(plugin, Plugin):
-            return plugin.__name__ in self.entries
-        else:
+        if isinstance(plugin, basestring):
             return plugin in self.entries
+        else:
+            return plugin.__name__ in self.entries
 
 
     def add(self, entry):
         '''
         @param entry: the RegistryEntry to add to the registry
         '''
-        if entry in self.entries.keys():
+        entries = self.entries.copy()
+        if entry in entries.keys():
             raise KeyError('%s already exists in the plugin registry' % \
                            entry.name)
-        self.entries[entry.name] = entry
+        entries[entry.name] = entry
+        import bauble.meta as meta
+        dumped = json.dumps(entries.values())
+        obj = self.session.query(meta.BaubleMeta).\
+              filter_by(name=meta.REGISTRY_KEY).one()
+        obj.value = unicode(dumped)
 
 
     def remove(self, name):
         '''
         remove entry with name from the registry
         '''
-        self.entries.pop(name)
+        import bauble.meta as meta
+        entries = self.entries.copy()
+        entries.pop(name)
+        dumped = json.dumps(entries.values())
+        obj = self.session.query(meta.BaubleMeta).\
+              filter_by(name=meta.REGISTRY_KEY).one()
+        obj.value = unicode(dumped)
 
 
     def __getitem__(self, key):
@@ -373,28 +476,22 @@ class Registry(dict):
         return self.entries[key]
 
 
-    def __setitem__(self, key, entry):
-        '''
-        create a plugin registry entry from a kwargs
-        '''
-        check(isinstance(entry, RegistryEntry))
-        self.entries[key] = entry
-
-
 
 class RegistryEntry(dict):
-
-    '''
+    """
     object to hold the registry entry data
 
     name, version and enabled are required
-    '''
-    def __init__(self, **kwargs):
-        '''
-        name, version and enabled are required
-        '''
-        check('name' in kwargs)
-        check('version' in kwargs)
+    """
+    def __init__(self, name, version, **kwargs):
+        """
+        @param name: the name of the plugin
+        @param version: the plugin version
+        """
+        check('name' is not None)
+        check('version' is not None)
+        self['name'] = name
+        self['version'] = version
         for key, value in kwargs.iteritems():
             self[key] = value
 
@@ -423,7 +520,6 @@ class Plugin(object):
     cmds: a map of commands this plugin handled with callbacks,
         e.g dict('cmd', lambda x: handler)
     """
-    #tables = []
     commands = []
     tools = []
     depends = []
@@ -435,51 +531,17 @@ class Plugin(object):
     @classmethod
     def init(cls):
         '''
-        init is run when Bauble is first started
+        init() is run when Bauble is first started
         '''
         pass
-
 
     @classmethod
-    def install(cls):
+    def install(cls, session=None, import_defaults=True):
         '''
         install() is run when a new plugin is installed, it is usually
-        only run once
+        only run once for the lifetime of the plugin
         '''
         pass
-
-
-#    @classmethod
-#    def start(cls):
-#        '''
-#        start is run after the connection to the database has been made
-#        and after the interface is created but before it is shown
-#        it is the last thing run before gtk.main() starts to loop
-#        '''
-
-#    @classmethod
-#    def register(cls):
-#        _register(cls)
-
-
-#    @classmethod
-#    def setup(cls):
-#        '''
-#        do anything that needs to be done to install the plugin, e.g. create
-#        the plugins tables
-#        '''
-#        for t in cls.tables:
-#            log.info("creating table " + t.__name__)
-#            t.dropTable(ifExists=True, cascade=True)
-#            t.createTable()
-
-    @staticmethod
-    def default_filenames():
-        '''
-        return the list of filenames to get the default data set from
-        the filenames should be of the form TableClass.txt
-        '''
-        return []
 
 
 
@@ -491,7 +553,6 @@ class EditorPlugin(Plugin):
     editors = []
 
 
-
 class Tool(object):
     category = None
     label = None
@@ -499,7 +560,6 @@ class Tool(object):
     @classmethod
     def start(cls):
         pass
-
 
 
 class View(gtk.VBox):
@@ -510,7 +570,6 @@ class View(gtk.VBox):
         call it's parent (this) __init__
         """
         super(View, self).__init__(*args, **kwargs)
-
 
 
 class CommandHandler(object):
@@ -530,7 +589,6 @@ class CommandHandler(object):
         @param arg:
         '''
         raise NotImplementedError
-
 
 
 def _find_module_names(path):
@@ -553,7 +611,6 @@ def _find_module_names(path):
             if dir != path and '__init__.py' in files:
                 modules.append(dir[len(path)+1:].replace(os.sep,'.'))
     return modules
-
 
 
 def _find_plugins(path):
@@ -604,7 +661,6 @@ def _find_plugins(path):
                       % mod.__name__))
 #    debug(plugins)
     return plugins
-
 
 
 #
