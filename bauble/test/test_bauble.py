@@ -21,6 +21,24 @@ Tests for the main bauble module.
 
 class BaubleTests(BaubleTestCase):
 
+    def test_enum_type(self):
+        """
+        Test bauble.types.Enum
+        """
+        pass
+
+    def test_date_type(self):
+        """
+        Test bauble.types.Date
+        """
+        pass
+
+    def test_datetime_type(self):
+        """
+        Test bauble.types.DateTime
+        """
+        pass
+
     def test_base_table(self):
         """
         Test bauble.Base is setup correctly

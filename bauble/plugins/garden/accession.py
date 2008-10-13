@@ -29,7 +29,7 @@ from bauble.editor import *
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
-from bauble.types import Enum
+import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results
 from bauble.plugins.garden.donor import Donor
@@ -181,7 +181,7 @@ class Verification(bauble.Base):
 
     # columns
     verifier = Column('verifier', Unicode(64))
-    date = Column(bauble.Date)
+    date = Column(types.Date)
     literature = Column(UnicodeText) # citation?
     level = Column(Text)# i don't know what this is..certainty maybe?
     accession_id = Column(Integer, ForeignKey('accession.id'))
@@ -240,25 +240,25 @@ class Accession(bauble.Base):
 
     # columns
     code = Column(Unicode(20), nullable=False, unique=True)
-    prov_type = Column(Enum(values=['Wild',
-                                    'Propagule of cultivated wild plant',
-                                    "Not of wild source",
-                                    "Insufficient Data",
-                                    "Unknown",
-                                    None]), default=None)
-    wild_prov_status = Column(Enum(values=["Wild native",
-                                           "Wild non-native",
-                                           "Cultivated native",
-                                           "Insufficient Data",
-                                           "Unknown",
-                                            None]), default=None)
-    date = Column(bauble.Date)
-    source_type = Column(Enum(values=['Collection', 'Donation', None]),
+    prov_type = Column(types.Enum(values=['Wild',
+                                          'Propagule of cultivated wild plant',
+                                          "Not of wild source",
+                                          "Insufficient Data",
+                                          "Unknown",
+                                          None]), default=None)
+    wild_prov_status = Column(types.Enum(values=["Wild native",
+                                                 "Wild non-native",
+                                                 "Cultivated native",
+                                                 "Insufficient Data",
+                                                 "Unknown",
+                                                 None]), default=None)
+    date = Column(types.Date)
+    source_type = Column(types.Enum(values=['Collection', 'Donation', None]),
                          default=None)
     notes = Column(UnicodeText)
     # "id_qual" new in 0.7
-    id_qual = Column(Enum(values=['aff.', 'cf.', 'Incorrect',
-                                  'forsan', 'near', '?', None]),
+    id_qual = Column(types.Enum(values=['aff.', 'cf.', 'Incorrect',
+                                        'forsan', 'near', '?', None]),
                      default=None)
     # "private" new in 0.8b2
     private = Column('private', Boolean, default=False)

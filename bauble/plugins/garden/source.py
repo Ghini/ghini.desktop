@@ -6,6 +6,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 
 import bauble
+import bauble.types as types
 from bauble.plugins.plants.geography import Geography
 
 
@@ -33,7 +34,7 @@ class Donation(bauble.Base):
     donor_id = Column(Integer, ForeignKey('donor.id'), nullable=False)
     donor_acc = Column(Unicode(32)) # donor's accession id
     notes = Column(UnicodeText)
-    date = Column(bauble.Date)
+    date = Column(types.Date)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
     def __str__(self):
@@ -71,7 +72,7 @@ class Collection(bauble.Base):
     # columns
     collector = Column(Unicode(64))
     collectors_code = Column(Unicode(50))
-    date = Column(bauble.Date)
+    date = Column(types.Date)
     locale = Column(UnicodeText, nullable=False)
     latitude = Column(Float)
     longitude = Column(Float)

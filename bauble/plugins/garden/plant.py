@@ -19,7 +19,7 @@ from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.types import Enum
+import bauble.types as types
 import bauble.meta as meta
 from bauble.view import MapperSearch
 from bauble.plugins.garden.location import Location, LocationEditor
@@ -107,7 +107,7 @@ class PlantSearch(MapperSearch):
 class PlantHistory(bauble.Base):
     __tablename__ = 'plant_history'
     _mapper_args__ = {'order_by': 'date'}
-    date = Column(bauble.Date)
+    date = Column(types.Date)
     description = Column(UnicodeText)
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
 
@@ -143,11 +143,13 @@ class Plant(bauble.Base):
 
     # columns
     code = Column(Unicode(6), nullable=False)
-    acc_type = Column(Enum(values=['Plant', 'Seed/Spore', 'Vegetative Part',
-                                   'Tissue Culture', 'Other', None]),
+    acc_type = Column(types.Enum(values=['Plant', 'Seed/Spore',
+                                         'Vegetative Part', 'Tissue Culture',
+                                         'Other', None]),
                       default=None)
-    acc_status = Column(Enum(values=['Living accession', 'Dead', 'Transferred',
-                                     'Stored in dormant state', 'Other',
+    acc_status = Column(types.Enum(values=['Living accession', 'Dead',
+                                           'Transferred',
+                                           'Stored in dormant state', 'Other',
                                      None]),
                         default=None)
     notes = Column(UnicodeText)
