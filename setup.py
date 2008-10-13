@@ -9,6 +9,7 @@ import os
 import sys
 import glob
 import distutils.core
+import distutils.cmd as cmd
 from distutils.command.build import build as _build
 from distutils.command.install import install as _install
 import distutils.util as util
@@ -193,6 +194,17 @@ class install(_install):
         dir_util.copy_tree(src, os.path.join(self.prefix, locales))
 
 
+# docs command
+class docs(cmd.Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        #cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ --exclude-introspect="_.*?" --exclude-parse="_.*?" bauble/'
+        cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ bauble/'
+        os.system(cmd)
 # require pysqlite if not using python2.5
 needs_sqlite = []
 try:
@@ -203,7 +215,8 @@ except ImportError:
 
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
-                           'py2exe': py2exe_cmd, 'nsis': nsis_cmd},
+                           'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
+                           'docs': docs},
                  version=version,
                  scripts=["scripts/bauble"], # for setuptools?
                  packages = all_packages,

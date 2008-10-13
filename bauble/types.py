@@ -1,12 +1,17 @@
 #
 # types.py
 #
+from datetime import datetime
 
 import sqlalchemy.types as types
 import sqlalchemy.exc as exc
+
 from bauble.i18n import *
 import bauble.error as error
 
+# TODO: should we allow custom date formats?
+# TODO: do date formats depend on locale
+# TODO: store all times as UTC or support timezones
 
 class EnumError(error.BaubleError):
     """Raised when a bad value is inserted or returned from the Enum type"""
@@ -67,6 +72,54 @@ class Enum(types.TypeDecorator):
         return Enum(self.values, self.empty_to_none, self.strict)
 
 
+
+class DateTime(types.TypeDecorator):
+    """
+    A DateTime type that allows strings
+    """
+    impl = types.DateTime
+
+    def process_bind_param(self, value, dialect):
+        from datetime import datetime
+        # TODO: what about microseconds
+        if isinstance(value, basestring):
+            date, time = value.split(' ')
+            y, mo, d = date.split('-')
+            h, mi, s = time.split(':')
+            return datetime(*map(int, (y, mo, d, h, mi, s)))
+
+        return value
+
+    def process_result_value(self, value, dialect):
+        return value
+
+    def copy(self):
+        return DateTime()
+
+
+class Date(types.TypeDecorator):
+    """
+    A Date type that allows Date strings
+    """
+    impl = types.Date
+
+    def process_bind_param(self, value, dialect):
+        if isinstance(value, basestring):
+            if ' ' in value:
+                date, time = value.split(' ')
+                warning('bauble.Date.process_bind_param: truncating %s to %s' \
+                        % (value, date))
+            else:
+                date = value
+            y, mo, d = date.split('-')
+            return datetime(*map(int, (y, mo, d)))
+        return value
+
+    def process_result_value(self, value, dialect):
+        return value
+
+    def copy(self):
+        return Date()
 
 def test_enum():
     """
