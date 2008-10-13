@@ -43,7 +43,7 @@ import simplejson as json
 
 import bauble
 #import bauble.meta as meta
-from bauble.error import check, CheckConditionError
+from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
@@ -54,15 +54,19 @@ plugins = {}
 commands = {}
 
 def register_command(handler):
+    """
+    Register command handlers.  If a command is a duplicate then it
+    will overwrite the old command of the same name.
+    """
     global commands
     if isinstance(handler.command, str):
-        if handler.command in commands:
-            raise ValueError(_('%s already registered' % handler.command))
+        #if handler.command in commands:
+        #    raise ValueError(_('%s already registered' % handler.command))
         commands[handler.command] = handler
     else:
         for cmd in handler.command:
-            if cmd in commands:
-                raise ValueError(_('%s already registered' % cmd))
+            #if cmd in commands:
+            #    raise ValueError(_('%s already registered' % cmd))
             commands[cmd] = handler
 
 
@@ -192,15 +196,14 @@ def load(path=None):
 
 
 
-def init():
+def init(force=False):
     """
     Initialize the plugin manager.
 
     1. Check for and install any plugins in the plugins dict that
-    aren't in the registry a
-    2.
-
-    Call init() for each of the plugins in the registry.
+    aren't in the registry.
+    2. Call each init() for each plugin the registry in order of dependency
+    3. Register the command handlers in the plugin's commands[]
 
     NOTE: This should be called after after Bauble has established a
     connection to a database with bauble.open_database()
@@ -215,11 +218,13 @@ def init():
                  'registry:\n\n<b>%s</b>\n\n'\
                  '<i>Would you like to install them now?</i>' \
                 % ', '.join([p.__name__ for p in not_installed]))
-        if utils.yes_no_dialog(msg):
-            install([plugins[name] for name in not_installed])
+        if force or utils.yes_no_dialog(msg):
+            install([p for p in not_installed])
 
-    # initialized the plugins in the registry by their dependency
-    install([plugins[name] for name in not_installed])
+    if len(registry) == 0:
+        return
+
+    # sort plugins in the registry by their dependencies
     registered = [plugins[e.name] for e in registry]
     deps, unmet = _create_dependency_pairs(registered)
     ordered = topological_sort(registered, deps)
@@ -227,6 +232,8 @@ def init():
         raise BaubleError(_('The plugins contain a dependency loop. This '\
                             'can happend if two plugins directly or '\
                             'indirectly rely on each other'))
+
+    # call init() for each ofthe plugins
     for plugin in ordered:
         #debug('init: %s' % plugin)
         try:
@@ -235,12 +242,14 @@ def init():
             # don't removed the plugin from the registry because if we
             # find it again the user might decide to reinstall it
             # which could overwrite data
+            ordered.pop(plugin)
             msg = _("The %(plugin_name)s plugin is listed in the registry "\
                     "but isn't wasn't found in the plugin directory") \
                     % dict(plugin_name=plugin.__name__)
             warning(msg)
         except Exception, e:
             #error(e)
+            ordered.pop(plugin)
             error(traceback.print_exc())
             safe = utils.xml_safe_utf8
             values = dict(entry_name=plugin.__name__, exception=safe(e))
@@ -260,7 +269,7 @@ def init():
                 register_command(cmd)
             except Exception, e:
                 msg = 'Error: Could not register command handler.\n\n%s' % \
-                    utils.xml_safe(str(e))
+                      utils.xml_safe(str(e))
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
 
@@ -273,6 +282,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     @param import_defaults: whether a plugin should import its default database
     @param force:
     """
+    #debug('pluginmgr.install(%s)' % plugins_to_install)
     # create the registry if it doesn't exist
     if not Registry.exists():
         Registry.create()
@@ -285,12 +295,20 @@ def install(plugins_to_install, import_defaults=True, force=False):
     else:
         to_install = plugins_to_install
 
+    if len(to_install) == 0:
+        # no plugins to install
+        return
+
     # sort the plugins by their dependency
     depends, unmet = _create_dependency_pairs(to_install)
     if unmet != {}:
         debug(unmet)
         raise BaubleError('unmet dependencies')
     to_install = topological_sort(to_install, depends)
+    if not to_install:
+        raise BaubleError(_('The plugins contain a dependency loop. This '\
+                            'can happend if two plugins directly or '\
+                            'indirectly rely on each other'))
 
 #         msg = _('The %(plugin)s plugin depends on the %(other_plugin)s '\
 #                 'plugin but the %(other_plugin)s plugin wasn\'t found.') \
@@ -310,11 +328,14 @@ def install(plugins_to_install, import_defaults=True, force=False):
     try:
         for p in to_install:
             #debug('install: %s' % p.__name__)
-            p.install()
+            p.install(import_defaults=import_defaults)
             registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
         session.commit()
     except Exception, e:
         debug(e)
+        msg = _('Error installing plugins.')
+        utils.message_details_dialog(msg, utils.utf8(traceback.format_exc()),
+                                     gtk.MESSAGE_ERROR)
         debug(traceback.format_exc())
         session.rollback()
     finally:
@@ -536,7 +557,7 @@ class Plugin(object):
         pass
 
     @classmethod
-    def install(cls, session=None, import_defaults=True):
+    def install(cls, import_defaults=True):
         '''
         install() is run when a new plugin is installed, it is usually
         only run once for the lifetime of the plugin

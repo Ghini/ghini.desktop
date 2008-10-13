@@ -39,47 +39,29 @@ class ImexTestCase(BaubleTestCase):
 
 class CSVTests(ImexTestCase):
 
-    def test_import_defaults(self):
-        # this test is usually not included in the test suite since it
-        # takes so long
-        import bauble
-        import bauble.pluginmgr as pluginmgr
-        #filenames = [p.default_filenames() for p in pluginmgr.plugins]
-        filenames = []
-        for p in pluginmgr.plugins.values():
-            filenames.extend(p.default_filenames())
-        importer = CSVImporter()
-        def on_error(exc):
-            raise exc
-        # the bauble.DateTimeDecorator gives erros here when using a
-        # postgres database
-        importer.start(filenames=filenames, metadata=bauble.metadata,
-                       force=True, on_error=on_error)
 
     def test_sequences(self):
         """
-        test that the sequences are set correctly after an import,
+        Test that the sequences are set correctly after an import,
         bauble.util.test already has a method to test
         utils.reset_sequence but this test makes sure that its works
         correctly after an import
 
+        This test requires the PlantPlugin
         """
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
         # import the family data
         from bauble.plugins.plants.family import Family
         from bauble.plugins.plants import PlantsPlugin
-        family_table = Family.__table__
-        filenames = PlantsPlugin.default_filenames()
-        family_filename = [fn for fn in filenames \
-                           if fn.endswith('family.txt')][0]
+        filename = os.path.join('bauble', 'plugins', 'plants', 'default',
+                                'family.txt')
         importer = CSVImporter()
-        importer.start([family_filename], force=True)
-
+        importer.start([filename], force=True)
         # the highest id number in the family file is assumed to be
         # num(lines)-1 since the id numbers are sequential and
         # subtract for the file header
-        highest_id =  len(open(family_filename).readlines())-1
+        highest_id =  len(open(filename).readlines())-1
         currval = None
         conn = bauble.engine.contextual_connect()
         if bauble.engine.name == 'postgres':

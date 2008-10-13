@@ -37,8 +37,8 @@ class GardenPlugin(pluginmgr.Plugin):
     depends = ["PlantsPlugin"]
 
     @classmethod
-    def install(cls):
-        debug('GardenPlugin.install()')
+    def install(cls, *args, **kwargs):
+        pass
 
 
     @classmethod

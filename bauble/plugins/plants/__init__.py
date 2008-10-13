@@ -88,21 +88,28 @@ class PlantsPlugin(pluginmgr.Plugin):
         super(PlantsPlugin, cls).create_tables()
 
 
-    @staticmethod
-    def default_filenames():
-        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        files = ['family.txt', 'family_synonym.txt', 'genus.txt',
-                 'genus_synonym.txt', 'geography.txt']
-        return [os.path.join(path, f) for f in files]
-
     @classmethod
-    def install(cls):
+    def install(cls, import_defaults=True):
         """
         do any setup and configuration required bt this plugin like
         creating tables, etc...
         """
-        #cls.create_tables()
-        pass
+        if not import_defaults:
+            return
+        path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
+        filenames = [os.path.join(path, f) for f in 'family.txt',
+                     'family_synonym.txt', 'genus.txt', 'genus_synonym.txt',
+                     'geography.txt']
+        from bauble.plugins.imex.csv_ import CSVImporter
+        csv = CSVImporter()
+        import_error = False
+        import_exc = None
+        try:
+            csv.start(filenames, metadata=bauble.metadata, force=True)
+        except Exception, e:
+            error(e)
+            raise
+
 
 
 plugin = PlantsPlugin

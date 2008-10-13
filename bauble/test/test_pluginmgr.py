@@ -29,7 +29,7 @@ class A(pluginmgr.Plugin):
     def init(cls):
         cls.initialized = True
     @classmethod
-    def install(cls):
+    def install(cls, *args, **kwargs):
         cls.installed = True
 
 class B(pluginmgr.Plugin):
@@ -42,7 +42,7 @@ class B(pluginmgr.Plugin):
                '%s, %s' % (A.initialized, C.instalialized)
         cls.initialized = True
     @classmethod
-    def install(cls):
+    def install(cls, *args, **kwargs):
         assert A.installed and not C.installed, \
                '%s, %s' % (A.installed, C.installed)
         cls.installed = True
@@ -56,11 +56,48 @@ class C(pluginmgr.Plugin):
         assert A.initialized and B.initialized
         cls.initialized = True
     @classmethod
-    def install(cls):
+    def install(cls, *args, **kwargs):
         assert A.installed and B.installed
         cls.installed = True
 
-class PluginMgrTests(unittest.TestCase):
+class PluginMgrTests(BaubleTestCase):
+
+    def test_install(self):
+        """
+        Test importing default data from plugin
+        """
+        # this emulates the PlantsPlugin install() method but only
+        # imports the family.txt file...if PlantsPlugin.install()
+        # changes we should change this method as well
+        class Dummy(pluginmgr.Plugin):
+            @classmethod
+            def init(cls):
+                pass
+            @classmethod
+            def install(cls, import_defaults=True):
+                import bauble.paths as paths
+                if not import_defaults:
+                    return
+                path = os.path.join(paths.lib_dir(), "plugins", "plants",
+                                    "default")
+                filenames = os.path.join(path, 'family.txt')
+                from bauble.plugins.imex.csv_ import CSVImporter
+                csv = CSVImporter()
+                try:
+                    csv.start([filenames], metadata=bauble.metadata,
+                              force=True)
+                except Exception, e:
+                    error(e)
+                    raise
+                from bauble.plugins.plants import Family
+                self.assert_(self.session.query(Family).count() == 511)
+        pluginmgr.plugins[Dummy.__name__] = Dummy
+        pluginmgr.install([Dummy])
+
+
+
+
+class StandalonePluginMgrTests(unittest.TestCase):
 
     def setUp(self):
         A.initialized = A.installed = False
@@ -72,16 +109,23 @@ class PluginMgrTests(unittest.TestCase):
         B.initialized = B.installed = False
         C.initialized = C.installed = False
 
+    def test_command_handler(self):
+        """
+        Test that the command handlers get properly registered...this
+        could probably just be included in test_init()
+        """
+        pass
+
     def test_init(self):
         """
         Test bauble.pluginmgr.init()
         """
+        bauble.open_database(uri, verify=False)
+        bauble.create_database(False)
         bauble.pluginmgr.plugins[C.__name__] = C
         bauble.pluginmgr.plugins[B.__name__] = B
         bauble.pluginmgr.plugins[A.__name__] = A
-        bauble.open_database(uri, verify=False)
-        bauble.create_database(False)
-        bauble.pluginmgr.init()
+        bauble.pluginmgr.init(force=True)
         self.assert_(A.initialized and B.initialized and C.initialized)
 
     def test_install(self):
@@ -95,6 +139,8 @@ class PluginMgrTests(unittest.TestCase):
         bauble.create_database(False)
         #bauble.pluginmgr.install((A, B, C), force=True)
         self.assert_(A.installed and B.installed and C.installed)
+
+
 
 class RegistryTests(BaubleTestCase):
 

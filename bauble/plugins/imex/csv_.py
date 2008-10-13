@@ -251,11 +251,11 @@ class CSVImporter(Importer):
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                         % {'table': table.name, 'filename': filename}
-                log.info(msg)
+                #log.info(msg)
                 bauble.task.set_message(msg)
                 yield # allow progress bar update
                 if not table.exists():
-                    log.info('%s does not exist. creating.' % table.name)
+                    #log.info('%s does not exist. creating.' % table.name)
                     debug('%s does not exist. creating.' % table.name)
                     table.create(bind=engine)
                     add_to_created(table.name)
