@@ -1,8 +1,11 @@
 #
 # provide paths that bauble will need
 #
-
-import os, sys
+"""
+Access to standard paths used by Bauble.
+"""
+import os
+import sys
 
 # TODO: we could just have setup or whatever create a file in the lib
 # directory that tells us where all the other directories are but how do we

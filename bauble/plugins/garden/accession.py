@@ -237,6 +237,7 @@ class Accession(bauble.Base):
     __mapper_args__ = {'order_by': 'code'}
 
     # columns
+    #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
     prov_type = Column(types.Enum(values=['Wild',
                                           'Propagule of cultivated wild plant',

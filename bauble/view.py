@@ -55,12 +55,9 @@ class InfoExpander(gtk.Expander):
     an abstract class that is really just a generic expander with a vbox
     to extend this you just have to implement the update() method
     """
-    # TODO: we should be able to make this alot more generic
-    # and get information from sources other than table columns
+
     def __init__(self, label, widgets=None):
         """
-        the constructor
-
         @param label: the name of this info expander, this is displayed on the
         expander's expander
         @param glade_xml: a gtk.glade.XML instace where can find the expanders
@@ -76,8 +73,7 @@ class InfoExpander(gtk.Expander):
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
         '''
-        a shorthand for L{utils.set_widget_value}
-        TODO: how do i link the docs to reference utils.set_widget_value
+        a shorthand for L{bauble.utils.set_widget_value()}
         '''
         utils.set_widget_value(self.widgets.glade_xml, widget_name, value,
                                markup, default)
@@ -85,7 +81,7 @@ class InfoExpander(gtk.Expander):
 
     def update(self, value):
         '''
-        should be implement
+        This method should be implemented by classes that extend InfoExpander
         '''
         raise NotImplementedError("InfoExpander.update(): not implemented")
 
@@ -339,9 +335,9 @@ class MapperSearch(SearchStrategy):
         Returns a sqlalchemy.orm.Query that will retreive the search
         results for the search tokens
         """
-        # We build the queries by return the ids of the rows that
+        # We build the queries by fetching the ids of the rows that
         # match the condition and then returning a query to return the
-        # object that have ids in the build query.  This might seem
+        # object that have ids in the built query.  This might seem
         # like a roundabout way but it works on databases don't
         # support union and/or intersect
         #
@@ -1119,14 +1115,7 @@ class SearchView(pluginmgr.View):
         self.pack_start(self.pane)
         self.show_all()
 
-    # TODO: should i or should i not delete everything that is a child
-    # of the row when it is collapsed, this would save memory but
-    # would cause it to be slow if rows were collapsed and need to be
-    # reopend
-#    def on_row_collapsed(self, view, iter, path, data=None):
-#        '''
-#        '''
-#        pass
+
 
 def select_in_search_results(obj):
     """
