@@ -1,7 +1,9 @@
 #
 # utils module
 #
-
+"""
+A common set of utility functions used throughout Bauble.
+"""
 import imp
 import os
 import sys

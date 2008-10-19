@@ -26,7 +26,6 @@ class ValidatorError(Exception):
     pass
 
 class StringOrNoneValidator(object):
-
     """If the value is an empty string then return None, else return the str()
     of the value.
     """
