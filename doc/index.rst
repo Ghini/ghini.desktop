@@ -11,7 +11,13 @@
    :maxdepth: 2
 
    intro
+   installing
+   creating
    searching
+   tagging
+   report
+   imex
+   extending
    api
 
 
