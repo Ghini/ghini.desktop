@@ -163,7 +163,7 @@ def save_state():
 
 def quit():
     """
-    Stop all  tasks and quite Bauble.
+    Stop all tasks and quit Bauble.
     """
     import bauble.task as task
     save_state()
@@ -179,9 +179,13 @@ def _verify_connection(engine, show_error_dialogs=False):
     Test whether a connection to an engine is a valid Bauble database. This
     method will raise an error for the first problem it finds with the
     database.
-    @param engine: the engine to test
-    @param show_error_dialogs: flag for whether or not to show message dialogs
-    detailing the error, default=False
+
+    :Parameters:
+      engine:
+        the engine to test
+      show_error_dialogs:
+        flag for whether or not to show message dialogs detailing the
+        error, default=False
     """
 ##    debug('entered _verify_connection(%s)' % show_error_dialogs)
     if show_error_dialogs:
@@ -267,13 +271,24 @@ def _verify_connection(engine, show_error_dialogs=False):
 
 
 def open_database(uri, verify=True, show_error_dialogs=False):
-    '''
-    open a database connection
+    """
+    Open a database connection.  This function sets bauble.engine to
+    the opened engined.
 
-    @returns: On a successful connection a new engine is returned
-    which is the same as bauble.engine, on failure None is returned
-    and bauble.engine remains as it was previously
-    '''
+    Return bauble.engine if successful else returns None and
+    bauble.engine remains unchanged.
+
+    :Parameters:
+      uri : str
+        The uri of the database to connect to.
+      verify : bool
+        Where the database we connect to should be verified as one
+        created by Bauble.  This flag is used mostly for testing.
+      show_error_dialogs : bool
+        A flag to indicate whether the error dialogs should be
+        displayed.  This is used mostly for testing.
+    """
+
     # ** WARNING: this can print your passwd
 ##    debug('bauble.open_database(%s)' % uri)
     from sqlalchemy.orm import sessionmaker
@@ -300,10 +315,15 @@ def open_database(uri, verify=True, show_error_dialogs=False):
 
 
 def create_database(import_defaults=True):
-    '''
+    """
     Create new Bauble database at the current connection
-    @param import_defaults: default=True
-    '''
+
+    :Parameters:
+      import_defaults : boolean
+        A flag that is passed to each plugins install() method to
+        indicate where it should import its default data.  This is
+        mainly used for testing.  The default value is True
+    """
     # TODO: when creating a database there shouldn't be any errors
     # on import since we are importing from the default values, we should
     # just force the import and send everything in the database at once
@@ -392,8 +412,11 @@ def command_handler(cmd, arg):
     """
     Call a command handler.
 
-    @param cmd: the name of the command to call
-    @param arg: the arg to pass to the command handler
+    :Parameters:
+      cmd : str
+        The name of the command to call
+      arg : list
+        The arg to pass to the command handler
     """
     global last_handler
     handler_cls = None
