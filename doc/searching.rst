@@ -23,10 +23,10 @@ Examples of searching by value would be: Maxillaria, Acanth,
 2008.1234, 2003.2.1
 
 Search string are separated by spaces. For example if you enter the
-search string Block 10 then Bauble will search for the strings Block
+search string ``Block 10`` then Bauble will search for the strings Block
 and 10 and return all the results that match either of these
 strings. If you want to search for Block 10 as a while string then you
-should quote the string like "Block 10".  
+should quote the string like ``"Block 10"``.  
 
 
 Search by Expression
@@ -35,11 +35,11 @@ Search by Expression
 Searching with expression gives you a little more control over what
 you are searching for. It can narrow the search down to a specific
 domain. Expression consist of a domain, an operator and a value. For
-example the search "gen=Maxillaria" would return all the genera that
+example the search: ``gen=Maxillaria`` would return all the genera that
 match the name Maxillaria. In this case the domain is gen, the
 operator is = and the value is Maxillaria.
 
-The search string "gen like max%" would return all the genera whose
+The search string ``gen like max%`` would return all the genera whose
 names start with "Max". In this case the domain again is gen, the
 operator is like, which allows for "fuzzy" searching and the value is
 max%. The percent sign is used as a wild card so if you search for
@@ -50,8 +50,8 @@ would search for all value that contain max and end in a.
 For more information about the different search domain see…..TODO
 
 If expression are invalid they are usually used as search by value
-searchs. For example the search string "gen=" will execute a search by
-value for the string gen and the search string "gen like" will search
+searchs. For example the search string ``gen=`` will execute a search by
+value for the string gen and the search string ``gen like`` will search
 for the string gen and the string like.  
 
 
@@ -62,8 +62,8 @@ Queries allow the most control over searching. With queries you can
 search across relations, specific columns and join search using
 boolean operators like AND and OR.
 
-An example of a query would be : plant where
-accession.species.genus.family=Fabaceae and location.site="Block 10"
+An example of a query would be: 
+   ``plant where accession.species.genus.family=Fabaceae and location.site="Block 10"``
 
 This query would return all the plants whose family are Fabaceae and
 are located in Block 10.
