@@ -115,9 +115,14 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
 
 
 def clear_model(obj_with_model):
-    '''
-    and and remove the model on an object
-    '''
+    """
+    @param obj_with_model: a gtk Widget that has a gtk.TreeModel that
+    can be retrieved with obj_with_mode.get_model
+
+    Remove the model from the object, deletes all the items in the
+    model, clear the model and then delete the model and set the model
+    on the object to None
+    """
     model = obj_with_model.get_model()
     if model is None:
         return
