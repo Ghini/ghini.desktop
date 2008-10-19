@@ -12,7 +12,7 @@
 
    intro
    installing
-   creating
+   started
    searching
    tagging
    report

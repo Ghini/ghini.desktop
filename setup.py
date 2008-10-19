@@ -202,14 +202,19 @@ class docs(cmd.Command):
     def finalize_options(self):
         pass
     def run(self):
-        #cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ --exclude-introspect="_.*?" --exclude-parse="_.*?" bauble/'
-        #cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ bauble/'
-        #cmd = 'epydoc --html -o html --docformat restructuredtext --url=http://bauble.belizebotanic.org/docs/ bauble/'
+        try:
+            import sphinx
+        except ImportError:
+            print 'Building the docs requires the '\
+                  'Sphinx(http://sphinx.pocoo.org) package'
+            return
+        options = []
         if self.all:
-            cmd = 'PYTHONPATH=.. sphinx-build -a -b html doc doc/.build/'
-        else:
-            cmd = 'PYTHONPATH=.. sphinx-build -b html doc doc/.build/'
+            options.append('-a')
+        cmd = 'PYTHONPATH=.. sphinx-build %s -b html doc doc/.build/' \
+            % ' '.join(options)
         os.system(cmd)
+
 # require pysqlite if not using python2.5
 needs_sqlite = []
 try:
