@@ -22,7 +22,6 @@ import bauble
 from bauble.error import check, CheckConditionError, BaubleError
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
-#import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.utils.log import debug, error
@@ -50,9 +49,6 @@ else:
 # then we can't update unless the search view updates us, this means that
 # the search view would have to register on_expanded on each info expander
 # in the infobox
-
-# what to display if the value in the database is None
-DEFAULT_VALUE = '--'
 
 class InfoExpander(gtk.Expander):
     """
@@ -813,7 +809,6 @@ class SearchView(pluginmgr.View):
             statusbar.push(sbcontext_id, _("%s search results") % len(results))
 
 
-
     def remove_children(self, model, parent):
         """
         remove all children of some parent in the model, reverse
@@ -855,6 +850,12 @@ class SearchView(pluginmgr.View):
 
 
     def populate_results(self, results, check_for_kids=False):
+        """
+        @param results: a ResultSet instance
+        @param check_for_kids: only used for testing
+
+        This method adds results to the search view in a task.
+        """
         def on_error(exc):
             error('SearchView.populate_results:')
             error(exc)
@@ -869,7 +870,8 @@ class SearchView(pluginmgr.View):
 
     def _populate_worker(self, results, check_for_kids=False):
         """
-        Generator function for adding the search results to the model
+        Generator function for adding the search results to the
+        model. This method is usually called by self.populate_results()
         """
         nresults = len(results)
         model = gtk.TreeStore(object)

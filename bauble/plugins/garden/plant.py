@@ -67,11 +67,7 @@ plant_context_menu = [('Edit', edit_callback),
 def plant_markup_func(plant):
     '''
     '''
-    if plant.accession.id_qual is None:
-        sp_str = plant.accession.species.markup(authors=False)
-    else:
-        sp_str = '%s %s' % (plant.accession.species.markup(authors=False),
-                            plant.accession.id_qual)
+    sp_str = plant.accession.species_str(markup=True)
     if plant.acc_status == 'Dead':
         color = '<span foreground="#666666">%s</span>'
         return color % utils.xml_safe_utf8(plant), sp_str
@@ -190,7 +186,7 @@ class Plant(bauble.Base):
         # plant names around but makes expanding the location essential
         # or you don't know what plants you are looking at
         return "%s%s%s (%s)" % (self.accession, self.delimiter, self.code,
-                                self.accession.species.markup())
+                                self.accession.species_str(markup=True))
 
 
 from bauble.plugins.garden.accession import Accession
@@ -263,8 +259,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def __init__(self, model, view):
         '''
-        @model: should be an instance of Plant class
-        @view: should be an instance of PlantEditorView
+        @param model: should be an instance of Plant class
+        @param view: should be an instance of PlantEditorView
         '''
         GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
@@ -607,8 +603,8 @@ class GeneralPlantExpander(InfoExpander):
                                                 utils.xml_safe(unicode(head)))
         self.set_widget_value('plant_code_data', '<big>%s</big>' % \
                               utils.xml_safe(unicode(tail)))
-        self.set_widget_value('name_data', '%s %s' % \
-             (row.accession.species.markup(True), row.accession.id_qual or ''))
+        self.set_widget_value('name_data',
+                              row.accession.species_str(markup=True))
         self.set_widget_value('location_data',row.location.site)
         self.set_widget_value('status_data',
                          row.acc_status, False)
