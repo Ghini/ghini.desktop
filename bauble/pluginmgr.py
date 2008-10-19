@@ -533,13 +533,15 @@ class RegistryEntry(dict):
 
 class Plugin(object):
     """
-    tables: a list of tables that this plugin provides
-    tools: a list of BaubleTool classes that this plugin provides, the
-        tools' category and label will be used in Bauble's "Tool" menu
-    depends: a list of names classes that inherit from BaublePlugin that this
-        plugin depends on
-    cmds: a map of commands this plugin handled with callbacks,
-        e.g dict('cmd', lambda x: handler)
+    tools:
+      a list of BaubleTool classes that this plugin provides, the
+      tools' category and label will be used in Bauble's "Tool" menu
+    depends:
+      a list of names classes that inherit from BaublePlugin that this
+      plugin depends on
+    cmds:
+      a map of commands this plugin handled with callbacks,
+      e.g dict('cmd', lambda x: handler)
     """
     commands = []
     tools = []

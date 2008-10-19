@@ -196,14 +196,19 @@ class install(_install):
 
 # docs command
 class docs(cmd.Command):
-    user_options = []
+    user_options = [('all', None, 'build all')]
     def initialize_options(self):
-        pass
+        self.all = False
     def finalize_options(self):
         pass
     def run(self):
         #cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ --exclude-introspect="_.*?" --exclude-parse="_.*?" bauble/'
-        cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ bauble/'
+        #cmd = 'epydoc --html -o html --url=http://bauble.belizebotanic.org/docs/ bauble/'
+        #cmd = 'epydoc --html -o html --docformat restructuredtext --url=http://bauble.belizebotanic.org/docs/ bauble/'
+        if self.all:
+            cmd = 'PYTHONPATH=.. sphinx-build -a -b html doc doc/.build/'
+        else:
+            cmd = 'PYTHONPATH=.. sphinx-build -b html doc doc/.build/'
         os.system(cmd)
 # require pysqlite if not using python2.5
 needs_sqlite = []
