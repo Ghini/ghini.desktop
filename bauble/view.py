@@ -19,22 +19,14 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 
 import bauble
-from bauble.error import check, CheckConditionError
+from bauble.error import check, CheckConditionError, BaubleError
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
-import bauble.error as error
+#import bauble.error as error
 import bauble.utils as utils
 from bauble.prefs import prefs
 from bauble.utils.log import debug, error
 from bauble.utils.pyparsing import *
-
-# BUGS: - https://bugs.launchpad.net/bauble/+bug/147015 - Show
-# relevant online data for search results
-# https://bugs.launchpad.net/bauble/+bug/147016 - Ability to pin down
-# infobox https://bugs.launchpad.net/bauble/+bug/147019 - Retrieve
-# search results in a task
-# https://bugs.launchpad.net/bauble/+bug/147020 - Use regular
-# expressions in search strings
 
 # TODO: should we provide a way to change the results view from list to icon
 # and provide an icon type to each type that can be returned and then you could
@@ -771,14 +763,6 @@ class SearchView(pluginmgr.View):
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
 #        debug('SearchView.search(%s)' % text)
-        self.session.clear()
-
-        utils.clear_model(self.results_view)
-        self.set_infobox_from_row(None)
-
-        statusbar = bauble.gui.widgets.statusbar
-        sbcontext_id = statusbar.get_context_id('searchview.nresults')
-        statusbar.pop(sbcontext_id)
         results = ResultSet()
         error_msg = None
         self.session.clear() # clear out any old search results
@@ -788,16 +772,23 @@ class SearchView(pluginmgr.View):
                 results.add(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
-        except (error.BaubleError, AttributeError, Exception, SyntaxError), e:
-            debug(traceback.format_exc())
+        except (BaubleError, AttributeError, Exception, SyntaxError), e:
+            #debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
 
+        if error_msg:
+            bauble.gui.error_msg(error_msg)
+            return
+
+        # not error
+        utils.clear_model(self.results_view)
+        self.set_infobox_from_row(None)
+        statusbar = bauble.gui.widgets.statusbar
+        sbcontext_id = statusbar.get_context_id('searchview.nresults')
+        statusbar.pop(sbcontext_id)
         if len(results) == 0:
             model = gtk.ListStore(str)
-            if error_msg is not None:
-                model.append([bold % error_msg])
-            else:
-                model.append([bold % _('Couldn\'t find anything')])
+            model.append([bold % _('Couldn\'t find anything')])
             self.results_view.set_model(model)
         else:
             if len(results) > 5000:
@@ -970,14 +961,6 @@ class SearchView(pluginmgr.View):
                         treeview_model.remove(found.iter)
                     self.results_view.set_model(treeview_model)
                 gobject.idle_add(remove)
-
-
-    def on_entry_key_press(self, widget, event, data=None):
-        '''
-        '''
-        keyname = gtk.gdk.keyval_name(event.keyval)
-        if keyname == "Return":
-            self.search_button.emit("clicked")
 
 
     def get_expanded_rows(self):

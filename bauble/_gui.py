@@ -2,8 +2,13 @@
 # _gui.py
 #
 
-import os, sys, traceback
+import os
+import sys
+import traceback
+
 import gtk
+import gobject
+
 import bauble
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
@@ -110,6 +115,85 @@ class GUI(object):
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
 
+        def on_expanded(*args):
+            eb = self.widgets.msg_eventbox
+            width, height = eb.size_request()
+            eb.set_size_request(-1, -1)
+            eb.queue_resize()
+        self.widgets.msg_eventbox.hide()
+        self.widgets.msg_details_expander.connect('notify::expanded',
+                                                  on_expanded)
+        img = gtk.Image()
+        img.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_SMALL_TOOLBAR)
+        button = self.widgets.msg_close_button
+        button.set_label('')
+        button.set_image(img)
+        button.set_relief(gtk.RELIEF_NONE)
+#         def on_enter(button, *args):
+#             debug(button)
+#             button.emit_stop_by_name('enter')
+#             button.stop_emission('enter')
+#             #button.emit_stop_by_name('enter-notify-event')
+#             #button.stop_emission('enter-notify-event')
+#             return True
+#         button.connect('enter', on_enter)
+        self.widgets.msg_close_button.connect('clicked', self.close_msg_box)
+
+
+    # TODO: need to handle the case where a message is added when
+    # another message already exists or the message box is in the
+    # middle of either opening or closing
+
+    def close_msg_box(self, *args):
+        # TODO: reverse animate?
+        eb = self.widgets.msg_eventbox.hide()
+
+
+    def _msg_common(self, msg, colors):
+        eb = self.widgets.msg_eventbox
+        colormap = eb.get_colormap()
+        style = eb.get_style().copy()
+        for attr, state, color in colors:
+            c = colormap.alloc_color(color)
+            getattr(style, attr)[state] = c
+        # is it ok to set the style the expander and button even
+        # though the style was copied from the eventbox
+        eb.set_style(style)
+        self.widgets.msg_details_expander.set_style(style)
+        self.widgets.msg_close_button.set_style(style)
+        self.widgets.msg_label.set_text(msg)
+
+
+    def info_msg(self, msg):
+        colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
+        self._msg_common(msg, colors)
+        self.widgets.msg_eventbox.show()
+
+
+    def error_msg(self, msg, details=None):
+        colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
+        self._msg_common(msg, colors)
+        eb = self.widgets.msg_eventbox
+
+        if not details:
+            self.widgets.msg_details_expander.set_property('visible', False)
+        else:
+            self.widgets.msg_details_expander.set_property('visible', True)
+            self.widgets.msg_details_label.set_text(details)
+        width, height = eb.size_request()
+        eb.set_size_request(width, 0)
+        eb.show()
+        def animate(final_height):
+            width, height = eb.size_request()
+            if height >= final_height:
+                return False
+            height = height + 5
+            eb.set_size_request(width, height)
+            return True
+        gobject.timeout_add(10, animate, height)
+
+
     def show(self):
         self.build_tools_menu()
         self.window.show()
@@ -146,6 +230,7 @@ class GUI(object):
     def on_go_button_clicked(self, widget):
         '''
         '''
+        self.close_msg_box()
         text = self.widgets.main_entry.get_text()
         self.add_to_history(text)
         tokens = self.cmd_parser.parseString(text)
