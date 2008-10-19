@@ -155,14 +155,10 @@ acc_context_menu = [('Edit', edit_callback),
                     ('Remove', remove_callback)]
 
 def acc_markup_func(acc):
-    '''
-    '''
-    if acc.id_qual is None:
-        sp_str = acc.species.markup(authors=False)
-    else:
-        sp_str = '%s %s' % (acc.species.markup(authors=False),
-                            acc.id_qual)
-    return utils.xml_safe_utf8(unicode(acc)), sp_str
+    """
+    Returns str(acc), acc.species_str()
+    """
+    return utils.xml_safe_utf8(unicode(acc)), acc.species_str()
 
 
 
@@ -192,30 +188,32 @@ class Accession(bauble.Base):
 
     Columns
     ----------
-    code:
+    code: Unicode
       the accession code
-    prov_type:
+    prov_type: Enum
       provenance type, possible values are Wild, Propagule of cultivated
       wild plant, Not of wild source, Insufficient Data, Unknown
-    wild_prov_status:
+    wild_prov_status:  Enum
       if prov_type is Wild then this column can be used to give more
       provenance information, possible values are Wild native,
       Wild non-native, Cultivated native, Insufficient Data, Unknown
-    date:
+    date: Date
       the date this accession was accessioned
-    source_type:
-      the type of the source of this accession, possible values are
+    source_type: Enum
+      The type of the source of this accession, possible values are
       Collection and Donation
-    notes:
-      misc. notes relating to this accession
-    id_qual:
-      the id qualifier is used to indicate uncertainty in the
-      identification of this accession
-    private:
-      flag to indicate where this information is sensitive and should be
+    notes: Unicode
+      Notes relating to this accession.
+    id_qual: Enum
+      The id qualifier is used to indicate uncertainty in the
+      identification of this accession, possible values are
+      aff.(affinity with), cf. (compare with), forsan (perhaps), near
+      (close to), ? (questionable), incorrent
+    private: Boolean
+      Flag to indicate where this information is sensitive and should be
       kept private
-    species_id:
-      foreign key to the species table
+    species_id: ForeignKey
+      Foreign key to the species table
 
     Relations
     ----------
@@ -257,9 +255,20 @@ class Accession(bauble.Base):
                          default=None)
     notes = Column(UnicodeText)
     # "id_qual" new in 0.7
-    id_qual = Column(types.Enum(values=['aff.', 'cf.', 'Incorrect',
+    id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
                                         'forsan', 'near', '?', None]),
                      default=None)
+
+    # TODO: this is a new field as of 0.9 that allows the id_qual to
+    # reference which part is uncertain about the identification of
+    # this accession to the species....the question is should it
+    # contain the specific string where the uncertainty is or should
+    # it include the name of the column, e.g. genus, sp, infrasp.  If
+    # it were the string then it would be more direct what is
+    # uncertain...the other problem is that this could get out of
+    # synch with the species name
+    id_qual_ref = Column(Unicode(10))
+
     # "private" new in 0.8b2
     private = Column('private', Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
@@ -289,6 +298,26 @@ class Accession(bauble.Base):
 
     def __str__(self):
         return self.code
+
+    def species_str(self, markup=False, authors=False):
+        # TODO: this is broken when the id_qual is aff or cf and the
+        # species.infrasp_rank == cv.
+        if not self.species:
+            return None
+        session = bauble.Session()
+        species = session.query(Species).filter_by(id=self.species.id).one()
+        if self.id_qual in ('aff.', 'cf.'):
+            setattr(species, self.id_qual_ref,
+                    '%s %s' % (self.id_qual,
+                               getattr(species, self.id_qual_ref)))
+            sp_str = Species.str(species, markup, authors)
+        else:
+            sp_str = '%s(%s)' % (Species.str(species, markup, authors),
+                                 self.id_qual)
+        del species
+        session.close()
+        return sp_str
+
 
 
     def _get_source(self):
@@ -1020,9 +1049,22 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
+
+        # init id_qual_ref
+        utils.setup_text_combobox(self.view.widgets.acc_id_qual_ref_combo)
+        self.refresh_id_qual_ref_combo()
+        def on_changed(combo, *args):
+            it = combo.get_active_iter()
+            if not it:
+                self.model.id_qual_ref = None
+                return
+            text, col = combo.get_model()[it]
+            #self.model.id_qual_ref = col
+            self.set_model_attr('id_qual_ref', col)
+        self.view.widgets.acc_id_qual_ref_combo.connect('changed', on_changed)
+
         self.init_source_tab()
         self.refresh_view() # put model values in view
-
 
         # connect signals
         def sp_get_completions(text):
@@ -1064,6 +1106,31 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('acc_private_check', 'private')
         self.__dirty = False
 
+
+    def refresh_id_qual_ref_combo(self):
+        combo = self.view.widgets.acc_id_qual_ref_combo
+        utils.clear_model(combo)
+        if not self.model.species:
+            return
+        model = gtk.ListStore(str, str)
+        species = self.model.species
+        it = model.append([str(species.genus), 'genus'])
+        if self.model.id_qual_ref == 'genus':
+            active = it
+        it = model.append([str(species.sp), 'sp'])
+        if self.model.id_qual_ref == 'sp':
+            active = it
+        if species.infrasp:
+            if species.infrasp_rank == 'cv.':
+                s = "'%s'" % str(species.infrasp)
+            else:
+                s = str(species.infrasp)
+            it = model.append([s, 'infrasp'])
+            if self.model.id_qual_ref == 'infrasp':
+                active = it
+        model.append(('', None))
+        combo.set_model(model)
+        combo.set_active_iter(active)
 
 
     def dirty(self):
@@ -1482,6 +1549,8 @@ class AccessionEditor(GenericModelViewPresenterEditor):
             self.__cleanup_collection_model(self.model.source)
         elif isinstance(self.model.source, Donation):
             self.__cleanup_donation_model(self.model.source)
+        if self.model.id_qual is None:
+            self.model.id_qual_ref = None
         return super(AccessionEditor, self).commit_changes()
 
 
@@ -1534,8 +1603,9 @@ class GeneralAccessionExpander(InfoExpander):
         else:
             self.widgets.remove_parent(acc_private)
 
-        self.set_widget_value('name_data', '%s %s' % \
-                              (row.species.markup(True), row.id_qual or '',))
+        #self.set_widget_value('name_data', '%s %s' % \
+        #                      (row.species.markup(True), row.id_qual or '',))
+        self.set_widget_value('name_data', row.species_str(markup=True))
 
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,
