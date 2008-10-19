@@ -1,2 +1,89 @@
 Searching in Bauble
 -------------------
+Three are three types of search queries available in Bauble. You can
+search by value, expression or query.
+
+All searches are case insensitive so searching for Maxillaria and
+maxillaria will return the same results.
+
+
+Search by Value
+===============
+
+Search by value is the simplest way to search. You just type in a
+string and see what matches. Which fields/columns are search for your
+string depends on how the different plugins are configured. For
+example, by default the PlantPlugin search the family name, the genus
+name, the species and infraspecific species names, vernacular names
+and geography. So if you want to search in the notes field of any of
+these types then searching by value is not the search you're looking
+for.
+
+Examples of searching by value would be: Maxillaria, Acanth,
+2008.1234, 2003.2.1
+
+Search string are separated by spaces. For example if you enter the
+search string Block 10 then Bauble will search for the strings Block
+and 10 and return all the results that match either of these
+strings. If you want to search for Block 10 as a while string then you
+should quote the string like "Block 10".  
+
+
+Search by Expression
+====================
+
+Searching with expression gives you a little more control over what
+you are searching for. It can narrow the search down to a specific
+domain. Expression consist of a domain, an operator and a value. For
+example the search "gen=Maxillaria" would return all the genera that
+match the name Maxillaria. In this case the domain is gen, the
+operator is = and the value is Maxillaria.
+
+The search string "gen like max%" would return all the genera whose
+names start with "Max". In this case the domain again is gen, the
+operator is like, which allows for "fuzzy" searching and the value is
+max%. The percent sign is used as a wild card so if you search for
+max% then it search for all value that start with max. If you search
+for %max it searches for all values that end in max. The string %max%a
+would search for all value that contain max and end in a.
+
+For more information about the different search domain see…..TODO
+
+If expression are invalid they are usually used as search by value
+searchs. For example the search string "gen=" will execute a search by
+value for the string gen and the search string "gen like" will search
+for the string gen and the string like.  
+
+
+Search by Query
+===============
+
+Queries allow the most control over searching. With queries you can
+search across relations, specific columns and join search using
+boolean operators like AND and OR.
+
+An example of a query would be : plant where
+accession.species.genus.family=Fabaceae and location.site="Block 10"
+
+This query would return all the plants whose family are Fabaceae and
+are located in Block 10.
+
+Searching with queries usually requires some knowledge of the Bauble
+internals and database table layouts.  
+
+
+Domains 
+======= 
+
+The following are the common search domain and the
+columns they search by default. The default columns are used when
+searching by value and expression. The queries do not use the default
+columns.
+
+fam, family
+gen, genus
+sp
+name
+geography
+loc, location
+site
