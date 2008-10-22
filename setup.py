@@ -208,12 +208,12 @@ class docs(cmd.Command):
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
-        options = []
+        cmd = ['sphinx-build', '-b', 'html', 'doc', 'doc/.build/']
         if self.all:
-            options.append('-a')
-        cmd = 'PYTHONPATH=.. sphinx-build %s -b html doc doc/.build/' \
-            % ' '.join(options)
-        os.system(cmd)
+            # rebuild all the docs
+            cmd.insert(1, '-a')
+        spawn.spawn(cmd)
+
 
 # require pysqlite if not using python2.5
 needs_sqlite = []
