@@ -171,10 +171,12 @@ class CSVImporter(Importer):
 
     def run(self, filenames, metadata, force=False):
         '''
-        where all the action happens
+        A generator method for importing filenames into the database.
+        This method periodically yields control so that the GUI can
+        update.
 
-        @params filesnames
-        @param metadata
+        @params filenames:
+        @param metadata:
         @param force: default=False
         '''
         engine = metadata.bind
@@ -311,28 +313,32 @@ class CSVImporter(Importer):
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
                 update_every = 11
+                values = []
+                insert = table.insert().compile()
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
                     if len(line) > 0:
-                        # removed everything that doesn't have a value
-                        # specified in the csv file so that the columns will
-                        # pick up their default on insert
-                        cleaned = dict([(k, v) for k, v in \
-                                line.iteritems() if v not in ('', u'', None)])
-                        # its a hell of a lot faster if we precompile
-                        # the insert statement but it can lead to
-                        # problems if different rows have different
-                        # columns which is likely since we "clean" the
-                        # rows so that those rows that are blank will
-                        # accept the default values
-                        insert = table.insert(values=cleaned)
-                        #debug(insert)
-                        connection.execute(insert)#, cleaned)
+                        # if the column is "empty" use the column
+                        # default value, if the default is not a
+                        # ColumnDefault then set the value to use None
+                        # in case there is a server side default value
+                        for k, v in line.iteritems():
+                            if v in ('', u'', None):
+                                default = table.c[k].default
+                                if isinstance(default, ColumnDefault):
+                                    v = default.execute()
+                                else:
+                                    v = None
+                            line[k] = v
+                        #debug('%s: %s' % (table.name, line))
+                        values.append(line)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0:
+                        connection.execute(insert, *values)
+                        values = []
                         percent = float(steps_so_far)/float(total_lines)
                         if 0 < percent < 1.0: # avoid warning
                             if bauble.gui is not None:

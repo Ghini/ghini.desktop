@@ -2,10 +2,13 @@
 #
 # test imex plugins
 #
-
-import os, unittest
+import sys
+import os
+import unittest
 import logging
+
 from sqlalchemy import *
+
 from bauble.test import BaubleTestCase
 import bauble
 import bauble.plugins.plants.test as plants_test
