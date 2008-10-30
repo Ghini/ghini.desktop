@@ -11,6 +11,7 @@ from sqlalchemy import *
 
 from bauble.test import BaubleTestCase
 import bauble
+from bauble.utils.log import debug
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
@@ -59,7 +60,7 @@ class CSVTests(ImexTestCase):
         # the highest id number in the family file is assumed to be
         # num(lines)-1 since the id numbers are sequential and
         # subtract for the file header
-        highest_id =  len(open(filename).readlines())-1
+        highest_id = len(open(filename).readlines())-1
         currval = None
         conn = bauble.engine.contextual_connect()
         if bauble.engine.name == 'postgres':
@@ -68,15 +69,15 @@ class CSVTests(ImexTestCase):
         elif bauble.engine.name == 'sqlite':
             # max(id) isn't really safe in production use but is ok for a test
             stmt = "SELECT max(id) from family;"
-            currval = conn.execute(stmt).fetchone()[0]
-            currval += 1
+            nextval = conn.execute(stmt).fetchone()[0] + 1
         else:
             raise "no test for engine type: %s" % bauble.engine.name
 
+        #debug(list(conn.execute("SELECT * FROM family").fetchall()))
         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]
-        assert currval > highest_id, \
-               "bad sequence: highest_id(%s) != currval(%s) -- %s" % \
-               (highest_id, currval, maxid)
+        assert nextval > highest_id, \
+               "bad sequence: highest_id(%s) > nexval(%s) -- %s" % \
+               (highest_id, nextval, maxid)
 
 
     def test_import(self):

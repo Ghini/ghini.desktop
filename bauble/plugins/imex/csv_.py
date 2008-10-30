@@ -312,7 +312,7 @@ class CSVImporter(Importer):
                 f = file(filename, "rb")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
-                update_every = 11
+                update_every = 21
                 values = []
                 insert = table.insert().compile()
                 for line in reader:
@@ -336,15 +336,15 @@ class CSVImporter(Importer):
                         #debug('%s: %s' % (table.name, line))
                         values.append(line)
                     steps_so_far += 1
-                    if steps_so_far % update_every == 0:
+                    if steps_so_far % update_every == 0 \
+                            or total_lines-steps_so_far < update_every:
                         connection.execute(insert, *values)
                         values = []
                         percent = float(steps_so_far)/float(total_lines)
                         if 0 < percent < 1.0: # avoid warning
                             if bauble.gui is not None:
                                 pb_set_fraction(percent)
-                    yield
-
+                        yield
                 if self.__error or self.__cancel:
                     break
         except (bauble.task.TaskQuitting, GeneratorExit), e:
