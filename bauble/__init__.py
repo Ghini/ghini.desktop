@@ -180,12 +180,11 @@ def _verify_connection(engine, show_error_dialogs=False):
     method will raise an error for the first problem it finds with the
     database.
 
-    :Parameters:
-      engine:
-        the engine to test
-      show_error_dialogs:
-        flag for whether or not to show message dialogs detailing the
-        error, default=False
+    :param engine: the engine to test
+    :type engine: :class:`sqlalchemy.engine.Engine`
+    :param show_error_dialogs: flag for whether or not to show message
+        dialogs detailing the error, default=False
+    :type show_error_dialogs: bool
     """
 ##    debug('entered _verify_connection(%s)' % show_error_dialogs)
     if show_error_dialogs:
@@ -278,15 +277,17 @@ def open_database(uri, verify=True, show_error_dialogs=False):
     Return bauble.engine if successful else returns None and
     bauble.engine remains unchanged.
 
-    :Parameters:
-      uri : str
-        The uri of the database to connect to.
-      verify : bool
-        Where the database we connect to should be verified as one
-        created by Bauble.  This flag is used mostly for testing.
-      show_error_dialogs : bool
-        A flag to indicate whether the error dialogs should be
-        displayed.  This is used mostly for testing.
+    :param uri: The URI of the database to open.
+    :type uri: str
+
+    :param verify: Where the database we connect to should be verified
+        as one created by Bauble.  This flag is used mostly for
+        testing.
+    :type verify: bool
+
+    :param show_error_dialogs: A flag to indicate whether the error
+        dialogs should be displayed.  This is used mostly for testing.
+    :type show_error_dialogs: bool
     """
 
     # ** WARNING: this can print your passwd
@@ -318,11 +319,12 @@ def create_database(import_defaults=True):
     """
     Create new Bauble database at the current connection
 
-    :Parameters:
-      import_defaults : boolean
-        A flag that is passed to each plugins install() method to
-        indicate where it should import its default data.  This is
-        mainly used for testing.  The default value is True
+    :param import_defaults: A flag that is passed to each plugins
+        install() method to indicate where it should import its
+        default data.  This is mainly used for testing.  The default
+        value is True
+    :type import_defaults: bool
+
     """
     # TODO: when creating a database there shouldn't be any errors
     # on import since we are importing from the default values, we should
@@ -412,11 +414,11 @@ def command_handler(cmd, arg):
     """
     Call a command handler.
 
-    :Parameters:
-      cmd : str
-        The name of the command to call
-      arg : list
-        The arg to pass to the command handler
+    :param cmd: The name of the command to call
+    :type cmd: str
+
+    :param arg: The arg to pass to the command handler
+    :type arg: list
     """
     global last_handler
     handler_cls = None

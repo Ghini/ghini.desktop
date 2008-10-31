@@ -50,6 +50,10 @@ import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning, error
 from bauble.i18n import *
 
+
+# TODO: should make plugins and ordered dict that is sorted by
+# dependency, maybe use odict from
+# http://www.voidspace.org.uk/python/odict.html
 plugins = {}
 commands = {}
 
@@ -171,12 +175,12 @@ def _create_dependency_pairs(plugs):
 
 def load(path=None):
     """
-    Search the plugin path for modules that provide a plugin.
+    Search the plugin path for modules that provide a plugin. If path
+    is a directory then search the directory for plugins. If path is
+    None then use the default plugins path, bauble.plugins.
 
-    @param path: the path where to look for the plugins
-
-    if path is a directory then search the directory for plugins
-    if path is None then use the default plugins path, bauble.plugins
+    :param path: the path where to look for the plugins
+    :type path: str
     """
     if path is None:
         if bauble.main_is_frozen():
@@ -276,11 +280,17 @@ def init(force=False):
 
 def install(plugins_to_install, import_defaults=True, force=False):
     """
-    @param plugins_to_install: a list of plugins to install, if 'all'
-    then install all plugins listed in the bauble.pluginmgr.plugins
-    dict that aren't already listed in the plugin registry
-    @param import_defaults: whether a plugin should import its default database
-    @param force:
+    :param plugins_to_install: A list of plugins to install. If the
+        string "all" is passed then install all plugins listed in the
+        bauble.pluginmgr.plugins dict that aren't already listed in
+        the plugin registry.
+
+    :param import_defaults: Flag passed to the plugin's install()
+        method to indicate whether it should import its default data.
+    :type import_defaults: bool
+
+    :param force:  Force, don't ask questions.
+    :type force: book
     """
     #debug('pluginmgr.install(%s)' % plugins_to_install)
     # create the registry if it doesn't exist
@@ -355,7 +365,7 @@ class Registry(dict):
     """
     def __init__(self, session=None):
         '''
-        @param session: use session for the connection to the database instead
+        :param session: use session for the connection to the database instead
         of creating a new session, this is mostly for external tests
         '''
         if session is None:
@@ -451,7 +461,7 @@ class Registry(dict):
 
     def __contains__(self, plugin):
         '''
-        @param plugin: either a plugin class or plugin name
+        :param plugin: either a plugin class or plugin name
 
         check if plugin exists in the registry
         '''
@@ -463,7 +473,8 @@ class Registry(dict):
 
     def add(self, entry):
         '''
-        @param entry: the RegistryEntry to add to the registry
+        :param entry: the RegistryEntry to add to the registry
+        :type entry: :class:`bauble.pluginmgr.RegistryEntry`
         '''
         entries = self.entries.copy()
         if entry in entries.keys():
@@ -506,8 +517,8 @@ class RegistryEntry(dict):
     """
     def __init__(self, name, version, **kwargs):
         """
-        @param name: the name of the plugin
-        @param version: the plugin version
+        :param name: the name of the plugin
+        :param version: the plugin version
         """
         check('name' is not None)
         check('version' is not None)
@@ -609,14 +620,14 @@ class CommandHandler(object):
         '''
         do what this command handler does
 
-        @param arg:
+        :param arg:
         '''
         raise NotImplementedError
 
 
 def _find_module_names(path):
     '''
-    @param path: where to look for modules
+    :param path: where to look for modules
     '''
     modules = []
     if path.find("library.zip") != -1: # using py2exe
@@ -694,8 +705,8 @@ def topological_sort(items, partial_order):
     """
     Perform topological sort.
 
-    @param items: a list of items to be sorted.
-    @param partial_order: a list of pairs. If pair (a,b) is in it, it means
+    :param items: a list of items to be sorted.
+    :param partial_order: a list of pairs. If pair (a,b) is in it, it means
     that item a should appear before item b. Returns a list of the items in
     one of the possible orders, or None if partial_order contains a loop.
     """
