@@ -87,42 +87,6 @@ class Donor(db.Base):
 
 
 
-# donor_table = bauble.Table('donor', db.metadata,
-#                     Column('id', Integer, primary_key=True),
-#                     Column('name', Unicode(72), unique=True, nullable=False),
-#                     Column('donor_type',
-#                            Enum(values=['Expedition',
-#                                     "Gene bank",
-#                                     "Botanic Garden or Arboretum",
-#                                     "Research/Field Station",
-#                                     "Staff member",
-#                                     "University Department",
-#                                     "Horticultural Association/Garden Club",
-#                                     "Municipal department",
-#                                     "Nursery/Commercial",
-#                                     "Individual",
-#                                     "Other",
-#                                     "Unknown",
-#                                     None], empty_to_none=True)),
-#                     Column('address', UnicodeText),
-#                     Column('email', Unicode(128)),
-#                     Column('fax', Unicode(64)),
-#                     Column('tel', Unicode(64)),
-#                     Column('notes', UnicodeText))
-
-# class Donor(bauble.BaubleMapper):
-
-#     def __str__(self):
-#         return self.name
-
-
-# mapper(Donor, donor_table,
-#        properties={'donations':
-#                    relation(Donation,
-#                             backref=backref('donor', uselist=False))},
-#        order_by='name')
-
-
 class DonorEditorView(GenericEditorView):
 
     # i think the field names are pretty self explanatory and tooltips
