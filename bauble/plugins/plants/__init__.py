@@ -14,13 +14,16 @@
 # TODO: should create the table the first time this plugin is loaded, if a new
 # database is created there should be a way to recreate everything from scratch
 
-import os, traceback
+import os
+import traceback
+
 import bauble
+import bauble.db as db
 from bauble.i18n import _
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug, warning
+from bauble.utils.log import debug, warning, error
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.species import *
@@ -105,7 +108,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         import_error = False
         import_exc = None
         try:
-            csv.start(filenames, metadata=bauble.metadata, force=True)
+            csv.start(filenames, metadata=db.metadata, force=True)
         except Exception, e:
             error(e)
             raise

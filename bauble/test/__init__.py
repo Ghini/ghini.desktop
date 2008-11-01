@@ -2,6 +2,7 @@ import sys
 import unittest
 
 import bauble
+import bauble.db as db
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
 
@@ -10,13 +11,13 @@ uri = 'sqlite:///:memory:'
 
 def init_bauble(uri):
     try:
-        bauble.open_database(uri, verify=False)
+        db.open(uri, verify=False)
     except Exception, e:
         print >>sys.stderr, e
         #debug e
     prefs.init()
     pluginmgr.load()
-    bauble.create_database(False)
+    db.create(False)
     pluginmgr.init()
 
 
@@ -32,8 +33,8 @@ class BaubleTestCase(unittest.TestCase):
 
     def tearDown(self):
         self.session.close()
-        bauble.metadata.drop_all(bind=bauble.engine)
+        db.metadata.drop_all(bind=db.engine)
         bauble.pluginmgr.commands.clear()
         # why do we create the database again...?
-        #bauble.create_database(False)
+        #db.create(False)
         pluginmgr.plugins.clear()

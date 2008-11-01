@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
+import bauble.db as db
 from bauble.i18n import _
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
@@ -79,7 +80,7 @@ def family_markup_func(family):
 #
 # Family
 #
-class Family(bauble.Base):
+class Family(db.Base):
     """
     Table: family
 
@@ -137,7 +138,7 @@ class Family(bauble.Base):
 
 
 
-class FamilySynonym(bauble.Base):
+class FamilySynonym(db.Base):
     __tablename__ = 'family_synonym'
     __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})
 

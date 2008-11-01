@@ -10,6 +10,7 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
 
 import bauble
+import bauble.db as db
 from bauble.i18n import _
 from bauble.editor import *
 import bauble.utils as utils
@@ -61,7 +62,7 @@ def loc_markup_func(location):
         return str(location)
 
 
-class Location(bauble.Base):
+class Location(db.Base):
     __tablename__ = 'location'
     __mapper_args__ = {'order_by': 'site'}
 
@@ -75,7 +76,7 @@ class Location(bauble.Base):
     def __str__(self):
         return str(self.site)
 
-# location_table = bauble.Table('location', bauble.metadata,
+# location_table = bauble.Table('location', db.metadata,
 #                        Column('id', Integer, primary_key=True),
 #                        Column('site', Unicode(64), unique=True,nullable=False),
 #                        Column('description', UnicodeText))

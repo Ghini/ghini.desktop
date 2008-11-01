@@ -1,8 +1,9 @@
 #
 # plant.py
 #
-# Description:
-#
+"""
+Defines the plant table and handled editing plants
+"""
 import os
 import sys
 import traceback
@@ -14,6 +15,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
 
+import bauble.db as db
 from bauble.i18n import *
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
@@ -30,6 +32,24 @@ from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: might be worthwhile to have a label or textview next to the location
 # combo that shows the description of the currently selected location
+
+# TODO: Bulk Editor
+#
+# 1. Go into "Bulk" mode when commas are entered into the plant code,
+# this will change the location, accession type and status of all
+# plants with code in the list, if any notes are added they will be
+# appended to any existing notes the plant might already have
+#
+# 2. Should turn any widgets red if they have values that aren't
+# common to all the plants codes...if the widgets is red then we won't
+# be saving this field to all the plants...if the user sets that
+# widget then all the plants will take that value
+#
+# 3. Could cause alot of problems if we mix existing plant code and
+# not existing plant codes because the user might not know if there
+# are creating new ones or editing existing ones. We could highlight
+# the ones that are new but all these color codes might be confusing.
+#
 
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
@@ -92,15 +112,15 @@ class PlantSearch(MapperSearch):
         query = session.query(Plant)
         from bauble.plugins.garden import Accession
         try:
-            return query.join('accession').filter(and_(Accession.code==acc_code,
-                                                       Plant.code==plant_code))
+            return query.join('accession').\
+                filter(and_(Accession.code==acc_code, Plant.code==plant_code))
         except Exception, e:
             debug(e)
             return []
 
 
 
-class PlantHistory(bauble.Base):
+class PlantHistory(db.Base):
     __tablename__ = 'plant_history'
     _mapper_args__ = {'order_by': 'date'}
     date = Column(types.Date)
@@ -112,7 +132,7 @@ class PlantHistory(bauble.Base):
 
 
 
-class Plant(bauble.Base):
+class Plant(db.Base):
     """Plant table (plant)
 
     acc_type
@@ -368,9 +388,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def set_model_attr(self, field, value, validator=None):
-        #debug('set_model_attr(%s, %s)' % (field, value))
-        super(PlantEditorPresenter, self).set_model_attr(field, value,
-                                                         validator)
+        debug('set_model_attr(%s, %s)' % (field, value))
+        super(PlantEditorPresenter, self)\
+            .set_model_attr(field, value, validator)
         self.__dirty = True
         self.refresh_sensitivity()
 
@@ -487,7 +507,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.dirty():
             self.session.rollback()
             return True
         else:

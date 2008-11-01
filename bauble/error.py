@@ -47,6 +47,8 @@ class VersionError(DatabaseError):
         self.version = version
 
 
+class SQLAlchemyVersionError(BaubleError):
+    pass
 
 class CheckConditionError(BaubleError):
     pass

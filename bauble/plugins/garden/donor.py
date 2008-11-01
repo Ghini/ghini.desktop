@@ -9,6 +9,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.exc import SQLError
 
 import bauble
+import bauble.db as db
 from bauble.editor import *
 from bauble.i18n import *
 import bauble.paths as paths
@@ -51,7 +52,7 @@ donor_context_menu = [('Edit', edit_callback),
 # in the search view
 # TODO: the donor_type could be either be character codes or possible a foreign
 # key into another table
-class Donor(bauble.Base):
+class Donor(db.Base):
     __tablename__ = 'donor'
     __mapper_args__ = {'order_by': 'name'}
 
@@ -86,7 +87,7 @@ class Donor(bauble.Base):
 
 
 
-# donor_table = bauble.Table('donor', bauble.metadata,
+# donor_table = bauble.Table('donor', db.metadata,
 #                     Column('id', Integer, primary_key=True),
 #                     Column('name', Unicode(72), unique=True, nullable=False),
 #                     Column('donor_type',

@@ -2,6 +2,7 @@
 # meta.py
 #
 import bauble
+import bauble.db as db
 from datetime import datetime
 from sqlalchemy import *
 from sqlalchemy.orm import mapper
@@ -19,7 +20,7 @@ REGISTRY_KEY = u'registry'
 # m - number month, two digits when necessary
 DATE_FORMAT_KEY = u'date_format'
 
-class BaubleMeta(bauble.Base):
+class BaubleMeta(db.Base):
     __tablename__ = 'bauble'
     name = Column(Unicode(64), unique=True)
     value = Column(UnicodeText)

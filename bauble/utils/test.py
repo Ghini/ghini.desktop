@@ -8,6 +8,7 @@ import unittest
 from sqlalchemy import *
 
 import bauble
+import bauble.db as db
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
@@ -105,16 +106,16 @@ class ResetSequenceTests(BaubleTestCase):
     def setUp(self):
         super(ResetSequenceTests, self).setUp()
         self.metadata = MetaData()
-        self.metadata.bind  = bauble.engine
+        self.metadata.bind  = db.engine
         self.currval_stmt = None
 
         # self.currval_stmt should return 2
-        if bauble.engine.name == 'postgres':
+        if db.engine.name == 'postgres':
             self.currval_stmt = "SELECT currval(%s)"
-        elif bauble.engine.name == 'sqlite':
+        elif db.engine.name == 'sqlite':
             # assume sqlite just works
             self.currval_stmt = 'select 2'
-        self.conn = bauble.engine.contextual_connect()
+        self.conn = db.engine.contextual_connect()
 
 
     def tearDown(self):

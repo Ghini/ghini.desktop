@@ -6,6 +6,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 
 import bauble
+import bauble.db as db
 import bauble.types as types
 from bauble.plugins.plants.geography import Geography
 
@@ -16,7 +17,7 @@ def source_markup_func(source):
     return source.accession, source
 
 
-class Donation(bauble.Base):
+class Donation(db.Base):
     """Donation table (donation)
 
     Columns
@@ -56,7 +57,7 @@ class Donation(bauble.Base):
 
 # TODO: create a DMS column type to hold latitude and longitude,
 # should probably store the DMS data as a string in decimal degrees
-class Collection(bauble.Base):
+class Collection(db.Base):
     """Collection table (collection)
 
     Columns

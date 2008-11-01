@@ -9,6 +9,8 @@ import datetime
 from sqlalchemy import *
 
 import bauble
+import bauble.db as db
+from bauble.types import Enum
 from bauble.utils.log import debug
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
@@ -25,7 +27,19 @@ class BaubleTests(BaubleTestCase):
         """
         Test bauble.types.Enum
         """
-        pass
+        class Test(db.Base):
+            __tablename__ = 'test'
+            id = Column(Integer, primary_key=True)
+            value = Column(Enum(values=['1', '2', '']), default=u'')
+        table = Test.__table__
+        table.create(bind=db.engine)
+#         t = Test(id=1)
+#         self.session.add(t)
+#         self.session.commit()
+        db.engine.execute(table.insert(), {"id": 1})
+        #debug(t.value)
+
+
 
     def test_date_type(self):
         """
@@ -41,7 +55,7 @@ class BaubleTests(BaubleTestCase):
 
     def test_base_table(self):
         """
-        Test bauble.Base is setup correctly
+        Test db.Base is setup correctly
         """
         m = meta.BaubleMeta(name=u'name', value=u'value')
         table = m.__table__
@@ -59,7 +73,7 @@ class BaubleTests(BaubleTestCase):
         """
         Test that sequences behave like we expect.
         """
-        engine = bauble.engine
+        engine = db.engine
         from bauble.meta import BaubleMeta
         table = BaubleMeta.__table__
         #debug(self.session.query(BaubleMeta).all())
