@@ -133,25 +133,61 @@ class PlantHistory(db.Base):
 
 
 class Plant(db.Base):
-    """Plant table (plant)
+    """
+    :Table name: plant
 
-    acc_type
-    ------------
-    Plant: Whole plant
-    Seed/Spore: Seed or Spore
-    Vegetative Part: Vegetative Part
-    Tissue Culture: Tissue culture
-    Other: Other, probably see notes for more information
-    None: no information, unknown
+    :Columns:
+        *code*: :class:`sqlalchemy.types.Unicode`
+            The plant code
 
-    acc_status
-    -------------
-    Living accession: Current accession in living collection
-    Dead: Noncurrent accession due to Death
-    Transfered: Noncurrent accession due to Transfer
-    Stored in dormant state: Stored in dormant state
-    Other: Other, possible see notes for more information
-    None: no information, unknown)
+        *acc_type*: :class:`bauble.types.Enum`
+            The accession type
+
+            Possible values:
+                * Plant: Whole plant
+
+                * Seed/Spore: Seed or Spore
+
+                * Vegetative Part: Vegetative Part
+
+                * Tissue Culture: Tissue culture
+
+                * Other: Other, probably see notes for more information
+
+                * None: no information, unknown
+
+        *acc_status*: :class:`bauble.types.Enum`
+            The accession status
+
+            Possible values:
+                * Living accession: Current accession in living collection
+
+                * Dead: Noncurrent accession due to Death
+
+                * Transfered: Noncurrent accession due to Transfer
+                  Stored in dormant state: Stored in dormant state
+
+                * Other: Other, possible see notes for more information
+
+                * None: no information, unknown)
+
+        *notes*: :class:`sqlalchemy.types.UnicodeText`
+            Notes
+
+        *accession_id*: :class:`sqlalchemy.types.ForeignKey`
+            Required.
+
+        *location_id*: :class:`sqlalchemy.types.ForeignKey`
+            Required.
+
+    :Properties:
+        *accession*:
+            The accession for this plant.
+        *location*:
+            The location for this plant.
+
+    :Constraints:
+        The combination of code and accession_id must be unique.
     """
     __tablename__ = 'plant'
     __table_args__ = (UniqueConstraint('code', 'accession_id'), {})

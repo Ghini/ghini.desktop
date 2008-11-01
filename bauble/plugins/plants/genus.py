@@ -100,11 +100,12 @@ class Genus(db.Base):
     :Table name: genus
 
     :Columns:
-        *genus*: The name of the genus.
+        *genus*:
+            The name of the genus.
 
-        *hybrid*: Indicates whether the name in genus field
-        refers to an Intergeneric hybrid or an Intergeneric graft
-        chimaera.
+        *hybrid*:
+            Indicates whether the name in genus field refers to an
+            Intergeneric hybrid or an Intergeneric graft chimaera.
 
             Possible values:
                 * H: An intergeneric hybrid collective name
@@ -113,7 +114,9 @@ class Genus(db.Base):
 
                 * +: An Intergeneric Graft Hybrid or Graft Chimaera
 
-        *qualifier*: Designates the botanical status of the genus.
+        *qualifier*:
+            Designates the botanical status of the genus.
+
             Possible values:
                 * s. lat.: aggregrate genus (sensu lato)
 
@@ -123,7 +126,7 @@ class Genus(db.Base):
 
         *notes*:
 
-    :Relations:
+    :Properties:
         *family*:
 
         *synonyms*:

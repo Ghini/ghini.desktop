@@ -80,10 +80,19 @@ columns they search by default. The default columns are used when
 searching by value and expression. The queries do not use the default
 columns.
 
-fam, family
-gen, genus
-sp
-name
-geography
-loc, location
+:Domains:
+    fam, family: Search :class:`bauble.plugins.plants.Family`
+
+    gen, genus: Search :class:`bauble.plugins.plants.Genus`
+
+    sp: Search :class:`bauble.plugins.plants.Species`
+    
+    geography: Search :class:`bauble.plugins.plants.Geography`
+
+    acc: Search :class:`bauble.plugins.garden.Accession`
+
+    plant: Search :class:`bauble.plugins.garden.Plant`
+
+    loc, location: Search :class:`bauble.plugins.garden.Location`
+
 site

@@ -199,54 +199,97 @@ class Verification(db.Base):
 
 
 class Accession(db.Base):
-    """Accession table (accession)
+    """
+    :Table name: accession
 
-    Columns
-    ----------
-    code: Unicode
-      the accession code
-    prov_type: Enum
-      provenance type, possible values are Wild, Propagule of cultivated
-      wild plant, Not of wild source, Insufficient Data, Unknown
-    wild_prov_status:  Enum
-      if prov_type is Wild then this column can be used to give more
-      provenance information, possible values are Wild native,
-      Wild non-native, Cultivated native, Insufficient Data, Unknown
-    date: Date
-      the date this accession was accessioned
-    source_type: Enum
-      The type of the source of this accession, possible values are
-      Collection and Donation
-    notes: Unicode
-      Notes relating to this accession.
-    id_qual: Enum
-      The id qualifier is used to indicate uncertainty in the
-      identification of this accession, possible values are
-      aff.(affinity with), cf. (compare with), forsan (perhaps), near
-      (close to), ? (questionable), incorrent
-    private: Boolean
-      Flag to indicate where this information is sensitive and should be
-      kept private
-    species_id: ForeignKey
-      Foreign key to the species table
+    :Columns:
+        *code*: :class:`sqlalchemy.types.Unicode`
+            the accession code
 
-    Relations
-    ----------
-    species:
-      the species this accession refers to
-    _collection:
-      this relation should never be used directly, use the source property
-      instead
-    _donation:
-      this relation should never be used directly, use the source property
-      instead
-    source:
-      source can either be a Donation, Collection or None depending on the
-      value of the source_type
-    plants:
-      a list of plants related to this accession
-    verifications:
-      a list of verifications on the identification of this accession
+        *prov_type*: :class:`bauble.types.Enum`
+            the provenance type
+
+            Possible values:
+                * Wild:
+                * Propagule of cultivated wild plant
+                * Not of wild source
+                * Insufficient Data
+                * Unknown
+
+        *wild_prov_status*:  :class:`bauble.types.Enum`
+            wild provenance status, if prov_type is
+            Wild then this column can be used to give more provenance
+            information
+
+            Possible values:
+                * Wild native
+                * Cultivated native
+                * Insufficient Data
+                * Unknown
+
+        *date*: :class:`bauble.types.Date`
+            the date this accession was accessioned
+
+        *source_type*: :class:`bauble.types.Enum`
+            The type of the source of this accession
+
+            Possible values:
+
+                * Collection: indicates that self.source points to a
+                  :class:`bauble.plugins.garden.Collection`
+
+                * Donation: indicates that self.source points to a
+                  :class:`bauble.plugins.garden.Donation`
+
+        *notes*: :class:`sqlalchemy.types.UnicodeText`
+            Notes relating to this accession.
+
+        *id_qual*: :class:`bauble.types.Enum`
+            The id qualifier is used to indicate uncertainty in the
+            identification of this accession
+
+            Possible values:
+                * aff. - affinity with
+                * cf. - compare with
+                * forsan - perhaps
+                * near - close to
+                * ? - questionable
+                * incorrect
+
+        *id_qual_rank*: :class:`sqlalchemy.types.Unicode`
+            The rank of the species that the id_qaul refers to.
+
+        *private*: :class:`sqlalchemy.types.Boolean`
+            Flag to indicate where this information is sensitive and
+            should be kept private
+
+        *species_id*: :class:`sqlalchemy.types.ForeignKey`
+            foreign key to the species table
+
+    :Properties:
+        *species*:
+            the species this accession refers to
+
+        *_collection*:
+            this relation should never be used directly, use the
+            source property instead
+
+        *_donation*:
+            this relations should never be used directly, use
+            the source property instead
+
+        *source*:
+            source cancel either be a Donation, Collection or None
+            depending on the value of the source_type
+
+        *plants*:
+            a list of plants related to this accession
+
+        *verifications*:
+            a list of verifications on the identification of this accession
+
+    :Constraints:
+
     """
     __tablename__ = 'accession'
     __mapper_args__ = {'order_by': 'code'}

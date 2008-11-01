@@ -95,6 +95,14 @@ Bauble API Documentation
 =======================
 .. automodule:: bauble.types
 
+.. autoclass:: bauble.types.Enum
+   :show-inheritance:
+.. autoclass:: bauble.types.Date
+   :show-inheritance:
+.. autoclass:: bauble.types.DateTime
+   :show-inheritance:
+
+
 
 :mod:`bauble.utils`
 =======================
@@ -113,28 +121,58 @@ Bauble API Documentation
 
 .. autoclass:: bauble.plugins.plants.Family
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.FamilySynonym
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.Genus
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.GenusSynonym
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.Species
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.SpeciesSynonym
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.VernacularName
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.DefaultVernacularName
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.SpeciesDistribution
    :show-inheritance: 
+
 .. autoclass:: bauble.plugins.plants.Geography
    :show-inheritance: 
+
 
 :mod:`bauble.plugins.garden`
 ============================
 .. automodule:: bauble.plugins.garden
+
+.. autoclass:: bauble.plugins.garden.Accession
+   :show-inheritance: 
+
+.. autoclass:: bauble.plugins.garden.Plant
+   :show-inheritance: 
+
+   .. automethod:: bauble.plugins.garden.Plant.get_delimiter()
+
+.. autoclass:: bauble.plugins.garden.Location
+   :show-inheritance: 
+
+.. autoclass:: bauble.plugins.garden.Collection
+   :show-inheritance: 
+
+.. autoclass:: bauble.plugins.garden.Donation
+   :show-inheritance: 
+
+.. autoclass:: bauble.plugins.garden.Donor
+   :show-inheritance: 
 
 :mod:`bauble.plugins.abcd`
 ==========================
