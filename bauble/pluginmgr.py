@@ -75,83 +75,10 @@ def register_command(handler):
             commands[cmd] = handler
 
 
-
-
-# def install(plugins_to_install, import_defaults=True, force=False):
-#     """
-#     @param plugins_to_install: a list of plugins to install, if None then
-#     install all plugins that haven't been installed
-#     """
-#     # create the registry if it doesn't exist
-#     try:
-#         registry = Registry()
-#     except RegistryEmptyError:
-#         Registry.create()
-#         registry = Registry()
-
-#     if plugins_to_install is 'all':
-#         to_install = plugins.values()
-#     else:
-#         to_install = plugins_to_install
-
-#     # import default data for plugins
-#     session = bauble.Session()
-#     from itertools import chain
-#     default_filenames=list(chain(*[p.default_filenames() for p in to_install]))
-#     if import_defaults and len(default_filenames) > 0:
-#         from bauble.plugins.imex.csv_ import CSVImporter
-#         csv = CSVImporter()
-#         import_error = False
-#         import_exc = None
-#         try:
-#             #transaction = db.engine.contextual_connect().begin()
-#             #session = bauble.Session()
-#             # cvs.start uses a task which blocks here but allows the
-#             # interface to stay responsive
-#             def on_import_error(exc):
-#                 debug(exc)
-#                 import_error = True
-#                 import_exc = exc
-#                 #transaction.rollback()
-#                 session.rollback()
-#             def on_import_quit():
-#                 """
-#                 register plugins and commit the imports
-#                 """
-#                 # register plugin as installed
-#                 for p in to_install:
-#                     registry.add(RegistryEntry(name=p.__name__,
-#                                                version=u'0.0'))
-#                 registry.save()
-#                 #transaction.commit()
-#                 session.commit()
-# ##                debug('start import')
-#             csv.start(filenames=default_filenames, metadata=db.metadata,
-#                       force=force, on_quit=on_import_quit,
-#                       on_error=on_import_error)
-#         except Exception, e:
-#             warning(e)
-#             #transaction.rollback()
-#             session.rollback()
-#             raise
-#     else:
-#         try:
-#             for p in to_install:
-#                 #debug('add %s to registry' % p.__name__)
-#                 registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
-#                 registry.save()
-#         except Exception, e:
-#             debug(e)
-#             #transaction.rollback()
-#             session.rollback()
-#             raise
-
-
 def _check_dependencies(plugin):
     '''
     Check the dependencies of plugin
     '''
-
 
 
 def _create_dependency_pairs(plugs):
@@ -393,24 +320,6 @@ class Registry(dict):
                 named_entries[e['name']] = RegistryEntry.create(e)
         return named_entries
     entries = property(_get_entries)
-
-
-#     def refresh(self):
-#         """
-#         Refresh the registry from the database
-#         """
-#         import bauble.meta as meta
-#         query = self.session.query(meta.BaubleMeta)
-#         try:
-#             result = query.filter_by(name=meta.REGISTRY_KEY).one()
-#         except:
-#             raise RegistryEmptyError
-
-#         self.entries = {}
-#         if result.value != '[]':
-#             entries = json.loads(result.value)
-#             for e in entries:
-#                 self.entries[e['name']] = RegistryEntry.create(e)
 
 
     def __str__(self):
