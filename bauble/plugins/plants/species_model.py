@@ -70,37 +70,55 @@ class VNList(list):
 
 
 class Species(db.Base):
-    """Species table (species)
+    """
+    :Table name: species
 
-    sp_hybrid
-    ---------
-    H -- A hybrid formula for an Interspecific hybrid
-    x -- A Nothotaxon name for an Interspecific hybrid
-    + -- An Interspecific graft hybrid or graft chimaera
+    :Columns:
+        *sp_hybrid*: Hybrid flag
+            Possible values:
+                H: A hybrid formula for an Interspecific hybrid
 
-    sp_qual
-    -------
-    agg. -- An aggregate species
-    s. lat. -- aggregrate species (sensu lato)
-    s. str. -- segregate species (sensu stricto)
+                x: A Nothotaxon name for an Interspecific hybrid
 
-    infrasp_rank
-    ------------
-    subsp. -- subspecies
-    var. -- variety
-    subvar. -- sub variety
-    f. -- form
-    subf. -- subform
-    cv. -- cultivar
+                +: An Interspecific graft hybrid or graft chimaera
 
-    id_qual
-    ---------
-    aff. -- Akin to or bordering
-    cf. -- compare with
-    Incorrect -- Incorrect
-    forsan -- Perhaps
-    near -- Close to
-    ? -- Questionable
+        *sp_qual*: Species qualifier
+            Possible values:
+                *agg.*: An aggregate species
+
+                *s. lat.*: aggregrate species (sensu lato)
+
+                *s. str.*: segregate species (sensu stricto)
+
+        *infrasp_rank*: The infraspecific rank
+            Possible values:
+                *subsp.*: subspecies
+
+                *variety.*: variety
+
+                *subvar.*: sub variety
+
+                *f.*: form
+
+                *subf.*: subform
+
+                *cv.*: cultivar
+
+    :Relations:
+        *accessions*:
+
+        *vernacular_names*:
+
+        *default_vernacular_name*:
+
+        *synonyms*:
+
+        *distribution*:
+
+    :Constraints:
+        The combination of sp, sp_author, sp_hybrid, sp_qual,
+        cv_group, trade_name, infrasp, infrasp_author, infrasp_rank,
+        genus_id
     """
     __tablename__ = 'species'
     __table_args__ = (UniqueConstraint('sp', 'sp_author', 'sp_hybrid',
@@ -290,6 +308,9 @@ class Species(db.Base):
 # TODO: deleting either of the species this synonym refers to makes
 # this synonym irrelevant
 class SpeciesSynonym(db.Base):
+    """
+    :Table name: species_synonym
+    """
     __tablename__ = 'species_synonym'
     __table_args__ = (UniqueConstraint('species_id', 'synonym_id',
                                        name='species_synonym_index'))
@@ -317,12 +338,19 @@ class SpeciesSynonym(db.Base):
 
 class VernacularName(db.Base):
     """
-    Vernacular name table (vernacular_name)
+    :Table name: vernacular_name
 
-    name: the vernacular name
-    language: language is free text and could include something like UK or
-    US to identify the origin of the name
-    species_id: key to the species this vernacular name refers to
+    :Columns:
+        *name*: the vernacular name
+
+        *language*: language is free text and could include something
+        like UK or US to identify the origin of the name
+
+        *species_id*: key to the species this vernacular name refers to
+
+    :Relations:
+
+    :Constraints:
     """
     __tablename__ = 'vernacular_name'
     name = Column(Unicode(128), nullable=False)
@@ -338,18 +366,23 @@ class VernacularName(db.Base):
 
 class DefaultVernacularName(db.Base):
     """
-    table: default_vernacular_name
+    :Table name: default_vernacular_name
 
     DefaultVernacularName is not meant to be instantiated directly.
     Usually the default vernacular name is set on a species by setting
     the default_vernacular_name property on Species to a
     VernacularName instance
 
-    Columns
-    -------
-    id: Integer, primary_key
-    species_id: foreign key to species.id, nullable=False
-    vernacular_name_id:
+    :Columns:
+        *id*: Integer, primary_key
+
+        *species_id*: foreign key to species.id, nullable=False
+
+        *vernacular_name_id*:
+
+    :Relations:
+
+    :Constraints:
     """
     __tablename__ = 'default_vernacular_name'
     __table_args__ = (UniqueConstraint('species_id', 'vernacular_name_id',
@@ -369,6 +402,15 @@ class DefaultVernacularName(db.Base):
 
 
 class SpeciesDistribution(db.Base):
+    """
+    :Table name: species_distribution
+
+    :Columns:
+
+    :Relations:
+
+    :Constraints:
+    """
     __tablename__ = 'species_distribution'
 
     # columns

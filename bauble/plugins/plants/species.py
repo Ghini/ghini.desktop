@@ -13,7 +13,8 @@ __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
            'species_context_menu', 'species_markup_func', 'species_get_kids',
            'vernname_get_kids', 'vernname_markup_func',
            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
-           'VernacularNameInfoBox', 'SpeciesDistribution', 'edit_callback',
+           'VernacularNameInfoBox', 'DefaultVernacularName',
+           'SpeciesDistribution', 'edit_callback',
            'add_accession_callback', 'remove_callback', 'call_on_species']
 
 # TODO: we need to make sure that this will still work if the

@@ -97,29 +97,40 @@ class Genus(db.Base):
     # the second genus field is selected then the name automatically
     # becomes genus1 x/+ genus2
     """
-    Table: genus
+    :Table name: genus
 
-    Columns
-    -------
+    :Columns:
+        *genus*: The name of the genus.
 
-    genus: The name of the genus. The genus is not unique since we can
-    have two genera with the same name but different authors.
+        *hybrid*: Indicates whether the name in genus field
+        refers to an Intergeneric hybrid or an Intergeneric graft
+        chimaera.
 
-    hybrid: indicates whether the name in the Genus Name field refers to an
-      Intergeneric hybrid or an Intergeneric graft chimaera.
-      Content of genhyb   Nature of Name in gen
-      H        An intergeneric hybrid collective name
-      x        An Intergeneric Hybrid
-      +        An Intergeneric Graft Hybrid or Graft Chimaera
+            Possible values:
+                * H: An intergeneric hybrid collective name
 
-    qualifier: designates the botanical status of the genus.
-      Possible values:
-        s. lat. - aggregrate family (sensu lato)
-        s. str. - segregate family (sensu stricto)
+                * x: An Intergeneric Hybrid
 
+                * +: An Intergeneric Graft Hybrid or Graft Chimaera
 
-    Contraints
-    ----------
+        *qualifier*: Designates the botanical status of the genus.
+            Possible values:
+                * s. lat.: aggregrate genus (sensu lato)
+
+                * s. str.: segregate genus (sensu stricto)
+
+        *author*:
+
+        *notes*:
+
+    :Relations:
+        *family*:
+
+        *synonyms*:
+
+    :Contraints:
+        The combination of genus, hybrid, author, qualifier
+        and family_id must be unique.
     """
     __tablename__ = 'genus'
     __table_args__ = (UniqueConstraint('genus', 'hybrid', 'author',
@@ -170,7 +181,8 @@ class Genus(db.Base):
 
 
 class GenusSynonym(db.Base):
-    """GenusSynonyms table (genus_synonym)
+    """
+    :Table name: genus_synonym
     """
     __tablename__ = 'genus_synonym'
     __table_args__ = (UniqueConstraint('genus_id', 'synonym_id'),

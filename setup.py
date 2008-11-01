@@ -208,7 +208,7 @@ class docs(cmd.Command):
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
-        cmd = ['sphinx-build', '-b', 'html', 'doc', 'doc/.build/']
+        cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', 'doc/.build/']
         if self.all:
             # rebuild all the docs
             cmd.insert(1, '-a')
