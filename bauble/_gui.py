@@ -10,6 +10,7 @@ import gtk
 import gobject
 
 import bauble
+import bauble.db as db
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 import bauble.paths as paths
@@ -552,10 +553,18 @@ class GUI(object):
         msg = "If a database already exists at this connection then creating "\
               "a new database could destroy your data.\n\n<i>Are you sure "\
               "this is what you want to do?</i>"
-        if utils.yes_no_dialog(msg, yes_delay=2):
-            bauble.create_database()
-            pluginmgr.init()
-            self.set_default_view()
+
+        if not utils.yes_no_dialog(msg, yes_delay=2):
+            return
+
+        #if gui is not None and hasattr(gui, 'insert_menu'):
+        submenu = self.insert_menu.get_submenu()
+        for c in submenu.get_children():
+            submenu.remove(c)
+        self.insert_menu.show()
+        db.create()
+        pluginmgr.init()
+        self.set_default_view()
 
 
     def on_file_menu_open(self, widget, data=None):
@@ -571,7 +580,7 @@ class GUI(object):
 
         engine = None
         try:
-            engine = bauble.open_database(uri, False)
+            engine = db.open(uri, False)
         except Exception, e:
             debug(e)
             if isinstance(e, error.DatabaseError):
@@ -592,7 +601,7 @@ class GUI(object):
         # second time when we could just catch this exception in the
         # open_database above
         try:
-            bauble._verify_connection(engine, show_error_dialogs=False)
+            db._verify_connection(engine, show_error_dialogs=False)
         except error.VersionError, e:
             msg = _('You are using Bauble version %(version)s while the '\
                     'database you have connected to was created with '\
@@ -603,7 +612,7 @@ class GUI(object):
                      'db_version':'%s.%s.%s' % eval(e.version)}
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         except Exception, e:
-            bauble._verify_connection(engine, show_error_dialogs=True)
+            db._verify_connection(engine, show_error_dialogs=True)
 
         # everything seems to have passed ok so setup the rest of bauble
         if engine is not None:

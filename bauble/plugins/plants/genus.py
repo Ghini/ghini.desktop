@@ -14,6 +14,7 @@ from sqlalchemy.exc import SQLError
 from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
+import bauble.db as db
 from bauble.i18n import _
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
@@ -88,7 +89,7 @@ def genus_markup_func(genus):
 
 
 
-class Genus(bauble.Base):
+class Genus(db.Base):
     # TODO: the H in the hybrid name doesn't make much sense in this
     # context since we don't include a second genus name as the
     # hybrid, see the HISPID standard for a good explanation...we
@@ -168,7 +169,7 @@ class Genus(bauble.Base):
 
 
 
-class GenusSynonym(bauble.Base):
+class GenusSynonym(db.Base):
     """GenusSynonyms table (genus_synonym)
     """
     __tablename__ = 'genus_synonym'

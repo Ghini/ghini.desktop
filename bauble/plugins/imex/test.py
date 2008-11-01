@@ -11,6 +11,7 @@ from sqlalchemy import *
 
 from bauble.test import BaubleTestCase
 import bauble
+import bauble.db as db
 from bauble.utils.log import debug
 import bauble.plugins.plants.test as plants_test
 import bauble.plugins.garden.test as garden_test
@@ -62,16 +63,16 @@ class CSVTests(ImexTestCase):
         # subtract for the file header
         highest_id = len(open(filename).readlines())-1
         currval = None
-        conn = bauble.engine.contextual_connect()
-        if bauble.engine.name == 'postgres':
+        conn = db.engine.contextual_connect()
+        if db.engine.name == 'postgres':
             stmt = "SELECT currval('family_id_seq');"
             currval = conn.execute(stmt).fetchone()[0]
-        elif bauble.engine.name == 'sqlite':
+        elif db.engine.name == 'sqlite':
             # max(id) isn't really safe in production use but is ok for a test
             stmt = "SELECT max(id) from family;"
             nextval = conn.execute(stmt).fetchone()[0] + 1
         else:
-            raise "no test for engine type: %s" % bauble.engine.name
+            raise "no test for engine type: %s" % db.engine.name
 
         #debug(list(conn.execute("SELECT * FROM family").fetchall()))
         maxid = conn.execute("SELECT max(id) FROM family").fetchone()[0]

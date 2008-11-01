@@ -14,6 +14,7 @@ import gobject
 from sqlalchemy import *
 
 import bauble
+import bauble.db as db
 from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as plugin
@@ -148,7 +149,7 @@ class CSVImporter(Importer):
         process as a bauble task
         '''
         if metadata is None:
-            metadata = bauble.metadata  # use the default metadata
+            metadata = db.metadata  # use the default metadata
 
 #        def on_error(exc):
 #            utils.message_details_dialog(str(exc), traceback.format_exc())
@@ -457,7 +458,7 @@ class CSVExporter:
 
         try:
             # TODO: should we support exporting other metadata
-            # besides bauble.metadata
+            # besides db.metadata
             bauble.task.queue(self.__export_task, None, on_error, path)
         except Exception, e:
             debug(e)
@@ -470,7 +471,7 @@ class CSVExporter:
 #        timeout = tasklet.WaitForTimeout(12)
         steps_so_far = 0
         ntables = 0
-        for table in bauble.metadata.sorted_tables:
+        for table in db.metadata.sorted_tables:
             ntables += 1
             filename = filename_template % table.name
             if os.path.exists(filename):
@@ -494,7 +495,7 @@ class CSVExporter:
             f.close()
 
         update_every = 30
-        for table in bauble.metadata.sorted_tables:
+        for table in db.metadata.sorted_tables:
             filename = filename_template % table.name
             steps_so_far+=1
             fraction = float(steps_so_far)/float(ntables)

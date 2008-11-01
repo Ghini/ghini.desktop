@@ -2,9 +2,12 @@
 # geography.py
 #
 from datetime import datetime
+
 from sqlalchemy import *
 from sqlalchemy.orm import *
+
 import bauble
+import bauble.db as db
 from bauble.view import ResultSet
 from bauble.utils.log import debug
 
@@ -42,7 +45,7 @@ def get_species_in_geography(geo):
 
 
 
-class Geography(bauble.Base):
+class Geography(db.Base):
     __tablename__ = 'geography'
 
     # columns
@@ -64,7 +67,7 @@ Geography.children = relation(Geography,
                                     remote_side=[Geography.__table__.c.id]),
                               order_by=[Geography.name])
 
-# geography_table = bauble.Table('geography', bauble.metadata,
+# geography_table = bauble.Table('geography', db.metadata,
 #                         Column('id', Integer, primary_key=True),
 #                         Column('name', Unicode(255), nullable=False),
 #                         Column('tdwg_code', String(6)),

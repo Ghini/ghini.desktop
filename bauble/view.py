@@ -19,6 +19,7 @@ from sqlalchemy.orm.mapper import Mapper
 from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 
 import bauble
+import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
@@ -235,6 +236,7 @@ class SearchParser(object):
         value_word = Word(alphanums + '%.-_')
         value = (value_word | quotedString.setParseAction(removeQuotes))
         value_list = Group(delimitedList(value) ^ OneOrMore(value))
+        value = Word(alphanums + '%.-_')
 
         binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
                       'icontains ihas')
@@ -402,9 +404,12 @@ class MapperSearch(SearchStrategy):
             return []
         results = ResultSet()
         if 'values' in tokens:
+            # TODO: should also combine all the values into a single
+            # string and search for that string
+
             # make searches case-insensitive, in postgres use ilike,
             # in other use upper()
-            if bauble.engine.name == 'postgres':
+            if db.engine.name == 'postgres':
                 like = lambda table, col, val: \
                        table.c[col].op('ILIKE')('%%%s%%' % val)
             else:
@@ -448,11 +453,11 @@ class MapperSearch(SearchStrategy):
                 # queries
 
                 if cond in ('ilike', 'icontains') and \
-                       bauble.engine.name != 'postgres':
+                       db.engine.name != 'postgres':
                     msg = _('The <i>ilike</i> and <i>icontains</i> '\
                             'operators are only supported on PostgreSQL ' \
                             'databases. You are connected to a %s database.') \
-                            % bauble.engine.name
+                            % db.engine.name
                     utils.message_dialog(msg, gtk.MESSAGE_WARNING)
                     return results
                 if cond in ('contains', 'icontains', 'has', 'ihas'):

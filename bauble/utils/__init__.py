@@ -28,7 +28,8 @@ def find_dependent_tables(table, metadata=None):
     # TODO: this function needs a test
     from sqlalchemy.sql.util import sort_tables
     if metadata is None:
-        metadata = bauble.metadata
+        import bauble.db as db
+        metadata = db.metadata
     result = []
     def _impl(t2):
         for tbl in metadata.tables.values():
@@ -543,14 +544,15 @@ def reset_sequence(column):
     available value for the column...if the column doesn't have a
     sequence then do nothing and return
 
-    The SQL statements are executed directly from bauble.engine
+    The SQL statements are executed directly from db.engine
     """
     import bauble
+    import bauble.db as db
     from sqlalchemy.types import Integer
     from sqlalchemy import schema
-    if bauble.engine.name in ('sqlite', 'mysql'):
+    if db.engine.name in ('sqlite', 'mysql'):
         pass # sqlite and mysql seem to work fine
-    elif bauble.engine.name == 'postgres':
+    elif db.engine.name == 'postgres':
         sequence_name = None
         # this crazy elif conditional is from
         # sqlalchemy.database.postgres.PGDefaultRunner
@@ -562,17 +564,17 @@ def reset_sequence(column):
             return
         stmt = "SELECT max(%s) from %s" % (column.name, column.table.name)
 
-        maxid = bauble.engine.execute(stmt).fetchone()[0]
+        maxid = db.engine.execute(stmt).fetchone()[0]
         if maxid == None:
             stmt = "SELECT setval('%s', 1);" % (sequence_name)
         else:
             stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
                    % (sequence_name, column.name, column.table.name)
-        bauble.engine.execute(stmt)
+        db.engine.execute(stmt)
     else:
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
-                                    bauble.engine.name))
+                                    db.engine.name))
 
 # TODO: always req month and year, day can be optional, what about a
 # flag to make the day optional, like?
@@ -633,9 +635,10 @@ def enum_values_str(col):
 
     return a string with of the values on an enum type join by a comma
     """
+    import bauble.db as db
     table_name, col_name = col.split('.')
     #debug('%s.%s' % (table_name, col_name))
-    values = bauble.metadata.tables[table_name].c[col_name].type.values[:]
+    values = db.metadata.tables[table_name].c[col_name].type.values[:]
     if None in values:
         values[values.index(None)] = '&lt;None&gt;'
     return ', '.join(values)

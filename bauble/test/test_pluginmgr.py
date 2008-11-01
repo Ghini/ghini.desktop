@@ -8,10 +8,11 @@ import unittest
 from sqlalchemy import *
 
 import bauble
+import bauble.db as db
 from bauble.view import SearchParser
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView, MapperSearch, ResultSet
-from bauble.utils.log import debug
+from bauble.utils.log import debug, error
 from bauble.test import BaubleTestCase, uri
 import bauble.pluginmgr as pluginmgr
 from bauble.pluginmgr import RegistryEmptyError, Registry, RegistryEntry
@@ -85,7 +86,7 @@ class PluginMgrTests(BaubleTestCase):
                 from bauble.plugins.imex.csv_ import CSVImporter
                 csv = CSVImporter()
                 try:
-                    csv.start([filenames], metadata=bauble.metadata,
+                    csv.start([filenames], metadata=db.metadata,
                               force=True)
                 except Exception, e:
                     error(e)
@@ -121,8 +122,8 @@ class StandalonePluginMgrTests(unittest.TestCase):
         """
         Test bauble.pluginmgr.init()
         """
-        bauble.open_database(uri, verify=False)
-        bauble.create_database(False)
+        db.open(uri, verify=False)
+        db.create(False)
         bauble.pluginmgr.plugins[C.__name__] = C
         bauble.pluginmgr.plugins[B.__name__] = B
         bauble.pluginmgr.plugins[A.__name__] = A
@@ -136,8 +137,8 @@ class StandalonePluginMgrTests(unittest.TestCase):
 #         bauble.pluginmgr.plugins[C.__name__] = C
 #         bauble.pluginmgr.plugins[B.__name__] = B
 #         bauble.pluginmgr.plugins[A.__name__] = A
-#         bauble.open_database(uri, verify=False)
-#         bauble.create_database(False)
+#         db.open(uri, verify=False)
+#         db.create(False)
 #         #bauble.pluginmgr.install((A, B, C), force=True)
 #         self.assert_(A.installed and B.installed and C.installed)
 

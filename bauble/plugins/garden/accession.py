@@ -21,6 +21,7 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
 
 import bauble
+import bauble.db as db
 from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
@@ -170,8 +171,22 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
-class Verification(bauble.Base):
+class Verification(db.Base):
     """Verification table (verification)
+
+    level: If it is not known whether the name of the record has been
+    verified by an authority, then this field must not be filled.
+      0: The name of the record has not been checked by any authority
+      1: The name of the record determined by comparison with other
+         named plants
+      2: The name of the record determined by a taxonomist or by other
+         competent persons using herbarium and/or library and/or
+         documented living material
+      3: The name of the plant determined by taxonomist engaged in
+         systematic revision of the group
+      4: The record is part of type gathering or propagated from type
+         material by asexual methods
+
     """
     __tablename__ = 'verification'
 
@@ -183,7 +198,7 @@ class Verification(bauble.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'))
 
 
-class Accession(bauble.Base):
+class Accession(db.Base):
     """Accession table (accession)
 
     Columns

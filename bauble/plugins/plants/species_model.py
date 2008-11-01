@@ -3,13 +3,16 @@
 #
 
 import traceback
-import gtk
 import xml.sax.saxutils as sax
+
+import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.ext.associationproxy import association_proxy
+
 import bauble
+import bauble.db as db
 import bauble.utils as utils
 from bauble.i18n import *
 from bauble.utils.log import log, debug
@@ -66,7 +69,7 @@ class VNList(list):
 
 
 
-class Species(bauble.Base):
+class Species(db.Base):
     """Species table (species)
 
     sp_hybrid
@@ -285,7 +288,7 @@ class Species(bauble.Base):
 
 
 # species_table = \
-#     bauble.Table('species', bauble.metadata,
+#     bauble.Table('species', db.metadata,
 #           Column('id', Integer, primary_key=True),
 #           Column('sp', Unicode(64), nullable=False, index=True),
 #           Column('sp_author', Unicode(128)),
@@ -463,7 +466,7 @@ class Species(bauble.Base):
 
 # TODO: deleting either of the species this synonym refers to makes
 # this synonym irrelevant
-class SpeciesSynonym(bauble.Base):
+class SpeciesSynonym(db.Base):
     __tablename__ = 'species_synonym'
     __table_args__ = (UniqueConstraint('species_id', 'synonym_id',
                                        name='species_synonym_index'))
@@ -492,7 +495,7 @@ class SpeciesSynonym(bauble.Base):
 #                           primaryjoin='SpeciesSynonym.synonym_id==Species.id')
 
 # species_synonym_table = \
-#     bauble.Table('species_synonym', bauble.metadata,
+#     bauble.Table('species_synonym', db.metadata,
 #           Column('id', Integer, primary_key=True),
 #           Column('species_id', Integer, ForeignKey('species.id'),
 #                  nullable=False),
@@ -517,7 +520,7 @@ class SpeciesSynonym(bauble.Base):
 
 
 
-class VernacularName(bauble.Base):
+class VernacularName(db.Base):
     """
     Vernacular name table (vernacular_name)
 
@@ -536,7 +539,7 @@ class VernacularName(bauble.Base):
     def __str__(self):
         return self.name
 
-# vernacular_name_table = bauble.Table('vernacular_name', bauble.metadata,
+# vernacular_name_table = bauble.Table('vernacular_name', db.metadata,
 #                               Column('id', Integer, primary_key=True),
 #                               Column('name', Unicode(128), nullable=False),
 #                               Column('language', Unicode(128)),
@@ -560,7 +563,7 @@ class VernacularName(bauble.Base):
 #         return self.name
 
 
-class DefaultVernacularName(bauble.Base):
+class DefaultVernacularName(db.Base):
     """
     table: default_vernacular_name
 
@@ -592,7 +595,7 @@ class DefaultVernacularName(bauble.Base):
         return str(self.vernacular_name)
 
 # default_vernacular_name_table = bauble.Table('default_vernacular_name',
-#                                              bauble.metadata,
+#                                              db.metadata,
 #                                       Column('id', Integer, primary_key=True),
 #                                       Column('species_id', Integer,
 #                                              ForeignKey('species.id'),
@@ -616,7 +619,7 @@ class DefaultVernacularName(bauble.Base):
 #         return str(self.vernacular_name)
 
 
-class SpeciesDistribution(bauble.Base):
+class SpeciesDistribution(db.Base):
     __tablename__ = 'species_distribution'
 
     # columns
@@ -632,7 +635,7 @@ SpeciesDistribution.geography = relation('Geography',
                                          uselist=False)
 
 # species_distribution_table = \
-#     bauble.Table('species_distribution', bauble.metadata,
+#     bauble.Table('species_distribution', db.metadata,
 #           Column('id', Integer, primary_key=True),
 #           Column('geography_id', Integer, ForeignKey('geography.id'),
 #                  nullable=False),

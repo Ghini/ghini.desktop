@@ -3,10 +3,16 @@
 #
 # Description: handle import and exporting from a simple XML format
 #
-import os, csv, traceback
-import gtk.gdk, gobject
+import os
+import csv
+import traceback
+
+import gtk.gdk
+import gobject
 from sqlalchemy import *
+
 import bauble
+import bauble.db as db
 from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
@@ -82,7 +88,7 @@ class XMLExporter:
 
 
     def __export_task(self, path, one_file=True):
-        ntables = len(bauble.metadata.tables)
+        ntables = len(db.metadata.tables)
         steps_so_far = 0
         if not one_file:
             tableset_el = etree.Element('tableset')

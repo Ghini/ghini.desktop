@@ -12,6 +12,7 @@ from sqlalchemy.orm import *
 from sqlalchemy.exc import SQLError, InvalidRequestError
 
 import bauble
+import bauble.db as db
 from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
@@ -199,7 +200,7 @@ class TagItemGUI:
         self.dialog.destroy()
 
 
-class Tag(bauble.Base):
+class Tag(db.Base):
     __tablename__ = 'tag'
     __mapper_args__ = {'order_by': 'tag'}
 
@@ -221,7 +222,7 @@ class Tag(bauble.Base):
     objects = property(_get_objects)
 
 
-class TaggedObj(bauble.Base):
+class TaggedObj(db.Base):
     __tablename__ = 'tagged_obj'
 
     # columns

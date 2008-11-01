@@ -37,11 +37,12 @@ import gobject
 import gtk
 from sqlalchemy import *
 from sqlalchemy.orm import *
-from sqlalchemy.exc import *
-from sqlalchemy.orm.exc import *
+#from sqlalchemy.exc import *
+#from sqlalchemy.orm.exc import *
 import simplejson as json
 
 import bauble
+import bauble.db as db
 #import bauble.meta as meta
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
@@ -103,7 +104,7 @@ def register_command(handler):
 #         import_error = False
 #         import_exc = None
 #         try:
-#             #transaction = bauble.engine.contextual_connect().begin()
+#             #transaction = db.engine.contextual_connect().begin()
 #             #session = bauble.Session()
 #             # cvs.start uses a task which blocks here but allows the
 #             # interface to stay responsive
@@ -125,7 +126,7 @@ def register_command(handler):
 #                 #transaction.commit()
 #                 session.commit()
 # ##                debug('start import')
-#             csv.start(filenames=default_filenames, metadata=bauble.metadata,
+#             csv.start(filenames=default_filenames, metadata=db.metadata,
 #                       force=force, on_quit=on_import_quit,
 #                       on_error=on_import_error)
 #         except Exception, e:
@@ -210,7 +211,7 @@ def init(force=False):
     3. Register the command handlers in the plugin's commands[]
 
     NOTE: This should be called after after Bauble has established a
-    connection to a database with bauble.open_database()
+    connection to a database with db.open()
     """
     #debug('bauble.pluginmgr.init()')
     registry = Registry()
@@ -342,6 +343,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
         session.commit()
     except Exception, e:
+        debug(p)
         debug(e)
         msg = _('Error installing plugins.')
         utils.message_details_dialog(msg, utils.utf8(traceback.format_exc()),
@@ -375,6 +377,7 @@ class Registry(dict):
 
 
     def _get_entries(self):
+        from sqlalchemy.orm.exc import NoResultFound
         import bauble.meta as meta
         try:
             result = self.session.query(meta.BaubleMeta)\

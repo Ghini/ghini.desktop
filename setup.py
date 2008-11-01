@@ -233,7 +233,7 @@ setuptools.setup(name="bauble",
                  package_dir = all_package_dirs,
                  package_data = package_data,
                  data_files = py2exe_data_files,
-                 install_requires=["SQLAlchemy>=0.4.4,<0.5",
+                 install_requires=["SQLAlchemy>=0.5rc2",
                                    "simplejson>=2.0.1",
                                    "lxml>=2.0"] + needs_sqlite,
                  #TODO:running "setup.py test" hasn't been tested
