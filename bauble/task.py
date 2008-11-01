@@ -54,6 +54,10 @@ def _run_task(func, *args, **kwargs):
 __message_ids = []
 
 def set_message(msg):
+    """
+    A convenience function for setting a message on the
+    statusbar. Returns the message id
+    """
     if bauble.gui is None or bauble.gui.widgets is None:
         return
     global _context_id
@@ -67,6 +71,10 @@ def set_message(msg):
 
 
 def clear_messages():
+    """
+    Clear all the messages from the statusbar that were set with
+    :func:`bauble.task.set_message`
+    """
     if bauble.gui is None or bauble.gui.widgets is None \
            or bauble.gui.widgets.statusbar is None:
         return
@@ -79,7 +87,8 @@ _flushing = False
 
 def flush():
     '''
-    flush out the task queue
+    Flush out the task queue.  This is normally called by
+    :func:`bauble.task.queue`
     '''
     global _flushing
     if _flushing:
@@ -126,9 +135,11 @@ def _quit():
 
 def queue(task, on_quit, on_error, *args):
     """
-    @param task: the task to queue
-    @param callback: the function to call when the task is finished
-    @param args: the arguments to pass to the task
+    Queue a new task
+
+    :param task: the task to queue
+    :param callback: the function to call when the task is finished
+    :param args: the arguments to pass to the task
     """
     global _task_queue
     global __quit_handler_id

@@ -385,8 +385,7 @@ class Registry(dict):
 
     def add(self, entry):
         '''
-        :param entry: the RegistryEntry to add to the registry
-        :type entry: :class:`bauble.pluginmgr.RegistryEntry`
+        :param entry: the :class:`RegistryEntry` to add to the registry
         '''
         entries = self.entries.copy()
         if entry in entries.keys():
@@ -423,9 +422,9 @@ class Registry(dict):
 
 class RegistryEntry(dict):
     """
-    object to hold the registry entry data
+    A dict like object for accessing registry values.
 
-    name, version and enabled are required
+    The name and version attributes are required
     """
     def __init__(self, name, version, **kwargs):
         """
@@ -441,6 +440,10 @@ class RegistryEntry(dict):
 
     @staticmethod
     def create(dct):
+        """
+        Factory method for creating a RegistryEntry from a dct.  The
+        dct must have the name and version keys set.
+        """
         e = RegistryEntry(name=dct['name'], version=dct['version'])
         for key, value in dct.iteritems():
             e[key] = value
@@ -618,9 +621,10 @@ def topological_sort(items, partial_order):
     Perform topological sort.
 
     :param items: a list of items to be sorted.
-    :param partial_order: a list of pairs. If pair (a,b) is in it, it means
-    that item a should appear before item b. Returns a list of the items in
-    one of the possible orders, or None if partial_order contains a loop.
+    :param partial_order: a list of pairs. If pair (a,b) is in it, it
+        means that item a should appear before item b. Returns a list of
+        the items in one of the possible orders, or None if partial_order
+        contains a loop.
     """
     def add_node(graph, node):
         """Add a node to the graph if not already exists."""

@@ -82,31 +82,35 @@ def family_markup_func(family):
 #
 class Family(db.Base):
     """
-    Table: family
+    :Table name: family
 
-    Columns:
-    --------
-    family: The name if the family. str(45), not null, unique
-    qualifier: The family qualifier. str[s. lat, s. str, null]
-    notes: Free text notes about the family.
+    :Columns:
+        *family*: The name if the family. Required.
 
-    Relations:
-    ----------
-    synonyms: An association to _synonyms that will automatically convert
-    a Family object and create the synonym.
+        *qualifier*: The family qualifier.
 
-    Constraints:
-    ------------
-    The family table has a unique constraint on family/qualifier but
-    this is probably redundant since family always has to be unique it
-    implies that family/qualifier must be unique.
+            Possible values:
+                * s. lat.: aggregrate family (senso lato)
+
+                * s. str.: segregate family (senso stricto)
+
+                * None: the None value
+
+        *notes*: Free text notes about the family.
+
+    :Relations:
+        *synonyms*: An association to _synonyms that will
+        automatically convert a Family object and create the synonym.
+
+    :Constraints:
+        The family table has a unique constraint on family/qualifier.
     """
     __tablename__ = 'family'
     __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
     __mapper_args = {'order_by': ['family', 'qualifier']}
 
     # columns
-    family = Column(String(45), nullable=False, unique=True, index=True)
+    family = Column(String(45), nullable=False, index=True)
     qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
     notes = Column(UnicodeText)
 
@@ -139,6 +143,19 @@ class Family(db.Base):
 
 
 class FamilySynonym(db.Base):
+    """
+    :Table name: family_synonyms
+
+    :Columns:
+        *family_id*:
+
+        *synonyms_id*:
+
+    :Relations:
+        *synonyms*:
+
+        *species*:
+    """
     __tablename__ = 'family_synonym'
     __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})
 

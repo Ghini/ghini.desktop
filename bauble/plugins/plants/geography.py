@@ -46,6 +46,25 @@ def get_species_in_geography(geo):
 
 
 class Geography(db.Base):
+    """
+    Represents a geography unit.
+
+    :Table name: geography
+
+    :Columns:
+        *name*:
+
+        *tdwg_code*:
+
+        *iso_code*:
+
+        *parent_id*:
+
+    :Relations:
+        *children*:
+
+    :Constraints:
+    """
     __tablename__ = 'geography'
 
     # columns
