@@ -63,6 +63,18 @@ def loc_markup_func(location):
 
 
 class Location(db.Base):
+    """
+    :Table name: location
+
+    :Columns:
+        *site*:
+
+        *description*:
+
+    :Relation:
+        *plants*:
+
+    """
     __tablename__ = 'location'
     __mapper_args__ = {'order_by': 'site'}
 
@@ -76,22 +88,6 @@ class Location(db.Base):
     def __str__(self):
         return str(self.site)
 
-# location_table = bauble.Table('location', db.metadata,
-#                        Column('id', Integer, primary_key=True),
-#                        Column('site', Unicode(64), unique=True,nullable=False),
-#                        Column('description', UnicodeText))
-
-
-# class Location(bauble.BaubleMapper):
-#     def __str__(self):
-#         return self.site
-
-
-# from bauble.plugins.garden.plant import Plant
-
-# mapper(Location, location_table, order_by='site',
-#        properties={'plants': relation(Plant, backref=backref('location',
-#                                                              uselist=False))})
 
 
 class LocationEditorView(GenericEditorView):

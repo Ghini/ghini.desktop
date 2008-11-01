@@ -18,17 +18,28 @@ def source_markup_func(source):
 
 
 class Donation(db.Base):
-    """Donation table (donation)
+    """
+    :Table name: donation
 
-    Columns
-    -------
+    :Columns:
+        *donor_id*: :class:`sqlalchemy.types.Integer(ForeignKey('donor.id'), nullable=False)`
 
-    Relations
-    ---------
-    donor:
-      created as a backref from the Donor mapper
-    _accession:
-      created as a backref from the Accession mapper _donation property
+        *donor_acc*: :class:`sqlalchemy.types.Unicode(32)`
+
+        *notes*: :class:`sqlalchemy.types.UnicodeText`
+
+        *date*: :class:`bauble.types..Date`
+
+        *accession_id*: :class:`sqlalchemy.types.Integer(ForeignKey('accession.id'), nullable=False)`
+
+
+    :Properties:
+
+      donor:
+        created as a backref from the Donor mapper
+
+      _accession:
+        created as a backref from the Accession mapper _donation property
     """
     __tablename__ = 'donation'
 
@@ -58,15 +69,45 @@ class Donation(db.Base):
 # TODO: create a DMS column type to hold latitude and longitude,
 # should probably store the DMS data as a string in decimal degrees
 class Collection(db.Base):
-    """Collection table (collection)
+    """
+    :Table name: collection
 
-    Columns
-    -------
+    :Columns:
+            *collector*: :class:`sqlalchemy.types.Unicode(64)`
 
-    Relations
-    ---------
+            *collectors_code*: :class:`sqlalchemy.types.Unicode(50)`
+
+            *date*: :class:`sqlalchemy.types.Date`
+
+            *locale*: :class:`sqlalchemy.types.UnicodeText(nullable=False)`
+
+            *latitude*: :class:`sqlalchemy.types.Float`
+
+            *longitude*: :class:`sqlalchemy.types.Float`
+
+            *gps_datum*: :class:`sqlalchemy.types.Unicode(32)`
+
+            *geo_accy*: :class:`sqlalchemy.types.Float`
+
+            *elevation*: :class:`sqlalchemy.types.Float`
+
+            *elevation_accy*: :class:`sqlalchemy.types.Float`
+
+            *habitat*: :class:`sqlalchemy.types.UnicodeText`
+
+            *geography_id*: :class:`sqlalchemy.types.Integer(ForeignKey('geography.id'))`
+
+            *notes*: :class:`sqlalchemy.types.UnicodeText`
+
+            *accession_id*: :class:`sqlalchemy.types.Integer(ForeignKey('accession.id'), nullable=False)`
+
+
+    :Properties:
+
     Also contains an _accession property that was created as a backref
     from the Accession mapper
+
+    :Constraints:
     """
     __tablename__ = 'collection'
 

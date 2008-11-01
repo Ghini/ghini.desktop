@@ -60,7 +60,7 @@ class Geography(db.Base):
 
         *parent_id*:
 
-    :Relations:
+    :Properties:
         *children*:
 
     :Constraints:

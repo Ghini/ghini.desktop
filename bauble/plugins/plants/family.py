@@ -85,9 +85,11 @@ class Family(db.Base):
     :Table name: family
 
     :Columns:
-        *family*: The name if the family. Required.
+        *family*:
+            The name if the family. Required.
 
-        *qualifier*: The family qualifier.
+        *qualifier*:
+            The family qualifier.
 
             Possible values:
                 * s. lat.: aggregrate family (senso lato)
@@ -96,11 +98,13 @@ class Family(db.Base):
 
                 * None: the None value
 
-        *notes*: Free text notes about the family.
+        *notes*:
+            Free text notes about the family.
 
-    :Relations:
-        *synonyms*: An association to _synonyms that will
-        automatically convert a Family object and create the synonym.
+    :Properties:
+        *synonyms*:
+            An association to _synonyms that will automatically
+            convert a Family object and create the synonym.
 
     :Constraints:
         The family table has a unique constraint on family/qualifier.
@@ -151,7 +155,7 @@ class FamilySynonym(db.Base):
 
         *synonyms_id*:
 
-    :Relations:
+    :Properties:
         *synonyms*:
 
         *species*:

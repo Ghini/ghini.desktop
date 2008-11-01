@@ -74,7 +74,9 @@ class Species(db.Base):
     :Table name: species
 
     :Columns:
-        *sp_hybrid*: Hybrid flag
+        *sp_hybrid*:
+            Hybrid flag
+
             Possible values:
                 H: A hybrid formula for an Interspecific hybrid
 
@@ -82,7 +84,9 @@ class Species(db.Base):
 
                 +: An Interspecific graft hybrid or graft chimaera
 
-        *sp_qual*: Species qualifier
+        *sp_qual*:
+            Species qualifier
+
             Possible values:
                 *agg.*: An aggregate species
 
@@ -90,7 +94,9 @@ class Species(db.Base):
 
                 *s. str.*: segregate species (sensu stricto)
 
-        *infrasp_rank*: The infraspecific rank
+        *infrasp_rank*:
+            The infraspecific rank
+
             Possible values:
                 *subsp.*: subspecies
 
@@ -104,7 +110,7 @@ class Species(db.Base):
 
                 *cv.*: cultivar
 
-    :Relations:
+    :Properties:
         *accessions*:
 
         *vernacular_names*:
@@ -341,14 +347,17 @@ class VernacularName(db.Base):
     :Table name: vernacular_name
 
     :Columns:
-        *name*: the vernacular name
+        *name*:
+            the vernacular name
 
-        *language*: language is free text and could include something
-        like UK or US to identify the origin of the name
+        *language*:
+            language is free text and could include something like UK
+            or US to identify the origin of the name
 
-        *species_id*: key to the species this vernacular name refers to
+        *species_id*:
+            key to the species this vernacular name refers to
 
-    :Relations:
+    :Properties:
 
     :Constraints:
     """
@@ -374,13 +383,15 @@ class DefaultVernacularName(db.Base):
     VernacularName instance
 
     :Columns:
-        *id*: Integer, primary_key
+        *id*:
+            Integer, primary_key
 
-        *species_id*: foreign key to species.id, nullable=False
+        *species_id*:
+            foreign key to species.id, nullable=False
 
         *vernacular_name_id*:
 
-    :Relations:
+    :Properties:
 
     :Constraints:
     """
@@ -407,7 +418,7 @@ class SpeciesDistribution(db.Base):
 
     :Columns:
 
-    :Relations:
+    :Properties:
 
     :Constraints:
     """
