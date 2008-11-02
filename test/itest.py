@@ -8,6 +8,7 @@ import sqlalchemy as sa
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 import bauble.meta as meta
 import bauble.pluginmgr as pluginmgr
 
@@ -15,9 +16,9 @@ import logging
 logging.basicConfig()
 
 uri = 'sqlite:///:memory:'
-bauble.open_database(uri, False)
+db.open(uri, False)
 pluginmgr.load()
-bauble.create_database(import_defaults=False)
+db.create(import_defaults=False)
 
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
