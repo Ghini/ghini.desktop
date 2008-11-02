@@ -103,7 +103,6 @@ class PlantSearch(SearchStrategy):
 
 
     def search(self, text, session=None):
-        debug('PlantSearch.search(%s)' % text)
         if session is None:
             session = bauble.Session()
         delimiter = Plant.get_delimiter()
