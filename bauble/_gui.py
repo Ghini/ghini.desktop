@@ -148,6 +148,7 @@ class GUI(object):
     def close_msg_box(self, *args):
         # TODO: reverse animate?
         eb = self.widgets.msg_eventbox.hide()
+        self.widgets.msg_details_expander.set_expanded(False)
 
 
     def _msg_common(self, msg, colors):
