@@ -115,7 +115,10 @@ class Family(db.Base):
 
     # columns
     family = Column(String(45), nullable=False, index=True)
-    qualifier = Column(Enum(values=['s. lat.', 's. str.', None]))
+
+    # we use the blank string here instead of None so that the
+    # contrains will work properly,
+    qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
     notes = Column(UnicodeText)
 
     # relations
@@ -265,8 +268,7 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'family')
-        self.assign_simple_handler('fam_qualifier_combo', 'qualifier',
-                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
         self.assign_simple_handler('fam_notes_textview', 'notes')
 
         # for each widget register a signal handler to be notified when the
