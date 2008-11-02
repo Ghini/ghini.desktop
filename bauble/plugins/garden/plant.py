@@ -23,7 +23,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
 import bauble.meta as meta
-from bauble.view import MapperSearch
+from bauble.view import SearchStrategy
 from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
@@ -96,13 +96,14 @@ def plant_markup_func(plant):
 
 
 
-class PlantSearch(MapperSearch):
+class PlantSearch(SearchStrategy):
 
     def __init__(self):
         super(PlantSearch, self).__init__()
 
 
     def search(self, text, session=None):
+        debug('PlantSearch.search(%s)' % text)
         if session is None:
             session = bauble.Session()
         delimiter = Plant.get_delimiter()
