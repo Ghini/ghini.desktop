@@ -15,14 +15,6 @@ from bauble.view import SearchView, MapperSearch, ResultSet
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
-# test search parser
-
-# TODO: do a replacement on all the quotes in the tests to test for both single
-# and double quotes
-
-# TODO: replace all '=' with '=='
-
-# TODO: add spaces in different places to check for ignoring whitespace
 
 # TODO: create some invalid search strings that should definitely break the
 # parser
@@ -34,146 +26,31 @@ from bauble.test import BaubleTestCase
 # means we need to include the operator in the parse instead of just
 # suppressing
 
-# TODO: generate documentation directly from tables so its easier for the
-# user to know which subdomain they can search, this could also include the
-# search domains, table names, columns types, etc
-
-# TODO: need to test that the parse results match up with the setResultsName
-# parameter, maybe create a dict like {'test': {'values': [['test']]}} which
-# means that 'test' would parse to tokens.value = [['test']]
-
-
-#domain where sub=val,val,val and sub2=val2
-#domain = val1, val2 and domain2 = val3 # join
-#domain where expression logical_operator operator expression
-# val1 val2 val3 = and(val1, val2, val3)
-# "val1 with space" val2 val3 = and('val1 with spaces', val2, val3)
-
-# expression =  identifier bin_op value [log_op expression]
-
-# 1. domain where join1.join_or_col = val
-# -- query statement with simple expressions after "where"
-# find table for search domain, join1 must be a join, if join_or_col is a
-# column then compare its value to val, if join_or_col is a join/object then
-# find the search meta for this object type and search again the columns in the
-# search meta
-#
-# 2. domain where join_or_col = val
-# -- query statement with expressions after "where"
-# find the table for search domain, if join_or_col is a join/object then
-# find the search meta for this object type and search again the columns in the
-# search meta
-#
-# 3. domain = value [ domain = value...]
-# -- expression where domain must be in domain_map and multiple expressions
-#    are OR'd together
-# get the search meta for domain and search the columns in the meta
-# for value
-#
-# 4. value [ value...]
-# -- expression where domain is implied as all domains and the
-#    operator is LIKE %val%) and multiple values are OR'd together]
-# search all the search metas for all domain for value
-
-
-# just values
-#value_tests = [('test', {'values': ['test']}),
-#               ('"test"', {'values': ['test']}),# with quotes
-#               ('test1,test2', {'values': ['test1', 'test2']}),
-#               ('"test1",test2,test3', {'values': ['test1', 'test2', 'test3']}),# three values
-#               ('"test with spaces"', {'values': ['test with spaces']}),
-#               ("'test with spaces'", {'values': ['test with spaces']}),
-#               ('"test with spaces", test1, \'test2\'', {'values': ['test with spaces', 'test1', 'test2']}),
-#               ]
-value_tests = {'test': {'values': ['test']},
-               'test1 test2': {'values': ['test1', 'test2']},
-               'test1, test2': {'values': ['test1', 'test2']},
-               'test1,test2,test3': {'values': ['test1', 'test2', 'test3']},
-               '"test with spaces"': {'values': ['test with spaces']},
-               "'test with spaces'": {'values': ['test with spaces']},
-               '"test with spaces", test1, \'test2\'': \
-                   {'values': ['test with spaces', 'test1', 'test2']}
-                }
-
-
-# domain expression
-domain_tests = ['domain=%s' % v for v in value_tests.keys()]
-
-# query expression
-#[(c,v) for c in columns for v in values]
-#query_tests = [t.replace('domain=', 'domain where prop.prop=') for t in value_tests]
-query_tests = ['domain where prop.prop=%s' % v for v in value_tests.keys()]
-#'domain where prop.prop=val and prop.prop=val
-query_tests += ['%s and prop.prop=%s' % (q, v) for q in query_tests for v in value_tests.keys()]
-
-# query expression domain where subdomain = value
-# single subdomain
-#domain where sub = values
-#subdomain_tests = [t.replace('domain=','domain where sub=') \
-#           for t in domain_tests]
-#
-## subsubdomain
-##domain where sub.sub = values
-#subsubdomain_tests = [t.replace('domain=','domain where sub.sub=') \
-#              for t in domain_tests]
-all_tests = value_tests.keys() + domain_tests + query_tests
-#all_tests = value_tests# + domain_tests + subdomain_tests + subsubdomain_tests
-
 parser = SearchParser()
-
 
 # TODO: should we make these search tests independent of any plugins,
 # we could use setup() to initialize a custom MapperSearch instead of
 # expecting a plugin to set it up
 
-# TODO: these tests still need to be more extensive, see the above
-# values_tests
-
-
-class NewParserTests(unittest.TestCase):
-    sgl_quote = Suppress("'")
-    dbl_quote = Suppress('"')
-    value_chars = Word(alphanums + '%.-_*')
-    # value can contain any string once its quoted
-    value = value_chars | quotedString
-    value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
-    binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
-                  'icontains ihas')('binop')
-    domain = Word(alphas, alphanums)('domain')
-    domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
-                        | (domain + binop + Group(value_list)('values') \
-                           + StringEnd())
-
-    and_token = CaselessKeyword('and')
-    or_token = CaselessKeyword('or')
-    log_op = and_token | or_token
-
-    identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
-    ident_expression = Group(identifier + binop + value)
-    query_expression = ident_expression \
-                       + ZeroOrMore(log_op + ident_expression)
-    query = domain + CaselessKeyword('where').suppress() \
-            + Group(query_expression) + StringEnd()
-
-    statement = query | domain_expression | value_list
+class SearchParserTests(unittest.TestCase):
 
 
     def test_query_expression_token(self):
         s = 'domain where col=value'
         #debug(s)
-        tokens = self.query.parseString(s)
+        tokens = parser.query.parseString(s)
         #debug(tokens)
 
         s = 'domain where relation.col=value'
-        tokens = self.query.parseString(s)
+        tokens = parser.query.parseString(s)
         #debug(tokens)
 
         s = 'domain where relation.relation.col=value'
-        tokens = self.query.parseString(s)
+        tokens = parser.query.parseString(s)
         #debug(tokens)
 
         s = 'domain where relation.relation.col=value and col2=value2'
-        tokens = self.query.parseString(s)
+        tokens = parser.query.parseString(s)
         #debug(tokens)
 
 
@@ -187,36 +64,40 @@ class NewParserTests(unittest.TestCase):
         # allow dom=val1, val2, val3
         s = 'domain=test'
         expected = ['domain', '=', 'test']
-        tokens = self.domain_expression.parseString(s, parseAll=True)
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
+
+        def breakup(tokens):
+            domain, op, values = tokens
+            values = list(values)
+            return [domain, op, values]
 
         s = 'domain==test'
         expected = ['domain', '==', ['test']]
-        tokens = self.domain_expression.parseString(s, parseAll=True)
-        results = [tokens['domain'], tokens['binop'], list(tokens['values'])]
-        self.assert_(results==expected, self.error_msg(s, results, expected))
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
+        self.assert_(breakup(tokens)==expected,
+                     self.error_msg(s, breakup(tokens), expected))
 
         s = 'domain=test1 test2 test3'
         expected = ['domain', '=', ['test1', 'test2', 'test3']]
-        tokens = self.domain_expression.parseString(s, parseAll=True)
-        results = [tokens['domain'], tokens['binop'], list(tokens['values'])]
-        self.assert_(results==expected, self.error_msg(s, results, expected))
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
+        self.assert_(breakup(tokens)==expected,
+                     self.error_msg(s, breakup(tokens), expected))
 
         s = 'domain=test1 "test2 test3" test4'
         expected = ['domain', '=', ['test1', 'test2 test3', 'test4']]
-        tokens = self.domain_expression.parseString(s, parseAll=True)
-        results = [tokens['domain'], tokens['binop'], list(tokens['values'])]
-        self.assert_(results==expected, self.error_msg(s, results, expected))
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
+        self.assert_(breakup(tokens)==expected,
+                     self.error_msg(s, breakup(tokens), expected))
 
         s = 'domain="test test"'
         expected = ['domain', '=', ['test test']]
-        tokens = self.domain_expression.parseString(s, parseAll=True)
-        results = [tokens['domain'], tokens['binop'], list(tokens['values'])]
-        self.assert_(results==expected, self.error_msg(s, results, expected))
-
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
+        self.assert_(breakup(tokens)==expected,
+                     self.error_msg(s, breakup(tokens), expected))
 
         s = 'domain=*'
         expected = ['domain', '=', '*']
-        tokens = self.domain_expression.parseString(s, parseAll=True)
+        tokens = parser.domain_expression.parseString(s, parseAll=True)
         self.assert_(list(tokens) == expected,
                      self.error_msg(s, tokens, expected))
 
@@ -228,14 +109,14 @@ class NewParserTests(unittest.TestCase):
         strings = ['test', '"test"', "'test'"]
         expected = ['test']
         for s in strings:
-            tokens = self.value.parseString(s, parseAll=True)
+            tokens = parser.value.parseString(s, parseAll=True)
             self.assert_(list(tokens) == ['test'],
                          self.error_msg(s, tokens, expected))
 
         strings = ['"test1 test2"', "'test1 test2'"]
         expected = ['test1 test2']
         for s in strings:
-            tokens = self.value.parseString(s, parseAll=True)
+            tokens = parser.value.parseString(s, parseAll=True)
             self.assert_(list(tokens) == expected,
                          self.error_msg(s, tokens, expected))
 
@@ -243,7 +124,7 @@ class NewParserTests(unittest.TestCase):
         strings = ['%.-_*', '"%.-_*"']
         expected = ['%.-_*']
         for s in strings:
-            tokens = self.value.parseString(s, parseAll=True)
+            tokens = parser.value.parseString(s, parseAll=True)
             self.assert_(list(tokens) == expected,
                          self.error_msg(s, tokens, expected))
 
@@ -252,7 +133,7 @@ class NewParserTests(unittest.TestCase):
         strings = ['test test', '"test', "test'", '$',]
         for s in strings:
             try:
-                tokens = self.value.parseString(s, parseAll=True)
+                tokens = parser.value.parseString(s, parseAll=True)
             except ParseException, e:
                 pass
             else:
@@ -268,29 +149,28 @@ class NewParserTests(unittest.TestCase):
         strings = ['test', '"test"', "'test'"]
         expected = ['test']
         for s in strings:
-            tokens = self.value_list.parseString(s, parseAll=True)
+            tokens = parser.value_list.parseString(s, parseAll=True)
             self.assert_(list(tokens) == expected,
                          self.error_msg(s, tokens, expected))
-
 
         strings = ['test1, test2', '"test1", test2', "test1, 'test2'"]
         expected = ['test1', 'test2']
         for s in strings:
-            tokens = self.value_list.parseString(s, parseAll=True)
+            tokens = parser.value_list.parseString(s, parseAll=True)
             self.assert_(list(tokens)==expected,
                           self.error_msg(s, tokens, expected))
 
         strings = ['test1 test2 test3', '"test1" test2 \'test3\'']
         expected = ['test1', 'test2', 'test3']
         for s in strings:
-            tokens = self.value_list.parseString(s, parseAll=True)
+            tokens = parser.value_list.parseString(s, parseAll=True)
             self.assert_(list(tokens) == expected,
                          self.error_msg(s, tokens, expected))
 
         strings = ['"test1 test2", test3']
         expected = ['test1 test2', 'test3']
         for s in strings:
-            tokens = self.value_list.parseString(s, parseAll=True)
+            tokens = parser.value_list.parseString(s, parseAll=True)
             self.assert_(list(tokens) == expected,
                          self.error_msg(s, tokens, expected))
 
@@ -299,7 +179,7 @@ class NewParserTests(unittest.TestCase):
         strings = ['"test', "test'", "'test tes2"]
         for s in strings:
             try:
-                tokens = self.value_list.parseString(s, parseAll=True)
+                tokens = parser.value_list.parseString(s, parseAll=True)
             except ParseException, e:
                 pass
             else:
@@ -453,35 +333,3 @@ class SearchTests(BaubleTestCase):
         self.assert_(results.count() == 3)
         self.assert_(sorted([r.id for r in results]) \
                      == [g.id for g in (genus, genus2, g3)])
-
-
-
-    def test_search_parser(self):
-        """
-        Test the bauble.view.SearchParser
-        """
-        t = None
-        s = ''
-        tokens = None
-        try:
-            for s, expected  in value_tests.iteritems():
-                tokens = parser.parse_string(s)
-                for e_key, e_value in expected.iteritems():
-#                    print tokens[e_key].getName()
-#                    print tokens.getName()
-                    self.assert_(tokens[e_key].asList() == e_value,
-                                 ' - expected: %s\n - got: %s' % \
-                                 ('%s=%s' % (e_key, e_value),
-                                  '%s=%s' % (e_key, tokens[e_key])))
-
-            for s in domain_tests:
-                tokens = parser.parse_string(s)
-            for s in query_tests:
-                tokens = parser.parse_string(s)
-
-        except Exception, e:
-            self.fail('\nException parsing ** %s **\n%s\nParseResults:\n%s' % \
-                          (s, e, tokens.dump(indent='  ')))
-
-
-

@@ -59,9 +59,9 @@ class InfoExpander(gtk.Expander):
 
     def __init__(self, label, widgets=None):
         """
-        @param label: the name of this info expander, this is displayed on the
+        :param label: the name of this info expander, this is displayed on the
         expander's expander
-        @param glade_xml: a gtk.glade.XML instace where can find the expanders
+        :param glade_xml: a gtk.glade.XML instace where can find the expanders
         widgets
         """
         super(InfoExpander, self).__init__(label)
@@ -165,7 +165,7 @@ class InfoBox(gtk.ScrolledWindow):
         add an expander to the list of exanders in this infobox
 
         @type expander: InfoExpander
-        @param expander: the expander to add to this infobox
+        :param expander: the expander to add to this infobox
         '''
         self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
@@ -178,7 +178,7 @@ class InfoBox(gtk.ScrolledWindow):
         """
         returns an expander by the expander's label name
 
-        @param label: the name of the expander to return
+        :param label: the name of the expander to return
         @returns: returns an expander by the expander's label name
         """
         if label in self.expanders:
@@ -190,7 +190,7 @@ class InfoBox(gtk.ScrolledWindow):
         """
         remove expander from the infobox by the expander's label bel
 
-        @param label: the name of th expander to remove
+        :param label: the name of th expander to remove
         @return: return the expander that was removed from the infobox
         """
         if label in self.expanders:
@@ -201,7 +201,7 @@ class InfoBox(gtk.ScrolledWindow):
         """
         updates the infobox with values from row
 
-        @param row: the mapper instance to use to update this infobox,
+        :param row: the mapper instance to use to update this infobox,
         this is passed to each of the infoexpanders in turn
         """
         # TODO: should we just iter over the expanders and update them all
@@ -221,51 +221,35 @@ class InfoBox(gtk.ScrolledWindow):
 
 
 class SearchParser(object):
-    """
-    This class is used by MapperSarch to parses three distinct types of
-    strings. They can be:
-        1. Value or a list of values: val1, val2, val3
-        2. An expression where the domain is a search domain registered
-           with the search meta: domain=something and val2=somethingelse,asdasd
-        3. A query like:
-           domain where col1=something and col2=somethingelse,asdasd
-    """
 
-    def __init__(self):
-#        quotes = Word('"\'')
-        value_word = Word(alphanums + '%.-_')
-        value = (value_word | quotedString.setParseAction(removeQuotes))
-        value_list = Group(delimitedList(value) ^ OneOrMore(value))
-        value = Word(alphanums + '%.-_')
+    value_chars = Word(alphanums + '%.-_*')
+    # value can contain any string once its quoted
+    value = value_chars | quotedString.setParseAction(removeQuotes)
+    value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
+    binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
+                  'icontains ihas')('binop')
+    domain = Word(alphas, alphanums)('domain')
+    domain_values = Group(value_list.copy())
+    domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
+                        | (domain + binop + domain_values + StringEnd())
 
-        binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
-                      'icontains ihas')
+    and_token = CaselessKeyword('and')
+    or_token = CaselessKeyword('or')
+    log_op = and_token | or_token
 
-        domain = Word(alphas, alphanums)
-        domain_expression = Group(domain + binop + value) \
-                          | Group(domain + Literal('=') + Literal('*'))
+    identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
+    ident_expression = Group(identifier + binop + value)
+    query_expression = ident_expression \
+                       + ZeroOrMore(log_op + ident_expression)
+    query = domain + CaselessKeyword('where').suppress() \
+            + Group(query_expression) + StringEnd()
 
-        where_token = CaselessKeyword('where')
-        and_token = CaselessKeyword('and')
-        or_token = CaselessKeyword('or')
-        identifier = Group(delimitedList(Word(alphas, alphanums+'_'), '.'))
-        ident_expression = Group(identifier + binop + value)
-        #ident_expression = identifier + binop + value
-        logop = and_token | or_token
-        query_expressions = ident_expression + \
-                            ZeroOrMore(logop + ident_expression)
-        #query_expressions = Group(ident_expression)
-        domain_query = domain + where_token.suppress() + \
-                       Group(query_expressions)
-
-        self.statement = (domain_query).setResultsName('query') ^ \
-            (domain_expression).setResultsName('expression') ^ \
-            value_list.setResultsName('values')
+    statement = query | domain_expression | value_list
 
 
     def parse_string(self, text):
         '''
-        returns a pyparsing.ParseResults objects the represents  either a
+        returns a pyparsing.ParseResults objects that represents either a
         query, an expression or a list of values
         '''
         return self.statement.parseString(text)
@@ -273,11 +257,14 @@ class SearchParser(object):
 
 
 class SearchStrategy(object):
+    """
+    Interface for adding search strategies to a view.
+    """
 
     def search(self, text, session=None):
         '''
-        @param text: the search string
-        @param: the session to use for the search
+        :param text: the search string
+        :param: the session to use for the search
 
         Return an iterator that iterates over mapped classes retrieved
         from the search.
@@ -303,6 +290,7 @@ class MapperSearch(SearchStrategy):
 
     def __init__(self):
         super(MapperSearch, self).__init__()
+        self._results = ResultSet()
         self.parser = SearchParser()
 
 
@@ -310,10 +298,10 @@ class MapperSearch(SearchStrategy):
         """
         Adds search meta to the domain
 
-        @param domain: a string, list or tuple of domains that will resolve
+        :param domain: a string, list or tuple of domains that will resolve
         to cls a search string, domain act as a shorthand to the class name
-        @param cls: the class the domain will resolve to
-        @param properties: a list of string names of the properties to
+        :param cls: the class the domain will resolve to
+        :param properties: a list of string names of the properties to
         search by default
         """
         check(isinstance(properties, list), _('MapperSearch.add_meta(): '\
@@ -328,14 +316,9 @@ class MapperSearch(SearchStrategy):
         self._properties[cls] = properties
 
 
-    def _get_results_from_query(self, tokens, session):
+    def on_query(self, s, loc, tokens):
         """
-        @param tokens: the tokens from the parsed search string,
-        should match a query search expression
-        @param session: the session to use to retreive the results
-
-        Returns a sqlalchemy.orm.Query that will retreive the search
-        results for the search tokens
+        Called when the parser hits a query token.
         """
         # We build the queries by fetching the ids of the rows that
         # match the condition and then returning a query to return the
@@ -345,13 +328,13 @@ class MapperSearch(SearchStrategy):
         #
         # TODO: support 'not' as well, e.g sp where
         # genus.genus=Maxillaria and not genus.family=Orchidaceae
-        domain, expr = tokens['query']
+        domain, expr = tokens
         check(domain in self._domains, 'Unknown search domain: %s' % domain)
         cls = self._domains[domain][0]
         mapper = class_mapper(cls)
         expr_iter = iter(expr)
         op = None
-        id_query = session.query(cls.id)
+        id_query = self._session.query(cls.id)
         clause = prev_clause = None
         for e in expr_iter:
             idents, cond, val = e
@@ -388,114 +371,131 @@ class MapperSearch(SearchStrategy):
                 op = expr_iter.next()
             except StopIteration:
                 pass
-        return session.query(cls).filter(clause)
+        self._results.add(self._session.query(cls).filter(clause))
+
+
+    def on_domain_expression(self, s, loc, tokens):
+        """
+        Called when the parser hits a domain_expression token
+        """
+        domain, cond, values = tokens
+
+        # select all objects from the domain
+        if values == '*':
+            self._results.add(query)
+            return
+
+        try:
+            cls, properties = self._domains[domain]
+        except KeyError:
+            raise KeyError(_('Unknown search domain: %s' % domain))
+        query = self._session.query(cls)
+        # TODO: should probably create a normalize_cond() method
+        # to convert things like contains and has into like conditions
+
+        # TODO: i think that sqlite uses case insensitve like, there
+        # is a pragma to change this so maybe we could send that
+        # command first to handle case sensitive and insensitive
+        # queries
+
+        # here the equals sign is case insensitive but the double
+        # equals is case sensitive
+
+        mapper = class_mapper(cls)
+
+        if db.engine.name == 'postgres':
+            like = lambda col, val: \
+                mapper.c[col].op('ILIKE')(val)
+        else:
+            like = lambda col, val: \
+                func.upper(mapper.c[col]).like(val)
+
+        if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
+            condition = lambda col: \
+                lambda val: like(col, '%%%s%%' % val)
+        elif cond == '=':
+            condition = lambda col: \
+                lambda val: like(col, val)
+        else:
+            condition = lambda col: \
+                lambda val: mapper.c[col].op(cond)(val)
+
+        # TODO: can we use the properties directly instead of using
+        # the columns names so that if the properties are setup
+        # properly then they could be used directly in the search
+        # string
+        for col in properties:
+            # TODO: i don't know how well this will work out if we're
+            # search for numbers
+            #
+            ors = or_(*map(condition(col), values))
+            self._results.add(query.filter(ors))
+        return tokens
+
+
+    def on_value_list(self, s, loc, tokens):
+        """
+        Called when the parser hits a value_list token
+        """
+#         debug('on_value_list()')
+#         debug('  s: %s' % s)
+#         debug('  loc: %s' % loc)
+#         debug('  toks: %s' % tokens)
+        # TODO: should also combine all the values into a single
+        # string and search for that string
+
+        # make searches case-insensitive, in postgres use ilike,
+        # in other use upper()
+        if db.engine.name == 'postgres':
+            like = lambda table, col, val: \
+                table.c[col].op('ILIKE')('%%%s%%' % val)
+        else:
+            like = lambda table, col, val: \
+                           func.upper(table.c[col]).like('%%%s%%' % val)
+        for cls, columns in self._properties.iteritems():
+            q = self._session.query(cls)
+            cv = [(c,v) for c in columns for v in tokens]
+            # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
+            # object if the col is a Unicode or UnicodeText column in order
+            # to avoid the "Unicode type received non-unicode bind param"
+            def unicol(col, v):
+                mapper = class_mapper(cls)
+                if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
+                    return unicode(v)
+                else:
+                    return v
+            mapper = class_mapper(cls)
+            q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
+            #debug(q)
+            self._results.add(q)
+
 
 
     def search(self, text, session=None):
-        '''
-        return the search results depending on how tokens were parsed
-        '''
+        """
+        Returns a ResultSet of database hits for the text search string.
+        """
         if session is None:
-            session = bauble.Session()
+            self._session = bauble.Session()
+        else:
+            self._session = session
 
-        try:
-            tokens = self.parser.parse_string(text)
-        except:
-            return []
-        results = ResultSet()
-        if 'values' in tokens:
-            # TODO: should also combine all the values into a single
-            # string and search for that string
+        # this looks kinda ridiculous to add the parse actions and
+        # then remove them but then it allows us to reuse the parser
+        # for other things, particulary tests, without calling the
+        # parse actions
+        self.parser.query.setParseAction(self.on_query)
+        self.parser.domain_expression.setParseAction(self.on_domain_expression)
+        self.parser.value_list.setParseAction(self.on_value_list)
 
-            # make searches case-insensitive, in postgres use ilike,
-            # in other use upper()
-            if db.engine.name == 'postgres':
-                like = lambda table, col, val: \
-                       table.c[col].op('ILIKE')('%%%s%%' % val)
-            else:
-                like = lambda table, col, val: \
-                           func.upper(table.c[col]).like('%%%s%%' % val)
-            for cls, columns in self._properties.iteritems():
-                q = session.query(cls)
-                cv = [(c,v) for c in columns for v in tokens['values']]
-                # as of SQLAlchemy>=0.4.2 we convert the value to a unicode
-                # object if the col is a Unicode or UnicodeText column in order
-                # to avoid the "Unicode type received non-unicode bind param"
-                def unicol(col, v):
-                    mapper = class_mapper(cls)
-                    if isinstance(mapper.c[col].type, (Unicode,UnicodeText)):
-                        return unicode(v)
-                    else:
-                        return v
-                mapper = class_mapper(cls)
-                q = q.filter(or_(*[like(mapper, c, unicol(c, v)) \
-                                   for c,v in cv]))
-                results.add(q)
-        elif 'expression' in tokens:
-            #debug(tokens.dump())
-            for domain, cond, val in tokens:#['expression']:
-##                 debug(tokens['expression'])
-##                 debug(tokens.dump())
-##                 debug(domain)
-##                 debug(cond)
-##                 debug(val)
-                try:
-                    cls, properties = self._domains[domain]
-                except KeyError:
-                    raise KeyError(_('Unknown search domain: %s' % domain))
-                query = session.query(cls)
-                # TODO: should probably create a normalize_cond() method
-                # to convert things like contains and has into like conditions
+        self._results.clear()
+        self.parser.parse_string(text)
 
-                # TODO: i think that sqlite uses case insensitve like, there
-                # is a pragma to change this so maybe we could send that
-                # command first to handle case sensitive and insensitive
-                # queries
+        self.parser.query.parseAction = []
+        self.parser.domain_expression.parseAction = []
+        self.parser.value_list.parseAction = []
+        return self._results
 
-                if cond in ('ilike', 'icontains') and \
-                       db.engine.name != 'postgres':
-                    msg = _('The <i>ilike</i> and <i>icontains</i> '\
-                            'operators are only supported on PostgreSQL ' \
-                            'databases. You are connected to a %s database.') \
-                            % db.engine.name
-                    utils.message_dialog(msg, gtk.MESSAGE_WARNING)
-                    return results
-                if cond in ('contains', 'icontains', 'has', 'ihas'):
-                    val = '%%%s%%' % val
-                    if cond in ('icontains', 'ihas'):
-                        cond = 'ilike'
-                    else:
-                        cond = 'like'
-
-                # select everything
-                if val == '*':
-                    results.add(query)
-                else:
-                    mapper = class_mapper(cls)
-                    # TODO: can we use the properties directly instead
-                    # of using the columns names so that if the
-                    # properties are setup properly then they could be
-                    # used directly in the search string
-                    for col in properties:
-                        # TODO: i don't think we should really even be
-                        # respecting the condition here, we should
-                        # just use like for everything
-                        #
-                        #results.add(query.filter(mapper.c[col].op(cond)(val)))
-                        #
-                        # TODO: i don't know how well this will work
-                        # out if we're search for numbers
-                        #
-                        # search for differernt variations on the same
-                        # string
-                        values=[val, val.lower(), val.upper(),
-                                val.capitalize(), val.lower().capitalize()]
-                        ors = or_(*map(mapper.c[col].op(cond), values))
-                        results.add(query.filter(ors))
-        elif 'query' in tokens:
-            results.add(self._get_results_from_query(tokens, session))
-
-        return results
 
 
 # TODO: it would handy if we could support some sort of smart slicing
@@ -565,6 +565,11 @@ class ResultSet(object):
             return self.next()
 
 
+    def clear(self):
+        del self._results
+        self._results = set()
+
+
 
 class SearchView(pluginmgr.View):
 
@@ -581,12 +586,12 @@ class SearchView(pluginmgr.View):
             def set(self, children=None, infobox=None, context_menu=None,
                     markup_func=None):
                 '''
-                @param children: where to find the children for this type,
+                :param children: where to find the children for this type,
                     can be a callable of the form C{children(row)}
-                @param infobox: the infobox for this type
-                @param context_menu: a dict describing the context menu used
+                :param infobox: the infobox for this type
+                :param context_menu: a dict describing the context menu used
                 when the user right clicks on this type
-                @param markup_func: the function to call to markup search
+                :param markup_func: the function to call to markup search
                 results of this type, if markup_func is None the instances
                 __str__() function is called
                 '''
@@ -598,7 +603,7 @@ class SearchView(pluginmgr.View):
 
             def get_children(self, obj):
                 '''
-                @param obj: get the children from obj according to
+                :param obj: get the children from obj according to
                 self.children, the returned object should support __len__,
                 if you want to return a query then wrap it in a ResultSet
                 '''
@@ -679,7 +684,7 @@ class SearchView(pluginmgr.View):
         get the infobox from the view meta for the type of row and
         set the infobox values from row
 
-        @param row: the row to use to update the infobox
+        :param row: the row to use to update the infobox
         '''
         # remove the current infobox if there is one and stop
 #        debug('set_infobox_from_row: %s --  %s' % (row, repr(row)))
@@ -762,19 +767,22 @@ class SearchView(pluginmgr.View):
 #        debug('SearchView.search(%s)' % text)
         results = ResultSet()
         error_msg = None
+        error_details_msg = None
         self.session.clear() # clear out any old search results
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
+                debug(strategy)
                 results.add(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
-            #debug(traceback.format_exc())
+            debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
+            error_details_msg = traceback.format_exc()
 
         if error_msg:
-            bauble.gui.error_msg(error_msg)
+            bauble.gui.error_msg(error_msg, error_details_msg)
             return
 
         # not error
@@ -852,8 +860,8 @@ class SearchView(pluginmgr.View):
 
     def populate_results(self, results, check_for_kids=False):
         """
-        @param results: a ResultSet instance
-        @param check_for_kids: only used for testing
+        :param results: a ResultSet instance
+        :param check_for_kids: only used for testing
 
         This method adds results to the search view in a task.
         """
@@ -920,9 +928,9 @@ class SearchView(pluginmgr.View):
         '''
         append object to a parent iter in the model
 
-        @param model: the model the append to
-        @param parent:  the parent iter
-        @param kids: a list of kids to append
+        :param model: the model the append to
+        :param parent:  the parent iter
+        :param kids: a list of kids to append
         @return: the model with the kids appended
         '''
         check(parent is not None, "append_children(): need a parent")
@@ -980,7 +988,7 @@ class SearchView(pluginmgr.View):
 
     def expand_to_all_refs(self, references):
         '''
-        @param references: a list of TreeRowReferences to expand to
+        :param references: a list of TreeRowReferences to expand to
 
         Note: This method calls get_path() on each
         gtk.TreeRowReference in <references> which apparently
@@ -1124,7 +1132,7 @@ class SearchView(pluginmgr.View):
 
 def select_in_search_results(obj):
     """
-    @param obj: the object the select
+    :param obj: the object the select
     @returns: a gtk.TreeIter to the selected row
 
     Search the tree model for obj if it exists then select it if not
