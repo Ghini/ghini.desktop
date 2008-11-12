@@ -4,6 +4,10 @@
 # internationalization support
 #
 
+"""
+The i18n module defines the _() function for creating translatable strings.
+"""
+
 import sys
 import os
 import locale

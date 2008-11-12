@@ -83,7 +83,6 @@ if not os.path.exists(paths.user_dir()):
 
 try:
     import simplejson
-    # TODO: check simplejson version....why, do we require a specific version?
 except ImportError:
     msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
             'http://cheeseshop.python.org/pypi/simplejson')
