@@ -137,6 +137,9 @@ class PropertiesExpander(InfoExpander):
 
 
     def update(self, row):
+        """"
+        Update the widget in the expander.
+        """
         self.id_data.set_text(str(row.id))
         self.type_data.set_text(str(type(row).__name__))
         self.created_data.set_text(str(row._created))
@@ -162,10 +165,9 @@ class InfoBox(gtk.ScrolledWindow):
 
     def add_expander(self, expander):
         '''
-        add an expander to the list of exanders in this infobox
+        Add an expander to the list of exanders in this infobox
 
-        @type expander: InfoExpander
-        :param expander: the expander to add to this infobox
+        :param expander: the bauble.view.InfoExpander to add to this infobox
         '''
         self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
@@ -179,7 +181,6 @@ class InfoBox(gtk.ScrolledWindow):
         returns an expander by the expander's label name
 
         :param label: the name of the expander to return
-        @returns: returns an expander by the expander's label name
         """
         if label in self.expanders:
             return self.expanders[label]
@@ -221,6 +222,9 @@ class InfoBox(gtk.ScrolledWindow):
 
 
 class SearchParser(object):
+    """
+    The parser for bauble.view.MapperSearch
+    """
 
     value_chars = Word(alphanums + '%.-_*')
     # value can contain any string once its quoted
@@ -566,6 +570,9 @@ class ResultSet(object):
 
 
     def clear(self):
+        """
+        Clear out the set.
+        """
         del self._results
         self._results = set()
 

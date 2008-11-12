@@ -23,7 +23,13 @@ from bauble.utils.log import debug, warning
 
 def find_dependent_tables(table, metadata=None):
     '''
-    return an iterator with all tables the depend on table
+    Return an iterator with all tables the depend on table
+
+    :param table: The tables who dependencies we want to find
+
+    :param metadata: The :class:`sqlalchemy.engine.Metadata` object
+      that holds the tables to search through.  If None then use
+      bauble.db.metadata
     '''
     # TODO: this function needs a test
     from sqlalchemy.sql.util import sort_tables
@@ -46,9 +52,10 @@ def find_dependent_tables(table, metadata=None):
 
 
 class GladeWidgets(dict):
-    '''
-    dictionary and attribute access for widgets
-    '''
+    """
+    Provides dictionary and attribute access for a
+    :class:`gtk.glade.XML` object.
+    """
 
     def __init__(self, glade_xml):
         '''
@@ -76,6 +83,9 @@ class GladeWidgets(dict):
 
 
     def remove_parent(self, widget):
+        """
+        Remove widgets from its parent.
+        """
         # if parent is the last reference to widget then widget may be
         # automatically destroyed
         if isinstance(widget, str):
@@ -88,10 +98,17 @@ class GladeWidgets(dict):
 
 
     def signal_autoconnect(self, handlers):
+        """
+        Connect handlers to their widgets.  See
+        gtk.glade.XML.signal_autoconnect for more information.
+        """
         self.glade_xml.signal_autoconnect(handlers)
 
 
 def tree_model_has(tree, value):
+    """
+    Return True or False if value is in the tree.
+    """
     return len(search_tree_model(tree, value)) > 0
 
 
@@ -100,10 +117,10 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
     Return a iterable of gtk.TreeIter instances to all occurences
     of data in model
 
-    @parent: a gtk.TreeModel or a gtk.TreeModelRow instance
-    @data: the data to look for
-    @cmp: the function to call on each row to check if it matches
-    data, default is C{lambda row, data: row[0] == data}
+    :parent: a gtk.TreeModel or a gtk.TreeModelRow instance
+    :data: the data to look for
+    :cmp: the function to call on each row to check if it matches
+      data, default is C{lambda row, data: row[0] == data}
     """
     if isinstance(parent, gtk.TreeModel):
         return search_tree_model(parent[parent.get_iter_root()], data, cmp)
@@ -119,8 +136,8 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
 
 def clear_model(obj_with_model):
     """
-    @param obj_with_model: a gtk Widget that has a gtk.TreeModel that
-    can be retrieved with obj_with_mode.get_model
+    :param obj_with_model: a gtk Widget that has a gtk.TreeModel that
+      can be retrieved with obj_with_mode.get_model
 
     Remove the model from the object, deletes all the items in the
     model, clear the model and then delete the model and set the model
@@ -156,8 +173,8 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
     find value in combo model and set it as active, else raise ValueError
     cmp(row, value) is the a function to use for comparison
 
-    NOTE: if more than one value is found in the combo then the first one
-    in the list is set
+    .. note:: if more than one value is found in the combo then the
+      first one in the list is set
     '''
     model = combo.get_model()
     matches = search_tree_model(model, value, cmp)
@@ -169,14 +186,15 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
 
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     '''
-    @param combo: the combo where we should search
-    @param value: the value to search for
-    @param cmp: the method to use to compare rows in the combo model and value,
-        the default is C{lambda row, value: row[0] == value}
-    @return: the gtk.TreeIter that points to value
+    Returns a gtk.TreeIter that points to value.
 
-    NOTE: if more than one value is found in the combo then the first one
-    in the list is returned
+    :param combo: the combo where we should search
+    :param value: the value to search for
+    :param cmp: the method to use to compare rows in the combo model and value,
+      the default is C{lambda row, value: row[0] == value}
+
+    .. note:: if more than one value is found in the combo then the first one
+      in the list is returned
     '''
     model = combo.get_model()
     matches = search_tree_model(model, value, cmp)
@@ -187,14 +205,14 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
 
 def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
     '''
-    @param glade_xml: the glade_file to get the widget from
-    @param widget_name: the name of the widget
-    @param value: the value to put in the widget
-    @param markup: whether or not
-    @param default: the default value to put in the widget if the value is None
+    :param glade_xml: the glade_file to get the widget from
+    :param widget_name: the name of the widget
+    :param value: the value to put in the widget
+    :param markup: whether or not
+    :param default: the default value to put in the widget if the value is None
 
-    NOTE: any values passed in for widgets that expect a string will call
-    the values __str__ method
+    .. note:: any values passed in for widgets that expect a string will call
+      the values __str__ method
     '''
     import gtk
     w = glade_xml.get_widget(widget_name)
@@ -256,6 +274,7 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                           parent=None):
     '''
+    Create a message dialog.
     '''
     if parent is None:
         try: # this might get called before bauble has started
@@ -280,6 +299,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                    parent=None):
     '''
+    Create and run a message dialog.
     '''
     d = create_message_dialog(msg, type, buttons, parent)
     r = d.run()
@@ -288,8 +308,9 @@ def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
 
 
 def create_yes_no_dialog(msg, parent=None):
-    '''
-    '''
+    """
+    Create a dialog with yes/no buttons.
+    """
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.gui.window
@@ -316,10 +337,14 @@ def create_yes_no_dialog(msg, parent=None):
 # to write to?
 def yes_no_dialog(msg, parent=None, yes_delay=-1):
     """
-    @param msg: the message to display in the dialog
-    @param parent: the dialog's parent
-    @param yes_delay: the number of seconds before the yes button should
-    become sensitive
+    Create and run a yes/no dialog.
+
+    Return True if the dialog response equals gtk.RESPONSE_YES
+
+    :param msg: the message to display in the dialog
+    :param parent: the dialog's parent
+    :param yes_delay: the number of seconds before the yes button should
+      become sensitive
     """
     d = create_yes_no_dialog(msg, parent)
     if yes_delay > 0:
@@ -340,6 +365,7 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_OK, parent=None):
     '''
+    Create a message dialog with a details expander.
     '''
     if parent is None:
         try: # this might get called before bauble has started
@@ -380,6 +406,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                            buttons=gtk.BUTTONS_OK, parent=None):
     '''
+    Create and run a message dialog with a details expander.
     '''
     d = create_message_details_dialog(msg, details, type, buttons, parent)
     r = d.run()
@@ -406,9 +433,12 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
 
 def setup_date_button(entry, button, date_func=None):
     """
-    @param entry: the entry that the data goes into
-    @param button: the button that enters the data in entry
-    @date_func: the function that returns a string represention of the date
+    :param entry: the entry that the data goes into
+
+    :param button: the button that enters the data in entry
+
+    :param date_func: the function that returns a string represention
+      of the date
     """
     # TODO: connect Ctrl-T on the entry to enter signal clicked on the button
     icon = os.path.join(paths.lib_dir(), 'images', 'calendar.png')
@@ -580,9 +610,9 @@ def reset_sequence(column):
 # flag to make the day optional, like?
 def date_to_str(date, format):
     """
-    @param data: a datetime object
-    @param format: the format of the string to return, uses:
-    yyyy,yy,d,dd,m,mm
+    :param data: a datetime object
+    :param format: the format of the string to return, uses:
+      yyyy,yy,d,dd,m,mm
 
     We don't do any validation that the format is correct or invalid
     """
@@ -603,9 +633,9 @@ def date_to_str(date, format):
 
 def make_label_clickable(label, on_clicked, *args):
     """
-    @param label: must have an eventbox as its parent
-    @param on_clicked: callback to be called when the label is clicked
-    on_clicked(label, event, data)
+    :param label: must have an eventbox as its parent
+    :param on_clicked: callback to be called when the label is clicked
+      on_clicked(label, event, data)
     """
     eventbox = label.parent
     check(eventbox != None and isinstance(eventbox, gtk.EventBox),
@@ -631,7 +661,7 @@ def make_label_clickable(label, on_clicked, *args):
 
 def enum_values_str(col):
     """
-    @param col: a string if table.col where col is an enum type
+    :param col: a string if table.col where col is an enum type
 
     return a string with of the values on an enum type join by a comma
     """

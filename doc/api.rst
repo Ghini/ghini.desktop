@@ -31,6 +31,20 @@ Bauble API Documentation
 :mod:`bauble.editor`
 =======================
 .. automodule:: bauble.editor
+.. autofunction:: bauble.editor.default_completion_cell_data_func
+.. autofunction:: bauble.editor.default_completion_match_func
+.. autoclass:: bauble.editor.StringOrNoneValidator
+.. autoclass:: bauble.editor.UnicodeOrNoneValidator
+.. autoclass:: bauble.editor.IntOrNoneStringValidator
+.. autoclass:: bauble.editor.FloatOrNoneStringValidator
+.. autoclass:: bauble.editor.GenericEditorView
+   :members:
+.. autoclass:: bauble.editor.Problems
+   :members:
+.. autoclass:: bauble.editor.GenericEditorPresenter
+   :members:
+.. autoclass:: bauble.editor.GenericModelViewPresenterEditor
+   :members:
 
 
 :mod:`bauble.i18n`
@@ -107,12 +121,64 @@ Bauble API Documentation
 :mod:`bauble.utils`
 =======================
 .. automodule:: bauble.utils
+.. autofunction:: bauble.utils.find_dependent_tables
+.. autoclass:: bauble.utils.GladeWidgets
+   :members: remove_parent, signal_autoconnect
+.. autofunction:: bauble.utils.tree_model_has
+.. autofunction:: bauble.utils.search_tree_model
+.. autofunction:: bauble.utils.clear_model
+.. autofunction:: bauble.utils.combo_set_active_text
+.. autofunction:: bauble.utils.set_combo_from_value
+.. autofunction:: bauble.utils.combo_get_value_iter
+.. autofunction:: bauble.utils.set_widget_value
+.. autofunction:: bauble.utils.create_message_dialog
+.. autofunction:: bauble.utils.message_dialog
+.. autofunction:: bauble.utils.create_yes_no_dialog
+.. autofunction:: bauble.utils.yes_no_dialog
+.. autofunction:: bauble.utils.create_message_details_dialog
+.. autofunction:: bauble.utils.message_details_dialog
+.. autofunction:: bauble.utils.setup_text_combobox
+.. autofunction:: bauble.utils.setup_date_button
+.. autofunction:: bauble.utils.to_unicode
+.. autofunction:: bauble.utils.utf8
+.. autofunction:: bauble.utils.xml_safe
+.. autofunction:: bauble.utils.xml_safe_utf8
+.. autofunction:: bauble.utils.natsort_key
+.. autofunction:: bauble.utils.delete_or_expunge
+.. autofunction:: bauble.utils.reset_sequence
+.. autofunction:: bauble.utils.date_to_str
+.. autofunction:: bauble.utils.make_label_clickable
+.. autofunction:: bauble.utils.enum_values_str
+
+
+
+
 
 
 :mod:`bauble.view`
 =======================
 .. automodule:: bauble.view
-
+.. autoclass:: bauble.view.InfoExpander
+   :show-inheritance:
+   :members: set_widget_value, update
+.. autoclass:: bauble.view.PropertiesExpander
+   :show-inheritance:
+   :members: update
+.. autoclass:: bauble.view.InfoBox:
+   :show-inheritance:
+   :members: add_expander, get_expander, remove_expander, update
+.. autoclass:: bauble.view.SearchParser
+   :members: parse_string
+.. autoclass:: bauble.view.SearchStrategy
+   :members:
+.. autoclass:: bauble.view.MapperSearch
+   :show-inheritance:
+   :members: search
+.. autoclass:: bauble.view.ResultSet
+   :members: add, count, clear
+.. autoclass:: bauble.view.SearchView
+   :show-inheritance:
+   .. autoclass:: ViewMeta
 
 
 :mod:`bauble.plugins.plants`
