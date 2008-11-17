@@ -12,7 +12,8 @@ import bauble.db as db
 from bauble.plugins.plants import Family
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter
+from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
+    QUOTE_STYLE
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
 
@@ -61,7 +62,8 @@ class CSVTests(ImexTestCase):
         """
         filename = os.path.join(self.path, 'family.txt')
         f = open(filename, 'wb')
-        format = {'delimiter': ',', 'quoting': csv.QUOTE_MINIMAL}
+        format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
+                  'quotechar': QUOTE_CHAR}
 
         fields = data[0].keys()
         f.write('%s\n' % ','.join(fields))
