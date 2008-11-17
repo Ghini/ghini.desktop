@@ -69,10 +69,7 @@ class UnicodeReader:
         row = self.reader.next()
         t = {}
         for k, v in row.iteritems():
-            try:
-                t[k] = unicode(v, self.encoding)
-            except:
-                t[k] = v
+            t[k] = utils.to_unicode(v, self.encoding)
         return t
 
 
@@ -91,10 +88,7 @@ class UnicodeWriter:
     def writerow(self, row):
         t = []
         for s in row:
-            try:
-                t.append(unicode(s, self.encoding))
-            except:
-                t.append(s)
+            t.append(utils.to_unicode(s, self.encoding))
         self.writer.writerow(t)
 
 
@@ -316,25 +310,23 @@ class CSVImporter(Importer):
                 update_every = 21
                 values = []
                 insert = table.insert().compile()
+                #debug(insert)
+                # create (name, default) tuples of the columns with defaults
+                defaults = []
+                for column in table.c:
+                    if isinstance(column.default, ColumnDefault):
+                        defaults.append((column.name, column.default))
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
                     if len(line) > 0:
-                        # if the column is "empty" use the column
-                        # default value, if the default is not a
-                        # ColumnDefault then set the value to use None
-                        # in case there is a server side default value
-                        for k, v in line.iteritems():
-                            if v in ('', u'', None):
-                                default = table.c[k].default
-                                if isinstance(default, ColumnDefault):
-                                    v = default.execute()
-                                else:
-                                    v = None
-                            line[k] = v
-                        #debug('%s: %s' % (table.name, line))
+                        # fill in the default values
+                        for name, default in defaults:
+                            if name not in line or line[name] in ('', None):
+                                line[name] = default.execute()
+                        #debug(line)
                         values.append(line)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0 \
