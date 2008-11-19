@@ -234,6 +234,8 @@ class GUI(object):
         '''
         self.close_msg_box()
         text = self.widgets.main_entry.get_text()
+	if text == '':
+	    return
         self.add_to_history(text)
         tokens = self.cmd_parser.parseString(text)
         cmd = None

@@ -1,14 +1,19 @@
 #
 # task.py
-#
-# Description: manage long running tasks
-#
-import gobject, gtk
-import bauble
-import bauble.utils as utils
-from bauble.i18n import *
-from bauble.utils.log import debug
+"""
+The bauble.task module allows you to queue up long running tasks. The
+running tasks still block but allows the GUI to update.
+"""
 import Queue
+
+import gobject
+import gtk
+
+import bauble
+from bauble.i18n import *
+import bauble.utils as utils
+from bauble.utils.log import debug, error
+
 
 _task_queue = Queue.Queue(0)
 
@@ -29,6 +34,8 @@ _task_queue = Queue.Queue(0)
 # bauble.create_database() inside of bauble._post_loop which
 # eventually calls cvs import which is a task
 
+# TODO: provide a way to create background tasks that don't call set_busy()
+
 def _update_gui():
     while gtk.events_pending():
         gtk.main_iteration()
@@ -45,6 +52,8 @@ def _run_task(func, *args, **kwargs):
             if not __gtk_quitting:
                 task.next()
                 _update_gui()
+                # TODO: should we sleep here for maybe 1ms to make
+                # things more responsive
             else:
                 raise TaskQuitting
     except StopIteration:
@@ -104,7 +113,7 @@ def flush():
         func, on_quit, on_error, args = _task_queue.get()
         try:
             _run_task(func, *args)
-            if on_quit is not None:
+            if on_quit:
                 on_quit()
         except (GeneratorExit, TaskQuitting), e:
             raise
@@ -113,7 +122,9 @@ def flush():
             #  pending tasks would be able to complete...on_error also
             #  shouldn't raise an exception
             #gobject.idle_add(on_error, e)
-            on_error(e)
+            error(e)
+            if on_error:
+                on_error(e)
 
     bauble.set_busy(False)
     clear_messages()
