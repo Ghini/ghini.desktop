@@ -1174,6 +1174,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         model = gtk.ListStore(str, str)
         species = self.model.species
         it = model.append([str(species.genus), 'genus'])
+        active = None
         if self.model.id_qual_ref == 'genus':
             active = it
         it = model.append([str(species.sp), 'sp'])
@@ -1187,7 +1188,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             it = model.append([s, 'infrasp'])
             if self.model.id_qual_ref == 'infrasp':
                 active = it
-        model.append(('', None))
+        it = model.append(('', None))
+        if not active:
+            active = it
         combo.set_model(model)
         combo.set_active_iter(active)
 
