@@ -147,13 +147,14 @@ class PropertiesExpander(InfoExpander):
 
 
 
-class InfoBox(gtk.ScrolledWindow):
+
+class InfoBoxPage(gtk.ScrolledWindow):
     """
     a VBox with a bunch of InfoExpanders
     """
 
     def __init__(self):
-        super(InfoBox, self).__init__()
+        super(InfoBoxPage, self).__init__()
         self.set_policy(gtk.POLICY_NEVER, gtk.POLICY_AUTOMATIC)
         self.vbox = gtk.VBox()
         self.vbox.set_spacing(10)
@@ -161,6 +162,7 @@ class InfoBox(gtk.ScrolledWindow):
         viewport.add(self.vbox)
         self.add(viewport)
         self.expanders = {}
+        self.label = None
 
 
     def add_expander(self, expander):
@@ -205,8 +207,45 @@ class InfoBox(gtk.ScrolledWindow):
         :param row: the mapper instance to use to update this infobox,
         this is passed to each of the infoexpanders in turn
         """
-        # TODO: should we just iter over the expanders and update them all
-        raise NotImplementedError
+        for expander in self.expanders.values():
+            expanders.update(row)
+        ## TODO: should we just iter over the expanders and update them all
+        #raise NotImplementedError
+
+
+class InfoBox(gtk.Notebook):
+    """
+    Holds list of expanders with an optional tabbed layout.
+
+    The default is to not use tabs. To create the InfoBox with tabs
+    use InfoBox(tabbed=True).  When using tabs then you can either add
+    expanders directly to the InfoBoxPage or using
+    InfoBox.add_expander with the page_num argument.
+    """
+
+    def __init__(self, tabbed=False):
+        super(InfoBox, self).__init__()
+        self.set_property('show-border', False)
+        if not tabbed:
+            page = InfoBoxPage()
+            self.insert_page(page, position=0)
+            self.set_property('show-tabs', False)
+
+
+    def on_switch_page(self, dummy_page, page_num, *args):
+        page = self.get_nth_page(page_num)
+        page.update(self.row)
+
+
+    def add_expander(self, expander, page_num=0):
+        page = self.get_nth_page(page_num)
+        page.add_expander(expander)
+
+
+    def update(self, row):
+        self.row = row
+        page_num = self.get_current_page()
+        self.get_nth_page(page_num).update(row)
 
 
 
@@ -383,17 +422,18 @@ class MapperSearch(SearchStrategy):
         Called when the parser hits a domain_expression token
         """
         domain, cond, values = tokens
-
-        # select all objects from the domain
-        if values == '*':
-            self._results.add(query)
-            return
-
         try:
             cls, properties = self._domains[domain]
         except KeyError:
             raise KeyError(_('Unknown search domain: %s' % domain))
-        query = self._session.query(cls)
+
+	query = self._session.query(cls)
+
+	# select all objects from the domain
+        if values == '*':
+            self._results.add(query)
+            return
+
         # TODO: should probably create a normalize_cond() method
         # to convert things like contains and has into like conditions
 
@@ -772,6 +812,9 @@ class SearchView(pluginmgr.View):
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
 #        debug('SearchView.search(%s)' % text)
+
+        # TODO: we should cancel any current running searches first
+
         results = ResultSet()
         error_msg = None
         error_details_msg = None
@@ -779,7 +822,6 @@ class SearchView(pluginmgr.View):
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
-                debug(strategy)
                 results.add(strategy.search(text, self.session))
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
