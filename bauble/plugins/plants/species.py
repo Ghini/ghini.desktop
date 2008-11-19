@@ -104,7 +104,8 @@ def vernname_markup_func(vernname):
     return str(vernname), vernname.species.markup(authors=False)
 
 
-from bauble.view import InfoBox, InfoExpander, select_in_search_results
+from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
+    select_in_search_results
 
 # TODO: reenable import
 #from bauble.plugins.garden.accession import Accession, accession_table
@@ -352,6 +353,24 @@ class LinksExpander(InfoExpander):
 
 
 class SpeciesInfoBox(InfoBox):
+
+    def __init__(self):
+        super(SpeciesInfoBox, self).__init__(tabbed=True)
+        page = SpeciesInfoPage()
+        label = page.label
+        if isinstance(label, basestring):
+            label = gtk.Label(label)
+        self.insert_page(page, label, 0)
+
+        from bauble.plugins.picasa import PicasaInfoPage
+        page = PicasaInfoPage()
+        label = page.label
+        if isinstance(label, basestring):
+            label = gtk.Label(label)
+        self.insert_page(page, label, 1)
+
+
+class SpeciesInfoPage(InfoBoxPage):
     '''
     general info, fullname, common name, num of accessions and clones,
     distribution
@@ -363,7 +382,7 @@ class SpeciesInfoBox(InfoBox):
         '''
         the constructor
         '''
-        InfoBox.__init__(self)
+        super(SpeciesInfoPage, self).__init__()
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                   'infoboxes.glade')
         self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
@@ -379,6 +398,7 @@ class SpeciesInfoBox(InfoBox):
         self.add_expander(self.links)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
+        self.label = _('General')
 
         if 'GardenPlugin' not in pluginmgr.plugins:
             self.widgets.remove_parent('sp_nacc_label')
