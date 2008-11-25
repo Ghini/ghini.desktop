@@ -71,8 +71,6 @@ picasa_thumbsize = '144u'
 
 default_path = os.path.join(paths.user_dir(), 'photos')
 
-loading_image = os.path.join(paths.lib_dir(), 'images', 'loading.gif')
-
 # keep a copy of the feeds that we retrieve by tag
 __feed_cache = {}
 
@@ -434,6 +432,7 @@ def populate_iconview(gd_client, iconview, tag):
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
     iconview_worker.connect('published', _on_get_feed_publish, iconview)
     iconview_worker.execute()
+    return iconview_worker
 
 
 
@@ -456,6 +455,19 @@ class PicasaInfoPage(view.InfoBoxPage):
         self.iconview.set_pixbuf_column(0)
         self.vbox.pack_start(self.iconview)
 
+        loading_image = os.path.join(paths.lib_dir(), 'images', 'loading.gif')
+        animation = gtk.gdk.PixbufAnimation(loading_image)
+        self._progress_image = gtk.Image()
+        self._progress_image.set_from_animation(animation)
+
+
+    def set_busy(self, busy=True):
+        if not busy:
+            self.vbox.remove(self._progress_image)
+        else:
+            self.vbox.pack_start(self._progress_image, expand=False,fill=False)
+            self.vbox.reorder_child(self._progress_image, 0)
+
 
     def update(self, row):
         """
@@ -471,14 +483,12 @@ class PicasaInfoPage(view.InfoBoxPage):
             return
 	self.gd_client.SetClientLoginToken(token)
 	tag = Species.str(row, markup=False, authors=False)
-        populate_iconview(self.gd_client, self.iconview, tag)
-        #import bauble.task as task
-        #task.queue(self._populate_iconview, None, None, tag)
+        self.set_busy()
+        worker = populate_iconview(self.gd_client, self.iconview, tag)
+        def on_done(*args):
+            self.set_busy(False)
+        worker.connect('done', on_done, False)
 
-
-
-#class PicasaInfoExpander(view.InfoExpander):
-#    pass
 
 
 class PicasaPlugin(pluginmgr.Plugin):
