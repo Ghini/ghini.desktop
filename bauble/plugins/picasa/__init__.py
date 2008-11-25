@@ -73,6 +73,8 @@ default_path = os.path.join(paths.user_dir(), 'photos')
 
 loading_image = os.path.join(paths.lib_dir(), 'images', 'loading.gif')
 
+# keep a copy of the feeds that we retrieve by tag
+__feed_cache = {}
 
 def update_meta(email=None, album=None, token=None):
     """
@@ -82,6 +84,7 @@ def update_meta(email=None, album=None, token=None):
     email_meta = meta.get_default(PICASA_EMAIL_KEY, email, session)
     album_meta = meta.get_default(PICASA_ALBUM_KEY, album, session)
     token_meta = meta.get_default(PICASA_TOKEN_KEY, token, session)
+    __feed_cache.clear()
     session.add_all([email_meta, album_meta, token_meta])
     session.commit()
     session.close()
@@ -94,6 +97,7 @@ def get_auth_token(email, password):
     """
     gd_client = gdata.photos.service.PhotosService()
     gd_client.ClientLogin(username=email, password=password)
+    __feed_cache.clear()
     return gd_client.GetClientLoginToken()
 
 
@@ -155,7 +159,13 @@ class PhotoCache(object):
         """
         # select item from database and return a list of matching filenames
         session = self.Session()
-        return session.query(Photo).filter_by(id=id).first()
+        photo = session.query(Photo).filter_by(id=utils.utf8(id)).first()
+        session.close()
+        return photo
+
+
+    def get(self, id):
+        return self[id]
 
 
     def add(self, id, path):
@@ -163,17 +173,22 @@ class PhotoCache(object):
         Add photos to the cache
         """
         session = self.Session()
-        photo = Photo(id=id, path=path)
+        photo = Photo(id=utils.utf8(id), path=utils.utf8(path))
         session.add(photo)
         session.commit()
         session.close()
 
 
-    def delete(path):
+    def remove(self, id):
         """
+        Remove a photo entry from the cache.
         """
-        # deleting tags or paths?
-        pass
+        session = self.Session()
+        photo = self[utils.utf8(id)]
+        session.delete(photo)
+        session.commit()
+        session.close()
+
 
 
 from sqlalchemy.ext.declarative import declarative_base
@@ -248,6 +263,7 @@ class PicasaSettingsDialog(object):
                         utils.utf8(token))
         else:
             update_meta(album=album)
+        return response
 
 
 
@@ -312,17 +328,17 @@ class PicasaSettingsTool(pluginmgr.Tool):
 
 
 
-# class PicasaUploadTool(pluginmgr.Tool):
-#     """
-#     Tool for uploading images to the Picasa Web Albums
-#     """
-#     category = 'Picasa'
-#     label = 'Upload'
+class PicasaUploadTool(pluginmgr.Tool):
+    """
+    Tool for uploading images to the Picasa Web Albums
+    """
+    category = 'Picasa'
+    label = 'Upload'
 
-#     @classmethod
-#     def start(cls):
-#         d = PicasaUploader()
-#         d.start()
+    @classmethod
+    def start(cls):
+        d = PicasaUploader()
+        d.start()
 
 
 
@@ -345,22 +361,37 @@ def _get_feed_worker(worker, gd_client, tag):
     # this session, maybe we need some sort of in memory database of
     # feeds that have been fetched
     email = meta.get_default(PICASA_EMAIL_KEY).value
-    user, domain = email.split('@', 1)
+    try:
+        user, domain = email.split('@', 1)
+    except:
+        user = email
     album = meta.get_default(PICASA_ALBUM_KEY).value
-    feed = get_photo_feed(gd_client, user, album, tag)
+
+    if tag in __feed_cache:
+        feed = __feed_cache[tag]
+    else:
+        feed = get_photo_feed(gd_client, user, album, tag)
+        __feed_cache[tag] = feed
+
+    path = os.path.join(default_path)
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    cache = PhotoCache()
     for entry in feed.entry:
         url = entry.media.thumbnail[0].url
         photo_id = 'picasa:%s' % entry.gphoto_id.text
-        #debug('photo_id: %s' % photo_id)
-        extension = url[-4:]
-        path = os.path.join(default_path)
-        if not os.path.exists(path):
-            os.makedirs(path)
-        fd, filename = tempfile.mkstemp(suffix=extension, dir=path)
-        cache = PhotoCache()
-        if not cache[utils.utf8(photo_id)]:
+        photo = cache[photo_id]
+        def _get():
+            extension = url[-4:]
+            fd, filename = tempfile.mkstemp(suffix=extension, dir=path)
             urllib.urlretrieve(url, filename)
             cache.add(photo_id, filename)
+        if not photo:
+            _get()
+        if not os.path.exists(photo.path):
+            cache.remove(photo_id)
+            _get()
         # publish the id of the image in the image cache
         worker.publish(photo_id)
 
@@ -370,13 +401,28 @@ def _get_feed_worker(worker, gd_client, tag):
 # can check if it is running and cancel it if necessary.
 iconview_worker = None
 
+def _on_get_feed_publish(worker, data, iconview):
+    model = iconview.get_model()
+    cache = PhotoCache()
+    for photo_id in data:
+        filename = cache[photo_id].path
+        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
+        model.append([pixbuf])
+
 
 def populate_iconview(gd_client, iconview, tag):
-    # we can get the images in seperate threads but how do we get the
-    # photos and then
+    """
+    Get the photos with tag from the PicasaWeb or from the photo cache
+    and populate the iconview.
+
+    :param gd_client:
+    :param iconview:
+    :param tag:
+    """
     global iconview_worker
     if iconview_worker:
         iconview_worker.cancel()
+
     utils.clear_model(iconview)
     model = gtk.ListStore(gtk.gdk.Pixbuf)
     iconview.set_model(model)
@@ -385,15 +431,8 @@ def populate_iconview(gd_client, iconview, tag):
     if not cache.exists():
         PhotoCache(create=True)
 
-    def on_get_feed_publish(worker, data):
-        feed = data[0]
-        iconview.get_model()
-        photo_id = data[0]
-        filename = PhotoCache()[utils.utf8(photo_id)].path
-        pixbuf = gtk.gdk.pixbuf_new_from_file(filename)
-        model.append([pixbuf])
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
-    iconview_worker.connect('published', on_get_feed_publish)
+    iconview_worker.connect('published', _on_get_feed_publish, iconview)
     iconview_worker.execute()
 
 
