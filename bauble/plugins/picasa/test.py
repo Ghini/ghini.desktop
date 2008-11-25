@@ -1,5 +1,7 @@
 from nose import *
 
+import gtk
+
 import bauble.meta as meta
 import bauble.plugins.picasa as picasa
 from bauble.test import BaubleTestCase
@@ -11,6 +13,33 @@ class PicasaTests(BaubleTestCase):
 
     def __init__(self, *args):
         super(PicasaTests, self).__init__(*args)
+
+
+    def test_photo_cache(self):
+        """
+        Test bauble.plugins.picasa.PhotoCache
+        """
+        import tempfile
+        fd, filename = tempfile.mkstemp()
+        cache = picasa.PhotoCache(path=filename, create=True)
+        photoid = u'testid'
+        cache.add(photoid, u'testpath')
+        self.assert_(cache[photoid].id == photoid)
+
+        cache.remove(photoid)
+        self.assert_(not cache[photoid])
+
+
+#     def test_populate_iconview(self):
+#         import gdata.photos.service
+#         user = u''
+#         passwd = u''
+#         token = picasa.get_auth_token(user, passwd)
+#         picasa.update_meta(user, u'Plants', token)
+#         gd_client = gdata.photos.service.PhotosService()
+#         gd_client.SetClientLoginToken(token)
+#         picasa.populate_iconview(gd_client, iconview=None,
+#                                  tag='Maxillaria elatior')
 
 
     def test_get_auth_token(self):
@@ -33,56 +62,35 @@ class PicasaTests(BaubleTestCase):
         picasa.update_meta(u'email', u'album', u'token')
 
 
-    def get_photos(self):
-	email = u''
-	password = ''
-	album = u'Plants'
-	token = picasa.get_auth_token(email, password) 
-	picasa.update_meta(email, album, utils.utf8(token))
-	import gdata.photos.service
-	gd_client = gdata.photos.service.PhotosService()
-	gd_client.SetClientLoginToken(token)
-	feed = picasa.get_photo_feed(gd_client, "Maxillaria elatior")	
-	import urllib2, urllib	
-	import os
-	for entry in feed.entry:
-	    src = entry.content.src
-	    debug(src)
-	    filename, headers = urllib.urlretrieve(src)
-	    debug(filename)
-	    debug(os.path.exists(filename))	    
-	    #debug(headers)
+
+    def _get_settings(self):
+        """
+        Get the Picasa connection settings
+        """
+        d = picasa.PicasaSettingsDialog()
+        return d.run()
 
 
     def itest_get_photo_feed(self):
 	"""
-        Test the PicasaSettingsDialog
+        Interactively test picasa.get_photo_feed()
         """
-	#raise SkipTest
-	email = u''
-	password = ''
-	album = u''
-	token = picasa.get_auth_token(email, password) 
+        if self._get_settings() != gtk.RESPONSE_OK:
+            return
+
+        email = meta.get_default(picasa.PICASA_EMAIL_KEY).value
+        try:
+            user, domain = email.split('@', 1)
+        except:
+            user = email
+        album = meta.get_default(picasa.PICASA_ALBUM_KEY).value
+        token = meta.get_default(picasa.PICASA_TOKEN_KEY).value
 	picasa.update_meta(email, album, utils.utf8(token))
 	import gdata.photos.service
 	gd_client = gdata.photos.service.PhotosService()
 	gd_client.SetClientLoginToken(token)
-	feed = picasa.get_photo_feed(gd_client, "Maxillaria elatior")
-	for entry in feed.entry:
-	    debug(entry.title.text)
 
-
-    def itest_picasa_settings_dialog(self):
-        """
-        Test the PicasaSettingsDialog
-        """
-        email_meta = meta.get_default(picasa.PICASA_EMAIL_KEY, u'email')
-        album_meta = meta.get_default(picasa.PICASA_ALBUM_KEY, u'album')
-        token_meta = meta.get_default(picasa.PICASA_TOKEN_KEY, u'token')
-        self.session.add_all([email_meta, album_meta, token_meta])
-        self.session.commit()
-
-        d = picasa.PicasaSettingsDialog()
-        d.run()
-
-
+        # this tag is specific to the Plant album on brettatoms account
+        tag = 'Maxillaria elatior'
+	feed = picasa.get_photo_feed(gd_client, user, album, tag)
+        self.assert_(len(feed.entry) > 0)
