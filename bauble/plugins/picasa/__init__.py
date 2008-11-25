@@ -5,56 +5,41 @@
 # 1. should be able to upload photos, have to use picasa to delete and
 # do other photo manipulation
 #
-# 2. show thumbnails in the infobox
+# 2. on import should autotag with the plant name
 #
-# 3. on import should autotag with the plant name
+# 3. need to be able to set a max cache size to delete the oldest
+# files if we go over the cache size
 #
-# 4. create a tool for changing the username and album
-#
-# 5. store the auth token in bauble meta
-#
-# 6. What about accessing google through a proxy
-#
-# 7. Need to create an image cache that stores image in
-# ~/.bauble/images so that if a file hasn't changed since we last
-# downloaded it we don't have to download it again...should also be
-# able to set a max cache size so that we delete the oldest files if
-# we go over the cache size
-#
-# 8. By default we should only get the files of a certain size that
+# 4. By default we should only get the files of a certain size that
 # can be viewed in Bauble but should allow the option to download the
 # original file
 #
-# 9. Should provide a Save As button so the user can save a copy of
+# 5. Should provide a Save As button so the user can save a copy of
 # the file for later use
 
 # IDEA: we could probably make this module more generic and based on
 # mixins where we add the functionality for getting the photos by
 # mixing in different implentations for different services
-
-
 import os
-import urllib2
-import urllib
 import tempfile
+import urllib
 
 import gdata.photos.service
-import gdata.media
-import gdata.geo
 import gtk
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
+from sqlalchemy.ext.declarative import declarative_base
 
 import bauble
+import bauble.meta as meta
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
+import bauble.utils.thread as thread
 import bauble.view as view
 from bauble.i18n import _
-import bauble.meta as meta
 from bauble.plugins.plants import Species
-from bauble.utils.log import debug
-import bauble.utils.thread as thread
+
 
 PICASA_TOKEN_KEY = u'picasa_token'
 
@@ -65,8 +50,7 @@ PICASA_EMAIL_KEY = u'picasa_email'
 PICASA_ALBUM_KEY = u'picasa_album'
 
 # see http://code.google.com/apis/picasaweb/reference.html#Parameters
-#picasa_imgmax = '1600'#d'
-picasa_imgmax = 'd'
+picasa_imgmax = 'd' # "d" means download the original
 picasa_thumbsize = '144u'
 
 default_path = os.path.join(paths.user_dir(), 'photos')
@@ -189,7 +173,6 @@ class PhotoCache(object):
 
 
 
-from sqlalchemy.ext.declarative import declarative_base
 Base = declarative_base()
 
 class Photo(Base):
@@ -400,6 +383,9 @@ def _get_feed_worker(worker, gd_client, tag):
 iconview_worker = None
 
 def _on_get_feed_publish(worker, data, iconview):
+    """
+    Add the photo the the iconview.
+    """
     model = iconview.get_model()
     cache = PhotoCache()
     for photo_id in data:
@@ -462,6 +448,9 @@ class PicasaInfoPage(view.InfoBoxPage):
 
 
     def set_busy(self, busy=True):
+        """
+        Toggle the throbber.
+        """
         if not busy:
             self.vbox.remove(self._progress_image)
         else:
@@ -496,12 +485,5 @@ class PicasaPlugin(pluginmgr.Plugin):
     view = PicasaView
     #commands = [PicasaCommandHandler]
 
-    @classmethod
-    def install(cls, import_defaults):
-        # TODO: create cache database
-        #ImageCache.create()
-        pass
 
-
-# uncomment the following line to enable this plugin
 plugin = PicasaPlugin
