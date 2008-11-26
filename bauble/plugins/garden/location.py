@@ -237,7 +237,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            from bauble.plugins.garden.plant import PlantEditor
+            from bauble.plugins.garden.plant import PlantEditor, Plant
             e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
 
