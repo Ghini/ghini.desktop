@@ -32,6 +32,9 @@ family_data1 = [{'id': 1, 'family': u'family1'},
 family_data2 = [{'id': 1, 'family': u'family1', 'notes': u'Gal\xe1pagos'},
                 {'id': 2, 'family': u'family2'}]
 
+family_data3 = [{'id': 1, 'family': u'family1', 'notes': u''},
+                {'id': 2, 'family': u'family2'}]
+
 
 class ImexTestCase(BaubleTestCase):
 
@@ -91,14 +94,23 @@ class CSVTests(ImexTestCase):
     def test_import_no_default(self):
         """
         Test that if we import from a csv file that doesn't include a
-        column and that column has a default value then that default
-        value is executed.
+        column and that column does not have a default value then that
+        value is set to None
         """
-        #debug(family_data1)
-        #self.assertRaises(ValueError, self._do_import, family_data2)
         self._do_import(family_data1)
         family = self.session.query(Family)[0]
-        self.assert_(not family.notes)
+        self.assert_(family.notes is None)
+
+
+    def test_import_empty_is_none(self):
+        """
+        Test that if we import from a csv file that includes a column
+        but that column doesn't have a value or is empty then the
+        column values is set to None
+        """
+        self._do_import(family_data3)
+        family = self.session.query(Family)[0]
+        self.assert_(family.notes is None)
 
 
     def test_sequences(self):
