@@ -307,26 +307,31 @@ class CSVImporter(Importer):
                 f = file(filename, "rb")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
-                update_every = 21
+                update_every = 127
                 values = []
                 insert = table.insert().compile()
-                #debug(insert)
-                # create (name, default) tuples of the columns with defaults
-                defaults = []
+                # create a dictionary of the which columns have
+                # default values so we don't have to call isinstance
+                # every iteration
+                defaults = {}
                 for column in table.c:
                     if isinstance(column.default, ColumnDefault):
-                        defaults.append((column.name, column.default))
+                        defaults[column.name] = column.default
+                column_names = table.c.keys()
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
                     if len(line) > 0:
-                        # fill in the default values
-                        for name, default in defaults:
-                            if name not in line or line[name] in ('', None):
-                                line[name] = default.execute()
-                        #debug(line)
+                        isempty = lambda v: v in ('', None)
+                        for column in table.c.keys():
+                            if column in line and isempty(line[column]):
+                                line[column] = None
+                            elif column in defaults \
+                                    and (column not in line \
+                                             or isempty(line[column])):
+                                line[column] = defaults[column].execute()
                         values.append(line)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0 \
