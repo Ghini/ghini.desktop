@@ -326,7 +326,7 @@ class Accession(db.Base):
     # it were the string then it would be more direct what is
     # uncertain...the other problem is that this could get out of
     # synch with the species name
-    id_qual_ref = Column(Unicode(10))
+    id_qual_rank = Column(Unicode(10))
 
     # "private" new in 0.8b2
     private = Column('private', Boolean, default=False)
@@ -366,9 +366,9 @@ class Accession(db.Base):
         session = bauble.Session()
         species = session.query(Species).filter_by(id=self.species.id).one()
         if self.id_qual in ('aff.', 'cf.'):
-            setattr(species, self.id_qual_ref,
+            setattr(species, self.id_qual_rank,
                     '%s %s' % (self.id_qual,
-                               getattr(species, self.id_qual_ref)))
+                               getattr(species, self.id_qual_rank)))
             sp_str = Species.str(species, markup, authors)
         else:
             sp_str = '%s(%s)' % (Species.str(species, markup, authors),
@@ -1109,18 +1109,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
 
-        # init id_qual_ref
-        utils.setup_text_combobox(self.view.widgets.acc_id_qual_ref_combo)
-        self.refresh_id_qual_ref_combo()
+        # init id_qual_rank
+        utils.setup_text_combobox(self.view.widgets.acc_id_qual_rank_combo)
+        self.refresh_id_qual_rank_combo()
         def on_changed(combo, *args):
             it = combo.get_active_iter()
             if not it:
-                self.model.id_qual_ref = None
+                self.model.id_qual_rank = None
                 return
             text, col = combo.get_model()[it]
-            #self.model.id_qual_ref = col
-            self.set_model_attr('id_qual_ref', col)
-        self.view.widgets.acc_id_qual_ref_combo.connect('changed', on_changed)
+            #self.model.id_qual_rank = col
+            self.set_model_attr('id_qual_rank', col)
+        self.view.widgets.acc_id_qual_rank_combo.connect('changed', on_changed)
 
         self.init_source_tab()
         self.refresh_view() # put model values in view
@@ -1166,8 +1166,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.__dirty = False
 
 
-    def refresh_id_qual_ref_combo(self):
-        combo = self.view.widgets.acc_id_qual_ref_combo
+    def refresh_id_qual_rank_combo(self):
+        combo = self.view.widgets.acc_id_qual_rank_combo
         utils.clear_model(combo)
         if not self.model.species:
             return
@@ -1175,10 +1175,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         species = self.model.species
         it = model.append([str(species.genus), 'genus'])
         active = None
-        if self.model.id_qual_ref == 'genus':
+        if self.model.id_qual_rank == 'genus':
             active = it
         it = model.append([str(species.sp), 'sp'])
-        if self.model.id_qual_ref == 'sp':
+        if self.model.id_qual_rank == 'sp':
             active = it
         if species.infrasp:
             if species.infrasp_rank == 'cv.':
@@ -1186,7 +1186,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             else:
                 s = str(species.infrasp)
             it = model.append([s, 'infrasp'])
-            if self.model.id_qual_ref == 'infrasp':
+            if self.model.id_qual_rank == 'infrasp':
                 active = it
         it = model.append(('', None))
         if not active:
@@ -1612,7 +1612,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         elif isinstance(self.model.source, Donation):
             self.__cleanup_donation_model(self.model.source)
         if self.model.id_qual is None:
-            self.model.id_qual_ref = None
+            self.model.id_qual_rank = None
         return super(AccessionEditor, self).commit_changes()
 
 
