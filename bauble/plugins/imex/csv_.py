@@ -326,12 +326,13 @@ class CSVImporter(Importer):
                     if len(line) > 0:
                         isempty = lambda v: v in ('', None)
                         for column in table.c.keys():
-                            if column in line and isempty(line[column]):
-                                line[column] = None
-                            elif column in defaults \
+                            if column in defaults \
                                     and (column not in line \
                                              or isempty(line[column])):
                                 line[column] = defaults[column].execute()
+                            elif column in line and isempty(line[column]):
+                                line[column] = None
+
                         values.append(line)
                     steps_so_far += 1
                     if steps_so_far % update_every == 0 \

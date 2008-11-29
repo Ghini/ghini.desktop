@@ -26,14 +26,11 @@ from bauble.utils.log import debug
 csv_test_data = ({})
 
 
-family_data1 = [{'id': 1, 'family': u'family1'},
-                {'id': 2, 'family': u'family2'}]
-
-family_data2 = [{'id': 1, 'family': u'family1', 'notes': u'Gal\xe1pagos'},
-                {'id': 2, 'family': u'family2'}]
-
-family_data3 = [{'id': 1, 'family': u'family1', 'notes': u''},
-                {'id': 2, 'family': u'family2'}]
+family_data = [{'id': 1, 'family': u'family1', 'notes': u'Gal\xe1pagos',
+                'qualifier': None},
+               {'id': 2, 'family': u'family2'},
+               {'id': 3, 'family': u'family3', 'notes': u''},
+               ]
 
 
 class ImexTestCase(BaubleTestCase):
@@ -86,8 +83,8 @@ class CSVTests(ImexTestCase):
         column and that column has a default value then that default
         value is executed.
         """
-        self._do_import(family_data1)
-        family = self.session.query(Family).first()
+        self._do_import(family_data)
+        family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
 
 
@@ -97,20 +94,31 @@ class CSVTests(ImexTestCase):
         column and that column does not have a default value then that
         value is set to None
         """
-        self._do_import(family_data1)
-        family = self.session.query(Family)[0]
+        self._do_import(family_data)
+        family = self.session.query(Family).filter_by(id=2).one()
         self.assert_(family.notes is None)
 
 
     def test_import_empty_is_none(self):
         """
         Test that if we import from a csv file that includes a column
-        but that column doesn't have a value or is empty then the
-        column values is set to None
+        but that column is empty and doesn't have a default values
+        then the column is set to None
         """
-        self._do_import(family_data3)
-        family = self.session.query(Family)[0]
+        self._do_import(family_data)
+        family = self.session.query(Family).filter_by(id=2).one()
         self.assert_(family.notes is None)
+
+
+    def test_import_empty_uses_default(self):
+        """
+        Test that if we import from a csv file that includes a column
+        but that column is empty and has a default then the default is
+        executed.
+        """
+        self._do_import(family_data)
+        family = self.session.query(Family).filter_by(id=3).one()
+        self.assert_(family.qualifier == '')
 
 
     def test_sequences(self):
@@ -122,8 +130,8 @@ class CSVTests(ImexTestCase):
         """
         # turn off logger
         logging.getLogger('bauble.info').setLevel(logging.ERROR)
-        self._do_import(family_data1)
-        highest_id = len(family_data1)
+        self._do_import(family_data)
+        highest_id = len(family_data)
         currval = None
         conn = db.engine.contextual_connect()
         if db.engine.name == 'postgres':
@@ -147,9 +155,9 @@ class CSVTests(ImexTestCase):
         """
         Test importing a unicode string.
         """
-        self._do_import(family_data2)
-        family = self.session.query(Family).first()
-        self.assert_(family.notes == family_data2[0]['notes'])
+        self._do_import(family_data)
+        family = self.session.query(Family).filter_by(id=1).one()
+        self.assert_(family.notes == family_data[0]['notes'])
 
 
     def test_import_no_inherit(self):
@@ -157,7 +165,7 @@ class CSVTests(ImexTestCase):
         That that when importing a row that has a None value in a
         column doesn't inherit the value from the previous row.
         """
-        self._do_import(family_data2)
+        self._do_import(family_data)
         query = self.session.query(Family)
         self.assert_(query[1].notes != query[0].notes)
 
