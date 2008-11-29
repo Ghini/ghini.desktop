@@ -21,12 +21,23 @@ REGISTRY_KEY = u'registry'
 DATE_FORMAT_KEY = u'date_format'
 
 def get_default(name, default=None, session=None):
+    """
+    Get a BaubleMeta object with name.  If the default value is not
+    None then a BaubleMeta object is returned with name and the
+    default value given.  If a session instance is passed then we
+    don't commit the session.
+    """
+    commit = False
     if not session:
         session = bauble.Session()
+        commit = True
     query = session.query(BaubleMeta)
     meta = query.filter_by(name=name).first()
-    if not meta:
+    if not meta and default:
         meta = BaubleMeta(name=name, value=default)
+        session.add(meta)
+    if commit:
+        session.commit()
     return meta
 
 
