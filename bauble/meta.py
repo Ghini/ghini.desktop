@@ -27,13 +27,14 @@ def get_default(name, default=None, session=None):
     default value given.  If a session instance is passed then we
     don't commit the session.
     """
+    #debug('get_default(%s, %s)' % (name, default))
     commit = False
     if not session:
         session = bauble.Session()
         commit = True
     query = session.query(BaubleMeta)
     meta = query.filter_by(name=name).first()
-    if not meta and default:
+    if not meta and default is not None:
         meta = BaubleMeta(name=name, value=default)
         session.add(meta)
     if commit:
