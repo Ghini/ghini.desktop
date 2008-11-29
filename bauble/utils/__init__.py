@@ -672,3 +672,68 @@ def enum_values_str(col):
     if None in values:
         values[values.index(None)] = '&lt;None&gt;'
     return ', '.join(values)
+
+
+
+class MessageBox(gtk.EventBox):
+
+
+    # TODO: instead of passing colors to show we should just pass a
+    # state variable so that the colors will be consistent across the
+    # app...error=red, notifcation=blue, info=white
+
+    # TODO: how do we reset the colors? what is normal?
+
+    error_colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
+                    ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
+    info_colors = []
+
+
+    @staticmethod
+    def add_to(parent, close_button=True):
+        # TODO: should we allow an "ordering" to be passed in so its not
+        # always packed into the top
+        check(isinstance(parent, gtk.VBox), 'widget must be a gtk.VBox')
+        box = MessageBox()
+        parent.pack_start(box, expand=False, fill=True)
+        parent.reorder_child(box, 0)
+        return box
+
+
+    def __init__(self, close_button=False):
+        super(MessageBox, self).__init__()
+        self.vbox = gtk.VBox()
+        self.add(self.vbox)
+        self.label = gtk.Label()
+        self.label.set_alignment(.05, .5)
+        self.close_button = None
+        hbox = gtk.HBox()
+        self.vbox.pack_start(hbox)
+        if not close_button:
+            hbox.pack_start(self.label)
+        else:
+            hbox.pack_start(self.label, expand=True, fill=True)
+            img = gtk.Image()
+            img.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_SMALL_TOOLBAR)
+            self.close_button = gtk.Button()
+            self.close_button.set_label('')
+            self.close_button.set_image(img)
+            self.close_button.set_relief(gtk.RELIEF_NONE)
+            hbox.pack_start(self.close_button, expand=False, fill=False)
+
+
+    def show(self, show=True, colors=[], animate=False):
+        if not show:
+            self.hide_all()
+            return
+        self.show_all()
+        colormap = self.get_colormap()
+        style = self.get_style().copy()
+        for attr, state, color in colors:
+            c = colormap.alloc_color(color)
+            getattr(style, attr)[state] = c
+        self.set_style(style)
+
+
+
+

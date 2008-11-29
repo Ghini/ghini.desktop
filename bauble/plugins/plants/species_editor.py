@@ -328,16 +328,15 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
     def init_add_button(self):
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
-        #from bauble.plugins.plants.species_model import geography_table
         geography_table = Geography.__table__
         geos = select([geography_table.c.id, geography_table.c.name,
                            geography_table.c.parent_id]).execute().fetchall()
         geos_hash = {}
-        for g in geos:
+        for geo_id, name, parent_id in geos:
             try:
-                geos_hash[g[2]].append((g[0], g[1]))
+                geos_hash[parent_id].append((geo_id, name))
             except KeyError:
-                geos_hash[g[2]] = [(g[0], g[1])]
+                geos_hash[parent_id] = [(geo_id, name)]
 
         for kids in geos_hash.values():
             kids.sort(key=itemgetter(1)) # sort by name
