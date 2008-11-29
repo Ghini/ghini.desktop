@@ -57,10 +57,19 @@ class PicasaTests(BaubleTestCase):
 
     def test_update_meta(self):
         """
-        Test the picasa.update_meta function
+        Test bauble.plugins.picasa.update_meta() function.
         """
-        picasa.update_meta(u'email', u'album', u'token')
+        email = u'email'
+        album = u'album'
+        token = u'token'
+        picasa.update_meta(email=u'email', album=u'album', token=u'token')
+        self.assert_(email==meta.get_default(picasa.PICASA_EMAIL_KEY).value)
+        self.assert_(album==meta.get_default(picasa.PICASA_ALBUM_KEY).value)
+        self.assert_(token==meta.get_default(picasa.PICASA_TOKEN_KEY).value)
 
+        album2 = u'album2'
+        picasa.update_meta(album=album2)
+        self.assert_(album2==meta.get_default(picasa.PICASA_ALBUM_KEY).value)
 
 
     def _get_settings(self):
@@ -69,6 +78,29 @@ class PicasaTests(BaubleTestCase):
         """
         d = picasa.PicasaSettingsDialog()
         return d.run()
+
+
+    def itest_infopage(self):
+        from bauble.plugins.plants import Family, Genus, Species
+        email = ''
+        passwd = ''
+        album=''
+        if email:
+            token = picasa.get_auth_token(email, passwd)
+            picasa.update_meta(email=email, album=album, token=token)
+        f = Family(family=u'Orchidaceae')
+        g = Genus(family=f, genus=u'Maxillaria')
+        sp = Species(genus=g, sp=u'elatior')
+        self.session.add_all([f, g, sp])
+        self.session.commit()
+        self.dialog = gtk.Dialog()
+        self.dialog.set_size_request(250, 700)
+        page = picasa.PicasaInfoPage()
+        page.update(sp)
+        self.dialog.vbox.pack_start(page)
+        self.dialog.show_all()
+        self.dialog.run()
+
 
 
     def itest_get_photo_feed(self):

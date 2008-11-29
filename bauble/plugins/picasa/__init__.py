@@ -39,6 +39,7 @@ import bauble.utils.thread as thread
 import bauble.view as view
 from bauble.i18n import _
 from bauble.plugins.plants import Species
+from bauble.utils.log import debug
 
 
 PICASA_TOKEN_KEY = u'picasa_token'
@@ -62,14 +63,20 @@ def update_meta(email=None, album=None, token=None):
     """
     Update the email, album and authorization token in the bauble meta table.
     """
+    # TODO: should we allow setting the values to None
     session = bauble.Session()
-    email_meta = meta.get_default(PICASA_EMAIL_KEY, email, session)
-    album_meta = meta.get_default(PICASA_ALBUM_KEY, album, session)
-    token_meta = meta.get_default(PICASA_TOKEN_KEY, token, session)
-    __feed_cache.clear()
-    session.add_all([email_meta, album_meta, token_meta])
+    if email:
+        email = utils.utf8(email)
+        meta.get_default(PICASA_EMAIL_KEY, email, session).value = email
+    if album:
+        album = utils.utf8(album)
+        meta.get_default(PICASA_ALBUM_KEY, album, session).value = album
+    if token:
+        token = utils.utf8(token)
+        meta.get_default(PICASA_TOKEN_KEY, token, session).value = token
     session.commit()
     session.close()
+    __feed_cache.clear()
 
 
 
@@ -204,13 +211,13 @@ class PicasaSettingsDialog(object):
 
         self.widgets.password_entry.connect('changed', self.on_changed)
 
-        email = meta.get_default(PICASA_EMAIL_KEY).value
+        email = meta.get_default(PICASA_EMAIL_KEY, '').value
         self.widgets.email_entry.set_text(email or '')
 
-        album = meta.get_default(PICASA_ALBUM_KEY).value
+        album = meta.get_default(PICASA_ALBUM_KEY, '').value
         self.widgets.album_entry.set_text(album or '')
 
-        auth = meta.get_default(PICASA_TOKEN_KEY).value
+        auth = meta.get_default(PICASA_TOKEN_KEY, '').value
         if auth:
             self.widgets.password_entry.set_text('blahblah')
 
@@ -243,7 +250,9 @@ class PicasaSettingsDialog(object):
             update_meta(utils.utf8(email), utils.utf8(album),
                         utils.utf8(token))
         else:
+            debug('album: %s' % album)
             update_meta(album=album)
+            debug(meta.get_default(PICASA_ALBUM_KEY).value)
         return response
 
 
@@ -351,7 +360,11 @@ def _get_feed_worker(worker, gd_client, tag):
     if tag in __feed_cache:
         feed = __feed_cache[tag]
     else:
-        feed = get_photo_feed(gd_client, user, album, tag)
+        try:
+            feed = get_photo_feed(gd_client, user, album, tag)
+        except:
+            worker.canceled = True
+            return
         __feed_cache[tag] = feed
 
     path = os.path.join(default_path)
@@ -445,6 +458,8 @@ class PicasaInfoPage(view.InfoBoxPage):
         animation = gtk.gdk.PixbufAnimation(loading_image)
         self._progress_image = gtk.Image()
         self._progress_image.set_from_animation(animation)
+        self._error_box = None
+        self._message_box = None
 
 
     def set_busy(self, busy=True):
@@ -458,22 +473,57 @@ class PicasaInfoPage(view.InfoBoxPage):
             self.vbox.reorder_child(self._progress_image, 0)
 
 
+    def show_error_box(self, show=True, species=None):
+        """
+        If species is not None then update the infobox with species.
+        """
+        if not self._error_box:
+            self._error_box = gtk.VBox()
+            self._message_box = utils.MessageBox.add_to(self._error_box)
+
+            button = gtk.Button(_('Settings'))
+            def on_clicked(*args):
+                self.show_error_box(False)
+                d = PicasaSettingsDialog()
+                d.run()
+                self.update(species)
+            button.connect('clicked', on_clicked)
+            self._error_box.pack_start(button, expand=False, fill=False)
+
+
+        if show:
+            self.vbox.pack_start(self._error_box, expand=False, fill=False)
+            self.vbox.reorder_child(self._error_box, 0)
+            msg = _('Could not login to PicasaWeb account.')
+            self._message_box.label.set_text(msg)
+            colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
+                      ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
+            self._message_box.show(colors=colors)
+        else:
+            self.vbox.remove(self._error_box)
+
+
+
     def update(self, row):
         """
         :param: a Species instance
         """
         # TODO: change the interface so the authentication data can be updated
         # if we can't connection
-        token = meta.get_default(PICASA_TOKEN_KEY).value
-        if not token:
-            email = meta.get_default(PICASA_EMAIL_KEY).value
-            utils.message_dialog(_('Could not login to Google account as '\
-                                   'user %s' % email), gtk.MESSAGE_ERROR)
+        token_meta = meta.get_default(PICASA_TOKEN_KEY)
+        if not token_meta:
+            #email = meta.get_default(PICASA_EMAIL_KEY).value
+            #utils.message_dialog(_('Could not login to Google account as '\
+            #                       'user %s' % email), gtk.MESSAGE_ERROR)
+            self.show_error_box(species=row)
             return
+        token = token_meta.value
 	self.gd_client.SetClientLoginToken(token)
 	tag = Species.str(row, markup=False, authors=False)
         self.set_busy()
         worker = populate_iconview(self.gd_client, self.iconview, tag)
+        # TODO: if we reach done and there are not photos then we
+        # should show a label that says no photos
         def on_done(*args):
             self.set_busy(False)
         worker.connect('done', on_done, False)
