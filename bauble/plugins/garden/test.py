@@ -9,7 +9,7 @@ from bauble.plugins.garden.accession import Accession, dms_to_decimal, \
      decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant
+from bauble.plugins.garden.plant import Plant, PlantEditor
 from bauble.plugins.garden.location import Location
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
@@ -138,6 +138,7 @@ class DonorTests(GardenTestCase):
 
 
 class PlantTests(GardenTestCase):
+
     def __init__(self, *args):
         super(PlantTests, self).__init__(*args)
 
@@ -164,6 +165,18 @@ class PlantTests(GardenTestCase):
         Test that when a plant is deleted...
         """
         pass
+
+    def itest_plant_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        acc = self.create(Accession, species=self.species, code=u'1')
+        location = Location(site=u'site')
+        plant = Plant(accession=acc, location=location, code=u'1')
+        self.session.commit()
+        editor = PlantEditor(model=plant)
+        editor.start()
+
 
 
 class AccessionTests(GardenTestCase):
