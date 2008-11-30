@@ -761,9 +761,9 @@ class SearchView(pluginmgr.View):
         # update the infobox and put it in the pane
         self.infobox = new_infobox
         if self.infobox is not None:
-            self.infobox.update(row)
             self.pane.pack2(self.infobox, resize=False, shrink=True)
             self.pane.show_all()
+            self.infobox.update(row)
 
 
     def get_selected_values(self):
