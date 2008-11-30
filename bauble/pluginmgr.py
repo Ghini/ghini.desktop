@@ -468,10 +468,13 @@ class Plugin(object):
     cmds:
       a map of commands this plugin handled with callbacks,
       e.g dict('cmd', lambda x: handler)
+    description:
+      a short description of the plugin
     """
     commands = []
     tools = []
     depends = []
+    description = ''
 
     @classmethod
     def __init__(cls):
