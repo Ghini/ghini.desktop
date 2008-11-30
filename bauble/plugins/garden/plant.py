@@ -27,18 +27,21 @@ from bauble.view import SearchStrategy
 from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
-# already exists with the accession number, this probably won't work though
-# sense the acc_id may not be set when setting the plant_id
+# already exists with the accession number, this probably won't work
+# though sense the acc_id may not be set when setting the plant_id
 
-# TODO: might be worthwhile to have a label or textview next to the location
-# combo that shows the description of the currently selected location
+# TODO: might be worthwhile to have a label or textview next to the
+# location combo that shows the description of the currently selected
+# location
 
 # TODO: Bulk Editor
 #
 # 1. Go into "Bulk" mode when commas are entered into the plant code,
 # this will change the location, accession type and status of all
 # plants with code in the list, if any notes are added they will be
-# appended to any existing notes the plant might already have
+# appended to any existing notes the plant might already have...or
+# probably better to just disable editing the notes when we enter bulk
+# mode
 #
 # 2. Should turn any widgets red if they have values that aren't
 # common to all the plants codes...if the widgets is red then we won't
@@ -514,7 +517,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Plant()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        if parent is None: # should we even allow a change in parent
+        if not parent and bauble.gui: # should we even allow a change in parent
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
