@@ -359,20 +359,26 @@ class Accession(db.Base):
         return self.code
 
     def species_str(self, markup=False, authors=False):
-        # TODO: this is broken when the id_qual is aff or cf and the
-        # species.infrasp_rank == cv.
         if not self.species:
             return None
+        if self.id_qual in ('aff.', 'cf.') and not self.id_qual_rank:
+            raise CheckConditionError('if the id_qual is aff. or cf. '
+                                      'then id_qual_rank is required')
         session = bauble.Session()
-        species = session.query(Species).filter_by(id=self.species.id).one()
+        species = session.merge(self.species)
         if self.id_qual in ('aff.', 'cf.'):
-            setattr(species, self.id_qual_rank,
-                    '%s %s' % (self.id_qual,
-                               getattr(species, self.id_qual_rank)))
+            if species.infrasp_rank == 'cv.' and self.id_qual_rank=='infrasp':
+                species.sp = '%s %s' % (species.sp, self.id_qual)
+            else:
+                setattr(species, self.id_qual_rank,
+                        '%s %s' % (self.id_qual,
+                                   getattr(species, self.id_qual_rank)))
             sp_str = Species.str(species, markup, authors)
-        else:
+        elif self.id_qual:
             sp_str = '%s(%s)' % (Species.str(species, markup, authors),
                                  self.id_qual)
+        else:
+            sp_str = Species.str(species, markup, authors)
         del species
         session.close()
         return sp_str
