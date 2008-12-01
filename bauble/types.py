@@ -1,13 +1,15 @@
 #
 # types.py
 #
-from datetime import datetime
+import datetime
+import re
 
 import sqlalchemy.types as types
 import sqlalchemy.exc as exc
 
 from bauble.i18n import *
 import bauble.error as error
+from bauble.utils.log import debug
 
 # TODO: should we allow custom date formats?
 # TODO: do date formats depend on locale
@@ -73,28 +75,64 @@ class Enum(types.TypeDecorator):
 
 
 
+class tzinfo(datetime.tzinfo):
+
+    """
+    A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
+    """
+    def __init__(self, name):
+        super(tzinfo, self).__init__()
+        self._tzname = name
+        hours, minutes = [int(v) for v in name.split(':')]
+        self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
+
+    def tzname(self):
+        return self._tzname
+
+    def utcoffset(self, dt):
+        return self._utcoffset
+
+
+
 class DateTime(types.TypeDecorator):
     """
     A DateTime type that allows strings
     """
     impl = types.DateTime
 
+    import re
+    _rx_tz = re.compile('[+-]')
+
     def process_bind_param(self, value, dialect):
-        from datetime import datetime
         # TODO: what about microseconds
-        if isinstance(value, basestring):
-            date, time = value.split(' ')
-            y, mo, d = date.split('-')
-            h, mi, s = time.split(':')
-            return datetime(*map(int, (y, mo, d, h, mi, s)))
+        if not isinstance(value, basestring):
+            return value
+
+        date, time = value.split(' ')
+        timezone = None
+        match = self._rx_tz.search(time)
+        if match:
+            timezone = tzinfo(time[match.start():])
+            time = time[0:match.start()]
+        h, mi, s = time.split(':')
+        ms = 0
+        if '.' in s:
+            s, ms = s.split('.') # microseconds
+        y, mo, d = date.split('-')
+        args = [int(v) for v in (y, mo, d, h, mi, s, ms)]
+        args.append(timezone)
+        return datetime.datetime(*args)
 
         return value
+
 
     def process_result_value(self, value, dialect):
         return value
 
+
     def copy(self):
         return DateTime()
+
 
 
 class Date(types.TypeDecorator):
@@ -104,26 +142,23 @@ class Date(types.TypeDecorator):
     impl = types.Date
 
     def process_bind_param(self, value, dialect):
-        if isinstance(value, basestring):
-            if ' ' in value:
-                date, time = value.split(' ')
-                warning('bauble.Date.process_bind_param: truncating %s to %s' \
-                        % (value, date))
-            else:
-                date = value
-            y, mo, d = date.split('-')
-            return datetime(*map(int, (y, mo, d)))
-        return value
+        if not isinstance(value, basestring):
+            return value
+
+        if ' ' in value:
+            date, time = value.split(' ')
+            warning('bauble.Date.process_bind_param(): truncating %s to %s' \
+                    % (value, date))
+        else:
+            date = value
+        y, mo, d = date.split('-')
+        return datetime.datetime(*map(int, (y, mo, d)))
+
 
     def process_result_value(self, value, dialect):
         return value
 
+
     def copy(self):
         return Date()
-
-def test_enum():
-    """
-    """
-    e = Enum(['1', '2'])
-    e.process_bind_param('1', None)
 

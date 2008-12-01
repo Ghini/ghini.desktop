@@ -40,18 +40,44 @@ class BaubleTests(BaubleTestCase):
         #debug(t.value)
 
 
-
     def test_date_type(self):
         """
         Test bauble.types.Date
         """
         pass
 
+
     def test_datetime_type(self):
         """
         Test bauble.types.DateTime
         """
-        pass
+        dt = bauble.types.DateTime()
+
+        # with negative timezone
+        s = '2008-12-1 11:50:01.001-05:00'
+        result = '2008-12-01 11:50:01.000001-05:00'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.isoformat(' ') == result)
+
+        # test with positive timezone
+        s = '2008-12-1 11:50:01.001+05:00'
+        result = '2008-12-01 11:50:01.000001+05:00'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.isoformat(' ') == result)
+
+        # test with no timezone
+        s = '2008-12-1 11:50:01.001'
+        result = '2008-12-01 11:50:01.000001'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.isoformat(' ') == result)
+
+        # test with no milliseconds
+        s = '2008-12-1 11:50:01'
+        result = '2008-12-01 11:50:01'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.isoformat(' ') == result)
+
+
 
     def test_base_table(self):
         """
