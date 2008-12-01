@@ -57,7 +57,8 @@ class CheckConditionError(BaubleError):
 
 def check(condition, msg=None):
     """
-    Assert
+    Check that condition is true.  If not then raise
+    CheckConditionError(msg)
     """
     if not condition:
         raise CheckConditionError(msg)

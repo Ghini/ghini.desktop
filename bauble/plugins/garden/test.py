@@ -3,6 +3,7 @@ import unittest
 from sqlalchemy import *
 from sqlalchemy.exc import *
 
+from bauble.error import CheckConditionError
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, dms_to_decimal, \
@@ -190,6 +191,59 @@ class AccessionTests(GardenTestCase):
 
     def tearDown(self):
         super(AccessionTests, self).tearDown()
+
+
+    def test_species_str(self):
+        """
+        Test Accesion.species_str()
+        """
+        acc = self.create(Accession, species=self.species, code=u'1')
+        s = 'gen sp'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+        acc.id_qual = '?'
+        s = 'gen sp(?)'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
+
+        acc.id_qual = 'aff.'
+        acc.id_qual_rank = 'sp'
+        s = 'gen aff. sp'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+        # here species.infrasp is None but we still allow the string
+        acc.id_qual = 'cf.'
+        acc.id_qual_rank = 'infrasp'
+        s = 'gen sp cf. None'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+        # species.infrasp is still none but these just get pasted on
+        # the end so it doesn't matter
+        acc.id_qual = 'incorrect'
+        acc.id_qual_rank = 'infrasp'
+        s = 'gen sp(incorrect)'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+        acc.id_qual = 'forsan'
+        acc.id_qual_rank = 'sp'
+        s = 'gen sp(forsan)'
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+        acc.species.infrasp_rank = 'cv.'
+        acc.species.infrasp = 'Cultivar'
+        acc.id_qual = 'cf.'
+        acc.id_qual_rank = 'infrasp'
+        s = "gen sp cf. 'Cultivar'"
+        sp_str = acc.species_str()
+        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+        acc.id_qual = 'aff.'
+        acc.id_qual_rank = None
+        self.assertRaises(CheckConditionError, acc.species_str)
 
 
     def test_delete(self):
