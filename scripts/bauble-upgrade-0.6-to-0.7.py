@@ -17,15 +17,21 @@
 # - species_meta is no more, this means that all the previous distribution data
 # won't match up, it would be good if we could find a string match and add this
 # to the new species_distribution table
-
-import sys
-import os, re, glob, shutil
-from sqlalchemy import *
-from migrate.run import *
-import bauble
-#import bauble.pluginmgr as pluginmgr
-from optparse import OptionParser
 import csv
+import os
+import shutil
+import sys
+from optparse import OptionParser
+
+from bauble.plugins.geography import *
+from migrate.run import *
+from sqlalchemy import *
+
+import bauble
+from bauble.plugins.plants import *
+
+
+#import bauble.pluginmgr as pluginmgr
 
 parser = OptionParser()
 parser.add_option('-c', '--conn', dest='conn', help='the db connection uri',
@@ -54,10 +60,6 @@ global_connect(options.conn)
 engine = default_metadata.engine
 session = create_session()
 
-from bauble.plugins.plants import *
-from bauble.plugins.plants.species_model import *
-from bauble.plugins.garden import *
-from bauble.plugins.geography import *
 
 major, minor, rev = bauble.version
 if minor != 6:
@@ -80,12 +82,12 @@ def write_csv(filename, rows):
     writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
     writer.writerows(rows)
     f.close()
-    
+
 
 def migrate_idqual():
     print 'migrating idqual'
     # select all species that have idqual set
-    #species = species.select(id_qual != None)    
+    #species = species.select(id_qual != None)
     sp_results = select([species_table.c.id, species_table.c.id_qual],
                         species_table.c.id_qual != None).execute()
 #    print sp_results
@@ -110,7 +112,7 @@ def migrate_idqual():
         v.append(None)
         rows.append(v)
     write_csv(os.path.join(dst_path, 'accession.txt'), rows)
-            
+
     # copy the species and remove the id_qaul column
     rows = []
     sp_cols = species_table.c.keys()
@@ -120,7 +122,7 @@ def migrate_idqual():
         v = [sp[c] for c in sp_cols]
         rows.append(v)
     write_csv(os.path.join(dst_path, 'species.txt'), rows)
-        
+
 def migrate_distribution():
     # TODO: this would need to connect to a 0.7 database to search
     # for matching distribution data
@@ -128,13 +130,13 @@ def migrate_distribution():
     # trying to migrate it
     pass
 
-    
+
 def migrate_accession_geography():
     pass
 #    r = session.query(Accession).select(accession_table.c.country_id!=None)
 #    assert len(r) == 0
 
-    
+
 
 
 # TODO: update bauble meta
@@ -153,11 +155,11 @@ def migrate_accession_geography():
 # 2. Copy the rest of the CSV text files from a source directory into a
 # destination that should also be imported into a new Bauble 0.7 database
 #
-# Basically this script will create a directory full of CSV files that 
+# Basically this script will create a directory full of CSV files that
 # can be imported into a Bauble 0.7 database.
 
 
-# run this script and use the files it outputs in place of the ones from 
+# run this script and use the files it outputs in place of the ones from
 
 migrate_accession_geography()
 migrate_idqual()

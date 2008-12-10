@@ -110,6 +110,10 @@ class Species(db.Base):
 
                 *cv.*: cultivar
 
+        *infrasp*:
+            The infraspecific epithet
+
+
     :Properties:
         *accessions*:
 

@@ -26,6 +26,11 @@ from bauble.utils.log import debug, warning
 # TODO: maybe we should have a create method that creates the preferences
 # todo a one time thing if the files doesn't exist
 
+# TODO: Consider using ConfigObj since it does validation, type
+# conversion and unicode automatically...the cons are that it adds
+# another dependency and we would have to change the prefs interface
+# throughout bauble
+
 default_filename = 'config'
 default_prefs_file = os.path.join(paths.user_dir(), default_filename)
 

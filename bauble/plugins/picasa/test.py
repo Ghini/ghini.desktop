@@ -84,7 +84,7 @@ class PicasaTests(BaubleTestCase):
         from bauble.plugins.plants import Family, Genus, Species
         email = ''
         passwd = ''
-        album=''
+        album='Plants'
         if email:
             token = picasa.get_auth_token(email, passwd)
             picasa.update_meta(email=email, album=album, token=token)
