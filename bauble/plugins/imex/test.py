@@ -23,6 +23,10 @@ from bauble.utils.log import debug
 # TODO: test that exporting and then importing gives the same data
 # TODO: test XMLExporter
 
+# TODO: needs tests for UnicodeWriter and UnicodeReader, i'm pretty
+# sure they are buggy, see the python csv module for examples of how
+# they do a non-dict unicode reader/writer
+
 csv_test_data = ({})
 
 

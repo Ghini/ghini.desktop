@@ -80,7 +80,7 @@ info = info_logger.info
 
 # debug logger, prints file and line name with the message
 debug_logger = _config_logger('bauble.debug', logging.DEBUG,
-			     '%(filename)s(%(lineno)d): %(message)s')
+                              '%(filename)s(%(lineno)d): %(message)s')
 debug = debug_logger.debug
 
 # warning logger
