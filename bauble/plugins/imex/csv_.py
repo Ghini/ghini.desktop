@@ -310,13 +310,14 @@ class CSVImporter(Importer):
                 update_every = 127
                 values = []
                 insert = table.insert().compile()
-                # create a dictionary of the which columns have
-                # default values so we don't have to call isinstance
-                # every iteration
+                # precompute the defaults...this assumes that the
+                # default function doesn't depend on state after each
+                # row...it shouldn't anyways since we do an insert
+                # many instead of each row at a time
                 defaults = {}
                 for column in table.c:
                     if isinstance(column.default, ColumnDefault):
-                        defaults[column.name] = column.default
+                        defaults[column.name] = column.default.execute()
                 column_names = table.c.keys()
                 for line in reader:
                     while self.__pause:
@@ -329,7 +330,7 @@ class CSVImporter(Importer):
                             if column in defaults \
                                     and (column not in line \
                                              or isempty(line[column])):
-                                line[column] = defaults[column].execute()
+                                line[column] = defaults[column]
                             elif column in line and isempty(line[column]):
                                 line[column] = None
 
