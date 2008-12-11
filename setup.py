@@ -199,6 +199,7 @@ class install(_install):
 
 
 # docs command
+DOC_BUILD_PATH = 'doc/.build/'
 class docs(cmd.Command):
     user_options = [('all', None, 'build all')]
     def initialize_options(self):
@@ -212,14 +213,40 @@ class docs(cmd.Command):
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
-        cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', 'doc/.build/']
+        cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
             cmd.insert(1, '-a')
         spawn.spawn(cmd)
 
+# clear command
+class clean(cmd.Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        patterns = ['MANIFEST', '*~', '*flymake*']
+        cwd = os.getcwd()
+        import fnmatch
+        for path, subdirs, files in os.walk(cwd):
+            for pattern in patterns:
+                matches = fnmatch.filter(files, pattern)
+                if matches:
+                    def delete(p):
+                        print 'removing %s' % p
+                        os.remove(p)
+                    map(delete ,[os.path.join(path, m) for m in matches])
+        if os.path.exists('dist'):
+            dir_util.remove_tree('dist')
+        if os.path.exists('build'):
+            dir_util.remove_tree('build')
+        if os.path.exists(DOC_BUILD_PATH):
+            dir_util.remove_tree(DOC_BUILD_PATH)
 
-# require pysqlite if not using python2.5
+
+# require pysqlite if not using python2.5 or greater
 needs_sqlite = []
 try:
     import sqlite3
@@ -230,7 +257,7 @@ except ImportError:
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs},
+                           'docs': docs, 'clean': clean},
                  version=version,
                  scripts=["scripts/bauble"], # for setuptools?
                  packages = all_packages,
