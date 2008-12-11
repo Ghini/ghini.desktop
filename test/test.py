@@ -2,6 +2,9 @@
 
 import os, sys
 
+import nose
+raise nose.SkipTest
+
 if 'PYTHONPATH' not in os.environ or os.environ['PYTHONPATH'] is '':
     msg = 'This test suite should be run from the top of the source tree '\
           'with the command:\n  PYTHONPATH=. python test/test.py'
@@ -29,7 +32,6 @@ parser.add_option('-v', "--verbosity", dest='verbosity', metavar="VERBOSITY",
 
 
 if __name__ == '__main__':
-    import nose
 #     try:
 #         options, args = parser.parse_args()
 #         testbase.uri = options.connection
