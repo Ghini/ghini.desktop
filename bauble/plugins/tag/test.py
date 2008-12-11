@@ -1,29 +1,13 @@
-import unittest
-
 from sqlalchemy import *
 from sqlalchemy.exc import *
 
-from bauble.test import BaubleTestCase
-import bauble.utils as utils
 import bauble.plugins.tag as tag_plugin
+from bauble.plugins.plants import Family
 from bauble.plugins.tag import Tag
-from bauble.plugins.plants import Family, Genus, Species, VernacularName
-from bauble.plugins.garden import Accession, Plant, Location
+from bauble.test import BaubleTestCase
 
 
-class TagTestCase(BaubleTestCase):
-
-    def __init__(self, *args):
-        super(TagTestCase, self).__init__(*args)
-
-    def setUp(self):
-        super(TagTestCase, self).setUp()
-
-    def tearDown(self):
-        super(TagTestCase, self).tearDown()
-
-
-class TagTests(TagTestCase):
+class TagTests(BaubleTestCase):
 
 
     family_ids = [1, 2]
@@ -46,6 +30,14 @@ class TagTests(TagTestCase):
 
 ##     def test_get_tagged_objects(self):
 ##         pass
+
+    def test_str(self):
+        """
+        Test Tag.__str__ method
+        """
+        name = u'test'
+        tag = Tag(tag=name)
+        self.assert_(str(tag) == name)
 
 
     def test_tag_objects(self):

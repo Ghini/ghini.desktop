@@ -211,8 +211,9 @@ class Tag(db.Base):
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
                         backref='tag')
 
-    def __unicode__(self):
-        return utils.utf8(self.tag)
+
+    def __str__(self):
+        return str(self.tag)
 
     def markup(self):
         return '%s Tag' % self.tag
