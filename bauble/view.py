@@ -1006,7 +1006,7 @@ class SearchView(pluginmgr.View):
                         main = r
                         substr = '(%s)' % type(value).__name__
                 else:
-                    main = str(value)
+                    main = utils.xml_safe(str(value))
                     substr = '(%s)' % type(value).__name__
                 cell.set_property('markup', '%s\n%s' % \
                                   (_mainstr_tmpl % utils.utf8(main),
