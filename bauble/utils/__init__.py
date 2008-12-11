@@ -20,7 +20,6 @@ from bauble.i18n import *
 from bauble.utils.log import debug, warning
 
 
-
 def find_dependent_tables(table, metadata=None):
     '''
     Return an iterator with all tables the depend on table
