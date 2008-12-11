@@ -125,12 +125,24 @@ class Importer(object):
 
 class CSVImporter(Importer):
 
+    """
+    The CSVImporter imports comma seperated value files into a Bauble
+    database.
+
+    The CSVImporter imports the rows of the CSV file in
+    chunks rather than one row at a time.  The non-server side column
+    defaults are determined before the INSERT statement is generated
+    instead of getting new defaults for each row.  This shouldn't be a
+    problem but it also means that your column default should change
+    depending on the value of previously inserted rows.
+    """
     def __init__(self):
         super(CSVImporter, self).__init__()
         self.__error = False  # flag to indicate error on import
         self.__cancel = False # flag to cancel importing
         self.__pause = False  # flag to pause importing
         self.__error_exc = False
+
 
     def on_error(self, exc):
         utils.message_details_dialog(str(exc), traceback.format_exc())
@@ -256,7 +268,6 @@ class CSVImporter(Importer):
                     debug('%s does not exist. creating.' % table.name)
                     table.create(bind=engine)
                     add_to_created(table.name)
-                    #elif table.count().scalar(connectable=connection) > 0 and not force:
                 elif table.name not in created_tables:# or \
                     if not force:
                         msg = _('The <b>%s</b> table already exists in the '\
