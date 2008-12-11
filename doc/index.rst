@@ -14,6 +14,7 @@
    installing
    started
    searching
+   editing
    tagging
    report
    imex
