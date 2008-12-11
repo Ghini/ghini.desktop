@@ -153,7 +153,8 @@ class build(_build):
     def run(self):
         if not spawn.find_executable('msgfmt'):
             msg = '** Error: Building Bauble requires the gettext utilities ' \
-                  'be installed.'
+                  'be installed.  If they are installed please ensure that ' \
+                  'the msgfmt command is in your PATH'
             print msg
             sys.exit(1)
 
@@ -266,7 +267,9 @@ setuptools.setup(name="bauble",
                  data_files = py2exe_data_files,
                  install_requires=["SQLAlchemy>=0.5rc2",
                                    "simplejson>=2.0.1",
-                                   "lxml>=2.0"] + needs_sqlite,
+                                   "lxml>=2.0",
+                                   "mako",
+                                   "gdata"] + needs_sqlite,
                  #TODO:running "setup.py test" hasn't been tested
                  test_suite="test.test",
                  author="Brett",
