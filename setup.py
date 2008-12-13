@@ -49,17 +49,23 @@ all_package_dirs = {'': '.'}
 for p in all_packages:
     all_package_dirs[p] = p.replace('.', '/')
 
+data_files = []
+
 # setup py2exe and nsis installer
 if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     import py2exe
     from distutils.command.py2exe import py2exe as _py2exe_cmd
     # setuptools.find packages doesn't dig deep enough so we search
     # for a list of all packages in the sqlalchemy namespace
+
+    # TODO: although this works its kind of crappy, find_packages
+    # should really be enough and maybe the problem lies elsewhere
+
     sqlalchemy_includes = []
     from imp import find_module
-    file, path, descr = find_module('sqlalchemy')
-    for dir, subdir, files in os.walk(path):
-        submod = dir[len(path)+1:]
+    f, path, descr = find_module('sqlalchemy')
+    for parent, subdir, files in os.walk(path):
+        submod = parent[len(path)+1:]
         sqlalchemy_includes.append('sqlalchemy.%s' % submod)
         if submod in ('mods', 'ext', 'databases'):
             sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
@@ -89,7 +95,6 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 
     # py2exe doesn't seem to respect packages_data so build data_files from
     # package_data
-    py2exe_data_files = []
     for package, patterns in package_data.iteritems():
         pkg_dir = all_package_dirs[package]
         for p in patterns:
@@ -100,9 +105,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                     install_dir = '%s/%s' % (pkg_dir, p[:index])
                 else:
                     install_dir = pkg_dir
-                py2exe_data_files.append((install_dir,
-                                          [m.replace(os.sep, '/') \
-                                               for m in matches]))
+                data_files.append((install_dir,
+                                   [m.replace(os.sep, '/') for m in matches]))
 
     class py2exe_cmd(_py2exe_cmd):
         def run(self):
@@ -131,7 +135,6 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 else:
     py2exe_options = {}
     py2exe_setup_args = {}
-    py2exe_data_files = None
     py2exe_includes = []
     class _empty_cmd(distutils.core.Command):
         user_options = []
@@ -146,6 +149,7 @@ else:
         pass
     class nsis_cmd(_empty_cmd):
         pass
+
 
 
 # build command
@@ -175,6 +179,15 @@ class build(_build):
 
 # install command
 class install(_install):
+
+    _install.user_options.append(('skip-xdg', None,
+                                  'disable running the xdg-utils commands'))
+    _install.boolean_options.append('skip-xdg')
+
+    def initialize_options(self):
+        _install.initialize_options(self)
+        self.skip_xdg = False
+
     def run(self):
         if sys.platform not in ('linux2', 'win32'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
@@ -182,27 +195,36 @@ class install(_install):
             sys.exit(1)
 
         _install.run(self)
-        if sys.platform == 'linux2':
-            # install standard desktop files
-            spawn.spawn(['xdg-desktop-menu', 'install', '--novendor',
-                        'bauble.desktop'])
-            icon_sizes = [16, 22, 32, 48, 64]#, 128]
-            for size in icon_sizes:
-                img = 'bauble/images/bauble-%s.png' % size
-                spawn.spawn(['xdg-icon-resource', 'install', '--novendor',
-                            '--size', str(size),  img,  'bauble'])
-        elif sys.platform == 'win32':
-            pass
         # install locale files
         locales = os.path.dirname(locale_path)
         src = os.path.join(self.build_base, locales)
         dir_util.copy_tree(src, os.path.join(self.prefix, locales))
 
+        if self.skip_xdg:
+            return
+
+        if sys.platform == 'linux2':
+            # install standard desktop files
+#             xdg_install_dir = os.path.join(self.build_base, 'share')
+#             os.environ['XDG_DATA_DIRS'] = xdg_install_dir
+#             os.environ['XDG_DATA_HOME'] = xdg_install_dir
+#             os.environ['XDG_UTILS_DEBUG_LEVEL'] = '1'
+            spawn.spawn(['xdg-desktop-menu', 'install', '--novendor',
+                        'data/bauble.desktop'])
+            icon_sizes = [16, 22, 32, 48, 64]#, 128]
+            for size in icon_sizes:
+                img = 'data/bauble-%s.png' % size
+                spawn.spawn(['xdg-icon-resource', 'install', '--novendor',
+                            '--size', str(size),  img,  'bauble'])
+        elif sys.platform == 'win32':
+            pass
+
+
 
 # docs command
 DOC_BUILD_PATH = 'doc/.build/'
 class docs(cmd.Command):
-    user_options = [('all', None, 'build all')]
+    user_options = [('all', None, 'rebuild all the docs')]
     def initialize_options(self):
         self.all = False
     def finalize_options(self):
@@ -260,11 +282,11 @@ setuptools.setup(name="bauble",
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean},
                  version=version,
-                 scripts=["scripts/bauble"], # for setuptools?
+                 scripts=["scripts/bauble", "scripts/bauble-admin"],
                  packages = all_packages,
                  package_dir = all_package_dirs,
                  package_data = package_data,
-                 data_files = py2exe_data_files,
+                 data_files = data_files,
                  install_requires=["SQLAlchemy>=0.5rc2",
                                    "simplejson>=2.0.1",
                                    "lxml>=2.0",
