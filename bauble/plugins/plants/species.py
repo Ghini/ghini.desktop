@@ -174,9 +174,9 @@ class SynonymsExpander(InfoExpander):
             def on_label_clicked(label, event, syn):
                 select_in_search_results(syn)
             syn_box = self.widgets.sp_synonyms_box
+            # remove all the children
+            syn_box.foreach(syn_box.remove)
             for syn in row.synonyms:
-                # remove all the children
-                syn_box.foreach(syn_box.remove)
                 # create clickable label that will select the synonym
                 # in the search results
                 box = gtk.EventBox()
