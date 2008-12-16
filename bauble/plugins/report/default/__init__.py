@@ -239,6 +239,17 @@ class DefaultFormatterPlugin(FormatterPlugin):
 
     title = _('Default')
 
+    @classmethod
+    def install(cls, import_defaults=True):
+	# copy default template files to user_dir
+	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
+		     'plant_list_ex.xsl', 'small_labels.xsl']
+	for template in templates:
+	    f = os.path.join(paths.user_dir(), template)
+	    if not os.path.exists(f):
+		shutil.copy(f)
+
+
     @staticmethod
     def get_settings_box():
         return DefaultFormatterSettingsBox()
