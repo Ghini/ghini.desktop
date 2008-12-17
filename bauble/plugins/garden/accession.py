@@ -1169,7 +1169,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.__dirty = False
+        self.__dirty = self.model in self.session.new
+        self.refresh_sensitivity()
 
 
     def refresh_id_qual_rank_combo(self):
@@ -1328,16 +1329,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         Refresh the sensitivity of the accept buttons
         """
         sensitive = self.dirty()
+        # if not source_type is None and self._original_source is None
         if len(self.problems) != 0:
             sensitive = False
-        elif self.source_presenter is not None and \
-                len(self.source_presenter.problems) != 0:
+        elif self.model.source_type and self.source_presenter \
+                and len(self.source_presenter.problems) != 0:
             sensitive = False
         elif not self.model.code or not self.model.species:
             sensitive = False
-        #elif field == 'source_type':
-        #    sensitive = False
-        #debug(sensitive)
         self.set_accept_buttons_sensitive(sensitive)
 
 
@@ -1350,7 +1349,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source_type_changed = False
         if source_type is None:
             if self.model.source is not None:
-                set_model_attr('source', None)
+                self.set_model_attr('source', None)
                 if self.current_source_box is not None:
                     self.view.widgets.remove_parent(self.current_source_box)
                     self.current_source_box = None
@@ -1367,27 +1366,27 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                             'Collection': Collection}
 
         # the source_type has changed from what it originally was
+        new_source = None
         if source_type != self.model.source_type:
 #            debug('source_type != model.source_type')
             source_type_changed = True
-            new_source = None
             try:
                 new_source = source_class_map[source_type]()
             except KeyError, e:
                 debug('unknown source type: %s' % e)
                 raise
+            # TODO: its a little strange that we create new_source but
+            # we don't use it except to test the type if it has the
+            # same type as the _original_source
             if isinstance(new_source, type(self._original_source)):
-                self.set_model_attr('source', self._original_source)
-            else:
-                self.set_model_attr('source', new_source)
+                new_source = self._original_source
         elif source_type is not None and self.model.source is None:
             # the source type is set but there is no corresponding model.source
             try:
-                self.set_model_attr('source', source_class_map[source_type]())
+                new_source = source_class_map[source_type]()
             except KeyError, e:
                 debug('unknown source type: %s' % e)
                 raise
-
 
         # replace source box contents with our new box
         #source_box = self.view.widgets.source_box
@@ -1401,14 +1400,11 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         else:
             self.current_source_box = None
 
-        if self.model.source is not None:
-            self.source_presenter = \
-                           SourcePresenterFactory(self, self.model.source,
-                                                  self.view, self.session)
+        if new_source is not None:
+            self.source_presenter = SourcePresenterFactory(self, new_source,
+                                                       self.view, self.session)
+            self.set_model_attr('source', new_source)
 
-        #if source_type_changed:
-        #    self.on_field_changed(self.model, 'source_type')
-        #    self.set_model_attr('source_type'
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -1489,7 +1485,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        if parent is None: # should we even allow a change in parent
+        if not parent and bauble.gui: # should we even allow a change in parent
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
@@ -1520,8 +1516,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                                              gtk.MESSAGE_ERROR)
                 self.session.rollback()
                 return False
-        elif self.presenter.dirty() \
-                 and utils.yes_no_dialog(not_ok_msg) \
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
             self.session.rollback()
             return True
