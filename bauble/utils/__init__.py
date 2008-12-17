@@ -122,6 +122,8 @@ def search_tree_model(parent, data, cmp=lambda row, data: row[0] == data):
       data, default is C{lambda row, data: row[0] == data}
     """
     if isinstance(parent, gtk.TreeModel):
+        if not parent.get_iter_root(): # model empty
+            return []
         return search_tree_model(parent[parent.get_iter_root()], data, cmp)
     results = set()
     def func(model, path, iter, dummy=None):

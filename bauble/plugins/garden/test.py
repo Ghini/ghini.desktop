@@ -6,8 +6,8 @@ from sqlalchemy.exc import *
 from bauble.error import CheckConditionError
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
-from bauble.plugins.garden.accession import Accession, dms_to_decimal, \
-     decimal_to_dms, longitude_to_dms, latitude_to_dms
+from bauble.plugins.garden.accession import Accession, AccessionEditor, \
+    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.source import Donation, Collection
 from bauble.plugins.garden.plant import Plant, PlantEditor
@@ -431,6 +431,16 @@ class AccessionTests(GardenTestCase):
                 # still no donor_id on donation
                 pass
 
+
+    def itest_accession_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        donor = self.create(Donor, name=u'test')
+        self.session.commit()
+        acc = self.create(Accession, species=self.species, code=u'1')
+        editor = AccessionEditor(model=acc)
+        editor.start()
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
 

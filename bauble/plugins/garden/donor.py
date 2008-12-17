@@ -138,8 +138,9 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 
         self.refresh_view()
+        validator = UnicodeOrNoneValidator()
         for widget, field in self.widget_to_field_map.iteritems():
-            self.assign_simple_handler(widget, field)
+            self.assign_simple_handler(widget, field, validator)
         self.__dirty = False
 
 
