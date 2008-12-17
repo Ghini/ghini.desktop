@@ -182,7 +182,6 @@ class install(_install):
 
     _install.user_options.append(('skip-xdg', None,
                                   'disable running the xdg-utils commands'))
-    _install.boolean_options.append('skip-xdg')
 
     def initialize_options(self):
         _install.initialize_options(self)
