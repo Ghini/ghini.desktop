@@ -553,10 +553,9 @@ class ResultSet(object):
     are unique between all the results.
     '''
     def __init__(self, results=None):
-        if results is not None:
-            self._results = set(results)
-        else:
-            self._results = set()
+	self._results = set()
+	if results:
+	    self.add(results)
 
 
     def add(self, results):
