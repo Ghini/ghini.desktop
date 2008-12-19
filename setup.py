@@ -27,6 +27,11 @@ version = version_str
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.10
 
+# TODO: fix permissions on files when creating an sdist with:
+# find . -regex '.*?\.\(glade\|xsl\|txt\|svg\|ui\)'  -exec chmod 644 {} \;
+
+# TODO: run the clean before creating an sdist
+
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
 
@@ -249,7 +254,7 @@ class clean(cmd.Command):
     def finalize_options(self):
         pass
     def run(self):
-        patterns = ['MANIFEST', '*~', '*flymake*']
+        patterns = ['MANIFEST', '*~', '*flymake*', '*.pyc']
         cwd = os.getcwd()
         import fnmatch
         for path, subdirs, files in os.walk(cwd):

@@ -263,6 +263,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
 #     except DependencyError, e:
 #         error(utils.utf8(e))
 
+
     try:
         for p in to_install:
             #debug('install: %s' % p.__name__)
@@ -270,7 +271,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
             registry.add(RegistryEntry(name=p.__name__, version=u'0.0'))
         session.commit()
     except Exception, e:
-        debug(p)
+        msg = _('Error installing plugins: %s' % p)
         debug(e)
         msg = _('Error installing plugins.')
         utils.message_details_dialog(msg, utils.utf8(traceback.format_exc()),

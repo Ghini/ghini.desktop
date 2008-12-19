@@ -3,6 +3,7 @@
 #
 # Description: test for bauble.utils
 
+import sys
 import unittest
 
 from sqlalchemy import *
@@ -41,13 +42,6 @@ class UtilsGTKTests(unittest.TestCase):
 
 
 class UtilsTests(unittest.TestCase):
-
-#     def setUp(self):
-#         super(UtilsTests, self).setUp()
-#         pass
-
-##     def tearDown(self):
-##         pass
 
     def test_xml_safe(self):
         # TODO: need to test passing object here
@@ -100,8 +94,59 @@ class UtilsTests(unittest.TestCase):
 
 
 
-class ResetSequenceTests(BaubleTestCase):
+class UtilsDBTests(BaubleTestCase):
 
+    def test_find_dependent_tables(self):
+        """
+        Test bauble.utils.find_dependent_tables
+        """
+        metadata = MetaData()
+        metadata.bind = db.engine
+
+        # table1 does't depend on any tables
+        table1 = Table('table1', metadata,
+                       Column('id', Integer, primary_key=True))
+
+        # table2 depends on table1
+        table2 = Table('table2', metadata,
+                       Column('id', Integer, primary_key=True),
+                       Column('table1', Integer, ForeignKey('table1.id')))
+
+        # table3 depends on table2
+        table3 = Table('table3', metadata,
+                       Column('id', Integer, primary_key=True),
+                       Column('table2', Integer, ForeignKey('table2.id')),
+                       Column('table4', Integer, ForeignKey('table4.id'))
+                       )
+
+        # table4 depends on table2
+        table4 = Table('table4', metadata,
+                       Column('id', Integer, primary_key=True),
+                       Column('table2', Integer, ForeignKey('table2.id')))
+
+        # tables that depend on table 1 are 3, 4, 2
+        depends = list(utils.find_dependent_tables(table1, metadata))
+        print 'table1: %s' % [table.name for table in depends]
+        self.assert_(list(depends) == [table2, table4, table3])
+
+        # tables that depend on table 2 are 3, 4
+        depends = list(utils.find_dependent_tables(table2, metadata))
+        print 'table2: %s' % [table.name for table in depends]
+        self.assert_(depends == [table4, table3])
+
+        # no tables depend on table 3
+        depends = list(utils.find_dependent_tables(table3, metadata))
+        print 'table3: %s' % [table.name for table in depends]
+        self.assert_(depends == [])
+
+        # table that depend on table 4 are 3
+        depends = list(utils.find_dependent_tables(table4, metadata))
+        print 'table4: %s' % [table.name for table in depends]
+        self.assert_(depends == [table3])
+
+
+
+class ResetSequenceTests(BaubleTestCase):
 
     def setUp(self):
         super(ResetSequenceTests, self).setUp()

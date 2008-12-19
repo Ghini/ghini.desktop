@@ -22,7 +22,10 @@ from bauble.utils.log import debug, warning
 
 def find_dependent_tables(table, metadata=None):
     '''
-    Return an iterator with all tables the depend on table
+    Return an iterator with all tables that depend on table.  The
+    tables are returned in the order that they depend on each
+    other. For example you know that table[0] does not depend on
+    tables[1].
 
     :param table: The tables who dependencies we want to find
 
@@ -30,12 +33,15 @@ def find_dependent_tables(table, metadata=None):
       that holds the tables to search through.  If None then use
       bauble.db.metadata
     '''
-    # TODO: this function needs a test
+    # NOTE: we can't use bauble.metadata.sorted_tables here because it
+    # returns all the tables in the metadata even if they aren't
+    # dependent on table at all
     from sqlalchemy.sql.util import sort_tables
     if metadata is None:
         import bauble.db as db
         metadata = db.metadata
     result = []
+    # this ain't pretty but it works
     def _impl(t2):
         for tbl in metadata.tables.values():
             for col in tbl.c:
@@ -70,8 +76,10 @@ class GladeWidgets(dict):
         '''
         @param name:
         '''
-        # TODO: raise a key error if there is no widget
-        return self.glade_xml.get_widget(name)
+        w = self.glade_xml.get_widget(name)
+        if not w:
+            raise KeyError(_('%s not in glade file'))
+        return w
 
 
     def __getattr__(self, name):

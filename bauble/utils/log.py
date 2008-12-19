@@ -1,7 +1,10 @@
 #
 # logger/debugger for Bauble
 #
-import os, sys, logging
+import os
+import sys
+import logging
+
 import bauble.utils
 from bauble.i18n import *
 
@@ -15,7 +18,6 @@ def _main_is_frozen():
 def _default_handler():
     import bauble.paths as paths
     if _main_is_frozen():
-        # TODO: should make sure we can open this file and it's writeable
         filename = os.path.join(paths.user_dir(), 'bauble.log')
         handler = logging.FileHandler(filename, 'w+')
         sys.stdout = open(filename, 'w+')
@@ -33,15 +35,13 @@ def _config_logger(name, level, format, propagate=False):
         handler = _default_handler()
     except IOError, e:
         import traceback
-
-        # TODO: popup a dialog telling the user that the default logger
-        # couldn't be started??
         global __yesyesiknow
         if not __yesyesiknow and not _main_is_frozen():
             msg = _('** Could not open the default log file.\n'\
-                    'Press any key to continue.\n\n%s') % \
+                    'Press OK key to continue.\n\n%s') % \
                     bauble.utils.xml_safe_utf8(e)
-            utils.message_details_dialog(msg, traceback.format_exc())
+            utils.message_details_dialog(msg, traceback.format_exc(),
+                                         gtk.MESSAGE_WARNING)
             __yesyesiknow = True
         handler = logging.StreamHandler()
     handler.setLevel(level)
@@ -115,21 +115,3 @@ class log:
 
 warning = log.warning
 error = log.error
-
-# TODO: main won't work if it can't find bauble, the only reason we have
-# to import bauble is for main_is_frozen in _default_handler() if we could
-# work around this then we could run this file directly to test it, we could
-# either include our own main_is_frozen() here or do a try..except block
-# around _default_handler(), both are pretty ugly
-# TODO: turn this into a test of the logger, in the test we should delete
-# the log file and make sure that we if we write to a log when there is no log
-# file then it doesn't crash
-if __name__ == "__main__":
-    log.debug('log.debug message')
-    debug('debug message')
-    log.info('log.info message')
-    info('info message')
-    log.warning('log.warning message')
-    warning('warning message')
-    log.error('log.error message')
-    error('error message')
