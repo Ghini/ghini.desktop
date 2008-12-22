@@ -150,7 +150,8 @@ class PropertiesExpander(InfoExpander):
 
 class InfoBoxPage(gtk.ScrolledWindow):
     """
-    a VBox with a bunch of InfoExpanders
+    A :class:`gtk.ScrolledWindow` that contains
+    :class:`bauble.view.InfoExpander` objects.
     """
 
     def __init__(self):
@@ -180,7 +181,7 @@ class InfoBoxPage(gtk.ScrolledWindow):
 
     def get_expander(self, label):
         """
-        returns an expander by the expander's label name
+        Returns an expander by the expander's label name
 
         :param label: the name of the expander to return
         """
@@ -191,10 +192,11 @@ class InfoBoxPage(gtk.ScrolledWindow):
 
     def remove_expander(self, label):
         """
-        remove expander from the infobox by the expander's label bel
+        Remove expander from the infobox by the expander's label bel
 
         :param label: the name of th expander to remove
-        @return: return the expander that was removed from the infobox
+
+        Return the expander that was removed from the infobox.
         """
         if label in self.expanders:
             return self.vbox.remove(self.expanders[label])
@@ -202,10 +204,10 @@ class InfoBoxPage(gtk.ScrolledWindow):
 
     def update(self, row):
         """
-        updates the infobox with values from row
+        Updates the infobox with values from row
 
         :param row: the mapper instance to use to update this infobox,
-        this is passed to each of the infoexpanders in turn
+          this is passed to each of the infoexpanders in turn
         """
         for expander in self.expanders.values():
             expanders.update(row)
@@ -233,16 +235,28 @@ class InfoBox(gtk.Notebook):
 
 
     def on_switch_page(self, dummy_page, page_num, *args):
+        """
+        Called when a page is switched
+        """
         page = self.get_nth_page(page_num)
         page.update(self.row)
 
 
     def add_expander(self, expander, page_num=0):
+        """
+        Add an expander to a page.
+
+        :param expander: The expander to add.
+        :param page_num: The page number in the InfoBox to add the expander.
+        """
         page = self.get_nth_page(page_num)
         page.add_expander(expander)
 
 
     def update(self, row):
+        """
+        Update the current page with row.
+        """
         self.row = row
         page_num = self.get_current_page()
         self.get_nth_page(page_num).update(row)
@@ -618,9 +632,18 @@ class ResultSet(object):
 
 
 class SearchView(pluginmgr.View):
+    """
+    The SearchView is the main view for Bauble.  It manages the search
+    results returned when search strings are entered into the main
+    text entry.
+    """
 
     class ViewMeta(dict):
-
+        """
+        This class shouldn't need to be instantiated directly.  Access
+        the meta for the SearchView with the
+        :class:`bauble.view.SearchView`'s view_meta property.
+        """
         class Meta(object):
             def __init__(self):
                 self.children = None

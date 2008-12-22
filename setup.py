@@ -127,6 +127,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
     class nsis_cmd(distutils.core.Command):
+        # 1.
         user_options = []
         def initialize_options(self):
             pass
@@ -240,6 +241,8 @@ class docs(cmd.Command):
             print 'Building the docs requires the '\
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
+        if not os.path.exists(DOC_BUILD_PATH):
+            os.makedirs(DOC_BUILD_PATH)
         cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs

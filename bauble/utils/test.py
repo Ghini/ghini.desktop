@@ -16,7 +16,18 @@ from bauble.test import BaubleTestCase
 
 class UtilsGTKTests(unittest.TestCase):
 
+    def itest_create_message_details_dialog(self):
+        """
+        Interactive test for bauble.utils.create_message_details_dialog()
+        """
+        d = utils.create_message_details_dialog('msg', 'details')
+        d.run()
+
+
     def test_search_tree_model(self):
+        """
+        Test bauble.utils.search_tree_model
+        """
         import gtk
         model = gtk.TreeStore(str)
 
@@ -44,13 +55,27 @@ class UtilsGTKTests(unittest.TestCase):
 class UtilsTests(unittest.TestCase):
 
     def test_xml_safe(self):
-        # TODO: need to test passing object here
+        """
+        Test bauble.utils.xml_safe
+        """
+        class test(object):
+            def __str__(self):
+                return repr(self)
+            def __unicode__(self):
+                return repr(self)
+
+        import re
+        assert re.match('&lt;.*?&gt;', utils.xml_safe(str(test())))
+        assert re.match('&lt;.*?&gt;', utils.xml_safe(unicode(test())))
         assert utils.xml_safe('test string') == 'test string'
         assert utils.xml_safe(u'test string') == u'test string'
         assert utils.xml_safe(u'test< string') == u'test&lt; string'
         assert utils.xml_safe('test< string') == 'test&lt; string'
 
     def test_datetime_to_str(self):
+        """
+        Test bauble.utils.date_to_str
+        """
         from datetime import datetime
         dt = datetime(2008, 12, 1)
         s = utils.date_to_str(dt, 'yyyy.m.d')
