@@ -16,10 +16,7 @@ from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
 
-# TODO: create some invalid search strings that should definitely break the
-# parser
-
-# TODO: allow AND and OR in possbile values, especially so we can do...
+# TODO: allow AND and OR in possible values, especially so we can do...
 # species where genus.family=='Orchidaceae' and accessions.acc_status!='Dead'
 
 # TODO: this also means that we need to somehow support != as well as = which
@@ -203,6 +200,8 @@ class SearchTests(BaubleTestCase):
         # TODO: This doesn't really do anything at the moment, i
         # started writing it to test out slicing with the ResultSet
 
+	# TODO: test the ResultSet(somelist) and
+	# ResultSet().add(somelist) are the same
         return
 
         from bauble.plugins.plants.family import Family

@@ -152,21 +152,21 @@ Bauble API Documentation
 
 
 
-
-
-
 :mod:`bauble.view`
 =======================
 .. automodule:: bauble.view
+.. autoclass:: bauble.view.InfoBox
+   :show-inheritance:
+   :members: on_switch_page, add_expander, update
+.. autoclass:: bauble.view.InfoBoxPage
+   :show-inheritance:
+   :members: add_expander, get_expander, remove_expander, update
 .. autoclass:: bauble.view.InfoExpander
    :show-inheritance:
    :members: set_widget_value, update
 .. autoclass:: bauble.view.PropertiesExpander
    :show-inheritance:
    :members: update
-.. autoclass:: bauble.view.InfoBox:
-   :show-inheritance:
-   :members: add_expander, get_expander, remove_expander, update
 .. autoclass:: bauble.view.SearchParser
    :members: parse_string
 .. autoclass:: bauble.view.SearchStrategy
@@ -178,7 +178,8 @@ Bauble API Documentation
    :members: add, count, clear
 .. autoclass:: bauble.view.SearchView
    :show-inheritance:
-   .. autoclass:: ViewMeta
+.. class:: bauble.view.SearchView.ViewMeta
+   
 
 
 :mod:`bauble.plugins.plants`

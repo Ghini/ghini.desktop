@@ -251,16 +251,11 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
         w.set_text(str(value))
     elif isinstance(w, gtk.ComboBox): # TODO: what about comboentry
         # TODO: what if None is in the model
-        i = combo_get_value_iter(w, value)
-        if i is not None:
-            w.set_active_iter(i)
+        treeiter = combo_get_value_iter(w, value)
+        if treeiter:
+            w.set_active_iter(treeiter)
         elif w.get_model() is not None:
             w.set_active(-1)
-#        if value is None:
-#            if w.get_model() is not None:
-#                w.set_active(-1)
-#        else:
-#            set_combo_from_value(w, value)
     elif isinstance(w, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
         if value is True:
             w.set_inconsistent(False)
@@ -275,15 +270,21 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
                         'the widget type %s with name %s' % \
                         (type(w), widget_name))
 
-# TODO: if i escape the messages that come in then my own markup doesn't
-# work, what really needs to be done is make sure that any exception that
-# are going to be passed to one of these dialogs should be escaped before
-# coming through
+
 
 def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                           parent=None):
     '''
     Create a message dialog.
+
+    :param msg: The markup to use for the message. The value should be
+      escaped in case it contains any HTML entities.
+    :param type: A GTK message type constant.  The default is gtk.MESSAGE_INFO.
+    :param buttons: A GTK buttons type constant.  The default is
+      gtk.BUTTONS_OK.
+    :param parent:  The parent window for the dialog
+
+    Returns a :class:`gtk.MessageDialog`
     '''
     if parent is None:
         try: # this might get called before bauble has started
@@ -291,7 +292,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
         except:
             parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                          parent=parent, type=type, buttons=buttons)
+                         parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
     if d.get_icon() is None:
@@ -308,7 +309,10 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
 def message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                    parent=None):
     '''
-    Create and run a message dialog.
+    Create a message dialog with :func:`bauble.utils.create_message_dialog`
+    and run and destroy it.
+
+    Returns the dialog's response.
     '''
     d = create_message_dialog(msg, type, buttons, parent)
     r = d.run()
@@ -368,9 +372,8 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     d.destroy()
     return r == gtk.RESPONSE_YES
 
-#
-# TODO: give the button the default focus instead of the expander
-#
+
+
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                                   buttons=gtk.BUTTONS_OK, parent=None):
     '''
@@ -398,8 +401,8 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     sw.add(text_view)
     expand.add(sw)
     d.vbox.pack_start(expand)
-    ok_button = d.action_area.get_children()[0]
-    d.set_focus(ok_button)
+    # make "OK" the default response
+    d.set_default_response(gtk.RESPONSE_OK)
     if d.get_icon() is None:
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
@@ -471,7 +474,7 @@ def setup_date_button(entry, button, date_func=None):
 def to_unicode(obj, encoding='utf-8'):
     """
     Return obj converted to unicode.  If obj is already a unicode
-    object it will no try to decode it to converted it to <encoding>
+    object it will not try to decode it to converted it to <encoding>
     but will just return the original obj
     """
     if isinstance(obj, basestring):
@@ -495,7 +498,7 @@ def utf8(obj):
 def xml_safe(obj, encoding='utf-8'):
     '''
     Return a string with character entities escaped safe for xml, if the
-    str paramater is a string a string is returned, if str is a unicode object
+    str parameter is a string a string is returned, if str is a unicode object
     then a unicode object is returned
     '''
     obj = to_unicode(obj, encoding)
@@ -504,7 +507,7 @@ def xml_safe(obj, encoding='utf-8'):
 
 def xml_safe_utf8(obj):
     """
-    this method is deprecated and just return xml_safe(obj)
+    This method is deprecated and just returns xml_safe(obj)
     """
     return xml_safe(obj)
 
@@ -555,30 +558,10 @@ def delete_or_expunge(obj):
         session.delete(obj)
 
 
-# TODO: this can probably be removed, i don't see any reason to use it
-# rather than itertools.islice
-#
-# def chunk(iterable, n):
-#     '''
-#     return iterable in chunks of size n
-#     '''
-#     # TODO: this could probably be implemented way more efficiently,
-#     # maybe using itertools
-#     chunk = []
-#     ctr = 0
-#     for it in iterable:
-#         chunk.append(it)
-#         ctr += 1
-#         if ctr >= n:
-#             yield chunk
-#             chunk = []
-#             ctr = 0
-#     yield chunk
-
 
 def reset_sequence(column):
     """
-    if column.sequence is not None or the column is an Integer and
+    If column.sequence is not None or the column is an Integer and
     column.autoincrement is true then reset the sequence for the next
     available value for the column...if the column doesn't have a
     sequence then do nothing and return
