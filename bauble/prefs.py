@@ -39,7 +39,7 @@ general_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_general.png')
 security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
 
 config_version_pref = 'bauble.config.version'
-config_version = bauble.version[0], bauble.version[1]
+config_version = bauble.version_tuple[0], bauble.version_tuple[1]
 
 ## class PreferencesMgr(gtk.Dialog):
 

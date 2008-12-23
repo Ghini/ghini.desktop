@@ -203,7 +203,9 @@ class install(_install):
         # install locale files
         locales = os.path.dirname(locale_path)
         src = os.path.join(self.build_base, locales)
-        dir_util.copy_tree(src, os.path.join(self.prefix, locales))
+        if not self.root:
+            self.root = self.prefix
+        dir_util.copy_tree(src, os.path.join(self.root, locales))
 
         if self.skip_xdg:
             return

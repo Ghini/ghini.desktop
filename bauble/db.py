@@ -225,8 +225,8 @@ def _verify_connection(engine, show_error_dialogs=False):
                     'version %(db_version)s\n\nSome things might not work as '\
                     'or some of your data may become unexpectedly '\
                     'corrupted.') % \
-                    {'version': bauble.version_str,
-                     'db_version':'%s.%s.%s' % eval(e.version)}
+                    {'version': bauble.version,
+                     'db_version':'%s' % e.version}
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
         except pluginmgr.RegistryEmptyError, e:
@@ -264,7 +264,7 @@ def _verify_connection(engine, show_error_dialogs=False):
     if not result:
         session.close()
         raise error.VersionError(None)
-    elif eval(result.value)[0:2] != bauble.version[0:2]:
+    elif eval(result.value)[0:2] != bauble.version_tuple[0:2]:
         session.close()
         raise error.VersionError(result.value)
 
