@@ -301,9 +301,9 @@ class GUI(object):
 
     def __get_title(self):
         if bauble.conn_name is None:
-            return '%s %s' % ('Bauble', bauble.version_str)
+            return '%s %s' % ('Bauble', bauble.version)
         else:
-            return '%s %s - %s' % ('Bauble', bauble.version_str,
+            return '%s %s - %s' % ('Bauble', bauble.version,
                                    bauble.conn_name)
     title = property(__get_title)
 
@@ -611,8 +611,8 @@ class GUI(object):
                     'version %(db_version)s\n\nSome things might not work as '\
                     'or some of your data may become unexpectedly '\
                     'corrupted.') % \
-                    {'version': bauble.version_str,
-                     'db_version':'%s.%s.%s' % eval(e.version)}
+                    {'version': bauble.version,
+                     'db_version':'%s' % e.version}
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
         except Exception, e:
             db._verify_connection(engine, show_error_dialogs=True)
@@ -649,7 +649,7 @@ class GUI(object):
     def on_help_menu_about(self, widget, data=None):
 	about = gtk.AboutDialog()
 	about.set_name('Bauble')
-	about.set_version(bauble.version_str)
+	about.set_version(bauble.version)
 	about.set_website(_('http://bauble.belizebotanic.org'))
 	about.set_logo_icon_name('bauble')
 	about.set_copyright(_(u'Copyright \u00A9 Belize Botanic Gardens'))

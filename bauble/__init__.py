@@ -10,9 +10,8 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = (0, 9, '0b1')
-version_str = '.'.join([str(v) for v in version])
-#from bauble.version import *
+version = '0.9.0b1' # :bump
+version_tuple = version.split('.')
 
 def main_is_frozen():
     """
