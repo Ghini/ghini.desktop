@@ -45,20 +45,31 @@ def bump_file(filename, rx):
             print '%s: %s' % (filename, line)
         buf.write(line)
 
-    return
     f = open(filename, 'w')
     f.write(buf.getvalue())
     buf.close()
 
+
 def bump_py_file(filename):
+    """
+    bump python files
+    """
     rx = "(^version\s*?=\s*?\'|\").*?\..*?\..*?(\'|\".*?%s.*?$)" % bump_tag
     bump_file(filename, rx)
 
+
 def bump_desktop_file(filename):
+    """
+    bump xdf .desktop files
+    """
     rx = "(^Version=).*?\..*?\..*?(\s+?.*?%s.*?$)" % bump_tag
     bump_file(filename, rx)
 
+
 def bump_nsi_file(filename):
+    """
+    bump NSIS installer files
+    """
     rx = '(^!define version ").*?\..*?\..*?(".*?%s.*?$)' % bump_tag
     bump_file(filename, rx)
 
