@@ -13,17 +13,15 @@ import os
 import sys
 import glob
 import distutils.core
-import distutils.cmd as cmd
 from distutils.command.build import build as _build
-from distutils.command.install import install as _install
 import distutils.util as util
 import distutils.spawn as spawn
 import distutils.dep_util as dep_util
 import distutils.dir_util as dir_util
+from setuptools import Command
+from setuptools.command.install import install as _install
 
-from bauble import version_str
-version = version_str
-#from bauble.version import *
+from bauble import version
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.10
 
@@ -126,8 +124,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
 
-    class nsis_cmd(distutils.core.Command):
-        # 1.
+    class nsis_cmd(Command):
+        # 1. copy the gtk dist to the dist directory
+        # 2. run the script to update the pixbuf paths
+        # 3. tun the nsis command to create the installer
+        # 4. try to do everything silent if possible instead of using
+        # the NSIS compiler GUI
         user_options = []
         def initialize_options(self):
             pass
@@ -142,7 +144,7 @@ else:
     py2exe_options = {}
     py2exe_setup_args = {}
     py2exe_includes = []
-    class _empty_cmd(distutils.core.Command):
+    class _empty_cmd(Command):
         user_options = []
         def initialize_options(self):
             pass
@@ -193,13 +195,21 @@ class install(_install):
         _install.initialize_options(self)
         self.skip_xdg = False
 
+    def finalize_options(self):
+        _install.finalize_options(self)
+        #self.skip_xdg = False
+
     def run(self):
         if sys.platform not in ('linux2', 'win32'):
             msg = "**Error: Can't install on this platform: %s" % sys.platform
             print msg
             sys.exit(1)
 
-        _install.run(self)
+        #_install.run(self)
+        # same as _install.run(self) but also handles the
+        # install_requires keyword to setup
+        self.do_egg_install()
+
         # install locale files
         locales = os.path.dirname(locale_path)
         src = os.path.join(self.build_base, locales)
@@ -230,7 +240,7 @@ class install(_install):
 
 # docs command
 DOC_BUILD_PATH = 'doc/.build/'
-class docs(cmd.Command):
+class docs(Command):
     user_options = [('all', None, 'rebuild all the docs')]
     def initialize_options(self):
         self.all = False
@@ -252,7 +262,7 @@ class docs(cmd.Command):
         spawn.spawn(cmd)
 
 # clear command
-class clean(cmd.Command):
+class clean(Command):
     user_options = []
     def initialize_options(self):
         pass
@@ -296,11 +306,13 @@ setuptools.setup(name="bauble",
                  package_dir = all_package_dirs,
                  package_data = package_data,
                  data_files = data_files,
-                 install_requires=["SQLAlchemy>=0.5rc2",
+                 install_requires=["SQLAlchemy>=0.5rc4",
                                    "simplejson>=2.0.1",
-                                   "lxml>=2.0",
-                                   "mako",
-                                   "gdata"] + needs_sqlite,
+                                   "lxml==2.1.1",
+                                   "mako", ] + needs_sqlite,
+                 # TODO: right now gdata won't install
+                 # from PyPI
+                                   #"gdata"] + needs_sqlite,
                  #TODO:running "setup.py test" hasn't been tested
                  test_suite="test.test",
                  author="Brett",

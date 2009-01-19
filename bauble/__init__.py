@@ -79,15 +79,6 @@ if not os.path.exists(paths.user_dir()):
     os.makedirs(paths.user_dir())
 
 
-try:
-    import simplejson
-except ImportError:
-    msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
-            'http://cheeseshop.python.org/pypi/simplejson')
-    utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-    raise
-
-
 # set SQLAlchemy logging level
 import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
@@ -99,8 +90,6 @@ conn_name = None
 
 import traceback
 from bauble.utils.log import debug, warning
-import bauble.pluginmgr as pluginmgr
-from bauble.prefs import prefs
 import bauble.error as error
 
 
@@ -108,6 +97,7 @@ def save_state():
     """
     Save the gui state and preferences.
     """
+    from bauble.prefs import prefs
     # in case we quit before the gui is created
     if gui is not None:
         gui.save_state()
@@ -153,6 +143,7 @@ def command_handler(cmd, arg):
     :param arg: The arg to pass to the command handler
     :type arg: list
     """
+    import bauble.pluginmgr as pluginmgr
     global last_handler
     handler_cls = None
     try:
@@ -183,6 +174,16 @@ def main(uri=None):
     """
     Initialize Bauble and start the main Bauble interface.
     """
+    import bauble.pluginmgr as pluginmgr
+    from bauble.prefs import prefs
+    try:
+        import simplejson
+    except ImportError:
+        msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
+                    'http://cheeseshop.python.org/pypi/simplejson')
+        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
+        raise
+
     # initialize threading
     gtk.gdk.threads_init()
     gtk.gdk.threads_enter()
