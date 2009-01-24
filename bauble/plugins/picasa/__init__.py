@@ -283,7 +283,7 @@ def _get_feed_worker(worker, gd_client, tag):
     try:
         user, domain = email.split('@', 1)
     except Exception, e:
-        debug(e)
+        #debug(e)
         user = email
     album = meta.get_default(PICASA_ALBUM_KEY).value
 
@@ -497,7 +497,7 @@ class PicasaInfoPage(view.InfoBoxPage):
         :param: a Species instance
         """
         self._current_row = row
-        token_meta = meta.get_default(PICASA_TOKEN_KEY)
+        token_meta = meta.get_default(utils.utf8(PICASA_TOKEN_KEY))
         if not token_meta:
             msg = _('Could not login to PicasaWeb account.')
             self.on_error(msg, species=row)

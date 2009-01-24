@@ -263,7 +263,6 @@ def install(plugins_to_install, import_defaults=True, force=False):
 #     except DependencyError, e:
 #         error(utils.utf8(e))
 
-
     try:
         for p in to_install:
             #debug('install: %s' % p.__name__)
