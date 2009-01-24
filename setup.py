@@ -310,8 +310,7 @@ setuptools.setup(name="bauble",
                                    "simplejson>=2.0.1",
                                    "lxml==2.1.1",
                                    "mako", "gdata.py>=1.2.4"] + needs_sqlite,
-                 #TODO:running "setup.py test" hasn't been tested
-                 test_suite="test.test",
+                 test_suite="nose.collector",
                  author="Brett",
                  author_email="brett@belizebotanic.org",
                  description="Bauble is a biodiversity collection manager " \
