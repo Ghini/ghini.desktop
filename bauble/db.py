@@ -264,9 +264,14 @@ def _verify_connection(engine, show_error_dialogs=False):
     if not result:
         session.close()
         raise error.VersionError(None)
-    elif eval(result.value)[0:2] != bauble.version_tuple[0:2]:
-        session.close()
+    try:
+        major, minor, revision = result.value.split('.')
+    except:
         raise error.VersionError(result.value)
+
+    if major != bauble.version_tuple[0] or minor != bauble.version_tuple[1]:
+        raise error.VersionError(result.value)
+
 
     # will raise RegistryEmptyError if the plugin registry does not exist in
     # the meta table

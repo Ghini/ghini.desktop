@@ -264,7 +264,7 @@ class ABCDExporter(object):
 
     def start(self, filename=None, plants=None):
         if filename == None: # no filename, ask the user
-            d = gtk.FileChooserDialog("Choose a file to export to...", None,
+            d = gtk.FileChooserDialog(_("Choose a file to export to..."), None,
                                       gtk.FILE_CHOOSER_ACTION_SAVE,
                                       (gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
                                        gtk.STOCK_CANCEL, gtk.RESPONSE_CANCEL))
@@ -313,15 +313,16 @@ class ABCDExporter(object):
 
 
 class ABCDExportTool(pluginmgr.Tool):
-    category = "Export"
-    label = "ABCD"
+    category = _("Export")
+    label = _("ABCD")
 
     @classmethod
     def start(cls):
-        msg = 'The ABCD Exporter is not fully implemented. At the moment it '\
-              'will export the plants in the database but will not include ' \
-              'source information such as collection and donation data'
-        utils.message_dialog(msg)
+        msg = _('DISCLAIMER: The ABCD Exporter is not fully implemented. At '
+                'the moment it will export the plants in the database but '
+                'will not include source information such as collection and '
+                'donation data.')
+        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
         ABCDExporter().start()
 
 
@@ -334,8 +335,8 @@ try:
     import lxml._elementpath # put this here sp py2exe picks it up
     from lxml.etree import Element, SubElement, ElementTree
 except ImportError:
-    utils.message_dialog('The <i>lxml</i> package is required for the '\
-                         'ABCD plugin')
+    utils.message_dialog(_('The <i>lxml</i> package is required for the '
+                           'ABCD plugin'))
 else:
     plugin = ABCDImexPlugin
 
