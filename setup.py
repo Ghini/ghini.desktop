@@ -309,7 +309,7 @@ setuptools.setup(name="bauble",
                  install_requires=["SQLAlchemy>=0.5rc4",
                                    "simplejson>=2.0.1",
                                    "lxml==2.1.1",
-                                   "mako", "gdata.py"] + needs_sqlite,
+                                   "mako", "gdata.py>=1.2.4"] + needs_sqlite,
                  #TODO:running "setup.py test" hasn't been tested
                  test_suite="test.test",
                  author="Brett",
