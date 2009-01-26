@@ -85,7 +85,7 @@ class BaubleTests(BaubleTestCase):
         """
         m = meta.BaubleMeta(name=u'name', value=u'value')
         table = m.__table__
-        self.session.save(m)
+        self.session.add(m)
         m = self.session.query(meta.BaubleMeta).first()
 
         # test that _created and _last_updated were created correctly

@@ -68,13 +68,18 @@ def _get_all_objects(cls, get_query_func, objs, session=None):
     queries = map(lambda o: get_query_func(o, session), objs)
     unions = union(*[q.statement for q in queries])
     results = session.query(cls).from_statement(unions)
+    # TODO: the following should work but i must be overlooking something
+    #results = session.query(cls).order_by(None).union(*queries)
     return results
 
 
 def get_plant_query(obj, session):
     """
     """
-    q = session.query(Plant)
+    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
+    # so that if we want to union() the statements together later it
+    # will work properly
+    q = session.query(Plant).order_by(None)
     if isinstance(obj, Family):
         return q.join(['accession', 'species', 'genus', 'family']).\
                filter_by(id=obj.id)
@@ -111,7 +116,10 @@ def get_all_plants(objs, session=None):
 def get_accession_query(obj, session):
     """
     """
-    q = session.query(Accession)
+    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
+    # so that if we want to union() the statements together later it
+    # will work properly
+    q = session.query(Accession).order_by(None)
     if isinstance(obj, Family):
         return q.join(['species', 'genus', 'family']).\
                filter_by(id=obj.id)
@@ -149,7 +157,10 @@ def get_all_accessions(objs, session=None):
 def get_species_query(obj, session):
     """
     """
-    q = session.query(Species)
+    # as of sqlalchemy 0.5.0 we have to have the order_by(None) here
+    # so that if we want to union() the statements together later it
+    # will work properly
+    q = session.query(Species).order_by(None)
     if isinstance(obj, Family):
         return q.join(['genus', 'family']).\
                filter_by(id=obj.id)

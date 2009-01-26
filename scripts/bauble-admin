@@ -4,7 +4,7 @@
 #  This is free software, see GNU General Public License v2 for details.
 """
 The bauble-admin script makes it easier to create and database and change
-some of its properties
+some of its properties.
 """
 
 import sys
@@ -13,6 +13,8 @@ from optparse import OptionParser
 from getpass import getpass
 import logging
 from logging import info, warn, error
+
+print '\n*** This script is considered BETA quality. You mileage may vary.\n'
 
 usage = 'usage: %prog [command] [options] dbname'
 parser = OptionParser(usage)
