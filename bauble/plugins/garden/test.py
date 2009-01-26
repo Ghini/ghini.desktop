@@ -408,7 +408,7 @@ class AccessionTests(GardenTestCase):
         import bauble.utils.log as log
         sp = self.session.query(Species).get(1)
         acc = Accession()
-        self.session.save(acc)
+        self.session.add(acc)
         acc.species = sp
         acc.code = u"3"
         # not donor_id, should raise an IntegrityError

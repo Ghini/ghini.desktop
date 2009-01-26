@@ -20,8 +20,17 @@ db.open(uri, False)
 pluginmgr.load()
 db.create(import_defaults=False)
 
-from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species import Species
+from bauble.plugins.plants import Family, Genus, Species
+from bauble.plugins.garden import Accession, Plant, Location
 
 session = bauble.Session()
+
+f = Family(family=u'family')
+g = Genus(family=f, genus=u'genus')
+s = Species(genus=g, sp=u's')
+a = Accession(species=s, code=u'1')
+l = Location(site=u'site')
+p = Plant(accession=a, location=l, code=u'1')
+
+session.add_all([f, g, s, a, p])
+session.commit()

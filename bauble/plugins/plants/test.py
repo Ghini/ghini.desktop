@@ -506,7 +506,7 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
         self.failIf(synonym_of(1, 2), syn_str(1, 2))
 
-        self.session.clear()
+        self.session.expunge_all()
 
         # test that appending a synonym works using species._synonyms
         sp1 = load_sp(1)
@@ -524,7 +524,7 @@ class SpeciesTests(PlantTestCase):
         # TODO: need to test adding a species and then immediately remove it
         # TOOD: need to test removing a species and then immediately adding
         # the same species
-        self.session.clear()
+        self.session.expunge_all()
         sp1 = load_sp(1)
         sp2 = load_sp(2)
         sp1.synonyms.append(sp2)
@@ -537,7 +537,7 @@ class SpeciesTests(PlantTestCase):
         sp1.synonyms.append(sp2)
         self.session.flush()
 
-        self.session.clear()
+        self.session.expunge_all()
 
 
 class GeographyTests(PlantTestCase):
