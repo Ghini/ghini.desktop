@@ -812,19 +812,19 @@ class SpeciesEditorView(editor.GenericEditorView):
                           'sp_meta_expander': 'editor.species.meta.expanded'}
 
     _tooltips = {
-        'sp_genus_entry': _('genus'),
-        'sp_species_entry': _('sp'),
-        'sp_author_entry': _('sp_author'),
-        'sp_infra_rank_combo': _('infrasp_rank'),
-        'sp_hybrid_combo': _('sp_hybrid'),
-        'sp_infra_entry': _('infrasp'),
-        'sp_cvgroup_entry': _('cv_group'),
-        'sp_infra_author_entry': _('infrasp_author'),
-        'sp_spqual_combo': _('sp_qual'),
-        'sp_notes_frame': _('notes'),
-        'sp_dist_box': _('sp_dist_box'),
-        'sp_vern_box': _('sp_vern_box'),
-        'sp_syn_box': _('sp_syn_box')
+        'sp_genus_entry': _('Genus '),
+        'sp_species_entry': _('Species epithet'),
+        'sp_author_entry': _('Species author'),
+        'sp_infra_rank_combo': _('Infraspecific rank'),
+        'sp_hybrid_combo': _('Species hybrid flag'),
+        'sp_infra_entry': _('Infraspecific epithet'),
+        'sp_cvgroup_entry': _('Cultivar group'),
+        'sp_infra_author_entry': _('Infraspecific author'),
+        'sp_spqual_combo': _('Species qualifier'),
+        'sp_notes_frame': _('Note'),
+        'sp_dist_box': _('Species distribution'),
+        'sp_vern_box': _('Vernacular names'),
+        'sp_syn_box': _('Species synonyms')
         }
 
 
