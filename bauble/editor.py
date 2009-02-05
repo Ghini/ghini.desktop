@@ -420,7 +420,7 @@ class GenericEditorPresenter(object):
         in self.model.field
         """
         combo = self.view.widgets[widget_name]
-        mapper = class_mapper(self.model)
+        mapper = object_mapper(self.model)
         values = sorted(mapper.c[field].type.values)
         if None in values:
             values.remove(None)
