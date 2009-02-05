@@ -18,8 +18,10 @@ import distutils.util as util
 import distutils.spawn as spawn
 import distutils.dep_util as dep_util
 import distutils.dir_util as dir_util
+import distutils.file_util as file_util
 from setuptools import Command
 from setuptools.command.install import install as _install
+from setuptools.command.sdist import sdist as _sdist
 
 from bauble import version
 
@@ -159,6 +161,38 @@ else:
         pass
 
 
+# TODO: create the .deb directly in the dist directory and remove
+# the temporary directories we used to create it, also allow and
+# option to keep tmp directories
+class bdist_deb(Command):
+    user_options = []
+    def initialize_options(self):
+        pass
+    def finalize_options(self):
+        pass
+    def run(self):
+        #cmd = self.get_finalized_command('install')
+        cmd = self.distribution.get_command_obj('install')
+        cmd.single_version_externally_managed = True
+        cmd.compile = False
+        bauble_dir = 'bauble_%s-1' % version
+        cmd.root = 'bdist_deb'
+        cmd.prefix = os.path.join(bauble_dir, 'usr')
+        cmd.ensure_finalized()
+        cmd.run()
+        dir_util.mkpath(os.path.join(cmd.root, bauble_dir, 'DEBIAN'))
+        for f in ['control']:
+            file_util.copy_file(os.path.join('debian', f),
+                                os.path.join(cmd.root,bauble_dir,'DEBIAN'))
+
+        share_dir = os.path.join(cmd.root, cmd.prefix, 'share')
+        dir_util.mkpath(os.path.join(share_dir, 'doc', 'bauble'))
+        file_util.copy_file(os.path.join('debian', 'copyright'),
+                            os.path.join(share_dir, 'doc', 'bauble'))
+        spawn.spawn(['fakeroot', 'dpkg-deb',  '--build',
+                     'bdist_deb/%s' % bauble_dir])
+
+
 
 # build command
 class build(_build):
@@ -185,8 +219,44 @@ class build(_build):
                 spawn.spawn(['msgfmt', po, '-o', mo])
 
 
+
+class install_i18n(Command):
+
+    user_options = [
+        ('root=', None,
+         "install everything relative to this alternate root directory"),
+        ('install-dir=', 'd',
+         "base directory for installing data files "
+         "(default: installation base dir)"),
+        ]
+
+    def initialize_options(self):
+        self.root = None
+        self.prefix = None
+        self.install_base = None
+        self.install_dir = None
+
+    def finalize_options(self):
+        self.set_undefined_options('install',
+                                   ('install_data', 'install_dir'),
+                                   ('root', 'root')
+                                   )
+    def run(self):
+        locales = os.path.dirname(locale_path)
+        install_cmd = self.get_finalized_command('install')
+        build_base = install_cmd.build_base
+        src = os.path.join(build_base, locales)
+        dir_util.copy_tree(src, os.path.join(self.install_dir, locales))
+
+
+
 # install command
 class install(_install):
+
+    def has_i18n(self):
+        return True
+
+    _install.sub_commands.append(('install_i18n', lambda self: True))
 
     _install.user_options.append(('skip-xdg', None,
                                   'disable running the xdg-utils commands'))
@@ -197,7 +267,6 @@ class install(_install):
 
     def finalize_options(self):
         _install.finalize_options(self)
-        #self.skip_xdg = False
 
     def run(self):
         if sys.platform not in ('linux2', 'win32'):
@@ -205,19 +274,12 @@ class install(_install):
             print msg
             sys.exit(1)
 
-        #_install.run(self)
-        # same as _install.run(self) but also handles the
-        # install_requires keyword to setup
-        self.do_egg_install()
+        if not self.single_version_externally_managed:
+            self.do_egg_install()
+        else:
+            _install.run(self)
 
-        # install locale files
-        locales = os.path.dirname(locale_path)
-        src = os.path.join(self.build_base, locales)
-        if not self.root:
-            self.root = self.prefix
-        dir_util.copy_tree(src, os.path.join(self.root, locales))
-
-        if self.skip_xdg:
+        if self.skip_xdg or self.single_version_externally_managed:
             return
 
         if sys.platform == 'linux2':
@@ -261,7 +323,8 @@ class docs(Command):
             cmd.insert(1, '-a')
         spawn.spawn(cmd)
 
-# clear command
+
+# clean command
 class clean(Command):
     user_options = []
     def initialize_options(self):
@@ -295,21 +358,26 @@ try:
 except ImportError:
     needs_sqlite = "pysqlite>=2.3.2"
 
+# TODO: images in bauble/images should really be in data and copied as
+# package_data or data_files
 
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs, 'clean': clean},
+                           'docs': docs, 'clean': clean,
+                           'bdist_deb': bdist_deb,
+                           'install_i18n': install_i18n},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
                  packages = all_packages,
                  package_dir = all_package_dirs,
                  package_data = package_data,
                  data_files = data_files,
-                 install_requires=["SQLAlchemy>=0.5rc4",
-                                   "simplejson>=2.0.1",
+                 install_requires=["SQLAlchemy>=0.5rc4,<0.6",
+                                   "simplejson>=1.9.1",
                                    "lxml==2.1.1",
-                                   "mako", "gdata.py>=1.2.4"] + needs_sqlite,
+                                   "mako>=0.2.2",
+                                   "gdata.py>=1.2.4"] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett",
                  author_email="brett@belizebotanic.org",
