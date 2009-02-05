@@ -52,10 +52,11 @@ def locale_dir():
     Returns the root path of the locale files
     """
     if sys.platform == 'linux2':
-        return os.path.join('/usr', 'share', 'locale')
+        base = os.path.dirname(os.path.dirname(main_dir()))
+        return os.path.join(base, 'share', 'locale')
+        #return os.path.join('/usr', 'share', 'locale')
     elif sys.platform == 'win32':
-        import bauble.paths as paths
-        return os.path.join(paths.main_dir(), 'share', 'locale')
+        return os.path.join(main_dir(), 'share', 'locale')
     else:
         raise NotImplementedError('This platform does not support '\
                                   'translations: %s' % sys.platform)
