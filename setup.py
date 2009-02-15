@@ -32,6 +32,11 @@ from bauble import version
 
 # TODO: run the clean before creating an sdist
 
+# NOTE: your can create a debian .dsc with the following command if
+# stdeb is installed:
+#
+# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires
+
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
 
@@ -161,38 +166,6 @@ else:
         pass
 
 
-# TODO: create the .deb directly in the dist directory and remove
-# the temporary directories we used to create it, also allow and
-# option to keep tmp directories
-class bdist_deb(Command):
-    user_options = []
-    def initialize_options(self):
-        pass
-    def finalize_options(self):
-        pass
-    def run(self):
-        #cmd = self.get_finalized_command('install')
-        cmd = self.distribution.get_command_obj('install')
-        cmd.single_version_externally_managed = True
-        cmd.compile = False
-        bauble_dir = 'bauble_%s-1' % version
-        cmd.root = 'bdist_deb'
-        cmd.prefix = os.path.join(bauble_dir, 'usr')
-        cmd.ensure_finalized()
-        cmd.run()
-        dir_util.mkpath(os.path.join(cmd.root, bauble_dir, 'DEBIAN'))
-        for f in ['control']:
-            file_util.copy_file(os.path.join('debian', f),
-                                os.path.join(cmd.root,bauble_dir,'DEBIAN'))
-
-        share_dir = os.path.join(cmd.root, cmd.prefix, 'share')
-        dir_util.mkpath(os.path.join(share_dir, 'doc', 'bauble'))
-        file_util.copy_file(os.path.join('debian', 'copyright'),
-                            os.path.join(share_dir, 'doc', 'bauble'))
-        spawn.spawn(['fakeroot', 'dpkg-deb',  '--build',
-                     'bdist_deb/%s' % bauble_dir])
-
-
 
 # build command
 class build(_build):
@@ -299,6 +272,12 @@ class install(_install):
             pass
 
 
+# try:
+#     import stdeb
+#     class sdist_dsc(stdeb.command.sdist_dsb):
+
+#         def run():
+#             pass
 
 # docs command
 DOC_BUILD_PATH = 'doc/.build/'
@@ -365,7 +344,6 @@ setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean,
-                           'bdist_deb': bdist_deb,
                            'install_i18n': install_i18n},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
@@ -373,13 +351,13 @@ setuptools.setup(name="bauble",
                  package_dir = all_package_dirs,
                  package_data = package_data,
                  data_files = data_files,
-                 install_requires=["SQLAlchemy>=0.5rc4,<0.6",
+                 install_requires=["SQLAlchemy>=0.5rc4",#<0.6",
                                    "simplejson>=1.9.1",
-                                   "lxml==2.1.1",
+                                   "lxml",#==2.1.1",
                                    "mako>=0.2.2",
                                    "gdata.py>=1.2.4"] + needs_sqlite,
                  test_suite="nose.collector",
-                 author="Brett",
+                 author="Brett Adams",
                  author_email="brett@belizebotanic.org",
                  description="Bauble is a biodiversity collection manager " \
                  "software application",
