@@ -840,7 +840,7 @@ class SearchView(pluginmgr.View):
         results = ResultSet()
         error_msg = None
         error_details_msg = None
-        self.session.clear() # clear out any old search results
+        self.session.expunge_all() # clear out any old search results
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
