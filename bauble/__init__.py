@@ -51,10 +51,6 @@ except ImportError, e:
 
 
 import gtk.gdk
-display = gtk.gdk.display_get_default()
-if display is None:
-    print _("**Error: Bauble must be run in a windowed environment.")
-    sys.exit(1)
 
 # setup glade internationalization
 import gtk.glade
@@ -73,10 +69,6 @@ sys.path.append(paths.lib_dir())
 
 #sys.stderr.write('sys.path: %s\n' % sys.path)
 #sys.stderr.write('PATH: %s\n' % os.environ['PATH'])
-
-# create the user directory
-if not os.path.exists(paths.user_dir()):
-    os.makedirs(paths.user_dir())
 
 
 # set SQLAlchemy logging level
@@ -174,8 +166,17 @@ def main(uri=None):
     """
     Initialize Bauble and start the main Bauble interface.
     """
+    display = gtk.gdk.display_get_default()
+    if display is None:
+        print _("**Error: Bauble must be run in a windowed environment.")
+        sys.exit(1)
+
     import bauble.pluginmgr as pluginmgr
     from bauble.prefs import prefs
+
+    # create the user directory
+    if not os.path.exists(paths.user_dir()):
+        os.makedirs(paths.user_dir())
     try:
         import simplejson
     except ImportError:
@@ -195,7 +196,7 @@ def main(uri=None):
         sys.exit(1)
 
     # declare module level variables
-    global prefs, gui, default_icon, conn_name
+    global gui, default_icon, conn_name
 
     default_icon = os.path.join(paths.lib_dir(), "images", "icon.svg")
 
