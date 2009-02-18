@@ -60,16 +60,16 @@ PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
 ATK_PATH = 'atk/1.22/atk-1.22.0.zip'
 
 # pycairo-1.4.x doesn't support python 2.5
-PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
-PYCAIRO_25_PATH = 'pycairo/1.4/pycairo-1.4.12-1.win32-py2.5.exe'
+#PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
+PYCAIRO_PATH = 'pycairo/1.4/pycairo-1.4.12-1.win32-py2.5.exe'
 
 # pygobject-2.14.x only supports python 2.5
-PYGOBJECT_24_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.4.exe'
-PYGOBJECT_25_PATH = 'pygobject/2.14/pygobject-2.14.1-1.win32-py2.5.exe'
+#PYGOBJECT_24_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.4.exe'
+PYGOBJECT_PATH = 'pygobject/2.14/pygobject-2.14.1-1.win32-py2.5.exe'
 
 # pygtk-2.12.x only support python 2.5
-PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
-PYGTK_25_PATH = 'pygtk/2.12/pygtk-2.12.1-2.win32-py2.5.exe'
+#PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
+PYGTK_PATH = 'pygtk/2.12/pygtk-2.12.1-2.win32-py2.5.exe'
 
 CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
 GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
@@ -77,8 +77,8 @@ RSVG_PATH = 'librsvg/2.22/librsvg-2.22.2.zip'
 SVG_PIXBUF_PATH = 'librsvg/2.22/svg-gdk-pixbuf-loader-2.22.2.zip'
 GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
 
-PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
-PYTHON_25_FILES = PYCAIRO_25_PATH, PYGOBJECT_25_PATH, PYGTK_25_PATH
+#PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
+#PYTHON_25_FILES = PYCAIRO_25_PATH, PYGOBJECT_25_PATH, PYGTK_25_PATH
 
 # dependencies
 CAIRO_PATH = 'dependencies/cairo-1.4.14.zip'
@@ -95,7 +95,8 @@ TIFF_PATH = 'dependencies/libtiff-3.7.1.zip'
 XML_PATH = 'dependencies/libxml2-2.6.27.zip'
 ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
 
-ALL_FILES = [GTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
+ALL_FILES = [PYCAIRO_PATH, PYGOBJECT_PATH, PYGTK_PATH,
+             PYGTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
              ICONV_PATH, GETTEXT_PATH, PNG_PATH, JPEG_PATH, TIFF_PATH,
              CAIRO_PATH, RSVG_PATH, SVG_PIXBUF_PATH, GLADE_PATH,
              XML_PATH, CROCO_PATH, GSF_PATH, FONTCONFIG_PATH, EXPAT_PATH,
@@ -152,30 +153,50 @@ def get_python_versions():
 if not options.gtk_only:
     python_versions = get_python_versions()
     available_versions = {}
-    for version, path in python_versions.iteritems():
-        if os.path.exists(path) and os.path.exists(os.path.join(path,'python.exe')):
-            print 'Python %s seems to be installed correctly' % version
-            available_versions[version] = path
-        else:
-            print 'Python %s NOT installed correctly' % version
+if len(python_versions.keys()) == 0:
+    print "Error: Install Python first"
+    sys.exit(1)
 
-    if len(available_versions.keys()) == 0:
-        print "** Error: Install Python first\n"
-
-    if len(available_versions.keys()) > 1:
-        # TODO: make a decision if more than one version
-        print 'More than one Python version installed'
+supported_version = '2.5'
+try:
+    chosen_version = '2.5'
+    chosen_path = python_versions['2.5']
+    PYTHON_HOME = python_versions[supported_version]
+    PYTHON_EXE = os.path.join(PYTHON_HOME, 'python.exe')
+    if os.path.exists(PYTHON_EXE):
+        print 'Using Python %s' % supported_version
+        #print 'Python %s seems to be installed correctly' % version
+    else:
+        print 'Python %s NOT installed correctly' % version
         sys.exit(1)
 
-    chosen_version, chosen_path = available_versions.popitem()
+except KeyError:
+    print 'This script only supports Python %s' % supported_version
+    sys.exit(1)
+    # for version, path in python_versions.iteritems():
+    #     if os.path.exists(path) and os.path.exists(os.path.join(path,'python.exe')):
+    #         print 'Python %s seems to be installed correctly' % version
+    #         available_versions[version] = path
+    #     else:
+    #         print 'Python %s NOT installed correctly' % version
 
-    print 'Using Python %s' % chosen_version
-    if chosen_version == '2.4':
-        ALL_FILES.extend(PYTHON_24_FILES)
-    elif chosen_version == '2.5':
-        ALL_FILES.extend(PYTHON_25_FILES)
-    else:
-        print 'Error: Python %s is not supported' % choosen_version
+    # if len(available_versions.keys()) == 0:
+    #     print "** Error: Install Python first\n"
+
+    # if len(available_versions.keys()) > 1:
+    #     # TODO: make a decision if more than one version
+    #     print 'More than one Python version installed'
+    #     sys.exit(1)
+
+    # chosen_version, chosen_path = available_versions.popitem()
+
+    # print 'Using Python %s' % chosen_version
+    # if chosen_version == '2.4':
+    #     ALL_FILES.extend(PYTHON_24_FILES)
+    # elif chosen_version == '2.5':
+    #     ALL_FILES.extend(PYTHON_25_FILES)
+    # else:
+    #     print 'Error: Python %s is not supported' % choosen_version
 
 if options.download_path:
     DL_PATH = options.download_path
@@ -195,12 +216,12 @@ for url in ['%s/%s' % (SERVER_ROOT, FILE) for FILE in ALL_FILES]:
     print 'downloading %s...' % filename
     #filename, headers = urllib.urlretrieve(url, os.path.join(DL_PATH, filename))
     tmp, headers = urllib.urlretrieve(url)
-    if headers.type != 'text/html': # usually an error message        
+    if headers.type != 'text/html': # usually an error message
         shutil.move(tmp, os.path.join(DL_PATH, filename))
     else:
         print 'could not retrieve %s' % url
         sys.exit(1)
-    
+
 
 # 1. for all downloaded files except for the python files we need to unzip them
 # into the GTK+ installation directory
@@ -262,7 +283,7 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
 PNG_13_PATH = os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng13.dll')
 if not os.path.exists(PNG_13_PATH):
     shutil.copyfile(os.path.join(GTK_INSTALL_PATH, 'bin', 'libpng12-0.dll'), PNG_13_PATH)
-        
+
 # register the pixbuf loaders
 load_pixbufs_cmd = '%s\\bin\\gdk-pixbuf-query-loaders.exe > %s\\etc\\gtk-2.0\\gdk-pixbuf.loaders' % (GTK_INSTALL_PATH, GTK_INSTALL_PATH)
 if options.verbose:
