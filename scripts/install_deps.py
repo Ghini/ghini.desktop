@@ -39,9 +39,15 @@ parser.add_option('-d', '--download_path', dest="download_path", metavar="DIR",
 (options, args) = parser.parse_args()
 
 
+supported_python_version = '2.5'
+
+# ALL_FILES = [
+#     'http://oss.itsystementwicklung.de/download/pysqlite/2.5/2.5.1/pysqlite-2.5.1.win32-py2.6.exe',
+#     'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.8.win32-py2.6-pg8.3.4-release.exe']
 ALL_FILES = [
     'http://oss.itsystementwicklung.de/download/pysqlite/2.5/2.5.1/pysqlite-2.5.1.win32-py2.5.exe',
-    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.8.win32-py2.5-pg8.3.4-release.exe']
+    'http://www.stickpeople.com/projects/python/win-psycopg/psycopg2-2.0.8.win32-py2.5-pg8.3.4-release.exe',
+    'http://ufpr.dl.sourceforge.net/sourceforge/gnuwin32/gettext-0.14.4.exe']
 
 EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 
@@ -54,7 +60,7 @@ EZ_SETUP_PATH = 'http://peak.telecommunity.com/dist/ez_setup.py'
 eggs_install = {'lxml': '==2.1.5',
                 'MySQL-python': '==1.2.2',
                 'simplejson': '==2.0.8',
-                'SQLAlchemy': '>=0.4.5,<0.6',
+                'SQLAlchemy': '>=0.5.2',
                 'py2exe': '==0.6.9'}
 
 
@@ -113,53 +119,20 @@ if len(python_versions.keys()) == 0:
     print "Error: Install Python first"
     sys.exit(1)
 
-supported_version = '2.5'
 try:
-    chosen_version = '2.5'
-    chosen_path = python_versions['2.5']
-    PYTHON_HOME = python_versions[supported_version]
+    PYTHON_HOME = python_versions[supported_python_version]
     PYTHON_EXE = os.path.join(PYTHON_HOME, 'python.exe')
     if os.path.exists(PYTHON_EXE):
-        print 'Using Python %s' % supported_version
+        print 'Using Python %s' % supported_python_version
         #print 'Python %s seems to be installed correctly' % version
     else:
         print 'Python %s NOT installed correctly' % version
         sys.exit(1)
 
 except KeyError:
-    print 'This script only supports Python %s' % supported_version
+    print 'This script only supports Python %s' % supported_python_version
     sys.exit(1)
-# else:
-#     print 'Python %s seems to be installed correctly' % version
-#     available_versions[version] = path
 
-#for version, path in python_versions.iteritems():
-#    if os.path.exists(path) and os.path.exists(os.path.join(path,'python.exe')):if
-    #     print 'Python %s seems to be installed correctly' % version
-    #     available_versions[version] = path
-    # else:
-    #     print 'Python %s NOT installed correctly' % version
-
-# if len(available_versions.keys()) == 0:
-#     print "Error: Install Python first"
-
-# if len(available_versions.keys()) > 1:
-#     # TODO: make a decision if more than one version
-#     print 'More than one Python version installed'
-#     sys.exit(1)
-
-# chosen_version, chosen_path = available_versions.popitem()
-
-
-#print 'Using Python %s' % supported_version
-#PYTHON_HOME = chosen_path
-#PYTHON_EXE = os.path.join(PYTHON_HOME, 'python.exe')
-# if chosen_version == '2.4':
-#     ALL_FILES.extend(PYTHON_24_FILES)
-# elif chosen_version == '2.5':
-#     ALL_FILES.extend(PYTHON_25_FILES)
-# else:
-#     print 'Error: Python %s is not supported' % choosen_version
 
 if options.download_path:
     DL_PATH = options.download_path
@@ -206,8 +179,8 @@ if not options.noeggs:
 
     # install the eggs
     for egg, version in eggs_install.iteritems():
-        cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
-        #print cmd
+        #cmd = '%s -Z "%s%s"' % (EASY_INSTALL_EXE, egg, version)
+        cmd = '%s -Z -U "%s%s"' % (EASY_INSTALL_EXE, egg, version)
         os.system(cmd)
 
 print 'done.'
