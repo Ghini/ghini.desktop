@@ -1,3 +1,4 @@
+
 #
 # Description: Download all the required files need for GTK+/pygtk development
 # and create a working environment to use them
@@ -40,6 +41,8 @@ parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
 (options, args) = parser.parse_args()
 
 
+supported_python_version = '2.5'
+
 if options.install_path:
     GTK_INSTALL_PATH = options.install_path
 else:
@@ -53,54 +56,48 @@ else:
 
 # main gtk/pygtk files
 SERVER_ROOT = 'http://ftp.gnome.org/pub/gnome/binaries/win32'
-GTK_PATH = 'gtk+/2.12/gtk+-2.12.10.zip'
-GLIB_PATH = 'glib/2.16/glib-2.16.3.zip'
-#PANGO_PATH = 'pango/1.20/pango-1.20.2.zip'
-PANGO_PATH = 'pango/1.18/pango-1.18.4.zip'
-ATK_PATH = 'atk/1.22/atk-1.22.0.zip'
+GTK_PATH = 'gtk+/2.14/gtk+_2.14.7-1_win32.zip'
+GLIB_PATH = 'glib/2.18/glib_2.18.4-1_win32.zip'
+PANGO_PATH = 'pango/1.22/pango_1.22.4-1_win32.zip'
+ATK_PATH = 'atk/1.24/atk_1.24.0-1_win32.zip'
 
-# pycairo-1.4.x doesn't support python 2.5
-#PYCAIRO_24_PATH = 'pycairo/1.2/pycairo-1.2.6-1.win32-py2.4.exe'
+# PYCAIRO_PATH = 'pycairo/1.4/pycairo-1.4.12-2.win32-py2.6.exe'
+# PYGOBJECT_PATH = 'pygobject/2.14/pygobject-2.14.2-2.win32-py2.6.exe'
+# PYGTK_PATH = 'pygtk/2.12/pygtk-2.12.1-3.win32-py2.6.exe'
 PYCAIRO_PATH = 'pycairo/1.4/pycairo-1.4.12-1.win32-py2.5.exe'
-
-# pygobject-2.14.x only supports python 2.5
-#PYGOBJECT_24_PATH = 'pygobject/2.12/pygobject-2.12.3-1.win32-py2.4.exe'
 PYGOBJECT_PATH = 'pygobject/2.14/pygobject-2.14.1-1.win32-py2.5.exe'
-
-# pygtk-2.12.x only support python 2.5
-#PYGTK_24_PATH = 'pygtk/2.10/pygtk-2.10.6-1.win32-py2.4.exe'
 PYGTK_PATH = 'pygtk/2.12/pygtk-2.12.1-2.win32-py2.5.exe'
 
 CROCO_PATH = 'libcroco/0.6/libcroco-0.6.1.zip'
-GSF_PATH = 'libgsf/1.14/libgsf-1.14.4.zip'
-RSVG_PATH = 'librsvg/2.22/librsvg-2.22.2.zip'
-SVG_PIXBUF_PATH = 'librsvg/2.22/svg-gdk-pixbuf-loader-2.22.2.zip'
-GLADE_PATH = 'libglade/2.6/libglade-2.6.2.zip'
+GSF_PATH = 'libgsf/1.14/libgsf-1.14.8.zip'
+RSVG_PATH = 'librsvg/2.22/librsvg_2.22.3-1_win32.zip'
+SVG_PIXBUF_PATH = 'librsvg/2.22/svg-gdk-pixbuf-loader_2.22.3-1_win32.zip'
+SVG_GTK_ENGINE = 'librsvg/2.22/svg-gtk-engine_2.22.3-1_win32.zip'
+GLADE_PATH = 'libglade/2.6/libglade_2.6.3-1_win32.zip'
 
 #PYTHON_24_FILES = PYCAIRO_24_PATH, PYGOBJECT_24_PATH, PYGTK_24_PATH
 #PYTHON_25_FILES = PYCAIRO_25_PATH, PYGOBJECT_25_PATH, PYGTK_25_PATH
 
 # dependencies
-CAIRO_PATH = 'dependencies/cairo-1.4.14.zip'
+CAIRO_PATH = 'dependencies/cairo-1.6.4-2.zip'
 EXPAT_PATH = 'dependencies/expat-2.0.0.zip'
 FONTCONFIG_PATH = 'dependencies/fontconfig-2.4.2-tml-20071015.zip'
-FREETYPE_PATH = 'dependencies/freetype-2.3.5.zip'
-#GETTEXT_PATH = 'dependencies/gettext-0.14.5.zip'
-GETTEXT_PATH = 'dependencies/gettext-runtime-0.17.zip'
+FREETYPE_PATH = 'dependencies/freetype_2.3.8-1_win32.zip'
+GETTEXT_PATH = 'dependencies/gettext-runtime-0.17-1.zip'
 BZIP_PATH = 'dependencies/libbzip2-1.0.2.zip'
 ICONV_PATH = 'dependencies/libiconv-1.9.1.bin.woe32.zip' # should i be getting the woe32 or the other one?
 JPEG_PATH = 'dependencies/libjpeg-6b-4.zip'
-PNG_PATH = 'dependencies/libpng-1.2.29.zip'
-TIFF_PATH = 'dependencies/libtiff-3.7.1.zip'
+PNG_PATH = 'dependencies/libpng_1.2.34-1_win32.zip'
+TIFF_PATH = 'dependencies/libtiff-3.8.2.zip'
 XML_PATH = 'dependencies/libxml2-2.6.27.zip'
 ZLIB_PATH = 'dependencies/zlib-1.2.3.zip'
 
 ALL_FILES = [PYCAIRO_PATH, PYGOBJECT_PATH, PYGTK_PATH,
-             PYGTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
+             GTK_PATH, GLIB_PATH, PANGO_PATH, ATK_PATH, ZLIB_PATH, BZIP_PATH,
              ICONV_PATH, GETTEXT_PATH, PNG_PATH, JPEG_PATH, TIFF_PATH,
-             CAIRO_PATH, RSVG_PATH, SVG_PIXBUF_PATH, GLADE_PATH,
-             XML_PATH, CROCO_PATH, GSF_PATH, FONTCONFIG_PATH, EXPAT_PATH,
-             FREETYPE_PATH] # no python files yet
+             CAIRO_PATH, RSVG_PATH, SVG_PIXBUF_PATH, SVG_GTK_ENGINE,
+             GLADE_PATH, XML_PATH, CROCO_PATH, GSF_PATH, FONTCONFIG_PATH,
+             EXPAT_PATH, FREETYPE_PATH]
 
 
 def get_subkey_names(reg_key):
@@ -157,46 +154,19 @@ if len(python_versions.keys()) == 0:
     print "Error: Install Python first"
     sys.exit(1)
 
-supported_version = '2.5'
 try:
-    chosen_version = '2.5'
-    chosen_path = python_versions['2.5']
-    PYTHON_HOME = python_versions[supported_version]
+    PYTHON_HOME = python_versions[supported_python_version]
     PYTHON_EXE = os.path.join(PYTHON_HOME, 'python.exe')
     if os.path.exists(PYTHON_EXE):
-        print 'Using Python %s' % supported_version
+        print 'Using Python %s' % supported_python_version
         #print 'Python %s seems to be installed correctly' % version
     else:
         print 'Python %s NOT installed correctly' % version
         sys.exit(1)
 
 except KeyError:
-    print 'This script only supports Python %s' % supported_version
+    print 'This script only supports Python %s' % supported_python_version
     sys.exit(1)
-    # for version, path in python_versions.iteritems():
-    #     if os.path.exists(path) and os.path.exists(os.path.join(path,'python.exe')):
-    #         print 'Python %s seems to be installed correctly' % version
-    #         available_versions[version] = path
-    #     else:
-    #         print 'Python %s NOT installed correctly' % version
-
-    # if len(available_versions.keys()) == 0:
-    #     print "** Error: Install Python first\n"
-
-    # if len(available_versions.keys()) > 1:
-    #     # TODO: make a decision if more than one version
-    #     print 'More than one Python version installed'
-    #     sys.exit(1)
-
-    # chosen_version, chosen_path = available_versions.popitem()
-
-    # print 'Using Python %s' % chosen_version
-    # if chosen_version == '2.4':
-    #     ALL_FILES.extend(PYTHON_24_FILES)
-    # elif chosen_version == '2.5':
-    #     ALL_FILES.extend(PYTHON_25_FILES)
-    # else:
-    #     print 'Error: Python %s is not supported' % choosen_version
 
 if options.download_path:
     DL_PATH = options.download_path
@@ -244,6 +214,7 @@ else:
 # for all the files that we downloaded (or would have downloaded) then
 # either unzip or execute them
 for filename in [f.split('/')[-1] for f in ALL_FILES]:
+    #print filename
     if filename.endswith('.zip'):
         try:
             zip = zipfile.ZipFile(os.path.join(DL_PATH, filename), 'r')

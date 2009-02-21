@@ -130,6 +130,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             #print build_base
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
+            # copy GTK to
+            # TODO: create a flag to control whether or not to copy
+            # the GTK directory
+            gtk_root = 'c:\\gtk'
+            if not os.path.exists(gtk_root):
+                dir_util.copy_tree(gtk_root, self.dist_dir())
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
