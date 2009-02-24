@@ -32,10 +32,12 @@ from bauble import version
 
 # TODO: run the clean before creating an sdist
 
+# **********************************
 # NOTE: your can create a debian .dsc with the following command if
 # stdeb is installed:
 #
-# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires
+# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires --install-args '--deb'
+# **********************************
 
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
@@ -197,35 +199,23 @@ class build(_build):
             if not os.path.exists(mo) or dep_util.newer(po, mo):
                 spawn.spawn(['msgfmt', po, '-o', mo])
 
+        # copy .desktop and icons
+        if sys.platform == 'linux2':
+            app_dir = os.path.join(self.build_base, 'share/applications')
+            dir_util.mkpath(app_dir)
+            file_util.copy_file('data/bauble.desktop', app_dir)
 
-
-class install_i18n(Command):
-
-    user_options = [
-        ('root=', None,
-         "install everything relative to this alternate root directory"),
-        ('install-dir=', 'd',
-         "base directory for installing data files "
-         "(default: installation base dir)"),
-        ]
-
-    def initialize_options(self):
-        self.root = None
-        self.prefix = None
-        self.install_base = None
-        self.install_dir = None
-
-    def finalize_options(self):
-        self.set_undefined_options('install',
-                                   ('install_data', 'install_dir'),
-                                   ('root', 'root')
-                                   )
-    def run(self):
-        locales = os.path.dirname(locale_path)
-        install_cmd = self.get_finalized_command('install')
-        build_base = install_cmd.build_base
-        src = os.path.join(build_base, locales)
-        dir_util.copy_tree(src, os.path.join(self.install_dir, locales))
+            icon_sizes = [16, 22, 32, 48, 64]#, 128]
+            icon_root = os.path.join(self.build_base, 'share/icons/hicolor')
+            dimension = lambda s: '%sx%s' % (s, s)
+            for size in icon_sizes:
+                img = 'data/bauble-%s.png' % size
+                dest = os.path.join(icon_root, '%s/apps/bauble.png'
+                                    % dimension(size))
+                dir_util.mkpath(os.path.split(dest)[0])
+                file_util.copy_file(img, dest)
+#                 spawn.spawn(['xdg-icon-resource', 'install', '--novendor',
+#                             '--size', str(size),  img,  'bauble'])
 
 
 
@@ -235,14 +225,18 @@ class install(_install):
     def has_i18n(self):
         return True
 
-    _install.sub_commands.append(('install_i18n', lambda self: True))
+    #_install.sub_commands.append(('install_i18n', lambda self: True))
 
-    _install.user_options.append(('skip-xdg', None,
-                                  'disable running the xdg-utils commands'))
+    # the --deb parameter allows us to do thing specific for a debian
+    # package like install the icons with xdg-icons-resource
+    _install.user_options.append(('deb', None,
+                                  'run extra commands for installing '
+                                  'a debian package'))
 
     def initialize_options(self):
         _install.initialize_options(self)
         self.skip_xdg = False
+        self.deb = False
 
     def finalize_options(self):
         _install.finalize_options(self)
@@ -258,32 +252,28 @@ class install(_install):
         else:
             _install.run(self)
 
-        if self.skip_xdg or self.single_version_externally_managed:
+
+        # check if someone else is copying the files to the destination
+        if self.single_version_externally_managed:# and not self.root:
             return
 
+        if not self.root:
+            self.root = self.prefix
+
+        # install bauble.desktop and icons
         if sys.platform == 'linux2':
-            # install standard desktop files
-#             xdg_install_dir = os.path.join(self.build_base, 'share')
-#             os.environ['XDG_DATA_DIRS'] = xdg_install_dir
-#             os.environ['XDG_DATA_HOME'] = xdg_install_dir
-#             os.environ['XDG_UTILS_DEBUG_LEVEL'] = '1'
-            spawn.spawn(['xdg-desktop-menu', 'install', '--novendor',
-                        'data/bauble.desktop'])
-            icon_sizes = [16, 22, 32, 48, 64]#, 128]
-            for size in icon_sizes:
-                img = 'data/bauble-%s.png' % size
-                spawn.spawn(['xdg-icon-resource', 'install', '--novendor',
-                            '--size', str(size),  img,  'bauble'])
+            # install everything in share
+            dir_util.copy_tree(os.path.join(self.build_base, 'share'),
+                                os.path.join(self.root, 'share'))
         elif sys.platform == 'win32':
-            pass
+            # install only i18n filess
+            locales = os.path.dirname(locale_path)
+            install_cmd = self.get_finalized_command('install')
+            build_base = install_cmd.build_base
+            src = os.path.join(build_base, locales)
+            dir_util.copy_tree(src, os.path.join(self.root, locales))
 
 
-# try:
-#     import stdeb
-#     class sdist_dsc(stdeb.command.sdist_dsb):
-
-#         def run():
-#             pass
 
 # docs command
 DOC_BUILD_PATH = 'doc/.build/'
@@ -349,8 +339,7 @@ except ImportError:
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs, 'clean': clean,
-                           'install_i18n': install_i18n},
+                           'docs': docs, 'clean': clean},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
                  packages = all_packages,
