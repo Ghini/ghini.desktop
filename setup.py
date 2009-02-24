@@ -36,7 +36,7 @@ from bauble import version
 # NOTE: your can create a debian .dsc with the following command if
 # stdeb is installed:
 #
-# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires --install-args '--deb'
+# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires
 # **********************************
 
 # relative path for locale files
@@ -225,18 +225,9 @@ class install(_install):
     def has_i18n(self):
         return True
 
-    #_install.sub_commands.append(('install_i18n', lambda self: True))
-
-    # the --deb parameter allows us to do thing specific for a debian
-    # package like install the icons with xdg-icons-resource
-    _install.user_options.append(('deb', None,
-                                  'run extra commands for installing '
-                                  'a debian package'))
-
     def initialize_options(self):
         _install.initialize_options(self)
         self.skip_xdg = False
-        self.deb = False
 
     def finalize_options(self):
         _install.finalize_options(self)
@@ -324,6 +315,15 @@ class clean(Command):
             dir_util.remove_tree('build')
         if os.path.exists(DOC_BUILD_PATH):
             dir_util.remove_tree(DOC_BUILD_PATH)
+        # .egg info
+        egg_info_dir = 'bauble.egg-info'
+        if os.path.exists(egg_info_dir):
+            dir_util.remove_tree(egg_info_dir)
+
+        # deb_dist - used by stdeb
+        deb_dist = 'deb_dist'
+        if os.path.exists(deb_dist):
+            dir_util.remove_tree(deb_dist)
 
 
 # require pysqlite if not using python2.5 or greater
