@@ -8,7 +8,6 @@ except ImportError:
     from ez_setup import use_setuptools
     use_setuptools()
 import setuptools
-
 import os
 import sys
 import glob
@@ -30,14 +29,8 @@ from bauble import version
 # TODO: fix permissions on files when creating an sdist with:
 # find . -regex '.*?\.\(glade\|xsl\|txt\|svg\|ui\)'  -exec chmod 644 {} \;
 
-# TODO: run the clean before creating an sdist
-
-# **********************************
-# NOTE: your can create a debian .dsc with the following command if
-# stdeb is installed:
-#
-# stdeb_run_setup --extra-cfg-file stdeb.cfg --no-pycentral --ignore-install-requires
-# **********************************
+# TODO: run the clean before creating an sdist, or at least the
+# manifest should not include those files that would be cleaned
 
 # relative path for locale files
 locale_path = os.path.join('share', 'locale')
@@ -154,7 +147,6 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             print "**Error: Can't run this command."
             print sys.exit(1)
             # run py2exe
-
 else:
     py2exe_options = {}
     py2exe_setup_args = {}
@@ -172,7 +164,6 @@ else:
         pass
     class nsis_cmd(_empty_cmd):
         pass
-
 
 
 # build command
@@ -325,6 +316,20 @@ class clean(Command):
         if os.path.exists(deb_dist):
             dir_util.remove_tree(deb_dist)
 
+# sdist_deb command
+class sdist_deb(_sdist):
+    user_options = []
+#     def initialize_options(self):
+#         pass
+    def finalize_options(self):
+        _sdist.finalize_options(self)
+        self.formats = ['gztar']
+
+    def run(self):
+        _sdist.run(self)
+        cmd = ['py2dsc', '--extra-cfg-file', 'stdeb.cfg', '--no-pycentral',
+               '--ignore-install-requires', self.archive_files[0]]
+        spawn.spawn(cmd)
 
 # require pysqlite if not using python2.5 or greater
 needs_sqlite = []
@@ -339,7 +344,8 @@ except ImportError:
 setuptools.setup(name="bauble",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
-                           'docs': docs, 'clean': clean},
+                           'docs': docs, 'clean': clean,
+                           'sdist_deb': sdist_deb},
                  version=version,
                  scripts=["scripts/bauble", "scripts/bauble-admin"],
                  packages = all_packages,
