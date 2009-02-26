@@ -196,8 +196,19 @@ class build(_build):
             dir_util.mkpath(app_dir)
             file_util.copy_file('data/bauble.desktop', app_dir)
 
-            icon_sizes = [16, 22, 32, 48, 64]#, 128]
+            icon_sizes = [16, 22, 24, 32, 48, 64]#, 128]
             icon_root = os.path.join(self.build_base, 'share/icons/hicolor')
+
+            # copy scalable icon
+            scalable_dir = os.path.join(icon_root, 'scalable/apps')
+            dir_util.mkpath(scalable_dir)
+            file_util.copy_file('data/bauble.svg', scalable_dir)
+
+            pixmaps_dir = os.path.join(self.build_base, 'share/pixmaps')
+            dir_util.mkpath(pixmaps_dir)
+            file_util.copy_file('data/bauble.svg', pixmaps_dir)
+
+            # copy .png icons
             dimension = lambda s: '%sx%s' % (s, s)
             for size in icon_sizes:
                 img = 'data/bauble-%s.png' % size
@@ -205,8 +216,6 @@ class build(_build):
                                     % dimension(size))
                 dir_util.mkpath(os.path.split(dest)[0])
                 file_util.copy_file(img, dest)
-#                 spawn.spawn(['xdg-icon-resource', 'install', '--novendor',
-#                             '--size', str(size),  img,  'bauble'])
 
 
 
@@ -236,24 +245,21 @@ class install(_install):
 
 
         # check if someone else is copying the files to the destination
-        if self.single_version_externally_managed:# and not self.root:
-            return
-
-        if not self.root:
-            self.root = self.prefix
+        #if self.single_version_externally_managed:# and not self.root:
+        #    return
 
         # install bauble.desktop and icons
         if sys.platform == 'linux2':
             # install everything in share
             dir_util.copy_tree(os.path.join(self.build_base, 'share'),
-                                os.path.join(self.root, 'share'))
+                                os.path.join(self.install_data, 'share'))
         elif sys.platform == 'win32':
-            # install only i18n filess
+            # install only i18n files
             locales = os.path.dirname(locale_path)
             install_cmd = self.get_finalized_command('install')
             build_base = install_cmd.build_base
             src = os.path.join(build_base, locales)
-            dir_util.copy_tree(src, os.path.join(self.root, locales))
+            dir_util.copy_tree(src, os.path.join(self.install_data, locales))
 
 
 
@@ -327,7 +333,9 @@ class sdist_deb(_sdist):
 
     def run(self):
         _sdist.run(self)
-        cmd = ['py2dsc', '--extra-cfg-file', 'stdeb.cfg', '--no-pycentral',
+        cfg = os.path.abspath('stdeb.cfg')
+        cmd = ['py2dsc', '--extra-cfg-file', cfg, #'--no-pycentral',
+               '--dist-dir', 'dist/deb_dist',
                '--ignore-install-requires', self.archive_files[0]]
         spawn.spawn(cmd)
 

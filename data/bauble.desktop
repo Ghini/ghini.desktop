@@ -6,5 +6,5 @@ Comment=An application for managing botanical collections
 Terminal=False
 Icon=bauble
 Type=Application
-Exec=/usr/bin/bauble
+Exec=bauble
 Categories=Education;
