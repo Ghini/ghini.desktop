@@ -79,7 +79,7 @@ GLADE_PATH = 'libglade/2.6/libglade_2.6.3-1_win32.zip'
 #PYTHON_25_FILES = PYCAIRO_25_PATH, PYGOBJECT_25_PATH, PYGTK_25_PATH
 
 # dependencies
-CAIRO_PATH = 'dependencies/cairo-1.6.4-2.zip'
+CAIRO_PATH = 'dependencies/cairo_1.8.6-1_win32.zip'
 EXPAT_PATH = 'dependencies/expat-2.0.0.zip'
 FONTCONFIG_PATH = 'dependencies/fontconfig-2.4.2-tml-20071015.zip'
 FREETYPE_PATH = 'dependencies/freetype_2.3.8-1_win32.zip'
