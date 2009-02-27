@@ -129,8 +129,10 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             # TODO: create a flag to control whether or not to copy
             # the GTK directory
             gtk_root = 'c:\\gtk'
-            if not os.path.exists(gtk_root):
-                dir_util.copy_tree(gtk_root, self.dist_dir())
+            #if os.path.exists(gtk_root):
+            dist_gtk = os.path.join(self.dist_dir, 'gtk')
+            if not os.path.exists(dist_gtk):
+                dir_util.copy_tree(gtk_root, dist_gtk)
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
@@ -169,6 +171,10 @@ else:
 # build command
 class build(_build):
     def run(self):
+        if sys.platform == 'win32':
+            # try to guess the path of the gettext utilities
+            os.environ['PATH'] = os.environ['PATH'] + \
+                ';c:\\Program Files\\GnuWin32\\bin'
         if not spawn.find_executable('msgfmt'):
             msg = '** Error: Building Bauble requires the gettext utilities ' \
                   'be installed.  If they are installed please ensure that ' \
