@@ -9,6 +9,7 @@ objects, converts them to the ABCD XML format, transforms the ABCD
 data to an XSL formatting stylesheet and uses a XSL-PDF renderer to
 convert the stylesheet to PDF.
 """
+import shutil
 import sys
 import os
 import tempfile
@@ -244,10 +245,12 @@ class DefaultFormatterPlugin(FormatterPlugin):
 	# copy default template files to user_dir
 	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
 		     'plant_list_ex.xsl', 'small_labels.xsl']
+        base_dir = os.path.join(paths.lib_dir(),
+                         "plugins", "report", 'default')
 	for template in templates:
 	    f = os.path.join(paths.user_dir(), template)
 	    if not os.path.exists(f):
-		shutil.copy(f)
+		shutil.copy(os.path.join(base_dir, template), f)
 
 
     @staticmethod
