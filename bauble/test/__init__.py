@@ -18,7 +18,7 @@ def init_bauble(uri):
     prefs.init()
     pluginmgr.load()
     db.create(False)
-    pluginmgr.init()
+    pluginmgr.init(True)
 
 
 class BaubleTestCase(unittest.TestCase):

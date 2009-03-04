@@ -10,7 +10,7 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = '0.9.0b1' # :bump
+version = '0.9.0b2' # :bump
 version_tuple = version.split('.')
 
 def main_is_frozen():
@@ -177,13 +177,6 @@ def main(uri=None):
     # create the user directory
     if not os.path.exists(paths.user_dir()):
         os.makedirs(paths.user_dir())
-    try:
-        import simplejson
-    except ImportError:
-        msg = _('SimpleJSON not installed. Please install SimpleJSON from ' \
-                    'http://cheeseshop.python.org/pypi/simplejson')
-        utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        raise
 
     # initialize threading
     gtk.gdk.threads_init()
