@@ -218,8 +218,7 @@ def main(uri=None):
                 db.open(uri, False)
                 break
             except (error.EmptyDatabaseError, error.MetaTableError,
-                    pluginmgr.RegistryEmptyError, error.VersionError,
-                    error.TimestampError), e:
+                    error.VersionError, error.TimestampError), e:
                 warning(e)
                 open_exc = e
                 # reopen without verification so that bauble.Session and
