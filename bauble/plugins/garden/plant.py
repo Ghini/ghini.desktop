@@ -219,13 +219,8 @@ class Plant(db.Base):
         """
         Get the plant delimiter from the BaubleMeta table
         """
-        #row = meta.bauble_meta_table.select(meta.bauble_meta_table.c.name== \
-        #                                    plant_delimiter_key).execute()
-        #Plant.__delimiter = row.fetchone()['value']
-        query = bauble.Session().query(meta.BaubleMeta.value)
-        value = query.filter_by(name=plant_delimiter_key).one()[0]
-        check(value is not None, _('plant delimiter not set in bauble meta'))
-        return value
+        return meta.get_default(plant_delimiter_key,
+                                default_plant_delimiter).value
 
     _delimiter = None
     def _get_delimiter(self):
