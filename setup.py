@@ -21,7 +21,6 @@ import distutils.file_util as file_util
 from setuptools import Command
 from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
-
 from bauble import version
 
 # TODO: external dependencies not in the PyPI: PyGTK>=2.10
@@ -77,7 +76,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 
     # TODO: check again that this is necessary for pysqlite2, we might
     # be able to juse use the python 2.5 built in sqlite3 module
-    py2exe_includes = ['pysqlite2.dbapi2', 'simplejson', 'lxml',
+    py2exe_includes = ['pysqlite2.dbapi2', 'lxml',
                        'MySQLdb', 'psycopg2', 'encodings'] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
@@ -166,6 +165,7 @@ else:
         pass
     class nsis_cmd(_empty_cmd):
         pass
+
 
 
 # build command
@@ -367,7 +367,6 @@ setuptools.setup(name="bauble",
                  package_data = package_data,
                  data_files = data_files,
                  install_requires=["SQLAlchemy>=0.5rc4",#<0.6",
-                                   "simplejson>=1.9.1",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
                                    "gdata.py>=1.2.4"] + needs_sqlite,

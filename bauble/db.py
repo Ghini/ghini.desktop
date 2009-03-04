@@ -151,7 +151,7 @@ def create(import_defaults=True):
 #                 submenu.remove(c)
 #             menu.show()
 
-        # create the plugin registry and import the default data
+        # fill in the bauble meta table and install all the plugins
         meta_table = meta.BaubleMeta.__table__
         meta_table.insert().execute(name=meta.VERSION_KEY,
                                     value=unicode(bauble.version))
@@ -229,13 +229,6 @@ def _verify_connection(engine, show_error_dialogs=False):
                      'db_version':'%s' % e.version}
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
-        except pluginmgr.RegistryEmptyError, e:
-            msg = _('The database you have connected to does not have a '\
-                    'valid plugin registry.  This means that the ' \
-                    'database could be corrupt or was interrupted while ' \
-                    'creating a new database at this connection.')
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-            raise
 
     if len(engine.table_names()) == 0:
         raise error.EmptyDatabaseError()
@@ -271,14 +264,5 @@ def _verify_connection(engine, show_error_dialogs=False):
 
     if major != bauble.version_tuple[0] or minor != bauble.version_tuple[1]:
         raise error.VersionError(result.value)
-
-
-    # will raise RegistryEmptyError if the plugin registry does not exist in
-    # the meta table
-    try:
-        pluginmgr.Registry(session=session)
-    except:
-        session.close()
-        raise
 
     return True

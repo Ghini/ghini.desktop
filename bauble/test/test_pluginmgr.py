@@ -15,7 +15,8 @@ from bauble.view import SearchView, MapperSearch, ResultSet
 from bauble.utils.log import debug, error
 from bauble.test import BaubleTestCase, uri
 import bauble.pluginmgr as pluginmgr
-from bauble.pluginmgr import RegistryEmptyError, Registry, RegistryEntry
+from bauble.pluginmgr import PluginRegistry
+
 
 # TODO: need tests for
 # 1. what happens when a plugin is in the plugins dict but not the registry
@@ -143,24 +144,21 @@ class StandalonePluginMgrTests(unittest.TestCase):
 #         self.assert_(A.installed and B.installed and C.installed)
 
 
-
-class RegistryTests(BaubleTestCase):
+class PluginRegistryTests(BaubleTestCase):
 
     def test_registry(self):
         """
-        Test bauble.pluginmgr.Registry
+        Test bauble.pluginmgr.PluginRegistry
         """
-        # should always be True once pluginmgr.install() is called
-        self.assert_(Registry.exists)
-
         # test that adding works
-        registry = Registry(self.session)
-        registry.add(RegistryEntry(name='TestPlugin', version='0.0'))
-        self.assert_('TestPlugin' in registry)
+        PluginRegistry.add(A)
+        self.assert_(PluginRegistry.exists(A))
 
         # test that removing works
-        registry.remove('TestPlugin')
-        self.assert_('TestPlugin' not in registry)
+        PluginRegistry.remove(A)
+        self.assert_(not PluginRegistry.exists(A))
+
+
 
 
 
