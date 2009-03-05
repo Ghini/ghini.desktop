@@ -123,6 +123,7 @@ class Importer(object):
         raise NotImplementedError
 
 
+
 class CSVImporter(Importer):
 
     """
@@ -175,7 +176,6 @@ class CSVImporter(Importer):
                           metadata, force)
 
 
-
     def run(self, filenames, metadata, force=False):
         '''
         A generator method for importing filenames into the database.
@@ -220,12 +220,13 @@ class CSVImporter(Importer):
                 return
             filename_dict[table_name] = f
 
+        # resolve filenames to table names and return them in sorted order
         sorted_tables = []
         for table in metadata.sorted_tables:
             try:
                 sorted_tables.insert(0, (table, filename_dict.pop(table.name)))
-            except KeyError, e: # ---> table.name not in list of filenames
-                # we handle this below
+            except KeyError, e:
+                # table.name not in list of filenames
                 pass
 
         if len(filename_dict) > 0:
@@ -236,8 +237,8 @@ class CSVImporter(Importer):
 
         total_lines = 0
         for filename in filenames:
-            #get the total number of lines for all the files
-            total_lines += len(file(filename).readlines())
+           #get the total number of lines for all the files
+           total_lines += len(file(filename).readlines())
 
         self.__error_traceback_str = ''
         self.__error_exc = _('Unknown Error.')
@@ -246,15 +247,38 @@ class CSVImporter(Importer):
         def add_to_created(names):
             created_tables.extend([n for n in names \
                                    if n not in created_tables])
-        total_lines = 0
-        for table, filename in sorted_tables:
-            #get the total number of lines for all the files
-            total_lines += len(file(filename).readlines())
+
         steps_so_far = 0
         cleaned = None
         insert = None
+        depends = set() # the type will be changed to a [] later
         try:
-            # first do all the table creation/dropping
+            # get all the dependencies
+            for table, filename in sorted_tables:
+                #debug(table.name)
+                d = utils.find_dependent_tables(table)
+                depends.update(list(d))
+            from sqlalchemy.sql.util import sort_tables
+            # sort the dependencies
+            depends = sort_tables(list(depends))
+
+            # drop all of the dependencies together
+            #debug('dropping %s' % str([d.name for d in depends]))
+            if not force:
+                msg = _('In order to import the files the following tables ' \
+                            'will need to be dropped:' \
+                            '\n\n<b>%s</b>\n\n' \
+                            'Would you like to continue?' \
+                            % ', '.join([d.name for d in depends]))
+                response = utils.yes_no_dialog(msg)
+            else:
+                response = True
+            if response:
+                metadata.drop_all(connection, tables=depends)
+            else:
+                return # user doesn't want to drop dependencies so we just quit
+
+            # operate on the tables one at a time
             for table, filename in reversed(sorted_tables):
                 if self.__cancel or self.__error:
                     break
@@ -265,10 +289,13 @@ class CSVImporter(Importer):
                 yield # allow progress bar update
                 if not table.exists():
                     #log.info('%s does not exist. creating.' % table.name)
-                    debug('%s does not exist. creating.' % table.name)
+                    #debug('%s does not exist. creating.' % table.name)
                     table.create(bind=engine)
                     add_to_created(table.name)
-                elif table.name not in created_tables:# or \
+                elif table.name not in created_tables and table not in depends:
+                    # we get here if the table wasn't previously
+                    # dropped because it was a dependency of another
+                    # table
                     if not force:
                         msg = _('The <b>%s</b> table already exists in the '\
                                 'database and may contain some data. If a '\
@@ -281,35 +308,10 @@ class CSVImporter(Importer):
                         response = utils.yes_no_dialog(msg)
                     else:
                         response = True
-
                     if response:
-                        deps = list(utils.find_dependent_tables(table))
-                        if len(deps) > 0:
-                            dep_names = [t.name for t in deps]
-                            msg = _('The following tables depend on the ' \
-                                    '<b>%(table)s</b> table. These tables ' \
-                                    'will need to be dropped as well.\n\n' \
-                                    '<b>%(other_tables)s</b>\n\n' \
-                                    '<i>Would you like to continue?</i>' \
-                                    % {'table': table.name,
-                                       'other_tables': ', '.join(dep_names)})
-                            if not force and not utils.yes_no_dialog(msg):
-                                self.__cancel = True
-                                continue
-
-                            # drop the deps in reverse order
-                            for d in deps:
-                                d.drop(bind=engine, checkfirst=True)
-                            table.drop(bind=engine, checkfirst=True)
-                            table.create(bind=engine)
-                            add_to_created([table.name])
-                            for d in reversed(deps): # recreate the deps
-                                d.create(bind=engine)
-                                add_to_created(dep_names)
-                        else:
-                            table.drop(bind=engine, checkfirst=True)
-                            table.create(bind=engine)
-                            add_to_created([table.name])
+                        table.drop()
+                        table.create()
+                        add_to_created(table.name)
 
                 if self.__cancel or self.__error:
                     break
@@ -358,6 +360,7 @@ class CSVImporter(Importer):
                         yield
                 if self.__error or self.__cancel:
                     break
+            metadata.create_all(connection, depends)
         except (bauble.task.TaskQuitting, GeneratorExit), e:
             transaction.rollback()
             raise

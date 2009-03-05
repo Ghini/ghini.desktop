@@ -33,7 +33,7 @@ def main_dir():
         d = os.path.dirname(sys.argv[0])
     if d == "":
         d = os.curdir
-    return d
+    return os.path.abspath(d)
 
 
 def lib_dir():
@@ -44,7 +44,28 @@ def lib_dir():
         d = os.path.join(main_dir(), 'bauble')
     else:
         d = os.path.dirname(__file__)
-    return d
+    return os.path.abspath(d)
+
+
+# def data_dir():
+#     """
+#     Return the data directory.  The data directory should contain any
+#     files required by Bauble or its plugins but aren't code.
+#     e.g. image, pixmaps
+
+#     Windows = main_dir()
+#     Linux = /usr/share/bauble
+
+#     images = data_dir()/images
+#     glade = data_dir()/glade
+#     """
+#     if sys.platform == 'linux2':
+#         base = os.path.dirname(os.path.dirname(main_dir()))
+#         return os.path.join(base, 'share', 'bauble')
+#     elif sys.platform == 'win32':
+#         return os.path.join(main_dir(), 'share')
+#     else:
+#         raise NotImplementedError('Unknown platform: %s' % sys.platform)
 
 
 def locale_dir():
@@ -52,14 +73,15 @@ def locale_dir():
     Returns the root path of the locale files
     """
     if sys.platform == 'linux2':
-        base = os.path.dirname(os.path.dirname(main_dir()))
-        return os.path.join(base, 'share', 'locale')
-        #return os.path.join('/usr', 'share', 'locale')
+        # TODO: how do we get the locale directory for linux?
+        d = os.path.join('/usr', 'share', 'locale')
     elif sys.platform == 'win32':
-        return os.path.join(main_dir(), 'share', 'locale')
+        import bauble.paths as paths
+        d = os.path.join(paths.main_dir(), 'share', 'locale')
     else:
         raise NotImplementedError('This platform does not support '\
                                   'translations: %s' % sys.platform)
+    return os.path.abspath(d)
 
 
 def user_dir():
@@ -69,9 +91,9 @@ def user_dir():
     from bauble.i18n import _
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
-            return os.path.join(os.environ["APPDATA"], "Bauble")
+            d = os.path.join(os.environ["APPDATA"], "Bauble")
         elif 'USERPROFILE' in os.environ:
-            return os.path.join(os.environ['USERPROFILE'], 'Application Data',
+            d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
             from bauble.i18n import _
@@ -82,8 +104,8 @@ def user_dir():
         # because if the user runs bauble with sudo then it will
         # return the path of the user that used sudo instead of ~root
         try:
-            return os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
-				'.bauble')
+            d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
+                             '.bauble')
         except:
             raise Exception(_('Could not get path for user settings: '\
                               'could not expand $HOME for user %(username)s' %\
@@ -91,4 +113,11 @@ def user_dir():
     else:
         raise Exception(_('Could not get path for user settings: '\
                           'unsupported platform'))
+    return os.path.abspath(d)
 
+
+if __name__ == '__main__':
+    print 'main: %s' % main_dir()
+    print 'lib: %s' % lib_dir()
+    print 'locale: %s' % locale_dir()
+    print 'user: %s' % user_dir()

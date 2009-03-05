@@ -138,21 +138,34 @@ def init(force=False):
     """
     #debug('bauble.pluginmgr.init()')
     # search for plugins that are in the plugins dict but not in the registry
-    not_installed = [p for p in plugins.values() \
-                         if not PluginRegistry.exists(p)]
-    if len(not_installed) > 0:
-        msg = _('The following plugins were not found in the plugin '\
-                 'registry:\n\n<b>%s</b>\n\n'\
-                 '<i>Would you like to install them now?</i>' \
-                % ', '.join([p.__name__ for p in not_installed]))
-        if force or utils.yes_no_dialog(msg):
-            install([p for p in not_installed])
+    registered = plugins.values()
+    try:
+        # try to access the plugin registry, if the tables does not
+        # exists then it might mean that we are opening a pre 0.9
+        # database, in this case we just assume all the plugins have
+        # been installed and registered, this might be the right thing
+        # to do but it least it allows you to connect to a pre bauble 0.9
+        # database and use it to upgrade to a >=0.9 database
+        not_installed = [p for p in plugins.values() \
+                             if not PluginRegistry.exists(p)]
+        if len(not_installed) > 0:
+            msg = _('The following plugins were not found in the plugin '\
+                        'registry:\n\n<b>%s</b>\n\n'\
+                        '<i>Would you like to install them now?</i>' \
+                        % ', '.join([p.__name__ for p in not_installed]))
+            if force or utils.yes_no_dialog(msg):
+                install([p for p in not_installed])
 
-    # sort plugins in the registry by their dependencies
-    session = bauble.Session()
-    registry = list(session.query(PluginRegistry))
+            # sort plugins in the registry by their dependencies
+            session = bauble.Session()
+            registry = list(session.query(PluginRegistry))
+            registered = [plugins[e.name] for e in registry]
+    except Exception, e:
+        error(traceback.format_exc())
+        error(e)
+        msg = _('Could not access plugin registry.')
+        error(msg)
 
-    registered = [plugins[e.name] for e in registry]
     deps, unmet = _create_dependency_pairs(registered)
     ordered = topological_sort(registered, deps)
     if not ordered:
