@@ -40,20 +40,17 @@ def find_dependent_tables(table, metadata=None):
     if metadata is None:
         import bauble.db as db
         metadata = db.metadata
-    result = []
-    # this ain't pretty but it works
+    tables = []
     def _impl(t2):
-        for tbl in metadata.tables.values():
-            for col in tbl.c:
-                for fk in col.foreign_keys:
-                    if fk.column.table == t2:
-                        if tbl not in result and tbl is not table:
-#                            debug('append: %s' % tbl.name)
-                            result.append(tbl)
-                            _impl(tbl)
+        for tbl in metadata.sorted_tables:
+            for fk in tbl.foreign_keys:
+                if fk.column.table == t2 and tbl not in tables \
+                        and tbl is not table:
+                    tables.append(tbl)
+                    _impl(tbl)
     _impl(table)
-    #debug([r.name for r in result])
-    return sort_tables(tables=result)
+    return sort_tables(tables=tables)
+
 
 
 class GladeWidgets(dict):
