@@ -743,7 +743,6 @@ class SearchView(pluginmgr.View):
         self.set_infobox_from_row(None)
         values = self.get_selected_values()
         if len(values) == 0:
-            debug('nothing selected')
             return
         try:
             self.set_infobox_from_row(values[0])
