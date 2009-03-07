@@ -147,7 +147,6 @@ class PropertiesExpander(InfoExpander):
 
 
 
-
 class InfoBoxPage(gtk.ScrolledWindow):
     """
     A :class:`gtk.ScrolledWindow` that contains
@@ -227,17 +226,23 @@ class InfoBox(gtk.Notebook):
 
     def __init__(self, tabbed=False):
         super(InfoBox, self).__init__()
+        self.row = None
         self.set_property('show-border', False)
         if not tabbed:
             page = InfoBoxPage()
             self.insert_page(page, position=0)
             self.set_property('show-tabs', False)
+        self.set_current_page(0)
+        self.connect('switch-page', self.on_switch_page)
 
 
-    def on_switch_page(self, dummy_page, page_num, *args):
+    # TODO: this seems broken: self == notbook
+    def on_switch_page(self, notebook, dummy_page, page_num,  *args):
         """
         Called when a page is switched
         """
+        if not self.row:
+            return
         page = self.get_nth_page(page_num)
         page.update(self.row)
 
@@ -738,6 +743,7 @@ class SearchView(pluginmgr.View):
         self.set_infobox_from_row(None)
         values = self.get_selected_values()
         if len(values) == 0:
+            debug('nothing selected')
             return
         try:
             self.set_infobox_from_row(values[0])
