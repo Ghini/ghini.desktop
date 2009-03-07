@@ -21,6 +21,7 @@ import bauble.pluginmgr as plugin
 import bauble.task
 from bauble.utils.log import log, debug
 
+from sqlalchemy.sql.util import sort_tables
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
 # geography table after creating a new database and it doesn't use the
 # 'name' column in the insert so there is an error, if  you then import the
@@ -123,7 +124,6 @@ class Importer(object):
         raise NotImplementedError
 
 
-
 class CSVImporter(Importer):
 
     """
@@ -146,20 +146,22 @@ class CSVImporter(Importer):
 
 
     def on_error(self, exc):
-        utils.message_details_dialog(str(exc), traceback.format_exc())
+        debug('CSVImporter.on_error()')
+        # TODO: this won't show the dialog properly since the GUI can't update,
+        # the dialog won't have any decorations
+        utils.message_details_dialog(utils.xml_safe_utf8(exc),
+                                     traceback.format_exc(),
+                                     gtk.MESSAGE_ERROR)
 
 
-    def start(self, filenames=None, metadata=None, force=False, on_quit=None,
-              on_error=None, ):
+    def start(self, filenames=None, metadata=None, force=False,
+              on_quit=None, on_error=None):
         '''
         start the import process, this is a non blocking method queue the
         process as a bauble task
         '''
         if metadata is None:
             metadata = db.metadata  # use the default metadata
-
-#        def on_error(exc):
-#            utils.message_details_dialog(str(exc), traceback.format_exc())
 
         if filenames is None:
             filenames = self._get_filenames()
@@ -186,15 +188,13 @@ class CSVImporter(Importer):
         @param metadata:
         @param force: default=False
         '''
-        engine = metadata.bind
         transaction = None
         connection = None
         try:
-            # here we have to call contextual_connect() so that we use the
-            # same connection throughout bauble, if not then this
-            # method might be called inside another transaction and it
-            # could cause terrible deadlocks with other transactions
-            connection = engine.contextual_connect()
+            # user a contextual connect in case whoever called this
+            # method called it inside a transaction then we can pick
+            # up the parent connection and the transaction
+            connection = metadata.bind.contextual_connect()
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
@@ -202,8 +202,7 @@ class CSVImporter(Importer):
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             return
 
-        # sort the tables and filenames by dependency so we can
-        # drop/create/import them in the proper order
+        # create a mapping of table names to filenames
         filename_dict = {}
         for f in filenames:
             path, base = os.path.split(f)
@@ -219,6 +218,7 @@ class CSVImporter(Importer):
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
                 return
             filename_dict[table_name] = f
+
 
         # resolve filenames to table names and return them in sorted order
         sorted_tables = []
@@ -236,11 +236,13 @@ class CSVImporter(Importer):
             return
 
         total_lines = 0
+        filesizes = {}
         for filename in filenames:
-           #get the total number of lines for all the files
-           total_lines += len(file(filename).readlines())
+            #get the total number of lines for all the files
+            nlines = len(file(filename).readlines())
+            filesizes[filename] = nlines
+            total_lines += nlines
 
-        self.__error_traceback_str = ''
         self.__error_exc = _('Unknown Error.')
 
         created_tables = []
@@ -258,39 +260,46 @@ class CSVImporter(Importer):
                 #debug(table.name)
                 d = utils.find_dependent_tables(table)
                 depends.update(list(d))
-            from sqlalchemy.sql.util import sort_tables
-            # sort the dependencies
-            depends = sort_tables(list(depends))
 
             # drop all of the dependencies together
-            #debug('dropping %s' % str([d.name for d in depends]))
-            if not force:
-                msg = _('In order to import the files the following tables ' \
-                            'will need to be dropped:' \
-                            '\n\n<b>%s</b>\n\n' \
-                            'Would you like to continue?' \
-                            % ', '.join([d.name for d in depends]))
-                response = utils.yes_no_dialog(msg)
-            else:
-                response = True
-            if response:
-                metadata.drop_all(connection, tables=depends)
-            else:
-                return # user doesn't want to drop dependencies so we just quit
+            if len(depends) > 0:
+                if not force:
+                    msg = _('In order to import the files the following '\
+                                'tables will need to be dropped:' \
+                                '\n\n<b>%s</b>\n\n' \
+                                'Would you like to continue?' \
+                                % ', '.join([d.name for d in depends]))
+                    response = utils.yes_no_dialog(msg)
+                else:
+                    response = True
 
-            # operate on the tables one at a time
+                if response and len(depends)>0:
+                    debug('dropping: %s' \
+                              % ', '.join([d.name for d in depends]))
+                    metadata.drop_all(bind=connection, tables=depends)
+                else:
+                    return # user doesn't want to drop dependencies so we just quit
+
+            update_every = 127
+            # import the tables one at a time, breaking every so often
+            # so the GUI can update
             for table, filename in reversed(sorted_tables):
                 if self.__cancel or self.__error:
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                         % {'table': table.name, 'filename': filename}
-                #log.info(msg)
+                log.info(msg)
                 bauble.task.set_message(msg)
                 yield # allow progress bar update
-                if not table.exists():
+
+                # check if the table was in the depends because they
+                # could have been dropped whereas table.exists() can
+                # return true for a dropped table if the transaction
+                # hasn't been committed
+                if table in depends or not table.exists():
                     #log.info('%s does not exist. creating.' % table.name)
                     #debug('%s does not exist. creating.' % table.name)
-                    table.create(bind=engine)
+                    table.create(bind=connection)
                     add_to_created(table.name)
                 elif table.name not in created_tables and table not in depends:
                     # we get here if the table wasn't previously
@@ -309,8 +318,10 @@ class CSVImporter(Importer):
                     else:
                         response = True
                     if response:
-                        table.drop()
-                        table.create()
+                        debug(' - drop %s' % table.name)
+                        table.drop(bind=connection)
+                        debug(' - create %s' % table.name)
+                        table.create(bind=connection)
                         add_to_created(table.name)
 
                 if self.__cancel or self.__error:
@@ -320,9 +331,8 @@ class CSVImporter(Importer):
                 f = file(filename, "rb")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
-                update_every = 127
-                values = []
-                insert = table.insert().compile()
+
+                insert = table.insert(bind=connection).compile()
                 # precompute the defaults...this assumes that the
                 # default function doesn't depend on state after each
                 # row...it shouldn't anyways since we do an insert
@@ -332,59 +342,94 @@ class CSVImporter(Importer):
                     if isinstance(column.default, ColumnDefault):
                         defaults[column.name] = column.default.execute()
                 column_names = table.c.keys()
+
+                values = []
+                def do_insert():
+                    connection.execute(insert, *values)
+                    del values[:]
+                    percent = float(steps_so_far)/float(total_lines)
+                    if 0 < percent < 1.0: # avoid warning
+                        if bauble.gui is not None:
+                            pb_set_fraction(percent)
+
+                isempty = lambda v: v in ('', None)
+
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
-                    if len(line) > 0:
-                        isempty = lambda v: v in ('', None)
-                        for column in table.c.keys():
-                            if column in defaults \
-                                    and (column not in line \
-                                             or isempty(line[column])):
-                                line[column] = defaults[column]
-                            elif column in line and isempty(line[column]):
-                                line[column] = None
+                    if line <= 0:
+                        continue
+                    #debug(line)
+                    for column in table.c.keys():
+                        if column in defaults \
+                                and (column not in line \
+                                         or isempty(line[column])):
+                            # if empty and has a default then use
+                            # the default
+                            line[column] = defaults[column]
+                        elif column in line and isempty(line[column]) and hasattr(table.c[column], 'sequence'):
+                            # TODO:
+                            # ***************
+                            # this isn't working, i guess we need to
+                            # generate the id ourselves???
+                            # ***************
+                            # if empty but its a sequence
+                            # completely remove it from the line
+                            debug('removing %s from %s' % (column, table.name))
+                            del line[column]
+                        elif column in line and isempty(line[column]):
+                            line[column] = None
+                    #debug(line)
+                    #debug(str(insert))
+                    #return
+                    values.append(line)
 
-                        values.append(line)
                     steps_so_far += 1
-                    if steps_so_far % update_every == 0 \
-                            or total_lines-steps_so_far < update_every:
-                        connection.execute(insert, *values)
-                        values = []
-                        percent = float(steps_so_far)/float(total_lines)
-                        if 0 < percent < 1.0: # avoid warning
-                            if bauble.gui is not None:
-                                pb_set_fraction(percent)
+                    if steps_so_far % update_every == 0:
+                        do_insert()
                         yield
+
                 if self.__error or self.__cancel:
                     break
-            metadata.create_all(connection, depends)
+
+                # insert the remainder that were less than update every
+                do_insert()
+
+                # we have commit after create after each table is imported
+                # or Postgres will complain if two tables that are
+                # being imported have a foreign key relationship
+                transaction.commit()
+                debug('%s: %s' % (table.name, table.select().alias().count().execute().fetchone()[0]))
+                transaction = connection.begin()
+
+            #debug('creating: %s' % ', '.join([d.name for d in depends]))
+            # TODO: need to get thost tables from depends that need to
+            # be created but weren't created already
+            metadata.create_all(connection, depends, checkfirst=True)
         except (bauble.task.TaskQuitting, GeneratorExit), e:
             transaction.rollback()
             raise
         except Exception, e:
             transaction.rollback()
-            debug(insert)
-            debug(cleaned)
-            debug(e)
+            #debug(insert)
+            #debug(cleaned)
+            #debug(e)
             #debug(traceback.format_exc())
-            utils.message_details_dialog(_('Error:  %s') % \
-                                         utils.xml_safe_utf8(e),
-                                         traceback.format_exc(),
-                                         type=gtk.MESSAGE_ERROR)
+            #msg = utils.xml_safe_utf8(e)
+            #tb = utils.xml_safe_utf8(traceback.format_exc())
+            #utils.message_details_dialog(_('Error:  %s' % msg), tb,
+            #                             type=gtk.MESSAGE_ERROR)
             self.__error = True
             self.__error_exc = e
             raise
         else:
-##            debug('CSVImporter.run(): commit')
-            # don't commit anything everything imported correctly
             transaction.commit()
 
         # unfortunately inserting an explicit value into a column that
         # has a sequence doesn't update the sequence, we shortcut this
-        # by setting the sequence manyally to the max(column)+1
+        # by setting the sequence manually to the max(column)+1
         col = None
         try:
             for table, filename in sorted_tables:
@@ -464,10 +509,15 @@ class CSVExporter:
             raise ValueError(_("CSVExporter: path does not exist.\n%s" % path))
 
         def on_error(exc):
-            debug(exc)
-            debug(type(exc))
+            """
+            The default error handler.
+            """
+            #debug(exc)
+            #debug(type(exc))
+            error(exc)
             if not isinstance(exc, (GeneratorExit, bauble.task.TaskQuitting)):
-                utils.message_dialog(str(exc))
+                utils.message_dialog(utils.xml_safe_utf8(exc),
+                                     gtk.MESSAGE_ERROR)
 
         try:
             # TODO: should we support exporting other metadata
