@@ -39,7 +39,6 @@ from sqlalchemy.orm import *
 import sqlalchemy.orm.exc as orm_exc
 import bauble
 import bauble.db as db
-#import bauble.meta as meta
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.utils as utils
@@ -137,6 +136,13 @@ def init(force=False):
     connection to a database with db.open()
     """
     #debug('bauble.pluginmgr.init()')
+    # ******
+    # NOTE: Be careful not to keep any references to
+    # PluginRegistry open here as it will cause a deadlock if you try
+    # to create a new database. For example, don't query the
+    # PluginRegistry with a session without closing the session.
+    # ******
+
     # search for plugins that are in the plugins dict but not in the registry
     registered = plugins.values()
     try:
@@ -146,8 +152,9 @@ def init(force=False):
         # been installed and registered, this might be the right thing
         # to do but it least it allows you to connect to a pre bauble 0.9
         # database and use it to upgrade to a >=0.9 database
-        not_installed = [p for p in plugins.values() \
-                             if not PluginRegistry.exists(p)]
+        registered_names = PluginRegistry.names()
+        not_installed = [p for n,p in plugins.iteritems() \
+                             if n not in registered_names]
         if len(not_installed) > 0:
             msg = _('The following plugins were not found in the plugin '\
                         'registry:\n\n<b>%s</b>\n\n'\
@@ -155,23 +162,21 @@ def init(force=False):
                         % ', '.join([p.__name__ for p in not_installed]))
             if force or utils.yes_no_dialog(msg):
                 install([p for p in not_installed])
-
-            # sort plugins in the registry by their dependencies
-            session = bauble.Session()
-            registry = list(session.query(PluginRegistry))
-            registered = [plugins[e.name] for e in registry]
+        # sort plugins in the registry by their dependencies
+        registered = [plugins[name] for name in PluginRegistry.names()]
     except Exception, e:
-        error(traceback.format_exc())
-        error(e)
-        msg = _('Could not access plugin registry.')
-        error(msg)
+        raise
+
+    if not registered:
+        # no plugins to initialize
+        return
 
     deps, unmet = _create_dependency_pairs(registered)
     ordered = topological_sort(registered, deps)
     if not ordered:
         raise BaubleError(_('The plugins contain a dependency loop. This '\
-                            'can happen if two plugins directly or '\
-                            'indirectly rely on each other'))
+                                'can happen if two plugins directly or '\
+                                'indirectly rely on each other'))
 
     # call init() for each ofthe plugins
     for plugin in ordered:
@@ -179,17 +184,17 @@ def init(force=False):
         try:
             plugin.init()
         except KeyError, e:
-            # don't removed the plugin from the registry because if we
+            # don't remove the plugin from the registry because if we
             # find it again the user might decide to reinstall it
             # which could overwrite data
-            ordered.pop(plugin)
+            ordered.remove(plugin)
             msg = _("The %(plugin_name)s plugin is listed in the registry "\
                     "but isn't wasn't found in the plugin directory") \
                     % dict(plugin_name=plugin.__name__)
             warning(msg)
         except Exception, e:
             #error(e)
-            ordered.pop(plugin)
+            ordered.remove(plugin)
             error(traceback.print_exc())
             safe = utils.xml_safe_utf8
             values = dict(entry_name=plugin.__name__, exception=safe(e))
@@ -228,10 +233,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     :param force:  Force, don't ask questions.
     :type force: book
     """
-    #debug('pluginmgr.install(%s)' % plugins_to_install)
-
-    #session = bauble.Session()
-
+    debug('pluginmgr.install(%s)' % plugins_to_install)
     if plugins_to_install is 'all':
         to_install = plugins.values()
     else:
@@ -279,16 +281,14 @@ def install(plugins_to_install, import_defaults=True, force=False):
                 PluginRegistry.add(p)
         #session.commit()
     except Exception, e:
-        msg = _('Error installing plugins: %s' % p)
-        debug(e)
-        msg = _('Error installing plugins.')
-        utils.message_details_dialog(msg, utils.utf8(traceback.format_exc()),
-                                     gtk.MESSAGE_ERROR)
-        debug(traceback.format_exc())
-        #session.rollback()
-    finally:
-        pass
-        #session.close()
+        raise
+#         msg = _('Error installing plugins: %s' % p)
+#         debug(e)
+#         #safe = utils.xml_safe_utf8
+#         #utils.message_details_dialog(safe(msg),
+#         #                             safe(traceback.format_exc()),
+#         #                             gtk.MESSAGE_ERROR)
+#         debug(traceback.format_exc())
 
 
 
@@ -300,9 +300,8 @@ class PluginRegistry(db.Base):
     """
     __tablename__ = 'plugins'
     name = Column(Unicode(64), unique=True)
-    version = Column(UnicodeText)
+    version = Column(Unicode(12))
     enabled = Boolean()
-
 
     @staticmethod
     def add(plugin, enabled=True):
@@ -326,6 +325,7 @@ class PluginRegistry(db.Base):
         """
         Remove a plugin from the registry by name.
         """
+        debug('PluginRegistry.remove()')
         session = bauble.Session()
         p = session.query(PluginRegistry).\
             filter_by(name=utils.utf8(plugin.__name__)).one()
@@ -339,6 +339,13 @@ class PluginRegistry(db.Base):
         if not session:
             session = bauble.Session()
         return list(session.query(PluginRegistry))
+
+
+    @staticmethod
+    def names():
+        t = PluginRegistry.__table__
+        names = select([t.c.name]).execute()
+        return [n[0] for n in names]
 
 
     @staticmethod
@@ -361,6 +368,7 @@ class PluginRegistry(db.Base):
             return False
         finally:
             session.close()
+            #session.close()
 
 
 
