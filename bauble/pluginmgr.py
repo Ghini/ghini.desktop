@@ -233,7 +233,7 @@ def install(plugins_to_install, import_defaults=True, force=False):
     :param force:  Force, don't ask questions.
     :type force: book
     """
-    debug('pluginmgr.install(%s)' % plugins_to_install)
+    #debug('pluginmgr.install(%s)' % plugins_to_install)
     if plugins_to_install is 'all':
         to_install = plugins.values()
     else:
@@ -342,10 +342,12 @@ class PluginRegistry(db.Base):
 
 
     @staticmethod
-    def names():
+    def names(bind=None):
         t = PluginRegistry.__table__
-        names = select([t.c.name]).execute()
-        return [n[0] for n in names]
+        results = select([t.c.name], bind=bind).execute(bind=bind)
+        names = [n[0] for n in results]
+        results.close()
+        return names
 
 
     @staticmethod
