@@ -1,4 +1,4 @@
-; -*- lisp -*-
+r; -*- lisp -*-
 ;
 ; project settings for Bauble
 ;
@@ -9,3 +9,4 @@
 (add-to-list org-agenda-files (expand-file-name (concat bauble-root "/org/bauble.org")))
 (setq tags-file-name (concat bauble-root "/TAGS"))
 (setenv "PYLINTRC" (concat bauble-root ".pylintrc"))
+(define-key run-project ("\C-pr")

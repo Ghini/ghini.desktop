@@ -1,8 +1,12 @@
+#  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
+#  This is free software, see GNU General Public License v2 for details.
 
 import traceback
 
 from bauble.i18n import _
 import bauble.error as error
+
+SQLALCHEMY_DEBUG = False
 
 try:
     import sqlalchemy as sa
@@ -27,6 +31,14 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 
 
+if SQLALCHEMY_DEBUG:
+    import logging
+    global engine
+    logging.basicConfig()
+    logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+    logging.getLogger('sqlalchemy.orm.unitofwork').setLevel(logging.DEBUG)
+
+
 class MapperBase(DeclarativeMeta):
     """
     MapperBase adds the id, _created and _last_updated columns to all tables.
@@ -35,7 +47,7 @@ class MapperBase(DeclarativeMeta):
     def __init__(cls, classname, bases, dict_):
         #print >>sys.stderr, dict_
         if '__tablename__' in dict_:
-            seqname = '%s_seq_id' % dict_['__tablename__']
+            seqname = '%s_id_seq' % dict_['__tablename__']
             dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
                                     primary_key=True)
             dict_['_created'] = sa.Column('_created', DateTime(True),
@@ -79,8 +91,9 @@ def open(uri, verify=True, show_error_dialogs=False):
     import bauble
     global engine
     new_engine = None
-    new_engine = sa.create_engine(uri)
-    new_engine.contextual_connect()
+    new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG)
+    #new_engine.contextual_connect()
+    new_engine.connect()#.close()
     def _bind():
         """bind metadata to engine and create sessionmaker """
         global Session, engine
@@ -95,7 +108,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     elif new_engine is None:
         return None
 
-    _verify_connection(new_engine, show_error_dialogs)
+    #_verify_connection(new_engine, show_error_dialogs)
     _bind()
     return engine
 
@@ -128,15 +141,43 @@ def create(import_defaults=True):
     import bauble.pluginmgr as pluginmgr
     from bauble.task import TaskQuitting
     import datetime
-    #transaction = engine.contextual_connect().begin()
+    connection = engine.contextual_connect()
+    transaction = connection.begin()
     session = Session()
     try:
-        # TODO: here we are creating all the tables in the metadata whether
-        # they are in the registry or not, we should really only be creating
-        # those tables in the registry
-        metadata.drop_all(checkfirst=True)
-        metadata.create_all()
-##       debug('dropped and created')
+        # create fresh plugin registry seperate since
+        # pluginmgr.install() will be changing it
+        #debug('dropping and creating plugin registry')
+        from bauble.pluginmgr import PluginRegistry
+        #connection = None
+        #PluginRegistry.__table__.drop(bind=connection, checkfirst=True)
+        PluginRegistry.__table__.drop(bind=connection, checkfirst=True)
+        #debug(' - d')
+        PluginRegistry.__table__.create(bind=connection)
+        #PluginRegistry.__table__.create()
+        #debug(' - c')
+    except Exception, e:
+        debug(e)
+        transaction.rollback()
+        #connection.close()
+        raise
+    else:
+        transaction.commit()
+
+    connection = engine.contextual_connect()
+    transaction = connection.begin()
+    try:
+        # TODO: here we are dropping/creating all the tables in the
+        # metadata whether they are in the registry or not, we should
+        # really only be creating those tables from registered
+        # plugins, maybe with an uninstall() method on Plugin
+        #debug('drop all')
+        most_tables = metadata.sorted_tables
+        most_tables.remove(pluginmgr.PluginRegistry.__table__)
+        metadata.drop_all(bind=connection, tables=most_tables, checkfirst=True)
+        #debug(' -- dropped')
+        metadata.create_all(bind=connection, tables=most_tables)
+        #debug('dropped and created')
 
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into db.create, the problem is at the
@@ -153,33 +194,53 @@ def create(import_defaults=True):
 
         # fill in the bauble meta table and install all the plugins
         meta_table = meta.BaubleMeta.__table__
-        meta_table.insert().execute(name=meta.VERSION_KEY,
-                                    value=unicode(bauble.version))
-        meta_table.insert().execute(name=meta.CREATED_KEY,
+        meta_table.insert(bind=connection).execute(name=meta.VERSION_KEY,
+                                                 value=unicode(bauble.version))
+        meta_table.insert(bind=connection).execute(name=meta.CREATED_KEY,
                                         value=unicode(datetime.datetime.now()))
+
+    except (GeneratorExit, TaskQuitting), e:
+        # this is here in case the main windows is closed in the middle
+        # of a task
+        debug(e)
+#        debug('db.create(): rollback')
+        transaction.rollback()
+        #session.rollback()
+        raise
+    except Exception, e:
+        debug(e)
+        #debug('db.create(): rollback')
+        transaction.rollback()
+        raise
+    else:
+        transaction.commit()
+
+    connection = engine.contextual_connect()
+    transaction = connection.begin()
+    try:
         pluginmgr.install('all', import_defaults, force=True)
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
         debug(e)
 #        debug('db.create(): rollback')
-        #transaction.rollback()
-        session.rollback()
+        transaction.rollback()
+        #session.rollback()
         raise
     except Exception, e:
         debug(e)
         #debug('db.create(): rollback')
-        #transaction.rollback()
-        session.rollback()
-        msg = _('Error creating tables.\n\n%s') % utils.xml_safe_utf8(e)
-        debug(traceback.format_exc())
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
+        transaction.rollback()
+        #session.rollback()
+#         msg = _('Error creating the database.\n\n%s') % utils.xml_safe_utf8(e)
+#         debug(traceback.format_exc())
+#         utils.message_details_dialog(msg, traceback.format_exc(),
+#                                      gtk.MESSAGE_ERROR)
         raise
     else:
 ##        debug('db.create(): committing')
-        session.commit()
-        #transaction.commit()
+        #session.commit()
+        transaction.commit()
 
 
 def _verify_connection(engine, show_error_dialogs=False):
@@ -260,9 +321,12 @@ def _verify_connection(engine, show_error_dialogs=False):
     try:
         major, minor, revision = result.value.split('.')
     except:
+        session.close()
         raise error.VersionError(result.value)
 
     if major != bauble.version_tuple[0] or minor != bauble.version_tuple[1]:
+        session.close()
         raise error.VersionError(result.value)
 
+    session.close()
     return True

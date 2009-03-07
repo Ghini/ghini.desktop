@@ -100,17 +100,16 @@ class PlantsPlugin(pluginmgr.Plugin):
         if not import_defaults:
             return
         path = os.path.join(paths.lib_dir(), "plugins", "plants", "default")
-        filenames = [os.path.join(path, f) for f in 'family.txt',
-                     'genus.txt', 'genus_synonym.txt', 'geography.txt']
+#         filenames = [os.path.join(path, f) for f in 'family.txt',
+#                      'genus.txt',
+#                      'genus_synonym.txt',
+#                      'geography.txt']
+        filenames = [os.path.join(path, 'genus_synonym.txt')]
         from bauble.plugins.imex.csv_ import CSVImporter
         csv = CSVImporter()
         import_error = False
         import_exc = None
-        try:
-            csv.start(filenames, metadata=db.metadata, force=True)
-        except Exception, e:
-            error(e)
-            raise
+        csv.start(filenames, metadata=db.metadata, force=True)
 
 
 
