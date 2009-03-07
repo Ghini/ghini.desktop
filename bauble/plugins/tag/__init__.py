@@ -447,8 +447,8 @@ def _reset_tags_menu():
     except:
         debug(traceback.format_exc())
         msg = _('Could not create the tags menus')
-        utils.message_details_dialog(msg, traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
+        tb = utils.xml_safe_utf8(traceback.format_exc())
+        utils.message_details_dialog(msg, tb, gtk.MESSAGE_ERROR)
     #	raise
             #debug('** maybe the tags table hasn\'t been created yet')
 
@@ -459,6 +459,7 @@ def _reset_tags_menu():
         _tags_menu_item.remove_submenu()
         _tags_menu_item.set_submenu(tags_menu)
         _tags_menu_item.show_all()
+    session.close()
 
 
 def natsort_kids(kids):
