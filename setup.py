@@ -116,7 +116,15 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
         def run(self):
             # TODO: make sure we have everything installed that we need to
             # bundle e.g. mysql-python, psycopg2, others...
-            #self.dist_dir = os.path.join('dist', 'py2exe')
+
+            # copy GTK to the dist directory
+            # TODO: create a flag to control whether or not to copy
+            gtk_root = 'c:\\gtk'
+            #if os.path.exists(gtk_root):
+            dist_gtk = os.path.join(self.dist_dir, 'gtk')
+            if not os.path.exists(dist_gtk):
+                dir_util.copy_tree(gtk_root, dist_gtk)
+
             _py2exe_cmd.run(self)
             # install locale files
             locales = os.path.dirname(locale_path)
@@ -124,14 +132,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             #print build_base
             src = os.path.join(build_base, locales)
             dir_util.copy_tree(src, os.path.join(self.dist_dir, locales))
-            # copy GTK to
-            # TODO: create a flag to control whether or not to copy
-            # the GTK directory
-            gtk_root = 'c:\\gtk'
-            #if os.path.exists(gtk_root):
-            dist_gtk = os.path.join(self.dist_dir, 'gtk')
-            if not os.path.exists(dist_gtk):
-                dir_util.copy_tree(gtk_root, dist_gtk)
+
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
