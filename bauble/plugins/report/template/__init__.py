@@ -82,7 +82,7 @@ class TemplateFormatterPlugin(FormatterPlugin):
             utils.message_dialog(_('Could not open the report with the '\
                                    'default program. You can open the '\
                                    'file manually at %s') % filename)
-        return True
+        return report
 
 
 formatter_plugin = TemplateFormatterPlugin

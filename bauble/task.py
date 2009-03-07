@@ -122,7 +122,7 @@ def flush():
             #  pending tasks would be able to complete...on_error also
             #  shouldn't raise an exception
             #gobject.idle_add(on_error, e)
-            error(e)
+            #error(e)
             if on_error:
                 on_error(e)
 
@@ -149,7 +149,9 @@ def queue(task, on_quit, on_error, *args):
     Queue a new task
 
     :param task: the task to queue
-    :param callback: the function to call when the task is finished
+    :param on_quit: the function to call when the task is finished
+    :param on_error: the function to call when there is an error, this
+    method should not raise an exception or the other tasks will not complete
     :param args: the arguments to pass to the task
     """
     global _task_queue
