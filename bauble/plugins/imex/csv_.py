@@ -15,11 +15,12 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
+from bauble.error import BaubleError
 from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as plugin
 import bauble.task
-from bauble.utils.log import log, debug
+from bauble.utils.log import log, debug, error
 
 from sqlalchemy.sql.util import sort_tables
 # TODO: i've also had a problem with bad insert statements, e.g. importing a
@@ -190,6 +191,8 @@ class CSVImporter(Importer):
         '''
         transaction = None
         connection = None
+        self.__error_exc = BaubleError(_('Unknown Error.'))
+
         try:
             # user a contextual connect in case whoever called this
             # method called it inside a transaction then we can pick
@@ -243,12 +246,13 @@ class CSVImporter(Importer):
             filesizes[filename] = nlines
             total_lines += nlines
 
-        self.__error_exc = _('Unknown Error.')
-
         created_tables = []
-        def add_to_created(names):
-            created_tables.extend([n for n in names \
-                                   if n not in created_tables])
+        def create_table(table):
+            table.create(bind=connection)
+            if table.name not in created_tables:
+                created_tables.append(table.name)
+#             created_tables.extend([n for n in names \
+#                                    if n not in created_tables])
 
         steps_so_far = 0
         cleaned = None
@@ -268,19 +272,23 @@ class CSVImporter(Importer):
                                 'tables will need to be dropped:' \
                                 '\n\n<b>%s</b>\n\n' \
                                 'Would you like to continue?' \
-                                % ', '.join([d.name for d in depends]))
+                                % ', '.join(sorted([d.name for d in depends])))
                     response = utils.yes_no_dialog(msg)
                 else:
                     response = True
 
                 if response and len(depends)>0:
-                    debug('dropping: %s' \
-                              % ', '.join([d.name for d in depends]))
+#                     debug('dropping: %s' \
+#                               % ', '.join([d.name for d in depends]))
                     metadata.drop_all(bind=connection, tables=depends)
                 else:
-                    return # user doesn't want to drop dependencies so we just quit
+                    # user doesn't want to drop dependencies so we just quit
+                    return
 
+            # update_every determines how many rows we will insert at
+            # a time and consequently how often we update the gui
             update_every = 127
+
             # import the tables one at a time, breaking every so often
             # so the GUI can update
             for table, filename in reversed(sorted_tables):
@@ -292,6 +300,11 @@ class CSVImporter(Importer):
                 bauble.task.set_message(msg)
                 yield # allow progress bar update
 
+                # don't do anything if the file is empty:
+                if filesizes[filename] <= 1:
+                    if not table.exists():
+                        create_table(table)
+                    continue
                 # check if the table was in the depends because they
                 # could have been dropped whereas table.exists() can
                 # return true for a dropped table if the transaction
@@ -299,8 +312,7 @@ class CSVImporter(Importer):
                 if table in depends or not table.exists():
                     #log.info('%s does not exist. creating.' % table.name)
                     #debug('%s does not exist. creating.' % table.name)
-                    table.create(bind=connection)
-                    add_to_created(table.name)
+                    create_table(table)
                 elif table.name not in created_tables and table not in depends:
                     # we get here if the table wasn't previously
                     # dropped because it was a dependency of another
@@ -318,21 +330,22 @@ class CSVImporter(Importer):
                     else:
                         response = True
                     if response:
-                        debug(' - drop %s' % table.name)
                         table.drop(bind=connection)
-                        debug(' - create %s' % table.name)
-                        table.create(bind=connection)
-                        add_to_created(table.name)
+                        create_table(table)
 
                 if self.__cancel or self.__error:
                     break
 
-                # do the inserts
+                # open a temporary reader to get the column keys so we
+                # can later precompile our insert statement
                 f = file(filename, "rb")
-                reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
-                                       quoting=QUOTE_STYLE)
+                tmp = UnicodeReader(f, quotechar=QUOTE_CHAR,
+                                    quoting=QUOTE_STYLE)
+                tmp.next()
+                csv_columns = set(tmp.reader.fieldnames)
+                del tmp
+                f.close()
 
-                insert = table.insert(bind=connection).compile()
                 # precompute the defaults...this assumes that the
                 # default function doesn't depend on state after each
                 # row...it shouldn't anyways since we do an insert
@@ -342,6 +355,13 @@ class CSVImporter(Importer):
                     if isinstance(column.default, ColumnDefault):
                         defaults[column.name] = column.default.execute()
                 column_names = table.c.keys()
+
+                # the column keys for the insert are a union of the
+                # columns in the CSV file and the columns with
+                # defaults
+                column_keys = list(csv_columns.union(defaults.keys()))
+                insert = table.insert(bind=connection).\
+                    compile(column_keys=column_keys)
 
                 values = []
                 def do_insert():
@@ -354,36 +374,27 @@ class CSVImporter(Importer):
 
                 isempty = lambda v: v in ('', None)
 
+                f = file(filename, "rb")
+                reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
+                                       quoting=QUOTE_STYLE)
+                # NOTE: we shouldn't get this far if the file doesn't
+                # have any rows to import but if so there is a chance
+                # that this loop could cause problems
                 for line in reader:
                     while self.__pause:
                         yield
                     if self.__cancel or self.__error:
                         break
-                    if line <= 0:
-                        continue
-                    #debug(line)
+
+                    # fill in default values and None for "empty"
+                    # columns in line
                     for column in table.c.keys():
                         if column in defaults \
                                 and (column not in line \
                                          or isempty(line[column])):
-                            # if empty and has a default then use
-                            # the default
                             line[column] = defaults[column]
-                        elif column in line and isempty(line[column]) and hasattr(table.c[column], 'sequence'):
-                            # TODO:
-                            # ***************
-                            # this isn't working, i guess we need to
-                            # generate the id ourselves???
-                            # ***************
-                            # if empty but its a sequence
-                            # completely remove it from the line
-                            debug('removing %s from %s' % (column, table.name))
-                            del line[column]
                         elif column in line and isempty(line[column]):
                             line[column] = None
-                    #debug(line)
-                    #debug(str(insert))
-                    #return
                     values.append(line)
 
                     steps_so_far += 1
@@ -401,26 +412,20 @@ class CSVImporter(Importer):
                 # or Postgres will complain if two tables that are
                 # being imported have a foreign key relationship
                 transaction.commit()
-                debug('%s: %s' % (table.name, table.select().alias().count().execute().fetchone()[0]))
+                #debug('%s: %s' % (table.name, table.select().alias().count().execute().fetchone()[0]))
                 transaction = connection.begin()
 
             #debug('creating: %s' % ', '.join([d.name for d in depends]))
-            # TODO: need to get thost tables from depends that need to
+            # TODO: need to get those tables from depends that need to
             # be created but weren't created already
             metadata.create_all(connection, depends, checkfirst=True)
         except (bauble.task.TaskQuitting, GeneratorExit), e:
             transaction.rollback()
             raise
         except Exception, e:
+            error(e)
+            error(traceback.format_exc())
             transaction.rollback()
-            #debug(insert)
-            #debug(cleaned)
-            #debug(e)
-            #debug(traceback.format_exc())
-            #msg = utils.xml_safe_utf8(e)
-            #tb = utils.xml_safe_utf8(traceback.format_exc())
-            #utils.message_details_dialog(_('Error:  %s' % msg), tb,
-            #                             type=gtk.MESSAGE_ERROR)
             self.__error = True
             self.__error_exc = e
             raise
@@ -599,7 +604,6 @@ class CSVImportCommandHandler(plugin.CommandHandler):
     command = 'imcsv'
 
     def __call__(self, arg):
-        debug('CSVImportCommandHandler(%s)' % arg)
         importer = CSVImporter()
         importer.start(arg)
 
@@ -609,11 +613,8 @@ class CSVExportCommandHandler(plugin.CommandHandler):
     command = 'excsv'
 
     def __call__(self, arg):
-        debug('CSVExportCommandHandler(%s)' % arg)
         exporter = CSVExporter()
-        debug('starting')
         exporter.start(arg)
-        debug('started')
 
 #
 # plugin classes
