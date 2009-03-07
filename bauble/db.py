@@ -108,7 +108,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     elif new_engine is None:
         return None
 
-    #_verify_connection(new_engine, show_error_dialogs)
+    _verify_connection(new_engine, show_error_dialogs)
     _bind()
     return engine
 
@@ -143,23 +143,15 @@ def create(import_defaults=True):
     import datetime
     connection = engine.contextual_connect()
     transaction = connection.begin()
-    session = Session()
     try:
         # create fresh plugin registry seperate since
         # pluginmgr.install() will be changing it
-        #debug('dropping and creating plugin registry')
         from bauble.pluginmgr import PluginRegistry
-        #connection = None
-        #PluginRegistry.__table__.drop(bind=connection, checkfirst=True)
         PluginRegistry.__table__.drop(bind=connection, checkfirst=True)
-        #debug(' - d')
         PluginRegistry.__table__.create(bind=connection)
-        #PluginRegistry.__table__.create()
-        #debug(' - c')
     except Exception, e:
         debug(e)
         transaction.rollback()
-        #connection.close()
         raise
     else:
         transaction.commit()
@@ -175,9 +167,7 @@ def create(import_defaults=True):
         most_tables = metadata.sorted_tables
         most_tables.remove(pluginmgr.PluginRegistry.__table__)
         metadata.drop_all(bind=connection, tables=most_tables, checkfirst=True)
-        #debug(' -- dropped')
         metadata.create_all(bind=connection, tables=most_tables)
-        #debug('dropped and created')
 
         # TODO: clearing the insert menu probably shouldn't be here and should
         # probably be pushed into db.create, the problem is at the
@@ -203,13 +193,10 @@ def create(import_defaults=True):
         # this is here in case the main windows is closed in the middle
         # of a task
         debug(e)
-#        debug('db.create(): rollback')
         transaction.rollback()
-        #session.rollback()
         raise
     except Exception, e:
         debug(e)
-        #debug('db.create(): rollback')
         transaction.rollback()
         raise
     else:
@@ -223,23 +210,13 @@ def create(import_defaults=True):
         # this is here in case the main windows is closed in the middle
         # of a task
         debug(e)
-#        debug('db.create(): rollback')
         transaction.rollback()
-        #session.rollback()
         raise
     except Exception, e:
         debug(e)
-        #debug('db.create(): rollback')
         transaction.rollback()
-        #session.rollback()
-#         msg = _('Error creating the database.\n\n%s') % utils.xml_safe_utf8(e)
-#         debug(traceback.format_exc())
-#         utils.message_details_dialog(msg, traceback.format_exc(),
-#                                      gtk.MESSAGE_ERROR)
         raise
     else:
-##        debug('db.create(): committing')
-        #session.commit()
         transaction.commit()
 
 
@@ -291,6 +268,7 @@ def _verify_connection(engine, show_error_dialogs=False):
             utils.message_dialog(msg, gtk.MESSAGE_ERROR)
             raise
 
+    # check if the database has any tables
     if len(engine.table_names()) == 0:
         raise error.EmptyDatabaseError()
 
