@@ -107,11 +107,7 @@ class PlantsPlugin(pluginmgr.Plugin):
         csv = CSVImporter()
         import_error = False
         import_exc = None
-        try:
-            csv.start(filenames, metadata=db.metadata, force=True)
-        except Exception, e:
-            error(e)
-            raise
+        csv.start(filenames, metadata=db.metadata, force=True)
 
 
 
