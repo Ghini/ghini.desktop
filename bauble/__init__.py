@@ -282,8 +282,9 @@ def main(uri=None):
             else:
                 pluginmgr.init()
         except Exception, e:
-            debug(e)
-            #utils.message_dialog('create failed', gtk.ERROR_MESSAGE)
+            warning(traceback.format_exc())
+            warning(e)
+            utils.message_dialog(utils.utf8(e), gtk.MESSAGE_WARNING)
         gtk.gdk.threads_leave()
 
     gobject.idle_add(_post_loop)
