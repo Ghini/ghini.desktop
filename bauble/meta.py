@@ -38,6 +38,7 @@ def get_default(name, default=None, session=None):
         meta = BaubleMeta(name=name, value=default)
         session.add(meta)
     if commit:
+        session.close()
         session.commit()
     return meta
 
