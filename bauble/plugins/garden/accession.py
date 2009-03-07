@@ -159,7 +159,7 @@ def acc_markup_func(acc):
     """
     Returns str(acc), acc.species_str()
     """
-    return utils.xml_safe_utf8(unicode(acc)), acc.species_str()
+    return utils.xml_safe_utf8(unicode(acc)), acc.species_str(markup=True)
 
 
 
@@ -373,12 +373,12 @@ class Accession(db.Base):
                 setattr(species, self.id_qual_rank,
                         '%s %s' % (self.id_qual,
                                    getattr(species, self.id_qual_rank)))
-            sp_str = Species.str(species, markup, authors)
+            sp_str = Species.str(species, authors, markup)
         elif self.id_qual:
-            sp_str = '%s(%s)' % (Species.str(species, markup, authors),
+            sp_str = '%s(%s)' % (Species.str(species, authors, markup),
                                  self.id_qual)
         else:
-            sp_str = Species.str(species, markup, authors)
+            sp_str = Species.str(species, authors, markup)
         del species
         session.close()
         return sp_str
