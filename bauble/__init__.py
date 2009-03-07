@@ -150,7 +150,7 @@ def command_handler(cmd, arg):
     if not isinstance(last_handler, handler_cls):
         last_handler = handler_cls()
     handler_view = last_handler.get_view()
-    if type(gui.get_view()) != type(handler_view):
+    if type(gui.get_view()) != type(handler_view) and handler_view:
         gui.set_view(handler_view)
     try:
         last_handler(arg)
@@ -218,7 +218,8 @@ def main(uri=None):
                 db.open(uri, False)
                 break
             except (error.EmptyDatabaseError, error.MetaTableError,
-                    error.VersionError, error.TimestampError), e:
+                    error.VersionError, error.TimestampError,
+                    error.RegistryError), e:
                 warning(e)
                 open_exc = e
                 # reopen without verification so that bauble.Session and
