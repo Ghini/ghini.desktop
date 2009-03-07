@@ -15,8 +15,7 @@ import bauble.pluginmgr as pluginmgr
 import logging
 logging.basicConfig()
 
-#uri = 'sqlite:///:memory:'
-uri = 'postgres://admin:3riven&@ceiba/bbg'
+uri = 'sqlite:///:memory:'
 db.open(uri, False)
 pluginmgr.load()
 # the one thing this script doesn't do that bauble does is called
