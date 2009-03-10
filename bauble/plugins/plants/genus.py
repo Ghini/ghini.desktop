@@ -44,14 +44,18 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 def edit_callback(value):
     session = bauble.Session()
     e = GenusEditor(model=session.merge(value))
-    return e.start() != None
+    result = e.start()
+    session.close()
+    return result != None
 
 
 def add_species_callback(value):
     from bauble.plugins.plants.species_editor import SpeciesEditor
     session = bauble.Session()
     e = SpeciesEditor(model=Species(genus=session.merge(value)))
-    return e.start() != None
+    result = e.start()
+    session.close()
+    return result != None
 
 
 def remove_callback(value):
@@ -72,6 +76,7 @@ def remove_callback(value):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    session.close()
     return True
 
 
@@ -779,6 +784,7 @@ class GeneralGenusExpander(InfoExpander):
                     filter_by(id=row.id).distinct().from_self().count()
             self.set_widget_value('gen_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
+        session.close()
 
 
 
