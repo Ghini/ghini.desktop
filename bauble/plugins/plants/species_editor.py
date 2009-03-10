@@ -172,7 +172,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         '''
         super(SpeciesEditorPresenter, self).set_model_attr(field, value,
                                                          validator)
-        #debug('on_field_changed(%s, %s)' % (field, value))
         self.__dirty = True
         sensitive = True
         if len(self.problems) != 0 \
@@ -301,7 +300,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
     def on_activate_add_menu_item(self, widget, id=None):
         from bauble.plugins.plants.species_model import Geography
-        geo = self.session.query(Geography).load(id)
+        geo = self.session.query(Geography).filter_by(id=id).one()
         # check that this geography isn't already in the distributions
         if geo in [d.geography for d in self.model.distribution]:
 #            debug('%s already in %s' % (geo, self.model))
@@ -505,6 +504,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.model.vernacular_names.append(vn)
         it = tree_model.append([vn]) # append to tree model
         if len(tree_model) == 1:
+            #self.set_model_attr('default_vernacular_name', vn)
             self.model.default_vernacular_name = vn
         self.view.widgets.sp_vern_add_button.set_sensitive(False)
         self.view.widgets.vern_name_entry.set_text('')
@@ -526,19 +526,21 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
 
         msg = _('Are you sure you want to remove the vernacular name %s?') \
               % utils.xml_safe_utf8(value.name)
-        if not utils.yes_no_dialog(msg, parent=self.view.window):
+        if not utils.yes_no_dialog(msg, parent=self.view.get_window()):
             return
 
         tree_model.remove(tree_model.get_iter(path))
-        self.model.vernacular_names.remove(value.model)
+        self.model.vernacular_names.remove(value)
         if self.model.default_vernacular_name is not None \
                and value.model == self.model.default_vernacular_name:
             # if there is only one value in the tree then set it as the
             # default vernacular name
             first = tree_model.get_iter_first()
             if first is not None:
-                self.model.default_vernacular_name = tree_model[first][0].model
-        utils.delete_or_expunge(value.model)
+#                 self.set_model_attr('default_vernacular_name',
+#                                     tree_model[first][0])
+                self.model.default_vernacular_name = tree_model[first][0]
+        utils.delete_or_expunge(value)
         self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
 
@@ -547,10 +549,21 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         Default column callback.
         """
-        active = cell.get_property('active')
+        active = cell.get_active()
         if not active: # then it's becoming active
-            vn = self.treeview.get_model()[path][0].model
+            vn = self.treeview.get_model()[path][0]
+            debug('%s: %s' % (type(vn), vn))
+            # TODO: ***************
+            #
+            # for some reason set_model_attr()
+            # doesn't work here and we have to set the value directly
+            # on the attribute instead even though both call
+            # Species._set_default_vernacular_name
+            #
+            # *******************
+            #self.set_model_attr('default_vernacular_name', vn)
             self.model.default_vernacular_name = vn
+            debug(self.model.default_vernacular_name)
         self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
@@ -603,7 +616,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             v = model[iter][0]
             try:
                 cell.set_property('active',
-                                  v.model==self.model.default_vernacular_name)
+                                  v==self.model.default_vernacular_name)
                 return
             except AttributeError, e:
                 pass
@@ -620,13 +633,11 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
 
         utils.clear_model(self.treeview)
 
-        # TODO: why am i setting self.treeview.model and why does this work
-        self.treeview.model = gtk.ListStore(object)
-#        debug(self.model)
-        #for vn in self.model:
+        # add the vernacular names to the tree
+        tree_model = gtk.ListStore(object)
         for vn in model:
-            self.treeview.model.append([vn])
-        self.treeview.set_model(self.treeview.model)
+            tree_model.append([vn])
+        self.treeview.set_model(tree_model)
 
         self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
 
@@ -649,7 +660,10 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             first = tree_model.get_iter_first()
             value = tree_model[first][0]
             path = tree_model.get_path(first)
-            self.model.default_vernacular_name = value.model
+            #self.set_model_attr('default_vernacular_name', value)
+            self.model.default_vernacular_name = value
+            debug(self.model.default_vernacular_name)
+            self.__dirty = True
             self.view.set_accept_buttons_sensitive(True)
         elif default_vernacular_name is None:
             return
@@ -685,18 +699,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             query = query.filter(Species.id != self.model.id)
             return query
 
-
-#         def set_in_model(self, field, value):
-#             """
-#             This function isn't setting anything in the model, it just
-#             self self._selected so that in the on_add_button_clicked we know
-#             which species was selected and it to model.synonyms there
-#             """
-#             sensitive = True
-#             if value is None:
-#                 sensitive = False
-#             self.view.widgets.sp_syn_add_button.set_sensitive(sensitive)
-#             self._selected = value
         def on_select(value):
             sensitive = True
             if value is None:
@@ -793,7 +795,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         msg = 'Are you sure you want to remove %s as a synonym to the ' \
               'current species?\n\n<i>Note: This will not remove the species '\
               '%s from the database.</i>' % (s, s)
-        if utils.yes_no_dialog(msg, parent=self.view.window):
+        if utils.yes_no_dialog(msg, parent=self.view.get_window()):
             tree_model.remove(tree_model.get_iter(path))
             self.model._synonyms.remove(value)
             utils.delete_or_expunge(value)
