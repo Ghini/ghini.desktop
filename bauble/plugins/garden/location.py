@@ -25,7 +25,7 @@ def edit_callback(value):
 
 def add_plant_callback(value):
     session = bauble.Session()
-    from bauble.plugins.garden.plant import PlantEditor
+    from bauble.plugins.garden.plant import Plant, PlantEditor
     e = PlantEditor(model=Plant(location=session.merge(value)))
     return e.start() != None
 
@@ -293,6 +293,7 @@ class GeneralLocationExpander(InfoExpander):
     def update(self, row):
         '''
         '''
+        from bauble.plugins.garden.plant import Plant
         self.set_widget_value('loc_site_data',
                               '<big>%s</big>' % utils.xml_safe(str(row.site)))
         session = object_session(row)
@@ -350,7 +351,4 @@ class LocationInfoBox(InfoBox):
         self.general.update(row)
         self.description.update(row)
         self.props.update(row)
-#
-# import here to avoid circular dependencies
-#
-#from bauble.plugins.garden.plant import PlantEditor
+
