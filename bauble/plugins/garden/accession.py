@@ -553,6 +553,7 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def __init__(self, parent, model, view, session):
+        debug('entered CollectionPresenter.__init__()')
         GenericEditorPresenter.__init__(self, model, view)
         self.parent = parent
         self.session = session
@@ -1294,10 +1295,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         """
-        This method works on the assumption that
-        source_presenter.on_field_changed is called before this method
-        and adds and removes problems as necessary, if for some reason
-        this isn't the case then this method would work as expected
+        Set attributes on the model and update the GUI as expected.
         """
         # TODO: we could have problems here if we are monitoring more than
         # one model change and the two models have a field with the same name,
@@ -1312,12 +1310,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         prov_sensitive = True
         wild_prov_combo = self.view.widgets.acc_wild_prov_combo
         if field == 'prov_type':
-            if model.prov_type == 'Wild':
-                model.wild_prov_status = wild_prov_combo.get_active_text()
+            if self.model.prov_type == 'Wild':
+                self.model.wild_prov_status = wild_prov_combo.get_active_text()
             else:
                 # remove the value in the model from the wild_prov_combo
                 prov_sensitive = False
-                model.wild_prov_status = None
+                self.model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
             self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
 
@@ -1342,18 +1340,21 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     def on_source_type_combo_changed(self, combo, data=None):
         '''
-        change which one of donation_box/collection_box is packed into
-        source box and setup the appropriate presenter
+        Change which one of donation_box/collection_box is packed into
+        source box and setup the appropriate presenter.
         '''
+        debug('on_source_type_changed')
         source_type = combo.get_active_text()
         source_type_changed = False
+
+        # if the source type is None then set the model.source as None
+        # and remove the source box
         if source_type is None:
             if self.model.source is not None:
                 self.set_model_attr('source', None)
                 if self.current_source_box is not None:
                     self.view.widgets.remove_parent(self.current_source_box)
                     self.current_source_box = None
-                #self.on_field_changed(self.model, 'source_type')
             return
 
         # FIXME: Donation and Collection shouldn't be hardcoded so that it
@@ -1375,9 +1376,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             except KeyError, e:
                 debug('unknown source type: %s' % e)
                 raise
-            # TODO: its a little strange that we create new_source but
-            # we don't use it except to test the type if it has the
-            # same type as the _original_source
             if isinstance(new_source, type(self._original_source)):
                 new_source = self._original_source
         elif source_type is not None and self.model.source is None:
@@ -1385,7 +1383,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             try:
                 new_source = source_class_map[source_type]()
             except KeyError, e:
-                debug('unknown source type: %s' % e)
+                debug('Source type is set but the source attribute None: %s' \
+                          % e)
                 raise
 
         # replace source box contents with our new box
@@ -1404,6 +1403,12 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.source_presenter = SourcePresenterFactory(self, new_source,
                                                        self.view, self.session)
             self.set_model_attr('source', new_source)
+        elif self.model.source is not None:
+            # didn't create a new source but we need to create a
+            # source presenter
+            self.source_presenter = \
+                SourcePresenterFactory(self, self.model.source, self.view,
+                                       self.session)
 
 
 
