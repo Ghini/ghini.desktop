@@ -553,7 +553,6 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
     def __init__(self, parent, model, view, session):
-        debug('entered CollectionPresenter.__init__()')
         GenericEditorPresenter.__init__(self, model, view)
         self.parent = parent
         self.session = session
@@ -1343,7 +1342,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         Change which one of donation_box/collection_box is packed into
         source box and setup the appropriate presenter.
         '''
-        debug('on_source_type_changed')
         source_type = combo.get_active_text()
         source_type_changed = False
 
