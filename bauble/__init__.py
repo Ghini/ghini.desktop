@@ -10,7 +10,7 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = '0.9.0b2' # :bump
+version = '0.9.0b3' # :bump
 version_tuple = version.split('.')
 
 def main_is_frozen():
@@ -279,7 +279,10 @@ def main(uri=None):
                         # set the default connection
                         prefs[conn_default_pref] = conn_name
                     except Exception, e:
-                        debug(e)
+                        utils.message_details_dialog(utils.xml_safe_utf8(e),
+                                                     traceback.format_exc(),
+                                                     gtk.MESSAGE_ERROR)
+                        error(e)
             else:
                 pluginmgr.init()
         except Exception, e:
