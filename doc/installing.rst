@@ -95,7 +95,6 @@ Troubleshooting the Install
     The following packages are required by Bauble
 
     	*  SQLAlchemy
-    	*  simplejson
     	*  lxml
 
     The following packages are optional:
