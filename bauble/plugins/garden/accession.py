@@ -392,8 +392,6 @@ class Accession(db.Base):
             sp_str = Species.str(species, authors, markup)
         del species
         session.close()
-        #return sp_str
-        self.__cached_str = sp_str
         return sp_str
 
 
