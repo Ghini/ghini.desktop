@@ -14,7 +14,7 @@ from getpass import getpass
 import logging
 from logging import info, warn, error
 
-print '\n*** This script is considered BETA quality. You mileage may vary.\n'
+print '\n*** This script is considered ALPHA quality. You mileage may vary.\n'
 
 usage = 'usage: %prog [command] [options] dbname'
 parser = OptionParser(usage)
@@ -33,19 +33,23 @@ parser.add_option('-d', '--dbtype', dest='dbtype', metavar='TYPE',
 		  help='the database type')
 parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
 		  default=False, help='verbose output')
+parser.add_option('-y', '--dryrun', dest='dryrun', action='store_true',
+		  default=False, help="don't execute anything")
 
 options, args = parser.parse_args()
 commands = {}
 
 logging.basicConfig(format='%(levelname)s: %(message)s')
-if options.verbose:
-    logging.getLogger().setLevel(logging.INFO)
+#if options.verbose:
+logging.getLogger().setLevel(logging.INFO)
 
 
 def error_and_exit(msg, retval=1):
     error(msg)
     sys.exit(retval)
 
+
+default_encoding = 'UTF8'
 
 class Command(object):
     """
@@ -60,6 +64,14 @@ class Command(object):
         raise NotImplementedError
 
 
+def execute(cursor, command, verbose=options.verbose):
+    if verbose:
+        logging.info(command)
+    if not options.dryrun:
+        cursor.execute(command)
+    return cursor
+
+
 class CreateCommand(Command):
     """
     The create command creates a database.
@@ -69,8 +81,8 @@ class CreateCommand(Command):
     @classmethod
     def run(cls):
         if options.dbtype != 'postgres':
-            error_and_exit('Creating database is only support on postgres '
-                           'database')
+            error_and_exit('Creating a database is only supported for '
+                           'PostgreSQL database')
         cls._run_postgres()
 
 
@@ -83,48 +95,73 @@ class CreateCommand(Command):
     def _run_postgres(cls):
         # ISOLATION_LEVEL_AUTOCOMMIT needed from create database
         from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
-        cursor = conn.cursor()
+        cursor = None
+        if not options.dryrun:
+            conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+            cursor = conn.cursor()
 
         # check if the database already exists
         sql = "SELECT datname FROM pg_database WHERE datname='%s';" % dbname
-        logging.info(sql)
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        if (dbname,) in rows:
-            print 'database %s already exists' % dbname
-            sys.exit(1)
+        execute(cursor, sql)
+        if not options.dryrun:
+            rows = cursor.fetchall()
+            if (dbname,) in rows:
+                print 'database %s already exists' % dbname
+                sys.exit(1)
 
         # create the owner if the owner doesn't already exist
         sql = "SELECT rolname FROM pg_roles WHERE rolname='%s';" % \
             options.owner
-        logging.info(sql)
-        cursor.execute(sql)
-        rows = cursor.fetchall()
-        if (options.owner,) in rows:
-            print 'user %s already exist' % options.owner
-        else:
-            password = getpass('Password for new database owner %s: ' % \
+        execute(cursor, sql, verbose=False)
+        password = ''
+        if not options.dryrun:
+            if (options.owner,) in cursor.fetchall():
+                print 'user %s already exist' % options.owner
+            else:
+                password = getpass('Password for new database owner %s: ' % \
                                    options.owner)
-            sql = "CREATE ROLE %s LOGIN PASSWORD '%s';" % \
-                (options.owner, password)
-            logging.info(sql)
-            cursor.execute(sql)
-            conn.commit()
+                sql = "CREATE ROLE %s LOGIN PASSWORD '%s';" % \
+                    (options.owner, password)
+                execute(cursor, sql)
 
-        # create the database and give owner permissions to alter it
-        options_dict = dict(dbname=dbname, owner=options.owner)
-        sql = 'CREATE DATABASE %(dbname)s OWNER %(owner)s' % options_dict
-        logging.info(sql)
-        cursor.execute(sql)
-        conn.close()
+        # create the database and give owner permissions full permissions
+        options_dict = dict(dbname=dbname, owner=options.owner,
+                            encoding=default_encoding)
+        sql = 'CREATE DATABASE %(dbname)s WITH OWNER="%(owner)s" ' \
+            'ENCODING=\'%(encoding)s\';' % options_dict
+        execute(cursor, sql)
+        sql = 'GRANT ALL ON DATABASE %(dbname)s TO "%(owner)s" ' \
+            'WITH GRANT OPTION;' % options_dict
+        execute(cursor, sql)
 
+
+
+class GroupCommand(Command):
+    """
+    The group command allows you to add, remove and change groups on a
+    database
+
+    With this command you can either create "admin" groups or regular
+    groups.  For more fine-grained control then you must edit the database
+    manually.
+    """
+    name = 'group'
+
+    @classmethod
+    def run(cls):
+        pass
+
+    def _run_postgres(cls):
+        pass
 
 
 class UserCommand(Command):
     """
     The user command allows you to add, remove and change the
     permissions of a user on a database.
+
+    With this command you can either create "admin" users or regular users.
+    For more fine-grained control then you must edit the database manually.
     """
     name = 'user'
 
@@ -144,17 +181,49 @@ class UserCommand(Command):
 
 
 
-class RemoveCommand(Command):
+class DropCommand(Command):
     """
     Remove a database from a server.  BE CAREFUL.
     """
-    name = 'remove'
-    def _run_postgres():
-        pass
+    name = 'drop'
 
-    def run():
+    @classmethod
+    def _run_postgres(cls):
+        from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
+        conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor = conn.cursor()
+        msg = '** WARNING: Dropping a database will completely remove the ' \
+            'database and all its data.  Are you sure you want to drop the ' \
+            '"%s" database? ' % dbname
+        response = raw_input(msg)
+        if response not in ('Y', 'y'):
+            print 'Whew.'
+            return
 
-        pass
+        args = []
+        for a in connect_args:
+            if a.startswith('dbname='):
+                args.append('dbname=postgres')
+            else:
+                args.append(a)
+
+        logging.info(args)
+        conn2 = dbapi.connect(' '.join(connect_args))
+        conn2.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
+        cursor2 = conn2.cursor()
+        #logging.info(connect_args)
+        sql = 'DROP DATABASE %s;' % dbname
+        execute(cursor2, sql)
+        conn2.close()
+
+
+
+    @classmethod
+    def run(cls):
+        if options.dbtype != 'postgres':
+            error_and_exit('Creating a database is only supported for '
+                           'PostgreSQL database')
+        cls._run_postgres()
 
 
 
@@ -166,7 +235,7 @@ def register_command(command):
 
 register_command(CreateCommand)
 register_command(UserCommand)
-register_command(RemoveCommand)
+register_command(DropCommand)
 
 
 if len(args) < 1:
@@ -199,9 +268,14 @@ elif options.dbtype == 'mysql':
 else:
     parser.error('You must specify the database type with -d')
 
+if not options.user:
+    options.user = os.environ['USER']
+
 if not options.owner:
-    options.owner = os.environ['USER']
+#    options.owner = #os.environ['USER']
+    options.owner = options.user
     print 'Setting owner as %s' % options.owner
+
 
 # build connect() args and connect to the server
 connect_args = ['dbname=postgres']
@@ -215,7 +289,14 @@ if options.user:
 if options.port:
     connect_args.append('port=%s' % options.port)
 
-conn = dbapi.connect(' '.join(connect_args))
+#connect_args = ' '.join(connect_args)
+if options.verbose:
+    logging.info('connect_args: %s' % ' '.join(connect_args))
+
+conn = None
+if not options.dryrun:
+    conn = dbapi.connect(' '.join(connect_args))
 
 commands[cmd].run()
+conn.close()
 

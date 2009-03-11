@@ -271,6 +271,7 @@ class GeneralSpeciesExpander(InfoExpander):
                     filter_by(id=row.id).distinct().from_self().count()
             self.set_widget_value('sp_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
+        session.close()
 
 
 
