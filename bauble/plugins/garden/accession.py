@@ -359,17 +359,28 @@ class Accession(db.Base):
         return self.code
 
     def species_str(self, markup=False, authors=False):
+        """
+        Return the self.species with the id qualifier as part of the string.
+        """
         if not self.species:
             return None
-        if self.id_qual in ('aff.', 'cf.') and not self.id_qual_rank:
-            raise CheckConditionError('if the id_qual is aff. or cf. '
-                                      'then id_qual_rank is required')
+        try:
+            # only show the warning once
+            self.__warned_about_id_qual
+        except AttributeError:
+            self.__warned_about_id_qual = False
+        if self.id_qual in ('aff.', 'cf.') and not self.id_qual_rank \
+                and not self.__warned_about_id_qual:
+            msg = _('If the id_qual is aff. or cf. '
+                    'then id_qual_rank is required. %s ' % self.code)
+            warning(msg)
+            self.__warned_about_id_qual = True
         session = bauble.Session()
         species = session.merge(self.species)
         if self.id_qual in ('aff.', 'cf.'):
             if species.infrasp_rank == 'cv.' and self.id_qual_rank=='infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
-            else:
+            elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
                         '%s %s' % (self.id_qual,
                                    getattr(species, self.id_qual_rank)))
@@ -381,6 +392,8 @@ class Accession(db.Base):
             sp_str = Species.str(species, authors, markup)
         del species
         session.close()
+        #return sp_str
+        self.__cached_str = sp_str
         return sp_str
 
 
@@ -550,7 +563,6 @@ class CollectionPresenter(GenericEditorPresenter):
     PROBLEM_BAD_LONGITUDE = random()
     PROBLEM_INVALID_DATE = random()
     PROBLEM_INVALID_LOCALE = random()
-
 
     def __init__(self, parent, model, view, session):
         GenericEditorPresenter.__init__(self, model, view)
@@ -1097,6 +1109,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_INVALID_DATE = random()
     PROBLEM_DUPLICATE_ACCESSION = random()
+    PROBLEM_ID_QUAL_RANK_REQUIRED = random()
 
     def __init__(self, model, view):
         '''
@@ -1125,7 +1138,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 return
             text, col = combo.get_model()[it]
             #self.model.id_qual_rank = col
-            self.set_model_attr('id_qual_rank', col)
+            self.set_model_attr('id_qual_rank', utils.utf8(col))
         self.view.widgets.acc_id_qual_rank_combo.connect('changed', on_changed)
 
         self.init_source_tab()
@@ -1317,6 +1330,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 self.model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
             self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
+
+        if field == 'id_qual' and not self.model.id_qual_rank:
+            self.add_problem(self.PROBLEM_ID_QUAL_RANK_REQUIRED,
+                             self.view.widgets.acc_id_qual_rank_combo)
+        else:
+            self.remove_problem(self.PROBLEM_ID_QUAL_RANK_REQUIRED)
+
 
         self.refresh_sensitivity()
 
