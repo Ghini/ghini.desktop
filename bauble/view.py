@@ -845,7 +845,10 @@ class SearchView(pluginmgr.View):
         results = ResultSet()
         error_msg = None
         error_details_msg = None
-        self.session.expunge_all() # clear out any old search results
+        self.session.close()
+        # create a new session for each search...maybe we shouldn't
+        # even have session as a class attribute
+        self.session = bauble.Session()
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:
