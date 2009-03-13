@@ -22,10 +22,8 @@ def main_is_frozen():
             hasattr(sys, "importers") or # old py2exe
             imp.is_frozen("__main__")) # tools/freeze
 
-import pygtk
-if not main_is_frozen():
-    pygtk.require("2.0")
-else: # main is frozen
+
+if main_is_frozen(): # main is frozen
     # put library.zip first in the path when using py2exe so libxml2
     # gets imported correctly,
     zipfile = sys.path[-1]
@@ -166,6 +164,10 @@ def main(uri=None):
     """
     Initialize Bauble and start the main Bauble interface.
     """
+    import pygtk
+    if not main_is_frozen():
+        pygtk.require("2.0")
+
     display = gtk.gdk.display_get_default()
     if display is None:
         print _("**Error: Bauble must be run in a windowed environment.")
