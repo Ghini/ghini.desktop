@@ -767,7 +767,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         """
         self.model.synonyms.append(self._selected)
         tree_model = self.treeview.get_model()
-        tree_model.append([syn])
+        tree_model.append([self._selected])
         self._selected = None
         entry = self.view.widgets.sp_syn_entry
         self.pause_completions_handler(entry, True)
