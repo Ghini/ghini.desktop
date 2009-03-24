@@ -1145,8 +1145,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # connect signals
         def sp_get_completions(text):
             query = self.session.query(Species)
+            genus = ''
+            try:
+                genus = text.split(' ')[0]
+            except:
+                pass
             return query.filter(and_(Species.genus_id == Genus.id,
                                      or_(Genus.genus.like('%s%%' % text),
+                                         Genus.genus.like('%s%%' % genus),
                                          Genus.hybrid==utils.utf8(text))))
         def on_select(value):
             self.set_model_attr('species', value)
