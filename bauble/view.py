@@ -25,7 +25,7 @@ from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 from bauble.prefs import prefs
-from bauble.utils.log import debug, error
+from bauble.utils.log import debug, error, warning
 from bauble.utils.pyparsing import *
 
 # TODO: should we provide a way to change the results view from list to icon
@@ -1022,7 +1022,7 @@ class SearchView(pluginmgr.View):
 
     def cell_data_func(self, coll, cell, model, iter):
         value = model[iter][0]
-#        debug('%s(%s)' % (value, type(value)))
+        #debug('%s(%s)' % (value, type(value)))
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -1043,13 +1043,13 @@ class SearchView(pluginmgr.View):
                                    _substr_tmpl % utils.utf8(substr)))
 
             except (saexc.InvalidRequestError, TypeError), e:
-                debug(e)
+                warning('bauble.view.SearchView.cell_data_func(): \n%s' % e)
                 def remove():
                     model = self.results_view.get_model()
                     self.results_view.set_model(None) # detach model
                     for found in utils.search_tree_model(model, value):
-                        treeview_model.remove(found.iter)
-                    self.results_view.set_model(treeview_model)
+                        model.remove(found)
+                    self.results_view.set_model(model)
                 gobject.idle_add(remove)
 
 
