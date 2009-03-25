@@ -575,9 +575,9 @@ class GeneralFamilyExpander(InfoExpander):
         if nsp == 0:
             self.set_widget_value('fam_nsp_data', 0)
         else:
-            q = session.query(Species.genus_id).join(['genus', 'family']).\
-                         filter_by(id=row.id).distinct().from_self()
-            ngen_in_sp = q.count()
+            ngen_in_sp = session.query(Species.genus_id).\
+                join(['genus', 'family']).\
+                filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nsp_data', '%s in %s genera' \
                                   % (nsp, ngen_in_sp))
 
@@ -594,10 +594,9 @@ class GeneralFamilyExpander(InfoExpander):
         if nacc == 0:
             self.set_widget_value('fam_nacc_data', nacc)
         else:
-            q = session.query(Accession.species_id).\
+            nsp_in_acc = session.query(Accession.species_id).\
                 join(['species', 'genus', 'family']).\
-                filter_by(id=row.id).distinct().from_self()
-            nsp_in_acc = q.count()
+                filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nacc_data', '%s in %s species' \
                                   % (nacc, nsp_in_acc))
 
@@ -610,7 +609,7 @@ class GeneralFamilyExpander(InfoExpander):
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
                 join(['accession', 'species', 'genus','family']).\
-                filter_by(id=row.id).distinct().from_self().count()
+                filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
 
