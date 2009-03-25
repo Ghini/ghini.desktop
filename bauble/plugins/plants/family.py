@@ -650,6 +650,7 @@ class SynonymsExpander(InfoExpander):
                 box.add(label)
                 utils.make_label_clickable(label, on_label_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)
+            self.show_all()
 
             self.set_sensitive(True)
             # TODO: get expanded state from prefs
