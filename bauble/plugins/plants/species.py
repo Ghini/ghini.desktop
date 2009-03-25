@@ -269,7 +269,7 @@ class GeneralSpeciesExpander(InfoExpander):
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
                     join(['accession', 'species']).\
-                    filter_by(id=row.id).distinct().from_self().count()
+                    filter_by(id=row.id).distinct().count()
             self.set_widget_value('sp_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
         session.close()
@@ -428,6 +428,6 @@ class VernacularNameInfoBox(SpeciesInfoBox):
 
     def update(self, row):
         super(VernacularNameInfoBox, self).update(row.species)
-        self.props.update(row)
+        #self.props.update(row)
 
 

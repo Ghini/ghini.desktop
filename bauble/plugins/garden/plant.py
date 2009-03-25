@@ -422,7 +422,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def set_model_attr(self, field, value, validator=None):
-        debug('set_model_attr(%s, %s)' % (field, value))
+        #debug('set_model_attr(%s, %s)' % (field, value))
         super(PlantEditorPresenter, self)\
             .set_model_attr(field, value, validator)
         self.__dirty = True

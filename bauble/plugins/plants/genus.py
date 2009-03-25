@@ -768,7 +768,7 @@ class GeneralGenusExpander(InfoExpander):
         else:
             nsp_in_acc = session.query(Accession.species_id).\
                          join(['species', 'genus']).\
-                         filter_by(id=row.id).distinct().from_self().count()
+                         filter_by(id=row.id).distinct().count()
             self.set_widget_value('gen_nacc_data', '%s in %s species' \
                                   % (nacc, nsp_in_acc))
 
@@ -781,7 +781,7 @@ class GeneralGenusExpander(InfoExpander):
         else:
             nacc_in_plants = session.query(Plant.accession_id).\
                     join(['accession', 'species', 'genus']).\
-                    filter_by(id=row.id).distinct().from_self().count()
+                    filter_by(id=row.id).distinct().count()
             self.set_widget_value('gen_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
         session.close()
@@ -801,7 +801,7 @@ class SynonymsExpander(InfoExpander):
         '''
         update the expander
 
-        @param row: the row to get thevalues from
+        @param row: the row to get the values from
         '''
         #debug(row.synonyms)
         if len(row.synonyms) == 0:
