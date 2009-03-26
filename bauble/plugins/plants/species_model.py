@@ -172,17 +172,25 @@ class Species(db.Base):
                             backref=backref('species', uselist=False))
 
 
+    def __init__(self, *args, **kwargs):
+        super(Species, self).__init__(*args, **kwargs)
+        self.__cached_str = {}
+
+
+    @reconstructor
+    def init_on_load(self):
+        """
+        Called instead of __init__() when an Species is loaded from
+        the database.
+        """
+        self.__cached_str = {}
+
+
     def __str__(self):
         '''
         returns a string representation of this species,
         calls Species.str(self)
         '''
-        # we'll cache the str(self) since building it is relatively heavy
-        # TODO: we can't enable this until we can invalidated _cached_str in
-        # cache self is changed
-        #if self.__cached_str is None:
-        #    self.__cached_str = Species.str(self)
-        #return self.__cached_str
         return Species.str(self)
 
 
@@ -191,7 +199,7 @@ class Species(db.Base):
             return None
         return self._default_vernacular_name.vernacular_name
     def _set_default_vernacular_name(self, vn):
-        if vn is None or self._default_vernacular_name:
+        if vn is None:
             del self.default_vernacular_name
             return
         if vn not in self.vernacular_names:
@@ -225,7 +233,7 @@ class Species(db.Base):
 
 
     @staticmethod
-    def str(species, authors=False, markup=False):
+    def str(species, authors=False, markup=False, use_cache=True):
         '''
         returns a string for species
 
@@ -235,6 +243,16 @@ class Species(db.Base):
         @param markup: flags to toggle whether the returned text is marked up
         to show italics on the epithets
         '''
+        if use_cache:
+            try:
+                cached = species.__cached_str[(markup, authors)]
+            except KeyError:
+                species.__cached_str[(markup, authors)] = None
+                cached = None
+            session = object_session(species)
+            if cached is not None and species not in session.dirty:
+                return cached
+
         genus = str(species.genus)
         sp = species.sp
         infrasp = species.infrasp
@@ -311,8 +329,10 @@ class Species(db.Base):
 
         if species.sp_qual not in (None, ''):
             name.append(species.sp_qual)
-#        print name
-        return u' '.join(name)
+
+        s = u' '.join(name)
+        species.__cached_str[(markup, authors)] = s
+        return s
 
 
 # TODO: deleting either of the species this synonym refers to makes

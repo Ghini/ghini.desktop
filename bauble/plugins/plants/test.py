@@ -427,12 +427,28 @@ class SpeciesTests(PlantTestCase):
         self.session.add_all([family, genus, sp, vn])
         self.session.commit()
 
+        # test that setting the default vernacular names
+        default = VernacularName(name=u'default')
+        sp.default_vernacular_name = default
+        self.session.commit()
+        self.assert_(vn in sp.vernacular_names)
+        self.assert_(sp.default_vernacular_name == default)
+
+        # test that set_attr work on default vernacular name
+        default = VernacularName(name=u'default')
+        setattr(sp, 'default_vernacular_name', default)
+        self.session.commit()
+        self.assert_(vn in sp.vernacular_names)
+        self.assert_(sp.default_vernacular_name == default)
+
         # test that if you set the default_vernacular_name on a
         # species then it automatically adds it to vernacular_names
         default = VernacularName(name=u'default')
         sp.default_vernacular_name = default
         self.session.commit()
         self.assert_(vn in sp.vernacular_names)
+        self.assert_(sp.default_vernacular_name == default)
+
 
         # test that removing a vernacular name removes it from
         # default_vernacular_name, this test also effectively tests VNList
