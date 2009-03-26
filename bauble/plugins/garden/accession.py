@@ -358,7 +358,7 @@ class Accession(db.Base):
 
     def __init__(self, *args, **kwargs):
         super(Accession, self).__init__(*args, **kwargs)
-        self.__cached_species_str = None
+        self.__cached_species_str = {}
 
 
     @reconstructor
@@ -367,7 +367,7 @@ class Accession(db.Base):
         Called instead of __init__() when an Accession is loaded from
         the database.
         """
-        self.__cached_species_str = None
+        self.__cached_species_str = {}
 
 
     def __str__(self):
@@ -380,13 +380,16 @@ class Accession(db.Base):
         injected into the proper place
         """
         # TODO: should we be using sesssion.is_modified() here
+        try:
+            cached = self.__cached_species_str[(markup, authors)]
+        except KeyError:
+            self.__cached_species_str[(markup, authors)] = None
+            cached = None
         session = object_session(self.species)
-        if self.__cached_species_str is not None \
-                and self.species not in session.dirty:
-            return self.__cached_species_str
+        if cached is not None and self.species not in session.dirty:
+            return cached
 
         if not self.species:
-            self.__cached_species_str = None
             return None
 
         # show a warning if the id_qual is aff. or cf. but the
@@ -424,8 +427,8 @@ class Accession(db.Base):
         # clean up and return the string
         del species
         session.close()
-        self.__cached_species_str = sp_str
-        return self.__cached_species_str
+        self.__cached_species_str[(markup, authors)] = sp_str
+        return sp_str
 
 
 
