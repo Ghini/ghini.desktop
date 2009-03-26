@@ -19,7 +19,6 @@
             <child>
               <widget class="GtkImage" id="logo_image">
                 <property name="visible">True</property>
-                <property name="pixbuf">bauble_logo.png</property>
               </widget>
               <packing>
                 <property name="expand">False</property>
