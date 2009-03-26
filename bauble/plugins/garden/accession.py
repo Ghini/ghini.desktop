@@ -355,17 +355,43 @@ class Accession(db.Base):
                              cascade='all, delete-orphan',
                              backref='accession')
 
+
+    def __init__(self, *args, **kwargs):
+        super(Accession, self).__init__(*args, **kwargs)
+        self.__cached_species_str = None
+
+
+    @reconstructor
+    def init_on_load(self):
+        """
+        Called instead of __init__() when an Accession is loaded from
+        the database.
+        """
+        self.__cached_species_str = None
+
+
     def __str__(self):
         return self.code
 
+
     def species_str(self, markup=False, authors=False):
         """
-        Return the self.species with the id qualifier as part of the string.
+        Return the string of the species with the id qualifier(id_qual)
+        injected into the proper place
         """
+        # TODO: should we be using sesssion.is_modified() here
+        session = object_session(self.species)
+        if self.__cached_species_str is not None \
+                and self.species not in session.dirty:
+            return self.__cached_species_str
+
         if not self.species:
+            self.__cached_species_str = None
             return None
+
+        # show a warning if the id_qual is aff. or cf. but the
+        # id_qual_rank is None, but only show it once
         try:
-            # only show the warning once
             self.__warned_about_id_qual
         except AttributeError:
             self.__warned_about_id_qual = False
@@ -375,8 +401,12 @@ class Accession(db.Base):
                     'then id_qual_rank is required. %s ' % self.code)
             warning(msg)
             self.__warned_about_id_qual = True
+
+        # copy the species so we don't affect the original
         session = bauble.Session()
-        species = session.merge(self.species)
+        species = session.merge(self.species)#, dont_load=True)
+
+        # generate the string
         if self.id_qual in ('aff.', 'cf.'):
             if species.infrasp_rank == 'cv.' and self.id_qual_rank=='infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
@@ -390,9 +420,12 @@ class Accession(db.Base):
                                  self.id_qual)
         else:
             sp_str = Species.str(species, authors, markup)
+
+        # clean up and return the string
         del species
         session.close()
-        return sp_str
+        self.__cached_species_str = sp_str
+        return self.__cached_species_str
 
 
 
@@ -1186,7 +1219,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.__dirty = self.model in self.session.new
+        self.__dirty = False
         self.refresh_sensitivity()
 
 
@@ -1785,7 +1818,9 @@ class SourceExpander(InfoExpander):
 
     def update(self, value):
         if self.curr_box is not None:
-            self.vbox.remove(self.curr_box)
+            parent = self.curr_box.get_parent()
+            if parent:
+                parent.remove(self.curr_box)
 
         if value is None:
             self.set_expanded(False)
