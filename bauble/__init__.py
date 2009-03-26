@@ -10,7 +10,7 @@ from bauble.i18n import _
 
 
 # major, minor, revision version tuple
-version = '0.9.0b4' # :bump
+version = '0.9.0b5' # :bump
 version_tuple = version.split('.')
 
 def main_is_frozen():
