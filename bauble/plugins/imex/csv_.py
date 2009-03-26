@@ -71,7 +71,11 @@ class UnicodeReader:
         row = self.reader.next()
         t = {}
         for k, v in row.iteritems():
-            t[k] = utils.to_unicode(v, self.encoding)
+            if v == '':
+                t[k] = None
+            else:
+                t[k] = utils.to_unicode(v, self.encoding)
+
         return t
 
 
@@ -90,7 +94,10 @@ class UnicodeWriter:
     def writerow(self, row):
         t = []
         for s in row:
-            t.append(utils.to_unicode(s, self.encoding))
+            if s == None:
+                t.append(None)
+            else:
+                t.append(utils.to_unicode(s, self.encoding))
         self.writer.writerow(t)
 
 
@@ -365,7 +372,8 @@ class CSVImporter(Importer):
 
                 values = []
                 def do_insert():
-                    connection.execute(insert, *values)
+                    if values:
+                        connection.execute(insert, *values)
                     del values[:]
                     percent = float(steps_so_far)/float(total_lines)
                     if 0 < percent < 1.0: # avoid warning
@@ -495,8 +503,9 @@ class CSVImporter(Importer):
         debug(response)
 
 
+# TODO: add support for exporting only specific tables
 
-class CSVExporter:
+class CSVExporter(object):
 
     def start(self, path=None):
         if path == None:
@@ -571,7 +580,7 @@ class CSVExporter:
             msg = _('exporting %(table)s table to %(filename)s') \
                     % {'table': table.name, 'filename': filename}
             bauble.task.set_message(msg)
-            log.info("exporting %s" % table.name)
+            #log.info("exporting %s" % table.name)
 
             # get the data
             results = table.select().execute().fetchall()
@@ -632,6 +641,10 @@ class CSVImportTool(plugin.Tool):
         if utils.yes_no_dialog(msg):
             c = CSVImporter()
             c.start()
+
+        # TODO: need to reset the tags menu after an import to make sure
+        # we pick up any new tags20
+
 
 
 class CSVExportTool(plugin.Tool):
