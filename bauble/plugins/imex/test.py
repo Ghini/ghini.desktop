@@ -13,7 +13,7 @@ from bauble.plugins.plants import Family
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
-    QUOTE_STYLE
+    QUOTE_STYLE, UnicodeReader
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
 
@@ -174,14 +174,21 @@ class CSVTests(ImexTestCase):
         self.assert_(query[1].notes != query[0].notes)
 
 
-    def test_export(self):
+    def test_export_none_is_empty(self):
         """
-        Does nothing right now.
+        Test the exporting a None column exports a ''
         """
-        # 1. export the test data
-        # 2. read the exported data into memory and make sure its matches
-        # the test export string
-        pass
+        family = Family(family=u'family')
+        from tempfile import mkdtemp
+        temp_path = mkdtemp()
+        exporter = CSVExporter()
+        exporter.start(temp_path)
+        f = open(os.path.join(temp_path, 'family.txt'))
+        reader = csv.DictReader(f, dialect=csv.excel)
+        row = reader.next()
+        self.assert_(row['notes'] == '')
+
+
 
 
 # class CSVTests(ImexTestCase):
