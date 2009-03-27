@@ -69,7 +69,7 @@ def remove_callback(value):
         return
     try:
         session = bauble.Session()
-        obj = session.load(value.__class__, value.id)
+        obj = session.query(Genus).get(value.id)
         session.delete(obj)
         session.commit()
     except Exception, e:

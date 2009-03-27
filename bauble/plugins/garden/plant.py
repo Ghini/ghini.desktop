@@ -329,7 +329,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 #        self.init_history_box()
 
-
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             default_acc_type = unicode('Plant')
@@ -451,24 +450,30 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def init_location_combo(self):
-        def cell_data_func(column, cell, model, iter, data=None):
-            v = model[iter][0]
-            cell.set_property('text', str(v))
-
+        """
+        Initialize plant_loc_combo
+        """
+        # build the model
         locations = self.session.query(Location)
-        renderer = gtk.CellRendererText()
-        combo = self.view.widgets.plant_loc_combo
-        combo.clear()
-        combo.pack_start(renderer, True)
-        combo.set_cell_data_func(renderer, cell_data_func)
         model = gtk.ListStore(object)
-
         locs = sorted([l for l in locations], key=utils.natsort_key)
         for loc in locs:
-            model.append([loc])
+           model.append([loc])
+
+        combo = self.view.widgets.plant_loc_combo
         combo.set_model(model)
-        # TODO: if len of location == 1 then set the first item as active,
-        # we should probably just always set the first item as active
+        combo.clear()
+        renderer = gtk.CellRendererText()
+        combo.pack_start(renderer, True)
+        def cell_data_func(column, cell, model, it, data=None):
+            v = model[it][0]
+            cell.set_property('text', utils.utf8(v))
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+        # TODO: why doesn't this work, get_active() show that it is
+        # active but the entry isn't shown in the combo
+        if locations.count() == 1:
+            combo.set_active_iter(model.get_iter_root())
 
 
 #    def init_acc_entry(self):
