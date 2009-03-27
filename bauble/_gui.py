@@ -642,7 +642,10 @@ class GUI(object):
 
 
     def on_help_menu_contents(self, widget, data=None):
-	desktop.open('http://bauble.belizebotanic.org/using.html')
+        # TODO: should go to the docs page for the locale if it
+        # exists but the pages should redirect to the english
+        # translation if not
+	desktop.open('http://bauble.belizebotanic.org/docs/0.9/')
 
 
     def on_help_menu_bug(self, widget, data=None):
@@ -657,8 +660,11 @@ class GUI(object):
 	about = gtk.AboutDialog()
 	about.set_name('Bauble')
 	about.set_version(bauble.version)
-	about.set_website(_('http://bauble.belizebotanic.org'))
-	about.set_logo_icon_name('bauble')
+        gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l))
+        about.set_website(_('http://bauble.belizebotanic.org'))
+        f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
+        pixbuf = gtk.gdk.pixbuf_new_from_file(f)
+        about.set_logo(pixbuf)
 	about.set_copyright(_(u'Copyright \u00A9 Belize Botanic Gardens'))
 	about.run()
 	about.destroy()
