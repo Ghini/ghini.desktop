@@ -645,22 +645,25 @@ class GUI(object):
         # TODO: should go to the docs page for the locale if it
         # exists but the pages should redirect to the english
         # translation if not
-	desktop.open('http://bauble.belizebotanic.org/docs/0.9/')
+        desktop.open('http://bauble.belizebotanic.org/docs/0.9/',
+                     dialog_on_error=True)
 
 
     def on_help_menu_bug(self, widget, data=None):
-	desktop.open('https://bugs.launchpad.net/bauble/+bugs')
+	desktop.open('https://bugs.launchpad.net/bauble/+bugs',
+                     dialog_on_error=True)
 
 
     def on_help_menu_web(self, widget, data=None):
-	desktop.open('http://bauble.belizebotanic.org')
+	desktop.open('http://bauble.belizebotanic.org',
+                     dialog_on_error=True)
 
 
     def on_help_menu_about(self, widget, data=None):
 	about = gtk.AboutDialog()
 	about.set_name('Bauble')
 	about.set_version(bauble.version)
-        gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l))
+        gtk.about_dialog_set_url_hook(lambda d, l: desktop.open(l, dialog_on_error=True))
         about.set_website(_('http://bauble.belizebotanic.org'))
         f = os.path.join(paths.lib_dir(), 'images', 'icon.svg')
         pixbuf = gtk.gdk.pixbuf_new_from_file(f)

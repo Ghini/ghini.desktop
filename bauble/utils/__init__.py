@@ -725,4 +725,15 @@ class MessageBox(gtk.EventBox):
 
 
 
+def which(filename, path=None):
+    """
+    Search for filename on system path
+    """
+    if not path:
+        path = os.environ['PATH'].split(os.pathsep)
+    for dirname in path:
+        candidate = os.path.join(dirname, filename)
+        if os.path.isfile(candidate):
+            return candidate
+    return None
 
