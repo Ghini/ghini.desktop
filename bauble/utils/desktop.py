@@ -73,6 +73,8 @@ __version__ = "0.2.4"
 import os
 import sys
 
+from bauble.i18n import _
+
 # Provide suitable process creation functions.
 
 try:
@@ -203,9 +205,10 @@ def is_standard():
 
     return os.environ.has_key("DESKTOP_LAUNCH")
 
+
 # Activity functions.
 
-def open(url, desktop=None, wait=0):
+def open(url, desktop=None, wait=0, dialog_on_error=False):
 
     """
     Open the 'url' in the current desktop's preferred file browser. If the
@@ -230,9 +233,9 @@ def open(url, desktop=None, wait=0):
     """
 
     # Decide on the desktop environment in use.
-
+    import bauble.utils as utils
     desktop_in_use = use_desktop(desktop)
-
+    cmd = None
     if desktop_in_use == "standard":
         arg = "".join([os.environ["DESKTOP_LAUNCH"], commands.mkarg(url)])
         return _run(arg, 1, wait)
@@ -256,10 +259,26 @@ def open(url, desktop=None, wait=0):
     elif desktop_in_use == "X11" and os.environ.has_key("BROWSER"):
         cmd = [os.environ["BROWSER"], url]
 
-    # Finish with an error where no suitable desktop was identified.
+    if not cmd:
+        # if can't detect the desktop environment then see if xdg-open
+        # is available
+        exe = utils.which('xdg-open')
+        if exe:
+            cmd = [exe, url]
 
-    else:
-        raise OSError, "Desktop '%s' not supported (neither DESKTOP_LAUNCH nor os.startfile could be used)" % desktop_in_use
+    # Finish with an error where no suitable desktop was
+    # identified.
+    try:
+        if not cmd:
+            # TODO: maybe we should tell the user to define DESKTOP_LAUNCH
+            raise OSError, _("Could not open %s\n\n" \
+                             "Unknown desktop environment: %s\n\n" \
+                             % (url, desktop_in_use))
+    except Exception, e:
+        if dialog_on_error:
+            utils.message_dialog(utils.utf8(e))
+        else:
+            raise
 
     return _run(cmd, 0, wait)
 
