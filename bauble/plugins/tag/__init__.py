@@ -205,6 +205,7 @@ class Tag(db.Base):
 
     # columns
     tag = Column(Unicode(64), unique=True, nullable=False)
+    description = Column(Unicode)
 
     # relations
     _objects = relation('TaggedObj', cascade='all, delete-orphan',
