@@ -23,7 +23,7 @@ from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
-# TODO: external dependencies not in the PyPI: PyGTK>=2.10
+# TODO: external dependencies not in the PyPI: PyGTK>=2.14
 
 # TODO: fix permissions on files when creating an sdist with:
 # find . -regex '.*?\.\(glade\|xsl\|txt\|svg\|ui\)'  -exec chmod 644 {} \;
@@ -189,6 +189,10 @@ class build(_build):
             sys.exit(1)
 
         _build.run(self)
+
+        # create build/share directory
+        dir_util.mkpath(os.path.join(self.build_base, 'share'))
+
         dest_tmpl = os.path.join(self.build_base, locale_path, '%s',
                                  'LC_MESSAGES')
         matches = glob.glob('po/*.po')
@@ -198,7 +202,7 @@ class build(_build):
             localedir = dest_tmpl % loc
             mo = '%s/bauble.mo' % localedir
             if not os.path.exists(localedir):
-                os.makedirs(localedir)
+                dir_util.mkpath(localedir)
             if not os.path.exists(mo) or dep_util.newer(po, mo):
                 spawn.spawn(['msgfmt', po, '-o', mo])
 
@@ -291,7 +295,7 @@ class docs(Command):
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
         if not os.path.exists(DOC_BUILD_PATH):
-            os.makedirs(DOC_BUILD_PATH)
+            dir_utils.mkpath(DOC_BUILD_PATH)
         cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
@@ -333,6 +337,11 @@ class clean(Command):
         deb_dist = 'deb_dist'
         if os.path.exists(deb_dist):
             dir_util.remove_tree(deb_dist)
+
+# TODO: sdist_deb should really create the tarball from a checkout
+# directly from the repository instead of the current working
+# directory so that we don't pick up any estranged files that don't
+# belong in the tarball
 
 # sdist_deb command
 class sdist_deb(_sdist):
