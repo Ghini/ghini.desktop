@@ -42,7 +42,7 @@ class Institution(Singleton):
     #table = meta.bauble_meta_table
     # TODO: update this to not use this table directly
     table = meta.BaubleMeta.__table__
-    prop = lambda s, p: unicode(s.__db_tmpl % p)
+    prop = lambda s, p: utils.utf8(s.__db_tmpl % p)
 
     def __getattr__(self, prop):
         if prop not in self.__properties:
@@ -60,17 +60,19 @@ class Institution(Singleton):
             msg = _('Institution.__setattr__: %s not a property on '\
                     'Intitution') % prop
             raise ValueError(msg)
-        s = self.table.select(self.table.c.name == self.prop(prop)).execute()
+        prop = self.prop(prop)
+        value = utils.utf8(value)
+        s = self.table.select(self.table.c.name == prop).execute()
         # have to check if the property exists first because sqlite doesn't
         # raise an error if you try to update a value that doesn't exist and
         # do an insert and then catching the exception if it exists and then
         # updating the value is too slow
         if s.fetchone() is None:
 ##            debug('insert: %s = %s' % (prop, value))
-            self.table.insert().execute(name=self.prop(prop), value=value)
+            self.table.insert().execute(name=prop, value=value)
         else:
 ##            debug('update: %s = %s' % (prop, value))
-            self.table.update(self.table.c.name==self.prop(prop)).execute(value=value)
+            self.table.update(self.table.c.name==prop).execute(value=value)
 
 
 
@@ -108,20 +110,27 @@ class InstitutionEditorPresenter(editor.GenericEditorPresenter):
                            }
 
     def __init__(self, model, view):
-        decorated_model = editor.ModelDecorator(model)
-        super(InstitutionEditorPresenter, self).__init__(decorated_model, view)
+        super(InstitutionEditorPresenter, self).__init__(model, view)
         self.refresh_view()
         for widget, field in self.widget_to_field_map.iteritems():
             self.assign_simple_handler(widget, field)
+        self.__dirty = False
+
+
+
+    def set_model_attr(self, attr, value, validator):
+        super(InstitutionEditorPresenter, self).set_model_attr(attr, value,
+                                                               validator)
+        self.__dirty = True
 
 
     def dirty(self):
-        return self.model.dirty
+        return self.__dirty
 
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-            self.view.set_widget_value(widget, self.model[field])
+            self.view.set_widget_value(widget, getattr(self.model, field))
 
 
     def start(self, commit_transaction=True):
