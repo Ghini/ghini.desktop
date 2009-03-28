@@ -295,16 +295,16 @@ def install(plugins_to_install, import_defaults=True, force=False):
 class PluginRegistry(db.Base):
     """
     The PluginRegistry contains a list of plugins that have been installed
-    in a particular instance of a Bauble database.  It only includes the
-    name and version of the plugin and whether it is enabled or not.
+    in a particular instance of a Bauble database.  At the momeny it only
+    includes the name and version of the plugin but this is likely to change
+    in future versions.
     """
     __tablename__ = 'plugin'
     name = Column(Unicode(64), unique=True)
     version = Column(Unicode(12))
-    enabled = Boolean()
 
     @staticmethod
-    def add(plugin, enabled=True):
+    def add(plugin):
         """
         Add a plugin to the registry.
 
@@ -312,8 +312,7 @@ class PluginRegistry(db.Base):
         should be installed before adding.
         """
         p = PluginRegistry(name=utils.utf8(plugin.__name__),
-                           version=utils.utf8(plugin.version),
-                           enabled=True)
+                           version=utils.utf8(plugin.version))
         session = bauble.Session()
         session.add(p)
         session.commit()
