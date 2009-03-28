@@ -214,6 +214,8 @@ class _prefs(dict):
 
 # TODO: remember pane sizes
 
+# TODO: we need to include the meta table in the pref view
+
 class PrefsView(pluginmgr.View):
     """
     The PrefsView displays the values of in the preferences and the registry.
@@ -265,7 +267,7 @@ class PrefsView(pluginmgr.View):
         pane.pack1(frame)
 
         label = gtk.Label()
-        label.set_markup(_('<b>Registry</b>'))
+        label.set_markup(_('<b>Plugins</b>'))
         label.set_padding(5, 0)
         frame = gtk.Frame()
         frame.set_label_widget(label)
@@ -304,9 +306,12 @@ class PrefsView(pluginmgr.View):
         return tree
 
     def create_registry_view(self):
-        from bauble.pluginmgr import Registry
-        tree = self.create_tree([_('Names'), _('Values')],
-                                Registry().iteritems())
+        #from bauble.pluginmgr import Registry
+        from bauble.pluginmgr import PluginRegistry
+        session = bauble.Session()
+        plugins = session.query(PluginRegistry.name, PluginRegistry.version)
+        tree = self.create_tree([_('Name'), _('Version')],
+                                plugins)
         return tree
 
 
