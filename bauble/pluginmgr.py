@@ -298,7 +298,7 @@ class PluginRegistry(db.Base):
     in a particular instance of a Bauble database.  It only includes the
     name and version of the plugin and whether it is enabled or not.
     """
-    __tablename__ = 'plugins'
+    __tablename__ = 'plugin'
     name = Column(Unicode(64), unique=True)
     version = Column(Unicode(12))
     enabled = Boolean()
