@@ -23,7 +23,9 @@ from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
-# TODO: external dependencies not in the PyPI: PyGTK>=2.14
+# TODO: external dependencies not in the PyPI: PyGTK>=2.14, pyglade
+# TODO: optional dependencies: MySQL-Python, psycopg2,
+# Sphinx (for building docs, maybe include in buildr-requires)
 
 # TODO: fix permissions on files when creating an sdist with:
 # find . -regex '.*?\.\(glade\|xsl\|txt\|svg\|ui\)'  -exec chmod 644 {} \;
@@ -384,7 +386,7 @@ setuptools.setup(name="bauble",
                  install_requires=["SQLAlchemy>=0.5rc4",#<0.6",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
-                                   "gdata.py>=1.2.4"] + needs_sqlite,
+                                   "gdata>=1.2.4"] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett Adams",
                  author_email="brett@belizebotanic.org",
