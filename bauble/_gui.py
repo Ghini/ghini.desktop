@@ -92,6 +92,11 @@ class GUI(object):
         statusbar = self.widgets.statusbar
         statusbar.set_spacing(10)
         statusbar.set_has_resize_grip(True)
+        self._cids = []
+        def on_statusbar_push(sb, cid, txt):
+            if cid not in self._cids:
+                self._cids.append(cid)
+        statusbar.connect('text-pushed', on_statusbar_push)
 
         # remove label from frame
         frame = statusbar.get_children()[0]
@@ -638,7 +643,23 @@ class GUI(object):
             bauble.last_handler = None
             self.set_default_view()
             self.clear_menu('/ui/MenuBar/insert_menu')
+            self.statusbar_clear()
             pluginmgr.init()
+
+
+    def statusbar_clear(self):
+        """
+        Call gtk.Statusbar.pop() for each context_id that had previously
+        been pushed() onto the the statusbar stack.  This might not clear
+        all the messages in the statusbar but its the best we can do
+        without knowing how many messages are in the stack.
+        """
+        # TODO: if we need to do a proper clear() then we would
+        # probably have to subclass gtk.Statusbar to keep track of the
+        # message ids and context ids so we can properly clear the
+        # statusbar.
+        for cid in self._cids:
+            self.widgets.statusbar.pop(cid)
 
 
     def on_help_menu_contents(self, widget, data=None):
