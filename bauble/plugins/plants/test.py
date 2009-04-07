@@ -537,21 +537,28 @@ class SpeciesTests(PlantTestCase):
         self.session.flush()
         self.failIf(synonym_of(1, 2), syn_str(1, 2))
 
-        # TODO: need to test adding a species and then immediately remove it
-        # TOOD: need to test removing a species and then immediately adding
-        # the same species
+        # test adding a species and then immediately remove it
         self.session.expunge_all()
         sp1 = load_sp(1)
         sp2 = load_sp(2)
         sp1.synonyms.append(sp2)
-        self.session.flush()
-
         sp1.synonyms.remove(sp2)
-        for s in self.session.dirty:
-            if isinstance(s, SpeciesSynonym) and s.synonym == sp2:
-                self.session.flush([s])
+        #self.session.flush()
+        assert sp2 not in sp1.synonyms
+
+        # add a species and immediately add the same species
+        sp2 = load_sp(2)
         sp1.synonyms.append(sp2)
-        self.session.flush()
+        sp1.synonyms.remove(sp2)
+        sp1.synonyms.append(sp2)
+        self.session.flush() # shouldn't raise an error
+        assert sp2 in sp1.synonyms
+
+        # test that deleing a species removes it from the synonyms list
+        assert sp2 in sp1.synonyms
+        self.session.delete(sp2)
+        self.session.commit()
+        assert sp2 not in sp1.synonyms
 
         self.session.expunge_all()
 
