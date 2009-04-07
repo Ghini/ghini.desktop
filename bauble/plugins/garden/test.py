@@ -233,13 +233,23 @@ class AccessionTests(GardenTestCase):
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
 
-        acc.species.infrasp_rank = 'cv.'
-        acc.species.infrasp = 'Cultivar'
-        acc.id_qual = 'cf.'
-        acc.id_qual_rank = 'infrasp'
+        acc.species.infrasp_rank = u'cv.'
+        acc.species.infrasp = u'Cultivar'
+        acc.id_qual = u'cf.'
+        acc.id_qual_rank = u'infrasp'
         s = "gen sp cf. 'Cultivar'"
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+
+
+        # test that the cached string is returned
+
+        # have to commit because the cached string won't be returned
+        # on dirty species
+        self.session.commit()
+        s2 = acc.species_str()
+        assert id(sp_str) == id(s2), '%s(%s) == %s(%s)' % (sp_str, id(sp_str),
+                                                           s2, id(s2))
 
         # this used to test that if the id_qual was set but the
         # id_qual_rank wasn't then we would get an error. now we just
@@ -247,6 +257,8 @@ class AccessionTests(GardenTestCase):
 #         acc.id_qual = 'aff.'
 #         acc.id_qual_rank = None
 #         self.assertRaises(CheckConditionError, acc.species_str)
+
+
 
 
     def test_delete(self):
