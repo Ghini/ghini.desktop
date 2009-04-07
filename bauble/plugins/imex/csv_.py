@@ -303,7 +303,7 @@ class CSVImporter(Importer):
                     break
                 msg = _('importing %(table)s table from %(filename)s') \
                         % {'table': table.name, 'filename': filename}
-                log.info(msg)
+                #log.info(msg)
                 bauble.task.set_message(msg)
                 yield # allow progress bar update
 
