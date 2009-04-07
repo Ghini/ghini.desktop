@@ -241,9 +241,12 @@ class AccessionTests(GardenTestCase):
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
 
-        acc.id_qual = 'aff.'
-        acc.id_qual_rank = None
-        self.assertRaises(CheckConditionError, acc.species_str)
+        # this used to test that if the id_qual was set but the
+        # id_qual_rank wasn't then we would get an error. now we just
+        # show an warning and put the id_qual on the end of the string
+#         acc.id_qual = 'aff.'
+#         acc.id_qual_rank = None
+#         self.assertRaises(CheckConditionError, acc.species_str)
 
 
     def test_delete(self):
