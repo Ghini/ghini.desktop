@@ -5,6 +5,7 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
+import bauble.utils as utils
 from bauble.utils.log import debug
 
 VERSION_KEY = u'version'
@@ -27,7 +28,6 @@ def get_default(name, default=None, session=None):
     default value given.  If a session instance is passed then we
     don't commit the session.
     """
-    #debug('get_default(%s, %s)' % (name, default))
     commit = False
     if not session:
         session = bauble.Session()
@@ -35,10 +35,9 @@ def get_default(name, default=None, session=None):
     query = session.query(BaubleMeta)
     meta = query.filter_by(name=name).first()
     if not meta and default is not None:
-        meta = BaubleMeta(name=name, value=default)
+        meta = BaubleMeta(name=utils.utf8(name), value=default)
         session.add(meta)
     if commit:
-        session.close()
         session.commit()
     return meta
 
@@ -47,4 +46,3 @@ class BaubleMeta(db.Base):
     __tablename__ = 'bauble'
     name = Column(Unicode(64), unique=True)
     value = Column(UnicodeText)
-
