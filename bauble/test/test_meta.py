@@ -22,8 +22,8 @@ class MetaTests(BaubleTestCase):
         obj = meta.get_default(name)
         self.assert_(obj is None)
 
-        # test that the obj is created if it doesn't exists and a
-        # default value is passed in
+        # test that the obj is created if it doesn't exists and that
+        # the default value is set
         value = u'value'
         meta.get_default(name, default=value)
         obj = self.session.query(meta.BaubleMeta).filter_by(name=name).one()
