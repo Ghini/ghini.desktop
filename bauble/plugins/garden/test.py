@@ -259,8 +259,6 @@ class AccessionTests(GardenTestCase):
 #         self.assertRaises(CheckConditionError, acc.species_str)
 
 
-
-
     def test_delete(self):
         """
         Test that when an accession is deleted any orphaned rows are
