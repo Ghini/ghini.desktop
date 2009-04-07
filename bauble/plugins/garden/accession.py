@@ -377,7 +377,12 @@ class Accession(db.Base):
     def species_str(self, markup=False, authors=False):
         """
         Return the string of the species with the id qualifier(id_qual)
-        injected into the proper place
+        injected into the proper place.
+
+        If the species isn't part of a session of if the species is dirty,
+        i.e. in object_session(species).dirty, then a new string will be
+        built even if the species hasn't been changeq since the last call
+        to this method.
         """
         # TODO: should we be using sesssion.is_modified() here
         try:
@@ -386,9 +391,11 @@ class Accession(db.Base):
             self.__cached_species_str[(markup, authors)] = None
             cached = None
         session = object_session(self.species)
-        if cached is not None and self.species not in session.dirty:
-            return cached
-
+        if session:
+            # if not part of a session or if the species is dirty then
+            # build a new string
+            if cached is not None and self.species not in session.dirty:
+                return cached
         if not self.species:
             return None
 
