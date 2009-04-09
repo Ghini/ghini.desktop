@@ -354,7 +354,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.set_model_attr('accession', value)
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
-            self.on_plant_code_entry_changed()
+            if value is not None:
+                self.on_plant_code_entry_changed()
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
 
@@ -382,8 +383,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def on_plant_code_entry_changed(self, *args):
+        """
+        Validates the accession number and the plant code from the editors.
+        """
         text = utils.utf8(self.view.widgets.plant_code_entry.get_text())
-        #debug('on_plant_code_entry_changed(%s)' % text)
         if text == u'':
             self.set_model_attr('code', None)
         else:
@@ -406,8 +409,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # same accession and plant code that we started with when the
         # editor was opened
         if self.model.code is not None and nplants_query.count() > 0 \
-               and self._original_accession_id != self.model.accession.id \
-               and self.model.code == self._original_code:
+               and not (self._original_accession_id==self.model.accession.id \
+                            and self.model.code==self._original_code):
             self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
                              self.view.widgets.plant_code_entry)
         else:
