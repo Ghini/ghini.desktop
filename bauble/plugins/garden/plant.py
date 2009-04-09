@@ -214,19 +214,25 @@ class Plant(db.Base):
     # relations
     history = relation('PlantHistory', backref='plant')
 
-    @classmethod
-    def get_delimiter(cls):
-        """
-        Get the plant delimiter from the BaubleMeta table
-        """
-        return meta.get_default(plant_delimiter_key,
-                                default_plant_delimiter).value
 
     _delimiter = None
+
+    @classmethod
+    def get_delimiter(cls, refresh=False):
+        """
+        Get the plant delimiter from the BaubleMeta table.
+
+        The delimiter is cached the first time it is retrieved.  To refresh
+        the delimiter from the database call with refresh=True.
+
+        """
+        if cls._delimiter is None or refresh:
+            cls._delimiter = meta.get_default(plant_delimiter_key,
+                                default_plant_delimiter).value
+        return cls._delimiter
+
     def _get_delimiter(self):
-        if self._delimiter is None:
-            self._delimiter = Plant.get_delimiter()
-        return self._delimiter
+        return Plant.get_delimiter()
     delimiter = property(lambda self: self._get_delimiter())
 
 
