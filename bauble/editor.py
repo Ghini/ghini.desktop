@@ -548,6 +548,17 @@ class GenericEditorPresenter(object):
 
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
+        """
+        Dynamically handle completions on a gtk.Entry.
+
+        :param widget: a gtk.Entry instance or widget name
+
+        :param get_completions: the method to call when a list of
+        completions is requested, returns a list of completions
+
+        :param on_select: callback for when a value is selected from
+        the list of completions
+        """
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(widget.get_name())
@@ -560,7 +571,9 @@ class GenericEditorPresenter(object):
                 # completions model already has a static list of
                 # completions
                 return
-            values = get_completions(text)
+            # always get completions from the first two characters from
+            # a string
+            values = get_completions(text[:1])
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
