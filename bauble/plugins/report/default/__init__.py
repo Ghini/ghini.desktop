@@ -283,8 +283,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
         # TODO: do a natural sort instead of a standard cmp() sort
         adapted = []
         if source_type == plant_source_type:
-            plants = list(get_all_plants(objs, session=session))
-            plants.sort(cmp=lambda x, y: cmp(str(x), str(y)))
+            plants = sorted(get_all_plants(objs, session=session),
+                            key=utils.natsort_key)
             if len(plants) == 0:
                 utils.message_dialog(_('There are no plants in the search '
                                        'results.  Please try another search.'))
@@ -295,8 +295,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
                 elif not p.accession.private:
                     adapted.append(PlantABCDAdapter(p))
         elif source_type == species_source_type:
-            species = list(get_all_species(objs, session=session))
-            species.sort(cmp=lambda x,y: cmp(str(x), str(y)))
+            species = sorted(get_all_species(objs, session=session),
+                             key=utils.natsort_key)
             if len(species) == 0:
                 utils.message_dialog(_('There are no species in the search '
                                        'results.  Please try another search.'))
@@ -304,8 +304,8 @@ class DefaultFormatterPlugin(FormatterPlugin):
             for s in species:
                 adapted.append(SpeciesABCDAdapter(s))
         elif source_type == accession_source_type:
-            accessions = list(get_all_accessions(objs, session=session))
-            accessions.sort(cmp=lambda x,y: cmp(str(x), str(y)))
+            accessions = sorted(get_all_accessions(objs, session=session),
+                                key=utils.natsort_key)
             if len(accessions) == 0:
                 utils.message_dialog(_('There are no accessions in the search '
                                        'results.  Please try another search.'))
