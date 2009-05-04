@@ -1,7 +1,9 @@
 #!/usr/bin/env python
 #
-#  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
-#  This is free software, see GNU General Public License v2 for details.
+#  Copyright (c) 2005,2006,2007,2008 Brett Adams
+#  <brett@belizebotanic.org> This is free software, see GNU General
+#  Public License v2 for details.
+
 try:
     import setuptools
 except ImportError:
