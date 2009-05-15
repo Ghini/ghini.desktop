@@ -342,10 +342,9 @@ class clean(Command):
         if os.path.exists(deb_dist):
             dir_util.remove_tree(deb_dist)
 
-# TODO: sdist_deb should really create the tarball from a checkout
-# directly from the repository instead of the current working
-# directory so that we don't pick up any estranged files that don't
-# belong in the tarball
+# TODO: sdist_deb should be run from a fresh checkout and never from a
+# working directory as it could contain uncommited files and other
+# files in the tarball that shouldn't be included in the dist
 
 # sdist_deb command
 class sdist_deb(_sdist):
