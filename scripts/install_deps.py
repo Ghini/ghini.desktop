@@ -61,6 +61,7 @@ eggs_install = {'lxml': '==2.1.5',
                 'MySQL-python': '==1.2.2',
                 'SQLAlchemy': '>=0.5.2',
                 'py2exe': '==0.6.9',
+                'gdata',
                 'mako': ''}
 
 
@@ -165,6 +166,9 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
     fullname = '"%s"' % os.path.join(DL_PATH, filename)
     os.system(fullname)
 
+
+# TODO: should we be calling easy_install -Z since py2exe seems to
+# have problems with zipped up eggs
 
 if not options.noeggs:
     # make sure that setuptools is installed
