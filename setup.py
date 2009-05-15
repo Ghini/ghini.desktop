@@ -78,7 +78,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
 
     # TODO: check again that this is necessary for pysqlite2, we might
     # be able to juse use the python 2.5 built in sqlite3 module
-    py2exe_includes = ['pysqlite2.dbapi2', 'lxml',
+    py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata',
                        'MySQLdb', 'psycopg2', 'encodings'] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
