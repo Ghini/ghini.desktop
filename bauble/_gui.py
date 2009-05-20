@@ -16,7 +16,7 @@ import bauble.utils.desktop as desktop
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.utils.log import log, debug
+from bauble.utils.log import log, debug, warning
 from bauble.i18n import _
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView
@@ -195,10 +195,10 @@ class GUI(object):
             width, height = eb.size_request()
             if height >= final_height:
                 return False
-            height = height + 5
+            height = height + 7
             eb.set_size_request(width, height)
             return True
-        gobject.timeout_add(10, animate, height)
+        gobject.timeout_add(7, animate, height)
 
 
     def show(self):
@@ -584,7 +584,7 @@ class GUI(object):
 
     def on_file_menu_open(self, widget, data=None):
         """
-        open the connection manager
+        Open the connection manager.
         """
         from connmgr import ConnectionManager
         default_conn = prefs[bauble.conn_default_pref]
@@ -595,39 +595,17 @@ class GUI(object):
 
         engine = None
         try:
-            engine = db.open(uri, False)
+            engine = db.open(uri, True, True)
         except Exception, e:
-            debug(e)
-            if isinstance(e, error.DatabaseError):
-                return
-            msg = _("Could not open connection.\n\n%s") % \
-                  utils.xml_safe_utf8(e)
-            utils.message_details_dialog(msg, traceback.format_exc(),
-                                         gtk.MESSAGE_ERROR)
+            # we don't do anything to handle the exception since
+            # db.open() should have shown an error dialog if there was
+            # a problem opening the database as long as the
+            # show_error_dialogs parameter is True
+            warning(e)
 
         if engine is None:
+            # the database wasn't open
             return
-
-        # show a custom message if its a version error and continue to use
-        # the same engine, if its a different error then verify again but
-        # show_error_dialogs = True
-
-        # TODO: there's no reason for us to call _verify_connection a
-        # second time when we could just catch this exception in the
-        # open_database above
-        try:
-            db._verify_connection(engine, show_error_dialogs=False)
-        except error.VersionError, e:
-            msg = _('You are using Bauble version %(version)s while the '\
-                    'database you have connected to was created with '\
-                    'version %(db_version)s\n\nSome things might not work as '\
-                    'or some of your data may become unexpectedly '\
-                    'corrupted.') % \
-                    {'version': bauble.version,
-                     'db_version':'%s' % e.version}
-            utils.message_dialog(msg, gtk.MESSAGE_ERROR)
-        except Exception, e:
-            db._verify_connection(engine, show_error_dialogs=True)
 
         # everything seems to have passed ok so setup the rest of bauble
         if engine is not None:
