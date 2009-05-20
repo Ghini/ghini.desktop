@@ -76,8 +76,7 @@ def locale_dir():
         # TODO: how do we get the locale directory for linux?
         d = os.path.join('/usr', 'share', 'locale')
     elif sys.platform == 'win32':
-        import bauble.paths as paths
-        d = os.path.join(paths.main_dir(), 'share', 'locale')
+        d = os.path.join(main_dir(), 'share', 'locale')
     else:
         raise NotImplementedError('This platform does not support '\
                                   'translations: %s' % sys.platform)
