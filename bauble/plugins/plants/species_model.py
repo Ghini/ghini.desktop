@@ -335,8 +335,7 @@ class Species(db.Base):
         return s
 
 
-# TODO: deleting either of the species this synonym refers to makes
-# this synonym irrelevant
+
 class SpeciesSynonym(db.Base):
     """
     :Table name: species_synonym

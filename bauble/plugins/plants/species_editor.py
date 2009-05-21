@@ -26,15 +26,6 @@ from bauble.plugins.plants.species_model import Species, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
      SpeciesDistribution, Geography
 
-# TODO: would be nice, but not necessary, to edit existing vernacular names
-# instead of having to add new ones
-
-# TODO: what about author string and cultivar groups
-
-# TODO: ensure None is getting set in the model instead of empty strings,
-# UPDATE: i think i corrected most of these but i still need to double check
-
-
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_GENUS = 1
@@ -246,11 +237,6 @@ class DistributionPresenter(editor.GenericEditorPresenter):
     """
     """
 
-    # TODO: build the species distribution menu on the first run of the editor
-    # and save the ui xml to the users ~/.bauble directory and then
-    # in the future we can check that the versions are the same and use the
-    # cached menu
-
     def __init__(self, species, view, session):
         '''
         @param species:
@@ -274,8 +260,6 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 
 
     def refresh_view(self):
-        # TODO: keep a list of new ones that have been added and make them
-        # blue when displaying them so we know what's changed
         label = self.view.widgets.sp_dist_label
         s = ', '.join([str(d) for d in self.model.distribution])
         label.set_text(s)
@@ -552,18 +536,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         active = cell.get_active()
         if not active: # then it's becoming active
             vn = self.treeview.get_model()[path][0]
-            debug('%s: %s' % (type(vn), vn))
-            # TODO: ***************
-            #
-            # for some reason set_model_attr()
-            # doesn't work here and we have to set the value directly
-            # on the attribute instead even though both call
-            # Species._set_default_vernacular_name
-            #
-            # *******************
-            #self.set_model_attr('default_vernacular_name', vn)
-            self.model.default_vernacular_name = vn
-            debug(self.model.default_vernacular_name)
+            self.set_model_attr('default_vernacular_name', vn)
         self.__dirty = True
         self.view.set_accept_buttons_sensitive(True)
 
@@ -669,9 +642,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             return
 
 
-#
-# TODO: you shouldn't be able to set a plant as a synonym of itself
-#
+
 class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
@@ -765,9 +736,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
         this species
         """
-        self.model.synonyms.append(self._selected)
+        syn = SpeciesSynonym(species=self.model, synonym=self._selected)
         tree_model = self.treeview.get_model()
-        tree_model.append([self._selected])
+        tree_model.append([syn])
         self._selected = None
         entry = self.view.widgets.sp_syn_entry
         self.pause_completions_handler(entry, True)
@@ -797,7 +768,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
               '%s from the database.</i>' % (s, s)
         if utils.yes_no_dialog(msg, parent=self.view.get_window()):
             tree_model.remove(tree_model.get_iter(path))
-            self.model._synonyms.remove(value)
+            self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             # make the change in synonym immediately available so that if
             # we try to add the same species again we don't break the

@@ -479,9 +479,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         adds the synonym from the synonym entry to the list of synonyms for
             this species
         '''
-        self.model.synonyms.append(self._selected)
+        syn = GenusSynonym(genus=self.model, synonym=self._selected)
         tree_model = self.treeview.get_model()
-        tree_model.append([self._selected])
+        tree_model.append([syn])
         self._selected = None
         entry = self.view.widgets.gen_syn_entry
         self.pause_completions_handler(entry, True)
@@ -511,7 +511,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                 'genus from the database.</i>') % {'genus': s}
         if utils.yes_no_dialog(msg, parent=self.view.get_window()):
             tree_model.remove(tree_model.get_iter(path))
-            self.model._synonyms.remove(value)
+            self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
             self.view.set_accept_buttons_sensitive(True)
