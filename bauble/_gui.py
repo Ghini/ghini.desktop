@@ -641,9 +641,6 @@ class GUI(object):
 
 
     def on_help_menu_contents(self, widget, data=None):
-        # TODO: should go to the docs page for the locale if it
-        # exists but the pages should redirect to the english
-        # translation if not
         desktop.open('http://bauble.belizebotanic.org/docs/0.9/',
                      dialog_on_error=True)
 

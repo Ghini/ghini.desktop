@@ -417,9 +417,6 @@ class MapperSearch(SearchStrategy):
                 # that work on all database or just normalize the
                 # conditions depending on the databases
 
-                # TODO: the like condition takes fucking ages here on
-                # sqlite if the search query is something like:
-                # "children.column like something"
                 where = "%s %s '%s'" % (col, cond, val)
                 clause = cls.id.in_(id_query.join(*relations).\
                                     filter(where).statement)
@@ -483,14 +480,9 @@ class MapperSearch(SearchStrategy):
             condition = lambda col: \
                 lambda val: mapper.c[col].op(cond)(val)
 
-        # TODO: can we use the properties directly instead of using
-        # the columns names so that if the properties are setup
-        # properly then they could be used directly in the search
-        # string
         for col in properties:
             # TODO: i don't know how well this will work out if we're
             # search for numbers
-            #
             ors = or_(*map(condition(col), values))
             self._results.add(query.filter(ors))
         return tokens
@@ -840,7 +832,10 @@ class SearchView(pluginmgr.View):
         # outside the class so the entry and search results match
 #        debug('SearchView.search(%s)' % text)
 
-        # TODO: we should cancel any current running searches first
+        # TODO: we should cancel any current running searches
+        # this will probably have to wait until we have a better task
+        # handling API, see:
+        # https://bugs.launchpad.net/bauble/+bug/378897
 
         results = ResultSet()
         error_msg = None
