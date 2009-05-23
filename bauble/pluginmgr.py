@@ -102,6 +102,9 @@ def load(path=None):
     is a directory then search the directory for plugins. If path is
     None then use the default plugins path, bauble.plugins.
 
+    This method populates the pluginmgr.plugins dict and imports the
+    plugins but doesn't do any plugin initialization.
+
     :param path: the path where to look for the plugins
     :type path: str
     """
@@ -111,7 +114,16 @@ def load(path=None):
             path = os.path.join(paths.main_dir(), 'library.zip')
         else:
             path = os.path.join(paths.lib_dir(), 'plugins')
-    found = _find_plugins(path)
+    found, errors = _find_plugins(path)
+
+    for name, exc_info in errors.iteritems():
+        exc_str = utils.xml_safe_utf8(exc_info[1])
+        tb_str = ''.join(traceback.format_tb(exc_info[2]))
+        utils.message_details_dialog('Could not load plugin: '
+                                     '\n\n<i>%s</i>\n\n%s' \
+                                         % (name, exc_str),
+                                     tb_str, type=gtk.MESSAGE_ERROR)
+
     if len(found) == 0:
         debug('No plugins found at path: %s' % path)
 
@@ -163,7 +175,13 @@ def init(force=False):
             if force or utils.yes_no_dialog(msg):
                 install([p for p in not_installed])
         # sort plugins in the registry by their dependencies
-        registered = [plugins[name] for name in PluginRegistry.names()]
+        for name in PluginRegistry.names():
+            try:
+                registered.append(plugins[name])
+            except KeyError, e:
+                msg = _('The following plugin is in the registry but '
+                        'could not be loaded:\n\n%s' % utils.utf8(name))
+                utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
     except Exception, e:
         raise
 
@@ -483,10 +501,13 @@ def _find_module_names(path):
 
 
 def _find_plugins(path):
+    """
+    Return the plugins at path.
+    """
     plugins = []
     import bauble.plugins
     plugin_module = bauble.plugins
-    mod = None
+    errors = {}
 
     if path.find('library.zip') != -1:
         plugin_names = [m for m in _find_module_names(path) \
@@ -495,7 +516,9 @@ def _find_plugins(path):
         plugin_names =['bauble.plugins.%s'%m for m in _find_module_names(path)]
 
     for name in plugin_names:
+        mod = None
         # Fast path: see if the module has already been imported.
+
         if name in sys.modules:
             mod = sys.modules[name]
         else:
@@ -505,9 +528,7 @@ def _find_plugins(path):
                 msg = _('Could not import the %(module)s module.\n\n'\
                         '%(error)s' % {'module': name, 'error': e})
                 debug(msg)
-                debug(traceback.format_exc())
-#                 utils.message_details_dialog(msg, str(traceback.format_exc()),
-#                                              gtk.MESSAGE_ERROR)
+                errors[name] = sys.exc_info()
         if not hasattr(mod, "plugin"):
             continue
 
@@ -528,8 +549,7 @@ def _find_plugins(path):
         else:
             warning(_('%s.plugin is not an instance of pluginmgr.Plugin'\
                       % mod.__name__))
-#    debug(plugins)
-    return plugins
+    return plugins, errors
 
 
 #
