@@ -42,23 +42,31 @@ def add_genera_callback(value):
     return e.start() != None
 
 
-def remove_callback(value):
+def remove_callback(family):
     """
-    Family context menu callback
+    The callback function to remove a family from the family context menu.
     """
-    s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    from bauble.plugins.plants.genus import Genus
+    session = bauble.Session()
+    ngen = session.query(Genus).filter_by(family_id=family.id).count()
+    safe_str = utils.xml_safe_utf8(str(family))
+    if ngen > 0:
+        msg = _('The family <i>%s</i> has %s genera.  Are you sure you want '
+                'to remove it?') % (safe_str, ngen)
+    else:
+        msg = _("Are you sure you want to remove the family <i>%s</i>?") \
+            % safe_str
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
-        obj = session.query(Family).get(value.id)
+        obj = session.query(Family).get(family.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
-        msg = 'Could not delete.\n\n%s' % utils.xml_safe_utf8(e)
+        msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    session.close()
     return True
 
 
