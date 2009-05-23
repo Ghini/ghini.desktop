@@ -61,9 +61,10 @@ class Donation(db.Base):
 #    the date in unicode instead of a DateTimeCol eventhough i set this
 #    column using a datetime object
 # TODO: deleting this foreign accession deletes this collection
-# TODO: this shouldn't be allowed to be None, UPDATE: what the hell am i talking about
+
 # TODO: collector combined with collectors_code should be a unique key, need to
 # also indicate this in the UI
+
 # TODO: should provide a collection type: alcohol, bark, boxed, cytological, fruit, illustration, image, other, packet, pollen, print, reference, seed, sheet, slide, transparency, vertical, wood.....see HISPID standard, in general need to be more herbarium aware
 
 # TODO: create a DMS column type to hold latitude and longitude,

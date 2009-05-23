@@ -2,29 +2,17 @@
 # pluginmgr.py
 #
 
-# TODO: need a way to register editors with the insert menu...could be
-# done in Plugin.init()...UPDATE: 5/10.08...dont' we do this already
+"""
+Manage plugin registry, loading, initialization and installation.  The plugin manager should be started in the following order:
 
-# TODO: don't completely blow up if there is a problem with on plugin,
-# e.g. don't ask if you want to remove all the other plugins unless
-# the plugin is dependent on the bad one
+1. load the plugins: search the plugin directory for plugins,
+populates the plugins dict (happens in load())
 
-# TODO: currently (3/10/2008) we can drop in and remove plugins from
-# bauble but still if the plugin has tables then those tables on get
-# created when a new database is created, we need the ability to
-# create tables on installation...one solution is to create a tables
-# attribue on the plugins with a list of tables that need to be
-# created, the other is to just create an install() method on the
-# plugin that is called when the plugin is first installed and then we
-# let the plugins handle their own table creation and default imports
+2. install the plugins if not in the registry, add properly
+installed plugins in to the registry (happens in load())
 
-# 1. load the plugins: search the plugin directory for plugins,
-# populates the plugins dict
-#
-# 2. install the plugins if not in the registry, add properly
-# installed plugins in to the registry
-#
-# 3. initialize the plugins
+3. initialize the plugins (happens in init())
+"""
 
 import logging
 import inspect

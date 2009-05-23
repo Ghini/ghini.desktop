@@ -33,7 +33,7 @@ from bauble.view import SearchView, MapperSearch
 
 
 def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, str(value))
+    s = '%s: %s' % (value.__class__.__name__, utils.xml_safe_utf8(value))
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
@@ -240,7 +240,9 @@ class TaggedObj(db.Base):
 # TODO: maybe we shouldn't remove the obj from the tag if we can't
 # find it, it doesn't really hurt to have it there and in case the
 # table isn't available at the moment doesn't mean it won't be there
-# later
+# later, e.g. if some object is tagged but then that plugin gets
+# disabled by a user then the tag could still exist for that object to
+# other users who have that plugin enabled.
 
 # TODO: provide another function that returns (table, id) pairs that
 # this function can use so that we can expose that functionality
@@ -479,12 +481,6 @@ class TagPlugin(pluginmgr.Plugin):
                                       context_menu=tag_context_menu)
         if bauble.gui is not None:
             _reset_tags_menu()
-
-    # TODO: why do we have this start() method, when does it ever get
-    # called...commented out on 10/6/2008
-#     @classmethod
-#     def start(cls):
-#         _reset_tags_menu()
 
 
 #class TagEditorView(GenericEditorView):
