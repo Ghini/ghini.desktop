@@ -30,21 +30,31 @@ def edit_callback(value):
 
 
 
-def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = _("Are you sure you want to remove %s?") % \
-              utils.xml_safe_utf8(s)
+def remove_callback(species):
+    """
+    The callback function to remove a species from the species context menu.
+    """
+    from bauble.plugins.garden.accession import Accession
+    session = bauble.Session()
+    nacc = session.query(Accession).filter_by(species_id=species.id).count()
+    safe_str = utils.xml_safe_utf8(str(species))
+    if nacc > 0:
+        msg = _('The species <i>%s</i> has %s accessions.  Are you sure '
+                'you want remove it?') % (safe_str, nacc)
+    else:
+        msg = _("Are you sure you want to remove the species <i>%s</i>?") \
+            % safe_str
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
-        obj = session.query(Species).get(value.id)
+        obj = session.query(Species).get(species.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    session.close()
     return True
 
 
@@ -106,10 +116,6 @@ def vernname_markup_func(vernname):
 
 from bauble.view import InfoBox, InfoBoxPage, InfoExpander, \
     select_in_search_results
-
-# TODO: reenable import
-#from bauble.plugins.garden.accession import Accession, accession_table
-#from bauble.plugins.garden.plant import Plant, plant_table
 
 #
 # Species infobox for SearchView

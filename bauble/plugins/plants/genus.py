@@ -58,18 +58,24 @@ def add_species_callback(value):
     return result != None
 
 
-def remove_callback(value):
-    # TODO: before removing we should get the object, find all the dependent
-    # objects for the class and then find all the child objects that refer
-    # to the object to be removed and at least say something like,
-    # '522 species refer to this object, do you still want to remove it'
-    s = '%s: %s' % (value.__class__.__name__, str(value))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+def remove_callback(genus):
+    """
+    The callback function to remove a genus from the genus context menu.
+    """
+    from bauble.plugins.plants.species_model import Species
+    session = bauble.Session()
+    nsp = session.query(Species).filter_by(genus_id=genus.id).count()
+    safe_str = utils.xml_safe_utf8(str(genus))
+    if nsp > 0:
+        msg = _('The genus <i>%s</i> has %s species.  Are you sure you want '
+                'to remove it?') % (safe_str, nsp)
+    else:
+        msg = _("Are you sure you want to remove the genus <i>%s</i>?") \
+            % safe_str
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
-        obj = session.query(Genus).get(value.id)
+        obj = session.query(Genus).get(genus.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
