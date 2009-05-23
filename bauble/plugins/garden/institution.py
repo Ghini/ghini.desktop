@@ -15,9 +15,10 @@ import bauble.pluginmgr as pluginmgr
 from bauble.i18n import *
 from bauble.utils.log import debug
 
-# TODO: the institution editor is a live editor where the database is updated
-# as the user types. This is a bit and maybe we could add a callback so that
-# the database isn't updated until the user stops typing
+# TODO: the institution editor is a live editor where the database is
+# updated as the user types. This is a bit slow and maybe we could add
+# a callback so that the database isn't updated until the user stops
+# typing
 
 class Singleton(object):
     __instance = None

@@ -169,19 +169,6 @@ def create(import_defaults=True):
         metadata.drop_all(bind=connection, tables=most_tables, checkfirst=True)
         metadata.create_all(bind=connection, tables=most_tables)
 
-        # TODO: clearing the insert menu probably shouldn't be here and should
-        # probably be pushed into db.create, the problem is at the
-        # moment the data is imported in the pluginmgr.init method so we would
-        # have to separate table creations from the init menu
-
-        # clear the insert menu
-#         if gui is not None and hasattr(gui, 'insert_menu'):
-#             menu = gui.insert_menu
-#             submenu = menu.get_submenu()
-#             for c in submenu.get_children():
-#                 submenu.remove(c)
-#             menu.show()
-
         # fill in the bauble meta table and install all the plugins
         meta_table = meta.BaubleMeta.__table__
         meta_table.insert(bind=connection).execute(name=meta.VERSION_KEY,

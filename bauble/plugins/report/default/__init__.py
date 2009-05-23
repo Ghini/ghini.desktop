@@ -280,7 +280,6 @@ class DefaultFormatterPlugin(FormatterPlugin):
 
         # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd
-        # TODO: do a natural sort instead of a standard cmp() sort
         adapted = []
         if source_type == plant_source_type:
             plants = sorted(get_all_plants(objs, session=session),

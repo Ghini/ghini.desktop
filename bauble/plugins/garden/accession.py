@@ -318,14 +318,8 @@ class Accession(db.Base):
                                         'forsan', 'near', '?', None]),
                      default=None)
 
-    # TODO: this is a new field as of 0.9 that allows the id_qual to
-    # reference which part is uncertain about the identification of
-    # this accession to the species....the question is should it
-    # contain the specific string where the uncertainty is or should
-    # it include the name of the column, e.g. genus, sp, infrasp.  If
-    # it were the string then it would be more direct what is
-    # uncertain...the other problem is that this could get out of
-    # synch with the species name
+    # new in 0.9, this column should contain the name of the column in
+    # the species table that the id_qual refers to, e.g. genus, sp, etc.
     id_qual_rank = Column(Unicode(10))
 
     # "private" new in 0.8b2
@@ -1356,10 +1350,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         """
         Set attributes on the model and update the GUI as expected.
         """
-        # TODO: we could have problems here if we are monitoring more than
-        # one model change and the two models have a field with the same name,
-        # e.g. date, then if we do 'if date == something' we won't know
-        # which model changed
         #debug('set_model_attr(%s, %s)' % (field, value))
         super(AccessionEditorPresenter, self).set_model_attr(field, value,
                                                              validator)
