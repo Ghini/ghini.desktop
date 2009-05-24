@@ -203,7 +203,7 @@ class _prefs(dict):
             f = open(self._filename, "w+")
             self.config.write(f)
             f.close()
-        except:
+        except Exception:
             msg = _("Bauble can't save your user preferences. \n\nPlease "
                     "check the file permissions of your config file:\n %s" \
                     % self._filename)

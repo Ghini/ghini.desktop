@@ -62,7 +62,7 @@ class GUI(object):
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             self.window.set_icon(pixbuf)
-        except:
+        except Exception:
             utils.message_details_dialog(_('Could not load icon from %s' % \
                                          bauble.default_icon),
                                          traceback.format_exc(),

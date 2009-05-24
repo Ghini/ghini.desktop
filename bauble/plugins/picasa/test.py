@@ -113,7 +113,7 @@ class PicasaTests(BaubleTestCase):
         email = meta.get_default(picasa.PICASA_EMAIL_KEY).value
         try:
             user, domain = email.split('@', 1)
-        except:
+        except Exception:
             user = email
         album = meta.get_default(picasa.PICASA_ALBUM_KEY).value
         token = meta.get_default(picasa.PICASA_TOKEN_KEY).value

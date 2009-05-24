@@ -142,7 +142,7 @@ def get_python_versions():
             try:
                 install_path = _winreg.QueryValue(key, 'installpath')
                 versions[version_name] = install_path
-            except:
+            except Exception:
                 pass
     return versions
 
@@ -218,7 +218,7 @@ for filename in [f.split('/')[-1] for f in ALL_FILES]:
     if filename.endswith('.zip'):
         try:
             zip = zipfile.ZipFile(os.path.join(DL_PATH, filename), 'r')
-        except:
+        except Exception:
             print traceback.format_exc()
             print 'Error: bad zip file -- %s' % os.path.join(DL_PATH, filename)
             sys.exit(1)

@@ -446,7 +446,7 @@ def _reset_tags_menu():
             item = gtk.MenuItem(tag.tag, use_underline=False)
             item.connect("activate", _tag_menu_item_activated, tag.tag)
             tags_menu.append(item)
-    except:
+    except Exception:
         debug(traceback.format_exc())
         msg = _('Could not create the tags menus')
         utils.message_details_dialog(msg, traceback.format_exc(),

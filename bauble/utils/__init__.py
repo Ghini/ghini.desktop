@@ -286,7 +286,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.gui.window
-        except:
+        except Exception:
             parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                          parent=parent, type=type, buttons=buttons)
@@ -296,7 +296,7 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             d.set_icon(pixbuf)
-        except:
+        except Exception:
             pass
         d.set_property('skip-taskbar-hint', False)
     d.show_all()
@@ -324,7 +324,7 @@ def create_yes_no_dialog(msg, parent=None):
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.gui.window
-        except:
+        except Exception:
             parent = None
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
                          parent=parent, type=gtk.MESSAGE_QUESTION,
@@ -335,7 +335,7 @@ def create_yes_no_dialog(msg, parent=None):
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             d.set_icon(pixbuf)
-        except:
+        except Exception:
             pass
         d.set_property('skip-taskbar-hint', False)
     d.show_all()
@@ -379,7 +379,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
     if parent is None:
         try: # this might get called before bauble has started
             parent = bauble.gui.window
-        except:
+        except Exception:
             parent = None
 
     d =gtk.MessageDialog(flags=gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
@@ -404,7 +404,7 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
             d.set_icon(pixbuf)
-        except:
+        except Exception:
             pass
         d.set_property('skip-taskbar-hint', False)
 
@@ -480,7 +480,7 @@ def to_unicode(obj, encoding='utf-8'):
     else:
         try:
             obj = unicode(obj, encoding)
-        except:
+        except Exception:
             obj = unicode(str(obj), encoding)
     return obj
 

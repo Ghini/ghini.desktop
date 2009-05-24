@@ -52,7 +52,7 @@ def to_unicode(obj, encoding='utf-8'):
     else:
         try:
             obj = unicode(obj, encoding)
-        except:
+        except Exception:
             obj = unicode(str(obj), encoding)
     return obj
 

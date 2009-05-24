@@ -20,13 +20,13 @@ parser.add_option('-p', action='store_true', default=False, dest='password',
 		  help='ask for a password')
 parser.add_option('-d', '--dbtype', dest='dbtype', metavar='TYPE',
 		  help='the database type')
-parser.add_option('-v', '--verbose', dest='verbose', action='store_true', 
+parser.add_option('-v', '--verbose', dest='verbose', action='store_true',
 		  default=False, help='verbose output')
 
 options, args = parser.parse_args()
 try:
     dbname =  args[-1]
-except:
+except Exception:
     parser.error('You must specify a database name')
 
 #commands = ['create']
@@ -73,7 +73,7 @@ if options.port:
 conn = dbapi.connect(' '.join(connect_args))
 # ISOLATION_LEVEL_AUTOCOMMIT needed from create database
 from psycopg2.extensions import ISOLATION_LEVEL_AUTOCOMMIT
-conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT) 
+conn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)
 cursor = conn.cursor()
 
 # check if the database already exists

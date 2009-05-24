@@ -285,7 +285,7 @@ def _verify_connection(engine, show_error_dialogs=False):
         raise error.VersionError(None)
     try:
         major, minor, revision = result.value.split('.')
-    except:
+    except Exception:
         session.close()
         raise error.VersionError(result.value)
 

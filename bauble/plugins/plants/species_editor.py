@@ -849,7 +849,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         try:
             import bauble.plugins.garden
             self.widgets.sp_ok_and_add_button.set_sensitive(sensitive)
-        except:
+        except Exception:
             pass
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
