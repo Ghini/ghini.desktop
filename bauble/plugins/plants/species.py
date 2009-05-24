@@ -92,7 +92,7 @@ def species_markup_func(species):
 def species_get_kids(species):
     try:
         return sorted(species.accessions, key=utils.natsort_key)
-    except:
+    except Exception:
         return []
 
 def vernname_get_kids(vernname):
@@ -104,7 +104,7 @@ def vernname_get_kids(vernname):
     # first
     try:
         return sorted(vernname.species.accessions, key=utils.natsort_key)
-    except:
+    except Exception:
         return []
 
 

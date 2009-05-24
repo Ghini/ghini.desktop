@@ -1097,7 +1097,7 @@ class SearchView(pluginmgr.View):
         menu = None
         try:
             menu = self.context_menu_cache[selected_type]
-        except:
+        except Exception:
             menu = gtk.Menu()
             for label, func in self.view_meta[selected_type].context_menu_desc:
                 if label == '--':

@@ -762,7 +762,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 dt = datetime(*ymd).date()
                 self.remove_problem(self.PROBLEM_INVALID_DATE,
                                     self.view.widgets.coll_date_entry)
-            except:
+            except Exception:
                 self.add_problem(self.PROBLEM_INVALID_DATE,
                                     self.view.widgets.coll_date_entry)
         self.set_model_attr('date', dt)
@@ -878,7 +878,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
                 dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
-        except:
+        except Exception:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LATITUDE,
@@ -920,7 +920,7 @@ class CollectionPresenter(GenericEditorPresenter):
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
                 dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
-        except:
+        except Exception:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
             self.add_problem(self.PROBLEM_BAD_LONGITUDE,
@@ -1050,7 +1050,7 @@ class DonationPresenter(GenericEditorPresenter):
             dt = datetime(*ymd).date()
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.don_date_entry)
-        except:
+        except Exception:
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.don_date_entry)
         self.set_model_attr('date', dt)
@@ -1185,7 +1185,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             genus = ''
             try:
                 genus = text.split(' ')[0]
-            except:
+            except Exception:
                 pass
             return query.filter(and_(Species.genus_id == Genus.id,
                                      or_(Genus.genus.like('%s%%' % text),

@@ -57,7 +57,7 @@ class ConnectionManager:
         try:
             try:
                 import pysqlite2
-            except:
+            except Exception:
                 import sqlite3
             self._working_dbtypes.append('SQLite')
         except ImportError, e:

@@ -66,7 +66,7 @@ class IntOrNoneStringValidator(object):
             return value
         try:
             return int(value)
-        except:
+        except Exception:
             raise ValidatorError('Could not convert value to int: %s (%s)' \
                                  % (value, type(value)))
 
@@ -83,7 +83,7 @@ class FloatOrNoneStringValidator(object):
             return value
         try:
             return float(value)
-        except:
+        except Exception:
             raise ValidatorError('Could not convert value to float: %s (%s)' \
                                  % (value, type(value)))
 

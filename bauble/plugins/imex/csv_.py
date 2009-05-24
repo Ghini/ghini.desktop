@@ -452,7 +452,7 @@ class CSVImporter(Importer):
             col_name = None
             try:
                 col_name = col.name
-            except:
+            except Exception:
                 pass
             msg = _('Error: Could not set the sequence for column: %s') \
                   % col_name

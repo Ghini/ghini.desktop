@@ -105,7 +105,7 @@ def user_dir():
         try:
             d = os.path.join(os.path.expanduser('~%s' % os.environ['USER']),
                              '.bauble')
-        except:
+        except Exception:
             raise Exception(_('Could not get path for user settings: '\
                               'could not expand $HOME for user %(username)s' %\
                               dict(username=os.environ['USER'])))
