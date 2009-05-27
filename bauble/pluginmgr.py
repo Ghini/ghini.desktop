@@ -330,7 +330,7 @@ class PluginRegistry(db.Base):
         """
         Remove a plugin from the registry by name.
         """
-        debug('PluginRegistry.remove()')
+        #debug('PluginRegistry.remove()')
         session = bauble.Session()
         p = session.query(PluginRegistry).\
             filter_by(name=utils.utf8(plugin.__name__)).one()
