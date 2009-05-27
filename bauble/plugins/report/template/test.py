@@ -68,7 +68,7 @@ class TemplateFormatterTests(BaubleTestCase):
 
     def test_format(self):
         plants = self.session.query(Plant).all()
-        filename = os.path.join(os.path.dirname(__file__), 'labels.html')
+        filename = os.path.join(os.path.dirname(__file__), 'test.html')
         report = TemplateFormatterPlugin.format(plants, template=filename)
         open('/tmp/testlabels.html', 'w').write(report)
         #print >>sys.stderr, report
