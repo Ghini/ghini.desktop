@@ -14,7 +14,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-03-07 21:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-28 01:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: bauble/utils/log.py:40
@@ -225,58 +225,6 @@ msgstr "<b>Registrierung</b>"
 msgid "Names"
 msgstr "Benutzernamen:"
 
-#: bauble/prefs.py:303 bauble/prefs.py:308
-msgid "Values"
-msgstr ""
-
-#: bauble/pluginmgr.py:148
-#, python-format
-msgid ""
-"The following plugins were not found in the plugin registry:\n"
-"\n"
-"<b>%s</b>\n"
-"\n"
-"<i>Would you like to install them now?</i>"
-msgstr ""
-
-#: bauble/pluginmgr.py:163 bauble/pluginmgr.py:246
-msgid ""
-"The plugins contain a dependency loop. This can happend if two plugins "
-"directly or indirectly rely on each other"
-msgstr ""
-
-#: bauble/pluginmgr.py:177
-#, python-format
-msgid ""
-"The %(plugin_name)s plugin is listed in the registry but isn't wasn't found "
-"in the plugin directory"
-msgstr ""
-
-#: bauble/pluginmgr.py:187
-#, python-format
-msgid ""
-"Error: Couldn't initialize %(entry_name)s\n"
-"\n"
-"%(exception)s."
-msgstr ""
-
-#: bauble/pluginmgr.py:272
-#, python-format
-msgid "Error installing plugins: %s"
-msgstr ""
-
-#: bauble/pluginmgr.py:274
-msgid "Error installing plugins."
-msgstr ""
-
-#: bauble/pluginmgr.py:587
-#, python-format
-msgid ""
-"Could not import the %(module)s module.\n"
-"\n"
-"%(error)s"
-msgstr ""
-
 #: bauble/pluginmgr.py:611
 #, python-format
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
@@ -381,6 +329,159 @@ msgid ""
 msgstr ""
 "Sie müssen entweder eine Verbindung wählen oder erstellen bevor Sie zur "
 "Datenbank verbinden können."
+
+#: bauble/_gui.py:262
+msgid "history size must be greater than zero and less than the history size"
+msgstr ""
+"history size must be greater than zero and less than the history size"
+
+#: bauble/_gui.py:363
+msgid "_File"
+msgstr "_Datei"
+
+#: bauble/_gui.py:364
+msgid "_New"
+msgstr "_Neu"
+
+#: bauble/_gui.py:366
+msgid "_Open"
+msgstr "_Öffnen"
+
+#: bauble/_gui.py:368
+msgid "_Quit"
+msgstr "_Schließen"
+
+#: bauble/_gui.py:370
+msgid "_Edit"
+msgstr "_Bearbeiten"
+
+#: bauble/_gui.py:371
+msgid "_Cut"
+msgstr "_Ausschneiden"
+
+#: bauble/_gui.py:373
+msgid "_Copy"
+msgstr "_Kopieren"
+
+#: bauble/_gui.py:375
+msgid "_Paste"
+msgstr "_Einfügen"
+
+#: bauble/_gui.py:381
+msgid "_Insert"
+msgstr "_Einfügen"
+
+#: bauble/_gui.py:382
+msgid "_Tools"
+msgstr "_Werkzeuge"
+
+#: bauble/_gui.py:383
+msgid "_Help"
+msgstr "_Hilfe"
+
+#: bauble/_gui.py:385
+msgid "Contents"
+msgstr "Inhalte"
+
+#: bauble/_gui.py:387
+msgid "Report a bug"
+msgstr "Fehler melden"
+
+#: bauble/_gui.py:390
+msgid "Bauble website"
+msgstr "Bauble Webseite"
+
+#: bauble/_gui.py:392
+msgid "About"
+msgstr "Über"
+
+#: bauble/_gui.py:591 bauble/__init__.py:241
+#, python-format
+msgid ""
+"Could not open connection.\n"
+"\n"
+"%s"
+msgstr ""
+"Konnte Verbindung nicht öffnen.\n"
+"\n"
+"%s"
+
+#: bauble/_gui.py:653
+msgid "http://bauble.belizebotanic.org"
+msgstr "http://bauble.belizebotanic.org"
+
+#: bauble/_gui.py:655
+msgid "Copyright © Belize Botanic Gardens"
+msgstr "Copyright © Belize Botanic Gardens"
+
+#: bauble/__init__.py:153
+msgid "No default handler registered"
+msgstr "Kein Standardanwender registriert"
+
+#: bauble/plugins/report/__init__.py:185
+#, python-format
+msgid "Can't get species from a %s"
+msgstr "Bekomme keine Art von %s"
+
+#: bauble/plugins/picasa/gui.glade.h:1
+msgid "<b>Album</b>"
+msgstr "<b>Album</b>"
+
+#: bauble/plugins/picasa/gui.glade.h:3
+msgid "<b>Password</b>"
+msgstr "<b>Passwort</b>"
+
+#: bauble/prefs.py:303 bauble/prefs.py:308
+msgid "Values"
+msgstr ""
+
+#: bauble/pluginmgr.py:148
+#, python-format
+msgid ""
+"The following plugins were not found in the plugin registry:\n"
+"\n"
+"<b>%s</b>\n"
+"\n"
+"<i>Would you like to install them now?</i>"
+msgstr ""
+
+#: bauble/pluginmgr.py:163 bauble/pluginmgr.py:246
+msgid ""
+"The plugins contain a dependency loop. This can happend if two plugins "
+"directly or indirectly rely on each other"
+msgstr ""
+
+#: bauble/pluginmgr.py:177
+#, python-format
+msgid ""
+"The %(plugin_name)s plugin is listed in the registry but isn't wasn't found "
+"in the plugin directory"
+msgstr ""
+
+#: bauble/pluginmgr.py:187
+#, python-format
+msgid ""
+"Error: Couldn't initialize %(entry_name)s\n"
+"\n"
+"%(exception)s."
+msgstr ""
+
+#: bauble/pluginmgr.py:272
+#, python-format
+msgid "Error installing plugins: %s"
+msgstr ""
+
+#: bauble/pluginmgr.py:274
+msgid "Error installing plugins."
+msgstr ""
+
+#: bauble/pluginmgr.py:587
+#, python-format
+msgid ""
+"Could not import the %(module)s module.\n"
+"\n"
+"%(error)s"
+msgstr ""
 
 #: bauble/connmgr.py:146
 #, python-format
@@ -492,90 +593,6 @@ msgstr ""
 msgid "Choose a file..."
 msgstr ""
 
-#: bauble/_gui.py:262
-msgid "history size must be greater than zero and less than the history size"
-msgstr ""
-"history size must be greater than zero and less than the history size"
-
-#: bauble/_gui.py:363
-msgid "_File"
-msgstr "_Datei"
-
-#: bauble/_gui.py:364
-msgid "_New"
-msgstr "_Neu"
-
-#: bauble/_gui.py:366
-msgid "_Open"
-msgstr "_Öffnen"
-
-#: bauble/_gui.py:368
-msgid "_Quit"
-msgstr "_Schließen"
-
-#: bauble/_gui.py:370
-msgid "_Edit"
-msgstr "_Bearbeiten"
-
-#: bauble/_gui.py:371
-msgid "_Cut"
-msgstr "_Ausschneiden"
-
-#: bauble/_gui.py:373
-msgid "_Copy"
-msgstr "_Kopieren"
-
-#: bauble/_gui.py:375
-msgid "_Paste"
-msgstr "_Einfügen"
-
-#: bauble/_gui.py:381
-msgid "_Insert"
-msgstr "_Einfügen"
-
-#: bauble/_gui.py:382
-msgid "_Tools"
-msgstr "_Werkzeuge"
-
-#: bauble/_gui.py:383
-msgid "_Help"
-msgstr "_Hilfe"
-
-#: bauble/_gui.py:385
-msgid "Contents"
-msgstr "Inhalte"
-
-#: bauble/_gui.py:387
-msgid "Report a bug"
-msgstr "Fehler melden"
-
-#: bauble/_gui.py:390
-msgid "Bauble website"
-msgstr "Bauble Webseite"
-
-#: bauble/_gui.py:392
-msgid "About"
-msgstr "Über"
-
-#: bauble/_gui.py:591 bauble/__init__.py:241
-#, python-format
-msgid ""
-"Could not open connection.\n"
-"\n"
-"%s"
-msgstr ""
-"Konnte Verbindung nicht öffnen.\n"
-"\n"
-"%s"
-
-#: bauble/_gui.py:653
-msgid "http://bauble.belizebotanic.org"
-msgstr "http://bauble.belizebotanic.org"
-
-#: bauble/_gui.py:655
-msgid "Copyright © Belize Botanic Gardens"
-msgstr "Copyright © Belize Botanic Gardens"
-
 #: bauble/_gui.py:672
 msgid "Would you like the cancel the current tasks?"
 msgstr ""
@@ -615,10 +632,6 @@ msgstr ""
 #: bauble/__init__.py:56
 msgid "**Error: Bauble must be run in a windowed environment."
 msgstr ""
-
-#: bauble/__init__.py:153
-msgid "No default handler registered"
-msgstr "Kein Standardanwender registriert"
 
 #: bauble/__init__.py:155
 #, python-format
@@ -1834,11 +1847,6 @@ msgstr ""
 msgid "Can't get accessions from a %s"
 msgstr ""
 
-#: bauble/plugins/report/__init__.py:185
-#, python-format
-msgid "Can't get species from a %s"
-msgstr "Bekomme keine Art von %s"
-
 #: bauble/plugins/report/__init__.py:345
 msgid "Enter a name for the new formatter"
 msgstr ""
@@ -1885,11 +1893,3 @@ msgstr ""
 #: bauble/plugins/picasa/__init__.py:523
 msgid "No images"
 msgstr ""
-
-#: bauble/plugins/picasa/gui.glade.h:1
-msgid "<b>Album</b>"
-msgstr "<b>Album</b>"
-
-#: bauble/plugins/picasa/gui.glade.h:3
-msgid "<b>Password</b>"
-msgstr "<b>Passwort</b>"
