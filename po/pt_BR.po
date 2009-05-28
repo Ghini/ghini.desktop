@@ -8,13 +8,13 @@ msgstr ""
 "Project-Id-Version: bauble\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2009-02-12 16:17-0600\n"
-"PO-Revision-Date: 2009-02-28 22:05+0000\n"
-"Last-Translator: Ricardo Ichizo <n1ghtcr4wler@gmail.com>\n"
+"PO-Revision-Date: 2009-05-24 13:40+0000\n"
+"Last-Translator: Alexandre R Soares <Unknown>\n"
 "Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-03-07 21:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-28 01:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
 
 #: bauble/utils/log.py:40
@@ -25,11 +25,15 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"** Não pôde abrir o arquivo de log padrão.\n"
+"Pressione OK para continuar.\n"
+"\n"
+"%s"
 
 #: bauble/utils/__init__.py:81
 #, python-format
 msgid "%s not in glade file"
-msgstr ""
+msgstr "%s não está no arquivo glade"
 
 #: bauble/utils/__init__.py:459
 msgid "Today's date"
@@ -39,6 +43,8 @@ msgstr "Data de hoje"
 #, python-format
 msgid "Error: using sequences hasn't been tested on this database type: %s"
 msgstr ""
+"Erro: usando seqüências que não foram ainda testadas neste tipo de base de "
+"dados: %s"
 
 #: bauble/bauble.glade.h:1 bauble/plugins/plants/editors.glade.h:1
 #: bauble/plugins/plants/infoboxes.glade.h:1
@@ -74,7 +80,50 @@ msgstr "Administrador"
 
 #: bauble/plugins.old/users/ui.glade.h:4
 msgid "Write"
+msgstr "Gravar"
+
+#: bauble/db.py:11
+msgid ""
+"This version of Bauble requires SQLAlchemy 0.5.0 or greater.Please download "
+"and install a newer version of SQLAlchemy from http://www.sqlalchemy.org or "
+"contact your system administrator."
 msgstr ""
+"Esta versão do Bauble requer SQLAlchemy 0.5.0 ou maior. Por favor "
+"descarregue e instale uma versão mais nova do SQLAlchemy em "
+"http://www.sqlalchemy.org ou contate o administrador do sistema."
+
+#: bauble/db.py:17
+msgid ""
+"SQLAlchemy not installed. Please install SQLAlchemy from "
+"http://www.sqlalchemy.org"
+msgstr ""
+"SQLAlchemy não está instalado. Por favor instale o SQLAlchemy em "
+"http://www.sqlalchemy.org"
+
+#: bauble/db.py:174
+#, python-format
+msgid ""
+"Error creating tables.\n"
+"\n"
+"%s"
+msgstr ""
+"Erro criando tabelas.\n"
+"\n"
+"%s"
+
+#: bauble/db.py:204
+msgid "The database you have connected to is empty."
+msgstr "A base de dados à qual você se conectou está vazia."
+
+#: bauble/db.py:208
+msgid ""
+"The database you have connected to does not have the bauble meta table.  "
+"This usually means that the database is either corrupt or it was created "
+"with an old version of Bauble"
+msgstr ""
+"A base de dados à qual você se conectou não tem a tabela meta bauble. Isto "
+"geralmente significa que a base de dados ou está corrupto ou ela foi criada "
+"com uma versão velha do Bauble"
 
 #: bauble/plugins.old/users/ui.glade.h:5 bauble/connmgr.glade.h:4
 #: bauble/plugins/plants/editors.glade.h:30
@@ -94,38 +143,6 @@ msgstr ""
 #: bauble/plugins.old/users/ui.glade.h:8 bauble/connmgr.glade.h:5
 #: bauble/plugins/plants/editors.glade.h:31
 msgid "gtk-remove"
-msgstr ""
-
-#: bauble/db.py:11
-msgid ""
-"This version of Bauble requires SQLAlchemy 0.5.0 or greater.Please download "
-"and install a newer version of SQLAlchemy from http://www.sqlalchemy.org or "
-"contact your system administrator."
-msgstr ""
-
-#: bauble/db.py:17
-msgid ""
-"SQLAlchemy not installed. Please install SQLAlchemy from "
-"http://www.sqlalchemy.org"
-msgstr ""
-
-#: bauble/db.py:174
-#, python-format
-msgid ""
-"Error creating tables.\n"
-"\n"
-"%s"
-msgstr ""
-
-#: bauble/db.py:204
-msgid "The database you have connected to is empty."
-msgstr ""
-
-#: bauble/db.py:208
-msgid ""
-"The database you have connected to does not have the bauble meta table.  "
-"This usually means that the database is either corrupt or it was created "
-"with an old version of Bauble"
 msgstr ""
 
 #: bauble/db.py:215
@@ -180,7 +197,7 @@ msgstr ""
 
 #: bauble/prefs.py:259
 msgid "<b>Preferences</b>"
-msgstr ""
+msgstr "<b>Preferências</b>"
 
 #: bauble/prefs.py:268
 msgid "<b>Registry</b>"
@@ -188,11 +205,11 @@ msgstr ""
 
 #: bauble/prefs.py:303 bauble/prefs.py:308
 msgid "Names"
-msgstr ""
+msgstr "Nomes"
 
 #: bauble/prefs.py:303 bauble/prefs.py:308
 msgid "Values"
-msgstr ""
+msgstr "Valores"
 
 #: bauble/pluginmgr.py:148
 #, python-format
@@ -224,15 +241,18 @@ msgid ""
 "\n"
 "%(exception)s."
 msgstr ""
+"Erro: Não foi possível inicializar %(entry_name)s\n"
+"\n"
+"%(exception)s."
 
 #: bauble/pluginmgr.py:272
 #, python-format
 msgid "Error installing plugins: %s"
-msgstr ""
+msgstr "Erro ao instalar plugins: %s"
 
 #: bauble/pluginmgr.py:274
 msgid "Error installing plugins."
-msgstr ""
+msgstr "Erro ao instalar plugins."
 
 #: bauble/pluginmgr.py:587
 #, python-format
@@ -241,6 +261,9 @@ msgid ""
 "\n"
 "%(error)s"
 msgstr ""
+"Não foi possível importar o módulo %(module)s.\n"
+"\n"
+"%(error)s"
 
 #: bauble/pluginmgr.py:611
 #, python-format
@@ -249,7 +272,7 @@ msgstr ""
 
 #: bauble/view.py:93
 msgid "Properties"
-msgstr ""
+msgstr "Propriedades"
 
 #: bauble/view.py:99
 msgid "<b>ID:</b>"
@@ -257,7 +280,7 @@ msgstr ""
 
 #: bauble/view.py:108
 msgid "<b>Type:</b>"
-msgstr ""
+msgstr "<b>Tipo:</b>"
 
 #: bauble/view.py:117
 msgid "<b>Date created:</b>"
@@ -288,7 +311,7 @@ msgstr ""
 #: bauble/view.py:852
 #, python-format
 msgid "** Error: %s"
-msgstr ""
+msgstr "** Erro: %s"
 
 #: bauble/view.py:867
 msgid "Couldn't find anything"
@@ -360,6 +383,9 @@ msgid ""
 "\n"
 "%s"
 msgstr ""
+"Bauble não possui permissão para ler o arquivo do banco de dados:\n"
+"\n"
+"%s"
 
 #: bauble/connmgr.py:161
 #, python-format
@@ -400,7 +426,7 @@ msgstr ""
 #: bauble/connmgr.py:379
 #, python-format
 msgid "Do you want to save %s?"
-msgstr ""
+msgstr "Deseja salvar %s?"
 
 #: bauble/connmgr.py:387
 #, python-format
@@ -409,7 +435,7 @@ msgstr ""
 
 #: bauble/connmgr.py:436
 msgid "Enter your password"
-msgstr ""
+msgstr "Forneça sua senha"
 
 #: bauble/connmgr.py:505
 msgid "Please choose a name for this connection"
@@ -421,7 +447,7 @@ msgstr ""
 
 #: bauble/connmgr.py:522
 msgid "Database: "
-msgstr ""
+msgstr "Banco de Dados: "
 
 #: bauble/connmgr.py:528
 msgid "Host: "
@@ -429,11 +455,11 @@ msgstr ""
 
 #: bauble/connmgr.py:535
 msgid "User: "
-msgstr ""
+msgstr "Usuário: "
 
 #: bauble/connmgr.py:541
 msgid "Password: "
-msgstr ""
+msgstr "Senha: "
 
 #: bauble/connmgr.py:590
 msgid "Use default filename"
@@ -453,47 +479,47 @@ msgstr ""
 
 #: bauble/_gui.py:363
 msgid "_File"
-msgstr ""
+msgstr "_Arquivo"
 
 #: bauble/_gui.py:364
 msgid "_New"
-msgstr ""
+msgstr "_Novo"
 
 #: bauble/_gui.py:366
 msgid "_Open"
-msgstr ""
+msgstr "_Abrir"
 
 #: bauble/_gui.py:368
 msgid "_Quit"
-msgstr ""
+msgstr "_Sair"
 
 #: bauble/_gui.py:370
 msgid "_Edit"
-msgstr ""
+msgstr "_Editar"
 
 #: bauble/_gui.py:371
 msgid "_Cut"
-msgstr ""
+msgstr "_Recortar"
 
 #: bauble/_gui.py:373
 msgid "_Copy"
-msgstr ""
+msgstr "_Copiar"
 
 #: bauble/_gui.py:375
 msgid "_Paste"
-msgstr ""
+msgstr "_Colar"
 
 #: bauble/_gui.py:381
 msgid "_Insert"
-msgstr ""
+msgstr "_Inserir"
 
 #: bauble/_gui.py:382
 msgid "_Tools"
-msgstr ""
+msgstr "_Ferramentas"
 
 #: bauble/_gui.py:383
 msgid "_Help"
-msgstr ""
+msgstr "_Ajuda"
 
 #: bauble/_gui.py:385
 msgid "Contents"
@@ -509,7 +535,7 @@ msgstr ""
 
 #: bauble/_gui.py:392
 msgid "About"
-msgstr ""
+msgstr "Sobre"
 
 #: bauble/_gui.py:591 bauble/__init__.py:241
 #, python-format
@@ -521,11 +547,11 @@ msgstr ""
 
 #: bauble/_gui.py:653
 msgid "http://bauble.belizebotanic.org"
-msgstr ""
+msgstr "http://bauble.belizebotanic.org"
 
 #: bauble/_gui.py:655
 msgid "Copyright © Belize Botanic Gardens"
-msgstr ""
+msgstr "Copyright © Belize Botanic Gardens"
 
 #: bauble/_gui.py:672
 msgid "Would you like the cancel the current tasks?"
@@ -533,11 +559,11 @@ msgstr ""
 
 #: bauble/connmgr.glade.h:2
 msgid "Connection Details"
-msgstr ""
+msgstr "Detalhes da Conexão"
 
 #: bauble/connmgr.glade.h:3
 msgid "Type:"
-msgstr ""
+msgstr "Tipo:"
 
 #: bauble/paths.py:78
 msgid ""
@@ -557,7 +583,7 @@ msgstr ""
 
 #: bauble/__init__.py:46
 msgid "** Error: could not import gtk and/or gobject"
-msgstr ""
+msgstr "** Erro: não foi possível importar gtk e/ou gobjeto"
 
 #: bauble/__init__.py:49
 msgid "Please make sure that GTK_ROOT\\bin is in your PATH."
@@ -676,7 +702,7 @@ msgstr ""
 #: bauble/plugins/tag/__init__.py:37
 #, python-format
 msgid "Are you sure you want to remove %s?"
-msgstr ""
+msgstr "Tem certeza que deseja remover %s?"
 
 #: bauble/plugins/plants/species.py:45 bauble/plugins/plants/genus.py:72
 #: bauble/plugins/garden/accession.py:146 bauble/plugins/garden/donor.py:37
@@ -694,12 +720,12 @@ msgstr ""
 #: bauble/plugins/plants/genus.py:78 bauble/plugins/plants/family.py:65
 #: bauble/plugins/garden/editors.glade.h:50
 msgid "Edit"
-msgstr ""
+msgstr "Editar"
 
 #: bauble/plugins/plants/species.py:63 bauble/plugins/plants/__init__.py:45
 #: bauble/plugins/plants/genus.py:82 bauble/plugins/plants/family.py:69
 msgid "Remove"
-msgstr ""
+msgstr "Remover"
 
 #: bauble/plugins/plants/species.py:122
 msgid "Vernacular Names"
@@ -721,7 +747,7 @@ msgstr ""
 #: bauble/plugins/garden/accession.py:1641 bauble/plugins/garden/donor.py:262
 #: bauble/plugins/garden/editors.glade.h:51
 msgid "General"
-msgstr ""
+msgstr "Geral"
 
 #: bauble/plugins/plants/species.py:284 bauble/plugins/plants/genus.py:645
 #: bauble/plugins/plants/family.py:684
@@ -778,7 +804,7 @@ msgstr ""
 
 #: bauble/plugins/plants/__init__.py:84
 msgid "Family"
-msgstr ""
+msgstr "Família"
 
 #: bauble/plugins/plants/__init__.py:85
 msgid "Genus"
@@ -787,7 +813,7 @@ msgstr ""
 #: bauble/plugins/plants/__init__.py:86
 #: bauble/plugins/report/default/__init__.py:65
 msgid "Species"
-msgstr ""
+msgstr "Espécie"
 
 #: bauble/plugins/plants/genus.py:80
 msgid "Add species"
@@ -795,7 +821,7 @@ msgstr ""
 
 #: bauble/plugins/plants/genus.py:228 bauble/plugins/plants/family.py:198
 msgid "The family name"
-msgstr ""
+msgstr "O nome da família"
 
 #: bauble/plugins/plants/genus.py:229
 msgid "The type of hybrid for this genus."
@@ -843,7 +869,7 @@ msgstr ""
 
 #: bauble/plugins/plants/editors.glade.h:2
 msgid "<b>Author</b>"
-msgstr ""
+msgstr "<b>Autor</b>"
 
 #: bauble/plugins/plants/editors.glade.h:3
 msgid "<b>Cultivar Group</b>"
@@ -855,7 +881,7 @@ msgstr ""
 
 #: bauble/plugins/plants/editors.glade.h:5
 msgid "<b>Family</b>"
-msgstr ""
+msgstr "<b>Família</b>"
 
 #: bauble/plugins/plants/editors.glade.h:6
 msgid "<b>Genus</b>"
@@ -975,7 +1001,7 @@ msgstr ""
 
 #: bauble/plugins/plants/infoboxes.glade.h:7
 msgid "<b>Distribution:</b>"
-msgstr ""
+msgstr "<b>Distribuição:</b>"
 
 #: bauble/plugins/plants/infoboxes.glade.h:8
 msgid "family_window"

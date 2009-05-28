@@ -14,8 +14,96 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Launchpad-Export-Date: 2009-03-07 21:40+0000\n"
+"X-Launchpad-Export-Date: 2009-05-28 01:16+0000\n"
 "X-Generator: Launchpad (build Unknown)\n"
+
+#: bauble/bauble.glade.h:2 bauble/connmgr.glade.h:1
+msgid "Bauble"
+msgstr "Bauble"
+
+#: bauble/bauble.glade.h:3
+msgid "Show details"
+msgstr "Näita üksikasju"
+
+#: bauble/plugins.old/users/ui.glade.h:1
+msgid "<b>Permissions</b>"
+msgstr "<b>Õigused</b>"
+
+#: bauble/plugins.old/users/ui.glade.h:2
+msgid "<b>Users</b>"
+msgstr "<b>Kasutajad</b>"
+
+#: bauble/plugins.old/users/ui.glade.h:3
+msgid "Administrator"
+msgstr "Administraator"
+
+#: bauble/plugins.old/users/ui.glade.h:4
+msgid "Write"
+msgstr "Kirjuta"
+
+#: bauble/db.py:174
+#, python-format
+msgid ""
+"Error creating tables.\n"
+"\n"
+"%s"
+msgstr ""
+"Viga tabelite loomisel.\n"
+"\n"
+"%s"
+
+#: bauble/prefs.py:259
+msgid "<b>Preferences</b>"
+msgstr "<b>Eelistused</b>"
+
+#: bauble/prefs.py:268
+msgid "<b>Registry</b>"
+msgstr "<b>Register</b>"
+
+#: bauble/prefs.py:303 bauble/prefs.py:308
+msgid "Names"
+msgstr "Nimed"
+
+#: bauble/prefs.py:303 bauble/prefs.py:308
+msgid "Values"
+msgstr "Väärtused"
+
+#: bauble/pluginmgr.py:274
+msgid "Error installing plugins."
+msgstr "Viga pluginate paigaldamisel."
+
+#: bauble/view.py:93
+msgid "Properties"
+msgstr "Omadused"
+
+#: bauble/view.py:99
+msgid "<b>ID:</b>"
+msgstr "<b>ID:</b>"
+
+#: bauble/view.py:108
+msgid "<b>Type:</b>"
+msgstr "<b>Tüüp:</b>"
+
+#: bauble/view.py:117
+msgid "<b>Date created:</b>"
+msgstr "<b>Loomise kuupäev:</b>"
+
+#: bauble/view.py:126
+msgid "<b>Last updated:</b>"
+msgstr "<b>Viimati uuendatud:</b>"
+
+#: bauble/view.py:852
+#, python-format
+msgid "** Error: %s"
+msgstr "** Viga: %s"
+
+#: bauble/view.py:867
+msgid "Couldn't find anything"
+msgstr "Ei leidnud midagi"
+
+#: bauble/connmgr.py:436
+msgid "Enter your password"
+msgstr "Sisesta oma parool"
 
 #: bauble/utils/log.py:40
 #, python-format
@@ -52,30 +140,6 @@ msgstr ""
 msgid "--"
 msgstr ""
 
-#: bauble/bauble.glade.h:2 bauble/connmgr.glade.h:1
-msgid "Bauble"
-msgstr "Bauble"
-
-#: bauble/bauble.glade.h:3
-msgid "Show details"
-msgstr "Näita üksikasju"
-
-#: bauble/plugins.old/users/ui.glade.h:1
-msgid "<b>Permissions</b>"
-msgstr "<b>Õigused</b>"
-
-#: bauble/plugins.old/users/ui.glade.h:2
-msgid "<b>Users</b>"
-msgstr "<b>Kasutajad</b>"
-
-#: bauble/plugins.old/users/ui.glade.h:3
-msgid "Administrator"
-msgstr "Administraator"
-
-#: bauble/plugins.old/users/ui.glade.h:4
-msgid "Write"
-msgstr "Kirjuta"
-
 #: bauble/plugins.old/users/ui.glade.h:5 bauble/connmgr.glade.h:4
 #: bauble/plugins/plants/editors.glade.h:30
 msgid "gtk-add"
@@ -108,17 +172,6 @@ msgid ""
 "SQLAlchemy not installed. Please install SQLAlchemy from "
 "http://www.sqlalchemy.org"
 msgstr ""
-
-#: bauble/db.py:174
-#, python-format
-msgid ""
-"Error creating tables.\n"
-"\n"
-"%s"
-msgstr ""
-"Viga tabelite loomisel.\n"
-"\n"
-"%s"
 
 #: bauble/db.py:204
 msgid "The database you have connected to is empty."
@@ -181,22 +234,6 @@ msgid ""
 " %s"
 msgstr ""
 
-#: bauble/prefs.py:259
-msgid "<b>Preferences</b>"
-msgstr "<b>Eelistused</b>"
-
-#: bauble/prefs.py:268
-msgid "<b>Registry</b>"
-msgstr "<b>Register</b>"
-
-#: bauble/prefs.py:303 bauble/prefs.py:308
-msgid "Names"
-msgstr "Nimed"
-
-#: bauble/prefs.py:303 bauble/prefs.py:308
-msgid "Values"
-msgstr "Väärtused"
-
 #: bauble/pluginmgr.py:148
 #, python-format
 msgid ""
@@ -233,10 +270,6 @@ msgstr ""
 msgid "Error installing plugins: %s"
 msgstr ""
 
-#: bauble/pluginmgr.py:274
-msgid "Error installing plugins."
-msgstr "Viga pluginate paigaldamisel."
-
 #: bauble/pluginmgr.py:587
 #, python-format
 msgid ""
@@ -249,26 +282,6 @@ msgstr ""
 #, python-format
 msgid "%s.plugin is not an instance of pluginmgr.Plugin"
 msgstr ""
-
-#: bauble/view.py:93
-msgid "Properties"
-msgstr "Omadused"
-
-#: bauble/view.py:99
-msgid "<b>ID:</b>"
-msgstr "<b>ID:</b>"
-
-#: bauble/view.py:108
-msgid "<b>Type:</b>"
-msgstr "<b>Tüüp:</b>"
-
-#: bauble/view.py:117
-msgid "<b>Date created:</b>"
-msgstr "<b>Loomise kuupäev:</b>"
-
-#: bauble/view.py:126
-msgid "<b>Last updated:</b>"
-msgstr "<b>Viimati uuendatud:</b>"
 
 #: bauble/view.py:364
 msgid "MapperSearch.add_meta(): default_columns argument must be list"
@@ -287,15 +300,6 @@ msgstr ""
 #, python-format
 msgid "Error in search string at column %s"
 msgstr ""
-
-#: bauble/view.py:852
-#, python-format
-msgid "** Error: %s"
-msgstr "** Viga: %s"
-
-#: bauble/view.py:867
-msgid "Couldn't find anything"
-msgstr "Ei leidnud midagi"
 
 #: bauble/view.py:871
 #, python-format
@@ -409,10 +413,6 @@ msgstr ""
 #, python-format
 msgid "Do you want to save your changes to %s ?"
 msgstr ""
-
-#: bauble/connmgr.py:436
-msgid "Enter your password"
-msgstr "Sisesta oma parool"
 
 #: bauble/connmgr.py:505
 msgid "Please choose a name for this connection"
