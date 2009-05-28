@@ -3,7 +3,6 @@
 
 import traceback
 
-from bauble.i18n import _
 import bauble.error as error
 
 SQLALCHEMY_DEBUG = False

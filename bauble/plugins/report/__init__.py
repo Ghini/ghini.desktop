@@ -13,7 +13,6 @@ import gtk
 from sqlalchemy import *
 
 import bauble
-from bauble.i18n import *
 import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs

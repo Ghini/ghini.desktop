@@ -73,8 +73,6 @@ __version__ = "0.2.4"
 import os
 import sys
 
-from bauble.i18n import _
-
 # Provide suitable process creation functions.
 
 try:

@@ -18,7 +18,6 @@ import bauble
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug, warning
-from bauble.i18n import _
 
 # TODO: make the border red for anything the user changes so
 # they know if something has changed and needs to be saved, or maybe

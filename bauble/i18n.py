@@ -50,3 +50,7 @@ lang = gettext.translation(APP_NAME, paths.locale_dir(), languages=langs,
 # install the language, map _() (which we marked our strings to
 # translate with) to self.lang.gettext() which will translate them.
 _ = lang.gettext
+
+# register the gettext function for the whole interpreter as "_"
+import __builtin__
+__builtin__._ = gettext.gettext

@@ -6,7 +6,6 @@ from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch, \
      PropertiesExpander
-from bauble.i18n import _
 import bauble.utils.desktop as desktop
 
 __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',

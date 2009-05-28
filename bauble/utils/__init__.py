@@ -16,7 +16,6 @@ import gtk.glade
 import bauble
 from bauble.error import check, CheckConditionError
 import bauble.paths as paths
-from bauble.i18n import *
 from bauble.utils.log import debug, warning
 
 

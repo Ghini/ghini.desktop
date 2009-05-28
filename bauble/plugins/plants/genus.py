@@ -15,7 +15,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
 import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils

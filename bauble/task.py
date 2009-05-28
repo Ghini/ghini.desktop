@@ -10,7 +10,6 @@ import gobject
 import gtk
 
 import bauble
-from bauble.i18n import *
 import bauble.utils as utils
 from bauble.utils.log import debug, error
 

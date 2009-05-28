@@ -6,7 +6,6 @@ import sys
 import logging
 
 import bauble.utils
-from bauble.i18n import *
 
 def _main_is_frozen():
     import imp

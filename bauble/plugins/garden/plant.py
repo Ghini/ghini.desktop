@@ -16,7 +16,6 @@ from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
 
 import bauble.db as db
-from bauble.i18n import *
 from bauble.error import check, CheckConditionError
 from bauble.editor import *
 import bauble.utils as utils

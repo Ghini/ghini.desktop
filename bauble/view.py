@@ -21,7 +21,6 @@ from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
 import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
-from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 from bauble.prefs import prefs

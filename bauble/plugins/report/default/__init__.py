@@ -24,7 +24,6 @@ from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
 import bauble.paths as paths
-from bauble.i18n import *
 from bauble.plugins.plants.species import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession

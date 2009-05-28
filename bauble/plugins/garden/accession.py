@@ -25,7 +25,6 @@ import bauble.db as db
 from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.i18n import *
 from bauble.editor import *
 from bauble.utils.log import debug
 from bauble.prefs import prefs

@@ -11,7 +11,6 @@ import os, csv, traceback
 import gtk.gdk, gobject
 from sqlalchemy import *
 import bauble
-from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
