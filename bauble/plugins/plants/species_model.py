@@ -14,7 +14,6 @@ from sqlalchemy.ext.associationproxy import association_proxy
 import bauble
 import bauble.db as db
 import bauble.utils as utils
-from bauble.i18n import *
 from bauble.utils.log import log, debug
 from bauble.types import Enum
 from bauble.plugins.plants.geography import Geography#, geography_table

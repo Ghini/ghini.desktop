@@ -32,7 +32,6 @@ import bauble.paths as paths
 import bauble.utils as utils
 import bauble.utils.log as logger
 from bauble.utils.log import log, debug, warning, error
-from bauble.i18n import *
 
 # TODO: should make plugins and ordered dict that is sorted by
 # dependency, maybe use odict from

@@ -45,7 +45,6 @@ import bauble.pluginmgr as pluginmgr
 import bauble.utils as utils
 import bauble.utils.thread as thread
 import bauble.view as view
-from bauble.i18n import _
 from bauble.plugins.plants import Species
 from bauble.utils.log import debug
 

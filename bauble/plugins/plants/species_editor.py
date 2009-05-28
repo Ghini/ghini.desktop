@@ -15,7 +15,6 @@ from sqlalchemy.exc import SQLError
 
 import bauble
 from bauble.prefs import prefs
-from bauble.i18n import *
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor

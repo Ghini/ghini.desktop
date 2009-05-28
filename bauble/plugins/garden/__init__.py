@@ -4,7 +4,6 @@
 
 import os, sys
 import bauble
-from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView

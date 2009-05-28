@@ -7,7 +7,6 @@ import re
 import sqlalchemy.types as types
 import sqlalchemy.exc as exc
 
-from bauble.i18n import *
 import bauble.error as error
 from bauble.utils.log import debug
 

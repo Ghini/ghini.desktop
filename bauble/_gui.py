@@ -17,7 +17,6 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug, warning
-from bauble.i18n import _
 from bauble.utils.pyparsing import *
 from bauble.view import SearchView
 import bauble.error as error

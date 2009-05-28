@@ -19,7 +19,6 @@ import traceback
 
 import bauble
 import bauble.db as db
-from bauble.i18n import _
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr

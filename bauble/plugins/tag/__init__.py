@@ -13,7 +13,6 @@ from sqlalchemy.exc import SQLError, InvalidRequestError
 
 import bauble
 import bauble.db as db
-from bauble.i18n import *
 import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils

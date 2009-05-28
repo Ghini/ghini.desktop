@@ -87,7 +87,6 @@ def user_dir():
     """
     Returns the path to where Bauble settings should be saved.
     """
-    from bauble.i18n import _
     if sys.platform == "win32":
         if 'APPDATA' in os.environ:
             d = os.path.join(os.environ["APPDATA"], "Bauble")
@@ -95,7 +94,6 @@ def user_dir():
             d = os.path.join(os.environ['USERPROFILE'], 'Application Data',
                                'Bauble')
         else:
-            from bauble.i18n import _
             raise Exception(_('Could not get path for user settings: no ' \
                               'APPDATA or USERPROFILE variable'))
     elif sys.platform == "linux2":

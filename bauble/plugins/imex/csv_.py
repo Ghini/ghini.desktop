@@ -16,7 +16,6 @@ from sqlalchemy import *
 import bauble
 import bauble.db as db
 from bauble.error import BaubleError
-from bauble.i18n import *
 import bauble.utils as utils
 import bauble.pluginmgr as plugin
 import bauble.task

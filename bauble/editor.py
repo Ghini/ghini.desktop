@@ -17,7 +17,6 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug, warning
-from bauble.i18n import _
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters

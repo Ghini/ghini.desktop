@@ -15,7 +15,6 @@ import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.pluginmgr as pluginmgr
-from bauble.i18n import *
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.garden.plant import Plant
 from bauble.plugins.garden.accession import Accession

@@ -11,7 +11,6 @@ from sqlalchemy.exc import SQLError
 import bauble
 import bauble.db as db
 from bauble.editor import *
-from bauble.i18n import *
 import bauble.paths as paths
 from bauble.types import Enum
 from bauble.plugins.garden.source import Donation

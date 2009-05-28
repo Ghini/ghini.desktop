@@ -12,7 +12,6 @@ import bauble.meta as meta
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.i18n import *
 from bauble.utils.log import debug
 
 # TODO: the institution editor is a live editor where the database is

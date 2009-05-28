@@ -6,8 +6,7 @@ The top level module for Bauble.
 
 import imp, os, sys
 import bauble.paths as paths
-from bauble.i18n import _
-
+import bauble.i18n
 
 # major, minor, revision version tuple
 version = '0.9.0rc1' # :bump
