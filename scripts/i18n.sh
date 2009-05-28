@@ -14,3 +14,6 @@ xgettext -k_ -kN_ -o messages.pot `find ./bauble -name "*.py" -o -name *.h`
 #
 # msgfmt po/en.po -o build/share/locale/en/LC_MESSAGES/bauble.mo
 
+# Update the translations after a new message template is created
+#find ./po -name \*.po -exec msgmerge -U {} messages.pot \;
+
