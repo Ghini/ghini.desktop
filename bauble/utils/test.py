@@ -10,9 +10,11 @@ from sqlalchemy import *
 
 import bauble
 import bauble.db as db
+from bauble.error import check, CheckConditionError
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
+from bauble.utils.pyparsing import *
 
 class UtilsGTKTests(unittest.TestCase):
 
@@ -116,6 +118,21 @@ class UtilsTests(unittest.TestCase):
         assert s == '2008.1.12', s
         s = utils.date_to_str(dt, 'yyyy.mm.dd')
         assert s == '2008.01.12', s
+
+
+    def test_range_builder(self):
+        """Test bauble.utils.range_builder
+        """
+        assert utils.range_builder('1-3') == [1, 2, 3]
+        assert utils.range_builder('1-3,5-7') == [1, 2, 3, 5, 6 ,7]
+        assert utils.range_builder('1-3,5') == [1, 2, 3, 5]
+        assert utils.range_builder('1-3,5,7-9')== [1, 2, 3, 5, 7, 8, 9]
+        assert utils.range_builder('1,2,3,4') == [1, 2, 3, 4]
+
+        # bad ranges
+        self.assertRaises(ParseException, utils.range_builder, '-1')
+        self.assertRaises(CheckConditionError, utils.range_builder, '2-1')
+        self.assertRaises(ParseException, utils.range_builder, 'a-b')
 
 
 

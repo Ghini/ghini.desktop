@@ -17,6 +17,7 @@ import bauble
 from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 from bauble.utils.log import debug, warning
+from bauble.utils.pyparsing import *
 
 
 def find_dependent_tables(table, metadata=None):
@@ -736,3 +737,21 @@ def which(filename, path=None):
             return candidate
     return None
 
+
+_range = Group(Word(nums) + Suppress('-') + Word(nums))
+_range_list = delimitedList(_range | Word(nums))
+
+def range_builder(text):
+    """Return a list of number from a string range of the form 1-3,4,5
+    """
+    tokens = _range_list.parseString(text)
+    values = set()
+    for rng in tokens:
+        if len(rng) > 1:
+            start = int(rng[0])
+            end = int(rng[1]) + 1
+            check(start<end, 'start must be less than end')
+            values.update(range(start, end))
+        else:
+            values.add(int(rng))
+    return list(values)
