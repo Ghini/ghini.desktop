@@ -50,6 +50,40 @@ else:
 # the search view would have to register on_expanded on each info expander
 # in the infobox
 
+class Action(gtk.Action):
+
+    def __init__(self, name, label, tooltip=None, stock_id=None,
+                 callback=None, accelerator=None,
+                 multiselect=False, singleselect=True):
+        """
+        callback: the function to call when the the action is activated
+        accelerator: accelerator to call this action
+        multiselect: show menu when multiple items are selected
+        singleselect: show menu when single items are selected
+
+        The activate signal is not automatically connected to the
+        callback method.
+        """
+        super(Action, self).__init__(name, label, tooltip, stock_id)
+        self.callback = callback
+        self.multiselect = multiselect
+        self.singleselect = singleselect
+
+    def _set_enabled(self, enable):
+        debug('_set_enabled')
+        self.set_visible(enable)
+        if enable:
+            self.connect_accelerator()
+        else:
+            self.disconnect_accelerator()
+
+
+    def _get_enabled(self):
+        return self.get_visible()
+
+    enabled = property(_get_enabled, _set_enabled)
+
+
 class InfoExpander(gtk.Expander):
     """
     an abstract class that is really just a generic expander with a vbox
@@ -644,12 +678,13 @@ class SearchView(pluginmgr.View):
             def __init__(self):
                 self.children = None
                 self.infobox = None
-                self.context_menu_desc = None
+                self.context_menu_desc = None # TODO: obsolete
+                self.actions = None
                 self.markup_func = None
 
 
             def set(self, children=None, infobox=None, context_menu=None,
-                    markup_func=None):
+                    actions=None, markup_func=None):
                 '''
                 :param children: where to find the children for this type,
                     can be a callable of the form C{children(row)}
@@ -664,6 +699,7 @@ class SearchView(pluginmgr.View):
                 self.infobox = infobox
                 self.context_menu_desc = context_menu
                 self.markup_func = markup_func
+                self.actions = actions
 
 
             def get_children(self, obj):
@@ -1073,55 +1109,67 @@ class SearchView(pluginmgr.View):
 
 
     def on_view_button_release(self, view, event, data=None):
-        '''
-        popup a context menu on the selected row
-        '''
+        """
+        Popup a context menu on the selected row.
+        """
         # TODO: should probably fix this so you can right click on something
         # that is not the selection, but get the path from where the click
         # happened, make that that selection and then popup the menu,
         # see the pygtk FAQ about this at
         #http://www.async.com.br/faq/pygtk/index.py?req=show&file=faq13.017.htp
         if event.button != 3:
-            return # if not right click then leave
+            return False # if not right click then leave
 
-        values = self.get_selected_values()
-        model, paths = self.results_view.get_selection().get_selected_rows()
-        if len(paths) > 1:
-            return
-        selected_type = type(values[0])
-        if self.view_meta[selected_type].context_menu_desc is None:
-            # no context menu
-            return
+        selected = self.get_selected_values()
+        selected_type = type(selected[0])
+        if len(selected) > 1:
+            # make sure all the selected items are of the same type
+            istype = set(map(lambda o: isinstance(o, selected_type), selected))
+            # TODO: only show menu if all the types are the same, else
+            # show the common menu
+            if False in istype:
+                debug('not all the same type')
+                return False
+            else:
+                debug('ALL the same type')
 
+        if self.view_meta[selected_type].actions is None:
+            # no actions
+            return True
+
+        # TODO: merge the context menu with the generic menu
         menu = None
         try:
             menu = self.context_menu_cache[selected_type]
-        except Exception:
+        except KeyError:
             menu = gtk.Menu()
-            for label, func in self.view_meta[selected_type].context_menu_desc:
-                if label == '--':
-                    menu.add(gtk.SeparatorMenuItem())
-                else:
-                    def on_activate(item, f):
-                        value = self.get_selected_values()[0]
-                        result = False
-                        try:
-                            result = f(value)
-                        except Exception, e:
-                            msg = utils.xml_safe_utf8(str(e))
-                            utils.message_details_dialog(msg,
-                                                        traceback.format_exc(),
-                                                         gtk.MESSAGE_ERROR)
-                            debug(traceback.format_exc())
-                        if result:
-                            self.reset_view()
-                    item = gtk.MenuItem(label)
-                    item.connect('activate', on_activate, func)
-                    menu.add(item)
+            for action in self.view_meta[selected_type].actions:
+                item = action.create_menu_item()
+                def on_activate(item, data):
+                    result = False
+                    try:
+                        cb, values = data
+                        result = cb(values)
+                    except Exception, e:
+                        msg = utils.xml_safe_utf8(str(e))
+                        utils.message_details_dialog(msg,
+                                                     traceback.format_exc(),
+                                                     gtk.MESSAGE_ERROR)
+                        warning(traceback.format_exc())
+                    if result:
+                        self.reset_view()
+                item.connect('activate', on_activate,
+                             (action.callback, selected))
+                menu.append(item)
             self.context_menu_cache[selected_type] = menu
 
-        menu.show_all()
+        # enable/disable the menu items depending on the selection
+        for action in self.view_meta[selected_type].actions:
+            action.enabled = (len(selected) > 1 and action.multiselect) or \
+                (len(selected)<=1 and action.singleselect)
+
         menu.popup(None, None, None, event.button, event.time)
+        return True
 
 
     def reset_view(self):
@@ -1187,6 +1235,17 @@ class SearchView(pluginmgr.View):
                                   self.on_test_expand_row)
         self.results_view.connect("button-release-event",
                                   self.on_view_button_release)
+        def on_press(view, event):
+            """
+            This makes sure that we don't remove the multiple selection
+            when clicking a mouse button.
+            """
+            if event.button == 3:
+                return True
+            else:
+                return False
+        self.results_view.connect("button-press-event", on_press)
+
         self.results_view.connect("row-activated",
                                   self.on_view_row_activated)
         # scrolled window for the results view
