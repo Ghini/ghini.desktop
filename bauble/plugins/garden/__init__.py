@@ -8,14 +8,14 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import Accession, \
-    AccessionEditor, AccessionInfoBox, acc_context_menu, acc_markup_func, \
+    AccessionEditor, AccessionInfoBox, acc_actions, acc_markup_func, \
     SourceInfoBox
 from bauble.plugins.garden.location import Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
 from bauble.plugins.garden.plant import Plant, \
-    PlantHistory, PlantEditor, PlantInfoBox, \
-    plant_context_menu, plant_markup_func, plant_delimiter_key, \
-    default_plant_delimiter, PlantSearch
+    PlantHistory, PlantEditor, PlantInfoBox, plant_actions, \
+    plant_markup_func, plant_delimiter_key, default_plant_delimiter, \
+    PlantSearch
 from bauble.plugins.garden.source import Donation, \
     Collection, source_markup_func
 from bauble.plugins.garden.donor import Donor, DonorEditor, \
@@ -39,7 +39,6 @@ class GardenPlugin(pluginmgr.Plugin):
     def install(cls, *args, **kwargs):
         pass
 
-
     @classmethod
     def init(cls):
         from bauble.plugins.plants import Species
@@ -48,7 +47,7 @@ class GardenPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('accession', 'acc'), Accession, ['code'])
         SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
                                             infobox=AccessionInfoBox,
-                                            context_menu=acc_context_menu,
+                                            actions=acc_actions,
                                             markup_func=acc_markup_func)
 
         mapper_search.add_meta(('location', 'loc'), Location, ['site'])
@@ -60,7 +59,7 @@ class GardenPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
         SearchView.add_search_strategy(PlantSearch)
         SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
-                                        context_menu=plant_context_menu,
+                                        actions=plant_actions,
                                         markup_func=plant_markup_func)
 
         mapper_search.add_meta(('donor', 'don'), Donor, ['name'])
