@@ -31,7 +31,7 @@ from bauble.prefs import prefs
 from bauble.error import CommitException
 import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results
+     select_in_search_results, Action
 from bauble.plugins.garden.donor import Donor
 
 
@@ -109,23 +109,24 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
 
 
 
-def edit_callback(value):
+def edit_callback(accessions):
     session = bauble.Session()
-    e = AccessionEditor(model=session.merge(value))
+    e = AccessionEditor(model=session.merge(accessions[0]))
     return e.start() != None
 
 
-def add_plants_callback(value):
+def add_plants_callback(accessions):
     session = bauble.Session()
-    e = PlantEditor(model=Plant(accession=session.merge(value)))
+    e = PlantEditor(model=Plant(accession=session.merge(accessions[0])))
     return e.start() != None
 
 
-def remove_callback(value):
-    if len(value.plants) > 0:
+def remove_callback(accessions):
+    acc = accessions[0]
+    if len(acc.plants) > 0:
         safe = utils.xml_safe_utf8
-        values = dict(num_plants=len(value.plants),
-                      plant_codes = safe(', '.join(value.plants)),
+        values = dict(num_plants=len(acc.plants),
+                      plant_codes = safe(', '.join(acc.plants)),
                       acc_code = safe(value))
         msg = _('%(num_plants)s plants depend on this accession: ' \
                 '<b>%(plant_codes)s</b>\n\n'\
@@ -133,12 +134,12 @@ def remove_callback(value):
                 '<b>%(acc_code)s</b>?' % values)
     else:
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
-                  utils.xml_safe_utf8(unicode(value))
+                  utils.xml_safe_utf8(unicode(acc))
     if not utils.yes_no_dialog(msg):
         return
     try:
         session = bauble.Session()
-        obj = session.query(Accession).get(value.id)
+        obj = session.query(Accession).get(acc.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -148,11 +149,13 @@ def remove_callback(value):
     return True
 
 
-acc_context_menu = [('Edit', edit_callback),
-                    ('--', None),
-                    ('Add plants', add_plants_callback),
-                    ('--', None),
-                    ('Remove', remove_callback)]
+acc_actions = [Action('acc_edit', ('_Edit'), callback=edit_callback,
+                        accelerator='<ctrl>e'),
+               Action('acc_add', ('_Add plants'), callback=add_plants_callback,
+                        accelerator='<ctrl>a'),
+               Action('acc_remove', ('_Remove'), callback=remove_callback,
+                        accelerator='<delete>')]#, multiselect=True)]
+
 
 def acc_markup_func(acc):
     """
