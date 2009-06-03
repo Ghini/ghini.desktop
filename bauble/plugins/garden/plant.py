@@ -44,8 +44,6 @@ def edit_callback(plants):
 
 
 def remove_callback(plants):
-    # s = '%s: %s' % (plant.__class__.__name__, str(plant))
-    # msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     s = ', '.join([str(p) for p in plants])
     msg = _("Are you sure you want to remove the following plants?\n\n%s") \
         % utils.xml_safe_utf8(s)
@@ -478,7 +476,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 #    def init_history_box(self):
 #        pass
 
-
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
 #            if field is 'accession_id':
@@ -519,14 +516,47 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self._committed = []
 
 
+    def commit_changes(self):
+        """
+        """
+        if ',' not in self.model.code and '-' not in self.model.code and \
+                self.model not in self.session.new:
+            self._committed.append(self.model)
+            super(PlantEditor, self).commit_changes()
+            return
+
+        plants = []
+        codes = utils.range_builder(self.model.code)
+        mapper = object_mapper(self.model)
+        for code in codes:
+            new_plant = Plant()
+            self.session.add(new_plant)
+            for prop in mapper.iterate_properties:
+                setattr(new_plant, prop.key, getattr(self.model, prop.key))
+            new_plant.code = utils.utf8(code)
+            new_plant.id = None
+            new_plant._created = None
+            new_plant._last_updated = None
+            plants.append(new_plant)
+        try:
+            self.session.expunge(self.model)
+            super(PlantEditor, self).commit_changes()
+        except:
+            self.session.add(self.model)
+            raise
+        self._committed.extend(plants)
+
+
+
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
 #                debug('session dirty, committing')
             try:
                 if self.presenter.dirty():
+                    # commit_changes() will append the commited plants
+                    # to self._committed
                     self.commit_changes()
-                    self._committed.append(self.model)
             except SQLError, e:
                 exc = traceback.format_exc()
                 msg = _('Error committing changes.\n\n%s') % e.orig
