@@ -70,7 +70,6 @@ class Action(gtk.Action):
         self.singleselect = singleselect
 
     def _set_enabled(self, enable):
-        debug('_set_enabled')
         self.set_visible(enable)
         if enable:
             self.connect_accelerator()
@@ -822,7 +821,7 @@ class SearchView(pluginmgr.View):
 
     def get_selected_values(self):
         '''
-        return all the selected rows
+        Return the values in all the selected rows.
         '''
         model, rows = self.results_view.get_selection().get_selected_rows()
         if model is None:
@@ -1145,10 +1144,15 @@ class SearchView(pluginmgr.View):
             menu = gtk.Menu()
             for action in self.view_meta[selected_type].actions:
                 item = action.create_menu_item()
-                def on_activate(item, data):
+                def on_activate(item, cb):
                     result = False
                     try:
-                        cb, values = data
+                        # have to get the selected values again here
+                        # because for some unknown reason using the
+                        # "selected" variable from the parent scope
+                        # will give us the objects but they won't be
+                        # in an session...maybe its a thread thing
+                        values = self.get_selected_values()
                         result = cb(values)
                     except Exception, e:
                         msg = utils.xml_safe_utf8(str(e))
@@ -1158,8 +1162,7 @@ class SearchView(pluginmgr.View):
                         warning(traceback.format_exc())
                     if result:
                         self.reset_view()
-                item.connect('activate', on_activate,
-                             (action.callback, selected))
+                item.connect('activate', on_activate, action.callback)
                 menu.append(item)
             self.context_menu_cache[selected_type] = menu
 
