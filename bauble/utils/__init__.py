@@ -52,6 +52,57 @@ def find_dependent_tables(table, metadata=None):
     return sort_tables(tables=tables)
 
 
+class BuilderWidgets(dict):
+    """
+    Provides dictionary and attribute access for a
+    :class:`gtk.Builder` object.
+    """
+
+    def __init__(self, filename):
+        '''
+        @params filename: a gtk.Builder XML UI file
+        '''
+        self.builder = gtk.Builder()
+        self.builder.add_from_file(filename)
+
+
+    def __getitem__(self, name):
+        '''
+        @param name:
+        '''
+        w = self.builder.get_object(name)
+        if not w:
+            raise KeyError(_('%(widget_name)s not in glade file') %
+                           {'widget_name': name})
+        return w
+
+
+    def __getattr__(self, name):
+        '''
+        @param name:
+        '''
+        w = self.builder.get_object(name)
+        if not w:
+            raise AttributeError(_('%(widget_name)s not in glade file') %
+                           {'widget_name': name})
+        return w
+
+
+    def remove_parent(self, widget):
+        """
+        Remove widgets from its parent.
+        """
+        # if parent is the last reference to widget then widget may be
+        # automatically destroyed
+        if isinstance(widget, str):
+            w = self[widget]
+        else:
+            w = widget
+        parent = w.get_parent()
+        if parent is not None:
+            parent.remove(w)
+
+
 
 class GladeWidgets(dict):
     """
@@ -742,7 +793,7 @@ _range = Group(Word(nums) + Suppress('-') + Word(nums))
 _range_list = delimitedList(_range | Word(nums))
 
 def range_builder(text):
-    """Return a list of number from a string range of the form 1-3,4,5
+    """Return a list of numbers from a string range of the form 1-3,4,5
     """
     tokens = _range_list.parseString(text)
     values = set()
