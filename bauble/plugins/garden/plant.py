@@ -22,7 +22,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
 import bauble.meta as meta
-from bauble.view import SearchStrategy
+from bauble.view import SearchStrategy, Action
 from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
@@ -33,45 +33,30 @@ from bauble.plugins.garden.location import Location, LocationEditor
 # location combo that shows the description of the currently selected
 # location
 
-# TODO: Bulk Editor
-#
-# 1. Go into "Bulk" mode when commas are entered into the plant code,
-# this will change the location, accession type and status of all
-# plants with code in the list, if any notes are added they will be
-# appended to any existing notes the plant might already have...or
-# probably better to just disable editing the notes when we enter bulk
-# mode
-#
-# 2. Should turn any widgets red if they have values that aren't
-# common to all the plants codes...if the widgets is red then we won't
-# be saving this field to all the plants...if the user sets that
-# widget then all the plants will take that value
-#
-# 3. Could cause alot of problems if we mix existing plant code and
-# not existing plant codes because the user might not know if there
-# are creating new ones or editing existing ones. We could highlight
-# the ones that are new but all these color codes might be confusing.
-#
-
 plant_delimiter_key = u'plant_delimiter'
 default_plant_delimiter = u'.'
 
 
-def edit_callback(plant):
+def edit_callback(plants):
     session = bauble.Session()
-    e = PlantEditor(model=session.merge(plant))
+    e = PlantEditor(model=session.merge(plants[0]))
     return e.start() != None
 
 
-def remove_callback(plant):
-    s = '%s: %s' % (plant.__class__.__name__, str(plant))
-    msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+def remove_callback(plants):
+    # s = '%s: %s' % (plant.__class__.__name__, str(plant))
+    # msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
+    s = ', '.join([str(p) for p in plants])
+    msg = _("Are you sure you want to remove the following plants?\n\n%s") \
+        % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
-    try:
-        session = bauble.Session()
+
+    session = bauble.Session()
+    for plant in plants:
         obj = session.query(Plant).get(plant.id)
         session.delete(obj)
+    try:
         session.commit()
     except Exception, e:
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
@@ -81,9 +66,11 @@ def remove_callback(plant):
     return True
 
 
-plant_context_menu = [('Edit', edit_callback),
-                      ('--', None),
-                      ('Remove', remove_callback)]
+
+plant_actions = [Action('plant_edit', ('_Edit'), callback=edit_callback,
+                        accelerator='<ctrl>e'),
+                 Action('plant_remove', ('_Remove'), callback=remove_callback,
+                        accelerator='<delete>', multiselect=True)]
 
 
 def plant_markup_func(plant):
@@ -490,6 +477,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 #        pass
 #    def init_history_box(self):
 #        pass
+
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
