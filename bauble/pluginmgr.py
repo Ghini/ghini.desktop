@@ -103,7 +103,12 @@ def load(path=None):
             path = os.path.join(paths.lib_dir(), 'plugins')
     found, errors = _find_plugins(path)
 
-    for name, exc_info in errors.iteritems():
+    # show error dialog for plugins that couldn't be loaded...we only
+    # give details for the first error and assume the others are the
+    # same...and if not then it doesn't really help anyways
+    if errors:
+        name = ', '.join(sorted(errors.keys()))
+        exc_info = errors.values()[0]
         exc_str = utils.xml_safe_utf8(exc_info[1])
         tb_str = ''.join(traceback.format_tb(exc_info[2]))
         utils.message_details_dialog('Could not load plugin: '
@@ -161,14 +166,21 @@ def init(force=False):
                         % ', '.join([p.__name__ for p in not_installed]))
             if force or utils.yes_no_dialog(msg):
                 install([p for p in not_installed])
+
         # sort plugins in the registry by their dependencies
+        not_registered = []
         for name in PluginRegistry.names():
             try:
                 registered.append(plugins[name])
             except KeyError, e:
-                msg = _('The following plugin is in the registry but '
-                        'could not be loaded:\n\n%s' % utils.utf8(name))
-                utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+                not_registered.append(utils.utf8(name))
+
+        if not_registered:
+            msg = _('The following plugins are in the registry but '
+                    'could not be loaded:\n\n%(plugins)s' % \
+                    {'plugins': utils.utf8(', '.join(sorted(not_registered)))})
+            utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+
     except Exception, e:
         raise
 
