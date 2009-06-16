@@ -52,6 +52,16 @@ else:
 
 class Action(gtk.Action):
 
+    """
+    An Action allows a label, tooltip, callback and accelerator to be called
+    when specific items are selected in the SearchView
+    """
+
+    # TODO: multiselect and singleselect are really specific to the
+    # SearchView and we could probably generalize this class a little
+    # bit more...or we just assume this class is specific to the
+    # SearchView and document it that way
+
     def __init__(self, name, label, tooltip=None, stock_id=None,
                  callback=None, accelerator=None,
                  multiselect=False, singleselect=True):
@@ -68,13 +78,14 @@ class Action(gtk.Action):
         self.callback = callback
         self.multiselect = multiselect
         self.singleselect = singleselect
+        self.accelerator = accelerator
 
     def _set_enabled(self, enable):
         self.set_visible(enable)
-        if enable:
-            self.connect_accelerator()
-        else:
-            self.disconnect_accelerator()
+        # if enable:
+        #     self.connect_accelerator()
+        # else:
+        #     self.disconnect_accelerator()
 
 
     def _get_enabled(self):
@@ -1127,10 +1138,11 @@ class SearchView(pluginmgr.View):
             # TODO: only show menu if all the types are the same, else
             # show the common menu
             if False in istype:
-                debug('not all the same type')
+                #debug('not all the same type')
                 return False
             else:
-                debug('ALL the same type')
+                #debug('ALL the same type')
+                pass
 
         if self.view_meta[selected_type].actions is None:
             # no actions
@@ -1143,6 +1155,7 @@ class SearchView(pluginmgr.View):
         except KeyError:
             menu = gtk.Menu()
             for action in self.view_meta[selected_type].actions:
+                #debug('path: %s' %  action.get_accel_path())
                 item = action.create_menu_item()
                 def on_activate(item, cb):
                     result = False
@@ -1170,6 +1183,17 @@ class SearchView(pluginmgr.View):
         for action in self.view_meta[selected_type].actions:
             action.enabled = (len(selected) > 1 and action.multiselect) or \
                 (len(selected)<=1 and action.singleselect)
+            # if action.enabled:
+
+            #     keyval, mod = gtk.accelerator_parse(action.accelerator)
+            #     if (keyval, mod) != (0, 0):
+            #         debug('%s %s' % (keyval, mod))
+            #         # def cb(*args):
+            #         #     debug('cb')
+            #         #     action.callback
+            #         bauble.gui.accel_group.connect_group(keyval, mod,
+            #                                              gtk.ACCEL_VISIBLE,
+            #                           lambda *args: action.callback(selected))
 
         menu.popup(None, None, None, event.button, event.time)
         return True
@@ -1247,10 +1271,58 @@ class SearchView(pluginmgr.View):
                 return True
             else:
                 return False
-        self.results_view.connect("button-press-event", on_press)
+        #self.results_view.connect("button-press-event", on_press)
 
         self.results_view.connect("row-activated",
                                   self.on_view_row_activated)
+
+
+        # this group doesn't need to be added to the main window with
+        # gtk.Window.add_accel_group since the group will be added
+        # automatically when the view is set
+        self.accel_group = gtk.AccelGroup()
+        self.installed_accels = []
+        def switch_accels(*args):
+            for accel, cb in self.installed_accels:
+                    # disconnect previously installed accelerators by
+                    # the key and modifier,
+                    # accel_group.disconnect_by_func won't work here
+                    # since we install a closure as the actual
+                    # callback in instead of the original
+                    # action.callback
+                    r = self.accel_group.disconnect_key(accel[0], accel[1])
+                    if not r:
+                        warning('callback not removed: %s' % cb)
+            self.installed_accels = []
+
+            selected = self.get_selected_values()
+            selected_type = type(selected[0])
+
+            for action in self.view_meta[selected_type].actions:
+                enabled = (len(selected) > 1 and action.multiselect) or \
+                    (len(selected)<=1 and action.singleselect)
+                if not enabled:
+                    continue
+                # if enabled the connect then accelerator
+                keyval, mod = gtk.accelerator_parse(action.accelerator)
+                if (keyval, mod) != (0, 0):
+                    def cb(func):
+                        return lambda *args: func(selected)
+                    self.accel_group.connect_group(keyval, mod,
+                                                         gtk.ACCEL_VISIBLE,
+                                                         cb(action.callback))
+                    self.installed_accels.append(((keyval, mod), action.callback))
+
+        self.results_view.connect("cursor-changed", switch_accels)
+
+
+
+
+
+
+
+
+
         # scrolled window for the results view
         sw = gtk.ScrolledWindow()
         sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)

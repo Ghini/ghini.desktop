@@ -147,8 +147,16 @@ def command_handler(cmd, arg):
     if not isinstance(last_handler, handler_cls):
         last_handler = handler_cls()
     handler_view = last_handler.get_view()
-    if type(gui.get_view()) != type(handler_view) and handler_view:
+    old_view = gui.get_view()
+    if type(old_view) != type(handler_view) and handler_view:
+        # remove the accel_group from the window if the previous view
+        # had one
+        if hasattr(old_view, 'accel_group'):
+            gui.window.remove_accel_group(old_view.accel_group)
+        # add the new view and its accel_group if it has one
         gui.set_view(handler_view)
+        if hasattr(handler_view, 'accel_group'):
+            gui.window.add_accel_group(handler_view.accel_group)
     try:
         last_handler(arg)
     except Exception, e:
