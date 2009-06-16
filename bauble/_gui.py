@@ -356,8 +356,8 @@ class GUI(object):
         self.ui_manager = gtk.UIManager()
 
         # add accel group
-        self.accel_group = self.ui_manager.get_accel_group()
-        self.window.add_accel_group(self.accel_group)
+        accel_group = self.ui_manager.get_accel_group()
+        self.window.add_accel_group(accel_group)
 
         # TODO: get rid of new, open, and just have a connection
         # menu item
@@ -365,10 +365,10 @@ class GUI(object):
         # create and addaction group for menu actions
         menu_actions = gtk.ActionGroup("MenuActions")
         menu_actions.add_actions([("file", None, _("_File")),
-                                  ("file_new", gtk.STOCK_NEW, _("_New"), None,
-                                   None, self.on_file_menu_new),
+                                  ("file_new", gtk.STOCK_NEW, _("_New"),
+                                   None, None, self.on_file_menu_new),
                                   ("file_open", gtk.STOCK_OPEN, _("_Open"),
-                                   None, None, self.on_file_menu_open),
+                                   '<ctrl>o', None, self.on_file_menu_open),
                                   ("file_quit", gtk.STOCK_QUIT, _("_Quit"),
                                    None, None, self.on_quit),
                                   ("edit", None, _("_Edit")),
