@@ -845,12 +845,44 @@ class SearchView(pluginmgr.View):
         return [model[row][0] for row in rows]
 
 
-    def on_results_view_select_row(self, view):
+    def on_cursor_changed(self, view):
         '''
-        add and removes the infobox which should change depending on
-        the type of the row selected
+        Update the infobox and switch the accelerators depending on the
+        type of the row that the cursor points to.
         '''
         self.update_infobox()
+
+        # switch the accelerators depending on what the cursor is
+        # currently pointing to
+        for accel, cb in self.installed_accels:
+            # disconnect previously installed accelerators by
+            # the key and modifier,
+            # accel_group.disconnect_by_func won't work here
+            # since we install a closure as the actual
+            # callback in instead of the original
+            # action.callback
+            r = self.accel_group.disconnect_key(accel[0], accel[1])
+            if not r:
+                warning('callback not removed: %s' % cb)
+        self.installed_accels = []
+
+        selected = self.get_selected_values()
+        selected_type = type(selected[0])
+
+        for action in self.view_meta[selected_type].actions:
+            enabled = (len(selected) > 1 and action.multiselect) or \
+                (len(selected)<=1 and action.singleselect)
+            if not enabled:
+                continue
+            # if enabled the connect then accelerator
+            keyval, mod = gtk.accelerator_parse(action.accelerator)
+            if (keyval, mod) != (0, 0):
+                def cb(func):
+                    return lambda *args: func(selected)
+                self.accel_group.connect_group(keyval, mod,
+                                               gtk.ACCEL_VISIBLE,
+                                               cb(action.callback))
+                self.installed_accels.append(((keyval, mod), action.callback))
 
 
     nresults_statusbar_context = 'searchview.nresults'
@@ -1149,7 +1181,7 @@ class SearchView(pluginmgr.View):
                 #debug('ALL the same type')
                 pass
 
-        if self.view_meta[selected_type].actions is None:
+        if not self.view_meta[selected_type].actions:
             # no actions
             return True
 
@@ -1250,8 +1282,7 @@ class SearchView(pluginmgr.View):
         self.results_view.append_column(column)
 
         # view signals
-        self.results_view.connect("cursor-changed",
-                                  self.on_results_view_select_row)
+        self.results_view.connect("cursor-changed", self.on_cursor_changed)
         self.results_view.connect("test-expand-row",
                                   self.on_test_expand_row)
         self.results_view.connect("button-release-event",
@@ -1276,46 +1307,6 @@ class SearchView(pluginmgr.View):
         # automatically when the view is set
         self.accel_group = gtk.AccelGroup()
         self.installed_accels = []
-        def switch_accels(*args):
-            for accel, cb in self.installed_accels:
-                    # disconnect previously installed accelerators by
-                    # the key and modifier,
-                    # accel_group.disconnect_by_func won't work here
-                    # since we install a closure as the actual
-                    # callback in instead of the original
-                    # action.callback
-                    r = self.accel_group.disconnect_key(accel[0], accel[1])
-                    if not r:
-                        warning('callback not removed: %s' % cb)
-            self.installed_accels = []
-
-            selected = self.get_selected_values()
-            selected_type = type(selected[0])
-
-            for action in self.view_meta[selected_type].actions:
-                enabled = (len(selected) > 1 and action.multiselect) or \
-                    (len(selected)<=1 and action.singleselect)
-                if not enabled:
-                    continue
-                # if enabled the connect then accelerator
-                keyval, mod = gtk.accelerator_parse(action.accelerator)
-                if (keyval, mod) != (0, 0):
-                    def cb(func):
-                        return lambda *args: func(selected)
-                    self.accel_group.connect_group(keyval, mod,
-                                                         gtk.ACCEL_VISIBLE,
-                                                         cb(action.callback))
-                    self.installed_accels.append(((keyval, mod), action.callback))
-
-        self.results_view.connect("cursor-changed", switch_accels)
-
-
-
-
-
-
-
-
 
         # scrolled window for the results view
         sw = gtk.ScrolledWindow()
