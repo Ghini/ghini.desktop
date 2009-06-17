@@ -22,29 +22,33 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.types import Enum
 from bauble.prefs import prefs
+from bauble.view import Action
 
-def edit_callback(value):
+def edit_callback(families):
     """
     Family context menu callback
     """
+    family = families[0]
     session = bauble.Session()
-    e = FamilyEditor(model=session.merge(value))
+    e = FamilyEditor(model=session.merge(family))
     return e.start() != None
 
 
-def add_genera_callback(value):
+def add_genera_callback(families):
     """
     Family context menu callback
     """
+    family = families[0]
     session = bauble.Session()
-    e = GenusEditor(model=Genus(family=session.merge(value)))
+    e = GenusEditor(model=Genus(family=session.merge(family)))
     return e.start() != None
 
 
-def remove_callback(family):
+def remove_callback(families):
     """
     The callback function to remove a family from the family context menu.
     """
+    family = families[0]
     from bauble.plugins.plants.genus import Genus
     session = bauble.Session()
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
@@ -69,11 +73,15 @@ def remove_callback(family):
     return True
 
 
-family_context_menu = [(_('Edit'), edit_callback),
-                       ('--', None),
-                       (_('Add genera'), add_genera_callback),
-                       ('--', None),
-                       (_('Remove'), remove_callback)]
+edit_action = Action('family_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+add_species_action = Action('family_genus_add', ('_Add accession'),
+                              callback=add_genera_callback,
+                              accelerator='<ctrl>k')
+remove_action = Action('family_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
+
+family_context_menu = [edit_action, add_species_action, remove_action]
 
 
 def family_markup_func(family):

@@ -24,7 +24,7 @@ from bauble.utils.log import debug
 import bauble.paths as paths
 from bauble.prefs import prefs
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results
+     select_in_search_results, Action
 
 # TODO: warn the user that a duplicate genus name is being entered
 # even if only the author or qualifier is different
@@ -40,27 +40,30 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 # the genus then so they aren't using the wrong version of the Genus,
 # e.g. Cananga
 
-def edit_callback(value):
+def edit_callback(genera):
+    genus = genera[0]
     session = bauble.Session()
-    e = GenusEditor(model=session.merge(value))
+    e = GenusEditor(model=session.merge(genus))
     result = e.start()
     session.close()
     return result != None
 
 
-def add_species_callback(value):
+def add_species_callback(genera):
+    genus = genera[0]
     from bauble.plugins.plants.species_editor import SpeciesEditor
     session = bauble.Session()
-    e = SpeciesEditor(model=Species(genus=session.merge(value)))
+    e = SpeciesEditor(model=Species(genus=session.merge(genus)))
     result = e.start()
     session.close()
     return result != None
 
 
-def remove_callback(genus):
+def remove_callback(genera):
     """
     The callback function to remove a genus from the genus context menu.
     """
+    genus = genera[0]
     from bauble.plugins.plants.species_model import Species
     session = bauble.Session()
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
@@ -84,12 +87,15 @@ def remove_callback(genus):
     session.close()
     return True
 
+edit_action = Action('genus_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+add_species_action = Action('genus_sp_add', ('_Add accession'),
+                              callback=add_species_callback,
+                              accelerator='<ctrl>k')
+remove_action = Action('genus_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
 
-genus_context_menu = [(_('Edit'), edit_callback),
-                      ('--', None),
-                      (_('Add species'), add_species_callback),
-                      ('--', None),
-                      (_('Remove'), remove_callback)]
+genus_context_menu = [edit_action, add_species_action, remove_action]
 
 
 def genus_markup_func(genus):

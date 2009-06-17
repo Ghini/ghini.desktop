@@ -5,7 +5,7 @@ import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch, \
-     PropertiesExpander
+     PropertiesExpander, Action
 import bauble.utils.desktop as desktop
 
 __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
@@ -13,28 +13,33 @@ __all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
            'vernname_get_kids', 'vernname_markup_func',
            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
            'VernacularNameInfoBox', 'DefaultVernacularName',
-           'SpeciesDistribution', 'edit_callback',
-           'add_accession_callback', 'remove_callback', 'call_on_species']
+           'SpeciesDistribution', 'edit_action', 'remove_action',
+           'add_accession_action']
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
 # change the species context menu, getting the children from the
 # search view and what else
 
-def edit_callback(value):
+def edit_callback(values):
     from bauble.plugins.plants.species_editor import SpeciesEditor
+    sp = values[0]
+    if isinstance(sp, VernacularName):
+        sp = sp.species
     session = bauble.Session()
-    e = SpeciesEditor(model=session.merge(value))
+    e = SpeciesEditor(model=session.merge(sp))
     return e.start() != None
 
 
-
-def remove_callback(species):
+def remove_callback(values):
     """
     The callback function to remove a species from the species context menu.
     """
     from bauble.plugins.garden.accession import Accession
     session = bauble.Session()
+    species = values[0]
+    if isinstance(species, VernacularName):
+        species = species.species
     nacc = session.query(Accession).filter_by(species_id=species.id).count()
     safe_str = utils.xml_safe_utf8(str(species))
     if nacc > 0:
@@ -57,21 +62,26 @@ def remove_callback(species):
     return True
 
 
-def call_on_species(func):
-    return lambda value : func(value.species)
-
-def add_accession_callback(value):
+def add_accession_callback(values):
     from bauble.plugins.garden.accession import Accession, AccessionEditor
+    species = values[0]
+    if isinstance(species, VernacularName):
+        species = species.species
     session = bauble.Session()
-    e = AccessionEditor(model=Accession(species=session.merge(value)))
+    e = AccessionEditor(model=Accession(species=session.merge(species)))
     return e.start() != None
 
 
-species_context_menu = [(_('Edit'), edit_callback),
-                        ('--', None),
-                        (_('Remove'), remove_callback)]
-vernname_context_menu = [(_('Edit'), call_on_species(edit_callback)),
-                         ('--', None)]
+edit_action = Action('species_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+add_accession_action = Action('species_acc_add', ('_Add accession'),
+                              callback=add_accession_callback,
+                              accelerator='<ctrl>k')
+remove_action = Action('species_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
+
+species_context_menu = [edit_action, remove_action]
+vernname_context_menu = [edit_action]
 
 
 def species_markup_func(species):
