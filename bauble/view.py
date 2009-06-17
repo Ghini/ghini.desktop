@@ -688,13 +688,13 @@ class SearchView(pluginmgr.View):
             def __init__(self):
                 self.children = None
                 self.infobox = None
-                self.context_menu_desc = None # TODO: obsolete
-                self.actions = None
+                self.context_menu_desc = None
                 self.markup_func = None
+                self.actions = None
 
 
             def set(self, children=None, infobox=None, context_menu=None,
-                    actions=None, markup_func=None):
+                    markup_func=None):
                 '''
                 :param children: where to find the children for this type,
                     can be a callable of the form C{children(row)}
@@ -707,9 +707,14 @@ class SearchView(pluginmgr.View):
                 '''
                 self.children = children
                 self.infobox = infobox
-                self.context_menu_desc = context_menu
                 self.markup_func = markup_func
-                self.actions = actions
+                self.context_menu_desc = context_menu
+                self.actions = None
+                if self.context_menu_desc:
+                    self.actions = filter(lambda x: isinstance(x, Action),
+                                          self.context_menu_desc)
+
+
 
 
             def get_children(self, obj):
@@ -1183,17 +1188,6 @@ class SearchView(pluginmgr.View):
         for action in self.view_meta[selected_type].actions:
             action.enabled = (len(selected) > 1 and action.multiselect) or \
                 (len(selected)<=1 and action.singleselect)
-            # if action.enabled:
-
-            #     keyval, mod = gtk.accelerator_parse(action.accelerator)
-            #     if (keyval, mod) != (0, 0):
-            #         debug('%s %s' % (keyval, mod))
-            #         # def cb(*args):
-            #         #     debug('cb')
-            #         #     action.callback
-            #         bauble.gui.accel_group.connect_group(keyval, mod,
-            #                                              gtk.ACCEL_VISIBLE,
-            #                           lambda *args: action.callback(selected))
 
         menu.popup(None, None, None, event.button, event.time)
         return True
@@ -1271,7 +1265,7 @@ class SearchView(pluginmgr.View):
                 return True
             else:
                 return False
-        #self.results_view.connect("button-press-event", on_press)
+        self.results_view.connect("button-press-event", on_press)
 
         self.results_view.connect("row-activated",
                                   self.on_view_row_activated)

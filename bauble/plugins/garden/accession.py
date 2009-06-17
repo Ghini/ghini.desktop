@@ -149,12 +149,14 @@ def remove_callback(accessions):
     return True
 
 
-acc_actions = [Action('acc_edit', ('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e'),
-               Action('acc_add', ('_Add plants'), callback=add_plants_callback,
-                        accelerator='<ctrl>a'),
-               Action('acc_remove', ('_Remove'), callback=remove_callback,
-                        accelerator='<delete>')]#, multiselect=True)]
+edit_action = Action('acc_edit', ('_Edit'), callback=edit_callback,
+                        accelerator='<ctrl>e')
+add_plant_action = Action('acc_add', ('_Add plants'),
+                          callback=add_plants_callback, accelerator='<ctrl>k')
+remove_action = Action('acc_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>')#, multiselect=True)
+
+acc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
 def acc_markup_func(acc):

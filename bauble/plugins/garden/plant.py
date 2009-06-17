@@ -65,10 +65,12 @@ def remove_callback(plants):
 
 
 
-plant_actions = [Action('plant_edit', ('_Edit'), callback=edit_callback,
-                        accelerator='<ctrl>e'),
-                 Action('plant_remove', ('_Remove'), callback=remove_callback,
-                        accelerator='<delete>', multiselect=True)]
+edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
+
+plant_context_menu = [edit_action, remove_action]
 
 
 def plant_markup_func(plant):
