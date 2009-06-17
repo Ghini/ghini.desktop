@@ -17,7 +17,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils
 from bauble.utils.log import debug, warning, sa_echo, echo
-from bauble.view import SearchView, MapperSearch
+from bauble.view import SearchView, MapperSearch, Action
 
 
 # TODO: is it  possible to add to a context menu for any object that shows a
@@ -31,14 +31,15 @@ from bauble.view import SearchView, MapperSearch
 #     return e.start() != None
 
 
-def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, utils.xml_safe_utf8(value))
+def remove_callback(tags):
+    tag = tags[0]
+    s = '%s: %s' % (tag.__class__.__name__, utils.xml_safe_utf8(tag))
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
     try:
         session = bauble.Session()
-        obj = session.query(Tag).get(value.id)
+        obj = session.query(Tag).get(tag.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -50,10 +51,10 @@ def remove_callback(value):
     _reset_tags_menu()
     return True
 
+remove_action = Action('tag_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
 
-tag_context_menu = [#('Edit', edit_callback),
-                    #('--', None),
-                    ('Remove', remove_callback)]
+tag_context_menu = [remove_action]
 
 
 class TagItemGUI:
