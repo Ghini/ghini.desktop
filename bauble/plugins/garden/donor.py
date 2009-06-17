@@ -14,22 +14,25 @@ from bauble.editor import *
 import bauble.paths as paths
 from bauble.types import Enum
 from bauble.plugins.garden.source import Donation
+from bauble.view import Action
 
 
-def edit_callback(value):
+def edit_callback(donors):
+    donor = donors[0]
     session = bauble.Session()
-    e = DonorEditor(model=session.merge(value))
+    e = DonorEditor(model=session.merge(donor))
     return e.start() != None
 
 
-def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, str(value))
+def remove_callback(donors):
+    donor = donors[0]
+    s = '%s: %s' % (donor.__class__.__name__, str(donor))
     msg = _("Are you sure you want to remove %s?") % utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
         session = bauble.Session()
-        obj = session.query(Donor).get(value.id)
+        obj = session.query(Donor).get(donor.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -39,10 +42,12 @@ def remove_callback(value):
     return True
 
 
-donor_context_menu = [('Edit', edit_callback),
-                      ('--', None),
-                      ('Remove', remove_callback)]
+edit_action = Action('donor_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+remove_action = Action('donor_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
 
+donor_context_menu = [edit_action, remove_action]
 
 # TODO: make sure that you can't delete the donor if donations exist, this
 # should have a test
