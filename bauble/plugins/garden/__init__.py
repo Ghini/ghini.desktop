@@ -8,14 +8,14 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 from bauble.view import SearchView
 from bauble.plugins.garden.accession import Accession, \
-    AccessionEditor, AccessionInfoBox, acc_actions, acc_markup_func, \
+    AccessionEditor, AccessionInfoBox, acc_markup_func, acc_context_menu, \
     SourceInfoBox
 from bauble.plugins.garden.location import Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
 from bauble.plugins.garden.plant import Plant, \
-    PlantHistory, PlantEditor, PlantInfoBox, plant_actions, \
+    PlantHistory, PlantEditor, PlantInfoBox, \
     plant_markup_func, plant_delimiter_key, default_plant_delimiter, \
-    PlantSearch
+    PlantSearch, plant_context_menu
 from bauble.plugins.garden.source import Donation, \
     Collection, source_markup_func
 from bauble.plugins.garden.donor import Donor, DonorEditor, \
@@ -47,7 +47,7 @@ class GardenPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('accession', 'acc'), Accession, ['code'])
         SearchView.view_meta[Accession].set(children=natsort_kids("plants"),
                                             infobox=AccessionInfoBox,
-                                            actions=acc_actions,
+                                            context_menu=acc_context_menu,
                                             markup_func=acc_markup_func)
 
         mapper_search.add_meta(('location', 'loc'), Location, ['site'])
@@ -59,7 +59,7 @@ class GardenPlugin(pluginmgr.Plugin):
         mapper_search.add_meta(('plant', 'plants'), Plant, ['code'])
         SearchView.add_search_strategy(PlantSearch)
         SearchView.view_meta[Plant].set(infobox=PlantInfoBox,
-                                        actions=plant_actions,
+                                        context_menu=plant_context_menu,
                                         markup_func=plant_markup_func)
 
         mapper_search.add_meta(('donor', 'don'), Donor, ['name'])
