@@ -14,30 +14,32 @@ import bauble.db as db
 from bauble.editor import *
 import bauble.utils as utils
 import bauble.paths as paths
+from bauble.view import Action
 
 
-def edit_callback(value):
+def edit_callback(locations):
     session = bauble.Session()
-    e = LocationEditor(model=session.merge(value))
+    e = LocationEditor(model=session.merge(locations[0]))
     return e.start() != None
 
 
-def add_plant_callback(value):
+def add_plants_callback(locations):
     session = bauble.Session()
     from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=session.merge(value)))
+    e = PlantEditor(model=Plant(location=session.merge(locations[0])))
     return e.start() != None
 
 
-def remove_callback(value):
-    s = '%s: %s' % (value.__class__.__name__, str(value))
+def remove_callback(locations):
+    loc = locations[0]
+    s = '%s: %s' % (loc.__class__.__name__, str(loc))
     msg = _("Are you sure you want to remove %s?") % \
           utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
         return
     try:
         session = bauble.Session()
-        obj = session.query(Location).get(value.id)
+        obj = session.query(Location).get(loc.id)
         session.delete(obj)
         session.commit()
     except Exception, e:
@@ -46,12 +48,14 @@ def remove_callback(value):
                                      type=gtk.MESSAGE_ERROR)
     return True
 
+edit_action = Action('loc_edit', ('_Edit'), callback=edit_callback,
+                     accelerator='<ctrl>e')
+add_plant_action = Action('loc_add_plant', ('_Add plants'),
+                          callback=add_plants_callback, accelerator='<ctrl>k')
+remove_action = Action('loc_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>', multiselect=True)
 
-loc_context_menu = [('Edit', edit_callback),
-                    ('--', None),
-                    ('Add plant', add_plant_callback),
-                    ('--', None),
-                    ('Remove', remove_callback)]
+loc_context_menu = [edit_action, add_plant_action, remove_action]
 
 
 def loc_markup_func(location):
