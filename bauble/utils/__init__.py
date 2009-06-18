@@ -795,7 +795,11 @@ _range_list = delimitedList(_range | Word(nums))
 def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5
     """
-    tokens = _range_list.parseString(text)
+    token = None
+    try:
+        tokens = _range_list.parseString(text)
+    except (AttributeError, ParseException), e:
+        return []
     values = set()
     for rng in tokens:
         if len(rng) > 1:
