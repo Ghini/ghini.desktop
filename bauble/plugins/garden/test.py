@@ -3,14 +3,14 @@ import unittest
 from sqlalchemy import *
 from sqlalchemy.exc import *
 
-from bauble.error import CheckConditionError
+from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor#, BulkPlantEditor
 from bauble.plugins.garden.location import Location
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
@@ -18,8 +18,15 @@ from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution
 
+
 # TODO: create a test to make sure that if you delete an accession then the
 # plants that are "children" of this accession are also deleted
+
+# TODO: create a test to make sure actions are set up correctly, might
+# be worth creating the tests in the view tests but this would cause
+# the tests to no be part of the plugin and so probably would be
+# better to test them within the garden plugin test code
+
 from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
                         'date': datetime.today(),
@@ -175,6 +182,9 @@ class PlantTests(GardenTestCase):
         location = Location(site=u'site')
         plant = Plant(accession=acc, location=location, code=u'1')
         self.session.commit()
+        # create a second uncommited plant so that we can check for
+        # uniqueness with an existing plant, i.e 1.1
+        plant = Plant(accession=acc, location=location, code=u'2')
         editor = PlantEditor(model=plant)
         editor.start()
 
