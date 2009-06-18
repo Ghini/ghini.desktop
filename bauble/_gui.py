@@ -156,6 +156,10 @@ class GUI(object):
 
 
     def _msg_common(self, msg, colors):
+        """
+        Code common to message drop down box implementations like
+        info_msg() and error_msg()
+        """
         eb = self.widgets.msg_eventbox
         colormap = eb.get_colormap()
         style = eb.get_style().copy()
@@ -171,12 +175,19 @@ class GUI(object):
 
 
     def info_msg(self, msg):
+        """
+        Show an info message in the message drop down box
+        """
         colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
         self._msg_common(msg, colors)
         self.widgets.msg_eventbox.show()
 
 
     def error_msg(self, msg, details=None):
+        """
+        Show an error message in the message drop down box with an optional
+        expander if there is anything in the details param.
+        """
         colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
                   ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
         self._msg_common(msg, colors)

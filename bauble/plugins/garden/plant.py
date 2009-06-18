@@ -384,25 +384,53 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.refresh_sensitivity()
             return
 
-        # reference accesssion.id instead of accession_id since
-        # setting the accession on the model doesn't set the
-        # accession_id until the session is flushed
-        nplants_query = self.session.query(Plant).join('accession').\
-                  filter(and_(Accession.id==self.model.accession.id,
-                              Plant.code==text))
-
         # add a problem if the code is not unique but not if its the
         # same accession and plant code that we started with when the
         # editor was opened
-        if self.model.code is not None and nplants_query.count() > 0 \
-               and not (self._original_accession_id==self.model.accession.id \
-                            and self.model.code==self._original_code):
-            self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                             self.view.widgets.plant_code_entry)
+        if self.model.code is not None and not \
+                self.is_code_unique(self.model.code) and not \
+                (self._original_accession_id==self.model.accession.id and \
+                     self.model.code==self._original_code):
+
+                self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
+                                 self.view.widgets.plant_code_entry)
         else:
+            # remove_problem() won't complain if problem doesn't exist
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
                                 self.view.widgets.plant_code_entry)
+
+            # if there are no problems and the code represents a range
+            # then change the background color to a light blue
+            from bauble.utils.pyparsing import ParseException
+            if len(utils.range_builder(self.model.code)) > 1:
+                entry = self.view.widgets.plant_code_entry
+                color_str = '#B0C4DE' # light steel blue
+                color = gtk.gdk.color_parse(color_str)
+                entry.modify_bg(gtk.STATE_NORMAL, color)
+                entry.modify_base(gtk.STATE_NORMAL, color)
+                entry.queue_draw()
+
         self.refresh_sensitivity()
+
+
+    def is_code_unique(self, code):
+        """
+        Return True/False if the code is unique for the current
+        Accession on self.model.accession.
+
+        This method will take range values for code that can be passed
+        to utils.range_builder()
+        """
+        for code in utils.range_builder(self.model.code):
+            # reference accesssion.id instead of accession_id since
+            # setting the accession on the model doesn't set the
+            # accession_id until the session is flushed
+            num = self.session.query(Plant).join('accession').\
+                filter(and_(Accession.id==self.model.accession.id,
+                            Plant.code==code)).count()
+            if num > 0:
+                return False
+        return True
 
 
     def refresh_sensitivity(self):
