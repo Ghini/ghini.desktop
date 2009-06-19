@@ -690,11 +690,12 @@ class GUI(object):
 
     def on_delete_event(self, *args):
         import bauble.task as task
-        if task._flushing or not task._task_queue.empty():
+        if task.running()
             msg = _('Would you like the cancel the current tasks?')
             if not utils.yes_no_dialog(msg):
                 # stop other handlers for being invoked for this event
                 return True
+            task.kill()
         return False
 
     def on_quit(self, widget, data=None):
