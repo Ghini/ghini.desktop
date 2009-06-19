@@ -8,7 +8,6 @@ import re
 import traceback
 import itertools
 
-import fibra
 import gtk
 import gobject
 import pango
