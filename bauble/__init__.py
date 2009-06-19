@@ -79,6 +79,7 @@ conn_name = None
 
 import traceback
 from bauble.utils.log import debug, warning
+import bauble.utils.log as log # so we can use log.error()
 import bauble.error as error
 
 
@@ -160,8 +161,10 @@ def command_handler(cmd, arg):
     try:
         last_handler(arg)
     except Exception, e:
-        utils.message_details_dialog(str(e), traceback.format_exc(),
-                                              gtk.MESSAGE_ERROR)
+        msg = utils.xml_safe_utf8(e)
+        log.error('bauble.command_handler(): %s' % msg)
+        utils.message_details_dialog(msg, traceback.format_exc(),
+                                     gtk.MESSAGE_ERROR)
 
 
 conn_default_pref = "conn.default"
@@ -291,7 +294,7 @@ def main(uri=None):
                         utils.message_details_dialog(utils.xml_safe_utf8(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        error(e)
+                        log.error(e)
             else:
                 pluginmgr.init()
         except Exception, e:
