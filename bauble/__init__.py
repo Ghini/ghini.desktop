@@ -101,7 +101,7 @@ def quit():
     import bauble.task as task
     save_state()
     try:
-        task._quit()
+        task.kill()
         gtk.main_quit()
     except RuntimeError: # in case main_quit is called before main
         sys.exit(1)
