@@ -3,7 +3,6 @@
 #  Copyright (c) 2005,2006,2007,2008 Brett Adams
 #  <brett@belizebotanic.org> This is free software, see GNU General
 #  Public License v2 for details.
-
 try:
     import setuptools
 except ImportError:
@@ -387,7 +386,8 @@ setuptools.setup(name="bauble",
                  install_requires=["SQLAlchemy>=0.5rc4",#<0.6",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
-                                   "gdata>=1.2.4"] + needs_sqlite,
+                                   "gdata>=1.2.4",
+                                   "fibra==0.0.14"] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett Adams",
                  author_email="brett@belizebotanic.org",
