@@ -178,6 +178,9 @@ def create(import_defaults=True):
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
+        # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
+        # switched the task system to use fibra...but it doesn't hurt
+        # having it here until we can make sure
         debug(e)
         transaction.rollback()
         raise
@@ -195,6 +198,9 @@ def create(import_defaults=True):
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
+        # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
+        # switched the task system to use fibra...but it doesn't hurt
+        # having it here until we can make sure
         debug(e)
         transaction.rollback()
         raise

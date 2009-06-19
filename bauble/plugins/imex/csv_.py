@@ -112,16 +112,7 @@ class Importer(object):
         start the import process, this is a non blocking method, queue the
         process as a bauble task
         '''
-        return bauble.task.queue(self.run, self.on_quit, self.on_error,
-                                 **kwargs)
-
-
-    def on_quit(self):
-        pass
-
-
-    def on_error(self, exc):
-        pass
+        return bauble.task.queue(self.run, **kwargs)
 
 
     def run(self, **kwargs):
@@ -152,17 +143,7 @@ class CSVImporter(Importer):
         self.__error_exc = False
 
 
-    def on_error(self, exc):
-        debug('CSVImporter.on_error()')
-        # TODO: this won't show the dialog properly since the GUI can't update,
-        # the dialog won't have any decorations
-        utils.message_details_dialog(utils.xml_safe_utf8(exc),
-                                     traceback.format_exc(),
-                                     gtk.MESSAGE_ERROR)
-
-
-    def start(self, filenames=None, metadata=None, force=False,
-              on_quit=None, on_error=None):
+    def start(self, filenames=None, metadata=None, force=False):
         '''
         start the import process, this is a non blocking method queue the
         process as a bauble task
@@ -175,14 +156,7 @@ class CSVImporter(Importer):
         if filenames is None:
             return
 
-        # self.on_quit isn't implemented but we include it here because
-        # the imex tests use it
-        if on_quit is None:
-            on_quit = self.on_quit
-        if on_error is None:
-            on_error = self.on_error
-        bauble.task.queue(self.run, on_quit, on_error, filenames,
-                          metadata, force)
+        bauble.task.queue(self.run(filenames, metadata, force))
 
 
     def run(self, filenames, metadata, force=False):
@@ -427,6 +401,10 @@ class CSVImporter(Importer):
             # be created but weren't created already
             metadata.create_all(connection, depends, checkfirst=True)
         except (bauble.task.TaskQuitting, GeneratorExit), e:
+            # UPDATE 2009.06.18: i'm not sure TaskQuitting is still
+            # relevant since we switched the task system to use
+            # fibra...but it doesn't hurt having it here until we can
+            # make sure
             transaction.rollback()
             raise
         except Exception, e:
@@ -521,21 +499,10 @@ class CSVExporter(object):
         if not os.path.exists(path):
             raise ValueError(_("CSVExporter: path does not exist.\n%s" % path))
 
-        def on_error(exc):
-            """
-            The default error handler.
-            """
-            #debug(exc)
-            #debug(type(exc))
-            error(exc)
-            if not isinstance(exc, (GeneratorExit, bauble.task.TaskQuitting)):
-                utils.message_dialog(utils.xml_safe_utf8(exc),
-                                     gtk.MESSAGE_ERROR)
-
         try:
             # TODO: should we support exporting other metadata
             # besides db.metadata
-            bauble.task.queue(self.__export_task, None, on_error, path)
+            bauble.task.queue(self.__export_task(path))
         except Exception, e:
             debug(e)
 

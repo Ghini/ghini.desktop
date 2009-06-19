@@ -8,6 +8,7 @@ import re
 import traceback
 import itertools
 
+import fibra
 import gtk
 import gobject
 import pango
@@ -960,18 +961,26 @@ class SearchView(pluginmgr.View):
                     return
             statusbar.push(sbcontext_id, _("Retrieving %s search " \
                                            "results...") % len(results))
-            if len(results) > 1000:
-                self.populate_results(results)
+            try:
+                # don't bother with a task if the results are small,
+                # this keeps the screen from flickering when the main
+                # window is set to a busy state
+                if len(results) > 1000:
+                    self.populate_results(results)
+                else:
+                    task = self._populate_worker(results)
+                    while True:
+                        try:
+                            task.next()
+                        except StopIteration:
+                            break
+            except StopIteration:
+                return
             else:
-                task = self._populate_worker(results)
-                while True:
-                    try:
-                        task.next()
-                    except StopIteration:
-                        break
+                statusbar.pop(sbcontext_id)
+                statusbar.push(sbcontext_id,
+                               _("%s search results") % len(results))
                 self.results_view.set_cursor(0)
-            statusbar.pop(sbcontext_id)
-            statusbar.push(sbcontext_id, _("%s search results") % len(results))
 
 
     def remove_children(self, model, parent):
@@ -1021,16 +1030,7 @@ class SearchView(pluginmgr.View):
 
         This method adds results to the search view in a task.
         """
-        def on_error(exc):
-            error('SearchView.populate_results:')
-            error(exc)
-        def on_quit():
-            try:
-                self.results_view.set_cursor(0)
-            except Exception, e:
-                debug(e)
-        return bauble.task.queue(self._populate_worker, on_quit, on_error,
-                                 results, check_for_kids)
+        bauble.task.queue(self._populate_worker(results, check_for_kids))
 
 
     def _populate_worker(self, results, check_for_kids=False):
