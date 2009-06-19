@@ -28,7 +28,7 @@ __running = False
 __kill = False
 
 def running():
-    return _running
+    return __running
 
 
 def kill():
@@ -68,14 +68,15 @@ def queue(task):
         bauble.gui.progressbar.show()
         bauble.gui.progressbar.set_pulse_step(1.0)
         bauble.gui.progressbar.set_fraction(0)
-    global _running
-    _running = True
+    global __running
+    __running = True
     schedule.run()
-    _running = False
+    __running = False
     if bauble.gui is not None:
         bauble.gui.progressbar.set_pulse_step(0)
         bauble.gui.progressbar.set_fraction(0)
         bauble.gui.progressbar.hide()
+    clear_messages()
     bauble.set_busy(False)
 
 
