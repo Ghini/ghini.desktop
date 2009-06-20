@@ -276,24 +276,20 @@ def _get_tagged_object_pairs(tag):
     return kids
 
 
-def get_tagged_objects(tag, session=None):
+def get_tagged_objects(tag):
     """
     Return all object tagged with tag.
     """
-    if session is None:
-        if isinstance(tag, Tag):
-            session = object_session(tag)
-        else:
-            session = bauble.Session()
+    session = bauble.Session()
     if isinstance(tag, Tag):
         t = tag
     else:
         t = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
 
-    return [session.query(mapper).filter_by(id=obj_id).one() \
+    r = [session.query(mapper).filter_by(id=obj_id).one() \
             for mapper, obj_id in _get_tagged_object_pairs(t)]
-#     return [session.load(mapper, obj_id) for mapper, obj_id \
-#             in _get_tagged_object_pairs(t)]
+    session.close()
+    return r
 
 
 def untag_objects(name, objs):
@@ -386,6 +382,7 @@ def get_tag_ids(objs):
             s.update(tags)
         else:
             s.intersection_update(tags)
+    session.close()
     return list(s)
 
 
