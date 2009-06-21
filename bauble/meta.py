@@ -39,6 +39,12 @@ def get_default(name, default=None, session=None):
         session.add(meta)
     if commit:
         session.commit()
+        # load the properties so that we can close the session and
+        # avoid getting errors when accessing the properties on the
+        # returned meta
+        meta.value
+        meta.name
+        session.close()
     return meta
 
 
