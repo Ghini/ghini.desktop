@@ -53,7 +53,7 @@ formatter_settings_expanded_pref = 'report.settings.expanded'
 #         _paths[parent][descendent] = query
 
 
-def _get_all_objects(cls, get_query_func, objs, session=None):
+def _get_all_objects(cls, get_query_func, objs, session):
     """
     @param cls:
     @param get_query_func:
@@ -62,8 +62,6 @@ def _get_all_objects(cls, get_query_func, objs, session=None):
     """
     if not isinstance(objs, (tuple, list)):
         objs = [objs]
-    if session == None:
-        session = bauble.Session()
     queries = map(lambda o: get_query_func(o, session), objs)
     unions = union(*[q.statement for q in queries])
     results = session.query(cls).from_statement(unions)
@@ -102,7 +100,7 @@ def get_plant_query(obj, session):
         raise BaubleError(_("Can't get plants from a %s" % type(cls).__name__))
 
 
-def get_all_plants(objs, session=None):
+def get_all_plants(objs, session):
     """
     @param objs: an instance of a mapped object
     @param session: the session to use for the queries
@@ -143,7 +141,7 @@ def get_accession_query(obj, session):
                             type(cls).__name__))
 
 
-def get_all_accessions(objs, session=None):
+def get_all_accessions(objs, session):
     """
     @param objs: an instance of a mapped object
     @param session: the session to use for the queries
@@ -185,7 +183,7 @@ def get_species_query(obj, session):
                             type(cls).__name__))
 
 
-def get_all_species(objs, session=None):
+def get_all_species(objs, session):
     """
     @param objs: an instance of a mapped object
     @param session: the session to use for the queries

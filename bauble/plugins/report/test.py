@@ -2,6 +2,7 @@
 import unittest
 
 from sqlalchemy import *
+from sqlalchemy.orm import *
 from sqlalchemy.exc import *
 
 from bauble.test import BaubleTestCase
@@ -80,46 +81,47 @@ class ReportTests(ReportTestCase):
         get_ids = lambda objs: sorted([o.id for o in objs])
 
         family = self.session.query(Family).get(1)
-        ids = get_ids(get_all_species([family]))
+        ids = get_ids(get_all_species([family], self.session))
         self.assert_(ids == range(1, 5), ids)
 
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(2)
-        ids = get_ids(get_all_species([family, family2]))
+        ids = get_ids(get_all_species([family, family2], self.session))
         self.assert_(ids == range(1, 9), ids)
 
         genus = self.session.query(Genus).get(1)
-        ids = get_ids(get_all_species([genus]))
+        ids = get_ids(get_all_species([genus], self.session))
         self.assert_(ids == [1, 2], ids)
 
         species = self.session.query(Species).get(1)
-        ids = get_ids(get_all_species([species]))
+        ids = get_ids(get_all_species([species], self.session))
         self.assert_(ids == [1], ids)
 
         accession = self.session.query(Accession).get(1)
-        ids = get_ids(get_all_species([accession]))
+        ids = get_ids(get_all_species([accession], self.session))
         self.assert_(ids == [1], ids)
 
         plant = self.session.query(Plant).get(1)
-        ids = get_ids(get_all_species([plant]))
+        ids = get_ids(get_all_species([plant], self.session))
         self.assert_(ids == [1], ids)
 
         location = self.session.query(Location).get(1)
-        ids = get_ids(get_all_species([location]))
+        ids = get_ids(get_all_species([location], self.session))
         self.assert_(ids == [1], ids)
 
         vn = self.session.query(VernacularName).get(1)
-        ids = get_ids(get_all_species([vn]))
+        ids = get_ids(get_all_species([vn], self.session))
         self.assert_(ids == [1], ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        ids = get_ids(get_all_species([tag]))
+        ids = get_ids(get_all_species([tag], self.session))
         self.assert_(ids == range(1,5), ids)
 
         # now test all the objects
         ids = get_ids(get_all_species([family, genus, species,
-                                        accession, plant, location]))
+                                        accession, plant, location],
+                                      self.session))
         self.assert_(ids == range(1,5), ids)
 
 
@@ -130,46 +132,47 @@ class ReportTests(ReportTestCase):
         get_ids = lambda objs: sorted([o.id for o in objs])
 
         family = self.session.query(Family).get(1)
-        ids = get_ids(get_all_accessions([family]))
+        ids = get_ids(get_all_accessions([family], self.session))
         self.assert_(ids == range(1, 9), ids)
 
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(1)
-        ids = get_ids(get_all_accessions([family, family2]))
+        ids = get_ids(get_all_accessions([family, family2], self.session))
         self.assert_(ids == range(1, 9), ids)
 
         genus = self.session.query(Genus).get(1)
-        ids = get_ids(get_all_accessions(genus))
+        ids = get_ids(get_all_accessions(genus, self.session))
         self.assert_(ids == range(1,5), ids)
 
         species = self.session.query(Species).get(1)
-        ids = get_ids(get_all_accessions(species))
+        ids = get_ids(get_all_accessions(species, self.session))
         self.assert_(ids == [1,2], ids)
 
         accession = self.session.query(Accession).get(1)
-        ids = get_ids(get_all_accessions([accession]))
+        ids = get_ids(get_all_accessions([accession], self.session))
         self.assert_(ids == [1], ids)
 
         plant = self.session.query(Plant).get(1)
-        ids = get_ids(get_all_accessions([plant]))
+        ids = get_ids(get_all_accessions([plant], self.session))
         self.assert_(ids == [1], ids)
 
         location = self.session.query(Location).get(1)
-        ids = get_ids(get_all_accessions([location]))
+        ids = get_ids(get_all_accessions([location], self.session))
         self.assert_(ids == [1], ids)
 
         vn = self.session.query(VernacularName).get(1)
-        ids = get_ids(get_all_accessions([vn]))
+        ids = get_ids(get_all_accessions([vn], self.session))
         self.assert_(ids == [1, 2], ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        ids = get_ids(get_all_accessions([tag]))
+        ids = get_ids(get_all_accessions([tag], self.session))
         self.assert_(ids == range(1,9), ids)
 
         # now test all the objects
         ids = get_ids(get_all_accessions([family, genus, species,
-                                             accession, plant, location]))
+                                             accession, plant, location],
+                                         self.session))
         self.assert_(ids == range(1,9), ids)
 
 
@@ -181,48 +184,48 @@ class ReportTests(ReportTestCase):
 
         # get plants from one family
         family = self.session.query(Family).get(1)
-        ids = get_ids(get_all_plants(family))
+        ids = get_ids(get_all_plants(family, self.session))
         self.assert_(ids == range(1, 17), ids)
 
         # get plants from multiple families
         family = self.session.query(Family).get(1)
         family2 = self.session.query(Family).get(2)
-        ids = get_ids(get_all_plants([family, family2]))
+        ids = get_ids(get_all_plants([family, family2], self.session))
         self.assert_(ids == range(1, 33), ids)
 
         genus = self.session.query(Genus).get(1)
-        ids = get_ids(get_all_plants(genus))
+        ids = get_ids(get_all_plants(genus, self.session))
         self.assert_(ids == range(1, 9), ids)
 
         species = self.session.query(Species).get(1)
-        ids = get_ids(get_all_plants(species))
+        ids = get_ids(get_all_plants(species, self.session))
         self.assert_(ids == range(1, 5), ids)
 
         accession = self.session.query(Accession).get(1)
-        ids = get_ids(get_all_plants(accession))
+        ids = get_ids(get_all_plants(accession, self.session))
         self.assert_(ids == range(1, 3), ids)
 
         plant = self.session.query(Plant).get(1)
-        ids = get_ids(get_all_plants(plant))
+        ids = get_ids(get_all_plants(plant, self.session))
         self.assert_(ids == [1], ids)
 
         location = self.session.query(Location).get(1)
-        plants = get_all_plants([location])
+        plants = get_all_plants([location], self.session)
         plant_ids = sorted([p.id for p in plants])
         self.assert_(plant_ids == [1], plant_ids)
 
         vn = self.session.query(VernacularName).get(1)
-        ids = get_ids(get_all_plants(vn))
+        ids = get_ids(get_all_plants(vn, self.session))
         self.assert_(ids == range(1, 5), ids)
 
         tag_objects('test', [family, genus])
         tag = self.session.query(Tag).filter_by(tag=u'test').one()
-        ids = get_ids(get_all_plants(tag))
+        ids = get_ids(get_all_plants(tag, self.session))
         self.assert_(ids == range(1, 17), ids)
 
         # now test all the objects
         plants = get_all_plants([family, genus, species, accession, plant,
-                                 location])
+                                 location], self.session)
         ids = get_ids(plants)
         self.assert_(ids == range(1, 17), ids)
 
