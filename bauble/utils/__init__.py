@@ -621,7 +621,7 @@ def reset_sequence(column):
     from sqlalchemy.types import Integer
     from sqlalchemy import schema
     if db.engine.name in ('sqlite', 'mysql'):
-        pass # sqlite and mysql seem to work fine
+        pass # sqlite and mysql increment automatically
     elif db.engine.name == 'postgres':
         sequence_name = None
         # this crazy elif conditional is from
@@ -632,15 +632,27 @@ def reset_sequence(column):
             sequence_name = '%s_%s_seq' %(column.table.name, column.name)
         else:
             return
-        stmt = "SELECT max(%s) from %s" % (column.name, column.table.name)
 
-        maxid = db.engine.execute(stmt).fetchone()[0]
-        if maxid == None:
-            stmt = "SELECT setval('%s', 1);" % (sequence_name)
+        conn = db.engine.connect()
+        trans = conn.begin()
+
+        try:
+            # the FOR UPDATE locks the table for the transaction
+            stmt = "SELECT %s from %s FOR UPDATE;" % \
+                (column.name, column.table.name)
+            maxid = max(conn.execute(stmt), key=lambda x: x[0])[0]
+            if maxid == None:
+                # set the sequence to nextval()
+                stmt = "SELECT nextval('%s');" % (sequence_name)
+            else:
+                stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
+                    % (sequence_name, column.name, column.table.name)
+            conn.execute(stmt)
+        except Exception, e:
+            trans.rollback()
         else:
-            stmt = "SELECT setval('%s', max(%s)+1) from %s;" \
-                   % (sequence_name, column.name, column.table.name)
-        db.engine.execute(stmt)
+            trans.commit()
+            conn.close()
     else:
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
