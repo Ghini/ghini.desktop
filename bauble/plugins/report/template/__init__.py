@@ -68,8 +68,10 @@ class TemplateFormatterPlugin(FormatterPlugin):
 
         # TODO: provide the option to get the objects as either plants
         # or directly as they appear in the search results
-        plants = get_all_plants(objs)
+        session = bauble.Session()
+        plants = get_all_plants(objs, session)
         report = template.render(plants=plants)
+        session.close()
         # assume the template is the same file type as the output file
         head, ext = os.path.splitext(template_filename)
         fd, filename = tempfile.mkstemp(suffix=ext)
