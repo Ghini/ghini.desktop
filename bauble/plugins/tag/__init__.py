@@ -37,8 +37,8 @@ def remove_callback(tags):
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
+    session = bauble.Session()
     try:
-        session = bauble.Session()
         obj = session.query(Tag).get(tag.id)
         session.delete(obj)
         session.commit()
@@ -46,6 +46,8 @@ def remove_callback(tags):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
 
     # reinitialize the tag menu
     _reset_tags_menu()
@@ -101,6 +103,7 @@ class TagItemGUI:
             model = self.tag_tree.get_model()
             model.append([False, name])
             _reset_tags_menu()
+        session.close()
 
 
     def on_toggled(self, renderer, path, data=None):
@@ -145,8 +148,8 @@ class TagItemGUI:
         msg = _('Are you sure you want to delete the tag "%s"?') % tag_name
         if not utils.yes_no_dialog(msg):
             return
+        session = bauble.Session()
         try:
-            session = bauble.Session()
             query = session.query(Tag)
             tag = query.filter_by(tag=unicode(tag_name)).one()
             session.delete(tag)
@@ -160,6 +163,8 @@ class TagItemGUI:
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
+        finally:
+            session.close()
 
 
     def start(self):
