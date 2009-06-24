@@ -129,10 +129,12 @@ class UtilsTests(unittest.TestCase):
         assert utils.range_builder('1-3,5,7-9')== [1, 2, 3, 5, 7, 8, 9]
         assert utils.range_builder('1,2,3,4') == [1, 2, 3, 4]
 
-        # bad ranges
-        self.assertRaises(ParseException, utils.range_builder, '-1')
+        # bad range strings
+        assert utils.range_builder('-1') == []
+        assert utils.range_builder('a-b') == []
+        #self.assertRaises(ParseException, utils.range_builder, '-1')
         self.assertRaises(CheckConditionError, utils.range_builder, '2-1')
-        self.assertRaises(ParseException, utils.range_builder, 'a-b')
+        #self.assertRaises(ParseException, utils.range_builder, 'a-b')
 
 
 
@@ -194,51 +196,53 @@ class ResetSequenceTests(BaubleTestCase):
         super(ResetSequenceTests, self).setUp()
         self.metadata = MetaData()
         self.metadata.bind  = db.engine
-        self.currval_stmt = None
-
-        # self.currval_stmt should return 2
-        if db.engine.name == 'postgres':
-            self.currval_stmt = "SELECT currval(%s)"
-        elif db.engine.name == 'sqlite':
-            # assume sqlite just works
-            self.currval_stmt = 'select 2'
-        self.conn = db.engine.contextual_connect()
 
 
     def tearDown(self):
         super(ResetSequenceTests, self).tearDown()
         self.metadata.drop_all()
-        self.conn.close()
+
+
+    @staticmethod
+    def get_currval(col):
+        if db.engine.name == 'postgres':
+            name = col.sequence.name
+            stmt = "select currval('%s');" % name
+            return db.engine.execute(stmt).fetchone()[0]
+        elif db.engine.name == 'sqlite':
+            stmt = 'select max(%s) from %s' % (col.name, col.table.name)
+            return db.engine.execute(stmt).fetchone()[0] + 1
 
 
     def test_no_col_sequence(self):
         """
-        test utils.reset_sequence on a column without a Sequence()
+        Test utils.reset_sequence on a column without a Sequence()
+
+        This only tests that reset_sequence() doesn't fail if there is
+        no sequence.
         """
-        # test that a column without a sequence works
-        self.table = Table('test_reset_sequence', self.metadata,
+
+        # test that a column without an explicit sequence works
+        table = Table('test_reset_sequence', self.metadata,
                            Column('id', Integer, primary_key=True))
         self.metadata.create_all()
-        self.insert = self.table.insert().compile()
-        self.conn.execute(self.insert, values=[{'id': 1}])
-        utils.reset_sequence(self.table.c.id)
-        currval = self.conn.execute(self.currval_stmt).fetchone()[0]
-        self.assert_(currval > 1)
+        self.insert = table.insert()#.compile()
+        db.engine.execute(self.insert, values=[{'id': 1}])
+        utils.reset_sequence(table.c.id)
 
 
     def test_with_col_sequence(self):
         """
-        test utils.reset_sequence on a column that has an Sequence()
+        Test utils.reset_sequence on a column that has an Sequence()
         """
-        self.table = Table('test_reset_sequence', self.metadata,
+        table = Table('test_reset_sequence', self.metadata,
                            Column('id', Integer,
-                                  Sequence('test_reset_sequence_id'),
-                                  primary_key=True))
+                                  Sequence('test_id_seq'),
+                                  primary_key=True, unique=True))
         self.metadata.create_all()
-        self.insert = self.table.insert().compile()
-        self.conn.execute(self.insert, values=[{'id': 1}])
-        utils.reset_sequence(self.table.c.id)
-        currval = self.conn.execute(self.currval_stmt).fetchone()[0]
-        self.assert_(currval > 1)
-
-
+        rangemax = 10
+        for i in range(1, rangemax+1):
+            table.insert().values(id=i).execute()
+        utils.reset_sequence(table.c.id)
+        currval = self.get_currval(table.c.id)
+        self.assert_(currval > rangemax, currval)
