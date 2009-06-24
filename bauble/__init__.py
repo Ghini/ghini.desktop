@@ -9,7 +9,7 @@ import bauble.paths as paths
 import bauble.i18n
 
 # major, minor, revision version tuple
-version = '0.9.0rc1' # :bump
+version = '1.0.0b1' # :bump
 version_tuple = version.split('.')
 
 def main_is_frozen():
