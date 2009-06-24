@@ -140,7 +140,7 @@ class CSVTests(ImexTestCase):
         conn = db.engine.contextual_connect()
         if db.engine.name == 'postgres':
             stmt = "SELECT currval('family_id_seq');"
-            currval = conn.execute(stmt).fetchone()[0]
+            nextval = conn.execute(stmt).fetchone()[0]
         elif db.engine.name == 'sqlite':
             # max(id) isn't really safe in production use but is ok for a test
             stmt = "SELECT max(id) from family;"
