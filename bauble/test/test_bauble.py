@@ -7,7 +7,6 @@ import unittest
 import datetime
 
 from sqlalchemy import *
-from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
