@@ -7,6 +7,7 @@ import unittest
 import datetime
 
 from sqlalchemy import *
+from sqlalchemy.orm import *
 
 import bauble
 import bauble.db as db
@@ -93,32 +94,3 @@ class BaubleTests(BaubleTestCase):
                      and isinstance(m._created, datetime.datetime))
         self.assert_(hasattr(m, '_last_updated') \
                      and isinstance(m._last_updated, datetime.datetime))
-
-
-    def test_sequence(self):
-        """
-        Test that sequences behave like we expect.
-        """
-        engine = db.engine
-        from bauble.meta import BaubleMeta
-        table = BaubleMeta.__table__
-        #debug(self.session.query(BaubleMeta).all())
-        table.insert(values={'id': 100}).execute(bind=engine)
-        table.insert(values={'id': 101}).execute(bind=engine)
-        # these two lines will fix it but aren't guaranteed to be safe
-        maxid = engine.execute('select max(id) from bauble').fetchone()[0]
-
-        # TODO: if it turns out we have to do this then check this recipe:
-        # http://www.sqlalchemy.org/trac/wiki/UsageRecipes/SafeCounterColumns
-        #if engine.name == 'postgres':
-        #    engine.execute("select setval('bauble_id_seq', %s)" % (maxid + 1))
-
-        # if not unique then should raise IntegrityError
-        table.insert(values={'name': u'something'}).execute(bind=engine)
-
-
-        maxid = engine.execute('select max(id) from bauble').fetchone()[0]
-        self.assert_(maxid == 102, maxid)
-
-
-
