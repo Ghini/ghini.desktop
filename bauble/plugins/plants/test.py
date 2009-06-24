@@ -226,6 +226,8 @@ class FamilyTests(PlantTestCase):
 
         # test that deleting a family that has synonyms deletes all
         # the synonyms that refer to that family deletes all the
+        family2 = Family(family=u'family2')
+        self.session.add(family2)
         family.synonyms.append(family2)
         self.session.commit()
         self.session.delete(family)
@@ -544,6 +546,7 @@ class SpeciesTests(PlantTestCase):
         sp1.synonyms.append(sp2)
         sp1.synonyms.remove(sp2)
         #self.session.flush()
+        self.session.commit()
         assert sp2 not in sp1.synonyms
 
         # add a species and immediately add the same species
@@ -551,10 +554,11 @@ class SpeciesTests(PlantTestCase):
         sp1.synonyms.append(sp2)
         sp1.synonyms.remove(sp2)
         sp1.synonyms.append(sp2)
-        self.session.flush() # shouldn't raise an error
+        #self.session.flush() # shouldn't raise an error
+        self.session.commit()
         assert sp2 in sp1.synonyms
 
-        # test that deleing a species removes it from the synonyms list
+        # test that deleting a species removes it from the synonyms list
         assert sp2 in sp1.synonyms
         self.session.delete(sp2)
         self.session.commit()

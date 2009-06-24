@@ -140,7 +140,7 @@ class Family(db.Base):
     synonyms = association_proxy('_synonyms', 'synonym')
     genera = relation('Genus', backref='family', cascade='all, delete-orphan')
     _synonyms =  relation('FamilySynonym',
-                          primaryjoin='FamilySynonym.family_id==Family.id',
+                          primaryjoin='Family.id==FamilySynonym.family_id',
                           cascade='all, delete-orphan', uselist=True,
                           backref='family')
 
@@ -148,7 +148,7 @@ class Family(db.Base):
     # correctly and to ensure that all synonyms related to this family
     # get deleted if this family gets deleted
     __syn = relation('FamilySynonym',
-                     primaryjoin='FamilySynonym.synonym_id==Family.id',
+                     primaryjoin='Family.id==FamilySynonym.synonym_id',
                      cascade='all, delete-orphan', uselist=True)
 
     def __str__(self):
@@ -176,7 +176,7 @@ class FamilySynonym(db.Base):
     :Properties:
         *synonyms*:
 
-        *species*:
+        *family*:
     """
     __tablename__ = 'family_synonym'
     __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})

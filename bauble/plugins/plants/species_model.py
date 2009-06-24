@@ -159,6 +159,15 @@ class Species(db.Base):
                          primaryjoin='Species.id==SpeciesSynonym.species_id',
                          cascade='all, delete-orphan', uselist=True,
                          backref='species')
+
+    # this is a dummy relation, it is only here to make cascading work
+    # correctly and to ensure that all synonyms related to this genus
+    # get deleted if this genus gets deleted
+    __syn = relation('SpeciesSynonym',
+                     primaryjoin='Species.id==SpeciesSynonym.synonym_id',
+                     cascade='all, delete-orphan', uselist=True)
+
+
     vernacular_names = relation('VernacularName', cascade='all, delete-orphan',
                                  collection_class=VNList,
                                 backref=backref('species', uselist=False))
