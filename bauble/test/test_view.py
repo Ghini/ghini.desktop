@@ -213,7 +213,7 @@ class SearchTests(BaubleTestCase):
         db.engine.execute(table.insert(), values)
         view = SearchView()
         mapper_search = view.search_strategies[0]
-        result = mapper_search.search('fam=*')
+        result = mapper_search.search('fam=*', self.session)
         #debug('list')
         for v in result: pass
         #debug('done')
@@ -237,19 +237,19 @@ class SearchTests(BaubleTestCase):
         self.assert_(isinstance(mapper_search, MapperSearch))
 
         # search for family by family name
-        results = mapper_search.search('family')
+        results = mapper_search.search('family', self.session)
         f = list(results)[0]
         self.assert_(isinstance(f, Family) and f.id==family.id)
 
         # search for genus by genus name
-        results = mapper_search.search('genus')
+        results = mapper_search.search('genus', self.session)
         g = list(results)[0]
         self.assert_(isinstance(g, Genus) and g.id==genus.id)
 
 
     def test_search_by_expression(self):
         """
-        Test searching by express with MapperSearch
+        Test searching by expression with MapperSearch
 
         This test does not test that of the plugins setup their search
         properly, it only tests the MapperSearch works as expected
@@ -265,12 +265,12 @@ class SearchTests(BaubleTestCase):
         self.assert_(isinstance(mapper_search, MapperSearch))
 
         # search for family by domain
-        results = mapper_search.search('fam=family')
+        results = mapper_search.search('fam=family', self.session)
         f = list(results)[0]
         self.assert_(isinstance(f, Family) and f.id==family.id)
 
         # search for genus by domain
-        results = mapper_search.search('gen=genus')
+        results = mapper_search.search('gen=genus', self.session)
         g = list(results)[0]
         self.assert_(isinstance(g, Genus) and g.id==genus.id)
 
@@ -295,18 +295,20 @@ class SearchTests(BaubleTestCase):
         self.assert_(isinstance(mapper_search, MapperSearch))
 
         # search cls.column
-        results = mapper_search.search('fam where family=family')
+        results = mapper_search.search('fam where family=family', self.session)
         f = list(results)[0]
         self.assert_(isinstance(f, Family) and f.id==family.id)
 
         # search cls.parent.column
-        results = mapper_search.search('genus where family.family=family')
+        results = mapper_search.search('genus where family.family=family',
+                                       self.session)
         g = list(results)[0]
         self.assert_(results.count() == 1 and isinstance(g, Genus) \
                      and g.id==genus.id, [str(o) for o in list(results)])
 
         # search cls.children.column
-        results = mapper_search.search('family where genera.genus=genus')
+        results = mapper_search.search('family where genera.genus=genus',
+                                       self.session)
         f = list(results)[0]
         self.assert_(results.count() == 1 and isinstance(f, Family) \
                      and f.id==family.id)
@@ -318,7 +320,7 @@ class SearchTests(BaubleTestCase):
         self.session.add_all([f3, g3])
         self.session.commit()
         s = 'genus where genus=genus2 and family.family=fam3'
-        results = mapper_search.search(s)
+        results = mapper_search.search(s, self.session)
         g = list(results)[0]
         self.assert_(results.count() == 1 and isinstance(g, Genus) \
                      and g.id==g3.id)
@@ -328,7 +330,7 @@ class SearchTests(BaubleTestCase):
         self.session.add(g4)
         self.session.commit()
         s = 'genus where genus=genus2 or genus=genus'
-        results = mapper_search.search(s)
+        results = mapper_search.search(s, self.session)
         self.assert_(results.count() == 3)
         self.assert_(sorted([r.id for r in results]) \
                      == [g.id for g in (genus, genus2, g3)])
