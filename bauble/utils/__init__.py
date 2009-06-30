@@ -343,6 +343,18 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                          parent=parent, type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
+
+    # get the width of a character
+    context = d.get_pango_context()
+    font_metrics = context.get_metrics(context.get_font_description(),
+                                       context.get_language())
+    width = font_metrics.get_approximate_char_width()
+    import pango
+    # if the character width is less than 200 pixels then set the
+    # message dialog's label to be 200 to avoid tiny dialogs
+    if width/pango.SCALE < 200:
+        d.label.set_size_request(200, -1)
+
     if d.get_icon() is None:
         try:
             pixbuf = gtk.gdk.pixbuf_new_from_file(bauble.default_icon)
@@ -420,6 +432,13 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     d.destroy()
     return r == gtk.RESPONSE_YES
 
+def longest_line(lines):
+    """
+
+    Arguments:
+    - `lines`:
+    """
+    return max(lines)
 
 
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
@@ -437,6 +456,18 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                          parent=parent,type=type, buttons=buttons)
     d.set_title('Bauble')
     d.set_markup(msg)
+
+    # get the width of a character
+    context = d.get_pango_context()
+    font_metrics = context.get_metrics(context.get_font_description(),
+                                       context.get_language())
+    width = font_metrics.get_approximate_char_width()
+    import pango
+    # if the character width is less than 200 pixels then set the
+    # message dialog's label to be 200 to avoid tiny dialogs
+    if width/pango.SCALE < 200:
+        d.label.set_size_request(200, -1)
+
     expand = gtk.Expander("Details")
     text_view = gtk.TextView()
     text_view.set_editable(False)
