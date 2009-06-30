@@ -18,8 +18,8 @@ from bauble.utils.log import log, debug
 from bauble.types import Enum
 from bauble.plugins.plants.geography import Geography#, geography_table
 
-
 from sqlalchemy.orm.collections import collection
+
 
 class VNList(list):
     """
@@ -59,14 +59,10 @@ class VNList(list):
 # Genus x sp sp_author
 # Genus sp sp_athor x infrasp infrasp_author
 
-
-
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
 # for the species, for more information about trade_names see,
 # http://www.hortax.org.uk/gardenplantsnames.html
-
-
 
 class Species(db.Base):
     """
@@ -167,7 +163,6 @@ class Species(db.Base):
                      primaryjoin='Species.id==SpeciesSynonym.synonym_id',
                      cascade='all, delete-orphan', uselist=True)
 
-
     vernacular_names = relation('VernacularName', cascade='all, delete-orphan',
                                  collection_class=VNList,
                                 backref=backref('species', uselist=False))
@@ -251,15 +246,13 @@ class Species(db.Base):
         @param markup: flags to toggle whether the returned text is marked up
         to show italics on the epithets
         '''
-        if use_cache:
+        session = object_session(species)
+        if use_cache and species not in session.dirty and \
+                species not in session.new:
             try:
-                cached = species.__cached_str[(markup, authors)]
+                return species.__cached_str[(markup, authors)]
             except KeyError:
                 species.__cached_str[(markup, authors)] = None
-                cached = None
-            session = object_session(species)
-            if cached is not None and species not in session.dirty:
-                return cached
 
         genus = str(species.genus)
         sp = species.sp
