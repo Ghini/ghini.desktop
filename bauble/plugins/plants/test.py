@@ -16,8 +16,7 @@ from sqlalchemy.orm.exc import *
 import bauble
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.plugins.plants.species_model import Species, VernacularName, \
-     SpeciesSynonym, DefaultVernacularName
+from bauble.plugins.plants.species import *
 from bauble.plugins.plants.family import *
 from bauble.plugins.plants.genus import *
 from bauble.plugins.plants.geography import *
@@ -363,8 +362,9 @@ class SpeciesTests(PlantTestCase):
         super(SpeciesTests, self).tearDown()
 
 
-    def text_re_string(self):
-        rw = '$genus$'
+    def itest_species_editor(self):
+        e = SpeciesEditor()
+        e.start()
 
     def test_string(self):
         """

@@ -913,7 +913,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Species()
         super(SpeciesEditor, self).__init__(model, parent)
-        if parent is None: # should we even allow a change in parent
+        if parent is None and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
