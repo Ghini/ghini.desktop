@@ -366,7 +366,7 @@ class SearchStrategy(object):
     Interface for adding search strategies to a view.
     """
 
-    def search(self, text, session=None):
+    def search(self, text, session):
         '''
         :param text: the search string
         :param: the session to use for the search
@@ -569,14 +569,15 @@ class MapperSearch(SearchStrategy):
 
 
 
-    def search(self, text, session=None):
+    def search(self, text, session):
         """
         Returns a ResultSet of database hits for the text search string.
+
+        If session=None then the session should be closed after the results
+        have been processed or it is possible that some database backends
+        could cause deadlocks.
         """
-        if session is None:
-            self._session = bauble.Session()
-        else:
-            self._session = session
+        self._session = session
 
         # this looks kinda ridiculous to add the parse actions and
         # then remove them but then it allows us to reuse the parser
