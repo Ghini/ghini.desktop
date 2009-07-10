@@ -627,6 +627,7 @@ class GeneralFamilyExpander(InfoExpander):
                 filter_by(id=row.id).distinct().count()
             self.set_widget_value('fam_nplants_data', '%s in %s accessions' \
                                   % (nplants, nacc_in_plants))
+        session.close()
 
 
 
