@@ -180,6 +180,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         initialized the signal handlers on the widgets that are relative to
         building the fullname string in the sp_fullname_label widget
         '''
+        self.refresh_fullname_label()
         def on_insert(entry, *args):
             self.refresh_fullname_label()
         def on_delete(entry, *args):
