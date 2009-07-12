@@ -466,7 +466,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         if location is not None:
             self.session.refresh(location)
-            new = self.session.get(Location, location.id)
+            new = self.session.query(Location).get(location.id)
             utils.set_combo_from_value(combo, new)
         else:
             combo.set_active(-1)

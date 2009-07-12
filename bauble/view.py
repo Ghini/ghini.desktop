@@ -1050,6 +1050,10 @@ class SearchView(pluginmgr.View):
         for key, group in itertools.groupby(results, lambda x: type(x)):
             groups.append(sorted(group, key=utils.natsort_key))
 
+        # sort the groups by type so we more or less always get the
+        # results by type in the same order
+        groups = sorted(groups, key=lambda x: type(x[0]))
+
         chunk_size = 100
         update_every = 200
         steps_so_far = 0
@@ -1099,6 +1103,13 @@ class SearchView(pluginmgr.View):
 
     def cell_data_func(self, coll, cell, model, iter):
         value = model[iter][0]
+
+        # TODO: would probably help speed up the view a little if we
+        # cached the strings and invalidate the cache, either that or
+        # computer the string when the data is added and add the
+        # string to the text attribute and then store the object for
+        # the text as another attribute
+
         #debug('%s(%s)' % (value, type(value)))
         if isinstance(value, basestring):
             cell.set_property('markup', value)

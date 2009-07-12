@@ -122,6 +122,7 @@ def add_plants_callback(accessions):
 
 
 def remove_callback(accessions):
+    # TODO: allow this method to remove multiple accessions
     acc = accessions[0]
     if len(acc.plants) > 0:
         safe = utils.xml_safe_utf8
@@ -1176,7 +1177,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 self.model.id_qual_rank = None
                 return
             text, col = combo.get_model()[it]
-            #self.model.id_qual_rank = col
             self.set_model_attr('id_qual_rank', utils.utf8(col))
         self.view.widgets.acc_id_qual_rank_combo.connect('changed', on_changed)
 
@@ -1197,6 +1197,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                          Genus.hybrid==utils.utf8(text))))
         def on_select(value):
             self.set_model_attr('species', value)
+            self.refresh_id_qual_rank_combo()
         self.assign_completions_handler('acc_species_entry',
                                         sp_get_completions,
                                         on_select=on_select)
@@ -1232,6 +1233,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def refresh_id_qual_rank_combo(self):
+        """
+        Populate the id_qual_rank_combo with the parts of the species string
+        """
         combo = self.view.widgets.acc_id_qual_rank_combo
         utils.clear_model(combo)
         if not self.model.species:
@@ -1378,14 +1382,19 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         else:
             self.remove_problem(self.PROBLEM_ID_QUAL_RANK_REQUIRED)
 
-
         self.refresh_sensitivity()
 
 
     def refresh_sensitivity(self):
         """
-        Refresh the sensitivity of the accept buttons
+        Refresh the sensitivity of the fields and accept buttons according
+        to the current values in the model.
         """
+        if self.model.species and self.model.id_qual:
+            self.view.widgets.acc_id_qual_rank_combo.set_sensitive(True)
+        else:
+            self.view.widgets.acc_id_qual_rank_combo.set_sensitive(False)
+
         sensitive = self.dirty()
         # if not source_type is None and self._original_source is None
         if len(self.problems) != 0:
