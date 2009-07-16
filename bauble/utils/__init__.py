@@ -432,13 +432,6 @@ def yes_no_dialog(msg, parent=None, yes_delay=-1):
     d.destroy()
     return r == gtk.RESPONSE_YES
 
-def longest_line(lines):
-    """
-
-    Arguments:
-    - `lines`:
-    """
-    return max(lines)
 
 
 def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
@@ -830,6 +823,19 @@ def which(filename, path=None):
         if os.path.isfile(candidate):
             return candidate
     return None
+
+
+def ilike(col, val, engine=None):
+    """
+    Return a cross platform ilike function.
+    """
+    from sqlalchemy import func
+    if not engine:
+        engine = bauble.db.engine
+    if engine.name == 'postgres':
+        return col.op('ILIKE')(val)
+    else:
+        return func.lower(col).like(func.lower(val))
 
 
 _range = Group(Word(nums) + Suppress('-') + Word(nums))

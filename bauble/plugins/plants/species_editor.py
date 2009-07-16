@@ -60,8 +60,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = or_(Genus.genus.like('%s%%' % unicode(text)),
-                         Genus.hybrid.like('%s%%' % unicode(text)))
+            clause = or_(utils.ilike(Genus.genus, '%s%%' % unicode(text)),
+                         utils.ilike(Genus.hybrid, '%s%%' % unicode(text)))
             return self.session.query(Genus).filter(clause)
 
         #def set_in_model(self, field, value):
@@ -666,7 +666,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         def sp_get_completions(text):
             query = self.session.query(Species)
             query = query.join('genus')
-            query = query.filter(Genus.genus.like('%s%%' % text))
+            query = query.filter(utils.ilike(Genus.genus, '%s%%' % text))
             query = query.filter(Species.id != self.model.id)
             return query
 
