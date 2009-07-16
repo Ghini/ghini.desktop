@@ -630,7 +630,8 @@ class SQLiteParamsBox(CMParamsBox):
             self.default_check.set_active(prefs['default'])
     	    self.file_entry.set_text(prefs['file'])
     	except KeyError, e:
-            debug('KeyError: %s' % e)
+            pass
+            #debug('KeyError: %s' % e)
     	    #debug(traceback.format_exc())
 
 

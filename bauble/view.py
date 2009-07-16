@@ -506,19 +506,12 @@ class MapperSearch(SearchStrategy):
 
         mapper = class_mapper(cls)
 
-        if db.engine.name == 'postgres':
-            like = lambda col, val: \
-                mapper.c[col].op('ILIKE')(val)
-        else:
-            like = lambda col, val: \
-                func.upper(mapper.c[col]).like(val)
-
         if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
             condition = lambda col: \
-                lambda val: like(col, '%%%s%%' % val)
+                lambda val: utils.ilike(col, '%%%s%%' % val)
         elif cond == '=':
             condition = lambda col: \
-                lambda val: like(col, val)
+                lambda val: utils.ilike(col, val)
         else:
             condition = lambda col: \
                 lambda val: mapper.c[col].op(cond)(val)
@@ -544,12 +537,9 @@ class MapperSearch(SearchStrategy):
 
         # make searches case-insensitive, in postgres use ilike,
         # in other use upper()
-        if db.engine.name == 'postgres':
-            like = lambda table, col, val: \
-                table.c[col].op('ILIKE')('%%%s%%' % val)
-        else:
-            like = lambda table, col, val: \
-                           func.upper(table.c[col]).like('%%%s%%' % val)
+        like = lambda table, col, val: \
+            utils.ilike(table.c[col], ('%%%s%%' % val))
+
         for cls, columns in self._properties.iteritems():
             q = self._session.query(cls)
             cv = [(c,v) for c in columns for v in tokens]
