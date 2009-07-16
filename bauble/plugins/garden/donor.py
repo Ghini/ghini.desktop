@@ -19,8 +19,7 @@ from bauble.view import Action
 
 def edit_callback(donors):
     donor = donors[0]
-    session = bauble.Session()
-    e = DonorEditor(model=session.merge(donor))
+    e = DonorEditor(model=donor)
     return e.start() != None
 
 
@@ -106,6 +105,7 @@ class DonorEditorView(GenericEditorView):
         self.dialog = self.widgets.donor_dialog
         self.connect_dialog_close(self.dialog)
         if sys.platform == 'win32':
+            # TODO: is this character width fix still necessary
             import pango
             combo = self.widgets.don_type_combo
             context = combo.get_pango_context()

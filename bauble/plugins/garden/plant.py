@@ -38,8 +38,7 @@ default_plant_delimiter = u'.'
 
 
 def edit_callback(plants):
-    session = bauble.Session()
-    e = PlantEditor(model=session.merge(plants[0]))
+    e = PlantEditor(model=plants[0])
     return e.start() != None
 
 

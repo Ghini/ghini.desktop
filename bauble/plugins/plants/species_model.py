@@ -246,8 +246,11 @@ class Species(db.Base):
         @param markup: flags to toggle whether the returned text is marked up
         to show italics on the epithets
         '''
+        # TODO: this method will raise an error if the session is none
+        # since it won't be able to look up the genus....we could
+        # probably try to query the genus directly with the genus_id
         session = object_session(species)
-        if use_cache and species not in session.dirty and \
+        if session and use_cache and species not in session.dirty and \
                 species not in session.new:
             try:
                 return species.__cached_str[(markup, authors)]

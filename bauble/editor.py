@@ -304,11 +304,13 @@ class Problems(object):
     def __init__(self):
         self._problems = []
 
+
     def add(self, problem):
         '''
         :param problem: the problem to add
         '''
         self._problems.append(problem)
+
 
     def remove(self, problem):
         '''
@@ -645,23 +647,15 @@ class GenericModelViewPresenterEditor(object):
 
     def __init__(self, model, parent=None):
         """
-        The editor does all of it's work in the model's session. If
-        model is not yet part of a session then we create a new
-        session and add the model to it.
-
-        Warning: The editor will call session.commit on the model's
-        session so don't pass a model in a session that you don't want
-        committed.
+        The editor creates it's own session and merges the model into
+        it.  If the model is already in another session that original
+        session will not be effected.
 
         :param model: an instance of an object mapped to a SQLAlchemy Table
         :param parent: the parent windows for the view or None
         """
-        self.session = object_session(model)
-        self.model = model
-        if self.session is None:
-            self.session = bauble.Session()
-            self.session.add(self.model)
-            #self.session.save_or_update(self.model)
+        self.session = bauble.Session()
+        self.model = self.session.merge(model)
 
 
     def attach_response(self, dialog, response, keyname, mask):
