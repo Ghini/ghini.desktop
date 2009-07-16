@@ -1191,10 +1191,13 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 genus = text.split(' ')[0]
             except Exception:
                 pass
+            from utils import ilike
             return query.filter(and_(Species.genus_id == Genus.id,
-                                     or_(Genus.genus.like('%s%%' % text),
-                                         Genus.genus.like('%s%%' % genus),
-                                         Genus.hybrid==utils.utf8(text))))
+                                     or_(ilike(Genus.genus, '%s%%' % text),
+                                         ilike(Genus.genus, '%s%%' % genus),
+                                         ilike(Genus.hybrid,
+                                               utils.utf8(text)))))
+
         def on_select(value):
             self.set_model_attr('species', value)
             self.refresh_id_qual_rank_combo()
@@ -1505,7 +1508,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def on_combo_changed(self, combo, field):
-        self.set_model_attr(field, combo.get_active_text())
+        self.set_model_attr(field, utils.utf8(combo.get_active_text()))
 
 
     def refresh_view(self):
