@@ -91,8 +91,7 @@ def open(uri, verify=True, show_error_dialogs=False):
     global engine
     new_engine = None
     new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG)
-    #new_engine.contextual_connect()
-    new_engine.connect()#.close()
+    new_engine.connect().close() # make sure we can connect
     def _bind():
         """bind metadata to engine and create sessionmaker """
         global Session, engine
@@ -135,12 +134,14 @@ def create(import_defaults=True):
     # nested transaction, we need to verify that if we rollback here then all
     # of the changes made by csv import are rolled back as well
 ##    debug('entered db.create()')
+    if not engine:
+        raise ValueError('engine is None, not connected to a database')
     import bauble
     import bauble.meta as meta
     import bauble.pluginmgr as pluginmgr
     from bauble.task import TaskQuitting
     import datetime
-    connection = engine.contextual_connect()
+    connection = engine.connect()
     transaction = connection.begin()
     try:
         # create fresh plugin registry seperate since
@@ -155,7 +156,6 @@ def create(import_defaults=True):
     else:
         transaction.commit()
 
-    connection = engine.contextual_connect()
     transaction = connection.begin()
     try:
         # TODO: here we are dropping/creating all the tables in the
@@ -191,7 +191,6 @@ def create(import_defaults=True):
     else:
         transaction.commit()
 
-    connection = engine.contextual_connect()
     transaction = connection.begin()
     try:
         pluginmgr.install('all', import_defaults, force=True)
@@ -210,6 +209,8 @@ def create(import_defaults=True):
         raise
     else:
         transaction.commit()
+
+    connection.close()
 
 
 def _verify_connection(engine, show_error_dialogs=False):
