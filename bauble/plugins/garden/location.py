@@ -18,15 +18,13 @@ from bauble.view import Action
 
 
 def edit_callback(locations):
-    session = bauble.Session()
-    e = LocationEditor(model=session.merge(locations[0]))
+    e = LocationEditor(model=locations[0])
     return e.start() != None
 
 
 def add_plants_callback(locations):
-    session = bauble.Session()
     from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=session.merge(locations[0])))
+    e = PlantEditor(model=Plant(location=locations[0]))
     return e.start() != None
 
 

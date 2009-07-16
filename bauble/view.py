@@ -444,14 +444,23 @@ class MapperSearch(SearchStrategy):
         for e in expr_iter:
             idents, cond, val = e
             #debug('idents: %s, cond: %s, val: %s' % (idents, cond, val))
+
+            if val == 'None':
+                val = None
+
             if len(idents) == 1:
+                # we get here when the idents only refer to a property
+                # on the mapper table
                 col = idents[0]
                 check(col in mapper.c, 'The %s table does not have a '\
                        'column named %s' % \
                        (mapper.local_table.name, col))
-                clause = cls.id.in_(id_query.filter(getattr(cls, col).\
-                                           op(cond)(unicode(val))).statement)
+                q = id_query.filter(getattr(cls, col).\
+                                        op(cond)(utils.utf8(val)))
+                clause = cls.id.in_(q.statement)
             else:
+                # we get here when the idents refer to a relation on a
+                # mapper/table
                 relations = idents[:-1]
                 col = idents[-1]
                 # TODO: do all the databases quote the same
@@ -459,8 +468,15 @@ class MapperSearch(SearchStrategy):
                 # TODO: need to either stick to a subset of conditions
                 # that work on all database or just normalize the
                 # conditions depending on the databases
+                if val is not None: # use is not None b/c val could be ''
+                    val = "'%s'" % val
 
-                where = "%s %s '%s'" % (col, cond, val)
+                if col in cls.__table__.c:
+                    where = "%s %s %s" % ('.'.join(idents), cond, val)
+
+                else:
+                    where = "%s %s %s" % (col, cond, val)
+
                 clause = cls.id.in_(id_query.join(*relations).\
                                     filter(where).statement)
 
@@ -508,10 +524,10 @@ class MapperSearch(SearchStrategy):
 
         if cond in ('like', 'ilike', 'contains', 'icontains', 'has', 'ihas'):
             condition = lambda col: \
-                lambda val: utils.ilike(col, '%%%s%%' % val)
+                lambda val: utils.ilike(mapper.c[col], '%%%s%%' % val)
         elif cond == '=':
             condition = lambda col: \
-                lambda val: utils.ilike(col, val)
+                lambda val: utils.ilike(mapper.c[col], utils.utf8(val))
         else:
             condition = lambda col: \
                 lambda val: mapper.c[col].op(cond)(val)
@@ -528,7 +544,7 @@ class MapperSearch(SearchStrategy):
         """
         Called when the parser hits a value_list token
         """
-#         debug('on_value_list()')
+        debug('values: %s' % tokens)
 #         debug('  s: %s' % s)
 #         debug('  loc: %s' % loc)
 #         debug('  toks: %s' % tokens)
@@ -1002,7 +1018,7 @@ class SearchView(pluginmgr.View):
 #            debug(e)
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
-                model.remove(found.iter)
+                model.remove(found)
             return True
         except Exception, e:
             debug(e)
@@ -1240,7 +1256,15 @@ class SearchView(pluginmgr.View):
             try:
                 self.session.expire(obj)
             except saexc.InvalidRequestError, e:
-                    model.remove(found)
+                # TODO: i was originally thinking to remove the object
+                # if there was an error when trying to expire it but
+                # if the model is big to search through the entire
+                # model for the obj would be expensive...maybe if we
+                # iterated through the model instead of the session
+                # then we would only be going through the model once
+                debug(e)
+                pass
+
         expanded_rows = self.get_expanded_rows()
         self.results_view.collapse_all()
         # expand_to_all_refs will invalidate the ref so get the path first

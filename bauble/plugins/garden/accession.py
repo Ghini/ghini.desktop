@@ -110,14 +110,12 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
 
 
 def edit_callback(accessions):
-    session = bauble.Session()
-    e = AccessionEditor(model=session.merge(accessions[0]))
+    e = AccessionEditor(model=accessions[0])
     return e.start() != None
 
 
 def add_plants_callback(accessions):
-    session = bauble.Session()
-    e = PlantEditor(model=Plant(accession=session.merge(accessions[0])))
+    e = PlantEditor(model=Plant(accession=accessions[0]))
     return e.start() != None
 
 

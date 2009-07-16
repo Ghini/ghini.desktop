@@ -29,9 +29,8 @@ def edit_callback(families):
     Family context menu callback
     """
     family = families[0]
-    session = bauble.Session()
-    e = FamilyEditor(model=session.merge(family))
-    return e.start() != None
+    return FamilyEditor(model=family).start() != None
+
 
 
 def add_genera_callback(families):
@@ -39,9 +38,8 @@ def add_genera_callback(families):
     Family context menu callback
     """
     family = families[0]
-    session = bauble.Session()
-    e = GenusEditor(model=Genus(family=session.merge(family)))
-    return e.start() != None
+    return GenusEditor(model=Genus(family=family)).start() != None
+
 
 
 def remove_callback(families):
@@ -572,12 +570,57 @@ class GeneralFamilyExpander(InfoExpander):
         self.vbox.pack_start(general_box)
 
 
+        # TODO: need to be able to handle None as type instead of as a
+        # string, e.g.family.qualifer=None or family.qualifier is None
+
+        def qual_expr():
+            if self.current_obj.qualifier:
+                return 'family.qualifier="%s"' % self.current_obj.qualifier
+            else:
+                return 'family.qualifier is None'
+
+        def on_ngen_clicked(*args):
+            f = self.current_obj
+            cmd = 'genus where family.family="%s" and %s'\
+                % (f.family, qual_expr())
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.fam_ngen_data,
+                                   on_ngen_clicked)
+
+        def on_nsp_clicked(*args):
+            f = self.current_obj
+            cmd = 'species where genus.family.family="%s" and '\
+                'and genus.family.qualifier="%s"' % (f.family, f.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.fam_nsp_data,
+                                   on_nsp_clicked)
+
+        def on_nacc_clicked(*args):
+            f = self.current_obj
+            cmd = 'acc where species.genus.family.family="%s" and ' \
+                'and species.genus.family.family.qualifier="%s"' \
+                % (f.family, f.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.fam_nacc_data,
+                                   on_nacc_clicked)
+
+        def on_nplants_clicked(*args):
+            f = self.current_obj
+            cmd = 'plant where accession.species.genus.family.family="%s" and ' \
+                'and accession.species.genus.family.qualifier="%s"' \
+                % (f.family, f.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.fam_nplants_data,
+                                   on_nplants_clicked)
+
+
     def update(self, row):
         '''
         update the expander
 
         @param row: the row to get the values from
         '''
+        self.current_obj = row
         self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
         session = bauble.Session()
         # get the number of genera

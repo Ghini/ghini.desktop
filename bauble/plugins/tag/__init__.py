@@ -467,12 +467,17 @@ def _reset_tags_menu():
 
 
 def natsort_kids(kids):
-    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+    # TODO: i don't think this session ever gets closed...the session
+    # is mostly needed  in the natsort_key method so that any of the
+    # __str__ functions can resolve their relations
+    def sorted_kids(parent):
+        session = bauble.Session()
+        return sorted(map(session.merge, getattr(parent, kids)),
+                      key=utils.natsort_key)
+    return sorted_kids
 
 
 class TagPlugin(pluginmgr.Plugin):
-
-    #tables = [tag_table, tagged_obj_table]
 
     @classmethod
     def init(cls):

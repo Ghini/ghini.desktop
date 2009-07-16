@@ -42,21 +42,13 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 
 def edit_callback(genera):
     genus = genera[0]
-    session = bauble.Session()
-    e = GenusEditor(model=session.merge(genus))
-    result = e.start()
-    session.close()
-    return result != None
+    return GenusEditor(model=genus).start() != None
 
 
 def add_species_callback(genera):
     genus = genera[0]
     from bauble.plugins.plants.species_editor import SpeciesEditor
-    session = bauble.Session()
-    e = SpeciesEditor(model=Species(genus=session.merge(genus)))
-    result = e.start()
-    session.close()
-    return result != None
+    return SpeciesEditor(model=Species(genus=genus)).start() != None
 
 
 def remove_callback(genera):
@@ -745,6 +737,34 @@ class GeneralGenusExpander(InfoExpander):
             select_in_search_results(self.current_obj.family)
         utils.make_label_clickable(self.widgets.gen_fam_data,
                                    on_family_clicked)
+
+        def on_nsp_clicked(*args):
+            g = self.current_obj
+            cmd = 'species where genus.genus="%s" and genus.hybrid="%s" ' \
+                'and genus.qualifier="%s"' % (g.genus, g.hybrid, g.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.gen_nsp_data,
+                                   on_nsp_clicked)
+
+        def on_nacc_clicked(*args):
+            g = self.current_obj
+            cmd = 'acc where species.genus.genus="%s" and ' \
+                'species.genus.hybrid="%s" ' \
+                'and species.genus.qualifier="%s"' \
+                % (g.genus, g.hybrid, g.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.gen_nacc_data,
+                                   on_nacc_clicked)
+
+        def on_nplants_clicked(*args):
+            g = self.current_obj
+            cmd = 'plant where accession.species.genus.genus="%s" and ' \
+                'accession.species.genus.hybrid="%s" ' \
+                'and accession.species.genus.qualifier="%s"' \
+                % (g.genus, g.hybrid, g.qualifier)
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.gen_nplants_data,
+                                   on_nplants_clicked)
 
 
     def update(self, row):
