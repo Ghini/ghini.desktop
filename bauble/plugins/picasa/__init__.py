@@ -27,12 +27,20 @@
 # IDEA: we could probably make this module more generic and based on
 # mixins where we add the functionality for getting the photos by
 # mixing in different implentations for different services
-import os
+import os, sys
 import tempfile
 import urllib
 from Queue import Queue
 
+# this little dummyfile hack fixes an annoying deprecation warning
+# when importing gdata 1.2.4
+class dummyfile(object):
+    def write(*x): pass
+tmp = sys.stderr
+sys.stderr = dummyfile()
 import gdata.photos.service
+sys.stderr = tmp
+
 import gtk
 import sqlalchemy as sa
 import sqlalchemy.orm as orm
@@ -47,7 +55,6 @@ import bauble.utils.thread as thread
 import bauble.view as view
 from bauble.plugins.plants import Species
 from bauble.utils.log import debug
-
 
 PICASA_TOKEN_KEY = u'picasa_token'
 
