@@ -272,6 +272,12 @@ class PlantEditorView(GenericEditorView):
                                minimum_key_length=1)
 
 
+    def __del__(self):
+        debug('PlantView.__del__()')
+        GenericEditorView.__del__(self)
+        self.dialog.destroy()
+
+
     def save_state(self):
         pass
 
@@ -344,9 +350,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
 
-        self.view.widgets.plant_code_entry.connect('changed',
-                                            self.on_plant_code_entry_changed)
-
+        self.view.connect('plant_code_entry', 'changed',
+                          self.on_plant_code_entry_changed)
         self.assign_simple_handler('plant_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
@@ -355,12 +360,15 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
                                    UnicodeOrNoneValidator())
 
-        self.view.widgets.plant_loc_add_button.connect('clicked',
-                                                    self.on_loc_button_clicked,
-                                                    'add')
-        self.view.widgets.plant_loc_edit_button.connect('clicked',
-                                                    self.on_loc_button_clicked,
-                                                    'edit')
+        self.view.connect('plant_loc_add_button', 'clicked',
+                          self.on_loc_button_clicked, 'add')
+        self.view.connect('plant_loc_edit_button', 'clicked',
+                          self.on_loc_button_clicked, 'edit')
+
+
+    def __del__(self):
+        debug('PlantEditorPresenter.__del__')
+        GenericEditorPresenter.__del__(self)
 
 
     def dirty(self):
@@ -539,7 +547,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Plant()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        if not parent and bauble.gui: # should we even allow a change in parent
+        if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
@@ -644,30 +652,33 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if utils.yes_no_dialog(msg):
                 e = LocationEditor()
                 return e.start()
-        self.view = PlantEditorView(parent=self.parent)
-        self.presenter = PlantEditorPresenter(self.model, self.view)
+        view = PlantEditorView(parent=self.parent)
+        self.presenter = PlantEditorPresenter(self.model, view)
 
         # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+        self.attach_response(view.dialog, gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+        self.attach_response(view.dialog, self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
         # set default focus
         if self.model.accession is None:
-            self.view.widgets.plant_acc_entry.grab_focus()
+            view.widgets.plant_acc_entry.grab_focus()
         else:
-            self.view.widgets.plant_code_entry.grab_focus()
+            view.widgets.plant_code_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
 
         self.session.close() # cleanup session
         return self._committed
+
+    def __del__(self):
+        debug('PlantEditor.__del__()')
+        GenericModelViewPresenterEditor.__del__(self)
 
 
 
