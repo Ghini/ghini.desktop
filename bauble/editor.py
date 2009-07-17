@@ -154,10 +154,10 @@ class GenericEditorView(object):
         debug('GenericEditorView.__del__')
 
 
-    def connect(self, obj, signal, callback):
+    def connect(self, obj, signal, callback, data=None):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
-        sid = obj.connect(signal, callback)
+        sid = obj.connect(signal, callback, data)
         self.__attached_signals.append((obj, sid))
 
 
