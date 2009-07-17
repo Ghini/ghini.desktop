@@ -92,6 +92,10 @@ class ConnectionManager:
         self.old_params = {}
 
 
+    # def __del__(self):
+    #     debug('ConnectionManager.__del__()')
+
+
     def start(self):
         """
         Show the connection manager.
@@ -125,6 +129,15 @@ class ConnectionManager:
             else:
                 name = uri = None
                 break
+
+        # have to remove the cell_data_func to avoid a cyclical
+        # reference which would cause the ConnectionManager to not get
+        # garbage collected
+        cell = self.type_combo.get_cells()[0]
+        self.type_combo.set_cell_data_func(cell, None)
+        self.type_combo.clear()
+        self.name_combo.clear()
+
         self.dialog.destroy()
         return name, uri
 
@@ -192,7 +205,7 @@ class ConnectionManager:
             raise Exception(msg)
 
         glade_path = os.path.join(paths.lib_dir(), "connmgr.glade")
-        self.widgets = utils.GladeWidgets(glade_path)
+        self.widgets = utils.BuilderWidgets(glade_path)
 
         self.dialog = self.widgets.main_dialog
         try:
@@ -210,11 +223,9 @@ class ConnectionManager:
                 self.dialog.set_type_hint(gtk.gdk.WINDOW_TYPE_HINT_DIALOG)
                 self.dialog.set_property('skip-taskbar-hint', False)
 
-
-        handlers = {'on_add_button_clicked': self.on_add_button_clicked,
-                    'on_remove_button_clicked': self.on_remove_button_clicked,
-                   }
-        self.widgets.signal_autoconnect(handlers)
+        self.widgets.add_button.connect('clicked', self.on_add_button_clicked)
+        self.widgets.remove_button.connect('clicked',
+                                           self.on_remove_button_clicked)
 
         # set the logo image manually, its hard to depend on glade to
         # get this right since the image paths may change
@@ -515,6 +526,12 @@ class CMParamsBox(gtk.Table):
         self.set_row_spacings(10)
         self.create_gui()
 
+        # create a weak reference to the connection manager to avoid a
+        # cyclical reference which would prevent it from being garbage
+        # collected
+        import weakref
+        self.conn_mgr_ref = weakref.ref(conn_mgr)
+
 
     def create_gui(self):
         label_alignment = (0.0, 0.5)
@@ -581,7 +598,6 @@ class SQLiteParamsBox(CMParamsBox):
 
 
     def __init__(self, conn_mgr):
-        self.conn_mgr = conn_mgr
         CMParamsBox.__init__(self, conn_mgr, rows=1, columns=2)
 
 
@@ -615,7 +631,7 @@ class SQLiteParamsBox(CMParamsBox):
         d = {}
         invalid_chars = ', "\'():;'
         if self.default_check.get_active():
-            name = self.conn_mgr._get_connection_name()
+            name = self.conn_mgr_ref()._get_connection_name()
             from string import maketrans
             fixed = name.translate(maketrans(invalid_chars,
                                              '_'*len(invalid_chars)))
