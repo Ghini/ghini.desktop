@@ -130,6 +130,7 @@ class GenericEditorView(object):
         self.parent = parent
         self.widgets = utils.GladeWidgets(self.glade_xml)
         self.response = None
+        self.__attached_signals = []
 
         # pygtk 2.12.1 on win32 for some reason doesn't support the new
         # gtk 2.12 gtk.Tooltip API
@@ -147,6 +148,23 @@ class GenericEditorView(object):
             for widget_name, markup in self._tooltips.iteritems():
                 widget = self.widgets[widget_name]
                 tooltips.set_tip(widget, markup)
+
+
+    def __del__(self):
+        debug('GenericEditorView.__del__')
+
+
+    def connect(self, obj, signal, callback):
+        if isinstance(obj, basestring):
+            obj = self.widgets[obj]
+        sid = obj.connect(signal, callback)
+        self.__attached_signals.append((obj, sid))
+
+
+    def disconnect_all(self):
+        for widget, sid in self.__attached_signals:
+            widget.disconnect(sid)
+        del self.__attached_signals[:]
 
 
     def get_window(self):
@@ -172,9 +190,9 @@ class GenericEditorView(object):
         :param dialog: the dialog to attache
           self.on_dialog_close_or_delete and self.on_dialog_response to
         '''
-        dialog.connect('response', self.on_dialog_response)
-        dialog.connect('close', self.on_dialog_close_or_delete)
-        dialog.connect('delete-event', self.on_dialog_close_or_delete)
+        self.connect(dialog, 'response', self.on_dialog_response)
+        self.connect(dialog, 'close', self.on_dialog_close_or_delete)
+        self.connect(dialog, 'delete-event', self.on_dialog_close_or_delete)
 
 
     def on_dialog_response(self, dialog, response, *args):
@@ -395,8 +413,9 @@ class GenericEditorPresenter(object):
 
     def add_problem(self, problem_id, problem_widgets=None):
         """
-        add problem_id to self.problems and change the background of widget(s)
-        in problem_widgets
+        Add problem_id to self.problems and change the background of widget(s)
+        in problem_widgets.
+
         problem_widgets: either a widget or list of widgets whose background
         color should change to indicate a problem
 
@@ -485,8 +504,8 @@ class GenericEditorPresenter(object):
                 full_text = text[:start] + text[end:]
                 #_set_in_model(full_text)
                 self.set_model_attr(model_attr, full_text, validator)
-            widget.connect('insert-text', insert)
-            widget.connect('delete-text', delete)
+            self.view.connect(widget_name, 'insert-text', insert)
+            self.view.connect(widget_name, 'delete-text', delete)
         elif isinstance(widget, gtk.TextView):
             def insert(buffer, iter, new_text, length, data=None):
                 buff_text = buffer.get_text(buffer.get_start_iter(),
@@ -494,7 +513,6 @@ class GenericEditorPresenter(object):
                 text_start = buffer.get_text(buffer.get_start_iter(), iter)
                 text_end = buffer.get_text(iter, buffer.get_end_iter())
                 full_text = ''.join((text_start, new_text, text_end))
-                #_set_in_model(new_text)
                 self.set_model_attr(model_attr, full_text, validator)
             def delete(buffer, start_iter, end_iter, data=None):
                 start = start_iter.get_offset()
@@ -502,10 +520,10 @@ class GenericEditorPresenter(object):
                 text = buffer.get_text(buffer.get_start_iter(),
                                        buffer.get_end_iter())
                 new_text = text[:start] + text[end:]
-                #_set_in_model(new_text)
                 self.set_model_attr(model_attr, new_text, validator)
-            widget.get_buffer().connect('insert-text', insert)
-            widget.get_buffer().connect('delete-range', delete)
+            buff = widget.get_buffer()
+            self.view.connect(buff, 'insert-text', insert)
+            self.view.connect(buff, 'delete-range', delete)
         elif isinstance(widget, gtk.ComboBox):
             def changed(combo, data=None):
                 model = combo.get_model()
@@ -515,18 +533,16 @@ class GenericEditorPresenter(object):
                 if i is None:
                     return
                 data = combo.get_model()[combo.get_active_iter()][0]
-                #_set_in_model(data, model_field)
                 self.set_model_attr(model_attr, data, validator)
-            widget.connect('changed', changed)
+            self.view.connect(widget, 'changed', changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton,
                                  gtk.RadioButton)):
             def toggled(button, data=None):
                 active = button.get_active()
 #                debug('toggled %s: %s' % (widget_name, active))
                 button.set_inconsistent(False)
-                #_set_in_model(active, model_field)
                 self.set_model_attr(model_attr, active, validator)
-            widget.connect('toggled', toggled)
+            self.view.connect(widget, 'toggled', toggled)
         else:
             raise ValueError('assign_simple_handler() -- '\
                              'widget type not supported: %s' % type(widget))
@@ -604,8 +620,8 @@ class GenericEditorPresenter(object):
                or len(text) == 2:
                 add_completions(text)
 
-        def on_match_select(completion, compl_model, iter):
-            value = compl_model[iter][0]
+        def on_match_select(completion, compl_model, treeiter):
+            value = compl_model[treeiter][0]
             setattr(self, prev_text_name, utils.utf8(value))
             self.pause_completions_handler(widget, True)
             widget.set_text(utils.utf8(value))
@@ -621,12 +637,15 @@ class GenericEditorPresenter(object):
         completion.connect('match-selected', on_match_select)
 
 
-
     def start(self):
         raise NotImplementedError
 
     def cleanup(self):
         self.view.cleanup()
+
+    def __del__(self):
+        #debug('GenericPresenter.__del__()')
+        self.view.disconnect_all()
 
     def refresh_view(self):
         # TODO: should i provide a generic implementation of this method
@@ -677,3 +696,8 @@ class GenericModelViewPresenterEditor(object):
         '''
         self.session.commit()
         return True
+
+
+    def __del__(self):
+        #debug('GenericEditor.__del__()')
+        self.session.close()
