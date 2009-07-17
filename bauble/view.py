@@ -332,7 +332,7 @@ class SearchParser(object):
     value = value_chars | quotedString.setParseAction(removeQuotes)
     value_list = (value ^ delimitedList(value) ^ OneOrMore(value))
     binop = oneOf('= == != <> < <= > >= not like contains has ilike '\
-                  'icontains ihas')('binop')
+                  'icontains ihas is')('binop')
     domain = Word(alphas, alphanums)('domain')
     domain_values = Group(value_list.copy())
     domain_expression = (domain + Literal('=') + Literal('*') + StringEnd()) \
@@ -468,7 +468,18 @@ class MapperSearch(SearchStrategy):
                 # TODO: need to either stick to a subset of conditions
                 # that work on all database or just normalize the
                 # conditions depending on the databases
-                if val is not None: # use is not None b/c val could be ''
+
+                # since we build the query from a string instead of
+                # trying to resolve the columns and relations then we
+                # need to make sure that None is translated to NULL
+                if val is None and cond in ('=', '=='):
+                    cond = 'is'
+                    val = 'NULL'
+                elif val is None and cond in ('!='):
+                    cond = 'is not'
+                    val = 'NULL'
+                elif val is not None:
+                    # use is not None b/c val could be ''
                     val = "'%s'" % val
 
                 if col in cls.__table__.c:
