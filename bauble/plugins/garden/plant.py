@@ -246,7 +246,7 @@ class PlantEditorView(GenericEditorView):
         'plant_acc_entry': _('The accession must be selected from the list ' \
                              'of completions.  To add an accession use the '\
                              'Accession editor'),
-        'plant_loc_combo': _('The location of the plant in your collection.'),
+        'plant_loc_entry': _('The location of the plant in your collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
                                   'Possible values: %s') \
                                   % utils.enum_values_str('plant.acc_type'),
@@ -271,10 +271,15 @@ class PlantEditorView(GenericEditorView):
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
 
+        def loc_cell_data_func(col, renderer, model, it, data=None):
+            v = model[it][0]
+            renderer.set_property('text', '%s' % utils.utf8(v))
+        self.attach_completion('plant_loc_entry', loc_cell_data_func,
+                               minimum_key_length=1)
 
     def __del__(self):
         #debug('PlantView.__del__()')
-        GenericEditorView.__del__(self)
+        #GenericEditorView.__del__(self)
         self.dialog.destroy()
 
 
@@ -301,7 +306,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'plant_code_entry': 'code',
                            'plant_acc_entry': 'accession',
-                           'plant_loc_combo': 'location',
+                           'plant_loc_entry': 'location',
                            'plant_acc_type_combo': 'acc_type',
                            'plant_acc_status_combo': 'acc_status',
                            'plant_notes_textview': 'notes'}
@@ -320,7 +325,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.__dirty = False
 
         # initialize widgets
-        self.init_location_combo()
         self.init_enum_combo('plant_acc_status_combo', 'acc_status')
         self.init_enum_combo('plant_acc_type_combo', 'acc_type')
 
@@ -354,7 +358,16 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_plant_code_entry_changed)
         self.assign_simple_handler('plant_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
-        self.assign_simple_handler('plant_loc_combo', 'location')#, ObjectIdValidator())
+
+        def loc_get_completions(text):
+            query = self.session.query(Location)
+            return query.filter(utils.ilike(Location.site,
+                                            utils.utf8('%s%%' % text)))
+        def on_loc_select(value):
+            self.set_model_attr('location', value)
+        self.assign_completions_handler('plant_loc_entry', loc_get_completions,
+                                        on_select=on_loc_select)
+
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
@@ -454,67 +467,22 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def on_loc_button_clicked(self, button, cmd=None):
-        location = None
-        combo = self.view.widgets.plant_loc_combo
-        it = combo.get_active_iter()
-        if it is not None:
-            location = combo.get_model()[it][0]
+        location = self.model.location
         if cmd is 'edit':
-            e = LocationEditor(location, parent=self.view.dialog)
-        else:
-            e = LocationEditor(parent=self.view.dialog)
-        e.start()
-        self.init_location_combo()
-
-        if location is not None:
+            entry = self.view.widgets.plant_loc_entry
+            LocationEditor(location, parent=self.view.dialog).start()
             self.session.refresh(location)
-            new = self.session.query(Location).get(location.id)
-            utils.set_combo_from_value(combo, new)
+            self.pause_completions_handler(entry, True)
+            entry.set_text(utils.utf8(location))
+            self.pause_completions_handler(entry, False)
         else:
-            combo.set_active(-1)
+            # TODO: see if the location editor returns the new
+            # location and if so set it directly
+            LocationEditor(parent=self.view.dialog).start()
 
-
-    def init_location_combo(self):
-        """
-        Initialize plant_loc_combo
-        """
-        # build the model
-        locations = self.session.query(Location)
-        model = gtk.ListStore(object)
-        locs = sorted([l for l in locations], key=utils.natsort_key)
-        for loc in locs:
-           model.append([loc])
-
-        combo = self.view.widgets.plant_loc_combo
-        combo.set_model(model)
-        combo.clear()
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        def cell_data_func(column, cell, model, it, data=None):
-            v = model[it][0]
-            cell.set_property('text', utils.utf8(v))
-        combo.set_cell_data_func(renderer, cell_data_func)
-
-        # TODO: why doesn't this work, get_active() show that it is
-        # active but the entry isn't shown in the combo
-        if locations.count() == 1:
-            combo.set_active_iter(model.get_iter_root())
-
-
-#    def init_acc_entry(self):
-#        pass
-#    def init_type_and_status_combo(self):
-#        pass
-#    def init_history_box(self):
-#        pass
 
     def refresh_view(self):
         for widget, field in self.widget_to_field_map.iteritems():
-#            if field is 'accession_id':
-#                value = self.model.accession
-#            elif field is 'location_id':
-#                value = self.model.location
-#            else:
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
         self.refresh_sensitivity()
