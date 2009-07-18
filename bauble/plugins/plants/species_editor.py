@@ -892,7 +892,7 @@ class SpeciesEditorView(editor.GenericEditorView):
     def syn_cell_data_func(column, renderer, model, treeiter, data=None):
         '''
         '''
-        v = model[tree][0]
+        v = model[treeiter][0]
         renderer.set_property('text', str(v))
 
 
