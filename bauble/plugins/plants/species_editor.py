@@ -75,6 +75,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    editor.UnicodeOrNoneValidator())
+        # TODO: i think these validators need to be changed to reflect
+        # that we now use '' instead of None in most of the enum
+        # columns
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid',
@@ -93,6 +96,14 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
 
         self.__dirty = False
+
+
+    def __del__(self):
+        # we have to delete the views in the child presenters manually
+        # to avoid the circul reference
+        del self.vern_presenter.view
+        del self.synonyms_presenter.view
+        del self.dist_presenter.view
 
 
     def dirty(self):
@@ -161,7 +172,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         when values change in the model
         '''
         super(SpeciesEditorPresenter, self).set_model_attr(field, value,
-                                                         validator)
+                                                           validator)
         self.__dirty = True
         sensitive = True
         if len(self.problems) != 0 \
@@ -213,7 +224,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
     def start(self):
-        return self.view.start()
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
 
 
     def refresh_view(self):
@@ -252,10 +265,10 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.remove_menu = gtk.Menu()
         self.remove_menu.attach_to_widget(self.view.widgets.sp_dist_remove_button,
                                           None)
-        self.view.widgets.sp_dist_add_button.connect('button-press-event',
-                                                    self.on_add_button_pressed)
-        self.view.widgets.sp_dist_remove_button.connect('button-press-event',
-                                                 self.on_remove_button_pressed)
+        self.view.connect('sp_dist_add_button', 'button-press-event',
+                          self.on_add_button_pressed)
+        self.view.connect('sp_dist_remove_button', 'button-press-event',
+                          self.on_remove_button_pressed)
         self.init_add_button()
 
 
@@ -276,7 +289,8 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         # add distributions to menu
         for dist in self.model.distribution:
             item = gtk.MenuItem(str(dist))
-            item.connect('activate', self.on_activate_remove_menu_item, dist)
+            self.view.connect(item, 'activate',
+                              self.on_activate_remove_menu_item, dist)
             self.remove_menu.append(item)
         self.remove_menu.show_all()
         self.remove_menu.popup(None, None, None, event.button, event.time)
@@ -313,8 +327,11 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.view.widgets.sp_dist_add_button.set_sensitive(False)
         geography_table = Geography.__table__
         geos = select([geography_table.c.id, geography_table.c.name,
-                           geography_table.c.parent_id]).execute().fetchall()
+                       geography_table.c.parent_id]).execute().fetchall()
         geos_hash = {}
+        # TODO: i think the geo_hash should be calculated in an idle
+        # function so that starting the editor isn't delayed while the
+        # has is being build
         for geo_id, name, parent_id in geos:
             try:
                 geos_hash[parent_id].append((geo_id, name))
@@ -340,7 +357,8 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             item = gtk.MenuItem(name)
             if not has_kids(id):
                 if item.get_submenu() is None:
-                    item.connect('activate', self.on_activate_add_menu_item,id)
+                    self.view.connect(item, 'activate',
+                                      self.on_activate_add_menu_item,id)
                 return item
 
             kids_added = False
@@ -366,9 +384,11 @@ class DistributionPresenter(editor.GenericEditorPresenter):
                 submenu.insert(sel_item, 0)
                 submenu.insert(gtk.SeparatorMenuItem(), 1)
                 item.set_submenu(submenu)
-                sel_item.connect('activate', self.on_activate_add_menu_item,id)
+                self.view.connect(sel_item, 'activate',
+                                  self.on_activate_add_menu_item,id)
             else:
-                item.connect('activate', self.on_activate_add_menu_item, id)
+                self.view.connect(item, 'activate',
+                                  self.on_activate_add_menu_item, id)
             return item
 
         def populate():
@@ -376,9 +396,14 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             add geography value to the menu, any top level items that don't
             have any kids are appended to the bottom of the menu
             """
+            if not geos_hash:
+                # we should really only get here when running the
+                # species editor as a unit test since then the
+                # geography table probably isn't populated
+                return
             no_kids = []
             for geo_id, geo_name in geos_hash[None]:
-                if geo_id not in  geos_hash.keys():
+                if geo_id not in geos_hash.keys():
                     no_kids.append((geo_id, geo_name))
                 else:
                     self.add_menu.append(build_menu(geo_id, geo_name))
@@ -412,21 +437,18 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.session = session
         self.__dirty = False
         self.init_treeview(species.vernacular_names)
-        self.view.widgets.sp_vern_add_button.connect('clicked',
-                                                  self.on_add_button_clicked)
-        self.view.widgets.sp_vern_remove_button.connect('clicked',
-                                                 self.on_remove_button_clicked)
-        lang_entry = self.view.widgets.vern_lang_entry
-        lang_entry.connect('insert-text', self.on_entry_insert,
-                           'vern_name_entry')
-        lang_entry.connect('delete-text', self.on_entry_delete,
-                           'vern_name_entry')
-
-        name_entry = self.view.widgets.vern_name_entry
-        name_entry.connect('insert-text', self.on_entry_insert,
-                           'vern_lang_entry')
-        name_entry.connect('delete-text', self.on_entry_delete,
-                           'vern_lang_entry')
+        self.view.connect('sp_vern_add_button', 'clicked',
+                          self.on_add_button_clicked)
+        self.view.connect('sp_vern_remove_button', 'clicked',
+                          self.on_remove_button_clicked)
+        self.view.connect('vern_lang_entry', 'insert-text',
+                          self.on_entry_insert, 'vern_name_entry')
+        self.view.connect('vern_lang_entry', 'delete-text',
+                          self.on_entry_delete, 'vern_name_entry')
+        self.view.connect('vern_name_entry', 'insert-text',
+                          self.on_entry_insert, 'vern_lang_entry')
+        self.view.connect('vern_name_entry', 'delete-text',
+                          self.on_entry_delete, 'vern_lang_entry')
 
 
     def dirty(self):
@@ -596,7 +618,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             cell.set_property('active', False)
 
         cell = gtk.CellRendererToggle()
-        cell.connect('toggled', self.on_default_toggled)
+        self.view.connect(cell, 'toggled', self.on_default_toggled)
         col = gtk.TreeViewColumn('Default', cell)
         col.set_cell_data_func(cell, _default_data_func)
         col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
@@ -612,7 +634,8 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             tree_model.append([vn])
         self.treeview.set_model(tree_model)
 
-        self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
+        self.view.connect(self.treeview, 'cursor-changed',
+                          self.on_tree_cursor_changed)
 
 
     def on_tree_cursor_changed(self, tree, data=None):
@@ -680,10 +703,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
                                         on_select=on_select)
 
         self._selected = None
-        self.view.widgets.sp_syn_add_button.connect('clicked',
-                                                    self.on_add_button_clicked)
-        self.view.widgets.sp_syn_remove_button.connect('clicked',
-                                                self.on_remove_button_clicked)
+        self.view.connect('sp_syn_add_button', 'clicked',
+                          self.on_add_button_clicked)
+        self.view.connect('sp_syn_remove_button', 'clicked',
+                          self.on_remove_button_clicked)
         self.__dirty = False
 
 
@@ -714,7 +737,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
-        self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
+        self.view.connect(self.treeview, 'cursor-changed',
+                          self.on_tree_cursor_changed)
 
 
     def on_tree_cursor_changed(self, tree, data=None):
@@ -827,8 +851,8 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         return self.widgets.species_dialog
 
-
-    def genus_match_func(self, completion, key, iter, data=None):
+    @staticmethod
+    def genus_match_func(completion, key, iter, data=None):
         """
         match against both str(genus) and str(genus.genus) so that we
         catch the genera with hybrid flags in their name when only
@@ -854,20 +878,21 @@ class SpeciesEditorView(editor.GenericEditorView):
         self.widgets.sp_next_button.set_sensitive(sensitive)
 
 
-    def genus_completion_cell_data_func(self, column, renderer, model, iter,
-                                         data=None):
+    @staticmethod
+    def genus_completion_cell_data_func(column, renderer, model, treeiter,
+                                        data=None):
         '''
         '''
-        v = model[iter][0]
+        v = model[treeiter][0]
         renderer.set_property('text', '%s (%s)' % (Genus.str(v),
                                                    Family.str(v.family)))
 
 
-    def syn_cell_data_func(self, column, renderer, model, iter,
-                                         data=None):
+    @staticmethod
+    def syn_cell_data_func(column, renderer, model, treeiter, data=None):
         '''
         '''
-        v = model[iter][0]
+        v = model[tree][0]
         renderer.set_property('text', str(v))
 
 
@@ -914,7 +939,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Species()
         super(SpeciesEditor, self).__init__(model, parent)
-        if parent is None and bauble.gui:
+        if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
@@ -993,30 +1018,29 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                   'database before you can add species.'
             utils.message_dialog(msg)
             return
-        self.view = SpeciesEditorView(parent=self.parent)
-        self.presenter = SpeciesEditorPresenter(self.model, self.view)
+        view = SpeciesEditorView(parent=self.parent)
+        self.presenter = SpeciesEditorPresenter(self.model, view)
 
         # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
+        self.attach_response(view.dialog, gtk.RESPONSE_OK, 'Return',
                              gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
+        self.attach_response(view.dialog, self.RESPONSE_OK_AND_ADD, 'k',
                              gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
+        self.attach_response(view.dialog, self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
         # set default focus
         if self.model.genus is None:
-            self.view.widgets.sp_genus_entry.grab_focus()
+            view.widgets.sp_genus_entry.grab_focus()
         else:
-            self.view.widgets.sp_species_entry.grab_focus()
+            view.widgets.sp_species_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            view.save_state() # should view or presenter save state
             if self.handle_response(response):
                 break
+
         self.presenter.cleanup()
         self.session.close() # cleanup session
         return self._committed
-

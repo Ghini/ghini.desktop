@@ -1,7 +1,6 @@
 #
 # Family table definition
 #
-
 import os
 import traceback
 
@@ -109,7 +108,7 @@ class Family(db.Base):
 
                 * s. str.: segregate family (senso stricto)
 
-                * None: the None value
+                * '': the empty string
 
         *notes*:
             Free text notes about the family.
@@ -310,7 +309,9 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
 
     def start(self):
-        return self.view.start()
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
 
 
 #
@@ -350,11 +351,10 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('fam_syn_entry', fam_get_completions,
                                         on_select=on_select)
 
-
-        self.view.widgets.fam_syn_add_button.connect('clicked',
-                                                    self.on_add_button_clicked)
-        self.view.widgets.fam_syn_remove_button.connect('clicked',
-                                                self.on_remove_button_clicked)
+        self.view.connect('fam_syn_add_button', 'clicked',
+                          self.on_add_button_clicked)
+        self.view.connect('fam_syn_remove_button', 'clicked',
+                          self.on_remove_button_clicked)
         self.__dirty = False
 
 
@@ -384,7 +384,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         for syn in self.model._synonyms:
             tree_model.append([syn])
         self.treeview.set_model(tree_model)
-        self.treeview.connect('cursor-changed', self.on_tree_cursor_changed)
+        self.view.connect(self.treeview, 'cursor-changed',
+                          self.on_tree_cursor_changed)
 
 
     def on_tree_cursor_changed(self, tree, data=None):
@@ -465,8 +466,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Family()
         super(FamilyEditor, self).__init__(model, parent)
-
-        if parent is None: # should we even allow a change in parent
+        if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
@@ -770,7 +770,8 @@ class LinksExpander(InfoExpander):
             self.vbox.pack_start(b)
 
 
-    def on_click(self, button):
+    @staticmethod
+    def on_click(button):
         desktop.open(button.get_uri())
 
     def update(self, row):

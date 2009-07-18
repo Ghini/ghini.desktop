@@ -297,6 +297,7 @@ class GenericEditorView(object):
             self.get_window().destroy()
         except NotImplementedError:
             warning(_('Could not destroy window'))
+        self.disconnect_all()
 
 
 class DontCommitException(Exception):
@@ -646,9 +647,6 @@ class GenericEditorPresenter(object):
     def cleanup(self):
         self.view.cleanup()
 
-    def __del__(self):
-        #debug('GenericPresenter.__del__()')
-        self.view.disconnect_all()
 
     def refresh_view(self):
         # TODO: should i provide a generic implementation of this method

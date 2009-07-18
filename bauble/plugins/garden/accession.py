@@ -1581,7 +1581,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Accession()
         GenericModelViewPresenterEditor.__init__(self, model, parent)
-        if not parent and bauble.gui: # should we even allow a change in parent
+        if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
