@@ -7,6 +7,7 @@
 import sys
 import re
 import os
+import weakref
 import traceback
 from random import random
 from datetime import datetime
@@ -517,7 +518,7 @@ class AccessionEditorView(GenericEditorView):
 
         # datum completions
         completion = self.attach_completion('datum_entry',
-                                        minimum_key_length=1,
+                                            minimum_key_length=1,
                                             match_func=self.datum_match,
                                             text_column=0)
         model = gtk.ListStore(str)
@@ -548,7 +549,12 @@ class AccessionEditorView(GenericEditorView):
         return self.widgets.accession_dialog.run()
 
 
-    def datum_match(self, completion, key, iter, data=None):
+    @staticmethod
+    def datum_match(completion, key, iter, data=None):
+        """
+        This method is static to ensure the AccessionEditorView gets
+        garbage collected.
+        """
         datum = completion.get_model()[iter][0]
         words = datum.split(' ')
         for w in words:
@@ -557,7 +563,12 @@ class AccessionEditorView(GenericEditorView):
         return False
 
 
-    def species_match_func(self, completion, key, iter, data=None):
+    @staticmethod
+    def species_match_func(completion, key, iter, data=None):
+        """
+        This method is static to ensure the AccessionEditorView gets
+        garbage collected.
+        """
         species = completion.get_model()[iter][0]
         if str(species).lower().startswith(key.lower()) \
                or str(species.genus.genus).lower().startswith(key.lower()):
@@ -565,7 +576,12 @@ class AccessionEditorView(GenericEditorView):
         return False
 
 
-    def species_cell_data_func(self, column, renderer, model, iter, data=None):
+    @staticmethod
+    def species_cell_data_func(column, renderer, model, iter, data=None):
+        """
+        This method is static to ensure the AccessionEditorView gets
+        garbage collected.
+        """
         v = model[iter][0]
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
@@ -604,7 +620,7 @@ class CollectionPresenter(GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         GenericEditorPresenter.__init__(self, model, view)
-        self.parent = parent
+        self.parent_ref = weakref.ref(parent)
         self.session = session
         self.refresh_view()
 
@@ -631,33 +647,32 @@ class CollectionPresenter(GenericEditorPresenter):
             self.set_model_attr('gps_data', value, validator)
             completion.get_entry().set_text(value)
         completion = self.view.widgets.datum_entry.get_completion()
-        completion.connect('match-selected', on_match)
+        self.view.connect(completion, 'match-selected', on_match)
         self.assign_simple_handler('datum_entry', 'gps_datum',
                                    UnicodeOrNoneValidator())
 
-        lat_entry = self.view.widgets.lat_entry
-        lat_entry.connect('insert-text', self.on_lat_entry_insert)
-        lat_entry.connect('delete-text', self.on_lat_entry_delete)
+        self.view.connect('lat_entry', 'insert-text', self.on_lat_entry_insert)
+        self.view.connect('lat_entry', 'delete-text', self.on_lat_entry_delete)
 
-        lon_entry = self.view.widgets.lon_entry
-        lon_entry.connect('insert-text', self.on_lon_entry_insert)
-        lon_entry.connect('delete-text', self.on_lon_entry_delete)
+        self.view.connect('lon_entry', 'insert-text', self.on_lon_entry_insert)
+        self.view.connect('lon_entry', 'delete-text', self.on_lon_entry_delete)
 
-        coll_date_entry = self.view.widgets.coll_date_entry
-        coll_date_entry.connect('insert-text', self.on_date_entry_insert)
-        coll_date_entry.connect('delete-text', self.on_date_entry_delete)
+        self.view.connect('coll_date_entry', 'insert-text',
+                          self.on_date_entry_insert)
+        self.view.connect('coll_date_entry', 'delete-text',
+                          self.on_date_entry_delete)
 
-        utils.setup_date_button(coll_date_entry,
+        utils.setup_date_button(self.view.widgets.coll_date_entry,
                                 self.view.widgets.coll_date_button)
 
         # don't need to connection to south/west since they are in the same
         # groups as north/east
-        north_radio = self.view.widgets.north_radio
-        self.north_toggle_signal_id = north_radio.connect('toggled',
-                                            self.on_north_south_radio_toggled)
-        east_radio = self.view.widgets.east_radio
-        self.east_toggle_signal_id = east_radio.connect('toggled',
-                                            self.on_east_west_radio_toggled)
+        self.north_toggle_signal_id = \
+            self.view.connect('north_radio', 'toggled',
+                              self.on_north_south_radio_toggled)
+        self.east_toggle_signal_id = \
+            self.view.connect('east_radio', 'toggled',
+                              self.on_east_west_radio_toggled)
 
         if self.model.locale is None or self.model.locale in ('', u''):
             self.add_problem(self.PROBLEM_INVALID_LOCALE)
@@ -685,7 +700,7 @@ class CollectionPresenter(GenericEditorPresenter):
             sensitive = self.model.elevation is not None
             self.view.widgets.altacc_entry.set_sensitive(sensitive)
 
-        self.parent.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def start(self):
@@ -951,7 +966,7 @@ class DonationPresenter(GenericEditorPresenter):
         @param parent: the parent AccessionEditorPresenter
         """
         GenericEditorPresenter.__init__(self, model, view)
-        self.parent = parent
+        self.parent_ref = weakref.ref(parent)
         self.session = session
 
         # set up donor_combo
@@ -964,20 +979,21 @@ class DonationPresenter(GenericEditorPresenter):
         self.refresh_view()
 
         # assign handlers
-        donor_combo.connect('changed', self.on_donor_combo_changed)
+        self.view.connect('donor_combo', 'changed',
+                          self.on_donor_combo_changed)
         self.assign_simple_handler('donid_entry', 'donor_acc',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('donnotes_entry', 'notes',
                                    UnicodeOrNoneValidator())
-        don_date_entry = self.view.widgets.don_date_entry
-        don_date_entry.connect('insert-text', self.on_date_entry_insert)
-        don_date_entry.connect('delete-text', self.on_date_entry_delete)
-        utils.setup_date_button(don_date_entry,
+        self.view.connect('don_date_entry', 'insert-text',
+                          self.on_date_entry_insert)
+        self.view.connect('don_date_entry', 'delete-text',
+                          self.on_date_entry_delete)
+        utils.setup_date_button(self.view.widgets.don_date_entry,
                                 self.view.widgets.don_date_button)
-        self.view.widgets.don_new_button.connect('clicked',
-                                                 self.on_don_new_clicked)
-        self.view.widgets.don_edit_button.connect('clicked',
-                                                  self.on_don_edit_clicked)
+        self.view.connect('don_new_button', 'clicked', self.on_don_new_clicked)
+        self.view.connect('don_edit_button', 'clicked',
+                          self.on_don_edit_clicked)
 
         # if there is only one donor in the donor combo model and
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
@@ -996,7 +1012,7 @@ class DonationPresenter(GenericEditorPresenter):
             self.add_problem(self.PROBLEM_INVALID_DONOR)
         else:
             self.remove_problem(self.PROBLEM_INVALID_DONOR)
-        self.parent.refresh_sensitivity()
+        self.parent_ref().refresh_sensitivity()
 
 
     def start(self):
@@ -1084,7 +1100,11 @@ class DonationPresenter(GenericEditorPresenter):
             self.refresh_view()
 
 
-    def combo_cell_data_func(self, cell, renderer, model, iter):
+    @staticmethod
+    def combo_cell_data_func(cell, renderer, model, iter):
+        """
+        This method is static to make sure this object gets garbage collected.
+        """
         v = model[iter][0]
         renderer.set_property('text', str(v))
 
@@ -1176,7 +1196,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                 return
             text, col = combo.get_model()[it]
             self.set_model_attr('id_qual_rank', utils.utf8(col))
-        self.view.widgets.acc_id_qual_rank_combo.connect('changed', on_changed)
+        self.view.connect('acc_id_qual_rank_combo', 'changed', on_changed)
 
         self.init_source_tab()
         self.refresh_view() # put model values in view
@@ -1202,26 +1222,26 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.assign_completions_handler('acc_species_entry',
                                         sp_get_completions,
                                         on_select=on_select)
-        self.view.widgets.acc_prov_combo.connect('changed',
-                                                 self.on_combo_changed,
-                                                 'prov_type')
-        self.view.widgets.acc_wild_prov_combo.connect('changed',
-                                                      self.on_combo_changed,
-                                                      'wild_prov_status')
+        self.view.connect('acc_prov_combo', 'changed',
+                          self.on_combo_changed, 'prov_type')
+        self.view.connect('acc_wild_prov_combo', 'changed',
+                          self.on_combo_changed, 'wild_prov_status')
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
         # adding a problem to the widget...if we passed it the widget it
         # could
-        self.view.widgets.acc_code_entry.connect('insert-text',
-                                               self.on_acc_code_entry_insert)
-        self.view.widgets.acc_code_entry.connect('delete-text',
-                                               self.on_acc_code_entry_delete)
+        self.view.connect('acc_code_entry', 'insert-text',
+                          self.on_acc_code_entry_insert)
+        self.view.connect('acc_code_entry', 'delete-text',
+                          self.on_acc_code_entry_delete)
         self.assign_simple_handler('acc_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
 
         acc_date_entry = self.view.widgets.acc_date_entry
-        acc_date_entry.connect('insert-text', self.on_acc_date_entry_insert)
-        acc_date_entry.connect('delete-text', self.on_acc_date_entry_delete)
+        self.view.connect('acc_date_entry',
+                          'insert-text', self.on_acc_date_entry_insert)
+        self.view.connect('acc_date_entry',
+                          'delete-text', self.on_acc_date_entry_delete)
 
         utils.setup_date_button(acc_date_entry,
                                 self.view.widgets.acc_date_button)
@@ -1501,8 +1521,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         model.append([None])
         combo.set_model(model)
         combo.set_active(-1)
-        self.view.widgets.acc_source_type_combo.connect('changed',
-                                            self.on_source_type_combo_changed)
+        self.view.connect('acc_source_type_combo', 'changed',
+                          self.on_source_type_combo_changed)
 
 
     def on_combo_changed(self, combo, field):
@@ -1533,7 +1553,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
     def start(self):
-        return self.view.start()
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
 
 
 
