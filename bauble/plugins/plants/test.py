@@ -263,6 +263,22 @@ class FamilyTests(PlantTestCase):
         f.qualifier = 's. lat.'
         self.assert_(str(f) == 'fam s. lat.')
 
+    def itest_family_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        #loc = self.create(Family, site=u'some site')
+        fam = Family(family='some family')
+        editor = FamilyEditor(model=fam)
+        editor.start()
+        del editor
+        assert utils.gc_objects_by_type('FamilyEditor') == [], \
+            'FamilyEditor not deleted'
+        assert utils.gc_objects_by_type('FamilyEditorPresenter') == [], \
+            'FamilyEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('FamilyEditorView') == [], \
+            'FamilyEditorView not deleted'
+
 
 
 class GenusTests(PlantTestCase):
@@ -353,6 +369,23 @@ class GenusTests(PlantTestCase):
         pass
 
 
+    def itest_genus_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        #loc = self.create(Genus, site=u'some site')
+        fam = Genus(genus='some genus')
+        editor = GenusEditor(model=fam)
+        editor.start()
+        del editor
+        assert utils.gc_objects_by_type('GenusEditor') == [], \
+            'GenusEditor not deleted'
+        assert utils.gc_objects_by_type('GenusEditorPresenter') == [], \
+            'GenusEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('GenusEditorView') == [], \
+            'GenusEditorView not deleted'
+
+
 class SpeciesTests(PlantTestCase):
 
     def setUp(self):
@@ -365,6 +398,13 @@ class SpeciesTests(PlantTestCase):
     def itest_species_editor(self):
         e = SpeciesEditor()
         e.start()
+        del e
+        assert utils.gc_objects_by_type('SpeciesEditor') == [], \
+            'SpeciesEditor not deleted'
+        assert utils.gc_objects_by_type('SpeciesEditorPresenter') == [], \
+            'SpeciesEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('SpeciesEditorView') == [], \
+            'SpeciesEditorView not deleted'
 
     def test_string(self):
         """
