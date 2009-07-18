@@ -17,7 +17,6 @@ import bauble
 from bauble.error import check, CheckConditionError
 import bauble.paths as paths
 from bauble.utils.log import debug, warning
-from bauble.utils.pyparsing import *
 
 
 def find_dependent_tables(table, metadata=None):
@@ -845,15 +844,18 @@ def ilike(col, val, engine=None):
         return func.lower(col).like(func.lower(val))
 
 
-_range = Group(Word(nums) + Suppress('-') + Word(nums))
-_range_list = delimitedList(_range | Word(nums))
 
 def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5
     """
+    from utils.pyparsing import Word, Group, Suppress, delimitedList, nums, \
+        ParseException
+    rng = Group(Word(nums) + Suppress('-') + Word(nums))
+    range_list = delimitedList(rng | Word(nums))
+
     token = None
     try:
-        tokens = _range_list.parseString(text)
+        tokens = range_list.parseString(text)
     except (AttributeError, ParseException), e:
         return []
     values = set()
@@ -868,10 +870,16 @@ def range_builder(text):
     return list(values)
 
 
-def gc_objects_by_type(typename):
-    # This code from objgraph
-    # Copyright (c) 2008 Marius Gedminas <marius@pov.lt>
-    # Released under the MIT licence.
+def gc_objects_by_type(tipe):
+    """
+    Return a list of objects from the garbage collector by type.
+    """
+    import inspect
     import gc
-    return [o for o in gc.get_objects() if type(o).__name__ == typename]
+    if isinstance(tipe, basestring):
+        return [o for o in gc.get_objects() if type(o).__name__ == tipe]
+    elif inspect.isclass(tipe):
+        return [o for o in gc.get_objects() if isinstance(o, tipe)]
+    else:
+        return [o for o in gc.get_objects() if isinstance(o, type(tipe))]
 
