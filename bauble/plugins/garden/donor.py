@@ -166,8 +166,10 @@ class DonorEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value(widget, getattr(self.model, field))
 
 
-    def start(self, commit_transaction=True):
-        return self.view.start()
+    def start(self):
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
 
 
 # TODO: need to create a widget to edit the notes
