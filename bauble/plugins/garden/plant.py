@@ -273,7 +273,7 @@ class PlantEditorView(GenericEditorView):
 
 
     def __del__(self):
-        debug('PlantView.__del__()')
+        #debug('PlantView.__del__()')
         GenericEditorView.__del__(self)
         self.dialog.destroy()
 
@@ -364,11 +364,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           self.on_loc_button_clicked, 'add')
         self.view.connect('plant_loc_edit_button', 'clicked',
                           self.on_loc_button_clicked, 'edit')
-
-
-    def __del__(self):
-        debug('PlantEditorPresenter.__del__')
-        GenericEditorPresenter.__del__(self)
 
 
     def dirty(self):
@@ -526,7 +521,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def start(self):
-        return self.view.start()
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
+
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
@@ -675,10 +673,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
         self.session.close() # cleanup session
         return self._committed
-
-    def __del__(self):
-        debug('PlantEditor.__del__()')
-        GenericModelViewPresenterEditor.__del__(self)
 
 
 
