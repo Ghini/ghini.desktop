@@ -501,7 +501,14 @@ def message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
 def setup_text_combobox(combo, values=[], cell_data_func=None):
     """
     Configure a gtk.ComboBox as a text combobox
+
+    NOTE: If you pass a cell_data_func that is a method of an object that
+    holds a reference to combo then the object will not be properly
+    garbage collected.  To avoid this problem either don't pass a
+    method of object or make the method static
     """
+    # TODO: create a method for removing cell data functions from
+    # a renderer
     combo.clear()
     model = gtk.ListStore(str)
     for v in values:
@@ -859,3 +866,12 @@ def range_builder(text):
         else:
             values.add(int(rng))
     return list(values)
+
+
+def gc_objects_by_type(typename):
+    # This code from objgraph
+    # Copyright (c) 2008 Marius Gedminas <marius@pov.lt>
+    # Released under the MIT licence.
+    import gc
+    return [o for o in gc.get_objects() if type(o).__name__ == typename]
+
