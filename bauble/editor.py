@@ -157,13 +157,17 @@ class GenericEditorView(object):
     def connect(self, obj, signal, callback, data=None):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
-        sid = obj.connect(signal, callback, data)
+        if '-event' in signal:
+            sid = obj.connect(signal, callback)
+        else:
+            sid = obj.connect(signal, callback, data)
         self.__attached_signals.append((obj, sid))
+        return sid
 
 
     def disconnect_all(self):
-        for widget, sid in self.__attached_signals:
-            widget.disconnect(sid)
+        for obj, sid in self.__attached_signals:
+            obj.disconnect(sid)
         del self.__attached_signals[:]
 
 
@@ -187,6 +191,9 @@ class GenericEditorView(object):
 
     def connect_dialog_close(self, dialog):
         '''
+        Connect the close event response, close and
+        delete-event to a dialog.
+
         :param dialog: the dialog to attache
           self.on_dialog_close_or_delete and self.on_dialog_response to
         '''
@@ -632,9 +639,9 @@ class GenericEditorPresenter(object):
         completion = widget.get_completion()
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
               'completion attached to it' % widget.get_name())
-        sid = widget.connect('changed', on_changed)
+        sid = self.view.connect(widget, 'changed', on_changed)
         setattr(self, self.__changed_sid_name(widget), sid)
-        completion.connect('match-selected', on_match_select)
+        self.view.connect(completion, 'match-selected', on_match_select)
 
 
     def start(self):
