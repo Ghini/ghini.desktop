@@ -112,7 +112,7 @@ class LocationEditorView(GenericEditorView):
         self.connect_dialog_close(self.widgets.location_dialog)
 
         self.use_ok_and_add = True
-        if parent != bauble.gui.window:
+        if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
 
 
@@ -125,6 +125,7 @@ class LocationEditorView(GenericEditorView):
 
     def start(self):
         return self.dialog.run()
+
 
 
 class LocationEditorPresenter(GenericEditorPresenter):
@@ -169,7 +170,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def start(self):
-        return self.view.start()
+        r = self.view.start()
+        self.view.disconnect_all()
+        return r
+
 
 
 class LocationEditor(GenericModelViewPresenterEditor):
@@ -194,7 +198,7 @@ class LocationEditor(GenericModelViewPresenterEditor):
         if model is None:
             model = Location()
         super(LocationEditor, self).__init__(model, parent)
-        if parent is None:
+        if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []

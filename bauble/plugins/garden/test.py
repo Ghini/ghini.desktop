@@ -8,10 +8,10 @@ from bauble.test import BaubleTestCase
 import bauble.utils as utils
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
-from bauble.plugins.garden.donor import Donor
+from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor#, BulkPlantEditor
-from bauble.plugins.garden.location import Location
+from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
@@ -21,11 +21,6 @@ from bauble.plugins.garden.institution import Institution
 
 # TODO: create a test to make sure that if you delete an accession then the
 # plants that are "children" of this accession are also deleted
-
-# TODO: create a test to make sure actions are set up correctly, might
-# be worth creating the tests in the view tests but this would cause
-# the tests to no be part of the plugin and so probably would be
-# better to test them within the garden plugin test code
 
 from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
@@ -145,6 +140,23 @@ class DonorTests(GardenTestCase):
         self.assertRaises(SQLError, session.commit)
 
 
+    def itest_donor_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        loc = self.create(Donor, name=u'some donor')
+        editor = DonorEditor(model=loc)
+        editor.start()
+        del editor
+        assert utils.gc_objects_by_type('DonorEditor') == [], \
+            'DonorEditor not deleted'
+        assert utils.gc_objects_by_type('DonorEditorPresenter') == [], \
+            'DonorEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('DonorEditorView') == [], \
+            'DonorEditorView not deleted'
+
+
+
 class PlantTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -187,7 +199,14 @@ class PlantTests(GardenTestCase):
         plant = Plant(accession=acc, location=location, code=u'2')
         editor = PlantEditor(model=plant)
         editor.start()
+        del editor
 
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
 
 
 class AccessionTests(GardenTestCase):
@@ -464,6 +483,42 @@ class AccessionTests(GardenTestCase):
         acc = self.create(Accession, species=self.species, code=u'1')
         editor = AccessionEditor(model=acc)
         editor.start()
+        del editor
+        assert utils.gc_objects_by_type('AccessionEditor') == [], \
+            'AccessionEditor not deleted'
+        assert utils.gc_objects_by_type('AccessionEditorPresenter') == [], \
+            'AccessionEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('AccessionEditorView') == [], \
+            'AccessionEditorView not deleted'
+
+
+class LocationTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(LocationTests, self).__init__(*args)
+
+    def setUp(self):
+        super(LocationTests, self).setUp()
+
+
+    def tearDown(self):
+        super(LocationTests, self).tearDown()
+
+    def itest_location_editor(self):
+        """
+        Interactively test the PlantEditor
+        """
+        loc = self.create(Location, site=u'some site')
+        editor = LocationEditor(model=loc)
+        editor.start()
+        del editor
+        assert utils.gc_objects_by_type('LocationEditor') == [], \
+            'LocationEditor not deleted'
+        assert utils.gc_objects_by_type('LocationEditorPresenter') == [], \
+            'LocationEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('LocationEditorView') == [], \
+            'LocationEditorView not deleted'
+
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]
 

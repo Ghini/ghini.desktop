@@ -150,10 +150,6 @@ class GenericEditorView(object):
                 tooltips.set_tip(widget, markup)
 
 
-    def __del__(self):
-        debug('GenericEditorView.__del__')
-
-
     def connect(self, obj, signal, callback, data=None):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
