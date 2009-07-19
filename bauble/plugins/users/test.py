@@ -53,12 +53,8 @@ class UsersTests(BaubleTestCase):
     def tearDown(self):
         self.conn.close()
         super(UsersTests, self).tearDown()
-
-        # TODO: right now roles can't be dropped if they have been
-        # granted permissions but we should eventually fix it
-
-        #users.delete(self.group)
-        #users.delete(self.user)
+        users.delete(self.group)
+        users.delete(self.user)
         self.table.drop(checkfirst=True)
 
 
@@ -201,7 +197,7 @@ class UsersTests(BaubleTestCase):
                      "%s doesnt' have write privileges" % role)
         self.assert_(users.has_privileges(role, 'read'),
                      "%s doesn't have read privileges" % role)
-        #users.drop(role)
+        users.drop(role)
 
         role = 'test_write'
         if not role in users.get_users():
@@ -213,7 +209,7 @@ class UsersTests(BaubleTestCase):
                      "%s doesn't have write privileges" % role)
         self.assert_(users.has_privileges(role, 'read'),
                      "%s doesn't have read privileges" % role)
-        #users.drop(role)
+        users.drop(role)
 
         role = 'test_read'
         if not role in users.get_users():
@@ -225,7 +221,7 @@ class UsersTests(BaubleTestCase):
                      "%s has write privileges" % role)
         self.assert_(users.has_privileges(role, 'read'),
                      "%s doesn't have read privileges" % role)
-        #users.drop(role)
+        users.drop(role)
 
 
 
