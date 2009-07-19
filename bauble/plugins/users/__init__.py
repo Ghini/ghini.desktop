@@ -173,8 +173,21 @@ def delete(role):
 
 def drop(role):
     # TODO: need to revoke all privileges first
-    stmt = 'drop role %s;' % (role)
-    db.engine.execute(stmt)
+    conn = db.engine.connect()
+    trans = conn.begin()
+    try:
+        for table in db.metadata.sorted_tables:
+            stmt = 'revoke all on table %s' % table.name
+            conn.execute(stmt)
+        stmt = 'revoke all on database %s' % database.name
+        conn.execute(stmt)
+        stmt = 'drop role %s;' % (role)
+        conn.execute(stmt)
+    except Exception, e:
+        error(e)
+        trans.rollback()
+    else:
+        trans.commit()
 
 
 def get_privileges(role):
