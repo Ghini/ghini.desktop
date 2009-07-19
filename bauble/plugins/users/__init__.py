@@ -1,4 +1,8 @@
 
+import os
+import re
+
+import gtk
 from sqlalchemy import *
 from sqlalchemy.exc import *
 from sqlalchemy.orm.exc import *
@@ -6,9 +10,11 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble
 import bauble.db as db
+import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.utils.log import debug, warning
 import bauble.utils as utils
+from bauble.utils.log import debug, warning, error
 
 # WARNING: "roles" are specific to PostgreSQL database from 8.1 and
 # greater, therefore this module won't work on earlier PostgreSQL
@@ -103,6 +109,7 @@ def create_user(name, password=None, admin=False, groups=[]):
     db.engine.execute(stmt)
 
 
+
 def create_group(name, admin=False):
     """
     Create a role that can't login.
@@ -154,15 +161,19 @@ def get_members(group):
     stmt = "select oid from pg_roles where rolname = '%s'" % group
     gid = db.engine.execute(stmt).fetchone()[0]
     # get members with the gid
-    stmt = 'select member from pg_auth_members where roleid = %s' % gid
+    stmt = "select member from pg_auth_members where roleid = '%s'" % gid
     roleids = [r[0] for r in db.engine.execute(stmt).fetchall()]
     stmt = 'select rolname from pg_roles where oid in (select member ' \
         'from pg_auth_members where roleid = %s)' % gid
     return [r[0] for r in db.engine.execute(stmt).fetchall()]
 
 
-def delete(name):
-    stmt = 'drop role %s;' %  name
+def delete(role):
+    drop(role)
+
+def drop(role):
+    # TODO: need to revoke all privileges first
+    stmt = 'drop role %s;' % (role)
     db.engine.execute(stmt)
 
 
@@ -182,14 +193,67 @@ _privileges = {'read': ['connect', 'select'],
                         'delete', 'execute', 'trigger', 'references'],
               'admin': ['all']}
 
+_database_privs = ['create', 'temporary', 'temp']
+
 _table_privs = ['select', 'insert', 'update', 'delete', 'references',
                  'trigger', 'all']
 
 __sequence_privs = ['usage', 'select', 'update', 'all']
 
 
+def _parse_acl(acl):
+    """
+    returns a list of acls of (role, privs, granter)
+    """
+    rx = re.compile('[{]?(.*?)=(.*?)\/(.*?)[,}]')
+    return rx.findall(acl)
+
+
+def has_privileges(role, privilege):
+    """Return True/False if role has privileges.
+
+    Arguments:
+    - `role`:
+    - `privileges`:
+    """
+    # if the user has all on database with grant privileges he has
+    # the grant privilege on the database then he has admin
+
+    if privilege == 'admin':
+        # test admin privileges on the database
+        for priv in _database_privs:
+            stmt = "select has_database_privilege('%s', '%s', '%s')" \
+                % (role, bauble.db.engine.url.database, priv)
+            r = db.engine.execute(stmt).fetchone()[0]
+            if not r:
+                # debug('%s does not have %s on database %s' % \
+                #           (role, priv, bauble.db.engine.url.database))
+                return False
+        privs = set(_table_privs).intersection(_privileges['write'])
+    else:
+        privs = set(_table_privs).intersection(_privileges[privilege])
+
+
+    # TODO: can we call had_table_privileges on a sequence
+
+    # test the privileges on the tables and sequences
+    for table in db.metadata.sorted_tables:
+        for priv in privs:
+            stmt = "select has_table_privilege('%s', '%s', '%s')" \
+                % (role, table.name, priv)
+            r = db.engine.execute(stmt).fetchone()[0]
+            if not r:
+                #debug('%s does not have %s on %s' % (role,priv,table.name))
+                return False
+    return True
+
+
 def grant(role, privilege):
     """Grant privileges to role on the database.
+
+    This method does not revoke any privileges so if a user has 'admin'
+    privileges and you want to change them to 'read' privileges then
+    you should revoke the privileges first.
 
     Arguments:
     - `role`:
@@ -200,6 +264,13 @@ def grant(role, privilege):
     trans = conn.begin()
     privs = _privileges[privilege]
     try:
+        # grant privileges on the database
+        if privilege == 'admin':
+            stmt = 'grant all on database %s to %s with grant option;' % \
+                (bauble.db.engine.url.database, role)
+            conn.execute(stmt)
+
+        # grant privileges on the tables and sequences
         for table in bauble.db.metadata.sorted_tables:
             tbl_privs = filter(lambda x: x.lower() in _table_privs, privs)
             for priv in tbl_privs:
@@ -246,15 +317,71 @@ def revoke(role, privileges):
         raise ValueError('revoke() unknown privilege: %s' % privileges)
 
 
+def current_user():
+    return db.engine.execute('select current_user;').fetchone()[0]
+
+
+class UsersEditor(object):
+    """
+    """
+
+    def __init__(self, ):
+        """
+        """
+
+        path = os.path.join(paths.lib_dir(), 'plugins', 'users', 'ui.glade')
+        self.widgets = utils.BuilderWidgets(path)
+
+
+    def start(self):
+        if not db.engine.name == 'postgres':
+            msg = _('The users plugin is only valid on a PostgreSQL database')
+            utils.message_dialog(utils.utf8(msg))
+            return
+
+        # TODO: should allow anyone to view the priveleges but only
+        # admins to change them
+        debug(current_user())
+        if not has_privileges(current_user(), 'admin'):
+            msg = _('You do not have privileges to change other '\
+                        'user privileges')
+            utils.message_dialog(utils.utf8(msg))
+            return
+        # setup the users tree
+        tree = self.widgets.users_tree
+        renderer = gtk.CellRendererText()
+        def cell_data_func(col, cell, model, it):
+            value = model[it][0]
+            cell.set_property('text', value)
+        tree.insert_column_with_data_func(0, _('Users'), renderer,
+                                          cell_data_func)
+        model = gtk.ListStore(str)
+        for user in get_users():
+            model.append([user])
+        self.widgets.users_tree.set_model(model)
+
+        def on_toggled(button, data=None):
+            active = button.get_active()
+            debug('%s: %s' % (data, active))
+
+        self.widgets.read_button.connect('toggled', on_toggled, 'read')
+        self.widgets.write_button.connect('toggled', on_toggled, 'write')
+        self.widgets.admin_button.connect('toggled', on_toggled, 'admin')
+
+        self.widgets.main_dialog.run()
+
+
+
 
 class UsersTool(pluginmgr.Tool):
 
-    label = "Users"
+    label = _("Users")
 
     @classmethod
     def start(self):
-        pass
+        UsersEditor().start()
 
+# TODO: need some way to disable the plugin/tool if not a postgres database
 
 class UsersPlugin(pluginmgr.Plugin):
 

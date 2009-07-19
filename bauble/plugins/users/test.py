@@ -53,8 +53,12 @@ class UsersTests(BaubleTestCase):
     def tearDown(self):
         self.conn.close()
         super(UsersTests, self).tearDown()
-        users.delete(self.group)
-        users.delete(self.user)
+
+        # TODO: right now roles can't be dropped if they have been
+        # granted permissions but we should eventually fix it
+
+        #users.delete(self.group)
+        #users.delete(self.user)
         self.table.drop(checkfirst=True)
 
 
@@ -158,6 +162,7 @@ class UsersTests(BaubleTestCase):
 
         # test that we can't insert
         ins = self.table.insert().values(test='some text2')
+
         self.conn.execute(ins)
         #self.assertRaises(ProgrammingError, self.conn.execute, ins)
 
@@ -182,5 +187,48 @@ class UsersTests(BaubleTestCase):
                                  'on table %s' % (self.user, priv, table.name))
 
 
+    def test_has_privileges(self):
+
+        # TODO: create the roles that we want to test with to make
+        # sure they are clean...and delete them when done
+        role = 'test_admin'
+        if not role in users.get_users():
+            users.create_user(role, admin=True)
+        users.grant(role, 'admin')
+        self.assert_(users.has_privileges(role, 'admin'),
+                     "%s doesn't have admin privileges" % role)
+        self.assert_(users.has_privileges(role, 'write'),
+                     "%s doesnt' have write privileges" % role)
+        self.assert_(users.has_privileges(role, 'read'),
+                     "%s doesn't have read privileges" % role)
+        #users.drop(role)
+
+        role = 'test_write'
+        if not role in users.get_users():
+            users.create_user(role)
+        users.grant(role, 'write')
+        self.assert_(not users.has_privileges(role, 'admin'),
+                     "%s has admin privileges" % role)
+        self.assert_(users.has_privileges(role, 'write'),
+                     "%s doesn't have write privileges" % role)
+        self.assert_(users.has_privileges(role, 'read'),
+                     "%s doesn't have read privileges" % role)
+        #users.drop(role)
+
+        role = 'test_read'
+        if not role in users.get_users():
+            users.create_user(role)
+        users.grant(role, 'read')
+        self.assert_(not users.has_privileges(role, 'admin'),
+                     "%s has admin privileges" % role)
+        self.assert_(not users.has_privileges(role, 'write'),
+                     "%s has write privileges" % role)
+        self.assert_(users.has_privileges(role, 'read'),
+                     "%s doesn't have read privileges" % role)
+        #users.drop(role)
+
+
+
     def itest_tool(self):
-        pass
+        users.UsersEditor().start()
+
