@@ -56,7 +56,6 @@ class Action(gtk.Action):
     An Action allows a label, tooltip, callback and accelerator to be called
     when specific items are selected in the SearchView
     """
-
     # TODO: multiselect and singleselect are really specific to the
     # SearchView and we could probably generalize this class a little
     # bit more...or we just assume this class is specific to the
@@ -119,7 +118,7 @@ class InfoExpander(gtk.Expander):
         '''
         a shorthand for L{bauble.utils.set_widget_value()}
         '''
-        utils.set_widget_value(self.widgets.glade_xml, widget_name, value,
+        utils.set_widget_value(self.widgets[widget_name], value,
                                markup, default)
 
 
@@ -326,7 +325,6 @@ class SearchParser(object):
     """
     The parser for bauble.view.MapperSearch
     """
-
     value_chars = Word(alphanums + '%.-_*')
     # value can contain any string once its quoted
     value = value_chars | quotedString.setParseAction(removeQuotes)
