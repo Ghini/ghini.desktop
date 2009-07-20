@@ -105,7 +105,7 @@ class LocationEditorView(GenericEditorView):
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
                                                       'plugins', 'garden',
-                                                      'editors.glade'),
+                                                      'loc_editor.glade'),
                                    parent=parent)
         self.dialog = self.widgets.location_dialog
         self.dialog.set_transient_for(parent)
@@ -339,9 +339,10 @@ class LocationInfoBox(InfoBox):
         '''
         '''
         InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                  "infoboxes.glade")
-        self.widgets = utils.GladeWidgets(glade_file)
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "loc_infobox.glade")
+        builder = utils.BuilderLoader.load(filename)
+        self.widgets = utils.BuilderWidgets(builder)
         self.general = GeneralLocationExpander(self.widgets)
         self.add_expander(self.general)
         self.description = DescriptionExpander(self.widgets)

@@ -97,10 +97,9 @@ class DonorEditorView(GenericEditorView):
     _tooltips = {}
 
     def __init__(self, parent=None):
-        super(DonorEditorView, self).__init__(os.path.join(paths.lib_dir(),
-                                                           'plugins', 'garden',
-                                                           'editors.glade'),
-                                                           parent=parent)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                'donor_editor.glade')
+        super(DonorEditorView, self).__init__(filename, parent=parent)
 
         self.dialog = self.widgets.donor_dialog
         self.connect_dialog_close(self.dialog)
@@ -312,9 +311,10 @@ class DonorInfoBox(InfoBox):
 
     def __init__(self):
         super(DonorInfoBox, self).__init__()
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
-                            "infoboxes.glade")
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "donor_infobox.glade")
+        builder = utils.BuilderLoader.load(filename)
+        self.widgets = utils.BuilderWidgets(builder)
         self.general = GeneralDonorExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

@@ -115,7 +115,7 @@ class GenericEditorView(object):
     """
     _tooltips = {}
 
-    def __init__(self, glade_xml, parent=None):
+    def __init__(self, filename, parent=None):
         '''
         glade_xml either at gtk.glade.XML instance or a path to a glade
         XML file
@@ -123,12 +123,9 @@ class GenericEditorView(object):
         :param glade_xml:
         :param parent:
         '''
-        if isinstance(glade_xml, gtk.glade.XML):
-            self.glade_xml = glade_xml
-        else: # assume it's a path string
-            self.glade_xml = gtk.glade.XML(glade_xml)
+        builder = utils.BuilderLoader.load(filename)
+        self.widgets = utils.BuilderWidgets(builder)
         self.parent = parent
-        self.widgets = utils.GladeWidgets(self.glade_xml)
         self.response = None
         self.__attached_signals = []
 
@@ -153,10 +150,10 @@ class GenericEditorView(object):
     def connect(self, obj, signal, callback, data=None):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
-        if '-event' in signal:
-            sid = obj.connect(signal, callback)
-        else:
+        if data:
             sid = obj.connect(signal, callback, data)
+        else:
+            sid = obj.connect(signal, callback)
         self.__attached_signals.append((obj, sid))
         return sid
 
@@ -181,7 +178,7 @@ class GenericEditorView(object):
         :param markup: whether the data in value uses pango markup
         :param default: the default value to put in the widget if value is None
         '''
-        utils.set_widget_value(self.glade_xml, widget_name, value, markup,
+        utils.set_widget_value(self.widgets[widget_name], value, markup,
                                default)
 
 
@@ -478,20 +475,10 @@ class GenericEditorPresenter(object):
                 value = None # make sure the value in the model is reset
         setattr(self.model, attr, value)
 
-    # TODO: this should validate the data, i.e. convert strings to
-    # int, or does commit do that?
-    # TODO: here's our options
-    # 1. validate on input, wouldn't be difficult just raise an error in
-    # _set_in_model if the validation isn't good, add a problem to the
-    # problem list, and set the event box red, the only thing is getting
-    # the event box names into assign simple_handler
-    # 2. validate on commit, not as nice for the user since it allows
-    # them to put junk in the handler without them knowing and its not as
-    # obviously clear where the problem is, but this is much easier to
-    # implement
+
     def assign_simple_handler(self, widget_name, model_attr, validator=None):
         '''
-        assign handlers to widgets to change fields in the model
+        Assign handlers to widgets to change fields in the model.
         '''
         widget = self.view.widgets[widget_name]
         check(widget is not None, _('no widget with name %s') % widget_name)
@@ -501,12 +488,10 @@ class GenericEditorPresenter(object):
                 entry_text = entry.get_text()
                 pos = entry.get_position()
                 full_text = entry_text[:pos] + new_text + entry_text[pos:]
-                #_set_in_model(full_text)
                 self.set_model_attr(model_attr, full_text, validator)
             def delete(entry, start, end, data=None):
                 text = entry.get_text()
                 full_text = text[:start] + text[end:]
-                #_set_in_model(full_text)
                 self.set_model_attr(model_attr, full_text, validator)
             self.view.connect(widget_name, 'insert-text', insert)
             self.view.connect(widget_name, 'delete-text', delete)
@@ -643,6 +628,7 @@ class GenericEditorPresenter(object):
 
     def start(self):
         raise NotImplementedError
+
 
     def cleanup(self):
         self.view.cleanup()

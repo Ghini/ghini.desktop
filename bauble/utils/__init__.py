@@ -51,18 +51,67 @@ def find_dependent_tables(table, metadata=None):
     return sort_tables(tables=tables)
 
 
-class BuilderWidgets(dict):
+
+class BuilderLoader(object):
+    """
+    This class caches the gtk.Builder objects so that loading the same
+    file with the same name returns the same gtk.Builder.
+
+    It might seem crazy to keep them around instead of deleting them
+    and freeing the memory but in reality the memory is never returned
+    to the system. By using this class you can keep the size of the
+    application from growing if the same UI decription is loaded
+    several times.  e.g. everytime you open an editor or infobox
+    """
+    builders = {}
+
+    @classmethod
+    def load(cls, filename):
+        """
+        """
+        if filename in cls.builders.keys():
+            return cls.builders[filename]
+        cls.builders[filename] = gtk.Builder()
+        cls.builders[filename].add_from_file(filename)
+        return cls.builders[filename]
+
+
+class IWidgets(dict):
+
+    def __init__(self, filename):
+        raise NotImplementedError
+
+
+    def remove_parent(self, widget):
+        """
+        Remove widgets from its parent.
+        """
+        # if parent is the last reference to widget then widget may be
+        # automatically destroyed
+        if isinstance(widget, str):
+            w = self[widget]
+        else:
+            w = widget
+        parent = w.get_parent()
+        if parent is not None:
+            parent.remove(w)
+
+
+class BuilderWidgets(IWidgets):
     """
     Provides dictionary and attribute access for a
     :class:`gtk.Builder` object.
     """
 
-    def __init__(self, filename):
+    def __init__(self, ui):
         '''
         @params filename: a gtk.Builder XML UI file
         '''
-        self.builder = gtk.Builder()
-        self.builder.add_from_file(filename)
+        if isinstance(ui, basestring):
+            self.builder = gtk.Builder()
+            self.builder.add_from_file(ui)
+        else:
+            self.builder = ui
 
 
     def __getitem__(self, name):
@@ -87,23 +136,9 @@ class BuilderWidgets(dict):
         return w
 
 
-    def remove_parent(self, widget):
-        """
-        Remove widgets from its parent.
-        """
-        # if parent is the last reference to widget then widget may be
-        # automatically destroyed
-        if isinstance(widget, str):
-            w = self[widget]
-        else:
-            w = widget
-        parent = w.get_parent()
-        if parent is not None:
-            parent.remove(w)
 
 
-
-class GladeWidgets(dict):
+class GladeWidgets(IWidgets):
     """
     Provides dictionary and attribute access for a
     :class:`gtk.glade.XML` object.
@@ -135,20 +170,6 @@ class GladeWidgets(dict):
         '''
         return self.glade_xml.get_widget(name)
 
-
-    def remove_parent(self, widget):
-        """
-        Remove widgets from its parent.
-        """
-        # if parent is the last reference to widget then widget may be
-        # automatically destroyed
-        if isinstance(widget, str):
-            w = self[widget]
-        else:
-            w = widget
-        parent = w.get_parent()
-        if parent is not None:
-            parent.remove(w)
 
 
     def signal_autoconnect(self, handlers):
@@ -259,7 +280,7 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
-def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
+def set_widget_value(widget, value, markup=True, default=None):
     '''
     :param glade_xml: the glade_file to get the widget from
     :param widget_name: the name of the widget
@@ -271,16 +292,16 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
       the values __str__ method
     '''
     import gtk
-    w = glade_xml.get_widget(widget_name)
+    #w = glade_xml.get_widget(widget_name)
     if value is None:  # set the value from the default
-        if isinstance(w,(gtk.Label, gtk.TextView, gtk.Entry)) \
+        if isinstance(widget, (gtk.Label, gtk.TextView, gtk.Entry)) \
                and default is None:
             value = ''
         else:
             value = default
 
-    if isinstance(w, gtk.Label):
-        #w.set_text(str(value))
+    if isinstance(widget, gtk.Label):
+        #widget.set_text(str(value))
         # FIXME: some of the enum values that have <not set> as a values
         # will give errors here, but we can't escape the string because
         # if someone does pass something that needs to be marked up
@@ -289,29 +310,29 @@ def set_widget_value(glade_xml, widget_name, value, markup=True, default=None):
         # or we should just catch the error(is there an error) and call
         # set_text if set_markup fails
         if markup:
-            w.set_markup(str(value))
+            widget.set_markup(str(value))
         else:
-            w.set_text(str(value))
-    elif isinstance(w, gtk.TextView):
-        w.get_buffer().set_text(str(value))
-    elif isinstance(w, gtk.Entry):
-        w.set_text(str(value))
-    elif isinstance(w, gtk.ComboBox): # TODO: what about comboentry
+            widget.set_text(str(value))
+    elif isinstance(widget, gtk.TextView):
+        widget.get_buffer().set_text(str(value))
+    elif isinstance(widget, gtk.Entry):
+        widget.set_text(str(value))
+    elif isinstance(widget, gtk.ComboBox): # TODO: what about comboentry
         # TODO: what if None is in the model
-        treeiter = combo_get_value_iter(w, value)
+        treeiter = combo_get_value_iter(widget, value)
         if treeiter:
-            w.set_active_iter(treeiter)
-        elif w.get_model() is not None:
-            w.set_active(-1)
-    elif isinstance(w, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
+            widget.set_active_iter(treeiter)
+        elif widget.get_model() is not None:
+            widget.set_active(-1)
+    elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
         if value is True:
-            w.set_inconsistent(False)
-            w.set_active(True)
+            widget.set_inconsistent(False)
+            widget.set_active(True)
         elif value is False: # how come i have to unset inconsistent for False?
-            w.set_inconsistent(False)
-            w.set_active(False)
+            widget.set_inconsistent(False)
+            widget.set_active(False)
         else:
-            w.set_inconsistent(True)
+            widget.set_inconsistent(True)
     else:
         raise TypeError('utils.set_widget_value(): Don\'t know how to handle '
                         'the widget type %s with name %s' % \
@@ -883,3 +904,9 @@ def gc_objects_by_type(tipe):
     else:
         return [o for o in gc.get_objects() if isinstance(o, type(tipe))]
 
+
+def mem(size="rss"):
+    """Generalization; memory sizes: rss, rsz, vsz."""
+    import os
+    return int(os.popen('ps -p %d -o %s | tail -1' % \
+                            (os.getpid(), size)).read())
