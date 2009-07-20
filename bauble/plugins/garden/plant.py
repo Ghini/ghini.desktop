@@ -260,7 +260,7 @@ class PlantEditorView(GenericEditorView):
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
                                                       'plugins', 'garden',
-                                                      'editors.glade'),
+                                                      'plant_editor.glade'),
                                    parent=parent)
         self.dialog = self.widgets.plant_dialog
         self.dialog.set_transient_for(parent)
@@ -732,9 +732,10 @@ class PlantInfoBox(InfoBox):
         InfoBox.__init__(self)
         #loc = LocationExpander()
         #loc.set_expanded(True)
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                  "plant_infobox.glade")
-        self.widgets = utils.GladeWidgets(glade_file)
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "plant_infobox.glade")
+        builder = utils.BuilderLoader.load(filename)
+        self.widgets = utils.BuilderWidgets(builder)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

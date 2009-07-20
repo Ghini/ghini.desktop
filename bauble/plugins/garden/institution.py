@@ -82,9 +82,9 @@ class InstitutionEditorView(editor.GenericEditorView):
     _tooltips = {}
 
     def __init__(self, parent=None):
-        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                            'editors.glade')
-        super(InstitutionEditorView, self).__init__(glade_path, parent=parent)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                'institution.glade')
+        super(InstitutionEditorView, self).__init__(filename, parent=parent)
         self.dialog = self.widgets.inst_dialog
         self.connect_dialog_close(self.dialog)
         if parent is None:

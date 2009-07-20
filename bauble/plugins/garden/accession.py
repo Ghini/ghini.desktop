@@ -506,7 +506,7 @@ class AccessionEditorView(GenericEditorView):
     def __init__(self, parent=None):
         GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
                                                       'plugins', 'garden',
-                                                      'editors.glade'),
+                                                      'acc_editor.glade'),
                                    parent=parent)
         self.dialog = self.widgets.accession_dialog
         self.dialog.set_transient_for(parent)
@@ -1253,6 +1253,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self.refresh_sensitivity()
 
 
+
     def refresh_id_qual_rank_combo(self):
         """
         Populate the id_qual_rank_combo with the parts of the species string
@@ -1879,9 +1880,10 @@ class AccessionInfoBox(InfoBox):
     """
     def __init__(self):
         super(AccessionInfoBox, self).__init__()
-        glade_file = os.path.join(paths.lib_dir(), "plugins", "garden",
-                            "acc_infobox.glade")
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "acc_infobox.glade")
+        builder = utils.BuilderLoader.load(filename)
+        self.widgets = utils.BuilderWidgets(builder)
 
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)
