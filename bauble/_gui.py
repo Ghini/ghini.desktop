@@ -17,7 +17,6 @@ import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 from bauble.utils.log import log, debug, warning
-from bauble.utils.pyparsing import *
 from bauble.view import SearchView
 import bauble.error as error
 
@@ -115,6 +114,8 @@ class GUI(object):
         vbox.show()
         hbox.show()
 
+        from utils.pyparsing import StringStart, Word, alphanums, restOfLine, \
+            StringEnd
         cmd = StringStart() +':'+ Word(alphanums + '-_').setResultsName('cmd')
         arg = restOfLine.setResultsName('arg')
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
@@ -532,13 +533,13 @@ class GUI(object):
             debug(traceback.format_exc())
 
 
-    def on_insert_menu_item_activate(self, widget, editor):
+    def on_insert_menu_item_activate(self, widget, editor_cls):
         try:
             view = self.get_view()
             if isinstance(view, SearchView):
                 expanded_rows = view.get_expanded_rows()
-            e = editor()
-            committed = e.start()
+            editor = editor_cls()
+            committed = editor.start()
             if committed is not None and isinstance(view, SearchView):
                 view.results_view.collapse_all()
                 view.expand_to_all_refs(expanded_rows)
@@ -547,6 +548,27 @@ class GUI(object):
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
             debug(traceback.format_exc())
+
+        presenter_cls = view_cls = None
+        if hasattr(editor, 'presenter'):
+            presenter_cls = type(editor.presenter)
+            view_cls = type(editor.presenter.view)
+
+        # delete the editor
+        del editor
+
+        # check for leaks
+        obj = utils.gc_objects_by_type(editor_cls)
+        if obj != []:
+            warning('%s leaked: %s' % (editor_cls.__name__, obj))
+
+        if presenter_cls:
+            obj = utils.gc_objects_by_type(presenter_cls)
+            if obj != []:
+                warning('%s leaked: %s' % (presenter_cls.__name__, obj))
+            obj = utils.gc_objects_by_type(view_cls)
+            if obj != []:
+                warning('%s leaked: %s' % (view_cls.__name__, obj))
 
 
 ##     def on_edit_menu_prefs(self, widget, data=None):
