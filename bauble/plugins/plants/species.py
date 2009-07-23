@@ -249,6 +249,17 @@ class GeneralSpeciesExpander(InfoExpander):
             return True
 
         self.current_obj = None
+        def on_nacc_clicked(*args):
+            cmd = 'acc where species.id=%s' % self.current_obj.id
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.sp_nacc_data,
+                                   on_nacc_clicked)
+
+        def on_nplants_clicked(*args):
+            cmd = 'plant where accession.species.id=%s' % self.current_obj.id
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.sp_nplants_data,
+                                   on_nplants_clicked)
 
 
     def update(self, row):
@@ -257,6 +268,7 @@ class GeneralSpeciesExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
+        self.current_obj = row
         # TODO: how do we put the genus is a seperate label so so it
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the

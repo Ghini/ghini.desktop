@@ -352,20 +352,29 @@ class SearchTests(BaubleTestCase):
         # self.assert_(sorted([r.id for r in results]) \
         #              == [g.id for g in (genus, genus2, g3)])
 
-        # TODO: test that searching with an empty string works
+        # test the searching with the empty string does exactly that
+        # and does try to use None
         s = 'genus where family.family=Orchidaceae and family.qualifier = ""'
         results = mapper_search.search(s, self.session)
         r = list(results)
         #debug(list(results))
 
-        # TODO: this seems to search as a value list
+        # make sure None isn't treated as the string 'None' and that
+        # the query picks up the is operator
         s = 'genus where family.qualifier is None'
         results = mapper_search.search(s, self.session)
         r = list(results)
         #debug(list(results))
 
-        # TODO:
+        # test where the column is ambiguous so make sure we choose
+        # the right one, in this case we want to make sure we get the
+        # qualifier on the family and not the genus
         s = 'plant where accession.species.genus.family.family="Orchidaceae" and accession.species.genus.family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
         #debug(r)
+
+        # id is a column on plant but we want the id on the species
+        s = 'plant where accession.species.id=1'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
