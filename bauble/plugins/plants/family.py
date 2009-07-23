@@ -561,35 +561,27 @@ class GeneralFamilyExpander(InfoExpander):
     '''
 
     def __init__(self, widgets):
-        '''
-        the constructor
-        '''
+        """
+
+        Arguments:
+        - `widgets`:
+        """
         InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.fam_general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
 
-
-        # TODO: need to be able to handle None as type instead of as a
-        # string, e.g.family.qualifer=None or family.qualifier is None
-
-        def qual_expr():
-            if self.current_obj.qualifier:
-                return 'family.qualifier="%s"' % self.current_obj.qualifier
-            else:
-                return 'family.qualifier is None'
-
         def on_ngen_clicked(*args):
             f = self.current_obj
-            cmd = 'genus where family.family="%s" and %s'\
-                % (f.family, qual_expr())
+            cmd = 'genus where family.family="%s" and family.qualifier="%s"'\
+                % (f.family, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_ngen_data,
                                    on_ngen_clicked)
 
         def on_nsp_clicked(*args):
             f = self.current_obj
-            cmd = 'species where genus.family.family="%s" and '\
+            cmd = 'species where genus.family.family="%s" '\
                 'and genus.family.qualifier="%s"' % (f.family, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nsp_data,
@@ -597,8 +589,8 @@ class GeneralFamilyExpander(InfoExpander):
 
         def on_nacc_clicked(*args):
             f = self.current_obj
-            cmd = 'acc where species.genus.family.family="%s" and ' \
-                'and species.genus.family.family.qualifier="%s"' \
+            cmd = 'acc where species.genus.family.family="%s" ' \
+                'and species.genus.family.qualifier="%s"' \
                 % (f.family, f.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.fam_nacc_data,
@@ -606,7 +598,7 @@ class GeneralFamilyExpander(InfoExpander):
 
         def on_nplants_clicked(*args):
             f = self.current_obj
-            cmd = 'plant where accession.species.genus.family.family="%s" and ' \
+            cmd = 'plant where accession.species.genus.family.family="%s" ' \
                 'and accession.species.genus.family.qualifier="%s"' \
                 % (f.family, f.qualifier)
             bauble.gui.send_command(cmd)

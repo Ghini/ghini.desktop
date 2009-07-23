@@ -1746,6 +1746,12 @@ class GeneralAccessionExpander(InfoExpander):
             select_in_search_results(self.current_obj.species)
         utils.make_label_clickable(self.widgets.name_data, on_species_clicked)
 
+        def on_nplants_clicked(*args):
+            cmd = 'plant where accession.code="%s"' % self.current_obj.code
+            bauble.gui.send_command(cmd)
+        utils.make_label_clickable(self.widgets.nplants_data,
+                                   on_nplants_clicked)
+
 
     def update(self, row):
         '''
