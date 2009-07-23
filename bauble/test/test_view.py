@@ -16,6 +16,8 @@ from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
 
 
+# TODO: test for memory leaks, could probably test
+
 # TODO: allow AND and OR in possible values, especially so we can do...
 # species where genus.family=='Orchidaceae' and accessions.acc_status!='Dead'
 
@@ -53,6 +55,7 @@ class SearchParserTests(unittest.TestCase):
 
     def test_statement_token(self):
         pass
+
 
     def test_domain_expression_token(self):
         """
@@ -202,8 +205,7 @@ class SearchTests(BaubleTestCase):
 
 	# TODO: test the ResultSet(somelist) and
 	# ResultSet().add(somelist) are the same
-        return
-
+        #return
         from bauble.plugins.plants.family import Family
         ids = xrange(1,1000)
         table = Family.__table__
@@ -214,9 +216,8 @@ class SearchTests(BaubleTestCase):
         view = SearchView()
         mapper_search = view.search_strategies[0]
         result = mapper_search.search('fam=*', self.session)
-        #debug('list')
-        for v in result: pass
-        #debug('done')
+        for v in result:
+            v
 
 
     def test_search_by_values(self):
@@ -334,3 +335,37 @@ class SearchTests(BaubleTestCase):
         self.assert_(results.count() == 3)
         self.assert_(sorted([r.id for r in results]) \
                      == [g.id for g in (genus, genus2, g3)])
+
+        s = 'genus where family.family="Orchidaceae" and family.qualifier=""'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
+        #debug(list(results))
+
+
+        # TODO: create a query to test the =None statement, can't use
+        # family.qualifier b/c its default value is ''
+        s = 'genus where family.family=fam3 and family.qualifier=None'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
+        #debug(list(results))
+        # self.assert_(results.count() == 3)
+        # self.assert_(sorted([r.id for r in results]) \
+        #              == [g.id for g in (genus, genus2, g3)])
+
+        # TODO: test that searching with an empty string works
+        s = 'genus where family.family=Orchidaceae and family.qualifier = ""'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
+        #debug(list(results))
+
+        # TODO: this seems to search as a value list
+        s = 'genus where family.qualifier is None'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
+        #debug(list(results))
+
+        # TODO:
+        s = 'plant where accession.species.genus.family.family="Orchidaceae" and accession.species.genus.family.qualifier=""'
+        results = mapper_search.search(s, self.session)
+        r = list(results)
+        #debug(r)
