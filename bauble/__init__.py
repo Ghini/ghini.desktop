@@ -34,27 +34,6 @@ if main_is_frozen(): # main is frozen
                    os.pathsep, os.path.join(paths.main_dir(), 'gtk', 'lib'),
                    os.pathsep, os.environ['PATH'])
 
-# TODO: it would be nice to show a Tk dialog here saying we can't
-# import gtk...but then we would have to include all of the Tk libs in
-# with the win32 batteries-included installer
-try:
-    import gtk, gobject
-except ImportError, e:
-    print _('** Error: could not import gtk and/or gobject')
-    print e
-    if sys.platform == 'win32':
-        print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
-    sys.exit(1)
-
-
-import gtk.gdk
-
-# setup glade internationalization
-import gtk.glade
-gtk.glade.bindtextdomain('bauble', paths.locale_dir())
-gtk.glade.textdomain('bauble')
-
-import bauble.utils as utils
 
 # if not hasattr(gtk.Widget, 'set_tooltip_markup'):
 #     msg = _('Bauble requires GTK+ version 2.12 or greater')
@@ -78,9 +57,7 @@ default_icon = None
 conn_name = None
 
 import traceback
-from bauble.utils.log import debug, warning
-import bauble.utils.log as log # so we can use log.error()
-import bauble.error as error
+import bauble.error as err
 
 
 def save_state():
@@ -98,6 +75,7 @@ def quit():
     """
     Stop all tasks and quit Bauble.
     """
+    import gtk
     import bauble.task as task
     save_state()
     try:
@@ -111,6 +89,7 @@ def set_busy(busy):
     """
     Set the interface to appear busy.
     """
+    import gtk.gdk
     if gui is None or gui.widgets.main_box is None:
         return
     # main_box is everything but the statusbar
@@ -133,6 +112,9 @@ def command_handler(cmd, arg):
     :param arg: The arg to pass to the command handler
     :type arg: list
     """
+    import gtk
+    from bauble.utils.log import error
+    import bauble.utils as utils
     import bauble.pluginmgr as pluginmgr
     global last_handler
     handler_cls = None
@@ -162,7 +144,7 @@ def command_handler(cmd, arg):
         last_handler(arg)
     except Exception, e:
         msg = utils.xml_safe_utf8(e)
-        log.error('bauble.command_handler(): %s' % msg)
+        error('bauble.command_handler(): %s' % msg)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      gtk.MESSAGE_ERROR)
 
@@ -174,6 +156,24 @@ def main(uri=None):
     """
     Initialize Bauble and start the main Bauble interface.
     """
+# TODO: it would be nice to show a Tk dialog here saying we can't
+# import gtk...but then we would have to include all of the Tk libs in
+# with the win32 batteries-included installer
+    try:
+        import gtk, gobject
+    except ImportError, e:
+        print _('** Error: could not import gtk and/or gobject')
+        print e
+        if sys.platform == 'win32':
+            print _('Please make sure that GTK_ROOT\\bin is in your PATH.')
+        sys.exit(1)
+
+    import gtk.gdk
+
+    # setup glade internationalization
+    import gtk.glade
+    gtk.glade.bindtextdomain('bauble', paths.locale_dir())
+    gtk.glade.textdomain('bauble')
     import pygtk
     if not main_is_frozen():
         pygtk.require("2.0")
@@ -185,6 +185,8 @@ def main(uri=None):
 
     import bauble.pluginmgr as pluginmgr
     from bauble.prefs import prefs
+    import bauble.utils as utils
+    from bauble.utils.log import debug, warning, error
 
     # create the user directory
     if not os.path.exists(paths.user_dir()):
@@ -225,20 +227,20 @@ def main(uri=None):
                     break
                 else:
                     uri = conn_name = None
-            except error.VersionError, e:
+            except err.VersionError, e:
                 warning(e)
                 db.open(uri, False)
                 break
-            except (error.EmptyDatabaseError, error.MetaTableError,
-                    error.VersionError, error.TimestampError,
-                    error.RegistryError), e:
+            except (err.EmptyDatabaseError, err.MetaTableError,
+                    err.VersionError, err.TimestampError,
+                    err.RegistryError), e:
                 warning(e)
                 open_exc = e
                 # reopen without verification so that bauble.Session and
                 # db.engine, db.metadata will be bound to an engine
                 db.open(uri, False)
                 break
-            except error.DatabaseError, e:
+            except err.DatabaseError, e:
                 debug(e)
                 #traceback.format_exc()
                 open_exc = e
@@ -275,7 +277,7 @@ def main(uri=None):
     def _post_loop():
         gtk.gdk.threads_enter()
         try:
-            if isinstance(open_exc, error.DatabaseError):
+            if isinstance(open_exc, err.DatabaseError):
                 msg = _('Would you like to create a new Bauble database at ' \
                         'the current connection?\n\n<i>Warning: If there is '\
                         'already a database at this connection any existing '\
@@ -294,7 +296,7 @@ def main(uri=None):
                         utils.message_details_dialog(utils.xml_safe_utf8(e),
                                                      traceback.format_exc(),
                                                      gtk.MESSAGE_ERROR)
-                        log.error(e)
+                        error(e)
             else:
                 pluginmgr.init()
         except Exception, e:
