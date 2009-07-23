@@ -670,11 +670,11 @@ class GenericModelViewPresenterEditor(object):
         '''
         def callback(widget, event):
 #            debug(gtk.gdk.keyval_name(event.keyval))
-            if event.keyval == gtk.gdk.keyval_from_name(keyname) \
+            if event.keyval == gtk.gdk.keyval_from_name(key) \
                    and (event.state & mask):
                 dialog.response(response)
         dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
-        dialog.connect("key-press-event", callback)
+        dialog.connect("key-press-event", callback, keyname)
 
 
     def commit_changes(self):
