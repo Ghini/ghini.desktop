@@ -26,8 +26,7 @@ def edit_callback(values):
     sp = values[0]
     if isinstance(sp, VernacularName):
         sp = sp.species
-    session = bauble.Session()
-    e = SpeciesEditor(model=session.merge(sp))
+    e = SpeciesEditor(model=sp)
     return e.start() != None
 
 

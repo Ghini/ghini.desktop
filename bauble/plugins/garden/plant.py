@@ -280,7 +280,8 @@ class PlantEditorView(GenericEditorView):
     def __del__(self):
         #debug('PlantView.__del__()')
         #GenericEditorView.__del__(self)
-        self.dialog.destroy()
+        #self.dialog.destroy()
+        pass
 
 
     def save_state(self):

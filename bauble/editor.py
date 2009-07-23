@@ -290,10 +290,13 @@ class GenericEditorView(object):
         """
         Should be caled when self.start() returns.
         """
-        try:
-            self.get_window().destroy()
-        except NotImplementedError:
-            warning(_('Could not destroy window'))
+        # Don't destroy the window or we won't be able to retrieve it
+        # again later.
+        #
+        # try:
+        #     self.get_window().destroy()
+        # except NotImplementedError:
+        #     warning(_('Could not destroy window'))
         self.disconnect_all()
 
 
@@ -668,13 +671,13 @@ class GenericModelViewPresenterEditor(object):
         '''
         attach a response to dialog when keyname and mask are pressed
         '''
-        def callback(widget, event):
+        def callback(widget, event, key, mask):
 #            debug(gtk.gdk.keyval_name(event.keyval))
             if event.keyval == gtk.gdk.keyval_from_name(key) \
                    and (event.state & mask):
-                dialog.response(response)
+                widget.response(response)
         dialog.add_events(gtk.gdk.KEY_PRESS_MASK)
-        dialog.connect("key-press-event", callback, keyname)
+        dialog.connect("key-press-event", callback, keyname, mask)
 
 
     def commit_changes(self):

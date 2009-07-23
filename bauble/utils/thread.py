@@ -3,6 +3,9 @@ import Queue
 from gtk.gdk import threads_enter, threads_leave
 from gobject import GObject, SIGNAL_RUN_FIRST
 
+# This code originally from:
+# http://code.activestate.com/recipes/521881/
+
 class GtkWorker (GObject, Thread):
 
     __gsignals__ = {
