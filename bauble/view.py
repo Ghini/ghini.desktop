@@ -480,9 +480,10 @@ class MapperSearch(SearchStrategy):
                     # use is not None b/c val could be ''
                     val = "'%s'" % val
 
-                if col in cls.__table__.c:
+                if col in cls.__table__.c and \
+                        relations[-1] == cls.__table__.name:
                     where = "%s %s %s" % ('.'.join(idents), cond, val)
-                elif len(idents) > 1 and idents[-2] in \
+                elif len(relations) and relations[-1] in \
                         [t.name for t in bauble.db.metadata.sorted_tables]:
                     # We get here when there are identifiers before
                     # the column and the next to the last ident is a
@@ -891,6 +892,8 @@ class SearchView(pluginmgr.View):
         self.installed_accels = []
 
         selected = self.get_selected_values()
+        if not selected:
+            return
         selected_type = type(selected[0])
 
         for action in self.view_meta[selected_type].actions:
