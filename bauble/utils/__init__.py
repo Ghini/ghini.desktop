@@ -63,6 +63,13 @@ class BuilderLoader(object):
     application from growing if the same UI decription is loaded
     several times.  e.g. everytime you open an editor or infobox
     """
+    # NOTE: this builder loader is really only used because of a bug
+    # in PyGTK where a gtk.Builder doesn't free some memory so we use
+    # this to keep the memory from growing out of control. if the
+    # gtk/pygtk people fix that bug we should be able to get rid of
+    # this class
+    # http://bugzilla.gnome.org/show_bug.cgi?id=589057,560822
+
     builders = {}
 
     @classmethod
@@ -160,7 +167,7 @@ class GladeWidgets(IWidgets):
         '''
         w = self.glade_xml.get_widget(name)
         if not w:
-            raise KeyError(_('%s not in glade file'))
+            raise KeyError(_('%s not in glade file') % name)
         return w
 
 
