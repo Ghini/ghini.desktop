@@ -1205,6 +1205,8 @@ class SearchView(pluginmgr.View):
             return False # if not right click then leave
 
         selected = self.get_selected_values()
+        if not selected:
+            return
         selected_type = type(selected[0])
         if len(selected) > 1:
             # make sure all the selected items are of the same type
