@@ -470,7 +470,7 @@ class MapperSearch(SearchStrategy):
                 # since we build the query from a string instead of
                 # trying to resolve the columns and relations then we
                 # need to make sure that None is translated to NULL
-                if val is None and cond in ('=', '=='):
+                if val is None and cond in ('=', '==', 'is'):
                     cond = 'is'
                     val = 'NULL'
                 elif val is None and cond in ('!='):
@@ -482,7 +482,15 @@ class MapperSearch(SearchStrategy):
 
                 if col in cls.__table__.c:
                     where = "%s %s %s" % ('.'.join(idents), cond, val)
-
+                elif len(idents) > 1 and idents[-2] in \
+                        [t.name for t in bauble.db.metadata.sorted_tables]:
+                    # We get here when there are identifiers before
+                    # the column and the next to the last ident is a
+                    # table. Usually this means that the next to the
+                    # last ident is a table and not a join.  This
+                    # allows us to be more specific about the col in
+                    # the case that it is ambiguous.
+                    where = "%s.%s %s %s" % (idents[-2], col, cond, val)
                 else:
                     where = "%s %s %s" % (col, cond, val)
 
@@ -553,7 +561,7 @@ class MapperSearch(SearchStrategy):
         """
         Called when the parser hits a value_list token
         """
-        debug('values: %s' % tokens)
+        #debug('values: %s' % tokens)
 #         debug('  s: %s' % s)
 #         debug('  loc: %s' % loc)
 #         debug('  toks: %s' % tokens)
