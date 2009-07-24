@@ -213,7 +213,6 @@ class GUI(object):
 
 
     def show(self):
-        self.build_tools_menu()
         self.window.show()
 
 
@@ -475,12 +474,15 @@ class GUI(object):
 
     def build_tools_menu(self):
         """
-        build the tools menu from the tools provided by the plugins
+        Build the tools menu from the tools provided by the plugins.
+
+        This method is generally called after plugin initialization
         """
         topmenu = self.ui_manager.get_widget('/ui/MenuBar/tools_menu')
         menu = topmenu.get_submenu()
+        for child in menu.get_children():
+            menu.remove(child)
         menu.show()
-        tools = []
         tools = {'__root': []}
         # categorize the tools into a dict
         for p in pluginmgr.plugins.values():
