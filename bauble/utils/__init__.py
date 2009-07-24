@@ -377,10 +377,10 @@ def create_message_dialog(msg, type=gtk.MESSAGE_INFO, buttons=gtk.BUTTONS_OK,
                                        context.get_language())
     width = font_metrics.get_approximate_char_width()
     import pango
-    # if the character width is less than 200 pixels then set the
-    # message dialog's label to be 200 to avoid tiny dialogs
-    if width/pango.SCALE < 200:
-        d.label.set_size_request(200, -1)
+    # if the character width is less than 300 pixels then set the
+    # message dialog's label to be 300 to avoid tiny dialogs
+    if width/pango.SCALE*len(msg) < 300:
+        d.label.set_size_request(300, -1)
 
     if d.get_icon() is None:
         try:
@@ -483,10 +483,10 @@ def create_message_details_dialog(msg, details, type=gtk.MESSAGE_INFO,
                                        context.get_language())
     width = font_metrics.get_approximate_char_width()
     import pango
-    # if the character width is less than 200 pixels then set the
-    # message dialog's label to be 200 to avoid tiny dialogs
-    if width/pango.SCALE < 200:
-        d.label.set_size_request(200, -1)
+    # if the character width is less than 300 pixels then set the
+    # message dialog's label to be 300 to avoid tiny dialogs
+    if width/pango.SCALE*len(msg) < 300:
+        d.label.set_size_request(300, -1)
 
     expand = gtk.Expander("Details")
     text_view = gtk.TextView()
