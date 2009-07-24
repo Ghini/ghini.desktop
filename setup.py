@@ -393,7 +393,7 @@ setuptools.setup(name="bauble",
                  author_email="brett@belizebotanic.org",
                  description="Bauble is a biodiversity collection manager " \
                  "software application",
-                 license="GPL",
+                 license="GPLv2+",
                  keywords="database biodiversity botanic collection",
                  url="http://bauble.belizebotanic.org",
                  options=py2exe_options,
