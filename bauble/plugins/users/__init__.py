@@ -81,20 +81,17 @@ def connect_as_user(name=None):
 
 
 def get_users():
-    """Return a list of user names.
+    """Return the list of user names.
     """
     stmt = 'select rolname from pg_roles where rolcanlogin is true;'
     return [r[0] for r in db.engine.execute(stmt)]
 
 
 def get_groups():
-    """Return a list of group names.
+    """Return the list of group names.
     """
     stmt = 'select rolname from pg_roles where rolcanlogin is false;'
     return [r[0] for r in db.engine.execute(stmt)]
-    # filter out the ones that are groups, groups are an artificial
-    # category and we consider groups as a role that can't login
-    #filter(
 
 
 def _create_role(name, password=None, login=False, admin=False):
@@ -370,9 +367,9 @@ class UsersEditor(object):
     def __init__(self, ):
         """
         """
-
         path = os.path.join(paths.lib_dir(), 'plugins', 'users', 'ui.glade')
-        self.widgets = utils.BuilderWidgets(path)
+        builder = utils.BuilderLoader(path)
+        self.widgets = utils.BuilderWidgets(builder)
 
 
     def start(self):
@@ -427,10 +424,13 @@ class UsersTool(pluginmgr.Tool):
 
 class UsersPlugin(pluginmgr.Plugin):
 
-    tools = [UsersTool]
+    tools = []
 
     @classmethod
     def init(cls):
-        pass
+        if bauble.db.engine.name != 'postgres':
+            del cls.tools[:]
+        elif bauble.db.engine.name == 'postgres' and not cls.tools:
+            cls.tools.append(UsersTool)
 
 plugin = UsersPlugin

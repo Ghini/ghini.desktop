@@ -234,6 +234,8 @@ def init(force=False):
                       utils.xml_safe(str(e))
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
+    bauble.gui.build_tools_menu()
+
 
 
 def install(plugins_to_install, import_defaults=True, force=False):
