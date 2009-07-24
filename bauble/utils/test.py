@@ -22,7 +22,22 @@ class UtilsGTKTests(unittest.TestCase):
         """
         Interactive test for bauble.utils.create_message_details_dialog()
         """
-        d = utils.create_message_details_dialog('msg', 'details')
+        details = """these are the lines that i want to test
+asdasdadasddddddddddddddddddddddddddddddddddddddddddddddddddddddddddddd
+dasd
+asd
+addasdadadad"""
+        msg = 'msg'
+        d = utils.create_message_details_dialog(msg, details)
+        d.run()
+
+    def itest_create_message_dialog(self):
+        """
+        Interactive test for bauble.utils.create_message_details_dialog()
+        """
+        msg = 'msg'
+        #msg = ' this is a longer message to test that the dialog width is correct.....but what if it keeps going'
+        d = utils.create_message_dialog(msg)
         d.run()
 
 
@@ -195,7 +210,7 @@ class ResetSequenceTests(BaubleTestCase):
     def setUp(self):
         super(ResetSequenceTests, self).setUp()
         self.metadata = MetaData()
-        self.metadata.bind  = db.engine
+        self.metadata.bind = db.engine
 
 
     def tearDown(self):
@@ -224,7 +239,7 @@ class ResetSequenceTests(BaubleTestCase):
 
         # test that a column without an explicit sequence works
         table = Table('test_reset_sequence', self.metadata,
-                           Column('id', Integer, primary_key=True))
+                      Column('id', Integer, primary_key=True))
         self.metadata.create_all()
         self.insert = table.insert()#.compile()
         db.engine.execute(self.insert, values=[{'id': 1}])
