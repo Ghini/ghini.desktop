@@ -220,10 +220,9 @@ class FamilyEditorView(editor.GenericEditorView):
 
 
     def __init__(self, parent=None):
-        super(FamilyEditorView, self).__init__(os.path.join(paths.lib_dir(),
-                                                'plugins', 'plants',
-                                                'editors.glade'),
-                                               parent=parent)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                'family_editor.glade')
+        super(FamilyEditorView, self).__init__(filename, parent=parent)
         self.dialog = self.widgets.family_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
@@ -367,6 +366,13 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         initialize the gtk.TreeView
         '''
         self.treeview = self.view.widgets.fam_syn_treeview
+        # remove any columns that were setup previous, this became a
+        # problem when we starting reusing the glade files with
+        # utils.GladeLoader, the right way to do this would be to
+        # create the columns in glade instead of here
+        for col in self.treeview.get_columns():
+            self.treeview.remove_column(col)
+
         def _syn_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', str(v))
