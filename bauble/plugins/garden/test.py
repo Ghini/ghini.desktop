@@ -6,6 +6,7 @@ from sqlalchemy.exc import *
 from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase
 import bauble.utils as utils
+from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor, DonorEditor
@@ -481,9 +482,33 @@ class AccessionTests(GardenTestCase):
         donor = self.create(Donor, name=u'test')
         self.session.commit()
         acc = self.create(Accession, species=self.species, code=u'1')
+        prev = 0
+        def mem(size="rss"):
+            """Generalization; memory sizes: rss, rsz, vsz."""
+            import os
+            return int(os.popen('ps -p %d -o %s | tail -1' % \
+                                    (os.getpid(), size)).read())
+
         editor = AccessionEditor(model=acc)
-        editor.start()
-        del editor
+        # try:
+        #     editor.start()
+        # except Exception, e:
+        #     import traceback
+        #     debug(traceback.format_exc(0))
+        #     debug(e)
+        # return
+        editor = None
+        for x in range(0, 5):
+            editor = AccessionEditor(model=acc)
+            editor.start()
+            del editor
+            leak = mem()
+            debug('%s: %s' % (leak, leak-prev))
+            prev = leak
+            #debug(mem())
+
+        debug(utils.gc_objects_by_type('XML'))
+
         assert utils.gc_objects_by_type('AccessionEditor') == [], \
             'AccessionEditor not deleted'
         assert utils.gc_objects_by_type('AccessionEditorPresenter') == [], \

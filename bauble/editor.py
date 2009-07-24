@@ -158,6 +158,17 @@ class GenericEditorView(object):
         return sid
 
 
+    def connect_after(self, obj, signal, callback, data=None):
+        if isinstance(obj, basestring):
+            obj = self.widgets[obj]
+        if data:
+            sid = obj.connect_after(signal, callback, data)
+        else:
+            sid = obj.connect_after(signal, callback)
+        self.__attached_signals.append((obj, sid))
+        return sid
+
+
     def disconnect_all(self):
         for obj, sid in self.__attached_signals:
             obj.disconnect(sid)

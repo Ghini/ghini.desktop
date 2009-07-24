@@ -200,15 +200,15 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                             'sp_author_entry', 'sp_infra_entry',
                             'sp_cvgroup_entry', 'sp_infra_author_entry']:
             w = self.view.widgets[widget_name]
-            w.connect_after('insert-text', on_insert)
-            w.connect_after('delete-text', on_delete)
+            self.view.connect_after(widget_name, 'insert-text', on_insert)
+            self.view.connect_after(widget_name, 'delete-text', on_delete)
 
         def on_changed(*args):
             self.refresh_fullname_label()
         for widget_name in ['sp_infra_rank_combo', 'sp_hybrid_combo',
                             'sp_spqual_combo']:
             w = self.view.widgets[widget_name]
-            w.connect_after('changed', on_changed)
+            self.view.connect_after(widget_name, 'changed', on_changed)
 
 
     def refresh_fullname_label(self):
@@ -569,6 +569,13 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         self.treeview = self.view.widgets.vern_treeview
 
+        # remove any columns that were setup previous, this became a
+        # problem when we starting reusing the glade files with
+        # utils.GladeLoader, the right way to do this would be to
+        # create the columns in glade instead of here
+        for col in self.treeview.get_columns():
+            self.treeview.remove_column(col)
+
         def _name_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
             cell.set_property('text', v.name)
@@ -832,9 +839,9 @@ class SpeciesEditorView(editor.GenericEditorView):
 
         @param parent: the parent window
         '''
-        glade_path = os.path.join(paths.lib_dir(), 'plugins', 'plants',
-                                  'editors.glade')
-        super(SpeciesEditorView, self).__init__(glade_path, parent=parent)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                'species_editor.glade')
+        super(SpeciesEditorView, self).__init__(filename, parent=parent)
         self.dialog = self.widgets.species_dialog
         self.dialog.set_transient_for(parent)
         self.attach_completion('sp_genus_entry',
