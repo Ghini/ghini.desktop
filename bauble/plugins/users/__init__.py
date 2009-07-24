@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import *
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble
+from bauble.error import check, CheckConditionError
 import bauble.db as db
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
@@ -35,6 +36,22 @@ from bauble.utils.log import debug, warning, error
 # NOTE: see the following docs for how to get the privileges on a
 # specific databas object
 # http://www.postgresql.org/docs/8.3/interactive/functions-info.html
+
+# TODO: should allow each of the functions to be called with a
+# different connection than db.engine, could probably create a
+# descriptor to add the same functionality to all the functions in one
+# fell swoop
+
+# TODO: should provide a privilege error that can allow the caller to
+# get more information about the error. e.g include the table, the
+# permissions, what they were trying to do and the error
+# class PrivilegeError(error.BaubleError):
+#     """
+#     """
+
+#     def __init__(self, ):
+#         """
+#         """
 
 
 def connect_as_user(name=None):
@@ -109,7 +126,6 @@ def create_user(name, password=None, admin=False, groups=[]):
     db.engine.execute(stmt)
 
 
-
 def create_group(name, admin=False):
     """
     Create a role that can't login.
@@ -168,19 +184,32 @@ def get_members(group):
     return [r[0] for r in db.engine.execute(stmt).fetchall()]
 
 
-def delete(role):
-    drop(role)
+def delete(role, revoke=False):
+    """See drop()
+    """
+    drop(role, revoke)
 
-def drop(role):
+
+def drop(role, revoke=False):
+    """
+    Drop a user from the database
+
+    Arguments:
+    - `role`:
+    - `revoke`: If revoke is True then revoke the users permissions
+      before dropping them
+    """
     # TODO: need to revoke all privileges first
     conn = db.engine.connect()
     trans = conn.begin()
     try:
-        for table in db.metadata.sorted_tables:
-            stmt = 'revoke all on table %s' % table.name
+        if revoke:
+            for table in db.metadata.sorted_tables:
+                stmt = 'revoke all on table %s from %s;' % (table.name, role)
+                conn.execute(stmt)
+                stmt = 'revoke all on database %s from %s' \
+                    % (bauble.db.engine.url.database, role)
             conn.execute(stmt)
-        stmt = 'revoke all on database %s' % database.name
-        conn.execute(stmt)
         stmt = 'drop role %s;' % (role)
         conn.execute(stmt)
     except Exception, e:
@@ -197,7 +226,8 @@ def get_privileges(role):
     - `role`:
     """
     # TODO: should we return read, write, admin or the specific
-    # privileges
+    # privileges...this can basically just be a wrapped call to
+    # has_privileges()
     raise NotImplementedError
 
 
@@ -261,26 +291,42 @@ def has_privileges(role, privilege):
     return True
 
 
-def grant(role, privilege):
-    """Grant privileges to role on the database.
 
-    This method does not revoke any privileges so if a user has 'admin'
-    privileges and you want to change them to 'read' privileges then
-    you should revoke the privileges first.
+def set_privilege(role, privilege):
+    """Set the role's privileges.
 
     Arguments:
     - `role`:
     - `privilege`:
     """
-    # TODO: should we revoke all before adding privileges
+    check(privilege in ('read', 'write', 'admin', None),
+          'invalid privilege: %s' % privilege)
     conn = db.engine.connect()
     trans = conn.begin()
-    privs = _privileges[privilege]
+
+    if privilege:
+        privs = _privileges[privilege]
+
     try:
-        # grant privileges on the database
+        # revoke everything first
+        for table in db.metadata.sorted_tables:
+            stmt = 'revoke all on table %s from %s;' % (table.name, role)
+            conn.execute(stmt)
+            stmt = 'revoke all on database %s from %s' \
+                % (bauble.db.engine.url.database, role)
+            conn.execute(stmt)
+
+        if not privilege:
+            trans.commit()
+            conn.close()
+            return
+
+        # change privileges on the database
         if privilege == 'admin':
-            stmt = 'grant all on database %s to %s with grant option;' % \
+            stmt = 'grant all on database %s to %s' % \
                 (bauble.db.engine.url.database, role)
+            if privilege == 'admin':
+                    stmt += ' with grant option'
             conn.execute(stmt)
 
         # grant privileges on the tables and sequences
@@ -304,33 +350,16 @@ def grant(role, privilege):
                             stmt += ' with grant option'
                         conn.execute(stmt)
     except Exception, e:
-        warning(e)
+        error(e)
         trans.rollback()
     else:
         trans.commit()
-    finally:
-        conn.close()
-
-
-
-def revoke(role, privileges):
-    """Revoke a roles privileges on the current database.
-
-    Arguments:
-    - `role`:
-    - `privileges`:
-    """
-    if privileges == 'read':
-        _read_privileges('revoke', role)
-    elif privileges == 'read':
-        _write_privileges('revoke', role)
-    elif privileges == 'admin':
-        _write_privileges('revoke', role)
-    else:
-        raise ValueError('revoke() unknown privilege: %s' % privileges)
+        conn.close
 
 
 def current_user():
+    """Return the name of the current user.
+    """
     return db.engine.execute('select current_user;').fetchone()[0]
 
 

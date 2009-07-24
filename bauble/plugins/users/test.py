@@ -53,8 +53,8 @@ class UsersTests(BaubleTestCase):
     def tearDown(self):
         self.conn.close()
         super(UsersTests, self).tearDown()
-        users.delete(self.group)
-        users.delete(self.user)
+        users.delete(self.group, revoke=True)
+        users.delete(self.user, revoke=True)
         self.table.drop(checkfirst=True)
 
 
@@ -185,43 +185,39 @@ class UsersTests(BaubleTestCase):
 
     def test_has_privileges(self):
 
-        # TODO: create the roles that we want to test with to make
-        # sure they are clean...and delete them when done
-        role = 'test_admin'
-        if not role in users.get_users():
-            users.create_user(role, admin=True)
-        users.grant(role, 'admin')
-        self.assert_(users.has_privileges(role, 'admin'),
-                     "%s doesn't have admin privileges" % role)
-        self.assert_(users.has_privileges(role, 'write'),
-                     "%s doesnt' have write privileges" % role)
-        self.assert_(users.has_privileges(role, 'read'),
-                     "%s doesn't have read privileges" % role)
-        users.drop(role)
+        # test setting admin privileges
+        users.set_privilege(self.user, 'admin')
+        self.assert_(users.has_privileges(self.user, 'admin'),
+                     "%s doesn't have admin privileges" % self.user)
+        self.assert_(users.has_privileges(self.user, 'write'),
+                     "%s doesnt' have write privileges" % self.user)
+        self.assert_(users.has_privileges(self.user, 'read'),
+                     "%s doesn't have read privileges" % self.user)
 
-        role = 'test_write'
-        if not role in users.get_users():
-            users.create_user(role)
-        users.grant(role, 'write')
-        self.assert_(not users.has_privileges(role, 'admin'),
-                     "%s has admin privileges" % role)
-        self.assert_(users.has_privileges(role, 'write'),
-                     "%s doesn't have write privileges" % role)
-        self.assert_(users.has_privileges(role, 'read'),
-                     "%s doesn't have read privileges" % role)
-        users.drop(role)
+        users.set_privilege(self.user, 'write')
+        self.assert_(not users.has_privileges(self.user, 'admin'),
+                     "%s has admin privileges" % self.user)
+        self.assert_(users.has_privileges(self.user, 'write'),
+                     "%s doesn't have write privileges" % self.user)
+        self.assert_(users.has_privileges(self.user, 'read'),
+                     "%s doesn't have read privileges" % self.user)
 
-        role = 'test_read'
-        if not role in users.get_users():
-            users.create_user(role)
-        users.grant(role, 'read')
-        self.assert_(not users.has_privileges(role, 'admin'),
-                     "%s has admin privileges" % role)
-        self.assert_(not users.has_privileges(role, 'write'),
-                     "%s has write privileges" % role)
-        self.assert_(users.has_privileges(role, 'read'),
-                     "%s doesn't have read privileges" % role)
-        users.drop(role)
+        users.set_privilege(self.user, 'read')
+        self.assert_(not users.has_privileges(self.user, 'admin'),
+                     "%s has admin privileges" % self.user)
+        self.assert_(not users.has_privileges(self.user, 'write'),
+                     "%s has write privileges" % self.user)
+        self.assert_(users.has_privileges(self.user, 'read'),
+                     "%s doesn't have read privileges" % self.user)
+
+        # revoke all
+        users.set_privilege(self.user, None)
+        self.assert_(not users.has_privileges(self.user, 'admin'),
+                     "%s has admin privileges" % self.user)
+        self.assert_(not users.has_privileges(self.user, 'write'),
+                     "%s has write privileges" % self.user)
+        self.assert_(not users.has_privileges(self.user, 'read'),
+                     "%s has read privileges" % self.user)
 
 
 
