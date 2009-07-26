@@ -223,11 +223,12 @@ class FamilyEditorView(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'family_editor.glade')
         super(FamilyEditorView, self).__init__(filename, parent=parent)
-        self.dialog = self.widgets.family_dialog
-        self.dialog.set_transient_for(parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
-        self.connect_dialog_close(self.widgets.family_dialog)
         self.restore_state()
+
+
+    def get_window(self):
+        return self.widgets.family_dialog
 
 
     def save_state(self):
@@ -253,7 +254,7 @@ class FamilyEditorView(editor.GenericEditorView):
 
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 
@@ -298,7 +299,8 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.synonyms_presenter.dirty()
+        return self.__dirty or self.session.is_modified(self.model) or \
+            self.synonyms_presenter.dirty()
 
 
     def refresh_view(self):
@@ -309,7 +311,6 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
@@ -477,6 +478,17 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
+        view = FamilyEditorView(parent=self.parent)
+        self.presenter = FamilyEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
 
     def handle_response(self, response):
         '''
@@ -529,21 +541,9 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
 
     def start(self):
-        self.view = FamilyEditorView(parent=self.parent)
-        self.presenter = FamilyEditorPresenter(self.model, self.view)
-
-        # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
         self.presenter.cleanup()

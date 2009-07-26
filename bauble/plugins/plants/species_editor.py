@@ -107,8 +107,9 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.vern_presenter.dirty() or \
-            self.synonyms_presenter.dirty() or self.dist_presenter.dirty()
+        return self.__dirty or self.session.is_modified(self.model) or \
+            self.vern_presenter.dirty() or self.synonyms_presenter.dirty() or \
+            self.dist_presenter.dirty()
 
 
     def refresh_sensitivity(self):
@@ -842,14 +843,11 @@ class SpeciesEditorView(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'species_editor.glade')
         super(SpeciesEditorView, self).__init__(filename, parent=parent)
-        self.dialog = self.widgets.species_dialog
-        self.dialog.set_transient_for(parent)
         self.attach_completion('sp_genus_entry',
                                self.genus_completion_cell_data_func,
                                match_func=self.genus_match_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
         self.restore_state()
-        self.connect_dialog_close(self.widgets.species_dialog)
 
 
     def get_window(self):
@@ -857,6 +855,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         Returns the top level window or dialog.
         '''
         return self.widgets.species_dialog
+
 
     @staticmethod
     def genus_match_func(completion, key, iter, data=None):
@@ -924,7 +923,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         '''
         starts the views, essentially calls run() on the main dialog
         '''
-        return self.widgets.species_dialog.run()
+        return self.get_window().run()
 
 
 
@@ -950,6 +949,23 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
+
+        view = SpeciesEditorView(parent=self.parent)
+        self.presenter = SpeciesEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set default focus
+        if self.model.genus is None:
+            view.widgets.sp_genus_entry.grab_focus()
+        else:
+            view.widgets.sp_species_entry.grab_focus()
 
 
     def handle_response(self, response):
@@ -1025,26 +1041,10 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                   'database before you can add species.'
             utils.message_dialog(msg)
             return
-        view = SpeciesEditorView(parent=self.parent)
-        self.presenter = SpeciesEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.dialog, self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
-        # set default focus
-        if self.model.genus is None:
-            view.widgets.sp_genus_entry.grab_focus()
-        else:
-            view.widgets.sp_species_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
-            view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
 
