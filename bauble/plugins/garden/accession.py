@@ -436,6 +436,19 @@ class Accession(db.Base):
         return sp_str
 
 
+    def is_source_type(self, source_type):
+        """
+        Return True/False if the source_type of the Accession matches.
+
+        Arguments:
+        - `source_type`: a string or class
+        """
+        if isinstance(source_type, basestring):
+            return sourc_type == self.source_type
+        elif isinstance(self.source_type, source_type):
+            return True
+        return False
+
 
     def _get_source(self):
         if self.source_type is None:
@@ -1136,15 +1149,6 @@ class DonationPresenter(GenericEditorPresenter):
             self.view.widgets.don_edit_button.set_sensitive(True)
 
 
-def SourcePresenterFactory(parent, model, view, session):
-    if isinstance(model, Collection):
-        return CollectionPresenter(parent, model, view, session)
-    elif isinstance(model, Donation):
-        return DonationPresenter(parent, model, view, session)
-    else:
-        raise ValueError('unknown source type: %s' % type(model))
-
-
 # TODO: pick one or a combination of the following
 # 1. the ok, next and whatever buttons shouldn't be made sensitive until
 # all required field are valid, or all field are valid
@@ -1182,8 +1186,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
         self.source_presenter = None
-        self._source_box_map = {'Donation': self.view.widgets.donation_box,
-                                'Collection': self.view.widgets.collection_box}
+        self._source_box_map = {Donation: self.view.widgets.donation_box,
+                                Collection: self.view.widgets.collection_box}
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
@@ -1436,12 +1440,14 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         Change which one of donation_box/collection_box is packed into
         source box and setup the appropriate presenter.
         '''
-        source_type = combo.get_active_text()
+        treeiter = combo.get_active_iter()
+        presenter_class = combo.get_model()[treeiter][2]
+        source_class = combo.get_model()[treeiter][1]
         source_type_changed = False
 
         # if the source type is None then set the model.source as None
         # and remove the source box
-        if source_type is None:
+        if not source_class:
             if self.model.source is not None:
                 self.set_model_attr('source', None)
                 if self.current_source_box is not None:
@@ -1449,31 +1455,24 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                     self.current_source_box = None
             return
 
-        # FIXME: Donation and Collection shouldn't be hardcoded so that it
-        # can be translated
-        #
         # TODO: if source_type is set and self.model.source is None then create
         # a new empty source object and attach it to the model
 
-        source_class_map = {'Donation': Donation,
-                            'Collection': Collection}
-
         # the source_type has changed from what it originally was
         new_source = None
-        if source_type != self.model.source_type:
-#            debug('source_type != model.source_type')
+        if not self.model.is_source_type(source_class):
             source_type_changed = True
             try:
-                new_source = source_class_map[source_type]()
+                new_source = source_class()
             except KeyError, e:
                 debug('unknown source type: %s' % e)
                 raise
             if isinstance(new_source, type(self._original_source)):
                 new_source = self._original_source
-        elif source_type is not None and self.model.source is None:
+        elif source_class is not None and self.model.source is None:
             # the source type is set but there is no corresponding model.source
             try:
-                new_source = source_class_map[source_type]()
+                new_source = source_class()
             except KeyError, e:
                 debug('Source type is set but the source attribute None: %s' \
                           % e)
@@ -1484,24 +1483,22 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         source_box_parent = self.view.widgets.source_box_parent
         if self.current_source_box is not None:
             self.view.widgets.remove_parent(self.current_source_box)
-        if source_type is not None:
-            self.current_source_box = self._source_box_map[source_type]
+        if source_class is not None:
+            self.current_source_box = self._source_box_map[source_class]
             self.view.widgets.remove_parent(self.current_source_box)
             source_box_parent.add(self.current_source_box)
         else:
             self.current_source_box = None
 
         if new_source is not None:
-            self.source_presenter = SourcePresenterFactory(self, new_source,
-                                                       self.view, self.session)
+            self.source_presenter = presenter_class(self, new_source,
+                                                    self.view, self.session)
             self.set_model_attr('source', new_source)
         elif self.model.source is not None:
             # didn't create a new source but we need to create a
             # source presenter
-            self.source_presenter = \
-                SourcePresenterFactory(self, self.model.source, self.view,
-                                       self.session)
-
+            self.source_presenter = presenter_class(self, self.model.source,
+                                                    self.view, self.session)
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -1518,12 +1515,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         initialized the source expander contents
         '''
         combo = self.view.widgets.acc_source_type_combo
-        model = gtk.ListStore(str)
-        model.append(['Collection'])
-        model.append(['Donation'])
-        model.append([None])
+        combo.clear()
+        model = gtk.ListStore(str, object, object)
+        values = [[_('Collection'), Collection, CollectionPresenter],
+                  [_('Donation'), Donation, DonationPresenter],
+                  [None, None, None]]
+        for v in values:
+            model.append(v)
         combo.set_model(model)
         combo.set_active(-1)
+        renderer = gtk.CellRendererText()
+        combo.pack_start(renderer, True)
+        combo.add_attribute(renderer, 'text', 0)
         self.view.connect('acc_source_type_combo', 'changed',
                           self.on_source_type_combo_changed)
 
@@ -1660,7 +1663,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         from bauble.plugins.plants.species_model import Species
         if self.session.query(Species).count() == 0:
             msg = _('You must first add or import at least one species into '\
-                  'the database before you can add accessions.')
+                        'the database before you can add accessions.')
             utils.message_dialog(msg)
             return
 
