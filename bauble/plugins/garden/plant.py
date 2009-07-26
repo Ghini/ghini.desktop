@@ -494,7 +494,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
@@ -646,6 +645,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
                 break
 
         self.session.close() # cleanup session
+        self.presenter.cleanup()
         return self._committed
 
 

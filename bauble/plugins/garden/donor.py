@@ -169,7 +169,6 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
