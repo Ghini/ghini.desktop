@@ -28,12 +28,18 @@ __running = False
 __kill = False
 
 def running():
+    """
+    Return True/False if a task is running.
+    """
     return __running
 
 
 def kill():
     """
     Kill the current task.
+
+    This will kill the task when it goes idle and not while its
+    running.  A task is idle after it yields.
     """
     global __kill
     __kill = True
@@ -81,31 +87,11 @@ def queue(task):
 
 
 
-# def _update_gui():
-#     while gtk.events_pending():
-#         gtk.main_iteration()
-
-
 # TODO: This exception is probably not relevant since we switched to
 # the task system to using fibra...but i'm gonna leave it here for now
 # for compatibility reasons
 class TaskQuitting(Exception):
     pass
-
-# def _run_task(func, *args, **kwargs):
-#     global __gtk_quitting
-#     task = func(*args, **kwargs)
-#     try:
-#         while True:
-#             if not __gtk_quitting:
-#                 task.next()
-#                 _update_gui()
-#                 # TODO: should we sleep here for maybe 1ms to make
-#                 # things more responsive
-#             else:
-#                 raise TaskQuitting
-#     except StopIteration:
-#         pass
 
 
 __message_ids = []
@@ -136,8 +122,8 @@ def clear_messages():
            or bauble.gui.widgets.statusbar is None:
         return
     global _context_id, __message_ids
-    for id in __message_ids:
-        bauble.gui.widgets.statusbar.remove(_context_id, id)
+    for mid in __message_ids:
+        bauble.gui.widgets.statusbar.remove(_context_id, mid)
 
 
 #_flushing = False
