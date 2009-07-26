@@ -206,6 +206,7 @@ class GenericEditorView(object):
         Called if self.get_window() is a gtk.Dialog and it receives
         the response signal.
         '''
+        dialog.hide()
         self.response = response
         return response
 
@@ -633,7 +634,7 @@ class GenericEditorPresenter(object):
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
             #debug('on_match_select(): %s' % value)
-            #widget.set_text(utils.utf8(value))
+            widget.set_text(utils.utf8(value))
             widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
