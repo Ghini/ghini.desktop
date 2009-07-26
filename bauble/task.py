@@ -44,7 +44,7 @@ def _idle():
     Called when a task is idle.
     """
     while gtk.events_pending():
-        gtk.main_iteration()
+        gtk.main_iteration(block=False)
 
     global __kill
     if __kill:
