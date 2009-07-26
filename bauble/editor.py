@@ -125,7 +125,7 @@ class GenericEditorView(object):
         '''
         builder = utils.BuilderLoader.load(filename)
         self.widgets = utils.BuilderWidgets(builder)
-        self.parent = parent
+        self.get_window().set_transient_for(parent)
         self.response = None
         self.__attached_signals = []
 
@@ -145,6 +145,14 @@ class GenericEditorView(object):
             for widget_name, markup in self._tooltips.iteritems():
                 widget = self.widgets[widget_name]
                 tooltips.set_tip(widget, markup)
+
+        window = self.get_window()
+        self.connect(window,  'delete-event',
+                     self.on_window_delete)
+        if isinstance(window, gtk.Dialog):
+            self.connect(window, 'close', self.on_dialog_close)
+            self.connect(window, 'response', self.on_dialog_response)
+
 
 
     def connect(self, obj, signal, callback, data=None):
@@ -193,37 +201,29 @@ class GenericEditorView(object):
                                default)
 
 
-    def connect_dialog_close(self, dialog):
-        '''
-        Connect the close event response, close and
-        delete-event to a dialog.
-
-        :param dialog: the dialog to attache
-          self.on_dialog_close_or_delete and self.on_dialog_response to
-        '''
-        self.connect(dialog, 'response', self.on_dialog_response)
-        self.connect(dialog, 'close', self.on_dialog_close_or_delete)
-        self.connect(dialog, 'delete-event', self.on_dialog_close_or_delete)
-
-
     def on_dialog_response(self, dialog, response, *args):
         '''
-        Close when the dialog receives a response if
-        self.connect_dialog_close is called.
+        Called if self.get_window() is a gtk.Dialog and it receives
+        the response signal.
         '''
-        dialog.hide()
         self.response = response
         return response
-        #if response < 0:
-        #    dialog.hide()
 
 
-    def on_dialog_close_or_delete(self, dialog, event=None):
-        '''
-        Called when a dialog receives the a close or delete event if
-        self.connect_dialog_close is called.
-        '''
+    def on_dialog_close(self, dialog, event=None):
+        """
+        Called if self.get_window() is a gtk.Dialog and it receives
+        the close signal.
+        """
         dialog.hide()
+        return False
+
+
+    def on_window_delete(self, window, event=None):
+        """
+        Called when the window return by get_window() receives the delete event.
+        """
+        window.hide()
         return False
 
 
@@ -270,6 +270,8 @@ class GenericEditorView(object):
         completion.set_match_func(match_func)
         completion.set_property('text-column', text_column)
         completion.set_minimum_key_length(minimum_key_length)
+        # TODO: inline completion doesn't work for me
+        #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
         completion.set_popup_set_width(True)
         self.widgets[entry_name].set_completion(completion)
@@ -299,15 +301,11 @@ class GenericEditorView(object):
 
     def cleanup(self):
         """
-        Should be caled when self.start() returns.
+        Should be caled when after self.start() returns to cleanup
+        undo any changes on the view.
+
+        By default all it does is call self.disconnect_all()
         """
-        # Don't destroy the window or we won't be able to retrieve it
-        # again later.
-        #
-        # try:
-        #     self.get_window().destroy()
-        # except NotImplementedError:
-        #     warning(_('Could not destroy window'))
         self.disconnect_all()
 
 
@@ -356,6 +354,10 @@ class Problems(object):
             self._problems.remove(problem)
 
 
+    def __contains__(self, problem):
+        return problem in self._problems
+
+
     def __len__(self):
         '''
         Return the number of problems
@@ -390,8 +392,6 @@ class GenericEditorPresenter(object):
         self.model = model
         self.view = view
         self.problems = Problems()
-        # used by assign_completions_handler
-        self._prev_text = {}
 
 
     # whether the presenter should be commited or not
@@ -551,21 +551,6 @@ class GenericEditorPresenter(object):
                              'widget type not supported: %s' % type(widget))
 
 
-    __changed_sid_name = lambda s, w: '__changed_%s_sid' % w.get_name()
-    def pause_completions_handler(self, widget, pause=True):
-        """
-        Pause a completion handler previously assigned with
-        assign_completions_handler()
-        """
-        if not isinstance(widget, gtk.Entry):
-            widget = self.view.widgets[widget]
-        sid = getattr(self, self.__changed_sid_name(widget))
-        if pause:
-            widget.handler_block(sid)
-        else:
-            widget.handler_unblock(sid)
-
-
     def assign_completions_handler(self, widget, get_completions,
                                    on_select=lambda v: v):
         """
@@ -582,8 +567,6 @@ class GenericEditorPresenter(object):
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(widget.get_name())
-        prev_text_name = '__prev_text_%s' % widget.get_name()
-        setattr(self, prev_text_name, None)
         def add_completions(text):
             #debug('add_completions(%s)' % text)
             if get_completions is None:
@@ -605,38 +588,62 @@ class GenericEditorPresenter(object):
 
         def on_changed(entry, *args):
             text = entry.get_text()
-            #debug('on_changed(%s)' % text)
-            prev_text = getattr(self, prev_text_name)
-            if text == '' and prev_text:
-                # this works around a funny problem where after the
-                # completion is selected the changed signal is fired
-                # again with a empty string
-                self.pause_completions_handler(entry, True)
-                widget.set_text(prev_text)
-                setattr(self, prev_text_name, None)
-                self.pause_completions_handler(entry, False)
-                return
-            self.add_problem(PROBLEM, widget)
-            on_select(None)
-            compl_model = widget.get_completion().get_model()
-            if (not compl_model and len(text)>2) \
-               or len(text) == 2:
+            #debug('on_changed: %s' % text)
+            comp = entry.get_completion()
+            comp_model = comp.get_model()
+            found = []
+            if comp_model:
+                # search the tree model to see if the text in the
+                # entry matches one of the completions, if so then
+                # emit the match-selected signal, this allows us to
+                # entry a match in the entry without having to select
+                # it from the popup
+                def _cmp(row, data):
+                    return utils.utf8(row[0]) == text
+                #debug('search for %s' % text)
+                found = utils.search_tree_model(comp_model, text, _cmp)
+                #debug(found)
+                if len(found) == 1:
+                    v = comp.get_model()[found[0]][0]
+                    #debug('found: %s'  % str(v))
+                    comp.emit('match-selected', comp.get_model(), found[0])
+                    on_select(comp_model[found[0]][0])
+                    #self.remove_problem(PROBLEM, entry)
+
+            if not found and PROBLEM not in self.problems:
+                self.add_problem(PROBLEM, widget)
+                on_select(None)
+
+            if (not comp_model and len(text)>2) or len(text) == 2:
+                #debug('add_completions: %s' % text)
                 add_completions(text)
+                # TODO: i was screwing around with trying to make
+                # setting a string in the completions find a match in
+                # the database but this really doesn't make much sense
+                # since completions are meant to be discovered based
+                # on some string prefix
+
+                # need to update the gui to make sure the idle
+                #callback gets called
+                # while gtk.events_pending():
+                #     gtk.main_iteration(block=False)
+                # entry.emit('changed')
+            return True
 
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
-            setattr(self, prev_text_name, utils.utf8(value))
-            self.pause_completions_handler(widget, True)
-            widget.set_text(utils.utf8(value))
+            #debug('on_match_select(): %s' % value)
+            #widget.set_text(utils.utf8(value))
+            widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
-            self.pause_completions_handler(widget, False)
+            return True # return True or on_changed() will be called with ''
 
         completion = widget.get_completion()
         check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
               'completion attached to it' % widget.get_name())
-        sid = self.view.connect(widget, 'changed', on_changed)
-        setattr(self, self.__changed_sid_name(widget), sid)
+
+        self.view.connect(widget, 'changed', on_changed)
         self.view.connect(completion, 'match-selected', on_match_select)
 
 
@@ -645,6 +652,12 @@ class GenericEditorPresenter(object):
 
 
     def cleanup(self):
+        """Revert any changes the presenter might have done to the
+        widgets so that next time the same widgets are open everything
+        will be normal.
+
+        By default it only called self.view.cleanup()
+        """
         self.view.cleanup()
 
 
