@@ -251,15 +251,16 @@ class GenusEditorView(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                 'genus_editor.glade')
         super(GenusEditorView, self).__init__(filename, parent=parent)
-        self.dialog = self.widgets.genus_dialog
-        self.dialog.set_transient_for(parent)
-        self.connect_dialog_close(self.dialog)
         self.attach_completion('gen_syn_entry', self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
         self.restore_state()
 
 
-    def syn_cell_data_func(self, column, renderer, model, iter, data=None):
+    def get_window(self):
+        return self.widgets.genus_dialog
+
+    @staticmethod
+    def syn_cell_data_func(column, renderer, model, iter, data=None):
         '''
         '''
         v = model[iter][0]
@@ -302,7 +303,7 @@ class GenusEditorView(editor.GenericEditorView):
 
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 class GenusEditorPresenter(editor.GenericEditorPresenter):
@@ -363,7 +364,8 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty or self.synonyms_presenter.dirty()
+        return self.__dirty or self.session.is_modified(self.model) or \
+            self.synonyms_presenter.dirty()
 
 
     def refresh_view(self):
@@ -377,7 +379,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
@@ -558,6 +559,23 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
+        view = GenusEditorView(parent=self.parent)
+        self.presenter = GenusEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set default focus
+        if self.model.family is None:
+            view.widgets.gen_family_entry.grab_focus()
+        else:
+            view.widgets.gen_genus_entry.grab_focus()
+
 
     def handle_response(self, response):
         '''
@@ -617,27 +635,10 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                     'the database before you can add plants.')
             utils.message_dialog(msg)
             return
-        self.view = GenusEditorView(parent=self.parent)
-        self.presenter = GenusEditorPresenter(self.model, self.view)
-
-        # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
-        # set default focus
-        if self.model.family is None:
-            self.view.widgets.gen_family_entry.grab_focus()
-        else:
-            self.view.widgets.gen_genus_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
         self.presenter.cleanup()
