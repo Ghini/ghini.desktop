@@ -234,7 +234,9 @@ def init(force=False):
                       utils.xml_safe(str(e))
                 utils.message_dialog(msg, gtk.MESSAGE_ERROR)
 
-    bauble.gui.build_tools_menu()
+    # in case we're running from the tests and we don't have a gui
+    if bauble.gui:
+        bauble.gui.build_tools_menu()
 
 
 

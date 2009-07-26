@@ -107,13 +107,13 @@ class LocationEditorView(GenericEditorView):
                                                       'plugins', 'garden',
                                                       'loc_editor.glade'),
                                    parent=parent)
-        self.dialog = self.widgets.location_dialog
-        self.dialog.set_transient_for(parent)
-        self.connect_dialog_close(self.widgets.location_dialog)
-
         self.use_ok_and_add = True
         if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
+
+
+    def get_window(self):
+        return self.widgets.location_dialog
 
 
     def set_accept_buttons_sensitive(self, sensitive):
@@ -124,7 +124,7 @@ class LocationEditorView(GenericEditorView):
 
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 
@@ -140,6 +140,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         '''
         GenericEditorPresenter.__init__(self, model, view)
         self.session = object_session(model)
+        self.__dirty = False
 
         # initialize widgets
         self.refresh_view() # put model values in view
@@ -149,7 +150,14 @@ class LocationEditorPresenter(GenericEditorPresenter):
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
-        self.__dirty = False
+        self.refresh_sensitivity()
+
+
+    def refresh_sensitivity(self):
+        sensitive = False
+        if self.dirty():
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
 
 
     def set_model_attr(self, model, field, validator=None):
@@ -160,7 +168,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty
+        if self.__dirty or self.session.is_modified(self.model):
+            return True
+        else:
+            return False
 
 
     def refresh_view(self):
@@ -171,7 +182,6 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
@@ -202,6 +212,17 @@ class LocationEditor(GenericModelViewPresenterEditor):
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
+
+        view = LocationEditorView(parent=self.parent)
+        self.presenter = LocationEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
 
 
     def handle_response(self, response):
@@ -256,25 +277,16 @@ class LocationEditor(GenericModelViewPresenterEditor):
 
 
     def start(self):
-        self.view = LocationEditorView(parent=self.parent)
-        self.presenter = LocationEditorPresenter(self.model, self.view)
-
-        # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
+        """
+        Started the LocationEditor and return the committed Location objects.
+        """
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
-
-        self.session.close() # cleanup session
+        self.session.close()
+        self.presenter.cleanup()
         return self._committed
 
 

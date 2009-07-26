@@ -3,11 +3,16 @@ import unittest
 
 import bauble
 import bauble.db as db
+from bauble.error import BaubleError
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
+from bauble.utils.log import debug
 
 uri = 'sqlite:///:memory:'
-#uri = 'postgres://test:test@ceiba/test'
+#uri = 'postgres://test:test@localhost/test'
+#uri = 'postgres://postgres:4postgres*@localhost/test'
+#uri = 'postgres://postgres:4postgres*@ceiba/test'
+
 
 def init_bauble(uri):
     try:
@@ -15,10 +20,21 @@ def init_bauble(uri):
     except Exception, e:
         print >>sys.stderr, e
         #debug e
+    if not bauble.db.engine:
+        raise BaubleError('not connected to a database')
     prefs.init()
     pluginmgr.load()
     db.create(False)
     pluginmgr.init(True)
+
+
+def update_gui():
+    """
+    Flush any GTK Events.  Used for doing GUI testing.
+    """
+    import gtk
+    while gtk.events_pending():
+        gtk.main_iteration(block=False)
 
 
 class BaubleTestCase(unittest.TestCase):

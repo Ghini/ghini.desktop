@@ -508,13 +508,10 @@ class AccessionEditorView(GenericEditorView):
                                                       'plugins', 'garden',
                                                       'acc_editor.glade'),
                                    parent=parent)
-        self.dialog = self.widgets.accession_dialog
-        self.dialog.set_transient_for(parent)
         self.attach_completion('acc_species_entry',
                                cell_data_func=self.species_cell_data_func,
                                match_func=self.species_match_func)
         self.restore_state()
-        self.connect_dialog_close(self.widgets.accession_dialog)
 
         # datum completions
         completion = self.attach_completion('datum_entry',
@@ -526,6 +523,11 @@ class AccessionEditorView(GenericEditorView):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
         completion.set_model(model)
+
+
+
+    def get_window(self):
+        return self.widgets.accession_dialog
 
 
     def save_state(self):
@@ -550,12 +552,12 @@ class AccessionEditorView(GenericEditorView):
 
 
     @staticmethod
-    def datum_match(completion, key, iter, data=None):
+    def datum_match(completion, key, treeiter, data=None):
         """
         This method is static to ensure the AccessionEditorView gets
         garbage collected.
         """
-        datum = completion.get_model()[iter][0]
+        datum = completion.get_model()[treeiter][0]
         words = datum.split(' ')
         for w in words:
             if w.lower().startswith(key.lower()):
@@ -564,12 +566,12 @@ class AccessionEditorView(GenericEditorView):
 
 
     @staticmethod
-    def species_match_func(completion, key, iter, data=None):
+    def species_match_func(completion, key, treeiter, data=None):
         """
         This method is static to ensure the AccessionEditorView gets
         garbage collected.
         """
-        species = completion.get_model()[iter][0]
+        species = completion.get_model()[treeiter][0]
         if str(species).lower().startswith(key.lower()) \
                or str(species.genus.genus).lower().startswith(key.lower()):
             return True
@@ -1587,6 +1589,23 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
+        view = AccessionEditorView(parent=self.parent)
+        self.presenter = AccessionEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set the default focus
+        if self.model.species is None:
+            view.widgets.acc_species_entry.grab_focus()
+        else:
+            view.widgets.acc_code_entry.grab_focus()
+
 
     def handle_response(self, response):
         '''
@@ -1645,31 +1664,15 @@ class AccessionEditor(GenericModelViewPresenterEditor):
                   'the database before you can add accessions.')
             utils.message_dialog(msg)
             return
-        self.view = AccessionEditorView(parent=self.parent)
-        self.presenter = AccessionEditorPresenter(self.model, self.view)
-
-        # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
-        # set the default focus
-        if self.model.species is None:
-            self.view.widgets.acc_species_entry.grab_focus()
-        else:
-            self.view.widgets.acc_code_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
 
         self.session.close() # cleanup session
+        self.presenter.cleanup()
         return self._committed
 
 

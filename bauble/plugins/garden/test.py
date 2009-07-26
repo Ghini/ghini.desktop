@@ -4,7 +4,7 @@ from sqlalchemy import *
 from sqlalchemy.exc import *
 
 from bauble.error import CheckConditionError, check
-from bauble.test import BaubleTestCase
+from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
@@ -113,11 +113,12 @@ class GardenTestCase(BaubleTestCase):
         return obj
 
 
-class DonorTests(GardenTestCase):
 
+class DonorTests(GardenTestCase):
 
     def __init__(self, *args):
         super(DonorTests, self).__init__(*args)
+
 
     def test_delete(self):
         acc = self.create(Accession, species=self.species, code=u'1')
@@ -475,6 +476,43 @@ class AccessionTests(GardenTestCase):
                 pass
 
 
+    def test_accession_editor(self):
+        acc = Accession(code=u'code', species=self.species)
+        editor = AccessionEditor(acc)
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        # make sure there is a problem if the species entry text isn't
+        # a species string
+        widgets.acc_species_entry.set_text('asdasd')
+        assert editor.presenter.problems
+
+        # make sure the problem is removed if the species entry text
+        # is set to a species string
+
+        # fill in the completions
+        widgets.acc_species_entry.set_text(str(self.species)[0:3])
+        update_gui() # ensures idle callback is called to add completions
+        # set the fill string which should match from completions
+        widgets.acc_species_entry.set_text(str(self.species))
+        assert not editor.presenter.problems, editor.presenter.problems
+
+        # commit the changes and cleanup
+        editor.model.site = u'asda'
+        import gtk
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.session.close()
+        editor.presenter.cleanup()
+        del editor
+
+        assert utils.gc_objects_by_type('AccessionEditor') == [], \
+            'AccessionEditor not deleted'
+        assert utils.gc_objects_by_type('AccessionEditorPresenter') == [], \
+            'AccessionEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('AccessionEditorView') == [], \
+            'AccessionEditorView not deleted'
+
+
     def itest_accession_editor(self):
         """
         Interactively test the PlantEditor
@@ -489,7 +527,7 @@ class AccessionTests(GardenTestCase):
             return int(os.popen('ps -p %d -o %s | tail -1' % \
                                     (os.getpid(), size)).read())
 
-        editor = AccessionEditor(model=acc)
+        #editor = AccessionEditor(model=acc)
         # try:
         #     editor.start()
         # except Exception, e:
@@ -498,7 +536,7 @@ class AccessionTests(GardenTestCase):
         #     debug(e)
         # return
         editor = None
-        for x in range(0, 5):
+        for x in range(0, 1):
             editor = AccessionEditor(model=acc)
             editor.start()
             del editor
@@ -528,6 +566,54 @@ class LocationTests(GardenTestCase):
 
     def tearDown(self):
         super(LocationTests, self).tearDown()
+
+
+    def test_location_editor(self):
+        #loc = self.create(Location, site=u'some site')
+        loc = Location(site=u'some site')
+        editor = LocationEditor(model=loc)
+        #editor.presenter.view.dialog.hide_all()
+        update_gui()
+        widgets = editor.presenter.view.widgets
+
+        # test that the accept buttons are sensitive the text in the
+        # entry and the model.site are the same...and that the accept
+        # buttons are sensitive
+        assert widgets.loc_location_entry.get_text() == loc.site
+        assert widgets.loc_ok_button.props.sensitive
+        assert widgets.loc_ok_and_add_button.props.sensitive
+        assert widgets.loc_next_button.props.sensitive
+
+        # test the accept buttons aren't sensitive when the location
+        # entry is empty
+        widgets.loc_location_entry.set_text('')
+        assert not widgets.loc_ok_button.props.sensitive
+        assert not widgets.loc_ok_and_add_button.props.sensitive
+        assert not widgets.loc_next_button.props.sensitive
+
+        # test the accept buttons aren't sensitive from setting the textview
+        import gtk
+        buff = gtk.TextBuffer()
+        buff.set_text('saasodmadomad')
+        widgets.loc_desc_textview.set_buffer(buff)
+        assert not widgets.loc_ok_button.props.sensitive
+        assert not widgets.loc_ok_and_add_button.props.sensitive
+        assert not widgets.loc_next_button.props.sensitive
+
+        # commit the changes and cleanup
+        editor.model.site = u'asda'
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.session.close()
+        editor.presenter.cleanup()
+        del editor
+
+        assert utils.gc_objects_by_type('LocationEditor') == [], \
+            'LocationEditor not deleted'
+        assert utils.gc_objects_by_type('LocationEditorPresenter') == [], \
+            'LocationEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('LocationEditorView') == [], \
+            'LocationEditorView not deleted'
+
 
     def itest_location_editor(self):
         """
