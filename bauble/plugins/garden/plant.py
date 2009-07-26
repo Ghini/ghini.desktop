@@ -262,9 +262,7 @@ class PlantEditorView(GenericEditorView):
                                                       'plugins', 'garden',
                                                       'plant_editor.glade'),
                                    parent=parent)
-        self.dialog = self.widgets.plant_dialog
-        self.dialog.set_transient_for(parent)
-        self.connect_dialog_close(self.dialog)
+
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
@@ -276,6 +274,11 @@ class PlantEditorView(GenericEditorView):
             renderer.set_property('text', '%s' % utils.utf8(v))
         self.attach_completion('plant_loc_entry', loc_cell_data_func,
                                minimum_key_length=1)
+
+
+    def get_window(self):
+        return self.widgets.plant_dialog
+
 
     def __del__(self):
         #debug('PlantView.__del__()')
@@ -293,7 +296,7 @@ class PlantEditorView(GenericEditorView):
 
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 class ObjectIdValidator(object):
@@ -471,7 +474,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         location = self.model.location
         if cmd is 'edit':
             entry = self.view.widgets.plant_loc_entry
-            LocationEditor(location, parent=self.view.dialog).start()
+            LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
             self.pause_completions_handler(entry, True)
             entry.set_text(utils.utf8(location))
@@ -479,7 +482,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         else:
             # TODO: see if the location editor returns the new
             # location and if so set it directly
-            LocationEditor(parent=self.view.dialog).start()
+            LocationEditor(parent=self.view.get_window()).start()
 
 
     def refresh_view(self):
@@ -518,6 +521,21 @@ class PlantEditor(GenericModelViewPresenterEditor):
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
+
+        view = PlantEditorView(parent=self.parent)
+        self.presenter = PlantEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set default focus
+        if self.model.accession is None:
+            view.widgets.plant_acc_entry.grab_focus()
+        else:
+            view.widgets.plant_code_entry.grab_focus()
 
 
     def commit_changes(self):
@@ -619,20 +637,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if utils.yes_no_dialog(msg):
                 e = LocationEditor()
                 return e.start()
-        view = PlantEditorView(parent=self.parent)
-        self.presenter = PlantEditorPresenter(self.model, view)
 
-        # add quick response keys
-        self.attach_response(view.dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
-        # set default focus
-        if self.model.accession is None:
-            view.widgets.plant_acc_entry.grab_focus()
-        else:
-            view.widgets.plant_code_entry.grab_focus()
 
         while True:
             response = self.presenter.start()
