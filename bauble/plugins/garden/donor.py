@@ -101,8 +101,6 @@ class DonorEditorView(GenericEditorView):
                                 'donor_editor.glade')
         super(DonorEditorView, self).__init__(filename, parent=parent)
 
-        self.dialog = self.widgets.donor_dialog
-        self.connect_dialog_close(self.dialog)
         if sys.platform == 'win32':
             # TODO: is this character width fix still necessary
             import pango
@@ -115,13 +113,17 @@ class DonorEditorView(GenericEditorView):
             combo.set_size_request(new_width, -1)
 
 
+    def get_window(self):
+        return self.widgets.donor_dialog
+
+
     def set_accept_buttons_sensitive(self, sensitive):
         self.widgets.don_ok_button.set_sensitive(sensitive)
         self.widgets.don_next_button.set_sensitive(sensitive)
 
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 class DonorEditorPresenter(GenericEditorPresenter):
@@ -190,6 +192,15 @@ class DonorEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
+        view = DonorEditorView(parent=self.parent)
+        self.presenter = DonorEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
 
     def handle_response(self, response):
         '''
@@ -234,25 +245,15 @@ class DonorEditor(GenericModelViewPresenterEditor):
 
 
     def start(self):
-        self.view = DonorEditorView(parent=self.parent)
-        self.presenter = DonorEditorPresenter(self.model, self.view)
-
-        # add quick response keys
-        dialog = self.view.dialog
-        self.attach_response(dialog, gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(dialog, self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
         while True:
             response = self.presenter.start()
-            self.view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
 
         self.session.close() # cleanup session
+        self.presenter.cleanup()
         return self._committed
-
 
 
 
