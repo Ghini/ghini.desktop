@@ -20,9 +20,6 @@ import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution
 
 
-# TODO: create a test to make sure that if you delete an accession then the
-# plants that are "children" of this accession are also deleted
-
 from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
                         'date': datetime.today(),
@@ -74,12 +71,6 @@ def setUp_data():
     i.code = u'TestCode'
 
 
-
-# TODO: things to create tests for
-#
-# - test all cascading works as expected
-# - need to test that the Donor doesn't get deleted if it is orphaned since
-# we don't want to ever throw out donor information
 
 # TODO: if we ever get a GUI tester then do the following
 # test all possible combinations of entering data into the accession editor
@@ -306,18 +297,6 @@ class AccessionTests(GardenTestCase):
         self.session.commit()
         self.assert_(not self.session.query(Plant).get(plant_id))
 
-        # test that the donation and collection is deleted after being orphaned
-        #is done in test_source
-#         acc = acc = self.create(Accession, species=self.species, code=u'1')
-#         coll = Collection(locale=u'locale')
-#         acc.source = coll
-#         self.session.add(coll)
-#         self.session.commit()
-#         coll_id = coll.id
-#         self.session.delete(acc)
-#         self.session.commit()
-#         self.assert_(not self.session.query(Plant).get(coll_id))
-        # test that the collection is orphaned after being deleted
 
     def test_constraints(self):
         """
@@ -333,7 +312,7 @@ class AccessionTests(GardenTestCase):
         self.assertRaises(IntegrityError, self.session.commit)
 
 
-    def test_set_source(self):
+    def test_source(self):
         #acc = self.session.query(Accession).get(1)
         #donor = self.session.query(Donor).get(1)
         acc = Accession(code=u'1', species=self.species)
@@ -363,12 +342,13 @@ class AccessionTests(GardenTestCase):
         self.assertEquals(acc.source_type, u'Donation')
 
         # delete all the donations
-        # TODO: the donor should never be deleted if a donation is
-        # deleted and a donation should never get deleted if a donor
-        # is deleted, an error should be reaised if you attempt to
-        # delete a donor that has donations but should an error be
-        # raised if you attempt to delete a donation that has a donor,
-        # i don't think so
+        # TODO: ** important ** the donor
+        # should never be deleted if a donation is deleted and a
+        # donation should never get deleted if a donor is deleted, an
+        # error should be reaised if you attempt to delete a donor
+        # that has donations but should an error be raised if you
+        # attempt to delete a donation that has a donor, i don't think
+        # so
 
         # make sure the old donation gets deleted since it's an orphan
         print self.session.query(Donation).get(old_donation_id)
@@ -439,6 +419,28 @@ class AccessionTests(GardenTestCase):
 
         # make sure the orphaned donation get's deleted
         self.assert_(not self.session.query(Donation).get(old_donation_id))
+
+        # make sure the collection gets deleted when accession does
+        collection4 = Collection(locale=u'TestAccLocale4')
+        acc.source = collection4
+        self.session.commit()
+        cid = collection4.id
+        self.session.delete(acc)
+        self.session.commit()
+        self.assert_(not self.session.query(Collection).get(cid))
+
+        # make sure the collection gets deleted when accession does
+        acc = Accession(code=u'1', species=self.species)
+        donor = Donor(name=u'donor5')
+        self.session.add_all([acc, donor])
+        self.session.commit()
+        donation5 = Donation(donor=donor)
+        acc.source = donation5
+        self.session.commit()
+        did = donation5.id
+        self.session.delete(acc)
+        self.session.commit()
+        self.assert_(not self.session.query(Donation).get(did))
 
 
     def test_double_commit(self):

@@ -268,7 +268,7 @@ class GeneralSpeciesExpander(InfoExpander):
         @param row: the row to get the values from
         '''
         self.current_obj = row
-        # TODO: how do we put the genus is a seperate label so so it
+        # TODO: how do we put the genus in a seperate label so it
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the
         # species name
@@ -319,14 +319,14 @@ class LinksExpander(InfoExpander):
 
         self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
         self.tooltips.set_tip(self.gbif_button,
-                         _("Search the Global Biodiversity Information "\
-                           "Facility"))
+                              _("Search the Global Biodiversity Information "\
+                                    "Facility"))
         buttons.append(self.gbif_button)
 
         self.itis_button = gtk.LinkButton("", _("Search ITIS"))
         self.tooltips.set_tip(self.itis_button,
                               _("Search the Intergrated Taxonomic "\
-                                "Information System"))
+                                     "Information System"))
         buttons.append(self.itis_button)
 
         self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
@@ -380,6 +380,7 @@ class LinksExpander(InfoExpander):
         self.ipni_button.set_uri(ipni_uri)
 
 
+
 class SpeciesInfoBox(InfoBox):
 
     def __init__(self):
@@ -396,6 +397,7 @@ class SpeciesInfoBox(InfoBox):
         if isinstance(label, basestring):
             label = gtk.Label(label)
         self.insert_page(page, label, 1)
+
 
 
 class SpeciesInfoPage(InfoBoxPage):

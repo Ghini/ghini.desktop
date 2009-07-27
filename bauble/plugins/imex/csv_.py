@@ -17,7 +17,7 @@ import bauble
 import bauble.db as db
 from bauble.error import BaubleError
 import bauble.utils as utils
-import bauble.pluginmgr as plugin
+import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils.log import log, debug, error
 
@@ -436,6 +436,8 @@ class CSVImporter(Importer):
             utils.message_details_dialog(_(utils.xml_safe_utf8(msg)),
                                          traceback.format_exc(),
                                          type=gtk.MESSAGE_ERROR)
+
+
 # TODO: we don't use the progress dialog any more but we'll leave this
 # around to remind us when we support cancelling via the progress statusbar
 #
@@ -449,6 +451,8 @@ class CSVImporter(Importer):
 #         if utils.yes_no_dialog(msg, parent=self.__progress_dialog):
 #             self.__cancel = True
 ##         self.__pause = False
+
+
     def _get_filenames(self):
         def on_selection_changed(filechooser, data=None):
             """
@@ -574,7 +578,7 @@ class CSVExporter(object):
             write_csv(filename, rows)
 
 
-class CSVImportCommandHandler(plugin.CommandHandler):
+class CSVImportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'imcsv'
 
@@ -583,7 +587,7 @@ class CSVImportCommandHandler(plugin.CommandHandler):
         importer.start(arg)
 
 
-class CSVExportCommandHandler(plugin.CommandHandler):
+class CSVExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'excsv'
 
@@ -595,12 +599,16 @@ class CSVExportCommandHandler(plugin.CommandHandler):
 # plugin classes
 #
 
-class CSVImportTool(plugin.Tool):
+class CSVImportTool(pluginmgr.Tool):
     category = _('Import')
     label = _('Comma Separated Value')
 
     @classmethod
     def start(cls):
+        """
+        Start the CSV importer.  This tool will also reinitialize the
+        plugins after importing.
+        """
         msg = _('It is possible that importing data into this database could '\
                 'destroy or corrupt your existing data.\n\n<i>Would you '\
                 'like to continue?</i>')
@@ -608,12 +616,12 @@ class CSVImportTool(plugin.Tool):
             c = CSVImporter()
             c.start()
 
-        # TODO: need to reset the tags menu after an import to make sure
-        # we pick up any new tags20
+        # reinitialized the plugins now that the data has changed
+        pluginmgr.init()
 
 
 
-class CSVExportTool(plugin.Tool):
+class CSVExportTool(pluginmgr.Tool):
     category = _('Export')
     label = _('Comma Separated Value')
 

@@ -75,26 +75,19 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    editor.UnicodeOrNoneValidator())
-        # TODO: i think these validators need to be changed to reflect
-        # that we now use '' instead of None in most of the enum
-        # columns
-        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid',
-                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
+        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid')
         self.assign_simple_handler('sp_infra_entry', 'infrasp',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_spqual_combo', 'sp_qual',
-                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_notes_textview', 'notes',
                                    editor.UnicodeOrNoneValidator())
-
         self.__dirty = False
 
 
@@ -332,7 +325,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         geos_hash = {}
         # TODO: i think the geo_hash should be calculated in an idle
         # function so that starting the editor isn't delayed while the
-        # has is being build
+        # hash is being build
         for geo_id, name, parent_id in geos:
             try:
                 geos_hash[parent_id].append((geo_id, name))
@@ -524,8 +517,10 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         Removes the currently selected vernacular name from the view.
         """
-        # TODO: maybe we should only ask 'are you sure' if the selected value
-        # is an instance, this means it will be deleted from the database
+        # TODO: maybe we should only ask 'are you sure' if the
+        # selected value is an instance, this means it will be deleted
+        # from the database, otherwise its not committed and doesn't
+        # really matter if its committed
         tree = self.view.widgets.vern_treeview
         path, col = tree.get_cursor()
         tree_model = tree.get_model()
@@ -678,9 +673,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
-    # TODO: if you add a species and then immediately remove then you get an
-    # error, something about the synonym not being in the session
-
     def __init__(self, model, view, session):
         '''
         @param model: a Species instance
@@ -727,8 +719,15 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         initialize the gtk.TreeView
         '''
         self.treeview = self.view.widgets.sp_syn_treeview
-        def _syn_data_func(column, cell, model, iter, data=None):
-            v = model[iter][0]
+        # remove any columns that were setup previous, this became a
+        # problem when we starting reusing the glade files with
+        # utils.GladeLoader, the right way to do this would be to
+        # create the columns in glade instead of here
+        for col in self.treeview.get_columns():
+            self.treeview.remove_column(col)
+
+        def _syn_data_func(column, cell, model, treeiter, data=None):
+            v = model[treeiter][0]
             #cell.set_property('text', str(v.synonym))
             cell.set_property('text', str(v))
             # just added so change the background color to indicate its new
@@ -773,10 +772,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         tree_model.append([syn])
         self._selected = None
         entry = self.view.widgets.sp_syn_entry
-        self.pause_completions_handler(entry, True)
         entry.set_text('')
         entry.set_position(-1)
-        self.pause_completions_handler(entry, False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
@@ -802,9 +799,27 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             tree_model.remove(tree_model.get_iter(path))
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
+            # TODO: ** important ** this doesn't respect any unique
+            # contraints on the species for synonyms and allow a
+            # species to have another species as a synonym multiple
+            # times...see below
+
+            # TODO: using session.flush here with an argument is
+            # deprecated in SA 0.5 and will probably removed in SA
+            # 0.6...but how do we only flush the one value..unless we
+            # create a new session, merge it, commit that session,
+            # close it and then refresh the same object in
+            # self.session
+
             # make the change in synonym immediately available so that if
             # we try to add the same species again we don't break the
             # SpeciesSynonym UniqueConstraint
+
+            # tmp_session = bauble.Session()
+            # tmp_value = tmp.session.merge(value)
+            # tmp.session.commit()
+            # tmp.session.close()
+            # self.session.refresh(value)
             self.session.flush([value])
             self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True

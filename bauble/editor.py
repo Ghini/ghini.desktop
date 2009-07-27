@@ -611,7 +611,7 @@ class GenericEditorPresenter(object):
                     on_select(comp_model[found[0]][0])
                     #self.remove_problem(PROBLEM, entry)
 
-            if not found and PROBLEM not in self.problems:
+            if text != '' and not found and PROBLEM not in self.problems:
                 self.add_problem(PROBLEM, widget)
                 on_select(None)
 

@@ -619,8 +619,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def start(self):
         from bauble.plugins.garden.accession import Accession
-        # TODO: should really open the accession and location editors here, and
-        # ask 'Would you like to do that now?'
+
         if self.session.query(Accession).count() == 0:
             msg = 'You must first add or import at least one Accession into '\
                   'the database before you can add plants.\n\nWould you like '\
@@ -640,7 +639,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
         while True:
             response = self.presenter.start()
-            view.save_state() # should view or presenter save state
+            self.presenter.view.save_state()
             if self.handle_response(response):
                 break
 

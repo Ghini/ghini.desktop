@@ -281,11 +281,13 @@ def _get_tagged_object_pairs(tag):
     return kids
 
 
-def get_tagged_objects(tag):
+def get_tagged_objects(tag, session=None):
     """
     Return all object tagged with tag.
     """
-    session = bauble.Session()
+    if not session:
+        session = object_session(tag)
+    session = object_session(tag)
     if isinstance(tag, Tag):
         t = tag
     else:
@@ -293,7 +295,6 @@ def get_tagged_objects(tag):
 
     r = [session.query(mapper).filter_by(id=obj_id).one() \
             for mapper, obj_id in _get_tagged_object_pairs(t)]
-    session.close()
     return r
 
 
@@ -467,14 +468,10 @@ def _reset_tags_menu():
 
 
 def natsort_kids(kids):
-    # TODO: i don't think this session ever gets closed...the session
-    # is mostly needed  in the natsort_key method so that any of the
-    # __str__ functions can resolve their relations
-    def sorted_kids(parent):
-        session = bauble.Session()
-        return sorted(map(session.merge, getattr(parent, kids)),
-                      key=utils.natsort_key)
-    return sorted_kids
+    """
+    """
+    return lambda(parent): sorted(getattr(parent, kids),key=utils.natsort_key)
+
 
 
 class TagPlugin(pluginmgr.Plugin):
