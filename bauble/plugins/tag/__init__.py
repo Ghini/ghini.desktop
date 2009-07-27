@@ -66,13 +66,14 @@ class TagItemGUI:
     def __init__(self, values):
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag',
                                   'tag.glade')
-        self.glade_xml = gtk.glade.XML(glade_file)
-        self.dialog = self.glade_xml.get_widget('tag_item_dialog')
+        builder = utils.BuilderLoader.load(glade_file)
+        self.widgets = utils.BuilderWidgets(builder)
+        self.dialog = self.widgets.tag_item_dialog
         self.dialog.set_transient_for(bauble.gui.window)
-        self.item_data_label = self.glade_xml.get_widget('items_data')
+        self.item_data_label = self.widgets.items_data
         self.values = values
         self.item_data_label.set_text(', '.join([str(s) for s in self.values]))
-        button = self.glade_xml.get_widget('new_button')
+        button = self.widgets.new_button
         button.connect('clicked', self.on_new_button_clicked)
 
 
@@ -170,16 +171,13 @@ class TagItemGUI:
     def start(self):
         # we keep restarting the dialog here since the gui was created with
         # glade then the 'new tag' button emits a response we want to ignore
-        self.tag_tree = self.glade_xml.get_widget('tag_tree')
-
-        # remove the columns from the tree
-        for c in self.tag_tree.get_columns():
-            tag_tree.remove_column(c)
+        self.tag_tree = self.widgets.tag_tree
 
         # make the new columns
-        columns = self.build_tag_tree_columns()
-        for col in columns:
-            self.tag_tree.append_column(col)
+        if not self.tag_tree.get_columns():
+            columns = self.build_tag_tree_columns()
+            for col in columns:
+                self.tag_tree.append_column(col)
 
         # create the model
         model = gtk.ListStore(bool, str)
@@ -201,7 +199,7 @@ class TagItemGUI:
           and response != gtk.RESPONSE_DELETE_EVENT:
             response = self.dialog.run()
 
-        self.dialog.destroy()
+        self.dialog.hide()
 
 
 class Tag(db.Base):
