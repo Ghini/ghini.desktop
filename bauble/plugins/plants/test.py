@@ -138,7 +138,7 @@ def setUp_data():
     for mapper, data in test_data_table_control:
         table = mapper.__table__
         for row in data:
-            table.insert().execute(row)
+            table.insert().execute(row).close()
         for col in table.c:
             utils.reset_sequence(col)
 
@@ -396,7 +396,12 @@ class SpeciesTests(PlantTestCase):
 
 
     def itest_species_editor(self):
-        e = SpeciesEditor()
+        f = Family(family=u'family')
+        g = Genus(genus=u'genus', family=f)
+        self.session.add(g)
+        self.session.commit()
+        sp = Species(genus=g)
+        e = SpeciesEditor(model=sp)
         e.start()
         del e
         assert utils.gc_objects_by_type('SpeciesEditor') == [], \
