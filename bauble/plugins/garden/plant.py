@@ -60,6 +60,8 @@ def remove_callback(plants):
 
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
     return True
 
 
@@ -635,7 +637,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if utils.yes_no_dialog(msg):
                 e = LocationEditor()
                 return e.start()
-
 
         while True:
             response = self.presenter.start()

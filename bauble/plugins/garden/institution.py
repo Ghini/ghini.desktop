@@ -19,6 +19,9 @@ from bauble.utils.log import debug
 # a callback so that the database isn't updated until the user stops
 # typing
 
+# TODO: create a tool so that the institution editor can be accessed
+# from the menu
+
 class Singleton(object):
     __instance = None
     def __new__(cls, *args, **kwargs):
