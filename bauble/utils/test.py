@@ -246,6 +246,22 @@ class ResetSequenceTests(BaubleTestCase):
         utils.reset_sequence(table.c.id)
 
 
+    def test_empty_col_sequence(self):
+        """
+        Test utils.reset_sequence on a column without a Sequence()
+
+        This only tests that reset_sequence() doesn't fail if there is
+        no sequence.
+        """
+
+        # test that a column without an explicit sequence works
+        table = Table('test_reset_sequence', self.metadata,
+                           Column('id', Integer, primary_key=True))
+        self.metadata.create_all()
+        #self.insert = table.insert()#.compile()
+        #db.engine.execute(self.insert, values=[{'id': 1}])
+        utils.reset_sequence(table.c.id)
+
     def test_with_col_sequence(self):
         """
         Test utils.reset_sequence on a column that has an Sequence()
