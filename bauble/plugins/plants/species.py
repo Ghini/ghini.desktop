@@ -57,7 +57,8 @@ def remove_callback(values):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    session.close()
+    finally:
+        session.close()
     return True
 
 
@@ -66,8 +67,7 @@ def add_accession_callback(values):
     species = values[0]
     if isinstance(species, VernacularName):
         species = species.species
-    session = bauble.Session()
-    e = AccessionEditor(model=Accession(species=session.merge(species)))
+    e = AccessionEditor(model=Accession(species=species))
     return e.start() != None
 
 
@@ -342,12 +342,7 @@ class LinksExpander(InfoExpander):
 
         for b in buttons:
             b.set_alignment(0, -1)
-            b.connect("clicked", self.on_click)
             self.vbox.pack_start(b, expand=False, fill=False)
-
-
-    def on_click(self, button):
-        desktop.open(button.get_uri())
 
 
     def update(self, row):

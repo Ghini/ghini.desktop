@@ -138,7 +138,7 @@ class PhotoCache(object):
             path = os.path.join(default_path, 'photos.db')
         uri = 'sqlite:///%s' % path
         self.engine = sa.create_engine(uri)
-        self.engine.contextual_connect()
+        self.engine.connect()
         self.metadata = Base.metadata
         self.metadata.bind = self.engine
         self.Session = orm.sessionmaker(bind=self.engine, autoflush=False)

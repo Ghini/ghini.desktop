@@ -66,7 +66,8 @@ def remove_callback(families):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    session.close()
+    finally:
+        session.close()
     return True
 
 
@@ -764,13 +765,8 @@ class LinksExpander(InfoExpander):
 
         for b in buttons:
             b.set_alignment(0, -1)
-            b.connect("clicked", self.on_click)
             self.vbox.pack_start(b)
 
-
-    @staticmethod
-    def on_click(button):
-        desktop.open(button.get_uri())
 
     def update(self, row):
         s = str(row)
