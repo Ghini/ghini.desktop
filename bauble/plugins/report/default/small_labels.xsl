@@ -15,7 +15,7 @@
 			       margin-bottom="0.5in"
 			       margin-left="0.5in"
 			       margin-right="0.5in">
-	  <fo:region-body column-count="2" column-gap='1mm' />
+	  <fo:region-body column-count="2" column-gap="1mm" />
 	</fo:simple-page-master>
       </fo:layout-master-set>
 
@@ -25,37 +25,40 @@
 	    <xsl:for-each select=".//abcd:Unit">
 
 	      <!-- ** the label block ** -->
-	      <fo:block-container margin='1mm'
-				  keep-together='always'
-				  border="solid black 1px" width='78mm'
-				  height='45mm'>
+	      <fo:block-container margin="1mm"
+				  keep-together="always"
+				  border="solid black 1px" width="78mm"
+				  height="45mm">
 
 		<!-- ** Family ** -->
+		<!-- border="solid yellow 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="5mm" bottom="32mm">
+				    top="3mm" bottom="37mm">
 		  <fo:block font-weight="bold"
-			    margin-left="5mm"
-			    margin-right="5mm"
 			    font-size="14pt"
 			    text-align="center">
-		    <xsl:value-of select='.//abcd:HigherTaxonName' />
+		    <xsl:value-of select=".//abcd:HigherTaxonName" />
 		  </fo:block>
 		</fo:block-container>
 
 		<!-- ** Scientific Name ** -->
+		<!-- border="solid red 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="14mm" bottom="22mm">
-		  <fo:block font-style='italic'
+				    display-align="after"
+				    top="8mm" bottom="25mm">
+		  <fo:block font-style="italic"
 			    font-size="14pt"
 			    text-align="center">
 		    <xsl:value-of
-			select='.//abcd:FullScientificNameString' />
+			select=".//abcd:FullScientificNameString" />
 		  </fo:block>
 		</fo:block-container>
 
 		<!-- ** Vernacular name ** -->
+		<!-- border="solid green 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="25mm" bottom="15mm">
+				    display-align="after"
+				    top="20mm" bottom="8mm">
 		  <fo:block font-weight="bold"
 			    font-size="16pt"
 			    text-align="center">
@@ -64,9 +67,10 @@
 		</fo:block-container>
 
 		<!-- ** Plant ID ** -->
+		<!-- border="solid purple 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top='39mm' bottom="0mm" left="2mm"
-				    width="37mm">
+				    top="39mm" bottom="0mm" left="1mm"
+				    right="45mm">
 		  <fo:block font-size="12pt"
 			    text-align="left">
 		    <xsl:value-of select="abcd:UnitID" />
@@ -76,9 +80,9 @@
 		<!-- ** Distribution ** -->
 		<!-- border="solid orange 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="30mm" bottom="0mm"
-				    left="28mm"
-				    right="2mm" width="48mm"
+				    top="39mm" bottom="0mm"
+				    left="32mm"
+				    right="1mm"
 				    display-align="after">
 		  <fo:block font-size="11pt"
 			    text-align="right">

@@ -35,8 +35,9 @@
 		<!--  TODO: should only select the family name if the
 		     HigherTaxonRank is familia -->
 		<fo:block-container absolute-position="absolute"
-				    top="7mm" bottom="32mm">
-		  <fo:block font-family="Bitstream Vera Sans, sans"
+				    top="4mm" bottom="29mm">
+		  <!-- border="solid yellow 1px" -->
+		  <fo:block font-family="sans"			    
 			    font-weight="bold"
 			    margin-left="5mm"
 			    margin-right="5mm"
@@ -49,37 +50,32 @@
 		<!-- ** Scientific name ** -->
 		<!-- TODO: this isn"t properly setting the name to italics,
 		     maybe it"s a problem with XEP -->
+		<!-- border="solid red 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="17mm"
-				    bottom="12mm">
+				    display-align="center"
+				    top="14mm"
+				    bottom="26mm">
 		  <fo:block line-height=".9"
 			    font-size="23pt"
-			    font-family="Bitstream Vera Serif, serif"
+			    font-family="serif"
 			    font-style="italic"
 			    font-weight="500"
 			    margin-left="2mm"
 			    margin-right="2mm"
 			    text-align="center">
 		    <xsl:value-of select=".//abcd:FullScientificNameString" />
-		    <!--
-			<fo:inline space-end="6pt">
-			<xsl:value-of select=".//genusormonomial"/>
-			</fo:inline>
-			<fo:inline>
-			<xsl:value-of select=".//firstepithet"/>
-			</fo:inline>
-		    -->
 		  </fo:block>
 		</fo:block-container>
 
 		<!-- ** Vernacular name ** -->
+		<!-- border="solid green 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="33mm"
-				    bottom="12mm">
-		  <fo:block font-family="Bitstream Vera Sans, sans"
+				    top="33mm"	    
+				    bottom="8mm">
+		  <fo:block font-family="sans"
 			    font-weight="bold"
-			    margin-left="5mm"
-			    margin-right="5mm"
+			    margin-left="2mm"
+			    margin-right="2mm"
 			    font-size="22pt"
 			    text-align="center">
 		    <xsl:value-of
@@ -88,12 +84,13 @@
 		</fo:block-container>
 
 		<!-- ** Plant ID ** -->
+		<!-- border="solid purple 1px" -->
 		<fo:block-container absolute-position="absolute"
 				    top="52mm"
 				    bottom="0mm"
 				    left="2mm"
-				    width="50mm">
-		  <fo:block font-family="Bitstream Vera Serif, serif"
+				    right="66mm">
+		  <fo:block font-family="serif"
 			    font-size="15pt"
 			    text-align="left">
 		    <xsl:value-of select="abcd:UnitID" />
@@ -103,13 +100,12 @@
 		<!-- ** Distribution ** -->
 		<!-- border="solid orange 1px" -->
 		<fo:block-container absolute-position="absolute"
-				    top="45mm"
+				    top="52mm"
 				    bottom="0mm"
-				    left="45mm"
 				    right="2mm"
-				    width="70mm"
+				    left="55mm"				    
 				    display-align="after">
-		  <fo:block font-family="Bitstream Vera Serif, serif"
+		  <fo:block font-family="serif"
 			    font-size="15pt"
 			    text-align="right">
 		    <xsl:value-of select="distribution" />

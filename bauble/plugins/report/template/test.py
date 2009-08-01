@@ -63,8 +63,10 @@ class TemplateFormatterTests(BaubleTestCase):
                             self.session.add_all([loc, plant])
         self.session.commit()
 
+
     def tearDown(self, *args):
         super(TemplateFormatterTests, self).tearDown(*args)
+
 
     def test_format(self):
         plants = self.session.query(Plant).all()

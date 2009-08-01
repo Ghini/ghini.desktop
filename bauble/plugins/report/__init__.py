@@ -336,8 +336,8 @@ class ReportToolDialogPresenter(object):
         # TOD0: make "Enter" in the entry fire the default response
         d = gtk.Dialog('', self.view.dialog,
                        gtk.DIALOG_MODAL|gtk.DIALOG_DESTROY_WITH_PARENT,
-                       buttons=((gtk.STOCK_OK, gtk.RESPONSE_ACCEPT,
-                      gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT)))
+                       buttons=(gtk.STOCK_CANCEL, gtk.RESPONSE_REJECT,
+                                gtk.STOCK_OK, gtk.RESPONSE_ACCEPT))
         d.vbox.set_spacing(10)
         label = gtk.Label(_('Enter a name for the new formatter'))
         label.set_padding(10, 10)
