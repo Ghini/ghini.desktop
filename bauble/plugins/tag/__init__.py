@@ -13,6 +13,7 @@ from sqlalchemy.exc import SQLError, InvalidRequestError
 
 import bauble
 import bauble.db as db
+import bauble.editor as editor
 import bauble.pluginmgr as pluginmgr
 import bauble.paths as paths
 import bauble.utils as utils
@@ -59,7 +60,7 @@ remove_action = Action('tag_remove', ('_Remove'), callback=remove_callback,
 tag_context_menu = [remove_action]
 
 
-class TagItemGUI:
+class TagItemGUI(editor.GenericEditorView):
     '''
     interface for tagging individual items in the results of the SearchView
     '''
@@ -123,9 +124,11 @@ class TagItemGUI:
 
 
     def build_tag_tree_columns(self):
-        # the toggle column
+        """
+        Build the tag tree columns.
+        """
         renderer = gtk.CellRendererToggle()
-        renderer.connect('toggled', self.on_toggled)
+        self.connect(renderer, 'toggled', self.on_toggled)
         renderer.set_property('activatable', True)
         toggle_column = gtk.TreeViewColumn(None, renderer)
         toggle_column.add_attribute(renderer, "active", 0)
@@ -192,7 +195,7 @@ class TagItemGUI:
         self.tag_tree.set_model(model)
 
         self.tag_tree.add_events(gtk.gdk.KEY_RELEASE_MASK)
-        self.tag_tree.connect("key-release-event", self.on_key_released)
+        self.connect(self.tag_tree, "key-release-event", self.on_key_released)
 
         response = self.dialog.run()
         while response != gtk.RESPONSE_OK \
@@ -200,6 +203,8 @@ class TagItemGUI:
             response = self.dialog.run()
 
         self.dialog.hide()
+        self.disconnect_all()
+
 
 
 class Tag(db.Base):
@@ -237,7 +242,7 @@ class TaggedObj(db.Base):
 
 
     def __str__(self):
-        return '%s: %s' % (self.obj_class.__name__, self.obj_id)
+        return '%s: %s' % (self.obj_class, self.obj_id)
 
 
 # TODO: maybe we shouldn't remove the obj from the tag if we can't
@@ -283,16 +288,18 @@ def get_tagged_objects(tag, session=None):
     """
     Return all object tagged with tag.
     """
-    if not session:
+    close_session = False
+    if not isinstance(tag, Tag):
+        if not session:
+            session = bauble.Session()
+        tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
+    elif not session:
         session = object_session(tag)
-    session = object_session(tag)
-    if isinstance(tag, Tag):
-        t = tag
-    else:
-        t = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
 
     r = [session.query(mapper).filter_by(id=obj_id).one() \
-            for mapper, obj_id in _get_tagged_object_pairs(t)]
+            for mapper, obj_id in _get_tagged_object_pairs(tag)]
+    if close_session:
+        session.close()
     return r
 
 
@@ -331,16 +338,16 @@ _classname = lambda x: unicode('%s.%s', 'utf-8') % (type(x).__module__, type(x).
 
 def tag_objects(name, objs):
     '''
-    @param name: the tag name, if its a str object then it will be
-    converted to unicode() using the default encoding
+    @param name: The tag name, if its a str object then it will be
+    converted to unicode() using the default encoding. If a tag with
+    this name doesn't exist it will be created
     @type name: string
-    @param obj: the object to tag
+
+    @param obj: The object to tag.
     @type obj: a list of mapper objects
-    @return: the tag
     '''
     session = bauble.Session()
-    if not isinstance(name, unicode):
-        name = unicode(name, 'utf-8')
+    name = utils.utf8(name)
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
     except InvalidRequestError, e:
@@ -350,8 +357,6 @@ def tag_objects(name, objs):
         cls = and_(TaggedObj.obj_class==_classname(obj),
                    TaggedObj.obj_id==obj.id,
                    TaggedObj.tag_id==tag.id)
-        # SA 0.4.3 gave an error without this _dummy alias
-        #if tagged_obj_table.select(cls).alias('_dummy').count().scalar() == 0:
         ntagged = session.query(TaggedObj).filter(cls).count()
         if ntagged == 0:
             tagged_obj = TaggedObj(obj_class=_classname(obj), obj_id=obj.id,
