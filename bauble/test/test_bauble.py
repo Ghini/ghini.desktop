@@ -28,7 +28,7 @@ class BaubleTests(BaubleTestCase):
         Test bauble.types.Enum
         """
         class Test(db.Base):
-            __tablename__ = 'test'
+            __tablename__ = 'test_enum_type'
             id = Column(Integer, primary_key=True)
             value = Column(Enum(values=['1', '2', '']), default=u'')
         table = Test.__table__

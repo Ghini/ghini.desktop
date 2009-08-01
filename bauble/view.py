@@ -27,10 +27,6 @@ from bauble.prefs import prefs
 from bauble.utils.log import debug, error, warning
 from bauble.utils.pyparsing import *
 
-# TODO: should we provide a way to change the results view from list to icon
-# and provide an icon type to each type that can be returned and then you could
-# double click on an icon to open the children of that type
-
 # use different formatting template for the result view depending on the
 # platform
 _mainstr_tmpl = '<b>%s</b>'
@@ -39,16 +35,6 @@ if sys.platform == 'win32':
 else:
     _substr_tmpl = '<small>%s</small>'
 
-#import gc
-#gc.enable()
-#gc.set_debug(gc.DEBUG_UNCOLLECTABLE|gc.DEBUG_INSTANCES|gc.DEBUG_OBJECTS)
-#gc.set_debug(gc.DEBUG_LEAK)
-
-# TODO: reset expander data on expand, the problem is that we don't keep the
-# row around that was used to update the infoexpander, if we don't do this
-# then we can't update unless the search view updates us, this means that
-# the search view would have to register on_expanded on each info expander
-# in the infobox
 
 class Action(gtk.Action):
 
@@ -93,6 +79,7 @@ class Action(gtk.Action):
     enabled = property(_get_enabled, _set_enabled)
 
 
+
 class InfoExpander(gtk.Expander):
     """
     an abstract class that is really just a generic expander with a vbox
@@ -127,6 +114,7 @@ class InfoExpander(gtk.Expander):
         This method should be implemented by classes that extend InfoExpander
         '''
         raise NotImplementedError("InfoExpander.update(): not implemented")
+
 
 
 class PropertiesExpander(InfoExpander):
@@ -252,8 +240,7 @@ class InfoBoxPage(gtk.ScrolledWindow):
         """
         for expander in self.expanders.values():
             expanders.update(row)
-        ## TODO: should we just iter over the expanders and update them all
-        #raise NotImplementedError
+
 
 
 class InfoBox(gtk.Notebook):
@@ -461,7 +448,7 @@ class MapperSearch(SearchStrategy):
                 # mapper/table
                 relations = idents[:-1]
                 col = idents[-1]
-                # TODO: do all the databases quote the same
+                # TODO: do all the databases quote the same?
 
                 # TODO: need to either stick to a subset of conditions
                 # that work on all database or just normalize the
@@ -740,8 +727,6 @@ class SearchView(pluginmgr.View):
                                           self.context_menu_desc)
 
 
-
-
             def get_children(self, obj):
                 '''
                 :param obj: get the children from obj according to
@@ -940,12 +925,6 @@ class SearchView(pluginmgr.View):
         # has the same text in it, this is in case this method was called from
         # outside the class so the entry and search results match
 #        debug('SearchView.search(%s)' % text)
-
-        # TODO: we should cancel any current running searches
-        # this will probably have to wait until we have a better task
-        # handling API, see:
-        # https://bugs.launchpad.net/bauble/+bug/378897
-
         results = ResultSet()
         error_msg = None
         error_details_msg = None
@@ -1020,32 +999,32 @@ class SearchView(pluginmgr.View):
             model.remove(child)
 
 
-    def on_test_expand_row(self, view, iter, path, data=None):
+    def on_test_expand_row(self, view, treeiter, path, data=None):
         '''
         look up the table type of the selected row and if it has
         any children then add them to the row
         '''
         expand = False
         model = view.get_model()
-        row = model.get_value(iter, 0)
+        row = model.get_value(treeiter, 0)
         view.collapse_row(path)
-        self.remove_children(model, iter)
+        self.remove_children(model, treeiter)
         try:
             kids = self.view_meta[type(row)].get_children(row)
             if len(kids) == 0:
                 return True
         except saexc.InvalidRequestError, e:
-#            debug(e)
+            #debug(utils.utf8(e))
             model = self.results_view.get_model()
             for found in utils.search_tree_model(model, row):
                 model.remove(found)
             return True
         except Exception, e:
-            debug(e)
+            debug(utils.utf8(e))
             debug(traceback.format_exc())
             return True
         else:
-            self.append_children(model, iter, kids)
+            self.append_children(model, treeiter, kids)
             return False
 
 
@@ -1111,14 +1090,14 @@ class SearchView(pluginmgr.View):
 
 
     def append_children(self, model, parent, kids):
-        '''
+        """
         append object to a parent iter in the model
 
         :param model: the model the append to
-        :param parent:  the parent iter
+        :param parent:  the parent gtk.TreeIter
         :param kids: a list of kids to append
         @return: the model with the kids appended
-        '''
+        """
         check(parent is not None, "append_children(): need a parent")
         for k in kids:
             i = model.append(parent, [k])
@@ -1215,6 +1194,8 @@ class SearchView(pluginmgr.View):
             # show the common menu
             if False in istype:
                 #debug('not all the same type')
+                raise NotImplementedError('calling an action on multiple '\
+                                              'types is not yet supported')
                 return False
             else:
                 #debug('ALL the same type')
@@ -1224,7 +1205,11 @@ class SearchView(pluginmgr.View):
             # no actions
             return True
 
-        # TODO: merge the context menu with the generic menu
+        # TODO: ** important ** we need a common menu for all types
+        # that can be merged with the specific menu for the selection,
+        # e.g. provide a menu with a "Tag" action so you can tag
+        # everything...or we could just ignore this and add "Tag" to
+        # all of our action lists
         menu = None
         try:
             menu = self.context_menu_cache[selected_type]
@@ -1266,9 +1251,9 @@ class SearchView(pluginmgr.View):
 
     def reset_view(self):
         """
-        expire all the children in the model, collapse everything,
+        Expire all the children in the model, collapse everything,
         reexpand the rows to the previous state where possible and
-        update the infobox
+        update the infobox.
         """
         # TODO: we should do some profiling to see how this method
         # performs on large datasets
