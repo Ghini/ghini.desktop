@@ -59,7 +59,7 @@ def pb_set_fraction(fraction):
 
 
 
-class UnicodeReader:
+class UnicodeReader(object):
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         self.reader = csv.DictReader(f, dialect=dialect, **kwds)
@@ -82,8 +82,11 @@ class UnicodeReader:
         return self
 
 
-
-class UnicodeWriter:
+# TODO: UnicodeWriter needs to be more thoroughly needs to be more
+# tested, i came across a small problem once when createing a tempory
+# geography table from _topsort_file and it exported the numbers in
+# some strange format
+class UnicodeWriter(object):
 
     def __init__(self, f, dialect=csv.excel, encoding="utf-8", **kwds):
         self.writer = csv.writer(f, dialect=dialect, **kwds)
@@ -91,6 +94,8 @@ class UnicodeWriter:
 
 
     def writerow(self, row):
+        if isinstance(row, dict):
+            row = row.values()
         t = []
         for s in row:
             if s == None:
@@ -159,6 +164,61 @@ class CSVImporter(Importer):
         bauble.task.queue(self.run(filenames, metadata, force))
 
 
+    @staticmethod
+    def _toposort_file(filename, key_pairs):
+        """
+        filename: the csv file to sort
+
+        key_pairs: tuples of the form (parent, child) where for each
+        line in the file the line[parent] needs to be sorted before
+        any of the line[child].  parent is usually the name of the
+        foreign_key column and child is usually the column that the
+        foreign key points to, e.g ('parent_id', 'id')
+        """
+        f = open(filename, 'rb')
+        reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
+                               quoting=QUOTE_STYLE)
+
+        # create a dictionary of the lines mapped to the child field
+        bychild = {}
+        for line in reader:
+            for parent, child in key_pairs:
+                bychild[line[child]] = line
+        f.close()
+        fields = reader.reader.fieldnames
+        del reader
+
+        # create pairs from the values in the lines where pair[0]
+        # should come before pair[1] when the lines are sorted
+        pairs = []
+        for line in bychild.values():
+            for parent, child in key_pairs:
+                if line[parent] and line[child]:
+                    pairs.append((line[parent], line[child]))
+
+        # sort the keys and flatten the lines back into a list
+        sorted_keys = utils.topological_sort(bychild.keys(), pairs)
+        sorted_lines = []
+        for key in sorted_keys:
+            sorted_lines.append(bychild[key])
+
+        # write a temporary file of the sorted lines
+        import tempfile
+        tmppath = tempfile.mkdtemp()
+        head, tail = os.path.split(filename)
+        filename = os.path.join(tmppath, tail)
+        tmpfile = open(filename, 'wb')
+        tmpfile.write('%s\n' % ','.join(fields))
+        #writer = UnicodeWriter(tmpfile, fields, quotechar=QUOTE_CHAR,
+        writer = csv.DictWriter(tmpfile, fields, quotechar=QUOTE_CHAR,
+                                quoting=QUOTE_STYLE)
+        writer.writerows(sorted_lines)
+        tmpfile.flush()
+        tmpfile.close()
+        del writer
+        return filename
+
+
     def run(self, filenames, metadata, force=False):
         '''
         A generator method for importing filenames into the database.
@@ -177,7 +237,7 @@ class CSVImporter(Importer):
             # user a contextual connect in case whoever called this
             # method called it inside a transaction then we can pick
             # up the parent connection and the transaction
-            connection = metadata.bind.contextual_connect()
+            connection = metadata.bind.connect()
             transaction = connection.begin()
         except Exception, e:
             msg = _('Error connecting to database.\n\n%s') % \
@@ -222,7 +282,7 @@ class CSVImporter(Importer):
         filesizes = {}
         for filename in filenames:
             #get the total number of lines for all the files
-            nlines = len(file(filename).readlines())
+            nlines = len(open(filename).readlines())
             filesizes[filename] = nlines
             total_lines += nlines
 
@@ -258,12 +318,16 @@ class CSVImporter(Importer):
                     response = True
 
                 if response and len(depends)>0:
-#                     debug('dropping: %s' \
-#                               % ', '.join([d.name for d in depends]))
+                    # debug('dropping: %s' \
+                    #           % ', '.join([d.name for d in depends]))
                     metadata.drop_all(bind=connection, tables=depends)
                 else:
                     # user doesn't want to drop dependencies so we just quit
                     return
+
+            # commit the dependency drops
+            transaction.commit()
+            transaction = connection.begin()
 
             # update_every determines how many rows we will insert at
             # a time and consequently how often we update the gui
@@ -316,9 +380,13 @@ class CSVImporter(Importer):
                 if self.__cancel or self.__error:
                     break
 
+                # commit the drop of the table we're importing
+                transaction.commit()
+                transaction = connection.begin()
+
                 # open a temporary reader to get the column keys so we
                 # can later precompile our insert statement
-                f = file(filename, "rb")
+                f = open(filename, "rb")
                 tmp = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                     quoting=QUOTE_STYLE)
                 tmp.next()
@@ -335,6 +403,18 @@ class CSVImporter(Importer):
                     if isinstance(column.default, ColumnDefault):
                         defaults[column.name] = column.default.execute()
                 column_names = table.c.keys()
+
+                # check if there are any foreign keys to on the table
+                # that refer to itself, if so create a new file with
+                # the lines sorted in order of dependency so that we
+                # don't get errors about imporint values into a
+                # foreign_key that don't reference and existin row
+                self_keys = filter(lambda f: f.column.table==table, \
+                                      table.foreign_keys)
+                if self_keys:
+                    key_pairs = map(lambda x: (x.parent.name, x.column.name),
+                                    self_keys)
+                    filename = self._toposort_file(filename, key_pairs)
 
                 # the column keys for the insert are a union of the
                 # columns in the CSV file and the columns with
@@ -355,7 +435,7 @@ class CSVImporter(Importer):
 
                 isempty = lambda v: v in ('', None)
 
-                f = file(filename, "rb")
+                f = open(filename, "rb")
                 reader = UnicodeReader(f, quotechar=QUOTE_CHAR,
                                        quoting=QUOTE_STYLE)
                 # NOTE: we shouldn't get this far if the file doesn't
@@ -376,6 +456,13 @@ class CSVImporter(Importer):
                             line[column] = defaults[column]
                         elif column in line and isempty(line[column]):
                             line[column] = None
+                        elif column in line and line[column] == 'False' and \
+                                isinstance(table.c[column].type, Boolean):
+                            # in SA 0.5.5 and only on an SQLite
+                            # database the 'False' will import as True
+                            # for some reason whereas True will import
+                            # as True automatically
+                            line[column] = False
                     values.append(line)
 
                     steps_so_far += 1
@@ -535,7 +622,7 @@ class CSVExporter(object):
             return s
 
         def write_csv(filename, rows):
-            f = file(filename, 'wb')
+            f = open(filename, 'wb')
             #writer = csv.writer(f, quotechar=QUOTE_CHAR, quoting=QUOTE_STYLE)
             writer = UnicodeWriter(f, quotechar=QUOTE_CHAR,quoting=QUOTE_STYLE)
             writer.writerows(rows)
