@@ -33,12 +33,11 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
 # subgen, subfam, tribes etc, maybe this should be included in Genus
 
 # TODO: since there can be more than one genus with the same name but
-# different authors we need to show the Genus author in the result search
-# and at least give the Genus it's own infobox, we should also check if
-# when entering a plantname with a chosen genus if that genus has an author
-# ask the user if they want to use the accepted name and show the author of
-# the genus then so they aren't using the wrong version of the Genus,
-# e.g. Cananga
+# different authors we need to show the Genus author in the result
+# search, we should also check if when entering a plantname with a
+# chosen genus if that genus has an author ask the user if they want
+# to use the accepted name and show the author of the genus then so
+# they aren't using the wrong version of the Genus, e.g. Cananga
 
 def edit_callback(genera):
     genus = genera[0]
@@ -76,7 +75,8 @@ def remove_callback(genera):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
-    session.close()
+    finally:
+        session.close()
     return True
 
 edit_action = Action('genus_edit', ('_Edit'), callback=edit_callback,
@@ -258,6 +258,7 @@ class GenusEditorView(editor.GenericEditorView):
 
     def get_window(self):
         return self.widgets.genus_dialog
+
 
     @staticmethod
     def syn_cell_data_func(column, renderer, model, iter, data=None):
@@ -692,13 +693,7 @@ class LinksExpander(InfoExpander):
 
         for b in buttons:
             b.set_alignment(0, -1)
-            b.connect("clicked", self.on_click)
             self.vbox.pack_start(b)
-
-
-    @staticmethod
-    def on_click(button):
-        desktop.open(button.get_uri())
 
 
     def update(self, row):
