@@ -43,13 +43,6 @@ from bauble.plugins.garden.donor import Donor
 
 # FIXME: time.mktime can't handle dates before 1970 on win32
 
-# TODO: there is a bug if you edit an existing accession and change the
-# accession number but change it back to the original then it indicates the
-# number is invalid b/c it's a duplicate
-
-# TODO: make sure an accessions source record is being deleted when the
-# accession is being deleted, and create a test for the same thing
-
 # date regular expression for date entry fields
 _date_regex = re.compile('(?P<day>\d?\d)/(?P<month>\d?\d)/(?P<year>\d\d\d\d)')
 
@@ -146,6 +139,8 @@ def remove_callback(accessions):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(unicode(e))
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
     return True
 
 
@@ -327,7 +322,7 @@ class Accession(db.Base):
     id_qual_rank = Column(Unicode(10))
 
     # "private" new in 0.8b2
-    private = Column('private', Boolean, default=False)
+    private = Column(Boolean, default=False)
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     # relations
@@ -1149,16 +1144,7 @@ class DonationPresenter(GenericEditorPresenter):
             self.view.widgets.don_edit_button.set_sensitive(True)
 
 
-# TODO: pick one or a combination of the following
-# 1. the ok, next and whatever buttons shouldn't be made sensitive until
-# all required field are valid, or all field are valid
-# 2. implement eclipse style label at the top of the editor that give
-# information about context, whether a field is invalid or whatever
-# 3. change color around widget with an invalid value so the user knows there's
-# a problem
-# TODO: the accession editor presenter should give an error if no species exist
-# in fact it should give a message dialog and ask if you would like
-# to enter some species now, or maybe import some
+
 class AccessionEditorPresenter(GenericEditorPresenter):
 
     widget_to_field_map = {'acc_code_entry': 'code',
@@ -1175,6 +1161,10 @@ class AccessionEditorPresenter(GenericEditorPresenter):
     PROBLEM_DUPLICATE_ACCESSION = random()
     PROBLEM_ID_QUAL_RANK_REQUIRED = random()
 
+    # keep references to donation and collection box so they don't get
+    # destroyed when we reparent them
+    _source_box_map = {}
+
     def __init__(self, model, view):
         '''
         @param model: an instance of class Accession
@@ -1186,8 +1176,18 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
         self.source_presenter = None
-        self._source_box_map = {Donation: self.view.widgets.donation_box,
-                                Collection: self.view.widgets.collection_box}
+        self._source_box_map['Donation'] = self.view.widgets.donation_box
+        self._source_box_map['Collection'] = self.view.widgets.collection_box
+
+        # reset the source_box_parent in case it still has a child
+        # from a previous run of the accession editor
+        kid = self.view.widgets.source_box_parent.get_child()
+        if kid:
+            self.view.widgets.source_box_parent.remove(kid)
+
+        # set current page so we don't open the last one that was open
+        self.view.widgets.acc_notebook.set_current_page(0)
+
         self.init_enum_combo('acc_prov_combo', 'prov_type')
         self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
@@ -1331,9 +1331,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         if text is '':
             self.set_model_attr('code', None)
         else:
-            # TODO: even though utf-8 is pretty much standard throughout
-            # Bauble we shouldn't hardcode the encoding here...probably best
-            # to store the default encoding in the bauble.meta
             self.set_model_attr('code', utils.utf8(text))
 
 

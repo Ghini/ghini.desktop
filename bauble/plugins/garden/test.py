@@ -60,7 +60,7 @@ def setUp_data():
     for cls, data in test_data_table_control:
         table = cls.__table__
         for row in data:
-            table.insert().execute(row)
+            table.insert().execute(row).close()
         for col in table.c:
             utils.reset_sequence(col)
     i = Institution()
@@ -97,6 +97,9 @@ class GardenTestCase(BaubleTestCase):
         self.session.add_all([self.family, self.genus, self.species])
         self.session.commit()
 
+    # def tearDown(self):
+    #     print >>sys.stderr, 'GardenTestCase.tearDown()'
+    #     super(GardenTestCase, self).tearDown()
 
     def create(self, class_, **kwargs):
         obj = class_(**kwargs)

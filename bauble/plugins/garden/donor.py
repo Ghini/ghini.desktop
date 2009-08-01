@@ -38,6 +38,8 @@ def remove_callback(donors):
         msg = _('Could not delete.\n\n%s') % utils.xml_safe_utf8(e)
         utils.message_details_dialog(msg, traceback.format_exc(),
                                      type=gtk.MESSAGE_ERROR)
+    finally:
+        session.close()
     return True
 
 
@@ -48,13 +50,10 @@ remove_action = Action('donor_remove', ('_Remove'), callback=remove_callback,
 
 donor_context_menu = [edit_action, remove_action]
 
-# TODO: make sure that you can't delete the donor if donations exist, this
-# should have a test
 
-# TODO: show list of donations given by donor if searching for the donor name
-# in the search view
-# TODO: the donor_type could be either be character codes or possible a foreign
-# key into another table
+# TODO: **important** the donor_type could be either be character
+# codes or something so that they can be translated
+
 class Donor(db.Base):
     __tablename__ = 'donor'
     __mapper_args__ = {'order_by': 'name'}
@@ -172,7 +171,8 @@ class DonorEditorPresenter(GenericEditorPresenter):
         return r
 
 
-# TODO: need to create a widget to edit the notes
+# TODO: need to create a widget to edit the notes column
+
 class DonorEditor(GenericModelViewPresenterEditor):
 
     label = 'Donor'
