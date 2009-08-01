@@ -8,12 +8,15 @@ import os
 import shutil
 import tempfile
 
+from sqlalchemy import *
+
+import bauble
 import bauble.db as db
-from bauble.plugins.plants import Family
+from bauble.plugins.plants import Family, Geography
 import bauble.plugins.garden.test as garden_test
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.imex.csv_ import CSVImporter, CSVExporter, QUOTE_CHAR, \
-    QUOTE_STYLE, UnicodeReader
+    QUOTE_STYLE, UnicodeReader, UnicodeWriter
 from bauble.test import BaubleTestCase
 from bauble.utils.log import debug
 
@@ -48,6 +51,14 @@ class ImexTestCase(BaubleTestCase):
         garden_test.setUp_data()
 
 
+
+class TestImporter(CSVImporter):
+
+    def on_error(self, exc):
+        debug(exc)
+        raise
+
+
 class CSVTests(ImexTestCase):
 
 
@@ -73,12 +84,81 @@ class CSVTests(ImexTestCase):
         f.write('%s\n' % ','.join(fields))
         writer = csv.DictWriter(f, fields, **format)
         writer.writerows(data)
+        f.flush()
         f.close()
-
-        #debug(open(filename).read())
-
-        importer = CSVImporter()
+        importer = TestImporter()
         importer.start([filename], force=True)
+
+
+    def test_import_self_referential_table(self):
+        """
+        Test tables that are self-referenial are import in order.
+        """
+        geo_data = [{'id': 3, 'name': u'3', 'parent_id': 1},
+                    {'id': 1, 'name': u'1', 'parent_id': None},
+                    {'id': 2, 'name': u'2', 'parent_id': 1},
+                    ]
+        filename = os.path.join(self.path, 'geography.txt')
+        f = open(filename, 'wb')
+        format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
+                  'quotechar': QUOTE_CHAR}
+        fields = geo_data[0].keys()
+        f.write('%s\n' % ','.join(fields))
+        f.flush()
+        writer = csv.DictWriter(f, fields, **format)
+        writer.writerows(geo_data)
+        f.flush()
+        f.close()
+        importer = TestImporter()
+        importer.start([filename], force=True)
+
+
+    def test_import_bool_column(self):
+        """
+        """
+        class Test(db.Base):
+            __tablename__ = 'test'
+            id = Column(Integer, primary_key=True)
+            col1 = Column(Boolean, default=False)
+        table = Test.__table__
+        table.create(bind=db.engine)
+        data = [{'id': 1, 'col1': u'True'},
+                {'id': 2, 'col1': u'False'},
+                {'id': 3, 'col1': u''},
+                ]
+        filename = os.path.join(self.path, 'test.txt')
+        f = open(filename, 'wb')
+        format = {'delimiter': ',', 'quoting': QUOTE_STYLE,
+                  'quotechar': QUOTE_CHAR}
+        fields = data[0].keys()
+        f.write('%s\n' % ','.join(fields))
+        f.flush()
+        writer = csv.DictWriter(f, fields, **format)
+        writer.writerows(data)
+        f.flush()
+        f.close()
+        importer = TestImporter()
+        importer.start([filename], force=True)
+
+        t = self.session.query(Test).get(1)
+        self.assert_(t.col1==True)
+
+        t = self.session.query(Test).get(2)
+        self.assert_(t.col1==False)
+
+        t = self.session.query(Test).get(3)
+        self.assert_(t.col1==False)
+        table.drop(bind=db.engine)
+
+
+    def test_with_open_connection(self):
+        """
+        Test that the import doesn't stall if we have a connection
+        open to Family while importing to the family table
+        """
+        list(self.session.query(Family))
+        self._do_import(family_data)
+        list(self.session.query(Family))
 
 
     def test_import_use_default(self):
@@ -88,8 +168,29 @@ class CSVTests(ImexTestCase):
         value is executed.
         """
         self._do_import(family_data)
+        self.session = db.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
+
+
+    def test_import_use_default(self):
+        """
+        Test that if we import from a csv file that doesn't include a
+        column and that column has a default value then that default
+        value is executed.
+        """
+        q = self.session.query(Family)
+        ids = [r.id for r in q]
+        del q
+        self.session.expunge_all()
+        #self.session.close()
+        #debug([f.id for f in self.session.query(Family)])
+        #self.session.clear()
+        self._do_import(family_data)
+        self.session = db.Session()
+        family = self.session.query(Family).filter_by(id=1).one()
+        self.assert_(family.qualifier == '')
+        #raise
 
 
     def test_import_no_default(self):
@@ -137,7 +238,7 @@ class CSVTests(ImexTestCase):
         self._do_import(family_data)
         highest_id = len(family_data)
         currval = None
-        conn = db.engine.contextual_connect()
+        conn = db.engine.connect()
         if db.engine.name == 'postgres':
             stmt = "SELECT currval('family_id_seq');"
             nextval = conn.execute(stmt).fetchone()[0]
@@ -166,12 +267,12 @@ class CSVTests(ImexTestCase):
 
     def test_import_no_inherit(self):
         """
-        That that when importing a row that has a None value in a
-        column doesn't inherit the value from the previous row.
+        Test importing a row with None doesn't inherit from previous row.
         """
         self._do_import(family_data)
         query = self.session.query(Family)
-        self.assert_(query[1].notes != query[0].notes)
+        self.assert_(query[1].notes != query[0].notes,
+                     (query[1].notes,query[0].notes))
 
 
     def test_export_none_is_empty(self):

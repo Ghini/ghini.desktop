@@ -27,7 +27,7 @@ from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 from bauble.types import DateTime, Date
 import bauble.utils as utils
-from bauble.utils.log import debug
+from bauble.utils.log import debug, warning
 
 
 if SQLALCHEMY_DEBUG:
@@ -53,7 +53,8 @@ class MapperBase(DeclarativeMeta):
                                           default=sa.func.now())
             dict_['_last_updated'] = sa.Column('_last_updated',
                                                DateTime(True),
-                                               default=sa.func.now())
+                                               default=sa.func.now(),
+                                               onupdate=sa.func.now())
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
 
@@ -90,7 +91,13 @@ def open(uri, verify=True, show_error_dialogs=False):
     import bauble
     global engine
     new_engine = None
-    new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG)
+
+    # use the SingletonThreadPool so that we always use the same
+    # connection in a thread, not sure how this is different than
+    # the threadlocal strategy but it doesn't cause as many lockups
+    import sqlalchemy.pool as pool
+    new_engine = sa.create_engine(uri, echo=SQLALCHEMY_DEBUG,
+                                  poolclass=pool.SingletonThreadPool)
     new_engine.connect().close() # make sure we can connect
     def _bind():
         """bind metadata to engine and create sessionmaker """
@@ -141,21 +148,8 @@ def create(import_defaults=True):
     import bauble.pluginmgr as pluginmgr
     from bauble.task import TaskQuitting
     import datetime
-    connection = engine.connect()
-    transaction = connection.begin()
-    try:
-        # create fresh plugin registry seperate since
-        # pluginmgr.install() will be changing it
-        from bauble.pluginmgr import PluginRegistry
-        PluginRegistry.__table__.drop(bind=connection, checkfirst=True)
-        PluginRegistry.__table__.create(bind=connection)
-    except Exception, e:
-        debug(e)
-        transaction.rollback()
-        raise
-    else:
-        transaction.commit()
 
+    connection = engine.connect()
     transaction = connection.begin()
     try:
         # TODO: here we are dropping/creating all the tables in the
@@ -163,34 +157,36 @@ def create(import_defaults=True):
         # really only be creating those tables from registered
         # plugins, maybe with an uninstall() method on Plugin
         #debug('drop all')
-        most_tables = metadata.sorted_tables
-        most_tables.remove(pluginmgr.PluginRegistry.__table__)
-        metadata.drop_all(bind=connection, tables=most_tables, checkfirst=True)
-        metadata.create_all(bind=connection, tables=most_tables)
+        metadata.drop_all(bind=connection, checkfirst=True)
+        metadata.create_all(bind=connection)
 
         # fill in the bauble meta table and install all the plugins
         meta_table = meta.BaubleMeta.__table__
-        meta_table.insert(bind=connection).execute(name=meta.VERSION_KEY,
-                                                 value=unicode(bauble.version))
-        meta_table.insert(bind=connection).execute(name=meta.CREATED_KEY,
-                                        value=unicode(datetime.datetime.now()))
-
+        meta_table.insert(bind=connection).\
+            execute(name=meta.VERSION_KEY,
+                    value=unicode(bauble.version)).close()
+        meta_table.insert(bind=connection).\
+            execute(name=meta.CREATED_KEY,
+                    value=unicode(datetime.datetime.now())).close()
     except (GeneratorExit, TaskQuitting), e:
         # this is here in case the main windows is closed in the middle
         # of a task
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
         # switched the task system to use fibra...but it doesn't hurt
         # having it here until we can make sure
-        debug(e)
+        warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     except Exception, e:
-        debug(e)
+        warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     else:
         transaction.commit()
+    finally:
+        connection.close()
 
+    connection = engine.connect()
     transaction = connection.begin()
     try:
         pluginmgr.install('all', import_defaults, force=True)
@@ -200,17 +196,17 @@ def create(import_defaults=True):
         # UPDATE 2009.06.18: i'm not sure if this is still relevant since we
         # switched the task system to use fibra...but it doesn't hurt
         # having it here until we can make sure
-        debug(e)
+        warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     except Exception, e:
-        debug(e)
+        warning('bauble.db.create(): %s' % utils.utf8(e))
         transaction.rollback()
         raise
     else:
         transaction.commit()
-
-    connection.close()
+    finally:
+        connection.close()
 
 
 def _verify_connection(engine, show_error_dialogs=False):
