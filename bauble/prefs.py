@@ -12,12 +12,14 @@ from bauble.utils.log import debug, warning
 
 # TODO: include the version of the database in the prefs so that if the prefs
 # are opened with a different version then the user will know and possible
-# migrate pref version though i don't think the prefs  format will change much
+# migrate pref version though i don't think the prefs format will change much
 
-# TODO: make sure the version numbers are compatible,
-# if we are upgrading to a new version we should copy the old
-# config somewhere else, copy any relevant keys and set the config
-# version in the new file
+# TODO: make sure the version numbers are compatible, if we are
+# upgrading to a new version we should copy the old config somewhere
+# else, copy any relevant keys and set the config version in the new
+# file...might be better to check if a user_dir()/config-version file
+# exists first and open that so we can have different configs for
+# different versions
 
 # TODO: should also possibly check that the config version and
 # database versions match up
@@ -289,8 +291,8 @@ class PrefsView(pluginmgr.View):
             model_cols.append(str)
 
         model = gtk.ListStore(*model_cols)
-        for i in itemsiter:
-            model.append(i)
+        for item in itemsiter:
+            model.append(item)
         treeview.set_model(model)
 
         sw = gtk.ScrolledWindow()
@@ -304,6 +306,7 @@ class PrefsView(pluginmgr.View):
         tree = self.create_tree([_('Names'), _('Values')], prefs.iteritems())
         return tree
 
+
     def create_registry_view(self):
         #from bauble.pluginmgr import Registry
         from bauble.pluginmgr import PluginRegistry
@@ -311,6 +314,7 @@ class PrefsView(pluginmgr.View):
         plugins = session.query(PluginRegistry.name, PluginRegistry.version)
         tree = self.create_tree([_('Name'), _('Version')],
                                 plugins)
+        session.close()
         return tree
 
 
