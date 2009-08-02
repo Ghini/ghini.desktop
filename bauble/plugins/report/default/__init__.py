@@ -65,6 +65,17 @@ accession_source_type = _('Accession')
 species_source_type = _('Species')
 default_source_type = plant_source_type
 
+def on_path(exe):
+    # TODO: is the PATH variable used on non-english systems
+    PATH = os.environ['PATH']
+    if not PATH:
+        return False
+    for p in PATH.split(os.pathsep):
+        if exe in os.listdir(p):
+            return True
+    return False
+
+
 class SpeciesABCDAdapter(ABCDAdapter):
     """
     An adapter to convert a Species to an ABCD Unit, the SpeciesABCDAdapter
@@ -275,6 +286,15 @@ class DefaultFormatterPlugin(FormatterPlugin):
             return False
 
         fo_cmd = renderers_map[renderer]
+        exe = fo_cmd.split(' ')[0]
+        if not on_path(exe):
+            utils.message_dialog(_('Could not find the command "%(exe)s" to ' \
+                                       'start the %(renderer_name)s '\
+                                       'renderer.') % \
+                                     ({'exe': exe, 'renderer_name': renderer}),
+                                 gtk.MESSAGE_ERROR)
+            return False
+
         session = bauble.Session()
 
         # convert objects to ABCDAdapters depending on source type for
