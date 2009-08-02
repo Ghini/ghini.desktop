@@ -199,7 +199,7 @@ class PlantTests(GardenTestCase):
         """
         try:
             import gtk
-        exceptpp ImportError:
+        except ImportError:
             raise SkipTest('could not import gtk')
         editor = PlantEditor(model=self.plant)
         #editor.start()
@@ -207,26 +207,31 @@ class PlantTests(GardenTestCase):
         rng = '2,3,4-6'
 
         for code in utils.range_builder(rng):
-            code = utils.utf8(code)
-            if self.session.query(Plant).join('accession').\
-                    filter(and_(Accession.id==self.plant.accession.id,
-                                Plant.code==code)).first():
-                raise ValueError('code already exists')
+            q = self.session.query(Plant).join('accession').\
+                filter(and_(Accession.id==self.plant.accession.id,
+                            Plant.code==utils.utf8(code)))
+            self.assert_(not q.first(), 'code already exists')
 
         widgets = editor.presenter.view.widgets
-        widgets.plant_code_entry.set_text('2,3,4-6')
-        #widgets.plant_ok_button.clicked()
-        editor.handle_response(gtk.RESPONSE_OK)
+        # make sure the entry gets a Problem added to it if an
+        # existing plant code is used in bulk mode
+        widgets.plant_code_entry.set_text('1,' + rng)
         update_gui()
+        self.assert_(editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE in \
+                         editor.presenter.problems,
+                     'no problem added for duplicate plant code')
+
+        # create multiple plant codes
+        widgets.plant_code_entry.set_text(rng)
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
 
         for code in utils.range_builder(rng):
-            code = utils.utf8(code)
-            if not self.session.query(Plant).join('accession').\
-                    filter(and_(Accession.id==self.plant.accession.id,
-                                Plant.code==code)).first():
-                raise ValueError('plant %s.%s not created' % \
-                                     (self.accession, code))
-
+            q = self.session.query(Plant).join('accession').\
+                filter(and_(Accession.id==self.plant.accession.id,
+                            Plant.code==utils.utf8(code)))
+            self.assert_(q.first(), 'plant %s.%s not created' % \
+                            (self.accession, code))
 
         editor.presenter.cleanup()
         del editor
