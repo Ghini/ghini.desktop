@@ -56,8 +56,9 @@
 
 		<!-- ** Vernacular name ** -->
 		<!-- border="solid green 1px" -->
+                <!-- display-align="after" -->
 		<fo:block-container absolute-position="absolute"
-				    display-align="after"
+				    
 				    top="20mm" bottom="8mm">
 		  <fo:block font-weight="bold"
 			    font-size="16pt"
