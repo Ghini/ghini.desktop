@@ -1,5 +1,6 @@
 import unittest
 
+from nose import SkipTest
 from sqlalchemy import *
 from sqlalchemy.exc import *
 
@@ -160,21 +161,30 @@ class PlantTests(GardenTestCase):
 
     def setUp(self):
         super(PlantTests, self).setUp()
+        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.location = self.create(Location, site=u'site')
+        self.plant = self.create(Plant, accession=self.accession,
+                                 location=self.location, code=u'1')
+        self.session.commit()
 
     def tearDown(self):
+        self.session.delete(self.plant)
+        self.session.delete(self.accession)
+        self.session.delete(self.location)
+        self.session.commit()
         super(PlantTests, self).tearDown()
 
 
     def test_constraints(self):
-        acc = self.create(Accession, species=self.species, code=u'1')
-        location = Location(site=u'site')
-        plant = Plant(accession=acc, location=location, code=u'1')
-        self.session.commit()
-
+        """
+        Test the contraints on the plant table.
+        """
         # test that we can't have duplicate codes with the same accession
-        plant2 = Plant(accession=acc, location=location, code=u'1')
+        plant2 = Plant(accession=self.accession, location=self.location,
+                       code=self.plant.code)
         self.session.add(plant2)
         self.assertRaises(IntegrityError, self.session.commit)
+
 
     def test_delete(self):
         """
@@ -182,18 +192,57 @@ class PlantTests(GardenTestCase):
         """
         pass
 
+
+    def test_bulk_plant_editor(self):
+        """
+        Test creating multiple plants with the plant editor.
+        """
+        try:
+            import gtk
+        exceptpp ImportError:
+            raise SkipTest('could not import gtk')
+        editor = PlantEditor(model=self.plant)
+        #editor.start()
+        update_gui()
+        rng = '2,3,4-6'
+
+        for code in utils.range_builder(rng):
+            code = utils.utf8(code)
+            if self.session.query(Plant).join('accession').\
+                    filter(and_(Accession.id==self.plant.accession.id,
+                                Plant.code==code)).first():
+                raise ValueError('code already exists')
+
+        widgets = editor.presenter.view.widgets
+        widgets.plant_code_entry.set_text('2,3,4-6')
+        #widgets.plant_ok_button.clicked()
+        editor.handle_response(gtk.RESPONSE_OK)
+        update_gui()
+
+        for code in utils.range_builder(rng):
+            code = utils.utf8(code)
+            if not self.session.query(Plant).join('accession').\
+                    filter(and_(Accession.id==self.plant.accession.id,
+                                Plant.code==code)).first():
+                raise ValueError('plant %s.%s not created' % \
+                                     (self.accession, code))
+
+
+        editor.presenter.cleanup()
+        del editor
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
+
+
     def itest_plant_editor(self):
         """
         Interactively test the PlantEditor
         """
-        acc = self.create(Accession, species=self.species, code=u'1')
-        location = Location(site=u'site')
-        plant = Plant(accession=acc, location=location, code=u'1')
-        self.session.commit()
-        # create a second uncommited plant so that we can check for
-        # uniqueness with an existing plant, i.e 1.1
-        plant = Plant(accession=acc, location=location, code=u'2')
-        editor = PlantEditor(model=plant)
+        editor = PlantEditor(model=self.plant)
         editor.start()
         del editor
 
