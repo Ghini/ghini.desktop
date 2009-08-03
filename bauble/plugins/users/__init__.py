@@ -9,6 +9,7 @@ from sqlalchemy.orm.exc import *
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
 import bauble
+import bauble.editor as editor
 from bauble.error import check, CheckConditionError
 import bauble.db as db
 import bauble.paths as paths
@@ -144,7 +145,8 @@ def add_member(name, groups=[]):
         trans.rollback()
     else:
         trans.commit()
-    conn.close()
+    finally:
+        conn.close()
 
 
 def remove_member(name, groups=[]):
@@ -161,7 +163,8 @@ def remove_member(name, groups=[]):
         trans.rollback()
     else:
         trans.commit()
-    conn.close()
+    finally:
+        conn.close()
 
 
 def get_members(group):
@@ -214,6 +217,8 @@ def drop(role, revoke=False):
         trans.rollback()
     else:
         trans.commit()
+    finally:
+        conn.close()
 
 
 def get_privileges(role):
@@ -283,7 +288,8 @@ def has_privileges(role, privilege):
                 % (role, table.name, priv)
             r = db.engine.execute(stmt).fetchone()[0]
             if not r:
-                #debug('%s does not have %s on %s' % (role,priv,table.name))
+                # debug('%s does not have %s on %s table' % \
+                #           (role,priv,table.name))
                 return False
     return True
 
@@ -313,6 +319,7 @@ def set_privilege(role, privilege):
                 % (bauble.db.engine.url.database, role)
             conn.execute(stmt)
 
+        # privilege is None so all permissions are revoked
         if not privilege:
             trans.commit()
             conn.close()
@@ -351,7 +358,8 @@ def set_privilege(role, privilege):
         trans.rollback()
     else:
         trans.commit()
-        conn.close
+    finally:
+        conn.close()
 
 
 def current_user():
@@ -360,21 +368,18 @@ def current_user():
     return db.engine.execute('select current_user;').fetchone()[0]
 
 
-class UsersEditor(object):
+class UsersEditor(editor.GenericEditorView):
     """
     """
 
     def __init__(self, ):
         """
         """
-        path = os.path.join(paths.lib_dir(), 'plugins', 'users', 'ui.glade')
-        builder = utils.BuilderLoader(path)
-        self.widgets = utils.BuilderWidgets(builder)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'users','ui.glade')
+        super(UsersEditor, self).__init__ (filename)
 
-
-    def start(self):
         if not db.engine.name == 'postgres':
-            msg = _('The users plugin is only valid on a PostgreSQL database')
+            msg = _('The Users editor is only valid on a PostgreSQL database')
             utils.message_dialog(utils.utf8(msg))
             return
 
@@ -388,6 +393,11 @@ class UsersEditor(object):
             return
         # setup the users tree
         tree = self.widgets.users_tree
+
+        # remove any old columns
+        for column in tree.get_columns():
+            tree.remove_column(column)
+
         renderer = gtk.CellRendererText()
         def cell_data_func(col, cell, model, it):
             value = model[it][0]
@@ -399,15 +409,98 @@ class UsersEditor(object):
             model.append([user])
         self.widgets.users_tree.set_model(model)
 
-        def on_toggled(button, data=None):
+        self.connect(tree, 'cursor-changed', self.on_cursor_changed)
+        tree.set_cursor("0")
+
+        def on_toggled(button, priv=None):
+            buttons = (self.widgets.read_button, self.widgets.write_button,
+                       self.widgets.admin_button)
+            path, column = tree.get_cursor()
+            role = tree.get_model()[path][0]
             active = button.get_active()
-            debug('%s: %s' % (data, active))
+            if active and not has_privileges(role, priv):
+                #debug('grant %s to %s' % (priv, role))
+                set_privilege(role, priv)
+            return True
 
-        self.widgets.read_button.connect('toggled', on_toggled, 'read')
-        self.widgets.write_button.connect('toggled', on_toggled, 'write')
-        self.widgets.admin_button.connect('toggled', on_toggled, 'admin')
+        self.connect('read_button', 'toggled', on_toggled, 'read')
+        self.connect('write_button', 'toggled', on_toggled, 'write')
+        self.connect('admin_button', 'toggled', on_toggled, 'admin')
 
-        self.widgets.main_dialog.run()
+        # connect password button
+        self.connect('pwd_button', 'clicked', self.on_pwd_button_clicked)
+
+
+    def on_pwd_button_clicked(self, button, *args):
+        dialog = self.widgets.pwd_dialog
+        dialog.set_transient_for(self.get_window())
+        def _on_something(d, *args):
+            d.hide()
+            return True
+        self.connect(dialog,  'delete-event', _on_something)
+        self.connect(dialog, 'close', _on_something)
+        self.connect(dialog, 'response', _on_something)
+        self.widgets.pwd_entry1.set_text('')
+        self.widgets.pwd_entry2.set_text('')
+        response = dialog.run()
+        debug(response)
+        if response == gtk.RESPONSE_OK:
+            pwd1 = self.widgets.pwd_entry1.get_text()
+            pwd2 = self.widgets.pwd_entry2.get_text()
+            debug('%s -- %s' % (pwd1, pwd2))
+            tree = self.widgets.users_tree
+            path, col = tree.get_cursor()
+            user = tree.get_model()[path][0]
+            debug(user)
+            if pwd1 == '' or pwd2 == '':
+                msg = _('The password for user <b>%s</b> has not been ' \
+                        'changed.' % user)
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING,
+                                     parent=self.get_window())
+                return
+            elif pwd1 != pwd2:
+                msg = _('The passwords do not match.  The password for '\
+                            'user <b>%s</b> has not been changed.' % user)
+                utils.message_dialog(msg, gtk.MESSAGE_WARNING,
+                                     parent=self.get_window())
+                return
+        # TODO: show a dialog that says the pwd has been changed or
+        # just put a message in the status bar
+
+
+
+
+    def get_window(self):
+        return self.widgets.main_dialog
+
+
+    def start(self):
+        self.get_window().run()
+        self.cleanup()
+
+
+    buttons = {'admin': 'admin_button',
+               'write': 'write_button',
+               'read': 'read_button'}
+    def on_cursor_changed(self, tree):
+        path, column = tree.get_cursor()
+        #debug(tree.get_model()[path][column])
+        role = tree.get_model()[path][0]
+        def _set_buttons(mode):
+            #debug('%s: %s' % (role, mode))
+            if mode:
+                self.widgets[self.buttons[mode]].set_active(True)
+            not_modes = filter(lambda p: p != mode, self.buttons.keys())
+            for m in not_modes:
+                self.widgets[self.buttons[m]].props.active = False
+        if has_privileges(role, 'admin'):
+            _set_buttons('admin')
+        elif has_privileges(role, 'write'):
+            _set_buttons('write')
+        elif has_privileges(role, 'read'):
+            _set_buttons('read')
+        else:
+            _set_buttons(None)
 
 
 
