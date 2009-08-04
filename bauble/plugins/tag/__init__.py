@@ -65,17 +65,18 @@ class TagItemGUI(editor.GenericEditorView):
     interface for tagging individual items in the results of the SearchView
     '''
     def __init__(self, values):
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'tag',
-                                  'tag.glade')
-        builder = utils.BuilderLoader.load(glade_file)
-        self.widgets = utils.BuilderWidgets(builder)
-        self.dialog = self.widgets.tag_item_dialog
-        self.dialog.set_transient_for(bauble.gui.window)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'tag',
+                                'tag.glade')
+        super(TagItemGUI, self).__init__(filename)
         self.item_data_label = self.widgets.items_data
         self.values = values
         self.item_data_label.set_text(', '.join([str(s) for s in self.values]))
         button = self.widgets.new_button
         button.connect('clicked', self.on_new_button_clicked)
+
+
+    def get_window(self):
+        return self.widgets.tag_item_dialog
 
 
     def on_new_button_clicked(self, *args):
@@ -197,12 +198,12 @@ class TagItemGUI(editor.GenericEditorView):
         self.tag_tree.add_events(gtk.gdk.KEY_RELEASE_MASK)
         self.connect(self.tag_tree, "key-release-event", self.on_key_released)
 
-        response = self.dialog.run()
+        response = self.get_window().run()
         while response != gtk.RESPONSE_OK \
           and response != gtk.RESPONSE_DELETE_EVENT:
-            response = self.dialog.run()
+            response = self.get_window().run()
 
-        self.dialog.hide()
+        self.get_window().hide()
         self.disconnect_all()
 
 
