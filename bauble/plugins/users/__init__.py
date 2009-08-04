@@ -385,7 +385,7 @@ class UsersEditor(editor.GenericEditorView):
 
         # TODO: should allow anyone to view the priveleges but only
         # admins to change them
-        debug(current_user())
+        #debug(current_user())
         if not has_privileges(current_user(), 'admin'):
             msg = _('You do not have privileges to change other '\
                         'user privileges')
@@ -404,19 +404,16 @@ class UsersEditor(editor.GenericEditorView):
             cell.set_property('text', value)
         tree.insert_column_with_data_func(0, _('Users'), renderer,
                                           cell_data_func)
-        model = gtk.ListStore(str)
-        for user in get_users():
-            model.append([user])
-        self.widgets.users_tree.set_model(model)
-
         self.connect(tree, 'cursor-changed', self.on_cursor_changed)
-        tree.set_cursor("0")
+
+        # connect the filter_check and also adds the users to the users_tree
+        self.connect('filter_check', 'toggled', self.on_filter_check_toggled)
+        self.widgets.filter_check.set_active(True)
 
         def on_toggled(button, priv=None):
             buttons = (self.widgets.read_button, self.widgets.write_button,
                        self.widgets.admin_button)
-            path, column = tree.get_cursor()
-            role = tree.get_model()[path][0]
+            role = self.get_selected_user()
             active = button.get_active()
             if active and not has_privileges(role, priv):
                 #debug('grant %s to %s' % (priv, role))
@@ -427,8 +424,64 @@ class UsersEditor(editor.GenericEditorView):
         self.connect('write_button', 'toggled', on_toggled, 'write')
         self.connect('admin_button', 'toggled', on_toggled, 'admin')
 
-        # connect password button
         self.connect('pwd_button', 'clicked', self.on_pwd_button_clicked)
+        self.connect('add_button', 'clicked', self.on_add_button_clicked)
+        self.connect('remove_button', 'clicked', self.on_remove_button_clicked)
+
+
+    def get_selected_user(self):
+        """
+        Return the user name currently selected in the users_tree
+        """
+        tree = self.widgets.users_tree
+        path, column = tree.get_cursor()
+        return tree.get_model()[path][0]
+
+
+    def on_add_button_clicked(self, button, *args):
+        raise NotImplementedError
+
+
+    def on_remove_button_clicked(self, button, *args):
+        """
+        """
+        user = self.get_selected_user()
+        msg = _('Are you sure you want to remove user <b>%(name)s</b>?\n\n' \
+                    '<i>It is possible that this user could have permissions '\
+                    'on other databases not related to Bauble.</i>') \
+                    % {'name': user}
+        if utils.yes_no_dialog(msg):
+            drop(user, revoke=True)
+            active = self.widgets.filter_check.get_active()
+            self.populate_users_tree(only_bauble=active)
+
+
+    def  on_filter_check_toggled(self, button, *args):
+        """
+        """
+        active = button.get_active()
+        self.populate_users_tree(active)
+
+
+    def populate_users_tree(self, only_bauble=True):
+        """
+        Populate the users tree with the users from the database.
+
+        Arguments:
+        - `only_bauble`: Show only those users with at least read
+          permissions on the database.
+        """
+        tree = self.widgets.users_tree
+        utils.clear_model(tree)
+        model = gtk.ListStore(str)
+        for user in get_users():
+            if only_bauble and has_privileges(user, 'read'):
+                model.append([user])
+            elif not only_bauble:
+                model.append([user])
+        tree.set_model(model)
+        if len(model) > 0:
+            tree.set_cursor('0')
 
 
     def on_pwd_button_clicked(self, button, *args):
@@ -447,11 +500,7 @@ class UsersEditor(editor.GenericEditorView):
         if response == gtk.RESPONSE_OK:
             pwd1 = self.widgets.pwd_entry1.get_text()
             pwd2 = self.widgets.pwd_entry2.get_text()
-            debug('%s -- %s' % (pwd1, pwd2))
-            tree = self.widgets.users_tree
-            path, col = tree.get_cursor()
-            user = tree.get_model()[path][0]
-            debug(user)
+            user = self.get_selected_user()
             if pwd1 == '' or pwd2 == '':
                 msg = _('The password for user <b>%s</b> has not been ' \
                         'changed.' % user)
@@ -468,8 +517,6 @@ class UsersEditor(editor.GenericEditorView):
         # just put a message in the status bar
 
 
-
-
     def get_window(self):
         return self.widgets.main_dialog
 
@@ -482,6 +529,7 @@ class UsersEditor(editor.GenericEditorView):
     buttons = {'admin': 'admin_button',
                'write': 'write_button',
                'read': 'read_button'}
+
     def on_cursor_changed(self, tree):
         path, column = tree.get_cursor()
         #debug(tree.get_model()[path][column])
