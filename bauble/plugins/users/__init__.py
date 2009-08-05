@@ -98,15 +98,26 @@ def get_groups():
 def _create_role(name, password=None, login=False, admin=False):
     """
     """
-    stmt = 'create role %s INHERIT' % name
-    if login:
-        stmt += ' LOGIN'
-    if admin:
-        stmt += ' CREATEROLE'
-    if password:
-        stmt += ' PASSWORD %s' % password
-    #debug(stmt)
-    db.engine.execute(stmt)
+    conn = db.engine.connect()
+    trans = conn.begin()
+    try:
+        stmt = 'create role %s INHERIT' % name
+        if login:
+            stmt += ' LOGIN'
+        if admin:
+            stmt += ' CREATEROLE'
+        if password:
+            stmt += ' PASSWORD %s' % password
+        conn.execute(stmt)
+    except Exception, e:
+        error('users._create_role(): %s' % utils.utf8(e))
+        trans.rollback()
+        raise
+    else:
+        trans.commit()
+    finally:
+        conn.close()
+
 
 
 def create_user(name, password=None, admin=False, groups=[]):
@@ -114,14 +125,24 @@ def create_user(name, password=None, admin=False, groups=[]):
     Create a role that can login.
     """
     _create_role(name, password, login=True, admin=False)
-    for group in groups:
-        stmt = 'grant %s to %s;' % (group, name)
-        db.engine.execute(stmt)
-    # allow the new role to connect to the database
-    stmt = 'grant connect on database %s to %s' % \
-        (bauble.db.engine.url.database, name)
-    #debug(stmt)
-    db.engine.execute(stmt)
+    conn = db.engine.connect()
+    trans = conn.begin()
+    try:
+        for group in groups:
+            stmt = 'grant %s to %s;' % (group, name)
+            db.engine.execute(stmt)
+        # allow the new role to connect to the database
+        stmt = 'grant connect on database %s to %s' % \
+            (bauble.db.engine.url.database, name)
+        #debug(stmt)
+        conn.execute(stmt)
+    except Exception, e:
+        error('users.create_users(): %s' % utils.utf8(e))
+        raise
+    else:
+        trans.commit()
+    finally:
+        conn.close()
 
 
 def create_group(name, admin=False):
@@ -204,13 +225,8 @@ def drop(role, revoke=False):
     trans = conn.begin()
     try:
         if revoke:
-            for table in db.metadata.sorted_tables:
-                stmt = 'revoke all on table %s from %s;' % (table.name, role)
-                conn.execute(stmt)
-                stmt = 'revoke all on database %s from %s' \
-                    % (bauble.db.engine.url.database, role)
-            conn.execute(stmt)
-        stmt = 'drop role %s;' % (role)
+            set_privilege(role, None)
+        stmt = 'drop role %s;' % role
         conn.execute(stmt)
     except Exception, e:
         error(e)
@@ -315,6 +331,11 @@ def set_privilege(role, privilege):
         for table in db.metadata.sorted_tables:
             stmt = 'revoke all on table %s from %s;' % (table.name, role)
             conn.execute(stmt)
+            for col in table.c:
+                    if hasattr(col, 'sequence'):
+                        stmt = 'revoke all on sequence %s from %s' % \
+                            (col.sequence.name, role)
+                        conn.execute(stmt)
             stmt = 'revoke all on database %s from %s' \
                 % (bauble.db.engine.url.database, role)
             conn.execute(stmt)
@@ -354,7 +375,7 @@ def set_privilege(role, privilege):
                             stmt += ' with grant option'
                         conn.execute(stmt)
     except Exception, e:
-        error(e)
+        error('users.set_privilege(): %s' % utils.utf8(e))
         trans.rollback()
     else:
         trans.commit()
@@ -405,6 +426,7 @@ class UsersEditor(editor.GenericEditorView):
         tree.insert_column_with_data_func(0, _('Users'), renderer,
                                           cell_data_func)
         self.connect(tree, 'cursor-changed', self.on_cursor_changed)
+        self.connect(renderer, 'edited', self.on_cell_edited)
 
         # connect the filter_check and also adds the users to the users_tree
         self.connect('filter_check', 'toggled', self.on_filter_check_toggled)
@@ -438,8 +460,17 @@ class UsersEditor(editor.GenericEditorView):
         return tree.get_model()[path][0]
 
 
+    new_user_message = _('Enter a user name')
+
     def on_add_button_clicked(self, button, *args):
-        raise NotImplementedError
+        tree = self.widgets.users_tree
+        column = tree.get_column(0)
+        cell = column.get_cell_renderers()[0]
+        width, height = cell.get_fixed_size()
+        model = tree.get_model()
+        treeiter = model.append([self.new_user_message])
+        path = model.get_path(treeiter)
+        tree.set_cursor(path, column, start_editing=True)
 
 
     def on_remove_button_clicked(self, button, *args):
@@ -496,7 +527,6 @@ class UsersEditor(editor.GenericEditorView):
         self.widgets.pwd_entry1.set_text('')
         self.widgets.pwd_entry2.set_text('')
         response = dialog.run()
-        debug(response)
         if response == gtk.RESPONSE_OK:
             pwd1 = self.widgets.pwd_entry1.get_text()
             pwd2 = self.widgets.pwd_entry2.get_text()
@@ -531,9 +561,9 @@ class UsersEditor(editor.GenericEditorView):
                'read': 'read_button'}
 
     def on_cursor_changed(self, tree):
-        path, column = tree.get_cursor()
-        #debug(tree.get_model()[path][column])
-        role = tree.get_model()[path][0]
+        """
+        """
+
         def _set_buttons(mode):
             #debug('%s: %s' % (role, mode))
             if mode:
@@ -541,6 +571,17 @@ class UsersEditor(editor.GenericEditorView):
             not_modes = filter(lambda p: p != mode, self.buttons.keys())
             for m in not_modes:
                 self.widgets[self.buttons[m]].props.active = False
+
+        role = self.get_selected_user()
+        if role not in get_users():
+            # the cell is being editing and the user hasn't been added
+            # to the database
+            column = tree.get_column(0)
+            cell = column.get_cell_renderers()[0]
+            cell.props.editable = True
+            _set_buttons(None)
+            return
+
         if has_privileges(role, 'admin'):
             _set_buttons('admin')
         elif has_privileges(role, 'write'):
@@ -550,6 +591,21 @@ class UsersEditor(editor.GenericEditorView):
         else:
             _set_buttons(None)
 
+
+    def on_cell_edited(self, cell, path, new_text, data=None):
+        model = self.widgets.users_tree.get_model()
+        user = new_text
+        if user == self.new_user_message:
+            # didn't change so don't add the user
+            treeiter = model.get_iter((len(model)-1,))
+            model.remove(treeiter)
+            return True
+        model[path] = (user,)
+        create_user(user)
+        set_privilege(user, 'read')
+        self.widgets.read_button.props.active = True
+        cell.props.editable = False
+        return False
 
 
 
