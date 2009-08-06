@@ -296,6 +296,8 @@ class Accession(db.Base):
     # columns
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
+
+    # TODO: all enums types should use translatable strings
     prov_type = Column(types.Enum(values=['Wild',
                                           'Propagule of cultivated wild plant',
                                           "Not of wild source",
@@ -337,10 +339,10 @@ class Accession(db.Base):
     # should probably change it back and make accession a property
     # that properly sets the source type or just the source
     _collection = relation('Collection', cascade='all, delete-orphan',
-                           uselist=False, backref=backref('accession',
+                           uselist=False, backref=backref('_accession',
                                                           uselist=False))
     _donation = relation('Donation', cascade='all, delete-orphan',
-                         uselist=False, backref=backref('accession',
+                         uselist=False, backref=backref('_accession',
                                                         uselist=False))
     plants = relation('Plant', cascade='all, delete-orphan',
                       order_by='Plant.code', backref='accession')
@@ -457,14 +459,14 @@ class Accession(db.Base):
     def _set_source(self, source):
         if self.source is not None:
             obj = self.source
-            obj.accession = None
+            obj._accession = None
             utils.delete_or_expunge(obj)
             self.source_type = None
         if source is None:
             self.source_type = None
         else:
             self.source_type = unicode(source.__class__.__name__)
-            source.accession = self
+            source._accession = self
     def _del_source(self):
         self.source = None
 

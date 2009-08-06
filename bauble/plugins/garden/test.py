@@ -184,6 +184,8 @@ class PlantTests(GardenTestCase):
                        code=self.plant.code)
         self.session.add(plant2)
         self.assertRaises(IntegrityError, self.session.commit)
+        # rollback the IntegrityError so tearDown() can do its job
+        self.session.rollback()
 
 
     def test_delete(self):
@@ -688,6 +690,63 @@ class LocationTests(GardenTestCase):
             'LocationEditorPresenter not deleted'
         assert utils.gc_objects_by_type('LocationEditorView') == [], \
             'LocationEditorView not deleted'
+
+
+
+class DonationTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(DonationTests, self).__init__(*args)
+
+    def setUp(self):
+        super(DonationTests, self).setUp()
+
+    def tearDown(self):
+        super(DonationTests, self).tearDown()
+
+    def test_accession_prop(self):
+        """
+        Test Donation.accession property
+        """
+        acc = Accession(code=u'1', species=self.species)
+        donor = Donor(name=u'donor name')
+        donation = Donation(donor=donor)
+        self.session.add_all((acc, donation, donor))
+
+        self.assert_(acc.source is None)
+        donation.accession = acc
+        self.assert_(acc._donation == donation, acc._donation)
+        self.assert_(acc.source_type == 'Donation')
+        self.assert_(acc.source == donation)
+        self.session.commit()
+
+
+class CollectionTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(CollectionTests, self).__init__(*args)
+
+    def setUp(self):
+        super(CollectionTests, self).setUp()
+
+    def tearDown(self):
+        super(CollectionTests, self).tearDown()
+
+    def test_accession_prop(self):
+        """
+        Test Collection.accession property
+        """
+        acc = Accession(code=u'1', species=self.species)
+        collection = Collection(locale=u'some locale')
+        self.session.add_all((acc, collection))
+
+        self.assert_(acc.source is None)
+        collection.accession = acc
+        self.assert_(acc._collection == collection, acc._collection)
+        self.assert_(acc.source_type == 'Collection')
+        self.assert_(acc.source == collection)
+        self.session.commit()
+
 
 # latitude: deg[0-90], min[0-59], sec[0-59]
 # longitude: deg[0-180], min[0-59], sec[0-59]

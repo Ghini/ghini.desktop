@@ -49,6 +49,16 @@ class Donation(db.Base):
     date = Column(types.Date)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
+
+    def _set_accession(self, accession):
+        accession.source = self
+    def _get_accession(self):
+        # self._accession is created as a backref on the accession's
+        # _donation property
+        return self._accession
+    accession = property(_get_accession, _set_accession)
+
+
     def __str__(self):
         if self.donor:
             return 'Donation from %s' % self.donor
@@ -65,7 +75,11 @@ class Donation(db.Base):
 # TODO: collector combined with collectors_code should be a unique key, need to
 # also indicate this in the UI
 
-# TODO: should provide a collection type: alcohol, bark, boxed, cytological, fruit, illustration, image, other, packet, pollen, print, reference, seed, sheet, slide, transparency, vertical, wood.....see HISPID standard, in general need to be more herbarium aware
+# TODO: should provide a collection type: alcohol, bark, boxed,
+# cytological, fruit, illustration, image, other, packet, pollen,
+# print, reference, seed, sheet, slide, transparency, vertical,
+# wood.....see HISPID standard, in general need to be more herbarium
+# aware
 
 # TODO: create a DMS column type to hold latitude and longitude,
 # should probably store the DMS data as a string in decimal degrees
@@ -115,6 +129,17 @@ class Collection(db.Base):
     # columns
     collector = Column(Unicode(64))
     collectors_code = Column(Unicode(50))
+
+    # TODO: make sure the country names are translatable, maybe store
+    # the ISO country code, e.g es for Spain, en_US for US or
+    # something similar so that we can use the translated country
+    # names for completions but the same database can be opened with
+    # different locales and show the localized names....might in this
+    # case be better to create a country table instead of just the
+    # string column
+
+    #Column(Unicode(64)) # ISO country name
+
     date = Column(types.Date)
     locale = Column(UnicodeText, nullable=False)
     latitude = Column(Float)
@@ -127,6 +152,16 @@ class Collection(db.Base):
     geography_id = Column(Integer, ForeignKey('geography.id'))
     notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+
+
+    def _set_accession(self, accession):
+        accession.source = self
+    def _get_accession(self):
+        # self._accession is created as a backref on the accession's
+        # _donation property
+        return self._accession
+    accession = property(_get_accession, _set_accession)
+
 
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
