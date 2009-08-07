@@ -225,6 +225,7 @@ class FamilyEditorView(editor.GenericEditorView):
                                 'family_editor.glade')
         super(FamilyEditorView, self).__init__(filename, parent=parent)
         self.attach_completion('fam_syn_entry')#, self.syn_cell_data_func)
+        self.set_accept_buttons_sensitive(False)
         self.restore_state()
 
 
@@ -675,6 +676,8 @@ class GeneralFamilyExpander(InfoExpander):
 
 class SynonymsExpander(InfoExpander):
 
+    expanded_pref = 'infobox.family.synonyms.expanded'
+
     def __init__(self, widgets):
         InfoExpander.__init__(self, _("Synonyms"), widgets)
         synonyms_box = self.widgets.fam_synonyms_box
@@ -688,17 +691,16 @@ class SynonymsExpander(InfoExpander):
 
         @param row: the row to get thevalues from
         '''
-        #debug(row.synonyms)
+        syn_box = self.widgets.fam_synonyms_box
+        # remove old labels
+        syn_box.foreach(syn_box.remove)
+        # use True comparison in case the preference isn't set
+        self.set_expanded(prefs[self.expanded_pref] == True)
         if len(row.synonyms) == 0:
             self.set_sensitive(False)
-            self.set_expanded(False)
         else:
-            def on_label_clicked(label, event, syn):
-                select_in_search_results(syn)
-            syn_box = self.widgets.fam_synonyms_box
+            on_clicked = lambda l, e, syn: select_in_search_results(syn)
             for syn in row.synonyms:
-                # remove all the children
-                syn_box.foreach(syn_box.remove)
                 # create clickable label that will select the synonym
                 # in the search results
                 box = gtk.EventBox()
@@ -706,13 +708,10 @@ class SynonymsExpander(InfoExpander):
                 label.set_alignment(0, .5)
                 label.set_markup(Family.str(syn))
                 box.add(label)
-                utils.make_label_clickable(label, on_label_clicked, syn)
+                utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)
             self.show_all()
-
             self.set_sensitive(True)
-            # TODO: get expanded state from prefs
-            self.set_expanded(True)
 
 
 
