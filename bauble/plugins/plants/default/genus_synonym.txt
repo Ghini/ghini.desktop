@@ -1,4 +1,4 @@
-"genus_id","synonym_id"
+"synonym_id","genus_id"
 24904,8834
 20529,8942
 25483,8908

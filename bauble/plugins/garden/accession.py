@@ -521,6 +521,7 @@ class AccessionEditorView(GenericEditorView):
         self.attach_completion('acc_species_entry',
                                cell_data_func=self.species_cell_data_func,
                                match_func=self.species_match_func)
+        self.set_accept_buttons_sensitive(False)
         self.restore_state()
 
         # datum completions
@@ -538,6 +539,15 @@ class AccessionEditorView(GenericEditorView):
 
     def get_window(self):
         return self.widgets.accession_dialog
+
+
+    def set_accept_buttons_sensitive(self, sensitive):
+        '''
+        set the sensitivity of all the accept/ok buttons for the editor dialog
+        '''
+        self.widgets.acc_ok_button.set_sensitive(sensitive)
+        self.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
+        self.widgets.acc_next_button.set_sensitive(sensitive)
 
 
     def save_state(self):
@@ -1220,9 +1230,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             from utils import ilike
             return query.filter(and_(Species.genus_id == Genus.id,
                                      or_(ilike(Genus.genus, '%s%%' % text),
-                                         ilike(Genus.genus, '%s%%' % genus),
-                                         ilike(Genus.hybrid,
-                                               utils.utf8(text)))))
+                                         ilike(Genus.genus, '%s%%' % genus))))
 
         def on_select(value):
             self.set_model_attr('species', value)
@@ -1498,15 +1506,6 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             # source presenter
             self.source_presenter = presenter_class(self, self.model.source,
                                                     self.view, self.session)
-
-
-    def set_accept_buttons_sensitive(self, sensitive):
-        '''
-        set the sensitivity of all the accept/ok buttons for the editor dialog
-        '''
-        self.view.widgets.acc_ok_button.set_sensitive(sensitive)
-        self.view.widgets.acc_ok_and_add_button.set_sensitive(sensitive)
-        self.view.widgets.acc_next_button.set_sensitive(sensitive)
 
 
     def init_source_tab(self):
