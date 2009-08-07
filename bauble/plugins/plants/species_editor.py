@@ -110,6 +110,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         set the sensitivity on the widgets that make up the species name
         according to values in the model
         '''
+        return
         # states_dict:
         # { widget: [list of fields]
         # - if any of fields is None then the widget.sensitive = False
@@ -174,7 +175,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        elif not self.model.sp or not self.model.genus:
+        elif not self.model.genus:
+            sensitive = False
+        elif not (self.model.sp or self.model.cv_group or \
+                    (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
         self.refresh_sensitivity()
@@ -420,7 +424,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
     more rely on the model in the TreeView which are VernacularName
     objects
     """
-
     def __init__(self, species, view, session):
         '''
         @param model: a list of VernacularName objects
@@ -435,14 +438,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                           self.on_add_button_clicked)
         self.view.connect('sp_vern_remove_button', 'clicked',
                           self.on_remove_button_clicked)
-        self.view.connect('vern_lang_entry', 'insert-text',
-                          self.on_entry_insert, 'vern_name_entry')
-        self.view.connect('vern_lang_entry', 'delete-text',
-                          self.on_entry_delete, 'vern_name_entry')
-        self.view.connect('vern_name_entry', 'insert-text',
-                          self.on_entry_insert, 'vern_lang_entry')
-        self.view.connect('vern_name_entry', 'delete-text',
-                          self.on_entry_delete, 'vern_lang_entry')
 
 
     def dirty(self):
@@ -452,97 +447,49 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         return self.__dirty
 
 
-    def on_entry_insert(self, entry, new_text, new_text_length, position,
-                        other_widget_name):
-        """
-        @param entry
-        @param new_text
-        @param new_text_length
-        @param position
-        @param other_widget_name
-
-        Sets the sensitivity of the add button only if both the
-        vernacular name and language are not empty.
-        """
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        sensitive = False
-        if full_text != '' \
-               and self.view.widgets[other_widget_name].get_text() != '':
-            sensitive = True
-        self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
-
-
-    def on_entry_delete(self, entry, start, end, other_widget_name):
-        """
-        @param entry
-        @param start
-        @param end
-        @param other_widget_name
-
-        Sets the sensitivity of the add button only if both the
-        vernacular name and language are not empty.
-        """
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        sensitive = False
-        if full_text != '' \
-               and self.view.widgets[other_widget_name].get_text() != '':
-            sensitive = True
-        self.view.widgets.sp_vern_add_button.set_sensitive(sensitive)
-
-
     def on_add_button_clicked(self, button, data=None):
         """
         Add the values in the entries to the model.
         """
-        name = self.view.widgets.vern_name_entry.get_text()
-        lang = self.view.widgets.vern_lang_entry.get_text()
-        vn = VernacularName(name=utils.utf8(name), language=utils.utf8(lang))
-        tree_model = self.treeview.get_model()
+        treemodel = self.treeview.get_model()
+        column = self.treeview.get_column(0)
+        cell = column.get_cell_renderers()[0]
+        vn = VernacularName()
         self.model.vernacular_names.append(vn)
-        it = tree_model.append([vn]) # append to tree model
-        if len(tree_model) == 1:
+        treeiter = treemodel.append([vn])
+        path = treemodel.get_path(treeiter)
+        self.treeview.set_cursor(path, column, start_editing=True)
+        if len(treemodel) == 1:
             #self.set_model_attr('default_vernacular_name', vn)
             self.model.default_vernacular_name = vn
-        self.view.widgets.sp_vern_add_button.set_sensitive(False)
-        self.view.widgets.vern_name_entry.set_text('')
-        self.view.widgets.vern_lang_entry.set_text('')
-        self.view.set_accept_buttons_sensitive(True)
-        self.__dirty = True
 
 
     def on_remove_button_clicked(self, button, data=None):
         """
         Removes the currently selected vernacular name from the view.
         """
-        # TODO: maybe we should only ask 'are you sure' if the
-        # selected value is an instance, this means it will be deleted
-        # from the database, otherwise its not committed and doesn't
-        # really matter if its committed
         tree = self.view.widgets.vern_treeview
         path, col = tree.get_cursor()
-        tree_model = tree.get_model()
-        value = tree_model[tree_model.get_iter(path)][0]
+        treemodel = tree.get_model()
+        vn = treemodel[path][0]
 
-        msg = _('Are you sure you want to remove the vernacular name %s?') \
-              % utils.xml_safe_utf8(value.name)
-        if not utils.yes_no_dialog(msg, parent=self.view.get_window()):
+        msg = _('Are you sure you want to remove the vernacular ' \
+                    'name <b>%s</b>?') % utils.xml_safe_utf8(vn.name)
+        if vn.name and not vn in self.session.new and not \
+                utils.yes_no_dialog(msg, parent=self.view.get_window()):
             return
 
-        tree_model.remove(tree_model.get_iter(path))
-        self.model.vernacular_names.remove(value)
-        if self.model.default_vernacular_name is not None \
-               and value.model == self.model.default_vernacular_name:
+        treemodel.remove(treemodel.get_iter(path))
+        self.model.vernacular_names.remove(vn)
+        utils.delete_or_expunge(vn)
+        if not self.model.default_vernacular_name:
             # if there is only one value in the tree then set it as the
             # default vernacular name
-            first = tree_model.get_iter_first()
-            if first is not None:
+            first = treemodel.get_iter_first()
+            if first:
 #                 self.set_model_attr('default_vernacular_name',
 #                                     tree_model[first][0])
-                self.model.default_vernacular_name = tree_model[first][0]
-        utils.delete_or_expunge(value)
+                self.model.default_vernacular_name = treemodel[first][0]
         self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
 
@@ -559,21 +506,27 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(True)
 
 
+    def on_cell_edited(self, cell, path, new_text, prop):
+        treemodel = self.treeview.get_model()
+        vn = treemodel[path][0]
+        if getattr(vn, prop) == new_text:
+            return  # didn't change
+        setattr(vn, prop, utils.utf8(new_text))
+        self.__dirty = True
+        self.view.set_accept_buttons_sensitive(True)
+
+
     def init_treeview(self, model):
         """
         Initialized the list of vernacular names.
+
+        The columns and cell renderers are loaded from the .glade file
+        so we just need to customize them a bit.
         """
         self.treeview = self.view.widgets.vern_treeview
 
-        # remove any columns that were setup previous, this became a
-        # problem when we starting reusing the glade files with
-        # utils.GladeLoader, the right way to do this would be to
-        # create the columns in glade instead of here
-        for col in self.treeview.get_columns():
-            self.treeview.remove_column(col)
-
-        def _name_data_func(column, cell, model, iter, data=None):
-            v = model[iter][0]
+        def _name_data_func(column, cell, model, treeiter, data=None):
+            v = model[treeiter][0]
             cell.set_property('text', v.name)
             # just added so change the background color to indicate its new
 #            if not v.isinstance:
@@ -581,18 +534,15 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                 cell.set_property('foreground', 'blue')
             else:
                 cell.set_property('foreground', None)
-        cell = gtk.CellRendererText()
-        col = gtk.TreeViewColumn('Name', cell)
-        col.set_cell_data_func(cell, _name_data_func)
-        #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        #col.set_min_width(150)
-        col.set_fixed_width(150)
-        col.set_min_width(50)
-        col.set_resizable(True)
-        self.treeview.append_column(col)
+        column = self.view.widgets.vn_name_column
+        #column.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
+        cell = self.view.widgets.vn_name_cell
+        self.view.widgets.vn_name_column.\
+            set_cell_data_func(cell, _name_data_func)
+        self.view.connect(cell, 'edited', self.on_cell_edited, 'name')
 
-        def _lang_data_func(column, cell, model, iter, data=None):
-            v = model[iter][0]
+        def _lang_data_func(column, cell, model, treeiter, data=None):
+            v = model[treeiter][0]
             cell.set_property('text', v.language)
             # just added so change the background color to indicate its new
             #if not v.isinstance:`
@@ -600,15 +550,10 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                 cell.set_property('foreground', 'blue')
             else:
                 cell.set_property('foreground', None)
-        cell = gtk.CellRendererText()
-        col = gtk.TreeViewColumn('Language', cell)
-        col.set_cell_data_func(cell, _lang_data_func)
-        #col.set_sizing(gtk.TREE_VIEW_COLUMN_AUTOSIZE)
-        col.set_resizable(True)
-        #col.set_min_width(150)
-        col.set_fixed_width(150)
-        col.set_min_width(50)
-        self.treeview.append_column(col)
+        cell = self.view.widgets.vn_lang_cell
+        self.view.widgets.vn_lang_column.\
+            set_cell_data_func(cell, _lang_data_func)
+        self.view.connect(cell, 'edited', self.on_cell_edited, 'language')
 
         def _default_data_func(column, cell, model, iter, data=None):
             v = model[iter][0]
@@ -620,14 +565,9 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
                 pass
             cell.set_property('active', False)
 
-        cell = gtk.CellRendererToggle()
-        self.view.connect(cell, 'toggled', self.on_default_toggled)
-        col = gtk.TreeViewColumn('Default', cell)
-        col.set_cell_data_func(cell, _default_data_func)
-        col.set_sizing(gtk.TREE_VIEW_COLUMN_FIXED)
-        col.set_fixed_width(20)
-        col.set_max_width(20)
-        self.treeview.append_column(col)
+        cell = self.view.widgets.vn_default_cell
+        self.view.widgets.vn_default_column.\
+            set_cell_data_func(cell, _default_data_func)
 
         utils.clear_model(self.treeview)
 
@@ -828,8 +768,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class SpeciesEditorView(editor.GenericEditorView):
 
-    expanders_pref_map = {'sp_infra_expander': 'editor.species.infra.expanded',
-                          'sp_meta_expander': 'editor.species.meta.expanded'}
+    expanders_pref_map = {}#'sp_infra_expander': 'editor.species.infra.expanded',
+                          #}#'sp_meta_expander': 'editor.species.meta.expanded'}
 
     _tooltips = {
         'sp_genus_entry': _('Genus '),
@@ -862,6 +802,7 @@ class SpeciesEditorView(editor.GenericEditorView):
                                self.genus_completion_cell_data_func,
                                match_func=self.genus_match_func)
         self.attach_completion('sp_syn_entry', self.syn_cell_data_func)
+        self.set_accept_buttons_sensitive(False)
         self.restore_state()
 
 
@@ -1043,10 +984,21 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
 
     def commit_changes(self):
+        # if self.model.sp or cv_group is empty and
+        # self.model.infrasp_rank=='cv.' and self.model.infrasp
+        # then show a dialog saying we can't commit and return
+
         if self.model.sp_hybrid is None and self.model.infrasp_rank is None:
             self.model.infrasp = None
             self.model.infrasp_author = None
             self.model.cv_group = None
+
+        # remove incomplete vernacular names
+        for vn in self.model.vernacular_names:
+            if vn.name in (None, ''):
+                self.model.vernacular_names.remove(vn)
+                utils.delete_or_expunge(vn)
+                del vn
         super(SpeciesEditor, self).commit_changes()
 
 
