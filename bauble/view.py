@@ -409,6 +409,11 @@ class MapperSearch(SearchStrategy):
     def on_query(self, s, loc, tokens):
         """
         Called when the parser hits a query token.
+
+        Queries can use more database specific features.  This also
+        means that the same query might not work the same on different
+        database types. For example, on a PostgreSQL database you can
+        use ilike but this would raise an error on SQLite.
         """
         # We build the queries by fetching the ids of the rows that
         # match the condition and then returning a query to return the
@@ -449,14 +454,6 @@ class MapperSearch(SearchStrategy):
                 relations = idents[:-1]
                 col = idents[-1]
                 # TODO: do all the databases quote the same?
-
-                # TODO: need to either stick to a subset of conditions
-                # that work on all database or just normalize the
-                # conditions depending on the databases
-
-                # since we build the query from a string instead of
-                # trying to resolve the columns and relations then we
-                # need to make sure that None is translated to NULL
                 if val is None and cond in ('=', '==', 'is'):
                     cond = 'is'
                     val = 'NULL'
@@ -499,7 +496,13 @@ class MapperSearch(SearchStrategy):
 
     def on_domain_expression(self, s, loc, tokens):
         """
-        Called when the parser hits a domain_expression token
+        Called when the parser hits a domain_expression token.
+
+        Searching using domain expressions is a little more magical
+        and queries mapper properties that were passed to add_meta()
+
+        To do a case sensitive search for a specific string use the
+        double equals, '=='
         """
         domain, cond, values = tokens
         try:
@@ -516,14 +519,6 @@ class MapperSearch(SearchStrategy):
 
         # TODO: should probably create a normalize_cond() method
         # to convert things like contains and has into like conditions
-
-        # TODO: i think that sqlite uses case insensitve like, there
-        # is a pragma to change this so maybe we could send that
-        # command first to handle case sensitive and insensitive
-        # queries
-
-        # here the equals sign is case insensitive but the double
-        # equals is case sensitive
 
         mapper = class_mapper(cls)
 
@@ -548,6 +543,10 @@ class MapperSearch(SearchStrategy):
     def on_value_list(self, s, loc, tokens):
         """
         Called when the parser hits a value_list token
+
+        Search with a list of values is the broadest search and
+        searches all the mapper and the properties configured with
+        add_meta()
         """
         #debug('values: %s' % tokens)
 #         debug('  s: %s' % s)
@@ -577,7 +576,6 @@ class MapperSearch(SearchStrategy):
             q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
             #debug(q)
             self._results.add(q)
-
 
 
     def search(self, text, session):
@@ -899,23 +897,6 @@ class SearchView(pluginmgr.View):
 
     nresults_statusbar_context = 'searchview.nresults'
 
-##     @staticmethod
-##     def dump_garbage():
-##         """
-##         show us what's the garbage about
-##         """
-
-##         # force collection
-##         print "\nGARBAGE:"
-##         gc.collect()
-
-##         print "\nGARBAGE OBJECTS:"
-##         for x in gc.garbage:
-##             s = str(x)
-##             if len(s) > 80:
-##                 s = s[:80]
-##             print type(x),"\n  ", s
-
 
     def search(self, text):
         '''
@@ -1151,7 +1132,9 @@ class SearchView(pluginmgr.View):
         return all the rows in the model that are expanded
         '''
         expanded_rows = []
-        self.results_view.map_expanded_rows(lambda view, path: expanded_rows.append(gtk.TreeRowReference(view.get_model(), path)))
+        expand = lambda view, path: \
+            expanded_rows.append(gtk.TreeRowReference(view.get_model(), path))
+        self.results_view.map_expanded_rows(expand)
         # seems to work better if we passed the reversed rows to
         # self.expand_to_all_refs
         expanded_rows.reverse()
