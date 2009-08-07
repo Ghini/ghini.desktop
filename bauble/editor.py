@@ -125,7 +125,10 @@ class GenericEditorView(object):
         '''
         builder = utils.BuilderLoader.load(filename)
         self.widgets = utils.BuilderWidgets(builder)
-        self.get_window().set_transient_for(parent)
+        if parent:
+            self.get_window().set_transient_for(parent)
+        elif bauble.gui:
+            self.get_window().set_transient_for(bauble.gui.window)
         self.response = None
         self.__attached_signals = []
 
@@ -657,7 +660,7 @@ class GenericEditorPresenter(object):
         widgets so that next time the same widgets are open everything
         will be normal.
 
-        By default it only called self.view.cleanup()
+        By default it only calls self.view.cleanup()
         """
         self.view.cleanup()
 
