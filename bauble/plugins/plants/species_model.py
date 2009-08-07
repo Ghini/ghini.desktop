@@ -64,6 +64,10 @@ class VNList(list):
 # for the species, for more information about trade_names see,
 # http://www.hortax.org.uk/gardenplantsnames.html
 
+# TODO: the specific epithet should not be non-nullable but instead
+# make sure that at least one of the specific epithet, cultivar name
+# or cultivar group is specificed
+
 class Species(db.Base):
     """
     :Table name: species
@@ -135,7 +139,7 @@ class Species(db.Base):
                                    'infrasp']}
 
     # columns
-    sp = Column(Unicode(64), nullable=False, index=True)
+    sp = Column(Unicode(64), index=True)
     sp_author = Column(Unicode(128))
     sp_hybrid = Column(Enum(values=['x', '+', 'H', '']), default=u'')
     sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', '']),
@@ -396,7 +400,10 @@ class VernacularName(db.Base):
                                         'species_id', name='vn_index')))
 
     def __str__(self):
-        return self.name
+        if self.name:
+            return self.name
+        else:
+            return ''
 
 
 
