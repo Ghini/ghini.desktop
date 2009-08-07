@@ -129,13 +129,18 @@ class PhotoCache(object):
     up by an id that is unique to the service the file was downloaded
     from.
     """
-    def __init__(self, path=None, create=False):
+    def __init__(self, path=None, create=True):
         """
         :param path: the path to the sqlite database
         :param create: create the database if it doesn't exists
         """
         if not path:
             path = os.path.join(default_path, 'photos.db')
+        if create and not os.path.exists(path):
+            # create the file
+            head, tail = os.path.split(path)
+            os.makedirs(head)
+            open(path, 'wb+').close()
         uri = 'sqlite:///%s' % path
         self.engine = sa.create_engine(uri)
         self.engine.connect()
@@ -145,16 +150,6 @@ class PhotoCache(object):
         if create:
             self.metadata.drop_all(checkfirst=True)
             self.metadata.create_all()
-
-
-    def exists(self, path=None):
-        """
-        Check if a PhotoCache database exists at path.  If path is
-        None then the path defaults to $HOME/photos/photos.db
-        """
-        if not path:
-            path = os.path.join(default_path, 'photos.db')
-        return self.engine.has_table(Photo.__tablename__)
 
 
     def __getitem__(self, id):
@@ -361,9 +356,7 @@ def populate_iconview(gd_client, iconview, tag):
     model = gtk.ListStore(gtk.gdk.Pixbuf)
     iconview.set_model(model)
 
-    cache = PhotoCache()
-    if not cache.exists():
-        PhotoCache(create=True)
+    cache = PhotoCache(crete=True) # creates the cache if it doesn't exists
 
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
     iconview_worker.connect('published', _on_get_feed_publish, iconview)
