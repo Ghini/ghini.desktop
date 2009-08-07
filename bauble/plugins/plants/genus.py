@@ -98,29 +98,12 @@ def genus_markup_func(genus):
 
 
 class Genus(db.Base):
-    # TODO: the H in the hybrid name doesn't make much sense in this
-    # context since we don't include a second genus name as the
-    # hybrid, see the HISPID standard for a good explanation...we
-    # could just drop the H and create a second genus field so that if
-    # the second genus field is selected then the name automatically
-    # becomes genus1 x/+ genus2
     """
     :Table name: genus
 
     :Columns:
         *genus*:
             The name of the genus.
-
-        *hybrid*:
-            Indicates whether the name in genus field refers to an
-            Intergeneric hybrid or an Intergeneric graft chimaera.
-
-            Possible values:
-                * H: An intergeneric hybrid collective name
-
-                * x: An Intergeneric Hybrid
-
-                * +: An Intergeneric Graft Hybrid or Graft Chimaera
 
         *qualifier*:
             Designates the botanical status of the genus.
@@ -140,18 +123,17 @@ class Genus(db.Base):
         *synonyms*:
 
     :Contraints:
-        The combination of genus, hybrid, author, qualifier
+        The combination of genus, author, qualifier
         and family_id must be unique.
     """
     __tablename__ = 'genus'
-    __table_args__ = (UniqueConstraint('genus', 'hybrid', 'author',
+    __table_args__ = (UniqueConstraint('genus', 'author',
                                        'qualifier', 'family_id'),
                       {})
     __mapper_args__ = {'order_by': ['genus', 'author']}
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
-    hybrid = Column(Enum(values=['H', 'x', '+', '']), default=u'')
     author = Column(Unicode(255), default=u'')
     qualifier = Column(Enum(values=['s. lat.', 's. str', '']), default=u'')
     notes = Column(UnicodeText)
@@ -181,13 +163,13 @@ class Genus(db.Base):
         if genus.genus is None:
             return repr(genus)
         elif not author or genus.author is None:
-            return ' '.join([s for s in [genus.hybrid, genus.genus,
-                                    genus.qualifier] if s not in ('', None)])
+            return ' '.join([s for s in [genus.genus, genus.qualifier] \
+                                 if s not in ('', None)])
         else:
             return ' '.join(
-                [s for s in [genus.hybrid, genus.genus,
-                genus.qualifier,
-                xml.sax.saxutils.escape(genus.author)] if s not in ('', None)])
+                [s for s in [genus.genus, genus.qualifier,
+                             xml.sax.saxutils.escape(genus.author)] \
+                     if s not in ('', None)])
 
 
 
@@ -234,7 +216,6 @@ class GenusEditorView(editor.GenericEditorView):
 
     _tooltips = {
         'gen_family_entry': _('The family name'),
-        'gen_hybrid_combo': _('The type of hybrid for this genus.'),
         'gen_genus_entry': _('The genus name'),
         'gen_author_entry': _('The name or abbreviation of the author that '\
                               'published this genus'),
@@ -253,6 +234,7 @@ class GenusEditorView(editor.GenericEditorView):
         super(GenusEditorView, self).__init__(filename, parent=parent)
         self.attach_completion('gen_syn_entry', self.syn_cell_data_func)
         self.attach_completion('gen_family_entry')
+        self.set_accept_buttons_sensitive(False)
         self.restore_state()
 
 
@@ -312,7 +294,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
     widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'genus',
                            'gen_author_entry': 'author',
-                           'gen_hybrid_combo': 'hybrid',
 #                           'gen_qualifier_combo': 'qualifier'
                            'gen_notes_textview': 'notes'}
 
@@ -326,7 +307,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.session = object_session(model)
 
         # initialize widgets
-        self.init_enum_combo('gen_hybrid_combo', 'hybrid')
         self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
                                                     self.session)
         self.refresh_view() # put model values in view
@@ -340,8 +320,6 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
         self.assign_simple_handler('gen_genus_entry', 'genus')
-        self.assign_simple_handler('gen_hybrid_combo', 'hybrid',
-                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
@@ -745,18 +723,17 @@ class GeneralGenusExpander(InfoExpander):
 
         def on_nsp_clicked(*args):
             g = self.current_obj
-            cmd = 'species where genus.genus="%s" and genus.hybrid="%s" ' \
-                'and genus.qualifier="%s"' % (g.genus, g.hybrid, g.qualifier)
+            cmd = 'species where genus.genus="%s" and genus.qualifier="%s"' \
+                % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.gen_nsp_data,
                                    on_nsp_clicked)
 
         def on_nacc_clicked(*args):
             g = self.current_obj
-            cmd = 'acc where species.genus.genus="%s" and ' \
-                'species.genus.hybrid="%s" ' \
+            cmd = 'acc where species.genus.genus="%s" ' \
                 'and species.genus.qualifier="%s"' \
-                % (g.genus, g.hybrid, g.qualifier)
+                % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.gen_nacc_data,
                                    on_nacc_clicked)
@@ -764,9 +741,8 @@ class GeneralGenusExpander(InfoExpander):
         def on_nplants_clicked(*args):
             g = self.current_obj
             cmd = 'plant where accession.species.genus.genus="%s" and ' \
-                'accession.species.genus.hybrid="%s" ' \
-                'and accession.species.genus.qualifier="%s"' \
-                % (g.genus, g.hybrid, g.qualifier)
+                'accession.species.genus.qualifier="%s"' \
+                % (g.genus, g.qualifier)
             bauble.gui.send_command(cmd)
         utils.make_label_clickable(self.widgets.gen_nplants_data,
                                    on_nplants_clicked)
@@ -826,6 +802,8 @@ class GeneralGenusExpander(InfoExpander):
 
 class SynonymsExpander(InfoExpander):
 
+    expanded_pref = 'infobox.genus.synonyms.expanded'
+
     def __init__(self, widgets):
         InfoExpander.__init__(self, _("Synonyms"), widgets)
         synonyms_box = self.widgets.gen_synonyms_box
@@ -839,17 +817,16 @@ class SynonymsExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        #debug(row.synonyms)
+        syn_box = self.widgets.gen_synonyms_box
+        # remove old labels
+        syn_box.foreach(syn_box.remove)
+        # use True comparison in case the preference isn't set
+        self.set_expanded(prefs[self.expanded_pref] == True)
         if len(row.synonyms) == 0:
             self.set_sensitive(False)
-            self.set_expanded(False)
         else:
-            def on_label_clicked(label, event, syn):
-                select_in_search_results(syn)
-            syn_box = self.widgets.gen_synonyms_box
+            on_clicked = lambda l, e, syn: select_in_search_results(syn)
             for syn in row.synonyms:
-                # remove all the children
-                syn_box.foreach(syn_box.remove)
                 # create clickable label that will select the synonym
                 # in the search results
                 box = gtk.EventBox()
@@ -857,13 +834,10 @@ class SynonymsExpander(InfoExpander):
                 label.set_alignment(0, .5)
                 label.set_markup(Genus.str(syn, author=True))
                 box.add(label)
-                utils.make_label_clickable(label, on_label_clicked, syn)
+                utils.make_label_clickable(label, on_clicked, syn)
                 syn_box.pack_start(box, expand=False, fill=False)
             self.show_all()
-
             self.set_sensitive(True)
-            # TODO: get expanded state from prefs
-            self.set_expanded(True)
 
 
 
