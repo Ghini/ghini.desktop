@@ -33,7 +33,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
-                           'sp_hybrid_combo': 'sp_hybrid',
+                           'sp_hybrid_check': 'hybrid',
                            'sp_infra_entry': 'infrasp',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_infra_author_entry': 'infrasp_author',
@@ -45,7 +45,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
 
-        combos = ('sp_infra_rank_combo', 'sp_hybrid_combo', 'sp_spqual_combo')
+        combos = ('sp_infra_rank_combo', 'sp_spqual_combo')
         for name in combos:
             self.init_enum_combo(name, self.widget_to_field_map[name])
 
@@ -60,8 +60,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
         # connect signals
         def gen_get_completions(text):
-            clause = or_(utils.ilike(Genus.genus, '%s%%' % unicode(text)),
-                         utils.ilike(Genus.hybrid, '%s%%' % unicode(text)))
+            clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
             return self.session.query(Genus).filter(clause)
 
         #def set_in_model(self, field, value):
@@ -76,7 +75,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
-        self.assign_simple_handler('sp_hybrid_combo', 'sp_hybrid')
+        self.assign_simple_handler('sp_hybrid_check', 'hybrid')
         self.assign_simple_handler('sp_infra_entry', 'infrasp',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
@@ -105,62 +104,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             self.dist_presenter.dirty()
 
 
-    def refresh_sensitivity(self):
-        '''
-        set the sensitivity on the widgets that make up the species name
-        according to values in the model
-        '''
-        return
-        # states_dict:
-        # { widget: [list of fields]
-        # - if any of fields is None then the widget.sensitive = False
-        # - if one of the fields is a tuple then the values in the
-        # tuple are AND'd together to determine the widgets
-        # sensitivity, e.g. all of the widgets in the tuple have to be
-        # not None
-#         states_dict = {'sp_hybrid_combo': [('genus', 'genus')],
-#                        'sp_species_entry': [('genus', 'genus')],
-#                        'sp_author_entry': ['sp'],
-#                        'sp_infra_rank_combo': ['sp'],
-#                        'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
-#                        'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'),
-#                                                  'infrasp', 'sp']}
-        states_dict = {'sp_hybrid_combo': ['genus'],
-                       'sp_species_entry': ['genus'],
-                       'sp_author_entry': ['sp'],
-                       'sp_infra_rank_combo': ['sp'],
-                       'sp_infra_entry': [('infrasp_rank', 'sp_hybrid'), 'sp'],
-                       'sp_infra_author_entry': [('infrasp_rank', 'sp_hybrid'),
-                                                 'infrasp', 'sp']}
-        for widget, fields in states_dict.iteritems():
-            sensitive = False
-            for field in fields:
-                if isinstance(field, tuple):
-                    if None not in [getattr(self.model, f) for f in field]:
-                        sensitive = True
-                        break
-                elif getattr(self.model, field) is not None:
-                    sensitive = True
-                    break
-            self.view.widgets[widget].set_sensitive(sensitive)
-
-
-        # turn off the infraspecific rank combo if the hybrid value in the
-        # model is not None, this has to be called before the conditional that
-        # sets the sp_cvgroup_entry
-#        if self.model.sp_hybrid is not None:
-#            self.view.widgets.sp_infra_rank_combo.set_sensitive(False)
-
-        # infraspecific rank has to be a cultivar for the cultivar group entry
-        # to be sensitive
-        if self.model.infrasp_rank == 'cv.' \
-               and self.view.widgets['sp_infra_rank_combo'].get_property('sensitive'):
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(True)
-        else:
-            self.view.widgets.sp_cvgroup_entry.set_sensitive(False)
-
-
-
     def set_model_attr(self, field, value, validator=None):
         '''
         Resets the sensitivity on the ok buttons and the name widgets
@@ -181,7 +124,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                     (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
             sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
-        self.refresh_sensitivity()
 
 
     def init_fullname_widgets(self):
@@ -190,23 +132,19 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         building the fullname string in the sp_fullname_label widget
         '''
         self.refresh_fullname_label()
-        def on_insert(entry, *args):
-            self.refresh_fullname_label()
-        def on_delete(entry, *args):
-            self.refresh_fullname_label()
+        refresh = lambda *args: self.refresh_fullname_label()
         for widget_name in ['sp_genus_entry', 'sp_species_entry',
                             'sp_author_entry', 'sp_infra_entry',
                             'sp_cvgroup_entry', 'sp_infra_author_entry']:
             w = self.view.widgets[widget_name]
-            self.view.connect_after(widget_name, 'insert-text', on_insert)
-            self.view.connect_after(widget_name, 'delete-text', on_delete)
+            self.view.connect_after(widget_name, 'insert-text', refresh)
+            self.view.connect_after(widget_name, 'delete-text', refresh)
 
-        def on_changed(*args):
-            self.refresh_fullname_label()
-        for widget_name in ['sp_infra_rank_combo', 'sp_hybrid_combo',
-                            'sp_spqual_combo']:
+        for widget_name in ['sp_infra_rank_combo', 'sp_spqual_combo']:
             w = self.view.widgets[widget_name]
-            self.view.connect_after(widget_name, 'changed', on_changed)
+            self.view.connect_after(widget_name, 'changed', refresh)
+
+        self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
 
     def refresh_fullname_label(self):
@@ -237,7 +175,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 #            self.view.set_widget_value(widget, value,
 #                                       default=self.defaults.get(field, None))
             self.view.set_widget_value(widget, value)
-        self.refresh_sensitivity()
         self.vern_presenter.refresh_view(self.model.default_vernacular_name)
         self.synonyms_presenter.refresh_view()
         self.dist_presenter.refresh_view()
@@ -776,7 +713,7 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_species_entry': _('Species epithet'),
         'sp_author_entry': _('Species author'),
         'sp_infra_rank_combo': _('Infraspecific rank'),
-        'sp_hybrid_combo': _('Species hybrid flag'),
+        'sp_hybrid_check': _('Species hybrid flag'),
         'sp_infra_entry': _('Infraspecific epithet'),
         'sp_cvgroup_entry': _('Cultivar group'),
         'sp_infra_author_entry': _('Infraspecific author'),
@@ -988,7 +925,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         # self.model.infrasp_rank=='cv.' and self.model.infrasp
         # then show a dialog saying we can't commit and return
 
-        if self.model.sp_hybrid is None and self.model.infrasp_rank is None:
+        if self.model.hybrid is None and self.model.infrasp_rank is None:
             self.model.infrasp = None
             self.model.infrasp_author = None
             self.model.cv_group = None

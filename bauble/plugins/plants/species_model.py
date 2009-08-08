@@ -40,9 +40,9 @@ class VNList(list):
 # ***** supported names
 # Genus sp
 # Genus sp sp_author
-# Genus sp_hybrid (cv.) 'infrasp' # not supported any more?
-# Genus sp_hybrid sp
-# Genus sp sp_hybrid infrasp
+# Genus hybrid (cv.) 'infrasp' # not supported any more?
+# Genus hybrid sp
+# Genus sp hybrid infrasp
 # Genus sp infrasp_rank infrasp
 # Genus sp (cv.) 'infrasp'
 # Genus sp cv_group
@@ -73,15 +73,8 @@ class Species(db.Base):
     :Table name: species
 
     :Columns:
-        *sp_hybrid*:
+        *hybrid*:
             Hybrid flag
-
-            Possible values:
-                H: A hybrid formula for an Interspecific hybrid
-
-                x: A Nothotaxon name for an Interspecific hybrid
-
-                +: An Interspecific graft hybrid or graft chimaera
 
         *sp_qual*:
             Species qualifier
@@ -125,12 +118,12 @@ class Species(db.Base):
         *distribution*:
 
     :Constraints:
-        The combination of sp, sp_author, sp_hybrid, sp_qual,
+        The combination of sp, sp_author, hybrid, sp_qual,
         cv_group, trade_name, infrasp, infrasp_author, infrasp_rank,
         genus_id
     """
     __tablename__ = 'species'
-    __table_args__ = (UniqueConstraint('sp', 'sp_author', 'sp_hybrid',
+    __table_args__ = (UniqueConstraint('sp', 'sp_author', 'hybrid',
                                         'sp_qual', 'cv_group', 'trade_name',
                                         'infrasp', 'infrasp_author',
                                         'infrasp_rank', 'genus_id',
@@ -141,7 +134,7 @@ class Species(db.Base):
     # columns
     sp = Column(Unicode(64), index=True)
     sp_author = Column(Unicode(128))
-    sp_hybrid = Column(Enum(values=['x', '+', 'H', '']), default=u'')
+    hybrid = Column(Boolean, default=False)
     sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', '']),
                      default=u'')
     cv_group = Column(Unicode(50))
@@ -287,10 +280,13 @@ class Species(db.Base):
             if species.infrasp_author:
                 isp_author = escape(species.infrasp_author)
 
-        if species.sp_hybrid: # is a hybrid
+        hybrid_char = '\xe2\xa8\x89'
+        if species.hybrid: # is a hybrid
             if species.infrasp is not None:
                 if species.infrasp_rank is None:
-                    name = [s for s in [genus, sp, author, species.sp_hybrid,
+                    # TODO: should use the multiplication sign instead
+                    # of the character x
+                    name = [s for s in [genus, sp, author, hybrid_char,
                                         infrasp, isp_author] \
                                 if s is not None]
                 elif species.infrasp_rank in (u'cv.', 'cv.'):
@@ -299,16 +295,16 @@ class Species(db.Base):
                             (species.cv_group, infrasp)
                     else:
                         cv = "'%s'" % infrasp
-                    name = [s for s in [genus, species.sp_hybrid, sp, author,
+                    name = [s for s in [genus, hybrid_char, sp, author,
                                         cv, isp_author] \
                                 if s not in (None, '')]
                 else:
-                    name = [s for s in [genus, species.sp_hybrid, sp, author,
+                    name = [s for s in [genus, hybrid_char, sp, author,
                                         species.infrasp_rank, infrasp,
                                         isp_author] \
                                 if s not in (None, '')]
             else:
-                name = [s for s in [genus, species.sp_hybrid, sp, author] \
+                name = [s for s in [genus, hybrid_char, sp, author] \
                         if s not in (None, '')]
         else: # isn't a hybrid
             if species.cv_group:
