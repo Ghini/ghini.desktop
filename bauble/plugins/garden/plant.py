@@ -278,8 +278,8 @@ class PlantEditorView(GenericEditorView):
                                                       'plugins', 'garden',
                                                       'plant_editor.glade'),
                                    parent=parent)
-        self.view.widgets.plant_ok_button.set_sensitive(sensitive)
-        self.view.widgets.plant_next_button.set_sensitive(sensitive)
+        self.widgets.plant_ok_button.set_sensitive(False)
+        self.widgets.plant_next_button.set_sensitive(False)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
