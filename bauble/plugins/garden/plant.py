@@ -22,7 +22,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
 import bauble.meta as meta
-from bauble.view import SearchStrategy, Action
+from bauble.view import SearchStrategy, ResultSet, Action
 from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
@@ -41,6 +41,10 @@ def edit_callback(plants):
     e = PlantEditor(model=plants[0])
     return e.start() != None
 
+
+def transfer_callback(plants):
+    e = TransferEditor(model=plants)
+    return e.start() != None
 
 def remove_callback(plants):
     s = ', '.join([str(p) for p in plants])
@@ -68,10 +72,13 @@ def remove_callback(plants):
 
 edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
+transfer_action = Action('plant_transfer', ('_Transfer'),
+                     callback=transfer_callback, accelerator='<ctrl>m',
+                     multiselect=True)
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
 
-plant_context_menu = [edit_action, remove_action]
+plant_context_menu = [edit_action, transfer_action, remove_action]
 
 
 def plant_markup_func(plant):
@@ -90,11 +97,16 @@ class PlantSearch(SearchStrategy):
 
     def __init__(self):
         super(PlantSearch, self).__init__()
+        self._results = ResultSet()
 
 
-    def search(self, text, session=None):
-        if session is None:
-            session = bauble.Session()
+    def search(self, text, session):
+        # TODO: this doesn't support search like plant=2009.0039.1 or
+        # plant where accession.code=2009.0039
+
+        # TODO: searches like 2009.0039.% or * would be handy
+        r1 = super(PlantSearch, self).search(text, session)
+        self._results.add(r1)
         delimiter = Plant.get_delimiter()
         if delimiter not in text:
             return []
@@ -102,11 +114,13 @@ class PlantSearch(SearchStrategy):
         query = session.query(Plant)
         from bauble.plugins.garden import Accession
         try:
-            return query.join('accession').\
+            q = query.join('accession').\
                 filter(and_(Accession.code==acc_code, Plant.code==plant_code))
+            self._results.add(q)
         except Exception, e:
             debug(e)
             return []
+        return q
 
 
 
@@ -264,7 +278,8 @@ class PlantEditorView(GenericEditorView):
                                                       'plugins', 'garden',
                                                       'plant_editor.glade'),
                                    parent=parent)
-
+        self.view.widgets.plant_ok_button.set_sensitive(sensitive)
+        self.view.widgets.plant_next_button.set_sensitive(sensitive)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
@@ -446,6 +461,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             # reference accesssion.id instead of accession_id since
             # setting the accession on the model doesn't set the
             # accession_id until the session is flushed
+            code = utils.utf8(code)
             num = self.session.query(Plant).join('accession').\
                 filter(and_(Accession.id==self.model.accession.id,
                             Plant.code==code)).count()
@@ -644,9 +660,34 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if self.handle_response(response):
                 break
 
-        self.session.close() # cleanup session
         self.presenter.cleanup()
+        self.session.close() # cleanup session
         return self._committed
+
+
+
+class TransferEditor(GenericEditorView):
+    """
+    """
+
+    def __init__(self, model, parent=None):
+        """
+        """
+        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "transfer.glade")
+        super(TransferEditor, self).__init__(filename, parent)
+        label = self.widgets.plants_label
+        self.plants = model
+        label.set_text(', '.join([str(p) for p in self.plants]))
+
+
+    def get_window(self):
+        return self.widgets.transfer_dialog
+
+
+    def start(self):
+        self.get_window().run()
+
 
 
 
