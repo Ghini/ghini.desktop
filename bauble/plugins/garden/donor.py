@@ -99,7 +99,7 @@ class DonorEditorView(GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                 'donor_editor.glade')
         super(DonorEditorView, self).__init__(filename, parent=parent)
-
+        self.set_accept_buttons_sensitive(False)
         if sys.platform == 'win32':
             # TODO: is this character width fix still necessary
             import pango

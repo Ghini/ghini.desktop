@@ -108,6 +108,7 @@ class LocationEditorView(GenericEditorView):
                                                       'loc_editor.glade'),
                                    parent=parent)
         self.use_ok_and_add = True
+        self.set_accept_buttons_sensitive(False)
         if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
 
