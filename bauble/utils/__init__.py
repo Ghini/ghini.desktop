@@ -317,13 +317,13 @@ def set_widget_value(widget, value, markup=True, default=None):
         # or we should just catch the error(is there an error) and call
         # set_text if set_markup fails
         if markup:
-            widget.set_markup(str(value))
+            widget.set_markup(utf8(value))
         else:
-            widget.set_text(str(value))
+            widget.set_text(utf8(value))
     elif isinstance(widget, gtk.TextView):
         widget.get_buffer().set_text(str(value))
     elif isinstance(widget, gtk.Entry):
-        widget.set_text(str(value))
+        widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox): # TODO: what about comboentry
         # TODO: what if None is in the model
         treeiter = combo_get_value_iter(widget, value)
@@ -875,7 +875,7 @@ def range_builder(text):
     """Return a list of numbers from a string range of the form 1-3,4,5
     """
     from utils.pyparsing import Word, Group, Suppress, delimitedList, nums, \
-        ParseException
+        ParseException, ParseResults
     rng = Group(Word(nums) + Suppress('-') + Word(nums))
     range_list = delimitedList(rng | Word(nums))
 
@@ -886,12 +886,14 @@ def range_builder(text):
         return []
     values = set()
     for rng in tokens:
-        if len(rng) > 1:
+        if isinstance(rng, ParseResults):
+            # get here if the token is a range
             start = int(rng[0])
             end = int(rng[1]) + 1
             check(start<end, 'start must be less than end')
             values.update(range(start, end))
         else:
+            # get here if the token is an integer
             values.add(int(rng))
     return list(values)
 

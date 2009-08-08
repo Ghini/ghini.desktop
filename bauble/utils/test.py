@@ -143,6 +143,7 @@ class UtilsTests(unittest.TestCase):
         assert utils.range_builder('1-3,5') == [1, 2, 3, 5]
         assert utils.range_builder('1-3,5,7-9')== [1, 2, 3, 5, 7, 8, 9]
         assert utils.range_builder('1,2,3,4') == [1, 2, 3, 4]
+        assert utils.range_builder('11') == [11]
 
         # bad range strings
         assert utils.range_builder('-1') == []
