@@ -1439,7 +1439,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             sensitive = False
         elif not self.model.code or not self.model.species:
             sensitive = False
-        self.set_accept_buttons_sensitive(sensitive)
+        self.view.set_accept_buttons_sensitive(sensitive)
 
 
     def on_source_type_combo_changed(self, combo, data=None):
