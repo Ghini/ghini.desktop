@@ -591,6 +591,7 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             model = Genus(family=self.model.family)
             e = GenusEditor(model=model, parent=self.parent)
             more_committed = e.start()

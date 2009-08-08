@@ -31,6 +31,11 @@ def add_plants_callback(locations):
 def remove_callback(locations):
     loc = locations[0]
     s = '%s: %s' % (loc.__class__.__name__, str(loc))
+    if len(loc.plants) > 0:
+        msg = _('Please remove the plants from <b>%(location)s</b> '\
+                    'before deleting it.') % {'location': loc}
+        utils.message_dialog(msg, gtk.MESSAGE_WARNING)
+        return
     msg = _("Are you sure you want to remove %s?") % \
           utils.xml_safe_utf8(s)
     if not utils.yes_no_dialog(msg):
@@ -109,6 +114,10 @@ class LocationEditorView(GenericEditorView):
                                    parent=parent)
         self.use_ok_and_add = True
         self.set_accept_buttons_sensitive(False)
+        # if the parent isn't the main bauble window then we assume
+        # that the LocationEditor was opened from the PlantEditor and
+        # so we shouldn't enable adding more plants...this is a bit of
+        # a hack but it serves our purposes
         if bauble.gui and parent != bauble.gui.window:
             self.use_ok_and_add = False
 
@@ -261,13 +270,13 @@ class LocationEditor(GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
             from bauble.plugins.garden.plant import PlantEditor, Plant
             e = PlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
-
         if more_committed is not None:
             if isinstance(more_committed, list):
                 self._committed.extend(more_committed)

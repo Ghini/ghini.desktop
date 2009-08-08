@@ -235,6 +235,7 @@ class DonorEditor(GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = DonorEditor(parent=self.parent)
             more_committed = e.start()
         if more_committed is not None:
