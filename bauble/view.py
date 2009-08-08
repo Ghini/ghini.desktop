@@ -100,16 +100,16 @@ class InfoExpander(gtk.Expander):
         self.vbox = gtk.VBox(False)
         self.vbox.set_border_width(5)
         self.add(self.vbox)
-        self.set_expanded(True)
         self.widgets = widgets
-        if self.expanded_pref:
-            prefs[self.expanded_pref] = self.get_expanded()
+        if not self.expanded_pref:
+            self.set_expanded(True)
         self.connect("notify::expanded", self.on_expanded)
 
 
     def on_expanded(self, expander, *args):
         if self.expanded_pref:
             prefs[self.expanded_pref] = expander.get_expanded()
+            prefs.save()
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
@@ -709,9 +709,8 @@ class SearchView(pluginmgr.View):
             def __init__(self):
                 self.children = None
                 self.infobox = None
-                self.context_menu_desc = None
                 self.markup_func = None
-                self.actions = None
+                self.actions = []
 
 
             def set(self, children=None, infobox=None, context_menu=None,
@@ -729,11 +728,11 @@ class SearchView(pluginmgr.View):
                 self.children = children
                 self.infobox = infobox
                 self.markup_func = markup_func
-                self.context_menu_desc = context_menu
-                self.actions = None
-                if self.context_menu_desc:
+                self.context_menu = context_menu
+                self.actions = []
+                if self.context_menu:
                     self.actions = filter(lambda x: isinstance(x, Action),
-                                          self.context_menu_desc)
+                                          self.context_menu)
 
 
             def get_children(self, obj):
@@ -1249,23 +1248,19 @@ class SearchView(pluginmgr.View):
         reexpand the rows to the previous state where possible and
         update the infobox.
         """
-        # TODO: we should do some profiling to see how this method
-        # performs on large datasets
         model, paths = self.results_view.get_selection().get_selected_rows()
         ref = gtk.TreeRowReference(model, paths[0])
-        for obj in self.session:
-            try:
-                self.session.expire(obj)
-            except saexc.InvalidRequestError, e:
-                # TODO: i was originally thinking to remove the object
-                # if there was an error when trying to expire it but
-                # if the model is big to search through the entire
-                # model for the obj would be expensive...maybe if we
-                # iterated through the model instead of the session
-                # then we would only be going through the model once
-                debug(e)
-                pass
+        self.session.expire_all()
 
+        # the invalidate_str_cache() method are specific to Species
+        # and Accession right now....its a bit of a hack since there's
+        # no real interface that the method complies to...but it does
+        # fix our string caching issues
+        def invalidate_cache(model, path, treeiter, data=None):
+            obj = model[path][0]
+            if hasattr(obj, 'invalidate_str_cache'):
+                obj.invalidate_str_cache()
+        model.foreach(invalidate_cache)
         expanded_rows = self.get_expanded_rows()
         self.results_view.collapse_all()
         # expand_to_all_refs will invalidate the ref so get the path first
@@ -1274,7 +1269,6 @@ class SearchView(pluginmgr.View):
             path = ref.get_path()
         self.expand_to_all_refs(expanded_rows)
         self.results_view.set_cursor(path)
-
 
 
     def on_view_row_activated(self, view, path, column, data=None):
