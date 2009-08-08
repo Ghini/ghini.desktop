@@ -76,12 +76,19 @@ def quit():
     Stop all tasks and quit Bauble.
     """
     import gtk
-    import bauble.task as task
-    save_state()
+    from bauble.utils.log import error
     try:
+        import bauble.task as task
+    except Exception, e:
+        error('bauble.quit(): %s' % utils.utf8(e))
+    else:
         task.kill()
+    try:
+        save_state()
         gtk.main_quit()
-    except RuntimeError: # in case main_quit is called before main
+    except RuntimeError, e:
+        # in case main_quit is called before main, e.g. before
+        # bauble.main() is called
         sys.exit(1)
 
 
