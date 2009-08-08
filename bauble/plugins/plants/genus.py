@@ -81,7 +81,7 @@ def remove_callback(genera):
 
 edit_action = Action('genus_edit', ('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-add_species_action = Action('genus_sp_add', ('_Add accession'),
+add_species_action = Action('genus_sp_add', ('_Add species'),
                               callback=add_species_callback,
                               accelerator='<ctrl>k')
 remove_action = Action('genus_remove', ('_Remove'), callback=remove_callback,
