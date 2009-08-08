@@ -86,6 +86,9 @@ class InfoExpander(gtk.Expander):
     to extend this you just have to implement the update() method
     """
 
+    # preference for storing the expanded state
+    expanded_pref = None
+
     def __init__(self, label, widgets=None):
         """
         :param label: the name of this info expander, this is displayed on the
@@ -99,6 +102,14 @@ class InfoExpander(gtk.Expander):
         self.add(self.vbox)
         self.set_expanded(True)
         self.widgets = widgets
+        if self.expanded_pref:
+            prefs[self.expanded_pref] = self.get_expanded()
+        self.connect("notify::expanded", self.on_expanded)
+
+
+    def on_expanded(self, expander, *args):
+        if self.expanded_pref:
+            prefs[self.expanded_pref] = expander.get_expanded()
 
 
     def set_widget_value(self, widget_name, value, markup=True, default=None):
