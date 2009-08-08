@@ -198,6 +198,13 @@ class Verification(db.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'))
 
 
+class AccessionMapperExtension(MapperExtension):
+
+    def after_update(self, mapper, conn, instance):
+        instance.invalidate_str_cache()
+        return EXT_CONTINUE
+
+
 class Accession(db.Base):
     """
     :Table name: accession
@@ -292,7 +299,8 @@ class Accession(db.Base):
 
     """
     __tablename__ = 'accession'
-    __mapper_args__ = {'order_by': 'code'}
+    __mapper_args__ = {'order_by': 'code',
+                       'extension': AccessionMapperExtension()}
 
     # columns
     #: the accession code

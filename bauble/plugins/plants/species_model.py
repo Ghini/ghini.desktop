@@ -72,6 +72,7 @@ class SpeciesMapperExtension(MapperExtension):
 
     def after_update(self, mapper, conn, instance):
         instance.invalidate_str_cache()
+        return EXT_CONTINUE
 
 
 
@@ -244,6 +245,8 @@ class Species(db.Base):
         return Species.str(self, authors, True)
 
 
+    hybrid_char = '\xe2\xa8\x89'
+
     @staticmethod
     def str(species, authors=False, markup=False, use_cache=True):
         '''
@@ -291,7 +294,8 @@ class Species(db.Base):
             if species.infrasp_author:
                 isp_author = escape(species.infrasp_author)
 
-        hybrid_char = '\xe2\xa8\x89'
+        hybrid_char = species.hybrid_char # local variable access is faster
+
         if species.hybrid: # is a hybrid
             if species.infrasp is not None:
                 if species.infrasp_rank is None:
@@ -345,7 +349,7 @@ class Species(db.Base):
         if species.sp_qual not in (None, ''):
             name.append(species.sp_qual)
 
-        s = u' '.join(name)
+        s = utils.utf8(' '.join(name))
         species.__cached_str[(markup, authors)] = s
         return s
 
