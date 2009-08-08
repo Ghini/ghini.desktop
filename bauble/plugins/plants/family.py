@@ -527,6 +527,7 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = FamilyEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:

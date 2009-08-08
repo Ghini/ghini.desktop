@@ -126,7 +126,7 @@ class PlantSearch(SearchStrategy):
 
 class PlantHistory(db.Base):
     __tablename__ = 'plant_history'
-    _mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'date'}
     date = Column(types.Date)
     description = Column(UnicodeText)
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
@@ -360,7 +360,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.model.acc_status = default_acc_status
 
         self.refresh_view() # put model values in view
-
+        #return
         # connect signals
         def acc_get_completions(text):
             query = self.session.query(Accession)
@@ -457,7 +457,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         This method will take range values for code that can be passed
         to utils.range_builder()
         """
-        for code in utils.range_builder(self.model.code):
+        for code in utils.range_builder(code):
             # reference accesssion.id instead of accession_id since
             # setting the accession on the model doesn't set the
             # accession_id until the session is flushed
@@ -495,7 +495,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
             self.pause_completions_handler(entry, True)
-            entry.set_text(utils.utf8(location))
+            self.view.set_widget_value(entry, location)
             self.pause_completions_handler(entry, False)
         else:
             # TODO: see if the location editor returns the new
@@ -621,6 +621,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
 #        # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = PlantEditor(Plant(accession=self.model.accession),
                             parent=self.parent)
             more_committed = e.start()
@@ -637,28 +638,33 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
     def start(self):
         from bauble.plugins.garden.accession import Accession
-
+        sub_editor = None
         if self.session.query(Accession).count() == 0:
             msg = 'You must first add or import at least one Accession into '\
                   'the database before you can add plants.\n\nWould you like '\
                   'to open the Accession editor?'
             if utils.yes_no_dialog(msg):
+                # cleanup in case we start a new PlantEditor
+                self.presenter.cleanup()
                 from bauble.plugins.garden.accession import AccessionEditor
-                e = AccessionEditor()
-                return e.start()
+                sub_editor = AccessionEditor()
+                self._commited = sub_editor.start()
         if self.session.query(Location).count() == 0:
             msg = 'You must first add or import at least one Location into '\
                   'the database before you can add species.\n\nWould you '\
                   'like to open the Location editor?'
             if utils.yes_no_dialog(msg):
-                e = LocationEditor()
-                return e.start()
+                # cleanup in case we start a new PlantEditor
+                self.presenter.cleanup()
+                sub_editor = LocationEditor()
+                self._commited = sub_editor.start()
 
-        while True:
-            response = self.presenter.start()
-            self.presenter.view.save_state()
-            if self.handle_response(response):
-                break
+        if not sub_editor:
+            while True:
+                response = self.presenter.start()
+                self.presenter.view.save_state()
+                if self.handle_response(response):
+                    break
 
         self.presenter.cleanup()
         self.session.close() # cleanup session
