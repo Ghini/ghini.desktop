@@ -118,9 +118,10 @@ def remove_callback(accessions):
     acc = accessions[0]
     if len(acc.plants) > 0:
         safe = utils.xml_safe_utf8
+        plants = [str(plant) for plant in acc.plants]
         values = dict(num_plants=len(acc.plants),
-                      plant_codes = safe(', '.join(acc.plants)),
-                      acc_code = safe(value))
+                      plant_codes = safe(', '.join(plants)),
+                      acc_code = safe(acc))
         msg = _('%(num_plants)s plants depend on this accession: ' \
                 '<b>%(plant_codes)s</b>\n\n'\
                 'Are you sure you want to remove accession ' \
@@ -362,6 +363,10 @@ class Accession(db.Base):
         Called instead of __init__() when an Accession is loaded from
         the database.
         """
+        self.__cached_species_str = {}
+
+
+    def invalidate_str_cache(self):
         self.__cached_species_str = {}
 
 
@@ -1642,6 +1647,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         # respond to responses
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:

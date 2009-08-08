@@ -128,7 +128,7 @@ class Species(db.Base):
                                         'infrasp', 'infrasp_author',
                                         'infrasp_rank', 'genus_id',
                                         name='species_index'))
-    _mapper_args__ = {'order_by': ['sp', 'sp_author', 'infrasp_rank',
+    __mapper_args__ = {'order_by': ['sp', 'sp_author', 'infrasp_rank',
                                    'infrasp']}
 
     # columns
@@ -183,6 +183,10 @@ class Species(db.Base):
         Called instead of __init__() when an Species is loaded from
         the database.
         """
+        self.__cached_str = {}
+
+
+    def invalidate_str_cache(self):
         self.__cached_str = {}
 
 
@@ -247,8 +251,7 @@ class Species(db.Base):
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
         session = object_session(species)
-        if session and use_cache and species not in session.dirty and \
-                species not in session.new:
+        if session and use_cache and not session.is_modified(species):
             try:
                 return species.__cached_str[(markup, authors)]
             except KeyError:

@@ -902,6 +902,7 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
         more_committed = None
         if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
             e = SpeciesEditor(Species(genus=self.model.genus), self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
