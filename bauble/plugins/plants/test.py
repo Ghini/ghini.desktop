@@ -74,6 +74,11 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'sp_hybrid': u'x', 'sp_author': u'L.',
                       'infrasp_rank': u'cv.', 'infrasp': u'Red',
                       'cv_group': u'SomeGroup'},
+                     {'id': 11, 'sp': u'generalis', 'genus_id': 1,
+                      'sp_qual': u'agg.'},
+                     {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
+                     {'id': 13, 'genus_id':1, 'infrasp_rank': u'cv.',
+                      'infrasp': u'Red'}
                      )
 
 species_str_map = {\
@@ -86,7 +91,10 @@ species_str_map = {\
     7: 'Abrus precatorius SomethingRidiculous Group',
     8: "Abrus precatorius (SomethingRidiculous Group) 'Hot Rio Nights'",
     9: "Maxillaria x generalis 'Red'",
-    10:"Maxillaria x generalis (SomeGroup Group) 'Red'"
+    10:"Maxillaria x generalis (SomeGroup Group) 'Red'",
+    11:"Maxillaria generalis agg.",
+    12:"Maxillaria SomeGroup Group",
+    13:"Maxillaria 'Red'"
     }
 
 species_markup_map = {\
@@ -95,7 +103,9 @@ species_markup_map = {\
     3: '<i>Abrus</i> <i>precatorius</i>',
     4: '<i>Campyloneurum</i> x <i>alapense</i>',
     5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
-    6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\''}
+    6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
+    12:"<i>Maxillaria</i> SomeGroup Group"
+    }
 
 species_str_authors_map = {\
     1: 'Maxillaria variabilis Bateman ex Lindl.',
@@ -103,7 +113,10 @@ species_str_authors_map = {\
     3: 'Abrus precatorius L.',
     4: u'Campyloneurum x alapense F\xe9e',
     5: u'Encyclia cochleata (L.) Lem\xe9e var. cochleata',
-    6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\''}
+    6: u'Encyclia cochleata (L.) Lem\xe9e \'Black Night\'',
+    7: 'Abrus precatorius L. SomethingRidiculous Group',
+    8: "Abrus precatorius L. (SomethingRidiculous Group) 'Hot Rio Nights'",
+}
 
 species_markup_authors_map = {\
     1: '<i>Maxillaria</i> <i>variabilis</i> Bateman ex Lindl.',
@@ -352,9 +365,10 @@ class GenusTests(PlantTestCase):
         # an IntegrityError because the UniqueConstraint on Genus
         values = [dict(family=family, genus=u'genus'),
                   dict(family=family, genus=u'genus', author=u'author'),
-                  dict(family=family, genus=u'genus', hybrid=u'x'),
-                  dict(family=family, genus=u'genus', hybrid=u'x',
-                       author=u'author')]
+                  dict(family=family, genus=u'genus', qualifier=u's. lat.'),
+                  dict(family=family, genus=u'genus', qualifier=u's. lat.',
+                       author=u'author')
+                  ]
         for v in values:
             self.session.add(Genus(**v))
             self.session.add(Genus(**v))
@@ -400,7 +414,7 @@ class SpeciesTests(PlantTestCase):
         g = Genus(genus=u'genus', family=f)
         self.session.add(g)
         self.session.commit()
-        sp = Species(genus=g)
+        sp = Species(genus=g, sp=u'sp')
         e = SpeciesEditor(model=sp)
         e.start()
         del e
@@ -437,6 +451,25 @@ class SpeciesTests(PlantTestCase):
             spstr = get_sp_str(id, markup=True, authors=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
+
+
+    def test_dirty_string(self):
+        """
+        That that the cache on a string is invalidated if the species
+        is changed or expired.
+        """
+        family = Family(family=u'family')
+        genus = Genus(family=family, genus=u'genus')
+        sp = Species(genus=genus, sp=u'sp')
+        self.session.add_all([family, genus, sp])
+        self.session.commit()
+
+        str1 = Species.str(sp)
+        sp.sp = u'sp2'
+        self.session.commit()
+        self.session.refresh(sp)
+        sp = self.session.query(Species).get(sp.id)
+        self.assert_(Species.str(sp) != str1)
 
 
     def test_vernacular_name(self):

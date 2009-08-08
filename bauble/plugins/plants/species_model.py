@@ -68,6 +68,13 @@ class VNList(list):
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
 
+class SpeciesMapperExtension(MapperExtension):
+
+    def after_update(self, mapper, conn, instance):
+        instance.invalidate_str_cache()
+
+
+
 class Species(db.Base):
     """
     :Table name: species
@@ -129,7 +136,8 @@ class Species(db.Base):
                                         'infrasp_rank', 'genus_id',
                                         name='species_index'))
     __mapper_args__ = {'order_by': ['sp', 'sp_author', 'infrasp_rank',
-                                   'infrasp']}
+                                   'infrasp'],
+                       'extension': SpeciesMapperExtension()}
 
     # columns
     sp = Column(Unicode(64), index=True)
