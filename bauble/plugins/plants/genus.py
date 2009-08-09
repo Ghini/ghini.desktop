@@ -178,11 +178,13 @@ class GenusSynonym(db.Base):
     :Table name: genus_synonym
     """
     __tablename__ = 'genus_synonym'
-    __table_args__ = (UniqueConstraint('genus_id', 'synonym_id'),
-                      {})
+
     # columns
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
-    synonym_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+
+    # a genus can only be a synonum of one other genus
+    synonym_id = Column(Integer, ForeignKey('genus.id'), nullable=False,
+                        unique=True)
 
     # relations
     synonym = relation('Genus', uselist=False,
@@ -476,10 +478,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         tree_model.append([syn])
         self._selected = None
         entry = self.view.widgets.gen_syn_entry
-        self.pause_completions_handler(entry, True)
-        entry.set_text('')
+        entry.props.text = ''
         entry.set_position(-1)
-        self.pause_completions_handler(entry, False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
