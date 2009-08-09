@@ -201,7 +201,7 @@ class GenusSynonym(db.Base):
 
 
 # late bindings
-from bauble.plugins.plants.family import Family
+from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
@@ -318,7 +318,34 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             query = self.session.query(Family)
             return query.filter(Family.family.like('%s%%' % text))
         def on_select(value):
+            #debug('on select: %s' % value)
+            for kid in self.view.widgets.message_box_parent.get_children():
+                self.view.widgets.remove_parent(kid)
             self.set_model_attr('family', value)
+            if not value:
+                return
+            syn = self.session.query(FamilySynonym).\
+                filter(FamilySynonym.synonym_id == value.id).first()
+            if not syn:
+                self.set_model_attr('famil', value)
+                return
+            msg = _('The family <b>%(synonym)s</b> is a synonym of '\
+                        '<b>%(family)s</b>.\n\nWould you like to choose '\
+                        '<b>%(family)s</b> instead?' \
+                        % {'synonym': syn.synonym, 'family': syn.family})
+            message_box = None
+            def on_response(button, response):
+                self.view.widgets.remove_parent(message_box)
+                if response:
+                    self.view.widgets.gen_family_entry.\
+                        set_text(utils.utf8(syn.family))
+                    self.set_model_attr('family', syn.family)
+                else:
+                    self.set_model_attr('family', value)
+            message_box = editor.YesNoBox(msg, on_response=on_response)
+            self.view.widgets.message_box_parent.pack_start(message_box)
+            message_box.animate()
+
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
         self.assign_simple_handler('gen_genus_entry', 'genus')
