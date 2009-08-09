@@ -177,11 +177,11 @@ class FamilySynonym(db.Base):
         *family*:
     """
     __tablename__ = 'family_synonym'
-    __table_args__ = (UniqueConstraint('family_id', 'synonym_id'), {})
 
     # columns
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
-    synonym_id = Column(Integer, ForeignKey('family.id'), nullable=False)
+    synonym_id = Column(Integer, ForeignKey('family.id'), nullable=False,
+                        unique=True)
 
     # relations
     synonym = relation('Family', uselist=False,
