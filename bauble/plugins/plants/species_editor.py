@@ -20,7 +20,7 @@ import bauble.paths as paths
 import bauble.editor as editor
 from bauble.utils.log import log, debug
 from bauble.plugins.plants.family import Family
-from bauble.plugins.plants.genus import Genus
+from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import Species, \
      SpeciesSynonym, VernacularName, DefaultVernacularName, \
      SpeciesDistribution, Geography
@@ -58,16 +58,46 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                                     self.view, self.session)
         self.refresh_view()
 
+        msg = ' thats \n all there \n is'
+        message_box = editor.MessageBox(msg)
+        self.view.widgets.message_box_parent.pack_start(message_box)
+        message_box.animate()
+
         # connect signals
         def gen_get_completions(text):
             clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
             return self.session.query(Genus).filter(clause)
 
-        #def set_in_model(self, field, value):
-        #    debug('set_in_model(%s, %s)' % (field, value))
-        #    setattr(self.model, field, value)
+        # called a genus is selected from the genus completions
         def on_select(value):
+            #debug('on select: %s' % value)
+            for kid in self.view.widgets.message_box_parent.get_children():
+                self.view.widgets.remove_parent(kid)
             self.set_model_attr('genus', value)
+            if not value:
+                return
+            syn = self.session.query(GenusSynonym).\
+                filter(GenusSynonym.synonym_id == value.id).first()
+            if not syn:
+                self.set_model_attr('genus', value)
+                return
+            msg = _('The genus <b>%(synonym)s</b> is a synonym of '\
+                        '<b>%(genus)s</b>.\n\nWould you like to choose '\
+                        '<b>%(genus)s</b> instead?' \
+                        % {'synonym': syn.synonym, 'genus': syn.genus})
+            message_box = None
+            def on_response(button, response):
+                self.view.widgets.remove_parent(message_box)
+                if response:
+                    self.view.widgets.sp_genus_entry.\
+                        set_text(utils.utf8(syn.genus))
+                    self.set_model_attr('genus', syn.genus)
+                else:
+                    self.set_model_attr('genus', value)
+            message_box = editor.YesNoBox(msg, on_response=on_response)
+            self.view.widgets.message_box_parent.pack_start(message_box)
+            message_box.animate()
+
         self.assign_completions_handler('sp_genus_entry', #'genus',
                                         gen_get_completions,
                                         on_select=on_select)
