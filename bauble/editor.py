@@ -471,7 +471,8 @@ class GenericEditorPresenter(object):
         if not problem_widgets:
             tmp = self.problems.copy()
             for p, w in tmp:
-                self.problems.remove((p, w))
+                if p == problem_id:
+                    self.problems.remove((p, w))
             return
         elif isinstance(problem_widgets, (list, tuple)):
             # call remove_problem() on each item in problem_widgets
@@ -484,7 +485,8 @@ class GenericEditorPresenter(object):
                 problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
                 problem_widgets.modify_base(gtk.STATE_NORMAL, None)
                 problem_widgets.queue_draw()
-        except KeyError:
+        except KeyError, e:
+            #debug(e)
             pass
 
 
@@ -507,7 +509,6 @@ class GenericEditorPresenter(object):
             problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
-
 
 
     def init_enum_combo(self, widget_name, field):
