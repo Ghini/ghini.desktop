@@ -388,8 +388,13 @@ class GenusTests(PlantTestCase):
         Interactively test the PlantEditor
         """
         #loc = self.create(Genus, site=u'some site')
-        fam = Genus(genus='some genus')
-        editor = GenusEditor(model=fam)
+        fam = Family(family=u'family')
+        fam2 = Family(family=u'family2')
+        fam2.synonyms.append(fam)
+        self.session.add_all([fam, fam2])
+        self.session.commit()
+        gen = Genus(genus='some genus')
+        editor = GenusEditor(model=gen)
         editor.start()
         del editor
         assert utils.gc_objects_by_type('GenusEditor') == [], \
@@ -411,8 +416,10 @@ class SpeciesTests(PlantTestCase):
 
     def itest_species_editor(self):
         f = Family(family=u'family')
+        g2 = Genus(genus=u'genus2', family=f)
         g = Genus(genus=u'genus', family=f)
-        self.session.add(g)
+        g2.synonyms.append(g)
+        self.session.add(f)
         self.session.commit()
         sp = Species(genus=g, sp=u'sp')
         e = SpeciesEditor(model=sp)
