@@ -494,9 +494,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
             entry = self.view.widgets.plant_loc_entry
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
-            self.pause_completions_handler(entry, True)
             self.view.set_widget_value(entry, location)
-            self.pause_completions_handler(entry, False)
         else:
             # TODO: see if the location editor returns the new
             # location and if so set it directly
