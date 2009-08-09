@@ -1201,8 +1201,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.current_source_box = None
         self.source_presenter = None
-        self._source_box_map['Donation'] = self.view.widgets.donation_box
-        self._source_box_map['Collection'] = self.view.widgets.collection_box
+        self._source_box_map[Donation] = self.view.widgets.donation_box
+        self._source_box_map[Collection] = self.view.widgets.collection_box
 
         # reset the source_box_parent in case it still has a child
         # from a previous run of the accession editor
