@@ -421,10 +421,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         tree_model.append([syn])
         self._selected = None
         entry = self.view.widgets.fam_syn_entry
-        self.pause_completions_handler(entry, True)
-        entry.set_text('')
+        entry.props.text = ''
         entry.set_position(-1)
-        self.pause_completions_handler(entry, False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.set_accept_buttons_sensitive(True)
