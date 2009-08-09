@@ -110,6 +110,7 @@
                             <property name="shadow_type">in</property>
                             <child>
                               <object class="GtkTextView" id="fam_notes_textview">
+                                <property name="height_request">100</property>
                                 <property name="visible">True</property>
                                 <property name="can_focus">True</property>
                                 <property name="wrap_mode">word</property>
@@ -165,9 +166,19 @@
                           <object class="GtkHBox" id="hbox1">
                             <property name="visible">True</property>
                             <child>
-                              <object class="GtkTreeView" id="fam_syn_treeview">
+                              <object class="GtkScrolledWindow" id="scrolledwindow1">
                                 <property name="visible">True</property>
-                                <property name="headers_visible">False</property>
+                                <property name="can_focus">True</property>
+                                <property name="hscrollbar_policy">never</property>
+                                <property name="vscrollbar_policy">automatic</property>
+                                <child>
+                                  <object class="GtkTreeView" id="fam_syn_treeview">
+                                    <property name="height_request">100</property>
+                                    <property name="visible">True</property>
+                                    <property name="can_focus">True</property>
+                                    <property name="headers_visible">False</property>
+                                  </object>
+                                </child>
                               </object>
                               <packing>
                                 <property name="position">0</property>
