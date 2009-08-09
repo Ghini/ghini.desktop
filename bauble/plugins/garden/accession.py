@@ -26,7 +26,7 @@ import bauble.db as db
 from bauble.error import check
 import bauble.utils as utils
 import bauble.paths as paths
-from bauble.editor import *
+import bauble.editor as editor
 from bauble.utils.log import debug
 from bauble.prefs import prefs
 from bauble.error import CommitException
@@ -495,7 +495,7 @@ from bauble.plugins.garden.plant import Plant, PlantEditor
 
 
 
-class AccessionEditorView(GenericEditorView):
+class AccessionEditorView(editor.GenericEditorView):
 
     expanders_pref_map = {'acc_notes_expander':
                           'editor.accession.notes.expanded',
@@ -527,10 +527,10 @@ class AccessionEditorView(GenericEditorView):
 
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'garden',
-                                                      'acc_editor.glade'),
-                                   parent=parent)
+        super(AccessionEditorView, self).\
+            __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'acc_editor.glade'),
+                     parent=parent)
         self.attach_completion('acc_species_entry',
                                cell_data_func=self.species_cell_data_func,
                                match_func=self.species_match_func)
@@ -630,7 +630,7 @@ class AccessionEditorView(GenericEditorView):
 # same for geographic accuracy
 # TODO: should show an error if something other than a number is entered in
 # the altitude entry
-class CollectionPresenter(GenericEditorPresenter):
+class CollectionPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'collector_entry': 'collector',
                            'coll_date_entry': 'date',
@@ -648,54 +648,49 @@ class CollectionPresenter(GenericEditorPresenter):
 
     # TODO: could make the problems be tuples of an id and description to
     # be displayed in a dialog or on a label ala eclipse
-    PROBLEM_BAD_LATITUDE = random()
-    PROBLEM_BAD_LONGITUDE = random()
-    PROBLEM_INVALID_DATE = random()
-    PROBLEM_INVALID_LOCALE = random()
+    PROBLEM_BAD_LATITUDE = str(random())
+    PROBLEM_BAD_LONGITUDE = str(random())
+    PROBLEM_INVALID_DATE = str(random())
+    PROBLEM_INVALID_LOCALE = str(random())
 
     def __init__(self, parent, model, view, session):
-        GenericEditorPresenter.__init__(self, model, view)
+        super(CollectionPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
         self.refresh_view()
 
         self.assign_simple_handler('collector_entry', 'collector',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('locale_entry', 'locale',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('collid_entry', 'collectors_code',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('geoacc_entry', 'geo_accy',
-                                   IntOrNoneStringValidator())
+                                   editor.IntOrNoneStringValidator())
         self.assign_simple_handler('alt_entry', 'elevation',
-                                   FloatOrNoneStringValidator())
+                                   editor.FloatOrNoneStringValidator())
         self.assign_simple_handler('altacc_entry', 'elevation_accy',
-                                   FloatOrNoneStringValidator())
+                                   editor.FloatOrNoneStringValidator())
         self.assign_simple_handler('habitat_textview', 'habitat',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('coll_notes_textview', 'notes',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         # the list of completions are added in AccessionEditorView.__init__
         def on_match(completion, model, iter, data=None):
             value = model[iter][0]
-            validator = UnicodeOrNoneValidator()
+            validator = editor.UnicodeOrNoneValidator()
             self.set_model_attr('gps_data', value, validator)
             completion.get_entry().set_text(value)
         completion = self.view.widgets.datum_entry.get_completion()
         self.view.connect(completion, 'match-selected', on_match)
         self.assign_simple_handler('datum_entry', 'gps_datum',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
 
-        self.view.connect('lat_entry', 'insert-text', self.on_lat_entry_insert)
-        self.view.connect('lat_entry', 'delete-text', self.on_lat_entry_delete)
+        self.view.connect('lat_entry', 'changed', self.on_lat_entry_changed)
+        self.view.connect('lon_entry', 'changed', self.on_lon_entry_changed)
 
-        self.view.connect('lon_entry', 'insert-text', self.on_lon_entry_insert)
-        self.view.connect('lon_entry', 'delete-text', self.on_lon_entry_delete)
-
-        self.view.connect('coll_date_entry', 'insert-text',
-                          self.on_date_entry_insert)
-        self.view.connect('coll_date_entry', 'delete-text',
-                          self.on_date_entry_delete)
+        self.view.connect('coll_date_entry', 'changed',
+                          self.on_date_entry_changed)
 
         utils.setup_date_button(self.view.widgets.coll_date_entry,
                                 self.view.widgets.coll_date_button)
@@ -780,21 +775,8 @@ class CollectionPresenter(GenericEditorPresenter):
             self.view.widgets.datum_entry.set_sensitive(False)
 
 
-    def on_date_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_date_from_text(full_text)
-
-
-    def on_date_entry_delete(self, entry, start, end, data=None):
+    def on_date_entry_changed(self, entry, data=None):
         text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_date_from_text(full_text)
-
-
-    def _set_date_from_text(self, text):
         if text == '':
             self.set_model_attr('date', None)
             self.remove_problem(self.PROBLEM_INVALID_DATE,
@@ -892,30 +874,11 @@ class CollectionPresenter(GenericEditorPresenter):
         raise ValueError(_('East/West radio buttons in a confused state'))
 
 
-    def on_lat_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
-        '''
-        insert handler for lat_entry
-        '''
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_latitude_from_text(full_text)
-
-
-    def on_lat_entry_delete(self, entry, start, end, data=None):
-        '''
-        delete handler for lat_entry
-        '''
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_latitude_from_text(full_text)
-
-
-    def _set_latitude_from_text(self, text):
+    def on_lat_entry_changed(self, entry, date=None):
         '''
         set the latitude value from text
         '''
+        text = entry.get_text()
         latitude = None
         dms_string = ''
         try:
@@ -944,21 +907,8 @@ class CollectionPresenter(GenericEditorPresenter):
         self.view.widgets.lat_dms_label.set_text(dms_string)
 
 
-    def on_lon_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_longitude_from_text(full_text)
-
-
-    def on_lon_entry_delete(self, entry, start, end, data=None):
+    def on_lon_entry_changed(self, entry, data=None):
         text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_longitude_from_text(full_text)
-
-
-    def _set_longitude_from_text(self, text):
         longitude = None
         dms_string = ''
         try:
@@ -987,7 +937,7 @@ class CollectionPresenter(GenericEditorPresenter):
 
 
 # TODO: make the donor_combo insensitive if the model is empty
-class DonationPresenter(GenericEditorPresenter):
+class DonationPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'donor_combo': 'donor',
                            'donid_entry': 'donor_acc',
@@ -1000,7 +950,7 @@ class DonationPresenter(GenericEditorPresenter):
         """
         @param parent: the parent AccessionEditorPresenter
         """
-        GenericEditorPresenter.__init__(self, model, view)
+        super(DonationPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
 
@@ -1017,9 +967,9 @@ class DonationPresenter(GenericEditorPresenter):
         self.view.connect('donor_combo', 'changed',
                           self.on_donor_combo_changed)
         self.assign_simple_handler('donid_entry', 'donor_acc',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('donnotes_entry', 'notes',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.view.connect('don_date_entry', 'insert-text',
                           self.on_date_entry_insert)
         self.view.connect('don_date_entry', 'delete-text',
@@ -1170,7 +1120,7 @@ class DonationPresenter(GenericEditorPresenter):
 
 
 
-class AccessionEditorPresenter(GenericEditorPresenter):
+class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'acc_code_entry': 'code',
                            'acc_id_qual_combo': 'id_qual',
@@ -1195,7 +1145,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         @param model: an instance of class Accession
         @param view: an instance of AccessionEditorView
         '''
-        GenericEditorPresenter.__init__(self, model, view)
+        super(AccessionEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
         self._original_source = self.model.source
         self._original_code = self.model.code
@@ -1246,8 +1196,37 @@ class AccessionEditorPresenter(GenericEditorPresenter):
                                          ilike(Genus.genus, '%s%%' % genus))))
 
         def on_select(value):
-            self.set_model_attr('species', value)
-            self.refresh_id_qual_rank_combo()
+            def set_model(v):
+                self.set_model_attr('species', v)
+                self.refresh_id_qual_rank_combo()
+            for kid in self.view.widgets.message_box_parent.get_children():
+                self.view.widgets.remove_parent(kid)
+            set_model(value)
+            if not value:
+                return
+            syn = self.session.query(SpeciesSynonym).\
+                filter(SpeciesSynonym.synonym_id == value.id).first()
+            if not syn:
+                set_model(value)
+                return
+            msg = _('The species <b>%(synonym)s</b> is a synonym of '\
+                        '<b>%(species)s</b>.\n\nWould you like to choose '\
+                        '<b>%(species)s</b> instead?' \
+                        % {'synonym': syn.synonym, 'species': syn.species})
+            message_box = None
+            def on_response(button, response):
+                self.view.widgets.remove_parent(message_box)
+                if response:
+                    self.view.widgets.acc_species_entry.\
+                        set_text(utils.utf8(syn.species))
+                    set_model(syn.species)
+                else:
+                    set_model(value)
+            message_box = editor.YesNoBox(msg, on_response=on_response)
+            self.view.widgets.message_box_parent.pack_start(message_box)
+            message_box.animate()
+
+
         self.assign_completions_handler('acc_species_entry',
                                         sp_get_completions,
                                         on_select=on_select)
@@ -1259,24 +1238,16 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         # to assign_simple_handler...UPDATE: but can the validator handle
         # adding a problem to the widget...if we passed it the widget it
         # could
-        self.view.connect('acc_code_entry', 'insert-text',
-                          self.on_acc_code_entry_insert)
-        self.view.connect('acc_code_entry', 'delete-text',
-                          self.on_acc_code_entry_delete)
+        self.view.connect('acc_code_entry', 'changed',
+                          self.on_acc_code_entry_changed)
         self.assign_simple_handler('acc_notes_textview', 'notes',
-                                   UnicodeOrNoneValidator())
-
-        acc_date_entry = self.view.widgets.acc_date_entry
-        self.view.connect('acc_date_entry',
-                          'insert-text', self.on_acc_date_entry_insert)
-        self.view.connect('acc_date_entry',
-                          'delete-text', self.on_acc_date_entry_delete)
-
-        utils.setup_date_button(acc_date_entry,
+                                   editor.UnicodeOrNoneValidator())
+        self.view.connect('acc_date_entry', 'changed',
+                          self.on_acc_date_entry_changed)
+        utils.setup_date_button(self.view.widgets.acc_date_entry,
                                 self.view.widgets.acc_date_button)
-
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
-                                   UnicodeOrNoneValidator())
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
         self.__dirty = False
         self.refresh_sensitivity()
@@ -1321,27 +1292,8 @@ class AccessionEditorPresenter(GenericEditorPresenter):
         return self.source_presenter.dirty() or self.__dirty
 
 
-    def on_acc_code_entry_insert(self, entry, new_text, new_text_length,
-                                 position, data=None):
-        """
-        insert-text callback for acc_code widget
-        """
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_acc_code_from_text(full_text)
-
-
-    def on_acc_code_entry_delete(self, entry, start, end, data=None):
-        """
-        delete-text callback for acc_code widget
-        """
+    def on_acc_code_entry_changed(self, entry, data=None):
         text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_acc_code_from_text(full_text)
-
-
-    def _set_acc_code_from_text(self, text):
         query = self.session.query(Accession)
         if text != self._original_code \
                and query.filter_by(code=unicode(text)).count()>0:
@@ -1357,29 +1309,9 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
 
-    def on_acc_date_entry_insert(self, entry, new_text, new_text_length,
-                                 position, data=None):
-        """
-        insert-text call back for acc_date widget
-        """
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_acc_date_from_text(full_text)
-
-
-    def on_acc_date_entry_delete(self, entry, start, end, data=None):
-        """
-        delete-text call back for acc_date_widget
-        """
+    def on_acc_date_entry_changed(self, entry, data=None):
         text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_acc_date_from_text(full_text)
-
-
-    def _set_acc_date_from_text(self, text):
-        """
-        """
+        #debug('acc_date_entry: %s' % text)
         if text == '':
             self.model.date = None
             self.remove_problem(self.PROBLEM_INVALID_DATE,
@@ -1395,7 +1327,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
         except Exception:
-#            debug(traceback.format_exc())
+            #debug(traceback.format_exc())
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.acc_date_entry)
 
@@ -1575,7 +1507,7 @@ class AccessionEditorPresenter(GenericEditorPresenter):
 
 
 
-class AccessionEditor(GenericModelViewPresenterEditor):
+class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
     label = _('Accession')
     mnemonic_label = _('_Accession')
@@ -1596,7 +1528,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -1734,7 +1666,7 @@ class AccessionEditor(GenericModelViewPresenterEditor):
 
 # import at the bottom to avoid circular dependencies
 from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species
+from bauble.plugins.plants.species_model import Species, SpeciesSynonym
 from bauble.plugins.garden.donor import Donor, DonorEditor
 
 #
