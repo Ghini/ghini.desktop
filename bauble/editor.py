@@ -108,6 +108,103 @@ def default_completion_match_func(completion, key_string, iter):
 
 
 
+class GenericMessageBox(gtk.EventBox):
+    """
+    Abstract class for showing a message box at the top of an editor.
+    """
+    def __init__(self):
+        super(GenericMessageBox, self).__init__()
+        self.box = gtk.HBox()
+        self.box.set_spacing(10)
+        self.add(self.box)
+
+
+    def set_color(self, attr, state, color):
+        colormap = self.get_colormap()
+        style = self.get_style().copy()
+        c = colormap.alloc_color(color)
+        getattr(style, attr)[state] = c
+        # is it ok to set the style the expander and button even
+        # though the style was copied from the eventbox
+        self.set_style(style)
+        return style
+
+
+    def animate(self):
+        self.show_all()
+        width, height = self.size_request()
+        self.set_size_request(width, 0)
+        def _timeout_cb(final_height):
+            width, height = self.size_request()
+            if height >= final_height:
+                return False
+            height = height + 7
+            self.set_size_request(width, height)
+            return True
+        gobject.timeout_add(50, _timeout_cb, height)
+
+
+
+class MessageBox(GenericMessageBox):
+    """
+    A MessageBox that can display a message label at the top of an editor.
+    """
+
+    def __init__(self, msg):
+        super(MessageBox, self).__init__()
+        label = gtk.Label()
+        label.set_markup(msg)
+        label.set_alignment(.1, .1)
+        self.box.pack_start(label, expand=True, fill=True)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        button = gtk.Button(stock=gtk.STOCK_CLOSE)
+        button_box.pack_start(button, expand=False, fill=False)
+
+        def on_close(*args):
+            parent = self.get_parent()
+            if parent is not None:
+                parent.remove(self)
+        button.connect('clicked', on_close, True)
+
+        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
+        for color in colors:
+            self.set_color(*color)
+
+
+class YesNoBox(GenericMessageBox):
+    """
+    A message box that can present a Yes or No question to the user
+    """
+
+    def __init__(self, msg, on_response):
+        super(YesNoBox, self).__init__()
+        label = gtk.Label()
+        label.set_markup(msg)
+        label.set_alignment(.1, .1)
+        self.box.pack_start(label, expand=True, fill=True)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        button = gtk.Button(stock=gtk.STOCK_YES)
+        button.connect('clicked', on_response, True)
+        button_box.pack_start(button, expand=False, fill=False)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        button = gtk.Button(stock=gtk.STOCK_NO)
+        button.connect('clicked', on_response, False)
+        button_box.pack_start(button, expand=False, fill=False)
+
+        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
+        for color in colors:
+            self.set_color(*color)
+
+
+
 class GenericEditorView(object):
     """
     An generic object meant to be extended to provide the view for a
@@ -225,7 +322,8 @@ class GenericEditorView(object):
 
     def on_window_delete(self, window, event=None):
         """
-        Called when the window return by get_window() receives the delete event.
+        Called when the window return by get_window() receives the
+        delete event.
         """
         window.hide()
         return False
@@ -322,59 +420,6 @@ class DontCommitException(Exception):
     pass
 
 
-# TODO: could use this to add to the problem list and it could give us more
-# information about a problem and could have a unique id we could use to
-# compare with
-#class Problem:
-#
-#    def __init__(self, name, description):
-#        id = some random number
-#        pass
-#
-#    def __cmp__(self, other):
-#        pass
-
-class Problems(object):
-
-    def __init__(self):
-        self._problems = []
-
-
-    def add(self, problem):
-        '''
-        :param problem: the problem to add
-        '''
-        self._problems.append(problem)
-
-
-    def remove(self, problem):
-        '''
-        :param problem: the problem to remove
-
-        NOTE: If the problem does not exist then there is no change
-        and no error.
-        '''
-        while problem in self._problems:
-            self._problems.remove(problem)
-
-
-    def __contains__(self, problem):
-        return problem in self._problems
-
-
-    def __len__(self):
-        '''
-        Return the number of problems
-        '''
-        return len(self._problems)
-
-
-    def __str__(self):
-        '''
-        Return a string of the list of problems
-        '''
-        return str(self._problems)
-
 
 class GenericEditorPresenter(object):
     """
@@ -395,7 +440,7 @@ class GenericEditorPresenter(object):
         widget_model_map = {}
         self.model = model
         self.view = view
-        self.problems = Problems()
+        self.problems = set()
 
 
     # whether the presenter should be commited or not
@@ -409,6 +454,11 @@ class GenericEditorPresenter(object):
         raise NotImplementedError
 
 
+    def clear_problems(self):
+        tmp = self.problems.copy()
+        map(lambda p: self.remove_problem(p[0], p[1]), tmp)
+        self.problems.clear()
+
 
     def remove_problem(self, problem_id, problem_widgets=None):
         """
@@ -418,16 +468,24 @@ class GenericEditorPresenter(object):
         :param problem_id:
         :param problem_widgets:
         """
-        self.problems.remove(problem_id)
-        if isinstance(problem_widgets, (tuple, list)):
-            for w in problem_widgets:
-                w.modify_bg(gtk.STATE_NORMAL, None)
-                w.modify_base(gtk.STATE_NORMAL, None)
-                w.queue_draw()
-        elif problem_widgets is not None:
-            problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
-            problem_widgets.modify_base(gtk.STATE_NORMAL, None)
-            problem_widgets.queue_draw()
+        if not problem_widgets:
+            tmp = self.problems.copy()
+            for p, w in tmp:
+                self.problems.remove((p, w))
+            return
+        elif isinstance(problem_widgets, (list, tuple)):
+            # call remove_problem() on each item in problem_widgets
+            map(lambda w: self.remove_problem(problem_id, w), problem_widgets)
+            return
+
+        try:
+            while True:
+                self.problems.remove((problem_id, problem_widgets))
+                problem_widgets.modify_bg(gtk.STATE_NORMAL, None)
+                problem_widgets.modify_base(gtk.STATE_NORMAL, None)
+                problem_widgets.queue_draw()
+        except KeyError:
+            pass
 
 
     def add_problem(self, problem_id, problem_widgets=None):
@@ -441,16 +499,15 @@ class GenericEditorPresenter(object):
         :param problem_id:
         :param problem_widgets:
         """
-        self.problems.add(problem_id)
         if isinstance(problem_widgets, (tuple, list)):
-            for w in problem_widgets:
-                w.modify_bg(gtk.STATE_NORMAL, self.problem_color)
-                w.modify_base(gtk.STATE_NORMAL, self.problem_color)
-                w.queue_draw()
-        elif problem_widgets is not None:
+            map(lambda w: self.add_problem(problem_id, w), problem_widgets)
+
+        self.problems.add((problem_id, problem_widgets))
+        if problem_widgets:
             problem_widgets.modify_bg(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.modify_base(gtk.STATE_NORMAL, self.problem_color)
             problem_widgets.queue_draw()
+
 
 
     def init_enum_combo(self, widget_name, field):
@@ -484,12 +541,12 @@ class GenericEditorPresenter(object):
         rather than setting them directly.  Derived classes can
         override this method to take action when the model changes.
         """
-        if validator is not None:
+        if validator:
             try:
                 value = validator.to_python(value)
-                self.problems.remove('BAD_VALUE_%s' % attr)
+                self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError, e:
-                self.problems.add('BAD_VALUE_%s' % attr)
+                self.add_problem('BAD_VALUE_%s' % attr)
                 value = None # make sure the value in the model is reset
         setattr(self.model, attr, value)
 
@@ -502,35 +559,14 @@ class GenericEditorPresenter(object):
         check(widget is not None, _('no widget with name %s') % widget_name)
 
         if isinstance(widget, gtk.Entry):
-            def insert(entry, new_text, new_text_length, position):
-                entry_text = entry.get_text()
-                pos = entry.get_position()
-                full_text = entry_text[:pos] + new_text + entry_text[pos:]
-                self.set_model_attr(model_attr, full_text, validator)
-            def delete(entry, start, end, data=None):
-                text = entry.get_text()
-                full_text = text[:start] + text[end:]
-                self.set_model_attr(model_attr, full_text, validator)
-            self.view.connect(widget_name, 'insert-text', insert)
-            self.view.connect(widget_name, 'delete-text', delete)
+            def on_changed(entry):
+                self.set_model_attr(model_attr, entry.props.text, validator)
+            self.view.connect(widget, 'changed', on_changed)
         elif isinstance(widget, gtk.TextView):
-            def insert(buffer, iter, new_text, length, data=None):
-                buff_text = buffer.get_text(buffer.get_start_iter(),
-                                            buffer.get_end_iter())
-                text_start = buffer.get_text(buffer.get_start_iter(), iter)
-                text_end = buffer.get_text(iter, buffer.get_end_iter())
-                full_text = ''.join((text_start, new_text, text_end))
-                self.set_model_attr(model_attr, full_text, validator)
-            def delete(buffer, start_iter, end_iter, data=None):
-                start = start_iter.get_offset()
-                end = end_iter.get_offset()
-                text = buffer.get_text(buffer.get_start_iter(),
-                                       buffer.get_end_iter())
-                new_text = text[:start] + text[end:]
-                self.set_model_attr(model_attr, new_text, validator)
+            def on_changed(textbuff):
+                self.set_model_attr(model_attr, textbuff.props.text, validator)
             buff = widget.get_buffer()
-            self.view.connect(buff, 'insert-text', insert)
-            self.view.connect(buff, 'delete-range', delete)
+            self.view.connect(buff, 'changed', on_changed)
         elif isinstance(widget, gtk.ComboBox):
             def changed(combo, data=None):
                 model = combo.get_model()
@@ -611,8 +647,6 @@ class GenericEditorPresenter(object):
                     v = comp.get_model()[found[0]][0]
                     #debug('found: %s'  % str(v))
                     comp.emit('match-selected', comp.get_model(), found[0])
-                    on_select(comp_model[found[0]][0])
-                    #self.remove_problem(PROBLEM, entry)
 
             if text != '' and not found and PROBLEM not in self.problems:
                 self.add_problem(PROBLEM, widget)
@@ -637,7 +671,7 @@ class GenericEditorPresenter(object):
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
             #debug('on_match_select(): %s' % value)
-            widget.set_text(utils.utf8(value))
+            widget.props.text = utils.utf8(value)
             widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
@@ -662,6 +696,7 @@ class GenericEditorPresenter(object):
 
         By default it only calls self.view.cleanup()
         """
+        self.clear_problems()
         self.view.cleanup()
 
 
