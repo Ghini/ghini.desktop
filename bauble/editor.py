@@ -131,6 +131,7 @@ class GenericMessageBox(gtk.EventBox):
 
 
     def animate(self):
+        # TODO: this animation should more smoother
         self.show_all()
         width, height = self.size_request()
         self.set_size_request(width, 0)
@@ -141,7 +142,7 @@ class GenericMessageBox(gtk.EventBox):
             height = height + 7
             self.set_size_request(width, height)
             return True
-        gobject.timeout_add(50, _timeout_cb, height)
+        gobject.timeout_add(20, _timeout_cb, height)
 
 
 
@@ -159,8 +160,11 @@ class MessageBox(GenericMessageBox):
 
         button_box = gtk.VBox()
         self.box.pack_start(button_box, expand=False, fill=False)
-        button = gtk.Button(stock=gtk.STOCK_CLOSE)
-        button_box.pack_start(button, expand=False, fill=False)
+        button = gtk.Button()
+        image = gtk.Image()
+        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
+        button.props.image = image
+        button_box.pack_start(button, expand=True, fill=False)
 
         def on_close(*args):
             parent = self.get_parent()
@@ -168,6 +172,11 @@ class MessageBox(GenericMessageBox):
                 parent.remove(self)
         button.connect('clicked', on_close, True)
 
+        # TODO: should we place nice with themes? should get the theme
+        # color and make the message box a little brighter than the
+        # theme. the normal button color should be the same as the
+        # theme but it should have a border and be a little lighter on
+        # hover
         colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
                   ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
         for color in colors:
