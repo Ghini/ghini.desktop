@@ -48,6 +48,11 @@ class TemplateFormatterSettingsBox(SettingsBox):
 
 
 class TemplateFormatterPlugin(FormatterPlugin):
+    """
+    The TemplateFormatterPlugins passes the values in the search
+    results directly to a Mako template.  It is up to the template
+    author to validate the type of the values and act accordingly if not.
+    """
 
     title = _('Template')
 
@@ -65,12 +70,9 @@ class TemplateFormatterPlugin(FormatterPlugin):
             utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(filename=template_filename)
-
-        # TODO: provide the option to get the objects as either plants
-        # or directly as they appear in the search results
         session = bauble.Session()
-        plants = get_all_plants(objs, session)
-        report = template.render(plants=plants)
+        values = map(session.merge, objs)
+        report = template.render(values=values)
         session.close()
         # assume the template is the same file type as the output file
         head, ext = os.path.splitext(template_filename)
