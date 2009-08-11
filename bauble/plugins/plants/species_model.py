@@ -360,14 +360,12 @@ class SpeciesSynonym(db.Base):
     :Table name: species_synonym
     """
     __tablename__ = 'species_synonym'
-    __table_args__ = (UniqueConstraint('species_id', 'synonym_id',
-                                       name='species_synonym_index'))
 
     # columns
     species_id = Column(Integer, ForeignKey('species.id'),
                         nullable=False)
     synonym_id = Column(Integer, ForeignKey('species.id'),
-                        nullable=False)
+                        nullable=False, unique=True)
 
     # relations
     synonym = relation('Species', uselist=False,
