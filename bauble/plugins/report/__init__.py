@@ -597,10 +597,13 @@ class ReportTool(pluginmgr.Tool):
 
             utils.message_details_dialog(str(e), traceback.format_exc(),
                                          gtk.MESSAGE_ERROR, parent=parent)
-        except Exception:
+        except Exception, e:
             debug(traceback.format_exc())
-            utils.message_details_dialog(_('Formatting Error'),
-                                     traceback.format_exc(), gtk.MESSAGE_ERROR)
+            utils.message_details_dialog(_('Formatting Error\n\n' \
+                                               '%(exception)s') % \
+                                             {"exception": utils.utf8(e)},
+                                         traceback.format_exc(),
+                                         gtk.MESSAGE_ERROR)
         bauble.set_busy(False)
         return
 
