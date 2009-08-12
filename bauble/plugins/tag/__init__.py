@@ -417,9 +417,10 @@ def _on_add_tag_activated(*args):
         # tag but not all of them
         tagitem = TagItemGUI(values)
         tagitem.start()
-    #lse:
-        #ig = 'Not a SearchView'
-        #tils.message_dialog(msg)
+    else:
+        msg = _('In order to tag an item you must first search for ' \
+                    'something and select one of the results.')
+        bauble.gui.show_message_box(msg)
 
 
 def _tag_menu_item_activated(widget, tag_name):
