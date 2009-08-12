@@ -8,8 +8,14 @@ import os
 import sys
 
 # TODO: we could just have setup or whatever create a file in the lib
-# directory that tells us where all the other directories are but how do we
-# know where the lib directory is
+# directory that tells us where all the other directories are but this
+# would make the program non-relocatable whereas this approach allows
+# us to be more dynamic about it...except that where it doesn't work,
+# e.g. if the locale files are installed anywhere except
+# /usr/share/locale...the other side of the coin is just make this the
+# packagers problem, i.e make the packagers patch this file although
+# this kinds sucks b/c it just pushes the problem onto someone else,
+# it also doesn't really solve things like virtualenv installs
 
 def main_is_frozen():
     """

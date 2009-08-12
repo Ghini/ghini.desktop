@@ -466,7 +466,6 @@ class UsersEditor(editor.GenericEditorView):
         tree = self.widgets.users_tree
         column = tree.get_column(0)
         cell = column.get_cell_renderers()[0]
-        width, height = cell.get_fixed_size()
         model = tree.get_model()
         treeiter = model.append([self.new_user_message])
         path = model.get_path(treeiter)

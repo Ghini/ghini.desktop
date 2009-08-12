@@ -298,5 +298,6 @@ if not options.dryrun:
     conn = dbapi.connect(' '.join(connect_args))
 
 commands[cmd].run()
-conn.close()
+if not options.dryrun:
+    conn.close()
 
