@@ -333,18 +333,20 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
                         '<b>%(family)s</b>.\n\nWould you like to choose '\
                         '<b>%(family)s</b> instead?' \
                         % {'synonym': syn.synonym, 'family': syn.family})
-            message_box = None
+            box = None
             def on_response(button, response):
-                self.view.widgets.remove_parent(message_box)
+                self.view.widgets.remove_parent(box)
                 if response:
                     self.view.widgets.gen_family_entry.\
                         set_text(utils.utf8(syn.family))
                     self.set_model_attr('family', syn.family)
                 else:
                     self.set_model_attr('family', value)
-            message_box = editor.YesNoBox(msg, on_response=on_response)
-            self.view.widgets.message_box_parent.pack_start(message_box)
-            message_box.animate()
+            box = utils.add_message_box(self.view.widgets.message_box_parent,
+                                        utils.MESSAGE_BOX_YESNO)
+            box.message = msg
+            box.on_response = on_response
+            box.show()
 
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
