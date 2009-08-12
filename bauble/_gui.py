@@ -126,9 +126,6 @@ class GUI(object):
         for kid in self.widgets.msg_box_parent:
             parent.remove(kid)
         return
-        # TODO: reverse animate?
-        eb = self.widgets.msg_eventbox.hide()
-        self.widgets.msg_details_expander.set_expanded(False)
 
 
     def show_yesno_box(self, msg):
