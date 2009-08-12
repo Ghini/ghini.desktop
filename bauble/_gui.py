@@ -21,212 +21,6 @@ from bauble.view import SearchView
 import bauble.error as err
 
 
-class GenericMessageBox(gtk.EventBox):
-    """
-    Abstract class for showing a message box at the top of an editor.
-    """
-    def __init__(self):
-        super(GenericMessageBox, self).__init__()
-        self.box = gtk.HBox()
-        self.box.set_spacing(10)
-        self.add(self.box)
-
-
-    def set_color(self, attr, state, color):
-        colormap = self.get_colormap()
-        style = self.get_style().copy()
-        c = colormap.alloc_color(color)
-        getattr(style, attr)[state] = c
-        # is it ok to set the style the expander and button even
-        # though the style was copied from the eventbox
-        self.set_style(style)
-        return style
-
-
-    def show_all(self):
-        self.get_parent().show_all()
-        self.box.show()
-        width, height = self.size_request()
-        self.set_size_request(width, height+10)
-
-
-    def show(self):
-        self.show_all()
-
-
-    def animate(self):
-        # TODO: this animation should be smoother
-        width, height = self.size_request()
-        self.set_size_request(width, 0)
-        import time
-        self.last_time = time.time()
-        def _animate_cb(final_height):
-            height = 0
-            while height < final_height:
-                width, height = self.size_request()
-                height = height + 1
-                self.set_size_request(width, height)
-                self.queue_resize()
-                while gtk.events_pending():
-                    gtk.main_iteration(False)
-            debug('return False')
-            return False
-        #gobject.timeout_add(8, _animate_cb, height)
-        gobject.idle_add(_animate_cb, height)
-
-
-
-class MessageBox(GenericMessageBox):
-    """
-    A MessageBox that can display a message label at the top of an editor.
-    """
-
-    def __init__(self, msg=None, details=None):
-        super(MessageBox, self).__init__()
-        self.vbox = gtk.VBox()
-        self.box.pack_start(self.vbox)
-
-        self.label = gtk.Label()
-        if msg:
-            self.label.set_markup(msg)
-        self.label.set_alignment(.1, .1)
-        self.vbox.pack_start(self.label, expand=True, fill=True)
-
-        button_box = gtk.VBox()
-        self.box.pack_start(button_box, expand=False, fill=False)
-        button = gtk.Button()
-        image = gtk.Image()
-        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
-        button.props.image = image
-        button.set_relief(gtk.RELIEF_NONE)
-        button_box.pack_start(button, expand=False, fill=False)
-
-        self.details_expander = gtk.Expander(_('Show details'))
-        self.vbox.pack_start(self.details_expander)
-        self.details_label = gtk.Label()
-        self.details = details
-        self.details_expander.add(self.details_label)
-
-        def on_expanded(*args):
-            width, height = self.size_request()
-            self.set_size_request(width, -1)
-            self.queue_resize()
-        self.details_expander.connect('notify::expanded', on_expanded)
-
-        def on_close(*args):
-            parent = self.get_parent()
-            if parent is not None:
-                parent.remove(self)
-        button.connect('clicked', on_close, True)
-
-        # TODO: should we place nice with themes? should get the theme
-        # color and make the message box a little brighter than the
-        # theme. the normal button color should be the same as the
-        # theme but it should have a border and be a little lighter on
-        # hover
-        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
-                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
-        for color in colors:
-            self.set_color(*color)
-
-
-    def show_all(self):
-        super(MessageBox, self).show_all()
-        self.box.show_all()
-        if not self.details_label.get_text():
-            self.details_expander.hide()
-
-
-    def _get_message(self, msg):
-        return self.label.text
-    def _set_message(self, msg):
-        if msg:
-            self.label.set_markup(msg)
-        else:
-            self.label.set_markup('')
-    message = property(_get_message, _set_message)
-
-
-    def _get_details(self, msg):
-        return self.details_label.text
-    def _set_details(self, msg):
-        if msg:
-            self.details_label.set_markup(msg)
-        else:
-            self.details_label.set_markup('')
-    details = property(_get_details, _set_details)
-
-
-class YesNoMessageBox(GenericMessageBox):
-    """
-    A message box that can present a Yes or No question to the user
-    """
-
-    def __init__(self, msg, on_response):
-        """
-        on_response: callback method when the yes or no buttons are
-        clicked.  The signature of the function should be
-        func(button, response) where response is True/False
-        depending on whether the user selected Yes or No, respectively.
-        """
-        super(YesNoBox, self).__init__()
-        label = gtk.Label()
-        label.set_markup(msg)
-        label.set_alignment(.1, .1)
-        self.box.pack_start(label, expand=True, fill=True)
-
-        button_box = gtk.VBox()
-        self.box.pack_start(button_box, expand=False, fill=False)
-        self.yes_button = gtk.Button(stock=gtk.STOCK_YES)
-        if on_response:
-            self.yes_button.connect('clicked', on_response, True)
-        button_box.pack_start(self.yes_button, expand=False, fill=False)
-
-        button_box = gtk.VBox()
-        self.box.pack_start(button_box, expand=False, fill=False)
-        self.no_button = gtk.Button(stock=gtk.STOCK_NO)
-        if on_response:
-            self.no_button.connect('clicked', on_response, False)
-        button_box.pack_start(self.no_button, expand=False, fill=False)
-
-        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
-                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
-        for color in colors:
-            self.set_color(*color)
-
-
-    def _set_on_response(self, func):
-        self.yes_button.connect('clicked', on_response, True)
-        self.no_button.connect('clicked', on_response, False)
-
-
-
-MESSAGE_BOX_INFO = 1
-MESSAGE_BOX_ERROR = 2
-MESSAGE_BOX_YES_NO = 3
-
-
-def add_message_box(parent, type):
-    """
-
-    Arguments:
-    - `parent`:
-    - `type`:
-    """
-    msg_box = None
-    if type == MESSAGE_BOX_INFO:
-        msg_box = MessageBox()
-    elif type == MESSAGE_BOX_ERROR:
-        msg_box = ErrorMessageBox()
-    elif type == MESSAGE_BOX_YES_NO:
-        msg_box = YesNoMessageBox()
-    else:
-        raise ValueError('unknown message box type: %s' % type)
-    parent.pack_start(msg_box)
-    return msg_box
-
-
-
 class DefaultView(pluginmgr.View):
     '''
     DefaultView is not related to view.DefaultCommandHandler
@@ -338,13 +132,15 @@ class GUI(object):
 
 
     def show_yesno_box(self, msg):
-        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_YESNO)
+        box = utils.add_message_box(self.widgets.msg_box_parent,
+                                    utils.MESSAGE_BOX_YESNO)
         box.message = msg
         box.show()
 
 
     def show_error_box(self, msg, details=None):
-        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_INFO)
+        box = utils.add_message_box(self.widgets.msg_box_parent,
+                                    utils.MESSAGE_BOX_INFO)
         box.message = msg
         box.details = details
         colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
@@ -358,7 +154,8 @@ class GUI(object):
         """
         Show an info message in the message drop down box
         """
-        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_INFO)
+        box = utils.add_message_box(self.widgets.msg_box_parent,
+                                    utils.MESSAGE_BOX_INFO)
         box.message = msg
         box.show()
         # colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
