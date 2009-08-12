@@ -1213,18 +1213,20 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                         '<b>%(species)s</b>.\n\nWould you like to choose '\
                         '<b>%(species)s</b> instead?' \
                         % {'synonym': syn.synonym, 'species': syn.species})
-            message_box = None
+            box = None
             def on_response(button, response):
-                self.view.widgets.remove_parent(message_box)
+                self.view.widgets.remove_parent(box)
                 if response:
                     self.view.widgets.acc_species_entry.\
                         set_text(utils.utf8(syn.species))
                     set_model(syn.species)
                 else:
                     set_model(value)
-            message_box = editor.YesNoBox(msg, on_response=on_response)
-            self.view.widgets.message_box_parent.pack_start(message_box)
-            message_box.animate()
+            box = utils.add_message_box(self.view.widgets.message_box_parent,
+                                        utils.MESSAGE_BOX_YESNO)
+            box.message = msg
+            box.on_response = on_response
+            box.show()
 
 
         self.assign_completions_handler('acc_species_entry',
