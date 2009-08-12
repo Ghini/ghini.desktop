@@ -58,11 +58,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                                                     self.view, self.session)
         self.refresh_view()
 
-        msg = ' thats \n all there \n is'
-        message_box = editor.MessageBox(msg)
-        self.view.widgets.message_box_parent.pack_start(message_box)
-        message_box.animate()
-
         # connect signals
         def gen_get_completions(text):
             clause = utils.ilike(Genus.genus, '%s%%' % unicode(text))
@@ -85,18 +80,20 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                         '<b>%(genus)s</b>.\n\nWould you like to choose '\
                         '<b>%(genus)s</b> instead?' \
                         % {'synonym': syn.synonym, 'genus': syn.genus})
-            message_box = None
+            box = None
             def on_response(button, response):
-                self.view.widgets.remove_parent(message_box)
+                self.view.widgets.remove_parent(box)
                 if response:
                     self.view.widgets.sp_genus_entry.\
                         set_text(utils.utf8(syn.genus))
                     self.set_model_attr('genus', syn.genus)
                 else:
                     self.set_model_attr('genus', value)
-            message_box = editor.YesNoBox(msg, on_response=on_response)
-            self.view.widgets.message_box_parent.pack_start(message_box)
-            message_box.animate()
+            box = utils.add_message_box(self.view.widgets.message_box_parent,
+                                        utils.MESSAGE_BOX_YESNO)
+            box.message = msg
+            box.on_response = on_response
+            box.show()
 
         self.assign_completions_handler('sp_genus_entry', #'genus',
                                         gen_get_completions,

@@ -1019,7 +1019,6 @@ class GenericMessageBox(gtk.EventBox):
 
     def show_all(self):
         self.get_parent().show_all()
-        self.box.show()
         width, height = self.size_request()
         self.set_size_request(width, height+10)
 
@@ -1062,6 +1061,7 @@ class MessageBox(GenericMessageBox):
 
         self.label = gtk.Label()
         if msg:
+            debug(msg)
             self.label.set_markup(msg)
         self.label.set_alignment(.1, .1)
         self.vbox.pack_start(self.label, expand=True, fill=True)
@@ -1106,7 +1106,6 @@ class MessageBox(GenericMessageBox):
 
     def show_all(self):
         super(MessageBox, self).show_all()
-        self.box.show_all()
         if not self.details_label.get_text():
             self.details_expander.hide()
 
@@ -1136,18 +1135,19 @@ class YesNoMessageBox(GenericMessageBox):
     A message box that can present a Yes or No question to the user
     """
 
-    def __init__(self, msg, on_response):
+    def __init__(self, msg=None, on_response=None):
         """
         on_response: callback method when the yes or no buttons are
         clicked.  The signature of the function should be
         func(button, response) where response is True/False
         depending on whether the user selected Yes or No, respectively.
         """
-        super(YesNoBox, self).__init__()
-        label = gtk.Label()
-        label.set_markup(msg)
-        label.set_alignment(.1, .1)
-        self.box.pack_start(label, expand=True, fill=True)
+        super(YesNoMessageBox, self).__init__()
+        self.label = gtk.Label()
+        if msg:
+            self.label.set_markup(msg)
+        self.label.set_alignment(.1, .1)
+        self.box.pack_start(self.label, expand=True, fill=True)
 
         button_box = gtk.VBox()
         self.box.pack_start(button_box, expand=False, fill=False)
@@ -1170,16 +1170,26 @@ class YesNoMessageBox(GenericMessageBox):
 
 
     def _set_on_response(self, func):
-        self.yes_button.connect('clicked', on_response, True)
-        self.no_button.connect('clicked', on_response, False)
+        self.yes_button.connect('clicked', func, True)
+        self.no_button.connect('clicked', func, False)
+    on_response = property(fset=_set_on_response)
+
+    def _get_message(self, msg):
+        return self.label.text
+    def _set_message(self, msg):
+        if msg:
+            self.label.set_markup(msg)
+        else:
+            self.label.set_markup('')
+    message = property(_get_message, _set_message)
 
 
 
 MESSAGE_BOX_INFO = 1
 MESSAGE_BOX_ERROR = 2
-MESSAGE_BOX_YES_NO = 3
+MESSAGE_BOX_YESNO = 3
 
-def add_message_box(parent, type):
+def add_message_box(parent, type=MESSAGE_BOX_INFO):
     """
 
     Arguments:
@@ -1191,7 +1201,7 @@ def add_message_box(parent, type):
         msg_box = MessageBox()
     elif type == MESSAGE_BOX_ERROR:
         msg_box = ErrorMessageBox()
-    elif type == MESSAGE_BOX_YES_NO:
+    elif type == MESSAGE_BOX_YESNO:
         msg_box = YesNoMessageBox()
     else:
         raise ValueError('unknown message box type: %s' % type)
