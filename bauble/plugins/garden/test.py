@@ -168,9 +168,9 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
     def tearDown(self):
-        self.session.delete(self.plant)
-        self.session.delete(self.accession)
-        self.session.delete(self.location)
+        #self.session.delete(self.plant)
+        #self.session.delete(self.accession)
+        #self.session.delete(self.location)
         self.session.commit()
         super(PlantTests, self).tearDown()
 
@@ -219,8 +219,9 @@ class PlantTests(GardenTestCase):
         # existing plant code is used in bulk mode
         widgets.plant_code_entry.set_text('1,' + rng)
         update_gui()
-        self.assert_(editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE in \
-                         editor.presenter.problems,
+        problem = (editor.presenter.PROBLEM_DUPLICATE_PLANT_CODE,
+                   editor.presenter.view.widgets.plant_code_entry)
+        self.assert_(problem in editor.presenter.problems,
                      'no problem added for duplicate plant code')
 
         # create multiple plant codes
@@ -249,7 +250,16 @@ class PlantTests(GardenTestCase):
         """
         Interactively test the PlantEditor
         """
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        for location in self.session.query(Location):
+            self.session.delete(location)
+        self.session.commit()
+
         editor = PlantEditor(model=self.plant)
+        # loc = Location(site='t')
+        # p = Plant(accession=self.accession, location=loc)
+        # editor = PlantEditor(model=p)
         editor.start()
         del editor
 
@@ -579,6 +589,9 @@ class AccessionTests(GardenTestCase):
         Interactively test the PlantEditor
         """
         donor = self.create(Donor, name=u'test')
+        sp2 = Species(genus=self.genus, sp=u'species')
+        sp2.synonyms.append(self.species)
+        self.session.add(sp2)
         self.session.commit()
         acc = self.create(Accession, species=self.species, code=u'1')
         prev = 0
