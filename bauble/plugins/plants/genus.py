@@ -336,6 +336,7 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
             box = None
             def on_response(button, response):
                 self.view.widgets.remove_parent(box)
+                box.destroy()
                 if response:
                     self.view.widgets.gen_family_entry.\
                         set_text(utils.utf8(syn.family))
