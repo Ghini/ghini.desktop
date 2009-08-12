@@ -83,6 +83,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
             box = None
             def on_response(button, response):
                 self.view.widgets.remove_parent(box)
+                box.destroy()
                 if response:
                     self.view.widgets.sp_genus_entry.\
                         set_text(utils.utf8(syn.genus))
