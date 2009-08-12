@@ -930,12 +930,12 @@ class SearchView(pluginmgr.View):
         except ParseException, err:
             error_msg = _('Error in search string at column %s') % err.column
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
-            debug(traceback.format_exc())
+            #debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
             error_details_msg = traceback.format_exc()
 
         if error_msg:
-            bauble.gui.error_msg(error_msg, error_details_msg)
+            bauble.gui.show_error_box(error_msg, error_details_msg)
             return
 
         # not error
