@@ -168,9 +168,6 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
     def tearDown(self):
-        #self.session.delete(self.plant)
-        #self.session.delete(self.accession)
-        #self.session.delete(self.location)
         self.session.commit()
         super(PlantTests, self).tearDown()
 
