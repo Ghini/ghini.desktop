@@ -16,9 +16,215 @@ import bauble.utils.desktop as desktop
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.utils.log import log, debug, warning
+from bauble.utils.log import log, debug, warning, error
 from bauble.view import SearchView
-import bauble.error as error
+import bauble.error as err
+
+
+class GenericMessageBox(gtk.EventBox):
+    """
+    Abstract class for showing a message box at the top of an editor.
+    """
+    def __init__(self):
+        super(GenericMessageBox, self).__init__()
+        self.box = gtk.HBox()
+        self.box.set_spacing(10)
+        self.add(self.box)
+
+
+    def set_color(self, attr, state, color):
+        colormap = self.get_colormap()
+        style = self.get_style().copy()
+        c = colormap.alloc_color(color)
+        getattr(style, attr)[state] = c
+        # is it ok to set the style the expander and button even
+        # though the style was copied from the eventbox
+        self.set_style(style)
+        return style
+
+
+    def show_all(self):
+        self.get_parent().show_all()
+        self.box.show()
+        width, height = self.size_request()
+        self.set_size_request(width, height+10)
+
+
+    def show(self):
+        self.show_all()
+
+
+    def animate(self):
+        # TODO: this animation should be smoother
+        width, height = self.size_request()
+        self.set_size_request(width, 0)
+        import time
+        self.last_time = time.time()
+        def _animate_cb(final_height):
+            height = 0
+            while height < final_height:
+                width, height = self.size_request()
+                height = height + 1
+                self.set_size_request(width, height)
+                self.queue_resize()
+                while gtk.events_pending():
+                    gtk.main_iteration(False)
+            debug('return False')
+            return False
+        #gobject.timeout_add(8, _animate_cb, height)
+        gobject.idle_add(_animate_cb, height)
+
+
+
+class MessageBox(GenericMessageBox):
+    """
+    A MessageBox that can display a message label at the top of an editor.
+    """
+
+    def __init__(self, msg=None, details=None):
+        super(MessageBox, self).__init__()
+        self.vbox = gtk.VBox()
+        self.box.pack_start(self.vbox)
+
+        self.label = gtk.Label()
+        if msg:
+            self.label.set_markup(msg)
+        self.label.set_alignment(.1, .1)
+        self.vbox.pack_start(self.label, expand=True, fill=True)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        button = gtk.Button()
+        image = gtk.Image()
+        image.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_BUTTON)
+        button.props.image = image
+        button.set_relief(gtk.RELIEF_NONE)
+        button_box.pack_start(button, expand=False, fill=False)
+
+        self.details_expander = gtk.Expander(_('Show details'))
+        self.vbox.pack_start(self.details_expander)
+        self.details_label = gtk.Label()
+        self.details = details
+        self.details_expander.add(self.details_label)
+
+        def on_expanded(*args):
+            width, height = self.size_request()
+            self.set_size_request(width, -1)
+            self.queue_resize()
+        self.details_expander.connect('notify::expanded', on_expanded)
+
+        def on_close(*args):
+            parent = self.get_parent()
+            if parent is not None:
+                parent.remove(self)
+        button.connect('clicked', on_close, True)
+
+        # TODO: should we place nice with themes? should get the theme
+        # color and make the message box a little brighter than the
+        # theme. the normal button color should be the same as the
+        # theme but it should have a border and be a little lighter on
+        # hover
+        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
+        for color in colors:
+            self.set_color(*color)
+
+
+    def show_all(self):
+        super(MessageBox, self).show_all()
+        self.box.show_all()
+        if not self.details_label.get_text():
+            self.details_expander.hide()
+
+
+    def _get_message(self, msg):
+        return self.label.text
+    def _set_message(self, msg):
+        if msg:
+            self.label.set_markup(msg)
+        else:
+            self.label.set_markup('')
+    message = property(_get_message, _set_message)
+
+
+    def _get_details(self, msg):
+        return self.details_label.text
+    def _set_details(self, msg):
+        if msg:
+            self.details_label.set_markup(msg)
+        else:
+            self.details_label.set_markup('')
+    details = property(_get_details, _set_details)
+
+
+class YesNoMessageBox(GenericMessageBox):
+    """
+    A message box that can present a Yes or No question to the user
+    """
+
+    def __init__(self, msg, on_response):
+        """
+        on_response: callback method when the yes or no buttons are
+        clicked.  The signature of the function should be
+        func(button, response) where response is True/False
+        depending on whether the user selected Yes or No, respectively.
+        """
+        super(YesNoBox, self).__init__()
+        label = gtk.Label()
+        label.set_markup(msg)
+        label.set_alignment(.1, .1)
+        self.box.pack_start(label, expand=True, fill=True)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        self.yes_button = gtk.Button(stock=gtk.STOCK_YES)
+        if on_response:
+            self.yes_button.connect('clicked', on_response, True)
+        button_box.pack_start(self.yes_button, expand=False, fill=False)
+
+        button_box = gtk.VBox()
+        self.box.pack_start(button_box, expand=False, fill=False)
+        self.no_button = gtk.Button(stock=gtk.STOCK_NO)
+        if on_response:
+            self.no_button.connect('clicked', on_response, False)
+        button_box.pack_start(self.no_button, expand=False, fill=False)
+
+        colors = [('bg', gtk.STATE_NORMAL, '#FFFFFF'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFFFFF')]
+        for color in colors:
+            self.set_color(*color)
+
+
+    def _set_on_response(self, func):
+        self.yes_button.connect('clicked', on_response, True)
+        self.no_button.connect('clicked', on_response, False)
+
+
+
+MESSAGE_BOX_INFO = 1
+MESSAGE_BOX_ERROR = 2
+MESSAGE_BOX_YES_NO = 3
+
+
+def add_message_box(parent, type):
+    """
+
+    Arguments:
+    - `parent`:
+    - `type`:
+    """
+    msg_box = None
+    if type == MESSAGE_BOX_INFO:
+        msg_box = MessageBox()
+    elif type == MESSAGE_BOX_ERROR:
+        msg_box = ErrorMessageBox()
+    elif type == MESSAGE_BOX_YES_NO:
+        msg_box = YesNoMessageBox()
+    else:
+        raise ValueError('unknown message box type: %s' % type)
+    parent.pack_start(msg_box)
+    return msg_box
+
 
 
 class DefaultView(pluginmgr.View):
@@ -70,7 +276,7 @@ class GUI(object):
         self.widgets.menu_box.pack_start(menubar)
 
         self.populate_main_entry()
-        main_entry = self.widgets.main_entry
+        main_entry = self.widgets.main_comboentry.child
 
 #        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
@@ -121,95 +327,43 @@ class GUI(object):
         self.cmd_parser = (cmd + StringEnd()) | (cmd + '=' + arg) | arg
 
 
-        def on_expanded(*args):
-            eb = self.widgets.msg_eventbox
-            width, height = eb.size_request()
-            eb.set_size_request(-1, -1)
-            eb.queue_resize()
-        self.widgets.msg_eventbox.hide()
-        self.widgets.msg_details_expander.connect('notify::expanded',
-                                                  on_expanded)
-        img = gtk.Image()
-        img.set_from_stock(gtk.STOCK_CLOSE, gtk.ICON_SIZE_SMALL_TOOLBAR)
-        button = self.widgets.msg_close_button
-        button.set_label('')
-        button.set_image(img)
-        button.set_relief(gtk.RELIEF_NONE)
-#         def on_enter(button, *args):
-#             debug(button)
-#             button.emit_stop_by_name('enter')
-#             button.stop_emission('enter')
-#             #button.emit_stop_by_name('enter-notify-event')
-#             #button.stop_emission('enter-notify-event')
-#             return True
-#         button.connect('enter', on_enter)
-        self.widgets.msg_close_button.connect('clicked', self.close_msg_box)
-
-
-    # TODO: need to handle the case where a message is added when
-    # another message already exists or the message box is in the
-    # middle of either opening or closing
-
-    def close_msg_box(self, *args):
+    def close_message_box(self, *args):
+        parent = self.widgets.msg_box_parent
+        for kid in self.widgets.msg_box_parent:
+            parent.remove(kid)
+        return
         # TODO: reverse animate?
         eb = self.widgets.msg_eventbox.hide()
         self.widgets.msg_details_expander.set_expanded(False)
 
 
-    def _msg_common(self, msg, colors):
-        """
-        Code common to message drop down box implementations like
-        info_msg() and error_msg()
-        """
-        eb = self.widgets.msg_eventbox
-        colormap = eb.get_colormap()
-        style = eb.get_style().copy()
-        for attr, state, color in colors:
-            c = colormap.alloc_color(color)
-            getattr(style, attr)[state] = c
-        # is it ok to set the style the expander and button even
-        # though the style was copied from the eventbox
-        eb.set_style(style)
-        self.widgets.msg_details_expander.set_style(style)
-        self.widgets.msg_close_button.set_style(style)
-        self.widgets.msg_label.set_text(msg)
+    def show_yesno_box(self, msg):
+        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_YESNO)
+        box.message = msg
+        box.show()
 
 
-    def info_msg(self, msg):
+    def show_error_box(self, msg, details=None):
+        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_INFO)
+        box.message = msg
+        box.details = details
+        colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
+                  ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
+        for color in colors:
+            box.set_color(*color)
+        box.show()
+
+
+    def show_message_box(self, msg):
         """
         Show an info message in the message drop down box
         """
-        colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
-        self._msg_common(msg, colors)
-        self.widgets.msg_eventbox.show()
-
-
-    def error_msg(self, msg, details=None):
-        """
-        Show an error message in the message drop down box with an optional
-        expander if there is anything in the details param.
-        """
-        colors = [('bg', gtk.STATE_NORMAL, '#FF9999'),
-                  ('bg', gtk.STATE_PRELIGHT, '#FFAAAA')]
-        self._msg_common(msg, colors)
-        eb = self.widgets.msg_eventbox
-
-        if not details:
-            self.widgets.msg_details_expander.set_property('visible', False)
-        else:
-            self.widgets.msg_details_expander.set_property('visible', True)
-            self.widgets.msg_details_label.set_text(details)
-        width, height = eb.size_request()
-        eb.set_size_request(width, 0)
-        eb.show()
-        def animate(final_height):
-            width, height = eb.size_request()
-            if height >= final_height:
-                return False
-            height = height + 7
-            eb.set_size_request(width, height)
-            return True
-        gobject.timeout_add(7, animate, height)
+        box = add_message_box(self.widgets.msg_box_parent, MESSAGE_BOX_INFO)
+        box.message = msg
+        box.show()
+        # colors = [('bg', gtk.STATE_NORMAL, '#b6daf2')]
+        # self._msg_common(msg, colors)
+        # self.widgets.msg_eventbox.show()
 
 
     def show(self):
@@ -236,7 +390,7 @@ class GUI(object):
 
 
     def send_command(self, command):
-        self.widgets.main_entry.set_text(command)
+        self.widgets.main_comboentry.child.set_text(command)
         self.widgets.go_button.emit("clicked")
 
 
@@ -247,8 +401,8 @@ class GUI(object):
     def on_go_button_clicked(self, widget):
         '''
         '''
-        self.close_msg_box()
-        text = self.widgets.main_entry.get_text()
+        self.close_message_box()
+        text = self.widgets.main_comboentry.child.get_text()
 	if text == '':
 	    return
         self.add_to_history(text)
@@ -294,11 +448,12 @@ class GUI(object):
         main_combo = self.widgets.main_comboentry
         model = main_combo.get_model()
         model.clear()
-        completion = self.widgets.main_entry.get_completion()
+        main_entry = self.widgets.main_comboentry.child
+        completion = main_entry.get_completion()
         if completion is None:
             completion = gtk.EntryCompletion()
             completion.set_text_column(0)
-            self.widgets.main_entry.set_completion(completion)
+            main_entry.set_completion(completion)
             compl_model = gtk.ListStore(str)
             completion.set_model(compl_model)
             completion.set_popup_completion(False)
@@ -332,8 +487,9 @@ class GUI(object):
 
 
     def set_default_view(self):
-        if self.widgets.main_entry is not None:
-            self.widgets.main_entry.set_text('')
+        main_entry = self.widgets.main_comboentry.child
+        if main_entry is not None:
+            main_entry.set_text('')
         self.set_view(DefaultView())
 
 
@@ -549,7 +705,9 @@ class GUI(object):
             utils.message_details_dialog(utils.xml_safe(str(e)),
                                          traceback.format_exc(),
                                          gtk.MESSAGE_ERROR)
-            debug(traceback.format_exc())
+            error('bauble.gui.on_insert_menu_item_activate():\n %s' \
+                      % traceback.format_exc())
+            return
 
         presenter_cls = view_cls = None
         if hasattr(editor, 'presenter'):
@@ -580,15 +738,15 @@ class GUI(object):
 
 
     def on_edit_menu_cut(self, widget, data=None):
-        self.widgets.main_entry.cut_clipboard()
+        self.widgets.main_comboentry.child.cut_clipboard()
 
 
     def on_edit_menu_copy(self, widget, data=None):
-        self.widgets.main_entry.copy_clipboard()
+        self.widgets.main_comboentry.child.copy_clipboard()
 
 
     def on_edit_menu_paste(self, widget, data=None):
-        self.widgets.main_entry.paste_clipboard()
+        self.widgets.main_comboentry.child.paste_clipboard()
 
 
     def on_file_menu_new(self, widget, data=None):
