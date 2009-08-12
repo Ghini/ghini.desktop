@@ -136,7 +136,7 @@ class Collection(db.Base):
     # names for completions but the same database can be opened with
     # different locales and show the localized names....might in this
     # case be better to create a country table instead of just the
-    # string column
+    # string column...google countrytransl.map
 
     #Column(Unicode(64)) # ISO country name
 

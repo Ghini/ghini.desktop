@@ -341,7 +341,6 @@ class SearchTests(BaubleTestCase):
         r = list(results)
         #debug(list(results))
 
-
         # TODO: create a query to test the =None statement, can't use
         # family.qualifier b/c its default value is ''
         s = 'genus where family.family=fam3 and family.qualifier=None'
@@ -369,12 +368,21 @@ class SearchTests(BaubleTestCase):
         # test where the column is ambiguous so make sure we choose
         # the right one, in this case we want to make sure we get the
         # qualifier on the family and not the genus
-        s = 'plant where accession.species.genus.family.family="Orchidaceae" and accession.species.genus.family.qualifier=""'
+        s = 'plant where accession.species.genus.family.family="Orchidaceae" '\
+            'and accession.species.genus.family.qualifier=""'
         results = mapper_search.search(s, self.session)
         r = list(results)
         #debug(r)
 
-        # id is a column on plant but we want the id on the species
+        # id is an ambiguous column because it occurs on plant,
+        # accesion and species...the results here don't matter as much
+        # as the fact that the query doesn't raise and exception
         s = 'plant where accession.species.id=1'
         results = mapper_search.search(s, self.session)
         r = list(results)
+
+        # test partial string matches on a query
+        s = 'genus where family.family like family%'
+        results = mapper_search.search(s, self.session)
+        self.assert_(list(results) == [genus, genus2])
+

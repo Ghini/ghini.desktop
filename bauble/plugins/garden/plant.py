@@ -7,6 +7,7 @@ Defines the plant table and handled editing plants
 import os
 import sys
 import traceback
+from random import random
 
 import gtk
 import gobject
@@ -332,7 +333,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_status_combo': 'acc_status',
                            'plant_notes_textview': 'notes'}
 
-    PROBLEM_DUPLICATE_PLANT_CODE = 5
+    PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
     def __init__(self, model, view):
         '''

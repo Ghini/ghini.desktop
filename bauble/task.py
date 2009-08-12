@@ -67,7 +67,7 @@ def queue(task):
     """
     # TODO: we might have to add a quit handler similar to what the
     # pre-fibra task manager had but raising StopIteration in the task
-    # idle function might be enough
+    # idle function might be enough...just needs more testing
     schedule.install(task)
     bauble.set_busy(True)
     if bauble.gui is not None:
