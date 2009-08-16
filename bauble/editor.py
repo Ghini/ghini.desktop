@@ -279,7 +279,10 @@ class GenericEditorView(object):
         #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
         completion.set_popup_set_width(True)
-        self.widgets[entry_name].set_completion(completion)
+        if isinstance(entry_name, basestring):
+            self.widgets[entry_name].set_completion(completion)
+        else:
+            entry_name.set_completion(completion)
         return completion
 
 
@@ -472,6 +475,8 @@ class GenericEditorPresenter(object):
             buff = widget.get_buffer()
             self.view.connect(buff, 'changed', on_changed)
         elif isinstance(widget, gtk.ComboBox):
+            # this also handles gtk.ComboBoxEntry since it extends
+            # gtk.ComboBox
             def changed(combo, data=None):
                 model = combo.get_model()
                 if model is None:
@@ -480,6 +485,8 @@ class GenericEditorPresenter(object):
                 if i is None:
                     return
                 data = combo.get_model()[combo.get_active_iter()][0]
+                if isinstance(widget, gtk.ComboBoxEntry):
+                    widget.child.set_text(str(data))
                 self.set_model_attr(model_attr, data, validator)
             self.view.connect(widget, 'changed', changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton,
@@ -559,17 +566,6 @@ class GenericEditorPresenter(object):
             if (not comp_model and len(text)>2) or len(text) == 2:
                 #debug('add_completions: %s' % text)
                 add_completions(text)
-                # TODO: i was screwing around with trying to make
-                # setting a string in the completions find a match in
-                # the database but this really doesn't make much sense
-                # since completions are meant to be discovered based
-                # on some string prefix
-
-                # need to update the gui to make sure the idle
-                #callback gets called
-                # while gtk.events_pending():
-                #     gtk.main_iteration(block=False)
-                # entry.emit('changed')
             return True
 
         def on_match_select(completion, compl_model, treeiter):
