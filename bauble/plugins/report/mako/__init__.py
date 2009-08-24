@@ -20,12 +20,12 @@ from bauble.plugins.report import get_all_plants, get_all_species, \
      get_all_accessions, FormatterPlugin, SettingsBox
 
 
-class TemplateFormatterSettingsBox(SettingsBox):
+class MakoFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
-        super(TemplateFormatterSettingsBox, self).__init__(*args)
+        super(MakoFormatterSettingsBox, self).__init__(*args)
         self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
-                               "plugins", "report", 'template', 'gui.glade'))
+                               "plugins", "report", 'mako', 'gui.glade'))
         # keep a refefence to settings box so it doesn't get destroyed in
         # remove_parent()
         settings_box = self.widgets.settings_box
@@ -47,18 +47,18 @@ class TemplateFormatterSettingsBox(SettingsBox):
             self.widgets.private_check.set_active(settings['private'])
 
 
-class TemplateFormatterPlugin(FormatterPlugin):
+class MakoFormatterPlugin(FormatterPlugin):
     """
-    The TemplateFormatterPlugins passes the values in the search
+    The MakoFormatterPlugins passes the values in the search
     results directly to a Mako template.  It is up to the template
     author to validate the type of the values and act accordingly if not.
     """
 
-    title = _('Template')
+    title = _('Mako')
 
     @staticmethod
     def get_settings_box():
-        return TemplateFormatterSettingsBox()
+        return MakoFormatterSettingsBox()
 
 
     @staticmethod
@@ -88,5 +88,5 @@ class TemplateFormatterPlugin(FormatterPlugin):
         return report
 
 
-formatter_plugin = TemplateFormatterPlugin
+formatter_plugin = MakoFormatterPlugin
 
