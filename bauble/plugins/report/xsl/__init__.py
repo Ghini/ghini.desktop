@@ -1,5 +1,5 @@
 #
-# default report formatter package
+# xsl report formatter package
 #
 """
 The PDF report generator module.
@@ -194,12 +194,12 @@ class SettingsBoxPresenter:
 
 
 
-class DefaultFormatterSettingsBox(SettingsBox):
+class XSLFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
-        super(DefaultFormatterSettingsBox, self).__init__(*args)
+        super(XSLFormatterSettingsBox, self).__init__(*args)
         self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
-                               "plugins", "report", 'default', 'gui.glade'))
+                               "plugins", "report", 'xsl', 'gui.glade'))
         # keep a refefence to settings box so it doesn't get destroyed in
         # remove_parent()
         settings_box = self.widgets.settings_box
@@ -244,11 +244,11 @@ class DefaultFormatterSettingsBox(SettingsBox):
             self.widgets.private_check.set_active(settings['private'])
 
 
-_settings_box = DefaultFormatterSettingsBox()
+_settings_box = XSLFormatterSettingsBox()
 
-class DefaultFormatterPlugin(FormatterPlugin):
+class XSLFormatterPlugin(FormatterPlugin):
 
-    title = _('Default')
+    title = _('XSL')
 
     @classmethod
     def install(cls, import_defaults=True):
@@ -256,7 +256,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
 	templates = ['basic.xsl', 'labels.xsl', 'plant_list.xsl',
 		     'plant_list_ex.xsl', 'small_labels.xsl']
         base_dir = os.path.join(paths.lib_dir(),
-                         "plugins", "report", 'default')
+                         "plugins", "report", 'xsl')
 	for template in templates:
 	    f = os.path.join(paths.user_dir(), template)
 	    if not os.path.exists(f):
@@ -265,7 +265,7 @@ class DefaultFormatterPlugin(FormatterPlugin):
 
     @staticmethod
     def get_settings_box():
-        return DefaultFormatterSettingsBox()
+        return XSLFormatterSettingsBox()
 
 
     @staticmethod
@@ -395,4 +395,4 @@ except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
                          'default report plugins')
 else:
-    formatter_plugin = DefaultFormatterPlugin
+    formatter_plugin = XSLFormatterPlugin
