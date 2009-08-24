@@ -624,9 +624,9 @@ except ImportError:
                          'Report plugin')
 else:
     def plugin():
-        from bauble.plugins.report.default import DefaultFormatterPlugin
-        from bauble.plugins.report.template import TemplateFormatterPlugin
-        return [ReportToolPlugin, DefaultFormatterPlugin,
-                TemplateFormatterPlugin]
+        from bauble.plugins.report.xsl import XSLFormatterPlugin
+        from bauble.plugins.report.mako import MakoFormatterPlugin
+        return [ReportToolPlugin, XSLFormatterPlugin,
+                MakoFormatterPlugin]
 
 
