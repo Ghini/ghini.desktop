@@ -88,12 +88,13 @@ class FloatOrNoneStringValidator(object):
 
 
 
-def default_completion_cell_data_func(column, renderer, model, iter,data=None):
+def default_completion_cell_data_func(column, renderer, model, treeiter,
+                                      data=None):
     '''
     the default completion cell data function for
     GenericEditorView.attach_completions
     '''
-    v = model[iter][0]
+    v = model[treeiter][0]
     renderer.set_property('markup', utils.to_unicode(v))
 
 
@@ -193,15 +194,17 @@ class GenericEditorView(object):
         raise NotImplementedError
 
 
-    def set_widget_value(self, widget_name, value, markup=True, default=None):
+    def set_widget_value(self, widget, value, markup=True, default=None):
         '''
-        :param widget_name: the name of the widget whose value we want to set
+        :param widget: a widget or name of a widget in self.widgets
         :param value: the value to put in the widgets
         :param markup: whether the data in value uses pango markup
         :param default: the default value to put in the widget if value is None
         '''
-        utils.set_widget_value(self.widgets[widget_name], value, markup,
-                               default)
+        if isinstance(widget, gtk.Widget):
+            utils.set_widget_value(widget, value, markup, default)
+        else:
+            utils.set_widget_value(self.widgets[widget], value, markup,default)
 
 
     def on_dialog_response(self, dialog, response, *args):
