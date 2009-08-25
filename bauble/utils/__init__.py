@@ -270,7 +270,8 @@ def set_combo_from_value(combo, value, cmp=lambda row, value: row[0] == value):
 
 def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     '''
-    Returns a gtk.TreeIter that points to value.
+    Returns a gtk.TreeIter that points to first matching value in the
+    combo's model.
 
     :param combo: the combo where we should search
     :param value: the value to search for
@@ -299,7 +300,6 @@ def set_widget_value(widget, value, markup=True, default=None):
       the values __str__ method
     '''
     import gtk
-    #w = glade_xml.get_widget(widget_name)
     if value is None:  # set the value from the default
         if isinstance(widget, (gtk.Label, gtk.TextView, gtk.Entry)) \
                and default is None:
@@ -324,14 +324,24 @@ def set_widget_value(widget, value, markup=True, default=None):
         widget.get_buffer().set_text(str(value))
     elif isinstance(widget, gtk.Entry):
         widget.set_text(utf8(value))
-    elif isinstance(widget, gtk.ComboBox): # TODO: what about comboentry
+    elif isinstance(widget, gtk.ComboBox):
+        # this also handles gtk.ComboBoxEntry since it extends
+        # gtk.ComboBox
+        #
         # TODO: what if None is in the model
         treeiter = combo_get_value_iter(widget, value)
         if treeiter:
+            if isinstance(widget, gtk.ComboBoxEntry):
+                v = widget.get_model()[treeiter][0]
+                widget.child.props.text = str(v)
+            # TODO: this gives an annoying text!=NULL warning when the
+            # widget is a gtk.ComboBoxEntry
             widget.set_active_iter(treeiter)
         elif widget.get_model() is not None:
             widget.set_active(-1)
-    elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton, gtk.RadioButton)):
+            if isinstance(widget, gtk.ComboBoxEntry):
+                widget.child.set_text('')
+    elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
             widget.set_active(True)
