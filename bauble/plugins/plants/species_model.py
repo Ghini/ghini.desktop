@@ -289,7 +289,7 @@ class Species(db.Base):
             if species.infrasp_author:
                 isp_author = escape(species.infrasp_author)
             if species.infrasp2_author:
-                isps_author = escape(species.infrasp_author)
+                isp2_author = escape(species.infrasp2_author)
 
         # create the first infraspecific part
         infrasp = []

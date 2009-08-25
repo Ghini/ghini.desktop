@@ -33,10 +33,13 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
                            'sp_infra_rank_combo': 'infrasp_rank',
-                           'sp_hybrid_check': 'hybrid',
                            'sp_infra_entry': 'infrasp',
-                           'sp_cvgroup_entry': 'cv_group',
                            'sp_infra_author_entry': 'infrasp_author',
+                           'sp_infra2_rank_combo': 'infrasp2_rank',
+                           'sp_infra2_entry': 'infrasp2',
+                           'sp_infra2_author_entry': 'infrasp2_author',
+                           'sp_hybrid_check': 'hybrid',
+                           'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
                            'sp_notes_textview': 'notes'}
 
@@ -45,7 +48,8 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
 
-        combos = ('sp_infra_rank_combo', 'sp_spqual_combo')
+        combos = ('sp_infra_rank_combo', 'sp_infra2_rank_combo',
+                  'sp_spqual_combo')
         for name in combos:
             self.init_enum_combo(name, self.widget_to_field_map[name])
 
@@ -103,12 +107,17 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_species_entry', 'sp',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
-        self.assign_simple_handler('sp_hybrid_check', 'hybrid')
         self.assign_simple_handler('sp_infra_entry', 'infrasp',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
-                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_infra2_rank_combo', 'infrasp2_rank')
+        self.assign_simple_handler('sp_infra2_entry', 'infrasp2',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_infra2_author_entry', 'infrasp2_author',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('sp_hybrid_check', 'hybrid')
+        self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
@@ -146,11 +155,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
            or len(self.synonyms_presenter.problems) != 0 \
            or len(self.dist_presenter.problems) != 0:
             sensitive = False
-        elif not self.model.genus:
+        elif not (self.model.genus and self.model.sp):
             sensitive = False
-        elif not (self.model.sp or self.model.cv_group or \
-                    (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
-            sensitive = False
+        # elif not (self.model.sp or self.model.cv_group or \
+        #             (self.model.infrasp_rank == 'cv.' and self.model.infrasp)):
+        #     sensitive = False
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
@@ -161,14 +170,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         '''
         self.refresh_fullname_label()
         refresh = lambda *args: self.refresh_fullname_label()
-        for widget_name in ['sp_genus_entry', 'sp_species_entry',
-                            'sp_author_entry', 'sp_infra_entry',
-                            'sp_cvgroup_entry', 'sp_infra_author_entry']:
-            w = self.view.widgets[widget_name]
-            self.view.connect_after(widget_name, 'insert-text', refresh)
-            self.view.connect_after(widget_name, 'delete-text', refresh)
-
-        for widget_name in ['sp_infra_rank_combo', 'sp_spqual_combo']:
+        widgets = ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
+                   'sp_infra_entry', 'sp_infra_author_entry',
+                   'sp_infra2_entry', 'sp_infra2_author_entry',
+                   'sp_cvgroup_entry', 'sp_infra_rank_combo',
+                   'sp_infra2_rank_combo', 'sp_spqual_combo']
+        for widget_name in widgets:
             w = self.view.widgets[widget_name]
             self.view.connect_after(widget_name, 'changed', refresh)
 
@@ -740,11 +747,14 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_genus_entry': _('Genus '),
         'sp_species_entry': _('Species epithet'),
         'sp_author_entry': _('Species author'),
-        'sp_infra_rank_combo': _('Infraspecific rank'),
+        'sp_infra_rank_combo': _('First infraspecific rank'),
+        'sp_infra_entry': _('First infraspecific epithet'),
+        'sp_infra_author_entry': _('First infraspecific author'),
+        'sp_infra2_rank_combo': _('Second infraspecific rank'),
+        'sp_infra2_entry': _('Second infraspecific epithet'),
+        'sp_infra2_author_entry': _('Second infraspecific author'),
         'sp_hybrid_check': _('Species hybrid flag'),
-        'sp_infra_entry': _('Infraspecific epithet'),
         'sp_cvgroup_entry': _('Cultivar group'),
-        'sp_infra_author_entry': _('Infraspecific author'),
         'sp_spqual_combo': _('Species qualifier'),
         'sp_notes_frame': _('Note'),
         'sp_dist_box': _('Species distribution'),
@@ -954,10 +964,10 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
         # self.model.infrasp_rank=='cv.' and self.model.infrasp
         # then show a dialog saying we can't commit and return
 
-        if self.model.hybrid is None and self.model.infrasp_rank is None:
-            self.model.infrasp = None
-            self.model.infrasp_author = None
-            self.model.cv_group = None
+        # if self.model.hybrid is None and self.model.infrasp_rank is None:
+        #     self.model.infrasp = None
+        #     self.model.infrasp_author = None
+        #     self.model.cv_group = None
 
         # remove incomplete vernacular names
         for vn in self.model.vernacular_names:
