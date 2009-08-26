@@ -4,6 +4,7 @@
 
 import traceback
 import xml.sax.saxutils as sax
+from itertools import chain
 
 import gtk
 from sqlalchemy import *
@@ -37,27 +38,6 @@ class VNList(list):
         except Exception, e:
             debug(e)
 
-# ***** supported names
-# Genus sp
-# Genus sp sp_author
-# Genus hybrid (cv.) 'infrasp' # not supported any more?
-# Genus hybrid sp
-# Genus sp hybrid infrasp
-# Genus sp infrasp_rank infrasp
-# Genus sp (cv.) 'infrasp'
-# Genus sp cv_group
-# Genus sp (cv.) (cv_group) 'infrasp'
-
-# ***** names we don't support
-# Genux sp x sp2 [infrasp_rank] infrasp
-# Genus sp infrasp_rank infrasp 'cv'
-# eg Rudbeckia fulgida var. sullivantii 'Goldsturm',
-# we can't support this without more infrasp and infrasp_rank fields,
-# like BGRecorder
-
-# ***** are these even valid
-# Genus x sp sp_author
-# Genus sp sp_athor x infrasp infrasp_author
 
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
@@ -148,10 +128,19 @@ class Species(db.Base):
                      default=u'')
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
+
+    # first infraspecific rank
     infrasp = Column(Unicode(50))
     infrasp_author = Column(Unicode(255))
     infrasp_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
                                        'subf.', 'cv.', '']), default=u'')
+
+    # second infraspecific rank
+    infrasp2 = Column(Unicode(50))
+    infrasp2_author = Column(Unicode(255))
+    infrasp2_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
+                                        'subf.', 'cv.', '']), default=u'')
+
     notes = Column(UnicodeText)
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
@@ -270,86 +259,101 @@ class Species(db.Base):
 
         genus = str(species.genus)
         sp = species.sp
-        infrasp = species.infrasp
+        isp = species.infrasp
+        isp2 = species.infrasp2
         if markup:
-            italic = u'<i>%s</i>'
-            #genus = italic % species.genus
-            genus = italic % utils.xml_safe_utf8(genus)
-            if sp is not None: # shouldn't really be allowed
-                sp = italic % species.sp
-            # the infrasp italic is handled below
-            #escape = sax.escape
             escape = utils.xml_safe_utf8
-            if species.infrasp_rank not in (u'cv.', 'cv.'):
-                infrasp = italic % species.infrasp
+            italicize = lambda s: u'<i>%s</i>' % escape(s)
+            genus = italicize(genus)
+            if sp is not None:
+                sp = italicize(species.sp)
+            if species.infrasp_rank != 'cv.':
+                isp = italicize(species.infrasp)
+            else:
+                isp = escape(species.infrasp)
+
+            if species.infrasp2_rank != 'cv.':
+                isp2 = italicize(species.infrasp2)
+            else:
+                isp2 = escape(species.infrasp2)
         else:
-            italic = u'%s'
+            italicize = lambda s: u'%s' % s
             escape = lambda x: x
 
         author = None
         isp_author = None
+        isp2_author = None
         if authors:
             if species.sp_author:
                 author = escape(species.sp_author)
             if species.infrasp_author:
                 isp_author = escape(species.infrasp_author)
+            if species.infrasp2_author:
+                isp2_author = escape(species.infrasp2_author)
 
-        hybrid_char = species.hybrid_char # local variable access is faster
-
-        if species.hybrid: # is a hybrid
-            if species.infrasp is not None:
-                if species.infrasp_rank is None:
-                    # TODO: should use the multiplication sign instead
-                    # of the character x
-                    name = [s for s in [genus, sp, author, hybrid_char,
-                                        infrasp, isp_author] \
-                                if s is not None]
-                elif species.infrasp_rank in (u'cv.', 'cv.'):
-                    if species.cv_group:
-                        cv = "(%s Group) '%s'" % \
-                            (species.cv_group, infrasp)
-                    else:
-                        cv = "'%s'" % infrasp
-                    name = [s for s in [genus, hybrid_char, sp, author,
-                                        cv, isp_author] \
-                                if s not in (None, '')]
+        # create the first infraspecific part
+        infrasp = []
+        if species.infrasp:
+            if species.infrasp_rank == 'cv.':
+                group = None
+                if species.cv_group:
+                    group = "(%s Group)" % species.cv_group
+                if authors:
+                    infrasp = [group, "'%s'" % isp, isp_author]
                 else:
-                    name = [s for s in [genus, hybrid_char, sp, author,
-                                        species.infrasp_rank, infrasp,
-                                        isp_author] \
-                                if s not in (None, '')]
+                    infrasp = [group, "'%s'" % isp]
             else:
-                name = [s for s in [genus, hybrid_char, sp, author] \
-                        if s not in (None, '')]
-        else: # isn't a hybrid
-            if species.cv_group:
-                if species.infrasp is None:
-                    cv = None
-                    group = '%s Group' % species.cv_group
+                group = None
+                if species.cv_group:
+                    group = "%s Group" % species.cv_group
+                if authors:
+                    infrasp = [species.infrasp_rank, isp, group,
+                               isp_author]
                 else:
-                    cv = "'%s'" % infrasp
-                    group = '(%s Group)' % species.cv_group
-                name = [s for s in [genus, sp, author, group, cv, isp_author] \
-                        if s not in (None, '')]
+                    infrasp = [species.infrasp_rank, isp, group]
+
+        # create the second infraspecific part
+        infrasp2 = []
+        if species.infrasp2:
+            if species.infrasp2_rank == 'cv.':
+                group = None
+                if species.cv_group and not species.infrasp:
+                    group = "(%s Group)" % species.cv_group
+                if authors:
+                    infrasp2 = [group, "'%s'" % isp2, isp2_author]
+                else:
+                    infrasp2 = [group, "'%s'" % isp2, group]
             else:
-                if species.infrasp is None:
-                    isp = None
-                    isp_rank = None
+                group = None
+                if species.cv_group:
+                    group = "%s Group" % species.cv_group
+                if authors:
+                    infrasp2 = [species.infrasp2_rank, isp2, group,isp2_author]
                 else:
-                    if species.infrasp_rank == 'cv.':
-                        isp_rank = None
-                        isp = "'%s'" % (species.infrasp or '')
-                    else:
-                        isp_rank = species.infrasp_rank
-                        #isp = italic % species.infrasp
-                        isp = infrasp
-                name = [s for s in [genus, sp, author, isp_rank, isp,
-                                    isp_author] if s not in (None, '')]
+                    infrasp2 = [species.infrasp2_rank, isp2, group]
 
-        if species.sp_qual not in (None, ''):
-            name.append(species.sp_qual)
+        # create the binomial part
+        binomial = []
+        if species.hybrid:
+            if species.infrasp_rank is None:
+                binomial = [genus, sp, species.hybrid_char]
+            else:
+                binomial = [genus, species.hybrid_char, sp, author]
+        else:
+            binomial = [genus, sp, author]
 
-        s = utils.utf8(' '.join(name))
+        # create the group part if there are not infraspecific parts
+        group = []
+        if not (species.infrasp or species.infrasp2) and species.cv_group:
+            group = [species.cv_group, 'Group']
+
+        # create the tail a.k.a think to add on to the end
+        tail = []
+        if species.sp_qual:
+            tail = [species.sp_qual]
+
+        parts = chain(binomial, group, infrasp, infrasp2, tail)
+        s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
         species.__cached_str[(markup, authors)] = s
         return s
 
