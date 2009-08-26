@@ -78,7 +78,9 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'sp_qual': u'agg.'},
                      {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
                      {'id': 13, 'genus_id':1, 'infrasp_rank': u'cv.',
-                      'infrasp': u'Red'}
+                      'infrasp': u'Red'},
+                     {'id': 14, 'genus_id':1, 'infrasp_rank': u'cv.',
+                      'infrasp': u'Red & Blue'}
                      )
 
 species_str_map = {\
@@ -104,7 +106,8 @@ species_markup_map = {\
     4: '<i>Campyloneurum</i> %s <i>alapense</i>' % Species.hybrid_char,
     5: '<i>Encyclia</i> <i>cochleata</i> var. <i>cochleata</i>',
     6: '<i>Encyclia</i> <i>cochleata</i> \'Black Night\'',
-    12:"<i>Maxillaria</i> SomeGroup Group"
+    12:"<i>Maxillaria</i> SomeGroup Group",
+    14:"<i>Maxillaria</i> 'Red &amp; Blue'",
     }
 
 species_str_authors_map = {\
@@ -439,23 +442,23 @@ class SpeciesTests(PlantTestCase):
         def get_sp_str(id, **kwargs):
             return Species.str(self.session.query(Species).get(id), **kwargs)
 
-        for id, s in species_str_map.iteritems():
-            spstr = get_sp_str(id)
+        for sid, s in species_str_map.iteritems():
+            spstr = get_sp_str(sid)
             self.assert_(spstr == s,
                          '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
 
-        for id, s in species_str_authors_map.iteritems():
-            spstr = get_sp_str(id, authors=True)
+        for sid, s in species_str_authors_map.iteritems():
+            spstr = get_sp_str(sid, authors=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
-        for id, s in species_markup_map.iteritems():
-            spstr = get_sp_str(id, markup=True)
+        for sid, s in species_markup_map.iteritems():
+            spstr = get_sp_str(sid, markup=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
-        for id, s in species_markup_authors_map.iteritems():
-            spstr = get_sp_str(id, markup=True, authors=True)
+        for sid, s in species_markup_authors_map.iteritems():
+            spstr = get_sp_str(sid, markup=True, authors=True)
             self.assert_(spstr == s,
                          '%s != %s ** %s' % (spstr, s, unicode(spstr)))
 
