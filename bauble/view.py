@@ -502,7 +502,14 @@ class MapperSearch(SearchStrategy):
                 op = expr_iter.next()
             except StopIteration:
                 pass
-        self._results.add(self._session.query(cls).filter(clause))
+
+        from bauble.plugins.plants.species import Species
+        if isinstance(cls, Species):
+            self._results.add(self._session.query(cls).filter(clause).\
+                                  options.eagerload("genus.family"))
+        else:
+            self._results.add(self._session.query(cls).filter(clause))
+
 
 
     def on_domain_expression(self, s, loc, tokens):
@@ -585,7 +592,6 @@ class MapperSearch(SearchStrategy):
                     return v
             mapper = class_mapper(cls)
             q = q.filter(or_(*[like(mapper, c, unicol(c, v)) for c,v in cv]))
-            #debug(q)
             self._results.add(q)
 
 
@@ -718,12 +724,17 @@ class SearchView(pluginmgr.View):
                 '''
                 :param children: where to find the children for this type,
                     can be a callable of the form C{children(row)}
+
                 :param infobox: the infobox for this type
+
                 :param context_menu: a dict describing the context menu used
                 when the user right clicks on this type
-                :param markup_func: the function to call to markup search
-                results of this type, if markup_func is None the instances
-                __str__() function is called
+
+                :param markup_func: the function to call to markup
+                search results of this type, if markup_func is None
+                the instances __str__() function is called...the
+                strings returned by this function should escape any
+                non markup characters
                 '''
                 self.children = children
                 self.infobox = infobox
@@ -932,7 +943,7 @@ class SearchView(pluginmgr.View):
         except (BaubleError, AttributeError, Exception, SyntaxError), e:
             #debug(traceback.format_exc())
             error_msg = _('** Error: %s') % utils.xml_safe_utf8(e)
-            error_details_msg = traceback.format_exc()
+            error_details_msg = utils.xml_safe_utf8(traceback.format_exc())
 
         if error_msg:
             bauble.gui.show_error_box(error_msg, error_details_msg)
@@ -961,6 +972,8 @@ class SearchView(pluginmgr.View):
                 # don't bother with a task if the results are small,
                 # this keeps the screen from flickering when the main
                 # window is set to a busy state
+                #import time
+                #start = time.time()
                 if len(results) > 1000:
                     self.populate_results(results)
                 else:
@@ -970,6 +983,7 @@ class SearchView(pluginmgr.View):
                             task.next()
                         except StopIteration:
                             break
+                #debug(time.time() - start)
             except StopIteration:
                 return
             else:
@@ -1044,7 +1058,9 @@ class SearchView(pluginmgr.View):
         # actually fetched from the database
         groups = []
         for key, group in itertools.groupby(results, lambda x: type(x)):
-            groups.append(sorted(group, key=utils.natsort_key))
+            groups.append(list(group))
+            # sorting the results here is dead slow
+            #groups.append(sorted(group, key=utils.natsort_key))
 
         # sort the groups by type so we more or less always get the
         # results by type in the same order
@@ -1097,16 +1113,23 @@ class SearchView(pluginmgr.View):
         return model
 
 
-    def cell_data_func(self, coll, cell, model, iter):
-        value = model[iter][0]
+    def cell_data_func(self, col, cell, model, treeiter):
+        value = model[treeiter][0]
 
-        # TODO: would probably help speed up the view a little if we
-        # cached the strings and invalidate the cache, either that or
-        # computer the string when the data is added and add the
-        # string to the text attribute and then store the object for
-        # the text as another attribute
+        # TODO: maybe we should cache the strings on our side and then
+        # detect if the objects have been changed in their session in
+        # order to determine if the cache should be invalidated
 
         #debug('%s(%s)' % (value, type(value)))
+        path = model.get_path(treeiter)
+        tree_rect = self.results_view.get_visible_rect()
+        cell_rect = self.results_view.get_cell_area(path, col)
+        if cell_rect.y > tree_rect.height:
+            # only update the cells if they're visible...this
+            # drastically speeds up populating the view with large
+            # datasets
+            return
+
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -1223,9 +1246,8 @@ class SearchView(pluginmgr.View):
                         result = cb(values)
                     except Exception, e:
                         msg = utils.xml_safe_utf8(str(e))
-                        utils.message_details_dialog(msg,
-                                                     traceback.format_exc(),
-                                                     gtk.MESSAGE_ERROR)
+                        tb = utils.xml_safe_utf8(traceback.format_exc())
+                        utils.message_details_dialog(msg, tb,gtk.MESSAGE_ERROR)
                         warning(traceback.format_exc())
                     if result:
                         self.reset_view()
@@ -1342,6 +1364,59 @@ class SearchView(pluginmgr.View):
 
 
 
+class HistoryView(pluginmgr.View):
+    """Show the tables row in the order they were last updated
+    """
+    def __init__(self):
+        super(HistoryView, self).__init__()
+        init_gui()
+
+
+    def init_gui(self):
+        self.treeview = gtk.TreeView()
+        column = gtk.TreeViewColumn()
+        self.pack_start(self.treeview)
+
+    def populate_history(self):
+        """
+        Add the history items to the view.
+        """
+        utils.clear_model(self.treeview)
+        # TODO: this is gonna be a little problematic because the
+        # markup functions and infoboxes are registered as part of the
+        # SearchView so it's not obvious how we're gonna use them
+        # here...i was envisioning that we would just show a list of
+        # the objects by their last modified date like the searchview
+        # with infoboxes and everything but maybe it would be better
+        # just to show the raw columns...what might make sense would
+        # be to make :history a special type of search that groups the
+        # results by their dates
+        model = gtk.ListStore(object, str)
+
+class HistoryCommandHandler(pluginmgr.CommandHandler):
+
+    def __init__(self):
+        super(HistoryCommandHandler, self).__init__()
+        self.view = None
+
+    command = 'history'
+
+    def get_view(self):
+        debug("HistoryCommandHandler.get_view()")
+        if not self.view:
+            self.view = HistoryView()
+        return self.view
+
+
+    def __call__(self, arg):
+        debug("HistoryCommandHandler.__call__(%s)" % arg)
+        self.view.populate_history(arg)
+        #self.view.search(arg)
+
+
+pluginmgr.register_command(HistoryCommandHandler)
+
+
 def select_in_search_results(obj):
     """
     :param obj: the object the select
@@ -1374,7 +1449,7 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
         super(DefaultCommandHandler, self).__init__()
         self.view = None
 
-    command = None
+    command = [None]
 
     def get_view(self):
         if self.view is None:
