@@ -502,14 +502,7 @@ class MapperSearch(SearchStrategy):
                 op = expr_iter.next()
             except StopIteration:
                 pass
-
-        from bauble.plugins.plants.species import Species
-        if isinstance(cls, Species):
-            self._results.add(self._session.query(cls).filter(clause).\
-                                  options.eagerload("genus.family"))
-        else:
-            self._results.add(self._session.query(cls).filter(clause))
-
+        self._results.add(self._session.query(cls).filter(clause))
 
 
     def on_domain_expression(self, s, loc, tokens):
