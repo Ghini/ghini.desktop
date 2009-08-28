@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 import copy
 import csv
+import logging
 import os
 import sys
 
@@ -33,7 +34,21 @@ parser.add_option("-t", "--test", dest="test", action="store_true",
 parser.add_option("-d", "--database", dest="database",
                   default=default_uri, metavar="DBURI",
                   help="the database uri to store the converted databaset")
+parser.add_option("-v", "--verbosity", dest="verbosity",
+                  default=0, metavar="LEVEL", type="int",
+                  help="the amount of information to display about the " \
+                      "conversion process")
 (options, args) = parser.parse_args()
+
+def logger(msg, level):
+    if level <= options.verbosity:
+        print msg
+
+status = lambda msg: logger(msg, 0)
+error = lambda msg: logger('*** %s' % msg, 0)
+warning = lambda msg: logger('* %s' % msg, 1)
+info = lambda msg: logger(msg, 2)
+debug = lambda msg: logger(msg, 3)
 
 db.open(options.database, False)
 pluginmgr.load()
@@ -62,17 +77,16 @@ if not os.path.exists(dst):
 
 # TODO: this script needs to be very thoroughly tested
 
-# filenames: bedtable.csv colour.csv dummy.csv family.csv geocode.csv
-# habit.csv hereitis.csv plants.csv rcvdas.csv remocode.csv
-# removal.csv removals.csv sciname.csv source.csv subset.csv
-# synonym.csv transfer.csv
+# BGAS tables: bedtable colour dummy family geocode habit hereitis
+# plants rcvdas remocode removal removals sciname source subset
+# synonym transfer
 
 # BGAS data problems:
 #
 # 1. Some scientific names which have an infraspecific rank but don't
 # have an infraspecific epithet.
 #
-# 2. Some genera do not have families.  Inn FAMILY.DBF, SCINAME.DBF
+# 2. Some genera do not have families.  In FAMILY.DBF, SCINAME.DBF
 # and PLANTS.DBF
 #
 # 3. ACCNO: 11710, no rank but has infrepi and cultivar but it appears
@@ -100,6 +114,15 @@ if not os.path.exists(dst):
 # or would source be something different and we need to add then to
 # bauble, maybe the donations table should be changed to something
 # more general, some are persons others are institutions
+#
+# 10. The beds in BGAS are laid out hierachially?  Does this work well
+# for you or could you just use names like "Alpine Garden - Europe",
+# "Alpine Garden - Bulb Frame".  Right now there are 296 "beds" in the
+# bed table which would make a long list to choose from.  Although at
+# the moment in Bauble if you typed in Alpine it would show all beds
+# that matched the name Alpine and you would just have to choose a
+# name from that shortened list. I could make it hiearchial but it is
+# a little more invasive into the way Bauble does things now.
 
 open_dbf = lambda f: dbf.Dbf(os.path.join(options.bgas, f), readOnly=True)
 
@@ -204,6 +227,10 @@ def species_dict_from_rec(rec, defaults=None):
     row['infrasp2_rank'] = u''
     row['infrasp2'] = None
 
+    # if rec['rank'] and not rec['infrepi']:
+    #     print rec
+    #     sys.exit()
+
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
         row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
@@ -250,7 +277,7 @@ def do_family():
     """
     Create the family and genus tables from a FAMILY.DBF file
     """
-    print 'converting FAMILY.DBF ...'
+    status('converting FAMILY.DBF ...')
     dbf = open_dbf('FAMILY.DBF')
     defaults = get_defaults(family_table)
     insert = get_insert(family_table, ['family'])
@@ -276,7 +303,7 @@ def do_family():
 
     # insert the families
     db.engine.execute(insert, *list(families.values()))
-    print 'inserted %s family.' % len(families)
+    info('inserted %s family.' % len(families))
 
     # get the family id's for the genera
     genus_rows = []
@@ -284,8 +311,8 @@ def do_family():
     for genus in genera.values():
         family = genus.pop('family')
         if not family:
-            print '** %s has no family. adding to %s' \
-                % (genus['genus'], unknown_family_name)
+            warning('%s has no family. adding to %s' \
+                % (genus['genus'], unknown_family_name))
             #print '** no family: %s' %  genus
             genus['family_id'] = unknown_family_id
         else:
@@ -298,8 +325,8 @@ def do_family():
     # insert the genus rows
     insert = get_insert(genus_table, ['genus', 'family_id'])
     db.engine.execute(insert, *genus_rows)
-    print 'inserted %s genus rows out of %s records.' \
-        % (len(genus_rows), len(dbf))
+    info('inserted %s genus rows out of %s records.' \
+             % (len(genus_rows), len(dbf)))
 
 
 
@@ -328,7 +355,7 @@ def do_sciname():
     # hardzeon:
     # scinote:
     # phenol:
-    print 'converting SCINAME.DBF ...'
+    status('converting SCINAME.DBF ...')
     dbf = open_dbf('SCINAME.DBF')
     species_insert = get_insert(species_table,
                                 ['genus_id', 'sp', 'hybrid', 'infrasp',
@@ -360,10 +387,10 @@ def do_sciname():
             r = db.engine.execute(stmt).fetchone()
             if r:
                 family_id = r[0]
-            print 'adding genus %s from sciname.dbf.' % genus
+            warning('adding genus %s from sciname.dbf.' % genus)
             if not family_id:
-                print '** %s has no family. adding to %s' \
-                    % (genus, unknown_family_name)
+                warning('** %s has no family. adding to %s' \
+                    % (genus, unknown_family_name))
                 family_id = unknown_family_id
             genus_row = genus_defaults.copy()
             genus_row.update({'genus': genus, 'family_id': family_id})
@@ -381,10 +408,10 @@ def do_sciname():
         species_rows.append(row)
 
     db.engine.execute(species_insert, *species_rows)
-    print 'inserted %s species out of %s records' \
-        % (len(species_rows), len(dbf))
-    print '** %s sciname entries with no genus.  Added to the genus %s' \
-        % (no_genus_ctr, unknown_genus_name)
+    info('inserted %s species out of %s records' \
+        % (len(species_rows), len(dbf)))
+    warning('** %s sciname entries with no genus.  Added to the genus %s' \
+                % (no_genus_ctr, unknown_genus_name))
 
 
 def do_plants():
@@ -399,7 +426,7 @@ def do_plants():
 
     # TODO: we will have to match the species names exactly since they
     # aren't referenced to a scientific name by id or anything
-    print 'converting PLANTS.DBF ...'
+    status('converting PLANTS.DBF ...')
     dbf = open_dbf('PLANTS.DBF')
     rec_ctr = 0
     species_table = Species.__table__
@@ -432,7 +459,7 @@ def do_plants():
             # associated family but it shouldn't really matter b/c
             # there seems to be only one genus (BL.0178) in plants.dbf
             # that isn't already in the database
-            print 'adding genus %s from plants.dbf.' % genus
+            info('adding genus %s from plants.dbf.' % genus)
             genus_table.insert().values(family_id=unknown_family_id,
                                         genus=genus).execute()
             genus_id = get_column_value(genus_table.c.id,
@@ -458,12 +485,13 @@ def do_plants():
     for rec in dbf:
         rec_ctr += 1
         if (rec_ctr % 500) == 0:
-            sys.stdout.write('.')
-            sys.stdout.flush()
+            if options.verbosity > 1:
+                sys.stdout.write('.')
+                sys.stdout.flush()
             # break
 
         if not rec['accno']:
-            print '** accno is empty: %s' % rec['accno']
+            warning('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
         elif rec['accno'] in added_codes:
             #print '** duplicate code: %s....not importing' % rec['accno']
@@ -482,14 +510,15 @@ def do_plants():
 
         added_codes.add(rec['accno'])
 
-    print ''
+    if options.verbosity > 1:
+        print ''
 
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
     if delayed_species:
         db.engine.execute(species_table.insert(), *delayed_species)
-        print 'inserted %s species from plants.dbf' % len(delayed_species)
+        info('inserted %s species from plants.dbf' % len(delayed_species))
 
     for rec in delayed_accessions:
         row = acc_defaults.copy()
@@ -504,17 +533,18 @@ def do_plants():
 
     # insert the accessions
     db.engine.execute(acc_insert, *acc_rows)
-    print 'inserted %s accesions out of %s records' \
-        % (len(acc_rows), len(dbf))
+    info('inserted %s accesions out of %s records' \
+             % (len(acc_rows), len(dbf)))
     if len(duplicates) > 0:
         # print 'the following are duplicate accession numbers where only '\
         #     'the first occurence of the accession code were added to '\
         #     'the database:\n%s' % sorted(duplicates)
-        print '%s duplicate accessions not inserted.' % len(duplicates)
+        error('%s duplicate accessions from PLANTS.DBF not inserted.' \
+                  % len(duplicates))
 
 
 def do_bedtable():
-    print 'converting BEDTABLE.DBF ...'
+    status('converting BEDTABLE.DBF ...')
     dbf = open_dbf('BEDTABLE.DBF')
     location_rows = []
     defaults = get_defaults(location_table)
@@ -524,25 +554,34 @@ def do_bedtable():
                     'description': utils.utf8(rec['beddescr'])})
         location_rows.append(row)
     db.engine.execute(location_table.insert(), *location_rows)
-    print 'inserted %s locations out of %s records' \
-        % (len(location_rows), len(dbf))
+    info('inserted %s locations out of %s records' \
+             % (len(location_rows), len(dbf)))
 
 
 def do_hereitis():
     """
     """
+    # The hereitis table is roughly equivalent to the plants table
+    # accno:
+    #
+    # propno: plant code?
+    # bedno: location.site
+    # alive: acc_status?
+    # labels: ??
+    # l_update: last updated?
+    #
     # TODO: i can't really do anything with the hereitis table until i
     # can resolve the duplicates
-    print 'converting HEREITIS.DBF ...'
+    status('converting HEREITIS.DBF ...')
     dbf = open_dbf('HEREITIS.DBF')
     codes = set()
     for rec in dbf:
         code = rec['accno']
         if rec['propno'] != 0:
-            #print '%s.%s' % (rec['accno'], rec['propno'])
+            info('%s.%s' % (rec['accno'], rec['propno']))
             pass
         if code in codes:
-            #print 'dup: %s' % code
+            error('dup: %s' % code)
             pass
         else:
             codes.add(code)
@@ -551,7 +590,7 @@ def do_hereitis():
 def do_synonym():
     """
     """
-    print 'converting SYNONYM.DBF ...'
+    status('converting SYNONYM.DBF ...')
     dbf = open_dbf('SYNONYM.DBF')
 
 
@@ -568,7 +607,7 @@ def run():
 
 
 def test():
-    print 'testing...'
+    info('testing...')
     # test all possible combinations of imported species names
     # test for duplicate species
     # test that all accession codes are unique
@@ -588,8 +627,8 @@ if __name__ == '__main__':
             current_stage = stages[str(stage)]
             t = timeit.timeit('current_stage()',
                               "from __main__ import current_stage;", number=1)
-            print '... in %s seconds.' % t
+            info('... in %s seconds.' % t)
             total_seconds += t
-        print 'total run time: %s seconds' % total_seconds
+        info('total run time: %s seconds' % total_seconds)
 
 
