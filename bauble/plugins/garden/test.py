@@ -18,7 +18,7 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.garden.institution import Institution
+from bauble.plugins.garden.institution import Institution, InstitutionEditor
 
 
 from datetime import datetime
@@ -253,10 +253,13 @@ class PlantTests(GardenTestCase):
             self.session.delete(location)
         self.session.commit()
 
-        editor = PlantEditor(model=self.plant)
-        # loc = Location(site='t')
-        # p = Plant(accession=self.accession, location=loc)
-        # editor = PlantEditor(model=p)
+        #editor = PlantEditor(model=self.plant)
+        loc = Location(site=u'site1')
+        loc2 = Location(site=u'site2')
+        self.session.add_all([loc, loc2])
+        self.session.commit()
+        p = Plant(accession=self.accession, location=loc)
+        editor = PlantEditor(model=p)
         editor.start()
         del editor
 
@@ -756,6 +759,16 @@ class CollectionTests(GardenTestCase):
         self.assert_(acc.source_type == 'Collection')
         self.assert_(acc.source == collection)
         self.session.commit()
+
+
+class InstitutionTests(GardenTestCase):
+
+    # TODO: create a non interactive tests that starts the
+    # InstututionEditor and checks that it doesn't leak memory
+
+    def itest_editor(self):
+        e = InstitutionEditor()
+        e.start()
 
 
 # latitude: deg[0-90], min[0-59], sec[0-59]

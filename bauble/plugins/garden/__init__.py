@@ -20,7 +20,8 @@ from bauble.plugins.garden.source import Donation, \
     Collection, source_markup_func
 from bauble.plugins.garden.donor import Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
-import bauble.plugins.garden.institution
+from bauble.plugins.garden.institution import InstitutionTool, \
+    InstitutionCommand
 from bauble.utils.log import debug
 
 # other ideas:
@@ -34,6 +35,8 @@ def natsort_kids(kids):
 class GardenPlugin(pluginmgr.Plugin):
 
     depends = ["PlantsPlugin"]
+    tools = [InstitutionTool]
+    commands = [InstitutionCommand]
 
     @classmethod
     def install(cls, *args, **kwargs):
