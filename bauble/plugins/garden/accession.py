@@ -353,8 +353,11 @@ class Accession(db.Base):
     _donation = relation('Donation', cascade='all, delete-orphan',
                          uselist=False, backref=backref('_accession',
                                                         uselist=False))
+
+    # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
-                      order_by='Plant.code', backref='accession')
+                      order_by='Plant.code',
+                      backref=backref('accession', lazy=False, uselist=False))
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
                              backref='accession')
@@ -382,7 +385,7 @@ class Accession(db.Base):
         return self.code
 
 
-    def species_str(self, markup=False, authors=False):
+    def species_str(self, authors=False, markup=False):
         """
         Return the string of the species with the id qualifier(id_qual)
         injected into the proper place.
@@ -1840,8 +1843,7 @@ class AccessionInfoBox(InfoBox):
         super(AccessionInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "acc_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
 
         self.general = GeneralAccessionExpander(self.widgets)
         self.add_expander(self.general)

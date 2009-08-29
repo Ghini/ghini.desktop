@@ -408,9 +408,9 @@ class SpeciesInfoPage(InfoBoxPage):
         the constructor
         '''
         super(SpeciesInfoPage, self).__init__()
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                   'infoboxes.glade')
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralSpeciesExpander(self.widgets)
         self.add_expander(self.general)
         self.vernacular = VernacularExpander(self.widgets)

@@ -11,7 +11,6 @@ import re
 import xml.sax.saxutils as saxutils
 
 import gtk
-import gtk.glade
 
 import bauble
 from bauble.error import check, CheckConditionError
@@ -51,6 +50,10 @@ def find_dependent_tables(table, metadata=None):
     return sort_tables(tables=tables)
 
 
+def load_widgets(filename):
+    b = BuilderLoader.load(filename)
+    return BuilderWidgets(b)
+
 
 class BuilderLoader(object):
     """
@@ -78,33 +81,15 @@ class BuilderLoader(object):
         """
         if filename in cls.builders.keys():
             return cls.builders[filename]
-        cls.builders[filename] = gtk.Builder()
-        cls.builders[filename].add_from_file(filename)
-        return cls.builders[filename]
+        b = gtk.Builder()
+        b.add_from_file(filename)
+        b.set_translation_domain('bauble')
+        cls.builders[filename] = b
+        return b
 
 
-class IWidgets(dict):
 
-    def __init__(self, filename):
-        raise NotImplementedError
-
-
-    def remove_parent(self, widget):
-        """
-        Remove widgets from its parent.
-        """
-        # if parent is the last reference to widget then widget may be
-        # automatically destroyed
-        if isinstance(widget, str):
-            w = self[widget]
-        else:
-            w = widget
-        parent = w.get_parent()
-        if parent is not None:
-            parent.remove(w)
-
-
-class BuilderWidgets(IWidgets):
+class BuilderWidgets(dict):
     """
     Provides dictionary and attribute access for a
     :class:`gtk.Builder` object.
@@ -143,48 +128,19 @@ class BuilderWidgets(IWidgets):
         return w
 
 
-
-
-class GladeWidgets(IWidgets):
-    """
-    Provides dictionary and attribute access for a
-    :class:`gtk.glade.XML` object.
-    """
-
-    def __init__(self, glade_xml):
-        '''
-        @params glade_xml: a gtk.glade.XML object
-        '''
-        if isinstance(glade_xml, str):
-            self.glade_xml = gtk.glade.XML(glade_xml)
+    def remove_parent(self, widget):
+        """
+        Remove widgets from its parent.
+        """
+        # if parent is the last reference to widget then widget may be
+        # automatically destroyed
+        if isinstance(widget, str):
+            w = self[widget]
         else:
-            self.glade_xml = glade_xml
-
-
-    def __getitem__(self, name):
-        '''
-        @param name:
-        '''
-        w = self.glade_xml.get_widget(name)
-        if not w:
-            raise KeyError(_('%s not in glade file') % name)
-        return w
-
-
-    def __getattr__(self, name):
-        '''
-        @param name:
-        '''
-        return self.glade_xml.get_widget(name)
-
-
-
-    def signal_autoconnect(self, handlers):
-        """
-        Connect handlers to their widgets.  See
-        gtk.glade.XML.signal_autoconnect for more information.
-        """
-        self.glade_xml.signal_autoconnect(handlers)
+            w = widget
+        parent = w.get_parent()
+        if parent is not None:
+            parent.remove(w)
 
 
 def tree_model_has(tree, value):
@@ -290,8 +246,7 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
 
 def set_widget_value(widget, value, markup=True, default=None):
     '''
-    :param glade_xml: the glade_file to get the widget from
-    :param widget_name: the name of the widget
+    :param widget: an instance of gtk.Widget
     :param value: the value to put in the widget
     :param markup: whether or not
     :param default: the default value to put in the widget if the value is None

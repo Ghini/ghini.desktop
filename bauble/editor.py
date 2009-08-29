@@ -118,10 +118,7 @@ class GenericEditorView(object):
 
     def __init__(self, filename, parent=None):
         '''
-        glade_xml either at gtk.glade.XML instance or a path to a glade
-        XML file
-
-        :param glade_xml:
+        :param filename: a gtk.Builder UI definition
         :param parent:
         '''
         builder = utils.BuilderLoader.load(filename)

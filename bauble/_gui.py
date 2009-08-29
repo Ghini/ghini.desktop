@@ -42,9 +42,8 @@ class GUI(object):
     _default_history_size = 12
 
     def __init__(self):
-        glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
-        self.glade = gtk.glade.XML(glade_path)
-        self.widgets = utils.GladeWidgets(self.glade)
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        self.widgets = utils.load_widgets(filename)
         self.window = self.widgets.main_window
         self.window.hide()
 
@@ -69,9 +68,16 @@ class GUI(object):
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
 
+        combo = self.widgets.main_comboentry
+        model = gtk.ListStore(str)
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        cell.props.xalign = 0 # TODO: this doesn't left align the combo values
+        combo.pack_start(cell)
+        combo.add_attribute(cell, 'text', 0)
         self.populate_main_entry()
-        main_entry = self.widgets.main_comboentry.child
 
+        main_entry = combo.child
 #        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
         accel_group = gtk.AccelGroup()
@@ -260,7 +266,6 @@ class GUI(object):
             for herstory in history:
                 main_combo.append_text(herstory)
                 compl_model.append([herstory])
-        main_combo.set_model(model)
 
 
     def __get_title(self):

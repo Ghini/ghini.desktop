@@ -363,8 +363,7 @@ class LocationInfoBox(InfoBox):
         InfoBox.__init__(self)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "loc_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralLocationExpander(self.widgets)
         self.add_expander(self.general)
         self.description = DescriptionExpander(self.widgets)

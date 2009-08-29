@@ -93,8 +93,8 @@ class InfoExpander(gtk.Expander):
         """
         :param label: the name of this info expander, this is displayed on the
         expander's expander
-        :param glade_xml: a gtk.glade.XML instace where can find the expanders
-        widgets
+
+        :param widgets: a bauble.utils.BuilderWidgets instance
         """
         super(InfoExpander, self).__init__(label)
         self.vbox = gtk.VBox(False)

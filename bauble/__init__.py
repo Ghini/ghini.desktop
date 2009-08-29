@@ -76,6 +76,7 @@ def quit():
     Stop all tasks and quit Bauble.
     """
     import gtk
+    import bauble.utils as utils
     from bauble.utils.log import error
     try:
         import bauble.task as task
@@ -176,11 +177,6 @@ def main(uri=None):
         sys.exit(1)
 
     import gtk.gdk
-
-    # setup glade internationalization
-    import gtk.glade
-    gtk.glade.bindtextdomain('bauble', paths.locale_dir())
-    gtk.glade.textdomain('bauble')
     import pygtk
     if not main_is_frozen():
         pygtk.require("2.0")

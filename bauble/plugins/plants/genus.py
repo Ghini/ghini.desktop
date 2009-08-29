@@ -93,7 +93,8 @@ genus_context_menu = [edit_action, add_species_action, remove_action]
 def genus_markup_func(genus):
     '''
     '''
-    return str(genus), str(genus.family)
+    # TODO: the genus should be italicized for markup
+    return utils.xml_safe(genus), utils.xml_safe(genus.family)
 
 
 
@@ -160,6 +161,7 @@ class Genus(db.Base):
 
     @staticmethod
     def str(genus, author=False):
+        # TODO: the genus should be italicized for markup
         if genus.genus is None:
             return repr(genus)
         elif not author or genus.author is None:
@@ -206,7 +208,7 @@ from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
                          order_by=['sp', 'infrasp_rank', 'infrasp'],
-                         backref=backref('genus', uselist=False))
+                         backref=backref('genus', lazy=False, uselist=False))
 
 
 
@@ -454,7 +456,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.treeview = self.view.widgets.gen_syn_treeview
         # remove any columns that were setup previous, this became a
         # problem when we starting reusing the glade files with
-        # utils.GladeLoader, the right way to do this would be to
+        # utils.BuilderLoader, the right way to do this would be to
         # create the columns in glade instead of here
         for col in self.treeview.get_columns():
             self.treeview.remove_column(col)
@@ -897,9 +899,9 @@ class GenusInfoBox(InfoBox):
     """
     def __init__(self):
         InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants',
-                                  'infoboxes.glade')
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                'infoboxes.glade')
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralGenusExpander(self.widgets)
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
