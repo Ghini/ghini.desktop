@@ -1,4 +1,5 @@
-#  Copyright (c) 2005,2006,2007,2008  Brett Adams <brett@belizebotanic.org>
+#  Copyright (c) 2005,2006,2007,2008,2009
+#  Brett Adams <brett@belizebotanic.org>
 #  This is free software, see GNU General Public License v2 for details.
 """
 The top level module for Bauble.
@@ -149,7 +150,7 @@ def command_handler(cmd, arg):
         if hasattr(handler_view, 'accel_group'):
             gui.window.add_accel_group(handler_view.accel_group)
     try:
-        last_handler(arg)
+        last_handler(cmd, arg)
     except Exception, e:
         msg = utils.xml_safe_utf8(e)
         error('bauble.command_handler(): %s' % msg)

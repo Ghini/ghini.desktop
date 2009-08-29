@@ -617,7 +617,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
                 if self.presenter.dirty():
                     # commit_changes() will append the commited plants

@@ -49,6 +49,8 @@ def register_command(handler):
     """
     Register command handlers.  If a command is a duplicate then it
     will overwrite the old command of the same name.
+
+    @param handler:  A class which extends pluginmgr.CommandHandler
     """
     global commands
     if isinstance(handler.command, str):
@@ -467,7 +469,7 @@ class View(gtk.VBox):
 
     def __init__(self, *args, **kwargs):
         """
-        if a class extends this View and provides it's own __init__ it *must*
+        If a class extends this View and provides it's own __init__ it *must*
         call it's parent (this) __init__
         """
         super(View, self).__init__(*args, **kwargs)
@@ -483,7 +485,7 @@ class CommandHandler(object):
         '''
         return None
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         '''
         do what this command handler does
 
