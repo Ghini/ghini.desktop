@@ -214,7 +214,7 @@ class PicasaSettingsDialog(object):
     def __init__(self):
         widget_path = os.path.join(paths.lib_dir(), 'plugins', 'picasa',
                                    'gui.glade')
-        self.widgets = utils.GladeWidgets(widget_path)
+        self.widgets = utils.load_widgets(widget_path)
         self.window = self.widgets.settings_dialog
         if bauble.gui:
             self.window.set_transient_for(bauble.gui.window)

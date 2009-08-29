@@ -814,8 +814,7 @@ class PlantInfoBox(InfoBox):
         #loc.set_expanded(True)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

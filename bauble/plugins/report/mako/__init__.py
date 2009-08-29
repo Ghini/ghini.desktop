@@ -24,14 +24,14 @@ class MakoFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
         super(MakoFormatterSettingsBox, self).__init__(*args)
-        self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
+        self.widgets = utils.load_widgets(os.path.join(paths.lib_dir(),
                                "plugins", "report", 'mako', 'gui.glade'))
         # keep a refefence to settings box so it doesn't get destroyed in
         # remove_parent()
-        settings_box = self.widgets.settings_box
+        self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(settings_box)
-        #self.presenter = SettingsBoxPresenter(self.widgets)
+        self.pack_start(self.settings_box)
+
 
     def get_settings(self):
         """
@@ -41,11 +41,12 @@ class MakoFormatterSettingsBox(SettingsBox):
 
     def update(self, settings):
         if 'template' in settings and settings['template']:
-            self.widgets.template_chooser.\
-                                        set_filename(settings['template'])
+            self.widgets.template_chooser.set_filename(settings['template'])
         if 'private' in settings:
             self.widgets.private_check.set_active(settings['private'])
 
+
+_settings_box = MakoFormatterSettingsBox()
 
 class MakoFormatterPlugin(FormatterPlugin):
     """
@@ -58,7 +59,7 @@ class MakoFormatterPlugin(FormatterPlugin):
 
     @staticmethod
     def get_settings_box():
-        return MakoFormatterSettingsBox()
+        return _settings_box
 
 
     @staticmethod

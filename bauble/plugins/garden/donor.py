@@ -314,8 +314,7 @@ class DonorInfoBox(InfoBox):
         super(DonorInfoBox, self).__init__()
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "donor_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralDonorExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

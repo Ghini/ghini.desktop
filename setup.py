@@ -24,7 +24,7 @@ from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
-# TODO: external dependencies not in the PyPI: PyGTK>=2.14, pyglade
+# TODO: external dependencies not in the PyPI: PyGTK>=2.14
 # TODO: optional dependencies: MySQL-Python, psycopg2,
 # Sphinx (for building docs, maybe include in buildr-requires)
 

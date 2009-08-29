@@ -1,18 +1,18 @@
 <?xml version="1.0"?>
-<glade-interface>
-  <!-- interface-requires gtk+ 2.16 -->
+<interface>
+  <requires lib="gtk+" version="2.16"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <widget class="GtkWindow" id="species_window">
+  <object class="GtkWindow" id="species_window">
     <property name="title" translatable="yes">species_window</property>
     <property name="default_width">440</property>
     <property name="default_height">250</property>
     <child>
-      <widget class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkVBox" id="sp_general_box">
+          <object class="GtkVBox" id="sp_general_box">
             <child>
-              <widget class="GtkLabel" id="sp_name_data">
+              <object class="GtkLabel" id="sp_name_data">
                 <property name="visible">True</property>
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                 <property name="xalign">0</property>
@@ -21,24 +21,24 @@
                 <property name="use_markup">True</property>
                 <property name="justify">fill</property>
                 <property name="selectable">True</property>
-              </widget>
+              </object>
               <packing>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkTable" id="table1">
+              <object class="GtkTable" id="table1">
                 <property name="n_rows">4</property>
                 <property name="n_columns">2</property>
                 <property name="column_spacing">15</property>
                 <property name="row_spacing">8</property>
                 <child>
-                  <widget class="GtkLabel" id="sp_dist_label">
+                  <object class="GtkLabel" id="sp_dist_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;Distribution:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;Distribution:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">3</property>
                     <property name="bottom_attach">4</property>
@@ -47,12 +47,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="sp_nplants_label">
+                  <object class="GtkLabel" id="sp_nplants_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Plants:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Plants:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
@@ -61,12 +61,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="sp_nacc_label">
+                  <object class="GtkLabel" id="sp_nacc_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
@@ -75,17 +75,17 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="eventbox1">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="sp_dist_data">
+                      <object class="GtkLabel" id="sp_dist_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
+                        <property name="label" translatable="yes">--</property>
                         <property name="wrap">True</property>
-                      </widget>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -96,16 +96,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="eventbox2">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="sp_nplants_data">
+                      <object class="GtkLabel" id="sp_nplants_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -116,15 +116,15 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="eventbox3">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="sp_nacc_data">
+                      <object class="GtkLabel" id="sp_nacc_data">
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -140,90 +140,90 @@
                 <child>
                   <placeholder/>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="sp_vernacular_box">
+          <object class="GtkVBox" id="sp_vernacular_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkLabel" id="sp_vernacular_data">
+              <object class="GtkLabel" id="sp_vernacular_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes" context="yes">--</property>
-              </widget>
+                <property name="label" translatable="yes">--</property>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="sp_synonyms_box">
+          <object class="GtkVBox" id="sp_synonyms_box">
             <property name="visible">True</property>
             <property name="border_width">5</property>
             <child>
               <placeholder/>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">2</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="sp_notes_box">
+          <object class="GtkVBox" id="sp_notes_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkTextView" id="sp_notes_data">
+              <object class="GtkTextView" id="sp_notes_data">
                 <property name="visible">True</property>
                 <property name="wrap_mode">word</property>
-              </widget>
+              </object>
               <packing>
                 <property name="position">0</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">3</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-  <widget class="GtkWindow" id="genus_window">
-    <property name="title" translatable="yes" context="yes">genus_window</property>
+  </object>
+  <object class="GtkWindow" id="genus_window">
+    <property name="title" translatable="yes">genus_window</property>
     <child>
-      <widget class="GtkVBox" id="vbox2">
+      <object class="GtkVBox" id="vbox2">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkVBox" id="gen_general_box">
+          <object class="GtkVBox" id="gen_general_box">
             <property name="visible">True</property>
             <property name="spacing">5</property>
             <child>
-              <widget class="GtkVBox" id="vbox3">
+              <object class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
                 <child>
-                  <widget class="GtkLabel" id="gen_name_data">
+                  <object class="GtkLabel" id="gen_name_data">
                     <property name="visible">True</property>
                     <property name="xalign">0</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -231,52 +231,52 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="eventbox1">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="gen_fam_data">
+                      <object class="GtkLabel" id="gen_fam_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="padding">5</property>
                 <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <widget class="GtkTable" id="table2">
+              <object class="GtkTable" id="table2">
                 <property name="visible">True</property>
                 <property name="n_rows">3</property>
                 <property name="n_columns">2</property>
                 <property name="column_spacing">15</property>
                 <property name="row_spacing">8</property>
                 <child>
-                  <widget class="GtkLabel" id="nsp_label">
+                  <object class="GtkLabel" id="nsp_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Species:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Species:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
                     <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="gen_nplants_label">
+                  <object class="GtkLabel" id="gen_nplants_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Plants:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Plants:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
@@ -285,12 +285,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="gen_nacc_label">
+                  <object class="GtkLabel" id="gen_nacc_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
@@ -299,16 +299,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="eventbox2">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="gen_nsp_data">
+                      <object class="GtkLabel" id="gen_nsp_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -316,16 +316,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="eventbox3">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="gen_nacc_data">
+                      <object class="GtkLabel" id="gen_nacc_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -335,16 +335,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox4">
+                  <object class="GtkEventBox" id="eventbox4">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="gen_nplants_data">
+                      <object class="GtkLabel" id="gen_nplants_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -353,67 +353,67 @@
                     <property name="y_options"></property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="gen_synonyms_box">
+          <object class="GtkVBox" id="gen_synonyms_box">
             <property name="visible">True</property>
             <child>
               <placeholder/>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="gen_notes_box">
+          <object class="GtkVBox" id="gen_notes_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkTextView" id="gen_notes_data">
+              <object class="GtkTextView" id="gen_notes_data">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="wrap_mode">word</property>
-              </widget>
+              </object>
               <packing>
                 <property name="position">0</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">2</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-  <widget class="GtkWindow" id="family_window">
-    <property name="title" translatable="yes" context="yes">family_window</property>
+  </object>
+  <object class="GtkWindow" id="family_window">
+    <property name="title" translatable="yes">family_window</property>
     <child>
-      <widget class="GtkVBox" id="vbox5">
+      <object class="GtkVBox" id="vbox5">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkVBox" id="fam_general_box">
+          <object class="GtkVBox" id="fam_general_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkLabel" id="fam_name_data">
+              <object class="GtkLabel" id="fam_name_data">
                 <property name="visible">True</property>
                 <property name="xalign">0</property>
                 <property name="ypad">8</property>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -421,19 +421,19 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkTable" id="table3">
+              <object class="GtkTable" id="table3">
                 <property name="visible">True</property>
                 <property name="n_rows">4</property>
                 <property name="n_columns">2</property>
                 <property name="column_spacing">15</property>
                 <property name="row_spacing">8</property>
                 <child>
-                  <widget class="GtkLabel" id="fam_nplants_label">
+                  <object class="GtkLabel" id="fam_nplants_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Plants&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Plants&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">3</property>
                     <property name="bottom_attach">4</property>
@@ -442,12 +442,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="fam_nacc_label">
+                  <object class="GtkLabel" id="fam_nacc_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Accessions:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">2</property>
                     <property name="bottom_attach">3</property>
@@ -456,12 +456,12 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="fam_nsp_label">
+                  <object class="GtkLabel" id="fam_nsp_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Species:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Species:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="top_attach">1</property>
                     <property name="bottom_attach">2</property>
@@ -470,28 +470,28 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkLabel" id="fam_ngen_label">
+                  <object class="GtkLabel" id="fam_ngen_label">
                     <property name="visible">True</property>
                     <property name="xalign">1</property>
-                    <property name="label" translatable="yes" context="yes">&lt;b&gt;# of Genera:&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;# of Genera:&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="x_options">GTK_FILL</property>
                     <property name="y_options"></property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="eventbox1">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="fam_ngen_data">
+                      <object class="GtkLabel" id="fam_ngen_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -500,16 +500,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="eventbox2">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="fam_nsp_data">
+                      <object class="GtkLabel" id="fam_nsp_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -520,16 +520,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="eventbox3">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="fam_nacc_data">
+                      <object class="GtkLabel" id="fam_nacc_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -540,16 +540,16 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkEventBox" id="eventbox4">
+                  <object class="GtkEventBox" id="eventbox4">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkLabel" id="fam_nplants_data">
+                      <object class="GtkLabel" id="fam_nplants_data">
                         <property name="visible">True</property>
                         <property name="xalign">0</property>
-                        <property name="label" translatable="yes" context="yes">--</property>
-                      </widget>
+                        <property name="label" translatable="yes">--</property>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="left_attach">1</property>
                     <property name="right_attach">2</property>
@@ -559,46 +559,46 @@
                     <property name="y_options"></property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="position">1</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="fam_synonyms_box">
+          <object class="GtkVBox" id="fam_synonyms_box">
             <property name="visible">True</property>
             <child>
               <placeholder/>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="position">1</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkVBox" id="fam_notes_box">
+          <object class="GtkVBox" id="fam_notes_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkTextView" id="fam_notes_data">
+              <object class="GtkTextView" id="fam_notes_data">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="wrap_mode">word</property>
-              </widget>
+              </object>
               <packing>
                 <property name="position">0</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="position">2</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-</glade-interface>
+  </object>
+</interface>
