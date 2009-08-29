@@ -3,7 +3,7 @@
    contain the root `toctree` directive.
 
 Documentation for Bauble
-#######################
+########################
 
 Bauble is an application for managing botanical specimen collections.
 With it you can create a searchable database of plant records.
@@ -30,7 +30,7 @@ Using Bauble
 
 
 Bauble Development
-===========
+==================
 
 .. toctree::
    :maxdepth: 2

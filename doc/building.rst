@@ -18,6 +18,9 @@ Building on Windows
    latest runtime packages from `gtk-win.sourceforge.net
    <http://gtk-win.sourceforge.net/home/index.php/Downloads>`_.
 
+   .. note:: The gtk-win package currently doesn't support SVG which can
+   cause a problem with Bauble.
+
 3. Install the Python GTK+ packages.  These installers have to be
    downloaded and run individually.
 
