@@ -356,7 +356,7 @@ def populate_iconview(gd_client, iconview, tag):
     model = gtk.ListStore(gtk.gdk.Pixbuf)
     iconview.set_model(model)
 
-    cache = PhotoCache(crete=True) # creates the cache if it doesn't exists
+    cache = PhotoCache(create=True) # creates the cache if it doesn't exists
 
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
     iconview_worker.connect('published', _on_get_feed_publish, iconview)
