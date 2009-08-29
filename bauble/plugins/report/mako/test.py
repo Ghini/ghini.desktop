@@ -19,16 +19,16 @@ from bauble.plugins.plants import Family, Genus, Species, \
     SpeciesDistribution, VernacularName, Geography
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.tag import tag_objects, Tag
-from bauble.plugins.report.template import TemplateFormatterPlugin
+from bauble.plugins.report.mako import MakoFormatterPlugin
 
 
-class TemplateFormatterTests(BaubleTestCase):
+class MakoFormatterTests(BaubleTestCase):
 
     def __init__(self, *args):
-        super(TemplateFormatterTests, self).__init__(*args)
+        super(MakoFormatterTests, self).__init__(*args)
 
     def setUp(self, *args):
-        super(TemplateFormatterTests, self).setUp()
+        super(MakoFormatterTests, self).setUp()
         fctr = gctr = sctr = actr = pctr = 0
         for f in xrange(2):
             fctr+=1
@@ -65,13 +65,13 @@ class TemplateFormatterTests(BaubleTestCase):
 
 
     def tearDown(self, *args):
-        super(TemplateFormatterTests, self).tearDown(*args)
+        super(MakoFormatterTests, self).tearDown(*args)
 
 
     def test_format(self):
         plants = self.session.query(Plant).all()
         filename = os.path.join(os.path.dirname(__file__), 'test.html')
-        report = TemplateFormatterPlugin.format(plants, template=filename)
+        report = MakoFormatterPlugin.format(plants, template=filename)
         open('/tmp/testlabels.html', 'w').write(report)
         #print >>sys.stderr, report
         # TODO: need to make some sort of assertion here
