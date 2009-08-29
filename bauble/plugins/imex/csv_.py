@@ -669,7 +669,7 @@ class CSVImportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'imcsv'
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         importer = CSVImporter()
         importer.start(arg)
 
@@ -678,7 +678,7 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'excsv'
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         exporter = CSVExporter()
         exporter.start(arg)
 

@@ -1401,7 +1401,7 @@ class HistoryCommandHandler(pluginmgr.CommandHandler):
         return self.view
 
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         debug("HistoryCommandHandler.__call__(%s)" % arg)
         self.view.populate_history(arg)
         #self.view.search(arg)
@@ -1449,6 +1449,6 @@ class DefaultCommandHandler(pluginmgr.CommandHandler):
             self.view = SearchView()
         return self.view
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         self.view.search(arg)
 
