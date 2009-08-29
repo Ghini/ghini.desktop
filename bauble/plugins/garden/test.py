@@ -168,7 +168,6 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
     def tearDown(self):
-        self.session.commit()
         super(PlantTests, self).tearDown()
 
 
