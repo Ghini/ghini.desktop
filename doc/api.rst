@@ -1,4 +1,4 @@
-Bauble API Documentation
+API Documentation
 ------------------------
 
 :mod:`bauble`
@@ -39,8 +39,8 @@ Bauble API Documentation
 .. autoclass:: bauble.editor.FloatOrNoneStringValidator
 .. autoclass:: bauble.editor.GenericEditorView
    :members:
-.. autoclass:: bauble.editor.Problems
-   :members:
+.. .. autoclass:: bauble.editor.Problems
+..   :members:
 .. autoclass:: bauble.editor.GenericEditorPresenter
    :members:
 .. autoclass:: bauble.editor.GenericModelViewPresenterEditor
@@ -78,17 +78,17 @@ Bauble API Documentation
 .. autofunction:: bauble.pluginmgr.load
 .. autofunction:: bauble.pluginmgr.init
 .. autofunction:: bauble.pluginmgr.install
-.. autoclass:: bauble.pluginmgr.RegistryEmptyError
-.. autoclass:: bauble.pluginmgr.Registry
-   :members:
-.. autoclass:: bauble.pluginmgr.RegistryEntry
-   :members:
+.. .. autoclass:: bauble.pluginmgr.RegistryEmptyError
+.. .. autoclass:: bauble.pluginmgr.Registry
+..   :members:
+.. .. autoclass:: bauble.pluginmgr.RegistryEntry
+..   :members:
 .. autoclass:: bauble.pluginmgr.Plugin
    :members:
 .. autoclass:: bauble.pluginmgr.Tool
 .. autoclass:: bauble.pluginmgr.View
 .. autoclass:: bauble.pluginmgr.CommandHandler
-.. autofunction:: bauble.pluginmgr.topological_sort
+.. .. autofunction:: bauble.pluginmgr.topological_sort
 
 
 :mod:`bauble.prefs`
@@ -100,7 +100,7 @@ Bauble API Documentation
 =======================
 .. automodule:: bauble.task
 .. autofunction:: bauble.task.queue
-.. autofunction:: bauble.task.flush
+.. .. autofunction:: bauble.task.flush
 .. autofunction:: bauble.task.set_message
 .. autofunction:: bauble.task.clear_messages
 
@@ -122,8 +122,8 @@ Bauble API Documentation
 =======================
 .. automodule:: bauble.utils
 .. autofunction:: bauble.utils.find_dependent_tables
-.. autoclass:: bauble.utils.GladeWidgets
-   :members: remove_parent, signal_autoconnect
+.. .. autoclass:: bauble.utils.GladeWidgets
+..   :members: remove_parent, signal_autoconnect
 .. autofunction:: bauble.utils.tree_model_has
 .. autofunction:: bauble.utils.search_tree_model
 .. autofunction:: bauble.utils.clear_model
@@ -253,13 +253,13 @@ Bauble API Documentation
 ============================
 .. automodule:: bauble.plugins.report
 
-:mod:`bauble.plugins.report.default`
+:mod:`bauble.plugins.report.xsl`
 ====================================
-.. automodule:: bauble.plugins.report.default
+.. automodule:: bauble.plugins.report.xsl
 
-:mod:`bauble.plugins.report.template`
+:mod:`bauble.plugins.report.mako`
 =====================================
-.. automodule:: bauble.plugins.report.template
+.. automodule:: bauble.plugins.report.mako
 
 :mod:`bauble.plugins.tag`
 =========================
