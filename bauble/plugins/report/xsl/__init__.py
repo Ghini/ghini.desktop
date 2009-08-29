@@ -399,6 +399,6 @@ try:
     import lxml.etree as etree
 except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
-                         'default report plugins')
+                         'XSL report plugin')
 else:
     formatter_plugin = XSLFormatterPlugin

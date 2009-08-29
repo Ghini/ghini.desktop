@@ -35,7 +35,7 @@ from bauble.utils.log import debug, warning
 config_list_pref = 'report.configs'
 
 # the default report generator to select on start
-default_config_pref = 'report.default'
+default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 # _paths = {}
