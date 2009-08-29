@@ -208,7 +208,7 @@ from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
                          order_by=['sp', 'infrasp_rank', 'infrasp'],
-                         backref=backref('genus', lazy=False, uselist=False))
+                         backref=backref('genus', uselist=False))
 
 
 

@@ -357,7 +357,7 @@ class Accession(db.Base):
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
                       order_by='Plant.code',
-                      backref=backref('accession', lazy=False, uselist=False))
+                      backref=backref('accession', uselist=False))
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
                              backref='accession')

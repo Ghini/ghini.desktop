@@ -373,7 +373,7 @@ class SpeciesSynonym(db.Base):
 
     # relations
     synonym = relation('Species', uselist=False,
-                           primaryjoin='SpeciesSynonym.synonym_id==Species.id')
+                       primaryjoin='SpeciesSynonym.synonym_id==Species.id')
 
     def __init__(self, synonym=None, **kwargs):
         # it is necessary that the first argument here be synonym for
