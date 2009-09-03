@@ -6,6 +6,10 @@
 
 """
 The i18n module defines the _() function for creating translatable strings.
+
+_() is added to the Python builtins so there is no reason to import
+this module more than once in an application.  It is usually imported
+in :mod:`bauble`
 """
 
 import sys

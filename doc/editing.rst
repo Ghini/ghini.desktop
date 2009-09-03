@@ -92,6 +92,10 @@ Plant
 -----
 The Plant editor.
 
+Creating multiple plants
+^^^^^^^^^^^^^^^^^^^^^^
+You can create multiple Plants by using ranges in the code entry.
+
 
 Locations
 ---------

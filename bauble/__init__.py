@@ -11,6 +11,8 @@ import bauble.i18n
 
 # major, minor, revision version tuple
 version = '1.0.0b1' # :bump
+"""The Bauble version.
+"""
 version_tuple = version.split('.')
 
 def main_is_frozen():
@@ -53,9 +55,31 @@ import logging
 logging.getLogger('sqlalchemy').setLevel(logging.WARNING)
 
 Session = None # Session is set by bauble.db.open()
+"""
+bauble.Session is created after the database has been opened with
+:func:`bauble.db.open()`. bauble.Session should be used when you need
+to do ORM based activities on a bauble database.  To create a new
+Session use::
+
+    session = bauble.Session()
+
+When you are finished with the session be sure to close the session
+with :func:`session.close()`. Failure to close sessions can lead to
+database deadlocks, particularly when using PostgreSQL based
+databases.
+"""
+
 gui = None
+"""bauble.gui is the instance :class:`bauble._gui.GUI`
+"""
+
 default_icon = None
+"""The default icon.
+"""
+
 conn_name = None
+"""The name of the current connection.
+"""
 
 import traceback
 import bauble.error as err
@@ -94,6 +118,8 @@ def quit():
         sys.exit(1)
 
 
+# TODO: this functions seems redundant when we already have
+# bauble.gui.set_busy
 def set_busy(busy):
     """
     Set the interface to appear busy.
@@ -163,11 +189,11 @@ conn_list_pref = "conn.list"
 
 def main(uri=None):
     """
-    Initialize Bauble and start the main Bauble interface.
+    Run the main Bauble application.
     """
-# TODO: it would be nice to show a Tk dialog here saying we can't
-# import gtk...but then we would have to include all of the Tk libs in
-# with the win32 batteries-included installer
+    # TODO: it would be nice to show a Tk dialog here saying we can't
+    # import gtk...but then we would have to include all of the Tk libs in
+    # with the win32 batteries-included installer
     try:
         import gtk, gobject
     except ImportError, e:
