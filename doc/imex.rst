@@ -22,8 +22,9 @@ In general it is best to only import CSV files into Bauble that were
 previously exported from Bauble. It is possible to import any CSV file
 but that is more advanced that this doc will cover.
 
-To import CSV files into Bauble select Tools->Export->Comma Seperated
-Values from the menu.
+To import CSV files into Bauble select
+:menuselection:`Tools-->Export-->Comma Seperated Values` from the
+menu.
 
 After clicking OK on the dialog that ask if you are sure you know what
 you're doing a file chooser will open.  In the file chooser select the
@@ -33,8 +34,8 @@ files you want to import.
 Exporting to CSV
 ----------------
 
-To export the Bauble data to CSV select Tools->Export->Comma Seperated
-Values from the menu.
+To export the Bauble data to CSV select
+:menuselection:`Tools-->Export-->Comma Seperated Values` from the menu.
 
 This tool will ask you to select a directory to export the CSV data.
 All of the tables in Bauble will be exported to files in the format

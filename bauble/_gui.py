@@ -277,6 +277,7 @@ class GUI(object):
     title = property(__get_title)
 
 
+    # TODO: why do we have this if we already have bauble.set_busy()
     def set_busy(self, busy):
         self.window.set_sensitive(not busy)
         if busy:
@@ -296,7 +297,7 @@ class GUI(object):
         '''
         set the view, if view is None then remove any views currently set
 
-        @param view: default=None
+        :param view: default=None
         '''
         view_box = self.widgets.view_box
         if view_box is None:
@@ -394,9 +395,9 @@ class GUI(object):
         '''
         add a menu to the menubar
 
-        @param name:
-        @param menu:
-        @param index:
+        :param name:
+        :param menu:
+        :param index:
         '''
         menu_item = gtk.MenuItem(name)
         menu_item.set_submenu(menu)
@@ -410,8 +411,8 @@ class GUI(object):
         """
         add an editor to the insert menu
 
-        @param editor: the editor to add to the menu
-        @param label: the label for the menu item
+        :param editor: the editor to add to the menu
+        :param label: the label for the menu item
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()

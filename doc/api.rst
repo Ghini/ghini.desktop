@@ -4,12 +4,16 @@ API Documentation
 :mod:`bauble`
 =============
 .. automodule:: bauble
+.. autodata:: bauble.version
+.. autodata:: bauble.Session
+.. autodata:: bauble.gui
 .. autofunction:: bauble.main_is_frozen
 .. autofunction:: bauble.save_state
 .. autofunction:: bauble.quit
 .. autofunction:: bauble.set_busy
 .. autofunction:: bauble.command_handler
 .. autofunction:: bauble.main
+
 
 :mod:`bauble.db`
 ================
@@ -43,7 +47,7 @@ API Documentation
 ..   :members:
 .. autoclass:: bauble.editor.GenericEditorPresenter
    :members:
-.. autoclass:: bauble.editor.GenericModelViewPresenterEditor
+   .. autoclass:: bauble.editor.GenericModelViewPresenterEditor
    :members:
 
 
@@ -55,6 +59,9 @@ API Documentation
 :mod:`bauble._gui`
 =======================
 .. automodule:: bauble._gui
+.. autoclass:: bauble._gui.GUI
+   :show-inheritance:
+   :members:
 
 
 :mod:`bauble.meta`
