@@ -77,10 +77,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
         if submod in ('mods', 'ext', 'databases'):
             sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
 
-    # TODO: check again that this is necessary for pysqlite2, we might
-    # be able to juse use the python 2.5 built in sqlite3 module
     py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
-                       'psycopg2', 'encodings'] + \
+                       'fibra', 'psycopg2', 'encodings', 'mako',] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
@@ -387,7 +385,7 @@ setuptools.setup(name="bauble",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
                                    "gdata>=1.2.4",
-                                   "fibra==0.0.14"] + needs_sqlite,
+                                   "fibra==0.0.17"] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett Adams",
                  author_email="brett@belizebotanic.org",
