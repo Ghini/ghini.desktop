@@ -76,14 +76,19 @@ def queue(task):
         bauble.gui.progressbar.set_fraction(0)
     global __running
     __running = True
-    schedule.run()
-    __running = False
-    if bauble.gui is not None:
-        bauble.gui.progressbar.set_pulse_step(0)
-        bauble.gui.progressbar.set_fraction(0)
-        bauble.gui.progressbar.hide()
-    clear_messages()
-    bauble.set_busy(False)
+    try:
+        schedule.run()
+        __running = False
+    except:
+        raise
+    finally:
+        __running = False
+        if bauble.gui is not None:
+            bauble.gui.progressbar.set_pulse_step(0)
+            bauble.gui.progressbar.set_fraction(0)
+            bauble.gui.progressbar.hide()
+        clear_messages()
+        bauble.set_busy(False)
 
 
 
