@@ -18,7 +18,9 @@ API Documentation
 :mod:`bauble.db`
 ================
 .. automodule:: bauble.db
-
+.. autodata:: bauble.db.engine
+.. autodata:: bauble.db.Base
+.. autodata:: bauble.db.metadata
 .. autoclass:: bauble.db.MapperBase
    :show-inheritance:
    :members:
@@ -43,11 +45,9 @@ API Documentation
 .. autoclass:: bauble.editor.FloatOrNoneStringValidator
 .. autoclass:: bauble.editor.GenericEditorView
    :members:
-.. .. autoclass:: bauble.editor.Problems
-..   :members:
 .. autoclass:: bauble.editor.GenericEditorPresenter
    :members:
-   .. autoclass:: bauble.editor.GenericModelViewPresenterEditor
+.. autoclass:: bauble.editor.GenericModelViewPresenterEditor
    :members:
 
 
