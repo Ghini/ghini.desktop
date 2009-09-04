@@ -286,7 +286,7 @@ def main(uri=None):
 
 
     # make session available as a convenience to other modules
-    Session = db.Session
+    #Session = db.Session
 
     # load the plugins
     pluginmgr.load()
