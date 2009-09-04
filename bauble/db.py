@@ -40,7 +40,12 @@ if SQLALCHEMY_DEBUG:
 
 class MapperBase(DeclarativeMeta):
     """
-    MapperBase adds the id, _created and _last_updated columns to all tables.
+    MapperBase adds the id, _created and _last_updated columns to all
+    tables.
+
+    In general there is no reason to use this class directly other
+    than to extend it to add more default columns to all the bauble
+    tables.
     """
 
     def __init__(cls, classname, bases, dict_):
@@ -59,9 +64,23 @@ class MapperBase(DeclarativeMeta):
 
 
 engine = None
+"""A :class:`sqlalchemy.engine.base.Engine` used as the default
+connection to the database.
+"""
+
 Base = declarative_base(metaclass=MapperBase)
+"""
+All tables/mappers in Bauble which use the SQLAlchemy declarative
+plugin for declaring tables and mappers should derive from this class.
+
+An instance of :class:`sqlalchemy.ext.declarative.Base`
+"""
+
 metadata = Base.metadata
-Session = None
+"""The default metadata for all Bauble tables.
+"""
+
+#Session = None
 
 
 def open(uri, verify=True, show_error_dialogs=False):
@@ -101,10 +120,11 @@ def open(uri, verify=True, show_error_dialogs=False):
     new_engine.connect().close() # make sure we can connect
     def _bind():
         """bind metadata to engine and create sessionmaker """
-        global Session, engine
+        #global Session, engine
+        global engine
         engine = new_engine
         metadata.bind = engine # make engine implicit for metadata
-        Session = sessionmaker(bind=engine, autoflush=False)
+        #Session = sessionmaker(bind=engine, autoflush=False)
         bauble.Session = sessionmaker(bind=engine, autoflush=False)
 
     if new_engine is not None and not verify:
