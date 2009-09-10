@@ -53,7 +53,7 @@ class GardenPlugin(pluginmgr.Plugin):
                                             context_menu=acc_context_menu,
                                             markup_func=acc_markup_func)
 
-        mapper_search.add_meta(('location', 'loc'), Location, ['site'])
+        mapper_search.add_meta(('location', 'loc'), Location, ['name'])
         SearchView.view_meta[Location].set(children=natsort_kids('plants'),
                                            infobox=LocationInfoBox,
                                            context_menu=loc_context_menu,
