@@ -407,7 +407,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         def loc_get_completions(text):
             query = self.session.query(Location)
-            return query.filter(utils.ilike(Location.site,
+            return query.filter(utils.ilike(Location.name,
                                             utils.utf8('%s%%' % text)))
         def on_loc_select(value):
             self.set_model_attr('location', value)
@@ -772,7 +772,7 @@ class GeneralPlantExpander(InfoExpander):
                               utils.xml_safe(unicode(tail)))
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
-        self.set_widget_value('location_data',row.location.site)
+        self.set_widget_value('location_data',row.location.name)
         self.set_widget_value('status_data',
                          row.acc_status, False)
         self.set_widget_value('type_data',

@@ -283,7 +283,7 @@ class FamilyTests(PlantTestCase):
         """
         Interactively test the PlantEditor
         """
-        #loc = self.create(Family, site=u'some site')
+        #loc = self.create(Family, name=u'some site')
         fam = Family(family='some family')
         editor = FamilyEditor(model=fam)
         editor.start()
@@ -390,7 +390,7 @@ class GenusTests(PlantTestCase):
         """
         Interactively test the PlantEditor
         """
-        #loc = self.create(Genus, site=u'some site')
+        #loc = self.create(Genus, name=u'some site')
         fam = Family(family=u'family')
         fam2 = Family(family=u'family2')
         fam2.synonyms.append(fam)
