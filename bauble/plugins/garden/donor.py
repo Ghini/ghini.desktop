@@ -175,8 +175,8 @@ class DonorEditorPresenter(GenericEditorPresenter):
 
 class DonorEditor(GenericModelViewPresenterEditor):
 
-    label = 'Donor'
-    mnemonic_label = '_Donor'
+    label = _('Donor')
+    mnemonic_label = _('_Donor')
     RESPONSE_NEXT = 11
     ok_responses = (RESPONSE_NEXT,)
 
@@ -292,7 +292,7 @@ class NotesExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(NotesExpander, self).__init__("Notes", widgets)
+        super(NotesExpander, self).__init__(_("Notes"), widgets)
         notes_box = self.widgets.don_notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)

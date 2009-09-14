@@ -591,8 +591,8 @@ class PicasaSettingsTool(pluginmgr.Tool):
     """
     Tool for changing the Picasa settings and updated the auth token
     """
-    category = 'Picasa'
-    label = 'Settings'
+    category = _('Picasa')
+    label = _('Settings')
 
     @classmethod
     def start(cls):

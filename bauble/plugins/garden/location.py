@@ -198,8 +198,8 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 class LocationEditor(GenericModelViewPresenterEditor):
 
-    label = 'Location'
-    mnemonic_label = '_Location'
+    label = _('Location')
+    mnemonic_label = _('_Location')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -311,7 +311,7 @@ class GeneralLocationExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.loc_gen_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -330,11 +330,11 @@ class GeneralLocationExpander(InfoExpander):
 
 class DescriptionExpander(InfoExpander):
     """
-    the location description
+    The location description
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Descripion", widgets)
+        InfoExpander.__init__(self, _("Description"), widgets)
         descr_box = self.widgets.loc_descr_box
         self.widgets.remove_parent(descr_box)
         self.vbox.pack_start(descr_box)
