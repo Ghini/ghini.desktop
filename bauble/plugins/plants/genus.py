@@ -104,7 +104,8 @@ class Genus(db.Base):
 
     :Columns:
         *genus*:
-            The name of the genus.
+            The name of the genus.  In addition to standard generic
+            names any additional hybrid flags or genera should included here.
 
         *qualifier*:
             Designates the botanical status of the genus.
@@ -115,13 +116,20 @@ class Genus(db.Base):
                 * s. str.: segregate genus (sensu stricto)
 
         *author*:
+            The name or abbreviation of the author who published this genus.
 
         *notes*:
+            A free text field for information relative to this genus.
 
     :Properties:
         *family*:
+            The family of the genus.
 
         *synonyms*:
+            The list of genera who are synonymous with this genus.  If
+            a genus is listed as a synonym of this genus then this
+            genus should be considered the current and valid name for
+            the synonym.
 
     :Contraints:
         The combination of genus, author, qualifier
@@ -544,8 +552,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class GenusEditor(editor.GenericModelViewPresenterEditor):
 
-    label = 'Genus'
-    mnemonic_label = '_Genus'
+    label = _('Genus')
+    mnemonic_label = _('_Genus')
 
     # these response values have to correspond to the response values in
     # the view

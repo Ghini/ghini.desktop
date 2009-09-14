@@ -139,8 +139,8 @@ class XMLExportCommandHandler(pluginmgr.CommandHandler):
 
 
 class XMLExportTool(pluginmgr.Tool):
-    category = "Export"
-    label = "XML"
+    category = _("Export")
+    label = _("XML")
 
     @classmethod
     def start(cls):

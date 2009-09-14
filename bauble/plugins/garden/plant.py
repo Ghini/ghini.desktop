@@ -545,8 +545,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 class PlantEditor(GenericModelViewPresenterEditor):
 
-    label = 'Plant'
-    mnemonic_label = '_Plant'
+    label = _('Plant')
+    mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -737,7 +737,7 @@ class GeneralPlantExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -788,7 +788,7 @@ class NotesExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "Notes", widgets)
+        InfoExpander.__init__(self, _("Notes"), widgets)
         notes_box = self.widgets.notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)

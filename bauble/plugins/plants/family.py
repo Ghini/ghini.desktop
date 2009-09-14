@@ -456,8 +456,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
-    label = 'Family'
-    mnemonic_label = '_Family'
+    label = _('Family')
+    mnemonic_label = _('_Family')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11

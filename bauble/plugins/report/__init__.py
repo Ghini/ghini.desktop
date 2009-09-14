@@ -560,7 +560,7 @@ class ReportToolDialog(object):
 
 class ReportTool(pluginmgr.Tool):
 
-    label = "Report"
+    label = _("Report")
 
     @classmethod
     def start(self):
