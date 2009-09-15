@@ -10,15 +10,13 @@
 !include "MUI.nsh"
 
 ; general
-Name "Bauble"
+Name "Bauble - UBC"
 
-; this should be the Bauble version number combined with the subversion 
-; revision
 !define version "1.0.0b1" ; :bump
 !define src_dir "../dist"
-Outfile "bauble-${version}-setup.exe"
+Outfile "bauble-ubc-${version}-setup.exe"
 
-!define prodname "Bauble"
+!define prodname "Bauble - UBC"
 !define exec "bauble.exe"
 !define license_file "LICENSE"
 !define readme "README"

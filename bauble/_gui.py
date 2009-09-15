@@ -270,9 +270,9 @@ class GUI(object):
 
     def __get_title(self):
         if bauble.conn_name is None:
-            return '%s %s' % ('Bauble', bauble.version)
+            return '%s %s' % ('Bauble - UBC', bauble.version)
         else:
-            return '%s %s - %s' % ('Bauble', bauble.version,
+            return '%s %s - %s' % ('Bauble - UBC', bauble.version,
                                    bauble.conn_name)
     title = property(__get_title)
 
