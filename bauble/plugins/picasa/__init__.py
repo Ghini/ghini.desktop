@@ -214,7 +214,7 @@ class PicasaSettingsDialog(object):
     def __init__(self):
         widget_path = os.path.join(paths.lib_dir(), 'plugins', 'picasa',
                                    'gui.glade')
-        self.widgets = utils.GladeWidgets(widget_path)
+        self.widgets = utils.load_widgets(widget_path)
         self.window = self.widgets.settings_dialog
         if bauble.gui:
             self.window.set_transient_for(bauble.gui.window)
@@ -356,7 +356,7 @@ def populate_iconview(gd_client, iconview, tag):
     model = gtk.ListStore(gtk.gdk.Pixbuf)
     iconview.set_model(model)
 
-    cache = PhotoCache(crete=True) # creates the cache if it doesn't exists
+    cache = PhotoCache(create=True) # creates the cache if it doesn't exists
 
     iconview_worker = thread.GtkWorker(_get_feed_worker, gd_client, tag)
     iconview_worker.connect('published', _on_get_feed_publish, iconview)
@@ -591,8 +591,8 @@ class PicasaSettingsTool(pluginmgr.Tool):
     """
     Tool for changing the Picasa settings and updated the auth token
     """
-    category = 'Picasa'
-    label = 'Settings'
+    category = _('Picasa')
+    label = _('Settings')
 
     @classmethod
     def start(cls):

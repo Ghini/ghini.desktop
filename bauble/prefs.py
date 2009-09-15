@@ -325,7 +325,7 @@ class PrefsCommandHandler(pluginmgr.CommandHandler):
     command = ('prefs', 'config')
     view = None
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         pass
 
 

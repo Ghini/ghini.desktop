@@ -129,7 +129,7 @@ class XMLExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'exxml'
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         debug('XMLExportCommandHandler(%s)' % arg)
         exporter = XMLExporter()
         debug('starting')
@@ -139,8 +139,8 @@ class XMLExportCommandHandler(pluginmgr.CommandHandler):
 
 
 class XMLExportTool(pluginmgr.Tool):
-    category = "Export"
-    label = "XML"
+    category = _("Export")
+    label = _("XML")
 
     @classmethod
     def start(cls):

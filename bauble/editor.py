@@ -113,17 +113,13 @@ class GenericEditorView(object):
     """
     An generic object meant to be extended to provide the view for a
     GenericModelViewPresenterEditor
+
+    :param filename: a gtk.Builder UI definition
+    :param parent:
     """
     _tooltips = {}
 
     def __init__(self, filename, parent=None):
-        '''
-        glade_xml either at gtk.glade.XML instance or a path to a glade
-        XML file
-
-        :param glade_xml:
-        :param parent:
-        '''
         builder = utils.BuilderLoader.load(filename)
         self.widgets = utils.BuilderWidgets(builder)
         if parent:
@@ -322,7 +318,7 @@ class GenericEditorView(object):
 
 class DontCommitException(Exception):
     """
-    this is used for GenericModelViewPresenterEditor.commit_changes() to
+    This is used for GenericModelViewPresenterEditor.commit_changes() to
     signal that for some reason the editor doesn't want to commit the current
     values and would like to redisplay
     """
@@ -332,20 +328,19 @@ class DontCommitException(Exception):
 
 class GenericEditorPresenter(object):
     """
-    the presenter of the Model View Presenter Pattern
+    The presenter of the Model View Presenter Pattern
+
+    :param model: an object instance mapped to an SQLAlchemy table
+    :param view: should be an instance of GenericEditorView
+
+    The presenter should usually be initialized in the following order:
+    1. initialize the widgets
+    2. refresh the view, put values from the model into the widgets
+    3. connect the signal handlers
     """
     problem_color = gtk.gdk.color_parse('#FFDCDF')
 
     def __init__(self, model, view):
-        '''
-        :param model: an object instance mapped to an SQLAlchemy table
-        :param view: should be an instance of GenericEditorView
-
-        the presenter should usually be initialized in the following order:
-        1. initialize the widgets
-        2. refresh the view, put values from the model into the widgets
-        3. connect the signal handlers
-        '''
         widget_model_map = {}
         self.model = model
         self.view = view
@@ -355,10 +350,10 @@ class GenericEditorPresenter(object):
     # whether the presenter should be commited or not
     def dirty(self):
         """
-        Returns True or False depending on whether the presenter has changed
-        anything that needs to be committed.  This doesn't
-        necessarily imply that the session is not dirty nor is it required to
-        change back to True if the changes are committed.
+        Returns True or False depending on whether the presenter has
+        changed anything that needs to be committed.  This doesn't
+        necessarily imply that the session is not dirty nor is it
+        required to change back to True if the changes are committed.
         """
         raise NotImplementedError
 
@@ -371,8 +366,8 @@ class GenericEditorPresenter(object):
 
     def remove_problem(self, problem_id, problem_widgets=None):
         """
-        remove problem_id from self.problems and reset the background color
-        of the widget(s) in problem_widgets
+        Remove problem_id from self.problems and reset the background
+        color of the widget(s) in problem_widgets
 
         :param problem_id:
         :param problem_widgets:
@@ -404,11 +399,10 @@ class GenericEditorPresenter(object):
         Add problem_id to self.problems and change the background of widget(s)
         in problem_widgets.
 
-        problem_widgets: either a widget or list of widgets whose background
-        color should change to indicate a problem
-
         :param problem_id:
-        :param problem_widgets:
+
+        :param problem_widgets: either a widget or list of widgets
+        whose background color should change to indicate a problem
         """
         if isinstance(problem_widgets, (tuple, list)):
             map(lambda w: self.add_problem(problem_id, w), problem_widgets)
@@ -422,8 +416,12 @@ class GenericEditorPresenter(object):
 
     def init_enum_combo(self, widget_name, field):
         """
-        initialize a gtk.ComboBox widget with name widget_name from enum values
-        in self.model.field
+        Initialize a gtk.ComboBox widget with name widget_name from
+        enum values in self.model.field
+
+        :param widget_name:
+
+        :param field:
         """
         combo = self.view.widgets[widget_name]
         mapper = object_mapper(self.model)
@@ -443,13 +441,13 @@ class GenericEditorPresenter(object):
 
     def set_model_attr(self, attr, value, validator=None):
         """
-        :param attr: the attribute on self.model to set
-        :param value: the value the attribute will be set to
-        :param validator: validates the value before setting it
-
         It is best to use this method to set values on the model
         rather than setting them directly.  Derived classes can
         override this method to take action when the model changes.
+
+        :param attr: the attribute on self.model to set
+        :param value: the value the attribute will be set to
+        :param validator: validates the value before setting it
         """
         if validator:
             try:
@@ -464,6 +462,12 @@ class GenericEditorPresenter(object):
     def assign_simple_handler(self, widget_name, model_attr, validator=None):
         '''
         Assign handlers to widgets to change fields in the model.
+
+        :param widget_name:
+
+        :param model_attr:
+
+        :param validator:
         '''
         widget = self.view.widgets[widget_name]
         check(widget is not None, _('no widget with name %s') % widget_name)
@@ -513,10 +517,10 @@ class GenericEditorPresenter(object):
         :param widget: a gtk.Entry instance or widget name
 
         :param get_completions: the method to call when a list of
-        completions is requested, returns a list of completions
+          completions is requested, returns a list of completions
 
         :param on_select: callback for when a value is selected from
-        the list of completions
+          the list of completions
         """
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
@@ -615,27 +619,26 @@ class GenericModelViewPresenterEditor(object):
     '''
     GenericModelViewPresenterEditor assume that model is an instance
     of object mapped to a SQLAlchemy table
+
+    The editor creates it's own session and merges the model into
+    it.  If the model is already in another session that original
+    session will not be effected.
+
+    :param model: an instance of an object mapped to a SQLAlchemy Table
+    :param parent: the parent windows for the view or None
     '''
     label = ''
     standalone = True
     ok_responses = ()
 
     def __init__(self, model, parent=None):
-        """
-        The editor creates it's own session and merges the model into
-        it.  If the model is already in another session that original
-        session will not be effected.
-
-        :param model: an instance of an object mapped to a SQLAlchemy Table
-        :param parent: the parent windows for the view or None
-        """
         self.session = bauble.Session()
         self.model = self.session.merge(model)
 
 
     def attach_response(self, dialog, response, keyname, mask):
         '''
-        attach a response to dialog when keyname and mask are pressed
+        Attach a response to dialog when keyname and mask are pressed
         '''
         def callback(widget, event, key, mask):
 #            debug(gtk.gdk.keyval_name(event.keyval))
@@ -648,7 +651,7 @@ class GenericModelViewPresenterEditor(object):
 
     def commit_changes(self):
         '''
-        Commit the changes.
+        Commit the changes to self.session()
         '''
         self.session.commit()
         return True

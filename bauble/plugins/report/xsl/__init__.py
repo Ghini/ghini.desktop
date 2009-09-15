@@ -183,14 +183,12 @@ class AccessionABCDAdapter(SpeciesABCDAdapter):
         super(AccessionABCDAdapter, self).extra_elements(unit)
 
 
-class SettingsBoxPresenter:
+class SettingsBoxPresenter(object):
 
     def __init__(self, widgets):
         self.widgets = widgets
-        model = gtk.ListStore(str)
         for name in renderers_map:
-            model.append([name])
-        self.widgets.renderer_combo.set_model(model)
+            self.widgets.renderer_combo.append_text(name)
 
 
 
@@ -198,13 +196,21 @@ class XSLFormatterSettingsBox(SettingsBox):
 
     def __init__(self, report_dialog=None, *args):
         super(XSLFormatterSettingsBox, self).__init__(*args)
-        self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
-                               "plugins", "report", 'xsl', 'gui.glade'))
+        filename = os.path.join(paths.lib_dir(), "plugins", "report", 'xsl',
+                                'gui.glade')
+        self.widgets = utils.load_widgets(filename)
+
+        utils.setup_text_combobox(self.widgets.renderer_combo)
+
+        combo = self.widgets.source_type_combo
+        values = [_('Accession'), _('Plant/Clone'), _('Species')]
+        utils.setup_text_combobox(combo, values=values)
+
         # keep a refefence to settings box so it doesn't get destroyed in
         # remove_parent()
-        settings_box = self.widgets.settings_box
+        self.settings_box = self.widgets.settings_box
         self.widgets.remove_parent(self.widgets.settings_box)
-        self.pack_start(settings_box)
+        self.pack_start(self.settings_box)
         self.presenter = SettingsBoxPresenter(self.widgets)
 
 
@@ -265,7 +271,7 @@ class XSLFormatterPlugin(FormatterPlugin):
 
     @staticmethod
     def get_settings_box():
-        return XSLFormatterSettingsBox()
+        return _settings_box
 
 
     @staticmethod
@@ -393,6 +399,6 @@ try:
     import lxml.etree as etree
 except ImportError:
     utils.message_dialog('The <i>lxml</i> package is required for the '\
-                         'default report plugins')
+                         'XSL report plugin')
 else:
     formatter_plugin = XSLFormatterPlugin

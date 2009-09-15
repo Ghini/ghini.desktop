@@ -295,7 +295,7 @@ def has_privileges(role, privilege):
         privs = set(_table_privs).intersection(_privileges[privilege])
 
 
-    # TODO: can we call had_table_privileges on a sequence
+    # TODO: has_sequence_privileges will be introduced in PostgreSQL 8.5
 
     # test the privileges on the tables and sequences
     for table in db.metadata.sorted_tables:

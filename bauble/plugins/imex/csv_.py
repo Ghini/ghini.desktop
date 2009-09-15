@@ -407,7 +407,7 @@ class CSVImporter(Importer):
                 # check if there are any foreign keys to on the table
                 # that refer to itself, if so create a new file with
                 # the lines sorted in order of dependency so that we
-                # don't get errors about imporint values into a
+                # don't get errors about importing values into a
                 # foreign_key that don't reference and existin row
                 self_keys = filter(lambda f: f.column.table==table, \
                                       table.foreign_keys)
@@ -669,7 +669,7 @@ class CSVImportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'imcsv'
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         importer = CSVImporter()
         importer.start(arg)
 
@@ -678,7 +678,7 @@ class CSVExportCommandHandler(pluginmgr.CommandHandler):
 
     command = 'excsv'
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
         exporter = CSVExporter()
         exporter.start(arg)
 

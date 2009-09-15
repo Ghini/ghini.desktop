@@ -24,7 +24,7 @@ from setuptools.command.install import install as _install
 from setuptools.command.sdist import sdist as _sdist
 from bauble import version
 
-# TODO: external dependencies not in the PyPI: PyGTK>=2.14, pyglade
+# TODO: external dependencies not in the PyPI: PyGTK>=2.14
 # TODO: optional dependencies: MySQL-Python, psycopg2,
 # Sphinx (for building docs, maybe include in buildr-requires)
 
@@ -77,10 +77,8 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
         if submod in ('mods', 'ext', 'databases'):
             sqlalchemy_includes.extend(['sqlalchemy.%s.%s' % (submod, s) for s in [f[:-2] for f in files if not f.endswith('pyc') and not f.startswith('__init__.py')]])
 
-    # TODO: check again that this is necessary for pysqlite2, we might
-    # be able to juse use the python 2.5 built in sqlite3 module
-    py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata',
-                       'MySQLdb', 'psycopg2', 'encodings'] + \
+    py2exe_includes = ['pysqlite2.dbapi2', 'lxml', 'gdata', # 'MySQLdb',
+                       'fibra', 'psycopg2', 'encodings', 'mako',] + \
                        gtk_pkgs + plugins_pkgs + sqlalchemy_includes
     py2exe_setup_args = {'console': ["scripts/bauble"],
                          'windows': [{'script': 'scripts/bauble',
@@ -118,7 +116,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
     class py2exe_cmd(_py2exe_cmd):
         def run(self):
             # TODO: make sure we have everything installed that we need to
-            # bundle e.g. mysql-python, psycopg2, others...
+            # bundle e.g. sqlite, psycopg2, others...
             _py2exe_cmd.run(self)
             # install locale files
             locales = os.path.dirname(locale_path)
@@ -298,11 +296,11 @@ class docs(Command):
                   'Sphinx(http://sphinx.pocoo.org) package'
             return
         if not os.path.exists(DOC_BUILD_PATH):
-            dir_utils.mkpath(DOC_BUILD_PATH)
-        cmd = ['sphinx-build', '-E', '-b', 'html', 'doc', DOC_BUILD_PATH]
+            dir_util.mkpath(DOC_BUILD_PATH)
+        cmd = ['sphinx-build', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
-            cmd.insert(1, '-a')
+            cmd.insert(1, '-E -a')
         spawn.spawn(cmd)
 
 
@@ -387,7 +385,7 @@ setuptools.setup(name="bauble",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
                                    "gdata>=1.2.4",
-                                   "fibra==0.0.14"] + needs_sqlite,
+                                   "fibra==0.0.17"] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett Adams",
                  author_email="brett@belizebotanic.org",

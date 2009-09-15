@@ -633,7 +633,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.treeview = self.view.widgets.sp_syn_treeview
         # remove any columns that were setup previous, this became a
         # problem when we starting reusing the glade files with
-        # utils.GladeLoader, the right way to do this would be to
+        # utils.BuilderLoader, the right way to do this would be to
         # create the columns in glade instead of here
         for col in self.treeview.get_columns():
             self.treeview.remove_column(col)
@@ -860,8 +860,8 @@ class SpeciesEditorView(editor.GenericEditorView):
 
 class SpeciesEditor(editor.GenericModelViewPresenterEditor):
 
-    label = 'Species'
-    mnemonic_label = '_Species'
+    label = _('Species')
+    mnemonic_label = _('_Species')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
