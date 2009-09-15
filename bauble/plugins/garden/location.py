@@ -73,7 +73,7 @@ class Location(db.Base):
     :Table name: location
 
     :Columns:
-        *site*:
+        *name*:
 
         *description*:
 
@@ -82,17 +82,17 @@ class Location(db.Base):
 
     """
     __tablename__ = 'location'
-    __mapper_args__ = {'order_by': 'site'}
+    __mapper_args__ = {'order_by': 'name'}
 
     # columns
-    site = Column(Unicode(64), unique=True, nullable=False)
+    name = Column(Unicode(64), unique=True, nullable=False)
     description = Column(UnicodeText)
 
     # relations
     plants = relation('Plant', backref=backref('location', uselist=False))
 
     def __str__(self):
-        return str(self.site)
+        return str(self.name)
 
 
 
@@ -100,7 +100,7 @@ class LocationEditorView(GenericEditorView):
 
     #source_expanded_pref = 'editor.accesssion.source.expanded'
     _tooltips = {
-        'loc_location_entry': _('The site is the name that you will use '\
+        'loc_name_entry': _('The name that you will use '\
                                 'later to refer to this location.'),
         'loc_desc_textview': _('Any information that might be relevant to '\
                                'the location such as where it is or what\'s '\
@@ -140,7 +140,7 @@ class LocationEditorView(GenericEditorView):
 
 class LocationEditorPresenter(GenericEditorPresenter):
 
-    widget_to_field_map = {'loc_location_entry': 'site',
+    widget_to_field_map = {'loc_name_entry': 'name',
                            'loc_desc_textview': 'description'}
 
     def __init__(self, model, view):
@@ -156,7 +156,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('loc_location_entry', 'site',
+        self.assign_simple_handler('loc_name_entry', 'name',
                                    UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
@@ -174,7 +174,7 @@ class LocationEditorPresenter(GenericEditorPresenter):
         super(LocationEditorPresenter, self).set_model_attr(model, field,
                                                             validator)
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(self.model.site != None)
+        self.view.set_accept_buttons_sensitive(self.model.name != None)
 
 
     def dirty(self):
@@ -198,8 +198,8 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
 class LocationEditor(GenericModelViewPresenterEditor):
 
-    label = 'Location'
-    mnemonic_label = '_Location'
+    label = _('Location')
+    mnemonic_label = _('_Location')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -311,7 +311,7 @@ class GeneralLocationExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.loc_gen_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -321,8 +321,8 @@ class GeneralLocationExpander(InfoExpander):
         '''
         '''
         from bauble.plugins.garden.plant import Plant
-        self.set_widget_value('loc_site_data',
-                              '<big>%s</big>' % utils.xml_safe(str(row.site)))
+        self.set_widget_value('loc_name_data',
+                              '<big>%s</big>' % utils.xml_safe(str(row.name)))
         session = object_session(row)
         nplants = session.query(Plant).filter_by(location_id=row.id).count()
         self.set_widget_value('loc_nplants_data', nplants)
@@ -330,11 +330,11 @@ class GeneralLocationExpander(InfoExpander):
 
 class DescriptionExpander(InfoExpander):
     """
-    the location description
+    The location description
     """
 
     def __init__(self, widgets):
-        InfoExpander.__init__(self, "Descripion", widgets)
+        InfoExpander.__init__(self, _("Description"), widgets)
         descr_box = self.widgets.loc_descr_box
         self.widgets.remove_parent(descr_box)
         self.vbox.pack_start(descr_box)
@@ -363,8 +363,7 @@ class LocationInfoBox(InfoBox):
         InfoBox.__init__(self)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "loc_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralLocationExpander(self.widgets)
         self.add_expander(self.general)
         self.description = DescriptionExpander(self.widgets)

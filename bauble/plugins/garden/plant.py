@@ -407,7 +407,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         def loc_get_completions(text):
             query = self.session.query(Location)
-            return query.filter(utils.ilike(Location.site,
+            return query.filter(utils.ilike(Location.name,
                                             utils.utf8('%s%%' % text)))
         def on_loc_select(value):
             self.set_model_attr('location', value)
@@ -545,8 +545,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 class PlantEditor(GenericModelViewPresenterEditor):
 
-    label = 'Plant'
-    mnemonic_label = '_Plant'
+    label = _('Plant')
+    mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -617,7 +617,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
-#                debug('session dirty, committing')
             try:
                 if self.presenter.dirty():
                     # commit_changes() will append the commited plants
@@ -738,7 +737,7 @@ class GeneralPlantExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "General", widgets)
+        InfoExpander.__init__(self, _("General"), widgets)
         general_box = self.widgets.general_box
         self.widgets.remove_parent(general_box)
         self.vbox.pack_start(general_box)
@@ -773,7 +772,7 @@ class GeneralPlantExpander(InfoExpander):
                               utils.xml_safe(unicode(tail)))
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
-        self.set_widget_value('location_data',row.location.site)
+        self.set_widget_value('location_data',row.location.name)
         self.set_widget_value('status_data',
                          row.acc_status, False)
         self.set_widget_value('type_data',
@@ -789,7 +788,7 @@ class NotesExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, "Notes", widgets)
+        InfoExpander.__init__(self, _("Notes"), widgets)
         notes_box = self.widgets.notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
@@ -814,8 +813,7 @@ class PlantInfoBox(InfoBox):
         #loc.set_expanded(True)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
-        builder = utils.BuilderLoader.load(filename)
-        self.widgets = utils.BuilderWidgets(builder)
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
         self.notes = NotesExpander(self.widgets)

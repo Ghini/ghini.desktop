@@ -35,7 +35,7 @@ from bauble.utils.log import debug, warning
 config_list_pref = 'report.configs'
 
 # the default report generator to select on start
-default_config_pref = 'report.default'
+default_config_pref = 'report.xsl'
 formatter_settings_expanded_pref = 'report.settings.expanded'
 
 # _paths = {}
@@ -241,11 +241,12 @@ class FormatterPlugin(pluginmgr.Plugin):
 class ReportToolDialogView(object):
 
     def __init__(self):
-        self.widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(),
+        self.widgets = utils.load_widgets(os.path.join(paths.lib_dir(),
                                    "plugins", "report", 'report.glade'))
         self.dialog = self.widgets.report_dialog
         self.dialog.set_transient_for(bauble.gui.window)
-
+        utils.setup_text_combobox(self.widgets.names_combo)
+        utils.setup_text_combobox(self.widgets.formatter_combo)
 
     def start(self):
         return self.dialog.run()
@@ -412,16 +413,16 @@ class ReportToolDialogPresenter(object):
 
 
     def _formatter_combo_changed_idle(self, combo):
-        title = combo.get_active_text()
+        formatter = combo.get_active_text()
         # main loop never has a chance to change sensitivity, maybe we could
         # do some of this in idle function
         #
         name = self.view.widgets.names_combo.get_active_text()
         try:
-            saved_title, settings = prefs[config_list_pref][name]
-            if saved_title != title:
+            # TODO: settings seems to always be {} here
+            saved_name, settings = prefs[config_list_pref][name]
+            if saved_name != formatter:
                 settings = {}
-#            debug('settings: %s' % settings)
 #            # set the new formatter value in the preferences
 #            set_prefs_for(name, self.formatter_class_map[title])
 #            #prefs[config_list_pref][name] = title, settings
@@ -431,19 +432,19 @@ class ReportToolDialogPresenter(object):
 
         expander = self.view.widgets.settings_expander
         child = expander.get_child()
-        if child is not None:
+        if child:
             expander.remove(child)
 
         #self.widgets.ok_button.set_sensitive(title is not None)
-        self.view.widgets.ok_button.set_sensitive(title is not None)
-        if title is None:
+        self.view.widgets.ok_button.set_sensitive(formatter is not None)
+        if not formatter:
             return
         try:
-            cls = self.formatter_class_map[title]
+            cls = self.formatter_class_map[formatter]
         except KeyError:
             return
         box = cls.get_settings_box()
-        if box is not None:
+        if box:
             box.update(settings)
             expander.add(box)
             box.show_all()
@@ -451,8 +452,8 @@ class ReportToolDialogPresenter(object):
         # TODO: should probably remember expanded state,
         # see formatter_settings_expander_pref
         expander.set_expanded(box is not None)
-        title = combo.get_active_text()
-        self.set_prefs_for(name, title, settings)
+        #formatter = combo.get_active_text()
+        self.set_prefs_for(name, formatter, settings)
         self.view.widgets.ok_button.set_sensitive(True)
 
 
@@ -559,7 +560,7 @@ class ReportToolDialog(object):
 
 class ReportTool(pluginmgr.Tool):
 
-    label = "Report"
+    label = _("Report")
 
     @classmethod
     def start(self):

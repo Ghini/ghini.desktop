@@ -17,10 +17,7 @@ from bauble.utils.log import debug
 # TODO: the institution editor is a live editor where the database is
 # updated as the user types. This is a bit slow and maybe we could add
 # a callback so that the database isn't updated until the user stops
-# typing
-
-# TODO: create a tool so that the institution editor can be accessed
-# from the menu
+# typing...or just commit on OK
 
 class Singleton(object):
     __instance = None
@@ -88,15 +85,12 @@ class InstitutionEditorView(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                 'institution.glade')
         super(InstitutionEditorView, self).__init__(filename, parent=parent)
-        self.dialog = self.widgets.inst_dialog
-        self.connect_dialog_close(self.dialog)
-        if parent is None:
-            parent = bauble.gui.window
-        self.dialog.set_transient_for(parent)
 
+    def get_window(self):
+        return self.widgets.inst_dialog
 
     def start(self):
-        return self.dialog.run()
+        return self.get_window().run()
 
 
 class InstitutionEditorPresenter(editor.GenericEditorPresenter):
@@ -152,31 +146,18 @@ class InstitutionEditor(object):
         self.presenter.start()
 
 
-class InstitutionCommandHandler(pluginmgr.CommandHandler):
-
+class InstitutionCommand(pluginmgr.CommandHandler):
     command = ('inst', 'institution')
     view = None
 
-    def __call__(self, arg):
+    def __call__(self, cmd, arg):
+        InstitutionTool.start()
+
+
+class InstitutionTool(pluginmgr.Tool):
+    label = _('Institution')
+
+    @classmethod
+    def start(cls):
         e = InstitutionEditor()
         e.start()
-
-
-pluginmgr.register_command(InstitutionCommandHandler)
-
-def test():
-##     i = Institution()
-##     i2 = Institution()
-##     assert i==i2
-##     i.name = 'Belize Botanic Gardens'
-##     i.code = 'CAYO'
-
-    print os.path.join(paths.lib_dir(), 'bauble.glade')
-    widgets = utils.GladeWidgets(os.path.join(paths.lib_dir(), 'bauble.glade'))
-    widgets.inst_dialog.show_all()
-    print 'showed'
-    import gtk
-    gtk.main()
-
-if __name__ == '__main__':
-    test()

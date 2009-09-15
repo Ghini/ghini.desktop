@@ -371,7 +371,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.treeview = self.view.widgets.fam_syn_treeview
         # remove any columns that were setup previous, this became a
         # problem when we starting reusing the glade files with
-        # utils.GladeLoader, the right way to do this would be to
+        # utils.BuilderLoader, the right way to do this would be to
         # create the columns in glade instead of here
         for col in self.treeview.get_columns():
             self.treeview.remove_column(col)
@@ -456,8 +456,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
 class FamilyEditor(editor.GenericModelViewPresenterEditor):
 
-    label = 'Family'
-    mnemonic_label = '_Family'
+    label = _('Family')
+    mnemonic_label = _('_Family')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
@@ -798,9 +798,9 @@ class FamilyInfoBox(InfoBox):
         '''
         '''
         InfoBox.__init__(self)
-        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
                                   'infoboxes.glade')
-        self.widgets = utils.GladeWidgets(gtk.glade.XML(glade_file))
+        self.widgets = utils.load_widgets(filename)
         self.general = GeneralFamilyExpander(self.widgets)
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)

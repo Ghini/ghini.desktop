@@ -42,9 +42,8 @@ class GUI(object):
     _default_history_size = 12
 
     def __init__(self):
-        glade_path = os.path.join(paths.lib_dir(), 'bauble.glade')
-        self.glade = gtk.glade.XML(glade_path)
-        self.widgets = utils.GladeWidgets(self.glade)
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        self.widgets = utils.load_widgets(filename)
         self.window = self.widgets.main_window
         self.window.hide()
 
@@ -69,9 +68,16 @@ class GUI(object):
         menubar = self.create_main_menu()
         self.widgets.menu_box.pack_start(menubar)
 
+        combo = self.widgets.main_comboentry
+        model = gtk.ListStore(str)
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        cell.props.xalign = 0 # TODO: this doesn't left align the combo values
+        combo.pack_start(cell)
+        combo.add_attribute(cell, 'text', 0)
         self.populate_main_entry()
-        main_entry = self.widgets.main_comboentry.child
 
+        main_entry = combo.child
 #        main_entry.connect('key_press_event', self.on_main_entry_key_press)
         main_entry.connect('activate', self.on_main_entry_activate)
         accel_group = gtk.AccelGroup()
@@ -260,7 +266,6 @@ class GUI(object):
             for herstory in history:
                 main_combo.append_text(herstory)
                 compl_model.append([herstory])
-        main_combo.set_model(model)
 
 
     def __get_title(self):
@@ -272,6 +277,7 @@ class GUI(object):
     title = property(__get_title)
 
 
+    # TODO: why do we have this if we already have bauble.set_busy()
     def set_busy(self, busy):
         self.window.set_sensitive(not busy)
         if busy:
@@ -291,7 +297,7 @@ class GUI(object):
         '''
         set the view, if view is None then remove any views currently set
 
-        @param view: default=None
+        :param view: default=None
         '''
         view_box = self.widgets.view_box
         if view_box is None:
@@ -389,9 +395,9 @@ class GUI(object):
         '''
         add a menu to the menubar
 
-        @param name:
-        @param menu:
-        @param index:
+        :param name:
+        :param menu:
+        :param index:
         '''
         menu_item = gtk.MenuItem(name)
         menu_item.set_submenu(menu)
@@ -405,8 +411,8 @@ class GUI(object):
         """
         add an editor to the insert menu
 
-        @param editor: the editor to add to the menu
-        @param label: the label for the menu item
+        :param editor: the editor to add to the menu
+        :param label: the label for the menu item
         """
         menu = self.ui_manager.get_widget('/ui/MenuBar/insert_menu')
         submenu = menu.get_submenu()

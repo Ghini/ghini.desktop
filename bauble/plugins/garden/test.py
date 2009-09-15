@@ -18,7 +18,7 @@ from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
-from bauble.plugins.garden.institution import Institution
+from bauble.plugins.garden.institution import Institution, InstitutionEditor
 
 
 from datetime import datetime
@@ -33,7 +33,7 @@ plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
                     'location_id': 1},
                    )
 
-location_test_data = ({'id': 1, 'site': u'Somewhere Over The Rainbow'},
+location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow'},
                       )
 
 donor_test_data = ({'id': 1, 'name': u'SomeDonor'},
@@ -162,13 +162,12 @@ class PlantTests(GardenTestCase):
     def setUp(self):
         super(PlantTests, self).setUp()
         self.accession = self.create(Accession, species=self.species,code=u'1')
-        self.location = self.create(Location, site=u'site')
+        self.location = self.create(Location, name=u'site')
         self.plant = self.create(Plant, accession=self.accession,
                                  location=self.location, code=u'1')
         self.session.commit()
 
     def tearDown(self):
-        self.session.commit()
         super(PlantTests, self).tearDown()
 
 
@@ -253,10 +252,13 @@ class PlantTests(GardenTestCase):
             self.session.delete(location)
         self.session.commit()
 
-        editor = PlantEditor(model=self.plant)
-        # loc = Location(site='t')
-        # p = Plant(accession=self.accession, location=loc)
-        # editor = PlantEditor(model=p)
+        #editor = PlantEditor(model=self.plant)
+        loc = Location(name=u'site1')
+        loc2 = Location(name=u'site2')
+        self.session.add_all([loc, loc2])
+        self.session.commit()
+        p = Plant(accession=self.accession, location=loc)
+        editor = PlantEditor(model=p)
         editor.start()
         del editor
 
@@ -354,7 +356,7 @@ class AccessionTests(GardenTestCase):
         """
         acc = self.create(Accession, species=self.species, code=u'1')
         plant = self.create(Plant, accession=acc,
-                            location=Location(site=u'site'), code=u'1')
+                            location=Location(name=u'site'), code=u'1')
         self.session.commit()
 
         # test that the plant is deleted after being orphaned
@@ -566,7 +568,7 @@ class AccessionTests(GardenTestCase):
         assert not editor.presenter.problems, editor.presenter.problems
 
         # commit the changes and cleanup
-        editor.model.site = u'asda'
+        editor.model.name = u'asda'
         import gtk
         editor.handle_response(gtk.RESPONSE_OK)
         editor.session.close()
@@ -640,8 +642,8 @@ class LocationTests(GardenTestCase):
 
 
     def test_location_editor(self):
-        #loc = self.create(Location, site=u'some site')
-        loc = Location(site=u'some site')
+        #loc = self.create(Location, name=u'some site')
+        loc = Location(name=u'some site')
         editor = LocationEditor(model=loc)
         #editor.presenter.view.dialog.hide_all()
         update_gui()
@@ -650,14 +652,14 @@ class LocationTests(GardenTestCase):
         # test that the accept buttons are sensitive the text in the
         # entry and the model.site are the same...and that the accept
         # buttons are sensitive
-        assert widgets.loc_location_entry.get_text() == loc.site
+        assert widgets.loc_name_entry.get_text() == loc.name
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive
         assert widgets.loc_next_button.props.sensitive
 
         # test the accept buttons aren't sensitive when the location
         # entry is empty
-        widgets.loc_location_entry.set_text('')
+        widgets.loc_name_entry.set_text('')
         assert not widgets.loc_ok_button.props.sensitive
         assert not widgets.loc_ok_and_add_button.props.sensitive
         assert not widgets.loc_next_button.props.sensitive
@@ -672,7 +674,7 @@ class LocationTests(GardenTestCase):
         assert not widgets.loc_next_button.props.sensitive
 
         # commit the changes and cleanup
-        editor.model.site = u'asda'
+        editor.model.name = u'asda'
         editor.handle_response(gtk.RESPONSE_OK)
         editor.session.close()
         editor.presenter.cleanup()
@@ -690,7 +692,7 @@ class LocationTests(GardenTestCase):
         """
         Interactively test the PlantEditor
         """
-        loc = self.create(Location, site=u'some site')
+        loc = self.create(Location, name=u'some site')
         editor = LocationEditor(model=loc)
         editor.start()
         del editor
@@ -756,6 +758,16 @@ class CollectionTests(GardenTestCase):
         self.assert_(acc.source_type == 'Collection')
         self.assert_(acc.source == collection)
         self.session.commit()
+
+
+class InstitutionTests(GardenTestCase):
+
+    # TODO: create a non interactive tests that starts the
+    # InstututionEditor and checks that it doesn't leak memory
+
+    def itest_editor(self):
+        e = InstitutionEditor()
+        e.start()
 
 
 # latitude: deg[0-90], min[0-59], sec[0-59]

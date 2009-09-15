@@ -1,26 +1,26 @@
 <?xml version="1.0"?>
-<glade-interface>
-  <!-- interface-requires gtk+ 2.16 -->
+<interface>
+  <requires lib="gtk+" version="2.14"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <widget class="GtkWindow" id="main_window">
+  <object class="GtkWindow" id="main_window">
     <property name="title" translatable="yes">Bauble</property>
-    <property name="role">bauble</property>
     <property name="startup_id">bauble</property>
+    <property name="role">bauble</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
     <child>
-      <widget class="GtkVBox" id="top_box">
+      <object class="GtkVBox" id="top_box">
         <property name="visible">True</property>
         <child>
-          <widget class="GtkVBox" id="main_box">
+          <object class="GtkVBox" id="main_box">
             <property name="visible">True</property>
             <child>
-              <widget class="GtkVBox" id="menu_box">
+              <object class="GtkVBox" id="menu_box">
                 <property name="visible">True</property>
                 <child>
                   <placeholder/>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -28,39 +28,38 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkHBox" id="hbox1">
+              <object class="GtkHBox" id="hbox1">
                 <property name="visible">True</property>
                 <child>
-                  <widget class="GtkVBox" id="vbox2">
+                  <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
                     <child>
-                      <widget class="GtkComboBoxEntry" id="main_comboentry">
+                      <object class="GtkComboBoxEntry" id="main_comboentry">
                         <property name="visible">True</property>
-                        <property name="items" translatable="yes">--</property>
-                      </widget>
+                      </object>
                       <packing>
                         <property name="fill">False</property>
                         <property name="position">0</property>
                       </packing>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="padding">3</property>
                     <property name="position">0</property>
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkButton" id="go_button">
+                  <object class="GtkButton" id="go_button">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="receives_default">False</property>
                     <child>
-                      <widget class="GtkImage" id="image1">
+                      <object class="GtkImage" id="image1">
                         <property name="visible">True</property>
                         <property name="stock">gtk-find</property>
-                      </widget>
+                      </object>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="padding">5</property>
@@ -68,7 +67,7 @@
                     <property name="position">1</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
@@ -77,15 +76,15 @@
               </packing>
             </child>
             <child>
-              <widget class="GtkVBox" id="vbox1">
+              <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
                 <child>
-                  <widget class="GtkHBox" id="msg_box_parent">
+                  <object class="GtkHBox" id="msg_box_parent">
                     <property name="visible">True</property>
                     <child>
                       <placeholder/>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="expand">False</property>
                     <property name="fill">False</property>
@@ -93,36 +92,36 @@
                   </packing>
                 </child>
                 <child>
-                  <widget class="GtkVBox" id="view_box">
+                  <object class="GtkVBox" id="view_box">
                     <property name="visible">True</property>
                     <child>
                       <placeholder/>
                     </child>
-                  </widget>
+                  </object>
                   <packing>
                     <property name="position">1</property>
                   </packing>
                 </child>
-              </widget>
+              </object>
               <packing>
                 <property name="position">2</property>
               </packing>
             </child>
-          </widget>
+          </object>
           <packing>
             <property name="position">0</property>
           </packing>
         </child>
         <child>
-          <widget class="GtkStatusbar" id="statusbar">
+          <object class="GtkStatusbar" id="statusbar">
             <property name="visible">True</property>
-          </widget>
+          </object>
           <packing>
             <property name="expand">False</property>
             <property name="position">1</property>
           </packing>
         </child>
-      </widget>
+      </object>
     </child>
-  </widget>
-</glade-interface>
+  </object>
+</interface>

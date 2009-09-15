@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <requires lib="gtk+" version="2.14"/>
   <!-- interface-naming-policy toplevel-contextual -->
   <object class="GtkDialog" id="location_dialog">
     <property name="title">Location Editor</property>
@@ -26,7 +26,7 @@
                     <property name="border_width">2</property>
                     <property name="left_padding">12</property>
                     <child>
-                      <object class="GtkEntry" id="loc_location_entry">
+                      <object class="GtkEntry" id="loc_name_entry">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                       </object>
@@ -36,7 +36,7 @@
                 <child type="label">
                   <object class="GtkLabel" id="label1">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;&lt;i&gt;Site&lt;/i&gt;&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">&lt;b&gt;&lt;i&gt;Name&lt;/i&gt;&lt;/b&gt;</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
