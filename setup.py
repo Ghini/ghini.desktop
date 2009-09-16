@@ -300,7 +300,8 @@ class docs(Command):
         cmd = ['sphinx-build', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
-            cmd.insert(1, '-E -a')
+            #cmd.insert(1, '-E -a')
+            cmd.insert(1, '-E')
         spawn.spawn(cmd)
 
 
