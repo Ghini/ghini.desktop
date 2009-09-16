@@ -22,9 +22,10 @@ and selecting "Add genus".
 
 Family
 ------
-The Family editor allows you to change a botanical family.
+The Family editor allows you to add or change a botanical family.
 
 The *Family* field on the editor will change the name of the family.
+The Family field is required.
 
 The *Qualifier* field will change the family qualifier.  The value can
 either be *sensu lato*, *sensu stricto* or nothing.
@@ -43,7 +44,7 @@ To cancel your changes without saving then click on the *Cancel* button.
 
 To save the family you are working on then click *OK*.
 
-To save the family you are working on add a genus to it then click on
+To save the family you are working on and add a genus to it then click on
 the *OK and Add Genera* button.
 
 To add another family when you are finished editing the current one
@@ -51,11 +52,40 @@ click on the *Next* button on the bottom.  This will save the current
 family and open a new blank family editor.
 
 
-
-
 Genus
 -----
-The Genus editor.
+The Genus editor allows you to add or change a botanical genus.
+
+The *Family* field on the genus editor allows you to choose the family
+for the genus.  When you begin type a family name it will show a list
+of families to choose from.  The family name must already exist in the
+database before you can set it as the family for the genus.
+
+The *Genus* field allows you to set the genus for this entry.
+
+The *Author* field allows you to set the name or abbreviation of the
+author(s) for the genus.
+
+*Synonyms* allow you to add other genera that are synonyms with the
+genus you are currently editing.  To add a new synonyms type in a
+genus name in the entry.  You must select a genus name from the list
+of completions.  Once you have selcted a genus name that you want to
+add as a synonym click on the Add button next to the synonym list and
+it will add the selected synonym to the list.  To remove a synonym
+select the synonym from the list and click on the Remove button.
+
+The *Notes* field can contain any additional information about this family.  
+
+To cancel your changes without saving then click on the *Cancel* button.
+
+To save the genus you are working on then click *OK*.
+
+To save the genus you are working on and add a species to it then click on
+the *OK and Add Species* button.
+
+To add another genus when you are finished editing the current one
+click on the *Next* button on the bottom.  This will save the current
+genus and open a new blank genus editor.
 
 
 Species
