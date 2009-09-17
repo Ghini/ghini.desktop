@@ -1870,11 +1870,11 @@ class AccessionInfoBox(InfoBox):
         self.source.update(row.source)
 
 
-# it's easier just to put this here instead of playing around with imports
+# it's easier just to put this here instead of source.py to avoid
+# playing around with imports for AccessionInfoBox
 class SourceInfoBox(AccessionInfoBox):
     def update(self, row):
         super(SourceInfoBox, self).update(row.accession)
-
 
 
 #
