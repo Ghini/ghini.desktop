@@ -17,7 +17,7 @@ from bauble.plugins.garden.plant import Plant, \
     plant_markup_func, plant_delimiter_key, default_plant_delimiter, \
     PlantSearch, plant_context_menu
 from bauble.plugins.garden.source import Donation, \
-    Collection, source_markup_func
+    Collection, source_markup_func, source_context_menu
 from bauble.plugins.garden.donor import Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
 from bauble.plugins.garden.institution import InstitutionTool, \
@@ -70,10 +70,20 @@ class GardenPlugin(pluginmgr.Plugin):
                                         infobox=DonorInfoBox,
                                         context_menu=donor_context_menu)
 
-        SearchView.view_meta[Donation].set(infobox=SourceInfoBox,
-                                           markup_func=source_markup_func)
-        SearchView.view_meta[Collection].set(infobox=SourceInfoBox,
-                                             markup_func=source_markup_func)
+        mapper_search.add_meta(('collection', 'col', 'coll'),
+                               Collection, ['locale'])
+        source_kids = lambda src: sorted(src.accession.plants,
+                                       key=utils.natsort_key)
+        SearchView.view_meta[Collection].set(children=source_kids,
+                                             infobox=SourceInfoBox,
+                                             markup_func=source_markup_func,
+                                             context_menu=source_context_menu)
+
+        SearchView.view_meta[Donation].set(children=source_kids,
+                                           infobox=SourceInfoBox,
+                                           markup_func=source_markup_func,
+                                           context_menu=source_context_menu)
+
 
         # done here b/c the Species table is not part of this plugin
         SearchView.view_meta[Species].child = "accessions"
