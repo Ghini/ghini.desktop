@@ -137,6 +137,20 @@ class PlantHistory(db.Base):
 
 
 
+acc_type_values = {u'Plant': _('Plant'),
+                   u'Seed': _('Seed/Spore'),
+                   u'Vegetative': _('Vegetative Part'),
+                   u'Tissue': _('Tissue Culture'),
+                   u'Other': _('Other'),
+                   None: _('')}
+
+acc_status_values = {u'Living': _('Living accession'),
+                     u'Dead': _('Dead'),
+                     u'Transferred': _('Transferred'),
+                     u'Dormant': _('Stored in dormant state'),
+                     u'Other': _('Other'),
+                     None: _('')}
+
 class Plant(db.Base):
     """
     :Table name: plant
@@ -200,14 +214,8 @@ class Plant(db.Base):
 
     # columns
     code = Column(Unicode(6), nullable=False)
-    acc_type = Column(types.Enum(values=['Plant', 'Seed/Spore',
-                                         'Vegetative Part', 'Tissue Culture',
-                                         'Other', None]),
-                      default=None)
-    acc_status = Column(types.Enum(values=['Living accession', 'Dead',
-                                           'Transferred',
-                                           'Stored in dormant state', 'Other',
-                                     None]),
+    acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
+    acc_status = Column(types.Enum(values=acc_status_values.keys()),
                         default=None)
     notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
@@ -266,11 +274,11 @@ class PlantEditorView(GenericEditorView):
         'plant_loc_comboentry': _('The location of the plant in your '\
                                       'collection.'),
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
-                                  'Possible values: %s') \
-                                  % utils.enum_values_str('plant.acc_type'),
+                                  'Possible values: %s') % \
+                                  ', '.join(acc_type_values.values()),
         'plant_acc_status_combo': _('The status of this plant in the ' \
-                                    'collection.\nPossible values: %s') \
-                                   % utils.enum_values_str('plant.acc_status'),
+                                    'collection.\nPossible values: %s') % \
+                                    ', '.join(acc_status_values.values()),
         'plant_notes_textview': _('Miscelleanous notes about this plant.'),
         }
 
@@ -350,18 +358,36 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        # initialize widgets
-        self.init_enum_combo('plant_acc_status_combo', 'acc_status')
-        self.init_enum_combo('plant_acc_type_combo', 'acc_type')
+        # init plant_acc_status_combo with acc_status_values
+        combo = self.view.widgets.plant_acc_status_combo
+        combo.clear()
+        model = gtk.ListStore(str, object) # 'object' avoids unicode warning
+        for value in sorted(acc_status_values.keys()):
+            model.append([acc_status_values[value], value])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 0)
+
+        # init plant_acc_type_combo with acc_type_values
+        combo = self.view.widgets.plant_acc_type_combo
+        combo.clear()
+        model = gtk.ListStore(str, object) # 'object' avoids unicode warning
+        for value in sorted(acc_type_values.keys()):
+            model.append([acc_type_values[value], value])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 0)
 
 #        self.init_history_box()
 
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
-            default_acc_type = unicode('Plant')
+            default_acc_type = u'Plant'
             self.model.acc_type = default_acc_type
         if self.model.id is None and self.model.acc_status is None:
-            default_acc_status = unicode('Living accession')
+            default_acc_status = u'Living'
             self.model.acc_status = default_acc_status
 
         # intialize the locations comboentry
@@ -418,10 +444,34 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_loc_comboentry', 'location')#,
                                    #UnicodeOrNoneValidator())
 
-        self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
-                                   UnicodeOrNoneValidator())
-        self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
-                                   UnicodeOrNoneValidator())
+        def assign_enum_handler(combo, attr, values):
+            """
+            :param combo: the gtk.ComboBox
+
+            :param attr: the model atrribute to set
+
+            :param values: a map of values->translations where values
+              are the values stored in the database and translations
+              are the values shown in the combo
+
+            In the combo model it is assumed that the tranlations are
+            at row[0] and the values are at row[1]
+            """
+            def changed(combo):
+                model = combo.get_model()
+                i = combo.get_active_iter()
+                value = model[i][1] # 0 is the translation, 1 is the value
+                self.set_model_attr(attr, value)
+            self.view.connect(combo, 'changed', changed)
+        assign_enum_handler('plant_acc_status_combo', 'acc_status',
+                            acc_status_values)
+        # self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
+        #                            UnicodeOrNoneValidator())
+
+        assign_enum_handler('plant_acc_type_combo', 'acc_type',
+                            acc_type_values)
+        #self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
+        #                           UnicodeOrNoneValidator())
 
         self.view.connect('plant_loc_add_button', 'clicked',
                           self.on_loc_button_clicked, 'add')
@@ -534,6 +584,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
+
+        self.view.set_widget_value('plant_acc_status_combo',
+                                   acc_status_values[self.model.acc_status])
+        self.view.set_widget_value('plant_acc_type_combo',
+                                   acc_type_values[self.model.acc_type])
         self.refresh_sensitivity()
 
 
@@ -773,10 +828,10 @@ class GeneralPlantExpander(InfoExpander):
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
         self.set_widget_value('location_data',row.location.name)
-        self.set_widget_value('status_data',
-                         row.acc_status, False)
-        self.set_widget_value('type_data',
-                              row.acc_type, False)
+        self.set_widget_value('status_data', acc_status_values[row.acc_status],
+                              False)
+        self.set_widget_value('type_data', acc_type_values[row.acc_type],
+                              False)
 
 
 
