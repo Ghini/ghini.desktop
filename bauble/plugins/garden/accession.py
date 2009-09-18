@@ -105,12 +105,12 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
-    return e.start() != None
+    return e.start()
 
 
 def add_plants_callback(accessions):
     e = PlantEditor(model=Plant(accession=accessions[0]))
-    return e.start() != None
+    return e.start()
 
 
 def remove_callback(accessions):
@@ -130,7 +130,7 @@ def remove_callback(accessions):
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
                   utils.xml_safe_utf8(unicode(acc))
     if not utils.yes_no_dialog(msg):
-        return
+        return False
     try:
         session = bauble.Session()
         obj = session.query(Accession).get(acc.id)
@@ -489,7 +489,9 @@ class Accession(db.Base):
         if self.source is not None:
             obj = self.source
             obj._accession = None
-            utils.delete_or_expunge(obj)
+            # we don't need to delete the old source since it will be
+            # orphaned and should get automatically deleted
+            #utils.delete_or_expunge(obj)
             self.source_type = None
         if source is None:
             self.source_type = None
@@ -977,6 +979,7 @@ class DonationPresenter(editor.GenericEditorPresenter):
         donor_combo.pack_start(r)
         donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
 
+        # set the values in the view before setting any signal handlers
         self.refresh_view()
 
         # assign handlers
@@ -996,7 +999,8 @@ class DonationPresenter(editor.GenericEditorPresenter):
         self.view.connect('don_edit_button', 'clicked',
                           self.on_don_edit_clicked)
 
-        # if there is only one donor in the donor combo model and
+        # if there is no donor and only one donor in the donor combo model
+        # then set it as the active donor
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
             donor_combo.set_active(0)
 
@@ -1025,20 +1029,20 @@ class DonationPresenter(editor.GenericEditorPresenter):
 
 
     def on_donor_combo_changed(self, combo, data=None):
-        '''
-        changed the sensitivity of the don_edit_button if the
+        """
+        Changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
-        '''
+        """
 #        debug('on_donor_combo_changed')
-        i = combo.get_active_iter()
-        if i is None:
+        it = combo.get_active_iter()
+        if not it:
             return
-        value = combo.get_model()[i][0]
+        value = combo.get_model()[it][0]
         self.set_model_attr('donor', value)
+        sensitive = False
         if isinstance(value, Donor):
-            self.view.widgets.don_edit_button.set_sensitive(True)
-        else:
-            self.view.widgets.don_edit_button.set_sensitive(False)
+            sensitive = True
+        self.view.widgets.don_edit_button.set_sensitive(sensitive)
 
 
     def on_date_entry_insert(self, entry, new_text, new_text_length, position,
@@ -1074,7 +1078,6 @@ class DonationPresenter(editor.GenericEditorPresenter):
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.don_date_entry)
         self.set_model_attr('date', dt)
-
 
 
     def on_don_new_clicked(self, button, data=None):
@@ -1162,6 +1165,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         @param view: an instance of AccessionEditorView
         '''
         super(AccessionEditorPresenter, self).__init__(model, view)
+        self.__dirty = False
         self.session = object_session(model)
         self._original_source = self.model.source
         self._original_code = self.model.code
@@ -1198,7 +1202,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect('acc_id_qual_rank_combo', 'changed', on_changed)
 
         self.init_source_tab()
-        self.refresh_view() # put model values in view
+
+        # TODO: refresh_view() will fire signal handlers for any
+        # connected widgets and can be tricky with resetting values
+        # that already exist in the model.  Although this usually
+        # isn't a problem its sloppy.  We need a better way to update
+        # the widgets without firing signal handlers.
+
+        # put model values in view before any handlers are connected
+        self.refresh_view()
 
         # connect signals
         def sp_get_completions(text):
