@@ -903,7 +903,7 @@ class SearchView(pluginmgr.View):
             if (keyval, mod) != (0, 0):
                 def cb(func):
                     def _impl(*args):
-                        if func(selected)
+                        if func(selected):
                             self.reset_view()
                     return _impl
                 self.accel_group.connect_group(keyval, mod,
