@@ -419,6 +419,32 @@ class GenericEditorPresenter(object):
             problem_widgets.queue_draw()
 
 
+    def init_translatable_combo(self, combo, translations):
+        """
+        Initialize a gtk.ComboBox with translations values where
+        model[row][0] is the value that will be stored in the database
+        and model[row][1] is the value that will be visible in the
+        gtk.ComboBox.
+
+        A gtk.ComboBox initialized with this method should work with
+        self.assign_simple_handler()
+
+        :param combo:
+        :param translations: a dictionary of values->translation
+        """
+        if isinstance(combo, basestring):
+            combo = self.view.widgets[combo]
+        combo.clear()
+        # using 'object' avoids SA unicode warning
+        model = gtk.ListStore(object, str)
+        for value in sorted(translations.keys()):
+            model.append([value, translations[value]])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 1)
+
+
     def init_enum_combo(self, widget_name, field):
         """
         Initialize a gtk.ComboBox widget with name widget_name from
