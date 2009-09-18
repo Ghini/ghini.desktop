@@ -361,34 +361,32 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # init plant_acc_status_combo with acc_status_values
         combo = self.view.widgets.plant_acc_status_combo
         combo.clear()
-        model = gtk.ListStore(str, object) # 'object' avoids unicode warning
+        model = gtk.ListStore(object, str) # 'object' avoids unicode warning
         for value in sorted(acc_status_values.keys()):
-            model.append([acc_status_values[value], value])
+            model.append([value, acc_status_values[value]])
         combo.set_model(model)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 0)
+        combo.add_attribute(cell, 'text', 1)
 
         # init plant_acc_type_combo with acc_type_values
         combo = self.view.widgets.plant_acc_type_combo
         combo.clear()
-        model = gtk.ListStore(str, object) # 'object' avoids unicode warning
+        model = gtk.ListStore(object, str) # 'object' avoids unicode warning
         for value in sorted(acc_type_values.keys()):
-            model.append([acc_type_values[value], value])
+            model.append([value, acc_type_values[value]])
         combo.set_model(model)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 0)
+        combo.add_attribute(cell, 'text', 1)
 
 #        self.init_history_box()
 
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
-            default_acc_type = u'Plant'
-            self.model.acc_type = default_acc_type
+            self.model.acc_type = u'Plant'
         if self.model.id is None and self.model.acc_status is None:
-            default_acc_status = u'Living'
-            self.model.acc_status = default_acc_status
+            self.model.acc_status = u'Living'
 
         # intialize the locations comboentry
         loc_combo = self.view.widgets.plant_loc_comboentry
@@ -444,34 +442,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_loc_comboentry', 'location')#,
                                    #UnicodeOrNoneValidator())
 
-        def assign_enum_handler(combo, attr, values):
-            """
-            :param combo: the gtk.ComboBox
-
-            :param attr: the model atrribute to set
-
-            :param values: a map of values->translations where values
-              are the values stored in the database and translations
-              are the values shown in the combo
-
-            In the combo model it is assumed that the tranlations are
-            at row[0] and the values are at row[1]
-            """
-            def changed(combo):
-                model = combo.get_model()
-                i = combo.get_active_iter()
-                value = model[i][1] # 0 is the translation, 1 is the value
-                self.set_model_attr(attr, value)
-            self.view.connect(combo, 'changed', changed)
-        assign_enum_handler('plant_acc_status_combo', 'acc_status',
-                            acc_status_values)
-        # self.assign_simple_handler('plant_acc_status_combo', 'acc_status',
-        #                            UnicodeOrNoneValidator())
-
-        assign_enum_handler('plant_acc_type_combo', 'acc_type',
-                            acc_type_values)
-        #self.assign_simple_handler('plant_acc_type_combo', 'acc_type',
-        #                           UnicodeOrNoneValidator())
+        self.assign_simple_handler('plant_acc_status_combo', 'acc_status')
+        self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
 
         self.view.connect('plant_loc_add_button', 'clicked',
                           self.on_loc_button_clicked, 'add')
@@ -586,9 +558,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value(widget, value)
 
         self.view.set_widget_value('plant_acc_status_combo',
-                                   acc_status_values[self.model.acc_status])
+                                   acc_status_values[self.model.acc_status],
+                                   index=1)
         self.view.set_widget_value('plant_acc_type_combo',
-                                   acc_type_values[self.model.acc_type])
+                                   acc_type_values[self.model.acc_type],
+                                   index=1)
         self.refresh_sensitivity()
 
 

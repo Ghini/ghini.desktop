@@ -244,12 +244,13 @@ def combo_get_value_iter(combo, value, cmp=lambda row, value: row[0] == value):
     return matches[0]
 
 
-def set_widget_value(widget, value, markup=True, default=None):
+def set_widget_value(widget, value, markup=True, default=None, index=0):
     '''
     :param widget: an instance of gtk.Widget
     :param value: the value to put in the widget
     :param markup: whether or not
     :param default: the default value to put in the widget if the value is None
+    :param index: the row index to use for those widgets who use a model
 
     .. note:: any values passed in for widgets that expect a string will call
       the values __str__ method
@@ -284,10 +285,11 @@ def set_widget_value(widget, value, markup=True, default=None):
         # gtk.ComboBox
         #
         # TODO: what if None is in the model
-        treeiter = combo_get_value_iter(widget, value)
+        treeiter = combo_get_value_iter(widget, value,
+                                cmp = lambda row, value: row[index] == value)
         if treeiter:
             if isinstance(widget, gtk.ComboBoxEntry):
-                v = widget.get_model()[treeiter][0]
+                v = widget.get_model()[treeiter][index]
                 widget.child.props.text = str(v)
             widget.set_active_iter(treeiter)
         elif widget.get_model() is not None:
