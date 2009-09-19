@@ -56,10 +56,10 @@ API Documentation
 .. automodule:: bauble.i18n
 
 
-:mod:`bauble._gui`
+:mod:`bauble.ui`
 =======================
-.. automodule:: bauble._gui
-.. autoclass:: bauble._gui.GUI
+.. automodule:: bauble.ui
+.. autoclass:: bauble.ui.GUI
    :show-inheritance:
    :members:
 
