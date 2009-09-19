@@ -70,7 +70,7 @@ databases.
 """
 
 gui = None
-"""bauble.gui is the instance :class:`bauble._gui.GUI`
+"""bauble.gui is the instance :class:`bauble.ui.GUI`
 """
 
 default_icon = None
@@ -301,8 +301,9 @@ def main(uri=None):
 
     # now that we have a connection create the gui, start before the plugins
     # are initialized in case they have to do anything like add a menu
-    import bauble._gui as _gui
-    gui = _gui.GUI()
+    #import bauble._gui as _gui
+    import bauble.ui as ui
+    gui = ui.GUI()
 
     def _post_loop():
         gtk.gdk.threads_enter()
