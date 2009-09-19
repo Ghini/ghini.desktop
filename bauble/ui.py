@@ -1,5 +1,5 @@
 #
-# _gui.py
+# ui.py
 #
 
 import os
