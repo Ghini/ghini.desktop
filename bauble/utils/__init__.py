@@ -281,10 +281,7 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
     elif isinstance(widget, gtk.Entry):
         widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox):
-        # this also handles gtk.ComboBoxEntry since it extends
-        # gtk.ComboBox
-        #
-        # TODO: what if None is in the model
+        # handles gtk.ComboBox and gtk.ComboBoxEntry
         treeiter = combo_get_value_iter(widget, value,
                                 cmp = lambda row, value: row[index] == value)
         if treeiter:

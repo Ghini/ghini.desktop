@@ -365,6 +365,10 @@ class GUI(object):
                                   ])
         self.ui_manager.insert_action_group(menu_actions, 0)
 
+        # TODO: The menubar was made available in gtk.Builder in Gtk+
+        # 2.16 so whenever we decide 2.16 is the minimum version we
+        # should get rid of this .ui file
+
         # load ui
         ui_filename = os.path.join(paths.lib_dir(), 'bauble.ui')
         self.ui_manager.add_ui_from_file(ui_filename)
@@ -624,10 +628,9 @@ class GUI(object):
         all the messages in the statusbar but its the best we can do
         without knowing how many messages are in the stack.
         """
-        # TODO: if we need to do a proper clear() then we would
-        # probably have to subclass gtk.Statusbar to keep track of the
-        # message ids and context ids so we can properly clear the
-        # statusbar.
+        # TODO: to clear everything in the statusbar we would probably
+        # have to subclass gtk.Statusbar to keep track of the message
+        # ids and context ids so we can properly clear the statusbar.
         for cid in self._cids:
             self.widgets.statusbar.pop(cid)
 

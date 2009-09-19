@@ -344,6 +344,9 @@ class clean(Command):
 # working directory as it could contain uncommited files and other
 # files in the tarball that shouldn't be included in the dist
 
+# TODO: we shouldn't be using stdeb anymore and should just run the
+# builddeb.sh script from 0.9
+
 # sdist_deb command
 class sdist_deb(_sdist):
     user_options = []
