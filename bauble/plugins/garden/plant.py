@@ -358,27 +358,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        # init plant_acc_status_combo with acc_status_values
-        combo = self.view.widgets.plant_acc_status_combo
-        combo.clear()
-        model = gtk.ListStore(object, str) # 'object' avoids unicode warning
-        for value in sorted(acc_status_values.keys()):
-            model.append([value, acc_status_values[value]])
-        combo.set_model(model)
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 1)
-
-        # init plant_acc_type_combo with acc_type_values
-        combo = self.view.widgets.plant_acc_type_combo
-        combo.clear()
-        model = gtk.ListStore(object, str) # 'object' avoids unicode warning
-        for value in sorted(acc_type_values.keys()):
-            model.append([value, acc_type_values[value]])
-        combo.set_model(model)
-        cell = gtk.CellRendererText()
-        combo.pack_start(cell, True)
-        combo.add_attribute(cell, 'text', 1)
+        self.init_translatable_combo('plant_acc_status_combo',
+                                     acc_status_values)
+        self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
 
 #        self.init_history_box()
 
