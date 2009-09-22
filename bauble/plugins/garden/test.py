@@ -392,7 +392,7 @@ class AccessionTests(GardenTestCase):
         donation = Donation()
         donation.donor = donor
         acc.source = donation
-        self.session.flush()
+        self.session.commit()
         #self.session.expire(acc)
         self.session.refresh(acc)
         self.assertEquals(acc.source.id, donation.id)
@@ -404,10 +404,16 @@ class AccessionTests(GardenTestCase):
         donation2 = Donation()
         donation2.donor = donor
         acc.source = donation2
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, donation2.id)
         self.assertEquals(acc.source_type, u'Donation')
+
+        # set the same source twice to make sure the source isn't
+        # deleted before setting it again
+        acc.source = donation2
+        self.session.commit()
+        self.assert_(acc.source)
 
         # delete all the donations
         # TODO: ** important ** the donor
@@ -427,7 +433,7 @@ class AccessionTests(GardenTestCase):
         donation.donor = donor
         acc.source = donation
         acc.source = None
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         old_donation_id = donation2.id
         self.assertEquals(acc.source, None)
@@ -438,7 +444,7 @@ class AccessionTests(GardenTestCase):
         donation.donor = donor
         acc.source = donation
         del acc.source
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         old_donation_id = donation2.id
         self.assertEquals(acc.source, None)
@@ -450,7 +456,7 @@ class AccessionTests(GardenTestCase):
         # set accession.source to a Collection
         collection = Collection(locale=u'TestAccLocale')
         acc.source = collection
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, collection.id)
         self.assertEquals(acc.source_type, u'Collection')
@@ -460,7 +466,7 @@ class AccessionTests(GardenTestCase):
         donation3 = Donation()
         donation3.donor = donor
         acc.source = donation3
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, donation3.id)
         self.assertEquals(acc.source_type, u'Donation')
@@ -472,7 +478,7 @@ class AccessionTests(GardenTestCase):
         old_donation_id = donation3.id
         collection2 = Collection(locale=u'TestAccLocale2')
         acc.source = collection2
-        self.session.flush()
+        self.session.commit()
         self.session.expire(acc)
         self.assertEquals(acc.source.id, collection2.id)
         self.assertEquals(acc.source_type, u'Collection')
@@ -482,7 +488,7 @@ class AccessionTests(GardenTestCase):
         acc.source = donation4
         collection3 = Collection(locale=u'TestAccLocale3')
         acc.source = collection3
-        self.session.flush()
+        self.session.commit()
 #        utils.log.echo(False)
 
         # make sure the orphaned donation get's deleted

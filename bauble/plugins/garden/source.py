@@ -9,13 +9,33 @@ import bauble
 import bauble.db as db
 import bauble.types as types
 from bauble.plugins.plants.geography import Geography
-
+from bauble.view import Action
 
 def source_markup_func(source):
-    # TODO: should probably just make the source look and act like an accession
-    # with the same markup and children in the view
-    return source.accession, source
+    from bauble.plugins.garden.accession import acc_markup_func
+    return '%s - <small>%s</small>' % \
+        (source.accession, source.accession.species_str()), source
 
+def edit_callback(source):
+    from bauble.plugins.garden.accession import edit_callback
+    return edit_callback([source[0].accession])
+
+def add_plants_callback(source):
+    from bauble.plugins.garden.accession import add_plants_callback
+    return add_plants_callback([source[0].accession])
+
+def remove_callback(source):
+    from bauble.plugins.garden.accession import remove_callback
+    return remove_callback([source[0].accession])
+
+edit_action = Action('source_edit', ('_Edit'), callback=edit_callback,
+                        accelerator='<ctrl>e')
+add_plant_action = Action('source_add', ('_Add plants'),
+                          callback=add_plants_callback, accelerator='<ctrl>k')
+remove_action = Action('source_remove', ('_Remove'), callback=remove_callback,
+                       accelerator='<delete>')#, multiselect=True)
+
+source_context_menu = [edit_action, add_plant_action, remove_action]
 
 class Donation(db.Base):
     """

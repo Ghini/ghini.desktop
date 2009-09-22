@@ -105,12 +105,12 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
-    return e.start() != None
+    return e.start()
 
 
 def add_plants_callback(accessions):
     e = PlantEditor(model=Plant(accession=accessions[0]))
-    return e.start() != None
+    return e.start()
 
 
 def remove_callback(accessions):
@@ -130,7 +130,7 @@ def remove_callback(accessions):
         msg = _("Are you sure you want to remove accession <b>%s</b>?") % \
                   utils.xml_safe_utf8(unicode(acc))
     if not utils.yes_no_dialog(msg):
-        return
+        return False
     try:
         session = bauble.Session()
         obj = session.query(Accession).get(acc.id)
@@ -204,6 +204,26 @@ class AccessionMapperExtension(MapperExtension):
         instance.invalidate_str_cache()
         return EXT_CONTINUE
 
+
+prov_type_values = {u'Wild': _('Wild'),
+                    u'Cultivated': _('Propagule of cultivated wild plant'),
+                    u'NotWild': _("Not of wild source"),
+                    u'InsufficientData': _("Insufficient Data"),
+                    u'Unknown': _("Unknown"),
+                    None: _('')}
+
+
+wild_prov_status_values = {u'WildNative': _("Wild native"),
+                           u'WildNonNative': _("Wild non-native"),
+                           u'CultivatedNative': _("Cultivated native"),
+                           u'InsufficientData': _("Insufficient Data"),
+                           u'Unknown': _("Unknown"),
+                           None: _('')}
+
+
+source_type_values = {u'Collection': _('Collection'),
+                      u'Donation': _('Donation'),
+                      None: _('')}
 
 class Accession(db.Base):
     """
@@ -306,23 +326,16 @@ class Accession(db.Base):
     #: the accession code
     code = Column(Unicode(20), nullable=False, unique=True)
 
-    # TODO: all enums types should use translatable strings
-    prov_type = Column(types.Enum(values=['Wild',
-                                          'Propagule of cultivated wild plant',
-                                          "Not of wild source",
-                                          "Insufficient Data",
-                                          "Unknown",
-                                          None]), default=None)
-    wild_prov_status = Column(types.Enum(values=["Wild native",
-                                                 "Wild non-native",
-                                                 "Cultivated native",
-                                                 "Insufficient Data",
-                                                 "Unknown",
-                                                 None]), default=None)
+    prov_type = Column(types.Enum(values=prov_type_values.keys()),default=None)
+
+    wild_prov_status =Column(types.Enum(values=wild_prov_status_values.keys()),
+                             default=None)
+
     date = Column(types.Date)
-    source_type = Column(types.Enum(values=['Collection', 'Donation', None]),
+    source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
     notes = Column(UnicodeText)
+
     # "id_qual" new in 0.7
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
                                         'forsan', 'near', '?', None]),
@@ -457,7 +470,7 @@ class Accession(db.Base):
         - `source_type`: a string or class
         """
         if isinstance(source_type, basestring):
-            return sourc_type == self.source_type
+            return source_type == self.source_type
         elif isinstance(self.source_type, source_type):
             return True
         return False
@@ -476,7 +489,9 @@ class Accession(db.Base):
         if self.source is not None:
             obj = self.source
             obj._accession = None
-            utils.delete_or_expunge(obj)
+            # we don't need to delete the old source since it will be
+            # orphaned and should get automatically deleted
+            #utils.delete_or_expunge(obj)
             self.source_type = None
         if source is None:
             self.source_type = None
@@ -516,11 +531,11 @@ class AccessionEditorView(editor.GenericEditorView):
                                % utils.enum_values_str('accession.id_qual'),
         'acc_date_entry': _('The date this species was accessioned.'),
         'acc_prov_combo': _('The origin or source of this accession.\n\n' \
-                            'Possible values: %s') \
-                             % utils.enum_values_str('accession.prov_type'),
+                            'Possible values: %s') % \
+                            ', '.join(prov_type_values.values()),
         'acc_wild_prov_combo': _('The wild status is used to clarify the ' \
-                                 'provenance\n\nPossible values: %s') \
-                        % utils.enum_values_str('accession.wild_prov_status'),
+                                 'provenance\n\nPossible values: %s') % \
+                                 ', '.join(wild_prov_status_values.values()),
         'acc_source_type_combo': _('The source type is in what way this ' \
                                    'accession was obtained'),
         'acc_notes_textview': _('Miscelleanous notes about this accession.'),
@@ -964,6 +979,7 @@ class DonationPresenter(editor.GenericEditorPresenter):
         donor_combo.pack_start(r)
         donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
 
+        # set the values in the view before setting any signal handlers
         self.refresh_view()
 
         # assign handlers
@@ -983,7 +999,8 @@ class DonationPresenter(editor.GenericEditorPresenter):
         self.view.connect('don_edit_button', 'clicked',
                           self.on_don_edit_clicked)
 
-        # if there is only one donor in the donor combo model and
+        # if there is no donor and only one donor in the donor combo model
+        # then set it as the active donor
         if self.model.donor is None and len(donor_combo.get_model()) == 1:
             donor_combo.set_active(0)
 
@@ -1012,20 +1029,20 @@ class DonationPresenter(editor.GenericEditorPresenter):
 
 
     def on_donor_combo_changed(self, combo, data=None):
-        '''
-        changed the sensitivity of the don_edit_button if the
+        """
+        Changed the sensitivity of the don_edit_button if the
         selected item in the donor_combo is an instance of Donor
-        '''
+        """
 #        debug('on_donor_combo_changed')
-        i = combo.get_active_iter()
-        if i is None:
+        it = combo.get_active_iter()
+        if not it:
             return
-        value = combo.get_model()[i][0]
+        value = combo.get_model()[it][0]
         self.set_model_attr('donor', value)
+        sensitive = False
         if isinstance(value, Donor):
-            self.view.widgets.don_edit_button.set_sensitive(True)
-        else:
-            self.view.widgets.don_edit_button.set_sensitive(False)
+            sensitive = True
+        self.view.widgets.don_edit_button.set_sensitive(sensitive)
 
 
     def on_date_entry_insert(self, entry, new_text, new_text_length, position,
@@ -1061,7 +1078,6 @@ class DonationPresenter(editor.GenericEditorPresenter):
             self.add_problem(self.PROBLEM_INVALID_DATE,
                              self.view.widgets.don_date_entry)
         self.set_model_attr('date', dt)
-
 
 
     def on_don_new_clicked(self, button, data=None):
@@ -1149,6 +1165,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         @param view: an instance of AccessionEditorView
         '''
         super(AccessionEditorPresenter, self).__init__(model, view)
+        self.__dirty = False
         self.session = object_session(model)
         self._original_source = self.model.source
         self._original_code = self.model.code
@@ -1166,8 +1183,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
 
-        self.init_enum_combo('acc_prov_combo', 'prov_type')
-        self.init_enum_combo('acc_wild_prov_combo', 'wild_prov_status')
+        self.init_translatable_combo('acc_prov_combo', prov_type_values)
+        self.init_translatable_combo('acc_wild_prov_combo',
+                                     wild_prov_status_values)
+
         self.init_enum_combo('acc_id_qual_combo', 'id_qual')
 
         # init id_qual_rank
@@ -1183,7 +1202,15 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.view.connect('acc_id_qual_rank_combo', 'changed', on_changed)
 
         self.init_source_tab()
-        self.refresh_view() # put model values in view
+
+        # TODO: refresh_view() will fire signal handlers for any
+        # connected widgets and can be tricky with resetting values
+        # that already exist in the model.  Although this usually
+        # isn't a problem its sloppy.  We need a better way to update
+        # the widgets without firing signal handlers.
+
+        # put model values in view before any handlers are connected
+        self.refresh_view()
 
         # connect signals
         def sp_get_completions(text):
@@ -1236,10 +1263,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('acc_species_entry',
                                         sp_get_completions,
                                         on_select=on_select)
-        self.view.connect('acc_prov_combo', 'changed',
-                          self.on_combo_changed, 'prov_type')
-        self.view.connect('acc_wild_prov_combo', 'changed',
-                          self.on_combo_changed, 'wild_prov_status')
+        self.assign_simple_handler('acc_prov_combo', 'prov_type')
+        self.assign_simple_handler('acc_wild_prov_combo', 'wild_prov_status')
+
         # TODO: could probably replace this by just passing a valdator
         # to assign_simple_handler...UPDATE: but can the validator handle
         # adding a problem to the widget...if we passed it the widget it
@@ -1344,7 +1370,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         Set attributes on the model and update the GUI as expected.
         """
-        #debug('set_model_attr(%s, %s)' % (field, value))
+        debug('set_model_attr(%s, %s)' % (field, value))
         super(AccessionEditorPresenter, self).set_model_attr(field, value,
                                                              validator)
         self.__dirty = True
@@ -1466,8 +1492,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         combo = self.view.widgets.acc_source_type_combo
         combo.clear()
         model = gtk.ListStore(str, object, object)
-        values = [[_('Collection'), Collection, CollectionPresenter],
-                  [_('Donation'), Donation, DonationPresenter],
+        values = [[source_type_values[u'Collection'], Collection,
+                   CollectionPresenter],
+                  [source_type_values[u'Donation'], Donation,
+                   DonationPresenter],
                   [None, None, None]]
         for v in values:
             model.append(v)
@@ -1497,6 +1525,13 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = '%s/%s/%s' % (value.day, value.month,
                                       '%04d' % value.year)
             self.view.set_widget_value(widget, value)
+
+        self.view.set_widget_value('acc_wild_prov_combo',
+                          wild_prov_status_values[self.model.wild_prov_status],
+                                   index=1)
+        self.view.set_widget_value('acc_prov_combo',
+                                   prov_type_values[self.model.prov_type],
+                                   index=1)
 
         if self.model.private is None:
             self.view.widgets.acc_private_check.set_inconsistent(False)
@@ -1731,10 +1766,11 @@ class GeneralAccessionExpander(InfoExpander):
         session = object_session(row)
         # TODO: it would be nice if we did something like 13 Living,
         # 2 Dead, 6 Unknown, etc
-        # TODO: could this be sped up, does it matter?
+
         nplants = session.query(Plant).filter_by(accession_id=row.id).count()
         self.set_widget_value('nplants_data', nplants)
-        self.set_widget_value('prov_data', row.prov_type, False)
+        self.set_widget_value('prov_data', prov_type_values[row.prov_type],
+                              False)
 
 
 class NotesExpander(InfoExpander):
@@ -1870,11 +1906,11 @@ class AccessionInfoBox(InfoBox):
         self.source.update(row.source)
 
 
-# it's easier just to put this here instead of playing around with imports
+# it's easier just to put this here instead of source.py to avoid
+# playing around with imports for AccessionInfoBox
 class SourceInfoBox(AccessionInfoBox):
     def update(self, row):
         super(SourceInfoBox, self).update(row.accession)
-
 
 
 #

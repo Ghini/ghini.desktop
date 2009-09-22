@@ -138,7 +138,13 @@ class ConnectionManager:
         self.type_combo.clear()
         self.name_combo.clear()
 
+        # just to be sure let's destroy the dialog upfront and delete
+        # the params box
         self.dialog.destroy()
+        del self.params_box
+        obj = utils.gc_objects_by_type(CMParamsBox)
+        if obj:
+            warning('ConnectionManager.start(): param box leaked: %s' % obj)
         return name, uri
 
 
@@ -615,7 +621,7 @@ class SQLiteParamsBox(CMParamsBox):
         self.file_box = gtk.HBox(False)
         self.file_entry = gtk.Entry()
         self.file_box.pack_start(self.file_entry)
-        file_button = gtk.Button("Browse...")
+        file_button = gtk.Button(_("Browse..."))
         file_button.connect("clicked", self.on_activate_browse_button)
         self.file_box.pack_start(file_button)
         self.attach(self.file_box, 1, 2, 1, 2)
