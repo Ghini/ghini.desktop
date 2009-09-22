@@ -85,8 +85,11 @@ class Location(db.Base):
     __mapper_args__ = {'order_by': 'name'}
 
     # columns
-    name = Column(Unicode(64), unique=True, nullable=False)
+    name = Column(Unicode(64), nullable=False)
     description = Column(UnicodeText)
+
+    # UBC: ubc refers to beds by their codes
+    code = Column(Unicode(4), unique=True, nullable=False)
 
     # relations
     plants = relation('Plant', backref=backref('location', uselist=False))
