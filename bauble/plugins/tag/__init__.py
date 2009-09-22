@@ -177,11 +177,13 @@ class TagItemGUI(editor.GenericEditorView):
         # glade then the 'new tag' button emits a response we want to ignore
         self.tag_tree = self.widgets.tag_tree
 
-        # make the new columns
-        if not self.tag_tree.get_columns():
-            columns = self.build_tag_tree_columns()
-            for col in columns:
-                self.tag_tree.append_column(col)
+        # we remove the old columns and create new ones each time the
+        # tag editor is started since we have to connect and
+        # disconnect the toggled signal each time
+        map(self.tag_tree.remove_column, self.tag_tree.get_columns())
+        columns = self.build_tag_tree_columns()
+        for col in columns:
+            self.tag_tree.append_column(col)
 
         # create the model
         model = gtk.ListStore(bool, str)
