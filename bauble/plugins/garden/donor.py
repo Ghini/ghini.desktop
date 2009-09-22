@@ -54,26 +54,28 @@ donor_context_menu = [edit_action, remove_action]
 # TODO: **important** the donor_type could be either be character
 # codes or something so that they can be translated
 
+donor_type_values = {u'Expedition': _('Expedition'),
+                     u'GeneBank': _('Gene Bank'),
+                     u'BG/Arboretum': _('Botanic Garden or Arboretum'),
+                     u'Research/FieldStation': _('Research/Field Station'),
+                     u'Staff': _('Staff member'),
+                     u'UniversityDepartment': _('University Department'),
+                     u'Hort/GardenClub': \
+                         _('Horticultural Association/Garden Club'),
+                     u'MunicipalDepartment': _('Municipal department'),
+                     u'Nursery/Commercial': _('Nursery/Commercial'),
+                     u'Individual': _('Individual'),
+                     u'Other': _('Other'),
+                     u'Unknown': _('Unknown'),
+                     None: _('')}
+
 class Donor(db.Base):
     __tablename__ = 'donor'
     __mapper_args__ = {'order_by': 'name'}
 
     # columns
     name = Column(Unicode(72), unique=True, nullable=False)
-    donor_type = Column('donor_type',
-                        Enum(values=['Expedition',
-                                     "Gene bank",
-                                     "Botanic Garden or Arboretum",
-                                     "Research/Field Station",
-                                     "Staff member",
-                                     "University Department",
-                                     "Horticultural Association/Garden Club",
-                                     "Municipal department",
-                                     "Nursery/Commercial",
-                                     "Individual",
-                                     "Other",
-                                     "Unknown",
-                                     None]),
+    donor_type = Column('donor_type', Enum(values=donor_type_values.keys()),
                         default=None)
     address = Column(UnicodeText)
     email = Column(Unicode(128))
@@ -138,8 +140,7 @@ class DonorEditorPresenter(GenericEditorPresenter):
     def __init__(self, model, view):
         super(DonorEditorPresenter, self).__init__(model, view)
         model = gtk.ListStore(str)
-        self.init_enum_combo('don_type_combo', 'donor_type')
-
+        self.init_translatable_combo('don_type_combo', donor_type_values)
 
         self.refresh_view()
         validator = UnicodeOrNoneValidator()
@@ -164,6 +165,10 @@ class DonorEditorPresenter(GenericEditorPresenter):
 #            debug('donor refresh(%s, %s=%s)' % (widget, field,
 #                                                self.model[field]))
             self.view.set_widget_value(widget, getattr(self.model, field))
+
+        self.view.set_widget_value('don_type_combo',
+                                   donor_type_values[self.model.donor_type],
+                                   index=1)
 
 
     def start(self):

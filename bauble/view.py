@@ -902,7 +902,10 @@ class SearchView(pluginmgr.View):
             keyval, mod = gtk.accelerator_parse(action.accelerator)
             if (keyval, mod) != (0, 0):
                 def cb(func):
-                    return lambda *args: func(selected)
+                    def _impl(*args):
+                        if func(selected):
+                            self.reset_view()
+                    return _impl
                 self.accel_group.connect_group(keyval, mod,
                                                gtk.ACCEL_VISIBLE,
                                                cb(action.callback))

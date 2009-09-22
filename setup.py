@@ -300,7 +300,8 @@ class docs(Command):
         cmd = ['sphinx-build', '-b', 'html', 'doc', DOC_BUILD_PATH]
         if self.all:
             # rebuild all the docs
-            cmd.insert(1, '-E -a')
+            #cmd.insert(1, '-E -a')
+            cmd.insert(1, '-E')
         spawn.spawn(cmd)
 
 
@@ -342,6 +343,9 @@ class clean(Command):
 # TODO: sdist_deb should be run from a fresh checkout and never from a
 # working directory as it could contain uncommited files and other
 # files in the tarball that shouldn't be included in the dist
+
+# TODO: we shouldn't be using stdeb anymore and should just run the
+# builddeb.sh script from 0.9
 
 # sdist_deb command
 class sdist_deb(_sdist):

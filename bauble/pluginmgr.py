@@ -186,7 +186,7 @@ def init(force=False):
             msg = _('The following plugins are in the registry but '
                     'could not be loaded:\n\n%(plugins)s' % \
                     {'plugins': utils.utf8(', '.join(sorted(not_registered)))})
-            utils.message_dialog(msg, type=gtk.MESSAGE_WARNING)
+            utils.message_dialog(utils.xml_safe(msg), type=gtk.MESSAGE_WARNING)
 
     except Exception, e:
         raise

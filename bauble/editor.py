@@ -190,17 +190,22 @@ class GenericEditorView(object):
         raise NotImplementedError
 
 
-    def set_widget_value(self, widget, value, markup=True, default=None):
+    def set_widget_value(self, widget, value, markup=True, default=None,
+                         index=0):
         '''
         :param widget: a widget or name of a widget in self.widgets
         :param value: the value to put in the widgets
         :param markup: whether the data in value uses pango markup
         :param default: the default value to put in the widget if value is None
+        :param index: the row index to use for those widgets who use a model
+
+        This method caled bauble.utils.set_widget_value()
         '''
         if isinstance(widget, gtk.Widget):
-            utils.set_widget_value(widget, value, markup, default)
+            utils.set_widget_value(widget, value, markup, default, index)
         else:
-            utils.set_widget_value(self.widgets[widget], value, markup,default)
+            utils.set_widget_value(self.widgets[widget], value, markup,
+                                   default, index)
 
 
     def on_dialog_response(self, dialog, response, *args):
@@ -414,6 +419,32 @@ class GenericEditorPresenter(object):
             problem_widgets.queue_draw()
 
 
+    def init_translatable_combo(self, combo, translations):
+        """
+        Initialize a gtk.ComboBox with translations values where
+        model[row][0] is the value that will be stored in the database
+        and model[row][1] is the value that will be visible in the
+        gtk.ComboBox.
+
+        A gtk.ComboBox initialized with this method should work with
+        self.assign_simple_handler()
+
+        :param combo:
+        :param translations: a dictionary of values->translation
+        """
+        if isinstance(combo, basestring):
+            combo = self.view.widgets[combo]
+        combo.clear()
+        # using 'object' avoids SA unicode warning
+        model = gtk.ListStore(object, str)
+        for value in sorted(translations.keys()):
+            model.append([value, translations[value]])
+        combo.set_model(model)
+        cell = gtk.CellRendererText()
+        combo.pack_start(cell, True)
+        combo.add_attribute(cell, 'text', 1)
+
+
     def init_enum_combo(self, widget_name, field):
         """
         Initialize a gtk.ComboBox widget with name widget_name from
@@ -468,6 +499,9 @@ class GenericEditorPresenter(object):
         :param model_attr:
 
         :param validator:
+
+        Note: Where widget is a gtk.ComboBox or gtk.ComboBoxEntry then
+        the value is assumed to be stored in model[row][0]
         '''
         widget = self.view.widgets[widget_name]
         check(widget is not None, _('no widget with name %s') % widget_name)
