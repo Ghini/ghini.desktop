@@ -31,6 +31,8 @@ parser.add_option("-s", "--stage", dest="stage", default='0',
                   help="stage of conversion to start at", metavar="STAGE")
 parser.add_option("-t", "--test", dest="test", action="store_true",
                   default=False, help="run only tests")
+parser.add_option("-p", "--problems", dest="problems", action="store_true",
+                  default=False, help="print out problems with data")
 parser.add_option("-d", "--database", dest="database",
                   default=default_uri, metavar="DBURI",
                   help="the database uri to store the converted databaset")
@@ -194,6 +196,20 @@ unknown_genus_id = get_column_value(genus_table.c.id,
                               genus_table.c.genus==unknown_genus_name)
 
 
+problem_labels = ['** have infraspecific rank but no epithet but do have a '\
+                      'cultivar name',
+                  '** have infraspecific rank but no epithet',
+                  '** have an infraspecific epithet and cultivar but no '\
+                      'infraspecific rank',
+                  '** have infraspecific epithet but not rank or cultivar',
+
+                  '']
+problems = {0: [],
+            1: [],
+            2: [],
+            3: []}
+
+
 def species_dict_from_rec(rec, defaults=None):
     """
     rec: a dbf record to build the species from
@@ -210,6 +226,22 @@ def species_dict_from_rec(rec, defaults=None):
 
     #print 'default: %s' % species_table_defaults
     #row['genus_id'] = rec['genus_id']
+
+    def clean_rec(rec):
+        d = rec.asDict()
+        dirt = ['FLCOLOR', 'PIN', 'REFERENCE', 'HABIT',
+                'SCINOTE', 'HARDZONE', 'NATIVITY', 'AWARDS', 'PHENOL',
+                'AUTHCHECK', 'NATBC', 'WILDNUM', 'L_UPDATE', 'DATEACCD',
+                'PRONOTES', 'PHOTO', 'DELSTAT', 'LABELS', 'MEMORIAL',
+                'OPERATOR', 'VERIFIED', 'INTENDLOC2', 'INTENDLOC1',
+                'QTYRCVD', 'VOUCHER', 'VERIFIED', 'WILDCOLL', 'NOTES',
+                'INITLOC', 'GEOCODE', 'SOURCE', 'PISBG', 'DATERCVD']
+        for key in dirt:
+            try:
+                d.pop(key)
+            except:
+                pass
+        return d
 
     row['sp'] = utils.utf8(rec['species'])
     if rec['is']:
@@ -231,6 +263,8 @@ def species_dict_from_rec(rec, defaults=None):
     #     print rec
     #     sys.exit()
 
+    # TODO: what gives with the '|' in the author fields
+
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
         row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
@@ -238,24 +272,28 @@ def species_dict_from_rec(rec, defaults=None):
         row['infrasp2_rank'] = u'cv.'
         row['infrasp2'] = utils.utf8(rec['cultivar'])
     elif rec['rank'] and not rec['infrepi'] and rec['cultivar']:
-        # has infrespecific rank but no epithet...and a cultivar...??
+        # has infraspecific rank but no epithet...and a cultivar...??
         # maybe in this case we should just drop the rank and add cv. cultivar
+        problems[0].append(clean_rec(rec))
         row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
         row['infrasp2_rank'] = u'cv.'
-        row['infrasp2'] = utils.utf8(rec['cultivar'])
     elif rec['rank'] and rec['infrepi'] and not rec['cultivar']:
         row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
         row['infrasp'] = utils.utf8(rec['infrepi'])
     elif rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # has infrespecific rank but no epithet...???
+        problems[1].append(clean_rec(rec))
         row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
     elif not rec['rank'] and rec['infrepi'] and rec['cultivar']:
-        #row['infrasp_rank']
+        # have and infraspecific epitehet and cultivar but no
+        # infraspecific rank
+        problems[2].append(clean_rec(rec))
         row['infrasp'] = utils.utf8(rec['infrepi'])
         row['infrasp2_rank'] = u'cv.'
         row['infrasp2'] = utils.utf8(rec['cultivar'])
     elif not rec['rank'] and rec['infrepi'] and not rec['cultivar']:
         # has infrespecific epithet but not rank or cultivar.???
+        problems[3].append(clean_rec(rec))
         row['infrasp'] = utils.utf8(rec['infrepi'])
     elif not rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         row['infrasp_rank'] = u'cv.'
@@ -372,6 +410,7 @@ def do_sciname():
         if not genus:
             no_genus_ctr += 1
             genus_id = unknown_genus_id
+            #print 'no genus: %s' % rec.asDict()
         else:
             #genus_id = get_column_value(genus_table.c.id,
             #                     genus_table.c.genus == genus)
@@ -391,6 +430,8 @@ def do_sciname():
             if not family_id:
                 warning('** %s has no family. adding to %s' \
                     % (genus, unknown_family_name))
+                # print '** %s has no family. adding to %s' \
+                #     % (genus, unknown_family_name)
                 family_id = unknown_family_id
             genus_row = genus_defaults.copy()
             genus_row.update({'genus': genus, 'family_id': family_id})
@@ -464,6 +505,7 @@ def do_plants():
                                         genus=genus).execute()
             genus_id = get_column_value(genus_table.c.id,
                                  genus_table.c.genus == genus)
+            print 'genus has no family: %s' % genus
 
         defaults = species_defaults.copy()
         defaults['genus_id'] = genus_id
@@ -544,14 +586,24 @@ def do_plants():
 
 
 def do_bedtable():
+    # TODO: for the bed table it might make sense to do a "section"
+    # column so the section could be, say "Alpine Garden" and the
+    # specific locations could be "Australasia"...but what do we
+    # really gain from this...we would also need multiple sections
+    # like: Main Garden->Alpine Garden->Australasia which would
+    # probably be more suitable to just giving the location table a
+    # parent_id to another location....but then it gets difficult
+    # getting all the plants from sections with children
     status('converting BEDTABLE.DBF ...')
     dbf = open_dbf('BEDTABLE.DBF')
     location_rows = []
     defaults = get_defaults(location_table)
     for rec in dbf:
         row = defaults.copy()
-        row.update({'site': utils.utf8(rec['bedno']),
-                    'description': utils.utf8(rec['beddescr'])})
+        row.update({'code': utils.utf8(rec['bedno']),
+                    'name': utils.utf8(rec['beddescr'])})
+        # row.update({'name': utils.utf8(rec['bedno']),
+        #             'description': utils.utf8(rec['beddescr'])})
         location_rows.append(row)
     db.engine.execute(location_table.insert(), *location_rows)
     info('inserted %s locations out of %s records' \
@@ -581,7 +633,7 @@ def do_hereitis():
             info('%s.%s' % (rec['accno'], rec['propno']))
             pass
         if code in codes:
-            error('dup: %s' % code)
+            #error('dup: %s' % code)
             pass
         else:
             codes.add(code)
@@ -623,12 +675,21 @@ if __name__ == '__main__':
         import timeit
         nstages = len(stages)
         total_seconds = 0
+        nruns = 1
         for stage in range(int(options.stage), nstages):
             current_stage = stages[str(stage)]
             t = timeit.timeit('current_stage()',
-                              "from __main__ import current_stage;", number=1)
+                              "from __main__ import current_stage;",
+                              number=nruns)
             info('... in %s seconds.' % t)
             total_seconds += t
         info('total run time: %s seconds' % total_seconds)
 
+    if nruns < 2 and options.problems:
+        for key, probs in problems.iteritems():
+            print problem_labels[key]
+            print '------------------------'
+            for row in probs:
+                print row
+            print ''
 
