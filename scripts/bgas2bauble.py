@@ -68,6 +68,7 @@ genus_table = Genus.__table__
 species_table = Species.__table__
 acc_table = Accession.__table__
 location_table = Location.__table__
+plant_table = Plant.__table__
 
 session = bauble.Session()
 
@@ -188,12 +189,22 @@ if options.stage == '0':
 unknown_family_id = get_column_value(family_table.c.id,
                               family_table.c.family==unknown_family_name)
 
+# create (unknown) genus for those species that don't have a genus
 unknown_genus_name = u'(unknown)'
 if options.stage == '0':
     genus_table.insert().values(family_id=unknown_family_id,
                                 genus=unknown_genus_name).execute()
 unknown_genus_id = get_column_value(genus_table.c.id,
                               genus_table.c.genus==unknown_genus_name)
+
+# create (unknown) location
+unknown_location_name = u'(unknown)'
+unknown_location_code = u'UNK'
+if options.stage == '0':
+    location_table.insert().values(code=unknown_location_code,
+                                   name=unknown_location_name).execute()
+unknown_location_id = get_column_value(location_table.c.id,
+                              location_table.c.code==unknown_location_code)
 
 
 problem_labels = ['** have infraspecific rank but no epithet but do have a '\
@@ -455,6 +466,58 @@ def do_sciname():
                 % (no_genus_ctr, unknown_genus_name))
 
 
+def get_species(rec, species_defaults=None):
+    """
+    Try to determine the species id of a record.
+
+    :param rec: a dbf record
+    """
+    # TODO: this could probably become a generic function where we
+    # can also pass a flag on whether to create the species if we
+    # can't find them...do the same for get_family_id() and
+    # get_genus_id()
+
+    genus_id = None
+    genus = None
+    if not species_defaults:
+        species_defaults = get_defaults(species_table)
+
+    genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
+
+    if 'genus_id' in rec and rec['genus_id']:
+        genus_id = r['genus_id']
+        genus = get_column_value(genus_table.c.genus,
+                                 genus_table.c.genus_id == genus_id)
+    else:
+        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
+        genus_id = get_column_value(genus_table.c.id,
+                                    genus_table.c.genus == genus)
+
+    if not genus_id:
+        # TODO: here we're assume the genera don't have an
+        # associated family but it shouldn't really matter b/c
+        # there seems to be only one genus (BL.0178) in plants.dbf
+        # that isn't already in the database
+        info('adding genus %s from plants.dbf.' % genus)
+        genus_table.insert().values(family_id=unknown_family_id,
+                                    genus=genus).execute()
+        genus_id = get_column_value(genus_table.c.id,
+                             genus_table.c.genus == genus)
+        print 'genus has no family: %s' % genus
+
+    defaults = species_defaults.copy()
+    defaults['genus_id'] = genus_id
+    row = species_dict_from_rec(rec, defaults=defaults)
+    conditions = []
+    for col, val in row.iteritems():
+        if col not in ('_last_updated', '_created'):
+            conditions.append(species_table.c[col]==val)
+    species_id = get_column_value(species_table.c.id, and_(*conditions))
+    if species_id:
+        row['id'] = species_id
+    return row
+
+
 def do_plants():
     """
     BGAS Plants are what we refer to as accessions
@@ -479,51 +542,10 @@ def do_plants():
     delayed_species = []
     delayed_accessions = []
 
-    def get_species_id(r):
-        # TODO: this could probably become a generic function where we
-        # can also pass a flag on whether to create the species if we
-        # can't find them...do the same for get_family_id() and
-        # get_genus_id()
-        genus_id = None
-        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
-        if 'genus_id' in r and r['genus_id']:
-            genus_id = r['genus_id']
-        else:
-            #genus_id = get_column_value(genus_table.c.id,
-            #                        genus_table.c.genus == genus)
-            stmt = 'select id from genus where genus=="%s";' % genus
-            r = db.engine.execute(stmt).fetchone()
-            if r:
-                genus_id = r[0]
-        if not genus_id:
-            # TODO: here we're assume the genera don't have an
-            # associated family but it shouldn't really matter b/c
-            # there seems to be only one genus (BL.0178) in plants.dbf
-            # that isn't already in the database
-            info('adding genus %s from plants.dbf.' % genus)
-            genus_table.insert().values(family_id=unknown_family_id,
-                                        genus=genus).execute()
-            genus_id = get_column_value(genus_table.c.id,
-                                 genus_table.c.genus == genus)
-            print 'genus has no family: %s' % genus
-
-        defaults = species_defaults.copy()
-        defaults['genus_id'] = genus_id
-        row = species_dict_from_rec(rec, defaults=defaults)
-        conditions = []
-        for col, val in row.iteritems():
-            if col not in ('_last_updated', '_created'):
-                conditions.append(species_table.c[col]==val)
-        species_id = get_column_value(species_table.c.id, and_(*conditions))
-        if not species_id:
-            delayed_species.append(row)
-            return None
-
-        return species_id
-
     acc_rows = []
     added_codes = set()
     duplicates = []
+
     for rec in dbf:
         rec_ctr += 1
         if (rec_ctr % 500) == 0:
@@ -532,22 +554,30 @@ def do_plants():
                 sys.stdout.flush()
             # break
 
+        # TODO: create tags for PISBG
+
+        # TODO: should record the name of the person who creates new
+        # accession sand use the operator field for old
+        # accessions...of course the audit trail will also record this
+
         if not rec['accno']:
-            warning('** accno is empty: %s' % rec['accno'])
+            error('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
         elif rec['accno'] in added_codes:
+            #print '%s.%s' % (rec['accno'], rec['propno'])
             #print '** duplicate code: %s....not importing' % rec['accno']
             duplicates.append(rec['accno'])
             continue
             #raise ValueError('** duplicate code: \n%s' % rec)
 
-        species_id = get_species_id(rec)
-        if species_id:
+        species = get_species(rec, species_defaults)
+        if 'id' in species:
             row = acc_defaults.copy()
             row['code'] = utils.utf8(rec['accno'])
-            row['species_id'] = species_id
+            row['species_id'] = species['id']
             acc_rows.append(row)
         else:
+            delayed_species.append(species)
             delayed_accessions.append(rec)
 
         added_codes.add(rec['accno'])
@@ -565,18 +595,40 @@ def do_plants():
     for rec in delayed_accessions:
         row = acc_defaults.copy()
         row['code'] = utils.utf8(rec['ACCNO'])
-        species_id = get_species_id(rec)
-        if not species_id:
+        species = get_species(rec, species_defaults)
+        if not 'id' in species and not species['id']:
             print rec
             print delayed_species
             raise ValueError('cound\'t get species id')
-        row['species_id'] = get_species_id(rec)
+        if not species['id']:
+            info(species)
+            raise ValueError
+        row['species_id'] = species['id']
         acc_rows.append(row)
 
     # insert the accessions
     db.engine.execute(acc_insert, *acc_rows)
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
+
+    # now that we have all the accessions loop through all the records
+    # again and create the plants
+    plants = []
+    plant_defaults = get_defaults(plant_table)
+    for rec in dbf:
+        acc_id = get_column_value(acc_table.c.id,
+                                  acc_table.c.code == unicode(rec['accno']))
+        row = plant_defaults.copy()
+        row['accession_id'] = acc_id
+        row['code'] = utils.utf8(rec['propno'])
+        row['location_id'] = unknown_location_id
+        plants.append(row)
+
+    db.engine.execute(plant_table.insert(), *plants)
+    status('inserted %s plants' % len(plants))
+
+
+    return
     if len(duplicates) > 0:
         # print 'the following are duplicate accession numbers where only '\
         #     'the first occurence of the accession code were added to '\
@@ -612,6 +664,8 @@ def do_bedtable():
 
 def do_hereitis():
     """
+    This function set the correct values of the column of the plants
+    table.  The accessions and plants are created in do_plants()
     """
     # The hereitis table is roughly equivalent to the plants table
     # accno:
@@ -627,16 +681,35 @@ def do_hereitis():
     status('converting HEREITIS.DBF ...')
     dbf = open_dbf('HEREITIS.DBF')
     codes = set()
+    plant_update = plant_table.update().\
+        where(plant_table.c.id==bindparam('plant_id')).\
+                  values(location_id=bindparam('location_id'))
+
     for rec in dbf:
-        code = rec['accno']
-        if rec['propno'] != 0:
-            info('%s.%s' % (rec['accno'], rec['propno']))
-            pass
-        if code in codes:
-            #error('dup: %s' % code)
-            pass
-        else:
-            codes.add(code)
+        acc_code = unicode(rec['accno'])
+        acc_id = get_column_value(acc_table.c.id,
+                                  acc_table.c.code == acc_code)
+        plant_code = unicode(rec['propno'])
+        plant_id = get_column_value(plant_table.c.id,
+                                    and_(plant_table.c.accession_id==acc_id,
+                                         plant_table.c.code == plant_code))
+        if not plant_id:
+            error('Could not get plant_id: \n%s' % rec)
+            raise ValueError()
+
+        # get the location id from the bedno
+        bedno = unicode(rec['bedno'])
+        location_id = get_column_value(location_table.c.id,
+                                       location_table.c.code == bedno)
+
+        if not location_id:
+            error('location does not exists for %s.%s: %s' % \
+                      (acc_code, plant_code, bedno))
+            continue
+
+        # update the plant with the bed number
+        db.engine.execute(plant_update, plantid=plant_id,
+                          location_id=location_id)
 
 
 def do_synonym():
