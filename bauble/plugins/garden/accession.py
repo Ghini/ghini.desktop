@@ -189,13 +189,14 @@ class Verification(db.Base):
 
     """
     __tablename__ = 'verification'
+    __mapper_args__ = {'order_by': 'date'}
 
     # columns
-    verifier = Column('verifier', Unicode(64))
+    verifier = Column(Unicode(64))
     date = Column(types.Date)
-    literature = Column(UnicodeText) # citation?
-    level = Column(Text)# i don't know what this is..certainty maybe?
+    reference = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'))
+    notes = Column(UnicodeText)
 
 
 class AccessionMapperExtension(MapperExtension):
@@ -639,6 +640,205 @@ class AccessionEditorView(editor.GenericEditorView):
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
 
+class VoucherPresenter(editor.GenericEditorPresenter):
+
+    def __init__(self, parent, model, view, session):
+        super(VoucherPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        #self.refresh_view()
+
+
+class VerificationPresenter(editor.GenericEditorPresenter):
+
+    PROBLEM_INVALID_DATE = random()
+
+    def __init__(self, parent, model, view, session):
+        super(VerificationPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        self.view.connect('ver_add_button', 'clicked', self.on_add_clicked)
+
+        # remove any verification boxes that would have been added to
+        # the widget in a previous run
+        for kid in self.view.widgets.verifications_box.get_children():
+            p = kid.get_parent()
+            if p:
+                p.remove(kid)
+
+        # order by date of the existing verifications
+        for ver in model.verifications:
+            self.add_verification_box(parent=self, model=ver)
+
+        debug(self.view.widgets.verifications_box.get_children())
+        if len(self.view.widgets.verifications_box.get_children()) < 1:
+            ver = Verification()
+            self.model.verifications.append(ver)
+            self.add_verification_box(parent=self, model=ver)
+
+
+    def dirty(self):
+        verbox = self.view.widgets.verifications_box
+        return True in map(lambda box: box.dirty, verbox.get_children())
+
+    def refresh_view(self):
+        pass
+
+
+    def on_add_clicked(self, *args):
+        ver = Verification()
+        self.model.verifications.append(ver)
+        debug(self.model)
+        debug(self.model.verifications)
+        self.add_verification_box(parent=self, model=ver)
+
+
+    def add_verification_box(self, parent, model):
+        verbox = VerificationPresenter.VerificationBox(parent, model)
+        self.view.widgets.verifications_box.pack_start(verbox, expand=False,
+                                                       fill=False)
+        self.view.widgets.verifications_box.reorder_child(verbox, 0)
+        verbox.show_all()
+
+
+    class VerificationBox(gtk.HBox):
+
+        def __init__(self, parent, model):
+            super(VerificationPresenter.VerificationBox, self).__init__(self)
+            self.dirty = False
+            self.presenter = parent
+            self.model = model
+            if not self.model:
+                self.model = Verification()
+
+            self.set_homogeneous(False)
+            self.set_spacing(20)
+
+            vbox = gtk.VBox()
+            self.pack_start(vbox)#, expand=True, fill=True)
+
+            hbox = gtk.HBox()
+            vbox.pack_start(hbox)#, expand=True, fill=True)
+
+            def _make_frame(label_txt):
+                label = gtk.Label()
+                label.set_markup('<b>%s</b>' % label_txt)
+                frame = gtk.Frame()
+                frame.set_label_widget(label)
+                frame.set_shadow_type(gtk.SHADOW_NONE)
+                align = gtk.Alignment(.5, .5, 1.0, 1.0)
+                align.set_padding(0, 0, 12, 0)
+                frame.add(align)
+                return frame
+
+            def on_changed(entry, attr):
+                text = entry.props.text#entry.get_text()
+                self.set_model_attr(attr, utils.utf8(text))
+
+            # verifier entry
+            self.verifier_entry = gtk.Entry()
+            if self.model.verifier:
+                self.verifier_entry.props.text = self.model.verifier
+            self.presenter.view.connect(self.verifier_entry, 'changed',
+                                        on_changed, 'verifier')
+            frame = _make_frame(_('Verifier'))
+            frame.get_child().add(self.verifier_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # TODO: default to today's date
+
+            # date entry
+            self.date_entry = gtk.Entry()
+            if self.model.date:
+                self.date_entry.props.text = self.model.date
+            self.presenter.view.connect(self.date_entry, 'changed',
+                                        self.on_date_entry_changed)
+            frame = _make_frame(_('Date'))
+            frame.get_child().add(self.date_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # reference entry
+            self.reference_entry = gtk.Entry()
+            if self.model.reference:
+                self.reference_entry.props.text = self.model.reference
+            self.presenter.view.connect(self.reference_entry, 'changed',
+                                        on_changed, 'reference')
+            frame = _make_frame(_('Reference'))
+            frame.get_child().add(self.reference_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # note textview
+            buff = gtk.TextBuffer()
+            if self.model.notes:
+                buff.props.text = self.model.reference
+            self.presenter.view.connect(buff, 'changed', on_changed, 'notes')
+            textview = gtk.TextView(buffer=buff)
+            textview.set_border_width(1)
+            frame = _make_frame(_('Notes'))
+            frame.get_child().add(textview)
+            vbox.pack_start(frame)#, expand=True, fill=True)
+
+            sep = gtk.HSeparator()
+            vbox.pack_start(sep, False, False, padding=10)
+
+            # remove button
+            button = gtk.Button()
+            button.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE,
+                                                      gtk.ICON_SIZE_BUTTON))
+
+            # TODO: not using view.connect so might inhibit garbage
+            # collection even though we remove it in the signal
+            # handler
+            self.sid = button.connect('clicked', self.on_remove_button_clicked)
+            #self.pack_start(button, expand=False, fill=False)
+            align = gtk.Alignment(1.0, 0.5, 0, 0)
+            align.add(button)
+            self.pack_start(align, expand=False, fill=False)
+
+
+        def on_date_entry_changed(self, entry, data=None):
+            text = entry.get_text()
+            PROBLEM = self.presenter.PROBLEM_INVALID_DATE
+            if text == '':
+                self.set_model_attr('date', None)
+                self.presenter.remove_problem(PROBLEM, self.date_entry)
+                return
+
+            dt = None # datetime
+            m = _date_regex.match(text)
+            if m is None:
+                self.presenter.add_problem(PROBLEM, self.date_entry)
+            else:
+                try:
+                    ymd = [int(x) for x in [m.group('year'), m.group('month'),\
+                                            m.group('day')]]
+                    dt = datetime(*ymd).date()
+                    self.presenter.remove_problem(PROBLEM, self.date_entry)
+                except Exception, e:
+                    self.presenter.add_problem(PROBLEM, self.date_entry)
+            self.set_model_attr('date', dt)
+
+
+        def on_remove_button_clicked(self, button):
+            parent = self.get_parent()
+            msg = _("Are you sure you want to remove this verification?")
+            if not utils.yes_no_dialog(msg):
+                return
+            if parent:
+                parent.remove(self)
+
+            # disconnect clicked signal to make garbage collecting work
+            button.disconnect(self.sid)
+
+            # remove verification from accession
+            self.model.accession.verifications.remove(self.model)
+
+        def set_model_attr(self, attr, value):
+            setattr(self.model, attr, value)
+            self.dirty = True
+            self.presenter.parent_ref().refresh_sensitivity()
+
+
 
 # TODO: should have a label next to lat/lon entry to show what value will be
 # stored in the database, might be good to include both DMS and the float
@@ -989,10 +1189,9 @@ class DonationPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('donnotes_entry', 'notes',
                                    editor.UnicodeOrNoneValidator())
-        self.view.connect('don_date_entry', 'insert-text',
-                          self.on_date_entry_insert)
-        self.view.connect('don_date_entry', 'delete-text',
-                          self.on_date_entry_delete)
+        self.view.connect('don_date_entry', 'changed',
+                          self.on_date_entry_changed)
+
         utils.setup_date_button(self.view.widgets.don_date_entry,
                                 self.view.widgets.don_date_button)
         self.view.connect('don_new_button', 'clicked', self.on_don_new_clicked)
@@ -1045,21 +1244,8 @@ class DonationPresenter(editor.GenericEditorPresenter):
         self.view.widgets.don_edit_button.set_sensitive(sensitive)
 
 
-    def on_date_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_date_from_text(full_text)
-
-
-    def on_date_entry_delete(self, entry, start, end, data=None):
+    def on_date_entry_changed(self, entry):
         text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_date_from_text(full_text)
-
-
-    def _set_date_from_text(self, text):
         if text == '':
             self.set_model_attr('date', None)
             self.remove_problem(self.PROBLEM_INVALID_DATE,
@@ -1179,6 +1365,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         kid = self.view.widgets.source_box_parent.get_child()
         if kid:
             self.view.widgets.source_box_parent.remove(kid)
+
+        self.ver_presenter = VerificationPresenter(self, self.model, self.view,
+                                                   self.session)
+        #self.voucher_presenter = VoucherPresenter()
 
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
@@ -1320,8 +1510,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         if self.source_presenter is None:
-            return self.__dirty
-        return self.source_presenter.dirty() or self.__dirty
+            return self.__dirty or self.ver_presenter.dirty()
+        return self.source_presenter.dirty() or self.__dirty or \
+            self.ver_presenter.dirty()
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
