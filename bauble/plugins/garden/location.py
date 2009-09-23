@@ -63,9 +63,10 @@ loc_context_menu = [edit_action, add_plant_action, remove_action]
 
 def loc_markup_func(location):
     if location.description is not None:
-        return str(location), str(location.description)
+        return utils.xml_safe(str(location)), \
+            utils.xml_safe(str(location.description))
     else:
-        return str(location)
+        return utils.xml_safe(str(location))
 
 
 class Location(db.Base):
