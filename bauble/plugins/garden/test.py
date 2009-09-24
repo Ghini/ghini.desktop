@@ -270,6 +270,23 @@ class PlantTests(GardenTestCase):
             'PlantEditorView not deleted'
 
 
+class PropagationTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(PropagationTests, self).__init__(*args)
+
+    def setUp(self):
+        super(PropagationTests, self).setUp()
+
+
+    def tearDown(self):
+        super(PropagationTests, self).tearDown()
+
+
+    def test(self):
+        prop = Propagation()
+
+
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -632,6 +649,22 @@ class AccessionTests(GardenTestCase):
             'AccessionEditorPresenter not deleted'
         assert utils.gc_objects_by_type('AccessionEditorView') == [], \
             'AccessionEditorView not deleted'
+
+
+class VerificationTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(VerificationTests, self).__init__(*args)
+
+    def setUp(self):
+        super(VerificationTests, self).setUp()
+
+    def tearDown(self):
+        super(VerificationTests, self).tearDown()
+
+
+    def test_verifications(self):
+        verification =  Verification()
 
 
 class LocationTests(GardenTestCase):
