@@ -600,7 +600,7 @@ class AccessionEditorView(editor.GenericEditorView):
 
 
     def start(self):
-        return self.widgets.accession_dialog.run()
+        return self.get_window().run()
 
 
     @staticmethod
@@ -640,6 +640,7 @@ class AccessionEditorView(editor.GenericEditorView):
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
 
+
 class VoucherPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
@@ -647,6 +648,7 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = session
         #self.refresh_view()
+
 
 
 class VerificationPresenter(editor.GenericEditorPresenter):
@@ -789,8 +791,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             # TODO: not using view.connect so might inhibit garbage
             # collection even though we remove it in the signal
             # handler
-            self.sid = button.connect('clicked', self.on_remove_button_clicked)
-            #self.pack_start(button, expand=False, fill=False)
+            self._sid = button.connect('clicked',
+                                       self.on_remove_button_clicked)
             align = gtk.Alignment(1.0, 0.5, 0, 0)
             align.add(button)
             self.pack_start(align, expand=False, fill=False)
@@ -828,10 +830,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 parent.remove(self)
 
             # disconnect clicked signal to make garbage collecting work
-            button.disconnect(self.sid)
+            button.disconnect(self._sid)
 
             # remove verification from accession
             self.model.accession.verifications.remove(self.model)
+
 
         def set_model_attr(self, attr, value):
             setattr(self.model, attr, value)
@@ -1561,7 +1564,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         Set attributes on the model and update the GUI as expected.
         """
-        debug('set_model_attr(%s, %s)' % (field, value))
+        #debug('set_model_attr(%s, %s)' % (field, value))
         super(AccessionEditorPresenter, self).set_model_attr(field, value,
                                                              validator)
         self.__dirty = True
