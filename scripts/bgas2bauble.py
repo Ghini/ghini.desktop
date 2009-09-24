@@ -59,6 +59,13 @@ pluginmgr.load()
 #pluginmgr.init(force=True)
 if options.stage == '0' or options.database == default_uri:
     db.create(import_defaults=False)
+    from bauble.plugins.imex.csv_ import CSVImporter
+
+    # import default geography date
+    importer = CSVImporter()
+    import bauble.plugins.plants as plants
+    filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
+    importer.start([filename], force=True)
 
 from bauble.plugins.plants import Family, Genus, Species
 from bauble.plugins.garden import Accession, Plant, Location
@@ -85,23 +92,6 @@ if not os.path.exists(dst):
 # synonym transfer
 
 # BGAS data problems:
-#
-# 1. Some scientific names which have an infraspecific rank but don't
-# have an infraspecific epithet.
-#
-# 2. Some genera do not have families.  In FAMILY.DBF, SCINAME.DBF
-# and PLANTS.DBF
-#
-# 3. ACCNO: 11710, no rank but has infrepi and cultivar but it appears
-# that the infrepi should be in the cultivar group
-#
-# 4. what should we do about duplication accession numbers: e.g. ACCNO: 20442
-#
-# 5. How do you know which of the duplicate accessions the
-# hereitis.dbf row is referring to.
-#
-# 6. Should propno in hereitis.dbf and plants.dbf become a bauble
-# plant number or a seperate accession?
 #
 # 7. Do the removed codes need to be in their own table or can they
 # just be an enum column..if you need to add new removed codes then it
@@ -466,11 +456,12 @@ def do_sciname():
                 % (no_genus_ctr, unknown_genus_name))
 
 
-def get_species(rec, species_defaults=None):
+def get_species(rec, defaults=None):
     """
     Try to determine the species id of a record.
 
     :param rec: a dbf record
+    :parem defaults: the default dict to use for the species values
     """
     # TODO: this could probably become a generic function where we
     # can also pass a flag on whether to create the species if we
@@ -479,10 +470,15 @@ def get_species(rec, species_defaults=None):
 
     genus_id = None
     genus = None
-    if not species_defaults:
-        species_defaults = get_defaults(species_table)
+    if not defaults:
+        defaults = get_defaults(species_table)
 
-    genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
+    if 'IG' in rec:
+        genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
+    else:
+        genus = str('%s' % rec['genus'])
+
+    #genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
 
     if 'genus_id' in rec and rec['genus_id']:
         genus_id = r['genus_id']
@@ -503,9 +499,9 @@ def get_species(rec, species_defaults=None):
                                     genus=genus).execute()
         genus_id = get_column_value(genus_table.c.id,
                              genus_table.c.genus == genus)
-        print 'genus has no family: %s' % genus
+        warning('genus has no family: %s' % genus)
 
-    defaults = species_defaults.copy()
+    defaults = defaults.copy()
     defaults['genus_id'] = genus_id
     row = species_dict_from_rec(rec, defaults=defaults)
     conditions = []
@@ -541,46 +537,52 @@ def do_plants():
     species_defaults = get_defaults(species_table)
     delayed_species = []
     delayed_accessions = []
+    #delayed_accessions = set()
 
-    acc_rows = []
+    # TODO: what if the data differs but the accession code is the same
     added_codes = set()
-    duplicates = []
+    acc_rows = []
+    acc_rows_append = lambda x: acc_rows.append(x)
+    plants = set()
 
     for rec in dbf:
-        rec_ctr += 1
-        if (rec_ctr % 500) == 0:
-            if options.verbosity > 1:
-                sys.stdout.write('.')
-                sys.stdout.flush()
-            # break
+        if options.verbosity > 1:
+            rec_ctr += 1
+            if (rec_ctr % 500) == 0:
+                    sys.stdout.write('.')
+                    sys.stdout.flush()
 
         # TODO: create tags for PISBG
 
         # TODO: should record the name of the person who creates new
         # accession sand use the operator field for old
         # accessions...of course the audit trail will also record this
+        p = (unicode(rec['accno']), unicode(rec['propno']))
+        if p not in plants:
+            plants.add(p)
+        else:
+            raise ValueError('duplicate accession: %s' % p)
 
         if not rec['accno']:
             error('** accno is empty: %s' % rec['accno'])
             raise ValueError('** accno is empty: %s' % rec['accno'])
-        elif rec['accno'] in added_codes:
-            #print '%s.%s' % (rec['accno'], rec['propno'])
-            #print '** duplicate code: %s....not importing' % rec['accno']
-            duplicates.append(rec['accno'])
+
+        if rec['accno'] not in added_codes:
+            added_codes.add(rec['accno'])
+        else:
+            # don't add duplicates
             continue
-            #raise ValueError('** duplicate code: \n%s' % rec)
 
         species = get_species(rec, species_defaults)
+        row = acc_defaults.copy()
+        row['code'] = unicode(rec['accno'])
         if 'id' in species:
-            row = acc_defaults.copy()
-            row['code'] = utils.utf8(rec['accno'])
             row['species_id'] = species['id']
             acc_rows.append(row)
         else:
             delayed_species.append(species)
-            delayed_accessions.append(rec)
-
-        added_codes.add(rec['accno'])
+            delayed_accessions.append((rec, row))
+            #delayed_accessions.append(row)
 
     if options.verbosity > 1:
         print ''
@@ -592,18 +594,14 @@ def do_plants():
         db.engine.execute(species_table.insert(), *delayed_species)
         info('inserted %s species from plants.dbf' % len(delayed_species))
 
-    for rec in delayed_accessions:
-        row = acc_defaults.copy()
-        row['code'] = utils.utf8(rec['ACCNO'])
-        species = get_species(rec, species_defaults)
-        if not 'id' in species and not species['id']:
-            print rec
-            print delayed_species
-            raise ValueError('cound\'t get species id')
-        if not species['id']:
-            info(species)
-            raise ValueError
-        row['species_id'] = species['id']
+    # set species id on the rows that we couldn't get earlier
+    map(lambda rec, row: row.setdefault('species_id',
+                               get_species(rec, species_defaults)['id']),
+        delayed_accessions)
+    #acc_rows.extend(delayed_accessions)
+
+    # TODO: this could go away
+    for rec, row in delayed_accessions:
         acc_rows.append(row)
 
     # insert the accessions
@@ -613,28 +611,19 @@ def do_plants():
 
     # now that we have all the accessions loop through all the records
     # again and create the plants
-    plants = []
+    values = []
     plant_defaults = get_defaults(plant_table)
-    for rec in dbf:
+    for acc_code, plant_code in plants:
         acc_id = get_column_value(acc_table.c.id,
-                                  acc_table.c.code == unicode(rec['accno']))
+                                  acc_table.c.code == unicode(acc_code))
         row = plant_defaults.copy()
         row['accession_id'] = acc_id
-        row['code'] = utils.utf8(rec['propno'])
+        row['code'] = unicode(plant_code)
         row['location_id'] = unknown_location_id
-        plants.append(row)
+        values.append(row)
 
-    db.engine.execute(plant_table.insert(), *plants)
-    status('inserted %s plants' % len(plants))
-
-
-    return
-    if len(duplicates) > 0:
-        # print 'the following are duplicate accession numbers where only '\
-        #     'the first occurence of the accession code were added to '\
-        #     'the database:\n%s' % sorted(duplicates)
-        error('%s duplicate accessions from PLANTS.DBF not inserted.' \
-                  % len(duplicates))
+    db.engine.execute(plant_table.insert(), *values)
+    status('inserted %s plants' % len(values))
 
 
 def do_bedtable():
@@ -701,7 +690,6 @@ def do_hereitis():
         bedno = unicode(rec['bedno'])
         location_id = get_column_value(location_table.c.id,
                                        location_table.c.code == bedno)
-
         if not location_id:
             error('location does not exists for %s.%s: %s' % \
                       (acc_code, plant_code, bedno))
