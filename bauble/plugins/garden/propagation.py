@@ -32,15 +32,30 @@ import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 
+prop_type_values = {u'Seed': _("Seed"),
+                    u'UnrootedCutting': _('Unrooted cutting'),
+                    u'Other': _('Other')}
+
+
 class Propagation(db.Base):
     """
     Propagation
     """
     __tablename__ = 'propagation'
-    recvd_as = Unicode(length=10)
-    recvd_as_other = UnicodeText() # ** maybe this should be in the notes
-    prop_type = Unicode()
-    notes = UnicodeText()
+    #recvd_as = Column(Unicode(10)) # seed, urcu, other
+    #recvd_as_other = Column(UnicodeText) # ** maybe this should be in the notes
+    prop_type = Column(types.Enum(values=prop_type_values.keys()),
+                        default=u'UnrootedCutting')
+    notes = Column(UnicodeText)
+
+    accession_id = Column(Integer, ForeignKey('accession.id'),
+                          nullable=False)
+
+    def __str__(self):
+        # what would the string be...???
+        # cuttings of self.accession.species_str() and accessin number
+        return repr(self)
+
 
 
 class PropRooted(db.Base):
@@ -76,7 +91,8 @@ class PropCutting(db.Base):
     bottom_heat_unit = Column(Unicode) # F/C
 
     success = Column(Integer) # % of rooting took
-    aftercare = Column(UnicodeText)
+
+    #aftercare = Column(UnicodeText) # same as propgation.notes
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
@@ -101,14 +117,15 @@ class PropSeed(db.Base):
     location = Column(Unicode)
 
     # TODO: do we need multiple moved to->moved from and date fields
+    moved_from = Column(Unicode)
+    moved_to = Column(Unicode)
+    moved_date = Column(Unicode)
 
     germ_date = Column(Date)
 
     nseedling = Column(Integer) # number of seedling
     germ_pct = Column(Integer) # % of germination
     date_planted = Column(Date)
-
-    # TODO: treatment/aftercare?
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
@@ -150,6 +167,16 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         '''
         super(PropagationEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
+
+        self.init_translatable_combo('prop_type_combo', prop_type_values)
+        self.view.connect('prop_type_combo', 'changed',
+                          self.on_prop_type_changed)
+
+
+    def on_prop_type_changed(self, combo, *args):
+        it = combo.get_active_iter()
+        prop_type = combo.get_model()[it][0]
+        debug(prop_type)
 
 
     def dirty(self):

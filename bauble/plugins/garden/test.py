@@ -14,6 +14,7 @@ from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
 from bauble.plugins.garden.plant import Plant, PlantEditor
 from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.propagation import Propagation, PropagationEditor
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
@@ -285,6 +286,10 @@ class PropagationTests(GardenTestCase):
 
     def test(self):
         prop = Propagation()
+
+    def itest_editor(self):
+        editor = PropagationEditor()
+        editor.start()
 
 
 class AccessionTests(GardenTestCase):
