@@ -595,8 +595,8 @@ def do_plants():
         info('inserted %s species from plants.dbf' % len(delayed_species))
 
     # set species id on the rows that we couldn't get earlier
-    map(lambda rec, row: row.setdefault('species_id',
-                               get_species(rec, species_defaults)['id']),
+    map(lambda item: item[1].setdefault('species_id',
+                               get_species(item[0], species_defaults)['id']),
         delayed_accessions)
     #acc_rows.extend(delayed_accessions)
 
