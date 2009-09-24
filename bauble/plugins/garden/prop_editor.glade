@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <interface>
-  <requires lib="gtk+" version="2.16"/>
+  <!-- interface-requires gtk+ 2.12 -->
   <!-- interface-naming-policy project-wide -->
   <object class="GtkDialog" id="prop_dialog">
     <property name="border_width">5</property>
@@ -32,7 +32,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkComboBox" id="combobox1">
+                  <object class="GtkComboBox" id="prop_type_combo">
                     <property name="visible">True</property>
                   </object>
                   <packing>
@@ -78,7 +78,15 @@
               </packing>
             </child>
             <child>
-              <placeholder/>
+              <object class="GtkAlignment" id="prop_box_parent">
+                <property name="visible">True</property>
+                <child>
+                  <placeholder/>
+                </child>
+              </object>
+              <packing>
+                <property name="position">2</property>
+              </packing>
             </child>
           </object>
           <packing>
@@ -107,7 +115,7 @@
   </object>
   <object class="GtkWindow" id="cutting_window">
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="cutting_box">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <property name="spacing">10</property>
@@ -569,7 +577,7 @@
   </object>
   <object class="GtkWindow" id="seed_window">
     <child>
-      <object class="GtkVBox" id="vbox1">
+      <object class="GtkVBox" id="seed_box">
         <property name="visible">True</property>
         <property name="orientation">vertical</property>
         <child>
