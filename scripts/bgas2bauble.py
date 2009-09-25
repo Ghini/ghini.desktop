@@ -117,6 +117,12 @@ if not os.path.exists(dst):
 # name from that shortened list. I could make it hiearchial but it is
 # a little more invasive into the way Bauble does things now.
 
+# TODO: we either need to patch dbfpy to not use so much memory or
+# dump the date to CSV first before importing it to dbf, or maybe do
+# each of the steps in different processes so that the previous
+# processes' memory gets freed...a script like:
+# python "from scripts import bgas2bauble ; bgas2bauble.do_family()"
+
 open_dbf = lambda f: dbf.Dbf(os.path.join(options.bgas, f), readOnly=True)
 
 def set_defaults(obj, defaults):
@@ -149,6 +155,9 @@ def get_defaults(table):
 
 
 def get_insert(table, columns):
+    """
+    Return an insert statement for table with column for the column keys.
+    """
     defaults = get_defaults(table)
     # just to be safe make sure the table has all the columns
     for c in columns:
@@ -167,15 +176,17 @@ def get_column_value(column, where):
     - `where`:
     """
     result = select([column], where).execute().fetchone()
-    if result:
-        return result[0]
-    return None
+    if not result:
+        return None
+    val = result[0]
+    result.close()
+    return val
 
 
 # create (unknown) family for those genera that don't have a family
 unknown_family_name = u'(unknown)'
 if options.stage == '0':
-    family_table.insert().values(family=unknown_family_name).execute()
+    family_table.insert().values(family=unknown_family_name).execute().close()
 unknown_family_id = get_column_value(family_table.c.id,
                               family_table.c.family==unknown_family_name)
 
@@ -183,7 +194,7 @@ unknown_family_id = get_column_value(family_table.c.id,
 unknown_genus_name = u'(unknown)'
 if options.stage == '0':
     genus_table.insert().values(family_id=unknown_family_id,
-                                genus=unknown_genus_name).execute()
+                                genus=unknown_genus_name).execute().close()
 unknown_genus_id = get_column_value(genus_table.c.id,
                               genus_table.c.genus==unknown_genus_name)
 
@@ -192,8 +203,7 @@ unknown_location_name = u'(unknown)'
 unknown_location_code = u'UNK'
 if options.stage == '0':
     location_table.insert().values(code=unknown_location_code,
-                                   name=unknown_location_name).execute()
-unknown_location_id = get_column_value(location_table.c.id,
+                                   name=unknown_location_name).execute().close()unknown_location_id = get_column_value(location_table.c.id,
                               location_table.c.code==unknown_location_code)
 
 
@@ -341,10 +351,10 @@ def do_family():
                 % (genus, family, genera['genus'], genera['family']))
 
     # insert the families
-    db.engine.execute(insert, *list(families.values()))
+    db.engine.execute(insert, *list(families.values())).close()
     info('inserted %s family.' % len(families))
 
-    # get the family id's for the genera
+    # get the family id's for the genepra
     genus_rows = []
     defaults = get_defaults(genus_table)
     for genus in genera.values():
@@ -363,9 +373,11 @@ def do_family():
 
     # insert the genus rows
     insert = get_insert(genus_table, ['genus', 'family_id'])
-    db.engine.execute(insert, *genus_rows)
+    db.engine.execute(insert, *genus_rows).close()
     info('inserted %s genus rows out of %s records.' \
              % (len(genus_rows), len(dbf)))
+    dbf.close()
+    del dbf
 
 
 
@@ -419,6 +431,7 @@ def do_sciname():
             r = db.engine.execute(stmt).fetchone()
             if r:
                 genus_id = r[0]
+                r.close()
         if not genus_id:
             #family_id = get_column_value(genus_table.c.family_id,
             #                      genus_table.c.genus == rec['genus'])
@@ -427,6 +440,7 @@ def do_sciname():
             r = db.engine.execute(stmt).fetchone()
             if r:
                 family_id = r[0]
+                r.close()
             warning('adding genus %s from sciname.dbf.' % genus)
             if not family_id:
                 warning('** %s has no family. adding to %s' \
@@ -436,7 +450,7 @@ def do_sciname():
                 family_id = unknown_family_id
             genus_row = genus_defaults.copy()
             genus_row.update({'genus': genus, 'family_id': family_id})
-            db.engine.execute(genus_insert, genus_row)
+            db.engine.execute(genus_insert, genus_row).close()
             genus_id = get_column_value(genus_table.c.id,
                                  genus_table.c.genus == genus)
 
@@ -449,11 +463,13 @@ def do_sciname():
         row = species_dict_from_rec(rec, defaults=defaults)
         species_rows.append(row)
 
-    db.engine.execute(species_insert, *species_rows)
+    db.engine.execute(species_insert, *species_rows).close()
     info('inserted %s species out of %s records' \
         % (len(species_rows), len(dbf)))
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
                 % (no_genus_ctr, unknown_genus_name))
+    dbf.close()
+    del dbf
 
 
 def get_species(rec, defaults=None):
@@ -496,7 +512,7 @@ def get_species(rec, defaults=None):
         # that isn't already in the database
         info('adding genus %s from plants.dbf.' % genus)
         genus_table.insert().values(family_id=unknown_family_id,
-                                    genus=genus).execute()
+                                    genus=genus).execute().close()
         genus_id = get_column_value(genus_table.c.id,
                              genus_table.c.genus == genus)
         warning('genus has no family: %s' % genus)
@@ -591,7 +607,7 @@ def do_plants():
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
     if delayed_species:
-        db.engine.execute(species_table.insert(), *delayed_species)
+        db.engine.execute(species_table.insert(), *delayed_species).close()
         info('inserted %s species from plants.dbf' % len(delayed_species))
 
     # set species id on the rows that we couldn't get earlier
@@ -605,10 +621,12 @@ def do_plants():
         acc_rows.append(row)
 
     # insert the accessions
-    db.engine.execute(acc_insert, *acc_rows)
+    db.engine.execute(acc_insert, *acc_rows).close()
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
 
+    dbf.close()
+    del dbf
     # now that we have all the accessions loop through all the records
     # again and create the plants
     values = []
@@ -622,8 +640,9 @@ def do_plants():
         row['location_id'] = unknown_location_id
         values.append(row)
 
-    db.engine.execute(plant_table.insert(), *values)
+    db.engine.execute(plant_table.insert(), *values).close()
     status('inserted %s plants' % len(values))
+
 
 
 def do_bedtable():
@@ -646,9 +665,11 @@ def do_bedtable():
         # row.update({'name': utils.utf8(rec['bedno']),
         #             'description': utils.utf8(rec['beddescr'])})
         location_rows.append(row)
-    db.engine.execute(location_table.insert(), *location_rows)
+    db.engine.execute(location_table.insert(), *location_rows).close()
     info('inserted %s locations out of %s records' \
              % (len(location_rows), len(dbf)))
+    dbf.close()
+    del dbf
 
 
 def do_hereitis():
@@ -697,7 +718,7 @@ def do_hereitis():
 
         # update the plant with the bed number
         db.engine.execute(plant_update, plantid=plant_id,
-                          location_id=location_id)
+                          location_id=location_id).close()
 
 
 def do_synonym():
