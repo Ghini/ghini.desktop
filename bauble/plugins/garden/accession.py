@@ -109,7 +109,7 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    e = PlantEditor(model=Plant(accession=accessions[0]))
+    e = AddPlantEditor(model=Plant(accession=accessions[0]))
     return e.start()
 
 
@@ -510,7 +510,7 @@ class Accession(db.Base):
 
 
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
 
 
 
@@ -1763,6 +1763,11 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
+            # TODO: model is new so autogenerate a new accession number
+            # year.next accession
+            # 1. select all accessions that start with year
+            # 2. if none exists create a year.0001
+            # 3. if exists seperate
         super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -1826,7 +1831,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = PlantEditor(Plant(accession=self.model), self.parent)
+            e = AddPlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

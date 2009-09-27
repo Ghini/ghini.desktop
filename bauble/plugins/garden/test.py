@@ -12,7 +12,7 @@ from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
 from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import Propagation, PropagationEditor
 from bauble.plugins.plants.family import Family
@@ -34,7 +34,8 @@ plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
                     'location_id': 1},
                    )
 
-location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow'},
+location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
+                       'code': u'RBW'},
                       )
 
 donor_test_data = ({'id': 1, 'name': u'SomeDonor'},
@@ -163,7 +164,7 @@ class PlantTests(GardenTestCase):
     def setUp(self):
         super(PlantTests, self).setUp()
         self.accession = self.create(Accession, species=self.species,code=u'1')
-        self.location = self.create(Location, name=u'site')
+        self.location = self.create(Location, name=u'site', code=u'STE')
         self.plant = self.create(Plant, accession=self.accession,
                                  location=self.location, code=u'1')
         self.session.commit()
@@ -190,6 +191,14 @@ class PlantTests(GardenTestCase):
         Test that when a plant is deleted...
         """
         pass
+
+
+    def itest_editor(self):
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        plants = [p1, p2]
+        e = PlantEditor(plants)
+        e.start()
 
 
     def test_bulk_plant_editor(self):
@@ -243,7 +252,7 @@ class PlantTests(GardenTestCase):
             'PlantEditorView not deleted'
 
 
-    def itest_plant_editor(self):
+    def itest_add_plant_editor(self):
         """
         Interactively test the PlantEditor
         """
@@ -254,12 +263,12 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
         #editor = PlantEditor(model=self.plant)
-        loc = Location(name=u'site1')
-        loc2 = Location(name=u'site2')
+        loc = Location(name=u'site1', code=u'1')
+        loc2 = Location(name=u'site2', code=u'2')
         self.session.add_all([loc, loc2])
         self.session.commit()
         p = Plant(accession=self.accession, location=loc)
-        editor = PlantEditor(model=p)
+        editor = AddPlantEditor(model=p)
         editor.start()
         del editor
 

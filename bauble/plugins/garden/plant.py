@@ -43,10 +43,6 @@ def edit_callback(plants):
     return e.start() != None
 
 
-def transfer_callback(plants):
-    e = TransferEditor(model=plants)
-    return e.start() != None
-
 def remove_callback(plants):
     s = ', '.join([str(p) for p in plants])
     msg = _("Are you sure you want to remove the following plants?\n\n%s") \
@@ -73,9 +69,7 @@ def remove_callback(plants):
 
 edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e')
-transfer_action = Action('plant_transfer', ('_Transfer'),
-                     callback=transfer_callback, accelerator='<ctrl>m',
-                     multiselect=True)
+
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
 
@@ -123,18 +117,55 @@ class PlantSearch(SearchStrategy):
             return []
         return q
 
-
-
-class PlantHistory(db.Base):
-    __tablename__ = 'plant_history'
+# TODO: what would happend if the PlantRemove.plant_id and
+# PlantNote.plant_id were out of sink....how could we avoid these sort
+# of cycles
+class PlantNote(db.Base):
+    __tablename__ = 'plant_note'
     __mapper_args__ = {'order_by': 'date'}
-    date = Column(types.Date)
-    description = Column(UnicodeText)
+
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
+    date = Column(types.Date)
+    note = Column(UnicodeText)
+    user = Column(Unicode(32))
+    category = Column(String(32))
 
-    def __str__(self):
-        return '%s: %s' % (self.date, self.description)
+    plant = relation('Plant', backref='notes')
 
+
+# TODO: a plant should only be allowed one removal and then it becomes
+# frozen...although you should be able to edit it in case you make a
+# mistake, or maybe transfer it from being removed with a transfer
+# reason of "mistake"....shoud a transfer from a removal delete the
+# removal so that the plant can be removed again....since we can only
+# have one removal would should probably add a removal_id to Plant so
+# its a 1-1 relation
+class PlantRemoval(db.Base):
+    __tablename__ = 'plant_removal'
+    __mapper_args__ = {'order_by': 'date'}
+
+    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
+    from_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+    reason = Column(String(32))
+
+    # TODO: is this redundant with note.date
+    date = Column(Date)
+    note_id = Column(Integer, ForeignKey('plant_note.id'))
+
+
+class PlantTransfer(db.Base):
+    __tablename__ = 'plant_transfer'
+    __mapper_args__ = {'order_by': 'date'}
+
+    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
+    from_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+    to_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+    reason = Column(String(32))
+    note = Column(Integer, ForeignKey('plant_note.id'))
+    date = Column(Date)
+
+    # TODO: is this redundant with note.date
+    plant = relation('Plant', backref='transfers')
 
 
 acc_type_values = {u'Plant': _('Plant'),
@@ -217,13 +248,11 @@ class Plant(db.Base):
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
     acc_status = Column(types.Enum(values=acc_status_values.keys()),
                         default=None)
-    notes = Column(UnicodeText)
+
+    # TODO: notes is now a relation to PlantNote
+    #notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
-
-    # relations
-    history = relation('PlantHistory', backref='plant')
-
 
     _delimiter = None
 
@@ -262,7 +291,272 @@ class Plant(db.Base):
 from bauble.plugins.garden.accession import Accession
 
 
+plant_actions = {'Removal': _("Removal"),
+                 'Transfer': _("Tranfer"),
+                 'AddNote': _("Add note")}
+
 class PlantEditorView(GenericEditorView):
+    def __init__(self, parent=None):
+        path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                            'plant_editor.glade')
+        super(PlantEditorView, self).__init__(path, parent)
+        # GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
+        #                                               'plugins', 'garden',
+        #                                               'plant_test.glade'),
+        #                            parent=parent)
+        # self.widgets.plant_ok_button.set_sensitive(False)
+        # self.widgets.plant_next_button.set_sensitive(False)
+
+
+
+        def acc_cell_data_func(column, renderer, model, iter, data=None):
+            v = model[iter][0]
+            renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
+        #self.attach_completion('plant_acc_entry', acc_cell_data_func,
+        #                       minimum_key_length=1)
+
+        def loc_cell_data_func(col, renderer, model, it, data=None):
+            # the cell_data_func for the entry completions
+            v = model[it][0]
+            renderer.set_property('text', '%s' % utils.utf8(v))
+
+        # entry = self.widgets.plant_loc_comboentry.child
+        # self.attach_completion(entry, loc_cell_data_func,
+        #                        minimum_key_length=1)
+
+
+    def get_window(self):
+        return self.widgets.plant_editor_dialog
+
+
+    def __del__(self):
+        #debug('PlantView.__del__()')
+        #GenericEditorView.__del__(self)
+        #self.dialog.destroy()
+        pass
+
+
+    def save_state(self):
+        pass
+
+
+    def restore_state(self):
+        pass
+
+
+    def start(self):
+        return self.get_window().run()
+
+
+
+class PlantEditorPresenter(GenericEditorPresenter):
+
+
+    widget_to_field_map = {'plant_code_entry': 'code',
+                           'plant_acc_entry': 'accession',
+                           'plant_loc_comboentry': 'location',
+                           'plant_acc_type_combo': 'acc_type',
+                           'plant_acc_status_combo': 'acc_status',
+                           'plant_notes_textview': 'notes'}
+
+    PROBLEM_DUPLICATE_PLANT_CODE = str(random())
+
+    def __init__(self, model, view):
+        '''
+        @param model: should be an list of Plants
+        @param view: should be an instance of PlantEditorView
+        '''
+        #GenericEditorPresenter.__init__(self, model, view)
+        super(PlantEditorPresenter, self).__init__(model, view)
+        #self.session = object_session(model[0])
+        self.session = bauble.Session()
+        # self._original_accession_id = self.model.accession_id
+        # self._original_code = self.model.code
+        self.__dirty = False
+
+        self.init_translatable_combo('plant_actions_combo', plant_actions)
+        self.view.connect('plant_actions_combo', 'changed',
+                          self.on_action_combo_changed)
+
+        label = self.view.widgets.plants_label
+        #self.plants = model
+        label.set_text(', '.join([str(p) for p in self.model]))
+
+        # on start hide the details until an action is chosen
+        self.view.widgets.details_box.props.visible = False
+
+
+        self.action_combo_map = {'Removal': self.view.widgets.removal_box,
+                                 'Transfer': self.view.widgets.transfer_box,
+                                 'AddNote': self.view.widgets.notes_box}
+
+
+    def on_action_combo_changed(self, combo, *args):
+        """
+        Called when the action combo changes.
+        """
+        model = combo.get_model()
+        value = model[combo.get_active_iter()][0]
+        action_box = self.action_combo_map[value]
+        action_parent_box = self.view.widgets.action_parent_box
+
+        # unparent the action box
+        self.view.widgets.remove_parent(action_box)
+
+        # remove any children from the parent box
+        child = action_parent_box.get_child()
+        if child:
+            action_parent_box.remove(child)
+
+        # add the action box to the parent
+        action_parent_box.add(action_box)
+
+        #self.view.widgets.details_box.set_property('visible', False)# = False
+        self.view.widgets.details_box.props.visible = True
+        self.view.widgets.details_box.show_all()
+        self.view.widgets.details_box.queue_resize()
+
+
+    def start(self):
+        return self.view.start()
+
+
+
+class PlantEditor(GenericModelViewPresenterEditor):
+
+    # label = _('Change plant status')
+    # mnemonic_label = _('_Change plant status')
+
+    # these have to correspond to the response values in the view
+    RESPONSE_NEXT = 22
+    ok_responses = (RESPONSE_NEXT,)
+
+
+    def __init__(self, model=None, parent=None):
+        '''
+        @param model: Plant instance or None
+        @param parent: None
+        '''
+        # if model is None:
+        #     model = Plant()
+        self.plants = model
+        self.model = Plant()
+        #GenericModelViewPresenterEditor.__init__(self, model, parent)
+        #super(NewPlantEditor, self).__init__(model, parent)
+        #self.template = Plant()
+        super(PlantEditor, self).__init__(self.model, parent)
+        if not parent and bauble.gui:
+            parent = bauble.gui.window
+        self.parent = parent
+        self._committed = []
+
+        view = PlantEditorView(parent=self.parent)
+        #self.presenter = NewPlantEditorPresenter(self.model, view)
+        self.presenter = PlantEditorPresenter(self.plants, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set default focus
+        # if self.model.accession is None:
+        #     view.widgets.plant_acc_entry.grab_focus()
+        # else:
+        #     view.widgets.plant_code_entry.grab_focus()
+
+
+    def commit_changes(self):
+        """
+        """
+        super(PlantEditor, self).commit_changes()
+
+
+    def handle_response(self, response):
+        not_ok_msg = _('Are you sure you want to lose your changes?')
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                if self.presenter.dirty():
+                    # commit_changes() will append the commited plants
+                    # to self._committed
+                    self.commit_changes()
+            except SQLError, e:
+                exc = traceback.format_exc()
+                msg = _('Error committing changes.\n\n%s') % e.orig
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                self.session.rollback()
+                return False
+            except Exception, e:
+                msg = _('Unknown error when committing changes. See the '\
+                      'details for more information.\n\n%s') \
+                      % utils.xml_safe_utf8(e)
+                debug(traceback.format_exc())
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                self.session.rollback()
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                or not self.presenter.dirty():
+            self.session.rollback()
+            return True
+        else:
+            return False
+
+#        # respond to responses
+        more_committed = None
+        if response == self.RESPONSE_NEXT:
+            self.presenter.cleanup()
+            e = NewPlantEditor(Plant(accession=self.model.accession),
+                               parent=self.parent)
+            more_committed = e.start()
+
+        if more_committed is not None:
+            self._committed = [self._committed]
+            if isinstance(more_committed, list):
+                self._committed.extend(more_committed)
+            else:
+                self._committed.append(more_committed)
+
+        return True
+
+
+    def start(self):
+        from bauble.plugins.garden.accession import Accession
+        sub_editor = None
+        if self.session.query(Accession).count() == 0:
+            msg = 'You must first add or import at least one Accession into '\
+                  'the database before you can add plants.\n\nWould you like '\
+                  'to open the Accession editor?'
+            if utils.yes_no_dialog(msg):
+                # cleanup in case we start a new PlantEditor
+                self.presenter.cleanup()
+                from bauble.plugins.garden.accession import AccessionEditor
+                sub_editor = AccessionEditor()
+                self._commited = sub_editor.start()
+        if self.session.query(Location).count() == 0:
+            msg = 'You must first add or import at least one Location into '\
+                  'the database before you can add species.\n\nWould you '\
+                  'like to open the Location editor?'
+            if utils.yes_no_dialog(msg):
+                # cleanup in case we start a new PlantEditor
+                self.presenter.cleanup()
+                sub_editor = LocationEditor()
+                self._commited = sub_editor.start()
+
+        if not sub_editor:
+            while True:
+                response = self.presenter.start()
+                self.presenter.view.save_state()
+                if self.handle_response(response):
+                    break
+
+        self.presenter.cleanup()
+        self.session.close() # cleanup session
+        return self._committed
+
+
+class AddPlantEditorView(GenericEditorView):
 
     #source_expanded_pref = 'editor.accesssion.source.expanded'
 
@@ -284,10 +578,9 @@ class PlantEditorView(GenericEditorView):
 
 
     def __init__(self, parent=None):
-        GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-                                                      'plugins', 'garden',
-                                                      'plant_editor.glade'),
-                                   parent=parent)
+        glade_file = os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'plant_editor.glade')
+        super(AddPlantEditorView, self).__init__(glade_file, parent=parent)
         self.widgets.plant_ok_button.set_sensitive(False)
         self.widgets.plant_next_button.set_sensitive(False)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
@@ -329,13 +622,8 @@ class PlantEditorView(GenericEditorView):
         return self.get_window().run()
 
 
-class ObjectIdValidator(object):
 
-    def to_python(self, value, state):
-        return value.id
-
-
-class PlantEditorPresenter(GenericEditorPresenter):
+class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
     widget_to_field_map = {'plant_code_entry': 'code',
@@ -352,7 +640,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         @param model: should be an instance of Plant class
         @param view: should be an instance of PlantEditorView
         '''
-        GenericEditorPresenter.__init__(self, model, view)
+        super(AddPlantEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
@@ -515,7 +803,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (field, value))
-        super(PlantEditorPresenter, self)\
+        super(AddPlantEditorPresenter, self)\
             .set_model_attr(field, value, validator)
         self.__dirty = True
         self.refresh_sensitivity()
@@ -554,10 +842,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 
-class PlantEditor(GenericModelViewPresenterEditor):
+class AddPlantEditor(GenericModelViewPresenterEditor):
 
-    label = _('Plant')
-    mnemonic_label = _('_Plant')
+    # label = _('Plant')
+    # mnemonic_label = _('_Plant')
 
     # these have to correspond to the response values in the view
     RESPONSE_NEXT = 22
@@ -571,14 +859,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Plant()
-        GenericModelViewPresenterEditor.__init__(self, model, parent)
+        super(AddPlantEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
 
-        view = PlantEditorView(parent=self.parent)
-        self.presenter = PlantEditorPresenter(self.model, view)
+        view = AddPlantEditorView(parent=self.parent)
+        self.presenter = AddPlantEditorPresenter(self.model, view)
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -599,7 +887,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         if ',' not in self.model.code and '-' not in self.model.code and \
                 self.model not in self.session.new:
             self._committed.append(self.model)
-            super(PlantEditor, self).commit_changes()
+            super(AddPlantEditor, self).commit_changes()
             return
 
         plants = []
@@ -617,7 +905,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
             plants.append(new_plant)
         try:
             self.session.expunge(self.model)
-            super(PlantEditor, self).commit_changes()
+            super(AddPlantEditor, self).commit_changes()
         except:
             self.session.add(self.model)
             raise
@@ -659,8 +947,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = PlantEditor(Plant(accession=self.model.accession),
-                            parent=self.parent)
+            e = AddPlantEditor(Plant(accession=self.model.accession),
+                               parent=self.parent)
             more_committed = e.start()
 
         if more_committed is not None:
@@ -706,32 +994,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.presenter.cleanup()
         self.session.close() # cleanup session
         return self._committed
-
-
-
-class TransferEditor(GenericEditorView):
-    """
-    """
-
-    def __init__(self, model, parent=None):
-        """
-        """
-        filename = os.path.join(paths.lib_dir(), "plugins", "garden",
-                                "transfer.glade")
-        super(TransferEditor, self).__init__(filename, parent)
-        label = self.widgets.plants_label
-        self.plants = model
-        label.set_text(', '.join([str(p) for p in self.plants]))
-
-
-    def get_window(self):
-        return self.widgets.transfer_dialog
-
-
-    def start(self):
-        self.get_window().run()
-
-
 
 
 import os
