@@ -13,7 +13,7 @@ from bauble.plugins.garden.accession import Accession, \
 from bauble.plugins.garden.location import Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
 from bauble.plugins.garden.plant import Plant, \
-    PlantHistory, PlantEditor, PlantInfoBox, \
+    AddPlantEditor, PlantInfoBox, \
     plant_markup_func, plant_delimiter_key, default_plant_delimiter, \
     PlantSearch, plant_context_menu
 from bauble.plugins.garden.source import Donation, \
@@ -92,7 +92,7 @@ class GardenPlugin(pluginmgr.Plugin):
 
         if bauble.gui is not None:
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
-            bauble.gui.add_to_insert_menu(PlantEditor, _('Plant'))
+            bauble.gui.add_to_insert_menu(AddPlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
             bauble.gui.add_to_insert_menu(PropagationEditor, _('Propagation'))
             #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
