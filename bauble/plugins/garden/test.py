@@ -196,7 +196,10 @@ class PlantTests(GardenTestCase):
     def itest_editor(self):
         p1 = Plant(accession=self.accession, location=self.location, code=u'1')
         p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
         plants = [p1, p2]
+        self.session.add_all(plants)
         e = PlantEditor(plants)
         e.start()
 

@@ -437,8 +437,8 @@ class GenericEditorPresenter(object):
         combo.clear()
         # using 'object' avoids SA unicode warning
         model = gtk.ListStore(object, str)
-        for value in sorted(translations.keys()):
-            model.append([value, translations[value]])
+        for key, value in sorted(translations.iteritems(), key=lambda x: x[1]):
+            model.append([key, value])
         combo.set_model(model)
         cell = gtk.CellRendererText()
         combo.pack_start(cell, True)
@@ -658,7 +658,10 @@ class GenericModelViewPresenterEditor(object):
     it.  If the model is already in another session that original
     session will not be effected.
 
-    :param model: an instance of an object mapped to a SQLAlchemy Table
+    :param model: an instance of an object mapped to a SQLAlchemy
+      Table, the model will be copied and merged into self.session so
+      that the original model will not be changed
+
     :param parent: the parent windows for the view or None
     '''
     label = ''

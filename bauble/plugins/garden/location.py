@@ -23,8 +23,8 @@ def edit_callback(locations):
 
 
 def add_plants_callback(locations):
-    from bauble.plugins.garden.plant import Plant, PlantEditor
-    e = PlantEditor(model=Plant(location=locations[0]))
+    from bauble.plugins.garden.plant import Plant, AddPlantEditor
+    e = AddPlantEditor(model=Plant(location=locations[0]))
     return e.start() != None
 
 
@@ -144,7 +144,8 @@ class LocationEditorView(GenericEditorView):
 
 class LocationEditorPresenter(GenericEditorPresenter):
 
-    widget_to_field_map = {'loc_name_entry': 'name',
+    #'loc_name_entry': 'name',
+    widget_to_field_map = {'loc_name_entry': 'code', # UBC specific
                            'loc_desc_textview': 'description'}
 
     def __init__(self, model, view):
@@ -160,8 +161,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('loc_name_entry', 'name',
+        self.assign_simple_handler('loc_name_entry', 'code', # UBC
                                    UnicodeOrNoneValidator())
+        # self.assign_simple_handler('loc_name_entry', 'name',
+        #                            UnicodeOrNoneValidator())
         self.assign_simple_handler('loc_desc_textview', 'description',
                                    UnicodeOrNoneValidator())
         self.refresh_sensitivity()
@@ -178,7 +181,10 @@ class LocationEditorPresenter(GenericEditorPresenter):
         super(LocationEditorPresenter, self).set_model_attr(model, field,
                                                             validator)
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(self.model.name != None)
+        #self.view.set_accept_buttons_sensitive(self.model.name != None)
+        # UBC
+        self.model.name = self.model.code # UBC test code
+        self.view.set_accept_buttons_sensitive(self.model.code != None)
 
 
     def dirty(self):
@@ -278,8 +284,8 @@ class LocationEditor(GenericModelViewPresenterEditor):
             e = LocationEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            from bauble.plugins.garden.plant import PlantEditor, Plant
-            e = PlantEditor(Plant(location=self.model), self.parent)
+            from bauble.plugins.garden.plant import AddPlantEditor, Plant
+            e = AddPlantEditor(Plant(location=self.model), self.parent)
             more_committed = e.start()
         if more_committed is not None:
             if isinstance(more_committed, list):
