@@ -180,6 +180,10 @@ class PlantRemoval(db.Base):
     from_location = relation('Location',
                  primaryjoin='PlantRemoval.from_location_id == Location.id')
 
+    # TODO: plan_id should probably go on the plant as removal_id
+    # since in theory there can only be one removal for a plant
+    plant = relation('Plant', backref='removal')
+
 
 class PlantTransfer(db.Base):
     __tablename__ = 'plant_transfer'
@@ -449,15 +453,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
         def on_rem_reason_changed(combo, *args):
             model = combo.get_model()
             value = model[combo.get_active_iter()][0]
+            #debug('rem: %s' % value)
             self._removal.reason = value
+            self.__dirty = True
             self.refresh_sensitivity()
         self.view.connect('rem_reason_combo', 'changed', on_rem_reason_changed)
 
         def on_tran_to_select(value):
+            debug('trans: %s' % value)
             self._transfer.to_location = value
             if value:
-                self.refresh_sensitivity()
                 self.__dirty = True
+                self.refresh_sensitivity()
+
         self.init_location_combo(self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
 
@@ -603,19 +611,23 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def commit_changes(self):
         """
         """
+        #debug('commit_changes()')
+        note = PlantNote()
+        note.note = utils.utf8(self.presenter.view.widgets.\
+                                  plant_notes_textview.get_buffer().props.text)
+
         action = self.presenter.get_current_action()
-        # debug(action)
+        note.category = action
+        #debug(action)
         if action == 'Removal':
             action_model = self.presenter._removal
         elif action == 'Transfer':
             action_model = self.presenter._transfer
+        elif action == 'AddNote':
+            note.category = utils.utf8(self.presenter.view.widgets.\
+                                    note_category_comboentry.child.props.text)
         else:
             raise ValueError('unknown plant action: %s' % action)
-
-        note = PlantNote()
-        note.note = self.view.note_textview.get_buffer().props.text
-        note.category = action
-        # debug(action_model)
 
         # create a copy of the action_model for each plant and set the
         # .plant attribute on each...the easiest way to copy would
@@ -628,21 +640,21 @@ class PlantEditor(GenericModelViewPresenterEditor):
             new_note.plant = plant
             new_model.plant = plant
             if action == 'Transfer':
+                new_model.from_location = plant.location
                 plant.location = new_model.to_location
-            # debug(plant)
-            # debug(new_model)
+                new_model.note = new_note
+            elif action == 'Removal':
+                new_model.from_location = plant.location
+                new_model.note = new_note
 
         # delete dummy model and remove it from the session
-        # debug(repr(self.model))
         self.session.expunge(self.model)
-        # del self.model
+        del self.model
         super(PlantEditor, self).commit_changes()
 
 
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        debug(response)
-        debug(int(gtk.RESPONSE_OK))
         if response == gtk.RESPONSE_OK:
             try:
                 if self.presenter.dirty():

@@ -193,6 +193,89 @@ class PlantTests(GardenTestCase):
         pass
 
 
+    def test_editor_transfer(self):
+        """
+        """
+        # TODO: right now the test only shows adding a transfer to a
+        # plant but we need to be sure that transfers are appended if
+        # transfers already exist on the plant
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # delete any plants in the database
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        self.session.commit()
+
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
+        editor = PlantEditor(model=[p1, p2])
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        utils.set_widget_value(widgets.plant_action_combo, u'Transfer')
+        widgets.trans_to_comboentry.child.props.text = self.location.name
+        update_gui()
+
+        editor.handle_response(gtk.RESPONSE_OK)
+        for p in editor.plants:
+            # TODO: need to assert that the values of
+            # editor.presenter._transfer are equal to the transfer in
+            # the plant
+            self.assert_(len(p.transfers) > 0)
+
+
+
+    def test_editor_removal(self):
+        """
+        """
+        # TODO: right now the test only shows adding a transfer to a
+        # plant but we need to be sure that transfers are appended if
+        # transfers already exist on the plant
+        # TODO: need to also test the the plants.removal was not set
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # delete any plants in the database
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        self.session.commit()
+
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
+        editor = PlantEditor(model=[p1, p2])
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        utils.set_widget_value(widgets.plant_action_combo, u'Removal')
+        utils.set_widget_value(widgets.rem_reason_combo, u'DEAD')
+        update_gui()
+
+        self.assert_(len(editor.presenter.problems)<1,
+                     'widgets have problems')
+
+        editor.handle_response(gtk.RESPONSE_OK)
+        for p in editor.plants:
+            # TODO: need to assert that the values of
+            # editor.presenter._transfer are equal to the transfer in
+            # the plant
+            #debug(p.removal)
+            self.assert_(len(p.removal) > 0)
+
+
+    def test_editor_addnote(self):
+        return
+        raise NoteImplementedError
+
+
     def itest_editor(self):
         p1 = Plant(accession=self.accession, location=self.location, code=u'1')
         p2 = Plant(accession=self.accession, location=self.location, code=u'2')
@@ -212,7 +295,7 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
-        editor = PlantEditor(model=self.plant)
+        editor = AddPlantEditor(model=self.plant)
         #editor.start()
         update_gui()
         rng = '2,3,4-6'
@@ -247,12 +330,12 @@ class PlantTests(GardenTestCase):
 
         editor.presenter.cleanup()
         del editor
-        assert utils.gc_objects_by_type('PlantEditor') == [], \
-            'PlantEditor not deleted'
-        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
-            'PlantEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('PlantEditorView') == [], \
-            'PlantEditorView not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditor') == [], \
+            'AddPlantEditor not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditorPresenter') == [], \
+            'AddPlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditorView') == [], \
+            'AddPlantEditorView not deleted'
 
 
     def itest_add_plant_editor(self):
