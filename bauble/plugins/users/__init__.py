@@ -386,7 +386,11 @@ def set_privilege(role, privilege):
 def current_user():
     """Return the name of the current user.
     """
-    return db.engine.execute('select current_user;').fetchone()[0]
+    #return db.engine.execute('select current_user;').fetchone()[0]
+    r = db.engine.execute('select current_user;')
+    user = r.fetchone()[0]
+    r.close()
+    return user
 
 
 class UsersEditor(editor.GenericEditorView):
@@ -399,7 +403,7 @@ class UsersEditor(editor.GenericEditorView):
         filename = os.path.join(paths.lib_dir(), 'plugins', 'users','ui.glade')
         super(UsersEditor, self).__init__ (filename)
 
-        if not db.engine.name == 'postgres':
+        if db.engine.name not in ('postgres', 'postgresql'):
             msg = _('The Users editor is only valid on a PostgreSQL database')
             utils.message_dialog(utils.utf8(msg))
             return
