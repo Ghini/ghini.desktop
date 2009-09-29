@@ -4,14 +4,13 @@
 import datetime
 import re
 
+import dateutil.parser as date_parser
 import sqlalchemy.types as types
 import sqlalchemy.exc as exc
 
 import bauble.error as error
 from bauble.utils.log import debug
 
-# TODO: should we allow custom date formats?
-# TODO: do date formats depend on locale
 # TODO: store all times as UTC or support timezones
 
 class EnumError(error.BaubleError):
@@ -103,26 +102,9 @@ class DateTime(types.TypeDecorator):
     _rx_tz = re.compile('[+-]')
 
     def process_bind_param(self, value, dialect):
-        # TODO: what about microseconds
         if not isinstance(value, basestring):
             return value
-
-        date, time = value.split(' ')
-        timezone = None
-        match = self._rx_tz.search(time)
-        if match:
-            timezone = tzinfo(time[match.start():])
-            time = time[0:match.start()]
-        h, mi, s = time.split(':')
-        ms = 0
-        if '.' in s:
-            s, ms = s.split('.') # microseconds
-        y, mo, d = date.split('-')
-        args = [int(v) for v in (y, mo, d, h, mi, s, ms)]
-        args.append(timezone)
-        return datetime.datetime(*args)
-
-        return value
+        return date_parser.parse(value)
 
 
     def process_result_value(self, value, dialect):
@@ -140,18 +122,13 @@ class Date(types.TypeDecorator):
     """
     impl = types.Date
 
+    # TODO: *** important, we need somewhere to set dayfirst,
+    # monthfirst in the prefs which would effect the date types
+
     def process_bind_param(self, value, dialect):
         if not isinstance(value, basestring):
             return value
-
-        if ' ' in value:
-            date, time = value.split(' ')
-            warning('bauble.Date.process_bind_param(): truncating %s to %s' \
-                    % (value, date))
-        else:
-            date = value
-        y, mo, d = date.split('-')
-        return datetime.datetime(*map(int, (y, mo, d)))
+        return date_parser.parse(value).date()
 
 
     def process_result_value(self, value, dialect):
