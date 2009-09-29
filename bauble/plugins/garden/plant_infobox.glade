@@ -203,7 +203,6 @@
         <property name="visible">True</property>
         <child>
           <object class="GtkScrolledWindow" id="notes_sw">
-            <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="border_width">5</property>
             <property name="hscrollbar_policy">never</property>
@@ -223,7 +222,60 @@
             <property name="position">0</property>
           </packing>
         </child>
+        <child>
+          <object class="GtkTreeView" id="notes_treeview">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="model">notes_model</property>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                <property name="title">Date</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                <property name="title">Category</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                  <attributes>
+                    <attribute name="text">1</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                <property name="title">Note</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                  <attributes>
+                    <attribute name="text">2</attribute>
+                  </attributes>
+                </child>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="position">1</property>
+          </packing>
+        </child>
       </object>
     </child>
+  </object>
+  <object class="GtkListStore" id="notes_model">
+    <columns>
+      <!-- column-name model_date_col -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+    </columns>
   </object>
 </interface>

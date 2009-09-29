@@ -39,7 +39,7 @@ default_plant_delimiter = u'.'
 
 
 def edit_callback(plants):
-    e = PlantEditor(model=plants[0])
+    e = PlantEditor(model=plants)
     return e.start() != None
 
 
@@ -73,7 +73,7 @@ edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
 
-plant_context_menu = [edit_action, transfer_action, remove_action]
+plant_context_menu = [edit_action, remove_action]
 
 
 def plant_markup_func(plant):
@@ -117,6 +117,7 @@ class PlantSearch(SearchStrategy):
             return []
         return q
 
+
 # TODO: what would happend if the PlantRemove.plant_id and
 # PlantNote.plant_id were out of sink....how could we avoid these sort
 # of cycles
@@ -140,17 +141,44 @@ class PlantNote(db.Base):
 # removal so that the plant can be removed again....since we can only
 # have one removal would should probably add a removal_id to Plant so
 # its a 1-1 relation
+removal_reasons = {
+    u'DEAD': _('Dead'),
+    u'DISC': _('Discarded'),
+    u'DISW': _('Discarded, weedy'),
+    u'LOST': _('Lost, whereabouts unknown'),
+    u'STOL': _('Stolen'),
+    u'WINK': _('Winter kill'),
+    u'ERRO': _('Error correction'),
+    u'DIST': _('Distributed elsewhere'),
+    u'DELE': _('Deleted, yr.dead unknown'),
+    u'ASS#': _('Transferred to another acc.no.'),
+    u'FOGS': _('Given to FOGs to sell'),
+    u'PLOP': _('Area transf. to Plant Ops.'),
+    u'BA40': _('Given to Back 40 (FOGs)'),
+    u'TOTM': _('Transfered to Totem Field'),
+    U'SUMK': _('Summer Kill'),
+    u'DNGM': _('Did not germinate'),
+    u'DISN': _('Discarded seedling in nursery'),
+    u'GIVE': _('Given away (specify person)'),
+    u'OTHR': _('Other')
+    }
+
 class PlantRemoval(db.Base):
     __tablename__ = 'plant_removal'
     __mapper_args__ = {'order_by': 'date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
-    from_id = Column(Integer, ForeignKey('location.id'), nullable=False)
-    reason = Column(String(32))
+    from_location_id = Column(Integer, ForeignKey('location.id'),
+                              nullable=False)
+
+    reason = Column(types.Enum(values=removal_reasons.keys()))
 
     # TODO: is this redundant with note.date
     date = Column(Date)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
+
+    from_location = relation('Location',
+                 primaryjoin='PlantRemoval.from_location_id == Location.id')
 
 
 class PlantTransfer(db.Base):
@@ -158,14 +186,31 @@ class PlantTransfer(db.Base):
     __mapper_args__ = {'order_by': 'date'}
 
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
-    from_id = Column(Integer, ForeignKey('location.id'), nullable=False)
-    to_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+
+    # TODO: from_id != to_id
+    from_location_id = Column(Integer, ForeignKey('location.id'),
+                              nullable=False)
+    to_location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
+
+    # the name of the person who made the transfer
+    person = Column(Unicode(64))
+    """The name of the person who made the transfer"""
+
+    # TODO: do we need a standard set of reasons or shuld this just
+    # be relegated to notes
     reason = Column(String(32))
-    note = Column(Integer, ForeignKey('plant_note.id'))
-    date = Column(Date)
+
+    note_id = Column(Integer, ForeignKey('plant_note.id'))
 
     # TODO: is this redundant with note.date
+    date = Column(Date)
+
+    # relations
     plant = relation('Plant', backref='transfers')
+    from_location = relation('Location',
+                   primaryjoin='PlantTransfer.from_location_id == Location.id')
+    to_location = relation('Location',
+                   primaryjoin='PlantTransfer.to_location_id == Location.id')
 
 
 acc_type_values = {u'Plant': _('Plant'),
@@ -300,40 +345,12 @@ class PlantEditorView(GenericEditorView):
         path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                             'plant_editor.glade')
         super(PlantEditorView, self).__init__(path, parent)
-        # GenericEditorView.__init__(self, os.path.join(paths.lib_dir(),
-        #                                               'plugins', 'garden',
-        #                                               'plant_test.glade'),
-        #                            parent=parent)
-        # self.widgets.plant_ok_button.set_sensitive(False)
-        # self.widgets.plant_next_button.set_sensitive(False)
 
-
-
-        def acc_cell_data_func(column, renderer, model, iter, data=None):
-            v = model[iter][0]
-            renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
-        #self.attach_completion('plant_acc_entry', acc_cell_data_func,
-        #                       minimum_key_length=1)
-
-        def loc_cell_data_func(col, renderer, model, it, data=None):
-            # the cell_data_func for the entry completions
-            v = model[it][0]
-            renderer.set_property('text', '%s' % utils.utf8(v))
-
-        # entry = self.widgets.plant_loc_comboentry.child
-        # self.attach_completion(entry, loc_cell_data_func,
-        #                        minimum_key_length=1)
+        self.widgets.ped_ok_button.set_sensitive(False)
 
 
     def get_window(self):
         return self.widgets.plant_editor_dialog
-
-
-    def __del__(self):
-        #debug('PlantView.__del__()')
-        #GenericEditorView.__del__(self)
-        #self.dialog.destroy()
-        pass
 
 
     def save_state(self):
@@ -347,6 +364,16 @@ class PlantEditorView(GenericEditorView):
     def start(self):
         return self.get_window().run()
 
+
+
+# class PlantTransferPresenter(GenericEditorPresenter):
+
+#     def __init__(self, model, view):
+#         '''
+#         @param model: should be an list of Plants
+#         @param view: should be an instance of PlantEditorView
+#         '''
+#         super(PlantTransferPresenter, self).__init__(model, view)
 
 
 class PlantEditorPresenter(GenericEditorPresenter):
@@ -366,7 +393,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         @param model: should be an list of Plants
         @param view: should be an instance of PlantEditorView
         '''
-        #GenericEditorPresenter.__init__(self, model, view)
         super(PlantEditorPresenter, self).__init__(model, view)
         #self.session = object_session(model[0])
         self.session = bauble.Session()
@@ -374,29 +400,139 @@ class PlantEditorPresenter(GenericEditorPresenter):
         # self._original_code = self.model.code
         self.__dirty = False
 
-        self.init_translatable_combo('plant_actions_combo', plant_actions)
-        self.view.connect('plant_actions_combo', 'changed',
+        self._transfer = PlantTransfer()
+        self._note_category = ''
+        self._removal = PlantRemoval()
+
+        self.init_translatable_combo('rem_reason_combo', removal_reasons)
+
+        self.init_translatable_combo('plant_action_combo', plant_actions)
+        self.view.connect('plant_action_combo', 'changed',
                           self.on_action_combo_changed)
 
-        label = self.view.widgets.plants_label
+        label = self.view.widgets.ped_plants_label
         #self.plants = model
         label.set_text(', '.join([str(p) for p in self.model]))
 
         # on start hide the details until an action is chosen
         self.view.widgets.details_box.props.visible = False
 
-
         self.action_combo_map = {'Removal': self.view.widgets.removal_box,
                                  'Transfer': self.view.widgets.transfer_box,
                                  'AddNote': self.view.widgets.notes_box}
+
+        #self.assign_simple_handler('ped_user_entry',
+
+        # set the user name entry to the current use if we're using postgres
+        if db.engine.name in ('postgres', 'postgresql'):
+            import bauble.plugins.users as users
+            self.view.set_widget_value('ped_user_entry', users.current_user())
+            # TODO: should we set the value to $USER if not postgres
+        elif 'USER' in os.environ:
+            self.view.set_widget_value('ped_user_entry', os.environ['USER'])
+        elif 'USERNAME' in os.environ:
+            self.view.set_widget_value('ped_user_entry',os.environ['USERNAME'])
+
+        utils.setup_date_button(self.view.widgets.ped_date_entry,
+                                self.view.widgets.ped_date_button)
+
+        self.view.widgets.ped_date_button.clicked()
+
+        # connect handlers for all the widget even if they aren't
+        # visible or relevant to the current action type so that we
+        # save their state if the action type changes, we later
+        # extract the values and save the action on commit_changes()
+
+        # TODO: should we show a warning if the plants are in
+        # different locations
+
+        def on_rem_reason_changed(combo, *args):
+            model = combo.get_model()
+            value = model[combo.get_active_iter()][0]
+            self._removal.reason = value
+            self.refresh_sensitivity()
+        self.view.connect('rem_reason_combo', 'changed', on_rem_reason_changed)
+
+        def on_tran_to_select(value):
+            self._transfer.to_location = value
+            if value:
+                self.refresh_sensitivity()
+                self.__dirty = True
+        self.init_location_combo(self.view.widgets.trans_to_comboentry,
+                                 on_tran_to_select)
+
+
+    def init_location_combo(self, combo, on_select):
+        """
+        Initialize a gtk.ComboEntry where the combo model values and
+        completions in the entry are all the locations from the
+        database.
+        """
+        entry = combo.child
+        model = gtk.ListStore(object)
+        for loc in self.session.query(Location):
+            model.append([loc])
+        utils.clear_model(combo)
+        combo.set_model(model)
+        combo.clear()
+        renderer = gtk.CellRendererText()
+        combo.pack_start(renderer, True)
+        def cell_data_func(column, cell, model, it, data=None):
+            # the cell data func for the combo
+            v = model[it][0]
+            cell.set_property('text', utils.utf8(v))
+        combo.set_cell_data_func(renderer, cell_data_func)
+
+        # attach a gtk.EntryCompletion
+        self.view.attach_completion(combo.child, cell_data_func,
+                                    minimum_key_length=1)
+
+        # make the completion on the entry for the combo entry
+        # have the same model as the combo
+        combo.child.get_completion().set_model(model)
+
+        self.assign_completions_handler(entry, None, on_select=on_select)
+        def changed(combo, *args):
+            it = combo.get_active_iter()
+            if it:
+                value = combo.get_model()[it][0]
+                on_select(value)
+                combo.child.props.text = value
+                self.refresh_sensitivity()
+        self.view.connect(combo, 'changed', changed)
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def refresh_sensitivity(self):
+        sensitive = False
+        action = self.get_current_action()
+        if action == 'Removal' and self._removal.reason:
+            sensitive = True
+        elif action == 'Transfer' and self._transfer.to_location:
+            sensitive = True
+        self.view.widgets.ped_ok_button.props.sensitive = sensitive
+
+
+    def get_current_action(self):
+        """
+        Return the code for the currently selected action.
+        """
+        combo = self.view.widgets.plant_action_combo
+        model = combo.get_model()
+        value = model[combo.get_active_iter()][0]
+        return value
 
 
     def on_action_combo_changed(self, combo, *args):
         """
         Called when the action combo changes.
         """
-        model = combo.get_model()
-        value = model[combo.get_active_iter()][0]
+        # TODO: we need to create a removal, transfer or new note
+        # depending on the action
+        value = self.get_current_action()
         action_box = self.action_combo_map[value]
         action_parent_box = self.view.widgets.action_parent_box
 
@@ -416,6 +552,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.view.widgets.details_box.show_all()
         self.view.widgets.details_box.queue_resize()
 
+        # refresh the sensitivity in case the values for the new
+        # action are set correctly
+        self.refresh_sensitivity()
+
 
     def start(self):
         return self.view.start()
@@ -423,13 +563,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 class PlantEditor(GenericModelViewPresenterEditor):
-
-    # label = _('Change plant status')
-    # mnemonic_label = _('_Change plant status')
-
-    # these have to correspond to the response values in the view
-    RESPONSE_NEXT = 22
-    ok_responses = (RESPONSE_NEXT,)
 
 
     def __init__(self, model=None, parent=None):
@@ -439,7 +572,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         '''
         # if model is None:
         #     model = Plant()
-        self.plants = model
+        #self.plants = model
         self.model = Plant()
         #GenericModelViewPresenterEditor.__init__(self, model, parent)
         #super(NewPlantEditor, self).__init__(model, parent)
@@ -450,14 +583,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
         self.parent = parent
         self._committed = []
 
+        # copy the plants into our session
+        self.plants = map(self.session.merge, model)
+
         view = PlantEditorView(parent=self.parent)
-        #self.presenter = NewPlantEditorPresenter(self.model, view)
         self.presenter = PlantEditorPresenter(self.plants, view)
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
                              gtk.gdk.CONTROL_MASK)
 
         # set default focus
@@ -470,12 +603,47 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def commit_changes(self):
         """
         """
+        action = self.presenter.get_current_action()
+        # debug(action)
+        if action == 'Removal':
+            action_model = self.presenter._removal
+        elif action == 'Transfer':
+            action_model = self.presenter._transfer
+        else:
+            raise ValueError('unknown plant action: %s' % action)
+
+        note = PlantNote()
+        note.note = self.view.note_textview.get_buffer().props.text
+        note.category = action
+        # debug(action_model)
+
+        # create a copy of the action_model for each plant and set the
+        # .plant attribute on each...the easiest way to copy would
+        # probably be to use session.merge
+        for plant in self.plants:
+            # make a copy of the action model in the plant's session
+            session = object_session(plant)
+            new_model = session.merge(action_model)
+            new_note = session.merge(note)
+            new_note.plant = plant
+            new_model.plant = plant
+            if action == 'Transfer':
+                plant.location = new_model.to_location
+            # debug(plant)
+            # debug(new_model)
+
+        # delete dummy model and remove it from the session
+        # debug(repr(self.model))
+        self.session.expunge(self.model)
+        # del self.model
         super(PlantEditor, self).commit_changes()
 
 
     def handle_response(self, response):
         not_ok_msg = _('Are you sure you want to lose your changes?')
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+        debug(response)
+        debug(int(gtk.RESPONSE_OK))
+        if response == gtk.RESPONSE_OK:
             try:
                 if self.presenter.dirty():
                     # commit_changes() will append the commited plants
@@ -502,21 +670,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
             return True
         else:
             return False
-
-#        # respond to responses
-        more_committed = None
-        if response == self.RESPONSE_NEXT:
-            self.presenter.cleanup()
-            e = NewPlantEditor(Plant(accession=self.model.accession),
-                               parent=self.parent)
-            more_committed = e.start()
-
-        if more_committed is not None:
-            self._committed = [self._committed]
-            if isinstance(more_committed, list):
-                self._committed.extend(more_committed)
-            else:
-                self._committed.append(more_committed)
 
         return True
 
@@ -581,8 +734,8 @@ class AddPlantEditorView(GenericEditorView):
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'plant_editor.glade')
         super(AddPlantEditorView, self).__init__(glade_file, parent=parent)
-        self.widgets.plant_ok_button.set_sensitive(False)
-        self.widgets.plant_next_button.set_sensitive(False)
+        self.widgets.pad_ok_button.set_sensitive(False)
+        self.widgets.pad_next_button.set_sensitive(False)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
             renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
@@ -600,7 +753,7 @@ class AddPlantEditorView(GenericEditorView):
 
 
     def get_window(self):
-        return self.widgets.plant_dialog
+        return self.widgets.plant_add_dialog
 
 
     def __del__(self):
@@ -699,10 +852,10 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         self.assign_simple_handler('plant_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
 
-        def loc_get_completions(text):
-            query = self.session.query(Location)
-            return query.filter(utils.ilike(Location.name,
-                                            utils.utf8('%s%%' % text)))
+        # def loc_get_completions(text):
+        #     query = self.session.query(Location)
+        #     return query.filter(utils.ilike(Location.name,
+        #                                     utils.utf8('%s%%' % text)))
         def on_loc_select(value):
             self.set_model_attr('location', value)
 
@@ -797,8 +950,8 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
                      self.model.code is not None and \
                      self.model.location is not None) \
                      and self.dirty() and len(self.problems)==0
-        self.view.widgets.plant_ok_button.set_sensitive(sensitive)
-        self.view.widgets.plant_next_button.set_sensitive(sensitive)
+        self.view.widgets.pad_ok_button.set_sensitive(sensitive)
+        self.view.widgets.pad_next_button.set_sensitive(sensitive)
 
 
     def set_model_attr(self, field, value, validator=None):
@@ -1052,6 +1205,31 @@ class GeneralPlantExpander(InfoExpander):
                               False)
 
 
+class TransferExpander(InfoExpander):
+    """
+    Tranfer Expander
+    """
+
+    def __init__(self, widgets):
+        """
+        """
+        super(TransferExpander, self).__init__(_('Transfers'), widgets)
+
+
+    def update(self, row):
+        '''
+        '''
+        # date: src to dest
+        # TODO: remove previous children
+        debug(row.transfers)
+        for transfer in row.transfers:
+            s = _('%s: %s to %s by') % (transfer.date, transfer.from_location,
+                                     transfer.to_location, transfer.user)
+            debug(s)
+            self.vbox.pack_start(gtk.Label(s))
+        self.vbox.show_all()
+        #self.set_widget_value('notes_data', row.notes)
+
 
 class NotesExpander(InfoExpander):
     """
@@ -1070,7 +1248,12 @@ class NotesExpander(InfoExpander):
     def update(self, row):
         '''
         '''
-        self.set_widget_value('notes_data', row.notes)
+        #self.set_widget_value('notes_data', row.notes)
+        model = self.widgets.notes_treeview.get_model()
+        model.clear()
+        for note in row.notes:
+            model.append(note.date, note.category, note.note)
+
 
 
 class PlantInfoBox(InfoBox):
@@ -1089,6 +1272,10 @@ class PlantInfoBox(InfoBox):
         self.widgets = utils.load_widgets(filename)
         self.general = GeneralPlantExpander(self.widgets)
         self.add_expander(self.general)
+
+        self.transfers = TransferExpander(self.widgets)
+        self.add_expander(self.transfers)
+
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
         self.props = PropertiesExpander()
@@ -1103,6 +1290,7 @@ class PlantInfoBox(InfoBox):
         #loc = self.get_expander("Location")
         #loc.update(row.location)
         self.general.update(row)
+        self.transfers.update(row)
         self.props.update(row)
 
         if row.notes is None:
