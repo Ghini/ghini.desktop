@@ -631,27 +631,20 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         initialize the gtk.TreeView
         '''
         self.treeview = self.view.widgets.sp_syn_treeview
-        # remove any columns that were setup previous, this became a
-        # problem when we starting reusing the glade files with
-        # utils.BuilderLoader, the right way to do this would be to
-        # create the columns in glade instead of here
-        for col in self.treeview.get_columns():
-            self.treeview.remove_column(col)
 
         def _syn_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
-            #cell.set_property('text', str(v.synonym))
             cell.set_property('text', str(v))
             # just added so change the background color to indicate its new
-            if v.id is None:
+            if not hasattr(v, 'id') or v.id is None:
                 cell.set_property('foreground', 'blue')
             else:
                 cell.set_property('foreground', None)
-        cell = gtk.CellRendererText()
-        col = gtk.TreeViewColumn('Synonym', cell)
-        col.set_cell_data_func(cell, _syn_data_func)
-        self.treeview.append_column(col)
 
+        col = self.view.widgets.syn_column
+        col.set_cell_data_func(self.view.widgets.syn_cell, _syn_data_func)
+
+        utils.clear_model(self.treeview)
         tree_model = gtk.ListStore(object)
         for syn in self.model._synonyms:
             tree_model.append([syn])

@@ -819,6 +819,14 @@
                                                 <property name="visible">True</property>
                                                 <property name="can_focus">True</property>
                                                 <property name="headers_visible">False</property>
+                                                <child>
+                                                  <object class="GtkTreeViewColumn" id="syn_column">
+                                                    <property name="title">column</property>
+                                                    <child>
+                                                      <object class="GtkCellRendererText" id="syn_cell"/>
+                                                    </child>
+                                                  </object>
+                                                </child>
                                               </object>
                                             </child>
                                           </object>
