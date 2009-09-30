@@ -174,7 +174,7 @@ class PlantRemoval(db.Base):
     reason = Column(types.Enum(values=removal_reasons.keys()))
 
     # TODO: is this redundant with note.date
-    date = Column(Date)
+    date = Column(types.Date)
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
     from_location = relation('Location',
@@ -207,7 +207,7 @@ class PlantTransfer(db.Base):
     note_id = Column(Integer, ForeignKey('plant_note.id'))
 
     # TODO: is this redundant with note.date
-    date = Column(Date)
+    date = Column(types.Date)
 
     # relations
     plant = relation('Plant', backref='transfers')
@@ -392,6 +392,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
+
     def __init__(self, model, view):
         '''
         @param model: should be an list of Plants
@@ -405,27 +406,19 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.__dirty = False
 
         self._transfer = PlantTransfer()
-        self._note_category = ''
+        self._note = PlantNote()
         self._removal = PlantRemoval()
 
-        self.init_translatable_combo('rem_reason_combo', removal_reasons)
+        self. action_combo_map = {'Removal': self.view.widgets.removal_box,
+                                  'Transfer': self.view.widgets.transfer_box,
+                                  'AddNote': self.view.widgets.notes_box}
 
-        self.init_translatable_combo('plant_action_combo', plant_actions)
-        self.view.connect('plant_action_combo', 'changed',
-                          self.on_action_combo_changed)
-
+        # show the plants we are changing in the labels
         label = self.view.widgets.ped_plants_label
-        #self.plants = model
         label.set_text(', '.join([str(p) for p in self.model]))
 
         # on start hide the details until an action is chosen
         self.view.widgets.details_box.props.visible = False
-
-        self.action_combo_map = {'Removal': self.view.widgets.removal_box,
-                                 'Transfer': self.view.widgets.transfer_box,
-                                 'AddNote': self.view.widgets.notes_box}
-
-        #self.assign_simple_handler('ped_user_entry',
 
         # set the user name entry to the current use if we're using postgres
         if db.engine.name in ('postgres', 'postgresql'):
@@ -437,19 +430,24 @@ class PlantEditorPresenter(GenericEditorPresenter):
         elif 'USERNAME' in os.environ:
             self.view.set_widget_value('ped_user_entry',os.environ['USERNAME'])
 
+        # initialize the date button
+
         utils.setup_date_button(self.view.widgets.ped_date_entry,
                                 self.view.widgets.ped_date_button)
+        def on_date_changed(*args):
+            self._note.date = self.view.widgets.ped_date_entry.props.text
+        self.view.connect(self.view.widgets.ped_date_entry, 'changed',
+                          on_date_changed)
+        self.view.widgets.ped_date_button.clicked() # insert todays date
 
-        self.view.widgets.ped_date_button.clicked()
 
         # connect handlers for all the widget even if they aren't
         # visible or relevant to the current action type so that we
         # save their state if the action type changes, we later
         # extract the values and save the action on commit_changes()
 
-        # TODO: should we show a warning if the plants are in
-        # different locations
-
+        # initialize the removal reason combo
+        self.init_translatable_combo('rem_reason_combo', removal_reasons)
         def on_rem_reason_changed(combo, *args):
             model = combo.get_model()
             value = model[combo.get_active_iter()][0]
@@ -459,15 +457,32 @@ class PlantEditorPresenter(GenericEditorPresenter):
             self.refresh_sensitivity()
         self.view.connect('rem_reason_combo', 'changed', on_rem_reason_changed)
 
+        # initialize the plant action combo
+        self.init_translatable_combo('plant_action_combo', plant_actions)
+        self.view.connect('plant_action_combo', 'changed',
+                          self.on_action_combo_changed)
         def on_tran_to_select(value):
             debug('trans: %s' % value)
             self._transfer.to_location = value
             if value:
                 self.__dirty = True
                 self.refresh_sensitivity()
-
         self.init_location_combo(self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
+
+        def on_buff_changed(buff, data=None):
+            self.__dirty = True
+            self.refresh_sensitivity()
+            self._note.note = utils.utf8(buff.props.text)
+        self.view.connect(self.view.widgets.note_textview.get_buffer(),
+                          'changed', on_buff_changed)
+
+        def on_category_changed(combo, data=None):
+            self.__dirty = True
+            self.refresh_sensitivity()
+            self._note.category = utils.utf8(combo.child.props.text)
+        self.view.connect('note_category_comboentry', 'changed',
+                          on_category_changed)
 
 
     def init_location_combo(self, combo, on_select):
@@ -520,6 +535,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
         if action == 'Removal' and self._removal.reason:
             sensitive = True
         elif action == 'Transfer' and self._transfer.to_location:
+            sensitive = True
+        elif action == 'AddNote' and self.view.widgets.note_textview.get_buffer().props.text:
             sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
 
@@ -612,20 +629,17 @@ class PlantEditor(GenericModelViewPresenterEditor):
         """
         """
         #debug('commit_changes()')
-        note = PlantNote()
-        note.note = utils.utf8(self.presenter.view.widgets.\
-                                  plant_notes_textview.get_buffer().props.text)
-
         action = self.presenter.get_current_action()
-        note.category = action
         #debug(action)
         if action == 'Removal':
             action_model = self.presenter._removal
+            self._presenter._note.category = action
         elif action == 'Transfer':
             action_model = self.presenter._transfer
+            self._presenter._note.category = action
         elif action == 'AddNote':
-            note.category = utils.utf8(self.presenter.view.widgets.\
-                                    note_category_comboentry.child.props.text)
+            action_model = self.presenter._note
+            debug(action_model.category)
         else:
             raise ValueError('unknown plant action: %s' % action)
 
@@ -636,16 +650,14 @@ class PlantEditor(GenericModelViewPresenterEditor):
             # make a copy of the action model in the plant's session
             session = object_session(plant)
             new_model = session.merge(action_model)
-            new_note = session.merge(note)
-            new_note.plant = plant
             new_model.plant = plant
             if action == 'Transfer':
                 new_model.from_location = plant.location
                 plant.location = new_model.to_location
-                new_model.note = new_note
+                new_model.note = session.merge(self.presenter._note)
             elif action == 'Removal':
                 new_model.from_location = plant.location
-                new_model.note = new_note
+                new_model.note = session.merge(self.presenter._note)
 
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
@@ -1264,7 +1276,7 @@ class NotesExpander(InfoExpander):
         model = self.widgets.notes_treeview.get_model()
         model.clear()
         for note in row.notes:
-            model.append(note.date, note.category, note.note)
+            model.append([note.date, note.category, note.note])
 
 
 
