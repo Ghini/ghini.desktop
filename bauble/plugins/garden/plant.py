@@ -392,7 +392,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
-
     def __init__(self, model, view):
         '''
         @param model: should be an list of Plants
@@ -1268,11 +1267,17 @@ class NotesExpander(InfoExpander):
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
 
+        # TODO: by default we should sort the columns byt the date in
+        # descending order, we might have to get the datetime object
+        # for this to work correctly in case the date string format changes
+        treeview = self.widgets.notes_treeview
+        for i in range(3):
+            treeview.get_column(i).set_sort_column_id(i)
+
 
     def update(self, row):
         '''
         '''
-        #self.set_widget_value('notes_data', row.notes)
         model = self.widgets.notes_treeview.get_model()
         model.clear()
         for note in row.notes:
