@@ -1267,12 +1267,29 @@ class NotesExpander(InfoExpander):
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
 
-        # TODO: by default we should sort the columns byt the date in
-        # descending order, we might have to get the datetime object
-        # for this to work correctly in case the date string format changes
+        # set up sorting
         treeview = self.widgets.notes_treeview
         for i in range(3):
             treeview.get_column(i).set_sort_column_id(i)
+
+        # TODO: we might have to get the datetime object for this to
+        # work correctly in case the date string format changes
+
+        # sort by date by default
+        treeview.get_model().set_sort_column_id(0, gtk.SORT_DESCENDING)
+
+        # change the wrap width when the column width changes on the
+        # notes column
+        self.widgets.note_cell.props.wrap_mode = gtk.WRAP_WORD
+        def on_width(*args):
+            width = self.widgets.note_column.props.width
+            self.widgets.note_cell.props.wrap_width = width
+        self.widgets.note_column.connect('notify::width', on_width)
+
+        # vertically align the text in the cells to the top
+        self.widgets.date_cell.props.yalign = 0.0
+        self.widgets.category_cell.props.yalign = 0.0
+        self.widgets.note_cell.props.yalign = 0.0
 
 
     def update(self, row):
@@ -1282,6 +1299,9 @@ class NotesExpander(InfoExpander):
         model.clear()
         for note in row.notes:
             model.append([note.date, note.category, note.note])
+        # the 25 is arbitrary but should show enough of the tree for
+        # the notes but not all the notes
+        self.widgets.notes_treeview.set_size_request(-1, len(row.notes)*25)
 
 
 
