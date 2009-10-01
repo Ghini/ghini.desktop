@@ -4,6 +4,7 @@
 """
 Defines the plant table and handled editing plants
 """
+import itertools
 import os
 import sys
 import traceback
@@ -11,6 +12,7 @@ from random import random
 
 import gtk
 import gobject
+import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
@@ -68,7 +70,7 @@ def remove_callback(plants):
 
 
 edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
-                     accelerator='<ctrl>e')
+                     accelerator='<ctrl>e', multiselect=True)
 
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
@@ -414,7 +416,16 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
         # show the plants we are changing in the labels
         label = self.view.widgets.ped_plants_label
-        label.set_text(', '.join([str(p) for p in self.model]))
+        label_str = ''
+        getsid = lambda x: x.accession.species.id
+        for sid, group in itertools.groupby(self.model, getsid):
+            if label_str:
+                label_str += '\n'
+            plants = list(group)
+            s = '<b>%s</b>: %s' % (plants[0].accession.species_str(),
+                            ', '.join([str(p) for p in plants]))
+            label_str += s
+        label.set_markup(label_str)
 
         # on start hide the details until an action is chosen
         self.view.widgets.details_box.props.visible = False
@@ -423,7 +434,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
         if db.engine.name in ('postgres', 'postgresql'):
             import bauble.plugins.users as users
             self.view.set_widget_value('ped_user_entry', users.current_user())
-            # TODO: should we set the value to $USER if not postgres
         elif 'USER' in os.environ:
             self.view.set_widget_value('ped_user_entry', os.environ['USER'])
         elif 'USERNAME' in os.environ:
@@ -1244,7 +1254,7 @@ class TransferExpander(InfoExpander):
         '''
         # date: src to dest
         # TODO: remove previous children
-        debug(row.transfers)
+        #debug(row.transfers)
         for transfer in row.transfers:
             s = _('%s: %s to %s by') % (transfer.date, transfer.from_location,
                                      transfer.to_location, transfer.user)
@@ -1280,7 +1290,7 @@ class NotesExpander(InfoExpander):
 
         # change the wrap width when the column width changes on the
         # notes column
-        self.widgets.note_cell.props.wrap_mode = gtk.WRAP_WORD
+        self.widgets.note_cell.props.wrap_mode = pango.WRAP_WORD
         def on_width(*args):
             width = self.widgets.note_column.props.width
             self.widgets.note_cell.props.wrap_width = width
