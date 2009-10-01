@@ -229,12 +229,13 @@
                 <property name="show_expanders">False</property>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                    <property name="sizing">autosize</property>
                     <property name="title">Date</property>
                     <property name="clickable">True</property>
                     <property name="reorderable">True</property>
                     <property name="sort_indicator">True</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                      <object class="GtkCellRendererText" id="date_cell"/>
                       <attributes>
                         <attribute name="text">0</attribute>
                       </attributes>
@@ -243,12 +244,13 @@
                 </child>
                 <child>
                   <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                    <property name="sizing">autosize</property>
                     <property name="title">Category</property>
                     <property name="clickable">True</property>
                     <property name="reorderable">True</property>
                     <property name="sort_indicator">True</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                      <object class="GtkCellRendererText" id="category_cell"/>
                       <attributes>
                         <attribute name="text">1</attribute>
                       </attributes>
@@ -256,12 +258,14 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                  <object class="GtkTreeViewColumn" id="note_column">
+                    <property name="resizable">True</property>
+                    <property name="sizing">fixed</property>
                     <property name="title">Note</property>
                     <property name="clickable">True</property>
                     <property name="reorderable">True</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext3"/>
+                      <object class="GtkCellRendererText" id="note_cell"/>
                       <attributes>
                         <attribute name="text">2</attribute>
                       </attributes>
