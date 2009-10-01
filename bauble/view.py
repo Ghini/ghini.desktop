@@ -898,12 +898,17 @@ class SearchView(pluginmgr.View):
                 (len(selected)<=1 and action.singleselect)
             if not enabled:
                 continue
-            # if enabled the connect then accelerator
+            # if enabled then connect the accelerator
             keyval, mod = gtk.accelerator_parse(action.accelerator)
             if (keyval, mod) != (0, 0):
                 def cb(func):
                     def _impl(*args):
-                        if func(selected):
+                        # getting the selected here allows the
+                        # callback to be called on all the selected
+                        # values and not just the value where the
+                        # cursor is
+                        sel = self.get_selected_values()
+                        if func(sel):
                             self.reset_view()
                     return _impl
                 self.accel_group.connect_group(keyval, mod,
@@ -1304,8 +1309,7 @@ class SearchView(pluginmgr.View):
         self.results_view = gtk.TreeView() # will be a select results row
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
-        #self.results_view.set_fixed_height_mode(True)
-        #self.results_view.set_fixed_height_mode(False)
+        self.results_view.set_fixed_height_mode(True)
 
         selection = self.results_view.get_selection()
         selection.set_mode(gtk.SELECTION_MULTIPLE)
