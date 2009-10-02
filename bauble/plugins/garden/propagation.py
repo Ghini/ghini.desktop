@@ -83,6 +83,15 @@ leaves_values = {u'Intact': _('Intact'),
 flower_buds_values = {u'Removed': _('Removed'),
                       u'None': _('None')}
 
+wound_values = {u'No': _('No'),
+                u'Single': _('Singled'),
+                u'Double': _('Double'),
+                u'Slice': _('Slice')}
+
+hormone_values = {u'Liquid': _('Liquid'),
+                  u'Powder': _('Powder'),
+                  u'No': _('No')}
+
 
 class PropCutting(db.Base):
     """
@@ -95,7 +104,9 @@ class PropCutting(db.Base):
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
     length_units = Column(Unicode)
-    wounded = Column(Boolean)  # single/double/slice
+
+    # single/double/slice
+    wound = Column(types.Enum(values=wound_values.keys()))
 
     # removed/None
     flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
@@ -172,6 +183,7 @@ class PropagationPresenter(editor.GenericEditorPresenter):
         self.init_translatable_combo('cutting_tip_combo', tip_values)
         self.init_translatable_combo('cutting_leaves_combo', leaves_values)
         self.init_translatable_combo('cutting_buds_combo', leaves_values)
+        self.init_translatable_combo('cutting_wound_combo', wound_values)
 
         self.view.connect('prop_type_combo', 'changed',
                           self.on_prop_type_changed)
