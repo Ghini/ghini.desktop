@@ -68,22 +68,43 @@ class PropRooted(db.Base):
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
 
+cutting_type_values = {u'Nodal': _('Nodal'),
+                       u'InterNodal': _('Internodal'),
+                       u'Other': _('Other')}
+
+tip_values = {u'Intact': _('Intact'),
+              u'Removed': _('Removed'),
+              u'None': _('None')}
+
+leaves_values = {u'Intact': _('Intact'),
+                 u'Removed': _('Removed'),
+                 u'None': _('None')}
+
+flower_buds_values = {u'Removed': _('Removed'),
+                      u'None': _('None')}
+
+
 class PropCutting(db.Base):
     """
     A cutting
     """
     __tablename__ = 'prop_cutting'
-    cutting_type = Column(Unicode)
-    tip = Column(Unicode)
-    leaves = Column(Unicode)
+    cutting_type = Column(types.Enum(values=cutting_type_values.keys()))
+    tip = Column(types.Enum(values=tip_values.keys()))
+    leaves = Column(types.Enum(values=leaves_values.keys()))
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
     length_units = Column(Unicode)
     wounded = Column(Boolean)  # single/double/slice
-    flower_buds = Column(Unicode) # removed/None
+
+    # removed/None
+    flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
+
     fungal_soak_sol = Column(Unicode) # fungal soak solution
-    fungal_soak_sec = Column(Boolean)
-    hormone = Column(Unicode) # power/liquid....solution
+
+    #fungal_soak_sec = Column(Boolean)
+
+    hormone = Column(Unicode) # power/liquid/None....solution
 
     cover_type = Column(Unicode) # vispore, poly, plastic dome, poly bag
 
@@ -132,45 +153,30 @@ class PropSeed(db.Base):
 
 
 
-class PropagationEditorView(editor.GenericEditorView):
-    """
-    """
-
-    _tooltips = {}
-
-    def __init__(self, parent=None):
-        """
-        """
-        super(PropagationEditorView, self).\
-            __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
-                                  'prop_editor.glade'),
-                     parent=parent)
-
-    def get_window(self):
-        """
-        """
-        return self.widgets.prop_dialog
-
-
-    def start(self):
-        return self.get_window().run()
-
-
-class PropagationEditorPresenter(editor.GenericEditorPresenter):
+class PropagationPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'acc_code_entry': 'code'}
 
-    def __init__(self, model, view):
+
+    def __init__(self, parent, model, view, session):
         '''
         @param model: an instance of class Propagation
         @param view: an instance of PropagationEditorView
         '''
-        super(PropagationEditorPresenter, self).__init__(model, view)
-        self.session = object_session(model)
+        super(PropagationPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
 
         self.init_translatable_combo('prop_type_combo', prop_type_values)
+        self.init_translatable_combo('cutting_type_combo', cutting_type_values)
+        self.init_translatable_combo('cutting_tip_combo', tip_values)
+        self.init_translatable_combo('cutting_leaves_combo', leaves_values)
+        self.init_translatable_combo('cutting_buds_combo', leaves_values)
+
         self.view.connect('prop_type_combo', 'changed',
                           self.on_prop_type_changed)
+
+
 
 
     def on_prop_type_changed(self, combo, *args):
@@ -178,136 +184,15 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         prop_type = combo.get_model()[it][0]
         debug(prop_type)
 
+        prop_box_map = {u'Seed': self.view.widgets.seed_box,
+                        u'UnrootedCutting': self.view.widgets.cutting_box,
+                        u'Other': self.view.widgets.prop_notes_box}
 
-    def dirty(self):
-        pass
+        parent = self.view.widgets.prop_box_parent
+        prop_box = prop_box_map[prop_type]
+        child = parent.get_child()
+        if child:
+            parent.remove(child)
+        self.view.widgets.remove_parent(prop_box)
+        parent.add(prop_box)
 
-    def set_model_attr(self, field, value, validator=None):
-        """
-        Set attributes on the model and update the GUI as expected.
-        """
-        #debug('set_model_attr(%s, %s)' % (field, value))
-        super(PropagationEditorPresenter, self).set_model_attr(field, value,
-                                                               validator)
-
-    def refresh_sensitivity(self):
-        pass
-
-    def refresh_view(self):
-        pass
-
-    def start(self):
-        r = self.view.start()
-        return r
-
-
-class PropagationEditor(editor.GenericModelViewPresenterEditor):
-
-    label = _('Propagation')
-    mnemonic_label = _('_Propagation')
-
-    # these have to correspond to the response values in the view
-    RESPONSE_OK_AND_ADD = 11
-    RESPONSE_NEXT = 22
-    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
-
-
-    def __init__(self, model=None, parent=None):
-        '''
-        @param model: Propagation instance or None
-        @param parent: the parent widget
-        '''
-        # the view and presenter are created in self.start()
-        self.view = None
-        self.presenter = None
-        if model is None:
-            model = Propagation()
-        super(PropagationEditor, self).__init__(model, parent)
-        if not parent and bauble.gui:
-            parent = bauble.gui.window
-        self.parent = parent
-        self._committed = []
-
-        view = PropagationEditorView(parent=self.parent)
-        self.presenter = PropagationEditorPresenter(self.model, view)
-
-        # add quick response keys
-        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
-                             gtk.gdk.CONTROL_MASK)
-        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
-                             gtk.gdk.CONTROL_MASK)
-
-        # set the default focus
-        # if self.model.species is None:
-        #     view.widgets.acc_species_entry.grab_focus()
-        # else:
-        #     view.widgets.acc_code_entry.grab_focus()
-
-
-    def handle_response(self, response):
-        '''
-        handle the response from self.presenter.start() in self.start()
-        '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
-        if response == gtk.RESPONSE_OK or response in self.ok_responses:
-            try:
-                if self.presenter.dirty():
-                    self.commit_changes()
-                    self._committed.append(self.model)
-            except SQLError, e:
-                msg = _('Error committing changes.\n\n%s') % \
-                      utils.xml_safe_utf8(unicode(e.orig))
-                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
-                return False
-            except Exception, e:
-                msg = _('Unknown error when committing changes. See the '\
-                        'details for more information.\n\n%s') \
-                        % utils.xml_safe_utf8(e)
-                debug(traceback.format_exc())
-                utils.message_details_dialog(msg, traceback.format_exc(),
-                                             gtk.MESSAGE_ERROR)
-                self.session.rollback()
-                return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
-                 or not self.presenter.dirty():
-            self.session.rollback()
-            return True
-        else:
-            return False
-
-        # respond to responses
-        more_committed = None
-        if response == self.RESPONSE_NEXT:
-            self.presenter.cleanup()
-            e = PropagationEditor(parent=self.parent)
-            more_committed = e.start()
-
-        if more_committed is not None:
-            if isinstance(more_committed, list):
-                self._committed.extend(more_committed)
-            else:
-                self._committed.append(more_committed)
-
-        return True
-
-
-    def start(self):
-        # from bauble.plugins.plants.species_model import Species
-        # if self.session.query(Species).count() == 0:
-        #     msg = _('You must first add or import at least one species into '\
-        #                 'the database before you can add accessions.')
-        #     utils.message_dialog(msg)
-        #     return
-
-        while True:
-            response = self.presenter.start()
-            self.presenter.view.save_state()
-            if self.handle_response(response):
-                break
-
-        self.session.close() # cleanup session
-        self.presenter.cleanup()
-        return self._committed
