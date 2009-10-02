@@ -15,8 +15,9 @@ from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-from bauble.plugins.plants.geography import Geography
 import bauble.types as types
+from bauble.plugins.plants.geography import Geography
+import bauble.utils as utils
 from bauble.view import Action
 
 
