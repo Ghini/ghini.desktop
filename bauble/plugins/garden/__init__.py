@@ -22,8 +22,7 @@ from bauble.plugins.garden.donor import Donor, DonorEditor, \
     DonorInfoBox, donor_context_menu
 from bauble.plugins.garden.institution import InstitutionTool, \
     InstitutionCommand
-from bauble.plugins.garden.propagation import Propagation, PropagationEditor#,\
-    #PropagationInfoBox
+from bauble.plugins.garden.propagation import Propagation
 from bauble.utils.log import debug
 
 # other ideas:
@@ -94,7 +93,6 @@ class GardenPlugin(pluginmgr.Plugin):
             bauble.gui.add_to_insert_menu(AccessionEditor, _('Accession'))
             bauble.gui.add_to_insert_menu(AddPlantEditor, _('Plant'))
             bauble.gui.add_to_insert_menu(LocationEditor, _('Location'))
-            bauble.gui.add_to_insert_menu(PropagationEditor, _('Propagation'))
             #bauble.gui.add_to_insert_menu(DonorEditor, _('Donor'))
 
         # if the plant delimiter isn't in the bauble meta then add the default
