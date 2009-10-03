@@ -373,20 +373,29 @@ class PropagationTests(GardenTestCase):
     def __init__(self, *args):
         super(PropagationTests, self).__init__(*args)
 
+
     def setUp(self):
         super(PropagationTests, self).setUp()
+        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.session.commit()
 
 
     def tearDown(self):
         super(PropagationTests, self).tearDown()
 
-
     def test(self):
         prop = Propagation()
 
+
     def itest_editor(self):
-        editor = PropagationEditor()
-        editor.start()
+        from bauble.plugins.garden.propagation import PropagationEditor
+        propagation = Propagation()
+        propagation.prop_type = u'UnrootedCutting'
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        propagation = editor.start()
+        debug(propagation)
+        self.assert_(propagation.accession)
 
 
 class AccessionTests(GardenTestCase):
@@ -708,7 +717,7 @@ class AccessionTests(GardenTestCase):
             'AccessionEditorView not deleted'
 
 
-    def itest_accession_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantEditor
         """

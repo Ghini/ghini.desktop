@@ -32,9 +32,13 @@ import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 
+
 prop_type_values = {u'Seed': _("Seed"),
                     u'UnrootedCutting': _('Unrooted cutting'),
                     u'Other': _('Other')}
+
+
+# TODO: create an add propagation field to an accession context menu
 
 
 class Propagation(db.Base):
@@ -47,14 +51,39 @@ class Propagation(db.Base):
     prop_type = Column(types.Enum(values=prop_type_values.keys()),
                         default=u'UnrootedCutting')
     notes = Column(UnicodeText)
-
     accession_id = Column(Integer, ForeignKey('accession.id'),
                           nullable=False)
+    date = Column(types.Date)
+    #from bauble.plugins.garden import Accession
+    #accessions = relation(Accession, 'accession_id', backref='propagations')
+    _cutting = relation('PropCutting',
+                      primaryjoin='Propagation.id==PropCutting.propagation_id',
+                      cascade='all,delete-orphan', uselist=False,
+                      backref=backref('propagation', uselist=False))
+    _seed = relation('PropSeed',
+                     primaryjoin='Propagation.id==PropSeed.propagation_id',
+                     cascade='all,delete-orphan', uselist=False,
+                     backref=backref('propagation', uselist=False))
 
-    def __str__(self):
-        # what would the string be...???
-        # cuttings of self.accession.species_str() and accessin number
-        return repr(self)
+    def _get_details(self):
+        if self.prop_type == 'Seed':
+            return self._seed
+        elif self.prop_type == 'UnrootedCutting':
+            return self._cutting
+        else:
+            raise NotImplementedError
+
+    #def _set_details(self, details):
+    #    return self._details
+
+    details = property(_get_details)
+
+    def get_summary(self):
+        """
+        """
+        return str(self)
+
+
 
 
 
@@ -92,6 +121,8 @@ hormone_values = {u'Liquid': _('Liquid'),
                   u'Powder': _('Powder'),
                   u'No': _('No')}
 
+bottom_heat_unit_values = {u'F': _('\302\260F'),
+                           u'C': _('\302\260C')}
 
 class PropCutting(db.Base):
     """
@@ -111,18 +142,25 @@ class PropCutting(db.Base):
     # removed/None
     flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
 
-    fungal_soak_sol = Column(Unicode) # fungal soak solution
+    fungal_soak = Column(Unicode) # fungal soak solution
 
     #fungal_soak_sec = Column(Boolean)
 
     hormone = Column(Unicode) # power/liquid/None....solution
 
-    cover_type = Column(Unicode) # vispore, poly, plastic dome, poly bag
-
-    bottom_heat_temp = Column(Integer) # temperature of bottom heat
-    bottom_heat_unit = Column(Unicode) # F/C
+    cover_type = Column(Unicode)
 
     success = Column(Integer) # % of rooting took
+
+    compost = Column(Unicode)
+    container = Column(Unicode)
+    location = Column(Unicode)
+    cover = Column(Unicode) # vispore, poly, plastic dome, poly bag
+
+    bottom_heat_temp = Column(Integer) # temperature of bottom heat
+
+    # F/C
+    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys()))
 
     #aftercare = Column(UnicodeText) # same as propgation.notes
 
@@ -164,37 +202,227 @@ class PropSeed(db.Base):
 
 
 
-class PropagationPresenter(editor.GenericEditorPresenter):
+    def __str__(self):
+        # what would the string be...???
+        # cuttings of self.accession.species_str() and accessin number
+        return repr(self)
 
-    widget_to_field_map = {'acc_code_entry': 'code'}
 
+
+class PropagationTabPresenter(editor.GenericEditorPresenter):
+
+    def __init__(self, parent, model, view, session):
+        '''
+        @param parent: an instance of AccessionEditorPresenter
+        @param model: an instance of class Accession
+        @param view: an instance of AccessionEditorView
+        @param session:
+        '''
+        super(PropagationTabPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        self.view.connect('prop_add_button', 'clicked',
+                          self.on_add_button_clicked)
+        for prop in self.model.propagations:
+            self.create_propagation_box(prop)
+            self.view.widgets.prop_tab_box.pack_start(box, expand=False,
+                                                      fill=True)
+
+
+    def add_propagation(self):
+        # TODO: here the propagation editor doesn't commit the changes
+        # since the accession editor will commit the changes when its
+        # done...we should merge the propagation created by the
+        # PropagationEditor into the parent accession session and
+        # append it to the propagations relation so that when the
+        # parent editor is saved then the propagations are save with
+        # it
+
+        # open propagation editor
+        editor = PropagationEditor()
+        propagation = self.session.merge(editor.start(commit=False))
+        self.model.propagations.append(propagation)
+        box = self.create_propagation_box(propagation)
+        self.view.widgets.prop_tab_box.pack_start(box, expand=False, fill=True)
+
+
+    def create_propagation_box(self, propagation):
+        """
+        """
+        hbox = gtk.HBox()
+        expander = gtk.Expander()
+        hbox.pack_start(expander, expand=True, fill=True)
+        alignment = gtk.Alignment()
+        hbox.pack_start(alignment, expand=False, fill=False)
+        def on_clicked(button, propagation):
+            editor = PropagationEditor(model=propagation)
+            editor.start(commit=False)
+        button = gtk.Button(stock=gtk.STOCK_EDIT)
+        self.view.connect(button, 'clicked', on_clicked, propagation)
+        alignment.add(button)
+        # TODO: add a * to the propagation label for uncommitted propagations
+        prop_type = prop_type_values[propagation.prop_type]
+        title = ('%(prop_type)s on %(prop_date)s') \
+            % dict(prop_type=prop_type, prop_date=propagation.date)
+        expander.set_label(title)
+        label = gtk.Label(propagation.get_summary())
+        expander.add(label)
+        hbox.show_all()
+        return hbox
+
+
+
+    def remove_propagation(self):
+        """
+        """
+        pass
+
+
+    def on_add_button_clicked(self, *args):
+        """
+        """
+        self.add_propagation()
+
+
+
+
+class PropagationEditorView(editor.GenericEditorView):
+    """
+    """
+
+    _tooltips = {}
+
+    def __init__(self, parent=None):
+        """
+        """
+        super(PropagationEditorView, self).\
+            __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
+                                  'prop_editor.glade'),
+                     parent=parent)
+
+    def get_window(self):
+        """
+        """
+        return self.widgets.prop_dialog
+
+
+    def start(self):
+        return self.get_window().run()
+
+
+class CuttingPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'cutting_type_combo': 'cutting_type',
+                           'cutting_length_entry': 'length',
+                           'cutting_tip_combo': 'tip',
+                           'cutting_leaves_combo': 'leaves',
+                           'cutting_lvs_reduced_entry': 'leaves_reduced_pct',
+                           'cutting_buds_combo': 'flower_buds',
+                           'cutting_wound_combo': 'wound',
+                           'cutting_fungal_entry': 'fungal_soak',
+                           'cutting_hormone_entry': 'hormone',
+                           'cutting_location_entry': 'location',
+                           'cutting_cover_entry': 'cover',
+                           'cutting_heat_entry': 'bottom_heat',
+                           'cutting_heat_unit_combo': 'bottom_heat_unit'
+                           }
 
     def __init__(self, parent, model, view, session):
         '''
         @param model: an instance of class Propagation
         @param view: an instance of PropagationEditorView
         '''
-        super(PropagationPresenter, self).__init__(model, view)
+        super(CuttingPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
 
-        self.init_translatable_combo('prop_type_combo', prop_type_values)
+        # make the model for thie presenter a PropCutting instead of a
+        # Propagation
+        self.propagation = self.model
+        self.propagation._cutting = PropCutting()
+        self.model = self.model._cutting
+        #self.session.add(self.model)
+
         self.init_translatable_combo('cutting_type_combo', cutting_type_values)
         self.init_translatable_combo('cutting_tip_combo', tip_values)
         self.init_translatable_combo('cutting_leaves_combo', leaves_values)
         self.init_translatable_combo('cutting_buds_combo', leaves_values)
         self.init_translatable_combo('cutting_wound_combo', wound_values)
+        self.init_translatable_combo('cutting_heat_unit_combo',
+                                     bottom_heat_unit_values)
 
+        self.assign_simple_handler('cutting_type_combo', 'cutting_type')
+        self.assign_simple_handler('cutting_length_entry', 'length')
+        self.assign_simple_handler('cutting_tip_combo', 'tip')
+        self.assign_simple_handler('cutting_leaves_combo', 'leaves')
+        self.assign_simple_handler('cutting_lvs_reduced_entry',
+                                   'leaves_reduced_pct')
+        self.assign_simple_handler('cutting_buds_combo', 'flower_buds')
+        self.assign_simple_handler('cutting_wound_combo', 'wound')
+        self.assign_simple_handler('cutting_fungal_entry', 'fungal_soak')
+        self.assign_simple_handler('cutting_hormone_entry', 'hormone')
+        self.assign_simple_handler('cutting_location_entry', 'location')
+        self.assign_simple_handler('cutting_cover_entry', 'cover')
+        self.assign_simple_handler('cutting_heat_entry', 'bottom_heat')
+        self.assign_simple_handler('cutting_heat_unit_combo',
+                                   'bottom_heat_unit')
+
+    def refresh_view(self):
+        for widget, attr in widget_to_field_map.iteritems():
+            value = getattr(self.model, attr)
+            self.set_widget_value(widget, value)
+
+
+class SeedPresenter(editor.GenericEditorPresenter):
+
+    def __init__(self, parent, model, view, session):
+        '''
+        @param model: an instance of class Propagation
+        @param view: an instance of PropagationEditorView
+        '''
+        super(SeedPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+
+        self.propagation = self.model
+        self.propagation._seed = PropSeed()
+        self.model = self.model._seed
+
+
+class PropagationEditorPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'acc_code_entry': 'code'}
+
+    def __init__(self, model, view):
+        '''
+        @param model: an instance of class Propagation
+        @param view: an instance of PropagationEditorView
+        '''
+        super(PropagationEditorPresenter, self).__init__(model, view)
+        self.session = object_session(model)
+
+        # initialize the propagation type combo and set the initial value
+        self.init_translatable_combo('prop_type_combo', prop_type_values)
         self.view.connect('prop_type_combo', 'changed',
                           self.on_prop_type_changed)
+        if self.model.prop_type:
+            self.view.set_widget_value('prop_type_combo', self.model.prop_type)
 
+        # don't allow changing the propagation type if we are editing
+        # an existing propagation
+        if model not in self.session.new:
+            self.view.widgets.prop_type_box.props.visible = False
 
+        self._cutting_presenter = CuttingPresenter(self, self.model, self.view,
+                                                   self.session)
+        self._seed_presenter = SeedPresenter(self, self.model, self.view,
+                                                   self.session)
 
 
     def on_prop_type_changed(self, combo, *args):
         it = combo.get_active_iter()
         prop_type = combo.get_model()[it][0]
-        debug(prop_type)
+        self.set_model_attr('prop_type', prop_type)
 
         prop_box_map = {u'Seed': self.view.widgets.seed_box,
                         u'UnrootedCutting': self.view.widgets.cutting_box,
@@ -207,4 +435,135 @@ class PropagationPresenter(editor.GenericEditorPresenter):
             parent.remove(child)
         self.view.widgets.remove_parent(prop_box)
         parent.add(prop_box)
+
+
+    def dirty(self):
+        pass
+
+
+    def set_model_attr(self, field, value, validator=None):
+        """
+        Set attributes on the model and update the GUI as expected.
+        """
+        #debug('set_model_attr(%s, %s)' % (field, value))
+        super(PropagationEditorPresenter, self).set_model_attr(field, value,
+                                                               validator)
+
+    def refresh_sensitivity(self):
+        pass
+
+    def refresh_view(self):
+        pass
+
+    def start(self):
+        r = self.view.start()
+        return r
+
+
+class PropagationEditor(editor.GenericModelViewPresenterEditor):
+
+    label = _('Propagation')
+    mnemonic_label = _('_Propagation')
+
+    # these have to correspond to the response values in the view
+    RESPONSE_OK_AND_ADD = 11
+    RESPONSE_NEXT = 22
+    ok_responses = (RESPONSE_OK_AND_ADD, RESPONSE_NEXT)
+
+
+    def __init__(self, model=None, parent=None):
+        '''
+        @param model: Propagation instance or None
+        @param parent: the parent widget
+        '''
+        # the view and presenter are created in self.start()
+        self.view = None
+        self.presenter = None
+        if model is None:
+            model = Propagation()
+        super(PropagationEditor, self).__init__(model, parent)
+        if not parent and bauble.gui:
+            parent = bauble.gui.window
+        self.parent = parent
+
+        view = PropagationEditorView(parent=self.parent)
+        self.presenter = PropagationEditorPresenter(self.model, view)
+
+        # add quick response keys
+        self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_OK_AND_ADD, 'k',
+                             gtk.gdk.CONTROL_MASK)
+        self.attach_response(view.get_window(), self.RESPONSE_NEXT, 'n',
+                             gtk.gdk.CONTROL_MASK)
+
+        # set the default focus
+        # if self.model.species is None:
+        #     view.widgets.acc_species_entry.grab_focus()
+        # else:
+        #     view.widgets.acc_code_entry.grab_focus()
+
+
+    def handle_response(self, response, commit=True):
+        '''
+        handle the response from self.presenter.start() in self.start()
+        '''
+        not_ok_msg = 'Are you sure you want to lose your changes?'
+        if response == gtk.RESPONSE_OK or response in self.ok_responses:
+            try:
+                debug(self.model)
+                debug(self.model.details)
+                if self.model.prop_type == u'UnrootedCutting':
+                    utils.delete_or_expunge(self.model._seed)
+                    #self.session.expunge(self.model._seed)
+                    self.model._seed = None
+                    del self.model._seed
+                elif self.model.prop_type == u'Seed':
+                    utils.delete_or_expunge(self.model._cutting)
+                    #self.session.expunge(self.model._cutting)
+                    self.model._seed = None
+                    del self.model._cutting
+
+                if self.presenter.dirty() and commit:
+                    self.commit_changes()
+            except SQLError, e:
+                msg = _('Error committing changes.\n\n%s') % \
+                      utils.xml_safe_utf8(unicode(e.orig))
+                utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
+                self.session.rollback()
+                return False
+            except Exception, e:
+                msg = _('Unknown error when committing changes. See the '\
+                        'details for more information.\n\n%s') \
+                        % utils.xml_safe_utf8(e)
+                debug(traceback.format_exc())
+                utils.message_details_dialog(msg, traceback.format_exc(),
+                                             gtk.MESSAGE_ERROR)
+                self.session.rollback()
+                return False
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
+                 or not self.presenter.dirty():
+            self.session.rollback()
+            return True
+        else:
+            return False
+
+        return True
+
+
+    def start(self, commit=True):
+        while True:
+            response = self.presenter.start()
+            self.presenter.view.save_state()
+            if self.handle_response(response, commit):
+                break
+
+        self.session.close() # cleanup session
+        self.presenter.cleanup()
+        return self.model
+
+
+
+
+
 

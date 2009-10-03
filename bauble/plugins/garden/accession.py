@@ -34,7 +34,7 @@ from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.propagation import Propagation, \
-    PropagationPresenter
+    PropagationTabPresenter
 from bauble.plugins.garden.source import CollectionPresenter, \
     DonationPresenter
 
@@ -377,7 +377,9 @@ class Accession(db.Base):
                       backref=backref('accession', uselist=False))
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
-                             backref='accession')
+                             backref=backref('accession', uselist=False))
+    propagations = relation('Propagation', cascade='all, delete-orphan',
+                            backref=backref('accession', uselist=False))
 
 
     def __init__(self, *args, **kwargs):
@@ -897,8 +899,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                                                    self.session)
         #self.voucher_presenter = VoucherPresenter()
 
-        self.prop_presenter = PropagationPresenter(self, self.model, self.view,
-                                                   self.session)
+        self.prop_presenter = PropagationTabPresenter(self, self.model,
+                                                      self.view, self.session)
 
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
