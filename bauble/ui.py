@@ -135,6 +135,7 @@ class GUI(object):
 
 
     def show_yesno_box(self, msg):
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_YESNO)
         box.message = msg
@@ -142,6 +143,7 @@ class GUI(object):
 
 
     def show_error_box(self, msg, details=None):
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
@@ -157,6 +159,7 @@ class GUI(object):
         """
         Show an info message in the message drop down box
         """
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
