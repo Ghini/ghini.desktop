@@ -1041,10 +1041,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
+        presenters = [self.ver_presenter, self.prop_presenter]
         if self.source_presenter is None:
-            return self.__dirty or self.ver_presenter.dirty()
+            return self.__dirty or True in [p.dirty() for p in presenters]
         return self.source_presenter.dirty() or self.__dirty or \
-            self.ver_presenter.dirty()
+            True in [p.dirty() for p in presenters]
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
@@ -1272,9 +1273,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
 class AccessionEditor(editor.GenericModelViewPresenterEditor):
-
-    label = _('Accession')
-    mnemonic_label = _('_Accession')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11

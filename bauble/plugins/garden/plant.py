@@ -642,10 +642,10 @@ class PlantEditor(GenericModelViewPresenterEditor):
         #debug(action)
         if action == 'Removal':
             action_model = self.presenter._removal
-            self._presenter._note.category = action
+            self.presenter._note.category = action
         elif action == 'Transfer':
             action_model = self.presenter._transfer
-            self._presenter._note.category = action
+            self.presenter._note.category = action
         elif action == 'AddNote':
             action_model = self.presenter._note
             debug(action_model.category)

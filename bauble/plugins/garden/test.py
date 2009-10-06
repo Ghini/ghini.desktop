@@ -9,7 +9,8 @@ from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
+    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms, \
+    Verification
 from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
 from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
@@ -484,7 +485,8 @@ class AccessionTests(GardenTestCase):
         """
         acc = self.create(Accession, species=self.species, code=u'1')
         plant = self.create(Plant, accession=acc,
-                            location=Location(name=u'site'), code=u'1')
+                            location=Location(name=u'site', code=u'STE'), 
+                            code=u'1')
         self.session.commit()
 
         # test that the plant is deleted after being orphaned
@@ -793,7 +795,7 @@ class LocationTests(GardenTestCase):
 
     def test_location_editor(self):
         #loc = self.create(Location, name=u'some site')
-        loc = Location(name=u'some site')
+        loc = Location(name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         #editor.presenter.view.dialog.hide_all()
         update_gui()
@@ -842,7 +844,7 @@ class LocationTests(GardenTestCase):
         """
         Interactively test the PlantEditor
         """
-        loc = self.create(Location, name=u'some site')
+        loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         editor.start()
         del editor
