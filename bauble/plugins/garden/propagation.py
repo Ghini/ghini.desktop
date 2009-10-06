@@ -85,8 +85,6 @@ class Propagation(db.Base):
 
 
 
-
-
 class PropRooted(db.Base):
     """
     Rooting dates for cutting
@@ -174,8 +172,7 @@ class PropSeed(db.Base):
     __tablename__ = 'prop_seed'
     pretreatment = Column(UnicodeText)
     nseeds = Column(Integer)
-    date_sowed = Column(Date)
-
+    date_sown = Column(Date)
     container = Column(Unicode) # 4" pot plug tray, other
     compost = Column(Unicode) # seedling media, sphagnum, other
 
@@ -227,6 +224,14 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
             self.create_propagation_box(prop)
             self.view.widgets.prop_tab_box.pack_start(box, expand=False,
                                                       fill=True)
+        self.__dirty = False
+
+
+    def dirty(self):
+        debug(self.__dirty)
+        debug([p in self.session.dirty for p in self.model.propagations])
+        return self.__dirty or \
+            True in [p in self.session.dirty for p in self.model.propagations]
 
 
     def add_propagation(self):
@@ -239,11 +244,12 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         # it
 
         # open propagation editor
-        editor = PropagationEditor()
+        editor = PropagationEditor(parent=self.view.get_window())
         propagation = self.session.merge(editor.start(commit=False))
         self.model.propagations.append(propagation)
         box = self.create_propagation_box(propagation)
         self.view.widgets.prop_tab_box.pack_start(box, expand=False, fill=True)
+        self.__dirty = True
 
 
     def create_propagation_box(self, propagation):
@@ -255,7 +261,8 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         alignment = gtk.Alignment()
         hbox.pack_start(alignment, expand=False, fill=False)
         def on_clicked(button, propagation):
-            editor = PropagationEditor(model=propagation)
+            editor = PropagationEditor(model=propagation,
+                                       parent=self.view.get_window())
             editor.start(commit=False)
         button = gtk.Button(stock=gtk.STOCK_EDIT)
         self.view.connect(button, 'clicked', on_clicked, propagation)
@@ -282,7 +289,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         """
         """
         self.add_propagation()
-
+        self.parent_ref().refresh_sensitivity()
 
 
 
@@ -310,6 +317,7 @@ class PropagationEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
 
+
 class CuttingPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'cutting_type_combo': 'cutting_type',
@@ -323,7 +331,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                            'cutting_hormone_entry': 'hormone',
                            'cutting_location_entry': 'location',
                            'cutting_cover_entry': 'cover',
-                           'cutting_heat_entry': 'bottom_heat',
+                           'cutting_heat_entry': 'bottom_heat_temp',
                            'cutting_heat_unit_combo': 'bottom_heat_unit'
                            }
 
@@ -351,6 +359,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.init_translatable_combo('cutting_heat_unit_combo',
                                      bottom_heat_unit_values)
 
+        self.refresh_view()
+
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
         self.assign_simple_handler('cutting_length_entry', 'length')
         self.assign_simple_handler('cutting_tip_combo', 'tip')
@@ -363,17 +373,32 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_hormone_entry', 'hormone')
         self.assign_simple_handler('cutting_location_entry', 'location')
         self.assign_simple_handler('cutting_cover_entry', 'cover')
-        self.assign_simple_handler('cutting_heat_entry', 'bottom_heat')
+        self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
 
     def refresh_view(self):
-        for widget, attr in widget_to_field_map.iteritems():
+        for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
-            self.set_widget_value(widget, value)
+            self.view.set_widget_value(widget, value)
+
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {'seed_pretreatment_textview': 'pretreatment',
+                           'seed_nseeds_entry': 'nseeds',
+                           'seed_sown_entry': 'date_sown',
+                           'seed_container_comboentry': 'container',
+                           'seed_media_comboentry': 'compost',
+                           'seed_location_comboentry': 'location',
+                           'seed_mvdfrom_entry': 'moved_from',
+                           'seed_mvdto_entry': 'moved_to',
+                           'seed_germdate_entry': 'germ_date',
+                           'seed_ngerm_entry': 'nseedling',
+                           'seed_pctgerm_entry': 'germ_pct',
+                           'seed_date_planted_entry': 'date_planted'}
+
 
     def __init__(self, parent, model, view, session):
         '''
@@ -388,10 +413,32 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.propagation._seed = PropSeed()
         self.model = self.model._seed
 
+        self.refresh_view()
+
+        self.assign_simple_handler('seed_pretreatment_textview','pretreatment')
+        self.assign_simple_handler('seed_nseeds_entry', 'nseeds')
+        self.assign_simple_handler('seed_sown_entry', 'date_sown')
+        self.assign_simple_handler('seed_container_comboentry', 'container')
+        self.assign_simple_handler('seed_media_comboentry', 'compost')
+        self.assign_simple_handler('seed_location_comboentry', 'location')
+        self.assign_simple_handler('seed_mvdfrom_entry', 'moved_from')
+        self.assign_simple_handler('seed_mvdto_entry', 'moved_to')
+        self.assign_simple_handler('seed_germdate_entry', 'germ_date')
+        self.assign_simple_handler('seed_ngerm_entry', 'nseedling')
+        self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
+        self.assign_simple_handler('seed_date_planted_entry', 'date_planted')
+
+
+    def refresh_view(self):
+        for widget, attr in self.widget_to_field_map.iteritems():
+            value = getattr(self.model, attr)
+            self.view.set_widget_value(widget, value)
+
 
 class PropagationEditorPresenter(editor.GenericEditorPresenter):
 
-    widget_to_field_map = {'acc_code_entry': 'code'}
+    widget_to_field_map = {'prop_type_combo': 'prop_type',
+                           'prop_date_entry': 'date'}
 
     def __init__(self, model, view):
         '''
@@ -410,13 +457,25 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
 
         # don't allow changing the propagation type if we are editing
         # an existing propagation
-        if model not in self.session.new:
+        if model not in self.session.new or self.model.prop_type:
             self.view.widgets.prop_type_box.props.visible = False
+        elif not self.model.prop_type:
+            self.view.widgets.prop_type_box.props.visible = True
+            self.view.widgets.prop_box_parent.props.visible = False
 
         self._cutting_presenter = CuttingPresenter(self, self.model, self.view,
                                                    self.session)
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
                                                    self.session)
+
+        self.assign_simple_handler('prop_date_entry', 'date')
+        if not self.model.date:
+            # set it to empty first b/c if we set the date and its the
+            # same as the date string already in the entry then it
+            # won't fire the 'changed' signal
+            self.view.set_widget_value(self.view.widgets.prop_date_entry, '')
+            self.view.set_widget_value(self.view.widgets.prop_date_entry,
+                                       utils.today_str())
 
 
     def on_prop_type_changed(self, combo, *args):
@@ -435,6 +494,7 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
             parent.remove(child)
         self.view.widgets.remove_parent(prop_box)
         parent.add(prop_box)
+        self.view.widgets.prop_box_parent.props.visible = True
 
 
     def dirty(self):
@@ -461,9 +521,6 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
 
 
 class PropagationEditor(editor.GenericModelViewPresenterEditor):
-
-    label = _('Propagation')
-    mnemonic_label = _('_Propagation')
 
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
