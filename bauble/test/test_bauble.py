@@ -44,7 +44,44 @@ class BaubleTests(BaubleTestCase):
         """
         Test bauble.types.Date
         """
-        pass
+        import bauble.prefs as prefs
+        dt = bauble.types.Date()
+
+        bauble.types.Date._dayfirst = False
+        bauble.types.Date._yearfirst = False
+        s = '12-30-2008'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.month==12 and v.day==30 and v.year==2008,
+                     '%s == %s' % (v, s))
+
+        bauble.types.Date._dayfirst = True
+        bauble.types.Date._yearfirst = False
+        s = '30-12-2008'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.month==12 and v.day==30 and v.year==2008,
+                     '%s == %s' % (v, s))
+
+
+        bauble.types.Date._dayfirst = False
+        bauble.types.Date._yearfirst = True
+        s = '2008-12-30'
+        v = dt.process_bind_param(s, None)
+        self.assert_(v.month==12 and v.day==30 and v.year==2008,
+                     '%s == %s' % (v, s))
+
+        # TODO: python-dateutil 1.4.1 has a bug where dayfirst=True,
+        # yearfirst=True always parses as dayfirst=False
+
+        # bauble.types.Date._dayfirst = True
+        # bauble.types.Date._yearfirst = True
+        # debug('--')
+        # s = '2008-30-12'
+        # #s = '2008-12-30'
+        # debug(s)
+        # v = dt.process_bind_param(s, None)
+        # debug(v)
+        # self.assert_(v.month==12 and v.day==30 and v.year==2008,
+        #              '%s == %s' % (v, s))
 
 
     def test_datetime_type(self):
@@ -53,23 +90,26 @@ class BaubleTests(BaubleTestCase):
         """
         dt = bauble.types.DateTime()
 
+        # TODO: *** this needs to be updated since now we don't do our
+        # own date parsing and use the dateutils module instead
+
         # with negative timezone
         s = '2008-12-1 11:50:01.001-05:00'
-        result = '2008-12-01 11:50:01.000001-05:00'
+        result = '2008-12-01 11:50:01.001000-05:00'
         v = dt.process_bind_param(s, None)
-        self.assert_(v.isoformat(' ') == result)
+        self.assert_(str(v) == result, '%s == %s' % (v, result))
 
         # test with positive timezone
         s = '2008-12-1 11:50:01.001+05:00'
-        result = '2008-12-01 11:50:01.000001+05:00'
+        result = '2008-12-01 11:50:01.001000+05:00'
         v = dt.process_bind_param(s, None)
-        self.assert_(v.isoformat(' ') == result)
+        self.assert_(str(v) == result, '%s == %s' % (v, result))
 
         # test with no timezone
         s = '2008-12-1 11:50:01.001'
-        result = '2008-12-01 11:50:01.000001'
+        result = '2008-12-01 11:50:01.001000'
         v = dt.process_bind_param(s, None)
-        self.assert_(v.isoformat(' ') == result)
+        self.assert_(str(v) == result, '%s == %s' % (v, result))
 
         # test with no milliseconds
         s = '2008-12-1 11:50:01'
