@@ -203,7 +203,8 @@ unknown_location_name = u'(unknown)'
 unknown_location_code = u'UNK'
 if options.stage == '0':
     location_table.insert().values(code=unknown_location_code,
-                                   name=unknown_location_name).execute().close()unknown_location_id = get_column_value(location_table.c.id,
+                                  name=unknown_location_name).execute().close()
+unknown_location_id = get_column_value(location_table.c.id,
                               location_table.c.code==unknown_location_code)
 
 
