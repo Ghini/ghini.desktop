@@ -5,10 +5,10 @@
 import sys, os
 import gtk
 import bauble
-import bauble.utils as utils
+#import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import debug, warning
+#from bauble.utils.log import debug, warning
 
 # TODO: include the version of the database in the prefs so that if the prefs
 # are opened with a different version then the user will know and possible
@@ -41,6 +41,11 @@ security_prefs_icon = os.path.join(prefs_icon_dir, 'prefs_security.png')
 
 config_version_pref = 'bauble.config.version'
 config_version = bauble.version_tuple[0], bauble.version_tuple[1]
+
+date_format_pref = 'bauble.default_date_format'
+parse_dayfirst_pref = 'bauble.parse_dayfirst'
+parse_yearfirst_pref = 'bauble.parse_yearfirst'
+
 
 ## class PreferencesMgr(gtk.Dialog):
 
@@ -142,9 +147,26 @@ class _prefs(dict):
             self.config.read(self._filename)
         version = self[config_version_pref]
         if version is None:
+            from bauble.utils.log import warning
             warning('%s has no config version pref' % self._filename)
             warning('setting the config version to %s.%s' % (config_version))
 	    self[config_version_pref] = config_version
+
+        # set some defaults if they don't exist
+        if date_format_pref not in self:
+            self[date_format_pref] = '%d-%m-%Y'
+        if parse_dayfirst_pref not in self:
+            format = self[date_format_pref]
+            if format.find('%d') < format.find('%m'):
+                self[parse_dayfirst_pref] = True
+            else:
+                self[parse_dayfirst_pref] = False
+        if parse_yearfirst_pref not in self:
+            format = self[date_format_pref]
+            if format.find('%Y') == 0 or format.find('%y'):
+                self[parse_yearfirst_pref] = True
+            else:
+                self[parse_yearfirst_pref] = False
 
 
     @staticmethod
@@ -209,6 +231,7 @@ class _prefs(dict):
                     "check the file permissions of your config file:\n %s" \
                     % self._filename)
             if bauble.gui is not None and bauble.gui.window is not None:
+                import bauble.utils as utils
                 utils.message_dialog(msg, type=gtk.MESSAGE_ERROR,
                                      parent=bauble.gui.window)
 

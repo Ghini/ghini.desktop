@@ -9,7 +9,8 @@ import sqlalchemy.types as types
 import sqlalchemy.exc as exc
 
 import bauble.error as error
-from bauble.utils.log import debug
+#import bauble.prefs as prefs
+#from bauble.utils.log import debug
 
 # TODO: store all times as UTC or support timezones
 
@@ -73,22 +74,22 @@ class Enum(types.TypeDecorator):
 
 
 
-class tzinfo(datetime.tzinfo):
+# class tzinfo(datetime.tzinfo):
 
-    """
-    A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
-    """
-    def __init__(self, name):
-        super(tzinfo, self).__init__()
-        self._tzname = name
-        hours, minutes = [int(v) for v in name.split(':')]
-        self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
+#     """
+#     A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
+#     """
+#     def __init__(self, name):
+#         super(tzinfo, self).__init__()
+#         self._tzname = name
+#         hours, minutes = [int(v) for v in name.split(':')]
+#         self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
 
-    def tzname(self):
-        return self._tzname
+#     def tzname(self):
+#         return self._tzname
 
-    def utcoffset(self, dt):
-        return self._utcoffset
+#     def utcoffset(self, dt):
+#         return self._utcoffset
 
 
 
@@ -104,7 +105,15 @@ class DateTime(types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         if not isinstance(value, basestring):
             return value
-        return date_parser.parse(value)
+        try:
+            DateTime._dayfirst
+            DateTime._yearfirst
+        except AttributeError:
+            import bauble.prefs as prefs
+            DateTime._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+            DateTime._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        return date_parser.parse(value, dayfirst=DateTime._dayfirst,
+                                 yearfirst=DateTime._yearfirst)
 
 
     def process_result_value(self, value, dialect):
@@ -122,13 +131,19 @@ class Date(types.TypeDecorator):
     """
     impl = types.Date
 
-    # TODO: *** important, we need somewhere to set dayfirst,
-    # monthfirst in the prefs which would effect the date types
-
     def process_bind_param(self, value, dialect):
         if not isinstance(value, basestring):
             return value
-        return date_parser.parse(value).date()
+        try:
+            Date._dayfirst
+            Date._yearfirst
+        except AttributeError:
+            import bauble.prefs as prefs
+            Date._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+            Date._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        from bauble.utils.log import debug
+        return date_parser.parse(value, dayfirst=Date._dayfirst,
+                                 yearfirst=Date._yearfirst).date()
 
 
     def process_result_value(self, value, dialect):

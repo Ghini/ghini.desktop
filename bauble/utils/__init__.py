@@ -282,6 +282,10 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
         widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox):
         # handles gtk.ComboBox and gtk.ComboBoxEntry
+        if not widget.get_model():
+            warning('utils.set_widget_value(): '\
+                        'combo doesn\'t have a model: %s' % widget.get_name())
+            return
         treeiter = combo_get_value_iter(widget, value,
                                 cmp = lambda row, value: row[index] == value)
         if treeiter:
@@ -506,6 +510,28 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
 
 
 
+def prettify_format(format):
+    """
+    Return the date format in a more human readable form.
+    """
+    f = format.replate('%Y', 'yyyy')
+    f = f.replace('%m', 'mm')
+    f = f.replace('%d', 'dd')
+    return f
+
+
+def today_str(format=None):
+    """
+    Return a string for of today's date according to format.
+    """
+    import bauble.prefs as prefs
+    if not format:
+        format = prefs.prefs[prefs.date_format_pref]
+    import datetime
+    today = datetime.date.today()
+    return today.strftime(format)
+
+
 def setup_date_button(entry, button, date_func=None):
     """
     :param entry: the entry that the data goes into
@@ -525,7 +551,10 @@ def setup_date_button(entry, button, date_func=None):
         if not date_func:
             import datetime
             today = datetime.date.today()
-            s = '%s/%s/%s' % (today.day, today.month, today.year)
+            # TODO: once we have the option to change whether the
+            # month is first or the day is first this should be set accordingly
+            #s = '%s/%s/%s' % (today.day, today.month, today.year)
+            s = today_str()
         else:
             s = date_func()
         entry.set_text(s)
@@ -677,30 +706,6 @@ def reset_sequence(column):
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
                                     db.engine.name))
-
-# TODO: always req month and year, day can be optional, what about a
-# flag to make the day optional, like?
-def date_to_str(date, format):
-    """
-    :param data: a datetime object
-    :param format: the format of the string to return, uses:
-      yyyy,yy,d,dd,m,mm
-
-    We don't do any validation that the format is correct or invalid
-    """
-    import re
-    s = format.replace('yyyy', str(date.year))
-    month = date.month
-    if month < 10:
-        month = '0%s' % month
-    s = s.replace('mm', str(month))
-    s = s.replace('m', str(date.month))
-    day = date.day
-    if day < 10:
-        day = '0%s' % day
-    s = s.replace('dd', str(day))
-    s = s.replace('d', str(date.day))
-    return s
 
 
 def make_label_clickable(label, on_clicked, *args):
