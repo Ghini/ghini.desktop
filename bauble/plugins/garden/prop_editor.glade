@@ -21,12 +21,12 @@
                 <property name="visible">True</property>
                 <property name="spacing">15</property>
                 <child>
-                  <object class="GtkFrame" id="frame2">
+                  <object class="GtkFrame" id="prop_type_frame">
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment2">
+                      <object class="GtkAlignment" id="prop_type_align">
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
@@ -51,12 +51,12 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkFrame" id="frame1">
+                  <object class="GtkFrame" id="prop_date_from">
                     <property name="visible">True</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
-                      <object class="GtkAlignment" id="alignment1">
+                      <object class="GtkAlignment" id="prop_date_align">
                         <property name="visible">True</property>
                         <property name="left_padding">12</property>
                         <child>
@@ -170,7 +170,7 @@
             <property name="visible">True</property>
             <property name="spacing">15</property>
             <child>
-              <object class="GtkFrame" id="frame1">
+              <object class="GtkFrame" id="cutting_type_frame">
                 <property name="visible">True</property>
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
@@ -257,7 +257,7 @@
                 <property name="label_xalign">0</property>
                 <property name="shadow_type">none</property>
                 <child>
-                  <object class="GtkAlignment" id="alignment2">
+                  <object class="GtkAlignment" id="cutting_tip_align">
                     <property name="visible">True</property>
                     <property name="left_padding">12</property>
                     <child>

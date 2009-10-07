@@ -90,7 +90,7 @@ class PropRooted(db.Base):
     Rooting dates for cutting
     """
     __tablename__ = 'prop_cutting_rooted'
-    date = Column(Date)
+    date = Column(types.Date)
     quantity = Column(Integer)
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
@@ -172,7 +172,7 @@ class PropSeed(db.Base):
     __tablename__ = 'prop_seed'
     pretreatment = Column(UnicodeText)
     nseeds = Column(Integer)
-    date_sown = Column(Date)
+    date_sown = Column(types.Date)
     container = Column(Unicode) # 4" pot plug tray, other
     compost = Column(Unicode) # seedling media, sphagnum, other
 
@@ -188,11 +188,11 @@ class PropSeed(db.Base):
     moved_to = Column(Unicode)
     moved_date = Column(Unicode)
 
-    germ_date = Column(Date)
+    germ_date = Column(types.Date)
 
     nseedling = Column(Integer) # number of seedling
     germ_pct = Column(Integer) # % of germination
-    date_planted = Column(Date)
+    date_planted = Column(types.Date)
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
@@ -351,7 +351,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.model = self.model._cutting
         #self.session.add(self.model)
 
-        self.init_translatable_combo('cutting_type_combo', cutting_type_values)
+        self.init_translatable_combo('cutting_type_combo', cutting_type_values,
+                                     editor.UnicodeOrNoneValidator())
         self.init_translatable_combo('cutting_tip_combo', tip_values)
         self.init_translatable_combo('cutting_leaves_combo', leaves_values)
         self.init_translatable_combo('cutting_buds_combo', leaves_values)
@@ -369,10 +370,14 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                                    'leaves_reduced_pct')
         self.assign_simple_handler('cutting_buds_combo', 'flower_buds')
         self.assign_simple_handler('cutting_wound_combo', 'wound')
-        self.assign_simple_handler('cutting_fungal_entry', 'fungal_soak')
-        self.assign_simple_handler('cutting_hormone_entry', 'hormone')
-        self.assign_simple_handler('cutting_location_entry', 'location')
-        self.assign_simple_handler('cutting_cover_entry', 'cover')
+        self.assign_simple_handler('cutting_fungal_entry', 'fungal_soak',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('cutting_hormone_entry', 'hormone',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('cutting_location_entry', 'location',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('cutting_cover_entry', 'cover',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
@@ -415,14 +420,20 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
         self.refresh_view()
 
-        self.assign_simple_handler('seed_pretreatment_textview','pretreatment')
+        self.assign_simple_handler('seed_pretreatment_textview','pretreatment',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_nseeds_entry', 'nseeds')
         self.assign_simple_handler('seed_sown_entry', 'date_sown')
-        self.assign_simple_handler('seed_container_comboentry', 'container')
-        self.assign_simple_handler('seed_media_comboentry', 'compost')
-        self.assign_simple_handler('seed_location_comboentry', 'location')
-        self.assign_simple_handler('seed_mvdfrom_entry', 'moved_from')
-        self.assign_simple_handler('seed_mvdto_entry', 'moved_to')
+        self.assign_simple_handler('seed_container_comboentry', 'container',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('seed_media_comboentry', 'compost',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('seed_location_comboentry', 'location',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('seed_mvdfrom_entry', 'moved_from',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('seed_mvdto_entry', 'moved_to',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_germdate_entry', 'germ_date')
         self.assign_simple_handler('seed_ngerm_entry', 'nseedling')
         self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
@@ -568,8 +579,8 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         not_ok_msg = 'Are you sure you want to lose your changes?'
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                debug(self.model)
-                debug(self.model.details)
+                #debug(self.model)
+                #debug(self.model.details)
                 if self.model.prop_type == u'UnrootedCutting':
                     utils.delete_or_expunge(self.model._seed)
                     #self.session.expunge(self.model._seed)
@@ -578,7 +589,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 elif self.model.prop_type == u'Seed':
                     utils.delete_or_expunge(self.model._cutting)
                     #self.session.expunge(self.model._cutting)
-                    self.model._seed = None
+                    self.model._cutting = None
                     del self.model._cutting
 
                 if self.presenter.dirty() and commit:

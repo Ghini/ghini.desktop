@@ -419,7 +419,10 @@ class GenericEditorPresenter(object):
             problem_widgets.queue_draw()
 
 
-    def init_translatable_combo(self, combo, translations):
+    # TODO: add the ability to pass a sort function
+    # TODO: add a default value to set in the combo
+    def init_translatable_combo(self, combo, translations, default=None,
+                                cmp=None):
         """
         Initialize a gtk.ComboBox with translations values where
         model[row][0] is the value that will be stored in the database
@@ -519,13 +522,22 @@ class GenericEditorPresenter(object):
             # this also handles gtk.ComboBoxEntry since it extends
             # gtk.ComboBox
             def changed(combo, data=None):
+                #debug('changed')
                 model = combo.get_model()
-                if model is None:
-                    return
-                i = combo.get_active_iter()
-                if i is None:
-                    return
-                data = combo.get_model()[combo.get_active_iter()][0]
+                if not isinstance(combo, gtk.ComboBoxEntry):
+                    if model is None:
+                        #debug('return 1')
+                        return
+                    i = combo.get_active_iter()
+                    if i is None:
+                        #debug('return 2')
+                        return
+                    data = combo.get_model()[combo.get_active_iter()][0]
+                else:
+                    #debug('IS')
+                    data = combo.child.props.text
+                #data = combo.get_model()[combo.get_active_iter()][0]
+                #debug('%s=%s' % (model_attr, data))
                 if isinstance(widget, gtk.ComboBoxEntry):
                     widget.child.set_text(str(data))
                 self.set_model_attr(model_attr, data, validator)
