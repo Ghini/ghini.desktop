@@ -1,8 +1,10 @@
 import unittest
 
+import gtk
 from nose import SkipTest
 from sqlalchemy import *
 from sqlalchemy.exc import *
+from sqlalchemy.orm import *
 
 from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui
@@ -384,8 +386,89 @@ class PropagationTests(GardenTestCase):
     def tearDown(self):
         super(PropagationTests, self).tearDown()
 
-    def test(self):
-        prop = Propagation()
+
+    def test_cutting_editor(self):
+        values = {'cutting_type': u'Nodal',
+                  'length': 2,
+                  'tip': u'Intact',
+                  'leaves': u'Intact',
+                  'leaves_reduced_pct': 25,
+                  'flower_buds': u'None',
+                  'wound': u'Single',
+                  'fungal_soak': u'Physan',
+                  'hormone': u'Auxin powder',
+                  'cover': u'Poly cover',
+                  'location': u'Mist frame',
+                  'bottom_heat_temp': 65,
+                  'bottom_heat_unit': u'F'}
+        propagation = Propagation()
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        widgets = editor.presenter.view.widgets
+        view = editor.presenter.view
+        view.set_widget_value('prop_type_combo', u'UnrootedCutting')
+        view.set_widget_value('prop_date_entry', utils.today_str())
+        cutting_presenter = editor.presenter._cutting_presenter
+        for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+            view.set_widget_value(widget, values[attr])
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.presenter.cleanup()
+        editor.commit_changes()
+        model = editor.model
+        s = object_session(model)
+        s.expire(model)
+        self.assert_(model.prop_type == u'UnrootedCutting')
+        for attr, value in values.iteritems():
+            v = getattr(model._cutting, attr)
+            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+        editor.session.close()
+
+
+    def test_seed_editor(self):
+        values = {'pretreatment': u'Soaked in peroxide solution',
+                  'nseeds': 24,
+                  'date_sown': utils.today_str(),
+                  'container': u"tray",
+                  'compost': u'standard seed compost',
+                  'location': u'mist tent',
+                  'moved_from': u'mist tent',
+                  'moved_to': u'hardening table',
+                  'germ_date': utils.today_str(),
+                  'germ_pct': 99,
+                  'nseedling': 23,
+                  'date_planted': utils.today_str()}
+        propagation = Propagation()
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        widgets = editor.presenter.view.widgets
+        view = editor.presenter.view
+        view.set_widget_value('prop_type_combo', u'Seed')
+        view.set_widget_value('prop_date_entry', utils.today_str())
+        cutting_presenter = editor.presenter._seed_presenter
+        for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+            w = widgets[widget]
+            if isinstance(w, gtk.ComboBoxEntry) and not w.get_model():
+                widgets[widget].child.props.text = values[attr]
+            view.set_widget_value(widget, values[attr])
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.presenter.cleanup()
+        model = editor.model
+        s = object_session(model)
+        editor.commit_changes()
+        s.expire(model)
+        self.assert_(model.prop_type == u'Seed')
+        from datetime import date
+        for attr, value in values.iteritems():
+            v = getattr(model._seed, attr)
+            import bauble.prefs as prefs
+            if isinstance(v, date):
+                format = prefs.prefs[prefs.date_format_pref]
+                v = v.strftime(format)
+            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+        editor.session.close()
+
 
 
     def itest_editor(self):
@@ -485,7 +568,7 @@ class AccessionTests(GardenTestCase):
         """
         acc = self.create(Accession, species=self.species, code=u'1')
         plant = self.create(Plant, accession=acc,
-                            location=Location(name=u'site', code=u'STE'), 
+                            location=Location(name=u'site', code=u'STE'),
                             code=u'1')
         self.session.commit()
 
