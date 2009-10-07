@@ -474,7 +474,7 @@ class PropagationTests(GardenTestCase):
     def itest_editor(self):
         from bauble.plugins.garden.propagation import PropagationEditor
         propagation = Propagation()
-        propagation.prop_type = u'UnrootedCutting'
+        #propagation.prop_type = u'UnrootedCutting'
         propagation.accession = self.accession
         editor = PropagationEditor(model=propagation)
         propagation = editor.start()
