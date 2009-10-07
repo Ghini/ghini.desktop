@@ -49,7 +49,7 @@ class Propagation(db.Base):
     #recvd_as = Column(Unicode(10)) # seed, urcu, other
     #recvd_as_other = Column(UnicodeText) # ** maybe this should be in the notes
     prop_type = Column(types.Enum(values=prop_type_values.keys()),
-                        default=u'UnrootedCutting')
+                       nullable=False)
     notes = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'),
                           nullable=False)
@@ -90,11 +90,11 @@ class PropRooted(db.Base):
     Rooting dates for cutting
     """
     __tablename__ = 'prop_cutting_rooted'
+    __mapper_args__ = {'order_by': 'date'}
+
     date = Column(types.Date)
     quantity = Column(Integer)
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
-
-
 
 
 
@@ -130,18 +130,20 @@ class PropCutting(db.Base):
     A cutting
     """
     __tablename__ = 'prop_cutting'
-    cutting_type = Column(types.Enum(values=cutting_type_values.keys()))
-    tip = Column(types.Enum(values=tip_values.keys()))
-    leaves = Column(types.Enum(values=leaves_values.keys()))
+    cutting_type = Column(types.Enum(values=cutting_type_values.keys()),
+                          default=u'Other')
+    tip = Column(types.Enum(values=tip_values.keys()), nullable=False)
+    leaves = Column(types.Enum(values=leaves_values.keys()), nullable=False)
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
     length_units = Column(Unicode)
 
     # single/double/slice
-    wound = Column(types.Enum(values=wound_values.keys()))
+    wound = Column(types.Enum(values=wound_values.keys()), nullable=False)
 
     # removed/None
-    flower_buds = Column(types.Enum(values=flower_buds_values.keys()))
+    flower_buds = Column(types.Enum(values=flower_buds_values.keys()),
+                         nullable=False)
 
     fungal_soak = Column(Unicode) # fungal soak solution
 
@@ -161,8 +163,10 @@ class PropCutting(db.Base):
     bottom_heat_temp = Column(Integer) # temperature of bottom heat
 
     # F/C
-    bottom_heat_unit = Column(types.Enum(values=bottom_heat_unit_values.keys()))
-
+    bottom_heat_unit = Column(types.Enum(values=\
+                                             bottom_heat_unit_values.keys()),
+                              (nullable=False))
+    rooted_pct = Column(Integer)
     #aftercare = Column(UnicodeText) # same as propgation.notes
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
@@ -338,7 +342,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                            'cutting_location_entry': 'location',
                            'cutting_cover_entry': 'cover',
                            'cutting_heat_entry': 'bottom_heat_temp',
-                           'cutting_heat_unit_combo': 'bottom_heat_unit'
+                           'cutting_heat_unit_combo': 'bottom_heat_unit',
+                           'cutting_rooted_pct_entry': 'rooted_pct'
                            }
 
     def __init__(self, parent, model, view, session):
@@ -387,6 +392,8 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
+        self.assign_simple_handler('cutting_rooted_pct_entry',
+                                   'rooted_pct')
 
         model = gtk.ListStore(object)
         self.view.widgets.rooted_treeview.set_model(model)
