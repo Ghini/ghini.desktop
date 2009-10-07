@@ -95,6 +95,9 @@ class PropRooted(db.Base):
     cutting_id = Column(Integer, ForeignKey('prop_cutting.id'), nullable=False)
 
 
+
+
+
 cutting_type_values = {u'Nodal': _('Nodal'),
                        u'InterNodal': _('Internodal'),
                        u'Other': _('Other')}
@@ -164,6 +167,9 @@ class PropCutting(db.Base):
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
+
+    rooted = relation('PropRooted', cascade='all,delete-orphan',
+                        backref=backref('cutting', uselist=False))
 
 
 class PropSeed(db.Base):
@@ -381,6 +387,71 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
                                    'bottom_heat_unit')
+
+        model = gtk.ListStore(object)
+        self.view.widgets.rooted_treeview.set_model(model)
+
+        def _rooted_data_func(column, cell, model, treeiter, prop):
+            v = model[treeiter][0]
+            cell.set_property('text', getattr(v, prop))
+
+        cell = self.view.widgets.rooted_date_cell
+        cell.props.editable = True
+        self.view.connect(cell, 'edited', self.on_rooted_cell_edited, 'date')
+        self.view.widgets.rooted_date_column.\
+            set_cell_data_func(cell, _rooted_data_func, 'date')
+
+        cell = self.view.widgets.rooted_quantity_cell
+        cell.props.editable = True
+        self.view.connect(cell, 'edited', self.on_rooted_cell_edited,
+                          'quantity')
+        self.view.widgets.rooted_quantity_column.\
+            set_cell_data_func(cell, _rooted_data_func, 'quantity')
+
+
+        self.view.connect('rooted_add_button', "clicked",
+                          self.on_rooted_add_clicked)
+        self.view.connect('rooted_remove_button', "clicked",
+                          self.on_rooted_remove_clicked)
+
+
+    def on_rooted_cell_edited(self, cell, path, new_text, prop):
+        treemodel = self.view.widgets.rooted_treeview.get_model()
+        rooted = treemodel[path][0]
+        if getattr(rooted, prop) == new_text:
+            return  # didn't change
+        setattr(rooted, prop, utils.utf8(new_text))
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
+    def on_rooted_add_clicked(self, button, *args):
+        """
+        """
+        tree = self.view.widgets.rooted_treeview
+        model = tree.get_model()
+        rooted = PropRooted()
+        rooted.cutting = self.model
+        rooted.date = utils.today_str()
+        treeiter = model.insert(0, [rooted])
+        path = model.get_path(treeiter)
+        column = tree.get_column(1)
+        tree.set_cursor(path, column, start_editing=True)
+
+
+    def on_rooted_remove_clicked(self, button, *args):
+        """
+        """
+        tree = self.view.widgets.rooted_treeview
+        model, treeiter = tree.get_selection().get_selected()
+        if not treeiter:
+            return
+        rooted = model[treeiter][0]
+        rooted.cutting = None
+        model.remove(treeiter)
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
 
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.iteritems():
