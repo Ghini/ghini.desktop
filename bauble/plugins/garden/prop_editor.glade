@@ -717,20 +717,20 @@
                             <property name="headers_clickable">False</property>
                             <property name="search_column">0</property>
                             <child>
-                              <object class="GtkTreeViewColumn" id="rooted_date_column">
-                                <property name="sizing">autosize</property>
-                                <property name="title">Date</property>
-                                <child>
-                                  <object class="GtkCellRendererText" id="rooted_date_cell"/>
-                                </child>
-                              </object>
-                            </child>
-                            <child>
                               <object class="GtkTreeViewColumn" id="rooted_quantity_column">
                                 <property name="sizing">autosize</property>
                                 <property name="title"># Rooted</property>
                                 <child>
                                   <object class="GtkCellRendererText" id="rooted_quantity_cell"/>
+                                </child>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkTreeViewColumn" id="rooted_date_column">
+                                <property name="sizing">autosize</property>
+                                <property name="title">Date</property>
+                                <child>
+                                  <object class="GtkCellRendererText" id="rooted_date_cell"/>
                                 </child>
                               </object>
                             </child>

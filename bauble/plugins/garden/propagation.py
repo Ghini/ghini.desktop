@@ -165,7 +165,7 @@ class PropCutting(db.Base):
     # F/C
     bottom_heat_unit = Column(types.Enum(values=\
                                              bottom_heat_unit_values.keys()),
-                              (nullable=False))
+                              nullable=False)
     rooted_pct = Column(Integer)
     #aftercare = Column(UnicodeText) # same as propgation.notes
 
@@ -442,7 +442,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         rooted.date = utils.today_str()
         treeiter = model.insert(0, [rooted])
         path = model.get_path(treeiter)
-        column = tree.get_column(1)
+        column = tree.get_column(0)
         tree.set_cursor(path, column, start_editing=True)
 
 
