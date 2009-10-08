@@ -657,8 +657,55 @@ class SpeciesTests(PlantTestCase):
 
 class GeographyTests(PlantTestCase):
 
-    def test(self):
-        pass
+    def __init__(self, *args):
+        super(GeographyTests, self).__init__(*args)
+
+    def setUp(self):
+        super(GeographyTests, self).setUp()
+        self.family = Family(family=u'family')
+        self.genus = Genus(genus=u'genus', family=self.family)
+        self.session.add_all([self.family, self.genus])
+        self.session.commit()
+
+
+    def tearDown(self):
+        super(GeographyTests, self).tearDown()
+
+
+    def test_get_species(self):
+        # import default geography date
+        import bauble.paths as paths
+        filename = os.path.join(paths.lib_dir(), "plugins", "plants",
+                                "default", 'geography.txt')
+        from bauble.plugins.imex.csv_ import CSVImporter
+        importer = CSVImporter()
+        importer.start([filename], force=True)
+
+        # create a some species
+        sp1 = Species(genus=self.genus, sp=u'sp1')
+        sp1.distribution.append(SpeciesDistribution(geography_id=267))
+
+        sp2 = Species(genus=self.genus, sp=u'sp2')
+        sp2.distribution.append(SpeciesDistribution(geography_id=825))
+
+        sp3 = Species(genus=self.genus, sp=u'sp3')
+        sp3.distribution.append(SpeciesDistribution(geography_id=45))
+
+        self.session.commit()
+
+        oaxaca = self.session.query(Geography).get(825)
+        species = get_species_in_geography(oaxaca)
+        self.assert_([s.id for s in species] == [sp2.id])
+
+
+        mexico = self.session.query(Geography).get(53)
+        species = get_species_in_geography(mexico)
+        self.assert_([s.id for s in species] == [sp1.id, sp2.id])
+
+        north_america = self.session.query(Geography).get(7)
+        species = get_species_in_geography(north_america)
+        self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
+
 
 # TODO: maybe the following could be in a seperate file called
 # profile.py or something that would profile everything in the plants
