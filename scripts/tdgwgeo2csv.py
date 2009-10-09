@@ -5,13 +5,17 @@
 # Description: convert TDWG plant distribution files out of the box to a single
 # CSV file
 #
-# NOTE: the only pre processing that has to be done to the files
-# is to convert them to UTF-8, for some reason i have problems trying to
-# convert from ISO-8859-1, probably b/c i don't completely understand unicode
-#
 
-# TODO: should create new id's for each entry and have a tdwg_code for each
-# so we can maintain as much data as possbible
+# TODO: should create new id's for each entry and have a tdwg_code for
+# each so we can maintain as much data as possbible
+
+# TODO: we should probably include the original text files in bauble
+# and run the conversion script on build
+
+# TODO: add a notes column to geography so we carry over the extra
+# geography data(kew regions, notes, etc.) and so that we can add
+# notes to them in bauble
+
 import codecs
 import os
 import re
@@ -33,14 +37,14 @@ if not options.directory:
 
 cwd, _dummy = os.path.split(__file__)
 src_dir = options.directory
-#src_dir = os.path.join(cwd, os.pardir, "data", "tdwg-geo")
-#out_dir = os.path.join(cwd, os.pardir, "data", "tdwg-geo")
 
-class Reader:
+class Reader(object):
+
     def __init__(self, filename, encoding='utf8'):
         self.file = codecs.open(filename, "r", encoding)
         self.headers = self.file.next().strip().split('*')
         s = ""
+        # sanitize the column headers
         for h in self.headers:
             h2 = h.replace(' ', '_')
             s += '(?P<%s>.*?)\*' % h2
