@@ -301,7 +301,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         geos_hash = {}
         # TODO: i think the geo_hash should be calculated in an idle
         # function so that starting the editor isn't delayed while the
-        # hash is being build
+        # hash is being built
         for geo_id, name, parent_id in geos:
             try:
                 geos_hash[parent_id].append((geo_id, name))
@@ -323,31 +323,23 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             except KeyError:
                 return False
 
-        def build_menu(id, name):
+        def build_menu(geo_id, name):
             item = gtk.MenuItem(name)
-            if not has_kids(id):
+            if not has_kids(geo_id):
                 if item.get_submenu() is None:
                     self.view.connect(item, 'activate',
-                                      self.on_activate_add_menu_item,id)
+                                      self.on_activate_add_menu_item, geo_id)
                 return item
 
             kids_added = False
             submenu = gtk.Menu()
             # removes two levels of kids with the same name, there must be a
             # better way to do this but i got tired of thinking about it
-            for kid_id, kid_name in get_kids(id):
-                if kid_name == name:
-                    for gk_id, gk_name in get_kids(kid_id):
-                        if gk_name == kid_name:
-                            for gk2_id, gk2_name in get_kids(gk_id):
-                                submenu.append(build_menu(gk2_id, gk2_name))
-                                kids_added = True
-                        else:
-                            submenu.append(build_menu(gk_id, gk_name))
-                            kids_added = True
-                else:
-                    submenu.append(build_menu(kid_id, kid_name))
-                    kids_added = True
+            kids = get_kids(geo_id)
+            if len(kids) > 0:
+                kids_added = True
+            for kid_id, kid_name in kids:#get_kids(geo_id):
+                submenu.append(build_menu(kid_id, kid_name))
 
             if kids_added:
                 sel_item = gtk.MenuItem(name)
@@ -425,7 +417,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         treemodel = self.treeview.get_model()
         column = self.treeview.get_column(0)
-        cell = column.get_cell_renderers()[0]
         vn = VernacularName()
         self.model.vernacular_names.append(vn)
         treeiter = treemodel.append([vn])
