@@ -199,9 +199,40 @@ class Verification(db.Base):
     date = Column(types.Date)
     reference = Column(UnicodeText)
     accession_id = Column(Integer, ForeignKey('accession.id'))
+
+    # the level of assurance of this verification
+    level = Column(Integer)
+
+    # what it was verified as
+    species_id = Column(Integer, ForeignKey('species.id'))
+
+    # what it was verified from
+    prev_species_id = Column(Integer, ForeignKey('species.id'))
+
     notes = Column(UnicodeText)
 
 
+
+# TODO: auto add parent voucher if accession is a propagule of an
+# existing accession and that parent accession has vouchers...or at
+# least display them in the Voucher tab and Infobox
+herbarium_codes = {}
+
+class Voucher(db.Base):
+    """
+    """
+    __tablename__ = 'voucher'
+    herbarium = Column(Unicode(5), nullable=False)
+    code = Column(Unicode(32), nullable=False)
+    parent_material = Column(Boolean, default=False)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+
+    accession  = relation('Accession', uselist=False,
+                          backref=backref('vouchers',
+                                          cascade='all, delete-orphan'))
+
+
+# invalidate an accessions string cache after it has been updated
 class AccessionMapperExtension(MapperExtension):
 
     def after_update(self, mapper, conn, instance):
@@ -657,7 +688,95 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         super(VoucherPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
+        self.__dirty = False
         #self.refresh_view()
+        self.view.connect('voucher_add_button', 'clicked', self.on_add_clicked)
+        self.view.connect('voucher_remove_button', 'clicked',
+                          self.on_remove_clicked)
+        self.view.connect('parent_voucher_add_button', 'clicked',
+                          self.on_add_clicked, True)
+        self.view.connect('parent_voucher_remove_button', 'clicked',
+                          self.on_remove_clicked, True)
+
+        def _voucher_data_func(column, cell, model, treeiter, prop):
+            v = model[treeiter][0]
+            cell.set_property('text', getattr(v, prop))
+
+        def setup_column(tree, column, cell, prop):
+            column = self.view.widgets[column]
+            cell = self.view.widgets[cell]
+            column.clear_attributes(cell) # get rid of some warnings
+            cell.props.editable = True
+            self.view.connect(cell, 'edited', self.on_cell_edited, (tree,prop))
+            column.set_cell_data_func(cell, _voucher_data_func, prop)
+
+        setup_column('voucher_treeview', 'voucher_herb_column',
+                     'voucher_herb_cell', 'herbarium')
+        setup_column('voucher_treeview', 'voucher_code_column',
+                     'voucher_code_cell', 'code')
+
+        setup_column('parent_voucher_treeview', 'parent_voucher_herb_column',
+                     'parent_voucher_herb_cell', 'herbarium')
+        setup_column('parent_voucher_treeview','parent_voucher_code_column',
+                     'parent_voucher_code_cell', 'code')
+
+        # initialize the models for the treeviews
+        for name in ('voucher_treeview', 'parent_voucher_treeview'):
+            treeview = self.view.widgets[name]
+            utils.clear_model(treeview)
+            model = gtk.ListStore(object)
+            for voucher in self.model.vouchers:
+                if voucher.parent_material:
+                    treeview = self.view.widgets.parent_voucher_treeview
+                else:
+                    treeview = self.view.widgets.voucher_treeview
+                model.append([voucher])
+            treeview.set_model(model)
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def on_cell_edited(self, cell, path, new_text, data):
+        treeview, prop = data
+        treemodel = self.view.widgets[treeview].get_model()
+        rooted = treemodel[path][0]
+        if getattr(rooted, prop) == new_text:
+            return  # didn't change
+        setattr(rooted, prop, utils.utf8(new_text))
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
+    def on_remove_clicked(self, button, parent=False):
+        if parent:
+            treeview = self.view.widgets.parent_voucher_treeview
+        else:
+            treeview = self.view.widgets.voucher_treeview
+        model, treeiter = treeview.get_selection().get_selected()
+        voucher = model[treeiter][0]
+        voucher.accession = None
+        model.remove(treeiter)
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
+    def on_add_clicked(self, button, parent=False):
+        """
+        """
+        if parent:
+            treeview = self.view.widgets.parent_voucher_treeview
+        else:
+            treeview = self.view.widgets.voucher_treeview
+        voucher = Voucher()
+        voucher.accession = self.model
+        voucher.parent_material = parent
+        model = treeview.get_model()
+        treeiter = model.insert(0, [voucher])
+        path = model.get_path(treeiter)
+        column = treeview.get_column(0)
+        treeview.set_cursor(path, column, start_editing=True)
 
 
 
@@ -897,7 +1016,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
-        #self.voucher_presenter = VoucherPresenter()
+        self.voucher_presenter = VoucherPresenter(self, self.model, self.view,
+                                                  self.session)
 
         self.prop_presenter = PropagationTabPresenter(self, self.model,
                                                       self.view, self.session)
@@ -1041,7 +1161,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        presenters = [self.ver_presenter, self.prop_presenter]
+        presenters = [self.ver_presenter, self.prop_presenter,
+                      self.voucher_presenter]
         if self.source_presenter is None:
             return self.__dirty or True in [p.dirty() for p in presenters]
         return self.source_presenter.dirty() or self.__dirty or \
