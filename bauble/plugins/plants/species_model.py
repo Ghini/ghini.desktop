@@ -482,4 +482,3 @@ class SpeciesDistribution(db.Base):
 SpeciesDistribution.geography = relation('Geography',
                 primaryjoin='SpeciesDistribution.geography_id==Geography.id',
                                          uselist=False)
-

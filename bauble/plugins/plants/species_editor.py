@@ -266,9 +266,9 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.remove_menu.popup(None, None, None, event.button, event.time)
 
 
-    def on_activate_add_menu_item(self, widget, id=None):
+    def on_activate_add_menu_item(self, widget, geoid=None):
         from bauble.plugins.plants.species_model import Geography
-        geo = self.session.query(Geography).filter_by(id=id).one()
+        geo = self.session.query(Geography).filter_by(id=geoid).one()
         # check that this geography isn't already in the distributions
         if geo in [d.geography for d in self.model.distribution]:
 #            debug('%s already in %s' % (geo, self.model))
@@ -347,10 +347,10 @@ class DistributionPresenter(editor.GenericEditorPresenter):
                 submenu.insert(gtk.SeparatorMenuItem(), 1)
                 item.set_submenu(submenu)
                 self.view.connect(sel_item, 'activate',
-                                  self.on_activate_add_menu_item,id)
+                                  self.on_activate_add_menu_item, geo_id)
             else:
                 self.view.connect(item, 'activate',
-                                  self.on_activate_add_menu_item, id)
+                                  self.on_activate_add_menu_item, geo_id)
             return item
 
         def populate():
@@ -741,8 +741,8 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_cvgroup_entry': _('Cultivar group'),
         'sp_spqual_combo': _('Species qualifier'),
         'sp_notes_frame': _('Note'),
-        'sp_dist_box': _('Species distribution'),
-        'sp_vern_box': _('Vernacular names'),
+        'sp_dist_frame': _('Species distribution'),
+        'sp_vern_frame': _('Vernacular names'),
         'sp_syn_box': _('Species synonyms')
         }
 
