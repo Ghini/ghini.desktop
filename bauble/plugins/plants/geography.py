@@ -26,6 +26,8 @@ def get_species_in_geography(geo):#, session=None):
     # get the children of geo
     geo_table = geo.__table__
     master_ids = set([geo.id])
+    # populate master_ids with all the geography ids that represent
+    # the children of particular geography id
     def get_geography_children(parent_id):
         stmt = select([geo_table.c.id], geo_table.c.parent_id==parent_id)
         kids = [r[0] for r in db.engine.execute(stmt).fetchall()]
