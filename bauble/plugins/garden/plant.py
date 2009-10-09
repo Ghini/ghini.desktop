@@ -343,7 +343,7 @@ from bauble.plugins.garden.accession import Accession
 
 
 plant_actions = {'Removal': _("Removal"),
-                 'Transfer': _("Tranfer"),
+                 'Transfer': _("Transfer"),
                  'AddNote': _("Add note")}
 
 class PlantEditorView(GenericEditorView):
@@ -1240,7 +1240,7 @@ class GeneralPlantExpander(InfoExpander):
 
 class TransferExpander(InfoExpander):
     """
-    Tranfer Expander
+    Transfer Expander
     """
 
     def __init__(self, widgets):
