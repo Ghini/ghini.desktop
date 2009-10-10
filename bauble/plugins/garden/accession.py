@@ -672,12 +672,12 @@ class AccessionEditorView(editor.GenericEditorView):
 
 
     @staticmethod
-    def species_cell_data_func(column, renderer, model, iter, data=None):
+    def species_cell_data_func(column, renderer, model, treeiter, data=None):
         """
         This method is static to ensure the AccessionEditorView gets
         garbage collected.
         """
-        v = model[iter][0]
+        v = model[treeiter][0]
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
 
@@ -720,18 +720,23 @@ class VoucherPresenter(editor.GenericEditorPresenter):
         setup_column('parent_voucher_treeview','parent_voucher_code_column',
                      'parent_voucher_code_cell', 'code')
 
-        # initialize the models for the treeviews
-        for name in ('voucher_treeview', 'parent_voucher_treeview'):
-            treeview = self.view.widgets[name]
-            utils.clear_model(treeview)
-            model = gtk.ListStore(object)
-            for voucher in self.model.vouchers:
-                if voucher.parent_material:
-                    treeview = self.view.widgets.parent_voucher_treeview
-                else:
-                    treeview = self.view.widgets.voucher_treeview
+        # intialize vouchers treeview
+        treeview = self.view.widgets.voucher_treeview
+        utils.clear_model(treeview)
+        model = gtk.ListStore(object)
+        for voucher in self.model.vouchers:
+            if not voucher.parent_material:
                 model.append([voucher])
-            treeview.set_model(model)
+        treeview.set_model(model)
+
+        # initialize parent vouchers treeview
+        treeview = self.view.widgets.parent_voucher_treeview
+        utils.clear_model(treeview)
+        model = gtk.ListStore(object)
+        for voucher in self.model.vouchers:
+            if voucher.parent_material:
+                model.append([voucher])
+        treeview.set_model(model)
 
 
     def dirty(self):
@@ -1717,6 +1722,69 @@ class SourceExpander(InfoExpander):
         self.set_sensitive(True)
 
 
+
+class VerificationsExpander(InfoExpander):
+    """
+    the accession's notes
+    """
+
+    def __init__(self, widgets):
+        super(VerificationsExpander, self).__init__(_("Verifications"),widgets)
+        # notes_box = self.widgets.notes_box
+        # self.widgets.notes_window.remove(notes_box)
+        # self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        pass
+        #self.set_widget_value('notes_data', row.notes)
+
+
+class VouchersExpander(InfoExpander):
+    """
+    the accession's notes
+    """
+
+    def __init__(self, widgets):
+        super(VouchersExpander, self).__init__(_("Voucher"), widgets)
+        voucher_sw = self.widgets.voucher_scrolledwindow
+        self.widgets.parent_box.remove(voucher_sw)
+        self.vbox.pack_start(voucher_sw)
+
+        def text_cell_data_func(col, cell, model, treeiter, prop):
+            v = model[treeiter][0]
+            cell.props.text = str(getattr(v, prop))
+
+        def toggle_cell_data_func(col, cell, model, treeiter, data=None):
+            v = model[treeiter][0]
+            cell.props.active = v.parent_material
+
+        column = self.widgets.voucher_parent_column
+        cell = self.widgets.voucher_parent_cell
+        column.clear_attributes(cell) # get rid of some warnings
+        column.set_cell_data_func(cell, toggle_cell_data_func)
+
+        column = self.widgets.voucher_herb_column
+        cell = self.widgets.voucher_herb_cell
+        column.clear_attributes(cell) # get rid of some warnings
+        column.set_cell_data_func(cell, text_cell_data_func, 'herbarium')
+
+        column = self.widgets.voucher_code_column
+        cell = self.widgets.voucher_code_cell
+        column.clear_attributes(cell) # get rid of some warnings
+        column.set_cell_data_func(cell, text_cell_data_func, 'code')
+
+
+    def update(self, row):
+        tree = self.widgets.voucher_treeview
+        utils.clear_model(tree)
+        model = gtk.ListStore(object)
+        for voucher in row.vouchers:
+            model.append([voucher])
+        tree.set_model(model)
+
+
+
 class AccessionInfoBox(InfoBox):
     """
     - general info
@@ -1732,6 +1800,10 @@ class AccessionInfoBox(InfoBox):
         self.add_expander(self.general)
         self.source = SourceExpander(self.widgets)
         self.add_expander(self.source)
+        self.vouchers = VouchersExpander(self.widgets)
+        self.add_expander(self.vouchers)
+        self.verifications = VerificationsExpander(self.widgets)
+        self.add_expander(self.verifications)
         self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
         self.props = PropertiesExpander()
@@ -1741,13 +1813,21 @@ class AccessionInfoBox(InfoBox):
     def update(self, row):
         self.general.update(row)
         self.props.update(row)
-        if row.notes is None:
-            self.notes.set_expanded(False)
-            self.notes.set_sensitive(False)
-        else:
-            self.notes.set_expanded(True)
-            self.notes.set_sensitive(True)
+
+        if row.notes:
             self.notes.update(row)
+        self.notes.set_expanded(row.notes != None)
+        self.notes.set_sensitive(row.notes != None)
+
+        if row.verifications:
+            self.verifications.update(row)
+        self.verifications.set_expanded(row.verifications != None)
+        self.verifications.set_sensitive(row.verifications != None)
+
+        if row.vouchers:
+            self.vouchers.update(row)
+        self.vouchers.set_expanded(row.vouchers != None)
+        self.vouchers.set_sensitive(row.vouchers != None)
 
         # TODO: should test if the source should be expanded from the prefs
         self.source.update(row.source)
