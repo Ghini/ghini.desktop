@@ -140,6 +140,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             print cmd
             os.system(cmd)
 
+            # copy the the MS-Windows gtkrc to make it the default theme
+            rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
+            dest = '%s\\etc\\gtk-2.0' % dist_gtk
+            file_util.copy_file(rc, dest)
+
+
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
         # 2. run the script to update the pixbuf paths
