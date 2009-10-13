@@ -8,10 +8,11 @@ XS-Python-Version: >= 2.5, <<3.0
 
 Package: bauble-ubc
 Architecture: all
-Depends: ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy-0.5 | python-sqlalchemy (>= 0.5), python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14)
+Depends: ${python:Depends}, xdg-utils, python, python-egenix-mxdatetime, python-sqlalchemy-0.5 | python-sqlalchemy (>= 0.5), python-lxml, python-gtk2 (>=2.12), librsvg2-common, python-glade2, python-gdata (>=1.1.1), python-mako (>=0.2.2), python-pysqlite2 (>= 2.3.2) | python-mysqldb | python-psycopg2, ${misc:Depends}, ${python:Depends}, libgtk2.0-0 (>= 2.14), python-fibra (>= 0.0.17), python-dateutil
 Recommends: python-mysqldb | python-psycopg2
 Suggests: 
 XB-Python-Version: ${python:Versions}
 Provides: ${python:Provides}
-Description: Bauble is a biodiversity collection manager software applica
+Conflicts: bauble
+Description: Bauble is a biodiversity collection manager software application for managing plant collections.
 

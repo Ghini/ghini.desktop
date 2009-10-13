@@ -12,7 +12,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms, \
-    Verification
+    Verification, Voucher
 from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
 from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
@@ -544,6 +544,44 @@ class PropagationTests(GardenTestCase):
 
 
 
+class VoucherTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(VoucherTests, self).__init__(*args)
+
+    def setUp(self):
+        super(VoucherTests, self).setUp()
+        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.session.commit()
+
+    def tearDown(self):
+        super(VoucherTests, self).tearDown()
+
+    def test_voucher(self):
+        """
+        Test the Accession.voucher property
+        """
+        voucher = Voucher(herbarium=u'ABC', code=u'1234567')
+        voucher.accession = self.accession
+        self.session.commit()
+        voucher_id = voucher.id
+        self.accession.vouchers.remove(voucher)
+        self.session.commit()
+        self.assert_(not self.session.query(Voucher).get(voucher_id))
+
+        # test that if we set voucher.accession to None then the
+        # voucher is deleted but not the accession
+        voucher = Voucher(herbarium=u'ABC', code=u'1234567')
+        voucher.accession = self.accession
+        self.session.commit()
+        voucher_id = voucher.id
+        acc_id = voucher.accession.id
+        voucher.accession = None
+        self.session.commit()
+        self.assert_(not self.session.query(Voucher).get(voucher_id))
+        self.assert_(self.session.query(Accession).get(acc_id))
+
+
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -873,6 +911,8 @@ class AccessionTests(GardenTestCase):
         self.session.add(sp2)
         self.session.commit()
         acc = self.create(Accession, species=self.species, code=u'1')
+        voucher = Voucher(herbarium=u'abcd', code=u'123')
+        acc.vouchers.append(voucher)
         prev = 0
         def mem(size="rss"):
             """Generalization; memory sizes: rss, rsz, vsz."""
