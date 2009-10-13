@@ -16,7 +16,7 @@ Name "Bauble - UBC"
 !define src_dir "../dist"
 Outfile "bauble-ubc-${version}-setup.exe"
 
-!define prodname "Bauble - UBC"
+!define prodname "Bauble-UBC"
 !define exec "bauble.exe"
 !define license_file "LICENSE"
 !define readme "README"
