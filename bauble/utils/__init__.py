@@ -509,7 +509,6 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
         combo.set_cell_data_func(renderer, cell_data_func)
 
 
-
 def prettify_format(format):
     """
     Return the date format in a more human readable form.
