@@ -417,7 +417,15 @@ class SpeciesTests(PlantTestCase):
         super(SpeciesTests, self).tearDown()
 
 
-    def itest_species_editor(self):
+    def itest_editor(self):
+        # import default geography data
+        import bauble.paths as paths
+        filename = os.path.join(paths.lib_dir(), "plugins", "plants",
+                                "default", 'geography.txt')
+        from bauble.plugins.imex.csv_ import CSVImporter
+        importer = CSVImporter()
+
+        importer.start([filename], force=True)
         f = Family(family=u'family')
         g2 = Genus(genus=u'genus2', family=f)
         g = Genus(genus=u'genus', family=f)
@@ -673,7 +681,7 @@ class GeographyTests(PlantTestCase):
 
 
     def test_get_species(self):
-        # import default geography date
+        # import default geography data
         import bauble.paths as paths
         filename = os.path.join(paths.lib_dir(), "plugins", "plants",
                                 "default", 'geography.txt')
@@ -681,28 +689,36 @@ class GeographyTests(PlantTestCase):
         importer = CSVImporter()
         importer.start([filename], force=True)
 
+        mexico_id = 53
+        mexico_central_id = 267
+        oaxaca_id = 665
+        northern_america_id = 7
+        western_canada_id = 45
+
         # create a some species
         sp1 = Species(genus=self.genus, sp=u'sp1')
-        sp1.distribution.append(SpeciesDistribution(geography_id=267))
+        dist = SpeciesDistribution(geography_id=mexico_central_id)
+        sp1.distribution.append(dist)
 
         sp2 = Species(genus=self.genus, sp=u'sp2')
-        sp2.distribution.append(SpeciesDistribution(geography_id=825))
+        dist = SpeciesDistribution(geography_id=oaxaca_id)
+        sp2.distribution.append(dist)
 
         sp3 = Species(genus=self.genus, sp=u'sp3')
-        sp3.distribution.append(SpeciesDistribution(geography_id=45))
+        dist = SpeciesDistribution(geography_id=western_canada_id)
+        sp3.distribution.append(dist)
 
         self.session.commit()
 
-        oaxaca = self.session.query(Geography).get(825)
+        oaxaca = self.session.query(Geography).get(oaxaca_id)
         species = get_species_in_geography(oaxaca)
         self.assert_([s.id for s in species] == [sp2.id])
 
-
-        mexico = self.session.query(Geography).get(53)
+        mexico = self.session.query(Geography).get(mexico_id)
         species = get_species_in_geography(mexico)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id])
 
-        north_america = self.session.query(Geography).get(7)
+        north_america = self.session.query(Geography).get(northern_america_id)
         species = get_species_in_geography(north_america)
         self.assert_([s.id for s in species] == [sp1.id, sp2.id, sp3.id])
 
