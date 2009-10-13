@@ -83,3 +83,56 @@ Geography.children = relation(Geography,
                               backref=backref("parent",
                                     remote_side=[Geography.__table__.c.id]),
                               order_by=[Geography.name])
+
+
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results
+
+class GeneralFamilyExpander(InfoExpander):
+    '''
+    generic information about an family like number of genus, species,
+    accessions and plants
+    '''
+
+    def __init__(self, widgets):
+        """
+
+        Arguments:
+        - `widgets`:
+        """
+        InfoExpander.__init__(self, _("General"), widgets)
+        general_box = self.widgets.geo_general_box
+        self.widgets.remove_parent(general_box)
+        self.vbox.pack_start(general_box)
+
+
+    def update(self, row):
+        '''
+        update the expander
+
+        @param row: the row to get the values from
+        '''
+
+
+class GeographyInfoBox(InfoBox):
+    '''
+    '''
+
+    def __init__(self):
+        '''
+        '''
+        InfoBox.__init__(self)
+        filename = os.path.join(paths.lib_dir(), 'plugins', 'plants',
+                                  'infoboxes.glade')
+        self.widgets = utils.load_widgets(filename)
+        self.general = GeneralGeographyExpander(self.widgets)
+        self.add_expander(self.general)
+        self.props = PropertiesExpander()
+        self.add_expander(self.props)
+
+
+    def update(self, row):
+        '''
+        '''
+        self.general.update(row)
+        self.props.update(row)

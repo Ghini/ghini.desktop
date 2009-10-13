@@ -1115,13 +1115,9 @@ class SearchView(pluginmgr.View):
 
 
     def cell_data_func(self, col, cell, model, treeiter):
-        value = model[treeiter][0]
-
         # TODO: maybe we should cache the strings on our side and then
         # detect if the objects have been changed in their session in
         # order to determine if the cache should be invalidated
-
-        #debug('%s(%s)' % (value, type(value)))
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
@@ -1130,7 +1126,7 @@ class SearchView(pluginmgr.View):
             # drastically speeds up populating the view with large
             # datasets
             return
-
+        value = model[treeiter][0]
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
