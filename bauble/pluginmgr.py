@@ -13,6 +13,7 @@ installed plugins in to the registry (happens in load())
 
 3. initialize the plugins (happens in init())
 """
+
 import inspect
 import os
 import re
@@ -20,16 +21,16 @@ import sys
 import traceback
 
 import gtk
-import sqlalchemy.orm.exc as orm_exc
 from sqlalchemy import *
+from sqlalchemy.orm import *
+import sqlalchemy.orm.exc as orm_exc
 
 import bauble
 import bauble.db as db
+from bauble.error import BaubleError
 import bauble.paths as paths
 import bauble.utils as utils
-from bauble.error import BaubleError
 from bauble.utils.log import debug, warning, error
-
 
 # TODO: should make plugins and ordered dict that is sorted by
 # dependency, maybe use odict from
