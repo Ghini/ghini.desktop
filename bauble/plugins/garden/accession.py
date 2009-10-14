@@ -1746,42 +1746,37 @@ class VouchersExpander(InfoExpander):
     """
 
     def __init__(self, widgets):
-        super(VouchersExpander, self).__init__(_("Voucher"), widgets)
-        voucher_sw = self.widgets.voucher_scrolledwindow
-        self.widgets.parent_box.remove(voucher_sw)
-        self.vbox.pack_start(voucher_sw)
-
-        def text_cell_data_func(col, cell, model, treeiter, prop):
-            v = model[treeiter][0]
-            cell.props.text = str(getattr(v, prop))
-
-        def toggle_cell_data_func(col, cell, model, treeiter, data=None):
-            v = model[treeiter][0]
-            cell.props.active = v.parent_material
-
-        column = self.widgets.voucher_parent_column
-        cell = self.widgets.voucher_parent_cell
-        column.clear_attributes(cell) # get rid of some warnings
-        column.set_cell_data_func(cell, toggle_cell_data_func)
-
-        column = self.widgets.voucher_herb_column
-        cell = self.widgets.voucher_herb_cell
-        column.clear_attributes(cell) # get rid of some warnings
-        column.set_cell_data_func(cell, text_cell_data_func, 'herbarium')
-
-        column = self.widgets.voucher_code_column
-        cell = self.widgets.voucher_code_cell
-        column.clear_attributes(cell) # get rid of some warnings
-        column.set_cell_data_func(cell, text_cell_data_func, 'code')
+        super(VouchersExpander, self).__init__(_("Vouchers"), widgets)
 
 
     def update(self, row):
-        tree = self.widgets.voucher_treeview
-        utils.clear_model(tree)
-        model = gtk.ListStore(object)
-        for voucher in row.vouchers:
-            model.append([voucher])
-        tree.set_model(model)
+        for kid in self.vbox.get_children():
+            self.vbox.remove(kid)
+
+        if not row.vouchers:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+            return
+
+        # TODO: should save/restore the expanded state of the vouchers
+        self.set_expanded(True)
+        self.set_sensitive(True)
+
+        parents = filter(lambda v: v.parent_material, row.vouchers)
+        for voucher in parents:
+            s = '%s %s (parent)' % (voucher.herbarium, voucher.code)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+            label.show()
+
+        not_parents = filter(lambda v: not v.parent_material, row.vouchers)
+        for voucher in not_parents:
+            s = '%s %s' % (voucher.herbarium, voucher.code)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+            label.show()
 
 
 
@@ -1824,10 +1819,7 @@ class AccessionInfoBox(InfoBox):
         self.verifications.set_expanded(row.verifications != None)
         self.verifications.set_sensitive(row.verifications != None)
 
-        if row.vouchers:
-            self.vouchers.update(row)
-        self.vouchers.set_expanded(row.vouchers != None)
-        self.vouchers.set_sensitive(row.vouchers != None)
+        self.vouchers.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
         self.source.update(row.source)
