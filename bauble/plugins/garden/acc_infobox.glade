@@ -687,45 +687,7 @@
           </packing>
         </child>
         <child>
-          <object class="GtkScrolledWindow" id="voucher_scrolledwindow">
-            <property name="visible">True</property>
-            <property name="can_focus">True</property>
-            <property name="hscrollbar_policy">automatic</property>
-            <property name="vscrollbar_policy">automatic</property>
-            <child>
-              <object class="GtkTreeView" id="voucher_treeview">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <child>
-                  <object class="GtkTreeViewColumn" id="voucher_herb_column">
-                    <property name="title">Herbarium</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="voucher_herb_cell"/>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="voucher_code_column">
-                    <property name="title">Voucher</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="voucher_code_cell"/>
-                    </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="voucher_parent_column">
-                    <property name="title">Parent</property>
-                    <child>
-                      <object class="GtkCellRendererToggle" id="voucher_parent_cell"/>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-          <packing>
-            <property name="position">2</property>
-          </packing>
+          <placeholder/>
         </child>
       </object>
     </child>
