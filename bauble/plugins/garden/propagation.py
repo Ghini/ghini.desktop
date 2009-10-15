@@ -26,7 +26,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
 from bauble.utils.log import debug
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 from bauble.error import CommitException
 import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
@@ -81,7 +81,77 @@ class Propagation(db.Base):
     def get_summary(self):
         """
         """
-        return str(self)
+        s = str(self)
+        if self.prop_type == u'UnrootedCutting':
+            c = self._cutting
+            values = []
+            values.append(_('Cutting type: %s') % \
+                              cutting_type_values[c.cutting_type])
+            if c.length:
+                values.append(_('Length: %s') % c.length)
+            values.append(_('Tip: %s') % tip_values[c.tip])
+            s = _('Leaves: %s') % leaves_values[c.leaves]
+            if c.leaves == u'Removed' and c.leaves_reduced_pct:
+                s.append('(%s%%)' % c.leaves_reduced_pct)
+            values.append(_('Leaves: %s') % s)
+            values.append(_('Flower buds: %s') % \
+                              flower_buds_values[c.flower_buds])
+            values.append(_('Wounded: %s' % wound_values[c.wound]))
+            if c.fungal_soak:
+                values.append(_('Fungal soak: %s' % c.fungal_soak))
+            if c.hormone:
+                values.append(_('Hormone treatment: %s' % c.hormone))
+            if c.bottom_heat_temp:
+                values.append(_('Bottom heat: %s%s') % \
+                               (c.bottom_heat_temp,
+                                bottom_heat_unit_values[c.bottom_heat_unit]))
+            if c.container:
+                values.append(_('Container: %s' % c.container))
+            if c.compost:
+                values.append(_('Compost: %s' % c.compost))
+            if c.location:
+                values.append(_('Location: %s' % c.location))
+            if c.cover:
+                values.append(_('Cover: %s' % c.cover))
+
+            if c.rooted_pct:
+                values.append(_('Rooted: %s%%') % c.rooted_pct)
+            s = ', '.join(values)
+        elif self.prop_type == u'Seed':
+            s = str(self)
+            seed = self._seed
+            values = []
+            if seed.pretreatment:
+                values.append(_('Pretreatment: %s') % seed.pretreatment)
+            if seed.nseeds:
+                values.append(_('# of seeds: %s') % seed.nseeds)
+            if seed.date_sown:
+                format = prefs.prefs[prefs.date_format_pref]
+                values.append(_('Date sown: %s') % \
+                                    seed.date_sown.strftime(format))
+            if seed.container:
+                values.append(_('Container: %s') % seed.container)
+            if seed.compost:
+                values.append(_('Compost: %s') % seed.compost)
+            if seed.covered:
+                values.append(_('Covered: %s') % seed.covered)
+            if seed.location:
+                values.append(_('Location: %s') % seed.location)
+            if seed.germ_date:
+                format = prefs.prefs[prefs.date_format_pref]
+                values.append(_('Germination date: %s') % \
+                                  seed.germ_date.strftime(format))
+            if seed.nseedlings:
+                values.append(_('# of seedlings: %s') % seed.nseedlings)
+            if seed.germ_pct:
+                values.append(_('Germination rate: %s%%') % seed.germ_pct)
+            if seed.date_planted:
+                format = prefs.prefs[prefs.date_format_pref]
+                values.append(_('Date planted: %s') % \
+                                  seed.date_planted.strftime(format))
+            s = ', '.join(values)
+
+        return s
 
 
 
@@ -136,7 +206,7 @@ class PropCutting(db.Base):
     leaves = Column(types.Enum(values=leaves_values.keys()), nullable=False)
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
-    length_units = Column(Unicode)
+    #length_units = Column(Unicode)
 
     # single/double/slice
     wound = Column(types.Enum(values=wound_values.keys()), nullable=False)
@@ -149,11 +219,7 @@ class PropCutting(db.Base):
 
     #fungal_soak_sec = Column(Boolean)
 
-    hormone = Column(Unicode) # power/liquid/None....solution
-
-    cover_type = Column(Unicode)
-
-    success = Column(Integer) # % of rooting took
+    hormone = Column(Unicode) # powder/liquid/None....solution
 
     compost = Column(Unicode)
     container = Column(Unicode)
@@ -200,13 +266,12 @@ class PropSeed(db.Base):
 
     germ_date = Column(types.Date)
 
-    nseedling = Column(Integer) # number of seedling
+    nseedlings = Column(Integer) # number of seedling
     germ_pct = Column(Integer) # % of germination
     date_planted = Column(types.Date)
 
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
-
 
 
     def __str__(self):
@@ -238,8 +303,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        debug(self.__dirty)
-        debug([p in self.session.dirty for p in self.model.propagations])
         return self.__dirty or \
             True in [p in self.session.dirty for p in self.model.propagations]
 
@@ -255,11 +318,14 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
         # open propagation editor
         editor = PropagationEditor(parent=self.view.get_window())
-        propagation = self.session.merge(editor.start(commit=False))
-        self.model.propagations.append(propagation)
-        box = self.create_propagation_box(propagation)
-        self.view.widgets.prop_tab_box.pack_start(box, expand=False, fill=True)
-        self.__dirty = True
+        propagation = editor.start(commit=False)
+        if propagation:
+            propagation = self.session.merge(propagation)
+            self.model.propagations.append(propagation)
+            box = self.create_propagation_box(propagation)
+            self.view.widgets.prop_tab_box.pack_start(box, expand=False,
+                                                      fill=True)
+            self.__dirty = True
 
 
     def create_propagation_box(self, propagation):
@@ -270,23 +336,27 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         hbox.pack_start(expander, expand=True, fill=True)
         alignment = gtk.Alignment()
         hbox.pack_start(alignment, expand=False, fill=False)
-        def on_clicked(button, propagation):
-            editor = PropagationEditor(model=propagation,
+
+        label = gtk.Label(propagation.get_summary())
+        label.set_alignment(0.0, 0.5)
+        expander.add(label)
+
+        def on_clicked(button, prop, label):
+            editor = PropagationEditor(model=prop,
                                        parent=self.view.get_window())
             editor.start(commit=False)
+            label.props.label = prop.get_summary()
         button = gtk.Button(stock=gtk.STOCK_EDIT)
-        self.view.connect(button, 'clicked', on_clicked, propagation)
+        self.view.connect(button, 'clicked', on_clicked, propagation, label)
         alignment.add(button)
         # TODO: add a * to the propagation label for uncommitted propagations
         prop_type = prop_type_values[propagation.prop_type]
         title = ('%(prop_type)s on %(prop_date)s') \
             % dict(prop_type=prop_type, prop_date=propagation.date)
         expander.set_label(title)
-        label = gtk.Label(propagation.get_summary())
-        expander.add(label)
+
         hbox.show_all()
         return hbox
-
 
 
     def remove_propagation(self):
@@ -354,11 +424,13 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         super(CuttingPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
+        self.__dirty = False
 
-        # make the model for thie presenter a PropCutting instead of a
+        # make the model for the presenter a PropCutting instead of a
         # Propagation
         self.propagation = self.model
-        self.propagation._cutting = PropCutting()
+        if not self.propagation._cutting:
+            self.propagation._cutting = PropCutting()
         self.model = self.model._cutting
         #self.session.add(self.model)
 
@@ -415,11 +487,20 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.view.widgets.rooted_quantity_column.\
             set_cell_data_func(cell, _rooted_data_func, 'quantity')
 
-
         self.view.connect('rooted_add_button', "clicked",
                           self.on_rooted_add_clicked)
         self.view.connect('rooted_remove_button', "clicked",
                           self.on_rooted_remove_clicked)
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def set_model_attr(self, field, value, validator=None):
+        super(CuttingPresenter, self).set_model_attr(field, value, validator)
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_rooted_cell_edited(self, cell, path, new_text, prop):
@@ -463,6 +544,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
+            #debug('%s: %s' % (widget, value))
             self.view.set_widget_value(widget, value)
 
 
@@ -489,12 +571,15 @@ class SeedPresenter(editor.GenericEditorPresenter):
         @param view: an instance of PropagationEditorView
         '''
         super(SeedPresenter, self).__init__(model, view)
+        self.__dirty = False
         self.parent_ref = weakref.ref(parent)
         self.session = session
 
         self.propagation = self.model
         self.propagation._seed = PropSeed()
         self.model = self.model._seed
+
+        return
 
         self.refresh_view()
 
@@ -518,6 +603,16 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('seed_date_planted_entry', 'date_planted')
 
 
+    def dirty(self):
+        return self.__dirty
+
+
+    def set_model_attr(self, field, value, validator=None):
+        super(SeedPresenter, self).set_model_attr(field, value, validator)
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
     def refresh_view(self):
         for widget, attr in self.widget_to_field_map.iteritems():
             value = getattr(self.model, attr)
@@ -536,6 +631,8 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         '''
         super(PropagationEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
+
+        self.view.widgets.prop_ok_button.props.sensitive = False
 
         # initialize the propagation type combo and set the initial value
         self.init_translatable_combo('prop_type_combo', prop_type_values)
@@ -587,7 +684,12 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        pass
+        if self.model.prop_type == u'UnrootedCutting':
+            return self._cutting_presenter.dirty()
+        elif self.model.prop_type == u'Seed':
+            return self._seed_presenter.dirty()
+        else:
+            return False
 
 
     def set_model_attr(self, field, value, validator=None):
@@ -599,7 +701,27 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
                                                                validator)
 
     def refresh_sensitivity(self):
-        pass
+        sensitive = True
+        model = None
+        if self.model.prop_type == u'UnrootedCutting':
+            model = self.model._cutting
+        elif self.model.prop_type == u'Seed':
+            model = self.model._seed
+
+        # filter out special columns that have nullable=True
+        col_filter = lambda c: not c.name.startswith('_') and \
+            not c.name.endswith('_id') and not c.name == 'id' and \
+            not c.nullable
+        for col in filter(col_filter, object_mapper(model).columns):
+            # set sensitive = False for any column that are null and
+            # shouldn't be
+            if not getattr(model, col.name):
+                #debug('%s: %s' % (col.name, getattr(model, col.name)))
+                sensitive = False
+                break
+
+        self.view.widgets.prop_ok_button.props.sensitive = sensitive
+
 
     def refresh_view(self):
         pass
@@ -619,7 +741,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
 
     def __init__(self, model=None, parent=None):
         '''
-        @param model: Propagation instance or None
+        @param model: Propagation instance
         @param parent: the parent widget
         '''
         # the view and presenter are created in self.start()
@@ -628,6 +750,16 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         if model is None:
             model = Propagation()
         super(PropagationEditor, self).__init__(model, parent)
+        # if mode already has a session then use it, this is unique to
+        # the PropagationEditor because so far it is the only editor
+        # that dependent on a parent editor and the parent editor's
+        # model and session
+        sess = object_session(model)
+        if sess:
+            self.session.close()
+            self.session = sess
+            self.model = model
+
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -655,21 +787,18 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         handle the response from self.presenter.start() in self.start()
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
+        self._return = None
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                #debug(self.model)
-                #debug(self.model.details)
                 if self.model.prop_type == u'UnrootedCutting':
                     utils.delete_or_expunge(self.model._seed)
-                    #self.session.expunge(self.model._seed)
                     self.model._seed = None
                     del self.model._seed
                 elif self.model.prop_type == u'Seed':
                     utils.delete_or_expunge(self.model._cutting)
-                    #self.session.expunge(self.model._cutting)
                     self.model._cutting = None
                     del self.model._cutting
-
+                self._return = self.model
                 if self.presenter.dirty() and commit:
                     self.commit_changes()
             except SQLError, e:
@@ -704,9 +833,12 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
             if self.handle_response(response, commit):
                 break
 
-        self.session.close() # cleanup session
+        # don't close the session since the PropagationEditor depends
+        # on an AccessionEditor
+        #
+        #self.session.close() # cleanup session
         self.presenter.cleanup()
-        return self.model
+        return self._return
 
 
 

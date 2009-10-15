@@ -432,6 +432,31 @@ class PropagationTests(GardenTestCase):
         return seed
 
 
+    def test_get_summary(self):
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        prop.accession = self.accession
+        cutting = self.get_default_cutting()
+        cutting.propagation = prop
+        rooted = PropRooted()
+        rooted.cutting = cutting
+        self.session.commit()
+        summary = prop.get_summary()
+        #debug(summary)
+        self.assert_(summary)
+
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.accession = self.accession
+        seed = self.get_default_seed()
+        seed.propagation = prop
+        self.session.commit()
+        summary = prop.get_summary()
+        #debug(summary)
+        self.assert_(summary)
+
+
+
     def test_cutting_property(self):
         prop = Propagation()
         prop.prop_type = u'UnrootedCutting'

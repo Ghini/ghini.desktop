@@ -155,13 +155,10 @@ class GenericEditorView(object):
 
 
 
-    def connect(self, obj, signal, callback, data=None):
+    def connect(self, obj, signal, callback, *args):
         if isinstance(obj, basestring):
             obj = self.widgets[obj]
-        if data:
-            sid = obj.connect(signal, callback, data)
-        else:
-            sid = obj.connect(signal, callback)
+        sid = obj.connect(signal, callback, *args)
         self.__attached_signals.append((obj, sid))
         return sid
 
@@ -708,4 +705,5 @@ class GenericModelViewPresenterEditor(object):
 
     def __del__(self):
         #debug('GenericEditor.__del__()')
-        self.session.close()
+        #self.session.close()
+        pass

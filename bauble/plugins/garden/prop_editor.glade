@@ -123,7 +123,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="prop_add_button">
+              <object class="GtkButton" id="prop_ok_button">
                 <property name="label" translatable="yes">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -147,7 +147,7 @@
     </child>
     <action-widgets>
       <action-widget response="-6">prop_cancel_button</action-widget>
-      <action-widget response="-5">prop_add_button</action-widget>
+      <action-widget response="-5">prop_ok_button</action-widget>
     </action-widgets>
   </object>
   <object class="GtkListStore" id="proplist_model"/>
