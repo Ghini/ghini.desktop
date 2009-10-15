@@ -46,7 +46,7 @@ date_format_pref = 'bauble.default_date_format'
 parse_dayfirst_pref = 'bauble.parse_dayfirst'
 parse_yearfirst_pref = 'bauble.parse_yearfirst'
 
-
+units_pref = 'bauble.units'
 ## class PreferencesMgr(gtk.Dialog):
 
 ##     def __init__(self):
@@ -167,6 +167,9 @@ class _prefs(dict):
                 self[parse_yearfirst_pref] = True
             else:
                 self[parse_yearfirst_pref] = False
+
+        if units_pref not in self:
+            self[units_pref] = 'metric'
 
 
     @staticmethod

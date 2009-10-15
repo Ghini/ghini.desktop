@@ -88,12 +88,13 @@ class Propagation(db.Base):
             values.append(_('Cutting type: %s') % \
                               cutting_type_values[c.cutting_type])
             if c.length:
-                values.append(_('Length: %s') % c.length)
+                values.append(_('Length: %s%s') % (c.length,
+                              length_unit_values[c.length_unit]))
             values.append(_('Tip: %s') % tip_values[c.tip])
             s = _('Leaves: %s') % leaves_values[c.leaves]
             if c.leaves == u'Removed' and c.leaves_reduced_pct:
                 s.append('(%s%%)' % c.leaves_reduced_pct)
-            values.append(_('Leaves: %s') % s)
+            values.append(s)
             values.append(_('Flower buds: %s') % \
                               flower_buds_values[c.flower_buds])
             values.append(_('Wounded: %s' % wound_values[c.wound]))
@@ -192,8 +193,15 @@ hormone_values = {u'Liquid': _('Liquid'),
                   u'Powder': _('Powder'),
                   u'No': _('No')}
 
+# TODO: need a pref to set the default units like temperature and length
+
 bottom_heat_unit_values = {u'F': _('\302\260F'),
-                           u'C': _('\302\260C')}
+                           u'C': _('\302\260C'),
+                           None: ''}
+
+length_unit_values = {u'cm': _('cm'),
+                      u'in': _('in'),
+                      None: ''}
 
 class PropCutting(db.Base):
     """
@@ -206,7 +214,7 @@ class PropCutting(db.Base):
     leaves = Column(types.Enum(values=leaves_values.keys()), nullable=False)
     leaves_reduced_pct = Column(Integer)
     length = Column(Integer)
-    #length_units = Column(Unicode)
+    length_unit = Column(types.Enum(values=length_unit_values.keys()))
 
     # single/double/slice
     wound = Column(types.Enum(values=wound_values.keys()), nullable=False)
@@ -228,10 +236,13 @@ class PropCutting(db.Base):
 
     bottom_heat_temp = Column(Integer) # temperature of bottom heat
 
+    # TODO: make the bottom heat unit required if bottom_heat_temp is
+    # not null
+
     # F/C
     bottom_heat_unit = Column(types.Enum(values=\
                                              bottom_heat_unit_values.keys()),
-                              nullable=False)
+                              nullable=True)
     rooted_pct = Column(Integer)
     #aftercare = Column(UnicodeText) # same as propgation.notes
 
@@ -247,8 +258,8 @@ class PropSeed(db.Base):
     """
     __tablename__ = 'prop_seed'
     pretreatment = Column(UnicodeText)
-    nseeds = Column(Integer)
-    date_sown = Column(types.Date)
+    nseeds = Column(Integer, nullable=False)
+    date_sown = Column(types.Date, nullable=False)
     container = Column(Unicode) # 4" pot plug tray, other
     compost = Column(Unicode) # seedling media, sphagnum, other
 
@@ -262,7 +273,7 @@ class PropSeed(db.Base):
     # TODO: do we need multiple moved to->moved from and date fields
     moved_from = Column(Unicode)
     moved_to = Column(Unicode)
-    moved_date = Column(Unicode)
+    moved_date = Column(types.Date)
 
     germ_date = Column(types.Date)
 
@@ -276,7 +287,7 @@ class PropSeed(db.Base):
 
     def __str__(self):
         # what would the string be...???
-        # cuttings of self.accession.species_str() and accessin number
+        # cuttings of self.accession.species_str() and accession number
         return repr(self)
 
 
@@ -296,7 +307,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         self.view.connect('prop_add_button', 'clicked',
                           self.on_add_button_clicked)
         for prop in self.model.propagations:
-            self.create_propagation_box(prop)
+            box = self.create_propagation_box(prop)
             self.view.widgets.prop_tab_box.pack_start(box, expand=False,
                                                       fill=True)
         self.__dirty = False
@@ -338,7 +349,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         hbox.pack_start(alignment, expand=False, fill=False)
 
         label = gtk.Label(propagation.get_summary())
-        label.set_alignment(0.0, 0.5)
+        label.set_alignment(0.1, 0.5)
         expander.add(label)
 
         def on_clicked(button, prop, label):
@@ -397,6 +408,11 @@ class PropagationEditorView(editor.GenericEditorView):
         return self.get_window().run()
 
 
+# TODO: if you edit an existing cutting and the the OK is not set sensitive
+
+# TODO: if you reopen an accession editor the list of propagations
+# doesn't get reset properly
+
 
 class CuttingPresenter(editor.GenericEditorPresenter):
 
@@ -436,9 +452,11 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
         self.init_translatable_combo('cutting_type_combo', cutting_type_values,
                                      editor.UnicodeOrNoneValidator())
+        self.init_translatable_combo('cutting_length_unit_combo',
+                                     length_unit_values)
         self.init_translatable_combo('cutting_tip_combo', tip_values)
         self.init_translatable_combo('cutting_leaves_combo', leaves_values)
-        self.init_translatable_combo('cutting_buds_combo', leaves_values)
+        self.init_translatable_combo('cutting_buds_combo', flower_buds_values)
         self.init_translatable_combo('cutting_wound_combo', wound_values)
         self.init_translatable_combo('cutting_heat_unit_combo',
                                      bottom_heat_unit_values)
@@ -447,6 +465,7 @@ class CuttingPresenter(editor.GenericEditorPresenter):
 
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
         self.assign_simple_handler('cutting_length_entry', 'length')
+        self.assign_simple_handler('cutting_length_unit_combo', 'length_unit')
         self.assign_simple_handler('cutting_tip_combo', 'tip')
         self.assign_simple_handler('cutting_leaves_combo', 'leaves')
         self.assign_simple_handler('cutting_lvs_reduced_entry',
@@ -491,6 +510,15 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                           self.on_rooted_add_clicked)
         self.view.connect('rooted_remove_button', "clicked",
                           self.on_rooted_remove_clicked)
+
+        # set default units
+        units = prefs.prefs[prefs.units_pref]
+        if units == u'imperial':
+            self.view.set_widget_value('cutting_length_unit_combo', u'in')
+            self.view.set_widget_value('cutting_heat_unit_combo', u'F')
+        else:
+            self.view.set_widget_value('cutting_length_unit_combo', u'cm')
+            self.view.set_widget_value('cutting_heat_unit_combo', u'C')
 
 
     def dirty(self):
@@ -560,7 +588,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
                            'seed_mvdfrom_entry': 'moved_from',
                            'seed_mvdto_entry': 'moved_to',
                            'seed_germdate_entry': 'germ_date',
-                           'seed_ngerm_entry': 'nseedling',
+                           'seed_ngerm_entry': 'nseedlings',
                            'seed_pctgerm_entry': 'germ_pct',
                            'seed_date_planted_entry': 'date_planted'}
 
@@ -579,8 +607,6 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.propagation._seed = PropSeed()
         self.model = self.model._seed
 
-        return
-
         self.refresh_view()
 
         self.assign_simple_handler('seed_pretreatment_textview','pretreatment',
@@ -598,7 +624,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('seed_mvdto_entry', 'moved_to',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_germdate_entry', 'germ_date')
-        self.assign_simple_handler('seed_ngerm_entry', 'nseedling')
+        self.assign_simple_handler('seed_ngerm_entry', 'nseedlings')
         self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
         self.assign_simple_handler('seed_date_planted_entry', 'date_planted')
 
@@ -708,17 +734,20 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         elif self.model.prop_type == u'Seed':
             model = self.model._seed
 
+        if model:
         # filter out special columns that have nullable=True
-        col_filter = lambda c: not c.name.startswith('_') and \
-            not c.name.endswith('_id') and not c.name == 'id' and \
-            not c.nullable
-        for col in filter(col_filter, object_mapper(model).columns):
-            # set sensitive = False for any column that are null and
-            # shouldn't be
-            if not getattr(model, col.name):
-                #debug('%s: %s' % (col.name, getattr(model, col.name)))
-                sensitive = False
-                break
+            col_filter = lambda c: not c.name.startswith('_') and \
+                not c.name.endswith('_id') and not c.name == 'id' and \
+                not c.nullable
+            for col in filter(col_filter, object_mapper(model).columns):
+                # set sensitive = False for any column that are null and
+                # shouldn't be
+                if not getattr(model, col.name):
+                    #debug('%s: %s' % (col.name, getattr(model, col.name)))
+                    sensitive = False
+                    break
+        else:
+            sensitive = False
 
         self.view.widgets.prop_ok_button.props.sensitive = sensitive
 
@@ -781,6 +810,20 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         # else:
         #     view.widgets.acc_code_entry.grab_focus()
 
+    def clean_model(self):
+        if self.model.prop_type == u'UnrootedCutting':
+            utils.delete_or_expunge(self.model._seed)
+            self.model._seed = None
+            del self.model._seed
+            if not self.model._cutting.bottom_heat_temp:
+                self.model._cutting.bottom_heat_unit = None
+            if not self.model._cutting.length:
+                self.model._cutting.length_unit = None
+        elif self.model.prop_type == u'Seed':
+            utils.delete_or_expunge(self.model._cutting)
+            self.model._cutting = None
+            del self.model._cutting
+
 
     def handle_response(self, response, commit=True):
         '''
@@ -790,14 +833,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         self._return = None
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                if self.model.prop_type == u'UnrootedCutting':
-                    utils.delete_or_expunge(self.model._seed)
-                    self.model._seed = None
-                    del self.model._seed
-                elif self.model.prop_type == u'Seed':
-                    utils.delete_or_expunge(self.model._cutting)
-                    self.model._cutting = None
-                    del self.model._cutting
+                self.clean_model()
                 self._return = self.model
                 if self.presenter.dirty() and commit:
                     self.commit_changes()
