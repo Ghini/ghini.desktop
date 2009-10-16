@@ -3,15 +3,16 @@
 # propagation module
 #
 
-import sys
-import re
+import datetime
 import os
+from random import random
+import re
+import sys
 import weakref
 import traceback
-from random import random
-from datetime import datetime
 import xml.sax.saxutils as saxutils
 
+import dateutil.parser as date_parser
 import gtk
 import gobject
 from sqlalchemy import *
@@ -81,6 +82,11 @@ class Propagation(db.Base):
     def get_summary(self):
         """
         """
+        def get_date(date):
+            if isinstance(date, datetime.date):
+                return seed.date_sown.strftime(date_format)
+            return date
+
         s = str(self)
         if self.prop_type == u'UnrootedCutting':
             c = self._cutting
@@ -121,15 +127,15 @@ class Propagation(db.Base):
         elif self.prop_type == u'Seed':
             s = str(self)
             seed = self._seed
+            date_format = prefs.prefs[prefs.date_format_pref]
             values = []
             if seed.pretreatment:
                 values.append(_('Pretreatment: %s') % seed.pretreatment)
             if seed.nseeds:
                 values.append(_('# of seeds: %s') % seed.nseeds)
-            if seed.date_sown:
-                format = prefs.prefs[prefs.date_format_pref]
-                values.append(_('Date sown: %s') % \
-                                    seed.date_sown.strftime(format))
+            date_sown = get_date(seed.date_sown)
+            if date_sown:
+                values.append(_('Date sown: %s') % date_sown)
             if seed.container:
                 values.append(_('Container: %s') % seed.container)
             if seed.compost:
@@ -138,18 +144,16 @@ class Propagation(db.Base):
                 values.append(_('Covered: %s') % seed.covered)
             if seed.location:
                 values.append(_('Location: %s') % seed.location)
-            if seed.germ_date:
-                format = prefs.prefs[prefs.date_format_pref]
-                values.append(_('Germination date: %s') % \
-                                  seed.germ_date.strftime(format))
+            germ_date = get_date(seed.germ_date)
+            if germ_date:
+                values.append(_('Germination date: %s') % germ_date)
             if seed.nseedlings:
                 values.append(_('# of seedlings: %s') % seed.nseedlings)
             if seed.germ_pct:
                 values.append(_('Germination rate: %s%%') % seed.germ_pct)
-            if seed.date_planted:
-                format = prefs.prefs[prefs.date_format_pref]
-                values.append(_('Date planted: %s') % \
-                                  seed.date_planted.strftime(format))
+            date_planted = get_date(seed.date_planted)
+            if date_planted:
+                values.append(_('Date planted: %s') % seed.date_planted)
             s = ', '.join(values)
 
         return s
@@ -223,9 +227,7 @@ class PropCutting(db.Base):
     flower_buds = Column(types.Enum(values=flower_buds_values.keys()),
                          nullable=False)
 
-    fungal_soak = Column(Unicode) # fungal soak solution
-
-    #fungal_soak_sec = Column(Boolean)
+    fungal_soak = Column(Unicode) # fungal soak
 
     hormone = Column(Unicode) # powder/liquid/None....solution
 
@@ -306,14 +308,19 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         self.session = session
         self.view.connect('prop_add_button', 'clicked',
                           self.on_add_button_clicked)
+        tab_box = self.view.widgets.prop_tab_box
+        for kid in tab_box:
+            if isinstance(kid, gtk.Box):
+                tab_box.remove(kid) # remove old prop boxes
         for prop in self.model.propagations:
             box = self.create_propagation_box(prop)
-            self.view.widgets.prop_tab_box.pack_start(box, expand=False,
-                                                      fill=True)
+            tab_box.pack_start(box, expand=False, fill=True)
         self.__dirty = False
 
 
     def dirty(self):
+        debug(self.__dirty)
+        debug([p in self.session.dirty for p in self.model.propagations])
         return self.__dirty or \
             True in [p in self.session.dirty for p in self.model.propagations]
 
@@ -349,6 +356,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
         hbox.pack_start(alignment, expand=False, fill=False)
 
         label = gtk.Label(propagation.get_summary())
+        label.props.wrap = True
         label.set_alignment(0.1, 0.5)
         expander.add(label)
 
@@ -357,6 +365,7 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
                                        parent=self.view.get_window())
             editor.start(commit=False)
             label.props.label = prop.get_summary()
+            self.parent_ref().refresh_sensitivity()
         button = gtk.Button(stock=gtk.STOCK_EDIT)
         self.view.connect(button, 'clicked', on_clicked, propagation, label)
         alignment.add(button)
@@ -412,6 +421,8 @@ class PropagationEditorView(editor.GenericEditorView):
 
 # TODO: if you reopen an accession editor the list of propagations
 # doesn't get reset properly
+
+# TODO: need to add word wrap to the propagation summary label
 
 
 class CuttingPresenter(editor.GenericEditorPresenter):
@@ -575,6 +586,29 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             #debug('%s: %s' % (widget, value))
             self.view.set_widget_value(widget, value)
 
+from bauble.editor import ValidatorError
+class DateValidator(object):
+    """
+    Validate that string is parseable with dateutil
+    """
+    def to_python(self, value):
+        dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+        yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        default_year = 1
+        default = datetime.date(1, 1, default_year)
+        try:
+            date = date_parser.parse(value, dayfirst=dayfirst,
+                                     yearfirst=yearfirst, default=default)
+            if date.year == default_year:
+                raise ValueError
+        except Exception, e:
+            raise ValidatorError
+        return value
+
+
+
+class DateTimeValidator(object):
+    pass
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -604,15 +638,33 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.session = session
 
         self.propagation = self.model
-        self.propagation._seed = PropSeed()
+        if not self.propagation._seed:
+            self.propagation._seed = PropSeed()
         self.model = self.model._seed
+
+
+        def get_distinct_values(column):
+            q = self.session.query(column).distinct()
+            return [v[0] for v in q if v != (None,)]
+
+        # TODO: should also setup a completion on the entry
+        utils.setup_text_combobox(self.view.widgets.seed_media_comboentry,
+                                  get_distinct_values(PropSeed.compost))
+        utils.setup_text_combobox(self.view.widgets.seed_container_comboentry,
+                                  get_distinct_values(PropSeed.container))
+        utils.setup_text_combobox(self.view.widgets.seed_location_comboentry,
+                                  get_distinct_values(PropSeed.location))
 
         self.refresh_view()
 
         self.assign_simple_handler('seed_pretreatment_textview','pretreatment',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_nseeds_entry', 'nseeds')
-        self.assign_simple_handler('seed_sown_entry', 'date_sown')
+
+        self.assign_simple_handler('seed_sown_entry', 'date_sown',
+                                   DateValidator())
+        utils.setup_date_button(self.view.widgets.seed_sown_entry,
+                                self.view.widgets.seed_sown_button)
         self.assign_simple_handler('seed_container_comboentry', 'container',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_media_comboentry', 'compost',
@@ -623,10 +675,16 @@ class SeedPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_mvdto_entry', 'moved_to',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('seed_germdate_entry', 'germ_date')
+        self.assign_simple_handler('seed_germdate_entry', 'germ_date',
+                                   DateValidator())
+        utils.setup_date_button(self.view.widgets.seed_germdate_entry,
+                                self.view.widgets.seed_germdate_button)
         self.assign_simple_handler('seed_ngerm_entry', 'nseedlings')
         self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
-        self.assign_simple_handler('seed_date_planted_entry', 'date_planted')
+        self.assign_simple_handler('seed_date_planted_entry', 'date_planted',
+                                   DateValidator())
+        utils.setup_date_button(self.view.widgets.seed_date_planted_entry,
+                                self.view.widgets.seed_date_planted_button)
 
 
     def dirty(self):
@@ -680,7 +738,7 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
                                                    self.session)
 
-        self.assign_simple_handler('prop_date_entry', 'date')
+        self.assign_simple_handler('prop_date_entry', 'date', DateValidator())
         if not self.model.date:
             # set it to empty first b/c if we set the date and its the
             # same as the date string already in the entry then it
