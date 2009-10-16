@@ -221,18 +221,6 @@
                                                 <property name="position">1</property>
                                               </packing>
                                             </child>
-                                            <child>
-                                              <object class="GtkLabel" id="label76">
-                                                <property name="visible">True</property>
-                                                <property name="xpad">5</property>
-                                                <property name="label" translatable="yes">dd/mm/yyyy</property>
-                                              </object>
-                                              <packing>
-                                                <property name="expand">False</property>
-                                                <property name="fill">False</property>
-                                                <property name="position">2</property>
-                                              </packing>
-                                            </child>
                                           </object>
                                         </child>
                                       </object>
@@ -1169,17 +1157,6 @@
                             <property name="position">1</property>
                           </packing>
                         </child>
-                        <child>
-                          <object class="GtkLabel" id="coll_date_label">
-                            <property name="visible">True</property>
-                            <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                            <property name="xpad">5</property>
-                            <property name="label" translatable="yes">dd/mm/yyyy</property>
-                          </object>
-                          <packing>
-                            <property name="position">2</property>
-                          </packing>
-                        </child>
                       </object>
                     </child>
                   </object>
@@ -1886,19 +1863,6 @@
                         <property name="expand">False</property>
                         <property name="fill">False</property>
                         <property name="position">1</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label85">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xpad">5</property>
-                        <property name="label" translatable="yes">dd/mm/yyyy</property>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>

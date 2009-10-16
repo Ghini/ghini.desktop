@@ -485,6 +485,7 @@ class GenericEditorPresenter(object):
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError, e:
+                debug(e)
                 self.add_problem('BAD_VALUE_%s' % attr)
                 value = None # make sure the value in the model is reset
         setattr(self.model, attr, value)
@@ -505,10 +506,22 @@ class GenericEditorPresenter(object):
         '''
         widget = self.view.widgets[widget_name]
         check(widget is not None, _('no widget with name %s') % widget_name)
+        def validate(value):
+            if validator:
+                try:
+                    value = validator.to_python(value)
+                    self.remove_problem('BAD_VALUE_%s' % model_attr, widget)
+                except ValidatorError, e:
+                    self.add_problem('BAD_VALUE_%s' % model_attr, widget)
+                    value = None # make sure the value in the model is reset
+            return value
+
 
         if isinstance(widget, gtk.Entry):
             def on_changed(entry):
-                self.set_model_attr(model_attr, entry.props.text, validator)
+                value = validate(entry.props.text)
+                self.set_model_attr(model_attr, value)
+                #self.set_model_attr(model_attr, entry.props.text, validator)
             self.view.connect(widget, 'changed', on_changed)
         elif isinstance(widget, gtk.TextView):
             def on_changed(textbuff):
