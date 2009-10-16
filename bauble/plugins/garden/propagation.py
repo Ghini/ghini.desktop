@@ -197,8 +197,6 @@ hormone_values = {u'Liquid': _('Liquid'),
                   u'Powder': _('Powder'),
                   u'No': _('No')}
 
-# TODO: need a pref to set the default units like temperature and length
-
 bottom_heat_unit_values = {u'F': _('\302\260F'),
                            u'C': _('\302\260C'),
                            None: ''}
@@ -319,8 +317,6 @@ class PropagationTabPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        debug(self.__dirty)
-        debug([p in self.session.dirty for p in self.model.propagations])
         return self.__dirty or \
             True in [p in self.session.dirty for p in self.model.propagations]
 
@@ -421,8 +417,6 @@ class PropagationEditorView(editor.GenericEditorView):
 
 # TODO: if you reopen an accession editor the list of propagations
 # doesn't get reset properly
-
-# TODO: need to add word wrap to the propagation summary label
 
 
 class CuttingPresenter(editor.GenericEditorPresenter):
@@ -592,6 +586,8 @@ class DateValidator(object):
     Validate that string is parseable with dateutil
     """
     def to_python(self, value):
+        if not value:
+            return None
         dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
         yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
         default_year = 1
@@ -609,6 +605,7 @@ class DateValidator(object):
 
 class DateTimeValidator(object):
     pass
+
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -641,7 +638,6 @@ class SeedPresenter(editor.GenericEditorPresenter):
         if not self.propagation._seed:
             self.propagation._seed = PropSeed()
         self.model = self.model._seed
-
 
         def get_distinct_values(column):
             q = self.session.query(column).distinct()
@@ -835,6 +831,7 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         self.view = None
         self.presenter = None
         if model is None:
+            debug('create propagation')
             model = Propagation()
         super(PropagationEditor, self).__init__(model, parent)
         # if mode already has a session then use it, this is unique to
@@ -889,9 +886,9 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         '''
         not_ok_msg = 'Are you sure you want to lose your changes?'
         self._return = None
+        self.clean_model()
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
-                self.clean_model()
                 self._return = self.model
                 if self.presenter.dirty() and commit:
                     self.commit_changes()
@@ -899,7 +896,8 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
+                if commit:
+                    self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -908,16 +906,28 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
+                if commit:
+                    self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
-            self.session.rollback()
+            if commit:
+                self.session.rollback()
             return True
         else:
             return False
 
         return True
+
+
+    def __del__(self):
+        # override the editor.GenericModelViewPresenterEditor since it
+        # will close the session but since we are called with the
+        # AccessionEditor's session we don't want that
+        #
+        # TODO: when should we close the session and not, what about
+        # is self.commit is True
+        pass
 
 
     def start(self, commit=True):
