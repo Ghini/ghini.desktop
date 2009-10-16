@@ -485,7 +485,6 @@ class GenericEditorPresenter(object):
                 value = validator.to_python(value)
                 self.remove_problem('BAD_VALUE_%s' % attr)
             except ValidatorError, e:
-                debug(e)
                 self.add_problem('BAD_VALUE_%s' % attr)
                 value = None # make sure the value in the model is reset
         setattr(self.model, attr, value)
@@ -718,5 +717,4 @@ class GenericModelViewPresenterEditor(object):
 
     def __del__(self):
         #debug('GenericEditor.__del__()')
-        #self.session.close()
-        pass
+        self.session.close()
