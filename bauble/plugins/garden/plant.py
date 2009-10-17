@@ -346,6 +346,90 @@ plant_actions = {'Removal': _("Removal"),
                  'Transfer': _("Transfer"),
                  'AddNote': _("Add note")}
 
+
+def init_location_comboentry(presenter, combo, on_select):
+    """
+    The plant_loc_comboentry requires more custom setup than
+    view.attach_completion and self.assign_simple_handler can
+    provides.  This method allows us to have completions on the
+    location entry based on the location code, location name and
+    location string as well as selecting a location from a combo
+    drop down.
+
+    :param presenter:
+    :param combo:
+    :param on_select:
+    """
+    PROBLEM = 'unknown_location'
+
+    def cell_data_func(col, cell, model, treeiter, data=None):
+        cell.props.text = utils.utf8(model[treeiter][0])
+
+    completion = gtk.EntryCompletion()
+    cell = gtk.CellRendererText() # set up the completion renderer
+    completion.pack_start(cell)
+    completion.set_cell_data_func(cell, cell_data_func)
+
+    entry = combo.child
+    entry.set_completion(completion)
+
+    combo.clear()
+    cell = gtk.CellRendererText()
+    combo.pack_start(cell)
+    combo.set_cell_data_func(cell, cell_data_func)
+
+    model = gtk.ListStore(object)
+    for location in presenter.session.query(Location):
+        model.append([location])
+    combo.set_model(model)
+    completion.set_model(model)
+
+    def on_match_select(completion, model, treeiter):
+        value = model[treeiter][0]
+        on_select(value)
+        presenter.remove_problem(PROBLEM, entry)
+        return True
+    presenter.view.connect(completion, 'match-selected', on_match_select)
+
+    def on_entry_changed(entry, *args):
+        text = utils.utf8(entry.props.text)
+        # see if the text matches a completion string
+        comp = entry.get_completion()
+        compl_model = comp.get_model()
+        def _cmp(row, data):
+            return utils.utf8(row[0]) == data
+        found = utils.search_tree_model(compl_model, text, _cmp)
+        if len(found) == 1:
+            comp.emit('match-selected', compl_model, found[0])
+            presenter.remove_problem(PROBLEM, entry)
+            return
+        # see if the text matches exactly a code or name
+        codes = presenter.session.query(Location).filter(Location.code==text)
+        names = presenter.session.query(Location).filter(Location.name==text)
+        if codes.count() == 1:
+            location = codes.first()
+            presenter.remove_problem(PROBLEM, entry)
+            on_select(location)
+        elif names.count() == 1:
+            location = names.first()
+            presenter.remove_problem(PROBLEM, entry)
+            on_select(location)
+        else:
+            presenter.add_problem(PROBLEM, entry)
+        return True
+    presenter.view.connect(entry, 'changed', on_entry_changed)
+
+    def on_combo_changed(combo, *args):
+        model = combo.get_model()
+        i = combo.get_active_iter()
+        if not i:
+            return
+        location = combo.get_model()[i][0]
+        combo.child.props.text = str(location)
+    presenter.view.connect(combo, 'changed', on_combo_changed)
+
+
+
 class PlantEditorView(GenericEditorView):
     def __init__(self, parent=None):
         path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
@@ -414,6 +498,10 @@ class PlantEditorPresenter(GenericEditorPresenter):
                                   'Transfer': self.view.widgets.transfer_box,
                                   'AddNote': self.view.widgets.notes_box}
 
+        # TODO: we should put this in a scrolled window or something
+        # since the list of labels will get way to big when working on
+        # lots of species
+
         # show the plants we are changing in the labels
         label = self.view.widgets.ped_plants_label
         label_str = ''
@@ -470,13 +558,14 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self.init_translatable_combo('plant_action_combo', plant_actions)
         self.view.connect('plant_action_combo', 'changed',
                           self.on_action_combo_changed)
+
+        # initialize the location combo
         def on_tran_to_select(value):
-            debug('trans: %s' % value)
             self._transfer.to_location = value
             if value:
                 self.__dirty = True
                 self.refresh_sensitivity()
-        self.init_location_combo(self.view.widgets.trans_to_comboentry,
+        init_location_comboentry(self, self.view.widgets.trans_to_comboentry,
                                  on_tran_to_select)
 
         def on_buff_changed(buff, data=None):
@@ -494,46 +583,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
                           on_category_changed)
 
 
-    def init_location_combo(self, combo, on_select):
-        """
-        Initialize a gtk.ComboEntry where the combo model values and
-        completions in the entry are all the locations from the
-        database.
-        """
-        entry = combo.child
-        model = gtk.ListStore(object)
-        for loc in self.session.query(Location):
-            model.append([loc])
-        utils.clear_model(combo)
-        combo.set_model(model)
-        combo.clear()
-        renderer = gtk.CellRendererText()
-        combo.pack_start(renderer, True)
-        def cell_data_func(column, cell, model, it, data=None):
-            # the cell data func for the combo
-            v = model[it][0]
-            cell.set_property('text', utils.utf8(v))
-        combo.set_cell_data_func(renderer, cell_data_func)
-
-        # attach a gtk.EntryCompletion
-        self.view.attach_completion(combo.child, cell_data_func,
-                                    minimum_key_length=1)
-
-        # make the completion on the entry for the combo entry
-        # have the same model as the combo
-        combo.child.get_completion().set_model(model)
-
-        self.assign_completions_handler(entry, None, on_select=on_select)
-        def changed(combo, *args):
-            it = combo.get_active_iter()
-            if it:
-                value = combo.get_model()[it][0]
-                on_select(value)
-                combo.child.props.text = value
-                self.refresh_sensitivity()
-        self.view.connect(combo, 'changed', changed)
-
-
     def dirty(self):
         return self.__dirty
 
@@ -545,7 +594,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
             sensitive = True
         elif action == 'Transfer' and self._transfer.to_location:
             sensitive = True
-        elif action == 'AddNote' and self.view.widgets.note_textview.get_buffer().props.text:
+        elif action == 'AddNote' and \
+                self.view.widgets.note_textview.get_buffer().props.text:
             sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
 
@@ -775,15 +825,6 @@ class AddPlantEditorView(GenericEditorView):
         self.attach_completion('plant_acc_entry', acc_cell_data_func,
                                minimum_key_length=1)
 
-        def loc_cell_data_func(col, renderer, model, it, data=None):
-            # the cell_data_func for the entry completions
-            v = model[it][0]
-            renderer.set_property('text', '%s' % utils.utf8(v))
-
-        entry = self.widgets.plant_loc_comboentry.child
-        self.attach_completion(entry, loc_cell_data_func,
-                               minimum_key_length=1)
-
 
     def get_window(self):
         return self.widgets.plant_add_dialog
@@ -844,27 +885,17 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         if self.model.id is None and self.model.acc_status is None:
             self.model.acc_status = u'Living'
 
-        # intialize the locations comboentry
-        loc_combo = self.view.widgets.plant_loc_comboentry
-        model = gtk.ListStore(object)
-        for loc in self.session.query(Location):
-            model.append([loc])
-        utils.clear_model(loc_combo)
-        loc_combo.set_model(model)
-        loc_combo.clear()
-        renderer = gtk.CellRendererText()
-        loc_combo.pack_start(renderer, True)
-        def cell_data_func(column, cell, model, it, data=None):
-            # the cell data func for the combo
-            v = model[it][0]
-            cell.set_property('text', utils.utf8(v))
-        loc_combo.set_cell_data_func(renderer, cell_data_func)
 
-        # make the completion on the entry for the combo entry
-        # have the same model as the combo
-        loc_combo.child.get_completion().set_model(model)
+        def on_location_select(location):
+            self.set_model_attr('location', location)
+
+        init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
+                                 on_location_select)
 
         self.refresh_view() # put model values in view
+
+        # assign handlers to monitor changes now that the view has
+        # been filled in
 
         # connect signals
         def acc_get_completions(text):
@@ -884,19 +915,6 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
                           self.on_plant_code_entry_changed)
         self.assign_simple_handler('plant_notes_textview', 'notes',
                                    UnicodeOrNoneValidator())
-
-        # def loc_get_completions(text):
-        #     query = self.session.query(Location)
-        #     return query.filter(utils.ilike(Location.name,
-        #                                     utils.utf8('%s%%' % text)))
-        def on_loc_select(value):
-            self.set_model_attr('location', value)
-
-        plant_loc_entry = self.view.widgets.plant_loc_comboentry.child
-        self.assign_completions_handler(plant_loc_entry, None,
-                                        on_select=on_loc_select)
-        self.assign_simple_handler('plant_loc_comboentry', 'location')#,
-                                   #UnicodeOrNoneValidator())
 
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status')
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
@@ -1272,7 +1290,7 @@ class NotesExpander(InfoExpander):
     def __init__(self, widgets):
         '''
         '''
-        InfoExpander.__init__(self, _("Notes"), widgets)
+        super(NotesExpander, self).__init__(_("Notes"), widgets)
         notes_box = self.widgets.notes_box
         self.widgets.remove_parent(notes_box)
         self.vbox.pack_start(notes_box)
@@ -1362,4 +1380,3 @@ class PlantInfoBox(InfoBox):
 
 
 from bauble.plugins.garden.accession import Accession
-#from bauble.plugins.garden.location import Location, LocationEditor
