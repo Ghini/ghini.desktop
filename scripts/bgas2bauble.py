@@ -352,7 +352,11 @@ def do_family():
                 % (genus, family, genera['genus'], genera['family']))
 
     # insert the families
-    db.engine.execute(insert, *list(families.values())).close()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(insert, *list(families.values()))
+    trans.commit()
+    conn.close()
     info('inserted %s family.' % len(families))
 
     # get the family id's for the genepra
@@ -374,7 +378,11 @@ def do_family():
 
     # insert the genus rows
     insert = get_insert(genus_table, ['genus', 'family_id'])
-    db.engine.execute(insert, *genus_rows).close()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(insert, *genus_rows)
+    trans.commit()
+    conn.close()
     info('inserted %s genus rows out of %s records.' \
              % (len(genus_rows), len(dbf)))
     dbf.close()
@@ -607,9 +615,14 @@ def do_plants():
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
+
     if delayed_species:
-        db.engine.execute(species_table.insert(), *delayed_species).close()
+        conn = db.engine.connect()
+        trans = conn.begin()
+        conn.execute(species_table.insert(), *delayed_species)
         info('inserted %s species from plants.dbf' % len(delayed_species))
+        trans.commit()
+        conn.close()
 
     # set species id on the rows that we couldn't get earlier
     map(lambda item: item[1].setdefault('species_id',
@@ -622,9 +635,13 @@ def do_plants():
         acc_rows.append(row)
 
     # insert the accessions
-    db.engine.execute(acc_insert, *acc_rows).close()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(acc_insert, *acc_rows)
     info('inserted %s accesions out of %s records' \
              % (len(acc_rows), len(dbf)))
+    trans.commit()
+    conn.close()
 
     dbf.close()
     del dbf
@@ -632,6 +649,7 @@ def do_plants():
     # again and create the plants
     values = []
     plant_defaults = get_defaults(plant_table)
+    row_map = {}
     for acc_code, plant_code in plants:
         acc_id = get_column_value(acc_table.c.id,
                                   acc_table.c.code == unicode(acc_code))
@@ -639,9 +657,36 @@ def do_plants():
         row['accession_id'] = acc_id
         row['code'] = unicode(plant_code)
         row['location_id'] = unknown_location_id
+        # TODO: should check row doesn't already exists
+        row_map[(acc_code, plant_code)] = row
+
         values.append(row)
 
-    db.engine.execute(plant_table.insert(), *values).close()
+    # i couldn't get plant_table.update() to ever work properly so
+    # instead we just loop through the hereitis table and set the
+    # values on the plant before inserting the plant rows
+
+    # loop through the hereitis table to set the location_id
+    status('converting HEREITIS.DBF ...')
+    dbf = open_dbf('HEREITIS.DBF')
+    for rec in dbf:
+        acc_code = unicode(rec['accno'])
+        plant_code = unicode(rec['propno'])
+        bedno = unicode(rec['bedno'])
+        location_id = unknown_location_id
+        if bedno not in ('8A', '1B49'):
+            location_id = get_column_value(location_table.c.id,
+                                           location_table.c.code == bedno)
+        else:
+            error('location does not exist for %s.%s: %s' % \
+                      (acc_code, plant_code, bedno))
+        row_map[(acc_code, plant_code)]['location_id'] = location_id
+
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(plant_table.insert(), *values)
+    trans.commit()
+    conn.close()
     status('inserted %s plants' % len(values))
 
 
@@ -666,7 +711,11 @@ def do_bedtable():
         # row.update({'name': utils.utf8(rec['bedno']),
         #             'description': utils.utf8(rec['beddescr'])})
         location_rows.append(row)
-    db.engine.execute(location_table.insert(), *location_rows).close()
+    conn = db.engine.connect()
+    trans = conn.begin()
+    conn.execute(location_table.insert(), *location_rows)
+    trans.commit()
+    conn.close()
     info('inserted %s locations out of %s records' \
              % (len(location_rows), len(dbf)))
     dbf.close()
@@ -687,39 +736,67 @@ def do_hereitis():
     # labels: ??
     # l_update: last updated?
     #
-    # TODO: i can't really do anything with the hereitis table until i
-    # can resolve the duplicates
+
+    # all the work from the hereitis table is not done in do_plants
+    return
     status('converting HEREITIS.DBF ...')
     dbf = open_dbf('HEREITIS.DBF')
-    codes = set()
     plant_update = plant_table.update().\
-        where(plant_table.c.id==bindparam('plant_id')).\
-                  values(location_id=bindparam('location_id'))
+    where(plant_table.c.id == bindparam('plant_id')).\
+    values(location_id=bindparam('location_id'))
 
+    conn = db.engine.connect()
+    trans = conn.begin()
     for rec in dbf:
         acc_code = unicode(rec['accno'])
-        acc_id = get_column_value(acc_table.c.id,
-                                  acc_table.c.code == acc_code)
         plant_code = unicode(rec['propno'])
-        plant_id = get_column_value(plant_table.c.id,
-                                    and_(plant_table.c.accession_id==acc_id,
-                                         plant_table.c.code == plant_code))
-        if not plant_id:
-            error('Could not get plant_id: \n%s' % rec)
-            raise ValueError()
+        id_query = select([plant_table.c.id],
+                          and_(plant_table.c.code==plant_code,
+                               acc_table.c.code==acc_code),
+                          from_obj=plant_table.join(acc_table))
+        r = conn.execute(id_query).fetchone()
+        plant_id = r[0]
+        r.close()
 
         # get the location id from the bedno
         bedno = unicode(rec['bedno'])
-        location_id = get_column_value(location_table.c.id,
-                                       location_table.c.code == bedno)
-        if not location_id:
-            error('location does not exists for %s.%s: %s' % \
+        # location_id = get_column_value(location_table.c.id,
+        #                                location_table.c.code == bedno)
+        location_id = unknown_location_id
+        if bedno not in ('8A', '1B49'):
+            location_id = get_column_value(location_table.c.id,
+                                           location_table.c.code == bedno)
+        else:
+            error('location does not exist for %s.%s: %s' % \
                       (acc_code, plant_code, bedno))
-            continue
+        #     continue
+        # if not location_id:
+        #     error('location does not exists for %s.%s: %s' % \
+        #               (acc_code, plant_code, bedno))
+        #     #continue
+        #     location_id=1
 
-        # update the plant with the bed number
-        db.engine.execute(plant_update, plantid=plant_id,
-                          location_id=location_id).close()
+        #conn.execute(update(plant_table, plant_table.c.id==plant_id,
+        #                    values={plant_table.c.location_id: location_id}))
+        #db.engine.echo = True
+        #plant_id = 4
+        #debug('%s: %s' % (plant_id, location_id))
+
+        # i could never get the plant_table.update() stuff to work, it
+        # would run fine but wouldn't update the table.  the only
+        # thing that really seemed different from the generated code
+        # from my statement is the generated code was also trying to
+        # update _last_updated so maybe this is the problem
+        stmt = 'update plant set location_id=%s where id=%s;' % \
+            (location_id, plant_id)
+        #debug(stmt)
+        #conn.execute(stmt)
+        db.engine.execute(stmt)
+        #plant_table.update().where(plant_table.c.id==plant_id).values(location_id=location_id).execute(bind=conn)
+        #conn.execute(plant_update, plant_id=plant_id, location_id=location_id)
+
+    trans.commit()
+    conn.close()
 
 
 def do_synonym():
@@ -751,6 +828,7 @@ def test():
 
 
 if __name__ == '__main__':
+    import gc
     global current_stage
     if options.test:
         test()
@@ -764,6 +842,7 @@ if __name__ == '__main__':
             t = timeit.timeit('current_stage()',
                               "from __main__ import current_stage;",
                               number=nruns)
+            gc.collect()
             info('... in %s seconds.' % t)
             total_seconds += t
         info('total run time: %s seconds' % total_seconds)
