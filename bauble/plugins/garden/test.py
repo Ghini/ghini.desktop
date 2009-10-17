@@ -345,7 +345,7 @@ class PlantTests(GardenTestCase):
             'AddPlantEditorView not deleted'
 
 
-    def itest_add_plant_editor(self):
+    def itest_add_editor(self):
         """
         Interactively test the PlantEditor
         """
@@ -358,7 +358,8 @@ class PlantTests(GardenTestCase):
         #editor = PlantEditor(model=self.plant)
         loc = Location(name=u'site1', code=u'1')
         loc2 = Location(name=u'site2', code=u'2')
-        self.session.add_all([loc, loc2])
+        loc2a = Location(name=u'site2a', code=u'2a')
+        self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
         p = Plant(accession=self.accession, location=loc)
         editor = AddPlantEditor(model=p)

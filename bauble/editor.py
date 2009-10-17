@@ -98,13 +98,13 @@ def default_completion_cell_data_func(column, renderer, model, treeiter,
     renderer.set_property('markup', utils.to_unicode(v))
 
 
-def default_completion_match_func(completion, key_string, iter):
+def default_completion_match_func(completion, key_string, treeiter):
     '''
     the default completion match function for
     GenericEditorView.attach_completions, does a case-insensitive string
     comparison of the the completions model[iter][0]
     '''
-    value = completion.get_model()[iter][0]
+    value = completion.get_model()[treeiter][0]
     return str(value).lower().startswith(key_string.lower())
 
 
@@ -264,9 +264,8 @@ class GenericEditorView(object):
 
         :param text_column: the value of the text-column property on the entry,
           default is -1
-
-
         """
+
         # TODO: we should add a default ctrl-space to show the list of
         # completions regardless of the length of the string
         completion = gtk.EntryCompletion()
@@ -279,11 +278,15 @@ class GenericEditorView(object):
         # TODO: inline completion doesn't work for me
         #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
-        completion.set_popup_set_width(True)
+        completion.props.popup_set_width = False
         if isinstance(entry_name, basestring):
             self.widgets[entry_name].set_completion(completion)
         else:
             entry_name.set_completion(completion)
+
+        # allow later access to the match func just in case
+        completion._match_func = match_func
+
         return completion
 
 
@@ -487,6 +490,8 @@ class GenericEditorPresenter(object):
             except ValidatorError, e:
                 self.add_problem('BAD_VALUE_%s' % attr)
                 value = None # make sure the value in the model is reset
+
+        #if getattr(self.model, attr) != value:
         setattr(self.model, attr, value)
 
 
@@ -515,7 +520,6 @@ class GenericEditorPresenter(object):
                     value = None # make sure the value in the model is reset
             return value
 
-
         if isinstance(widget, gtk.Entry):
             def on_changed(entry):
                 value = validate(entry.props.text)
@@ -535,15 +539,12 @@ class GenericEditorPresenter(object):
                 model = combo.get_model()
                 if not isinstance(combo, gtk.ComboBoxEntry):
                     if model is None:
-                        #debug('return 1')
                         return
                     i = combo.get_active_iter()
                     if i is None:
-                        #debug('return 2')
                         return
                     data = combo.get_model()[combo.get_active_iter()][0]
                 else:
-                    #debug('IS')
                     data = combo.child.props.text
                 #data = combo.get_model()[combo.get_active_iter()][0]
                 #debug('%s=%s' % (model_attr, data))
@@ -612,7 +613,10 @@ class GenericEditorPresenter(object):
                 # entry a match in the entry without having to select
                 # it from the popup
                 def _cmp(row, data):
-                    return utils.utf8(row[0]) == text
+                    if hasattr(comp, '_match_func'):
+                        return comp._match_func(comp, text, row.iter)
+                    else:
+                        return utils.utf8(row[0]) == text
                 #debug('search for %s' % text)
                 found = utils.search_tree_model(comp_model, text, _cmp)
                 #debug(found)
