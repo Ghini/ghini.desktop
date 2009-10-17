@@ -581,6 +581,7 @@ class GenericEditorPresenter(object):
         if not isinstance(widget, gtk.Entry):
             widget = self.view.widgets[widget]
         PROBLEM = hash(widget.get_name())
+        key_length = 2
         def add_completions(text):
             #debug('add_completions(%s)' % text)
             if get_completions is None:
@@ -590,7 +591,6 @@ class GenericEditorPresenter(object):
                 return
             # always get completions from the first two characters from
             # a string
-            values = get_completions(text[:1])
             def idle_callback(values):
                 completion = widget.get_completion()
                 utils.clear_model(completion)
@@ -598,6 +598,7 @@ class GenericEditorPresenter(object):
                 for v in values:
                     completion_model.append([v])
                 completion.set_model(completion_model)
+            values = get_completions(text[:key_length])
             gobject.idle_add(idle_callback, values)
 
         def on_changed(entry, *args):
@@ -629,7 +630,8 @@ class GenericEditorPresenter(object):
                 self.add_problem(PROBLEM, widget)
                 on_select(None)
 
-            if (not comp_model and len(text)>2) or len(text) == 2:
+            if (not comp_model and len(text)>key_length) or \
+                    len(text) == key_length:
                 #debug('add_completions: %s' % text)
                 add_completions(text)
             return True
