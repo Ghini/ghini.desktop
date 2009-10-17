@@ -590,10 +590,9 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         # seperate SpeciesSynonym models on add
         completions_model = SpeciesSynonym()
         def sp_get_completions(text):
-            query = self.session.query(Species)
-            query = query.join('genus')
-            query = query.filter(utils.ilike(Genus.genus, '%s%%' % text))
-            query = query.filter(Species.id != self.model.id)
+            query = self.session.query(Species).join('genus').\
+                filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                filter(Species.id != self.model.id)
             return query
 
         def on_select(value):
