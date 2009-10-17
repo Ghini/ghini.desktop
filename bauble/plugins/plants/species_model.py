@@ -48,14 +48,6 @@ class VNList(list):
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
 
-class SpeciesMapperExtension(MapperExtension):
-
-    def after_update(self, mapper, conn, instance):
-        instance.invalidate_str_cache()
-        return EXT_CONTINUE
-
-
-
 class Species(db.Base):
     """
     :Table name: species
@@ -117,8 +109,7 @@ class Species(db.Base):
                                         'infrasp_rank', 'genus_id',
                                         name='species_index'))
     __mapper_args__ = {'order_by': ['sp', 'sp_author', 'infrasp_rank',
-                                   'infrasp'],
-                       'extension': SpeciesMapperExtension()}
+                                   'infrasp'],}
 
     # columns
     sp = Column(Unicode(64), index=True)
@@ -154,7 +145,7 @@ class Species(db.Base):
     # this is a dummy relation, it is only here to make cascading work
     # correctly and to ensure that all synonyms related to this genus
     # get deleted if this genus gets deleted
-    __syn = relation('SpeciesSynonym',
+    _syn = relation('SpeciesSynonym',
                      primaryjoin='Species.id==SpeciesSynonym.synonym_id',
                      cascade='all, delete-orphan', uselist=True)
 
@@ -172,20 +163,6 @@ class Species(db.Base):
 
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
-        self.__cached_str = {}
-
-
-    @reconstructor
-    def init_on_load(self):
-        """
-        Called instead of __init__() when an Species is loaded from
-        the database.
-        """
-        self.__cached_str = {}
-
-
-    def invalidate_str_cache(self):
-        self.__cached_str = {}
 
 
     def __str__(self):
@@ -237,7 +214,7 @@ class Species(db.Base):
     hybrid_char = '\xe2\xa8\x89'
 
     @staticmethod
-    def str(species, authors=False, markup=False, use_cache=True):
+    def str(species, authors=False, markup=False):
         '''
         returns a string for species
 
@@ -250,13 +227,6 @@ class Species(db.Base):
         # TODO: this method will raise an error if the session is none
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
-        session = object_session(species)
-        if session and use_cache and not session.is_modified(species):
-            try:
-                return species.__cached_str[(markup, authors)]
-            except KeyError:
-                species.__cached_str[(markup, authors)] = None
-
         genus = str(species.genus)
         sp = species.sp
         isp = species.infrasp
@@ -354,7 +324,6 @@ class Species(db.Base):
 
         parts = chain(binomial, group, infrasp, infrasp2, tail)
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
-        species.__cached_str[(markup, authors)] = s
         return s
 
 
