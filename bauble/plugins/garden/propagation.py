@@ -580,32 +580,6 @@ class CuttingPresenter(editor.GenericEditorPresenter):
             #debug('%s: %s' % (widget, value))
             self.view.set_widget_value(widget, value)
 
-from bauble.editor import ValidatorError
-class DateValidator(object):
-    """
-    Validate that string is parseable with dateutil
-    """
-    def to_python(self, value):
-        if not value:
-            return None
-        dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
-        yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
-        default_year = 1
-        default = datetime.date(1, 1, default_year)
-        try:
-            date = date_parser.parse(value, dayfirst=dayfirst,
-                                     yearfirst=yearfirst, default=default)
-            if date.year == default_year:
-                raise ValueError
-        except Exception, e:
-            raise ValidatorError
-        return value
-
-
-
-class DateTimeValidator(object):
-    pass
-
 
 
 class SeedPresenter(editor.GenericEditorPresenter):
@@ -658,7 +632,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('seed_nseeds_entry', 'nseeds')
 
         self.assign_simple_handler('seed_sown_entry', 'date_sown',
-                                   DateValidator())
+                                   editor.DateValidator())
         utils.setup_date_button(self.view.widgets.seed_sown_entry,
                                 self.view.widgets.seed_sown_button)
         self.assign_simple_handler('seed_container_comboentry', 'container',
@@ -672,13 +646,13 @@ class SeedPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('seed_mvdto_entry', 'moved_to',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_germdate_entry', 'germ_date',
-                                   DateValidator())
+                                   editor.DateValidator())
         utils.setup_date_button(self.view.widgets.seed_germdate_entry,
                                 self.view.widgets.seed_germdate_button)
         self.assign_simple_handler('seed_ngerm_entry', 'nseedlings')
         self.assign_simple_handler('seed_pctgerm_entry', 'germ_pct')
         self.assign_simple_handler('seed_date_planted_entry', 'date_planted',
-                                   DateValidator())
+                                   editor.DateValidator())
         utils.setup_date_button(self.view.widgets.seed_date_planted_entry,
                                 self.view.widgets.seed_date_planted_button)
 
@@ -734,7 +708,8 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         self._seed_presenter = SeedPresenter(self, self.model, self.view,
                                                    self.session)
 
-        self.assign_simple_handler('prop_date_entry', 'date', DateValidator())
+        self.assign_simple_handler('prop_date_entry', 'date',
+                                   editor.DateValidator())
         if not self.model.date:
             # set it to empty first b/c if we set the date and its the
             # same as the date string already in the entry then it
