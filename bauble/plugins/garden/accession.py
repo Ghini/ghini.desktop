@@ -3,7 +3,7 @@
 #
 # accessions module
 #
-from datetime import datetime
+import datetime
 from decimal import Decimal, ROUND_DOWN
 import os
 import re
@@ -37,7 +37,6 @@ from bauble.plugins.garden.propagation import Propagation, \
     PropagationTabPresenter
 from bauble.plugins.garden.source import CollectionPresenter, \
     DonationPresenter
-
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -174,6 +173,18 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
+ver_level_descriptions = \
+    {0: _('The name of the record has not been checked by any authority.'),
+     1: _('The name of the record determined by comparison with other '\
+              'named plants.'),
+     2: _('The name of the record determined by a taxonomist or by other '\
+              'competent persons using herbarium and/or library and/or '\
+              ' documented living material.'),
+     3: _('The name of the plant determined by taxonomist engaged in ' \
+              'systematic revision of the group.'),
+     4: _('The record is part of type gathering or propagated from type '\
+              'material by asexual methods.')}
+
 class Verification(db.Base):
     """Verification table (verification)
 
@@ -195,19 +206,24 @@ class Verification(db.Base):
     __mapper_args__ = {'order_by': 'date'}
 
     # columns
-    verifier = Column(Unicode(64))
-    date = Column(types.Date)
+    verifier = Column(Unicode(64), nullable=False)
+    date = Column(types.Date, nullable=False)
     reference = Column(UnicodeText)
-    accession_id = Column(Integer, ForeignKey('accession.id'))
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
     # the level of assurance of this verification
-    level = Column(Integer)
+    level = Column(Integer, nullable=False)
 
     # what it was verified as
-    species_id = Column(Integer, ForeignKey('species.id'))
+    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
 
     # what it was verified from
-    prev_species_id = Column(Integer, ForeignKey('species.id'))
+    prev_species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+
+    species = relation('Species',
+                       primaryjoin='Verification.species_id==Species.id')
+    prev_species = relation('Species',
+                        primaryjoin='Verification.prev_species_id==Species.id')
 
     notes = Column(UnicodeText)
 
@@ -227,9 +243,9 @@ class Voucher(db.Base):
     parent_material = Column(Boolean, default=False)
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
-    accession  = relation('Accession', uselist=False,
-                          backref=backref('vouchers',
-                                          cascade='all, delete-orphan'))
+    # accession  = relation('Accession', uselist=False,
+    #                       backref=backref('vouchers',
+    #                                       cascade='all, delete-orphan'))
 
 
 # invalidate an accessions string cache after it has been updated
@@ -409,6 +425,8 @@ class Accession(db.Base):
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
                              backref=backref('accession', uselist=False))
+    vouchers = relation('Voucher', cascade='all, delete-orphan',
+                        backref=backref('accession', uselist=False))
     propagations = relation('Propagation', cascade='all, delete-orphan',
                             backref=backref('accession', uselist=False))
 
@@ -806,16 +824,19 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         for ver in model.verifications:
             self.add_verification_box(parent=self, model=ver)
 
-        debug(self.view.widgets.verifications_box.get_children())
+        # if no verifications were added then add an empty VerificationBox
         if len(self.view.widgets.verifications_box.get_children()) < 1:
             ver = Verification()
             self.model.verifications.append(ver)
             self.add_verification_box(parent=self, model=ver)
+        self._dirty = False
 
 
     def dirty(self):
-        verbox = self.view.widgets.verifications_box
-        return True in map(lambda box: box.dirty, verbox.get_children())
+        #verbox = self.view.widgets.verifications_box
+        #debug(map(lambda box: box.dirty, verbox.get_children()))
+        #return True in map(lambda box: box.dirty, verbox.get_children())
+        return self._dirty
 
     def refresh_view(self):
         pass
@@ -824,8 +845,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def on_add_clicked(self, *args):
         ver = Verification()
         self.model.verifications.append(ver)
-        debug(self.model)
-        debug(self.model.verifications)
         self.add_verification_box(parent=self, model=ver)
 
 
@@ -839,14 +858,51 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
     class VerificationBox(gtk.HBox):
 
+        def on_date_entry_changed(self, entry, data=None):
+            from bauble.editor import ValidatorError
+            value = None
+            PROBLEM = 'INVALID_DATE'
+            try:
+                value = editor.DateValidator().to_python(entry.props.text)
+            except ValidatorError:
+                self.presenter.add_problem(PROBLEM, entry)
+            else:
+                self.presenter.remove_problem(PROBLEM, entry)
+            self.set_model_attr('date', value)
+
+
+        def on_remove_button_clicked(self, button):
+            parent = self.get_parent()
+            msg = _("Are you sure you want to remove this verification?")
+            if not utils.yes_no_dialog(msg):
+                return
+            if parent:
+                parent.remove(self)
+
+            # disconnect clicked signal to make garbage collecting work
+            button.disconnect(self._sid)
+
+            # remove verification from accession
+            self.model.accession.verifications.remove(self.model)
+            self.presenter._dirty = True
+            self.presenter.parent_ref().refresh_sensitivity()
+
+
+        def set_model_attr(self, attr, value):
+            setattr(self.model, attr, value)
+            self.presenter._dirty = True
+            self.presenter.parent_ref().refresh_sensitivity()
+            #self.presenter.refresh_sensitivity()
+
+
         def __init__(self, parent, model):
             super(VerificationPresenter.VerificationBox, self).__init__(self)
+            check(not model or isinstance(model, Verification))
             self.dirty = False
             self.presenter = parent
             self.model = model
             if not self.model:
                 self.model = Verification()
-
             self.set_homogeneous(False)
             self.set_spacing(20)
 
@@ -869,7 +925,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             def on_changed(entry, attr):
                 text = entry.props.text#entry.get_text()
+                debug('changes: .%s.' % text)
+                if not text:
+                    debug('%s: None' % attr)
+                    self.set_model_attr(attr, None)
+                    return
                 self.set_model_attr(attr, utils.utf8(text))
+                debug('.%s. (%s)' % (self.model.verifier,
+                                     type(self.model.verifier)))
 
             # verifier entry
             self.verifier_entry = gtk.Entry()
@@ -881,12 +944,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             frame.get_child().add(self.verifier_entry)
             hbox.pack_start(frame)#, expand=True, fill=True)
 
-            # TODO: default to today's date
+            # TODO: need to setup if the date entry with a today
+            # button like the other date entries
 
             # date entry
             self.date_entry = gtk.Entry()
-            if self.model.date:
-                self.date_entry.props.text = self.model.date
+            if not self.model.date:
+                date = datetime.date.today()
+                self.date_entry.props.text = utils.today_str()
             self.presenter.view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
             frame = _make_frame(_('Date'))
@@ -902,6 +967,38 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             frame = _make_frame(_('Reference'))
             frame.get_child().add(self.reference_entry)
             hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # name entries
+            def sp_get_completions(text):
+                query = self.presenter.session.query(Species).join('genus').\
+                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                    filter(Species.id != self.model.id)
+                return query
+            def sp_cell_data_func(col, cell, model, treeiter, data=None):
+                cell.set_property('text', str(model[treeiter][0]))
+            hbox = gtk.HBox()
+            vbox.pack_start(hbox)
+            frame = _make_frame(_('Previous name'))
+            entry = gtk.Entry()
+            def on_prevsp_select(value):
+                self.set_model_attr('prev_species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            self.presenter.assign_completions_handler(entry,
+                                                      sp_get_completions,
+                                                      on_prevsp_select)
+            frame.get_child().add(entry)
+            hbox.pack_start(frame)
+
+            frame = _make_frame(_('New name'))
+            entry = gtk.Entry()
+            def on_sp_select(value):
+                self.set_model_attr('species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            self.presenter.assign_completions_handler(entry,
+                                                      sp_get_completions,
+                                                      on_sp_select)
+            frame.get_child().add(entry)
+            hbox.pack_start(frame)
 
             # note textview
             buff = gtk.TextBuffer()
@@ -930,51 +1027,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             align = gtk.Alignment(1.0, 0.5, 0, 0)
             align.add(button)
             self.pack_start(align, expand=False, fill=False)
-
-
-        def on_date_entry_changed(self, entry, data=None):
-            text = entry.get_text()
-            PROBLEM = self.presenter.PROBLEM_INVALID_DATE
-            if text == '':
-                self.set_model_attr('date', None)
-                self.presenter.remove_problem(PROBLEM, self.date_entry)
-                return
-
-            dt = None # datetime
-            m = _date_regex.match(text)
-            if m is None:
-                self.presenter.add_problem(PROBLEM, self.date_entry)
-            else:
-                try:
-                    ymd = [int(x) for x in [m.group('year'), m.group('month'),\
-                                            m.group('day')]]
-                    dt = datetime(*ymd).date()
-                    self.presenter.remove_problem(PROBLEM, self.date_entry)
-                except Exception, e:
-                    self.presenter.add_problem(PROBLEM, self.date_entry)
-            self.set_model_attr('date', dt)
-
-
-        def on_remove_button_clicked(self, button):
-            parent = self.get_parent()
-            msg = _("Are you sure you want to remove this verification?")
-            if not utils.yes_no_dialog(msg):
-                return
-            if parent:
-                parent.remove(self)
-
-            # disconnect clicked signal to make garbage collecting work
-            button.disconnect(self._sid)
-
-            # remove verification from accession
-            self.model.accession.verifications.remove(self.model)
-
-
-        def set_model_attr(self, attr, value):
-            setattr(self.model, attr, value)
-            self.dirty = True
-            self.presenter.parent_ref().refresh_sensitivity()
-
 
 
 
@@ -1191,6 +1243,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
 
+    # TODO: this should be changed to use the editor.DateValidator
     def on_acc_date_entry_changed(self, entry, data=None):
         text = entry.get_text()
         #debug('acc_date_entry: %s' % text)
@@ -1205,7 +1258,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                     m.group('day')]]
-            dt = datetime(*ymd).date()
+            dt = datetime.datetime(*ymd).date()
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
         except Exception:
@@ -1449,7 +1502,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if self.presenter.dirty():
@@ -1459,7 +1512,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
+                #self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -1468,7 +1521,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
+                #self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
