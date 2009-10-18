@@ -4,6 +4,7 @@
 # Description: a collection of functions and abstract classes for creating
 # editors for Bauble data
 #
+import datetime
 import traceback
 
 import gtk
@@ -13,7 +14,7 @@ from sqlalchemy.orm import *
 
 import bauble
 from bauble.error import check, CheckConditionError, BaubleError
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.error import CommitException
 from bauble.utils.log import log, debug, warning
@@ -23,6 +24,33 @@ from bauble.utils.log import log, debug, warning
 
 class ValidatorError(Exception):
     pass
+
+
+class DateValidator(object):
+    """
+    Validate that string is parseable with dateutil
+    """
+    def to_python(self, value):
+        if not value:
+            return None
+        dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+        yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        default_year = 1
+        default = datetime.date(1, 1, default_year)
+        try:
+            date = date_parser.parse(value, dayfirst=dayfirst,
+                                     yearfirst=yearfirst, default=default)
+            if date.year == default_year:
+                raise ValueError
+        except Exception, e:
+            raise ValidatorError
+        return value
+
+
+
+# class DateTimeValidator(object):
+#     pass
+
 
 class StringOrNoneValidator(object):
     """
@@ -233,7 +261,7 @@ class GenericEditorView(object):
         return False
 
 
-    def attach_completion(self, entry_name,
+    def attach_completion(self, entry,
                           cell_data_func=default_completion_cell_data_func,
                           match_func=default_completion_match_func,
                           minimum_key_length=2,
@@ -252,7 +280,7 @@ class GenericEditorView(object):
         from the completions it won't get set properly in the entry
         even though you call entry.set_text().
 
-        :param entry_name: the name of the entry to attach the completion
+        :param entry: the name of the entry to attach the completion
 
         :param cell_data_func: the function to use to display the rows in
           the completion popup
@@ -279,10 +307,10 @@ class GenericEditorView(object):
         #completion.set_inline_completion(True)
         completion.set_popup_completion(True)
         completion.props.popup_set_width = False
-        if isinstance(entry_name, basestring):
-            self.widgets[entry_name].set_completion(completion)
+        if isinstance(entry, basestring):
+            self.widgets[entry].set_completion(completion)
         else:
-            entry_name.set_completion(completion)
+            entry.set_completion(completion)
 
         # allow later access to the match func just in case
         completion._match_func = match_func
@@ -717,7 +745,14 @@ class GenericModelViewPresenterEditor(object):
         '''
         Commit the changes to self.session()
         '''
-        self.session.commit()
+        objs = list(self.session)
+        try:
+            self.session.commit()
+        except Exception, e:
+            debug(e)
+            self.session.rollback()
+            self.session.add_all(objs)
+            raise
         return True
 
 
