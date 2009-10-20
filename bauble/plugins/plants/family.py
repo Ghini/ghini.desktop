@@ -131,7 +131,7 @@ class Family(db.Base):
 
     # we use the blank string here instead of None so that the
     # contrains will work properly,
-    qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
+    qualifier = Column(Enum(values=['s. lat.', 's. str.', None]), default=None)
     notes = Column(UnicodeText)
 
     # relations

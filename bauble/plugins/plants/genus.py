@@ -144,7 +144,7 @@ class Genus(db.Base):
     # columns
     genus = Column(String(64), nullable=False, index=True)
     author = Column(Unicode(255), default=u'')
-    qualifier = Column(Enum(values=['s. lat.', 's. str', '']), default=u'')
+    qualifier = Column(Enum(values=['s. lat.', 's. str', None]), default=None)
     notes = Column(UnicodeText)
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 

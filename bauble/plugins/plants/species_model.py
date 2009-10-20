@@ -39,6 +39,18 @@ class VNList(list):
             debug(e)
 
 
+# TODO: connect multiple infraspecific ranks to the species and
+# species editor so we can multiple levels of infraspecific rank
+class InfraspecificRank(db.Base):
+    """
+    """
+    __tablename__ = 'infrasp_rank'
+    level = Column(Integer, nullable=False)
+    rank = Column(Unicode, nullable=False)
+    epithet = Column(Unicode, nullable=False)
+    author = Column(Unicode, nullable=False)
+    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
 # for the species, for more information about trade_names see,
@@ -115,8 +127,8 @@ class Species(db.Base):
     sp = Column(Unicode(64), index=True)
     sp_author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)
-    sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', '']),
-                     default=u'')
+    sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', None]),
+                     default=None)
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
 
@@ -124,13 +136,13 @@ class Species(db.Base):
     infrasp = Column(Unicode(50))
     infrasp_author = Column(Unicode(255))
     infrasp_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
-                                       'subf.', 'cv.', '']), default=u'')
+                                       'subf.', 'cv.', None]), default=None)
 
     # second infraspecific rank
     infrasp2 = Column(Unicode(50))
     infrasp2_author = Column(Unicode(255))
     infrasp2_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
-                                        'subf.', 'cv.', '']), default=u'')
+                                        'subf.', 'cv.', None]), default=None)
 
     notes = Column(UnicodeText)
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
