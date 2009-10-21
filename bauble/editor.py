@@ -7,6 +7,7 @@
 import datetime
 import traceback
 
+import dateutil.parser as date_parser
 import gtk
 import gobject
 from sqlalchemy import *
@@ -23,7 +24,12 @@ from bauble.utils.log import log, debug, warning
 # see the date entries for the accession and accession source presenters
 
 class ValidatorError(Exception):
-    pass
+
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
 
 
 class DateValidator(object):
@@ -43,7 +49,7 @@ class DateValidator(object):
             if date.year == default_year:
                 raise ValueError
         except Exception, e:
-            raise ValidatorError
+            raise ValidatorError(str(e))
         return value
 
 
