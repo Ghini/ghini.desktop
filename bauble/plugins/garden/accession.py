@@ -15,10 +15,12 @@ import xml.sax.saxutils as saxutils
 
 import gtk
 import gobject
+import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
+
 
 import bauble
 import bauble.db as db
@@ -864,7 +866,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             PROBLEM = 'INVALID_DATE'
             try:
                 value = editor.DateValidator().to_python(entry.props.text)
-            except ValidatorError:
+            except ValidatorError, e:
                 self.presenter.add_problem(PROBLEM, entry)
             else:
                 self.presenter.remove_problem(PROBLEM, entry)
@@ -888,8 +890,33 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter.parent_ref().refresh_sensitivity()
 
 
+        def on_entry_changed(self, entry, attr):
+            text = entry.props.text#entry.get_text()
+            if not text:
+                self.set_model_attr(attr, None)
+            else:
+                self.set_model_attr(attr, utils.utf8(text))
+
+
+
+        def on_combo_changed(self, combo, *args):
+            i = combo.get_active_iter()
+            level = combo.get_model()[i][0]
+            self.set_model_attr('level', level)
+
+
         def set_model_attr(self, attr, value):
             setattr(self.model, attr, value)
+            if attr != 'date' and not self.model.date:
+                # this is a little voodoo to set the date on the model
+                # since when we create a new verification box we add
+                # today's date to the entry but we don't set the model
+                # so the presenter doesn't appear dirty...we have to
+                # used tmp since the changed signal won't fire if the
+                # new value is the same as the old
+                tmp = self.date_entry.props.text
+                self.date_entry.props.text = ''
+                self.date_entry.props.text = tmp
             self.presenter._dirty = True
             self.presenter.parent_ref().refresh_sensitivity()
             #self.presenter.refresh_sensitivity()
@@ -912,7 +939,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             hbox = gtk.HBox()
             vbox.pack_start(hbox)#, expand=True, fill=True)
 
-            def _make_frame(label_txt):
+            def _make_frame(label_txt, child):
                 label = gtk.Label()
                 label.set_markup('<b>%s</b>' % label_txt)
                 frame = gtk.Frame()
@@ -921,27 +948,16 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 align = gtk.Alignment(.5, .5, 1.0, 1.0)
                 align.set_padding(0, 0, 12, 0)
                 frame.add(align)
+                align.add(child)
                 return frame
-
-            def on_changed(entry, attr):
-                text = entry.props.text#entry.get_text()
-                debug('changes: .%s.' % text)
-                if not text:
-                    debug('%s: None' % attr)
-                    self.set_model_attr(attr, None)
-                    return
-                self.set_model_attr(attr, utils.utf8(text))
-                debug('.%s. (%s)' % (self.model.verifier,
-                                     type(self.model.verifier)))
 
             # verifier entry
             self.verifier_entry = gtk.Entry()
             if self.model.verifier:
                 self.verifier_entry.props.text = self.model.verifier
             self.presenter.view.connect(self.verifier_entry, 'changed',
-                                        on_changed, 'verifier')
-            frame = _make_frame(_('Verifier'))
-            frame.get_child().add(self.verifier_entry)
+                                        self.on_entry_changed, 'verifier')
+            frame = _make_frame(_('Verifier'), self.verifier_entry)
             hbox.pack_start(frame)#, expand=True, fill=True)
 
             # TODO: need to setup if the date entry with a today
@@ -954,8 +970,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 self.date_entry.props.text = utils.today_str()
             self.presenter.view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
-            frame = _make_frame(_('Date'))
-            frame.get_child().add(self.date_entry)
+            frame = _make_frame(_('Date'), self.date_entry)
             hbox.pack_start(frame)#, expand=True, fill=True)
 
             # reference entry
@@ -963,9 +978,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.reference:
                 self.reference_entry.props.text = self.model.reference
             self.presenter.view.connect(self.reference_entry, 'changed',
-                                        on_changed, 'reference')
-            frame = _make_frame(_('Reference'))
-            frame.get_child().add(self.reference_entry)
+                                        self.on_entry_changed, 'reference')
+            frame = _make_frame(_('Reference'), self.reference_entry)
             hbox.pack_start(frame)#, expand=True, fill=True)
 
             # name entries
@@ -976,9 +990,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 return query
             def sp_cell_data_func(col, cell, model, treeiter, data=None):
                 cell.set_property('text', str(model[treeiter][0]))
-            hbox = gtk.HBox()
+
+            hbox = gtk.HBox() # species name hbox
             vbox.pack_start(hbox)
-            frame = _make_frame(_('Previous name'))
             entry = gtk.Entry()
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
@@ -986,10 +1000,9 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter.assign_completions_handler(entry,
                                                       sp_get_completions,
                                                       on_prevsp_select)
-            frame.get_child().add(entry)
+            frame = _make_frame(_('Previous name'), entry)
             hbox.pack_start(frame)
 
-            frame = _make_frame(_('New name'))
             entry = gtk.Entry()
             def on_sp_select(value):
                 self.set_model_attr('species', value)
@@ -997,22 +1010,47 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             self.presenter.assign_completions_handler(entry,
                                                       sp_get_completions,
                                                       on_sp_select)
-            frame.get_child().add(entry)
+            frame = _make_frame(_('New name'), entry)
             hbox.pack_start(frame)
+
+            hbox = gtk.HBox() # level and notes hbox
+            vbox.pack_start(hbox)
+            combo = gtk.ComboBox()
+            renderer = gtk.CellRendererText()
+            #renderer.props.wrap_mode = gtk.WRAP_WORD
+            renderer.props.wrap_mode = pango.WRAP_WORD
+            renderer.props.wrap_width = 600
+            combo.pack_start(renderer, True)
+            def cell_data_func(col, cell, model, treeiter):
+                level = model[treeiter][0]
+                descr = model[treeiter][1]
+                cell.set_property('text', '%s: %s' % (level, descr))
+            combo.set_cell_data_func(renderer, cell_data_func)
+            model = gtk.ListStore(int, str)
+            for level, descr in ver_level_descriptions.iteritems():
+                model.append([level, descr])
+            combo.set_model(model)
+            self.presenter.view.connect(combo, 'changed',
+                                        self.on_combo_changed)
+            frame = _make_frame(_('Level'), combo)
+            hbox.pack_start(frame, expand=False, fill=False)
+            #vbox.pack_start(frame, expand=False, fill=False)
 
             # note textview
             buff = gtk.TextBuffer()
             if self.model.notes:
                 buff.props.text = self.model.reference
-            self.presenter.view.connect(buff, 'changed', on_changed, 'notes')
+            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
+                                        'notes')
             textview = gtk.TextView(buffer=buff)
             textview.set_border_width(1)
-            frame = _make_frame(_('Notes'))
-            frame.get_child().add(textview)
+            textview.props.height_request = 50
+            frame = _make_frame(_('Notes'), textview)
+            #hbox.pack_start(frame)#, expand=True, fill=True)
             vbox.pack_start(frame)#, expand=True, fill=True)
 
             sep = gtk.HSeparator()
-            vbox.pack_start(sep, False, False, padding=10)
+            vbox.pack_start(sep, False, False, padding=40)
 
             # remove button
             button = gtk.Button()
@@ -1026,7 +1064,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                        self.on_remove_button_clicked)
             align = gtk.Alignment(1.0, 0.5, 0, 0)
             align.add(button)
-            self.pack_start(align, expand=False, fill=False)
+            self.pack_start(align, expand=False, fill=False, padding=20)
 
 
 

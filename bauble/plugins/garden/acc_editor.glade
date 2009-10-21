@@ -598,7 +598,7 @@
                               <object class="GtkVBox" id="verifications_box">
                                 <property name="visible">True</property>
                                 <property name="orientation">vertical</property>
-                                <property name="spacing">20</property>
+                                <property name="spacing">10</property>
                                 <child>
                                   <placeholder/>
                                 </child>
