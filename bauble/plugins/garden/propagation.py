@@ -629,8 +629,8 @@ class SeedPresenter(editor.GenericEditorPresenter):
 
         self.assign_simple_handler('seed_pretreatment_textview','pretreatment',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('seed_nseeds_entry', 'nseeds')
-
+        self.assign_simple_handler('seed_nseeds_entry', 'nseeds',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_sown_entry', 'date_sown',
                                    editor.DateValidator())
         utils.setup_date_button(self.view.widgets.seed_sown_entry,
@@ -710,6 +710,9 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
 
         self.assign_simple_handler('prop_date_entry', 'date',
                                    editor.DateValidator())
+        utils.setup_date_button(self.view.widgets.prop_date_entry,
+                                self.view.widgets.prop_date_button)
+
         if not self.model.date:
             # set it to empty first b/c if we set the date and its the
             # same as the date string already in the entry then it
@@ -763,18 +766,19 @@ class PropagationEditorPresenter(editor.GenericEditorPresenter):
         elif self.model.prop_type == u'Seed':
             model = self.model._seed
 
+
         if model:
-        # filter out special columns that have nullable=True
-            col_filter = lambda c: not c.name.startswith('_') and \
-                not c.name.endswith('_id') and not c.name == 'id' and \
-                not c.nullable
-            for col in filter(col_filter, object_mapper(model).columns):
-                # set sensitive = False for any column that are null and
-                # shouldn't be
-                if not getattr(model, col.name):
-                    #debug('%s: %s' % (col.name, getattr(model, col.name)))
-                    sensitive = False
-                    break
+            invalid = utils.get_invalid_columns(model)
+            # TODO: highlight the widget with are associated with the
+            # columns that have bad values
+            if invalid:
+                sensitive = False
+            #     if self.model.prop_type == u'UnrootedCutting':
+            #         presenter = self._cutting_presenter
+            #         model = self.model._cutting
+            #     elif self.model.prop_type == u'Seed':
+            #         presenter = self._seed_presenter
+            #         model = self.model._seed
         else:
             sensitive = False
 

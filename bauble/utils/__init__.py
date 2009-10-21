@@ -1108,3 +1108,29 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         raise ValueError('unknown message box type: %s' % type)
     parent.pack_start(msg_box)
     return msg_box
+
+
+def get_invalid_columns(obj):
+    """
+    Return column names on a mapped object that have values
+    which aren't valid for the model.
+
+    Invalid columns meet the following criteria:
+    - nullable columns with null values
+    - ...what else?
+    """
+    from sqlalchemy.orm import object_mapper
+    mapper = object_mapper(obj)
+    invalid_columns = []
+    # filter out special columns that have nullable=True
+    col_filter = lambda c: not c.name.startswith('_') and \
+        not c.name.endswith('_id') and not c.name == 'id' and \
+        not c.nullable
+    for col in filter(col_filter, mapper.columns):
+        # specifically test for not None since the we're
+        # testing for nullable
+        name = col.name
+        if not getattr(obj, name) is not None:
+            #debug('%s: %s' % (col.name, getattr(model, col.name)))
+            invalid_columns.append(name)
+    return invalid_columns
