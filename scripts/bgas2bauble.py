@@ -266,9 +266,11 @@ def species_dict_from_rec(rec, defaults=None):
         row['sp_author'] = utils.utf8(rec['authors'].replace('|','').strip())
 
     # set default infrasp values
-    row['infrasp_rank'] = u''
+    #row['infrasp_rank'] = u''
+    row['infrasp_rank'] = None
     row['infrasp'] = None
-    row['infrasp2_rank'] = u''
+    #row['infrasp2_rank'] = u''
+    row['infrasp2_rank'] = None
     row['infrasp2'] = None
 
     # if rec['rank'] and not rec['infrepi']:
