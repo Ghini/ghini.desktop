@@ -828,9 +828,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         # if no verifications were added then add an empty VerificationBox
         if len(self.view.widgets.verifications_box.get_children()) < 1:
-            ver = Verification()
-            self.model.verifications.append(ver)
-            self.add_verification_box(parent=self, model=ver)
+            self.add_verification_box(parent=self)
         self._dirty = False
 
 
@@ -845,12 +843,12 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
     def on_add_clicked(self, *args):
-        ver = Verification()
-        self.model.verifications.append(ver)
-        self.add_verification_box(parent=self, model=ver)
+        #ver = Verification()
+        #self.model.verifications.append(ver)
+        self.add_verification_box(parent=self)
 
 
-    def add_verification_box(self, parent, model):
+    def add_verification_box(self, parent, model=None):
         verbox = VerificationPresenter.VerificationBox(parent, model)
         self.view.widgets.verifications_box.pack_start(verbox, expand=False,
                                                        fill=False)
@@ -885,7 +883,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             button.disconnect(self._sid)
 
             # remove verification from accession
-            self.model.accession.verifications.remove(self.model)
+            if self.model.accession:
+                self.model.accession.verifications.remove(self.model)
             self.presenter._dirty = True
             self.presenter.parent_ref().refresh_sensitivity()
 
@@ -896,7 +895,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 self.set_model_attr(attr, None)
             else:
                 self.set_model_attr(attr, utils.utf8(text))
-
 
 
         def on_combo_changed(self, combo, *args):
@@ -917,6 +915,12 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 tmp = self.date_entry.props.text
                 self.date_entry.props.text = ''
                 self.date_entry.props.text = tmp
+                # if the verification is new and isn't yet associated
+                # with an accession then set the accession when we
+                # start changing values, this way we can setup a dummy
+                # verification in the interface
+                if not self.model.accession:
+                    self.presenter.model.verifications.append(self.model)
             self.presenter._dirty = True
             self.presenter.parent_ref().refresh_sensitivity()
             #self.presenter.refresh_sensitivity()
