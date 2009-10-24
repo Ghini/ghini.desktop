@@ -393,7 +393,9 @@ class PropagationTests(GardenTestCase):
              'leaves_reduced_pct': 25,
              'flower_buds': u'None',
              'wound': u'Single',
-             'fungal_soak': u'Physan',
+             'fungicide': u'Physan',
+             'media': u'standard mix',
+             'container': u'4" pot',
              'hormone': u'Auxin powder',
              'cover': u'Poly cover',
              'location': u'Mist frame',
@@ -405,13 +407,14 @@ class PropagationTests(GardenTestCase):
              'nseeds': 24,
              'date_sown': utils.today_str(),
              'container': u"tray",
-             'compost': u'standard seed compost',
+             'media': u'standard seed compost',
              'location': u'mist tent',
              'moved_from': u'mist tent',
              'moved_to': u'hardening table',
+             'media': u'standard mix',
              'germ_date': utils.today_str(),
              'germ_pct': 99,
-             'nseedling': 23,
+             'nseedlings': 23,
              'date_planted': utils.today_str()}
         self.accession = self.create(Accession, species=self.species,code=u'1')
         self.session.commit()
@@ -455,7 +458,6 @@ class PropagationTests(GardenTestCase):
         summary = prop.get_summary()
         #debug(summary)
         self.assert_(summary)
-
 
 
     def test_cutting_property(self):
@@ -509,6 +511,7 @@ class PropagationTests(GardenTestCase):
         view.set_widget_value('prop_date_entry', utils.today_str())
         cutting_presenter = editor.presenter._cutting_presenter
         for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+            #debug('%s=%s' % (widget, self.default_cutting_values[attr]))
             view.set_widget_value(widget, self.default_cutting_values[attr])
         update_gui()
         editor.handle_response(gtk.RESPONSE_OK)
@@ -987,7 +990,23 @@ class VerificationTests(GardenTestCase):
 
 
     def test_verifications(self):
-        verification =  Verification()
+        acc = self.create(Accession, species=self.species, code=u'1')
+        self.session.add(acc)
+        self.session.commit()
+
+        acc = self.create(Accession, species=self.species, code=u'1')
+        ver =  Verification()
+        ver.verifier = u'me'
+        acc.verifications.append(ver)
+        try:
+            #self.session.commit()
+            self.session.flush()
+        except Exception, e:
+            debug(e)
+            #self.session.rollback()
+        self.assert_(ver in acc.verifications)
+        self.assert_(ver in self.session)
+
 
 
 class LocationTests(GardenTestCase):

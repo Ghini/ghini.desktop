@@ -517,6 +517,7 @@ class GenericEditorPresenter(object):
         :param value: the value the attribute will be set to
         :param validator: validates the value before setting it
         """
+        #debug('editor.set_model_attr(%s, %s)' % (attr, value))
         if validator:
             try:
                 value = validator.to_python(value)
@@ -568,8 +569,11 @@ class GenericEditorPresenter(object):
         elif isinstance(widget, gtk.ComboBox):
             # this also handles gtk.ComboBoxEntry since it extends
             # gtk.ComboBox
-            def changed(combo, data=None):
-                #debug('changed')
+            def combo_changed(combo, data=None):
+                if not combo.get_active_iter():
+                    # get here if there is no model on the ComboBoxEntry
+                    return
+                value = combo.get_model()[combo.get_active_iter()][0]
                 model = combo.get_model()
                 if not isinstance(combo, gtk.ComboBoxEntry):
                     if model is None:
@@ -577,15 +581,19 @@ class GenericEditorPresenter(object):
                     i = combo.get_active_iter()
                     if i is None:
                         return
-                    data = combo.get_model()[combo.get_active_iter()][0]
+                    value = combo.get_model()[combo.get_active_iter()][0]
                 else:
-                    data = combo.child.props.text
+                    value = combo.child.props.text
                 #data = combo.get_model()[combo.get_active_iter()][0]
                 #debug('%s=%s' % (model_attr, data))
                 if isinstance(widget, gtk.ComboBoxEntry):
-                    widget.child.set_text(str(data))
-                self.set_model_attr(model_attr, data, validator)
-            self.view.connect(widget, 'changed', changed)
+                    widget.child.set_text(str(value))
+                self.set_model_attr(model_attr, value, validator)
+            def entry_changed(entry, data=None):
+                self.set_model_attr(model_attr, entry.props.text, validator)
+            self.view.connect(widget, 'changed', combo_changed)
+            if isinstance(widget, gtk.ComboBoxEntry):
+                self.view.connect(widget.child, 'changed', entry_changed)
         elif isinstance(widget, (gtk.ToggleButton, gtk.CheckButton,
                                  gtk.RadioButton)):
             def toggled(button, data=None):
