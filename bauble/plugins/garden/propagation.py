@@ -104,8 +104,8 @@ class Propagation(db.Base):
             values.append(_('Flower buds: %s') % \
                               flower_buds_values[c.flower_buds])
             values.append(_('Wounded: %s' % wound_values[c.wound]))
-            if c.fungal_soak:
-                values.append(_('Fungal soak: %s' % c.fungal_soak))
+            if c.fungicide:
+                values.append(_('Fungal soak: %s' % c.fungicide))
             if c.hormone:
                 values.append(_('Hormone treatment: %s' % c.hormone))
             if c.bottom_heat_temp:
@@ -114,8 +114,8 @@ class Propagation(db.Base):
                                 bottom_heat_unit_values[c.bottom_heat_unit]))
             if c.container:
                 values.append(_('Container: %s' % c.container))
-            if c.compost:
-                values.append(_('Compost: %s' % c.compost))
+            if c.media:
+                values.append(_('Media: %s' % c.media))
             if c.location:
                 values.append(_('Location: %s' % c.location))
             if c.cover:
@@ -138,8 +138,8 @@ class Propagation(db.Base):
                 values.append(_('Date sown: %s') % date_sown)
             if seed.container:
                 values.append(_('Container: %s') % seed.container)
-            if seed.compost:
-                values.append(_('Compost: %s') % seed.compost)
+            if seed.media:
+                values.append(_('Media: %s') % seed.media)
             if seed.covered:
                 values.append(_('Covered: %s') % seed.covered)
             if seed.location:
@@ -225,11 +225,10 @@ class PropCutting(db.Base):
     flower_buds = Column(types.Enum(values=flower_buds_values.keys()),
                          nullable=False)
 
-    fungal_soak = Column(Unicode) # fungal soak
-
+    fungicide = Column(Unicode) # fungal soak
     hormone = Column(Unicode) # powder/liquid/None....solution
 
-    compost = Column(Unicode)
+    media = Column(Unicode)
     container = Column(Unicode)
     location = Column(Unicode)
     cover = Column(Unicode) # vispore, poly, plastic dome, poly bag
@@ -261,7 +260,7 @@ class PropSeed(db.Base):
     nseeds = Column(Integer, nullable=False)
     date_sown = Column(types.Date, nullable=False)
     container = Column(Unicode) # 4" pot plug tray, other
-    compost = Column(Unicode) # seedling media, sphagnum, other
+    media = Column(Unicode) # seedling media, sphagnum, other
 
     # covered with #2 granite grit: no, yes, lightly heavily
     covered = Column(Unicode)
@@ -428,10 +427,12 @@ class CuttingPresenter(editor.GenericEditorPresenter):
                            'cutting_lvs_reduced_entry': 'leaves_reduced_pct',
                            'cutting_buds_combo': 'flower_buds',
                            'cutting_wound_combo': 'wound',
-                           'cutting_fungal_entry': 'fungal_soak',
-                           'cutting_hormone_entry': 'hormone',
-                           'cutting_location_entry': 'location',
-                           'cutting_cover_entry': 'cover',
+                           'cutting_fungal_comboentry': 'fungicide',
+                           'cutting_media_comboentry': 'media',
+                           'cutting_container_comboentry': 'container',
+                           'cutting_hormone_comboentry': 'hormone',
+                           'cutting_location_comboentry': 'location',
+                           'cutting_cover_comboentry': 'cover',
                            'cutting_heat_entry': 'bottom_heat_temp',
                            'cutting_heat_unit_combo': 'bottom_heat_unit',
                            'cutting_rooted_pct_entry': 'rooted_pct'
@@ -466,6 +467,23 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.init_translatable_combo('cutting_heat_unit_combo',
                                      bottom_heat_unit_values)
 
+        widgets = self.view.widgets
+
+        distinct = lambda c: utils.get_distinct_values(c, self.session)
+        utils.setup_text_combobox(widgets.cutting_hormone_comboentry,
+                                  distinct(PropCutting.hormone))
+        utils.setup_text_combobox(widgets.cutting_cover_comboentry,
+                                  distinct(PropCutting.cover))
+        utils.setup_text_combobox(widgets.cutting_fungal_comboentry,
+                                  distinct(PropCutting.fungicide))
+        utils.setup_text_combobox(widgets.cutting_location_comboentry,
+                                  distinct(PropCutting.location))
+        utils.setup_text_combobox(widgets.cutting_container_comboentry,
+                                  distinct(PropCutting.container))
+        utils.setup_text_combobox(widgets.cutting_media_comboentry,
+                                  distinct(PropCutting.media))
+
+
         self.refresh_view()
 
         self.assign_simple_handler('cutting_type_combo', 'cutting_type')
@@ -475,15 +493,21 @@ class CuttingPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('cutting_leaves_combo', 'leaves')
         self.assign_simple_handler('cutting_lvs_reduced_entry',
                                    'leaves_reduced_pct')
+
+        self.assign_simple_handler('cutting_media_comboentry', 'media',
+                                   editor.UnicodeOrNoneValidator())
+        self.assign_simple_handler('cutting_container_comboentry', 'container',
+                                   editor.UnicodeOrNoneValidator())
+
         self.assign_simple_handler('cutting_buds_combo', 'flower_buds')
         self.assign_simple_handler('cutting_wound_combo', 'wound')
-        self.assign_simple_handler('cutting_fungal_entry', 'fungal_soak',
+        self.assign_simple_handler('cutting_fungal_comboentry', 'fungicide',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('cutting_hormone_entry', 'hormone',
+        self.assign_simple_handler('cutting_hormone_comboentry', 'hormone',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('cutting_location_entry', 'location',
+        self.assign_simple_handler('cutting_location_comboentry', 'location',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('cutting_cover_entry', 'cover',
+        self.assign_simple_handler('cutting_cover_comboentry', 'cover',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('cutting_heat_entry', 'bottom_heat_temp')
         self.assign_simple_handler('cutting_heat_unit_combo',
@@ -588,7 +612,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
                            'seed_nseeds_entry': 'nseeds',
                            'seed_sown_entry': 'date_sown',
                            'seed_container_comboentry': 'container',
-                           'seed_media_comboentry': 'compost',
+                           'seed_media_comboentry': 'media',
                            'seed_location_comboentry': 'location',
                            'seed_mvdfrom_entry': 'moved_from',
                            'seed_mvdto_entry': 'moved_to',
@@ -613,17 +637,15 @@ class SeedPresenter(editor.GenericEditorPresenter):
             self.propagation._seed = PropSeed()
         self.model = self.model._seed
 
-        def get_distinct_values(column):
-            q = self.session.query(column).distinct()
-            return [v[0] for v in q if v != (None,)]
-
+        widgets = self.view.widgets
+        distinct = lambda c: utils.get_distinct_values(c, self.session)
         # TODO: should also setup a completion on the entry
         utils.setup_text_combobox(self.view.widgets.seed_media_comboentry,
-                                  get_distinct_values(PropSeed.compost))
+                                  distinct(PropSeed.media))
         utils.setup_text_combobox(self.view.widgets.seed_container_comboentry,
-                                  get_distinct_values(PropSeed.container))
+                                 distinct(PropSeed.container))
         utils.setup_text_combobox(self.view.widgets.seed_location_comboentry,
-                                  get_distinct_values(PropSeed.location))
+                                  distinct(PropSeed.location))
 
         self.refresh_view()
 
@@ -637,7 +659,7 @@ class SeedPresenter(editor.GenericEditorPresenter):
                                 self.view.widgets.seed_sown_button)
         self.assign_simple_handler('seed_container_comboentry', 'container',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('seed_media_comboentry', 'compost',
+        self.assign_simple_handler('seed_media_comboentry', 'media',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('seed_location_comboentry', 'location',
                                    editor.UnicodeOrNoneValidator())

@@ -282,21 +282,19 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
         widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox):
         # handles gtk.ComboBox and gtk.ComboBoxEntry
+        treeiter = None
         if not widget.get_model():
-            warning('utils.set_widget_value(): '\
+            warning('utils.set_widget_value(): ' \
                         'combo doesn\'t have a model: %s' % widget.get_name())
-            return
-        treeiter = combo_get_value_iter(widget, value,
-                                cmp = lambda row, value: row[index] == value)
-        if treeiter:
-            if isinstance(widget, gtk.ComboBoxEntry):
-                v = widget.get_model()[treeiter][index]
-                widget.child.props.text = str(v)
-            widget.set_active_iter(treeiter)
-        elif widget.get_model() is not None:
-            widget.set_active(-1)
-            if isinstance(widget, gtk.ComboBoxEntry):
-                widget.child.set_text('')
+        else:
+            treeiter = combo_get_value_iter(widget, value,
+                                  cmp = lambda row, value: row[index] == value)
+            if treeiter:
+                widget.set_active_iter(treeiter)
+            else:
+                widget.set_active(-1)
+        if isinstance(widget, gtk.ComboBoxEntry):
+            widget.child.props.text = value
     elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
@@ -1108,6 +1106,14 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         raise ValueError('unknown message box type: %s' % type)
     parent.pack_start(msg_box)
     return msg_box
+
+
+def get_distinct_values(column, session):
+    """
+    Return a list of all the distinct values in a table column
+    """
+    q = session.query(column).distinct()
+    return [v[0] for v in q if v != (None,)]
 
 
 def get_invalid_columns(obj):
