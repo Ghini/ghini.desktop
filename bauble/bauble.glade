@@ -5,18 +5,21 @@
   <object class="GtkWindow" id="main_window">
     <property name="title" translatable="yes">Bauble</property>
     <property name="role">bauble</property>
-    <property name="startup_id">bauble</property>
     <property name="default_width">800</property>
     <property name="default_height">600</property>
+    <property name="startup_id">bauble</property>
     <child>
       <object class="GtkVBox" id="top_box">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="main_box">
             <property name="visible">True</property>
+            <property name="orientation">vertical</property>
             <child>
               <object class="GtkVBox" id="menu_box">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <placeholder/>
                 </child>
@@ -33,6 +36,7 @@
                 <child>
                   <object class="GtkVBox" id="vbox2">
                     <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkComboBoxEntry" id="main_comboentry">
                         <property name="visible">True</property>
@@ -78,6 +82,7 @@
             <child>
               <object class="GtkVBox" id="vbox1">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkHBox" id="msg_box_parent">
                     <property name="visible">True</property>
@@ -94,6 +99,7 @@
                 <child>
                   <object class="GtkVBox" id="view_box">
                     <property name="visible">True</property>
+                    <property name="orientation">vertical</property>
                     <child>
                       <placeholder/>
                     </child>
