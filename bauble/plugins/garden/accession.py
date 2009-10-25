@@ -29,7 +29,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
 from bauble.utils.log import debug
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 from bauble.error import CommitException
 import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
@@ -648,7 +648,7 @@ class AccessionEditorView(editor.GenericEditorView):
         save the current state of the gui to the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
-            prefs[pref] = self.widgets[expander].get_expanded()
+            prefs.prefs[pref] = self.widgets[expander].get_expanded()
 
 
     def restore_state(self):
@@ -656,7 +656,7 @@ class AccessionEditorView(editor.GenericEditorView):
         restore the state of the gui from the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
-            expanded = prefs.get(pref, True)
+            expanded = prefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
 
@@ -824,11 +824,16 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         # order by date of the existing verifications
         for ver in model.verifications:
-            self.add_verification_box(parent=self, model=ver)
+            expander = self.add_verification_expander(parent=self, model=ver)
+            expander.set_expanded(False) # all are collapsed to start
 
-        # if no verifications were added then add an empty VerificationBox
+        # if no verifications were added then add an empty VerificationExpander
         if len(self.view.widgets.verifications_box.get_children()) < 1:
-            self.add_verification_box(parent=self)
+            self.add_verification_expander(parent=self)
+
+        # expand the first verification expander
+        self.view.widgets.verifications_box.get_children()[0].\
+            set_expanded(True)
         self._dirty = False
 
 
@@ -845,18 +850,19 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def on_add_clicked(self, *args):
         #ver = Verification()
         #self.model.verifications.append(ver)
-        self.add_verification_box(parent=self)
+        self.add_verification_expander(parent=self)
 
 
-    def add_verification_box(self, parent, model=None):
-        verbox = VerificationPresenter.VerificationBox(parent, model)
-        self.view.widgets.verifications_box.pack_start(verbox, expand=False,
+    def add_verification_expander(self, parent, model=None):
+        expander = VerificationPresenter.VerificationExpander(parent, model)
+        self.view.widgets.verifications_box.pack_start(expander, expand=False,
                                                        fill=False)
-        self.view.widgets.verifications_box.reorder_child(verbox, 0)
-        verbox.show_all()
+        self.view.widgets.verifications_box.reorder_child(expander, 0)
+        expander.show_all()
+        return expander
 
 
-    class VerificationBox(gtk.HBox):
+    class VerificationExpander(gtk.Expander):
 
         def on_date_entry_changed(self, entry, data=None):
             from bauble.editor import ValidatorError
@@ -897,7 +903,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 self.set_model_attr(attr, utils.utf8(text))
 
 
-        def on_combo_changed(self, combo, *args):
+        def on_level_combo_changed(self, combo, *args):
             i = combo.get_active_iter()
             level = combo.get_model()[i][0]
             self.set_model_attr('level', level)
@@ -922,23 +928,44 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 if not self.model.accession:
                     self.presenter.model.verifications.append(self.model)
             self.presenter._dirty = True
+            if self.model.date:
+                if isinstance(self.model.date, basestring):
+                    self.set_label(self.model.date)
+                else:
+                    format = prefs.prefs[prefs.date_format_pref]
+                    safe = utils.xml_safe(self.model.date.strftime(format))
+                    debug(safe)
+                    self.set_label(safe)
             self.presenter.parent_ref().refresh_sensitivity()
             #self.presenter.refresh_sensitivity()
 
 
+        def set_label(self, label):
+            label = '<b>%s</b>' % label
+            super(VerificationPresenter.VerificationExpander,
+                  self).set_label(label)
+
         def __init__(self, parent, model):
-            super(VerificationPresenter.VerificationBox, self).__init__(self)
+            super(VerificationPresenter.VerificationExpander,
+                  self).__init__(self)
             check(not model or isinstance(model, Verification))
+            alignment = gtk.Alignment()
+            self.add(alignment)
+            self.box = gtk.HBox()
+            alignment.add(self.box)
+            self.set_expanded(True)
+            self.set_label('') # empty string avoids warning from default label
+            self.set_use_markup(True)
             self.dirty = False
             self.presenter = parent
             self.model = model
             if not self.model:
                 self.model = Verification()
-            self.set_homogeneous(False)
-            self.set_spacing(20)
+            self.box.set_homogeneous(False)
+            self.box.set_spacing(20)
 
             vbox = gtk.VBox()
-            self.pack_start(vbox)#, expand=True, fill=True)
+            self.box.pack_start(vbox)#, expand=True, fill=True)
 
             hbox = gtk.HBox()
             vbox.pack_start(hbox)#, expand=True, fill=True)
@@ -969,9 +996,14 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
             # date entry
             self.date_entry = gtk.Entry()
-            if not self.model.date:
-                date = datetime.date.today()
-                self.date_entry.props.text = utils.today_str()
+            if self.model.date:
+                format = prefs.prefs[prefs.date_format_pref]
+                safe = utils.xml_safe(self.model.date.strftime(format))
+                debug(safe)
+                self.date_entry.props.text = safe
+            else:
+                self.date_entry.props.text = utils.xml_safe(utils.today_str())
+            self.set_label(self.date_entry.props.text)
             self.presenter.view.connect(self.date_entry, 'changed',
                                         self.on_date_entry_changed)
             frame = _make_frame(_('Date'), self.date_entry)
@@ -1001,6 +1033,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             def on_prevsp_select(value):
                 self.set_model_attr('prev_species', value)
             self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.prev_species:
+                entry.props.text = self.model.prev_species
             self.presenter.assign_completions_handler(entry,
                                                       sp_get_completions,
                                                       on_prevsp_select)
@@ -1011,6 +1045,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             def on_sp_select(value):
                 self.set_model_attr('species', value)
             self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.species:
+                entry.props.text = self.model.species
             self.presenter.assign_completions_handler(entry,
                                                       sp_get_completions,
                                                       on_sp_select)
@@ -1020,6 +1056,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             hbox = gtk.HBox() # level and notes hbox
             vbox.pack_start(hbox)
             combo = gtk.ComboBox()
+
+            # setup the level combo
             renderer = gtk.CellRendererText()
             #renderer.props.wrap_mode = gtk.WRAP_WORD
             renderer.props.wrap_mode = pango.WRAP_WORD
@@ -1034,16 +1072,17 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             for level, descr in ver_level_descriptions.iteritems():
                 model.append([level, descr])
             combo.set_model(model)
+            if self.model.level:
+                utils.set_widget_value(combo, self.model.level)
             self.presenter.view.connect(combo, 'changed',
-                                        self.on_combo_changed)
+                                        self.on_level_combo_changed)
             frame = _make_frame(_('Level'), combo)
             hbox.pack_start(frame, expand=False, fill=False)
-            #vbox.pack_start(frame, expand=False, fill=False)
 
             # note textview
             buff = gtk.TextBuffer()
             if self.model.notes:
-                buff.props.text = self.model.reference
+                buff.props.text = self.model.notes
             self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
                                         'notes')
             textview = gtk.TextView(buffer=buff)
@@ -1068,7 +1107,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                                        self.on_remove_button_clicked)
             align = gtk.Alignment(1.0, 0.5, 0, 0)
             align.add(button)
-            self.pack_start(align, expand=False, fill=False, padding=20)
+            self.box.pack_start(align, expand=False, fill=False, padding=20)
 
 
 
