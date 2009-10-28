@@ -279,7 +279,7 @@ class FamilyTests(PlantTestCase):
         f.qualifier = 's. lat.'
         self.assert_(str(f) == 'fam s. lat.')
 
-    def itest_family_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantEditor
         """
