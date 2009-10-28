@@ -1505,13 +1505,13 @@ class NotesPresenter(GenericEditorPresenter):
         self.box = self.widgets.notes_expander_box
 
         for note in self.notes:
-            expander = self.add_note(note)
-            expander.props.expanded = False
+            box = self.add_note(note)
+            box.set_expanded(False)
 
         if len(self.notes) < 1:
-            expander = self.add_note()
+            self.add_note()
 
-        self.box.get_children()[0].props.expanded = True # expand first one
+        self.box.get_children()[0].set_expanded(True) # expand first one
 
         self.widgets.notes_add_button.connect('clicked',
                                               self.on_add_button_clicked)
@@ -1521,8 +1521,8 @@ class NotesPresenter(GenericEditorPresenter):
 
 
     def on_add_button_clicked(self, *args):
-        expander = self.add_note()
-        expander.props.expanded = True
+        box = self.add_note()
+        box.set_expanded(True)
 
 
     def on_remove_button_clicked(self, *args):
@@ -1539,17 +1539,17 @@ class NotesPresenter(GenericEditorPresenter):
         self.box.reorder_child(sep, 0)
         sep.show()
 
-        expander = NotesPresenter.NoteExpander(self, note)
+        expander = NotesPresenter.NoteBox(self, note)
         self.box.pack_start(expander, expand=False, fill=False, padding=10)
         self.box.reorder_child(expander, 0)
         expander.show_all()
         return expander
 
 
-    class NoteExpander(gtk.Expander):
+    class NoteBox(gtk.HBox):
 
         def __init__(self, presenter, model):
-            super(NotesPresenter.NoteExpander, self).__init__()
+            super(NotesPresenter.NoteBox, self).__init__()
 
             # open the glade file and extract the markup that the
             # expander will use
@@ -1563,14 +1563,15 @@ class NotesPresenter(GenericEditorPresenter):
 
             notes_box = self.widgets.notes_box
             self.widgets.remove_parent(notes_box)
-            self.add(notes_box)
+            self.pack_start(notes_box)
             self.model = model
             self.session = object_session(model)
             self.presenter = presenter
 
-            self.props.use_markup = True
-            self.props.label = ''
-            self.props.label_widget.ellipsize = pango.ELLIPSIZE_END
+            self.widgets.notes_expander.props.use_markup = True
+            self.widgets.notes_expander.props.label = ''
+            self.widgets.notes_expander.props.label_widget.\
+                ellipsize = pango.ELLIPSIZE_END
 
             mapper = object_mapper(self.model)
             values = utils.get_distinct_values(mapper.c['category'],
@@ -1600,6 +1601,10 @@ class NotesPresenter(GenericEditorPresenter):
 
             self.update_label()
             self.show_all()
+
+
+        def set_expanded(self, expand):
+            self.widgets.notes_expander.props.expanded = expand
 
 
         def on_date_entry_changed(self, entry, *args):
@@ -1677,7 +1682,7 @@ class NotesPresenter(GenericEditorPresenter):
                 else:
                     label.append(note_str)
 
-            self.set_label(' '.join(label))
+            self.widgets.notes_expander.set_label(' '.join(label))
 
         def set_model_attr(self, attr, value):
             self.update_label()
