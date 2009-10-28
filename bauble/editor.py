@@ -611,94 +611,6 @@ class GenericEditorPresenter(object):
                              'widget type not supported: %s' % type(widget))
 
 
-    def assign_completions_handler(self, widget, get_completions,
-                                   on_select=lambda v: v):
-        """
-        Dynamically handle completions on a gtk.Entry.
-
-        :param widget: a gtk.Entry instance or widget name
-
-        :param get_completions: the method to call when a list of
-          completions is requested, returns a list of completions
-
-        :param on_select: callback for when a value is selected from
-          the list of completions
-        """
-        if not isinstance(widget, gtk.Entry):
-            widget = self.view.widgets[widget]
-        PROBLEM = hash(widget.get_name())
-        key_length = 2
-        def add_completions(text):
-            #debug('add_completions(%s)' % text)
-            if get_completions is None:
-                # get_completions is None usually means that the
-                # completions model already has a static list of
-                # completions
-                return
-            # always get completions from the first two characters from
-            # a string
-            def idle_callback(values):
-                completion = widget.get_completion()
-                utils.clear_model(completion)
-                completion_model = gtk.ListStore(object)
-                for v in values:
-                    completion_model.append([v])
-                completion.set_model(completion_model)
-            values = get_completions(text[:key_length])
-            gobject.idle_add(idle_callback, values)
-
-        def on_changed(entry, *args):
-            text = entry.get_text()
-            #debug('on_changed: %s' % text)
-            comp = entry.get_completion()
-            comp_model = comp.get_model()
-            found = []
-            if comp_model:
-                # search the tree model to see if the text in the
-                # entry matches one of the completions, if so then
-                # emit the match-selected signal, this allows us to
-                # entry a match in the entry without having to select
-                # it from the popup
-                def _cmp(row, data):
-                    if hasattr(comp, '_match_func'):
-                        return comp._match_func(comp, text, row.iter)
-                    else:
-                        return utils.utf8(row[0]) == text
-                #debug('search for %s' % text)
-                found = utils.search_tree_model(comp_model, text, _cmp)
-                #debug(found)
-                if len(found) == 1:
-                    v = comp.get_model()[found[0]][0]
-                    #debug('found: %s'  % str(v))
-                    comp.emit('match-selected', comp.get_model(), found[0])
-
-            if text != '' and not found and PROBLEM not in self.problems:
-                self.add_problem(PROBLEM, widget)
-                on_select(None)
-
-            if (not comp_model and len(text)>key_length) or \
-                    len(text) == key_length:
-                #debug('add_completions: %s' % text)
-                add_completions(text)
-            return True
-
-        def on_match_select(completion, compl_model, treeiter):
-            value = compl_model[treeiter][0]
-            #debug('on_match_select(): %s' % value)
-            widget.props.text = utils.utf8(value)
-            widget.set_position(-1)
-            self.remove_problem(PROBLEM, widget)
-            on_select(value)
-            return True # return True or on_changed() will be called with ''
-
-        completion = widget.get_completion()
-        check(completion is not None, 'the gtk.Entry %s doesn\'t have a '\
-              'completion attached to it' % widget.get_name())
-
-        self.view.connect(widget, 'changed', on_changed)
-        self.view.connect(completion, 'match-selected', on_match_select)
-
-
     def start(self):
         raise NotImplementedError
 
@@ -1277,9 +1189,12 @@ class GenericEditorPresenter(object):
         combo = self.view.widgets[widget_name]
         mapper = object_mapper(self.model)
         values = sorted(mapper.c[field].type.values)
-        if None in values:
-            values.remove(None)
-            values.insert(0, '')
+        # WARNING: this is really dangerous since it might mean that a
+        # value is stored in the column that is not in the Enum
+        #
+        #if None in values:
+        #    values.remove(None)
+        #    values.insert(0, '')
         utils.setup_text_combobox(combo, values)
 
 
@@ -1449,7 +1364,11 @@ class GenericEditorPresenter(object):
                 if len(found) == 1:
                     v = comp.get_model()[found[0]][0]
                     #debug('found: %s'  % str(v))
-                    comp.emit('match-selected', comp.get_model(), found[0])
+                    # only auto select if the full string has been entered
+                    if text == utils.utf8(v):
+                        comp.emit('match-selected', comp.get_model(), found[0])
+                    else:
+                        found = None
 
             if text != '' and not found and PROBLEM not in self.problems:
                 self.add_problem(PROBLEM, widget)
@@ -1463,9 +1382,7 @@ class GenericEditorPresenter(object):
 
         def on_match_select(completion, compl_model, treeiter):
             value = compl_model[treeiter][0]
-            #debug('on_match_select(): %s' % value)
             widget.props.text = utils.utf8(value)
-            widget.set_position(-1)
             self.remove_problem(PROBLEM, widget)
             on_select(value)
             return True # return True or on_changed() will be called with ''
@@ -1591,15 +1508,15 @@ class NotesPresenter(GenericEditorPresenter):
             expander = self.add_note(note)
             expander.props.expanded = False
 
-        if len(self.notes) < 1
+        if len(self.notes) < 1:
             expander = self.add_note()
 
         self.box.get_children()[0].props.expanded = True # expand first one
 
         self.widgets.notes_add_button.connect('clicked',
                                               self.on_add_button_clicked)
-        self.widgets.notes_remove_button.connect('clicked',
-                                                 self.on_remove_button_clicked)
+        # self.widgets.notes_remove_button.connect('clicked',
+        #                                          self.on_remove_button_clicked)
         self.box.show_all()
 
 
