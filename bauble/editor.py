@@ -1365,7 +1365,7 @@ class GenericEditorPresenter(object):
                     v = comp.get_model()[found[0]][0]
                     #debug('found: %s'  % str(v))
                     # only auto select if the full string has been entered
-                    if text == utils.utf8(v):
+                    if text.lower() == utils.utf8(v).lower():
                         comp.emit('match-selected', comp.get_model(), found[0])
                     else:
                         found = None
@@ -1576,7 +1576,6 @@ class NotesPresenter(GenericEditorPresenter):
             mapper = object_mapper(self.model)
             values = utils.get_distinct_values(mapper.c['category'],
                                                self.session)
-            values = ['propagation', 'carp']
             utils.setup_text_combobox(self.widgets.category_comboentry, values)
 
             utils.setup_date_button(self.widgets.date_entry,
@@ -1634,18 +1633,19 @@ class NotesPresenter(GenericEditorPresenter):
                 text = combo.get_model()[treeiter][0]
             else:
                 return
-            self.widgets.category_comboentry.child.props.text = text
+            self.widgets.category_comboentry.child.props.text = \
+                utils.utf8(text)
 
 
         def on_category_entry_changed(self, entry, *args):
             """
             """
-            self.model.category = entry.props.text
+            self.model.category = utils.utf8(entry.props.text)
             self.update_label()
 
 
         def on_note_buffer_changed(self, buff, *args):
-            self.model.note = buff.props.text
+            self.model.note = utils.utf8(buff.props.text)
             self.update_label()
 
 
