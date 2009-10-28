@@ -19,7 +19,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-from bauble.types import Enum
+import bauble.types as types
 from bauble.utils.log import debug
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -118,9 +118,6 @@ class Genus(db.Base):
         *author*:
             The name or abbreviation of the author who published this genus.
 
-        *notes*:
-            A free text field for information relative to this genus.
-
     :Properties:
         *family*:
             The family of the genus.
@@ -144,8 +141,9 @@ class Genus(db.Base):
     # columns
     genus = Column(String(64), nullable=False, index=True)
     author = Column(Unicode(255), default=u'')
-    qualifier = Column(Enum(values=['s. lat.', 's. str', None]), default=None)
-    notes = Column(UnicodeText)
+    qualifier = Column(types.Enum(values=['s. lat.', 's. str', None]),
+                       default=None)
+
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
     # relations
@@ -181,6 +179,21 @@ class Genus(db.Base):
                              xml.sax.saxutils.escape(genus.author)] \
                      if s not in ('', None)])
 
+
+
+class GenusNote(db.Base):
+    """
+    Notes for the genus table
+    """
+    __tablename__ = 'genus_note'
+
+    date = Column(types.Date, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    genus = relation('Genus', uselist=False,
+                      backref=backref('notes', cascade='all, delete-orphan'))
 
 
 class GenusSynonym(db.Base):
@@ -223,8 +236,8 @@ Genus.species = relation('Species', cascade='all, delete-orphan',
 class GenusEditorView(editor.GenericEditorView):
 
     syn_expanded_pref = 'editor.genus.synonyms.expanded'
-    expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
-                          'gen_notes_expander': 'editor.genus.notes.expanded'}
+    # expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
+    #                       'gen_notes_expander': 'editor.genus.notes.expanded'}
 
     _tooltips = {
         'gen_family_entry': _('The family name'),
@@ -235,7 +248,7 @@ class GenusEditorView(editor.GenericEditorView):
                          'synonym enter a family name and select one from the '
                          'list of completions.  Then click Add to add it to '\
                          'the list of synonyms.'),
-        'gen_notes_textview': _('Miscelleanous notes about this genus.')
+        #'gen_notes_textview': _('Miscelleanous notes about this genus.')
      }
 
 
@@ -272,17 +285,19 @@ class GenusEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
-            prefs[pref] = self.widgets[expander].get_expanded()
+        # for expander, pref in self.expanders_pref_map.iteritems():
+        #     prefs[pref] = self.widgets[expander].get_expanded()
+        pass
 
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
-            expanded = prefs.get(pref, True)
-            self.widgets[expander].set_expanded(expanded)
+        # for expander, pref in self.expanders_pref_map.iteritems():
+        #     expanded = prefs.get(pref, True)
+        #     self.widgets[expander].set_expanded(expanded)
+        pass
 
 
     def get_window(self):
@@ -305,9 +320,9 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'genus',
-                           'gen_author_entry': 'author',
-#                           'gen_qualifier_combo': 'qualifier'
-                           'gen_notes_textview': 'notes'}
+                           'gen_author_entry': 'author'}
+                           #'gen_qualifier_combo': 'qualifier'
+                           #'gen_notes_textview': 'notes'}
 
 
     def __init__(self, model, view):
@@ -364,9 +379,11 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('gen_genus_entry', 'genus')
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
+        notes_presenter = editor.NotesPresenter(GenusNote, self.model.notes,
+                                          self.view.widgets.notes_parent_box)
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
-        self.assign_simple_handler('gen_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
+        # self.assign_simple_handler('gen_notes_textview', 'notes',
+        #                            editor.UnicodeOrNoneValidator())
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
