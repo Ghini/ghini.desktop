@@ -132,7 +132,6 @@ class Family(db.Base):
     # we use the blank string here instead of None so that the
     # contrains will work properly,
     qualifier = Column(Enum(values=['s. lat.', 's. str.', None]), default=None)
-    notes = Column(UnicodeText)
 
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
@@ -159,6 +158,22 @@ class Family(db.Base):
         else:
             return ' '.join([s for s in [family.family,
                                     family.qualifier] if s not in (None,'')])
+
+
+
+class FamilyNote(db.Base):
+    """
+    Notes for the family table
+    """
+    __tablename__ = 'family_note'
+
+    date = Column(Date, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
+    family = relation('Family', uselist=False,
+                      backref=backref('notes', cascade='all, delete-orphan'))
 
 
 
@@ -212,7 +227,6 @@ class FamilyEditorView(editor.GenericEditorView):
         'fam_qualifier_combo': _('The family qualifier helps to remove '
                                  'ambiguities that might be associated with '
                                  'this family name'),
-        'fam_notes_textview': _('Miscelleanous notes about this family.'),
         'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
                          'synonym enter a family name and select one from the '
                          'list of completions.  Then click Add to add it to '\
@@ -234,13 +248,15 @@ class FamilyEditorView(editor.GenericEditorView):
 
 
     def save_state(self):
-        prefs[self.syn_expanded_pref] = \
-                                self.widgets.fam_syn_expander.get_expanded()
+        # prefs[self.syn_expanded_pref] = \
+        #                         self.widgets.fam_syn_expander.get_expanded()
+        pass
 
 
     def restore_state(self):
-        expanded = prefs.get(self.syn_expanded_pref, True)
-        self.widgets.fam_syn_expander.set_expanded(expanded)
+        # expanded = prefs.get(self.syn_expanded_pref, True)
+        # self.widgets.fam_syn_expander.set_expanded(expanded)
+        pass
 
 
     def get_window(self):
@@ -263,8 +279,7 @@ class FamilyEditorView(editor.GenericEditorView):
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'family',
-                           'fam_qualifier_combo': 'qualifier',
-                           'fam_notes_textview': 'notes'}
+                           'fam_qualifier_combo': 'qualifier'}
 
     def __init__(self, model, view):
         '''
@@ -283,7 +298,9 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         # connect signals
         self.assign_simple_handler('fam_family_entry', 'family')
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
-        self.assign_simple_handler('fam_notes_textview', 'notes')
+
+        notes_presenter = editor.NotesPresenter(FamilyNote, self.model.notes,
+                                          self.view.widgets.notes_parent_box)
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
@@ -352,7 +369,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self._selected = value
         self.assign_completions_handler('fam_syn_entry', fam_get_completions,
                                         on_select=on_select)
-
         self.view.connect('fam_syn_add_button', 'clicked',
                           self.on_add_button_clicked)
         self.view.connect('fam_syn_remove_button', 'clicked',
@@ -506,7 +522,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the ' \
@@ -514,9 +529,9 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                       utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or \
+                not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -714,23 +729,23 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
+# class NotesExpander(InfoExpander):
 
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.fam_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
+#     def __init__(self, widgets):
+#         InfoExpander.__init__(self, _("Notes"), widgets)
+#         notes_box = self.widgets.fam_notes_box
+#         self.widgets.remove_parent(notes_box)
+#         self.vbox.pack_start(notes_box)
 
 
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('fam_notes_data', row.notes)
+#     def update(self, row):
+#         if row.notes is None:
+#             self.set_expanded(False)
+#             self.set_sensitive(False)
+#         else:
+#             self.set_expanded(True)
+#             self.set_sensitive(True)
+#             #self.set_widget_value('fam_notes_data', row.notes)
 
 
 
@@ -805,7 +820,7 @@ class FamilyInfoBox(InfoBox):
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
+        #self.notes = NotesExpander(self.widgets)
         self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
@@ -829,5 +844,5 @@ class FamilyInfoBox(InfoBox):
         self.props.update(row)
 
 
-__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
-           'family_context_menu', 'family_markup_func']
+#__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
+#           'family_context_menu', 'family_markup_func']
