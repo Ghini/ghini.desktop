@@ -278,6 +278,7 @@ source_type_values = {u'Collection': _('Collection'),
                       u'Donation': _('Donation'),
                       None: _('')}
 
+
 class Accession(db.Base):
     """
     :Table name: accession
@@ -818,18 +819,19 @@ class VerificationPresenter(editor.GenericEditorPresenter):
         # remove any verification boxes that would have been added to
         # the widget in a previous run
         for kid in self.view.widgets.verifications_box.get_children():
-            p = kid.get_parent()
-            if p:
-                p.remove(kid)
+            self.view.widgets.remove_parent(kid)
+            # p = kid.get_parent()
+            # if p:
+            #     p.remove(kid)
 
         # order by date of the existing verifications
         for ver in model.verifications:
-            expander = self.add_verification_expander(parent=self, model=ver)
+            expander = self.add_verification_expander(model=ver)
             expander.set_expanded(False) # all are collapsed to start
 
         # if no verifications were added then add an empty VerificationExpander
         if len(self.view.widgets.verifications_box.get_children()) < 1:
-            self.add_verification_expander(parent=self)
+            self.add_verification_expander()
 
         # expand the first verification expander
         self.view.widgets.verifications_box.get_children()[0].\
@@ -850,11 +852,11 @@ class VerificationPresenter(editor.GenericEditorPresenter):
     def on_add_clicked(self, *args):
         #ver = Verification()
         #self.model.verifications.append(ver)
-        self.add_verification_expander(parent=self)
+        self.add_verification_expander()
 
 
-    def add_verification_expander(self, parent, model=None):
-        expander = VerificationPresenter.VerificationExpander(parent, model)
+    def add_verification_expander(self, model=None):
+        expander = VerificationPresenter.VerificationExpander(self, model)
         self.view.widgets.verifications_box.pack_start(expander, expand=False,
                                                        fill=False)
         self.view.widgets.verifications_box.reorder_child(expander, 0)
@@ -916,8 +918,8 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 # since when we create a new verification box we add
                 # today's date to the entry but we don't set the model
                 # so the presenter doesn't appear dirty...we have to
-                # used tmp since the changed signal won't fire if the
-                # new value is the same as the old
+                # use a tmp variable since the changed signal won't
+                # fire if the new value is the same as the old
                 tmp = self.date_entry.props.text
                 self.date_entry.props.text = ''
                 self.date_entry.props.text = tmp
@@ -937,7 +939,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                     debug(safe)
                     self.set_label(safe)
             self.presenter.parent_ref().refresh_sensitivity()
-            #self.presenter.refresh_sensitivity()
 
 
         def set_label(self, label):
