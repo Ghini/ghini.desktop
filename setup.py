@@ -94,7 +94,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                 "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
                 "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll",
                 "libpango-1.0-0.dll", "libpangowin32-1.0-0.dll",
-                "libxml2", "libglade-2.0-0", "zlib1"]
+                "libxml2", "zlib1"]
         }
     }
 
