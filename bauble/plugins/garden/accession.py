@@ -106,6 +106,38 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     return dec.quantize(nplaces)
 
 
+def get_next_code():
+    """
+    Return the next available accession code.  This function should be
+    specific to the institution.
+
+    At the moment it assumes that you are using an accession code of
+    the format: YYYY.CCCC where YYYY is the four digit year and CCCC
+    is the four digit code left filled with zeroes
+
+    If there is an error getting the next code the None is returned.
+    """
+    # auto generate/increment the accession code
+    session = bauble.Session()
+    year = str(datetime.date.today().year)
+    start = '%s%s' % (year, Plant.get_delimiter())
+    q = session.query(Accession.code).\
+        filter(Accession.code.startswith(start))
+    next = None
+    try:
+        if q.count() > 0:
+            codes = [int(code[0][len(start):]) for code in q]
+            next = '%s%s' % (start, str(max(codes)+1).zfill(4))
+        else:
+            next = '%s%s0001' % (datetime.date.today().year,
+                                 Plant.get_delimiter())
+    except Exception, e:
+        debug('exception')
+        debug(e)
+        pass
+    finally:
+        session.close()
+    return next
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
@@ -466,7 +498,8 @@ class Accession(db.Base):
         built even if the species hasn't been changeq since the last call
         to this method.
         """
-        # TODO: should we be using sesssion.is_modified() here
+        # WARNING: don't use session.is_modified() here because it
+        # will query lots of dependencies
         try:
             cached = self.__cached_species_str[(markup, authors)]
         except KeyError:
@@ -1000,7 +1033,6 @@ class VerificationPresenter(editor.GenericEditorPresenter):
             if self.model.date:
                 format = prefs.prefs[prefs.date_format_pref]
                 safe = utils.xml_safe(self.model.date.strftime(format))
-                debug(safe)
                 self.date_entry.props.text = safe
             else:
                 self.date_entry.props.text = utils.xml_safe(utils.today_str())
@@ -1551,11 +1583,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
-            # TODO: model is new so autogenerate a new accession number
-            # year.next accession
-            # 1. select all accessions that start with year
-            # 2. if none exists create a year.0001
-            # 3. if exists seperate
+            model.code = get_next_code()
         super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
