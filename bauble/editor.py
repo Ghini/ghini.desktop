@@ -7,6 +7,7 @@
 import datetime
 import os
 import traceback
+import weakref
 
 import dateutil.parser as date_parser
 import gtk
@@ -1463,7 +1464,7 @@ class GenericModelViewPresenterEditor(object):
         try:
             self.session.commit()
         except Exception, e:
-            debug(e)
+            warning(e)
             self.session.rollback()
             self.session.add_all(objs)
             raise
@@ -1483,8 +1484,14 @@ class GenericModelViewPresenterEditor(object):
 
 class NotesPresenter(GenericEditorPresenter):
 
-    def __init__(self, cls, notes, parent_container):
-        super(NotesPresenter, self).__init__(None, None)
+    def __init__(self, presenter, notes_property, parent_container):
+        """
+        :param presenter: the parent presenter of this presenter
+        :param notes_property: the string name of the notes property of
+        the presenter.mode
+        :parent_container: the gtk.Container to add the notes editor box to
+        """
+        super(NotesPresenter, self).__init__(presenter.model, None)
 
         # open the glade file and extract the UI markup the presenter will use
         filename = os.path.join(paths.lib_dir(), 'notes.glade')
@@ -1494,12 +1501,16 @@ class NotesPresenter(GenericEditorPresenter):
         builder.add_from_string(etree.tostring(xml))
         self.widgets = utils.BuilderWidgets(builder)
 
-        self.cls = cls
-        self.notes = notes
+        self.parent_ref = weakref.ref(presenter)
+        self.note_cls = object_mapper(presenter.model).\
+            get_property(notes_property).mapper.class_
+        self.notes = getattr(presenter.model, notes_property)
         self.parent_container = parent_container
         editor_box = self.widgets.notes_editor_box#gtk.VBox()
         self.widgets.remove_parent(editor_box)
         parent_container.add(editor_box)
+
+        self._dirty = False
 
         # the expander are added to self.box
         self.box = self.widgets.notes_expander_box
@@ -1515,9 +1526,11 @@ class NotesPresenter(GenericEditorPresenter):
 
         self.widgets.notes_add_button.connect('clicked',
                                               self.on_add_button_clicked)
-        # self.widgets.notes_remove_button.connect('clicked',
-        #                                          self.on_remove_button_clicked)
         self.box.show_all()
+
+
+    def dirty():
+        return self._dirty
 
 
     def on_add_button_clicked(self, *args):
@@ -1525,20 +1538,7 @@ class NotesPresenter(GenericEditorPresenter):
         box.set_expanded(True)
 
 
-    def on_remove_button_clicked(self, *args):
-        pass
-
-
     def add_note(self, note=None):
-        if not note:
-            note = self.cls()
-            self.notes.append(note)
-
-        sep = gtk.HSeparator()
-        self.box.pack_start(sep, expand=False, fill=False)
-        self.box.reorder_child(sep, 0)
-        sep.show()
-
         expander = NotesPresenter.NoteBox(self, note)
         self.box.pack_start(expander, expand=False, fill=False, padding=10)
         self.box.reorder_child(expander, 0)
@@ -1548,7 +1548,7 @@ class NotesPresenter(GenericEditorPresenter):
 
     class NoteBox(gtk.HBox):
 
-        def __init__(self, presenter, model):
+        def __init__(self, presenter, model=None):
             super(NotesPresenter.NoteBox, self).__init__()
 
             # open the glade file and extract the markup that the
@@ -1564,15 +1564,20 @@ class NotesPresenter(GenericEditorPresenter):
             notes_box = self.widgets.notes_box
             self.widgets.remove_parent(notes_box)
             self.pack_start(notes_box)
-            self.model = model
-            self.session = object_session(model)
+
+            self.session = object_session(presenter.model)
             self.presenter = presenter
+            if model:
+                self.model = model
+            else:
+                self.model = presenter.note_cls()
 
             self.widgets.notes_expander.props.use_markup = True
             self.widgets.notes_expander.props.label = ''
             self.widgets.notes_expander.props.label_widget.\
                 ellipsize = pango.ELLIPSIZE_END
 
+            # set the model values on the widgets
             mapper = object_mapper(self.model)
             values = utils.get_distinct_values(mapper.c['category'],
                                                self.session)
@@ -1580,14 +1585,18 @@ class NotesPresenter(GenericEditorPresenter):
 
             utils.setup_date_button(self.widgets.date_entry,
                                     self.widgets.date_button)
-            utils.set_widget_value(self.widgets.date_entry, model.date or '')
-            utils.set_widget_value(self.widgets.user_entry, model.user or '')
+            utils.set_widget_value(self.widgets.date_entry,
+                                   self.model.date or utils.today_str())
+            utils.set_widget_value(self.widgets.user_entry,
+                                   self.model.user or '')
             utils.set_widget_value(self.widgets.category_comboentry,
-                                  model.category or '')
+                                  self.model.category or '')
             buff = gtk.TextBuffer()
             self.widgets.note_textview.set_buffer(buff)
-            utils.set_widget_value(self.widgets.note_textview,model.note or '')
+            utils.set_widget_value(self.widgets.note_textview,
+                                   self.model.note or '')
 
+            # connect the signal handlers
             self.widgets.date_entry.connect('changed',
                                             self.on_date_entry_changed)
             self.widgets.user_entry.connect('changed',
@@ -1597,6 +1606,8 @@ class NotesPresenter(GenericEditorPresenter):
             self.widgets.category_comboentry.child.connect('changed',
                                              self.on_category_entry_changed)
             buff.connect('changed', self.on_note_buffer_changed)
+            self.widgets.notes_remove_button.connect('clicked',
+                                             self.on_notes_remove_button)
 
             self.update_label()
             self.show_all()
@@ -1604,6 +1615,14 @@ class NotesPresenter(GenericEditorPresenter):
 
         def set_expanded(self, expand):
             self.widgets.notes_expander.props.expanded = expand
+
+
+        def on_notes_remove_button(self, button, *args):
+            """
+            """
+            if self.model in self.presenter.notes:
+                self.presenter.notes.remove(self.model)
+            self.widgets.remove_parent(self.widgets.notes_box)
 
 
         def on_date_entry_changed(self, entry, *args):
@@ -1615,39 +1634,46 @@ class NotesPresenter(GenericEditorPresenter):
                 self.presenter.add_problem(PROBLEM, entry)
             else:
                 self.presenter.remove_problem(PROBLEM, entry)
-                self.model.date = text
-            self.update_label()
+                self.set_model_attr('date', text)
 
 
         def on_user_entry_changed(self, entry, *args):
-            self.model.user = entry.props.text
-            self.update_label()
+            value = utils.utf8(entry.props.text)
+            if not value: # if value == ''
+                value = None
+            self.set_model_attr('user', value)
 
 
         def on_category_combo_changed(self, combo, *args):
             """
+            Sets the text on the entry.  The model value is set in the
+            entry "changed" handler.
             """
             text = ''
             treeiter = combo.get_active_iter()
             if treeiter:
-                text = combo.get_model()[treeiter][0]
+                text = utils.utf8(combo.get_model()[treeiter][0])
             else:
                 return
             self.widgets.category_comboentry.child.props.text = \
                 utils.utf8(text)
 
 
+
         def on_category_entry_changed(self, entry, *args):
             """
             """
-            self.model.category = utils.utf8(entry.props.text)
-            self.update_label()
+            value = utils.utf8(entry.props.text)
+            if not value: # if value == ''
+                value = None
+            self.set_model_attr('category', value)
 
 
         def on_note_buffer_changed(self, buff, *args):
-            self.model.note = utils.utf8(buff.props.text)
-            self.update_label()
-
+            value = utils.utf8(buff.props.text)
+            if not value: # if value == ''
+                value = None
+            self.set_model_attr('note', value)
 
 
         def update_label(self):
@@ -1658,8 +1684,10 @@ class NotesPresenter(GenericEditorPresenter):
                 date_str = utils.xml_safe_utf8(datetime.date.strftime(format))
             elif self.model.date:
                 date_str = utils.xml_safe_utf8(self.model.date)
+            else:
+                date_str = self.widgets.date_entry.props.text
 
-            if self.model.user and self.model.date:
+            if self.model.user and date_str:# and self.model.date:
                 label.append(_('%(user)s on %(date)s') % \
                              dict(user=utils.xml_safe_utf8(self.model.user),
                                   date=date_str))
@@ -1684,19 +1712,48 @@ class NotesPresenter(GenericEditorPresenter):
 
             self.widgets.notes_expander.set_label(' '.join(label))
 
+
         def set_model_attr(self, attr, value):
-            self.update_label()
             setattr(self.model, attr, value)
+            self.presenter._dirty = True
+            if attr != 'date' and not self.model.date:
+                # this is a little voodoo to set the date on the model
+                # since when we create a new verification box we add
+                # today's date to the entry but we don't set the model
+                # so the presenter doesn't appear dirty...we have to
+                # use a tmp variable since the changed signal won't
+                # fire if the new value is the same as the old
+                entry = self.widgets.date_entry
+                tmp = entry.props.text
+                entry.props.text = ''
+                entry.props.text = tmp
+                # if the verification is new and isn't yet associated
+                # with an accession then set the accession when we
+                # start changing values, this way we can setup a dummy
+                # verification in the interface
+                if not self.presenter.notes:
+                    self.presenter.notes.append(self.model)
+            # if self.model.date:
+            #     if isinstance(self.model.date, basestring):
+            #         self.set_label(self.model.date)
+            #     else:
+            #         format = prefs.prefs[prefs.date_format_pref]
+            #         safe = utils.xml_safe(self.model.date.strftime(format))
+            #         self.set_label(safe)
+            self.update_label()
+
+            # TODO: if refresh_sensitivity() part of the
+            # GenericEditorPresenter interface???
+            self.presenter.parent_ref().refresh_sensitivity()
 
 
 
-
-# TODO: should add the NotesBox as a bottom pane to the result view so
+# TODO: should add the NotesBrowser as a bottom pane to the result view so
 # that the notes can be viewed independently from the infobox....there
 # should also be some way to edit the notes from the notes box, maybe
 # double clicking in the notesbox or adding an edit button to the
 # notes box will open an editor and set the focus on the selected note
-class NotesBox(gtk.VBox):
+class NotesBrowser(gtk.VBox):
 
     def __init__(self, cls, notes):
         """
@@ -1708,7 +1765,7 @@ class NotesBox(gtk.VBox):
         category
         note
         """
-        super(NotesBox, self).__init__()
+        super(NotesBrowser, self).__init__()
         # since we reuse the notes box in the main view and the
         # editors we don't want to be reparenting it every time we
         # open and editor so instead we make a copy of it and load it
@@ -1718,7 +1775,7 @@ class NotesBox(gtk.VBox):
         builder = gtk.Builder()
         builder.add_from_string(etree.tostring(xml))
         self.widgets = utils.BuilderWidgets(builder)
-        self.cls = cls
+        self.note_cls = cls
         self.notes = notes
         notes_box = self.widgets.notes_box
         self.widgets.remove_parent(notes_box)
