@@ -8,13 +8,13 @@ from bauble.view import SearchView, SearchStrategy, MapperSearch, \
      PropertiesExpander, Action
 import bauble.utils.desktop as desktop
 
-__all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
-           'species_context_menu', 'species_markup_func', 'species_get_kids',
-           'vernname_get_kids', 'vernname_markup_func',
-           'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
-           'VernacularNameInfoBox', 'DefaultVernacularName',
-           'SpeciesDistribution', 'edit_action', 'remove_action',
-           'add_accession_action']
+# __all__ = ['Species', 'SpeciesSynonym', 'SpeciesNote', 'VernacularName',
+#            'species_context_menu', 'species_markup_func', 'species_get_kids',
+#            'vernname_get_kids', 'vernname_markup_func',
+#            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
+#            'VernacularNameInfoBox', 'DefaultVernacularName',
+#            'SpeciesDistribution', 'edit_action', 'remove_action',
+#            'add_accession_action']
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to

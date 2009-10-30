@@ -44,8 +44,7 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        u'subvar.': _('subvar'),
                        u'f.': _('f.'),
                        u'subf.': _('subf.'),
-                       u'cv.': _('cv.'),
-                       None: _('')}
+                       u'cv.': _('cv.')}
 
 # TODO: connect multiple infraspecific ranks to the species and
 # species editor so we can multiple levels of infraspecific rank
@@ -57,14 +56,14 @@ class Infrasp(db.Base):
     __table_args__ = (UniqueConstraint('species_id', 'level',
                                         name='infrasp_level_index'), {})
     level = Column(Integer, nullable=False)
-    rank = Column(types.Enum(values=infrasp_rank_values.keys()), default=None)
+    rank = Column(types.Enum(values=infrasp_rank_values.keys()),
+                  nullable=False)
     epithet = Column(Unicode(64), nullable=False)
     author = Column(Unicode(64))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
     # species = relation('Species', uselist=False,
     #                    backref=backref('infrasp', order_by=Infrasp.level,
     #                                    cascade='all,delete-orphan'))
-
 
     def str(self, authors=False, markup=False):
         s = []
@@ -74,11 +73,13 @@ class Infrasp(db.Base):
         else:
             italicize = lambda s: u'%s' % s
             escape = lambda x: x
-        if self.rank == 'cv.':
+        if self.rank == 'cv.' and self.epithet:
             s.append("'%s'" % escape(self.epithet))
         else:
-            s.append(self.rank)
-            s.append(italicize(self.epithet))
+            if self.rank:
+                s.append(self.rank)
+            if self.epithet:
+                s.append(italicize(self.epithet))
 
         if authors and self.author:
             s.append(escape(self.author))
@@ -86,7 +87,7 @@ class Infrasp(db.Base):
 
 
     def __str__(self):
-        return str(self)
+        return self.str()
 
 
 # TODO: there is a trade_name column but there's no support yet for editing
