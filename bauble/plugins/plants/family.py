@@ -124,14 +124,15 @@ class Family(db.Base):
     """
     __tablename__ = 'family'
     __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
-    __mapper_args = {'order_by': ['family', 'qualifier']}
+    __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     # columns
     family = Column(String(45), nullable=False, index=True)
 
     # we use the blank string here instead of None so that the
     # contrains will work properly,
-    qualifier = Column(Enum(values=['s. lat.', 's. str.', None]), default=None)
+    qualifier = Column(Enum(values=[u's. lat.', u's. str.', u'']),
+                       default=u'')
 
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
