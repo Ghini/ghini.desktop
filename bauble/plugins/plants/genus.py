@@ -140,7 +140,7 @@ class Genus(db.Base):
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
-    author = Column(Unicode(255), default=u'')
+    author = Column(Unicode(255))
     qualifier = Column(types.Enum(values=['s. lat.', 's. str', None]),
                        default=None)
 
