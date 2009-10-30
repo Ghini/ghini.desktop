@@ -223,7 +223,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.view.widgets.remove_parent(row)
 
         for infrasp in self.model.infrasp:
-            add_infrasp(infrasp)
+            self.add_infrasp(infrasp)
 
 
     def dirty():

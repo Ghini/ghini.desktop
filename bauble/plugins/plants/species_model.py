@@ -61,9 +61,6 @@ class Infrasp(db.Base):
     epithet = Column(Unicode(64), nullable=False)
     author = Column(Unicode(64))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
-    # species = relation('Species', uselist=False,
-    #                    backref=backref('infrasp', order_by=Infrasp.level,
-    #                                    cascade='all,delete-orphan'))
 
     def str(self, authors=False, markup=False):
         s = []
