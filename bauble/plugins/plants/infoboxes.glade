@@ -9,6 +9,7 @@
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="sp_general_box">
             <child>
@@ -23,6 +24,8 @@
                 <property name="selectable">True</property>
               </object>
               <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
                 <property name="position">0</property>
               </packing>
             </child>
@@ -75,7 +78,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="sp_eventbox1">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="sp_dist_data">
@@ -96,7 +99,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="s_eventbox2">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="sp_nplants_data">
@@ -116,7 +119,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="s_eventbox3">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="sp_nacc_data">
@@ -149,6 +152,8 @@
             </child>
           </object>
           <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
             <property name="position">0</property>
           </packing>
         </child>
@@ -212,6 +217,7 @@
     <child>
       <object class="GtkVBox" id="vbox2">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="gen_general_box">
             <property name="visible">True</property>
@@ -219,6 +225,7 @@
             <child>
               <object class="GtkVBox" id="vbox3">
                 <property name="visible">True</property>
+                <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="gen_name_data">
                     <property name="visible">True</property>
@@ -231,7 +238,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="g_eventbox1">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="gen_fam_data">
@@ -299,7 +306,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="g_eventbox2">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="gen_nsp_data">
@@ -316,7 +323,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="g_eventbox3">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="gen_nacc_data">
@@ -335,7 +342,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox4">
+                  <object class="GtkEventBox" id="g_eventbox4">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="gen_nplants_data">
@@ -405,6 +412,7 @@
     <child>
       <object class="GtkVBox" id="vbox5">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="fam_general_box">
             <property name="visible">True</property>
@@ -482,7 +490,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox1">
+                  <object class="GtkEventBox" id="f_eventbox1">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="fam_ngen_data">
@@ -500,7 +508,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox2">
+                  <object class="GtkEventBox" id="f_eventbox2">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="fam_nsp_data">
@@ -520,7 +528,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox3">
+                  <object class="GtkEventBox" id="f_eventbox3">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="fam_nacc_data">
@@ -540,7 +548,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEventBox" id="eventbox4">
+                  <object class="GtkEventBox" id="f_eventbox4">
                     <property name="visible">True</property>
                     <child>
                       <object class="GtkLabel" id="fam_nplants_data">
