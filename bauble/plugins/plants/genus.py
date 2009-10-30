@@ -140,9 +140,11 @@ class Genus(db.Base):
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
-    author = Column(Unicode(255))
-    qualifier = Column(types.Enum(values=['s. lat.', 's. str', None]),
-                       default=None)
+
+    # use '' instead of None so that the constraints will work propertly
+    author = Column(Unicode(255), default=u'')
+    qualifier = Column(types.Enum(values=['s. lat.', 's. str', u'']),
+                       default=u'')
 
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
@@ -228,7 +230,7 @@ from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
-                         order_by=['sp', 'infrasp_rank', 'infrasp'],
+                         order_by=['Species.sp'],
                          backref=backref('genus', uselist=False))
 
 
