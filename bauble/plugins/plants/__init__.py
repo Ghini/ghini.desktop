@@ -52,7 +52,10 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        mapper_search.add_meta(('sp', 'species'), Species, ['sp', 'infrasp'])
+        # TODO: should add searching the infraspecific parts but #
+        # return the species in the search rather than the Infrasp
+        # instance
+        mapper_search.add_meta(('sp', 'species'), Species, ['sp'])
         SearchView.view_meta[Species].set(children=species_get_kids,
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,
