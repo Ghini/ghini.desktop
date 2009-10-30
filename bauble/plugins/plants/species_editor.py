@@ -43,12 +43,12 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
-
+        self.__dirty = False
         self.init_fullname_widgets()
-        self.infrasp_presenter = InfraspPresenter(self)
         self.vern_presenter = VernacularNamePresenter(self)
         self.synonyms_presenter = SynonymsPresenter(self)
         self.dist_presenter = DistributionPresenter(self)
+        self.infrasp_presenter = InfraspPresenter(self)
         self.notes_presenter = \
             editor.NotesPresenter(self, 'notes',
                                   self.view.widgets.notes_parent_box)
@@ -103,7 +103,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
-        self.__dirty = False
+
 
 
     def __del__(self):
@@ -249,10 +249,8 @@ class InfraspPresenter(editor.GenericEditorPresenter):
                 level = 1
             infrasp.level = level
             self.model.infrasp.append(infrasp)
+            self._dirty = True
         row = InfraspPresenter.Row(self, infrasp)
-        self._dirty = True
-        self.parent_ref().refresh_sensitivity()
-
         # TODO: if rows is greater than 4 then disable the add button
 
 
