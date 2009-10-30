@@ -697,34 +697,30 @@ class LinksExpander(InfoExpander):
 
     def __init__(self):
         InfoExpander.__init__(self, _("Links"))
-        self.tooltips = gtk.Tooltips()
         buttons = []
 
         self.google_button = gtk.LinkButton("", _("Search Google"))
-        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        self.google_button.set_tooltip_text(_("Search Google"))
         buttons.append(self.google_button)
 
         self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
-        self.tooltips.set_tip(self.gbif_button,
-                         _("Search the Global Biodiversity Information "\
-                           "Facility"))
+        tooltip = _("Search the Global Biodiversity Information Facility")
+        self.gbif_button.set_tooltip_text(tooltip)
         buttons.append(self.gbif_button)
 
         self.itis_button = gtk.LinkButton("", _("Search ITIS"))
-        self.tooltips.set_tip(self.itis_button,
-                              _("Search the Intergrated Taxonomic "\
-                                "Information System"))
+        tooltip = _("Search the Intergrated Taxonomic Information System")
+        self.itis_button.set_tooltip_text(tooltip)
         buttons.append(self.itis_button)
 
         self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
-        self.tooltips.set_tip(self.ipni_button,
-                              _("Search the International Plant Names Index"))
+        tooltip = _("Search the International Plant Names Index")
+        self.ipni_button.set_tooltip_text(tooltip)
         buttons.append(self.ipni_button)
 
         self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
-        self.tooltips.set_tip(self.bgci_button,
-                              _("Search Botanic Gardens Conservation " \
-                                "International"))
+        tooltip = _("Search Botanic Gardens Conservation International")
+        self.bgci_button.set_tooltip_text(tooltip)
         buttons.append(self.bgci_button)
 
         for b in buttons:
