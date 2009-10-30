@@ -533,7 +533,7 @@ class Accession(db.Base):
 
         # generate the string
         if self.id_qual in ('aff.', 'cf.'):
-            if species.infrasp_rank == 'cv.' and self.id_qual_rank=='infrasp':
+            if self.id_qual_rank=='infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
             elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
@@ -1317,10 +1317,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if self.model.id_qual_rank == 'sp':
             active = it
         if species.infrasp:
-            if species.infrasp_rank == 'cv.':
-                s = "'%s'" % str(species.infrasp)
-            else:
-                s = str(species.infrasp)
+            s = ' '.join([str(isp) for isp in species.infrasp])
+            if len(s) > 32:
+                s = '%s...' % s[:29]
             it = model.append([s, 'infrasp'])
             if self.model.id_qual_rank == 'infrasp':
                 active = it
