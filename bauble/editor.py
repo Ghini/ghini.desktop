@@ -1529,7 +1529,7 @@ class NotesPresenter(GenericEditorPresenter):
         self.box.show_all()
 
 
-    def dirty():
+    def dirty(self):
         return self._dirty
 
 
@@ -1681,7 +1681,7 @@ class NotesPresenter(GenericEditorPresenter):
             date_str = None
             if self.model.date and isinstance(self.model.date, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
-                date_str = utils.xml_safe_utf8(datetime.date.strftime(format))
+                date_str =utils.xml_safe_utf8(self.model.date.strftime(format))
             elif self.model.date:
                 date_str = utils.xml_safe_utf8(self.model.date)
             else:

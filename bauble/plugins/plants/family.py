@@ -19,7 +19,7 @@ import bauble.utils.desktop as desktop
 from datetime import datetime
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.types import Enum
+import bauble.types as types
 from bauble.prefs import prefs
 from bauble.view import Action
 
@@ -131,7 +131,7 @@ class Family(db.Base):
 
     # we use the blank string here instead of None so that the
     # contrains will work properly,
-    qualifier = Column(Enum(values=[u's. lat.', u's. str.', u'']),
+    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
                        default=u'')
 
     # relations
@@ -168,7 +168,7 @@ class FamilyNote(db.Base):
     """
     __tablename__ = 'family_note'
 
-    date = Column(Date, nullable=False)
+    date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
@@ -297,11 +297,13 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('fam_family_entry', 'family')
+        self.assign_simple_handler('fam_family_entry', 'family',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
 
-        notes_presenter = editor.NotesPresenter(FamilyNote, self.model.notes,
-                                          self.view.widgets.notes_parent_box)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes',
+                                  self.view.widgets.notes_parent_box)
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
@@ -309,18 +311,26 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.__dirty = False
 
 
+    def refresh_sensitivity(self):
+        # TODO: check widgets for problems
+        debug('f: %s' % self.model.family)
+        sensitive = False
+        if self.dirty() and self.model.family:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
     def set_model_attr(self, field, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (field, value))
         super(FamilyEditorPresenter, self).set_model_attr(field, value,
                                                           validator)
         self.__dirty = True
-        sensitive = self.model.family and True or False
-        self.view.set_accept_buttons_sensitive(sensitive)
+        self.refresh_sensitivity()
 
 
     def dirty(self):
         return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -442,8 +452,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
-        self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
+        self.refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -467,8 +477,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
+            self.refresh_sensitivity()
 
 
 class FamilyEditor(editor.GenericModelViewPresenterEditor):
