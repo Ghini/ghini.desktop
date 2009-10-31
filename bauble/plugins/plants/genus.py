@@ -378,11 +378,14 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
-        self.assign_simple_handler('gen_genus_entry', 'genus')
+        self.assign_simple_handler('gen_genus_entry', 'genus',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
-        notes_presenter = editor.NotesPresenter(GenusNote, self.model.notes,
-                                          self.view.widgets.notes_parent_box)
+
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes',
+                                  self.view.widgets.notes_parent_box)
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
         # self.assign_simple_handler('gen_notes_textview', 'notes',
         #                            editor.UnicodeOrNoneValidator())
@@ -393,19 +396,24 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.__dirty = False
 
 
-    def set_model_attr(self, field, value, validator=None):
-        super(GenusEditorPresenter, self).set_model_attr(field, value,
-                                                         validator)
+    def refresh_sensitivity(self):
+        # TODO: check widgets for problems
         sensitive = False
-        self.__dirty = True
-        if self.model.family and self.model.genus:
+        if self.model.family and self.model.genus and self.model.family:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
+    def set_model_attr(self, field, value, validator=None):
+        super(GenusEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+
     def dirty(self):
         return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -541,8 +549,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
-        self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
+        self.refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -565,8 +573,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
+            self.refresh_sensitivity()
 
 
 class GenusEditor(editor.GenericModelViewPresenterEditor):
