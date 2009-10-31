@@ -226,7 +226,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             self.add_infrasp(infrasp)
 
 
-    def dirty():
+    def dirty(self):
         return self._dirty
 
 
