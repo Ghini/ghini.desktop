@@ -313,7 +313,6 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         # TODO: check widgets for problems
-        debug('f: %s' % self.model.family)
         sensitive = False
         if self.dirty() and self.model.family:
             sensitive = True
