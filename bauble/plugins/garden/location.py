@@ -175,19 +175,17 @@ class LocationEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         sensitive = False
-        if self.dirty():
+        # UBC: self.model.code
+        if self.dirty() and self.model.code:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
-    def set_model_attr(self, model, field, validator=None):
-        super(LocationEditorPresenter, self).set_model_attr(model, field,
-                                                            validator)
+    def set_model_attr(self, attr, value, validator=None):
+        super(LocationEditorPresenter, self).\
+            set_model_attr(attr, value, validator)
         self.__dirty = True
-        #self.view.set_accept_buttons_sensitive(self.model.name != None)
-        # UBC
-        self.model.name = self.model.code # UBC test code
-        self.view.set_accept_buttons_sensitive(self.model.code != None)
+        self.refresh_sensitivity()
 
 
     def dirty(self):

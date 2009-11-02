@@ -1002,16 +1002,18 @@ class VerificationTests(GardenTestCase):
         self.session.add(acc)
         self.session.commit()
 
-        acc = self.create(Accession, species=self.species, code=u'1')
         ver =  Verification()
         ver.verifier = u'me'
+        ver.date = datetime.date.today()
+        ver.level = 1
+        ver.species = acc.species
+        ver.prev_species = acc.species
         acc.verifications.append(ver)
         try:
-            #self.session.commit()
-            self.session.flush()
+            self.session.commit()
         except Exception, e:
             debug(e)
-            #self.session.rollback()
+            self.session.rollback()
         self.assert_(ver in acc.verifications)
         self.assert_(ver in self.session)
 
@@ -1038,10 +1040,9 @@ class LocationTests(GardenTestCase):
         update_gui()
         widgets = editor.presenter.view.widgets
 
-        # test that the accept buttons are sensitive the text in the
-        # entry and the model.site are the same...and that the accept
-        # buttons are sensitive
-        assert widgets.loc_name_entry.get_text() == loc.name
+        # test that the accept buttons are sensitive and the text
+        # entries and model are the same
+        assert widgets.loc_name_entry.get_text() == loc.code
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive
         assert widgets.loc_next_button.props.sensitive
@@ -1063,7 +1064,7 @@ class LocationTests(GardenTestCase):
         assert not widgets.loc_next_button.props.sensitive
 
         # commit the changes and cleanup
-        editor.model.name = u'asda'
+        editor.model.name = editor.model.code = u'asda'
         editor.handle_response(gtk.RESPONSE_OK)
         editor.session.close()
         editor.presenter.cleanup()
@@ -1077,7 +1078,7 @@ class LocationTests(GardenTestCase):
             'LocationEditorView not deleted'
 
 
-    def itest_location_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantEditor
         """
