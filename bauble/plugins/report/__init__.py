@@ -17,7 +17,7 @@ import bauble.utils as utils
 import bauble.paths as paths
 from bauble.prefs import prefs
 import bauble.pluginmgr as pluginmgr
-from bauble.utils.log import log, debug
+from bauble.utils.log import debug
 from bauble.plugins.plants import Family, Genus, Species, VernacularName
 from bauble.plugins.garden import Accession, Plant, Location
 from bauble.plugins.tag import Tag, TaggedObj

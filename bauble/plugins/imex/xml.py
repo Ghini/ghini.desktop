@@ -17,7 +17,7 @@ import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
 from bauble.utils import xml_safe
-from bauble.utils.log import log, debug
+from bauble.utils.log import info, debug
 
 # <tableset>
 # <table name="tablename">
@@ -95,7 +95,7 @@ class XMLExporter:
         for table_name, table in tables.iteritems():
             if one_file:
                 tableset_el = etree.Element('tableset')
-            log.info('exporting %s...' % table_name)
+            info('exporting %s...' % table_name)
             table_el = ElementFactory(tableset_el, 'table',
                                       attrib={'name': table_name})
             results = table.select().execute().fetchall()

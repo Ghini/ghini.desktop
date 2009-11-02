@@ -16,7 +16,7 @@ import bauble.utils.desktop as desktop
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.utils.log import log, debug, warning, error
+from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
 import bauble.error as err
 

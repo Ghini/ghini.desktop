@@ -1,3 +1,4 @@
+import datetime
 import unittest
 
 import gtk
@@ -27,9 +28,8 @@ from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
 
 
-from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
-                        'date': datetime.today(),
+                        'date': datetime.date.today(),
                         'source_type': u'Donation'},
                        {'id':2 , 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},
@@ -550,10 +550,9 @@ class PropagationTests(GardenTestCase):
         editor.commit_changes()
         s.expire(model)
         self.assert_(model.prop_type == u'Seed')
-        from datetime import date
         for attr, value in self.default_seed_values.iteritems():
             v = getattr(model._seed, attr)
-            if isinstance(v, date):
+            if isinstance(v, datetime.date):
                 format = prefs.prefs[prefs.date_format_pref]
                 v = v.strftime(format)
             self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
@@ -866,7 +865,6 @@ class AccessionTests(GardenTestCase):
 
         The bug is here just to check if this ever gets fixed.
         """
-        import bauble.utils.log as log
         sp = self.session.query(Species).get(1)
         acc = Accession()
         self.session.add(acc)
@@ -932,14 +930,16 @@ class AccessionTests(GardenTestCase):
 
     def itest_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the AccessionEditor
         """
         donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp=u'species')
         sp2.synonyms.append(self.species)
         self.session.add(sp2)
         self.session.commit()
-        acc = self.create(Accession, species=self.species, code=u'1')
+        acc_code = '%s%s1' % (datetime.date.today().year,
+                               Plant.get_delimiter())
+        acc = self.create(Accession, species=self.species, code=acc_code)
         voucher = Voucher(herbarium=u'abcd', code=u'123')
         acc.vouchers.append(voucher)
         prev = 0
@@ -948,6 +948,15 @@ class AccessionTests(GardenTestCase):
             import os
             return int(os.popen('ps -p %d -o %s | tail -1' % \
                                     (os.getpid(), size)).read())
+
+        # add verificaiton
+        ver = Verification()
+        ver.verifier = u'me'
+        ver.date = datetime.date.today()
+        ver.prev_species = self.species
+        ver.species = self.species
+        ver.level = 1
+        acc.verifications.append(ver)
 
         #editor = AccessionEditor(model=acc)
         # try:
@@ -959,15 +968,14 @@ class AccessionTests(GardenTestCase):
         # return
         editor = None
         for x in range(0, 1):
-            editor = AccessionEditor(model=acc)
+            #editor = AccessionEditor(model=acc)
+            editor = AccessionEditor()
             editor.start()
             del editor
             leak = mem()
             debug('%s: %s' % (leak, leak-prev))
             prev = leak
             #debug(mem())
-
-        debug(utils.gc_objects_by_type('XML'))
 
         assert utils.gc_objects_by_type('AccessionEditor') == [], \
             'AccessionEditor not deleted'
