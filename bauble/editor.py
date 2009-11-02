@@ -23,7 +23,7 @@ import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.error import CommitException
-from bauble.utils.log import log, debug, warning
+from bauble.utils.log import debug, warning
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters
@@ -714,7 +714,7 @@ import bauble.paths as paths
 import bauble.prefs as prefs
 import bauble.utils as utils
 from bauble.error import CommitException
-from bauble.utils.log import log, debug, warning
+from bauble.utils.log import debug, warning
 
 # TODO: create a generic date entry that can take a mask for the date format
 # see the date entries for the accession and accession source presenters

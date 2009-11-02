@@ -19,7 +19,7 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
-from bauble.utils.log import log, debug
+from bauble.utils.log import debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import Species, Infrasp, \
