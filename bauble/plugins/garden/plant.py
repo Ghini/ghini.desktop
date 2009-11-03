@@ -82,7 +82,9 @@ def plant_markup_func(plant):
     '''
     '''
     sp_str = plant.accession.species_str(markup=True)
-    if plant.acc_status == 'Dead':
+    # UBC
+    #if plant.acc_status == 'Dead':
+    if plant.removal:
         color = '<span foreground="#666666">%s</span>'
         return color % utils.xml_safe_utf8(plant), sp_str
     else:
@@ -127,13 +129,13 @@ class PlantNote(db.Base):
     __tablename__ = 'plant_note'
     __mapper_args__ = {'order_by': 'date'}
 
+    date = Column(types.Date, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
     plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
-    date = Column(types.Date)
-    note = Column(UnicodeText)
-    user = Column(Unicode(32))
-    category = Column(String(32))
-
-    plant = relation('Plant', backref='notes')
+    plant = relation('Plant', uselist=False,
+                      backref=backref('notes', cascade='all, delete-orphan'))
 
 
 # TODO: a plant should only be allowed one removal and then it becomes
@@ -152,7 +154,7 @@ removal_reasons = {
     u'WINK': _('Winter kill'),
     u'ERRO': _('Error correction'),
     u'DIST': _('Distributed elsewhere'),
-    u'DELE': _('Deleted, yr.dead unknown'),
+    u'DELE': _('Deleted, yr. dead. unknown'),
     u'ASS#': _('Transferred to another acc.no.'),
     u'FOGS': _('Given to FOGs to sell'),
     u'PLOP': _('Area transf. to Plant Ops.'),
@@ -297,6 +299,8 @@ class Plant(db.Base):
     # columns
     code = Column(Unicode(6), nullable=False)
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
+
+    # UBC: with removes then the acc_status is not really necessary
     acc_status = Column(types.Enum(values=acc_status_values.keys()),
                         default=None)
 
@@ -341,10 +345,13 @@ class Plant(db.Base):
 
 from bauble.plugins.garden.accession import Accession
 
+REMOVAL_ACTION = 'Removal'
+TRANSFER_ACTION = 'Transfer'
+ADD_NOTE_ACTION = 'AddNote'
 
-plant_actions = {'Removal': _("Removal"),
-                 'Transfer': _("Transfer"),
-                 'AddNote': _("Add note")}
+plant_actions = {REMOVAL_ACTION: _("Removal"),
+                 TRANSFER_ACTION: _("Transfer"),
+                 ADD_NOTE_ACTION: _("Add note")}
 
 
 def init_location_comboentry(presenter, combo, on_select):
@@ -391,7 +398,7 @@ def init_location_comboentry(presenter, combo, on_select):
         return True
     presenter.view.connect(completion, 'match-selected', on_match_select)
 
-    def on_entry_changed(entry, *args):
+    def on_entry_changed(entry, presenter):
         text = utils.utf8(entry.props.text)
         # see if the text matches a completion string
         comp = entry.get_completion()
@@ -406,6 +413,8 @@ def init_location_comboentry(presenter, combo, on_select):
         # see if the text matches exactly a code or name
         codes = presenter.session.query(Location).filter(Location.code==text)
         names = presenter.session.query(Location).filter(Location.name==text)
+        # TODO: why the hell do we get an error here when we run all
+        # the PlantTests but not the specific test_editor_transfer
         if codes.count() == 1:
             location = codes.first()
             presenter.remove_problem(PROBLEM, entry)
@@ -417,7 +426,7 @@ def init_location_comboentry(presenter, combo, on_select):
         else:
             presenter.add_problem(PROBLEM, entry)
         return True
-    presenter.view.connect(entry, 'changed', on_entry_changed)
+    presenter.view.connect(entry, 'changed', on_entry_changed, presenter)
 
     def on_combo_changed(combo, *args):
         model = combo.get_model()
@@ -474,7 +483,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
                            'plant_acc_status_combo': 'acc_status',
-                           'plant_notes_textview': 'notes'}
+                           }
+                           #'plant_notes_textview': 'notes'}
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -494,9 +504,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
         self._note = PlantNote()
         self._removal = PlantRemoval()
 
-        self. action_combo_map = {'Removal': self.view.widgets.removal_box,
-                                  'Transfer': self.view.widgets.transfer_box,
-                                  'AddNote': self.view.widgets.notes_box}
+        self.action_combo_map = {
+            REMOVAL_ACTION: self.view.widgets.removal_box,
+            TRANSFER_ACTION: self.view.widgets.transfer_box,
+            }
+             #ADD_NOTE_ACTION: self.view.widgets.notes_box}
 
         # TODO: we should put this in a scrolled window or something
         # since the list of labels will get way to big when working on
@@ -590,11 +602,11 @@ class PlantEditorPresenter(GenericEditorPresenter):
     def refresh_sensitivity(self):
         sensitive = False
         action = self.get_current_action()
-        if action == 'Removal' and self._removal.reason:
+        if action == REMOVAL_ACTION and self._removal.reason:
             sensitive = True
-        elif action == 'Transfer' and self._transfer.to_location:
+        elif action == TRANSFER_ACTION and self._transfer.to_location:
             sensitive = True
-        elif action == 'AddNote' and \
+        elif action == ADD_NOTE_ACTION and \
                 self.view.widgets.note_textview.get_buffer().props.text:
             sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
@@ -690,13 +702,13 @@ class PlantEditor(GenericModelViewPresenterEditor):
         #debug('commit_changes()')
         action = self.presenter.get_current_action()
         #debug(action)
-        if action == 'Removal':
+        if action == REMOVAL_ACTION:
             action_model = self.presenter._removal
             self.presenter._note.category = action
-        elif action == 'Transfer':
+        elif action == TRANSFER_ACTION:
             action_model = self.presenter._transfer
             self.presenter._note.category = action
-        elif action == 'AddNote':
+        elif action == ADD_NOTE_ACTION:
             action_model = self.presenter._note
             debug(action_model.category)
         else:
@@ -713,10 +725,12 @@ class PlantEditor(GenericModelViewPresenterEditor):
             if action == 'Transfer':
                 new_model.from_location = plant.location
                 plant.location = new_model.to_location
-                new_model.note = session.merge(self.presenter._note)
+                if self.presenter._note.note:
+                    new_model.note = session.merge(self.presenter._note)
             elif action == 'Removal':
                 new_model.from_location = plant.location
-                new_model.note = session.merge(self.presenter._note)
+                if self.presenter._note.note:
+                    new_model.note = session.merge(self.presenter._note)
 
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
@@ -809,7 +823,7 @@ class AddPlantEditorView(GenericEditorView):
         'plant_acc_status_combo': _('The status of this plant in the ' \
                                     'collection.\nPossible values: %s') % \
                                     ', '.join(acc_status_values.values()),
-        'plant_notes_textview': _('Miscelleanous notes about this plant.'),
+        #'plant_notes_textview': _('Miscelleanous notes about this plant.'),
         }
 
 
@@ -858,7 +872,8 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
                            'plant_acc_status_combo': 'acc_status',
-                           'plant_notes_textview': 'notes'}
+                           }
+                           #'plant_notes_textview': 'notes'}
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -913,8 +928,8 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
         self.view.connect('plant_code_entry', 'changed',
                           self.on_plant_code_entry_changed)
-        self.assign_simple_handler('plant_notes_textview', 'notes',
-                                   UnicodeOrNoneValidator())
+        # self.assign_simple_handler('plant_notes_textview', 'notes',
+        #                            UnicodeOrNoneValidator())
 
         self.assign_simple_handler('plant_acc_status_combo', 'acc_status')
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
@@ -997,6 +1012,15 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
     def refresh_sensitivity(self):
         #debug('refresh_sensitivity()')
+
+        # TODO: because we don't call refresh_sensitivity() every time
+        # a character is entered then the edit button doesn't
+        #
+        # sensitize properly
+        # combo_entry = self.view.widgets.plant_loc_comboentry.child
+        # self.view.widgets.plant_loc_edit_button.\
+        #     set_sensitive(self.model.location is not None \
+        #                       and not self.has_problems(combo_entry))
         sensitive = (self.model.accession is not None and \
                      self.model.code is not None and \
                      self.model.location is not None) \
@@ -1015,7 +1039,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
     def on_loc_button_clicked(self, button, cmd=None):
         location = self.model.location
-        if cmd is 'edit':
+        if cmd is 'edit' and location:
             combo = self.view.widgets.plant_loc_comboentry
             LocationEditor(location, parent=self.view.get_window()).start()
             self.session.refresh(location)
@@ -1274,62 +1298,63 @@ class TransferExpander(InfoExpander):
         # TODO: remove previous children
         #debug(row.transfers)
         for transfer in row.transfers:
-            s = _('%s: %s to %s by') % (transfer.date, transfer.from_location,
-                                     transfer.to_location, transfer.user)
+            s = _('%s: %s to %s by %s') % \
+                (transfer.date, transfer.from_location, transfer.to_location,
+                 transfer.person)
             debug(s)
             self.vbox.pack_start(gtk.Label(s))
         self.vbox.show_all()
         #self.set_widget_value('notes_data', row.notes)
 
 
-class NotesExpander(InfoExpander):
-    """
-    the plants notes
-    """
+# class NotesExpander(InfoExpander):
+#     """
+#     the plants notes
+#     """
 
-    def __init__(self, widgets):
-        '''
-        '''
-        super(NotesExpander, self).__init__(_("Notes"), widgets)
-        notes_box = self.widgets.notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
+#     def __init__(self, widgets):
+#         '''
+#         '''
+#         super(NotesExpander, self).__init__(_("Notes"), widgets)
+#         notes_box = self.widgets.notes_box
+#         self.widgets.remove_parent(notes_box)
+#         self.vbox.pack_start(notes_box)
 
-        # set up sorting
-        treeview = self.widgets.notes_treeview
-        for i in range(3):
-            treeview.get_column(i).set_sort_column_id(i)
+#         # set up sorting
+#         treeview = self.widgets.notes_treeview
+#         for i in range(3):
+#             treeview.get_column(i).set_sort_column_id(i)
 
-        # TODO: we might have to get the datetime object for this to
-        # work correctly in case the date string format changes
+#         # TODO: we might have to get the datetime object for this to
+#         # work correctly in case the date string format changes
 
-        # sort by date by default
-        treeview.get_model().set_sort_column_id(0, gtk.SORT_DESCENDING)
+#         # sort by date by default
+#         treeview.get_model().set_sort_column_id(0, gtk.SORT_DESCENDING)
 
-        # change the wrap width when the column width changes on the
-        # notes column
-        self.widgets.note_cell.props.wrap_mode = pango.WRAP_WORD
-        def on_width(*args):
-            width = self.widgets.note_column.props.width
-            self.widgets.note_cell.props.wrap_width = width
-        self.widgets.note_column.connect('notify::width', on_width)
+#         # change the wrap width when the column width changes on the
+#         # notes column
+#         self.widgets.note_cell.props.wrap_mode = pango.WRAP_WORD
+#         def on_width(*args):
+#             width = self.widgets.note_column.props.width
+#             self.widgets.note_cell.props.wrap_width = width
+#         self.widgets.note_column.connect('notify::width', on_width)
 
-        # vertically align the text in the cells to the top
-        self.widgets.date_cell.props.yalign = 0.0
-        self.widgets.category_cell.props.yalign = 0.0
-        self.widgets.note_cell.props.yalign = 0.0
+#         # vertically align the text in the cells to the top
+#         self.widgets.date_cell.props.yalign = 0.0
+#         self.widgets.category_cell.props.yalign = 0.0
+#         self.widgets.note_cell.props.yalign = 0.0
 
 
-    def update(self, row):
-        '''
-        '''
-        model = self.widgets.notes_treeview.get_model()
-        model.clear()
-        for note in row.notes:
-            model.append([note.date, note.category, note.note])
-        # the 25 is arbitrary but should show enough of the tree for
-        # the notes but not all the notes
-        self.widgets.notes_treeview.set_size_request(-1, len(row.notes)*25)
+#     def update(self, row):
+#         '''
+#         '''
+#         model = self.widgets.notes_treeview.get_model()
+#         model.clear()
+#         for note in row.notes:
+#             model.append([note.date, note.category, note.note])
+#         # the 25 is arbitrary but should show enough of the tree for
+#         # the notes but not all the notes
+#         self.widgets.notes_treeview.set_size_request(-1, len(row.notes)*25)
 
 
 
@@ -1353,8 +1378,8 @@ class PlantInfoBox(InfoBox):
         self.transfers = TransferExpander(self.widgets)
         self.add_expander(self.transfers)
 
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
+        #self.notes = NotesExpander(self.widgets)
+        #self.add_expander(self.notes)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
@@ -1370,13 +1395,13 @@ class PlantInfoBox(InfoBox):
         self.transfers.update(row)
         self.props.update(row)
 
-        if row.notes is None:
-            self.notes.set_expanded(False)
-            self.notes.set_sensitive(False)
-        else:
-            self.notes.set_expanded(True)
-            self.notes.set_sensitive(True)
-            self.notes.update(row)
+        # if row.notes is None:
+        #     self.notes.set_expanded(False)
+        #     self.notes.set_sensitive(False)
+        # else:
+        #     self.notes.set_expanded(True)
+        #     self.notes.set_sensitive(True)
+        #     self.notes.update(row)
 
 
 from bauble.plugins.garden.accession import Accession
