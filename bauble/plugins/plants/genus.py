@@ -188,6 +188,7 @@ class GenusNote(db.Base):
     Notes for the genus table
     """
     __tablename__ = 'genus_note'
+    __mapper_args__ = {'order_by': 'date'}
 
     date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))
