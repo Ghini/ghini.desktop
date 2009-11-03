@@ -412,6 +412,11 @@ class GenericEditorPresenter(object):
         raise NotImplementedError
 
 
+    def has_problems(self, widget):
+        from operator import getitem
+        filter(lambda p: getitem(p, 1) == widget is not None, self.problems)
+
+
     def clear_problems(self):
         tmp = self.problems.copy()
         map(lambda p: self.remove_problem(p[0], p[1]), tmp)
