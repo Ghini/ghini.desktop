@@ -299,6 +299,28 @@ class Species(db.Base):
         return s
 
 
+    def insert_infrasp(self, level, rank, epithet):
+        for i in self.infrasp:
+            if i.level >= level:
+                i.level += 1
+        infrasp = Infrasp()
+        infrasp.level = level
+        infrasp.rank = rank
+        infrasp.epithet = epithet
+        self.infrasp.append(infrasp)
+        return infrasp
+
+
+    def append_infrasp(self, rank, epithet):
+        levels = [i.level for i in self.infrasp]
+        level = 0
+        if levels:
+            level = max(levels)+1
+        if level < 1:
+            level = 1
+        return self.insert_infrasp(level, rank, epithet)
+
+
 
 class SpeciesNote(db.Base):
     """
