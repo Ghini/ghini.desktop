@@ -2,7 +2,6 @@
 #  This is free software, see GNU General Public License v2 for details.
 
 import traceback
-
 import bauble.error as error
 
 SQLALCHEMY_DEBUG = False
@@ -25,7 +24,7 @@ except ImportError:
 import gtk
 from sqlalchemy.ext.declarative import declarative_base, DeclarativeMeta
 
-from bauble.types import DateTime, Date
+import bauble.types as types
 import bauble.utils as utils
 from bauble.utils.log import debug, warning
 
@@ -54,10 +53,10 @@ class MapperBase(DeclarativeMeta):
             seqname = '%s_id_seq' % dict_['__tablename__']
             dict_['id'] = sa.Column('id', sa.Integer, sa.Sequence(seqname),
                                     primary_key=True)
-            dict_['_created'] = sa.Column('_created', DateTime(True),
+            dict_['_created'] = sa.Column('_created', types.DateTime(True),
                                           default=sa.func.now())
             dict_['_last_updated'] = sa.Column('_last_updated',
-                                               DateTime(True),
+                                               types.DateTime(True),
                                                default=sa.func.now(),
                                                onupdate=sa.func.now())
         super(MapperBase, cls).__init__(classname, bases, dict_)
