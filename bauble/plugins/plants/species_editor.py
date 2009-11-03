@@ -219,8 +219,9 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
         # will table.resize() remove the children??
         table = self.view.widgets.infrasp_table
-        for row in self.view.widgets.infrasp_table.get_children():
-            self.view.widgets.remove_parent(row)
+        for item in self.view.widgets.infrasp_table.get_children():
+            if not isinstance(item, gtk.Label):
+                self.view.widgets.remove_parent(item)
 
         for infrasp in self.model.infrasp:
             self.add_infrasp(infrasp)
@@ -240,15 +241,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         """
         """
         if not infrasp:
-            infrasp = Infrasp()
-            level = 0
-            levels = [i.level for i in self.model.infrasp]
-            if levels:
-                level = max(levels)+1
-            if level < 1:
-                level = 1
-            infrasp.level = level
-            self.model.infrasp.append(infrasp)
+            infrasp = self.model.append_infrasp(None, None)
             self._dirty = True
         row = InfraspPresenter.Row(self, infrasp)
         # TODO: if rows is greater than 4 then disable the add button
