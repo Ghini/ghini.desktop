@@ -13,12 +13,16 @@
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox7">
         <property name="visible">True</property>
+        <property name="orientation">vertical</property>
         <child>
           <object class="GtkVBox" id="vbox3">
             <property name="visible">True</property>
             <property name="border_width">5</property>
             <property name="orientation">vertical</property>
             <property name="spacing">10</property>
+            <child>
+              <placeholder/>
+            </child>
             <child>
               <object class="GtkHBox" id="apd_hbox2">
                 <property name="visible">True</property>
@@ -98,7 +102,7 @@
                 </child>
               </object>
               <packing>
-                <property name="position">0</property>
+                <property name="position">1</property>
               </packing>
             </child>
             <child>
@@ -230,7 +234,7 @@
                 </child>
               </object>
               <packing>
-                <property name="position">1</property>
+                <property name="position">2</property>
               </packing>
             </child>
             <child>
@@ -269,7 +273,6 @@
                 </child>
                 <child>
                   <object class="GtkFrame" id="frame14">
-                    <property name="visible">True</property>
                     <property name="label_xalign">0</property>
                     <property name="shadow_type">none</property>
                     <child>
@@ -299,12 +302,11 @@
                 </child>
               </object>
               <packing>
-                <property name="position">2</property>
+                <property name="position">3</property>
               </packing>
             </child>
             <child>
               <object class="GtkExpander" id="notes_expander">
-                <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="expanded">True</property>
                 <child>
@@ -348,7 +350,7 @@
                 </child>
               </object>
               <packing>
-                <property name="position">3</property>
+                <property name="position">4</property>
               </packing>
             </child>
           </object>
@@ -702,7 +704,7 @@
             <property name="layout_style">end</property>
             <child>
               <object class="GtkButton" id="ped_cancel_button">
-                <property name="label" translatable="yes">gtk-cancel</property>
+                <property name="label">gtk-cancel</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -716,7 +718,7 @@
             </child>
             <child>
               <object class="GtkButton" id="ped_ok_button">
-                <property name="label" translatable="yes">gtk-ok</property>
+                <property name="label">gtk-ok</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
