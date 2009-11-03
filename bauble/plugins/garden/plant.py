@@ -811,7 +811,9 @@ class AddPlantEditorView(GenericEditorView):
 
     _tooltips = {
         'plant_code_entry': _('The plant code must be a unique code for '\
-                                  'the accession'),
+                                  'the accession.  You may also use ranges '\
+                                  'like 1,2,7 or 1-3 to create multiple '\
+                                  'plants.'),
         'plant_acc_entry': _('The accession must be selected from the list ' \
                              'of completions.  To add an accession use the '\
                              'Accession editor'),
@@ -953,19 +955,18 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
 
-    def on_plant_code_entry_changed(self, *args):
+    def on_plant_code_entry_changed(self, entry, *args):
         """
         Validates the accession number and the plant code from the editors.
         """
-        text = utils.utf8(self.view.widgets.plant_code_entry.get_text())
+        text = utils.utf8(entry.get_text())
         if text == u'':
             self.set_model_attr('code', None)
         else:
             self.set_model_attr('code', text)
 
         if self.model.accession is None:
-            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                                self.view.widgets.plant_code_entry)
+            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
             self.refresh_sensitivity()
             return
 
@@ -977,23 +978,22 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
                 (self._original_accession_id==self.model.accession.id and \
                      self.model.code==self._original_code):
 
-                self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                                 self.view.widgets.plant_code_entry)
+                self.add_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
         else:
             # remove_problem() won't complain if problem doesn't exist
-            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE,
-                                self.view.widgets.plant_code_entry)
+            self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
 
             # if there are no problems and the code represents a range
             # then change the background color to a light blue
             from bauble.utils.pyparsing import ParseException
             if len(utils.range_builder(self.model.code)) > 1:
-                entry = self.view.widgets.plant_code_entry
                 color_str = '#B0C4DE' # light steel blue
                 color = gtk.gdk.color_parse(color_str)
-                entry.modify_bg(gtk.STATE_NORMAL, color)
-                entry.modify_base(gtk.STATE_NORMAL, color)
-                entry.queue_draw()
+            else:
+                color = None
+            entry.modify_bg(gtk.STATE_NORMAL, color)
+            entry.modify_base(gtk.STATE_NORMAL, color)
+            entry.queue_draw()
 
         self.refresh_sensitivity()
 
@@ -1006,17 +1006,15 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         This method will take range values for code that can be passed
         to utils.range_builder()
         """
-        for code in utils.range_builder(code):
-            # reference accesssion.id instead of accession_id since
-            # setting the accession on the model doesn't set the
-            # accession_id until the session is flushed
-            code = utils.utf8(code)
-            num = self.session.query(Plant).join('accession').\
-                filter(and_(Accession.id==self.model.accession.id,
-                            Plant.code==code)).count()
-            if num > 0:
-                return False
-        return True
+        codes = map(utils.utf8, utils.range_builder(code))
+        # reference accesssion.id instead of accession_id since
+        # setting the accession on the model doesn't set the
+        # accession_id until the session is flushed
+        q = self.session.query(Plant).join('accession').\
+            filter(and_(Accession.id==self.model.accession.id,
+                        Plant.code.in_(codes)))
+        return q.count() == 0
+
 
 
     def refresh_sensitivity(self):
