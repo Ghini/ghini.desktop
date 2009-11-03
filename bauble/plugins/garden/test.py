@@ -7,6 +7,7 @@ from sqlalchemy import *
 from sqlalchemy.exc import *
 from sqlalchemy.orm import *
 
+import bauble
 from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
@@ -22,7 +23,7 @@ from bauble.plugins.garden.propagation import Propagation, PropagationEditor, \
     PropCutting, PropRooted, PropSeed
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species
+from bauble.plugins.plants.species_model import Species, Infrasp
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
@@ -232,7 +233,7 @@ class PlantTests(GardenTestCase):
             # editor.presenter._transfer are equal to the transfer in
             # the plant
             self.assert_(len(p.transfers) > 0)
-
+        editor.presenter.cleanup()
 
 
     def test_editor_removal(self):
@@ -274,11 +275,11 @@ class PlantTests(GardenTestCase):
             # the plant
             #debug(p.removal)
             self.assert_(len(p.removal) > 0)
+        editor.presenter.cleanup()
 
 
     def test_editor_addnote(self):
-        return
-        raise NoteImplementedError
+        raise SkipTest('Not Implemented')
 
 
     def itest_editor(self):
@@ -644,9 +645,9 @@ class AccessionTests(GardenTestCase):
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
-        s = 'gen sp cf. None'
+        s = 'gen sp cf.'#' None'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # species.infrasp is still none but these just get pasted on
         # the end so it doesn't matter
@@ -662,8 +663,8 @@ class AccessionTests(GardenTestCase):
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
 
-        acc.species.infrasp_rank = u'cv.'
-        acc.species.infrasp = u'Cultivar'
+
+        acc.species.insert_infrasp(level=0, rank=u'cv.', epithet=u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
         s = "gen sp cf. 'Cultivar'"
