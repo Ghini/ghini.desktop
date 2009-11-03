@@ -4,6 +4,7 @@
 """
 Defines the plant table and handled editing plants
 """
+import datetime
 import itertools
 import os
 import sys
@@ -228,12 +229,12 @@ acc_type_values = {u'Plant': _('Plant'),
                    u'Other': _('Other'),
                    None: _('')}
 
-acc_status_values = {u'Living': _('Living accession'),
-                     u'Dead': _('Dead'),
-                     u'Transferred': _('Transferred'),
-                     u'Dormant': _('Stored in dormant state'),
-                     u'Other': _('Other'),
-                     None: _('')}
+# acc_status_values = {u'Living': _('Living accession'),
+#                      u'Dead': _('Dead'),
+#                      u'Transferred': _('Transferred'),
+#                      u'Dormant': _('Stored in dormant state'),
+#                      u'Other': _('Other'),
+#                      None: _('')}
 
 class Plant(db.Base):
     """
@@ -301,8 +302,8 @@ class Plant(db.Base):
     acc_type = Column(types.Enum(values=acc_type_values.keys()), default=None)
 
     # UBC: with removes then the acc_status is not really necessary
-    acc_status = Column(types.Enum(values=acc_status_values.keys()),
-                        default=None)
+    # acc_status = Column(types.Enum(values=acc_status_values.keys()),
+    #                     default=None)
 
     # TODO: notes is now a relation to PlantNote
     #notes = Column(UnicodeText)
@@ -478,13 +479,13 @@ class PlantEditorView(GenericEditorView):
 class PlantEditorPresenter(GenericEditorPresenter):
 
 
-    widget_to_field_map = {'plant_code_entry': 'code',
-                           'plant_acc_entry': 'accession',
-                           'plant_loc_comboentry': 'location',
-                           'plant_acc_type_combo': 'acc_type',
-                           'plant_acc_status_combo': 'acc_status',
-                           }
-                           #'plant_notes_textview': 'notes'}
+    # widget_to_field_map = {'plant_code_entry': 'code',
+    #                        'plant_acc_entry': 'accession',
+    #                        'plant_loc_comboentry': 'location',
+    #                        'plant_acc_type_combo': 'acc_type',
+    #                        #'plant_acc_status_combo': 'acc_status',
+    #                        }
+    #                        #'plant_notes_textview': 'notes'}
 
     PROBLEM_DUPLICATE_PLANT_CODE = str(random())
 
@@ -808,10 +809,9 @@ class PlantEditor(GenericModelViewPresenterEditor):
 
 class AddPlantEditorView(GenericEditorView):
 
-    #source_expanded_pref = 'editor.accesssion.source.expanded'
-
     _tooltips = {
-        'plant_code_entry': _('The plant code must be a unique code'),
+        'plant_code_entry': _('The plant code must be a unique code for '\
+                                  'the accession'),
         'plant_acc_entry': _('The accession must be selected from the list ' \
                              'of completions.  To add an accession use the '\
                              'Accession editor'),
@@ -820,10 +820,8 @@ class AddPlantEditorView(GenericEditorView):
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
                                   'Possible values: %s') % \
                                   ', '.join(acc_type_values.values()),
-        'plant_acc_status_combo': _('The status of this plant in the ' \
-                                    'collection.\nPossible values: %s') % \
-                                    ', '.join(acc_status_values.values()),
-        #'plant_notes_textview': _('Miscelleanous notes about this plant.'),
+        'pad_note_name_entry': _('The name of the person creating this note'),
+        'pad_note_textview': _('Miscelleanous notes about this plant.'),
         }
 
 
@@ -842,13 +840,6 @@ class AddPlantEditorView(GenericEditorView):
 
     def get_window(self):
         return self.widgets.plant_add_dialog
-
-
-    def __del__(self):
-        #debug('PlantView.__del__()')
-        #GenericEditorView.__del__(self)
-        #self.dialog.destroy()
-        pass
 
 
     def save_state(self):
@@ -871,7 +862,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
                            'plant_acc_entry': 'accession',
                            'plant_loc_comboentry': 'location',
                            'plant_acc_type_combo': 'acc_type',
-                           'plant_acc_status_combo': 'acc_status',
+                           #'plant_acc_status_combo': 'acc_status',
                            }
                            #'plant_notes_textview': 'notes'}
 
@@ -888,18 +879,16 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         self._original_code = self.model.code
         self.__dirty = False
 
-        self.init_translatable_combo('plant_acc_status_combo',
-                                     acc_status_values)
         self.init_translatable_combo('plant_acc_type_combo', acc_type_values)
-
-#        self.init_history_box()
 
         # set default values for acc_status and acc_type
         if self.model.id is None and self.model.acc_type is None:
             self.model.acc_type = u'Plant'
-        if self.model.id is None and self.model.acc_status is None:
-            self.model.acc_status = u'Living'
+        # if self.model.id is None and self.model.acc_status is None:
+        #     self.model.acc_status = u'Living'
 
+        self.note = PlantNote()
+        self.note.date = datetime.date.today()
 
         def on_location_select(location):
             self.set_model_attr('location', location)
@@ -928,10 +917,13 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
         self.view.connect('plant_code_entry', 'changed',
                           self.on_plant_code_entry_changed)
-        # self.assign_simple_handler('plant_notes_textview', 'notes',
-        #                            UnicodeOrNoneValidator())
 
-        self.assign_simple_handler('plant_acc_status_combo', 'acc_status')
+        buff = gtk.TextBuffer()
+        self.view.widgets.pad_note_textview.set_buffer(buff)
+        self.view.connect(buff, 'changed', self.on_note_buffer_changed)
+
+        self.view.connect('pad_note_name_entry', 'changed',
+                          self.on_note_name_entry_changed)
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
 
         self.view.connect('plant_loc_add_button', 'clicked',
@@ -942,6 +934,23 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
     def dirty(self):
         return self.__dirty
+
+
+    def on_note_name_entry_changed(self, entry, *args):
+        value = entry.props.text
+        if not value:
+            self.note.note = None
+            return
+        self.note.user = utils.utf8(value)
+
+
+    def on_note_buffer_changed(self, buff, *args):
+        value = buff.props.text
+        if not value:
+            self.note.note = None
+            return
+        self.note.note = utils.utf8(value)
+
 
 
     def on_plant_code_entry_changed(self, *args):
@@ -1051,13 +1060,12 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
     def refresh_view(self):
+        # TODO: is this really relevant since this editor only creates
+        # new plants
         for widget, field in self.widget_to_field_map.iteritems():
             value = getattr(self.model, field)
             self.view.set_widget_value(widget, value)
 
-        self.view.set_widget_value('plant_acc_status_combo',
-                                   acc_status_values[self.model.acc_status],
-                                   index=1)
         self.view.set_widget_value('plant_acc_type_combo',
                                    acc_type_values[self.model.acc_type],
                                    index=1)
@@ -1065,8 +1073,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
     def start(self):
-        r = self.view.start()
-        return r
+        return self.view.start()
 
 
 
@@ -1131,6 +1138,9 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
             new_plant._created = None
             new_plant._last_updated = None
             plants.append(new_plant)
+            if self.presenter.note.note:
+                note = self.session.merge(self.presenter.note)
+                new_plant.notes.append(note)
         try:
             self.session.expunge(self.model)
             super(AddPlantEditor, self).commit_changes()
@@ -1274,8 +1284,8 @@ class GeneralPlantExpander(InfoExpander):
         self.set_widget_value('name_data',
                               row.accession.species_str(markup=True))
         self.set_widget_value('location_data',row.location.name)
-        self.set_widget_value('status_data', acc_status_values[row.acc_status],
-                              False)
+        # self.set_widget_value('status_data', acc_status_values[row.acc_status],
+        #                       False)
         self.set_widget_value('type_data', acc_type_values[row.acc_type],
                               False)
 
