@@ -187,7 +187,9 @@ class PlantRemoval(db.Base):
 
     # TODO: plan_id should probably go on the plant as removal_id
     # since in theory there can only be one removal for a plant
-    plant = relation('Plant', backref='removal')
+    plant = relation('Plant', uselist=False,
+                     backref=backref('removal', uselist=False,
+                                     cascade='all, delete-orphan'))
 
 
 class PlantTransfer(db.Base):
@@ -1114,6 +1116,13 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
             view.widgets.plant_code_entry.grab_focus()
 
 
+    def cleanup(self):
+        super(AddPlantEditor, self).cleanup()
+        # reset the code entry colors
+        entry.modify_bg(gtk.STATE_NORMAL, color)
+        entry.modify_base(gtk.STATE_NORMAL, color)
+
+
     def commit_changes(self):
         """
         """
@@ -1227,8 +1236,8 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
                 if self.handle_response(response):
                     break
 
-        self.presenter.cleanup()
         self.session.close() # cleanup session
+        self.presenter.cleanup()
         return self._committed
 
 
@@ -1296,7 +1305,7 @@ class TransferExpander(InfoExpander):
     def __init__(self, widgets):
         """
         """
-        super(TransferExpander, self).__init__(_('Transfers'), widgets)
+        super(TransferExpander, self).__init__(_('Transfers/Removal'), widgets)
 
 
     def update(self, row):
@@ -1306,10 +1315,16 @@ class TransferExpander(InfoExpander):
         # TODO: remove previous children
         #debug(row.transfers)
         for transfer in row.transfers:
-            s = _('%s: %s to %s by %s') % \
-                (transfer.date, transfer.from_location, transfer.to_location,
-                 transfer.person)
-            debug(s)
+            s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
+                dict(date=transfer.date, from_loc=transfer.from_location,
+                     to=transfer.to_location, person=transfer.person)
+            #s = s.replace('None', '?')
+            self.vbox.pack_start(gtk.Label(s))
+        if row.removal:
+            s = _('Removed from %(from_loc)s on %(date)s: %(reason)s') %\
+                dict(from_loc=row.removal.from_location, date=row.removal.date,
+                     reason=row.removal.reason)
+            #s = s.replace('None', '?')
             self.vbox.pack_start(gtk.Label(s))
         self.vbox.show_all()
         #self.set_widget_value('notes_data', row.notes)
