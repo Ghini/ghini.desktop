@@ -1582,7 +1582,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
+        if not model.code:
             model.code = get_next_code()
+
         super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
