@@ -3,10 +3,11 @@
 #
 # Description: the default view
 #
-import sys
-import re
-import traceback
 import itertools
+import os
+import re
+import sys
+import traceback
 
 import gtk
 import gobject
@@ -21,9 +22,10 @@ from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
 import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
+import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-import bauble.utils as utils
 from bauble.prefs import prefs
+import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
 from bauble.utils.pyparsing import *
 
@@ -783,6 +785,9 @@ class SearchView(pluginmgr.View):
         the constructor
         '''
         super(SearchView, self).__init__()
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        self.widgets = utils.load_widgets(filename)
+
         self.create_gui()
 
         # we only need this for the timeout version of populate_results
@@ -797,6 +802,31 @@ class SearchView(pluginmgr.View):
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
         self.session = bauble.Session()
+
+
+    def update_notes(self):
+        values = self.get_selected_values()
+        if len(values) == 0 or len(values) > 1:
+            self.widgets.notes_expander.hide()
+            return
+
+        row = values[0]
+        if hasattr(row, 'notes') and isinstance(row.notes, list):
+            self.widgets.notes_expander.show()
+        else:
+            self.widgets.notes_expander.hide()
+            return
+
+        if len(row.notes) > 0:
+            self.widgets.notes_expander.props.sensitive = True
+            model = gtk.ListStore(object)
+            for note in row.notes:
+                model.append([note])
+            self.widgets.notes_treeview.set_model(model)
+        else:
+            self.widgets.notes_expander.props.expanded = False
+            self.widgets.notes_expander.props.sensitive = False
+
 
 
     def update_infobox(self):
@@ -873,6 +903,7 @@ class SearchView(pluginmgr.View):
         type of the row that the cursor points to.
         '''
         self.update_infobox()
+        self.update_notes()
 
         # switch the accelerators depending on what the cursor is
         # currently pointing to
@@ -1302,7 +1333,8 @@ class SearchView(pluginmgr.View):
         create the interface
         '''
         # create the results view and info box
-        self.results_view = gtk.TreeView() # will be a select results row
+        self.results_view = self.widgets.results_treeview
+
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
         self.results_view.set_fixed_height_mode(True)
@@ -1339,24 +1371,69 @@ class SearchView(pluginmgr.View):
         self.results_view.connect("row-activated",
                                   self.on_view_row_activated)
 
-
         # this group doesn't need to be added to the main window with
         # gtk.Window.add_accel_group since the group will be added
         # automatically when the view is set
         self.accel_group = gtk.AccelGroup()
         self.installed_accels = []
 
-        # scrolled window for the results view
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        sw.add(self.results_view)
+        self.pane = self.widgets.search_hpane
 
-        # pane to split the results view and the infobox, the infobox
-        # is created when a row in the results is selected
-        self.pane = gtk.HPaned()
-        self.pane.pack1(sw, resize=True, shrink=True)
-        self.pack_start(self.pane)
-        self.show_all()
+        self.init_notes_treeview()
+
+        vbox = self.widgets.search_vbox
+        self.widgets.remove_parent(vbox)
+        self.pack_start(vbox)
+
+
+    def on_notes_size_allocation(treeview, allocation, column, cell):
+        """
+        Set the wrap width according to the widgth of the treeview
+        """
+        # This code came from the PyChess project
+        otherColumns = (c for c in treeview.get_columns() if c != column)
+        newWidth = allocation.width - sum(c.get_width() for c in otherColumns)
+        newWidth -= treeview.style_get_property("horizontal-separator") * 2
+        if cell.props.wrap_width == newWidth or newWidth <= 0:
+            return
+        cell.props.wrap_width = newWidth
+        store = treeview.get_model()
+        iter = store.get_iter_first()
+        while iter and store.iter_is_valid(iter):
+            store.row_changed(store.get_path(iter), iter)
+            iter = store.iter_next(iter)
+            treeview.set_size_request(0,-1)
+
+
+    def init_notes_treeview(self):
+        def cell_data_func(col, cell, model, treeiter, prop):
+            row = model[treeiter][0]
+            # TODO: show date with default date format
+            val = getattr(row, prop)
+            if val:
+                cell.set_property('text', utils.utf8(val))
+
+        date_cell = self.widgets.date_cell
+        date_col = self.widgets.date_column
+        date_col.set_cell_data_func(date_cell, cell_data_func, 'date')
+
+        category_cell = self.widgets.category_cell
+        category_col = self.widgets.category_column
+        category_col.set_cell_data_func(category_cell, cell_data_func,
+                                        'category')
+
+        name_cell = self.widgets.name_cell
+        name_col = self.widgets.name_column
+        name_col.set_cell_data_func(name_cell, cell_data_func, 'user')
+
+        note_cell = self.widgets.note_cell
+        note_col = self.widgets.note_column
+        note_col.set_cell_data_func(note_cell, cell_data_func, 'note')
+
+        # TODO: need to better test to make sure this wraps the text properly
+        self.widgets.notes_treeview.\
+            connect_after("size-allocate", self.on_notes_size_allocation,
+                          note_col, note_cell)
 
 
 
