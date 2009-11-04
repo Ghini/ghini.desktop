@@ -1314,6 +1314,8 @@ class TransferExpander(InfoExpander):
         # date: src to dest
         # TODO: remove previous children
         #debug(row.transfers)
+        self.vbox.foreach(self.vbox.remove)
+        self.vbox.get_children()
         for transfer in row.transfers:
             s = _('%(date)s: %(from_loc)s to %(to)s by %(person)s') % \
                 dict(date=transfer.date, from_loc=transfer.from_location,
