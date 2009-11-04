@@ -1,10 +1,11 @@
 #
 # test_bauble.py
 #
+import datetime
 import os
 import sys
 import unittest
-import datetime
+import time
 
 from sqlalchemy import *
 
@@ -126,10 +127,26 @@ class BaubleTests(BaubleTestCase):
         m = meta.BaubleMeta(name=u'name', value=u'value')
         table = m.__table__
         self.session.add(m)
-        m = self.session.query(meta.BaubleMeta).first()
+        self.session.commit()
+        m = self.session.query(meta.BaubleMeta).filter_by(name=u'name').first()
 
         # test that _created and _last_updated were created correctly
         self.assert_(hasattr(m, '_created') \
                      and isinstance(m._created, datetime.datetime))
         self.assert_(hasattr(m, '_last_updated') \
                      and isinstance(m._last_updated, datetime.datetime))
+
+        # test that created does not change when the value is updated
+        # but that last_updated does
+        created = m._created
+        last_updated = m._last_updated
+        # sleep for one second before committing since the DateTime
+        # column only has one second granularity
+        time.sleep(1.1)
+        m.value = u'value2'
+        self.session.commit()
+        self.session.expire(m)
+        self.assert_(isinstance(m._created, datetime.datetime))
+        self.assert_(m._created == created)
+        self.assert_(isinstance(m._last_updated, datetime.datetime))
+        self.assert_(m._last_updated != last_updated)
