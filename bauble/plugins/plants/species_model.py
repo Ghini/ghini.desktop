@@ -44,47 +44,9 @@ infrasp_rank_values = {u'subsp.': _('subsp.'),
                        u'subvar.': _('subvar'),
                        u'f.': _('f.'),
                        u'subf.': _('subf.'),
-                       u'cv.': _('cv.')}
+                       u'cv.': _('cv.'),
+                       None: _('')}
 
-# TODO: connect multiple infraspecific ranks to the species and
-# species editor so we can multiple levels of infraspecific rank
-class Infrasp(db.Base):
-    """
-    """
-    __tablename__ = 'infrasp'
-    __mapper_args__ = {'order_by': ['level'],}
-    __table_args__ = (UniqueConstraint('species_id', 'level',
-                                        name='infrasp_level_index'), {})
-    level = Column(Integer, nullable=False)
-    rank = Column(types.Enum(values=infrasp_rank_values.keys()),
-                  nullable=False)
-    epithet = Column(Unicode(64), nullable=False)
-    author = Column(Unicode(64))
-    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
-
-    def str(self, authors=False, markup=False):
-        s = []
-        if markup:
-            escape = utils.xml_safe_utf8
-            italicize = lambda s: u'<i>%s</i>' % escape(s)
-        else:
-            italicize = lambda s: u'%s' % s
-            escape = lambda x: x
-        if self.rank == 'cv.' and self.epithet:
-            s.append("'%s'" % escape(self.epithet))
-        else:
-            if self.rank:
-                s.append(self.rank)
-            if self.epithet:
-                s.append(italicize(self.epithet))
-
-        if authors and self.author:
-            s.append(escape(self.author))
-        return ' '.join(s)
-
-
-    def __str__(self):
-        return self.str()
 
 
 # TODO: there is a trade_name column but there's no support yet for editing
@@ -143,9 +105,21 @@ class Species(db.Base):
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
 
-    infrasp = relation('Infrasp', order_by='Infrasp.level',
-                       cascade='all,delete-orphan',
-                       backref=backref('species', uselist=False))
+    infrasp1 = Column(Unicode(64))
+    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp1_author = Column(Unicode(64))
+
+    infrasp2 = Column(Unicode(64))
+    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp2_author = Column(Unicode(64))
+
+    infrasp3 = Column(Unicode(64))
+    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp3_author = Column(Unicode(64))
+
+    infrasp4 = Column(Unicode(64))
+    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp4_author = Column(Unicode(64))
 
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
@@ -257,18 +231,38 @@ class Species(db.Base):
             escape = lambda x: x
 
         author = None
-        isp_author = None
-        isp2_author = None
-        if authors:
-            if species.sp_author:
-                author = escape(species.sp_author)
+        if authors and species.sp_author:
+            author = escape(species.sp_author)
+
+        infrasp = ((species.infrasp1_rank, species.infrasp1,
+                    species.infrasp1_author),
+                   (species.infrasp2_rank, species.infrasp2,
+                    species.infrasp2_author),
+                   (species.infrasp3_rank, species.infrasp3,
+                    species.infrasp3_author),
+                   (species.infrasp4_rank, species.infrasp4,
+                    species.infrasp4_author))
 
         infrasp_str = []
-        for infrasp in species.infrasp:
-            infrasp_str.append(Infrasp.str(infrasp, authors, markup))
+        for rank, epithet, iauthor in infrasp:
+            #debug('%s %s %s' % (rank, epithet, iauthor))
+            if rank == 'cv.' and epithet:
+                infrasp_str.append("'%s'" % escape(epithet))
+            else:
+                if rank:
+                    infrasp_str.append(rank)
+                if epithet:
+                    infrasp_str.append(italicize(epithet))
+
+            if authors and iauthor:
+                infrasp_str.append(escape(iauthor))
 
         group = []
-        if species.infrasp and species.infrasp[-1].rank == 'cv.':
+        # TODO: should probaly get the index of the cv. do decide on
+        # the parenthesis for the group
+        ranks = (species.infrasp1_rank, species.infrasp2_rank,
+                 species.infrasp3_rank, species.infrasp4_rank)
+        if u'cv.' in ranks:
             if species.cv_group:
                 group.append(_("(%(group)s Group)") % \
                                  dict(group=species.cv_group))
@@ -299,26 +293,35 @@ class Species(db.Base):
         return s
 
 
-    def insert_infrasp(self, level, rank, epithet):
-        for i in self.infrasp:
-            if i.level >= level:
-                i.level += 1
-        infrasp = Infrasp()
-        infrasp.level = level
-        infrasp.rank = rank
-        infrasp.epithet = epithet
-        self.infrasp.append(infrasp)
-        return infrasp
+    infrasp_attr = {1: {'rank': 'infrasp1_rank',
+                        'epithet': 'infrasp1',
+                        'author': 'infrasp1_author'},
+                    2: {'rank': 'infrasp2_rank',
+                        'epithet': 'infrasp2',
+                        'author': 'infrasp2_author'},
+                    3: {'rank': 'infrasp3_rank',
+                        'epithet': 'infrasp3',
+                        'author': 'infrasp3_author'},
+                    4: {'rank': 'infrasp4_rank',
+                        'epithet': 'infrasp4',
+                        'author': 'infrasp4_author'}}
+
+    def get_infrasp(self, level):
+        """
+        level should be 1-4
+        """
+        return getattr(self, self.infrasp_attr[level]['rank']), \
+            getattr(self, self.infrasp_attr[level]['epithet']), \
+            getattr(self, self.infrasp_attr[level]['author'])
 
 
-    def append_infrasp(self, rank, epithet):
-        levels = [i.level for i in self.infrasp]
-        level = 0
-        if levels:
-            level = max(levels)+1
-        if level < 1:
-            level = 1
-        return self.insert_infrasp(level, rank, epithet)
+    def set_infrasp(self, level, rank, epithet, author=None):
+        """
+        level should be 1-4
+        """
+        setattr(self, self.infrasp_attr[level]['rank'], rank)
+        setattr(self, self.infrasp_attr[level]['epithet'], epithet)
+        setattr(self, self.infrasp_attr[level]['author'], author)
 
 
 
