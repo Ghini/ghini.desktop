@@ -11,6 +11,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.prefs as prefs
 import bauble.db as db
 import bauble.utils as utils
 import bauble.meta as meta
@@ -20,6 +21,8 @@ import logging
 logging.basicConfig()
 
 from optparse import OptionParser
+
+prefs.prefs.init()
 
 default_uri = 'sqlite:///:memory:'
 
@@ -67,12 +70,13 @@ if options.stage == '0' or options.database == default_uri:
     filename = os.path.join(plants.__path__[0], 'default', 'geography.txt')
     importer.start([filename], force=True)
 
-from bauble.plugins.plants import Family, Genus, Species
+from bauble.plugins.plants import Family, Genus, Species, SpeciesNote
 from bauble.plugins.garden import Accession, Plant, Location
 
 family_table = Family.__table__
 genus_table = Genus.__table__
 species_table = Species.__table__
+species_note_table = SpeciesNote.__table__
 acc_table = Accession.__table__
 location_table = Location.__table__
 plant_table = Plant.__table__
@@ -151,6 +155,8 @@ def get_defaults(table):
     for column in table.c:
         if isinstance(column.default, ColumnDefault):
             defaults[column.name] = column.default.execute()
+    defaults['_created'] = _created
+    defaults['_last_updated'] = _last_updated
     return defaults
 
 
@@ -175,11 +181,15 @@ def get_column_value(column, where):
     - `colums`:
     - `where`:
     """
-    result = select([column], where).execute().fetchone()
-    if not result:
-        return None
-    val = result[0]
+    result = select([column], where).execute()
+    first = result.fetchone()
     result.close()
+    del result
+    if not first:
+        return None
+    val = first[0]
+    first.close()
+    del first
     return val
 
 
@@ -207,6 +217,10 @@ if options.stage == '0':
 unknown_location_id = get_column_value(location_table.c.id,
                               location_table.c.code==unknown_location_code)
 
+# precompute the _last_updated and _created columns so we don't have
+# to execute the default for every insert
+_last_updated = db.engine.execute(class_mapper(Family).c._last_updated.default)
+_created = db.engine.execute(class_mapper(Family).c._created.default)
 
 problem_labels = ['** have infraspecific rank but no epithet but do have a '\
                       'cultivar name',
@@ -265,53 +279,53 @@ def species_dict_from_rec(rec, defaults=None):
         # TODO: what's with all the '|' bars in the author string
         row['sp_author'] = utils.utf8(rec['authors'].replace('|','').strip())
 
-    # set default infrasp values
-    #row['infrasp_rank'] = u''
-    row['infrasp_rank'] = None
-    row['infrasp'] = None
-    #row['infrasp2_rank'] = u''
-    row['infrasp2_rank'] = None
-    row['infrasp2'] = None
-
-    # if rec['rank'] and not rec['infrepi']:
-    #     print rec
-    #     sys.exit()
-
-    # TODO: what gives with the '|' in the author fields
-
     # match all the combinations of rank, infrepi and cultivar
     if rec['rank'] and rec['infrepi'] and rec['cultivar']:
-        row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
-        row['infrasp'] = utils.utf8(rec['infrepi'])
+        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1'] = utils.utf8(rec['infrepi'])
         row['infrasp2_rank'] = u'cv.'
         row['infrasp2'] = utils.utf8(rec['cultivar'])
     elif rec['rank'] and not rec['infrepi'] and rec['cultivar']:
         # has infraspecific rank but no epithet...and a cultivar...??
         # maybe in this case we should just drop the rank and add cv. cultivar
         problems[0].append(clean_rec(rec))
-        row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
+        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1'] = u''
         row['infrasp2_rank'] = u'cv.'
+        row['infrasp2'] = u''
     elif rec['rank'] and rec['infrepi'] and not rec['cultivar']:
-        row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
-        row['infrasp'] = utils.utf8(rec['infrepi'])
+        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1'] = utils.utf8(rec['infrepi'])
     elif rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # has infrespecific rank but no epithet...???
         problems[1].append(clean_rec(rec))
-        row['infrasp_rank'] = utils.utf8(rec['rank']).replace('ssp.', 'subsp.')
+        row['infrasp1_rank'] = utils.utf8(rec['rank']).replace('ssp.','subsp.')
+        row['infrasp1'] = u''
     elif not rec['rank'] and rec['infrepi'] and rec['cultivar']:
-        # have and infraspecific epitehet and cultivar but no
+        # have an infraspecific epithet and cultivar but no
         # infraspecific rank
+        # TODO: could this mean that the infrepi part is the hybrid part
         problems[2].append(clean_rec(rec))
-        row['infrasp'] = utils.utf8(rec['infrepi'])
-        row['infrasp2_rank'] = u'cv.'
-        row['infrasp2'] = utils.utf8(rec['cultivar'])
+        row['infrasp1_rank'] = u'cv.'
+        row['infrasp1'] = utils.utf8(rec['cultivar'])
+        if row['hybrid']:
+            row['sp2'] = utils.utf8(rec['infrepi'])
+        else:
+            row['infrasp2_rank'] = u'var.'
+            row['infrasp2'] = utils.utf8(rec['infrepi'])
     elif not rec['rank'] and rec['infrepi'] and not rec['cultivar']:
-        # has infrespecific epithet but not rank or cultivar.???
+        # has infraspecific epithet but not rank or cultivar.???
         problems[3].append(clean_rec(rec))
-        row['infrasp'] = utils.utf8(rec['infrepi'])
+        if row['hybrid']:
+            row['sp2'] = utils.utf8(rec['infrepi'])
+        else:
+            # WARNING: adding this as a variety is probably wrong but
+            # what else can we do
+            row['infrasp1_rank'] = u'var.'
+            row['infrasp1'] = utils.utf8(rec['infrepi'])
     elif not rec['rank'] and not rec['infrepi'] and rec['cultivar']:
-        row['infrasp_rank'] = u'cv.'
-        row['infrasp'] = utils.utf8(rec['cultivar'])
+        row['infrasp1_rank'] = u'cv.'
+        row['infrasp1'] = utils.utf8(rec['cultivar'])
     elif not rec['rank'] and not rec['infrepi'] and not rec['cultivar']:
         # use all the default values
         pass
@@ -323,6 +337,22 @@ def species_dict_from_rec(rec, defaults=None):
 
     return row
 
+
+def species_obj_from_rec(rec, defaults):
+    d = species_dict_from_rec(rec, defaults)
+    sp = Species()
+
+    if 'notes' in d:
+        notes = d.pop('notes')
+        note = SpeciesNote()
+        note.note = notes
+        note.date = '1/1/1900'
+        sp.notes.append(note)
+
+    for key, value in d.iteritems():
+        #print '%s=%s' % (key, value)
+        setattr(sp, key, value)
+    return sp
 
 
 def do_family():
@@ -337,7 +367,12 @@ def do_family():
     genera = {}
 
     # create the insert values for the family table and genera
+    rec_ctr = 0
     for rec in dbf:
+        rec_ctr += 1
+        if (rec_ctr % 200) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
         family = rec['family']
         if not family in families:
             row = defaults.copy()
@@ -346,12 +381,15 @@ def do_family():
 
         genus = rec['genus']
         if not genus in genera:
-            genera[genus] =  {'family': family, 'genus': genus}
+            genera[genus] =  {'family': family, 'genus': genus,
+                              '_created': _created,
+                              '_last_updated': _last_updated}
         else:
             # luckily there are not duplicate genera/families but
             # we'll leave this here just in case for future data
             raise ValueError('duplicate genus: %s(%s) -- %s(%s)' \
                 % (genus, family, genera['genus'], genera['family']))
+        del rec
 
     # insert the families
     conn = db.engine.connect()
@@ -419,16 +457,22 @@ def do_sciname():
     # phenol:
     status('converting SCINAME.DBF ...')
     dbf = open_dbf('SCINAME.DBF')
-    species_insert = get_insert(species_table,
-                                ['genus_id', 'sp', 'hybrid', 'infrasp',
-                                 'infrasp_rank', 'sp_author', 'notes',
-                                 'infrasp2', 'infrasp2_rank'])
+    # species_insert = get_insert(species_table,
+    #                             ['genus_id', 'sp', 'sp2', 'hybrid',
+    #                              'sp_author', 'infrasp1', 'infrasp1_rank',
+    #                              'infrasp2', 'infrasp2_rank'])
     species_rows = []
+    child_rows = []
     genus_insert = get_insert(genus_table, ['genus', 'family_id'])
     no_genus_ctr = 0
     species_defaults = get_defaults(species_table)
     genus_defaults = get_defaults(genus_table)
+    rec_ctr = 0
     for rec in dbf:
+        rec_ctr += 1
+        if (rec_ctr % 500) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
         genus = str('%s %s' % (rec['ig'], rec['genus'])).strip()
         genus_id = None
         if not genus:
@@ -471,10 +515,70 @@ def do_sciname():
         # exists"
         defaults = species_defaults.copy()
         defaults['genus_id'] = genus_id
-        row = species_dict_from_rec(rec, defaults=defaults)
-        species_rows.append(row)
+        #row = species_dict_from_rec(rec, defaults=defaults)
+        row = species_obj_from_rec(rec, defaults=defaults)
+        # infrasp = ()
+        # note = {}
+        # if 'infrasp' in row:
+        #     infrasp = row.pop('infrasp')
 
-    db.engine.execute(species_insert, *species_rows).close()
+        # if 'notes' in row:
+        #     note['note'] = row.pop('notes')
+
+        # child_rows.append((row, infrasp, note))
+        # #infrasp_rows.append((row, infrasp))
+        # species_rows.append(row)
+
+        # del rec
+
+    session = bauble.Session()
+    def set_genus(s):
+        s.genus=session.query(Genus).get(s.genus_id)
+    map(set_genus, species_rows)
+    session.add_all(species_rows)
+    session.commit()
+    # db.engine.execute(species_insert, *species_rows).close()
+
+    # # now that the species have been inserted get the ids for
+    # # infraspecific parts and the species notes
+    # infrasp_defaults = get_defaults(infrasp_table)
+    # new_infrasp = []
+    # new_notes = []
+    # for sp, infrasp, note in child_rows:
+    #     # query the row
+    #     conditions = []
+    #     for col, val in sp.iteritems():
+    #         if col not in ('_last_updated', '_created'):
+    #             conditions.append(species_table.c[col]==val)
+    #     species_id = get_column_value(species_table.c.id, and_(*conditions))
+    #     for i in infrasp:
+    #         iid = get_column_value(infrasp_table.c.id,
+    #                                and_(infrasp_table.c.species_id==species_id,
+    #                                     infrasp_table.c.level == i['level']))
+    #         if iid:
+    #             print sp
+    #             print infrasp
+    #             raise ValueError
+    #         i['species_id'] = species_id
+    #         #print i
+    #         i['_created'] = _created
+    #         i['_last_updated'] = _last_updated
+    #         db.engine.execute(infrasp_insert, i).close()
+    #         #new_infrasp.append(i)
+
+    #     note['species_id'] = species_id
+    #     note['date'] = '1/1/1900'
+    #     note['_created'] = _created
+    #     note['_last_updated'] = _last_updated
+    #     new_notes.append(note)
+
+    # #db.engine.execute(infrasp_insert, *new_infrasp).close()
+
+    # # insert the notes
+    # species_note_insert = get_insert(species_note_table,
+    #                                  ['species_id', 'note', 'date'])
+    # db.engine.execute(species_note_insert, *new_notes).close()
+
     info('inserted %s species out of %s records' \
         % (len(species_rows), len(dbf)))
     warning('** %s sciname entries with no genus.  Added to the genus %s' \
@@ -497,6 +601,7 @@ def get_species(rec, defaults=None):
 
     genus_id = None
     genus = None
+
     if not defaults:
         defaults = get_defaults(species_table)
 
@@ -531,13 +636,43 @@ def get_species(rec, defaults=None):
     defaults = defaults.copy()
     defaults['genus_id'] = genus_id
     row = species_dict_from_rec(rec, defaults=defaults)
+
+    # infrasp = []
+    # if 'infrasp' in row:
+    #     infrasp = row.pop('infrasp')
+
+    # sql = select([species_table.c.id],
+    #              from_obj=[species_table.select().alias().join(infrasp_table)])
+
+    # infrasp_conditions = []
+    # for i in infrasp:
+    #     conditions = []
+    #     for col, val in i.iteritems():
+    #         if col not in ('_last_updated', '_created'):
+    #             conditions.append(infrasp_table.c[col]==val)
+    #             #infrasp_conditions.append(infrasp_table.c[col]==val)
+    #     infrasp_conditions.append(and_(*conditions))
+
+    # if infrasp_conditions:
+    #     sql = sql.where(or_(*infrasp_conditions)).apply_labels()
+
+    if 'notes' in row:
+        row.pop('notes')
+
     conditions = []
     for col, val in row.iteritems():
         if col not in ('_last_updated', '_created'):
             conditions.append(species_table.c[col]==val)
-    species_id = get_column_value(species_table.c.id, and_(*conditions))
-    if species_id:
-        row['id'] = species_id
+
+    sql = select([species_table.c.id], and_(*conditions))
+    result = db.engine.execute(sql).fetchone()
+    if result:
+        row['id'] = result[0]
+        result.close()
+    else:
+        # TODO: should the species id be set to None or just not added
+        row['id'] = None
+
     return row
 
 
@@ -555,9 +690,7 @@ def do_plants():
     # aren't referenced to a scientific name by id or anything
     status('converting PLANTS.DBF ...')
     dbf = open_dbf('PLANTS.DBF')
-    rec_ctr = 0
-    species_table = Species.__table__
-    acc_table = Accession.__table__
+
     acc_insert = get_insert(acc_table,
                             ['code', 'species_id', ])
     acc_defaults = get_defaults(acc_table)
@@ -572,17 +705,20 @@ def do_plants():
     acc_rows_append = lambda x: acc_rows.append(x)
     plants = set()
 
+    rec_ctr = 0
     for rec in dbf:
-        if options.verbosity > 1:
-            rec_ctr += 1
-            if (rec_ctr % 500) == 0:
-                    sys.stdout.write('.')
-                    sys.stdout.flush()
+        rec_ctr += 1
+        if (rec_ctr % 500) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
+            if options.verbosity > 1:
+                sys.stdout.write('.')
+                sys.stdout.flush()
 
         # TODO: create tags for PISBG
 
         # TODO: should record the name of the person who creates new
-        # accession sand use the operator field for old
+        # accession and use the operator field for old
         # accessions...of course the audit trail will also record this
         p = (unicode(rec['accno']), unicode(rec['propno']))
         if p not in plants:
@@ -603,13 +739,12 @@ def do_plants():
         species = get_species(rec, species_defaults)
         row = acc_defaults.copy()
         row['code'] = unicode(rec['accno'])
-        if 'id' in species:
+        if 'id' in species and species['id']:
             row['species_id'] = species['id']
             acc_rows.append(row)
         else:
             delayed_species.append(species)
             delayed_accessions.append((rec, row))
-            #delayed_accessions.append(row)
 
     if options.verbosity > 1:
         print ''
@@ -617,24 +752,32 @@ def do_plants():
     # TODO: could inserting all the delayed species cause problems
     # if species with duplicate names are inserted then we won't know
     # which one to get for the species_id of the accession
-
     if delayed_species:
         conn = db.engine.connect()
         trans = conn.begin()
-        conn.execute(species_table.insert(), *delayed_species)
+        for species in delayed_species:
+            conn.execute(species_table.insert(), species)
+        #conn.execute(species_table.insert(), *delayed_species)
         info('inserted %s species from plants.dbf' % len(delayed_species))
         trans.commit()
         conn.close()
 
     # set species id on the rows that we couldn't get earlier
-    map(lambda item: item[1].setdefault('species_id',
-                               get_species(item[0], species_defaults)['id']),
-        delayed_accessions)
-    #acc_rows.extend(delayed_accessions)
-
-    # TODO: this could go away
+    rec_ctr = 0
     for rec, row in delayed_accessions:
+        # map would be faster here than a loop but if we don't do
+        # manual garbage collection then we'll run out of memory
+        rec_ctr += 1
+        if (rec_ctr % 200) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
+        species = get_species(rec, species_defaults)
+        row['species_id'] = species['id']
         acc_rows.append(row)
+        del rec
+    del delayed_accessions
+
+    gc.collect()
 
     # insert the accessions
     conn = db.engine.connect()
@@ -652,7 +795,12 @@ def do_plants():
     values = []
     plant_defaults = get_defaults(plant_table)
     row_map = {}
+    rec_ctr = 0
     for acc_code, plant_code in plants:
+        rec_ctr += 1
+        if (rec_ctr % 500) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
         acc_id = get_column_value(acc_table.c.id,
                                   acc_table.c.code == unicode(acc_code))
         row = plant_defaults.copy()
@@ -661,9 +809,9 @@ def do_plants():
         row['location_id'] = unknown_location_id
         # TODO: should check row doesn't already exists
         row_map[(acc_code, plant_code)] = row
-
         values.append(row)
 
+    gc.collect()
     # i couldn't get plant_table.update() to ever work properly so
     # instead we just loop through the hereitis table and set the
     # values on the plant before inserting the plant rows
@@ -671,7 +819,12 @@ def do_plants():
     # loop through the hereitis table to set the location_id
     status('converting HEREITIS.DBF ...')
     dbf = open_dbf('HEREITIS.DBF')
+    rec_ctr = 0
     for rec in dbf:
+        rec_ctr += 1
+        if (rec_ctr % 500) == 0:
+            # collect periodically so we don't run out of memory
+            gc.collect()
         acc_code = unicode(rec['accno'])
         plant_code = unicode(rec['propno'])
         bedno = unicode(rec['bedno'])
@@ -683,6 +836,7 @@ def do_plants():
             error('location does not exist for %s.%s: %s' % \
                       (acc_code, plant_code, bedno))
         row_map[(acc_code, plant_code)]['location_id'] = location_id
+        del rec
 
     conn = db.engine.connect()
     trans = conn.begin()
@@ -690,7 +844,6 @@ def do_plants():
     trans.commit()
     conn.close()
     status('inserted %s plants' % len(values))
-
 
 
 def do_bedtable():
@@ -713,6 +866,7 @@ def do_bedtable():
         # row.update({'name': utils.utf8(rec['bedno']),
         #             'description': utils.utf8(rec['beddescr'])})
         location_rows.append(row)
+        del rec
     conn = db.engine.connect()
     trans = conn.begin()
     conn.execute(location_table.insert(), *location_rows)
@@ -796,6 +950,7 @@ def do_hereitis():
         db.engine.execute(stmt)
         #plant_table.update().where(plant_table.c.id==plant_id).values(location_id=location_id).execute(bind=conn)
         #conn.execute(plant_update, plant_id=plant_id, location_id=location_id)
+        del rec
 
     trans.commit()
     conn.close()
