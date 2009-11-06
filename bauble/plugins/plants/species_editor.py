@@ -22,7 +22,7 @@ import bauble.editor as editor
 from bauble.utils.log import debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
-from bauble.plugins.plants.species_model import Species, Infrasp, \
+from bauble.plugins.plants.species_model import Species, \
     SpeciesSynonym, VernacularName, DefaultVernacularName, \
     SpeciesDistribution, SpeciesNote, Geography, infrasp_rank_values
 
@@ -214,8 +214,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
         super(InfraspPresenter, self).__init__(parent.model, parent.view)
         self.parent_ref = weakref.ref(parent)
         self._dirty = False
-        self.view.connect('add_infrasp_button', "clicked",
-                          self.on_add_infrasp_button_clicked)
+        self.view.connect('add_infrasp_button', "clicked", self.append_infrasp)
 
         # will table.resize() remove the children??
         table = self.view.widgets.infrasp_table
@@ -223,55 +222,57 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             if not isinstance(item, gtk.Label):
                 self.view.widgets.remove_parent(item)
 
-        for infrasp in self.model.infrasp:
-            self.add_infrasp(infrasp)
+        self.table_rows = []
+        for index in range(1,5):
+            infrasp = self.model.get_infrasp(index)
+            if infrasp != (None, None, None):
+                self.append_infrasp()
 
 
     def dirty(self):
         return self._dirty
 
 
-    def on_add_infrasp_button_clicked(self, button, *args):
+    def append_infrasp(self, *args):
         """
         """
-        self.add_infrasp()
-
-
-    def add_infrasp(self, infrasp=None, *args):
-        """
-        """
-        if not infrasp:
-            infrasp = self.model.append_infrasp(None, None)
-            self._dirty = True
-        row = InfraspPresenter.Row(self, infrasp)
-        # TODO: if rows is greater than 4 then disable the add button
+        # TODO: it is very slow to add rows to the widget...maybe if
+        # we disable event on the table until all the rows have been
+        # added
+        level = len(self.table_rows)+1
+        row = InfraspPresenter.Row(self, level)
+        self.table_rows.append(row)
+        if level >= 4:
+            self.view.widgets.add_infrasp_button.props.sensitive = False
+        return row
 
 
     class Row(object):
 
-        def __init__(self, presenter, infrasp):
+        def __init__(self, presenter, level):
             """
             """
             self.presenter = presenter
-            # TODO: how do we know the level if infrasp is Nne
-            self.infrasp = infrasp
+            self.species = presenter.model
             table = self.presenter.view.widgets.infrasp_table
             nrows = table.props.n_rows
             ncols = table.props.n_columns
-            level = infrasp.level
+            self.level = level
+
+            rank, epithet, author = self.species.get_infrasp(self.level)
 
             # rank combo
             self.rank_combo = gtk.ComboBox()
             self.presenter.init_translatable_combo(self.rank_combo,
                                                    infrasp_rank_values)
-            utils.set_widget_value(self.rank_combo, infrasp.rank)
+            utils.set_widget_value(self.rank_combo, rank)
             self.rank_combo.connect('changed', self.on_rank_combo_changed)
             table.attach(self.rank_combo, 0, 1, level, level+1,
                          xoptions=gtk.FILL, yoptions=-1)
 
             # epithet entry
             self.epithet_entry = gtk.Entry()
-            utils.set_widget_value(self.epithet_entry, infrasp.epithet)
+            utils.set_widget_value(self.epithet_entry, epithet)
             self.epithet_entry.connect('changed',
                                        self.on_epithet_entry_changed)
             table.attach(self.epithet_entry, 1, 2, level, level+1,
@@ -279,7 +280,7 @@ class InfraspPresenter(editor.GenericEditorPresenter):
 
             # author entry
             self.author_entry = gtk.Entry()
-            utils.set_widget_value(self.author_entry, infrasp.author)
+            utils.set_widget_value(self.author_entry, author)
             self.author_entry.connect('changed', self.on_author_entry_changed)
             table.attach(self.author_entry, 2, 3, level, level+1,
                          xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
@@ -307,21 +308,25 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             table.remove(self.author_entry)
             table.remove(self.remove_button)
 
-            # TODO: what about just doing a range and resetting the
-            # level on all the remaining infrasp
-            species = self.infrasp.species
-            species.infrasp.remove(self.infrasp)
-            isp_levels = zip(range(1, len(species.infrasp)), species.infrasp)
-            for level, infrasp in isp_levels:
-                infrasp.level = level
+            self.set_model_attr('rank', None)
+            self.set_model_attr('epithet', None)
+            self.set_model_attr('author', None)
+
+            # move all the infrasp values up a level
+            for i in range(self.level+1, 5):
+                rank, epithet, author = self.species.get_infrasp(i)
+                self.species.set_infrasp(i-1, rank, epithet, author)
 
             self.presenter._dirty = False
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter.view.widgets.add_infrasp_button.props.\
+                sensitive = True
 
 
         def set_model_attr(self, attr, value):
-            setattr(self.infrasp, attr, value)
+            infrasp_attr = Species.infrasp_attr[self.level][attr]
+            setattr(self.species, infrasp_attr, value)
             self.presenter._dirty = False
             self.presenter.parent_ref().refresh_fullname_label()
             self.presenter.parent_ref().refresh_sensitivity()
@@ -331,7 +336,6 @@ class InfraspPresenter(editor.GenericEditorPresenter):
             model = combo.get_model()
             it = combo.get_active_iter()
             self.set_model_attr('rank', utils.utf8(model[it][0]))
-            #self.infrasp.rank = utils.utf8(model[it][0])
 
 
         def on_epithet_entry_changed(self, entry, *args):
@@ -715,7 +719,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         self.parent_ref = weakref.ref(parent)
         self.session = parent.session
         self.init_treeview()
-
+        debug(self.problems)
         # use completions_model as a dummy object for completions, we'll create
         # seperate SpeciesSynonym models on add
         completions_model = SpeciesSynonym()
