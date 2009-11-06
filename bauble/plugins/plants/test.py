@@ -57,40 +57,38 @@ species_test_data = ({'id': 1, 'sp': u'variabilis', 'genus_id': 1,
                       'hybrid': True, 'sp_author': u'F\xe9e'},
                      {'id': 5, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'(L.) Lem\xe9e',
-                      'infrasp': [{'rank': u'var.', 'epithet': u'cochleata'}]},
+                      'infrasp1_rank': u'var.', 'infrasp1': u'cochleata'},
                      {'id': 6, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'(L.) Lem\xe9e',
-                      'infrasp': [{'rank': u'cv.',
-                                   'epithet': u'Black Night'}]},
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Black Night'},
                      {'id': 7, 'sp': u'precatorius', 'genus_id': 3,
                       'sp_author': u'L.', 'cv_group': u'SomethingRidiculous'},
                      {'id': 8, 'sp': u'precatorius', 'genus_id': 3,
                       'sp_author': u'L.',
-                      'infrasp': [{'rank': u'cv.',
-                                   'epithet': u'Hot Rio Nights'}],
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Hot Rio Nights',
                       'cv_group': u'SomethingRidiculous'},
                      {'id': 9, 'sp': u'generalis', 'genus_id': 1,
                       'hybrid': True,
-                      'infrasp': [{'rank': u'cv.', 'epithet': u'Red'}]},
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
                      {'id': 10, 'sp': u'generalis', 'genus_id': 1,
                       'hybrid': True, 'sp_author': u'L.',
-                      'infrasp': [{'rank': u'cv.', 'epithet': u'Red'}],
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red',
                       'cv_group': u'SomeGroup'},
                      {'id': 11, 'sp': u'generalis', 'genus_id': 1,
                       'sp_qual': u'agg.'},
                      {'id': 12, 'genus_id': 1, 'cv_group': u'SomeGroup'},
                      {'id': 13, 'genus_id':1,
-                      'infrasp': [{'rank': u'cv.', 'epithet': u'Red'}]},
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red'},
                      {'id': 14, 'genus_id':1,
-                      'infrasp': [{'rank': u'cv.', 'epithet': u'Red & Blue'}]},
+                      'infrasp1_rank': u'cv.', 'infrasp1': u'Red & Blue'},
                      {'id': 15, 'sp': u'cochleata', 'genus_id': 2,
                       'sp_author': u'L.',
-                      'infrasp': [{'rank': u'subsp.', 'epithet': u'cochleata',
-                                   'author': u'L.'},
-                                  {'rank': u'var.', 'epithet': u'cochleata',
-                                   'author': u'L.'},
-                                  {'rank': u'cv.', 'epithet': u'Black',
-                                   'author': u'L.'}]}
+                      'infrasp1_rank': u'subsp.', 'infrasp1': u'cochleata',
+                      'infrasp1_author': u'L.',
+                      'infrasp2_rank': u'var.', 'infrasp2': u'cochleata',
+                      'infrasp2_author': u'L.',
+                      'infrasp3_rank': u'cv.', 'infrasp3': u'Black',
+                      'infrasp3_author': u'L.'}
                      )
 
 species_str_map = {\
@@ -168,22 +166,10 @@ def setUp_data():
     import copy
     for mapper, data in test_data_table_control:
         table = mapper.__table__
-
+        # insert row by row instead of doing an insert many since each
+        # row will have different columns
         for row in data:
-            # copy the row since we'll be popping out the infrasp
-            # parts and changing the original data
-            row = copy.copy(row)
-            infrasp = []
-            if issubclass(mapper, Species) and 'infrasp' in row:
-                infrasp = row.pop('infrasp')
             table.insert().execute(row).close()
-            for level in range(0, len(infrasp)):
-                # create the infrasp parts
-                isprow = infrasp[level]
-                isprow['level'] = level+1
-                isprow['species_id'] = row['id']
-                Infrasp.__table__.insert().execute(isprow).close()
-
         for col in table.c:
             utils.reset_sequence(col)
 
@@ -489,7 +475,6 @@ class SpeciesTests(PlantTestCase):
                              '"%s" != "%s" ** %s' % (spstr, s, unicode(spstr)))
         except Exception, e:
             print >>sys.stderr, ' **** %s' % e
-
 
         for sid, s in species_str_authors_map.iteritems():
             spstr = get_sp_str(sid, authors=True)
