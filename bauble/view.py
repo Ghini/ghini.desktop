@@ -67,13 +67,13 @@ class Action(gtk.Action):
         self.singleselect = singleselect
         self.accelerator = accelerator
 
+
     def _set_enabled(self, enable):
         self.set_visible(enable)
         # if enable:
         #     self.connect_accelerator()
         # else:
         #     self.disconnect_accelerator()
-
 
     def _get_enabled(self):
         return self.get_visible()
@@ -1386,7 +1386,7 @@ class SearchView(pluginmgr.View):
         self.pack_start(vbox)
 
 
-    def on_notes_size_allocation(treeview, allocation, column, cell):
+    def on_notes_size_allocation(self, treeview, allocation, column, cell):
         """
         Set the wrap width according to the widgth of the treeview
         """
