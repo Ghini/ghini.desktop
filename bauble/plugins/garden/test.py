@@ -23,7 +23,7 @@ from bauble.plugins.garden.propagation import Propagation, PropagationEditor, \
     PropCutting, PropRooted, PropSeed
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
-from bauble.plugins.plants.species_model import Species, Infrasp
+from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionEditor
 import bauble.prefs as prefs
