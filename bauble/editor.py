@@ -956,6 +956,8 @@ class NotesPresenter(GenericEditorPresenter):
             if self.model in self.presenter.notes:
                 self.presenter.notes.remove(self.model)
             self.widgets.remove_parent(self.widgets.notes_box)
+            self.presenter._dirty = True
+            self.presenter.parent_ref().refresh_sensitivity()
 
 
         def on_date_entry_changed(self, entry, *args):
@@ -990,7 +992,6 @@ class NotesPresenter(GenericEditorPresenter):
                 return
             self.widgets.category_comboentry.child.props.text = \
                 utils.utf8(text)
-
 
 
         def on_category_entry_changed(self, entry, *args):
@@ -1051,28 +1052,21 @@ class NotesPresenter(GenericEditorPresenter):
             self.presenter._dirty = True
             if attr != 'date' and not self.model.date:
                 # this is a little voodoo to set the date on the model
-                # since when we create a new verification box we add
-                # today's date to the entry but we don't set the model
-                # so the presenter doesn't appear dirty...we have to
-                # use a tmp variable since the changed signal won't
-                # fire if the new value is the same as the old
+                # since when we create a new note box we add today's
+                # date to the entry but we don't set the model so the
+                # presenter doesn't appear dirty...we have to use a
+                # tmp variable since the changed signal won't fire if
+                # the new value is the same as the old
                 entry = self.widgets.date_entry
                 tmp = entry.props.text
                 entry.props.text = ''
                 entry.props.text = tmp
-                # if the verification is new and isn't yet associated
-                # with an accession then set the accession when we
-                # start changing values, this way we can setup a dummy
+                # if the note is new and isn't yet associated with an
+                # accession then set the accession when we start
+                # changing values, this way we can setup a dummy
                 # verification in the interface
-                if not self.presenter.notes:
-                    self.presenter.notes.append(self.model)
-            # if self.model.date:
-            #     if isinstance(self.model.date, basestring):
-            #         self.set_label(self.model.date)
-            #     else:
-            #         format = prefs.prefs[prefs.date_format_pref]
-            #         safe = utils.xml_safe(self.model.date.strftime(format))
-            #         self.set_label(safe)
+                self.presenter.notes.append(self.model)
+
             self.update_label()
 
             # TODO: if refresh_sensitivity() part of the
