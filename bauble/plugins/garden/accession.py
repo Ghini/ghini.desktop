@@ -310,6 +310,21 @@ source_type_values = {u'Collection': _('Collection'),
                       u'Donation': _('Donation'),
                       None: _('')}
 
+class AccessionNote(db.Base):
+    """
+    Notes for the accession table
+    """
+    __tablename__ = 'accession_note'
+    __mapper_args__ = {'order_by': 'accession_note.date'}
+
+    date = Column(types.DateTime, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+    accession = relation('Accession', uselist=False,
+                       backref=backref('notes', cascade='all, delete-orphan'))
+
 
 class Accession(db.Base):
     """
@@ -353,9 +368,6 @@ class Accession(db.Base):
 
                 * Donation: indicates that self.source points to a
                   :class:`bauble.plugins.garden.Donation`
-
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-            Notes relating to this accession.
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -420,7 +432,6 @@ class Accession(db.Base):
     date = Column(types.Date)
     source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
-    notes = Column(UnicodeText)
 
     # "id_qual" new in 0.7
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
@@ -606,8 +617,8 @@ from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
 
 class AccessionEditorView(editor.GenericEditorView):
 
-    expanders_pref_map = {'acc_notes_expander':
-                          'editor.accession.notes.expanded',
+    expanders_pref_map = {#'acc_notes_expander':
+                          #'editor.accession.notes.expanded',
 #                           'acc_source_expander':
 #                           'editor.accession.source.expanded'
                           }
@@ -629,7 +640,6 @@ class AccessionEditorView(editor.GenericEditorView):
                                  ', '.join(wild_prov_status_values.values()),
         'acc_source_type_combo': _('The source type is in what way this ' \
                                    'accession was obtained'),
-        'acc_notes_textview': _('Miscelleanous notes about this accession.'),
         'acc_private_check': _('Indicates whether this accession record ' \
                                'should be considered private.')
         }
@@ -1153,7 +1163,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_source_type_combo': 'source_type',
-                           'acc_notes_textview': 'notes',
                            'acc_private_check': 'private'}
 
     PROBLEM_INVALID_DATE = random()
@@ -1192,6 +1201,10 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         self.prop_presenter = PropagationTabPresenter(self, self.model,
                                                       self.view, self.session)
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes', notes_parent)
 
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
@@ -1285,8 +1298,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # could
         self.view.connect('acc_code_entry', 'changed',
                           self.on_acc_code_entry_changed)
-        self.assign_simple_handler('acc_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
         self.view.connect('acc_date_entry', 'changed',
                           self.on_acc_date_entry_changed)
         utils.setup_date_button(self.view.widgets.acc_date_entry,
@@ -1316,13 +1327,25 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         it = model.append([str(species.sp), 'sp'])
         if self.model.id_qual_rank == 'sp':
             active = it
-        if species.infrasp:
-            s = ' '.join([str(isp) for isp in species.infrasp])
-            if len(s) > 32:
-                s = '%s...' % s[:29]
-            it = model.append([s, 'infrasp'])
+
+        infrasp_parts = []
+        for level in (1,2,3,4):
+            infrasp = [s for s in species.get_infrasp(level) if s is not None]
+            if infrasp:
+                infrasp_parts.append(' '.join(infrasp))
+        if infrasp_parts:
+            it = model.append([' '.join(infrasp_parts), 'infrasp'])
             if self.model.id_qual_rank == 'infrasp':
                 active = it
+
+        # if species.infrasp:
+        #     s = ' '.join([str(isp) for isp in species.infrasp])
+        #     if len(s) > 32:
+        #         s = '%s...' % s[:29]
+        #     it = model.append([s, 'infrasp'])
+        #     if self.model.id_qual_rank == 'infrasp':
+        #         active = it
+
         it = model.append(('', None))
         if not active:
             active = it
@@ -1332,7 +1355,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
     def dirty(self):
         presenters = [self.ver_presenter, self.prop_presenter,
-                      self.voucher_presenter]
+                      self.voucher_presenter, self.notes_presenter]
         if self.source_presenter is None:
             return self.__dirty or True in [p.dirty() for p in presenters]
         return self.source_presenter.dirty() or self.__dirty or \
