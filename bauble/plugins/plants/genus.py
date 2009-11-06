@@ -188,9 +188,9 @@ class GenusNote(db.Base):
     Notes for the genus table
     """
     __tablename__ = 'genus_note'
-    __mapper_args__ = {'order_by': 'date'}
+    __mapper_args__ = {'order_by': 'genus_note.date'}
 
-    date = Column(types.Date, nullable=False)
+    date = Column(types.DateTime, nullable=False)
     user = Column(Unicode(64))
     category = Column(Unicode(32))
     note = Column(UnicodeText, nullable=False)
@@ -904,26 +904,6 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.gen_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('gen_notes_data', row.notes)
-
-
-
 class GenusInfoBox(InfoBox):
     """
     """
@@ -936,8 +916,6 @@ class GenusInfoBox(InfoBox):
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -953,7 +931,6 @@ class GenusInfoBox(InfoBox):
     def update(self, row):
         self.general.update(row)
         self.synonyms.update(row)
-        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
