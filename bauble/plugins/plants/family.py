@@ -301,9 +301,10 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
 
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
-            editor.NotesPresenter(self, 'notes',
-                                  self.view.widgets.notes_parent_box)
+            editor.NotesPresenter(self, 'notes', notes_parent)
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize

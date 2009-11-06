@@ -49,9 +49,11 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.synonyms_presenter = SynonymsPresenter(self)
         self.dist_presenter = DistributionPresenter(self)
         self.infrasp_presenter = InfraspPresenter(self)
+
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
-            editor.NotesPresenter(self, 'notes',
-                                  self.view.widgets.notes_parent_box)
+            editor.NotesPresenter(self, 'notes', notes_parent)
         self.refresh_view()
 
         # connect signals

@@ -384,9 +384,11 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
 
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
-            editor.NotesPresenter(self, 'notes',
-                                  self.view.widgets.notes_parent_box)
+            editor.NotesPresenter(self, 'notes', notes_parent)
+
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
         # self.assign_simple_handler('gen_notes_textview', 'notes',
         #                            editor.UnicodeOrNoneValidator())
