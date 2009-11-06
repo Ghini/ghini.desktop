@@ -208,25 +208,6 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.sp_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('sp_notes_data', row.notes)
-
-
 class GeneralSpeciesExpander(InfoExpander):
     '''
     expander to present general information about a species
@@ -413,8 +394,6 @@ class SpeciesInfoPage(InfoBoxPage):
         self.add_expander(self.vernacular)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -437,7 +416,6 @@ class SpeciesInfoPage(InfoBoxPage):
         self.general.update(row)
         self.vernacular.update(row)
         self.synonyms.update(row)
-        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
