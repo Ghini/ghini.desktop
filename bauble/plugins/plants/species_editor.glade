@@ -478,6 +478,7 @@
                                           <object class="GtkTreeViewColumn" id="vn_name_column">
                                             <property name="resizable">True</property>
                                             <property name="sizing">fixed</property>
+                                            <property name="fixed_width">20</property>
                                             <property name="min_width">50</property>
                                             <property name="title">Name</property>
                                             <property name="expand">True</property>
@@ -492,6 +493,7 @@
                                           <object class="GtkTreeViewColumn" id="vn_lang_column">
                                             <property name="resizable">True</property>
                                             <property name="sizing">fixed</property>
+                                            <property name="min_width">20</property>
                                             <property name="title">Language</property>
                                             <property name="expand">True</property>
                                             <child>
@@ -616,6 +618,7 @@
                                         <property name="visible">True</property>
                                         <property name="can_focus">True</property>
                                         <property name="invisible_char">&#x25CF;</property>
+                                        <property name="width_chars">32</property>
                                       </object>
                                       <packing>
                                         <property name="expand">False</property>
