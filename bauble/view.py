@@ -805,8 +805,13 @@ class SearchView(pluginmgr.View):
 
 
     def update_notes(self):
+        """
+        Update the notes treeview with the notes from the currently
+        selected item.
+        """
         values = self.get_selected_values()
         if len(values) == 0 or len(values) > 1:
+            self._notes_expanded = self.widgets.notes_expander.props.expanded
             self.widgets.notes_expander.hide()
             return
 
@@ -819,6 +824,7 @@ class SearchView(pluginmgr.View):
 
         if len(row.notes) > 0:
             self.widgets.notes_expander.props.sensitive = True
+            self.widgets.notes_expander.props.expanded = self._notes_expanded
             model = gtk.ListStore(object)
             for note in row.notes:
                 model.append([note])
@@ -1379,6 +1385,16 @@ class SearchView(pluginmgr.View):
 
         self.pane = self.widgets.search_hpane
 
+        # initialize the notes expander and tree view
+        self._notes_expanded = False
+        def on_expanded(expander, *args):
+            self._notes_expanded = expander.props.expanded
+            if not self._notes_expanded:
+                # don't use the position property so that when the
+                # expander is collapsed then the top pane will
+                # maximize itself
+                self.widgets.search_vpane.props.position_set = False
+        self.widgets.notes_expander.connect_after('activate', on_expanded)
         self.init_notes_treeview()
 
         vbox = self.widgets.search_vbox
@@ -1398,10 +1414,10 @@ class SearchView(pluginmgr.View):
             return
         cell.props.wrap_width = newWidth
         store = treeview.get_model()
-        iter = store.get_iter_first()
-        while iter and store.iter_is_valid(iter):
-            store.row_changed(store.get_path(iter), iter)
-            iter = store.iter_next(iter)
+        treeiter = store.get_iter_first()
+        while treeiter and store.iter_is_valid(treeiter):
+            store.row_changed(store.get_path(treeiter), treeiter)
+            treeiter = store.iter_next(treeiter)
             treeview.set_size_request(0,-1)
 
 
@@ -1437,57 +1453,57 @@ class SearchView(pluginmgr.View):
 
 
 
-class HistoryView(pluginmgr.View):
-    """Show the tables row in the order they were last updated
-    """
-    def __init__(self):
-        super(HistoryView, self).__init__()
-        init_gui()
+# class HistoryView(pluginmgr.View):
+#     """Show the tables row in the order they were last updated
+#     """
+#     def __init__(self):
+#         super(HistoryView, self).__init__()
+#         init_gui()
 
 
-    def init_gui(self):
-        self.treeview = gtk.TreeView()
-        column = gtk.TreeViewColumn()
-        self.pack_start(self.treeview)
+#     def init_gui(self):
+#         self.treeview = gtk.TreeView()
+#         column = gtk.TreeViewColumn()
+#         self.pack_start(self.treeview)
 
-    def populate_history(self):
-        """
-        Add the history items to the view.
-        """
-        utils.clear_model(self.treeview)
-        # TODO: this is gonna be a little problematic because the
-        # markup functions and infoboxes are registered as part of the
-        # SearchView so it's not obvious how we're gonna use them
-        # here...i was envisioning that we would just show a list of
-        # the objects by their last modified date like the searchview
-        # with infoboxes and everything but maybe it would be better
-        # just to show the raw columns...what might make sense would
-        # be to make :history a special type of search that groups the
-        # results by their dates
-        model = gtk.ListStore(object, str)
+#     def populate_history(self):
+#         """
+#         Add the history items to the view.
+#         """
+#         utils.clear_model(self.treeview)
+#         # TODO: this is gonna be a little problematic because the
+#         # markup functions and infoboxes are registered as part of the
+#         # SearchView so it's not obvious how we're gonna use them
+#         # here...i was envisioning that we would just show a list of
+#         # the objects by their last modified date like the searchview
+#         # with infoboxes and everything but maybe it would be better
+#         # just to show the raw columns...what might make sense would
+#         # be to make :history a special type of search that groups the
+#         # results by their dates
+#         model = gtk.ListStore(object, str)
 
-class HistoryCommandHandler(pluginmgr.CommandHandler):
+# class HistoryCommandHandler(pluginmgr.CommandHandler):
 
-    def __init__(self):
-        super(HistoryCommandHandler, self).__init__()
-        self.view = None
+#     def __init__(self):
+#         super(HistoryCommandHandler, self).__init__()
+#         self.view = None
 
-    command = 'history'
+#     command = 'history'
 
-    def get_view(self):
-        debug("HistoryCommandHandler.get_view()")
-        if not self.view:
-            self.view = HistoryView()
-        return self.view
-
-
-    def __call__(self, cmd, arg):
-        debug("HistoryCommandHandler.__call__(%s)" % arg)
-        self.view.populate_history(arg)
-        #self.view.search(arg)
+#     def get_view(self):
+#         debug("HistoryCommandHandler.get_view()")
+#         if not self.view:
+#             self.view = HistoryView()
+#         return self.view
 
 
-pluginmgr.register_command(HistoryCommandHandler)
+#     def __call__(self, cmd, arg):
+#         debug("HistoryCommandHandler.__call__(%s)" % arg)
+#         self.view.populate_history(arg)
+#         #self.view.search(arg)
+
+
+# pluginmgr.register_command(HistoryCommandHandler)
 
 
 def select_in_search_results(obj):
