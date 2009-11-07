@@ -274,7 +274,7 @@ class PlantTests(GardenTestCase):
             # editor.presenter._transfer are equal to the transfer in
             # the plant
             #debug(p.removal)
-            self.assert_(len(p.removal) > 0)
+            self.assert_(p.removal)
         editor.presenter.cleanup()
 
 
@@ -663,8 +663,7 @@ class AccessionTests(GardenTestCase):
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
 
-
-        acc.species.insert_infrasp(level=0, rank=u'cv.', epithet=u'Cultivar')
+        acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
         s = "gen sp cf. 'Cultivar'"
