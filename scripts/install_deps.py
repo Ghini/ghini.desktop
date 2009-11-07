@@ -62,7 +62,8 @@ eggs_install = {'lxml': '==2.1.5',
                 'SQLAlchemy': '>=0.5.2',
                 'py2exe': '==0.6.9',
                 'gdata',
-                'mako': ''}
+                'mako': ''
+                'fibra: ==0.0.17'}
 
 
 
