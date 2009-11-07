@@ -353,8 +353,8 @@ TRANSFER_ACTION = 'Transfer'
 ADD_NOTE_ACTION = 'AddNote'
 
 plant_actions = {REMOVAL_ACTION: _("Removal"),
-                 TRANSFER_ACTION: _("Transfer"),
-                 ADD_NOTE_ACTION: _("Add note")}
+                 TRANSFER_ACTION: _("Transfer")}
+                 #ADD_NOTE_ACTION: _("Add note")}
 
 
 def init_location_comboentry(presenter, combo, on_select):
