@@ -6,6 +6,7 @@
 
 import datetime
 import os
+import sys
 import traceback
 import weakref
 
@@ -831,7 +832,16 @@ class NotesPresenter(GenericEditorPresenter):
         xml = etree.parse(filename)
         builder = gtk.Builder()
         el = xml.find("//object[@id='notes_editor_box']")
-        builder.add_from_string(etree.tostring(xml))
+        import sys
+        if sys.platform == 'win32':
+            # NOTE: PyGTK for Win32 is broken so we have to include
+            # this little hack
+            #
+            # TODO: is this only a specific set of version of
+            # PyGTK/GTK...it was only tested with PyGTK 2.12
+            builder.add_from_string(etree.tostring(xml), -1)
+        else:
+            builder.add_from_string(etree.tostring(xml))
         self.widgets = utils.BuilderWidgets(builder)
 
         self.parent_ref = weakref.ref(presenter)
@@ -891,7 +901,15 @@ class NotesPresenter(GenericEditorPresenter):
             el = xml.find("//object[@id='notes_box']")
             builder = gtk.Builder()
             s = '<interface>%s</interface>' % etree.tostring(el)
-            builder.add_from_string(s)
+            if sys.platform == 'win32':
+                # NOTE: PyGTK for Win32 is broken so we have to include
+                # this little hack
+                #
+                # TODO: is this only a specific set of version of
+                # PyGTK/GTK...it was only tested with PyGTK 2.12
+                builder.add_from_string(s, -1)
+            else:
+                builder.add_from_string(s)
             self.widgets = utils.BuilderWidgets(builder)
 
             notes_box = self.widgets.notes_box
