@@ -31,18 +31,18 @@ run () {
 make_tarball () {
     # create a sdist
     ! [ -d "dist" ] && run "mkdir dist"
-    run "bzr checkout --lightweight . dist/deb"
-    run "rm -fr dist/deb/.bzr"
-    run "cd dist/deb"
+    run "bzr checkout --lightweight . dist/$DIST"
+    run "rm -fr dist/$DIST/.bzr"
+    run "cd dist/$DIST"
     run "python setup.py sdist --format=gztar"
 }
 
-if [ -f "dist/deb/dist/$TARBALL" ] ; then
+if [ -f "dist/$DIST/dist/$TARBALL" ] ; then
     read -s -n1 -p "Would you like to use the existing tarball? (y/n) " reply
     if [ "$reply" != 'y' ] ; then
 	make_tarball
     else
-	cd "dist/deb"
+	cd "dist/$DIST"
     fi
 	
 else

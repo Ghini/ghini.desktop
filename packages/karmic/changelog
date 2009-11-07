@@ -1,8 +1,8 @@
-bauble-ubc (1.0.0~b2~ppa1) karmic; urgency=low
+bauble-ubc (1.0.0~b2~karmic~ppa1) karmic; urgency=low
 
   * Second beta release of the UBC version of Bauble
 
- -- Brett Adams <brett@belizebotanic.org>  Wed, 25 Oct 2009 5:41:21 -0600
+ -- Brett Adams <brett@belizebotanic.org>  Sat, 07 Nov 2009 13:33:49 -0600
 
 bauble-ubc (1.0.0~b1~ppa1) jaunty; urgency=low
 
