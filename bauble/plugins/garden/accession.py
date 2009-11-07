@@ -1809,22 +1809,6 @@ class GeneralAccessionExpander(InfoExpander):
                               False)
 
 
-class NotesExpander(InfoExpander):
-    """
-    the accession's notes
-    """
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.notes_box
-        self.widgets.notes_window.remove(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        self.set_widget_value('notes_data', row.notes)
-
-
 class SourceExpander(InfoExpander):
 
     def __init__(self, widgets):
@@ -1983,8 +1967,6 @@ class AccessionInfoBox(InfoBox):
         self.add_expander(self.vouchers)
         self.verifications = VerificationsExpander(self.widgets)
         self.add_expander(self.verifications)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
@@ -1992,11 +1974,6 @@ class AccessionInfoBox(InfoBox):
     def update(self, row):
         self.general.update(row)
         self.props.update(row)
-
-        if row.notes:
-            self.notes.update(row)
-        self.notes.set_expanded(row.notes != None)
-        self.notes.set_sensitive(row.notes != None)
 
         if row.verifications:
             self.verifications.update(row)
