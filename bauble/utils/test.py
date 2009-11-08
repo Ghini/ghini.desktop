@@ -89,51 +89,6 @@ class UtilsTests(unittest.TestCase):
         assert utils.xml_safe(u'test< string') == u'test&lt; string'
         assert utils.xml_safe('test< string') == 'test&lt; string'
 
-    def test_datetime_to_str(self):
-        """
-        Test bauble.utils.date_to_str
-        """
-        from datetime import datetime
-        dt = datetime(2008, 12, 1)
-        s = utils.date_to_str(dt, 'yyyy.m.d')
-        assert s == '2008.12.1', s
-        s = utils.date_to_str(dt, 'yyyy.mm.d')
-        assert s == '2008.12.1', s
-        s = utils.date_to_str(dt, 'yyyy.m.dd')
-        assert s == '2008.12.01', s
-        s = utils.date_to_str(dt, 'yyyy.mm.dd')
-        assert s == '2008.12.01', s
-
-        dt = datetime(2008, 12, 12)
-        s = utils.date_to_str(dt, 'yyyy.m.d')
-        assert s == '2008.12.12', s
-        s = utils.date_to_str(dt, 'yyyy.mm.d')
-        assert s == '2008.12.12', s
-        s = utils.date_to_str(dt, 'yyyy.m.dd')
-        assert s == '2008.12.12', s
-        s = utils.date_to_str(dt, 'yyyy.mm.dd')
-        assert s == '2008.12.12', s
-
-        dt = datetime(2008, 1, 1)
-        s = utils.date_to_str(dt, 'yyyy.m.d')
-        assert s == '2008.1.1', s
-        s = utils.date_to_str(dt, 'yyyy.mm.d')
-        assert s == '2008.01.1', s
-        s = utils.date_to_str(dt, 'yyyy.m.dd')
-        assert s == '2008.1.01', s
-        s = utils.date_to_str(dt, 'yyyy.mm.dd')
-        assert s == '2008.01.01', s
-
-        dt = datetime(2008, 1, 12)
-        s = utils.date_to_str(dt, 'yyyy.m.d')
-        assert s == '2008.1.12', s
-        s = utils.date_to_str(dt, 'yyyy.mm.d')
-        assert s == '2008.01.12', s
-        s = utils.date_to_str(dt, 'yyyy.m.dd')
-        assert s == '2008.1.12', s
-        s = utils.date_to_str(dt, 'yyyy.mm.dd')
-        assert s == '2008.01.12', s
-
 
     def test_range_builder(self):
         """Test bauble.utils.range_builder

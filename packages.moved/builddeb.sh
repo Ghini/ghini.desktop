@@ -1,6 +1,6 @@
 # branch this directory and create a source dist
 TOPLEVEL=`pwd`
-VERSION="ubc-1.0.0b2"
+VERSION="0.9.5"
 TARBALL="bauble-$VERSION.tar.gz"
 ORIG_TARBALL="bauble_$VERSION.orig.tar.gz"
 
@@ -31,18 +31,18 @@ run () {
 make_tarball () {
     # create a sdist
     ! [ -d "dist" ] && run "mkdir dist"
-    run "bzr checkout --lightweight . dist/$DIST"
-    run "rm -fr dist/$DIST/.bzr"
-    run "cd dist/$DIST"
+    run "bzr checkout --lightweight . dist/deb"
+    run "rm -fr dist/deb/.bzr"
+    run "cd dist/deb"
     run "python setup.py sdist --format=gztar"
 }
 
-if [ -f "dist/$DIST/dist/$TARBALL" ] ; then
+if [ -f "dist/deb/dist/$TARBALL" ] ; then
     read -s -n1 -p "Would you like to use the existing tarball? (y/n) " reply
     if [ "$reply" != 'y' ] ; then
 	make_tarball
     else
-	cd "dist/$DIST"
+	cd "dist/deb"
     fi
 	
 else

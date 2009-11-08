@@ -15,8 +15,8 @@ from sqlalchemy.ext.associationproxy import association_proxy
 import bauble
 import bauble.db as db
 import bauble.utils as utils
-from bauble.utils.log import log, debug
-from bauble.types import Enum
+from bauble.utils.log import debug
+import bauble.types as types
 from bauble.plugins.plants.geography import Geography#, geography_table
 
 from sqlalchemy.orm.collections import collection
@@ -39,6 +39,16 @@ class VNList(list):
             debug(e)
 
 
+infrasp_rank_values = {u'subsp.': _('subsp.'),
+                       u'var.': _('var.'),
+                       u'subvar.': _('subvar'),
+                       u'f.': _('f.'),
+                       u'subf.': _('subf.'),
+                       u'cv.': _('cv.'),
+                       None: _('')}
+
+
+
 # TODO: there is a trade_name column but there's no support yet for editing
 # the trade_name or for using the trade_name when building the string
 # for the species, for more information about trade_names see,
@@ -47,14 +57,6 @@ class VNList(list):
 # TODO: the specific epithet should not be non-nullable but instead
 # make sure that at least one of the specific epithet, cultivar name
 # or cultivar group is specificed
-
-class SpeciesMapperExtension(MapperExtension):
-
-    def after_update(self, mapper, conn, instance):
-        instance.invalidate_str_cache()
-        return EXT_CONTINUE
-
-
 
 class Species(db.Base):
     """
@@ -74,26 +76,6 @@ class Species(db.Base):
 
                 *s. str.*: segregate species (sensu stricto)
 
-        *infrasp_rank*:
-            The infraspecific rank
-
-            Possible values:
-                *subsp.*: subspecies
-
-                *variety.*: variety
-
-                *subvar.*: sub variety
-
-                *f.*: form
-
-                *subf.*: subform
-
-                *cv.*: cultivar
-
-        *infrasp*:
-            The infraspecific epithet
-
-
     :Properties:
         *accessions*:
 
@@ -107,41 +89,38 @@ class Species(db.Base):
 
     :Constraints:
         The combination of sp, sp_author, hybrid, sp_qual,
-        cv_group, trade_name, infrasp, infrasp_author, infrasp_rank,
-        genus_id
+        cv_group, trade_name, genus_id
     """
     __tablename__ = 'species'
-    __table_args__ = (UniqueConstraint('sp', 'sp_author', 'hybrid',
-                                        'sp_qual', 'cv_group', 'trade_name',
-                                        'infrasp', 'infrasp_author',
-                                        'infrasp_rank', 'genus_id',
-                                        name='species_index'))
-    __mapper_args__ = {'order_by': ['sp', 'sp_author', 'infrasp_rank',
-                                   'infrasp'],
-                       'extension': SpeciesMapperExtension()}
+    __mapper_args__ = {'order_by': ['sp', 'sp_author']}
+
 
     # columns
     sp = Column(Unicode(64), index=True)
+    sp2 = Column(Unicode(64), index=True) # in case hybrid=True
     sp_author = Column(Unicode(128))
     hybrid = Column(Boolean, default=False)
-    sp_qual = Column(Enum(values=['agg.', 's. lat.', 's. str.', '']),
-                     default=u'')
+    sp_qual = Column(types.Enum(values=['agg.', 's. lat.', 's. str.', None]),
+                     default=None)
     cv_group = Column(Unicode(50))
     trade_name = Column(Unicode(64))
 
-    # first infraspecific rank
-    infrasp = Column(Unicode(50))
-    infrasp_author = Column(Unicode(255))
-    infrasp_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
-                                       'subf.', 'cv.', '']), default=u'')
+    infrasp1 = Column(Unicode(64))
+    infrasp1_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp1_author = Column(Unicode(64))
 
-    # second infraspecific rank
-    infrasp2 = Column(Unicode(50))
-    infrasp2_author = Column(Unicode(255))
-    infrasp2_rank = Column(Enum(values=['subsp.', 'var.', 'subvar.', 'f.',
-                                        'subf.', 'cv.', '']), default=u'')
+    infrasp2 = Column(Unicode(64))
+    infrasp2_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp2_author = Column(Unicode(64))
 
-    notes = Column(UnicodeText)
+    infrasp3 = Column(Unicode(64))
+    infrasp3_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp3_author = Column(Unicode(64))
+
+    infrasp4 = Column(Unicode(64))
+    infrasp4_rank = Column(types.Enum(values=infrasp_rank_values.keys()))
+    infrasp4_author = Column(Unicode(64))
+
     genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
 
     # relations
@@ -154,7 +133,7 @@ class Species(db.Base):
     # this is a dummy relation, it is only here to make cascading work
     # correctly and to ensure that all synonyms related to this genus
     # get deleted if this genus gets deleted
-    __syn = relation('SpeciesSynonym',
+    _syn = relation('SpeciesSynonym',
                      primaryjoin='Species.id==SpeciesSynonym.synonym_id',
                      cascade='all, delete-orphan', uselist=True)
 
@@ -172,20 +151,6 @@ class Species(db.Base):
 
     def __init__(self, *args, **kwargs):
         super(Species, self).__init__(*args, **kwargs)
-        self.__cached_str = {}
-
-
-    @reconstructor
-    def init_on_load(self):
-        """
-        Called instead of __init__() when an Species is loaded from
-        the database.
-        """
-        self.__cached_str = {}
-
-
-    def invalidate_str_cache(self):
-        self.__cached_str = {}
 
 
     def __str__(self):
@@ -237,7 +202,7 @@ class Species(db.Base):
     hybrid_char = '\xe2\xa8\x89'
 
     @staticmethod
-    def str(species, authors=False, markup=False, use_cache=True):
+    def str(species, authors=False, markup=False):
         '''
         returns a string for species
 
@@ -250,112 +215,129 @@ class Species(db.Base):
         # TODO: this method will raise an error if the session is none
         # since it won't be able to look up the genus....we could
         # probably try to query the genus directly with the genus_id
-        session = object_session(species)
-        if session and use_cache and not session.is_modified(species):
-            try:
-                return species.__cached_str[(markup, authors)]
-            except KeyError:
-                species.__cached_str[(markup, authors)] = None
-
         genus = str(species.genus)
         sp = species.sp
-        isp = species.infrasp
-        isp2 = species.infrasp2
+        sp2 = species.sp2
         if markup:
             escape = utils.xml_safe_utf8
             italicize = lambda s: u'<i>%s</i>' % escape(s)
             genus = italicize(genus)
             if sp is not None:
                 sp = italicize(species.sp)
-            if species.infrasp_rank != 'cv.':
-                isp = italicize(species.infrasp)
-            else:
-                isp = escape(species.infrasp)
-
-            if species.infrasp2_rank != 'cv.':
-                isp2 = italicize(species.infrasp2)
-            else:
-                isp2 = escape(species.infrasp2)
+            if sp2 is not None:
+                sp2 = italicize(species.sp2)
         else:
             italicize = lambda s: u'%s' % s
             escape = lambda x: x
 
         author = None
-        isp_author = None
-        isp2_author = None
-        if authors:
-            if species.sp_author:
-                author = escape(species.sp_author)
-            if species.infrasp_author:
-                isp_author = escape(species.infrasp_author)
-            if species.infrasp2_author:
-                isp2_author = escape(species.infrasp2_author)
+        if authors and species.sp_author:
+            author = escape(species.sp_author)
 
-        # create the first infraspecific part
-        infrasp = []
-        if species.infrasp:
-            if species.infrasp_rank == 'cv.':
-                group = None
-                if species.cv_group:
-                    group = "(%s Group)" % species.cv_group
-                if authors:
-                    infrasp = [group, "'%s'" % isp, isp_author]
-                else:
-                    infrasp = [group, "'%s'" % isp]
-            else:
-                group = None
-                if species.cv_group:
-                    group = "%s Group" % species.cv_group
-                if authors:
-                    infrasp = [species.infrasp_rank, isp, group,
-                               isp_author]
-                else:
-                    infrasp = [species.infrasp_rank, isp, group]
+        infrasp = ((species.infrasp1_rank, species.infrasp1,
+                    species.infrasp1_author),
+                   (species.infrasp2_rank, species.infrasp2,
+                    species.infrasp2_author),
+                   (species.infrasp3_rank, species.infrasp3,
+                    species.infrasp3_author),
+                   (species.infrasp4_rank, species.infrasp4,
+                    species.infrasp4_author))
 
-        # create the second infraspecific part
-        infrasp2 = []
-        if species.infrasp2:
-            if species.infrasp2_rank == 'cv.':
-                group = None
-                if species.cv_group and not species.infrasp:
-                    group = "(%s Group)" % species.cv_group
-                if authors:
-                    infrasp2 = [group, "'%s'" % isp2, isp2_author]
-                else:
-                    infrasp2 = [group, "'%s'" % isp2, group]
+        infrasp_str = []
+        for rank, epithet, iauthor in infrasp:
+            #debug('%s %s %s' % (rank, epithet, iauthor))
+            if rank == 'cv.' and epithet:
+                infrasp_str.append("'%s'" % escape(epithet))
             else:
-                group = None
-                if species.cv_group:
-                    group = "%s Group" % species.cv_group
-                if authors:
-                    infrasp2 = [species.infrasp2_rank, isp2, group,isp2_author]
-                else:
-                    infrasp2 = [species.infrasp2_rank, isp2, group]
+                if rank:
+                    infrasp_str.append(rank)
+                if epithet:
+                    infrasp_str.append(italicize(epithet))
+
+            if authors and iauthor:
+                infrasp_str.append(escape(iauthor))
+
+        group = []
+        # TODO: should probaly get the index of the cv. do decide on
+        # the parenthesis for the group
+        ranks = (species.infrasp1_rank, species.infrasp2_rank,
+                 species.infrasp3_rank, species.infrasp4_rank)
+        if u'cv.' in ranks:
+            if species.cv_group:
+                group.append(_("(%(group)s Group)") % \
+                                 dict(group=species.cv_group))
+        else:
+            if species.cv_group:
+                group.append(_("%(group)s Group") % \
+                                 dict(group=species.cv_group))
 
         # create the binomial part
         binomial = []
         if species.hybrid:
-            if species.infrasp_rank is None:
-                binomial = [genus, sp, species.hybrid_char]
+            if species.sp2:
+                binomial = [genus, sp, species.hybrid_char, sp2, author]
             else:
                 binomial = [genus, species.hybrid_char, sp, author]
         else:
-            binomial = [genus, sp, author]
-
-        # create the group part if there are not infraspecific parts
-        group = []
-        if not (species.infrasp or species.infrasp2) and species.cv_group:
-            group = [species.cv_group, 'Group']
+            binomial = [genus, sp, sp2, author]
 
         # create the tail a.k.a think to add on to the end
         tail = []
         if species.sp_qual:
             tail = [species.sp_qual]
 
-        parts = chain(binomial, group, infrasp, infrasp2, tail)
+        infrasp = []
+        parts = chain(binomial, group, infrasp_str, tail)
+
         s = utils.utf8(' '.join(filter(lambda x: x not in ('', None), parts)))
-        species.__cached_str[(markup, authors)] = s
         return s
+
+
+    infrasp_attr = {1: {'rank': 'infrasp1_rank',
+                        'epithet': 'infrasp1',
+                        'author': 'infrasp1_author'},
+                    2: {'rank': 'infrasp2_rank',
+                        'epithet': 'infrasp2',
+                        'author': 'infrasp2_author'},
+                    3: {'rank': 'infrasp3_rank',
+                        'epithet': 'infrasp3',
+                        'author': 'infrasp3_author'},
+                    4: {'rank': 'infrasp4_rank',
+                        'epithet': 'infrasp4',
+                        'author': 'infrasp4_author'}}
+
+    def get_infrasp(self, level):
+        """
+        level should be 1-4
+        """
+        return getattr(self, self.infrasp_attr[level]['rank']), \
+            getattr(self, self.infrasp_attr[level]['epithet']), \
+            getattr(self, self.infrasp_attr[level]['author'])
+
+
+    def set_infrasp(self, level, rank, epithet, author=None):
+        """
+        level should be 1-4
+        """
+        setattr(self, self.infrasp_attr[level]['rank'], rank)
+        setattr(self, self.infrasp_attr[level]['epithet'], epithet)
+        setattr(self, self.infrasp_attr[level]['author'], author)
+
+
+
+class SpeciesNote(db.Base):
+    """
+    Notes for the species table
+    """
+    __tablename__ = 'species_note'
+
+    date = Column(types.Date, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+    species = relation('Species', uselist=False,
+                       backref=backref('notes', cascade='all, delete-orphan'))
 
 
 
@@ -409,8 +391,8 @@ class VernacularName(db.Base):
     name = Column(Unicode(128), nullable=False)
     language = Column(Unicode(128))
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
-    __table_args__ = ((UniqueConstraint('name', 'language',
-                                        'species_id', name='vn_index')))
+    __table_args__ = (UniqueConstraint('name', 'language',
+                                        'species_id', name='vn_index'), {})
 
     def __str__(self):
         if self.name:
@@ -444,8 +426,7 @@ class DefaultVernacularName(db.Base):
     """
     __tablename__ = 'default_vernacular_name'
     __table_args__ = (UniqueConstraint('species_id', 'vernacular_name_id',
-                                       name='default_vn_index'),
-                      {})
+                                       name='default_vn_index'), {})
 
     # columns
     species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
@@ -482,4 +463,3 @@ class SpeciesDistribution(db.Base):
 SpeciesDistribution.geography = relation('Geography',
                 primaryjoin='SpeciesDistribution.geography_id==Geography.id',
                                          uselist=False)
-

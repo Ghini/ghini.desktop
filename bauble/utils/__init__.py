@@ -282,17 +282,19 @@ def set_widget_value(widget, value, markup=True, default=None, index=0):
         widget.set_text(utf8(value))
     elif isinstance(widget, gtk.ComboBox):
         # handles gtk.ComboBox and gtk.ComboBoxEntry
-        treeiter = combo_get_value_iter(widget, value,
-                                cmp = lambda row, value: row[index] == value)
-        if treeiter:
-            if isinstance(widget, gtk.ComboBoxEntry):
-                v = widget.get_model()[treeiter][index]
-                widget.child.props.text = str(v)
-            widget.set_active_iter(treeiter)
-        elif widget.get_model() is not None:
-            widget.set_active(-1)
-            if isinstance(widget, gtk.ComboBoxEntry):
-                widget.child.set_text('')
+        treeiter = None
+        if not widget.get_model():
+            warning('utils.set_widget_value(): ' \
+                        'combo doesn\'t have a model: %s' % widget.get_name())
+        else:
+            treeiter = combo_get_value_iter(widget, value,
+                                  cmp = lambda row, value: row[index] == value)
+            if treeiter:
+                widget.set_active_iter(treeiter)
+            else:
+                widget.set_active(-1)
+        if isinstance(widget, gtk.ComboBoxEntry):
+            widget.child.props.text = value
     elif isinstance(widget,(gtk.ToggleButton,gtk.CheckButton,gtk.RadioButton)):
         if value is True:
             widget.set_inconsistent(False)
@@ -505,6 +507,27 @@ def setup_text_combobox(combo, values=[], cell_data_func=None):
         combo.set_cell_data_func(renderer, cell_data_func)
 
 
+def prettify_format(format):
+    """
+    Return the date format in a more human readable form.
+    """
+    f = format.replate('%Y', 'yyyy')
+    f = f.replace('%m', 'mm')
+    f = f.replace('%d', 'dd')
+    return f
+
+
+def today_str(format=None):
+    """
+    Return a string for of today's date according to format.
+    """
+    import bauble.prefs as prefs
+    if not format:
+        format = prefs.prefs[prefs.date_format_pref]
+    import datetime
+    today = datetime.date.today()
+    return today.strftime(format)
+
 
 def setup_date_button(entry, button, date_func=None):
     """
@@ -525,7 +548,10 @@ def setup_date_button(entry, button, date_func=None):
         if not date_func:
             import datetime
             today = datetime.date.today()
-            s = '%s/%s/%s' % (today.day, today.month, today.year)
+            # TODO: once we have the option to change whether the
+            # month is first or the day is first this should be set accordingly
+            #s = '%s/%s/%s' % (today.day, today.month, today.year)
+            s = today_str()
         else:
             s = date_func()
         entry.set_text(s)
@@ -677,30 +703,6 @@ def reset_sequence(column):
         raise NotImplementedError(_('Error: using sequences hasn\'t been '\
                                     'tested on this database type: %s' % \
                                     db.engine.name))
-
-# TODO: always req month and year, day can be optional, what about a
-# flag to make the day optional, like?
-def date_to_str(date, format):
-    """
-    :param data: a datetime object
-    :param format: the format of the string to return, uses:
-      yyyy,yy,d,dd,m,mm
-
-    We don't do any validation that the format is correct or invalid
-    """
-    import re
-    s = format.replace('yyyy', str(date.year))
-    month = date.month
-    if month < 10:
-        month = '0%s' % month
-    s = s.replace('mm', str(month))
-    s = s.replace('m', str(date.month))
-    day = date.day
-    if day < 10:
-        day = '0%s' % day
-    s = s.replace('dd', str(day))
-    s = s.replace('d', str(date.day))
-    return s
 
 
 def make_label_clickable(label, on_clicked, *args):
@@ -1104,3 +1106,37 @@ def add_message_box(parent, type=MESSAGE_BOX_INFO):
         raise ValueError('unknown message box type: %s' % type)
     parent.pack_start(msg_box)
     return msg_box
+
+
+def get_distinct_values(column, session):
+    """
+    Return a list of all the distinct values in a table column
+    """
+    q = session.query(column).distinct()
+    return [v[0] for v in q if v != (None,)]
+
+
+def get_invalid_columns(obj):
+    """
+    Return column names on a mapped object that have values
+    which aren't valid for the model.
+
+    Invalid columns meet the following criteria:
+    - nullable columns with null values
+    - ...what else?
+    """
+    from sqlalchemy.orm import object_mapper
+    mapper = object_mapper(obj)
+    invalid_columns = []
+    # filter out special columns that have nullable=True
+    col_filter = lambda c: not c.name.startswith('_') and \
+        not c.name.endswith('_id') and not c.name == 'id' and \
+        not c.nullable
+    for col in filter(col_filter, mapper.columns):
+        # specifically test for not None since the we're
+        # testing for nullable
+        name = col.name
+        if not getattr(obj, name) is not None:
+            #debug('%s: %s' % (col.name, getattr(model, col.name)))
+            invalid_columns.append(name)
+    return invalid_columns

@@ -3,10 +3,11 @@
 #
 # Description: the default view
 #
-import sys
-import re
-import traceback
 import itertools
+import os
+import re
+import sys
+import traceback
 
 import gtk
 import gobject
@@ -21,9 +22,10 @@ from sqlalchemy.orm.properties import ColumnProperty, PropertyLoader
 import bauble
 import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
+import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
-import bauble.utils as utils
 from bauble.prefs import prefs
+import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
 from bauble.utils.pyparsing import *
 
@@ -65,13 +67,13 @@ class Action(gtk.Action):
         self.singleselect = singleselect
         self.accelerator = accelerator
 
+
     def _set_enabled(self, enable):
         self.set_visible(enable)
         # if enable:
         #     self.connect_accelerator()
         # else:
         #     self.disconnect_accelerator()
-
 
     def _get_enabled(self):
         return self.get_visible()
@@ -783,6 +785,9 @@ class SearchView(pluginmgr.View):
         the constructor
         '''
         super(SearchView, self).__init__()
+        filename = os.path.join(paths.lib_dir(), 'bauble.glade')
+        self.widgets = utils.load_widgets(filename)
+
         self.create_gui()
 
         # we only need this for the timeout version of populate_results
@@ -797,6 +802,37 @@ class SearchView(pluginmgr.View):
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
         self.session = bauble.Session()
+
+
+    def update_notes(self):
+        """
+        Update the notes treeview with the notes from the currently
+        selected item.
+        """
+        values = self.get_selected_values()
+        if len(values) == 0 or len(values) > 1:
+            self._notes_expanded = self.widgets.notes_expander.props.expanded
+            self.widgets.notes_expander.hide()
+            return
+
+        row = values[0]
+        if hasattr(row, 'notes') and isinstance(row.notes, list):
+            self.widgets.notes_expander.show()
+        else:
+            self.widgets.notes_expander.hide()
+            return
+
+        if len(row.notes) > 0:
+            self.widgets.notes_expander.props.sensitive = True
+            self.widgets.notes_expander.props.expanded = self._notes_expanded
+            model = gtk.ListStore(object)
+            for note in row.notes:
+                model.append([note])
+            self.widgets.notes_treeview.set_model(model)
+        else:
+            self.widgets.notes_expander.props.expanded = False
+            self.widgets.notes_expander.props.sensitive = False
+
 
 
     def update_infobox(self):
@@ -873,6 +909,7 @@ class SearchView(pluginmgr.View):
         type of the row that the cursor points to.
         '''
         self.update_infobox()
+        self.update_notes()
 
         # switch the accelerators depending on what the cursor is
         # currently pointing to
@@ -898,12 +935,17 @@ class SearchView(pluginmgr.View):
                 (len(selected)<=1 and action.singleselect)
             if not enabled:
                 continue
-            # if enabled the connect then accelerator
+            # if enabled then connect the accelerator
             keyval, mod = gtk.accelerator_parse(action.accelerator)
             if (keyval, mod) != (0, 0):
                 def cb(func):
                     def _impl(*args):
-                        if func(selected):
+                        # getting the selected here allows the
+                        # callback to be called on all the selected
+                        # values and not just the value where the
+                        # cursor is
+                        sel = self.get_selected_values()
+                        if func(sel):
                             self.reset_view()
                     return _impl
                 self.accel_group.connect_group(keyval, mod,
@@ -1110,13 +1152,9 @@ class SearchView(pluginmgr.View):
 
 
     def cell_data_func(self, col, cell, model, treeiter):
-        value = model[treeiter][0]
-
         # TODO: maybe we should cache the strings on our side and then
         # detect if the objects have been changed in their session in
         # order to determine if the cache should be invalidated
-
-        #debug('%s(%s)' % (value, type(value)))
         path = model.get_path(treeiter)
         tree_rect = self.results_view.get_visible_rect()
         cell_rect = self.results_view.get_cell_area(path, col)
@@ -1125,7 +1163,7 @@ class SearchView(pluginmgr.View):
             # drastically speeds up populating the view with large
             # datasets
             return
-
+        value = model[treeiter][0]
         if isinstance(value, basestring):
             cell.set_property('markup', value)
         else:
@@ -1301,11 +1339,11 @@ class SearchView(pluginmgr.View):
         create the interface
         '''
         # create the results view and info box
-        self.results_view = gtk.TreeView() # will be a select results row
+        self.results_view = self.widgets.results_treeview
+
         self.results_view.set_headers_visible(False)
         self.results_view.set_rules_hint(True)
-        #self.results_view.set_fixed_height_mode(True)
-        #self.results_view.set_fixed_height_mode(False)
+        self.results_view.set_fixed_height_mode(True)
 
         selection = self.results_view.get_selection()
         selection.set_mode(gtk.SELECTION_MULTIPLE)
@@ -1339,78 +1377,133 @@ class SearchView(pluginmgr.View):
         self.results_view.connect("row-activated",
                                   self.on_view_row_activated)
 
-
         # this group doesn't need to be added to the main window with
         # gtk.Window.add_accel_group since the group will be added
         # automatically when the view is set
         self.accel_group = gtk.AccelGroup()
         self.installed_accels = []
 
-        # scrolled window for the results view
-        sw = gtk.ScrolledWindow()
-        sw.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_AUTOMATIC)
-        sw.add(self.results_view)
+        self.pane = self.widgets.search_hpane
 
-        # pane to split the results view and the infobox, the infobox
-        # is created when a row in the results is selected
-        self.pane = gtk.HPaned()
-        self.pane.pack1(sw, resize=True, shrink=True)
-        self.pack_start(self.pane)
-        self.show_all()
+        # initialize the notes expander and tree view
+        self._notes_expanded = False
+        def on_expanded(expander, *args):
+            self._notes_expanded = expander.props.expanded
+            if not self._notes_expanded:
+                # don't use the position property so that when the
+                # expander is collapsed then the top pane will
+                # maximize itself
+                self.widgets.search_vpane.props.position_set = False
+        self.widgets.notes_expander.connect_after('activate', on_expanded)
+        self.init_notes_treeview()
 
-
-
-class HistoryView(pluginmgr.View):
-    """Show the tables row in the order they were last updated
-    """
-    def __init__(self):
-        super(HistoryView, self).__init__()
-        init_gui()
+        vbox = self.widgets.search_vbox
+        self.widgets.remove_parent(vbox)
+        self.pack_start(vbox)
 
 
-    def init_gui(self):
-        self.treeview = gtk.TreeView()
-        column = gtk.TreeViewColumn()
-        self.pack_start(self.treeview)
-
-    def populate_history(self):
+    def on_notes_size_allocation(self, treeview, allocation, column, cell):
         """
-        Add the history items to the view.
+        Set the wrap width according to the widgth of the treeview
         """
-        utils.clear_model(self.treeview)
-        # TODO: this is gonna be a little problematic because the
-        # markup functions and infoboxes are registered as part of the
-        # SearchView so it's not obvious how we're gonna use them
-        # here...i was envisioning that we would just show a list of
-        # the objects by their last modified date like the searchview
-        # with infoboxes and everything but maybe it would be better
-        # just to show the raw columns...what might make sense would
-        # be to make :history a special type of search that groups the
-        # results by their dates
-        model = gtk.ListStore(object, str)
-
-class HistoryCommandHandler(pluginmgr.CommandHandler):
-
-    def __init__(self):
-        super(HistoryCommandHandler, self).__init__()
-        self.view = None
-
-    command = 'history'
-
-    def get_view(self):
-        debug("HistoryCommandHandler.get_view()")
-        if not self.view:
-            self.view = HistoryView()
-        return self.view
+        # This code came from the PyChess project
+        otherColumns = (c for c in treeview.get_columns() if c != column)
+        newWidth = allocation.width - sum(c.get_width() for c in otherColumns)
+        newWidth -= treeview.style_get_property("horizontal-separator") * 2
+        if cell.props.wrap_width == newWidth or newWidth <= 0:
+            return
+        cell.props.wrap_width = newWidth
+        store = treeview.get_model()
+        treeiter = store.get_iter_first()
+        while treeiter and store.iter_is_valid(treeiter):
+            store.row_changed(store.get_path(treeiter), treeiter)
+            treeiter = store.iter_next(treeiter)
+            treeview.set_size_request(0,-1)
 
 
-    def __call__(self, cmd, arg):
-        debug("HistoryCommandHandler.__call__(%s)" % arg)
-        self.view.populate_history(arg)
-        #self.view.search(arg)
+    def init_notes_treeview(self):
+        def cell_data_func(col, cell, model, treeiter, prop):
+            row = model[treeiter][0]
+            # TODO: show date with default date format
+            val = getattr(row, prop)
+            if val:
+                cell.set_property('text', utils.utf8(val))
+
+        date_cell = self.widgets.date_cell
+        date_col = self.widgets.date_column
+        date_col.set_cell_data_func(date_cell, cell_data_func, 'date')
+
+        category_cell = self.widgets.category_cell
+        category_col = self.widgets.category_column
+        category_col.set_cell_data_func(category_cell, cell_data_func,
+                                        'category')
+
+        name_cell = self.widgets.name_cell
+        name_col = self.widgets.name_column
+        name_col.set_cell_data_func(name_cell, cell_data_func, 'user')
+
+        note_cell = self.widgets.note_cell
+        note_col = self.widgets.note_column
+        note_col.set_cell_data_func(note_cell, cell_data_func, 'note')
+
+        # TODO: need to better test to make sure this wraps the text properly
+        self.widgets.notes_treeview.\
+            connect_after("size-allocate", self.on_notes_size_allocation,
+                          note_col, note_cell)
 
 
-pluginmgr.register_command(HistoryCommandHandler)
+
+# class HistoryView(pluginmgr.View):
+#     """Show the tables row in the order they were last updated
+#     """
+#     def __init__(self):
+#         super(HistoryView, self).__init__()
+#         init_gui()
+
+
+#     def init_gui(self):
+#         self.treeview = gtk.TreeView()
+#         column = gtk.TreeViewColumn()
+#         self.pack_start(self.treeview)
+
+#     def populate_history(self):
+#         """
+#         Add the history items to the view.
+#         """
+#         utils.clear_model(self.treeview)
+#         # TODO: this is gonna be a little problematic because the
+#         # markup functions and infoboxes are registered as part of the
+#         # SearchView so it's not obvious how we're gonna use them
+#         # here...i was envisioning that we would just show a list of
+#         # the objects by their last modified date like the searchview
+#         # with infoboxes and everything but maybe it would be better
+#         # just to show the raw columns...what might make sense would
+#         # be to make :history a special type of search that groups the
+#         # results by their dates
+#         model = gtk.ListStore(object, str)
+
+# class HistoryCommandHandler(pluginmgr.CommandHandler):
+
+#     def __init__(self):
+#         super(HistoryCommandHandler, self).__init__()
+#         self.view = None
+
+#     command = 'history'
+
+#     def get_view(self):
+#         debug("HistoryCommandHandler.get_view()")
+#         if not self.view:
+#             self.view = HistoryView()
+#         return self.view
+
+
+#     def __call__(self, cmd, arg):
+#         debug("HistoryCommandHandler.__call__(%s)" % arg)
+#         self.view.populate_history(arg)
+#         #self.view.search(arg)
+
+
+# pluginmgr.register_command(HistoryCommandHandler)
 
 
 def select_in_search_results(obj):

@@ -52,7 +52,9 @@ class PlantsPlugin(pluginmgr.Plugin):
                                         context_menu=genus_context_menu,
                                         markup_func=genus_markup_func)
 
-        mapper_search.add_meta(('sp', 'species'), Species, ['sp', 'infrasp'])
+        mapper_search.add_meta(('sp', 'species'), Species,
+                               ['sp', 'sp2', 'infrasp1', 'infrasp2',
+                                'infrasp3', 'infrasp4'])
         SearchView.view_meta[Species].set(children=species_get_kids,
                                           infobox=SpeciesInfoBox,
                                           context_menu=species_context_menu,

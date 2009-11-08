@@ -92,25 +92,3 @@ warning = warning_logger.warning
 error_logger = _config_logger('bauble.error', logging.ERROR,
 			     '%(filename)s(%(lineno)d): %(message)s')
 error = error_logger.error
-
-
-class log:
-
-    @staticmethod
-    def debug(*args, **kw):
-        debug(*args, **kw)
-
-    @staticmethod
-    def info(*args, **kw):
-        info(*args, **kw)
-
-    @staticmethod
-    def warning(*args, **kw):
-        logging.warning(*args, **kw)
-
-    @staticmethod
-    def error(*args, **kw):
-        logging.error(*args, **kw)
-
-warning = log.warning
-error = log.error

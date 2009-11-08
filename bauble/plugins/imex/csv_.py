@@ -19,7 +19,7 @@ from bauble.error import BaubleError
 import bauble.utils as utils
 import bauble.pluginmgr as pluginmgr
 import bauble.task
-from bauble.utils.log import log, debug, error
+from bauble.utils.log import debug, error
 
 from sqlalchemy.sql.util import sort_tables
 # TODO: i've also had a problem with bad insert statements, e.g. importing a

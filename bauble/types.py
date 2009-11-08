@@ -4,14 +4,14 @@
 import datetime
 import re
 
+import dateutil.parser as date_parser
 import sqlalchemy.types as types
 import sqlalchemy.exc as exc
 
 import bauble.error as error
-from bauble.utils.log import debug
+#import bauble.prefs as prefs
+#from bauble.utils.log import debug
 
-# TODO: should we allow custom date formats?
-# TODO: do date formats depend on locale
 # TODO: store all times as UTC or support timezones
 
 class EnumError(error.BaubleError):
@@ -74,22 +74,22 @@ class Enum(types.TypeDecorator):
 
 
 
-class tzinfo(datetime.tzinfo):
+# class tzinfo(datetime.tzinfo):
 
-    """
-    A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
-    """
-    def __init__(self, name):
-        super(tzinfo, self).__init__()
-        self._tzname = name
-        hours, minutes = [int(v) for v in name.split(':')]
-        self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
+#     """
+#     A tzinfo object that can handle timezones in the format -HH:MM or +HH:MM
+#     """
+#     def __init__(self, name):
+#         super(tzinfo, self).__init__()
+#         self._tzname = name
+#         hours, minutes = [int(v) for v in name.split(':')]
+#         self._utcoffset = datetime.timedelta(hours=hours, minutes=minutes)
 
-    def tzname(self):
-        return self._tzname
+#     def tzname(self):
+#         return self._tzname
 
-    def utcoffset(self, dt):
-        return self._utcoffset
+#     def utcoffset(self, dt):
+#         return self._utcoffset
 
 
 
@@ -103,26 +103,17 @@ class DateTime(types.TypeDecorator):
     _rx_tz = re.compile('[+-]')
 
     def process_bind_param(self, value, dialect):
-        # TODO: what about microseconds
         if not isinstance(value, basestring):
             return value
-
-        date, time = value.split(' ')
-        timezone = None
-        match = self._rx_tz.search(time)
-        if match:
-            timezone = tzinfo(time[match.start():])
-            time = time[0:match.start()]
-        h, mi, s = time.split(':')
-        ms = 0
-        if '.' in s:
-            s, ms = s.split('.') # microseconds
-        y, mo, d = date.split('-')
-        args = [int(v) for v in (y, mo, d, h, mi, s, ms)]
-        args.append(timezone)
-        return datetime.datetime(*args)
-
-        return value
+        try:
+            DateTime._dayfirst
+            DateTime._yearfirst
+        except AttributeError:
+            import bauble.prefs as prefs
+            DateTime._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+            DateTime._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        return date_parser.parse(value, dayfirst=DateTime._dayfirst,
+                                 yearfirst=DateTime._yearfirst)
 
 
     def process_result_value(self, value, dialect):
@@ -143,15 +134,16 @@ class Date(types.TypeDecorator):
     def process_bind_param(self, value, dialect):
         if not isinstance(value, basestring):
             return value
-
-        if ' ' in value:
-            date, time = value.split(' ')
-            warning('bauble.Date.process_bind_param(): truncating %s to %s' \
-                    % (value, date))
-        else:
-            date = value
-        y, mo, d = date.split('-')
-        return datetime.datetime(*map(int, (y, mo, d)))
+        try:
+            Date._dayfirst
+            Date._yearfirst
+        except AttributeError:
+            import bauble.prefs as prefs
+            Date._dayfirst = prefs.prefs[prefs.parse_dayfirst_pref]
+            Date._yearfirst = prefs.prefs[prefs.parse_yearfirst_pref]
+        from bauble.utils.log import debug
+        return date_parser.parse(value, dayfirst=Date._dayfirst,
+                                 yearfirst=Date._yearfirst).date()
 
 
     def process_result_value(self, value, dialect):

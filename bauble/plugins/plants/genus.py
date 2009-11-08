@@ -19,7 +19,7 @@ import bauble.pluginmgr as pluginmgr
 import bauble.editor as editor
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
-from bauble.types import Enum
+import bauble.types as types
 from bauble.utils.log import debug
 import bauble.paths as paths
 from bauble.prefs import prefs
@@ -118,9 +118,6 @@ class Genus(db.Base):
         *author*:
             The name or abbreviation of the author who published this genus.
 
-        *notes*:
-            A free text field for information relative to this genus.
-
     :Properties:
         *family*:
             The family of the genus.
@@ -143,9 +140,12 @@ class Genus(db.Base):
 
     # columns
     genus = Column(String(64), nullable=False, index=True)
+
+    # use '' instead of None so that the constraints will work propertly
     author = Column(Unicode(255), default=u'')
-    qualifier = Column(Enum(values=['s. lat.', 's. str', '']), default=u'')
-    notes = Column(UnicodeText)
+    qualifier = Column(types.Enum(values=['s. lat.', 's. str', u'']),
+                       default=u'')
+
     family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
 
     # relations
@@ -183,6 +183,22 @@ class Genus(db.Base):
 
 
 
+class GenusNote(db.Base):
+    """
+    Notes for the genus table
+    """
+    __tablename__ = 'genus_note'
+    __mapper_args__ = {'order_by': 'genus_note.date'}
+
+    date = Column(types.DateTime, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    genus_id = Column(Integer, ForeignKey('genus.id'), nullable=False)
+    genus = relation('Genus', uselist=False,
+                      backref=backref('notes', cascade='all, delete-orphan'))
+
+
 class GenusSynonym(db.Base):
     """
     :Table name: genus_synonym
@@ -215,7 +231,7 @@ from bauble.plugins.plants.family import Family, FamilySynonym
 from bauble.plugins.plants.species_model import Species
 from bauble.plugins.plants.species_editor import SpeciesEditor
 Genus.species = relation('Species', cascade='all, delete-orphan',
-                         order_by=['sp', 'infrasp_rank', 'infrasp'],
+                         order_by=['Species.sp'],
                          backref=backref('genus', uselist=False))
 
 
@@ -223,8 +239,8 @@ Genus.species = relation('Species', cascade='all, delete-orphan',
 class GenusEditorView(editor.GenericEditorView):
 
     syn_expanded_pref = 'editor.genus.synonyms.expanded'
-    expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
-                          'gen_notes_expander': 'editor.genus.notes.expanded'}
+    # expanders_pref_map = {'gen_syn_expander': 'editor.genus.synonyms.expanded',
+    #                       'gen_notes_expander': 'editor.genus.notes.expanded'}
 
     _tooltips = {
         'gen_family_entry': _('The family name'),
@@ -235,7 +251,7 @@ class GenusEditorView(editor.GenericEditorView):
                          'synonym enter a family name and select one from the '
                          'list of completions.  Then click Add to add it to '\
                          'the list of synonyms.'),
-        'gen_notes_textview': _('Miscelleanous notes about this genus.')
+        #'gen_notes_textview': _('Miscelleanous notes about this genus.')
      }
 
 
@@ -272,17 +288,19 @@ class GenusEditorView(editor.GenericEditorView):
         '''
         save the current state of the gui to the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
-            prefs[pref] = self.widgets[expander].get_expanded()
+        # for expander, pref in self.expanders_pref_map.iteritems():
+        #     prefs[pref] = self.widgets[expander].get_expanded()
+        pass
 
 
     def restore_state(self):
         '''
         restore the state of the gui from the preferences
         '''
-        for expander, pref in self.expanders_pref_map.iteritems():
-            expanded = prefs.get(pref, True)
-            self.widgets[expander].set_expanded(expanded)
+        # for expander, pref in self.expanders_pref_map.iteritems():
+        #     expanded = prefs.get(pref, True)
+        #     self.widgets[expander].set_expanded(expanded)
+        pass
 
 
     def get_window(self):
@@ -305,9 +323,9 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'gen_family_entry': 'family',
                            'gen_genus_entry': 'genus',
-                           'gen_author_entry': 'author',
-#                           'gen_qualifier_combo': 'qualifier'
-                           'gen_notes_textview': 'notes'}
+                           'gen_author_entry': 'author'}
+                           #'gen_qualifier_combo': 'qualifier'
+                           #'gen_notes_textview': 'notes'}
 
 
     def __init__(self, model, view):
@@ -361,12 +379,19 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
 
         self.assign_completions_handler('gen_family_entry',fam_get_completions,
                                         on_select=on_select)
-        self.assign_simple_handler('gen_genus_entry', 'genus')
+        self.assign_simple_handler('gen_genus_entry', 'genus',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('gen_author_entry', 'author',
                                    editor.UnicodeOrNoneValidator())
+
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes', notes_parent)
+
         #self.assign_simple_handler('gen_qualifier_combo', 'qualifier')
-        self.assign_simple_handler('gen_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
+        # self.assign_simple_handler('gen_notes_textview', 'notes',
+        #                            editor.UnicodeOrNoneValidator())
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
@@ -374,19 +399,24 @@ class GenusEditorPresenter(editor.GenericEditorPresenter):
         self.__dirty = False
 
 
-    def set_model_attr(self, field, value, validator=None):
-        super(GenusEditorPresenter, self).set_model_attr(field, value,
-                                                         validator)
+    def refresh_sensitivity(self):
+        # TODO: check widgets for problems
         sensitive = False
-        self.__dirty = True
-        if self.model.family and self.model.genus:
+        if self.model.family and self.model.genus and self.model.family:
             sensitive = True
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
+    def set_model_attr(self, field, value, validator=None):
+        super(GenusEditorPresenter, self).set_model_attr(field, value,
+                                                         validator)
+        self.__dirty = True
+        self.refresh_sensitivity()
+
+
     def dirty(self):
         return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -522,8 +552,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
         self.view.widgets.gen_syn_add_button.set_sensitive(False)
-        self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
+        self.refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -546,8 +576,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
+            self.refresh_sensitivity()
 
 
 class GenusEditor(editor.GenericModelViewPresenterEditor):
@@ -610,7 +640,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -618,7 +647,6 @@ class GenusEditor(editor.GenericModelViewPresenterEditor):
                         utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
         elif self.presenter.dirty() \
                  and utils.yes_no_dialog(not_ok_msg) \
@@ -680,34 +708,30 @@ class LinksExpander(InfoExpander):
 
     def __init__(self):
         InfoExpander.__init__(self, _("Links"))
-        self.tooltips = gtk.Tooltips()
         buttons = []
 
         self.google_button = gtk.LinkButton("", _("Search Google"))
-        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        self.google_button.set_tooltip_text(_("Search Google"))
         buttons.append(self.google_button)
 
         self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
-        self.tooltips.set_tip(self.gbif_button,
-                         _("Search the Global Biodiversity Information "\
-                           "Facility"))
+        tooltip = _("Search the Global Biodiversity Information Facility")
+        self.gbif_button.set_tooltip_text(tooltip)
         buttons.append(self.gbif_button)
 
         self.itis_button = gtk.LinkButton("", _("Search ITIS"))
-        self.tooltips.set_tip(self.itis_button,
-                              _("Search the Intergrated Taxonomic "\
-                                "Information System"))
+        tooltip = _("Search the Intergrated Taxonomic Information System")
+        self.itis_button.set_tooltip_text(tooltip)
         buttons.append(self.itis_button)
 
         self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
-        self.tooltips.set_tip(self.ipni_button,
-                              _("Search the International Plant Names Index"))
+        tooltip = _("Search the International Plant Names Index")
+        self.ipni_button.set_tooltip_text(tooltip)
         buttons.append(self.ipni_button)
 
         self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
-        self.tooltips.set_tip(self.bgci_button,
-                              _("Search Botanic Gardens Conservation " \
-                                "International"))
+        tooltip = _("Search Botanic Gardens Conservation International")
+        self.bgci_button.set_tooltip_text(tooltip)
         buttons.append(self.bgci_button)
 
         for b in buttons:
@@ -882,26 +906,6 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.gen_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('gen_notes_data', row.notes)
-
-
-
 class GenusInfoBox(InfoBox):
     """
     """
@@ -914,8 +918,6 @@ class GenusInfoBox(InfoBox):
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -931,7 +933,6 @@ class GenusInfoBox(InfoBox):
     def update(self, row):
         self.general.update(row)
         self.synonyms.update(row)
-        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
