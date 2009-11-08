@@ -130,7 +130,7 @@ class Family(db.Base):
     family = Column(String(45), nullable=False, index=True)
 
     # we use the blank string here instead of None so that the
-    # contrains will work properly,
+    # contraints will work properly,
     qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
                        default=u'')
 
