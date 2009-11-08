@@ -90,6 +90,11 @@ class CSVTests(ImexTestCase):
         importer.start([filename], force=True)
 
 
+    def test_import_defaults(self):
+        #raise SkipTest
+        db.create(True)
+
+
     def test_import_self_referential_table(self):
         """
         Test tables that are self-referenial are import in order.
@@ -168,7 +173,7 @@ class CSVTests(ImexTestCase):
         value is executed.
         """
         self._do_import(family_data)
-        self.session = db.Session()
+        self.session = bauble.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
 
@@ -187,7 +192,7 @@ class CSVTests(ImexTestCase):
         #debug([f.id for f in self.session.query(Family)])
         #self.session.clear()
         self._do_import(family_data)
-        self.session = db.Session()
+        self.session = bauble.Session()
         family = self.session.query(Family).filter_by(id=1).one()
         self.assert_(family.qualifier == '')
         #raise
