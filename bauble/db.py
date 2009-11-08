@@ -62,7 +62,6 @@ class MapperBase(DeclarativeMeta):
         super(MapperBase, cls).__init__(classname, bases, dict_)
 
 
-
 engine = None
 """A :class:`sqlalchemy.engine.base.Engine` used as the default
 connection to the database.
