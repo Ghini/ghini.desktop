@@ -27,7 +27,7 @@ from bauble.view import SearchView, MapperSearch, Action
 # TODO: the unicode usage here needs to be reviewed
 
 # def edit_callback(value):
-#     session = bauble.Session()
+#     session = db.Session()
 #     e = TagEditor(model_or_defaults=session.merge(value))
 #     return e.start() != None
 
@@ -38,7 +38,7 @@ def remove_callback(tags):
     msg = _("Are you sure you want to remove %s?") % s
     if not utils.yes_no_dialog(msg):
         return
-    session = bauble.Session()
+    session = db.Session()
     try:
         obj = session.query(Tag).get(tag.id)
         session.delete(obj)
@@ -98,7 +98,7 @@ class TagItemGUI(editor.GenericEditorView):
         d.destroy()
 
         #stmt = tag_table.select(tag_table.c.tag==name).alias('_dummy').count()
-        session = bauble.Session()
+        session = db.Session()
         ntags = session.query(Tag).filter_by(tag=name).count()
         if name not in ('', u'') and ntags == 0:
             session.add(Tag(tag=name))
@@ -153,7 +153,7 @@ class TagItemGUI(editor.GenericEditorView):
         msg = _('Are you sure you want to delete the tag "%s"?') % tag_name
         if not utils.yes_no_dialog(msg):
             return
-        session = bauble.Session()
+        session = db.Session()
         try:
             query = session.query(Tag)
             tag = query.filter_by(tag=unicode(tag_name)).one()
@@ -189,7 +189,7 @@ class TagItemGUI(editor.GenericEditorView):
         model = gtk.ListStore(bool, str)
         item_tags = get_tag_ids(self.values)
         has_tag = False
-        tag_query = bauble.Session().query(Tag)
+        tag_query = db.Session().query(Tag)
         for tag in tag_query:
             if tag.id in item_tags:
                 has_tag = True
@@ -294,7 +294,7 @@ def get_tagged_objects(tag, session=None):
     close_session = False
     if not isinstance(tag, Tag):
         if not session:
-            session = bauble.Session()
+            session = db.Session()
         tag = session.query(Tag).filter_by(tag=utils.utf8(tag)).one()
     elif not session:
         session = object_session(tag)
@@ -316,7 +316,7 @@ def untag_objects(name, objs):
     # TODO: should we loop through objects in a tag to delete
     # the TaggedObject or should we delete tags is they match
     # the tag in TaggedObj.selectBy(obj_class=classname, obj_id=obj.id)
-    session = bauble.Session()
+    session = db.Session()
     try:
         #tag = session.query(Tag).filter(tag_table.c.tag==unicode(name)).one()
         tag = session.query(Tag).filter_by(tag=utils.utf8(name)).one()
@@ -349,7 +349,7 @@ def tag_objects(name, objs):
     @param obj: The object to tag.
     @type obj: a list of mapper objects
     '''
-    session = bauble.Session()
+    session = db.Session()
     name = utils.utf8(name)
     try:
         tag = session.query(Tag).filter_by(tag=name).one()
@@ -383,7 +383,7 @@ def get_tag_ids(objs):
     #clause = lambda x: and_(TaggedObj.obj_class==_classname(x),
     #                        TaggedObj.obj_id==x.id)
     #ors = or_(*map(clause, objs))
-    session = bauble.Session()
+    session = db.Session()
     s = set()
     tag_id_query = session.query(Tag.id).join('_objects')
     for obj in objs:
@@ -449,7 +449,7 @@ def _reset_tags_menu():
     #manage_tag_item = gtk.MenuItem('Manage Tags')
     #tags_menu.append(manage_tag_item)
     tags_menu.append(gtk.SeparatorMenuItem())
-    session = bauble.Session()
+    session = db.Session()
     query = session.query(Tag)
     try:
         for tag in query:

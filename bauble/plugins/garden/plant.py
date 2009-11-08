@@ -53,7 +53,7 @@ def remove_callback(plants):
     if not utils.yes_no_dialog(msg):
         return
 
-    session = bauble.Session()
+    session = db.Session()
     for plant in plants:
         obj = session.query(Plant).get(plant.id)
         session.delete(obj)
@@ -498,7 +498,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         '''
         super(PlantEditorPresenter, self).__init__(model, view)
         #self.session = object_session(model[0])
-        self.session = bauble.Session()
+        self.session = db.Session()
         # self._original_accession_id = self.model.accession_id
         # self._original_code = self.model.code
         self.__dirty = False
@@ -987,7 +987,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
             # if there are no problems and the code represents a range
             # then change the background color to a light blue
-            from bauble.utils.pyparsing import ParseException
+            from pyparsing import ParseException
             if len(utils.range_builder(self.model.code)) > 1:
                 color_str = '#B0C4DE' # light steel blue
                 color = gtk.gdk.color_parse(color_str)

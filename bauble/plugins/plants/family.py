@@ -47,7 +47,7 @@ def remove_callback(families):
     """
     family = families[0]
     from bauble.plugins.plants.genus import Genus
-    session = bauble.Session()
+    session = db.Session()
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe_utf8(str(family))
     if ngen > 0:
@@ -647,7 +647,7 @@ class GeneralFamilyExpander(InfoExpander):
         '''
         self.current_obj = row
         self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
-        session = bauble.Session()
+        session = db.Session()
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()
         self.set_widget_value('fam_ngen_data', ngen)

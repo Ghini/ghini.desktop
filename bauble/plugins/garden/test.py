@@ -8,6 +8,7 @@ from sqlalchemy.exc import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
@@ -134,7 +135,7 @@ class DonorTests(GardenTestCase):
 
         # test that we can't delete a donor if it has corresponding donations
         import bauble
-        session = bauble.Session()
+        session = db.Session()
         donor = session.query(Donor).filter_by(name=u'name').one()
         # shouldn't be allowed to delete donor if it has donations,
         # what is happening here is that when deleting the donor the

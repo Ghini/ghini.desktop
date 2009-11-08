@@ -118,7 +118,7 @@ def get_next_code():
     If there is an error getting the next code the None is returned.
     """
     # auto generate/increment the accession code
-    session = bauble.Session()
+    session = db.Session()
     year = str(datetime.date.today().year)
     start = '%s%s' % (year, Plant.get_delimiter())
     q = session.query(Accession.code).\
@@ -168,7 +168,7 @@ def remove_callback(accessions):
     if not utils.yes_no_dialog(msg):
         return False
     try:
-        session = bauble.Session()
+        session = db.Session()
         obj = session.query(Accession).get(acc.id)
         session.delete(obj)
         session.commit()
@@ -539,7 +539,7 @@ class Accession(db.Base):
             self.__warned_about_id_qual = True
 
         # copy the species so we don't affect the original
-        session = bauble.Session()
+        session = db.Session()
         species = session.merge(self.species)#, dont_load=True)
 
         # generate the string

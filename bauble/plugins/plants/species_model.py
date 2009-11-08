@@ -306,6 +306,7 @@ class Species(db.Base):
                         'epithet': 'infrasp4',
                         'author': 'infrasp4_author'}}
 
+
     def get_infrasp(self, level):
         """
         level should be 1-4
@@ -330,6 +331,7 @@ class SpeciesNote(db.Base):
     Notes for the species table
     """
     __tablename__ = 'species_note'
+    __mapper_args__ = {'order_by': 'species_note.date'}
 
     date = Column(types.Date, nullable=False)
     user = Column(Unicode(64))

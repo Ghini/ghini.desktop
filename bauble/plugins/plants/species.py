@@ -1,6 +1,7 @@
 #
 # species.py
 #
+import bauble.db as db
 import bauble.pluginmgr as pluginmgr
 from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
@@ -35,7 +36,7 @@ def remove_callback(values):
     The callback function to remove a species from the species context menu.
     """
     from bauble.plugins.garden.accession import Accession
-    session = bauble.Session()
+    session = db.Session()
     species = values[0]
     if isinstance(species, VernacularName):
         species = species.species
@@ -253,7 +254,7 @@ class GeneralSpeciesExpander(InfoExpander):
         # can be clickable but still respect the text wrap to wrap
         # around and indent from the genus name instead of from the
         # species name
-        session = bauble.Session()
+        session = db.Session()
         self.set_widget_value('sp_name_data', '<big>%s</big>' % \
                               row.markup(True))
         self.set_widget_value('sp_dist_data', row.distribution_str())

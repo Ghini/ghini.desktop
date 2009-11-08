@@ -79,7 +79,7 @@ def update_meta(email=None, album=None, token=None):
     Update the email, album and authorization token in the bauble meta table.
     """
     # TODO: should we allow setting the values to None
-    session = bauble.Session()
+    session = db.Session()
     if email:
         email = utils.utf8(email)
         meta.get_default(PICASA_EMAIL_KEY, email, session).value = email
@@ -534,7 +534,7 @@ class PicasaInfoPage(view.InfoBoxPage):
 #     :param species: the species name
 #     """
 #     tag = Species.str(species, markup=False, authors=False)
-#     session = bauble.Session()
+#     session = db.Session()
 #     #token = self.session.query(meta.BaubleMeta.value).\
 #     #    filter_by(name=picasa.PICASA_TOKEN_KEY).one()[0]
 #     token = meta.get_default(PICASA_TOKEN_KEY)
