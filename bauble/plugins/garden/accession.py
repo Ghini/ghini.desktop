@@ -770,7 +770,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
 
         latitude = self.model.latitude
         if latitude is not None:
-            dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
+            dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
             self.view.widgets.lat_dms_label.set_text(dms_string)
             if latitude < 0:
                 self.view.widgets.south_radio.set_active(True)
@@ -778,7 +778,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 self.view.widgets.north_radio.set_active(True)
         longitude = self.model.longitude
         if longitude is not None:
-            dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
+            dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
             self.view.widgets.lon_dms_label.set_text(dms_string)
             if longitude < 0:
                 self.view.widgets.west_radio.set_active(True)
@@ -911,7 +911,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 direction = self._get_lat_direction()
                 latitude = CollectionPresenter._parse_lat_lon(direction, text)
                 #u"\N{DEGREE SIGN}"
-                dms_string ='%s %s\302\260%s"%s\'' % latitude_to_dms(latitude)
+                dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
         except Exception:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
@@ -940,7 +940,7 @@ class CollectionPresenter(editor.GenericEditorPresenter):
                 east_radio.handler_unblock(self.east_toggle_signal_id)
                 direction = self._get_lon_direction()
                 longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string ='%s %s\302\260%s"%s\'' % longitude_to_dms(longitude)
+                dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
         except Exception:
 #            debug(traceback.format_exc())
             bg_color = gtk.gdk.color_parse("red")
@@ -1370,7 +1370,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         """
         Set attributes on the model and update the GUI as expected.
         """
-        debug('set_model_attr(%s, %s)' % (field, value))
+        #debug('set_model_attr(%s, %s)' % (field, value))
         super(AccessionEditorPresenter, self).set_model_attr(field, value,
                                                              validator)
         self.__dirty = True
@@ -1817,13 +1817,13 @@ class SourceExpander(InfoExpander):
 
         if collection.latitude:
             dir, deg, min, sec = latitude_to_dms(collection.latitude)
-            lat_str = '%.2f (%s %s\302\260%s"%.2f\') %s' % \
+            lat_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.latitude, dir, deg, min, sec, geo_accy)
             self.set_widget_value('lat_data', lat_str)
 
         if collection.longitude:
             dir, deg, min, sec = longitude_to_dms(collection.longitude)
-            long_str = '%.2f (%s %s\302\260%s"%.2f\') %s' % \
+            long_str = '%.2f (%s %s\302\260%s\'%.2f") %s' % \
                 (collection.longitude, dir, deg, min, sec, geo_accy)
             self.set_widget_value('lon_data', long_str)
 
