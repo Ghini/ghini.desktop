@@ -27,10 +27,13 @@
 # IDEA: we could probably make this module more generic and based on
 # mixins where we add the functionality for getting the photos by
 # mixing in different implentations for different services
-import os, sys
+import os
+import sys
 import tempfile
 import urllib
 from Queue import Queue
+
+import bauble.db as db
 
 # this little dummyfile hack fixes an annoying deprecation warning
 # when importing gdata 1.2.4

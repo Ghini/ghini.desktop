@@ -8,9 +8,7 @@ from sqlalchemy.orm import *
 from mako.template import Template
 
 import bauble
-from bauble.utils.log import debug
-import bauble.utils as utils
-import bauble.utils.desktop as desktop
+import bauble.db as db
 import bauble.paths as paths
 from bauble.plugins.plants.species import Species
 from bauble.plugins.garden.plant import Plant
@@ -18,6 +16,9 @@ from bauble.plugins.garden.accession import Accession
 from bauble.plugins.abcd import create_abcd, ABCDAdapter, ABCDElement
 from bauble.plugins.report import get_all_plants, get_all_species, \
      get_all_accessions, FormatterPlugin, SettingsBox
+from bauble.utils.log import debug
+import bauble.utils as utils
+import bauble.utils.desktop as desktop
 
 
 class MakoFormatterSettingsBox(SettingsBox):
