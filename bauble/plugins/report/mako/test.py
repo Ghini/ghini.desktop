@@ -6,6 +6,7 @@ from sqlalchemy.exc import *
 
 # TURN OFF desktop.open for this module so that the test doesn't open
 # the report
+import bauble.db as db
 import bauble.utils.desktop as desktop
 desktop.open = lambda x: x
 
@@ -55,7 +56,8 @@ class MakoFormatterTests(BaubleTestCase):
                         self.session.add(acc)
                         for p in range(2):
                             pctr+=1
-                            loc = Location(id=pctr, name=u'site%s' % pctr)
+                            loc = Location(id=pctr, code=u'%s' % pctr,
+                                           name=u'site%s' % pctr)
                             plant = Plant(id=pctr, accession=acc, location=loc,
                                           code=u'%s' % pctr)
                             #debug('fctr: %s, gctr: %s, actr: %s, pctr: %s' \
