@@ -56,7 +56,7 @@ def remove_callback(genera):
     """
     genus = genera[0]
     from bauble.plugins.plants.species_model import Species
-    session = bauble.Session()
+    session = db.Session()
     nsp = session.query(Species).filter_by(genus_id=genus.id).count()
     safe_str = utils.xml_safe_utf8(str(genus))
     if nsp > 0:
@@ -819,7 +819,7 @@ class GeneralGenusExpander(InfoExpander):
 
         @param row: the row to get the values from
         '''
-        session = bauble.Session()
+        session = db.Session()
         self.current_obj = row
         self.set_widget_value('gen_name_data', '<big>%s</big> %s' % \
                                   (row, utils.xml_safe(unicode(row.author))))

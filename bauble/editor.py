@@ -19,6 +19,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.error import check, CheckConditionError, BaubleError
 import bauble.paths as paths
 import bauble.prefs as prefs
@@ -773,7 +774,7 @@ class GenericModelViewPresenterEditor(object):
     ok_responses = ()
 
     def __init__(self, model, parent=None):
-        self.session = bauble.Session()
+        self.session = db.Session()
         self.model = self.session.merge(model)
 
 

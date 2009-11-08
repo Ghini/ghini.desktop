@@ -12,6 +12,7 @@ import traceback
 import gtk
 import gobject
 import pango
+from pyparsing import *
 from sqlalchemy import *
 from sqlalchemy.orm import *
 import sqlalchemy.sql
@@ -27,7 +28,6 @@ import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
 import bauble.utils as utils
 from bauble.utils.log import debug, error, warning
-from bauble.utils.pyparsing import *
 
 # use different formatting template for the result view depending on the
 # platform
@@ -801,7 +801,7 @@ class SearchView(pluginmgr.View):
 
         # keep all the search results in the same session, this should
         # be cleared when we do a new search
-        self.session = bauble.Session()
+        self.session = db.Session()
 
 
     def update_notes(self):
@@ -971,7 +971,7 @@ class SearchView(pluginmgr.View):
         self.session.close()
         # create a new session for each search...maybe we shouldn't
         # even have session as a class attribute
-        self.session = bauble.Session()
+        self.session = db.Session()
         bold = '<b>%s</b>'
         try:
             for strategy in self.search_strategies:

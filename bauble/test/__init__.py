@@ -14,7 +14,7 @@ uri = 'sqlite:///:memory:'
 #uri = 'postgres://postgres:4postgres*@ceiba/test'
 
 
-def init_bauble(uri):
+def init_bauble(uri, create=False):
     try:
         db.open(uri, verify=False)
     except Exception, e:
@@ -24,7 +24,7 @@ def init_bauble(uri):
         raise BaubleError('not connected to a database')
     prefs.init()
     pluginmgr.load()
-    db.create(False)
+    db.create(create)
     pluginmgr.init(True)
 
 
@@ -42,7 +42,7 @@ class BaubleTestCase(unittest.TestCase):
     def setUp(self):
         assert uri is not None, "The database URI is not set"
         init_bauble(uri)
-        self.session = bauble.Session()
+        self.session = db.Session()
 
     def set_logging_level(self, level, logger='sqlalchemy'):
         logging.getLogger('sqlalchemy').setLevel(level)

@@ -339,7 +339,7 @@ class PluginRegistry(db.Base):
         """
         p = PluginRegistry(name=utils.utf8(plugin.__name__),
                            version=utils.utf8(plugin.version))
-        session = bauble.Session()
+        session = db.Session()
         session.add(p)
         session.commit()
         session.close()
@@ -351,7 +351,7 @@ class PluginRegistry(db.Base):
         Remove a plugin from the registry by name.
         """
         #debug('PluginRegistry.remove()')
-        session = bauble.Session()
+        session = db.Session()
         p = session.query(PluginRegistry).\
             filter_by(name=utils.utf8(plugin.__name__)).one()
         session.delete(p)
@@ -364,7 +364,7 @@ class PluginRegistry(db.Base):
         close_session = False
         if not session:
             close_session = True
-            session = bauble.Session()
+            session = db.Session()
         q = session.query(PluginRegistry)
         results = list(q)
         if close_session:
@@ -392,7 +392,7 @@ class PluginRegistry(db.Base):
         else:
             name = plugin.__name__
             version = plugin.version
-        session = bauble.Session()
+        session = db.Session()
         try:
             session.query(PluginRegistry).\
                 filter_by(name=utils.utf8(name)).one()

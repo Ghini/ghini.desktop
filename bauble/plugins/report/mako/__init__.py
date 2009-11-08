@@ -71,7 +71,7 @@ class MakoFormatterPlugin(FormatterPlugin):
             utils.message_dialog(error_msg, gtk.MESSAGE_WARNING)
             return False
         template = Template(filename=template_filename)
-        session = bauble.Session()
+        session = db.Session()
         values = map(session.merge, objs)
         report = template.render(values=values)
         session.close()

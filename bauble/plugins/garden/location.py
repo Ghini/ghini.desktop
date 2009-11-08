@@ -41,7 +41,7 @@ def remove_callback(locations):
     if not utils.yes_no_dialog(msg):
         return
     try:
-        session = bauble.Session()
+        session = db.Session()
         obj = session.query(Location).get(loc.id)
         session.delete(obj)
         session.commit()

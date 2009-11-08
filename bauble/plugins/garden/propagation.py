@@ -637,6 +637,9 @@ class SeedPresenter(editor.GenericEditorPresenter):
             self.propagation._seed = PropSeed()
         self.model = self.model._seed
 
+        # TODO: if % germinated is not entered and nseeds and #
+        # germinated are then automatically calculate the % germinated
+
         widgets = self.view.widgets
         distinct = lambda c: utils.get_distinct_values(c, self.session)
         # TODO: should also setup a completion on the entry

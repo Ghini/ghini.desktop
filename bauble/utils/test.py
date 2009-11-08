@@ -6,6 +6,7 @@
 import sys
 import unittest
 
+from pyparsing import *
 from sqlalchemy import *
 
 import bauble
@@ -14,7 +15,7 @@ from bauble.error import check, CheckConditionError
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.test import BaubleTestCase
-from bauble.utils.pyparsing import *
+
 
 class UtilsGTKTests(unittest.TestCase):
 
