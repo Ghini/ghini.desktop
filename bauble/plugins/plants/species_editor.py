@@ -3,9 +3,10 @@
 #
 import os
 import sys
-import traceback
-import xml.sax.saxutils as sax
 from operator import itemgetter
+import traceback
+import weakref
+import xml.sax.saxutils as sax
 
 import gtk
 import gobject
@@ -18,12 +19,13 @@ from bauble.prefs import prefs
 import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
-from bauble.utils.log import log, debug
+from bauble.utils.log import debug
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus, GenusSynonym
 from bauble.plugins.plants.species_model import Species, \
-     SpeciesSynonym, VernacularName, DefaultVernacularName, \
-     SpeciesDistribution, Geography
+    SpeciesSynonym, VernacularName, DefaultVernacularName, \
+    SpeciesDistribution, SpeciesNote, Geography, infrasp_rank_values
+
 
 class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
@@ -32,34 +34,26 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
     widget_to_field_map = {'sp_genus_entry': 'genus',
                            'sp_species_entry': 'sp',
                            'sp_author_entry': 'sp_author',
-                           'sp_infra_rank_combo': 'infrasp_rank',
-                           'sp_infra_entry': 'infrasp',
-                           'sp_infra_author_entry': 'infrasp_author',
-                           'sp_infra2_rank_combo': 'infrasp2_rank',
-                           'sp_infra2_entry': 'infrasp2',
-                           'sp_infra2_author_entry': 'infrasp2_author',
                            'sp_hybrid_check': 'hybrid',
                            'sp_cvgroup_entry': 'cv_group',
                            'sp_spqual_combo': 'sp_qual',
-                           'sp_notes_textview': 'notes'}
+                           }
 
 
     def __init__(self, model, view):
         super(SpeciesEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
-
-        combos = ('sp_infra_rank_combo', 'sp_infra2_rank_combo',
-                  'sp_spqual_combo')
-        for name in combos:
-            self.init_enum_combo(name, self.widget_to_field_map[name])
-
+        self.__dirty = False
         self.init_fullname_widgets()
-        self.vern_presenter = VernacularNamePresenter(self.model, self.view,
-                                                      self.session)
-        self.synonyms_presenter = SynonymsPresenter(self.model, self.view,
-                                                    self.session)
-        self.dist_presenter = DistributionPresenter(self.model,
-                                                    self.view, self.session)
+        self.vern_presenter = VernacularNamePresenter(self)
+        self.synonyms_presenter = SynonymsPresenter(self)
+        self.dist_presenter = DistributionPresenter(self)
+        self.infrasp_presenter = InfraspPresenter(self)
+
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes', notes_parent)
         self.refresh_view()
 
         # connect signals
@@ -103,18 +97,7 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_completions_handler('sp_genus_entry', #'genus',
                                         gen_get_completions,
                                         on_select=on_select)
-
         self.assign_simple_handler('sp_species_entry', 'sp',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_infra_rank_combo', 'infrasp_rank')
-        self.assign_simple_handler('sp_infra_entry', 'infrasp',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_infra_author_entry', 'infrasp_author',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_infra2_rank_combo', 'infrasp2_rank')
-        self.assign_simple_handler('sp_infra2_entry', 'infrasp2',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_infra2_author_entry', 'infrasp2_author',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('sp_hybrid_check', 'hybrid')
         self.assign_simple_handler('sp_cvgroup_entry', 'cv_group',
@@ -122,23 +105,24 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('sp_spqual_combo', 'sp_qual')
         self.assign_simple_handler('sp_author_entry', 'sp_author',
                                    editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('sp_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-        self.__dirty = False
+
 
 
     def __del__(self):
         # we have to delete the views in the child presenters manually
-        # to avoid the circul reference
+        # to avoid the circular reference
         del self.vern_presenter.view
         del self.synonyms_presenter.view
         del self.dist_presenter.view
+        del self.notes_presenter.view
+        del self.infrasp_presenter.view
 
 
     def dirty(self):
         return self.__dirty or self.session.is_modified(self.model) or \
             self.vern_presenter.dirty() or self.synonyms_presenter.dirty() or \
-            self.dist_presenter.dirty()
+            self.dist_presenter.dirty() or self.infrasp_presenter.dirty() or \
+            self.notes_presenter.dirty()
 
 
     def set_model_attr(self, field, value, validator=None):
@@ -163,6 +147,16 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.view.set_accept_buttons_sensitive(sensitive)
 
 
+    def refresh_sensitivity(self):
+        """
+        :param self:
+        """
+        sensitive = False
+        if self.dirty():
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
     def init_fullname_widgets(self):
         '''
         initialized the signal handlers on the widgets that are relative to
@@ -171,14 +165,10 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_fullname_label()
         refresh = lambda *args: self.refresh_fullname_label()
         widgets = ['sp_genus_entry', 'sp_species_entry', 'sp_author_entry',
-                   'sp_infra_entry', 'sp_infra_author_entry',
-                   'sp_infra2_entry', 'sp_infra2_author_entry',
-                   'sp_cvgroup_entry', 'sp_infra_rank_combo',
-                   'sp_infra2_rank_combo', 'sp_spqual_combo']
+                   'sp_cvgroup_entry', 'sp_spqual_combo']
         for widget_name in widgets:
             w = self.view.widgets[widget_name]
             self.view.connect_after(widget_name, 'changed', refresh)
-
         self.view.connect_after('sp_hybrid_check', 'toggled', refresh)
 
 
@@ -196,7 +186,6 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
     def start(self):
         r = self.view.start()
-        self.view.disconnect_all()
         return r
 
 
@@ -216,18 +205,167 @@ class SpeciesEditorPresenter(editor.GenericEditorPresenter):
 
 
 
+class InfraspPresenter(editor.GenericEditorPresenter):
+    """
+    """
+
+    def __init__(self, parent):
+        '''
+        :param parent: the parent SpeciesEditorPresenter
+        '''
+        super(InfraspPresenter, self).__init__(parent.model, parent.view)
+        self.parent_ref = weakref.ref(parent)
+        self._dirty = False
+        self.view.connect('add_infrasp_button', "clicked", self.append_infrasp)
+
+        # will table.resize() remove the children??
+        table = self.view.widgets.infrasp_table
+        for item in self.view.widgets.infrasp_table.get_children():
+            if not isinstance(item, gtk.Label):
+                self.view.widgets.remove_parent(item)
+
+        self.table_rows = []
+        for index in range(1,5):
+            infrasp = self.model.get_infrasp(index)
+            if infrasp != (None, None, None):
+                self.append_infrasp()
+
+
+    def dirty(self):
+        return self._dirty
+
+
+    def append_infrasp(self, *args):
+        """
+        """
+        # TODO: it is very slow to add rows to the widget...maybe if
+        # we disable event on the table until all the rows have been
+        # added
+        level = len(self.table_rows)+1
+        row = InfraspPresenter.Row(self, level)
+        self.table_rows.append(row)
+        if level >= 4:
+            self.view.widgets.add_infrasp_button.props.sensitive = False
+        return row
+
+
+    class Row(object):
+
+        def __init__(self, presenter, level):
+            """
+            """
+            self.presenter = presenter
+            self.species = presenter.model
+            table = self.presenter.view.widgets.infrasp_table
+            nrows = table.props.n_rows
+            ncols = table.props.n_columns
+            self.level = level
+
+            rank, epithet, author = self.species.get_infrasp(self.level)
+
+            # rank combo
+            self.rank_combo = gtk.ComboBox()
+            self.presenter.init_translatable_combo(self.rank_combo,
+                                                   infrasp_rank_values)
+            utils.set_widget_value(self.rank_combo, rank)
+            self.rank_combo.connect('changed', self.on_rank_combo_changed)
+            table.attach(self.rank_combo, 0, 1, level, level+1,
+                         xoptions=gtk.FILL, yoptions=-1)
+
+            # epithet entry
+            self.epithet_entry = gtk.Entry()
+            utils.set_widget_value(self.epithet_entry, epithet)
+            self.epithet_entry.connect('changed',
+                                       self.on_epithet_entry_changed)
+            table.attach(self.epithet_entry, 1, 2, level, level+1,
+                         xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
+
+            # author entry
+            self.author_entry = gtk.Entry()
+            utils.set_widget_value(self.author_entry, author)
+            self.author_entry.connect('changed', self.on_author_entry_changed)
+            table.attach(self.author_entry, 2, 3, level, level+1,
+                         xoptions=gtk.FILL|gtk.EXPAND, yoptions=-1)
+
+            self.remove_button = gtk.Button()#stock=gtk.STOCK_ADD)
+            img = gtk.image_new_from_stock(gtk.STOCK_REMOVE,
+                                           gtk.ICON_SIZE_BUTTON)
+            self.remove_button.props.image = img
+            self.remove_button.connect('clicked',
+                                       self.on_remove_button_clicked)
+            table.attach(self.remove_button, 3, 4, level, level+1,
+                         xoptions=gtk.FILL, yoptions=-1)
+            table.show_all()
+
+
+        def on_remove_button_clicked(self, *args):
+            # remove the widgets
+            table = self.presenter.view.widgets.infrasp_table
+
+            # remove the infrasp from the species and reset the levels
+            # on the remaining infrasp that have a higher level than
+            # the one being deleted
+            table.remove(self.rank_combo)
+            table.remove(self.epithet_entry)
+            table.remove(self.author_entry)
+            table.remove(self.remove_button)
+
+            self.set_model_attr('rank', None)
+            self.set_model_attr('epithet', None)
+            self.set_model_attr('author', None)
+
+            # move all the infrasp values up a level
+            for i in range(self.level+1, 5):
+                rank, epithet, author = self.species.get_infrasp(i)
+                self.species.set_infrasp(i-1, rank, epithet, author)
+
+            self.presenter._dirty = False
+            self.presenter.parent_ref().refresh_fullname_label()
+            self.presenter.parent_ref().refresh_sensitivity()
+            self.presenter.view.widgets.add_infrasp_button.props.\
+                sensitive = True
+
+
+        def set_model_attr(self, attr, value):
+            infrasp_attr = Species.infrasp_attr[self.level][attr]
+            setattr(self.species, infrasp_attr, value)
+            self.presenter._dirty = False
+            self.presenter.parent_ref().refresh_fullname_label()
+            self.presenter.parent_ref().refresh_sensitivity()
+
+
+        def on_rank_combo_changed(self, combo, *args):
+            model = combo.get_model()
+            it = combo.get_active_iter()
+            self.set_model_attr('rank', utils.utf8(model[it][0]))
+
+
+        def on_epithet_entry_changed(self, entry, *args):
+            value = utils.utf8(entry.props.text)
+            if not value: # if None or ''
+                value = None
+            self.set_model_attr('epithet', value)
+
+
+        def on_author_entry_changed(self, entry, *args):
+            value = utils.utf8(entry.props.text)
+            if not value: # if None or ''
+                value = None
+            self.set_model_attr('author', value)
+
+
+
 class DistributionPresenter(editor.GenericEditorPresenter):
     """
     """
 
-    def __init__(self, species, view, session):
+    def __init__(self, parent):
         '''
-        @param species:
-        @param view:
-        @param session:
+        :param parent: the parent SpeciesEditorPresenter
         '''
-        super(DistributionPresenter, self).__init__(species, view)
-        self.session = session
+        super(DistributionPresenter, self).__init__(parent.model, parent.view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = parent.session
         self.__dirty = False
         self.add_menu = gtk.Menu()
         self.add_menu.attach_to_widget(self.view.widgets.sp_dist_add_button,
@@ -266,9 +404,9 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         self.remove_menu.popup(None, None, None, event.button, event.time)
 
 
-    def on_activate_add_menu_item(self, widget, id=None):
+    def on_activate_add_menu_item(self, widget, geoid=None):
         from bauble.plugins.plants.species_model import Geography
-        geo = self.session.query(Geography).filter_by(id=id).one()
+        geo = self.session.query(Geography).filter_by(id=geoid).one()
         # check that this geography isn't already in the distributions
         if geo in [d.geography for d in self.model.distribution]:
 #            debug('%s already in %s' % (geo, self.model))
@@ -278,7 +416,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
 #        debug([str(d) for d in self.model.distribution])
         self.__dirty = True
         self.refresh_view()
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_activate_remove_menu_item(self, widget, dist):
@@ -286,7 +424,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         utils.delete_or_expunge(dist)
         self.refresh_view()
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
 
 
     def dirty(self):
@@ -301,7 +439,7 @@ class DistributionPresenter(editor.GenericEditorPresenter):
         geos_hash = {}
         # TODO: i think the geo_hash should be calculated in an idle
         # function so that starting the editor isn't delayed while the
-        # hash is being build
+        # hash is being built
         for geo_id, name, parent_id in geos:
             try:
                 geos_hash[parent_id].append((geo_id, name))
@@ -323,31 +461,23 @@ class DistributionPresenter(editor.GenericEditorPresenter):
             except KeyError:
                 return False
 
-        def build_menu(id, name):
+        def build_menu(geo_id, name):
             item = gtk.MenuItem(name)
-            if not has_kids(id):
+            if not has_kids(geo_id):
                 if item.get_submenu() is None:
                     self.view.connect(item, 'activate',
-                                      self.on_activate_add_menu_item,id)
+                                      self.on_activate_add_menu_item, geo_id)
                 return item
 
             kids_added = False
             submenu = gtk.Menu()
             # removes two levels of kids with the same name, there must be a
             # better way to do this but i got tired of thinking about it
-            for kid_id, kid_name in get_kids(id):
-                if kid_name == name:
-                    for gk_id, gk_name in get_kids(kid_id):
-                        if gk_name == kid_name:
-                            for gk2_id, gk2_name in get_kids(gk_id):
-                                submenu.append(build_menu(gk2_id, gk2_name))
-                                kids_added = True
-                        else:
-                            submenu.append(build_menu(gk_id, gk_name))
-                            kids_added = True
-                else:
-                    submenu.append(build_menu(kid_id, kid_name))
-                    kids_added = True
+            kids = get_kids(geo_id)
+            if len(kids) > 0:
+                kids_added = True
+            for kid_id, kid_name in kids:#get_kids(geo_id):
+                submenu.append(build_menu(kid_id, kid_name))
 
             if kids_added:
                 sel_item = gtk.MenuItem(name)
@@ -355,10 +485,10 @@ class DistributionPresenter(editor.GenericEditorPresenter):
                 submenu.insert(gtk.SeparatorMenuItem(), 1)
                 item.set_submenu(submenu)
                 self.view.connect(sel_item, 'activate',
-                                  self.on_activate_add_menu_item,id)
+                                  self.on_activate_add_menu_item, geo_id)
             else:
                 self.view.connect(item, 'activate',
-                                  self.on_activate_add_menu_item, id)
+                                  self.on_activate_add_menu_item, geo_id)
             return item
 
         def populate():
@@ -396,16 +526,15 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
     more rely on the model in the TreeView which are VernacularName
     objects
     """
-    def __init__(self, species, view, session):
+    def __init__(self, parent):
         '''
-        @param model: a list of VernacularName objects
-        @param view:
-        @param session:
+        :param parent: the parent SpeciesEditorPresenter
         '''
-        super(VernacularNamePresenter, self).__init__(species, view)
-        self.session = session
+        super(VernacularNamePresenter, self).__init__(parent.model,parent.view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = parent.session
         self.__dirty = False
-        self.init_treeview(species.vernacular_names)
+        self.init_treeview(self.model.vernacular_names)
         self.view.connect('sp_vern_add_button', 'clicked',
                           self.on_add_button_clicked)
         self.view.connect('sp_vern_remove_button', 'clicked',
@@ -425,7 +554,6 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
         """
         treemodel = self.treeview.get_model()
         column = self.treeview.get_column(0)
-        cell = column.get_cell_renderers()[0]
         vn = VernacularName()
         self.model.vernacular_names.append(vn)
         treeiter = treemodel.append([vn])
@@ -462,7 +590,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
 #                 self.set_model_attr('default_vernacular_name',
 #                                     tree_model[first][0])
                 self.model.default_vernacular_name = treemodel[first][0]
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
         self.__dirty = True
 
 
@@ -475,7 +603,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             vn = self.treeview.get_model()[path][0]
             self.set_model_attr('default_vernacular_name', vn)
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
 
 
     def on_cell_edited(self, cell, path, new_text, prop):
@@ -485,7 +613,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             return  # didn't change
         setattr(vn, prop, utils.utf8(new_text))
         self.__dirty = True
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
 
 
     def init_treeview(self, model):
@@ -575,7 +703,7 @@ class VernacularNamePresenter(editor.GenericEditorPresenter):
             self.model.default_vernacular_name = value
             debug(self.model.default_vernacular_name)
             self.__dirty = True
-            self.view.set_accept_buttons_sensitive(True)
+            self.parent_ref().refresh_sensitivity()
         elif default_vernacular_name is None:
             return
 
@@ -585,24 +713,22 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
 
     PROBLEM_INVALID_SYNONYM = 1
 
-    def __init__(self, model, view, session):
+    def __init__(self, parent):
         '''
-        @param model: a Species instance
-        @param view: see GenericEditorPresenter
-        @param session:
+        :param parent: the parent SpeciesEditorPresenter
         '''
-        super(SynonymsPresenter, self).__init__(model, view)
-        self.session = session
+        super(SynonymsPresenter, self).__init__(parent.model, parent.view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = parent.session
         self.init_treeview()
-
+        debug(self.problems)
         # use completions_model as a dummy object for completions, we'll create
         # seperate SpeciesSynonym models on add
         completions_model = SpeciesSynonym()
         def sp_get_completions(text):
-            query = self.session.query(Species)
-            query = query.join('genus')
-            query = query.filter(utils.ilike(Genus.genus, '%s%%' % text))
-            query = query.filter(Species.id != self.model.id)
+            query = self.session.query(Species).join('genus').\
+                filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                filter(Species.id != self.model.id)
             return query
 
         def on_select(value):
@@ -631,27 +757,20 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         initialize the gtk.TreeView
         '''
         self.treeview = self.view.widgets.sp_syn_treeview
-        # remove any columns that were setup previous, this became a
-        # problem when we starting reusing the glade files with
-        # utils.BuilderLoader, the right way to do this would be to
-        # create the columns in glade instead of here
-        for col in self.treeview.get_columns():
-            self.treeview.remove_column(col)
 
         def _syn_data_func(column, cell, model, treeiter, data=None):
             v = model[treeiter][0]
-            #cell.set_property('text', str(v.synonym))
             cell.set_property('text', str(v))
             # just added so change the background color to indicate its new
-            if v.id is None:
+            if not hasattr(v, 'id') or v.id is None:
                 cell.set_property('foreground', 'blue')
             else:
                 cell.set_property('foreground', None)
-        cell = gtk.CellRendererText()
-        col = gtk.TreeViewColumn('Synonym', cell)
-        col.set_cell_data_func(cell, _syn_data_func)
-        self.treeview.append_column(col)
 
+        col = self.view.widgets.syn_column
+        col.set_cell_data_func(self.view.widgets.syn_cell, _syn_data_func)
+
+        utils.clear_model(self.treeview)
         tree_model = gtk.ListStore(object)
         for syn in self.model._synonyms:
             tree_model.append([syn])
@@ -688,7 +807,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
         self.view.widgets.sp_syn_add_button.set_sensitive(False)
-        self.view.set_accept_buttons_sensitive(True)
+        self.parent_ref().refresh_sensitivity()
         self.__dirty = True
 
 
@@ -733,7 +852,7 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             # tmp.session.close()
             # self.session.refresh(value)
             self.session.flush([value])
-            self.view.set_accept_buttons_sensitive(True)
+            self.parent_ref().refresh_sensitivity()
             self.__dirty = True
 
 
@@ -747,18 +866,11 @@ class SpeciesEditorView(editor.GenericEditorView):
         'sp_genus_entry': _('Genus '),
         'sp_species_entry': _('Species epithet'),
         'sp_author_entry': _('Species author'),
-        'sp_infra_rank_combo': _('First infraspecific rank'),
-        'sp_infra_entry': _('First infraspecific epithet'),
-        'sp_infra_author_entry': _('First infraspecific author'),
-        'sp_infra2_rank_combo': _('Second infraspecific rank'),
-        'sp_infra2_entry': _('Second infraspecific epithet'),
-        'sp_infra2_author_entry': _('Second infraspecific author'),
         'sp_hybrid_check': _('Species hybrid flag'),
         'sp_cvgroup_entry': _('Cultivar group'),
         'sp_spqual_combo': _('Species qualifier'),
-        'sp_notes_frame': _('Note'),
-        'sp_dist_box': _('Species distribution'),
-        'sp_vern_box': _('Vernacular names'),
+        'sp_dist_frame': _('Species distribution'),
+        'sp_vern_frame': _('Vernacular names'),
         'sp_syn_box': _('Species synonyms')
         }
 
@@ -919,7 +1031,6 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
@@ -929,7 +1040,6 @@ class SpeciesEditor(editor.GenericModelViewPresenterEditor):
                 #warning(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():

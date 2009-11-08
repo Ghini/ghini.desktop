@@ -16,7 +16,7 @@ import bauble.utils.desktop as desktop
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
 from bauble.prefs import prefs
-from bauble.utils.log import log, debug, warning, error
+from bauble.utils.log import debug, warning, error
 from bauble.view import SearchView
 import bauble.error as err
 
@@ -135,6 +135,7 @@ class GUI(object):
 
 
     def show_yesno_box(self, msg):
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_YESNO)
         box.message = msg
@@ -142,6 +143,7 @@ class GUI(object):
 
 
     def show_error_box(self, msg, details=None):
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
@@ -157,6 +159,7 @@ class GUI(object):
         """
         Show an info message in the message drop down box
         """
+        self.close_message_box()
         box = utils.add_message_box(self.widgets.msg_box_parent,
                                     utils.MESSAGE_BOX_INFO)
         box.message = msg
@@ -270,9 +273,9 @@ class GUI(object):
 
     def __get_title(self):
         if bauble.conn_name is None:
-            return '%s %s' % ('Bauble', bauble.version)
+            return '%s %s' % ('Bauble - UBC', bauble.version)
         else:
-            return '%s %s - %s' % ('Bauble', bauble.version,
+            return '%s %s - %s' % ('Bauble - UBC', bauble.version,
                                    bauble.conn_name)
     title = property(__get_title)
 

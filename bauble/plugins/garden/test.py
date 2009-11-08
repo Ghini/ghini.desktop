@@ -1,29 +1,36 @@
+import datetime
 import unittest
 
+import gtk
 from nose import SkipTest
 from sqlalchemy import *
 from sqlalchemy.exc import *
+from sqlalchemy.orm import *
 
+import bauble
 from bauble.error import CheckConditionError, check
 from bauble.test import BaubleTestCase, update_gui
 import bauble.utils as utils
 from bauble.utils.log import debug
 from bauble.plugins.garden.accession import Accession, AccessionEditor, \
-    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms
+    dms_to_decimal, decimal_to_dms, longitude_to_dms, latitude_to_dms, \
+    Verification, Voucher
 from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
 from bauble.plugins.garden.location import Location, LocationEditor
+from bauble.plugins.garden.propagation import Propagation, PropagationEditor, \
+    PropCutting, PropRooted, PropSeed
 from bauble.plugins.plants.family import Family
 from bauble.plugins.plants.genus import Genus
 from bauble.plugins.plants.species_model import Species
 import bauble.plugins.plants.test as plants_test
 from bauble.plugins.garden.institution import Institution, InstitutionEditor
+import bauble.prefs as prefs
 
 
-from datetime import datetime
 accession_test_data = ({'id':1 , 'code': u'1.1', 'species_id': 1,
-                        'date': datetime.today(),
+                        'date': datetime.date.today(),
                         'source_type': u'Donation'},
                        {'id':2 , 'code': u'2.2', 'species_id': 2,
                         'source_type': u'Collection'},
@@ -33,7 +40,8 @@ plant_test_data = ({'id':1 , 'code': u'1', 'accession_id': 1,
                     'location_id': 1},
                    )
 
-location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow'},
+location_test_data = ({'id': 1, 'name': u'Somewhere Over The Rainbow',
+                       'code': u'RBW'},
                       )
 
 donor_test_data = ({'id': 1, 'name': u'SomeDonor'},
@@ -162,7 +170,7 @@ class PlantTests(GardenTestCase):
     def setUp(self):
         super(PlantTests, self).setUp()
         self.accession = self.create(Accession, species=self.species,code=u'1')
-        self.location = self.create(Location, name=u'site')
+        self.location = self.create(Location, name=u'site', code=u'STE')
         self.plant = self.create(Plant, accession=self.accession,
                                  location=self.location, code=u'1')
         self.session.commit()
@@ -191,6 +199,102 @@ class PlantTests(GardenTestCase):
         pass
 
 
+    def test_editor_transfer(self):
+        """
+        """
+        # TODO: right now the test only shows adding a transfer to a
+        # plant but we need to be sure that transfers are appended if
+        # transfers already exist on the plant
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # delete any plants in the database
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        self.session.commit()
+
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
+        editor = PlantEditor(model=[p1, p2])
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        utils.set_widget_value(widgets.plant_action_combo, u'Transfer')
+        widgets.trans_to_comboentry.child.props.text = self.location.name
+        update_gui()
+
+        editor.handle_response(gtk.RESPONSE_OK)
+        for p in editor.plants:
+            # TODO: need to assert that the values of
+            # editor.presenter._transfer are equal to the transfer in
+            # the plant
+            self.assert_(len(p.transfers) > 0)
+        editor.presenter.cleanup()
+
+
+    def test_editor_removal(self):
+        """
+        """
+        # TODO: right now the test only shows adding a transfer to a
+        # plant but we need to be sure that transfers are appended if
+        # transfers already exist on the plant
+        # TODO: need to also test the the plants.removal was not set
+        try:
+            import gtk
+        except ImportError:
+            raise SkipTest('could not import gtk')
+
+        # delete any plants in the database
+        for plant in self.session.query(Plant):
+            self.session.delete(plant)
+        self.session.commit()
+
+        p1 = Plant(accession=self.accession, location=self.location, code=u'1')
+        p2 = Plant(accession=self.accession, location=self.location, code=u'2')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
+        editor = PlantEditor(model=[p1, p2])
+        update_gui()
+
+        widgets = editor.presenter.view.widgets
+        utils.set_widget_value(widgets.plant_action_combo, u'Removal')
+        utils.set_widget_value(widgets.rem_reason_combo, u'DEAD')
+        update_gui()
+
+        self.assert_(len(editor.presenter.problems)<1,
+                     'widgets have problems')
+
+        editor.handle_response(gtk.RESPONSE_OK)
+        for p in editor.plants:
+            # TODO: need to assert that the values of
+            # editor.presenter._transfer are equal to the transfer in
+            # the plant
+            #debug(p.removal)
+            self.assert_(p.removal)
+        editor.presenter.cleanup()
+
+
+    def test_editor_addnote(self):
+        raise SkipTest('Not Implemented')
+
+
+    def itest_editor(self):
+        p1 = Plant(accession=self.accession, location=self.location,
+                   code=u'52')
+        p2 = Plant(accession=self.accession, location=self.location,
+                   code=u'53')
+        self.accession.plants.append(p1)
+        self.accession.plants.append(p2)
+        plants = [p1, p2]
+        self.session.add_all(plants)
+        e = PlantEditor(plants)
+        e.start()
+
+
     def test_bulk_plant_editor(self):
         """
         Test creating multiple plants with the plant editor.
@@ -199,7 +303,7 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
-        editor = PlantEditor(model=self.plant)
+        editor = AddPlantEditor(model=self.plant)
         #editor.start()
         update_gui()
         rng = '2,3,4-6'
@@ -234,15 +338,15 @@ class PlantTests(GardenTestCase):
 
         editor.presenter.cleanup()
         del editor
-        assert utils.gc_objects_by_type('PlantEditor') == [], \
-            'PlantEditor not deleted'
-        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
-            'PlantEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('PlantEditorView') == [], \
-            'PlantEditorView not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditor') == [], \
+            'AddPlantEditor not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditorPresenter') == [], \
+            'AddPlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('AddPlantEditorView') == [], \
+            'AddPlantEditorView not deleted'
 
 
-    def itest_plant_editor(self):
+    def itest_add_editor(self):
         """
         Interactively test the PlantEditor
         """
@@ -253,12 +357,13 @@ class PlantTests(GardenTestCase):
         self.session.commit()
 
         #editor = PlantEditor(model=self.plant)
-        loc = Location(name=u'site1')
-        loc2 = Location(name=u'site2')
-        self.session.add_all([loc, loc2])
+        loc = Location(name=u'site1', code=u'1')
+        loc2 = Location(name=u'site2', code=u'2')
+        loc2a = Location(name=u'site2a', code=u'2a')
+        self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
         p = Plant(accession=self.accession, location=loc)
-        editor = PlantEditor(model=p)
+        editor = AddPlantEditor(model=p)
         editor.start()
         del editor
 
@@ -270,6 +375,242 @@ class PlantTests(GardenTestCase):
             'PlantEditorView not deleted'
 
 
+class PropagationTests(GardenTestCase):
+
+
+    def __init__(self, *args):
+        super(PropagationTests, self).__init__(*args)
+
+
+    def setUp(self):
+        super(PropagationTests, self).setUp()
+        # these default values have to be initialize in setUp() so
+        # that utils.today_str() will work
+        self.default_cutting_values = \
+            {'cutting_type': u'Nodal',
+             'length': 2,
+             'tip': u'Intact',
+             'leaves': u'Intact',
+             'leaves_reduced_pct': 25,
+             'flower_buds': u'None',
+             'wound': u'Single',
+             'fungicide': u'Physan',
+             'media': u'standard mix',
+             'container': u'4" pot',
+             'hormone': u'Auxin powder',
+             'cover': u'Poly cover',
+             'location': u'Mist frame',
+             'bottom_heat_temp': 65,
+             'bottom_heat_unit': u'F',
+             'rooted_pct': 90}
+        self.default_seed_values = \
+            {'pretreatment': u'Soaked in peroxide solution',
+             'nseeds': 24,
+             'date_sown': utils.today_str(),
+             'container': u"tray",
+             'media': u'standard seed compost',
+             'location': u'mist tent',
+             'moved_from': u'mist tent',
+             'moved_to': u'hardening table',
+             'media': u'standard mix',
+             'germ_date': utils.today_str(),
+             'germ_pct': 99,
+             'nseedlings': 23,
+             'date_planted': utils.today_str()}
+        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.session.commit()
+
+
+    def tearDown(self):
+        super(PropagationTests, self).tearDown()
+
+    def get_default_cutting(self):
+        cutting = PropCutting()
+        for attr, value in self.default_cutting_values.iteritems():
+            setattr(cutting, attr, value)
+        return cutting
+
+    def get_default_seed(self):
+        seed = PropSeed()
+        for attr, value in self.default_seed_values.iteritems():
+            setattr(seed, attr, value)
+        return seed
+
+
+    def test_get_summary(self):
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        prop.accession = self.accession
+        cutting = self.get_default_cutting()
+        cutting.propagation = prop
+        rooted = PropRooted()
+        rooted.cutting = cutting
+        self.session.commit()
+        summary = prop.get_summary()
+        #debug(summary)
+        self.assert_(summary)
+
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.accession = self.accession
+        seed = self.get_default_seed()
+        seed.propagation = prop
+        self.session.commit()
+        summary = prop.get_summary()
+        #debug(summary)
+        self.assert_(summary)
+
+
+    def test_cutting_property(self):
+        prop = Propagation()
+        prop.prop_type = u'UnrootedCutting'
+        prop.accession = self.accession
+        cutting = self.get_default_cutting()
+        cutting.propagation = prop
+        rooted = PropRooted()
+        rooted.cutting = cutting
+        self.session.commit()
+
+        self.assert_(rooted in prop._cutting.rooted)
+
+        rooted_id = rooted.id
+        cutting_id = cutting.id
+        self.assert_(rooted_id, 'no prop_rooted.id')
+
+        # setting the _cutting property on Propagation should cause
+        # the cutting and its rooted children to be deleted
+        prop._cutting = None
+        self.session.commit()
+        self.assert_(not self.session.query(PropCutting).get(cutting_id))
+        self.assert_(not self.session.query(PropRooted).get(rooted_id))
+
+
+    def test_seed_property(self):
+        prop = Propagation()
+        prop.prop_type = u'Seed'
+        prop.accession = self.accession
+        seed = self.get_default_seed()
+        seed.propagation = prop
+        self.session.commit()
+
+        self.assert_(seed == prop._seed)
+        seed_id = seed.id
+
+        # this should cause the cutting and its rooted children to be deleted
+        prop._seed = None
+        self.session.commit()
+        self.assert_(not self.session.query(PropSeed).get(seed_id))
+
+
+    def test_cutting_editor(self):
+        propagation = Propagation()
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        widgets = editor.presenter.view.widgets
+        view = editor.presenter.view
+        view.set_widget_value('prop_type_combo', u'UnrootedCutting')
+        view.set_widget_value('prop_date_entry', utils.today_str())
+        cutting_presenter = editor.presenter._cutting_presenter
+        for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+            #debug('%s=%s' % (widget, self.default_cutting_values[attr]))
+            view.set_widget_value(widget, self.default_cutting_values[attr])
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.presenter.cleanup()
+        editor.commit_changes()
+        model = editor.model
+        s = object_session(model)
+        s.expire(model)
+        self.assert_(model.prop_type == u'UnrootedCutting')
+        for attr, value in self.default_cutting_values.iteritems():
+            v = getattr(model._cutting, attr)
+            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+        editor.session.close()
+
+
+    def test_seed_editor(self):
+        propagation = Propagation()
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        widgets = editor.presenter.view.widgets
+        view = editor.presenter.view
+        view.set_widget_value('prop_type_combo', u'Seed')
+        view.set_widget_value('prop_date_entry', utils.today_str())
+        cutting_presenter = editor.presenter._seed_presenter
+        for widget, attr in cutting_presenter.widget_to_field_map.iteritems():
+            w = widgets[widget]
+            if isinstance(w, gtk.ComboBoxEntry) and not w.get_model():
+                widgets[widget].child.props.text = \
+                    self.default_seed_values[attr]
+            view.set_widget_value(widget, self.default_seed_values[attr])
+        update_gui()
+        editor.handle_response(gtk.RESPONSE_OK)
+        editor.presenter.cleanup()
+        model = editor.model
+        s = object_session(model)
+        editor.commit_changes()
+        s.expire(model)
+        self.assert_(model.prop_type == u'Seed')
+        for attr, value in self.default_seed_values.iteritems():
+            v = getattr(model._seed, attr)
+            if isinstance(v, datetime.date):
+                format = prefs.prefs[prefs.date_format_pref]
+                v = v.strftime(format)
+            self.assert_(v==value, '%s = %s(%s)' % (attr, value, v))
+        editor.session.close()
+
+
+
+    def itest_editor(self):
+        from bauble.plugins.garden.propagation import PropagationEditor
+        propagation = Propagation()
+        #propagation.prop_type = u'UnrootedCutting'
+        propagation.accession = self.accession
+        editor = PropagationEditor(model=propagation)
+        propagation = editor.start()
+        debug(propagation)
+        self.assert_(propagation.accession)
+
+
+
+class VoucherTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(VoucherTests, self).__init__(*args)
+
+    def setUp(self):
+        super(VoucherTests, self).setUp()
+        self.accession = self.create(Accession, species=self.species,code=u'1')
+        self.session.commit()
+
+    def tearDown(self):
+        super(VoucherTests, self).tearDown()
+
+    def test_voucher(self):
+        """
+        Test the Accession.voucher property
+        """
+        voucher = Voucher(herbarium=u'ABC', code=u'1234567')
+        voucher.accession = self.accession
+        self.session.commit()
+        voucher_id = voucher.id
+        self.accession.vouchers.remove(voucher)
+        self.session.commit()
+        self.assert_(not self.session.query(Voucher).get(voucher_id))
+
+        # test that if we set voucher.accession to None then the
+        # voucher is deleted but not the accession
+        voucher = Voucher(herbarium=u'ABC', code=u'1234567')
+        voucher.accession = self.accession
+        self.session.commit()
+        voucher_id = voucher.id
+        acc_id = voucher.accession.id
+        voucher.accession = None
+        self.session.commit()
+        self.assert_(not self.session.query(Voucher).get(voucher_id))
+        self.assert_(self.session.query(Accession).get(acc_id))
+
+
 class AccessionTests(GardenTestCase):
 
     def __init__(self, *args):
@@ -277,7 +618,6 @@ class AccessionTests(GardenTestCase):
 
     def setUp(self):
         super(AccessionTests, self).setUp()
-
 
     def tearDown(self):
         super(AccessionTests, self).tearDown()
@@ -305,9 +645,9 @@ class AccessionTests(GardenTestCase):
         # here species.infrasp is None but we still allow the string
         acc.id_qual = 'cf.'
         acc.id_qual_rank = 'infrasp'
-        s = 'gen sp cf. None'
+        s = 'gen sp cf.'#' None'
         sp_str = acc.species_str()
-        self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
+        self.assert_(s == sp_str, '%s == %s' % (s, sp_str))
 
         # species.infrasp is still none but these just get pasted on
         # the end so it doesn't matter
@@ -323,8 +663,7 @@ class AccessionTests(GardenTestCase):
         sp_str = acc.species_str()
         self.assert_(s == sp_str, '%s == %s' %(s, sp_str))
 
-        acc.species.infrasp_rank = u'cv.'
-        acc.species.infrasp = u'Cultivar'
+        acc.species.set_infrasp(1, u'cv.', u'Cultivar')
         acc.id_qual = u'cf.'
         acc.id_qual_rank = u'infrasp'
         s = "gen sp cf. 'Cultivar'"
@@ -356,7 +695,8 @@ class AccessionTests(GardenTestCase):
         """
         acc = self.create(Accession, species=self.species, code=u'1')
         plant = self.create(Plant, accession=acc,
-                            location=Location(name=u'site'), code=u'1')
+                            location=Location(name=u'site', code=u'STE'),
+                            code=u'1')
         self.session.commit()
 
         # test that the plant is deleted after being orphaned
@@ -525,7 +865,6 @@ class AccessionTests(GardenTestCase):
 
         The bug is here just to check if this ever gets fixed.
         """
-        import bauble.utils.log as log
         sp = self.session.query(Species).get(1)
         acc = Accession()
         self.session.add(acc)
@@ -589,22 +928,35 @@ class AccessionTests(GardenTestCase):
             'AccessionEditorView not deleted'
 
 
-    def itest_accession_editor(self):
+    def itest_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the AccessionEditor
         """
         donor = self.create(Donor, name=u'test')
         sp2 = Species(genus=self.genus, sp=u'species')
         sp2.synonyms.append(self.species)
         self.session.add(sp2)
         self.session.commit()
-        acc = self.create(Accession, species=self.species, code=u'1')
+        acc_code = '%s%s1' % (datetime.date.today().year,
+                               Plant.get_delimiter())
+        acc = self.create(Accession, species=self.species, code=acc_code)
+        voucher = Voucher(herbarium=u'abcd', code=u'123')
+        acc.vouchers.append(voucher)
         prev = 0
         def mem(size="rss"):
             """Generalization; memory sizes: rss, rsz, vsz."""
             import os
             return int(os.popen('ps -p %d -o %s | tail -1' % \
                                     (os.getpid(), size)).read())
+
+        # add verificaiton
+        ver = Verification()
+        ver.verifier = u'me'
+        ver.date = datetime.date.today()
+        ver.prev_species = self.species
+        ver.species = self.species
+        ver.level = 1
+        acc.verifications.append(ver)
 
         #editor = AccessionEditor(model=acc)
         # try:
@@ -616,7 +968,8 @@ class AccessionTests(GardenTestCase):
         # return
         editor = None
         for x in range(0, 1):
-            editor = AccessionEditor(model=acc)
+            #editor = AccessionEditor(model=acc)
+            editor = AccessionEditor()
             editor.start()
             del editor
             leak = mem()
@@ -624,14 +977,46 @@ class AccessionTests(GardenTestCase):
             prev = leak
             #debug(mem())
 
-        debug(utils.gc_objects_by_type('XML'))
-
         assert utils.gc_objects_by_type('AccessionEditor') == [], \
             'AccessionEditor not deleted'
         assert utils.gc_objects_by_type('AccessionEditorPresenter') == [], \
             'AccessionEditorPresenter not deleted'
         assert utils.gc_objects_by_type('AccessionEditorView') == [], \
             'AccessionEditorView not deleted'
+
+
+class VerificationTests(GardenTestCase):
+
+    def __init__(self, *args):
+        super(VerificationTests, self).__init__(*args)
+
+    def setUp(self):
+        super(VerificationTests, self).setUp()
+
+    def tearDown(self):
+        super(VerificationTests, self).tearDown()
+
+
+    def test_verifications(self):
+        acc = self.create(Accession, species=self.species, code=u'1')
+        self.session.add(acc)
+        self.session.commit()
+
+        ver =  Verification()
+        ver.verifier = u'me'
+        ver.date = datetime.date.today()
+        ver.level = 1
+        ver.species = acc.species
+        ver.prev_species = acc.species
+        acc.verifications.append(ver)
+        try:
+            self.session.commit()
+        except Exception, e:
+            debug(e)
+            self.session.rollback()
+        self.assert_(ver in acc.verifications)
+        self.assert_(ver in self.session)
+
 
 
 class LocationTests(GardenTestCase):
@@ -649,16 +1034,15 @@ class LocationTests(GardenTestCase):
 
     def test_location_editor(self):
         #loc = self.create(Location, name=u'some site')
-        loc = Location(name=u'some site')
+        loc = Location(name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         #editor.presenter.view.dialog.hide_all()
         update_gui()
         widgets = editor.presenter.view.widgets
 
-        # test that the accept buttons are sensitive the text in the
-        # entry and the model.site are the same...and that the accept
-        # buttons are sensitive
-        assert widgets.loc_name_entry.get_text() == loc.name
+        # test that the accept buttons are sensitive and the text
+        # entries and model are the same
+        assert widgets.loc_name_entry.get_text() == loc.code
         assert widgets.loc_ok_button.props.sensitive
         assert widgets.loc_ok_and_add_button.props.sensitive
         assert widgets.loc_next_button.props.sensitive
@@ -680,7 +1064,7 @@ class LocationTests(GardenTestCase):
         assert not widgets.loc_next_button.props.sensitive
 
         # commit the changes and cleanup
-        editor.model.name = u'asda'
+        editor.model.name = editor.model.code = u'asda'
         editor.handle_response(gtk.RESPONSE_OK)
         editor.session.close()
         editor.presenter.cleanup()
@@ -694,11 +1078,11 @@ class LocationTests(GardenTestCase):
             'LocationEditorView not deleted'
 
 
-    def itest_location_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantEditor
         """
-        loc = self.create(Location, name=u'some site')
+        loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
         editor.start()
         del editor

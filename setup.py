@@ -94,7 +94,7 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
                 "libgmodule-2.0-0.dll", "libgobject-2.0-0.dll",
                 "libgthread-2.0-0.dll", "libgtk-win32-2.0-0.dll",
                 "libpango-1.0-0.dll", "libpangowin32-1.0-0.dll",
-                "libxml2", "libglade-2.0-0", "zlib1"]
+                "libxml2", "zlib1"]
         }
     }
 
@@ -139,6 +139,12 @@ if sys.platform == 'win32' and sys.argv[1] in ('nsis', 'py2exe'):
             cmd = 'call "%s" > "%s"' % (exe, dest)
             print cmd
             os.system(cmd)
+
+            # copy the the MS-Windows gtkrc to make it the default theme
+            rc = '%s\\share\\themes\\MS-Windows\\gtk-2.0\\gtkrc' % dist_gtk
+            dest = '%s\\etc\\gtk-2.0' % dist_gtk
+            file_util.copy_file(rc, dest)
+
 
     class nsis_cmd(Command):
         # 1. copy the gtk dist to the dist directory
@@ -374,7 +380,7 @@ except ImportError:
 # TODO: images in bauble/images should really be in data and copied as
 # package_data or data_files
 
-setuptools.setup(name="bauble",
+setuptools.setup(name="bauble-ubc",
                  cmdclass={'build': build, 'install': install,
                            'py2exe': py2exe_cmd, 'nsis': nsis_cmd,
                            'docs': docs, 'clean': clean,
@@ -389,7 +395,8 @@ setuptools.setup(name="bauble",
                                    "lxml",#==2.1.1",
                                    "mako>=0.2.2",
                                    "gdata>=1.2.4",
-                                   "fibra==0.0.17"] + needs_sqlite,
+                                   "fibra==0.0.17",
+                                   'python-dateutil'] + needs_sqlite,
                  test_suite="nose.collector",
                  author="Brett Adams",
                  author_email="brett@belizebotanic.org",

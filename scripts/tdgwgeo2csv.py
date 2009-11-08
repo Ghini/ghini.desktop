@@ -3,18 +3,23 @@
 # tdwggeo2csv.py
 #
 # Description: convert TDWG plant distribution files out of the box to a single
-# CSV file 
-#
-# NOTE: the only pre processing that has to be done to the files
-# is to convert them to UTF-8, for some reason i have problems trying to
-# convert from ISO-8859-1, probably b/c i don't completely understand unicode
+# CSV file
 #
 
-# TODO: should create new id's for each entry and have a tdwg_code for each
-# so we can maintain as much data as possbible
+# TODO: should create new id's for each entry and have a tdwg_code for
+# each so we can maintain as much data as possbible
 
-import os, sys, re, codecs
-import csv
+# TODO: we should probably include the original text files in bauble
+# and run the conversion script on build
+
+# TODO: add a notes column to geography so we carry over the extra
+# geography data(kew regions, notes, etc.) and so that we can add
+# notes to them in bauble
+
+import codecs
+import os
+import re
+from optparse import OptionParser
 
 # l1 - Continent, tblLevel1.txt, UTF-8
 # l2 - Region, tblLevel2.txt, UTF-8
@@ -22,25 +27,34 @@ import csv
 # l4 - BaseUnit, tblLevel4.txt, ISO-8859-15
 # gazette (places), tblGazette.txt, ISO-8859-15
 
-cwd, _dummy = os.path.split(__file__)
-src_dir = os.path.join(cwd, os.pardir, "data", "tdwg-geo")
-out_dir = os.path.join(cwd, os.pardir, "data", "tdwg-geo")
+parser = OptionParser()
+parser.add_option('-d', '--directory', dest='directory',
+                  help='directory of WGS txt files', metavar='DIR')
 
-class Reader:
+(options, args) = parser.parse_args()
+if not options.directory:
+    parser.error('directory required')
+
+cwd, _dummy = os.path.split(__file__)
+src_dir = options.directory
+
+class Reader(object):
+
     def __init__(self, filename, encoding='utf8'):
         self.file = codecs.open(filename, "r", encoding)
         self.headers = self.file.next().strip().split('*')
         s = ""
+        # sanitize the column headers
         for h in self.headers:
             h2 = h.replace(' ', '_')
             s += '(?P<%s>.*?)\*' % h2
         s = s[:-2] + '$'#        print s
         self.line_rx = re.compile(s)
-        
-        
-    def group(self, line):    
+
+
+    def group(self, line):
         m = self.line_rx.match(line.strip())
-        if m is None:            
+        if m is None:
             raise ValueError("could not match:\n%s\n%s" % \
                 (unicode(line), (unicode(s))))
         return m.groupdict()
@@ -49,12 +63,12 @@ class Reader:
     def __iter__(self):
         return self
 
-    
+
     def next(self):
         line = self.file.next()
         # remove the stupid ,00 decimals at the end of the integers
-        #line = self.file.next().replace(',00','')        
-        return self.group(line)            
+        #line = self.file.next().replace(',00','')
+        return self.group(line)
 
 
 
@@ -115,9 +129,9 @@ def convert_level2():
         print r.csv()
         id_ctr+=1
 
-        
+
 def convert_level3():
-    global converted_data, id_ctr    
+    global converted_data, id_ctr
     reader = Reader(os.path.join(src_dir, 'tblLevel3.txt'), 'iso-8859-15')
     for line in reader:
         r = Row(id=str(id_ctr), name=line['L3_area'],
@@ -130,9 +144,12 @@ def convert_level3():
 
 
 def convert_level4():
-    global converted_data, id_ctr    
+    global converted_data, id_ctr
     reader = Reader(os.path.join(src_dir, 'tblLevel4.txt'), 'iso-8859-15')
     for line in reader:
+        # skip redundant lines from level 3
+        if line['L4_code'].endswith('-OO'):
+            continue
         r = Row(id=str(id_ctr), name=line['L4_country'],
                 tdwg_code=line['L4_code'], iso_code=line['L4_ISOcode'])
         r.parent_id = converted_rows[line['L3_code']]['id']
@@ -142,9 +159,17 @@ def convert_level4():
 
 
 def convert_gazetteer():
-    global converted_data, id_ctr    
+    global converted_data, id_ctr
     reader = Reader(os.path.join(src_dir, 'tblGazetteer.txt'), 'iso-8859-15')
     for line in reader:
+        # try to only include those things that are unique to the gazeteer
+        if line['L3_code'] in converted_rows and \
+                converted_rows[line['L3_code']]['name'] == line['Gazetteer']:
+            continue
+        elif line['L4_code'] in converted_rows and \
+                converted_rows[line['L4_code']]['name'] == line['Gazetteer']:
+            continue
+
         # TODO: create two rows, one for the gazetteer data and one for the
         # kew data
         r = Row(id=str(id_ctr), name=line['Gazetteer'],
@@ -172,12 +197,11 @@ def convert_gazetteer():
                     except KeyError, e:
                         pass
 
-        # throw out anyting from the gazetteer that doesn't have a parent
-        if r.parent_id is not None:
-            converted_rows[line['ID']] = r
-            print r.csv()
-            id_ctr+=1
-              
+        # add the converted rows and print out the csv line
+        converted_rows[line['ID']] = r
+        print r.csv()
+        id_ctr+=1
+
 
 def main():
     global id_ctr, converted_rows
@@ -190,10 +214,10 @@ def main():
     convert_gazetteer()
 
     print Row(id='%s' % id_ctr, name='Cultivated').csv()
-    id_ctr +=1 
+    id_ctr +=1
 
-                        
+
 
 if __name__ == "__main__":
     main()
-    
+

@@ -19,7 +19,7 @@ import bauble.utils.desktop as desktop
 from datetime import datetime
 import bauble.utils as utils
 from bauble.utils.log import debug
-from bauble.types import Enum
+import bauble.types as types
 from bauble.prefs import prefs
 from bauble.view import Action
 
@@ -124,15 +124,15 @@ class Family(db.Base):
     """
     __tablename__ = 'family'
     __table_args__ = (UniqueConstraint('family', 'qualifier'), {})
-    __mapper_args = {'order_by': ['family', 'qualifier']}
+    __mapper_args__ = {'order_by': ['Family.family', 'Family.qualifier']}
 
     # columns
     family = Column(String(45), nullable=False, index=True)
 
     # we use the blank string here instead of None so that the
     # contrains will work properly,
-    qualifier = Column(Enum(values=['s. lat.', 's. str.', '']), default=u'')
-    notes = Column(UnicodeText)
+    qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
+                       default=u'')
 
     # relations
     synonyms = association_proxy('_synonyms', 'synonym')
@@ -159,6 +159,22 @@ class Family(db.Base):
         else:
             return ' '.join([s for s in [family.family,
                                     family.qualifier] if s not in (None,'')])
+
+
+
+class FamilyNote(db.Base):
+    """
+    Notes for the family table
+    """
+    __tablename__ = 'family_note'
+
+    date = Column(types.DateTime, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    family_id = Column(Integer, ForeignKey('family.id'), nullable=False)
+    family = relation('Family', uselist=False,
+                      backref=backref('notes', cascade='all, delete-orphan'))
 
 
 
@@ -212,7 +228,6 @@ class FamilyEditorView(editor.GenericEditorView):
         'fam_qualifier_combo': _('The family qualifier helps to remove '
                                  'ambiguities that might be associated with '
                                  'this family name'),
-        'fam_notes_textview': _('Miscelleanous notes about this family.'),
         'fam_syn_box': _('A list of synonyms for this family.\n\nTo add a '
                          'synonym enter a family name and select one from the '
                          'list of completions.  Then click Add to add it to '\
@@ -234,13 +249,15 @@ class FamilyEditorView(editor.GenericEditorView):
 
 
     def save_state(self):
-        prefs[self.syn_expanded_pref] = \
-                                self.widgets.fam_syn_expander.get_expanded()
+        # prefs[self.syn_expanded_pref] = \
+        #                         self.widgets.fam_syn_expander.get_expanded()
+        pass
 
 
     def restore_state(self):
-        expanded = prefs.get(self.syn_expanded_pref, True)
-        self.widgets.fam_syn_expander.set_expanded(expanded)
+        # expanded = prefs.get(self.syn_expanded_pref, True)
+        # self.widgets.fam_syn_expander.set_expanded(expanded)
+        pass
 
 
     def get_window(self):
@@ -263,8 +280,7 @@ class FamilyEditorView(editor.GenericEditorView):
 class FamilyEditorPresenter(editor.GenericEditorPresenter):
 
     widget_to_field_map = {'fam_family_entry': 'family',
-                           'fam_qualifier_combo': 'qualifier',
-                           'fam_notes_textview': 'notes'}
+                           'fam_qualifier_combo': 'qualifier'}
 
     def __init__(self, model, view):
         '''
@@ -281,9 +297,14 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.refresh_view() # put model values in view
 
         # connect signals
-        self.assign_simple_handler('fam_family_entry', 'family')
+        self.assign_simple_handler('fam_family_entry', 'family',
+                                   editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('fam_qualifier_combo', 'qualifier')
-        self.assign_simple_handler('fam_notes_textview', 'notes')
+
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes', notes_parent)
 
         # for each widget register a signal handler to be notified when the
         # value in the widget changes, that way we can do things like sensitize
@@ -291,18 +312,25 @@ class FamilyEditorPresenter(editor.GenericEditorPresenter):
         self.__dirty = False
 
 
+    def refresh_sensitivity(self):
+        # TODO: check widgets for problems
+        sensitive = False
+        if self.dirty() and self.model.family:
+            sensitive = True
+        self.view.set_accept_buttons_sensitive(sensitive)
+
+
     def set_model_attr(self, field, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (field, value))
         super(FamilyEditorPresenter, self).set_model_attr(field, value,
                                                           validator)
         self.__dirty = True
-        sensitive = self.model.family and True or False
-        self.view.set_accept_buttons_sensitive(sensitive)
+        self.refresh_sensitivity()
 
 
     def dirty(self):
         return self.__dirty or self.session.is_modified(self.model) or \
-            self.synonyms_presenter.dirty()
+            self.synonyms_presenter.dirty() or self.notes_presenter.dirty()
 
 
     def refresh_view(self):
@@ -352,7 +380,6 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self._selected = value
         self.assign_completions_handler('fam_syn_entry', fam_get_completions,
                                         on_select=on_select)
-
         self.view.connect('fam_syn_add_button', 'clicked',
                           self.on_add_button_clicked)
         self.view.connect('fam_syn_remove_button', 'clicked',
@@ -425,8 +452,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
         entry.set_position(-1)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
         self.view.widgets.fam_syn_add_button.set_sensitive(False)
-        self.view.set_accept_buttons_sensitive(True)
         self.__dirty = True
+        self.refresh_sensitivity()
 
 
     def on_remove_button_clicked(self, button, data=None):
@@ -450,8 +477,8 @@ class SynonymsPresenter(editor.GenericEditorPresenter):
             self.model.synonyms.remove(value.synonym)
             utils.delete_or_expunge(value)
             self.session.flush([value])
-            self.view.set_accept_buttons_sensitive(True)
             self.__dirty = True
+            self.refresh_sensitivity()
 
 
 class FamilyEditor(editor.GenericModelViewPresenterEditor):
@@ -506,7 +533,6 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(e.orig)
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the ' \
@@ -514,9 +540,9 @@ class FamilyEditor(editor.GenericModelViewPresenterEditor):
                       utils.xml_safe_utf8(e)
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
-        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or not self.presenter.dirty():
+        elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) or \
+                not self.presenter.dirty():
             self.session.rollback()
             return True
         else:
@@ -714,26 +740,6 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.fam_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('fam_notes_data', row.notes)
-
-
-
 class LinksExpander(InfoExpander):
 
     def __init__(self):
@@ -805,8 +811,6 @@ class FamilyInfoBox(InfoBox):
         self.add_expander(self.general)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -824,10 +828,9 @@ class FamilyInfoBox(InfoBox):
         '''
         self.general.update(row)
         self.synonyms.update(row)
-        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
 
-__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
-           'family_context_menu', 'family_markup_func']
+#__all__ = ['Family', 'FamilyEditor', 'FamilySynonym', 'FamilyInfoBox',
+#           'family_context_menu', 'family_markup_func']

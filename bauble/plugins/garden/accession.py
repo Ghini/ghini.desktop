@@ -3,23 +3,24 @@
 #
 # accessions module
 #
-
-import sys
-import re
-import os
-import weakref
-import traceback
-from random import random
-from datetime import datetime
-import xml.sax.saxutils as saxutils
+import datetime
 from decimal import Decimal, ROUND_DOWN
+import os
+import re
+from random import random
+import sys
+import traceback
+import weakref
+import xml.sax.saxutils as saxutils
 
 import gtk
 import gobject
+import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
+
 
 import bauble
 import bauble.db as db
@@ -28,13 +29,16 @@ import bauble.utils as utils
 import bauble.paths as paths
 import bauble.editor as editor
 from bauble.utils.log import debug
-from bauble.prefs import prefs
+import bauble.prefs as prefs
 from bauble.error import CommitException
 import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 from bauble.plugins.garden.donor import Donor
-
+from bauble.plugins.garden.propagation import Propagation, \
+    PropagationTabPresenter
+from bauble.plugins.garden.source import CollectionPresenter, \
+    DonationPresenter
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -102,6 +106,38 @@ def dms_to_decimal(dir, deg, min, sec, precision=6):
     return dec.quantize(nplaces)
 
 
+def get_next_code():
+    """
+    Return the next available accession code.  This function should be
+    specific to the institution.
+
+    At the moment it assumes that you are using an accession code of
+    the format: YYYY.CCCC where YYYY is the four digit year and CCCC
+    is the four digit code left filled with zeroes
+
+    If there is an error getting the next code the None is returned.
+    """
+    # auto generate/increment the accession code
+    session = bauble.Session()
+    year = str(datetime.date.today().year)
+    start = '%s%s' % (year, Plant.get_delimiter())
+    q = session.query(Accession.code).\
+        filter(Accession.code.startswith(start))
+    next = None
+    try:
+        if q.count() > 0:
+            codes = [int(code[0][len(start):]) for code in q]
+            next = '%s%s' % (start, str(max(codes)+1).zfill(4))
+        else:
+            next = '%s%s0001' % (datetime.date.today().year,
+                                 Plant.get_delimiter())
+    except Exception, e:
+        debug('exception')
+        debug(e)
+        pass
+    finally:
+        session.close()
+    return next
 
 def edit_callback(accessions):
     e = AccessionEditor(model=accessions[0])
@@ -109,7 +145,7 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    e = PlantEditor(model=Plant(accession=accessions[0]))
+    e = AddPlantEditor(model=Plant(accession=accessions[0]))
     return e.start()
 
 
@@ -171,6 +207,18 @@ def acc_markup_func(acc):
     #ver_lit = StringCol(default=None) # verification lit
     #ver_id = IntCol(default=None) # ?? # verifier's ID??
 
+ver_level_descriptions = \
+    {0: _('The name of the record has not been checked by any authority.'),
+     1: _('The name of the record determined by comparison with other '\
+              'named plants.'),
+     2: _('The name of the record determined by a taxonomist or by other '\
+              'competent persons using herbarium and/or library and/or '\
+              ' documented living material.'),
+     3: _('The name of the plant determined by taxonomist engaged in ' \
+              'systematic revision of the group.'),
+     4: _('The record is part of type gathering or propagated from type '\
+              'material by asexual methods.')}
+
 class Verification(db.Base):
     """Verification table (verification)
 
@@ -189,15 +237,52 @@ class Verification(db.Base):
 
     """
     __tablename__ = 'verification'
+    __mapper_args__ = {'order_by': 'date'}
 
     # columns
-    verifier = Column('verifier', Unicode(64))
-    date = Column(types.Date)
-    literature = Column(UnicodeText) # citation?
-    level = Column(Text)# i don't know what this is..certainty maybe?
-    accession_id = Column(Integer, ForeignKey('accession.id'))
+    verifier = Column(Unicode(64), nullable=False)
+    date = Column(types.Date, nullable=False)
+    reference = Column(UnicodeText)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+
+    # the level of assurance of this verification
+    level = Column(Integer, nullable=False)
+
+    # what it was verified as
+    species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+
+    # what it was verified from
+    prev_species_id = Column(Integer, ForeignKey('species.id'), nullable=False)
+
+    species = relation('Species',
+                       primaryjoin='Verification.species_id==Species.id')
+    prev_species = relation('Species',
+                        primaryjoin='Verification.prev_species_id==Species.id')
+
+    notes = Column(UnicodeText)
 
 
+
+# TODO: auto add parent voucher if accession is a propagule of an
+# existing accession and that parent accession has vouchers...or at
+# least display them in the Voucher tab and Infobox
+herbarium_codes = {}
+
+class Voucher(db.Base):
+    """
+    """
+    __tablename__ = 'voucher'
+    herbarium = Column(Unicode(5), nullable=False)
+    code = Column(Unicode(32), nullable=False)
+    parent_material = Column(Boolean, default=False)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+
+    # accession  = relation('Accession', uselist=False,
+    #                       backref=backref('vouchers',
+    #                                       cascade='all, delete-orphan'))
+
+
+# invalidate an accessions string cache after it has been updated
 class AccessionMapperExtension(MapperExtension):
 
     def after_update(self, mapper, conn, instance):
@@ -224,6 +309,22 @@ wild_prov_status_values = {u'WildNative': _("Wild native"),
 source_type_values = {u'Collection': _('Collection'),
                       u'Donation': _('Donation'),
                       None: _('')}
+
+class AccessionNote(db.Base):
+    """
+    Notes for the accession table
+    """
+    __tablename__ = 'accession_note'
+    __mapper_args__ = {'order_by': 'accession_note.date'}
+
+    date = Column(types.DateTime, nullable=False)
+    user = Column(Unicode(64))
+    category = Column(Unicode(32))
+    note = Column(UnicodeText, nullable=False)
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
+    accession = relation('Accession', uselist=False,
+                       backref=backref('notes', cascade='all, delete-orphan'))
+
 
 class Accession(db.Base):
     """
@@ -267,9 +368,6 @@ class Accession(db.Base):
 
                 * Donation: indicates that self.source points to a
                   :class:`bauble.plugins.garden.Donation`
-
-        *notes*: :class:`sqlalchemy.types.UnicodeText`
-            Notes relating to this accession.
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -334,7 +432,6 @@ class Accession(db.Base):
     date = Column(types.Date)
     source_type = Column(types.Enum(values=source_type_values.keys()),
                          default=None)
-    notes = Column(UnicodeText)
 
     # "id_qual" new in 0.7
     id_qual = Column(types.Enum(values=['aff.', 'cf.', 'incorrect',
@@ -373,7 +470,11 @@ class Accession(db.Base):
                       backref=backref('accession', uselist=False))
     verifications = relation('Verification', #order_by='date',
                              cascade='all, delete-orphan',
-                             backref='accession')
+                             backref=backref('accession', uselist=False))
+    vouchers = relation('Voucher', cascade='all, delete-orphan',
+                        backref=backref('accession', uselist=False))
+    propagations = relation('Propagation', cascade='all, delete-orphan',
+                            backref=backref('accession', uselist=False))
 
 
     def __init__(self, *args, **kwargs):
@@ -408,7 +509,8 @@ class Accession(db.Base):
         built even if the species hasn't been changeq since the last call
         to this method.
         """
-        # TODO: should we be using sesssion.is_modified() here
+        # WARNING: don't use session.is_modified() here because it
+        # will query lots of dependencies
         try:
             cached = self.__cached_species_str[(markup, authors)]
         except KeyError:
@@ -442,7 +544,7 @@ class Accession(db.Base):
 
         # generate the string
         if self.id_qual in ('aff.', 'cf.'):
-            if species.infrasp_rank == 'cv.' and self.id_qual_rank=='infrasp':
+            if self.id_qual_rank=='infrasp':
                 species.sp = '%s %s' % (species.sp, self.id_qual)
             elif self.id_qual_rank:
                 setattr(species, self.id_qual_rank,
@@ -509,14 +611,14 @@ class Accession(db.Base):
 
 
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
 
 
 
 class AccessionEditorView(editor.GenericEditorView):
 
-    expanders_pref_map = {'acc_notes_expander':
-                          'editor.accession.notes.expanded',
+    expanders_pref_map = {#'acc_notes_expander':
+                          #'editor.accession.notes.expanded',
 #                           'acc_source_expander':
 #                           'editor.accession.source.expanded'
                           }
@@ -538,13 +640,15 @@ class AccessionEditorView(editor.GenericEditorView):
                                  ', '.join(wild_prov_status_values.values()),
         'acc_source_type_combo': _('The source type is in what way this ' \
                                    'accession was obtained'),
-        'acc_notes_textview': _('Miscelleanous notes about this accession.'),
         'acc_private_check': _('Indicates whether this accession record ' \
                                'should be considered private.')
         }
 
 
     def __init__(self, parent=None):
+        """
+
+        """
         super(AccessionEditorView, self).\
             __init__(os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'acc_editor.glade'),
@@ -554,6 +658,9 @@ class AccessionEditorView(editor.GenericEditorView):
                                match_func=self.species_match_func)
         self.set_accept_buttons_sensitive(False)
         self.restore_state()
+
+        # TODO: at the moment this also sets up some of the view parts
+        # of child presenters like the CollectionPresenter, etc.
 
         # datum completions
         completion = self.attach_completion('datum_entry',
@@ -565,7 +672,6 @@ class AccessionEditorView(editor.GenericEditorView):
             # TODO: should create a marked up string with the datum description
             model.append([abbr])
         completion.set_model(model)
-
 
 
     def get_window(self):
@@ -586,7 +692,7 @@ class AccessionEditorView(editor.GenericEditorView):
         save the current state of the gui to the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
-            prefs[pref] = self.widgets[expander].get_expanded()
+            prefs.prefs[pref] = self.widgets[expander].get_expanded()
 
 
     def restore_state(self):
@@ -594,12 +700,12 @@ class AccessionEditorView(editor.GenericEditorView):
         restore the state of the gui from the preferences
         '''
         for expander, pref in self.expanders_pref_map.iteritems():
-            expanded = prefs.get(pref, True)
+            expanded = prefs.prefs.get(pref, True)
             self.widgets[expander].set_expanded(expanded)
 
 
     def start(self):
-        return self.widgets.accession_dialog.run()
+        return self.get_window().run()
 
 
     @staticmethod
@@ -630,512 +736,421 @@ class AccessionEditorView(editor.GenericEditorView):
 
 
     @staticmethod
-    def species_cell_data_func(column, renderer, model, iter, data=None):
+    def species_cell_data_func(column, renderer, model, treeiter, data=None):
         """
         This method is static to ensure the AccessionEditorView gets
         garbage collected.
         """
-        v = model[iter][0]
+        v = model[treeiter][0]
         renderer.set_property('text', '%s (%s)' % (str(v), v.genus.family))
 
 
 
-# TODO: should have a label next to lat/lon entry to show what value will be
-# stored in the database, might be good to include both DMS and the float
-# so the user can see both no matter what is in the entry. it could change in
-# time as the user enters data in the entry
-# TODO: shouldn't allow entering altitude accuracy without entering altitude,
-# same for geographic accuracy
-# TODO: should show an error if something other than a number is entered in
-# the altitude entry
-class CollectionPresenter(editor.GenericEditorPresenter):
-
-    widget_to_field_map = {'collector_entry': 'collector',
-                           'coll_date_entry': 'date',
-                           'collid_entry': 'collectors_code',
-                           'locale_entry': 'locale',
-                           'lat_entry': 'latitude',
-                           'lon_entry': 'longitude',
-                           'geoacc_entry': 'geo_accy',
-                           'alt_entry': 'elevation',
-                           'altacc_entry': 'elevation_accy',
-                           'habitat_textview': 'habitat',
-                           'coll_notes_textview': 'notes',
-                           'datum_entry': 'gps_datum'
-                           }
-
-    # TODO: could make the problems be tuples of an id and description to
-    # be displayed in a dialog or on a label ala eclipse
-    PROBLEM_BAD_LATITUDE = str(random())
-    PROBLEM_BAD_LONGITUDE = str(random())
-    PROBLEM_INVALID_DATE = str(random())
-    PROBLEM_INVALID_LOCALE = str(random())
+class VoucherPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
-        super(CollectionPresenter, self).__init__(model, view)
+        super(VoucherPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
         self.session = session
-        self.refresh_view()
-
-        self.assign_simple_handler('collector_entry', 'collector',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('locale_entry', 'locale',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('collid_entry', 'collectors_code',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('geoacc_entry', 'geo_accy',
-                                   editor.IntOrNoneStringValidator())
-        self.assign_simple_handler('alt_entry', 'elevation',
-                                   editor.FloatOrNoneStringValidator())
-        self.assign_simple_handler('altacc_entry', 'elevation_accy',
-                                   editor.FloatOrNoneStringValidator())
-        self.assign_simple_handler('habitat_textview', 'habitat',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('coll_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-        # the list of completions are added in AccessionEditorView.__init__
-        def on_match(completion, model, iter, data=None):
-            value = model[iter][0]
-            validator = editor.UnicodeOrNoneValidator()
-            self.set_model_attr('gps_data', value, validator)
-            completion.get_entry().set_text(value)
-        completion = self.view.widgets.datum_entry.get_completion()
-        self.view.connect(completion, 'match-selected', on_match)
-        self.assign_simple_handler('datum_entry', 'gps_datum',
-                                   editor.UnicodeOrNoneValidator())
-
-        self.view.connect('lat_entry', 'changed', self.on_lat_entry_changed)
-        self.view.connect('lon_entry', 'changed', self.on_lon_entry_changed)
-
-        self.view.connect('coll_date_entry', 'changed',
-                          self.on_date_entry_changed)
-
-        utils.setup_date_button(self.view.widgets.coll_date_entry,
-                                self.view.widgets.coll_date_button)
-
-        # don't need to connection to south/west since they are in the same
-        # groups as north/east
-        self.north_toggle_signal_id = \
-            self.view.connect('north_radio', 'toggled',
-                              self.on_north_south_radio_toggled)
-        self.east_toggle_signal_id = \
-            self.view.connect('east_radio', 'toggled',
-                              self.on_east_west_radio_toggled)
-
-        if self.model.locale is None or self.model.locale in ('', u''):
-            self.add_problem(self.PROBLEM_INVALID_LOCALE)
         self.__dirty = False
-
-
-    def set_model_attr(self, field, value, validator=None):
-        """
-        Validates the fields when a field changes.
-        """
-        super(CollectionPresenter, self).set_model_attr(field, value,validator)
-        self.__dirty = True
-        if self.model.locale is None or self.model.locale in ('', u''):
-            self.add_problem(self.PROBLEM_INVALID_LOCALE)
-        else:
-            self.remove_problem(self.PROBLEM_INVALID_LOCALE)
-
-        if field in ('longitude', 'latitude'):
-            sensitive = self.model.latitude is not None \
-                        and self.model.longitude is not None
-            self.view.widgets.geoacc_entry.set_sensitive(sensitive)
-            self.view.widgets.datum_entry.set_sensitive(sensitive)
-
-        if field == 'elevation':
-            sensitive = self.model.elevation is not None
-            self.view.widgets.altacc_entry.set_sensitive(sensitive)
-
-        self.parent_ref().refresh_sensitivity()
-
-
-    def start(self):
-        raise Exception('CollectionPresenter cannot be started')
-
-
-    def dirty(self):
-        return self.__dirty
-
-
-    def refresh_view(self):
-        for widget, field in self.widget_to_field_map.iteritems():
-            value = getattr(self.model, field)
-##            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month,
-                                      '%04d' % value.year)
-            self.view.set_widget_value(widget, value)
-
-        latitude = self.model.latitude
-        if latitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
-            self.view.widgets.lat_dms_label.set_text(dms_string)
-            if latitude < 0:
-                self.view.widgets.south_radio.set_active(True)
-            else:
-                self.view.widgets.north_radio.set_active(True)
-        longitude = self.model.longitude
-        if longitude is not None:
-            dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
-            self.view.widgets.lon_dms_label.set_text(dms_string)
-            if longitude < 0:
-                self.view.widgets.west_radio.set_active(True)
-            else:
-                self.view.widgets.east_radio.set_active(True)
-
-        if self.model.elevation == None:
-            self.view.widgets.altacc_entry.set_sensitive(False)
-
-        if self.model.latitude is None or self.model.longitude is None:
-            self.view.widgets.geoacc_entry.set_sensitive(False)
-            self.view.widgets.datum_entry.set_sensitive(False)
-
-
-    def on_date_entry_changed(self, entry, data=None):
-        text = entry.get_text()
-        if text == '':
-            self.set_model_attr('date', None)
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.coll_date_entry)
-            return
-
-        dt = None # datetime
-        m = _date_regex.match(text)
-        if m is None:
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.coll_date_entry)
-        else:
-#            debug('%s.%s.%s' % (m.group('year'), m.group('month'), \
-#                                    m.group('day')))
-            try:
-                ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                        m.group('day')]]
-                dt = datetime(*ymd).date()
-                self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                    self.view.widgets.coll_date_entry)
-            except Exception:
-                self.add_problem(self.PROBLEM_INVALID_DATE,
-                                    self.view.widgets.coll_date_entry)
-        self.set_model_attr('date', dt)
-
-
-    def on_east_west_radio_toggled(self, button, data=None):
-        direction = self._get_lon_direction()
-        entry = self.view.widgets.lon_entry
-        lon_text = entry.get_text()
-        if lon_text == '':
-            return
-        if direction == 'W' and lon_text[0] != '-'  and len(lon_text) > 2:
-            entry.set_text('-%s' % lon_text)
-        elif direction == 'E' and lon_text[0] == '-' and len(lon_text) > 2:
-            entry.set_text(lon_text[1:])
-
-
-    def on_north_south_radio_toggled(self, button, data=None):
-        direction = self._get_lat_direction()
-        entry = self.view.widgets.lat_entry
-        lat_text = entry.get_text()
-        if lat_text == '':
-            return
-        if direction == 'S' and lat_text[0] != '-' and len(lat_text) > 2:
-            entry.set_text('-%s' % lat_text)
-        elif direction == 'N' and lat_text[0] == '-' and len(lat_text) > 2:
-            entry.set_text(lat_text[1:])
-
-
-    @staticmethod
-    def _parse_lat_lon(direction, text):
-        '''
-        parse a latitude or longitude in a variety of formats
-        '''
-        bits = re.split(':| ', text.strip())
-#        debug('%s: %s' % (direction, bits))
-        if len(bits) == 1:
-            dec = abs(float(text))
-            if dec > 0 and direction in ('W', 'S'):
-                dec = -dec
-        elif len(bits) == 2:
-            deg, tmp = map(float, bits)
-            sec = tmp/60
-            min = tmp-60
-            dec = dms_to_decimal(direction, deg, min, sec)
-        elif len(bits) == 3:
-#            debug(bits)
-            dec = dms_to_decimal(direction, *map(float, bits))
-        else:
-            raise ValueError(_('_parse_lat_lon() -- incorrect format: %s') % \
-                             text)
-        return dec
-
-
-    def _get_lat_direction(self):
-        '''
-        return N or S from the radio
-        '''
-        if self.view.widgets.north_radio.get_active():
-            return 'N'
-        elif self.view.widgets.south_radio.get_active():
-            return 'S'
-        raise ValueError(_('North/South radio buttons in a confused state'))
-
-
-    def _get_lon_direction(self):
-        '''
-        return E or W from the radio
-        '''
-        if self.view.widgets.east_radio.get_active():
-            return 'E'
-        elif self.view.widgets.west_radio.get_active():
-            return 'W'
-        raise ValueError(_('East/West radio buttons in a confused state'))
-
-
-    def on_lat_entry_changed(self, entry, date=None):
-        '''
-        set the latitude value from text
-        '''
-        text = entry.get_text()
-        latitude = None
-        dms_string = ''
-        try:
-            if text != '' and text is not None:
-                north_radio = self.view.widgets.north_radio
-                north_radio.handler_block(self.north_toggle_signal_id)
-                if text[0] == '-':
-                    self.view.widgets.south_radio.set_active(True)
-                else:
-                    north_radio.set_active(True)
-                north_radio.handler_unblock(self.north_toggle_signal_id)
-                direction = self._get_lat_direction()
-                latitude = CollectionPresenter._parse_lat_lon(direction, text)
-                #u"\N{DEGREE SIGN}"
-                dms_string ='%s %s\302\260%s\'%s"' % latitude_to_dms(latitude)
-        except Exception:
-#            debug(traceback.format_exc())
-            bg_color = gtk.gdk.color_parse("red")
-            self.add_problem(self.PROBLEM_BAD_LATITUDE,
-                             self.view.widgets.lat_entry)
-        else:
-            self.remove_problem(self.PROBLEM_BAD_LATITUDE,
-                             self.view.widgets.lat_entry)
-
-        self.set_model_attr('latitude', latitude)
-        self.view.widgets.lat_dms_label.set_text(dms_string)
-
-
-    def on_lon_entry_changed(self, entry, data=None):
-        text = entry.get_text()
-        longitude = None
-        dms_string = ''
-        try:
-            if text != '' and text is not None:
-                east_radio = self.view.widgets.east_radio
-                east_radio.handler_block(self.east_toggle_signal_id)
-                if text[0] == '-':
-                    self.view.widgets.west_radio.set_active(True)
-                else:
-                    self.view.widgets.east_radio.set_active(True)
-                east_radio.handler_unblock(self.east_toggle_signal_id)
-                direction = self._get_lon_direction()
-                longitude = CollectionPresenter._parse_lat_lon(direction, text)
-                dms_string ='%s %s\302\260%s\'%s"' % longitude_to_dms(longitude)
-        except Exception:
-#            debug(traceback.format_exc())
-            bg_color = gtk.gdk.color_parse("red")
-            self.add_problem(self.PROBLEM_BAD_LONGITUDE,
-                              self.view.widgets.lon_entry)
-        else:
-            self.remove_problem(self.PROBLEM_BAD_LONGITUDE,
-                              self.view.widgets.lon_entry)
-
-        self.set_model_attr('longitude', longitude)
-        self.view.widgets.lon_dms_label.set_text(dms_string)
-
-
-# TODO: make the donor_combo insensitive if the model is empty
-class DonationPresenter(editor.GenericEditorPresenter):
-
-    widget_to_field_map = {'donor_combo': 'donor',
-                           'donid_entry': 'donor_acc',
-                           'donnotes_entry': 'notes',
-                           'don_date_entry': 'date'}
-    PROBLEM_INVALID_DATE = random()
-    PROBLEM_INVALID_DONOR = random()
-
-    def __init__(self, parent, model, view, session):
-        """
-        @param parent: the parent AccessionEditorPresenter
-        """
-        super(DonationPresenter, self).__init__(model, view)
-        self.parent_ref = weakref.ref(parent)
-        self.session = session
-
-        # set up donor_combo
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.clear() # avoid gchararry/PyObject warning
-        r = gtk.CellRendererText()
-        donor_combo.pack_start(r)
-        donor_combo.set_cell_data_func(r, self.combo_cell_data_func)
-
-        # set the values in the view before setting any signal handlers
-        self.refresh_view()
-
-        # assign handlers
-        self.view.connect('donor_combo', 'changed',
-                          self.on_donor_combo_changed)
-        self.assign_simple_handler('donid_entry', 'donor_acc',
-                                   editor.UnicodeOrNoneValidator())
-        self.assign_simple_handler('donnotes_entry', 'notes',
-                                   editor.UnicodeOrNoneValidator())
-        self.view.connect('don_date_entry', 'insert-text',
-                          self.on_date_entry_insert)
-        self.view.connect('don_date_entry', 'delete-text',
-                          self.on_date_entry_delete)
-        utils.setup_date_button(self.view.widgets.don_date_entry,
-                                self.view.widgets.don_date_button)
-        self.view.connect('don_new_button', 'clicked', self.on_don_new_clicked)
-        self.view.connect('don_edit_button', 'clicked',
-                          self.on_don_edit_clicked)
-
-        # if there is no donor and only one donor in the donor combo model
-        # then set it as the active donor
-        if self.model.donor is None and len(donor_combo.get_model()) == 1:
-            donor_combo.set_active(0)
-
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        self.__dirty = False
-
-
-    def set_model_attr(self, field, value, validator=None):
-#        debug('DonationPresenter.set_model_attr(%s, %s)' % (field, value))
-        super(DonationPresenter, self).set_model_attr(field, value, validator)
-        self.__dirty = True
-        if self.model.donor is None:
-            self.add_problem(self.PROBLEM_INVALID_DONOR)
-        else:
-            self.remove_problem(self.PROBLEM_INVALID_DONOR)
-        self.parent_ref().refresh_sensitivity()
-
-
-    def start(self):
-        raise Exception('DonationPresenter cannot be started')
-
-
-    def dirty(self):
-        return self.__dirty
-
-
-    def on_donor_combo_changed(self, combo, data=None):
-        """
-        Changed the sensitivity of the don_edit_button if the
-        selected item in the donor_combo is an instance of Donor
-        """
-#        debug('on_donor_combo_changed')
-        it = combo.get_active_iter()
-        if not it:
-            return
-        value = combo.get_model()[it][0]
-        self.set_model_attr('donor', value)
-        sensitive = False
-        if isinstance(value, Donor):
-            sensitive = True
-        self.view.widgets.don_edit_button.set_sensitive(sensitive)
-
-
-    def on_date_entry_insert(self, entry, new_text, new_text_length, position,
-                            data=None):
-        entry_text = entry.get_text()
-        cursor = entry.get_position()
-        full_text = entry_text[:cursor] + new_text + entry_text[cursor:]
-        self._set_date_from_text(full_text)
-
-
-    def on_date_entry_delete(self, entry, start, end, data=None):
-        text = entry.get_text()
-        full_text = text[:start] + text[end:]
-        self._set_date_from_text(full_text)
-
-
-    def _set_date_from_text(self, text):
-        if text == '':
-            self.set_model_attr('date', None)
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-            return
-
-        m = _date_regex.match(text)
-        dt = None # datetime
-        try:
-            ymd = [int(x) for x in [m.group('year'), m.group('month'), \
-                                    m.group('day')]]
-            dt = datetime(*ymd).date()
-            self.remove_problem(self.PROBLEM_INVALID_DATE,
-                                self.view.widgets.don_date_entry)
-        except Exception:
-            self.add_problem(self.PROBLEM_INVALID_DATE,
-                             self.view.widgets.don_date_entry)
-        self.set_model_attr('date', dt)
-
-
-    def on_don_new_clicked(self, button, data=None):
-        '''
-        create a new donor, setting the current donor on donor_combo
-        to the new donor
-        '''
-        donor = DonorEditor().start()
-        if donor is not None:
-            self.refresh_view()
-            self.view.set_widget_value('donor_combo', donor)
-
-
-    def on_don_edit_clicked(self, button, data=None):
-        '''
-        edit currently selected donor
-        '''
-        donor_combo = self.view.widgets.donor_combo
-        i = donor_combo.get_active_iter()
-        donor = donor_combo.get_model()[i][0]
-        e = DonorEditor(model=donor, parent=self.view.widgets.accession_dialog)
-        edited = e.start()
-        if edited is not None:
-            self.refresh_view()
-
-
-    @staticmethod
-    def combo_cell_data_func(cell, renderer, model, iter):
-        """
-        This method is static to make sure this object gets garbage collected.
-        """
-        v = model[iter][0]
-        renderer.set_property('text', str(v))
-
-
-    def refresh_view(self):
-#        debug('DonationPresenter.refresh_view')
-
-        # populate the donor combo
+        #self.refresh_view()
+        self.view.connect('voucher_add_button', 'clicked', self.on_add_clicked)
+        self.view.connect('voucher_remove_button', 'clicked',
+                          self.on_remove_clicked)
+        self.view.connect('parent_voucher_add_button', 'clicked',
+                          self.on_add_clicked, True)
+        self.view.connect('parent_voucher_remove_button', 'clicked',
+                          self.on_remove_clicked, True)
+
+        def _voucher_data_func(column, cell, model, treeiter, prop):
+            v = model[treeiter][0]
+            cell.set_property('text', getattr(v, prop))
+
+        def setup_column(tree, column, cell, prop):
+            column = self.view.widgets[column]
+            cell = self.view.widgets[cell]
+            column.clear_attributes(cell) # get rid of some warnings
+            cell.props.editable = True
+            self.view.connect(cell, 'edited', self.on_cell_edited, (tree,prop))
+            column.set_cell_data_func(cell, _voucher_data_func, prop)
+
+        setup_column('voucher_treeview', 'voucher_herb_column',
+                     'voucher_herb_cell', 'herbarium')
+        setup_column('voucher_treeview', 'voucher_code_column',
+                     'voucher_code_cell', 'code')
+
+        setup_column('parent_voucher_treeview', 'parent_voucher_herb_column',
+                     'parent_voucher_herb_cell', 'herbarium')
+        setup_column('parent_voucher_treeview','parent_voucher_code_column',
+                     'parent_voucher_code_cell', 'code')
+
+        # intialize vouchers treeview
+        treeview = self.view.widgets.voucher_treeview
+        utils.clear_model(treeview)
         model = gtk.ListStore(object)
-        for value in self.session.query(Donor):
-#            debug(value)
-            model.append([value])
-        donor_combo = self.view.widgets.donor_combo
-        donor_combo.set_model(model)
+        for voucher in self.model.vouchers:
+            if not voucher.parent_material:
+                model.append([voucher])
+        treeview.set_model(model)
 
-        for widget, field in self.widget_to_field_map.iteritems():
-            value = getattr(self.model, field)
-#            debug('%s, %s, %s' % (widget, field, value))
-            if value is not None and field == 'date':
-                value = '%s/%s/%s' % (value.day, value.month,
-                                      '%04d' % value.year)
-            self.view.set_widget_value(widget, value)
+        # initialize parent vouchers treeview
+        treeview = self.view.widgets.parent_voucher_treeview
+        utils.clear_model(treeview)
+        model = gtk.ListStore(object)
+        for voucher in self.model.vouchers:
+            if voucher.parent_material:
+                model.append([voucher])
+        treeview.set_model(model)
 
-        if self.model.donor is None:
-            self.view.widgets.don_edit_button.set_sensitive(False)
+
+    def dirty(self):
+        return self.__dirty
+
+
+    def on_cell_edited(self, cell, path, new_text, data):
+        treeview, prop = data
+        treemodel = self.view.widgets[treeview].get_model()
+        rooted = treemodel[path][0]
+        if getattr(rooted, prop) == new_text:
+            return  # didn't change
+        setattr(rooted, prop, utils.utf8(new_text))
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
+    def on_remove_clicked(self, button, parent=False):
+        if parent:
+            treeview = self.view.widgets.parent_voucher_treeview
         else:
-            self.view.widgets.don_edit_button.set_sensitive(True)
+            treeview = self.view.widgets.voucher_treeview
+        model, treeiter = treeview.get_selection().get_selected()
+        voucher = model[treeiter][0]
+        voucher.accession = None
+        model.remove(treeiter)
+        self.__dirty = True
+        self.parent_ref().refresh_sensitivity()
+
+
+    def on_add_clicked(self, button, parent=False):
+        """
+        """
+        if parent:
+            treeview = self.view.widgets.parent_voucher_treeview
+        else:
+            treeview = self.view.widgets.voucher_treeview
+        voucher = Voucher()
+        voucher.accession = self.model
+        voucher.parent_material = parent
+        model = treeview.get_model()
+        treeiter = model.insert(0, [voucher])
+        path = model.get_path(treeiter)
+        column = treeview.get_column(0)
+        treeview.set_cursor(path, column, start_editing=True)
+
+
+
+class VerificationPresenter(editor.GenericEditorPresenter):
+
+    PROBLEM_INVALID_DATE = random()
+
+    def __init__(self, parent, model, view, session):
+        super(VerificationPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        self.view.connect('ver_add_button', 'clicked', self.on_add_clicked)
+
+        # remove any verification boxes that would have been added to
+        # the widget in a previous run
+        for kid in self.view.widgets.verifications_box.get_children():
+            self.view.widgets.remove_parent(kid)
+            # p = kid.get_parent()
+            # if p:
+            #     p.remove(kid)
+
+        # order by date of the existing verifications
+        for ver in model.verifications:
+            expander = self.add_verification_expander(model=ver)
+            expander.set_expanded(False) # all are collapsed to start
+
+        # if no verifications were added then add an empty VerificationExpander
+        if len(self.view.widgets.verifications_box.get_children()) < 1:
+            self.add_verification_expander()
+
+        # expand the first verification expander
+        self.view.widgets.verifications_box.get_children()[0].\
+            set_expanded(True)
+        self._dirty = False
+
+
+    def dirty(self):
+        #verbox = self.view.widgets.verifications_box
+        #debug(map(lambda box: box.dirty, verbox.get_children()))
+        #return True in map(lambda box: box.dirty, verbox.get_children())
+        return self._dirty
+
+    def refresh_view(self):
+        pass
+
+
+    def on_add_clicked(self, *args):
+        #ver = Verification()
+        #self.model.verifications.append(ver)
+        self.add_verification_expander()
+
+
+    def add_verification_expander(self, model=None):
+        expander = VerificationPresenter.VerificationExpander(self, model)
+        self.view.widgets.verifications_box.pack_start(expander, expand=False,
+                                                       fill=False)
+        self.view.widgets.verifications_box.reorder_child(expander, 0)
+        expander.show_all()
+        return expander
+
+
+    class VerificationExpander(gtk.Expander):
+
+        def on_date_entry_changed(self, entry, data=None):
+            from bauble.editor import ValidatorError
+            value = None
+            PROBLEM = 'INVALID_DATE'
+            try:
+                value = editor.DateValidator().to_python(entry.props.text)
+            except ValidatorError, e:
+                self.presenter.add_problem(PROBLEM, entry)
+            else:
+                self.presenter.remove_problem(PROBLEM, entry)
+            self.set_model_attr('date', value)
+
+
+        def on_remove_button_clicked(self, button):
+            parent = self.get_parent()
+            msg = _("Are you sure you want to remove this verification?")
+            if not utils.yes_no_dialog(msg):
+                return
+            if parent:
+                parent.remove(self)
+
+            # disconnect clicked signal to make garbage collecting work
+            button.disconnect(self._sid)
+
+            # remove verification from accession
+            if self.model.accession:
+                self.model.accession.verifications.remove(self.model)
+            self.presenter._dirty = True
+            self.presenter.parent_ref().refresh_sensitivity()
+
+
+        def on_entry_changed(self, entry, attr):
+            text = entry.props.text#entry.get_text()
+            if not text:
+                self.set_model_attr(attr, None)
+            else:
+                self.set_model_attr(attr, utils.utf8(text))
+
+
+        def on_level_combo_changed(self, combo, *args):
+            i = combo.get_active_iter()
+            level = combo.get_model()[i][0]
+            self.set_model_attr('level', level)
+
+
+        def set_model_attr(self, attr, value):
+            setattr(self.model, attr, value)
+            if attr != 'date' and not self.model.date:
+                # this is a little voodoo to set the date on the model
+                # since when we create a new verification box we add
+                # today's date to the entry but we don't set the model
+                # so the presenter doesn't appear dirty...we have to
+                # use a tmp variable since the changed signal won't
+                # fire if the new value is the same as the old
+                tmp = self.date_entry.props.text
+                self.date_entry.props.text = ''
+                self.date_entry.props.text = tmp
+                # if the verification is new and isn't yet associated
+                # with an accession then set the accession when we
+                # start changing values, this way we can setup a dummy
+                # verification in the interface
+                if not self.model.accession:
+                    self.presenter.model.verifications.append(self.model)
+            self.presenter._dirty = True
+            if self.model.date:
+                if isinstance(self.model.date, basestring):
+                    self.set_label(self.model.date)
+                else:
+                    format = prefs.prefs[prefs.date_format_pref]
+                    safe = utils.xml_safe(self.model.date.strftime(format))
+                    debug(safe)
+                    self.set_label(safe)
+            self.presenter.parent_ref().refresh_sensitivity()
+
+
+        def set_label(self, label):
+            label = '<b>%s</b>' % label
+            super(VerificationPresenter.VerificationExpander,
+                  self).set_label(label)
+
+        def __init__(self, parent, model):
+            super(VerificationPresenter.VerificationExpander,
+                  self).__init__(self)
+            check(not model or isinstance(model, Verification))
+            alignment = gtk.Alignment()
+            self.add(alignment)
+            self.box = gtk.HBox()
+            alignment.add(self.box)
+            self.set_expanded(True)
+            self.set_label('') # empty string avoids warning from default label
+            self.set_use_markup(True)
+            self.dirty = False
+            self.presenter = parent
+            self.model = model
+            if not self.model:
+                self.model = Verification()
+            self.box.set_homogeneous(False)
+            self.box.set_spacing(20)
+
+            vbox = gtk.VBox()
+            self.box.pack_start(vbox)#, expand=True, fill=True)
+
+            hbox = gtk.HBox()
+            vbox.pack_start(hbox)#, expand=True, fill=True)
+
+            def _make_frame(label_txt, child):
+                label = gtk.Label()
+                label.set_markup('<b>%s</b>' % label_txt)
+                frame = gtk.Frame()
+                frame.set_label_widget(label)
+                frame.set_shadow_type(gtk.SHADOW_NONE)
+                align = gtk.Alignment(.5, .5, 1.0, 1.0)
+                align.set_padding(0, 0, 12, 0)
+                frame.add(align)
+                align.add(child)
+                return frame
+
+            # verifier entry
+            self.verifier_entry = gtk.Entry()
+            if self.model.verifier:
+                self.verifier_entry.props.text = self.model.verifier
+            self.presenter.view.connect(self.verifier_entry, 'changed',
+                                        self.on_entry_changed, 'verifier')
+            frame = _make_frame(_('Verifier'), self.verifier_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # TODO: need to setup if the date entry with a today
+            # button like the other date entries
+
+            # date entry
+            self.date_entry = gtk.Entry()
+            if self.model.date:
+                format = prefs.prefs[prefs.date_format_pref]
+                safe = utils.xml_safe(self.model.date.strftime(format))
+                self.date_entry.props.text = safe
+            else:
+                self.date_entry.props.text = utils.xml_safe(utils.today_str())
+            self.set_label(self.date_entry.props.text)
+            self.presenter.view.connect(self.date_entry, 'changed',
+                                        self.on_date_entry_changed)
+            frame = _make_frame(_('Date'), self.date_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # reference entry
+            self.reference_entry = gtk.Entry()
+            if self.model.reference:
+                self.reference_entry.props.text = self.model.reference
+            self.presenter.view.connect(self.reference_entry, 'changed',
+                                        self.on_entry_changed, 'reference')
+            frame = _make_frame(_('Reference'), self.reference_entry)
+            hbox.pack_start(frame)#, expand=True, fill=True)
+
+            # name entries
+            def sp_get_completions(text):
+                query = self.presenter.session.query(Species).join('genus').\
+                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                    filter(Species.id != self.model.id)
+                return query
+            def sp_cell_data_func(col, cell, model, treeiter, data=None):
+                cell.set_property('text', str(model[treeiter][0]))
+
+            hbox = gtk.HBox() # species name hbox
+            vbox.pack_start(hbox)
+            entry = gtk.Entry()
+            def on_prevsp_select(value):
+                self.set_model_attr('prev_species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.prev_species:
+                entry.props.text = self.model.prev_species
+            self.presenter.assign_completions_handler(entry,
+                                                      sp_get_completions,
+                                                      on_prevsp_select)
+            frame = _make_frame(_('Previous name'), entry)
+            hbox.pack_start(frame)
+
+            entry = gtk.Entry()
+            def on_sp_select(value):
+                self.set_model_attr('species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.species:
+                entry.props.text = self.model.species
+            self.presenter.assign_completions_handler(entry,
+                                                      sp_get_completions,
+                                                      on_sp_select)
+            frame = _make_frame(_('New name'), entry)
+            hbox.pack_start(frame)
+
+            hbox = gtk.HBox() # level and notes hbox
+            vbox.pack_start(hbox)
+            combo = gtk.ComboBox()
+
+            # setup the level combo
+            renderer = gtk.CellRendererText()
+            #renderer.props.wrap_mode = gtk.WRAP_WORD
+            renderer.props.wrap_mode = pango.WRAP_WORD
+            renderer.props.wrap_width = 600
+            combo.pack_start(renderer, True)
+            def cell_data_func(col, cell, model, treeiter):
+                level = model[treeiter][0]
+                descr = model[treeiter][1]
+                cell.set_property('text', '%s: %s' % (level, descr))
+            combo.set_cell_data_func(renderer, cell_data_func)
+            model = gtk.ListStore(int, str)
+            for level, descr in ver_level_descriptions.iteritems():
+                model.append([level, descr])
+            combo.set_model(model)
+            if self.model.level:
+                utils.set_widget_value(combo, self.model.level)
+            self.presenter.view.connect(combo, 'changed',
+                                        self.on_level_combo_changed)
+            frame = _make_frame(_('Level'), combo)
+            hbox.pack_start(frame, expand=False, fill=False)
+
+            # note textview
+            buff = gtk.TextBuffer()
+            if self.model.notes:
+                buff.props.text = self.model.notes
+            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
+                                        'notes')
+            textview = gtk.TextView(buffer=buff)
+            textview.set_border_width(1)
+            textview.props.height_request = 50
+            frame = _make_frame(_('Notes'), textview)
+            #hbox.pack_start(frame)#, expand=True, fill=True)
+            vbox.pack_start(frame)#, expand=True, fill=True)
+
+            sep = gtk.HSeparator()
+            vbox.pack_start(sep, False, False, padding=40)
+
+            # remove button
+            button = gtk.Button()
+            button.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE,
+                                                      gtk.ICON_SIZE_BUTTON))
+
+            # TODO: not using view.connect so might inhibit garbage
+            # collection even though we remove it in the signal
+            # handler
+            self._sid = button.connect('clicked',
+                                       self.on_remove_button_clicked)
+            align = gtk.Alignment(1.0, 0.5, 0, 0)
+            align.add(button)
+            self.box.pack_start(align, expand=False, fill=False, padding=20)
 
 
 
@@ -1148,7 +1163,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                            'acc_wild_prov_combo': 'wild_prov_status',
                            'acc_species_entry': 'species',
                            'acc_source_type_combo': 'source_type',
-                           'acc_notes_textview': 'notes',
                            'acc_private_check': 'private'}
 
     PROBLEM_INVALID_DATE = random()
@@ -1179,6 +1193,18 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         kid = self.view.widgets.source_box_parent.get_child()
         if kid:
             self.view.widgets.source_box_parent.remove(kid)
+
+        self.ver_presenter = VerificationPresenter(self, self.model, self.view,
+                                                   self.session)
+        self.voucher_presenter = VoucherPresenter(self, self.model, self.view,
+                                                  self.session)
+
+        self.prop_presenter = PropagationTabPresenter(self, self.model,
+                                                      self.view, self.session)
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = \
+            editor.NotesPresenter(self, 'notes', notes_parent)
 
         # set current page so we don't open the last one that was open
         self.view.widgets.acc_notebook.set_current_page(0)
@@ -1272,8 +1298,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         # could
         self.view.connect('acc_code_entry', 'changed',
                           self.on_acc_code_entry_changed)
-        self.assign_simple_handler('acc_notes_textview', 'notes',
-                                   editor.UnicodeOrNoneValidator())
         self.view.connect('acc_date_entry', 'changed',
                           self.on_acc_date_entry_changed)
         utils.setup_date_button(self.view.widgets.acc_date_entry,
@@ -1303,14 +1327,25 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         it = model.append([str(species.sp), 'sp'])
         if self.model.id_qual_rank == 'sp':
             active = it
-        if species.infrasp:
-            if species.infrasp_rank == 'cv.':
-                s = "'%s'" % str(species.infrasp)
-            else:
-                s = str(species.infrasp)
-            it = model.append([s, 'infrasp'])
+
+        infrasp_parts = []
+        for level in (1,2,3,4):
+            infrasp = [s for s in species.get_infrasp(level) if s is not None]
+            if infrasp:
+                infrasp_parts.append(' '.join(infrasp))
+        if infrasp_parts:
+            it = model.append([' '.join(infrasp_parts), 'infrasp'])
             if self.model.id_qual_rank == 'infrasp':
                 active = it
+
+        # if species.infrasp:
+        #     s = ' '.join([str(isp) for isp in species.infrasp])
+        #     if len(s) > 32:
+        #         s = '%s...' % s[:29]
+        #     it = model.append([s, 'infrasp'])
+        #     if self.model.id_qual_rank == 'infrasp':
+        #         active = it
+
         it = model.append(('', None))
         if not active:
             active = it
@@ -1319,9 +1354,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
+        presenters = [self.ver_presenter, self.prop_presenter,
+                      self.voucher_presenter, self.notes_presenter]
         if self.source_presenter is None:
-            return self.__dirty
-        return self.source_presenter.dirty() or self.__dirty
+            return self.__dirty or True in [p.dirty() for p in presenters]
+        return self.source_presenter.dirty() or self.__dirty or \
+            True in [p.dirty() for p in presenters]
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
@@ -1341,6 +1379,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
             self.set_model_attr('code', utils.utf8(text))
 
 
+    # TODO: this should be changed to use the editor.DateValidator
     def on_acc_date_entry_changed(self, entry, data=None):
         text = entry.get_text()
         #debug('acc_date_entry: %s' % text)
@@ -1355,7 +1394,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         try:
             ymd = [int(x) for x in [m.group('year'), m.group('month'), \
                                     m.group('day')]]
-            dt = datetime(*ymd).date()
+            dt = datetime.datetime(*ymd).date()
             self.remove_problem(self.PROBLEM_INVALID_DATE,
                                 self.view.widgets.acc_date_entry)
         except Exception:
@@ -1550,9 +1589,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 class AccessionEditor(editor.GenericModelViewPresenterEditor):
 
-    label = _('Accession')
-    mnemonic_label = _('_Accession')
-
     # these have to correspond to the response values in the view
     RESPONSE_OK_AND_ADD = 11
     RESPONSE_NEXT = 22
@@ -1569,6 +1605,9 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
+        if not model.code:
+            model.code = get_next_code()
+
         super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
@@ -1597,7 +1636,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         '''
         handle the response from self.presenter.start() in self.start()
         '''
-        not_ok_msg = 'Are you sure you want to lose your changes?'
+        not_ok_msg = _('Are you sure you want to lose your changes?')
         if response == gtk.RESPONSE_OK or response in self.ok_responses:
             try:
                 if self.presenter.dirty():
@@ -1607,16 +1646,13 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
                 msg = _('Error committing changes.\n\n%s') % \
                       utils.xml_safe_utf8(unicode(e.orig))
                 utils.message_details_dialog(msg, str(e), gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
             except Exception, e:
                 msg = _('Unknown error when committing changes. See the '\
                         'details for more information.\n\n%s') \
                         % utils.xml_safe_utf8(e)
-                debug(traceback.format_exc())
                 utils.message_details_dialog(msg, traceback.format_exc(),
                                              gtk.MESSAGE_ERROR)
-                self.session.rollback()
                 return False
         elif self.presenter.dirty() and utils.yes_no_dialog(not_ok_msg) \
                  or not self.presenter.dirty():
@@ -1632,7 +1668,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = PlantEditor(Plant(accession=self.model), self.parent)
+            e = AddPlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
 
         if more_committed is not None:
@@ -1773,22 +1809,6 @@ class GeneralAccessionExpander(InfoExpander):
                               False)
 
 
-class NotesExpander(InfoExpander):
-    """
-    the accession's notes
-    """
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.notes_box
-        self.widgets.notes_window.remove(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        self.set_widget_value('notes_data', row.notes)
-
-
 class SourceExpander(InfoExpander):
 
     def __init__(self, widgets):
@@ -1870,6 +1890,64 @@ class SourceExpander(InfoExpander):
         self.set_sensitive(True)
 
 
+
+class VerificationsExpander(InfoExpander):
+    """
+    the accession's notes
+    """
+
+    def __init__(self, widgets):
+        super(VerificationsExpander, self).__init__(_("Verifications"),widgets)
+        # notes_box = self.widgets.notes_box
+        # self.widgets.notes_window.remove(notes_box)
+        # self.vbox.pack_start(notes_box)
+
+
+    def update(self, row):
+        pass
+        #self.set_widget_value('notes_data', row.notes)
+
+
+class VouchersExpander(InfoExpander):
+    """
+    the accession's notes
+    """
+
+    def __init__(self, widgets):
+        super(VouchersExpander, self).__init__(_("Vouchers"), widgets)
+
+
+    def update(self, row):
+        for kid in self.vbox.get_children():
+            self.vbox.remove(kid)
+
+        if not row.vouchers:
+            self.set_expanded(False)
+            self.set_sensitive(False)
+            return
+
+        # TODO: should save/restore the expanded state of the vouchers
+        self.set_expanded(True)
+        self.set_sensitive(True)
+
+        parents = filter(lambda v: v.parent_material, row.vouchers)
+        for voucher in parents:
+            s = '%s %s (parent)' % (voucher.herbarium, voucher.code)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+            label.show()
+
+        not_parents = filter(lambda v: not v.parent_material, row.vouchers)
+        for voucher in not_parents:
+            s = '%s %s' % (voucher.herbarium, voucher.code)
+            label = gtk.Label(s)
+            label.set_alignment(0.0, 0.5)
+            self.vbox.pack_start(label)
+            label.show()
+
+
+
 class AccessionInfoBox(InfoBox):
     """
     - general info
@@ -1885,8 +1963,10 @@ class AccessionInfoBox(InfoBox):
         self.add_expander(self.general)
         self.source = SourceExpander(self.widgets)
         self.add_expander(self.source)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
+        self.vouchers = VouchersExpander(self.widgets)
+        self.add_expander(self.vouchers)
+        self.verifications = VerificationsExpander(self.widgets)
+        self.add_expander(self.verifications)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
@@ -1894,13 +1974,13 @@ class AccessionInfoBox(InfoBox):
     def update(self, row):
         self.general.update(row)
         self.props.update(row)
-        if row.notes is None:
-            self.notes.set_expanded(False)
-            self.notes.set_sensitive(False)
-        else:
-            self.notes.set_expanded(True)
-            self.notes.set_sensitive(True)
-            self.notes.update(row)
+
+        if row.verifications:
+            self.verifications.update(row)
+        self.verifications.set_expanded(row.verifications != None)
+        self.verifications.set_sensitive(row.verifications != None)
+
+        self.vouchers.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
         self.source.update(row.source)

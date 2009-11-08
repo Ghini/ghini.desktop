@@ -8,13 +8,13 @@ from bauble.view import SearchView, SearchStrategy, MapperSearch, \
      PropertiesExpander, Action
 import bauble.utils.desktop as desktop
 
-__all__ = ['Species', 'SpeciesSynonym', 'VernacularName',
-           'species_context_menu', 'species_markup_func', 'species_get_kids',
-           'vernname_get_kids', 'vernname_markup_func',
-           'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
-           'VernacularNameInfoBox', 'DefaultVernacularName',
-           'SpeciesDistribution', 'edit_action', 'remove_action',
-           'add_accession_action']
+# __all__ = ['Species', 'SpeciesSynonym', 'SpeciesNote', 'VernacularName',
+#            'species_context_menu', 'species_markup_func', 'species_get_kids',
+#            'vernname_get_kids', 'vernname_markup_func',
+#            'vernname_context_menu', 'SpeciesEditor', 'SpeciesInfoBox',
+#            'VernacularNameInfoBox', 'DefaultVernacularName',
+#            'SpeciesDistribution', 'edit_action', 'remove_action',
+#            'add_accession_action']
 
 # TODO: we need to make sure that this will still work if the
 # AccessionPlugin is not present, this means that we would have to
@@ -208,25 +208,6 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class NotesExpander(InfoExpander):
-
-    def __init__(self, widgets):
-        InfoExpander.__init__(self, _("Notes"), widgets)
-        notes_box = self.widgets.sp_notes_box
-        self.widgets.remove_parent(notes_box)
-        self.vbox.pack_start(notes_box)
-
-
-    def update(self, row):
-        if row.notes is None:
-            self.set_expanded(False)
-            self.set_sensitive(False)
-        else:
-            self.set_expanded(True)
-            self.set_sensitive(True)
-            self.set_widget_value('sp_notes_data', row.notes)
-
-
 class GeneralSpeciesExpander(InfoExpander):
     '''
     expander to present general information about a species
@@ -310,34 +291,30 @@ class LinksExpander(InfoExpander):
 
     def __init__(self):
         InfoExpander.__init__(self, _("Links"))
-        self.tooltips = gtk.Tooltips()
         buttons = []
 
         self.google_button = gtk.LinkButton("", _("Search Google"))
-        self.tooltips.set_tip(self.google_button, _("Search Google"))
+        self.google_button.set_tooltip_text(_("Search Google"))
         buttons.append(self.google_button)
 
         self.gbif_button = gtk.LinkButton("", _("Search GBIF"))
-        self.tooltips.set_tip(self.gbif_button,
-                              _("Search the Global Biodiversity Information "\
-                                    "Facility"))
+        tooltip = _("Search the Global Biodiversity Information Facility")
+        self.gbif_button.set_tooltip_text(tooltip)
         buttons.append(self.gbif_button)
 
         self.itis_button = gtk.LinkButton("", _("Search ITIS"))
-        self.tooltips.set_tip(self.itis_button,
-                              _("Search the Intergrated Taxonomic "\
-                                     "Information System"))
+        tooltip = _("Search the Intergrated Taxonomic Information System")
+        self.itis_button.set_tooltip_text(tooltip)
         buttons.append(self.itis_button)
 
         self.ipni_button = gtk.LinkButton("", _("Search IPNI"))
-        self.tooltips.set_tip(self.ipni_button,
-                              _("Search the International Plant Names Index"))
+        tooltip = _("Search the International Plant Names Index")
+        self.ipni_button.set_tooltip_text(tooltip)
         buttons.append(self.ipni_button)
 
         self.bgci_button = gtk.LinkButton("", _("Search BGCI"))
-        self.tooltips.set_tip(self.bgci_button,
-                              _("Search Botanic Gardens Conservation " \
-                                "International"))
+        tooltip = _("Search Botanic Gardens Conservation International")
+        self.bgci_button.set_tooltip_text(tooltip)
         buttons.append(self.bgci_button)
 
         for b in buttons:
@@ -417,8 +394,6 @@ class SpeciesInfoPage(InfoBoxPage):
         self.add_expander(self.vernacular)
         self.synonyms = SynonymsExpander(self.widgets)
         self.add_expander(self.synonyms)
-        self.notes = NotesExpander(self.widgets)
-        self.add_expander(self.notes)
         self.links = LinksExpander()
         self.add_expander(self.links)
         self.props = PropertiesExpander()
@@ -441,7 +416,6 @@ class SpeciesInfoPage(InfoBoxPage):
         self.general.update(row)
         self.vernacular.update(row)
         self.synonyms.update(row)
-        self.notes.update(row)
         self.links.update(row)
         self.props.update(row)
 
