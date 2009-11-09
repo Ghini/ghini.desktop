@@ -46,6 +46,11 @@ def edit_callback(plants):
     return e.start() != None
 
 
+def change_status_callback(plants):
+    e = PlantStatusEditor(model=plants)
+    return e.start() != None
+
+
 def remove_callback(plants):
     s = ', '.join([str(p) for p in plants])
     msg = _("Are you sure you want to remove the following plants?\n\n%s") \
@@ -73,10 +78,14 @@ def remove_callback(plants):
 edit_action = Action('plant_edit', ('_Edit'), callback=edit_callback,
                      accelerator='<ctrl>e', multiselect=True)
 
+change_action = Action('plant_status', ('_Transfer/Remove'),
+                       callback=change_status_callback,
+                       accelerator='<ctrl>x', multiselect=True)
+
 remove_action = Action('plant_remove', ('_Remove'), callback=remove_callback,
                        accelerator='<delete>', multiselect=True)
 
-plant_context_menu = [edit_action, remove_action]
+plant_context_menu = [edit_action, change_action, remove_action]
 
 
 def plant_markup_func(plant):
@@ -350,11 +359,9 @@ from bauble.plugins.garden.accession import Accession
 
 REMOVAL_ACTION = 'Removal'
 TRANSFER_ACTION = 'Transfer'
-ADD_NOTE_ACTION = 'AddNote'
 
 plant_actions = {REMOVAL_ACTION: _("Removal"),
                  TRANSFER_ACTION: _("Transfer")}
-                 #ADD_NOTE_ACTION: _("Add note")}
 
 
 def init_location_comboentry(presenter, combo, on_select):
@@ -398,6 +405,7 @@ def init_location_comboentry(presenter, combo, on_select):
         value = model[treeiter][0]
         on_select(value)
         presenter.remove_problem(PROBLEM, entry)
+        presenter.refresh_sensitivity()
         return True
     presenter.view.connect(completion, 'match-selected', on_match_select)
 
@@ -411,8 +419,7 @@ def init_location_comboentry(presenter, combo, on_select):
         found = utils.search_tree_model(compl_model, text, _cmp)
         if len(found) == 1:
             comp.emit('match-selected', compl_model, found[0])
-            presenter.remove_problem(PROBLEM, entry)
-            return
+            return True
         # see if the text matches exactly a code or name
         codes = presenter.session.query(Location).filter(Location.code==text)
         names = presenter.session.query(Location).filter(Location.name==text)
@@ -442,11 +449,11 @@ def init_location_comboentry(presenter, combo, on_select):
 
 
 
-class PlantEditorView(GenericEditorView):
+class PlantStatusEditorView(GenericEditorView):
     def __init__(self, parent=None):
         path = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                             'plant_editor.glade')
-        super(PlantEditorView, self).__init__(path, parent)
+        super(PlantStatusEditorView, self).__init__(path, parent)
 
         self.widgets.ped_ok_button.set_sensitive(False)
 
@@ -478,7 +485,7 @@ class PlantEditorView(GenericEditorView):
 #         super(PlantTransferPresenter, self).__init__(model, view)
 
 
-class PlantEditorPresenter(GenericEditorPresenter):
+class PlantStatusEditorPresenter(GenericEditorPresenter):
 
 
     # widget_to_field_map = {'plant_code_entry': 'code',
@@ -496,7 +503,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
         @param model: should be an list of Plants
         @param view: should be an instance of PlantEditorView
         '''
-        super(PlantEditorPresenter, self).__init__(model, view)
+        super(PlantStatusEditorPresenter, self).__init__(model, view)
         #self.session = object_session(model[0])
         self.session = db.Session()
         # self._original_accession_id = self.model.accession_id
@@ -511,7 +518,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             REMOVAL_ACTION: self.view.widgets.removal_box,
             TRANSFER_ACTION: self.view.widgets.transfer_box,
             }
-             #ADD_NOTE_ACTION: self.view.widgets.notes_box}
 
         # TODO: we should put this in a scrolled window or something
         # since the list of labels will get way to big when working on
@@ -609,9 +615,6 @@ class PlantEditorPresenter(GenericEditorPresenter):
             sensitive = True
         elif action == TRANSFER_ACTION and self._transfer.to_location:
             sensitive = True
-        elif action == ADD_NOTE_ACTION and \
-                self.view.widgets.note_textview.get_buffer().props.text:
-            sensitive = True
         self.view.widgets.ped_ok_button.props.sensitive = sensitive
 
 
@@ -661,7 +664,7 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
 
-class PlantEditor(GenericModelViewPresenterEditor):
+class PlantStatusEditor(GenericModelViewPresenterEditor):
 
 
     def __init__(self, model=None, parent=None):
@@ -676,7 +679,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         #GenericModelViewPresenterEditor.__init__(self, model, parent)
         #super(NewPlantEditor, self).__init__(model, parent)
         #self.template = Plant()
-        super(PlantEditor, self).__init__(self.model, parent)
+        super(PlantStatusEditor, self).__init__(self.model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
@@ -685,8 +688,8 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # copy the plants into our session
         self.plants = map(self.session.merge, model)
 
-        view = PlantEditorView(parent=self.parent)
-        self.presenter = PlantEditorPresenter(self.plants, view)
+        view = PlantStatusEditorView(parent=self.parent)
+        self.presenter = PlantStatusEditorPresenter(self.plants, view)
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -711,9 +714,6 @@ class PlantEditor(GenericModelViewPresenterEditor):
         elif action == TRANSFER_ACTION:
             action_model = self.presenter._transfer
             self.presenter._note.category = action
-        elif action == ADD_NOTE_ACTION:
-            action_model = self.presenter._note
-            debug(action_model.category)
         else:
             raise ValueError('unknown plant action: %s' % action)
 
@@ -738,7 +738,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
         del self.model
-        super(PlantEditor, self).commit_changes()
+        super(PlantStatusEditor, self).commit_changes()
 
 
     def handle_response(self, response):
@@ -809,7 +809,7 @@ class PlantEditor(GenericModelViewPresenterEditor):
         return self._committed
 
 
-class AddPlantEditorView(GenericEditorView):
+class PlantEditorView(GenericEditorView):
 
     _tooltips = {
         'plant_code_entry': _('The plant code must be a unique code for '\
@@ -824,15 +824,15 @@ class AddPlantEditorView(GenericEditorView):
         'plant_acc_type_combo': _('The type of the plant material.\n\n' \
                                   'Possible values: %s') % \
                                   ', '.join(acc_type_values.values()),
-        'pad_note_name_entry': _('The name of the person creating this note'),
-        'pad_note_textview': _('Miscelleanous notes about this plant.'),
+        #'pad_note_name_entry': _('The name of the person creating this note'),
+        #'pad_note_textview': _('Miscelleanous notes about this plant.'),
         }
 
 
     def __init__(self, parent=None):
         glade_file = os.path.join(paths.lib_dir(), 'plugins', 'garden',
                                   'plant_editor.glade')
-        super(AddPlantEditorView, self).__init__(glade_file, parent=parent)
+        super(PlantEditorView, self).__init__(glade_file, parent=parent)
         self.widgets.pad_ok_button.set_sensitive(False)
         self.widgets.pad_next_button.set_sensitive(False)
         def acc_cell_data_func(column, renderer, model, iter, data=None):
@@ -859,7 +859,7 @@ class AddPlantEditorView(GenericEditorView):
 
 
 
-class AddPlantEditorPresenter(GenericEditorPresenter):
+class PlantEditorPresenter(GenericEditorPresenter):
 
 
     widget_to_field_map = {'plant_code_entry': 'code',
@@ -877,7 +877,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         @param model: should be an instance of Plant class
         @param view: should be an instance of PlantEditorView
         '''
-        super(AddPlantEditorPresenter, self).__init__(model, view)
+        super(PlantEditorPresenter, self).__init__(model, view)
         self.session = object_session(model)
         self._original_accession_id = self.model.accession_id
         self._original_code = self.model.code
@@ -891,14 +891,15 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         # if self.model.id is None and self.model.acc_status is None:
         #     self.model.acc_status = u'Living'
 
-        self.note = PlantNote()
-        self.note.date = datetime.date.today()
-
         def on_location_select(location):
             self.set_model_attr('location', location)
 
         init_location_comboentry(self, self.view.widgets.plant_loc_comboentry,
                                  on_location_select)
+
+        notes_parent = self.view.widgets.notes_parent_box
+        notes_parent.foreach(notes_parent.remove)
+        self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
 
         self.refresh_view() # put model values in view
 
@@ -915,19 +916,13 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
             # reset the plant code to check that this is a valid code for the
             # new accession, fixes bug #103946
             if value is not None:
-                self.on_plant_code_entry_changed()
+                self.view.widgets.plant_code_entry.emit('changed')
         self.assign_completions_handler('plant_acc_entry', acc_get_completions,
                                         on_select=on_select)
 
         self.view.connect('plant_code_entry', 'changed',
                           self.on_plant_code_entry_changed)
 
-        buff = gtk.TextBuffer()
-        self.view.widgets.pad_note_textview.set_buffer(buff)
-        self.view.connect(buff, 'changed', self.on_note_buffer_changed)
-
-        self.view.connect('pad_note_name_entry', 'changed',
-                          self.on_note_name_entry_changed)
         self.assign_simple_handler('plant_acc_type_combo', 'acc_type')
 
         self.view.connect('plant_loc_add_button', 'clicked',
@@ -937,24 +932,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.__dirty
-
-
-    def on_note_name_entry_changed(self, entry, *args):
-        value = entry.props.text
-        if not value:
-            self.note.note = None
-            return
-        self.note.user = utils.utf8(value)
-
-
-    def on_note_buffer_changed(self, buff, *args):
-        value = buff.props.text
-        if not value:
-            self.note.note = None
-            return
-        self.note.note = utils.utf8(value)
-
+        return self.notes_presenter.dirty() or self.__dirty
 
 
     def on_plant_code_entry_changed(self, entry, *args):
@@ -967,7 +945,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
         else:
             self.set_model_attr('code', text)
 
-        if self.model.accession is None:
+        if not self.model.accession:
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
             self.refresh_sensitivity()
             return
@@ -986,7 +964,8 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
             self.remove_problem(self.PROBLEM_DUPLICATE_PLANT_CODE, entry)
 
             # if there are no problems and the code represents a range
-            # then change the background color to a light blue
+            # then go into "bulk mode" and change the background color
+            # to a light blue and disable the 'Add note' button
             from pyparsing import ParseException
             if len(utils.range_builder(self.model.code)) > 1:
                 color_str = '#B0C4DE' # light steel blue
@@ -1040,7 +1019,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
     def set_model_attr(self, field, value, validator=None):
         #debug('set_model_attr(%s, %s)' % (field, value))
-        super(AddPlantEditorPresenter, self)\
+        super(PlantEditorPresenter, self)\
             .set_model_attr(field, value, validator)
         self.__dirty = True
         self.refresh_sensitivity()
@@ -1077,7 +1056,7 @@ class AddPlantEditorPresenter(GenericEditorPresenter):
 
 
 
-class AddPlantEditor(GenericModelViewPresenterEditor):
+class PlantEditor(GenericModelViewPresenterEditor):
 
     # label = _('Plant')
     # mnemonic_label = _('_Plant')
@@ -1094,14 +1073,14 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
         '''
         if model is None:
             model = Plant()
-        super(AddPlantEditor, self).__init__(model, parent)
+        super(PlantEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
             parent = bauble.gui.window
         self.parent = parent
         self._committed = []
 
-        view = AddPlantEditorView(parent=self.parent)
-        self.presenter = AddPlantEditorPresenter(self.model, view)
+        view = PlantEditorView(parent=self.parent)
+        self.presenter = PlantEditorPresenter(self.model, view)
 
         # add quick response keys
         self.attach_response(view.get_window(), gtk.RESPONSE_OK, 'Return',
@@ -1117,7 +1096,7 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
 
 
     def cleanup(self):
-        super(AddPlantEditor, self).cleanup()
+        super(PlantEditor, self).cleanup()
         # reset the code entry colors
         entry.modify_bg(gtk.STATE_NORMAL, color)
         entry.modify_base(gtk.STATE_NORMAL, color)
@@ -1126,15 +1105,17 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
     def commit_changes(self):
         """
         """
-        if ',' not in self.model.code and '-' not in self.model.code and \
-                self.model not in self.session.new:
-            self._committed.append(self.model)
-            super(AddPlantEditor, self).commit_changes()
-            return
-
+        # this method will create new plants from self.model even if
+        # the plant code is not a range....its a small price to pay
         plants = []
         codes = utils.range_builder(self.model.code)
         mapper = object_mapper(self.model)
+        # TODO: precompute the _created and _last_updated attributes
+        # incase we have to create lots of plants it won't be too slow
+
+        # we have to set the properties on the new objects
+        # individually since session.merge won't create a new object
+        # since the object is already in the session
         for code in codes:
             new_plant = Plant()
             self.session.add(new_plant)
@@ -1145,17 +1126,19 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
             new_plant._created = None
             new_plant._last_updated = None
             plants.append(new_plant)
-            if self.presenter.note.note:
-                note = self.session.merge(self.presenter.note)
-                new_plant.notes.append(note)
+            for note in self.model.notes:
+                new_note = PlantNote()
+                for prop in object_mapper(note).iterate_properties:
+                    setattr(new_note, prop.key, getattr(note, prop.key))
+                new_note.plant = new_plant
         try:
+            map(self.session.expunge, self.model.notes)
             self.session.expunge(self.model)
-            super(AddPlantEditor, self).commit_changes()
+            super(PlantEditor, self).commit_changes()
         except:
             self.session.add(self.model)
             raise
         self._committed.extend(plants)
-
 
 
     def handle_response(self, response):
@@ -1192,7 +1175,7 @@ class AddPlantEditor(GenericModelViewPresenterEditor):
         more_committed = None
         if response == self.RESPONSE_NEXT:
             self.presenter.cleanup()
-            e = AddPlantEditor(Plant(accession=self.model.accession),
+            e = PlantEditor(Plant(accession=self.model.accession),
                                parent=self.parent)
             more_committed = e.start()
 
@@ -1403,8 +1386,6 @@ class PlantInfoBox(InfoBox):
         self.transfers = TransferExpander(self.widgets)
         self.add_expander(self.transfers)
 
-        #self.notes = NotesExpander(self.widgets)
-        #self.add_expander(self.notes)
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
@@ -1419,14 +1400,6 @@ class PlantInfoBox(InfoBox):
         self.general.update(row)
         self.transfers.update(row)
         self.props.update(row)
-
-        # if row.notes is None:
-        #     self.notes.set_expanded(False)
-        #     self.notes.set_sensitive(False)
-        # else:
-        #     self.notes.set_expanded(True)
-        #     self.notes.set_sensitive(True)
-        #     self.notes.update(row)
 
 
 from bauble.plugins.garden.accession import Accession

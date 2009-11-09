@@ -145,7 +145,7 @@ def edit_callback(accessions):
 
 
 def add_plants_callback(accessions):
-    e = AddPlantEditor(model=Plant(accession=accessions[0]))
+    e = PlantEditor(model=Plant(accession=accessions[0]))
     return e.start()
 
 
@@ -611,7 +611,7 @@ class Accession(db.Base):
 
 
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
+from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
 
 
 
@@ -1668,7 +1668,7 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             e = AccessionEditor(parent=self.parent)
             more_committed = e.start()
         elif response == self.RESPONSE_OK_AND_ADD:
-            e = AddPlantEditor(Plant(accession=self.model), self.parent)
+            e = PlantEditor(Plant(accession=self.model), self.parent)
             more_committed = e.start()
 
         if more_committed is not None:

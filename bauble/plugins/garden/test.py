@@ -18,7 +18,7 @@ from bauble.plugins.garden.accession import Accession, AccessionEditor, \
     Verification, Voucher
 from bauble.plugins.garden.donor import Donor, DonorEditor
 from bauble.plugins.garden.source import Donation, Collection
-from bauble.plugins.garden.plant import Plant, PlantEditor, AddPlantEditor
+from bauble.plugins.garden.plant import Plant, PlantEditor, PlantStatusEditor
 from bauble.plugins.garden.location import Location, LocationEditor
 from bauble.plugins.garden.propagation import Propagation, PropagationEditor, \
     PropCutting, PropRooted, PropSeed
@@ -220,7 +220,7 @@ class PlantTests(GardenTestCase):
         p2 = Plant(accession=self.accession, location=self.location, code=u'2')
         self.accession.plants.append(p1)
         self.accession.plants.append(p2)
-        editor = PlantEditor(model=[p1, p2])
+        editor = PlantStatusEditor(model=[p1, p2])
         update_gui()
 
         widgets = editor.presenter.view.widgets
@@ -258,7 +258,7 @@ class PlantTests(GardenTestCase):
         p2 = Plant(accession=self.accession, location=self.location, code=u'2')
         self.accession.plants.append(p1)
         self.accession.plants.append(p2)
-        editor = PlantEditor(model=[p1, p2])
+        editor = PlantStatusEditor(model=[p1, p2])
         update_gui()
 
         widgets = editor.presenter.view.widgets
@@ -292,7 +292,7 @@ class PlantTests(GardenTestCase):
         self.accession.plants.append(p2)
         plants = [p1, p2]
         self.session.add_all(plants)
-        e = PlantEditor(plants)
+        e = PlantStatusEditor(plants)
         e.start()
 
 
@@ -304,7 +304,7 @@ class PlantTests(GardenTestCase):
             import gtk
         except ImportError:
             raise SkipTest('could not import gtk')
-        editor = AddPlantEditor(model=self.plant)
+        editor = PlantEditor(model=self.plant)
         #editor.start()
         update_gui()
         rng = '2,3,4-6'
@@ -339,15 +339,15 @@ class PlantTests(GardenTestCase):
 
         editor.presenter.cleanup()
         del editor
-        assert utils.gc_objects_by_type('AddPlantEditor') == [], \
-            'AddPlantEditor not deleted'
-        assert utils.gc_objects_by_type('AddPlantEditorPresenter') == [], \
-            'AddPlantEditorPresenter not deleted'
-        assert utils.gc_objects_by_type('AddPlantEditorView') == [], \
-            'AddPlantEditorView not deleted'
+        assert utils.gc_objects_by_type('PlantEditor') == [], \
+            'PlantEditor not deleted'
+        assert utils.gc_objects_by_type('PlantEditorPresenter') == [], \
+            'PlantEditorPresenter not deleted'
+        assert utils.gc_objects_by_type('PlantEditorView') == [], \
+            'PlantEditorView not deleted'
 
 
-    def itest_add_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantEditor
         """
@@ -364,7 +364,7 @@ class PlantTests(GardenTestCase):
         self.session.add_all([loc, loc2, loc2a])
         self.session.commit()
         p = Plant(accession=self.accession, location=loc)
-        editor = AddPlantEditor(model=p)
+        editor = PlantEditor(model=p)
         editor.start()
         del editor
 
@@ -1079,9 +1079,9 @@ class LocationTests(GardenTestCase):
             'LocationEditorView not deleted'
 
 
-    def itest_editor(self):
+    def itest_status_editor(self):
         """
-        Interactively test the PlantEditor
+        Interactively test the PlantStatusEditor
         """
         loc = self.create(Location, name=u'some site', code=u'STE')
         editor = LocationEditor(model=loc)
