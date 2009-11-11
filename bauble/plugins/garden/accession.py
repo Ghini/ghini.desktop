@@ -38,7 +38,7 @@ from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.propagation import Propagation, \
     PropagationTabPresenter
 from bauble.plugins.garden.source import CollectionPresenter, \
-    DonationPresenter
+    DonationPresenter, SourcePropagationPresenter
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -308,6 +308,7 @@ wild_prov_status_values = {u'WildNative': _("Wild native"),
 
 source_type_values = {u'Collection': _('Collection'),
                       u'Donation': _('Donation'),
+                      u'SourcePropagation': _('Garden Propagation'),
                       None: _('')}
 
 class AccessionNote(db.Base):
@@ -368,6 +369,9 @@ class Accession(db.Base):
 
                 * Donation: indicates that self.source points to a
                   :class:`bauble.plugins.garden.Donation`
+
+                * SourcePropagation: indicates that self.source points to a
+                  :class:`bauble.plugins.garden.PropagationSource`
 
         *id_qual*: :class:`bauble.types.Enum`
             The id qualifier is used to indicate uncertainty in the
@@ -460,9 +464,13 @@ class Accession(db.Base):
     _collection = relation('Collection', cascade='all, delete-orphan',
                            uselist=False, backref=backref('_accession',
                                                           uselist=False))
-    _donation = relation('Donation', cascade='all, delete-orphan',
-                         uselist=False, backref=backref('_accession',
-                                                        uselist=False))
+    _donation = relation('Donation',
+                         cascade='all, delete-orphan', uselist=False,
+                         backref=backref('_accession', uselist=False))
+
+    _source_prop = relation('SourcePropagation',
+                            cascade='all, delete-orphan', uselist=False,
+                            backref=backref('_accession', uselist=False))
 
     # use Plant.code for the order_by to avoid ambiguous column names
     plants = relation('Plant', cascade='all, delete-orphan',
@@ -585,6 +593,8 @@ class Accession(db.Base):
             return self._collection
         elif self.source_type == u'Donation':
             return self._donation
+        elif self.source_type == u'SourcePropagation':
+            return self._source_prop
         raise ValueError(_('unknown source_type in accession: %s') % \
                              self.source_type)
     def _set_source(self, source):
@@ -610,7 +620,8 @@ class Accession(db.Base):
         return '%s (%s)' % (self.code, self.species.markup())
 
 
-from bauble.plugins.garden.source import Donation, Collection
+from bauble.plugins.garden.source import Donation, Collection, \
+    SourcePropagation
 from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
 
 
@@ -1187,6 +1198,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.source_presenter = None
         self._source_box_map[Donation] = self.view.widgets.donation_box
         self._source_box_map[Collection] = self.view.widgets.collection_box
+        self._source_box_map[SourcePropagation] = \
+            self.view.widgets.source_prop_box
+
+        if not model.code:
+            model.code = get_next_code()
+            self.__dirty = True
 
         # reset the source_box_parent in case it still has a child
         # from a previous run of the accession editor
@@ -1305,7 +1322,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.assign_simple_handler('acc_id_qual_combo', 'id_qual',
                                    editor.UnicodeOrNoneValidator())
         self.assign_simple_handler('acc_private_check', 'private')
-        self.__dirty = False
         self.refresh_sensitivity()
 
 
@@ -1356,10 +1372,11 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
     def dirty(self):
         presenters = [self.ver_presenter, self.prop_presenter,
                       self.voucher_presenter, self.notes_presenter]
+        dirty_kids = [p.dirty() for p in presenters]
         if self.source_presenter is None:
-            return self.__dirty or True in [p.dirty() for p in presenters]
+            return self.__dirty or True in dirty_kids
         return self.source_presenter.dirty() or self.__dirty or \
-            True in [p.dirty() for p in presenters]
+            True in dirty_kids
 
 
     def on_acc_code_entry_changed(self, entry, data=None):
@@ -1535,6 +1552,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                    CollectionPresenter],
                   [source_type_values[u'Donation'], Donation,
                    DonationPresenter],
+                  [source_type_values[u'SourcePropagation'], SourcePropagation,
+                   SourcePropagationPresenter],
                   [None, None, None]]
         for v in values:
             model.append(v)
@@ -1545,10 +1564,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         combo.add_attribute(renderer, 'text', 0)
         self.view.connect('acc_source_type_combo', 'changed',
                           self.on_source_type_combo_changed)
-
-
-    def on_combo_changed(self, combo, field):
-        self.set_model_attr(field, utils.utf8(combo.get_active_text()))
 
 
     def refresh_view(self):
@@ -1564,6 +1579,12 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 value = '%s/%s/%s' % (value.day, value.month,
                                       '%04d' % value.year)
             self.view.set_widget_value(widget, value)
+
+
+        # set the source_type combo to the translated source type
+        # string, not the source_type value
+        self.view.set_widget_value('acc_source_type_combo',
+                                   source_type_values[self.model.source_type])
 
         self.view.set_widget_value('acc_wild_prov_combo',
                           wild_prov_status_values[self.model.wild_prov_status],
@@ -1605,8 +1626,6 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         self.presenter = None
         if model is None:
             model = Accession()
-        if not model.code:
-            model.code = get_next_code()
 
         super(AccessionEditor, self).__init__(model, parent)
         if not parent and bauble.gui:
@@ -1699,6 +1718,12 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
         return self._committed
 
 
+    @staticmethod
+    def __cleanup_source_prop_model(model):
+        '''
+        '''
+        return model
+
 
     @staticmethod
     def __cleanup_donation_model(model):
@@ -1735,6 +1760,8 @@ class AccessionEditor(editor.GenericModelViewPresenterEditor):
             self.__cleanup_collection_model(self.model.source)
         elif isinstance(self.model.source, Donation):
             self.__cleanup_donation_model(self.model.source)
+        elif isinstance(self.model.source, SourcePropagation):
+            self.__cleanup_source_prop_model(self.model.source)
         if self.model.id_qual is None:
             self.model.id_qual_rank = None
         return super(AccessionEditor, self).commit_changes()
@@ -1817,7 +1844,11 @@ class SourceExpander(InfoExpander):
         self.box_map = {Collection: (self.widgets.collections_box,
                                      self.update_collections),
                         Donation: (self.widgets.donations_box,
-                                   self.update_donations)}
+                                   self.update_donations),
+                        SourcePropagation: (self.widgets.source_prop_box,
+                                            self.update_source_prop)
+                        }
+
         self.current_obj = None
         def on_donor_clicked(*args):
             select_in_search_results(self.current_obj.donor)
@@ -1868,6 +1899,11 @@ class SourceExpander(InfoExpander):
         self.set_widget_value('donor_data', donor_str)
         self.set_widget_value('donid_data', donation.donor_acc)
         self.set_widget_value('donnotes_data', donation.notes)
+
+
+    def update_source_prop(self, source_prop):
+        # TODO: implement this
+        pass
 
 
     def update(self, value):
