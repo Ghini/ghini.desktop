@@ -15,9 +15,10 @@ from sqlalchemy.orm.session import object_session
 import bauble
 import bauble.db as db
 import bauble.editor as editor
-import bauble.types as types
 from bauble.plugins.plants.geography import Geography
 import bauble.utils as utils
+import bauble.types as types
+from bauble.utils.log import debug
 from bauble.view import Action
 
 
@@ -196,6 +197,32 @@ class Collection(db.Base):
     def __str__(self):
         return 'Collection at %s' % (self.locale or repr(self))
 
+
+
+class SourcePropagation(db.Base):
+    __tablename__ = 'source_propagation'
+
+    # the propagation id is the parent propagation that created the accession
+    propagation_id = Column(Integer, ForeignKey('propagation.id'),
+                            nullable=False)
+
+    # the accession id is the child accession that was created from the
+    # propagation
+    accession_id = Column(Integer, ForeignKey('accession.id'),
+                            nullable=False)
+
+
+    propagation = relation('Propagation', uselist=False,
+                           backref=backref('_sources',
+                                           cascade='delete-orphan, all'))
+
+    def _set_accession(self, accession):
+        accession.source = self
+    def _get_accession(self):
+        # self._accession is created as a backref on the accession's
+        # _donation property
+        return self._accession
+    accession = property(_get_accession, _set_accession)
 
 
 # TODO: should have a label next to lat/lon entry to show what value will be
@@ -652,11 +679,11 @@ class DonationPresenter(editor.GenericEditorPresenter):
 
 
     @staticmethod
-    def combo_cell_data_func(cell, renderer, model, iter):
+    def combo_cell_data_func(column, renderer, model, treeiter):
         """
         This method is static to make sure this object gets garbage collected.
         """
-        v = model[iter][0]
+        v = model[treeiter][0]
         renderer.set_property('text', str(v))
 
 
@@ -684,4 +711,118 @@ class DonationPresenter(editor.GenericEditorPresenter):
             self.view.widgets.don_edit_button.set_sensitive(False)
         else:
             self.view.widgets.don_edit_button.set_sensitive(True)
+
+
+# TODO: make the donor_combo insensitive if the model is empty
+class SourcePropagationPresenter(editor.GenericEditorPresenter):
+
+    widget_to_field_map = {}
+
+    PROBLEM_INVALID_DATE = random()
+
+    def __init__(self, parent, model, view, session):
+        """
+        @param parent: the parent AccessionEditorPresenter
+        """
+        super(SourcePropagationPresenter, self).__init__(model, view)
+        self.parent_ref = weakref.ref(parent)
+        self.session = session
+        self.__dirty = False
+
+        self.refresh_view()
+
+        cell = self.view.widgets.prop_toggle_cell
+        self.view.widgets.prop_toggle_column.\
+            set_cell_data_func(cell, self.toggle_cell_data_func)
+        def on_toggled(cell, path, data=None):
+            debug('on_toggled')
+            treeview = self.view.widgets.source_prop_treeview
+            prop = treeview.get_model()[path][0]
+            debug(prop)
+            self.model.propagation = prop
+            # source = SourcePropagation()
+            # source.propagation = prop
+            # source.accession = self.model
+        self.view.connect(cell, 'toggled', on_toggled)
+
+        self.view.widgets.prop_summary_column.\
+            set_cell_data_func(self.view.widgets.prop_summary_cell,
+                               self.summary_cell_data_func)
+
+        #assign_completions_handler
+        def acc_cell_data_func(column, renderer, model, iter, data=None):
+            v = model[iter][0]
+            renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
+        self.view.attach_completion('source_prop_acc_entry',
+                                    acc_cell_data_func, minimum_key_length=1)
+
+
+
+
+        def acc_get_completions(text):
+            from bauble.plugins.garden import Accession
+            # TODO: don't return self.model in the accession list
+            query = self.session.query(Accession)
+            return query.filter(Accession.code.like(unicode('%s%%' % text)))
+
+        def on_select(value):
+            # populate the propagation browser
+            treeview = self.view.widgets.source_prop_treeview
+            if not value:
+                treeview.props.sensitive = False
+                return
+            utils.clear_model(treeview)
+            model = gtk.ListStore(object)
+            for propagation in value.propagations:
+                model.append([propagation])
+            treeview.set_model(model)
+            treeview.props.sensitive = True
+
+        self.assign_completions_handler('source_prop_acc_entry',
+                                        acc_get_completions,
+                                        on_select=on_select)
+
+
+    # def on_acc_entry_changed(entry, *args):
+    #     # TODO: desensitize the propagation tree until on_select is called
+    #     pass
+
+    def refresh_view(self):
+        accession = self.model.accession # this accession
+        parent_accession = self.model.propagation.accession
+        # set the parent accession
+        self.view.widgets.source_prop_acc_entry.props.text = \
+            parent_accession.code
+
+        treeview = self.view.widgets.source_prop_treeview
+        if not parent_accession.propagations:
+            treeview.props.sensitive = False
+            return
+        utils.clear_model(treeview)
+        model = gtk.ListStore(object)
+        for propagation in parent_accession.propagations:
+            model.append([propagation])
+        treeview.set_model(model)
+        treeview.props.sensitive = True
+
+
+
+    def toggle_cell_data_func(self, column, cell, model, treeiter, data=None):
+        propagation = model[treeiter][0]
+        active = False
+        if self.model.propagation == propagation:
+            active = True
+        cell.set_active(active)
+
+
+    def summary_cell_data_func(self, column, cell, model, treeiter, data=None):
+        prop = model[treeiter][0]
+        cell.set_property('text', prop.get_summary())
+
+
+    def dirty(self):
+        return self.__dirty
+
+
+
 
