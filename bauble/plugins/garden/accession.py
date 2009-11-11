@@ -1533,7 +1533,9 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         if new_source is not None:
             self.source_presenter = presenter_class(self, new_source,
                                                     self.view, self.session)
-            self.set_model_attr('source', new_source)
+            if new_source != self.model.source:
+                # don't set the source if it hasn't changed
+                self.set_model_attr('source', new_source)
         elif self.model.source is not None:
             # didn't create a new source but we need to create a
             # source presenter

@@ -5,7 +5,6 @@
   <object class="GtkDialog" id="accession_dialog">
     <property name="height_request">400</property>
     <property name="title">Accession Editor</property>
-    <property name="resizable">False</property>
     <property name="modal">True</property>
     <property name="window_position">center-on-parent</property>
     <property name="default_width">320</property>
@@ -404,6 +403,7 @@
                         <child>
                           <object class="GtkAlignment" id="source_box_parent">
                             <property name="visible">True</property>
+                            <property name="top_padding">10</property>
                             <property name="left_padding">12</property>
                             <child>
                               <placeholder/>
@@ -413,11 +413,11 @@
                         <child type="label">
                           <object class="GtkHBox" id="hbox8">
                             <property name="visible">True</property>
-                            <property name="spacing">15</property>
+                            <property name="spacing">10</property>
                             <child>
                               <object class="GtkLabel" id="label43">
                                 <property name="visible">True</property>
-                                <property name="label" translatable="yes">&lt;b&gt;Type&lt;/b&gt;</property>
+                                <property name="label" translatable="yes">Type</property>
                                 <property name="use_markup">True</property>
                               </object>
                               <packing>
@@ -1977,6 +1977,7 @@
                 <child>
                   <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
+                    <property name="xpad">5</property>
                     <property name="label" translatable="yes">Accession</property>
                   </object>
                   <packing>
