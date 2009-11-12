@@ -15,6 +15,7 @@ import xml.sax.saxutils as saxutils
 
 import gtk
 import gobject
+import lxml.etree as etree
 import pango
 from sqlalchemy import *
 from sqlalchemy.orm import *
@@ -872,31 +873,25 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
         # remove any verification boxes that would have been added to
         # the widget in a previous run
-        for kid in self.view.widgets.verifications_box.get_children():
-            self.view.widgets.remove_parent(kid)
-            # p = kid.get_parent()
-            # if p:
-            #     p.remove(kid)
+        box = self.view.widgets.verifications_parent_box
+        map(box.remove, box.get_children())
 
         # order by date of the existing verifications
         for ver in model.verifications:
-            expander = self.add_verification_expander(model=ver)
+            expander = self.add_verification_box(model=ver)
             expander.set_expanded(False) # all are collapsed to start
 
-        # if no verifications were added then add an empty VerificationExpander
-        if len(self.view.widgets.verifications_box.get_children()) < 1:
-            self.add_verification_expander()
+        # if no verifications were added then add an empty VerificationBox
+        if len(self.view.widgets.verifications_parent_box.get_children()) < 1:
+            self.add_verification_box()
 
         # expand the first verification expander
-        self.view.widgets.verifications_box.get_children()[0].\
+        self.view.widgets.verifications_parent_box.get_children()[0].\
             set_expanded(True)
         self._dirty = False
 
 
     def dirty(self):
-        #verbox = self.view.widgets.verifications_box
-        #debug(map(lambda box: box.dirty, verbox.get_children()))
-        #return True in map(lambda box: box.dirty, verbox.get_children())
         return self._dirty
 
     def refresh_view(self):
@@ -904,21 +899,144 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
     def on_add_clicked(self, *args):
-        #ver = Verification()
-        #self.model.verifications.append(ver)
-        self.add_verification_expander()
+        self.add_verification_box()
 
 
-    def add_verification_expander(self, model=None):
-        expander = VerificationPresenter.VerificationExpander(self, model)
-        self.view.widgets.verifications_box.pack_start(expander, expand=False,
-                                                       fill=False)
-        self.view.widgets.verifications_box.reorder_child(expander, 0)
-        expander.show_all()
-        return expander
+    def add_verification_box(self, model=None):
+        box = VerificationPresenter.VerificationBox(self, model)
+        self.view.widgets.\
+            verifications_parent_box.pack_start(box, expand=False, fill=False)
+        self.view.widgets.verifications_parent_box.reorder_child(box, 0)
+        box.show_all()
+        return box
 
 
-    class VerificationExpander(gtk.Expander):
+    class VerificationBox(gtk.HBox):
+
+        def __init__(self, parent, model):
+            super(VerificationPresenter.VerificationBox,
+                  self).__init__(self)
+            check(not model or isinstance(model, Verification))
+
+            self.dirty = False
+            self.presenter = parent
+            self.model = model
+            if not self.model:
+                self.model = Verification()
+
+            # copy UI definitions from the accession editor glade file
+            filename = os.path.join(paths.lib_dir(), "plugins", "garden",
+                                "acc_editor.glade")
+            xml = etree.parse(filename)
+            el = xml.find("//object[@id='ver_box']")
+            builder = gtk.Builder()
+            s = '<interface>%s</interface>' % etree.tostring(el)
+            if sys.platform == 'win32':
+                # NOTE: PyGTK for Win32 is broken so we have to include
+                # this little hack
+                #
+                # TODO: is this only a specific set of version of
+                # PyGTK/GTK...it was only tested with PyGTK 2.12
+                builder.add_from_string(s, -1)
+            else:
+                builder.add_from_string(s)
+            self.widgets = utils.BuilderWidgets(builder)
+
+            ver_box = self.widgets.ver_box
+            self.widgets.remove_parent(ver_box)
+            self.pack_start(ver_box, expand=True, fill=True)
+
+            # verifier entry
+            entry = self.widgets.ver_verifier_entry
+            if self.model.verifier:
+                entry.props.text = self.model.verifier
+            self.presenter.view.connect(entry, 'changed',
+                                        self.on_entry_changed, 'verifier')
+
+            # date entry
+            self.date_entry = self.widgets.ver_date_entry
+            if self.model.date:
+                format = prefs.prefs[prefs.date_format_pref]
+                safe = utils.xml_safe(self.model.date.strftime(format))
+                self.date_entry.props.text = safe
+            else:
+                self.date_entry.props.text = utils.xml_safe(utils.today_str())
+            self.presenter.view.connect(self.date_entry, 'changed',
+                                        self.on_date_entry_changed)
+
+            # reference entry
+            ref_entry = self.widgets.ver_ref_entry
+            if self.model.reference:
+                ref_entry.props.text = self.model.reference
+            self.presenter.view.connect(ref_entry, 'changed',
+                                        self.on_entry_changed, 'reference')
+
+            # species entries
+            def sp_get_completions(text):
+                query = self.presenter.session.query(Species).join('genus').\
+                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
+                    filter(Species.id != self.model.id)
+                return query
+            def sp_cell_data_func(col, cell, model, treeiter, data=None):
+                cell.set_property('text', str(model[treeiter][0]))
+
+            entry = self.widgets.ver_prev_taxon_entry
+            def on_prevsp_select(value):
+                self.set_model_attr('prev_species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.prev_species:
+                entry.props.text = self.model.prev_species
+            self.presenter.assign_completions_handler(entry,sp_get_completions,
+                                                      on_prevsp_select)
+
+            entry = self.widgets.ver_new_taxon_entry
+            def on_sp_select(value):
+                self.set_model_attr('species', value)
+            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+            if self.model.species:
+                entry.props.text = self.model.species
+            self.presenter.assign_completions_handler(entry,sp_get_completions,
+                                                      on_sp_select)
+
+            combo = self.widgets.ver_level_combo
+            renderer = gtk.CellRendererText()
+            renderer.props.wrap_mode = pango.WRAP_WORD
+            # TODO: should auto calculate the wrap width with a
+            # on_size_allocation callback
+            renderer.props.wrap_width = 400
+            combo.pack_start(renderer, True)
+            def cell_data_func(col, cell, model, treeiter):
+                level = model[treeiter][0]
+                descr = model[treeiter][1]
+                cell.set_property('markup', '<b>%s</b>  :  %s' \
+                                      % (level, descr))
+            combo.set_cell_data_func(renderer, cell_data_func)
+            model = gtk.ListStore(int, str)
+            for level, descr in ver_level_descriptions.iteritems():
+                model.append([level, descr])
+            combo.set_model(model)
+            if self.model.level:
+                utils.set_widget_value(combo, self.model.level)
+            self.presenter.view.connect(combo, 'changed',
+                                        self.on_level_combo_changed)
+
+            # notes text view
+            buff = gtk.TextBuffer()
+            if self.model.notes:
+                buff.props.text = self.model.notes
+            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
+                                        'notes')
+            textview = self.widgets.ver_notes_textview
+            textview.set_border_width(1)
+
+            # remove button
+            button = self.widgets.ver_remove_button
+            #self._sid = button.connect('clicked',self.on_remove_button_clicked)
+            self._sid = self.presenter.view.connect(button, 'clicked',
+                                          self.on_remove_button_clicked)
+
+            self.update_label()
+
 
         def on_date_entry_changed(self, entry, data=None):
             from bauble.editor import ValidatorError
@@ -952,7 +1070,7 @@ class VerificationPresenter(editor.GenericEditorPresenter):
 
 
         def on_entry_changed(self, entry, attr):
-            text = entry.props.text#entry.get_text()
+            text = entry.props.text
             if not text:
                 self.set_model_attr(attr, None)
             else:
@@ -984,184 +1102,30 @@ class VerificationPresenter(editor.GenericEditorPresenter):
                 if not self.model.accession:
                     self.presenter.model.verifications.append(self.model)
             self.presenter._dirty = True
-            if self.model.date:
-                if isinstance(self.model.date, basestring):
-                    self.set_label(self.model.date)
-                else:
-                    format = prefs.prefs[prefs.date_format_pref]
-                    safe = utils.xml_safe(self.model.date.strftime(format))
-                    debug(safe)
-                    self.set_label(safe)
+            self.update_label()
             self.presenter.parent_ref().refresh_sensitivity()
 
 
-        def set_label(self, label):
-            label = '<b>%s</b>' % label
-            super(VerificationPresenter.VerificationExpander,
-                  self).set_label(label)
-
-        def __init__(self, parent, model):
-            super(VerificationPresenter.VerificationExpander,
-                  self).__init__(self)
-            check(not model or isinstance(model, Verification))
-            alignment = gtk.Alignment()
-            self.add(alignment)
-            self.box = gtk.HBox()
-            alignment.add(self.box)
-            self.set_expanded(True)
-            self.set_label('') # empty string avoids warning from default label
-            self.set_use_markup(True)
-            self.dirty = False
-            self.presenter = parent
-            self.model = model
-            if not self.model:
-                self.model = Verification()
-            self.box.set_homogeneous(False)
-            self.box.set_spacing(20)
-
-            vbox = gtk.VBox()
-            self.box.pack_start(vbox)#, expand=True, fill=True)
-
-            hbox = gtk.HBox()
-            vbox.pack_start(hbox)#, expand=True, fill=True)
-
-            def _make_frame(label_txt, child):
-                label = gtk.Label()
-                label.set_markup('<b>%s</b>' % label_txt)
-                frame = gtk.Frame()
-                frame.set_label_widget(label)
-                frame.set_shadow_type(gtk.SHADOW_NONE)
-                align = gtk.Alignment(.5, .5, 1.0, 1.0)
-                align.set_padding(0, 0, 12, 0)
-                frame.add(align)
-                align.add(child)
-                return frame
-
-            # verifier entry
-            self.verifier_entry = gtk.Entry()
-            if self.model.verifier:
-                self.verifier_entry.props.text = self.model.verifier
-            self.presenter.view.connect(self.verifier_entry, 'changed',
-                                        self.on_entry_changed, 'verifier')
-            frame = _make_frame(_('Verifier'), self.verifier_entry)
-            hbox.pack_start(frame)#, expand=True, fill=True)
-
-            # TODO: need to setup if the date entry with a today
-            # button like the other date entries
-
-            # date entry
-            self.date_entry = gtk.Entry()
+        def update_label(self):
+            parts = []
             if self.model.date:
-                format = prefs.prefs[prefs.date_format_pref]
-                safe = utils.xml_safe(self.model.date.strftime(format))
-                self.date_entry.props.text = safe
-            else:
-                self.date_entry.props.text = utils.xml_safe(utils.today_str())
-            self.set_label(self.date_entry.props.text)
-            self.presenter.view.connect(self.date_entry, 'changed',
-                                        self.on_date_entry_changed)
-            frame = _make_frame(_('Date'), self.date_entry)
-            hbox.pack_start(frame)#, expand=True, fill=True)
-
-            # reference entry
-            self.reference_entry = gtk.Entry()
-            if self.model.reference:
-                self.reference_entry.props.text = self.model.reference
-            self.presenter.view.connect(self.reference_entry, 'changed',
-                                        self.on_entry_changed, 'reference')
-            frame = _make_frame(_('Reference'), self.reference_entry)
-            hbox.pack_start(frame)#, expand=True, fill=True)
-
-            # name entries
-            def sp_get_completions(text):
-                query = self.presenter.session.query(Species).join('genus').\
-                    filter(utils.ilike(Genus.genus, '%s%%' % text)).\
-                    filter(Species.id != self.model.id)
-                return query
-            def sp_cell_data_func(col, cell, model, treeiter, data=None):
-                cell.set_property('text', str(model[treeiter][0]))
-
-            hbox = gtk.HBox() # species name hbox
-            vbox.pack_start(hbox)
-            entry = gtk.Entry()
-            def on_prevsp_select(value):
-                self.set_model_attr('prev_species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
-            if self.model.prev_species:
-                entry.props.text = self.model.prev_species
-            self.presenter.assign_completions_handler(entry,
-                                                      sp_get_completions,
-                                                      on_prevsp_select)
-            frame = _make_frame(_('Previous name'), entry)
-            hbox.pack_start(frame)
-
-            entry = gtk.Entry()
-            def on_sp_select(value):
-                self.set_model_attr('species', value)
-            self.presenter.view.attach_completion(entry, sp_cell_data_func)
+                parts.append('<b>%(date)s</b> : ')
             if self.model.species:
-                entry.props.text = self.model.species
-            self.presenter.assign_completions_handler(entry,
-                                                      sp_get_completions,
-                                                      on_sp_select)
-            frame = _make_frame(_('New name'), entry)
-            hbox.pack_start(frame)
+                parts.append('verified as %(species)s ')
+            if self.model.verifier:
+                parts.append('by %(verifier)s')
+            label = ' '.join(parts) % dict(date=self.model.date,
+                                           species=self.model.species,
+                                           verifier=self.model.verifier)
+            self.widgets.ver_expander_label.props.use_markup = True
+            self.widgets.ver_expander_label.props.label = label
 
-            hbox = gtk.HBox() # level and notes hbox
-            vbox.pack_start(hbox)
-            combo = gtk.ComboBox()
 
-            # setup the level combo
-            renderer = gtk.CellRendererText()
-            #renderer.props.wrap_mode = gtk.WRAP_WORD
-            renderer.props.wrap_mode = pango.WRAP_WORD
-            renderer.props.wrap_width = 600
-            combo.pack_start(renderer, True)
-            def cell_data_func(col, cell, model, treeiter):
-                level = model[treeiter][0]
-                descr = model[treeiter][1]
-                cell.set_property('text', '%s: %s' % (level, descr))
-            combo.set_cell_data_func(renderer, cell_data_func)
-            model = gtk.ListStore(int, str)
-            for level, descr in ver_level_descriptions.iteritems():
-                model.append([level, descr])
-            combo.set_model(model)
-            if self.model.level:
-                utils.set_widget_value(combo, self.model.level)
-            self.presenter.view.connect(combo, 'changed',
-                                        self.on_level_combo_changed)
-            frame = _make_frame(_('Level'), combo)
-            hbox.pack_start(frame, expand=False, fill=False)
+        def set_expanded(self, expanded):
+            self.widgets.ver_expander.props.expanded = expanded
 
-            # note textview
-            buff = gtk.TextBuffer()
-            if self.model.notes:
-                buff.props.text = self.model.notes
-            self.presenter.view.connect(buff, 'changed', self.on_entry_changed,
-                                        'notes')
-            textview = gtk.TextView(buffer=buff)
-            textview.set_border_width(1)
-            textview.props.height_request = 50
-            frame = _make_frame(_('Notes'), textview)
-            #hbox.pack_start(frame)#, expand=True, fill=True)
-            vbox.pack_start(frame)#, expand=True, fill=True)
 
-            sep = gtk.HSeparator()
-            vbox.pack_start(sep, False, False, padding=40)
 
-            # remove button
-            button = gtk.Button()
-            button.set_image(gtk.image_new_from_stock(gtk.STOCK_DELETE,
-                                                      gtk.ICON_SIZE_BUTTON))
-
-            # TODO: not using view.connect so might inhibit garbage
-            # collection even though we remove it in the signal
-            # handler
-            self._sid = button.connect('clicked',
-                                       self.on_remove_button_clicked)
-            align = gtk.Alignment(1.0, 0.5, 0, 0)
-            align.add(button)
-            self.box.pack_start(align, expand=False, fill=False, padding=20)
 
 
 
@@ -1207,9 +1171,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         # reset the source_box_parent in case it still has a child
         # from a previous run of the accession editor
-        kid = self.view.widgets.source_box_parent.get_child()
-        if kid:
-            self.view.widgets.source_box_parent.remove(kid)
+        map(self.view.widgets.source_box_parent.remove,
+            self.view.widgets.source_box_parent.get_children())
 
         self.ver_presenter = VerificationPresenter(self, self.model, self.view,
                                                    self.session)
@@ -1442,7 +1405,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
                 prov_sensitive = False
                 self.model.wild_prov_status = None
             wild_prov_combo.set_sensitive(prov_sensitive)
-            self.view.widgets.acc_wild_prov_frame.set_sensitive(prov_sensitive)
+            self.view.widgets.acc_wild_prov_combo.set_sensitive(prov_sensitive)
 
         if field == 'id_qual' and not self.model.id_qual_rank:
             self.add_problem(self.PROBLEM_ID_QUAL_RANK_REQUIRED,
@@ -1481,6 +1444,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         source box and setup the appropriate presenter.
         '''
         treeiter = combo.get_active_iter()
+        if not treeiter:
+            return
         presenter_class = combo.get_model()[treeiter][2]
         source_class = combo.get_model()[treeiter][1]
         source_type_changed = False
@@ -1601,7 +1566,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         sensitive = self.model.prov_type == 'Wild'
         self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
-        self.view.widgets.acc_wild_prov_frame.set_sensitive(sensitive)
+        self.view.widgets.acc_wild_prov_combo.set_sensitive(sensitive)
 
 
     def start(self):
