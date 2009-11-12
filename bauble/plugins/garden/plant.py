@@ -514,7 +514,7 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self._note = PlantNote()
         self._removal = PlantRemoval()
 
-        self.action_combo_map = {
+        self.action_box_map = {
             REMOVAL_ACTION: self.view.widgets.removal_box,
             TRANSFER_ACTION: self.view.widgets.transfer_box,
             }
@@ -575,10 +575,9 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             self.refresh_sensitivity()
         self.view.connect('rem_reason_combo', 'changed', on_rem_reason_changed)
 
-        # initialize the plant action combo
-        self.init_translatable_combo('plant_action_combo', plant_actions)
-        self.view.connect('plant_action_combo', 'changed',
-                          self.on_action_combo_changed)
+        self.view.connect('plant_transfer_radio', 'toggled',
+                          self.on_plant_transfer_radio_toggled)
+        self.view.widgets.plant_transfer_radio.toggled()
 
         # initialize the location combo
         def on_tran_to_select(value):
@@ -622,20 +621,15 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         """
         Return the code for the currently selected action.
         """
-        combo = self.view.widgets.plant_action_combo
-        model = combo.get_model()
-        value = model[combo.get_active_iter()][0]
-        return value
+        radio = self.view.widgets.plant_transfer_radio
+        if radio.props.active:
+            return TRANSFER_ACTION
+        return REMOVAL_ACTION
 
 
-    def on_action_combo_changed(self, combo, *args):
-        """
-        Called when the action combo changes.
-        """
-        # TODO: we need to create a removal, transfer or new note
-        # depending on the action
-        value = self.get_current_action()
-        action_box = self.action_combo_map[value]
+    def on_plant_transfer_radio_toggled(self, radio, *args):
+        action = self.get_current_action()
+        action_box = self.action_box_map[action]
         action_parent_box = self.view.widgets.action_parent_box
 
         # unparent the action box

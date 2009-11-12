@@ -283,7 +283,7 @@ class PlantTests(GardenTestCase):
         raise SkipTest('Not Implemented')
 
 
-    def itest_editor(self):
+    def itest_status_editor(self):
         p1 = Plant(accession=self.accession, location=self.location,
                    code=u'52')
         p2 = Plant(accession=self.accession, location=self.location,
@@ -1079,7 +1079,7 @@ class LocationTests(GardenTestCase):
             'LocationEditorView not deleted'
 
 
-    def itest_status_editor(self):
+    def itest_editor(self):
         """
         Interactively test the PlantStatusEditor
         """
