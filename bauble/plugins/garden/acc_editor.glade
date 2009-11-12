@@ -1665,8 +1665,8 @@
                 <child>
                   <object class="GtkLabel" id="label84">
                     <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Donor&lt;/b&gt;</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Donor</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -1677,8 +1677,8 @@
                 <child>
                   <object class="GtkLabel" id="don_acc_label">
                     <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Donor's ID&lt;/b&gt;</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Donor's ID</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -1691,8 +1691,8 @@
                 <child>
                   <object class="GtkLabel" id="label81">
                     <property name="visible">True</property>
-                    <property name="xalign">1</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Date&lt;/b&gt;</property>
+                    <property name="xalign">0</property>
+                    <property name="label" translatable="yes">Date</property>
                     <property name="use_markup">True</property>
                   </object>
                   <packing>
@@ -1868,7 +1868,7 @@
                 <child type="label">
                   <object class="GtkLabel" id="label20">
                     <property name="visible">True</property>
-                    <property name="label" translatable="yes">&lt;b&gt;Donation Notes&lt;/b&gt;</property>
+                    <property name="label" translatable="yes">Donation Notes</property>
                     <property name="use_markup">True</property>
                   </object>
                 </child>
