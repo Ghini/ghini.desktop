@@ -1428,6 +1428,9 @@ class SearchView(pluginmgr.View):
             val = getattr(row, prop)
             if val:
                 cell.set_property('text', utils.utf8(val))
+            else:
+                cell.set_property('text', '')
+
 
         date_cell = self.widgets.date_cell
         date_col = self.widgets.date_column
