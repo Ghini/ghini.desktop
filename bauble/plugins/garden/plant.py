@@ -42,7 +42,7 @@ default_plant_delimiter = u'.'
 
 
 def edit_callback(plants):
-    e = PlantEditor(model=plants)
+    e = PlantEditor(model=plants[0])
     return e.start() != None
 
 
@@ -226,7 +226,8 @@ class PlantTransfer(db.Base):
     date = Column(types.Date)
 
     # relations
-    plant = relation('Plant', backref='transfers')
+    plant = relation('Plant', uselist=False,
+                     backref=backref('transfers',cascade='all, delete-orphan'))
     from_location = relation('Location',
                    primaryjoin='PlantTransfer.from_location_id == Location.id')
     to_location = relation('Location',
@@ -514,11 +515,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self._note = PlantNote()
         self._removal = PlantRemoval()
 
-        self.action_box_map = {
-            REMOVAL_ACTION: self.view.widgets.removal_box,
-            TRANSFER_ACTION: self.view.widgets.transfer_box,
-            }
-
         # TODO: we should put this in a scrolled window or something
         # since the list of labels will get way to big when working on
         # lots of species
@@ -536,8 +532,12 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             label_str += s
         label.set_markup(label_str)
 
-        # on start hide the details until an action is chosen
-        self.view.widgets.details_box.props.visible = False
+        def on_user_changed(*args):
+            # we don't set the note user here since that gets set in
+            # commit_changes()
+            self._transfer.person = self.view.widgets.ped_user_entry.props.text
+            self._removal.person = self.view.widgets.ped_user_entry.props.text
+        self.view.connect('ped_user_entry', 'changed', on_user_changed)
 
         # set the user name entry to the current use if we're using postgres
         if db.engine.name in ('postgres', 'postgresql'):
@@ -553,7 +553,11 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         utils.setup_date_button(self.view.widgets.ped_date_entry,
                                 self.view.widgets.ped_date_button)
         def on_date_changed(*args):
-            self._note.date = self.view.widgets.ped_date_entry.props.text
+            # we don't set the note date here since that gets set in
+            # commit_changes()
+            self._transfer.date = self.view.widgets.ped_date_entry.props.text
+            self._removal.date = self.view.widgets.ped_date_entry.props.text
+
         self.view.connect(self.view.widgets.ped_date_entry, 'changed',
                           on_date_changed)
         self.view.widgets.ped_date_button.clicked() # insert todays date
@@ -595,13 +599,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
         self.view.connect(self.view.widgets.note_textview.get_buffer(),
                           'changed', on_buff_changed)
 
-        def on_category_changed(combo, data=None):
-            self.__dirty = True
-            self.refresh_sensitivity()
-            self._note.category = utils.utf8(combo.child.props.text)
-        self.view.connect('note_category_comboentry', 'changed',
-                          on_category_changed)
-
 
     def dirty(self):
         return self.__dirty
@@ -629,24 +626,14 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
 
     def on_plant_transfer_radio_toggled(self, radio, *args):
         action = self.get_current_action()
-        action_box = self.action_box_map[action]
-        action_parent_box = self.view.widgets.action_parent_box
-
-        # unparent the action box
-        self.view.widgets.remove_parent(action_box)
-
-        # remove any children from the parent box
-        child = action_parent_box.get_child()
-        if child:
-            action_parent_box.remove(child)
-
-        # add the action box to the parent
-        action_parent_box.add(action_box)
-
-        #self.view.widgets.details_box.set_property('visible', False)# = False
-        self.view.widgets.details_box.props.visible = True
-        self.view.widgets.details_box.show_all()
-        self.view.widgets.details_box.queue_resize()
+        if action == TRANSFER_ACTION:
+            action_box = self.view.widgets.plant_transfer_box
+            action_box.props.visible = True
+            self.view.widgets.plant_removal_box.props.visible = False
+        else:
+            action_box = self.view.widgets.plant_removal_box
+            action_box.props.visible = True
+            self.view.widgets.plant_transfer_box.props.visible = False
 
         # refresh the sensitivity in case the values for the new
         # action are set correctly
@@ -699,9 +686,7 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
     def commit_changes(self):
         """
         """
-        #debug('commit_changes()')
         action = self.presenter.get_current_action()
-        #debug(action)
         if action == REMOVAL_ACTION:
             action_model = self.presenter._removal
             self.presenter._note.category = action
@@ -712,22 +697,35 @@ class PlantStatusEditor(GenericModelViewPresenterEditor):
             raise ValueError('unknown plant action: %s' % action)
 
         # create a copy of the action_model for each plant and set the
-        # .plant attribute on each...the easiest way to copy would
-        # probably be to use session.merge
+        # .plant attribute on each
         for plant in self.plants:
             # make a copy of the action model in the plant's session
             session = object_session(plant)
-            new_model = session.merge(action_model)
-            new_model.plant = plant
+            new_action = type(action_model)()
+            for prop in object_mapper(new_action).iterate_properties:
+                setattr(new_action, prop.key, getattr(action_model, prop.key))
+
             if action == 'Transfer':
-                new_model.from_location = plant.location
-                plant.location = new_model.to_location
-                if self.presenter._note.note:
-                    new_model.note = session.merge(self.presenter._note)
+                new_action.to_location = \
+                    session.merge(action_model.to_location)
+                # change the location of the plant
+                new_action.from_location = plant.location
+                plant.location = new_action.to_location
             elif action == 'Removal':
-                new_model.from_location = plant.location
-                if self.presenter._note.note:
-                    new_model.note = session.merge(self.presenter._note)
+                # TODO: the plant will still be recorded as being in
+                # its old location
+                new_action.from_location = plant.location
+
+            new_action.plant = plant
+
+            # copy the note
+            if self.presenter._note.note:
+                new_note = PlantNote()
+                new_note.note = self.presenter._note.note
+                new_note.date = new_action.date
+                new_note.user = new_action.person
+                new_note.plant = plant
+                action_model.note = new_note
 
         # delete dummy model and remove it from the session
         self.session.expunge(self.model)
@@ -1099,10 +1097,15 @@ class PlantEditor(GenericModelViewPresenterEditor):
     def commit_changes(self):
         """
         """
+        codes = utils.range_builder(self.model.code)
+        if len(codes) <= 1:
+            super(PlantEditor, self).commit_changes()
+            self._committed.append(self.model)
+            return
+
         # this method will create new plants from self.model even if
         # the plant code is not a range....its a small price to pay
         plants = []
-        codes = utils.range_builder(self.model.code)
         mapper = object_mapper(self.model)
         # TODO: precompute the _created and _last_updated attributes
         # incase we have to create lots of plants it won't be too slow
