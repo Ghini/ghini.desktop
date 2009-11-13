@@ -507,56 +507,6 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkVBox" id="prop_tab_box">
-                    <property name="visible">True</property>
-                    <property name="border_width">10</property>
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkAlignment" id="alignment3">
-                        <property name="visible">True</property>
-                        <property name="xalign">0</property>
-                        <property name="xscale">0</property>
-                        <property name="yscale">0</property>
-                        <property name="bottom_padding">15</property>
-                        <property name="left_padding">5</property>
-                        <child>
-                          <object class="GtkButton" id="prop_add_button">
-                            <property name="label">gtk-add</property>
-                            <property name="visible">True</property>
-                            <property name="can_focus">True</property>
-                            <property name="receives_default">True</property>
-                            <property name="use_stock">True</property>
-                          </object>
-                        </child>
-                      </object>
-                      <packing>
-                        <property name="expand">False</property>
-                        <property name="fill">False</property>
-                        <property name="position">0</property>
-                      </packing>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                    <child>
-                      <placeholder/>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                  </packing>
-                </child>
-                <child type="tab">
-                  <object class="GtkLabel" id="prop_tab_label">
-                    <property name="visible">True</property>
-                    <property name="label" translatable="yes">Propagations</property>
-                  </object>
-                  <packing>
-                    <property name="position">2</property>
-                    <property name="tab_fill">False</property>
-                  </packing>
-                </child>
-                <child>
                   <object class="GtkVBox" id="vbox3">
                     <property name="visible">True</property>
                     <property name="border_width">10</property>
@@ -615,7 +565,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">2</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -624,7 +574,7 @@
                     <property name="label" translatable="yes">Verifications</property>
                   </object>
                   <packing>
-                    <property name="position">3</property>
+                    <property name="position">2</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -864,7 +814,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">3</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -873,7 +823,7 @@
                     <property name="label" translatable="yes">Vouchers</property>
                   </object>
                   <packing>
-                    <property name="position">4</property>
+                    <property name="position">3</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -895,7 +845,7 @@
                     </child>
                   </object>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">4</property>
                   </packing>
                 </child>
                 <child type="tab">
@@ -904,7 +854,7 @@
                     <property name="label" translatable="yes">Notes</property>
                   </object>
                   <packing>
-                    <property name="position">5</property>
+                    <property name="position">4</property>
                     <property name="tab_fill">False</property>
                   </packing>
                 </child>
@@ -1900,7 +1850,7 @@
                   <object class="GtkLabel" id="label2">
                     <property name="visible">True</property>
                     <property name="xpad">5</property>
-                    <property name="label" translatable="yes">Accession</property>
+                    <property name="label" translatable="yes">Plant</property>
                   </object>
                   <packing>
                     <property name="expand">False</property>
@@ -1908,7 +1858,7 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkEntry" id="source_prop_acc_entry">
+                  <object class="GtkEntry" id="source_prop_plant_entry">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="invisible_char">&#x25CF;</property>

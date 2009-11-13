@@ -12,10 +12,10 @@ from bauble.plugins.garden.accession import Accession, \
     SourceInfoBox
 from bauble.plugins.garden.location import Location, \
     LocationEditor, LocationInfoBox, loc_context_menu, loc_markup_func
-from bauble.plugins.garden.plant import Plant, \
-    PlantEditor, PlantStatusEditor, PlantInfoBox, \
-    plant_markup_func, plant_delimiter_key, default_plant_delimiter, \
-    PlantSearch, plant_context_menu
+from bauble.plugins.garden.plant import Plant, PlantEditor, \
+    PlantStatusEditor, PlantInfoBox, plant_markup_func, \
+    plant_delimiter_key, default_plant_delimiter, PlantSearch, \
+    plant_context_menu
 from bauble.plugins.garden.source import Donation, \
     Collection, source_markup_func, source_context_menu
 from bauble.plugins.garden.donor import Donor, DonorEditor, \

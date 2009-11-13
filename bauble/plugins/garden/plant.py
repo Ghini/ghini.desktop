@@ -322,6 +322,10 @@ class Plant(db.Base):
     accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
     location_id = Column(Integer, ForeignKey('location.id'), nullable=False)
 
+    #from bauble.plugins.garden.propagation import Propagation
+    propagations = relation('Propagation', cascade='all, delete-orphan',
+                            backref=backref('plant', uselist=False))
+
     _delimiter = None
 
     @classmethod
@@ -549,7 +553,6 @@ class PlantStatusEditorPresenter(GenericEditorPresenter):
             self.view.set_widget_value('ped_user_entry',os.environ['USERNAME'])
 
         # initialize the date button
-
         utils.setup_date_button(self.view.widgets.ped_date_entry,
                                 self.view.widgets.ped_date_button)
         def on_date_changed(*args):
@@ -892,6 +895,9 @@ class PlantEditorPresenter(GenericEditorPresenter):
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = NotesPresenter(self, 'notes', notes_parent)
+        from bauble.plugins.garden.propagation import PropagationTabPresenter
+        self.prop_presenter = PropagationTabPresenter(self, self.model,
+                                                      self.view, self.session)
 
         self.refresh_view() # put model values in view
 
@@ -924,7 +930,8 @@ class PlantEditorPresenter(GenericEditorPresenter):
 
 
     def dirty(self):
-        return self.notes_presenter.dirty() or self.__dirty
+        return self.notes_presenter.dirty() or \
+            self.prop_presenter.dirty() or self.__dirty
 
 
     def on_plant_code_entry_changed(self, entry, *args):

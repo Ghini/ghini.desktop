@@ -32,6 +32,7 @@ from bauble.error import CommitException
 import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
+#from bauble.plugins.garden.plant import Plant
 
 
 prop_type_values = {u'Seed': _("Seed"),
@@ -52,11 +53,9 @@ class Propagation(db.Base):
     prop_type = Column(types.Enum(values=prop_type_values.keys()),
                        nullable=False)
     notes = Column(UnicodeText)
-    accession_id = Column(Integer, ForeignKey('accession.id'),
-                          nullable=False)
+    plant_id = Column(Integer, ForeignKey('plant.id'), nullable=False)
     date = Column(types.Date)
-    #from bauble.plugins.garden import Accession
-    #accessions = relation(Accession, 'accession_id', backref='propagations')
+
     _cutting = relation('PropCutting',
                       primaryjoin='Propagation.id==PropCutting.propagation_id',
                       cascade='all,delete-orphan', uselist=False,
@@ -947,9 +946,4 @@ class PropagationEditor(editor.GenericModelViewPresenterEditor):
         #self.session.close() # cleanup session
         self.presenter.cleanup()
         return self._return
-
-
-
-
-
 

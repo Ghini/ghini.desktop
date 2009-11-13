@@ -20,6 +20,7 @@ import bauble.utils as utils
 import bauble.types as types
 from bauble.utils.log import debug
 from bauble.view import Action
+#from bauble.plugins.garden.propagation import Propagation
 
 
 def source_markup_func(source):
@@ -206,11 +207,9 @@ class SourcePropagation(db.Base):
     propagation_id = Column(Integer, ForeignKey('propagation.id'),
                             nullable=False)
 
-    # the accession id is the child accession that was created from the
+    # the plant id is the child plant that was created from the
     # propagation
-    accession_id = Column(Integer, ForeignKey('accession.id'),
-                            nullable=False)
-
+    accession_id = Column(Integer, ForeignKey('accession.id'), nullable=False)
 
     propagation = relation('Propagation', uselist=False,
                            backref=backref('_sources',
@@ -722,7 +721,10 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
 
     def __init__(self, parent, model, view, session):
         """
-        @param parent: the parent AccessionEditorPresenter
+        :param parent: the parent AccessionEditorPresenter
+        :param model: a SourcePropagation instance
+        :param view: an AccessionEditorView
+        :param session: an sqlalchemy session
         """
         super(SourcePropagationPresenter, self).__init__(model, view)
         self.parent_ref = weakref.ref(parent)
@@ -740,9 +742,6 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
             prop = treeview.get_model()[path][0]
             debug(prop)
             self.model.propagation = prop
-            # source = SourcePropagation()
-            # source.propagation = prop
-            # source.accession = self.model
         self.view.connect(cell, 'toggled', on_toggled)
 
         self.view.widgets.prop_summary_column.\
@@ -750,20 +749,23 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
                                self.summary_cell_data_func)
 
         #assign_completions_handler
-        def acc_cell_data_func(column, renderer, model, iter, data=None):
+        def plant_cell_data_func(column, renderer, model, iter, data=None):
             v = model[iter][0]
-            renderer.set_property('text', '%s (%s)' % (str(v), str(v.species)))
-        self.view.attach_completion('source_prop_acc_entry',
-                                    acc_cell_data_func, minimum_key_length=1)
+            renderer.set_property('text', '%s (%s)' % \
+                                      (str(v), str(v.accession.species)))
+        self.view.attach_completion('source_prop_plant_entry',
+                                    plant_cell_data_func, minimum_key_length=1)
 
+        def plant_get_completions(text):
+            # TODO: only return those plants with propagations
+            from bauble.plugins.garden.accession import Accession
+            from bauble.plugins.garden.plant import Plant
+            query = self.session.query(Plant).join('accession').\
+                    filter(utils.ilike(Accession.code, '%s%%' % text)).\
+                    filter(Plant.id != self.model.id)
+            debug(list(query))
+            return query
 
-
-
-        def acc_get_completions(text):
-            from bauble.plugins.garden import Accession
-            # TODO: don't return self.model in the accession list
-            query = self.session.query(Accession)
-            return query.filter(Accession.code.like(unicode('%s%%' % text)))
 
         def on_select(value):
             # populate the propagation browser
@@ -778,8 +780,8 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
             treeview.set_model(model)
             treeview.props.sensitive = True
 
-        self.assign_completions_handler('source_prop_acc_entry',
-                                        acc_get_completions,
+        self.assign_completions_handler('source_prop_plant_entry',
+                                        plant_get_completions,
                                         on_select=on_select)
 
 
@@ -788,19 +790,20 @@ class SourcePropagationPresenter(editor.GenericEditorPresenter):
     #     pass
 
     def refresh_view(self):
-        accession = self.model.accession # this accession
-        parent_accession = self.model.propagation.accession
+        if not self.model.propagation:
+            return
+        parent_plant = self.model.propagation.plant
         # set the parent accession
-        self.view.widgets.source_prop_acc_entry.props.text = \
-            parent_accession.code
+        self.view.widgets.source_prop_plant_entry.props.text = \
+            parent_plant.code
 
         treeview = self.view.widgets.source_prop_treeview
-        if not parent_accession.propagations:
+        if not parent_plant.propagations:
             treeview.props.sensitive = False
             return
         utils.clear_model(treeview)
         model = gtk.ListStore(object)
-        for propagation in parent_accession.propagations:
+        for propagation in parent_plant.propagations:
             model.append([propagation])
         treeview.set_model(model)
         treeview.props.sensitive = True
