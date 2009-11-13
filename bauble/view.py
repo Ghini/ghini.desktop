@@ -1029,6 +1029,7 @@ class SearchView(pluginmgr.View):
                 statusbar.push(sbcontext_id,
                                _("%s search results") % len(results))
                 self.results_view.set_cursor(0)
+        self.update_notes()
 
 
     def remove_children(self, model, parent):
