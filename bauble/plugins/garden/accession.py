@@ -36,8 +36,6 @@ import bauble.types as types
 from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
      select_in_search_results, Action
 from bauble.plugins.garden.donor import Donor
-from bauble.plugins.garden.propagation import Propagation, \
-    PropagationTabPresenter
 from bauble.plugins.garden.source import CollectionPresenter, \
     DonationPresenter, SourcePropagationPresenter
 
@@ -482,8 +480,6 @@ class Accession(db.Base):
                              backref=backref('accession', uselist=False))
     vouchers = relation('Voucher', cascade='all, delete-orphan',
                         backref=backref('accession', uselist=False))
-    propagations = relation('Propagation', cascade='all, delete-orphan',
-                            backref=backref('accession', uselist=False))
 
 
     def __init__(self, *args, **kwargs):
@@ -624,7 +620,6 @@ class Accession(db.Base):
 from bauble.plugins.garden.source import Donation, Collection, \
     SourcePropagation
 from bauble.plugins.garden.plant import Plant, PlantStatusEditor, PlantEditor
-
 
 
 class AccessionEditorView(editor.GenericEditorView):
@@ -1179,8 +1174,6 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
         self.voucher_presenter = VoucherPresenter(self, self.model, self.view,
                                                   self.session)
 
-        self.prop_presenter = PropagationTabPresenter(self, self.model,
-                                                      self.view, self.session)
         notes_parent = self.view.widgets.notes_parent_box
         notes_parent.foreach(notes_parent.remove)
         self.notes_presenter = \
@@ -1333,8 +1326,8 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
 
     def dirty(self):
-        presenters = [self.ver_presenter, self.prop_presenter,
-                      self.voucher_presenter, self.notes_presenter]
+        presenters = [self.ver_presenter, self.voucher_presenter,
+                      self.notes_presenter]
         dirty_kids = [p.dirty() for p in presenters]
         if self.source_presenter is None:
             return self.__dirty or True in dirty_kids
