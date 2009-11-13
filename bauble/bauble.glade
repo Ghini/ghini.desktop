@@ -164,7 +164,7 @@
                 </child>
                 <child>
                   <object class="GtkExpander" id="notes_expander">
-                    <property name="visible">True</property>
+                    <property name="sensitive">False</property>
                     <property name="can_focus">True</property>
                     <child>
                       <object class="GtkScrolledWindow" id="scrolledwindow2">
