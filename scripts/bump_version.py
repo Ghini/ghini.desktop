@@ -1,6 +1,8 @@
 #!/usr/bin/env python
-# TODO: change all the relative version strings to the version passed
-# as an argument
+
+"""
+Replace the version string in the relevant files.
+"""
 
 import os
 import re
@@ -78,4 +80,8 @@ bump_py_file('setup.py')
 bump_py_file('bauble/__init__.py')
 bump_desktop_file('data/bauble.desktop')
 bump_nsi_file('scripts/build.nsi')
+
+# TODO: the bauble UBC version is prefixed with ubc-
+rx = "(^VERSION=\"ubc-).*?\..*?\..*?(\".*?%s.*?$)" % bump_tag
+bump_file('packages/builddeb.sh', rx)
 
