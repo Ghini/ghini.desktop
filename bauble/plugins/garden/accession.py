@@ -1162,7 +1162,7 @@ class AccessionEditorPresenter(editor.GenericEditorPresenter):
 
         if not model.code:
             model.code = get_next_code()
-            self.__dirty = True
+            #self.__dirty = True
 
         # reset the source_box_parent in case it still has a child
         # from a previous run of the accession editor
