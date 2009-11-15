@@ -109,6 +109,22 @@ class UtilsTests(unittest.TestCase):
         #self.assertRaises(ParseException, utils.range_builder, 'a-b')
 
 
+    def test_get_urls(self):
+        text = 'There a link in here: http://bauble.belizebotanic.org'
+        urls = utils.get_urls(text)
+        self.assert_(urls == ['http://bauble.belizebotanic.org'], urls)
+
+        text = 'There a link in here: http://bauble.belizebotanic.org '\
+               'and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == ['http://bauble.belizebotanic.org'], urls)
+
+        text = 'There is a link here: http://bauble.belizebotanic.org '\
+               'and here: https://belizebotanic.org and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == ['http://bauble.belizebotanic.org',
+                              'https://belizebotanic.org'], urls)
+
 
 class UtilsDBTests(BaubleTestCase):
 

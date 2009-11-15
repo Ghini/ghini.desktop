@@ -1145,3 +1145,14 @@ def get_invalid_columns(obj):
             #debug('%s: %s' % (col.name, getattr(model, col.name)))
             invalid_columns.append(name)
     return invalid_columns
+
+
+def get_urls(text):
+    """
+    Return all the URLS in the text
+    """
+    rx = re.compile('((?:(?:http)|(?:https))://\S+)', re.I)
+    matches = []
+    for match in rx.finditer(text):
+        matches.append(match.groups()[0])
+    return matches

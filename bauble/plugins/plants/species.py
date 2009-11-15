@@ -7,6 +7,7 @@ from bauble.plugins.plants.species_editor import *
 from bauble.plugins.plants.species_model import *
 from bauble.view import SearchView, SearchStrategy, MapperSearch, \
      PropertiesExpander, Action
+import bauble.view as view
 import bauble.utils.desktop as desktop
 
 # __all__ = ['Species', 'SpeciesSynonym', 'SpeciesNote', 'VernacularName',
@@ -284,14 +285,14 @@ class GeneralSpeciesExpander(InfoExpander):
 
 
 
-class LinksExpander(InfoExpander):
+class LinksExpander(view.LinksExpander):
 
     """
     A collection of link buttons to use for internet searches.
     """
 
     def __init__(self):
-        InfoExpander.__init__(self, _("Links"))
+        super(LinksExpander, self).__init__("notes")
         buttons = []
 
         self.google_button = gtk.LinkButton("", _("Search Google"))
@@ -324,6 +325,7 @@ class LinksExpander(InfoExpander):
 
 
     def update(self, row):
+        super(LinksExpander, self).update(row)
         s = str(row)
         self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
                                  s.replace(' ', '+'))
