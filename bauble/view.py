@@ -217,8 +217,8 @@ class InfoBoxPage(gtk.ScrolledWindow):
         self.vbox.pack_start(expander, expand=False, fill=True, padding=5)
         self.expanders[expander.get_property("label")] = expander
 
-        sep = gtk.HSeparator()
-        self.vbox.pack_start(sep, False, False)
+        expander._sep = gtk.HSeparator()
+        self.vbox.pack_start(expander._sep, False, False)
 
 
     def get_expander(self, label):

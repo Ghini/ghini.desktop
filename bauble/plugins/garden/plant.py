@@ -27,6 +27,7 @@ from bauble.utils.log import debug
 import bauble.types as types
 import bauble.meta as meta
 from bauble.view import SearchStrategy, ResultSet, Action
+import bauble.view as view
 from bauble.plugins.garden.location import Location, LocationEditor
 
 # TODO: do a magic attribute on plant_id that checks if a plant id
@@ -1316,57 +1317,6 @@ class TransferExpander(InfoExpander):
             #s = s.replace('None', '?')
             self.vbox.pack_start(gtk.Label(s))
         self.vbox.show_all()
-        #self.set_widget_value('notes_data', row.notes)
-
-
-# class NotesExpander(InfoExpander):
-#     """
-#     the plants notes
-#     """
-
-#     def __init__(self, widgets):
-#         '''
-#         '''
-#         super(NotesExpander, self).__init__(_("Notes"), widgets)
-#         notes_box = self.widgets.notes_box
-#         self.widgets.remove_parent(notes_box)
-#         self.vbox.pack_start(notes_box)
-
-#         # set up sorting
-#         treeview = self.widgets.notes_treeview
-#         for i in range(3):
-#             treeview.get_column(i).set_sort_column_id(i)
-
-#         # TODO: we might have to get the datetime object for this to
-#         # work correctly in case the date string format changes
-
-#         # sort by date by default
-#         treeview.get_model().set_sort_column_id(0, gtk.SORT_DESCENDING)
-
-#         # change the wrap width when the column width changes on the
-#         # notes column
-#         self.widgets.note_cell.props.wrap_mode = pango.WRAP_WORD
-#         def on_width(*args):
-#             width = self.widgets.note_column.props.width
-#             self.widgets.note_cell.props.wrap_width = width
-#         self.widgets.note_column.connect('notify::width', on_width)
-
-#         # vertically align the text in the cells to the top
-#         self.widgets.date_cell.props.yalign = 0.0
-#         self.widgets.category_cell.props.yalign = 0.0
-#         self.widgets.note_cell.props.yalign = 0.0
-
-
-#     def update(self, row):
-#         '''
-#         '''
-#         model = self.widgets.notes_treeview.get_model()
-#         model.clear()
-#         for note in row.notes:
-#             model.append([note.date, note.category, note.note])
-#         # the 25 is arbitrary but should show enough of the tree for
-#         # the notes but not all the notes
-#         self.widgets.notes_treeview.set_size_request(-1, len(row.notes)*25)
 
 
 
@@ -1379,8 +1329,6 @@ class PlantInfoBox(InfoBox):
         '''
         '''
         InfoBox.__init__(self)
-        #loc = LocationExpander()
-        #loc.set_expanded(True)
         filename = os.path.join(paths.lib_dir(), "plugins", "garden",
                                 "plant_infobox.glade")
         self.widgets = utils.load_widgets(filename)
@@ -1389,6 +1337,9 @@ class PlantInfoBox(InfoBox):
 
         self.transfers = TransferExpander(self.widgets)
         self.add_expander(self.transfers)
+
+        self.links = view.LinksExpander('notes')
+        self.add_expander(self.links)
 
         self.props = PropertiesExpander()
         self.add_expander(self.props)
@@ -1403,6 +1354,17 @@ class PlantInfoBox(InfoBox):
         #loc.update(row.location)
         self.general.update(row)
         self.transfers.update(row)
+
+        urls = filter(lambda x: x!=[], \
+                          [utils.get_urls(note.note) for note in row.notes])
+        if not urls:
+            self.links.props.visible = False
+            self.links._sep.props.visible = False
+        else:
+            self.links.props.visible = True
+            self.links._sep.props.visible = True
+            self.links.update(row)
+
         self.props.update(row)
 
 
