@@ -22,22 +22,21 @@ from sqlalchemy.orm import *
 from sqlalchemy.orm.session import object_session
 from sqlalchemy.exc import SQLError
 
-
 import bauble
 import bauble.db as db
-from bauble.error import check
-import bauble.utils as utils
-import bauble.paths as paths
 import bauble.editor as editor
-from bauble.utils.log import debug
-import bauble.prefs as prefs
-from bauble.error import CommitException
-import bauble.types as types
-from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
-     select_in_search_results, Action
+from bauble.error import check, CommitException
+import bauble.paths as paths
 from bauble.plugins.garden.donor import Donor
 from bauble.plugins.garden.source import CollectionPresenter, \
     DonationPresenter, SourcePropagationPresenter
+import bauble.prefs as prefs
+import bauble.types as types
+import bauble.utils as utils
+from bauble.utils.log import debug
+from bauble.view import InfoBox, InfoExpander, PropertiesExpander, \
+     select_in_search_results, Action
+import bauble.view as view
 
 # TODO: underneath the species entry create a label that shows information
 # about the family of the genus of the species selected as well as more
@@ -1963,6 +1962,10 @@ class AccessionInfoBox(InfoBox):
         self.add_expander(self.vouchers)
         self.verifications = VerificationsExpander(self.widgets)
         self.add_expander(self.verifications)
+
+        self.links = view.LinksExpander('notes')
+        self.add_expander(self.links)
+
         self.props = PropertiesExpander()
         self.add_expander(self.props)
 
@@ -1977,6 +1980,16 @@ class AccessionInfoBox(InfoBox):
         self.verifications.set_sensitive(row.verifications != None)
 
         self.vouchers.update(row)
+
+        urls = filter(lambda x: x!=[], \
+                          [utils.get_urls(note.note) for note in row.notes])
+        if not urls:
+            self.links.props.visible = False
+            self.links._sep.props.visible = False
+        else:
+            self.links.props.visible = True
+            self.links._sep.props.visible = True
+            self.links.update(row)
 
         # TODO: should test if the source should be expanded from the prefs
         self.source.update(row.source)
