@@ -21,7 +21,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
 from bauble.prefs import prefs
-from bauble.view import Action
+import bauble.view as view
 
 def edit_callback(families):
     """
@@ -71,13 +71,14 @@ def remove_callback(families):
     return True
 
 
-edit_action = Action('family_edit', ('_Edit'), callback=edit_callback,
-                     accelerator='<ctrl>e')
-add_species_action = Action('family_genus_add', ('_Add accession'),
-                              callback=add_genera_callback,
-                              accelerator='<ctrl>k')
-remove_action = Action('family_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+edit_action = view.Action('family_edit', ('_Edit'), callback=edit_callback,
+                          accelerator='<ctrl>e')
+add_species_action = view.Action('family_genus_add', ('_Add accession'),
+                                 callback=add_genera_callback,
+                                 accelerator='<ctrl>k')
+remove_action = view.Action('family_remove', ('_Remove'),
+                            callback=remove_callback,
+                            accelerator='<delete>', multiselect=True)
 
 family_context_menu = [edit_action, add_species_action, remove_action]
 
@@ -740,10 +741,10 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class LinksExpander(InfoExpander):
+class LinksExpander(view.LinksExpander):
 
     def __init__(self):
-        super(LinksExpander, self).__init__(_('Links'))
+        super(LinksExpander, self).__init__('notes')
         self.tooltips = gtk.Tooltips()
         buttons = []
         self.google_button = gtk.LinkButton("", _("Search Google"))
@@ -773,6 +774,7 @@ class LinksExpander(InfoExpander):
 
 
     def update(self, row):
+        super(LinksExpander, self).update(row)
         s = str(row)
         self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
                                  s.replace(' ', '+'))

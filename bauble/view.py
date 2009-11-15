@@ -310,15 +310,34 @@ class InfoBox(gtk.Notebook):
 
 
 
-# TODO: should be able to just to a add_link(uri, description) to
-# add buttons
-## class LinkExpander(InfoExpander):
+class LinksExpander(InfoExpander):
 
-##     def __init__(self):
-##         super(LinkExpander, self).__init__()
+    def __init__(self, notes=None):
+        """
+        :param notes: the name of the notes property on the row
+        """
+        super(LinksExpander, self).__init__(_("Links"))
+        self.dynamic_box = gtk.VBox()
+        self.vbox.pack_start(self.dynamic_box)
+        self.notes = notes
 
-##     def add_button(button):
-##         self.vbox.pack_start(button)
+
+    def update(self, row):
+        import pango
+        map(self.dynamic_box.remove, self.dynamic_box.get_children())
+        if self.notes:
+            notes = getattr(row, self.notes)
+            for note in notes:
+                for url in utils.get_urls(note.note):
+                    # TODO: should also allow some sort of annotation for
+                    # the link similar to markdown or some other rst
+                    label = gtk.Label(url)
+                    label.set_ellipsize(pango.ELLIPSIZE_END)
+                    button = gtk.LinkButton(uri=url)
+                    button.add(label)
+                    button.set_alignment(0, -1)
+                    self.dynamic_box.pack_start(button, expand=False,fill=False)
+            self.dynamic_box.show_all()
 
 
 class SearchParser(object):
