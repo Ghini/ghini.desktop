@@ -1149,10 +1149,13 @@ def get_invalid_columns(obj):
 
 def get_urls(text):
     """
-    Return all the URLS in the text
+    Return tuples of http/https links and labels for the links.  To
+    label a link prefix it with [label text],
+    e.g. [BBG]http://belizebotanic.org
     """
-    rx = re.compile('((?:(?:http)|(?:https))://\S+)', re.I)
+    rx = re.compile('(?:\[(.+?)\])?((?:(?:http)|(?:https))://\S+)', re.I)
     matches = []
     for match in rx.finditer(text):
-        matches.append(match.groups()[0])
+        #print match.groups()
+        matches.append(match.groups())
     return matches

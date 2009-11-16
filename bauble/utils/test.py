@@ -112,18 +112,24 @@ class UtilsTests(unittest.TestCase):
     def test_get_urls(self):
         text = 'There a link in here: http://bauble.belizebotanic.org'
         urls = utils.get_urls(text)
-        self.assert_(urls == ['http://bauble.belizebotanic.org'], urls)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
 
         text = 'There a link in here: http://bauble.belizebotanic.org '\
                'and some text afterwards.'
         urls = utils.get_urls(text)
-        self.assert_(urls == ['http://bauble.belizebotanic.org'], urls)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org')], urls)
 
         text = 'There is a link here: http://bauble.belizebotanic.org '\
                'and here: https://belizebotanic.org and some text afterwards.'
         urls = utils.get_urls(text)
-        self.assert_(urls == ['http://bauble.belizebotanic.org',
-                              'https://belizebotanic.org'], urls)
+        self.assert_(urls == [(None, 'http://bauble.belizebotanic.org'),
+                              (None, 'https://belizebotanic.org')], urls)
+
+        text = 'There a labeled link in here: '\
+               '[BBG]http://bauble.belizebotanic.org and some text afterwards.'
+        urls = utils.get_urls(text)
+        self.assert_(urls == [('BBG', 'http://bauble.belizebotanic.org')],
+                     urls)
 
 
 class UtilsDBTests(BaubleTestCase):

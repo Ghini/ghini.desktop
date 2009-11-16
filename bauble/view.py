@@ -328,10 +328,10 @@ class LinksExpander(InfoExpander):
         if self.notes:
             notes = getattr(row, self.notes)
             for note in notes:
-                for url in utils.get_urls(note.note):
-                    # TODO: should also allow some sort of annotation for
-                    # the link similar to markdown or some other rst
-                    label = gtk.Label(url)
+                for label, url in utils.get_urls(note.note):
+                    if not label:
+                        label = url
+                    label = gtk.Label(label)
                     label.set_ellipsize(pango.ELLIPSIZE_END)
                     button = gtk.LinkButton(uri=url)
                     button.add(label)
