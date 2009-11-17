@@ -20,6 +20,7 @@ from sqlalchemy import *
 from sqlalchemy.orm import *
 
 import bauble
+import bauble.db as db
 from bauble.utils.log import debug
 import bauble.utils as utils
 import bauble.utils.desktop as desktop
@@ -301,7 +302,7 @@ class XSLFormatterPlugin(FormatterPlugin):
                                  gtk.MESSAGE_ERROR)
             return False
 
-        session = bauble.Session()
+        session = db.Session()
 
         # convert objects to ABCDAdapters depending on source type for
         # passing to create_abcd

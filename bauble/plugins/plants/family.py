@@ -21,7 +21,7 @@ import bauble.utils as utils
 from bauble.utils.log import debug
 import bauble.types as types
 from bauble.prefs import prefs
-from bauble.view import Action
+import bauble.view as view
 
 def edit_callback(families):
     """
@@ -47,7 +47,7 @@ def remove_callback(families):
     """
     family = families[0]
     from bauble.plugins.plants.genus import Genus
-    session = bauble.Session()
+    session = db.Session()
     ngen = session.query(Genus).filter_by(family_id=family.id).count()
     safe_str = utils.xml_safe_utf8(str(family))
     if ngen > 0:
@@ -71,13 +71,14 @@ def remove_callback(families):
     return True
 
 
-edit_action = Action('family_edit', ('_Edit'), callback=edit_callback,
-                     accelerator='<ctrl>e')
-add_species_action = Action('family_genus_add', ('_Add accession'),
-                              callback=add_genera_callback,
-                              accelerator='<ctrl>k')
-remove_action = Action('family_remove', ('_Remove'), callback=remove_callback,
-                       accelerator='<delete>', multiselect=True)
+edit_action = view.Action('family_edit', ('_Edit'), callback=edit_callback,
+                          accelerator='<ctrl>e')
+add_species_action = view.Action('family_genus_add', ('_Add accession'),
+                                 callback=add_genera_callback,
+                                 accelerator='<ctrl>k')
+remove_action = view.Action('family_remove', ('_Remove'),
+                            callback=remove_callback,
+                            accelerator='<delete>', multiselect=True)
 
 family_context_menu = [edit_action, add_species_action, remove_action]
 
@@ -130,7 +131,7 @@ class Family(db.Base):
     family = Column(String(45), nullable=False, index=True)
 
     # we use the blank string here instead of None so that the
-    # contrains will work properly,
+    # contraints will work properly,
     qualifier = Column(types.Enum(values=[u's. lat.', u's. str.', u'']),
                        default=u'')
 
@@ -647,7 +648,7 @@ class GeneralFamilyExpander(InfoExpander):
         '''
         self.current_obj = row
         self.set_widget_value('fam_name_data', '<big>%s</big>' % row)
-        session = bauble.Session()
+        session = db.Session()
         # get the number of genera
         ngen = session.query(Genus).filter_by(family_id=row.id).count()
         self.set_widget_value('fam_ngen_data', ngen)
@@ -740,10 +741,10 @@ class SynonymsExpander(InfoExpander):
 
 
 
-class LinksExpander(InfoExpander):
+class LinksExpander(view.LinksExpander):
 
     def __init__(self):
-        super(LinksExpander, self).__init__(_('Links'))
+        super(LinksExpander, self).__init__('notes')
         self.tooltips = gtk.Tooltips()
         buttons = []
         self.google_button = gtk.LinkButton("", _("Search Google"))
@@ -773,6 +774,7 @@ class LinksExpander(InfoExpander):
 
 
     def update(self, row):
+        super(LinksExpander, self).update(row)
         s = str(row)
         self.gbif_button.set_uri("http://data.gbif.org/search/%s" % \
                                  s.replace(' ', '+'))

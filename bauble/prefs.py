@@ -1,10 +1,13 @@
 #
 # prefs.py
 #
+import os
+import sys
 
-import sys, os
 import gtk
+
 import bauble
+import bauble.db as db
 #import bauble.utils as utils
 import bauble.paths as paths
 import bauble.pluginmgr as pluginmgr
@@ -336,7 +339,7 @@ class PrefsView(pluginmgr.View):
     def create_registry_view(self):
         #from bauble.pluginmgr import Registry
         from bauble.pluginmgr import PluginRegistry
-        session = bauble.Session()
+        session = db.Session()
         plugins = session.query(PluginRegistry.name, PluginRegistry.version)
         tree = self.create_tree([_('Name'), _('Version')],
                                 plugins)

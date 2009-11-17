@@ -32,7 +32,7 @@ def get_default(name, default=None, session=None):
     """
     commit = False
     if not session:
-        session = bauble.Session()
+        session = db.Session()
         commit = True
     query = session.query(BaubleMeta)
     meta = query.filter_by(name=name).first()
